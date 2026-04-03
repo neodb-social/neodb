@@ -523,3 +523,44 @@ class TestQidian:
         assert site.resource.item.display_title == "诡秘之主"
         assert isinstance(site.resource.item, Edition)
         assert site.resource.item.author[0] == "爱潜水的乌贼"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestStoryGraph:
+    def test_parse(self):
+        t_type = IdType.StoryGraph
+        t_id = "fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"
+        t_url = (
+            "https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"
+        )
+        p1 = SiteManager.get_site_by_url(t_url)
+        assert p1 is not None
+        assert p1.url == t_url
+        assert p1.ID_TYPE == t_type
+        assert p1.id_value == t_id
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = (
+            "https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"
+        )
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.ready is False
+        site.get_resource_ready()
+        assert site.ready is True
+        assert site.resource is not None
+        assert site.resource.site_name == SiteName.StoryGraph
+        assert site.resource.id_type == IdType.StoryGraph
+        assert site.resource.id_value == "fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        assert site.resource.item.display_title == "Hagakure: The Book of the Samurai"
+        assert "Yamamoto Tsunetomo" in site.resource.item.author
+        assert site.resource.item.pages == 179
+        assert site.resource.item.pub_year == 1716
+        assert site.resource.item.translator == ["William Scott Wilson"]
+        assert (
+            site.resource.metadata.get("cover_image_url")
+            == "https://cdn.thestorygraph.com/v5ww79cqwwzokciey1wj61u3wnbg"
+        )

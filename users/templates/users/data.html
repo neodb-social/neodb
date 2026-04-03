@@ -130,6 +130,59 @@
         </article>
         <article>
           <details>
+            <summary>{% trans 'Import from StoryGraph' %}</summary>
+            <form hx-post="{% url 'users:import_storygraph' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <ul>
+                <li>
+                  {% blocktrans %}On StoryGraph, click <a href="https://app.thestorygraph.com/user-export" target="_blank" rel="noopener"><b>Export your library</b></a> to download your library as a CSV file.{% endblocktrans %}
+                </li>
+                <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+                <li>
+                  {% trans 'want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported.' %}
+                </li>
+                <li>
+                  {% blocktrans %}Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import.{% endblocktrans %}
+                </li>
+              </ul>
+              <input type="file" name="file" required accept=".csv">
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="sg_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="sg_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="sg_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="sg_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="sg_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="sg_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              {% include "users/user_task_status.html" with task=storygraph_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans 'Import from Letterboxd' %}</summary>
             <form hx-post="{% url 'users:import_letterboxd' %}"
                   enctype="multipart/form-data">

@@ -1,0 +1,25 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "earthsea_test_id",
+      "volumeInfo": {
+        "title": "Tales from Earthsea",
+        "authors": ["Ursula K. Le Guin"],
+        "publishedDate": "2001",
+        "publisher": "Harcourt",
+        "pageCount": 314,
+        "language": "en",
+        "description": "Five stories set in the Earthsea universe.",
+        "imageLinks": {
+          "thumbnail": "https://books.google.com/books/content?id=earthsea_test_id&printsec=frontcover&img=1"
+        },
+        "industryIdentifiers": [
+          {"type": "ISBN_13", "identifier": "9780152047641"}
+        ]
+      }
+    }
+  ]
+}

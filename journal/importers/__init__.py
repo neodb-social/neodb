@@ -5,6 +5,7 @@ from .letterboxd import LetterboxdImporter
 from .ndjson import NdjsonImporter
 from .opml import OPMLImporter
 from .steam import SteamImporter
+from .storygraph import StoryGraphImporter
 
 __all__ = [
     "CsvImporter",
@@ -14,4 +15,5 @@ __all__ = [
     "DoubanImporter",
     "GoodreadsImporter",
     "SteamImporter",
+    "StoryGraphImporter",
 ]

@@ -1,0 +1,1528 @@
+<!DOCTYPE html><html class="system"><head><style type="text/css" data-tag-name="trix-editor">trix-editor {
+    display: block;
+}
+
+trix-editor:empty::before {
+    content: attr(placeholder);
+    color: graytext;
+    cursor: text;
+    pointer-events: none;
+    white-space: pre-line;
+}
+
+trix-editor a[contenteditable=false] {
+    cursor: text;
+}
+
+trix-editor img {
+    max-width: 100%;
+    height: auto;
+}
+
+trix-editor [data-trix-attachment] figcaption textarea {
+    resize: none;
+}
+
+trix-editor [data-trix-attachment] figcaption textarea.trix-autoresize-clone {
+    position: absolute;
+    left: -9999px;
+    max-height: 0px;
+}
+
+trix-editor [data-trix-attachment] figcaption[data-trix-placeholder]:empty::before {
+    content: attr(data-trix-placeholder);
+    color: graytext;
+}
+
+trix-editor [data-trix-cursor-target] {
+    display: inline-block !important;
+    width: 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+trix-editor [data-trix-cursor-target=left] {
+    vertical-align: top !important;
+    margin-left: -1px !important;
+}
+
+trix-editor [data-trix-cursor-target=right] {
+    vertical-align: bottom !important;
+    margin-right: -1px !important;
+}</style><style type="text/css" data-tag-name="trix-toolbar">trix-toolbar {
+  display: block;
+}
+
+trix-toolbar {
+  white-space: nowrap;
+}
+
+trix-toolbar [data-trix-dialog] {
+  display: none;
+}
+
+trix-toolbar [data-trix-dialog][data-trix-active] {
+  display: block;
+}
+
+trix-toolbar [data-trix-dialog] [data-trix-validate]:invalid {
+  background-color: #ffdddd;
+}</style><style type="text/css">.turbo-progress-bar {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #0076ff;
+  z-index: 2147483647;
+  transition:
+    width 300ms ease-out,
+    opacity 150ms 150ms ease-in;
+  transform: translate3d(0, 0, 0);
+}
+</style>
+      <script defer="" data-domain="app.thestorygraph.com" src="https://blue.thestorygraph.com/js/script.js"></script>
+
+    <title>Hagakure: The Book of the Samurai by Yamamoto Tsunetomo | The StoryGraph</title>
+    <meta name="csrf-param" content="authenticity_token">
+<meta name="csrf-token" content="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA">
+    
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+
+      <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@thestorygraph">
+  <meta property="og:title" content="Hagakure: The Book of the Samurai by Yamamoto Tsunetomo">
+  <meta property="og:url" content="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+    <meta property="og:description" content="Hagakure (&quot;In the Shadow of Leaves&quot;) is a manual for the samurai classes consisting of a series o...">
+    <meta property="og:image" content="https://cdn.thestorygraph.com/v5ww79cqwwzokciey1wj61u3wnbg">
+    <meta property="og:image:alt" content="Book cover for Hagakure: The Book of the Samurai by Yamamoto Tsunetomo">
+
+    <link rel="stylesheet" href="https://assets.thestorygraph.com/assets/tailwind-cba0702809d0376807f98eadf153c30a43e520ded67e45b6dc46ebb5c71bf263.css" data-turbo-track="reload">
+    <link rel="stylesheet" href="https://assets.thestorygraph.com/assets/application-485d487ced8940a63fc222b3af5e4038ca6e74689d88585e37cd5a04fbe2b6ef.css" data-turbo-track="reload">
+    <link rel="stylesheet" href="https://assets.thestorygraph.com/assets/actiontext-fda89fb985904aeef790c7726b37a19940dd37683d966e2bbd91f7a1f9df9d7b.css" media="all">
+    <link rel="stylesheet" href="https://assets.thestorygraph.com/assets/flatpickr-9eda924a2df0017cdb233fc4f8c6da2cc85013b0f0653c73d913d890f044482f.css" media="all">
+    <link rel="stylesheet" href="https://assets.thestorygraph.com/assets/flexmasonry-3b5985ab8f2474ca9faa251e6f078b60f7dc96d28c33ec89c2f41155dc757d6a.css" media="all">
+
+    <link rel="icon" type="image/x-icon" href="https://assets.thestorygraph.com/assets/favicon-e44d387265ecfbbf96b3a1935ed01834d1146a91d41711c1c773f933ec3c6916.ico">
+    <script src="https://assets.thestorygraph.com/assets/application-df86f010ba6d6144f42f5945825ba67f208ed0d348ad86adeee245d3e40844af.js"></script>
+    <script src="https://assets.thestorygraph.com/packs/js/application-8cd60bb5a925b975d014.js"></script>
+    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+      <link rel="manifest" href="/manifest.json">
+
+    <script data-turbo-cache="false">
+      if (navigator.userAgent.includes("Turbo Native")) {
+        var userThemeSetting = document.getElementById('cu_theme').value
+        if (navigator.userAgent.includes("Android")) {
+          Android.setUserThemeSetting(userThemeSetting);
+        } else {
+          window.webkit.messageHandlers.nativeAppViewController.postMessage({ type: 'themeSetting', user_id: userThemeSetting })
+        }
+      }
+
+      if (document.querySelector("html").classList.contains('system')) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          $("html").addClass("dark");
+        } else {
+          $("html").removeClass("dark");
+        }
+      }
+    </script>
+  <link id="freshworks-frame-styles" rel="stylesheet" href="https://euc-widget.freshworks.com/widgetBase/static/media/frame.d7ae132c.css"></head>
+
+  <body class="antialiased bg-white dark:bg-darkestGrey font-body text-darkestGrey dark:text-grey ">
+    <div class="min-h-screen bg-white dark:bg-darkestGrey">
+      <nav id="navbar" aria-label="Main" class="sticky z-1000 top-0 bg-white dark:bg-darkestGrey shadow dark:shadow-md ">
+          <div class="max-w-full mx-auto sm:px-6 lg:px-8">
+            <div class="flex justify-between h-8">
+              <div class="flex px-2 md:px-0">
+                <div class="ml-2 flex-shrink-0 flex items-center">
+                  <div id="logo-navbar">
+                    <div class="dark:hidden">
+                      <a aria-label="Go to The StoryGraph homepage" href="https://thestorygraph.com">
+                        <img alt="" role="img" aria-hidden="true" class="block h-6 w-6" src="https://assets.thestorygraph.com/assets/logo-no-text-7334be64b3d3a1652e2a4d9bc2ce2c12fdc48c879f4503e8fa702e1b57005e40.png">
+</a>                    </div>
+                    <div class="hidden dark:block">
+                      <a aria-label="Go to The StoryGraph homepage" href="https://thestorygraph.com">
+                        <img alt="" role="img" aria-hidden="true" class="block h-[40px] w-[40px]" src="https://assets.thestorygraph.com/assets/logo-no-text-dark-mode-89b2eccfe91d6f1f6d8bd3aaaa24fbd70ec45c7500804a351c7801459cf2d506.png">
+</a>                    </div>
+                  </div>
+                  <div id="pwa-back-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="button" class="block w-6 icon-cheveron-left-circle">
+                      <title>Go back</title>
+                      <circle cx="12" cy="12" r="10" class="fill-current text-white dark:text-darkestGrey"></circle><path class="fill-current text-darkestGrey dark:text-grey" d="M13.7 15.3a1 1 0 0 1-1.4 1.4l-4-4a1 1 0 0 1 0-1.4l4-4a1 1 0 0 1 1.4 1.4L10.42 12l3.3 3.3z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div class="hidden ml-4 xl:ml-6 xl:flex space-x-4 xl:space-x-8">
+                  <a class="hidden lg:inline-flex items-center px-1 pt-1 border-b-4 text-xs xl:text-sm font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:border-cyan-700 dark:hover:border-cyan-500" href="/browse?sort_order=Last+updated">Explore</a>
+                    <a class="inline-flex items-center px-1 pt-1 border-b-4 text-xs xl:text-sm font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:border-cyan-700 dark:hover:body-cyan-500" href="/reading_challenges">Challenges</a>
+                  <a class="inline-flex items-center px-1 pt-1 border-b-4 text-xs xl:text-sm font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:border-cyan-700 dark:hover:border-cyan-500" href="/news-feed">Community</a>
+                  <a class="inline-flex items-center px-1 pt-1 border-b-4 text-xs xl:text-sm font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:border-cyan-700 dark:hover:border-cyan-500" href="/giveaways">Giveaways</a>
+                    <a class="inline-flex items-center px-1 pt-1 border-b-4 text-xs xl:text-sm font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:border-cyan-700 dark:hover:border-cyan-500" href="/users/sign_in">Sign in</a>
+                </div>
+              </div>
+              <div class="flex-1 flex items-center justify-center px-2 md:px-0 xl:ml-6 xl:justify-end">
+                <div class="max-w-xl w-full xl:max-w-xs">
+                  <label for="search" class="sr-only">Search</label>
+                  <div id="search-all-books" class="relative items-center" data-controller="combobox">
+                    <form class="peer" data-turbo-frame="search_results" data-controller="form" data-action="invalid-&gt;form#hideValidationMessage:capture input-&gt;form#submit" action="/search?turbo_frame=search_results" accept-charset="UTF-8" method="get">
+                      <div class="absolute inset-y-0 right-1 pl-3 flex items-center cursor-pointer">
+                        <button name="button" type="submit" id="search-button" data-form-target="submit" hidden="">
+                          <svg class="h-5 w-5 text-cyan-600 dark:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" role="button" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                          </svg>
+</button>                      </div>
+                      <div class="clear-input hidden absolute inset-y-0 right-6 sm:right-7 pl-3 flex items-center cursor-pointer" data-form-target="clear" style="right: 4px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-600 dark:text-cyan-400" viewBox="0 0 20 20" role="button" fill="currentColor">
+                          <title>Clear search input</title>
+                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                      </div>
+                      <input type="search" name="search_term" id="search" pattern="^(?! *$).+" required="required" autocomplete="off" placeholder="Search all books..." class="search-field block w-full md:ml-5 pl-3 pr-6 sm:pr-7 py-2 border-2 border-darkGrey dark:border-darkerGrey rounded-md leading-5 bg-white dark:bg-darkestGrey placeholder-darkerGrey focus:outline-none focus:placeholder-darkerGrey focus:ring-1 focus:ring-cyan-600 dark:focus:ring-cyan-400 focus:border-cyan-600 dark:focus:border-cyan-400 text-sm md:text-xs lg:text-sm font-body" data-combobox-target="input" data-action="focus-&gt;combobox#start focusout-&gt;combobox#stop" role="combobox" aria-controls="search_results" aria-expanded="true" aria-autocomplete="list" aria-haspopup="listbox">
+                      <turbo-frame id="search_results" target="_top" class="empty:hidden peer-invalid:hidden" data-combobox-target="list">
+                      </turbo-frame>
+</form>                  </div>
+                </div>
+              </div>
+              <div class="flex items-center px-2 xl:hidden">
+                <!-- Mobile menu button -->
+                <button id="toggle-mobile-menu" class="inline-flex items-center justify-center p-2 rounded-md text-darkestGrey dark:text-grey hover:text-cyan-700 dark:hover:text-cyan-500 focus:outline-none" aria-expanded="false">
+                  <span class="sr-only" id="menu-button-text">Open main menu</span>
+                  <!-- Icon when menu is closed. -->
+                  <!--
+                    Heroicon name: menu
+
+                    Menu open: "hidden", Menu closed: "block"
+                  -->
+                  <div class="relative">
+                    <svg id="open-mobile-menu" class="block h-6 w-6 text-darkestGrey dark:text-grey hover:text-cyan-700 dark:hover:text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" role="button" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                  </div>
+                  <!-- Icon when menu is open. -->
+                  <!--
+                    Heroicon name: x
+
+                    Menu open: "block", Menu closed: "hidden"
+                  -->
+                  <svg id="close-mobile-menu" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" role="button" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="hidden md:ml-4 xl:flex md:items-center">
+                <!-- Profile dropdown -->
+              </div>
+            </div>
+          </div>
+
+          <!--
+            Mobile menu, toggle classes based on menu state.
+
+            Menu open: "block", Menu closed: "hidden"
+          -->
+          <div id="mobile-menu" class="hidden">
+            <div class="pt-2 pb-3 space-y-1">
+              <a class="mobile-menu-item  block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cyan-500 hover:text-white dark:hover:text-darkestGrey" href="/browse?sort_order=Last+updated">Explore</a>
+                  <a class="native-tabs-hidden mobile-menu-item block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cyan-500 hover:text-white dark:hover:text-darkestGrey" href="/reading_challenges">Challenges</a>
+                <a class="native-tabs-hidden mobile-menu-item  block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cyan-500 hover:text-white dark:hover:text-darkestGrey" href="/news-feed">Community</a>
+              <a class="mobile-menu-item block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cyan-500 hover:text-white dark:hover:text-darkestGrey" href="/giveaways">Giveaways</a>
+                <a class="mobile-menu-item block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cayn-500 hover:text-white dark:hover:text-darkestGrey" href="/users/sign_in">Sign in</a>
+              <a class="mobile-menu-item block pl-3 pr-4 py-2 border-l-4 text-body font-semibold font-body border-transparent text-darkestGrey dark:text-grey hover:bg-cyan-600 dark:hover:bg-cyan-400 hover:border-cyan-700 dark:hover:border-cyan-500 hover:text-white dark:hover:text-darkestGrey" href="/contact-us">Contact us</a>
+            </div>
+          </div>
+      </nav>
+
+
+      <div class="py-4 sm:py-3">
+        <main>
+          <div class="max-w-8xl mx-auto px-5 sm:px-6 lg:px-8">
+
+
+
+            <div id="camera-modal" class="hidden fixed inset-0 z-[1001] bg-white dark:bg-darkestGrey bg-opacity-95 flex flex-col justify-between p-4 sm:p-6 overflow-hidden [padding-top:env(safe-area-inset-top)] [padding-bottom:env(safe-area-inset-bottom)]" aria-labelledby="modal-title" role="dialog" aria-modal="true" data-controller="barcode-scanner">
+              <div class="mt-2 flex justify-end z-[1002]">
+                <button data-action="click-&gt;barcode-scanner#closeCameraModal">
+                  <svg class="icon icon-baseline w-5" viewBox="0 0 23 23" role="button">
+                    <title>Close pane</title>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close-circle">
+                      <circle cx="12" cy="12" r="10" class="text-cyan-700 dark:text-cyan-500 stroke-current" fill="none" stroke-width="2"></circle>
+                      <path class="text-cyan-700 dark:text-cyan-500 fill-current" d="M13.41 12l2.83 2.83a1 1 0 0 1-1.41 1.41L12 13.41l-2.83 2.83a1 1 0 1 1-1.41-1.41L10.59 12 7.76 9.17a1 1 0 0 1 1.41-1.41L12 10.59l2.83-2.83a1 1 0 0 1 1.41 1.41L13.41 12z" stroke-width="2"></path>
+                    </svg>
+                  </svg>
+                </button>
+              </div>
+
+              <div id="camera-container" data-in-ios-native-app="" data-in-android-native-app="" class="flex-1 flex flex-col items-center justify-center text-center -translate-y-5">
+                <p class="text-center font-semibold my-4">
+                Take a photo of a barcode or cover
+                </p>
+
+                <video id="camera-preview" class="rounded-md max-w-full max-h-[60vh] object-contain mb-4" playsinline="" autoplay="" muted=""></video>
+
+                <canvas id="captured-image" class="hidden rounded-md max-w-full max-h-[60vh] object-contain mb-4"></canvas>
+
+                <button id="capture-button" class="primary-btn mb-3" data-action="click-&gt;barcode-scanner#captureImage">
+                  Capture
+                </button>
+
+                <button type="button" id="use-native-camera-button" class="underline text-sm" data-owned="false" data-action="click-&gt;barcode-scanner#triggerNativeCamera">
+                  Use Phone Camera
+                </button>
+                <input type="file" id="native-camera-upload" accept="image/*" capture="environment" class="hidden" data-action="change-&gt;barcode-scanner#handleNativeUpload">
+              </div>
+            </div>
+
+            
+
+  <turbo-frame id="hidden-personalized-preview" src="/personalized-preview.turbo_stream?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;personalized=false" data-src-template="/personalized-preview.turbo_stream?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;personalized=false" data-turbo-frame="hidden-personalized-preview">
+  </turbo-frame>
+  <div id="hidden-spinner" class="hidden">
+    <img alt="Loading..." title="Loading..." class="inline" src="https://assets.thestorygraph.com/assets/loading-more-books-e83dbe75bc95c6b583d268502a429fa91874de360d82654816e40b39842ac3a9.svg">
+  </div>
+
+
+<div class="hidden lg:block container mx-auto max-w-6xl my-6">
+  <svg id="share-button" data-share-title="Hagakure: The Book of the Samurai" class="w-4 share-icon book-share-icon hidden" viewBox="0 0 24 24" role="button"><title>Share this book page</title><svg class="hidden dark:inline" id="share-icon" width="24" height="24" fill="none">
+<path fill="none" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14" undefined="1"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M12 17V2"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M7 7L12 2L17 7"></path>
+</svg>
+
+<svg class="inline dark:hidden" id="share-icon" width="24" height="24" fill="none">
+<path fill="none" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14" undefined="1"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M12 17V2"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M7 7L12 2L17 7"></path>
+</svg>
+</svg>
+  <div class="grid grid-cols-3 lg:grid-cols-4 gap-7">
+    <div class="col-span-1">
+      <div class="text-center max-w-3xl mb-5">
+          <div class="book-cover">
+            <img alt="Hagakure: The Book of the Samurai by Yamamoto Tsunetomo" class="rounded-sm shadow-lg dark:shadow-darkerGrey/40 inline" src="https://cdn.thestorygraph.com/rjtkflxgt8uk31rrevplojaf2jsp">
+          </div>
+      </div>
+
+      <div class="mt-2 lg:mt-6">
+  <p>
+  <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/similar">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"></path>
+    </svg>
+    Browse Similar Books
+</a>  </p>
+</div>
+
+<div class="section user-interactions mt-4">
+  <div>
+    <p>
+    <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/book_club_questions?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2"> <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712 -.203.179-.43.326-.67.442 -.745.361-1.45.999-1.45 1.827v.75 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"></path> </svg>
+      View Question Bank
+</a>    </p>
+  </div>
+</div>
+
+  <div class="lg:hidden mt-4">
+    <button class="toggle-affiliate-links w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B] border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey cursor-pointer" title="Buy" aria-label="Reveal affiliate links to buy book" data-affiliate-target="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+      </svg>
+      Buy
+    </button>
+    <div class="affiliate-links hidden mt-4" data-affiliate-id="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><div class="mt-4 text-center text-sm">
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://bookshop.org/beta-search?affiliate=14456&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop US</a></p>
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://uk.bookshop.org/beta-search?affiliate=159&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop UK</a></p>
+  <div class="hidden lg:block">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links. We earn commission on any purchases made.</p>
+  </div>
+  <div class="block lg:hidden">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links.<br>We earn commission on any purchases made.</p>
+  </div>
+</div>
+</div>
+  </div>
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">Read With Others</p>
+
+<div class="section readalong-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+  <div class="text-[13px]">
+    <p class="!leading-6">
+    <a class="new-readalong-link standard-link underline" href="/readalongs/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Readalong</a>
+    </p>
+  </div>
+
+
+
+  <div class="mt-2 lg:mt-3 text-[13px]">
+    <p>
+    <a class="new-buddy-read-link standard-link underline" href="/buddy_reads/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Buddy Read</a>
+    </p><div class="buddy-read-loading" style="display: none;"></div>
+    <p></p>
+  </div>
+
+</div>
+
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">
+Book Information
+</p>
+
+<div class="section book-info-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+
+    <div class="mb-3 text-[13px]">
+      <p class="!leading-6">
+      <a class="standard-link underline" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/add_missing_info">Add Missing Information</a>
+      </p>
+    </div>
+
+  <div class="mt-1 text-[13px]">
+    <p class="!leading-6">
+    <a class="standard-link underline" href="/book_tickets/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Report Missing/Incorrect Information</a>
+    </p>
+  </div>
+</div>
+
+    </div>
+
+    <div class="col-span-2">
+      <div class="book-title-author-and-series">
+
+        <h3 class="font-semibold text-2xl md:w-11/12 inline items-center">
+          Hagakure: The Book of the Samurai
+        </h3>
+
+
+        <p class="font-body font-medium mb-1 text-base md:text-lg md:w-11/12">
+        <a class="hover:text-cyan-700 dark:hover:text-cyan-500" href="/authors/798fadea-7226-4385-af64-5250c5eda073">Yamamoto Tsunetomo</a>
+          <span class="font-normal">with</span> <a class="hover:text-cyan-700 dark:hover:text-cyan-500" href="/authors/07c29a51-b2d6-4b9d-b45a-c330dec994d9">William Scott Wilson</a> <span class="font-normal">(Translator)</span>
+        </p></div>
+
+        <p class="text-sm font-light text-darkestGrey dark:text-grey mt-1">
+          <span class="toggle-edition-info-link cursor-pointer transition-colors duration-200" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">179 pages</span>
+        <span class="toggle-edition-info-link cursor-pointer transition-colors duration-200" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><span class="text-darkerGrey dark:text-lightGrey"> • </span>paperback<span class="whitespace-nowrap"><span class="text-darkerGrey dark:text-lightGrey"> • </span>first pub 1716 <svg aria-hidden="true" focusable="false" class="inline w-3 h-3 transition-all duration-200 edition-chevron -ml-0.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+</span></span>
+        <span class="text-darkerGrey dark:text-lightGrey mr-1"> • </span>
+          <a class="browse-editions-link text-sm text-darkestGrey dark:text-grey cursor-pointer hover:text-cyan-700 dark:hover:text-cyan-500 underline decoration-darkerGrey dark:decoration-lightGrey hover:decoration-cyan-700 dark:hover:decoration-cyan-500 mt-1 pb-1 " href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/editions">63 editions</a>
+                </p>
+
+        <div class="hidden edition-info mt-3" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+          <p class="text-sm"><span class="font-semibold">ISBN/UID:</span>  4770026129</p>
+          <p class="text-sm"><span class="font-semibold">Format:</span> Paperback</p>
+          <p class="text-sm"><span class="font-semibold">Language:</span> English</p>
+          <p class="text-sm"><span class="font-semibold">Publisher:</span> Not specified</p>
+          <p class="text-sm"><span class="font-semibold">Edition Pub Date:</span> Not specified</p>
+        </div>
+
+        <div class="mt-2 my-1 md:w-10/12">
+            <div class="book-page-tag-section relative" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">nonfiction</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">history</span>
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">philosophy</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">informative</span>
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">reflective</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 border border-darkGrey dark:border-darkerGrey rounded-sm mt-1.5 sm:mt-2 mr-1 sm:mr-0.5 py-1 sm:py-0.5 px-2 sm:px-2">slow-paced</span>
+
+  </div>
+
+        </div>
+
+        <div id="storygraph-preview-pane-desktop" class="storygraph-preview-pane">
+              <div class="mt-6 pb-2 mb-5 standard-pane book-pane blurb-pane break-words">
+                <div class="border-b border-darkGrey">
+                  <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                    <a href="#" data-personalized="false" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="cursor-default pointer-events-none whitespace-nowrap border-b-2 border-cyan-700 dark:border-cyan-500 text-cyan-700 dark:text-cyan-500 px-1 uppercase font-medium">Who's It For?</a>
+                    <a href="#" data-personalized="true" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="border-transparent whitespace-nowrap border-b-2 px-1 font-light text-sm uppercase">Personalized</a>
+                  </nav>
+                </div>
+                <span title="This preview has been generated just for you using machine learning" class="mb-5 inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">
+                  Powered by AI (Beta)
+                </span><br>
+                <turbo-frame id="personalized-preview-desktop-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="contents">
+  Log in, and then opt in, to see a short description of the type of reader this book is a good fit for. You will also get a unique-to-you analysis based on your reading history and preferences.
+</turbo-frame>
+              </div>
+        </div>
+
+          <div class="mt-6 pb-2 mb-5 standard-pane book-pane blurb-pane break-words">
+            <h4 class="section-heading uppercase">Description</h4>
+              <p class="trix-content mt-3">Hagakure ("In the Shadow of Leaves") is a manual for the samurai classes consisting of a series of short anecdotes and reflections that give both insight and instruction-in the philosophy and code of behavior that foster the true spirit of Bushido...</p>
+              <p class="mb-4"><a id="read-more-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="read-more-btn inverse-link font-semibold mb-4" href="">Show More</a></p>
+          </div>
+          <script>
+            $('.read-more-btn').on('click', function(e) {
+              e.preventDefault()
+              $(this).parent().parent().html('<h4 class="section-heading uppercase">Description</h4><div class="trix-content mt-3"><div>\n<em>Hagakure<\/em> (\"In the Shadow of Leaves\") is a manual for the samurai classes consisting of a series of short anecdotes and reflections that give both insight and instruction-in the philosophy and code of behavior that foster the true spirit of Bushido-the Way of the Warrior. It is not a book of philosophy as most would understand the word: it is a collection of thoughts and sayings recorded over a period of seven years, and as such covers a wide variety of subjects, often in no particular sequence. <br><br>The work represents an attitude far removed from our modern pragmatism and materialism, and possesses an intuitive rather than rational appeal in its assertion that Bushido is a Way of Dying, and that only a samurai retainer prepared and willing to die at any moment can be totally true to his lord. While <em>Hagakure<\/em> was for many years a secret text known only to the warrior vassals of the Hizen fief to which the author belonged, it later came to be recognized as a classic exposition of samurai thought and came to influence many subsequent generations, including Yukio Mishima. <br><br>This translation offers 300 selections that constitute the core texts of the 1,300 present in the original. <br><em>Hagakure<\/em> was featured prominently in the film <em>Ghost Dog<\/em>, by Jim Jarmusch.<\/div></div>')
+            })
+          </script>
+
+        <turbo-frame id="community_reviews" src="https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/community_reviews" target="_top" complete="">
+      <div class="mb-6 lg:mb-0 mt-6 px-2 lg:px-unset sm:!pt-[30px] !pb-[15px] sm:!pb-7  lg:standard-pane lg:block book-pane break-words">
+        <h3 class="community-reviews-heading section-heading uppercase">Community Reviews</h3>
+              <div class="flex items-center gap-3 mt-4" aria-label="Book rating: 3.64 out of 5 stars based on 840 reviews">
+              <span class="average-star-rating font-semibold text-[40px] text-cyan-700 dark:text-cyan-500">
+                3.64
+              </span>
+              <div class="flex flex-col pt-[0.5px]">
+                <div class="flex gap-1">
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <div class="relative w-[26px] h-[26px]" aria-hidden="true">
+                          <svg class="w-[26px] h-[26px] absolute top-0 left-0 z-0 text-midGrey dark:text-darkerGrey" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                          </svg>
+                          <div class="overflow-hidden absolute top-0 left-0" style="width: 64%;">
+                            <svg class="w-[26px] h-[26px]" fill="#FFDB77" viewBox="0 0 24 24">
+                              <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                      <svg class="w-[26px] h-[26px] text-midGrey dark:text-darkerGrey" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                      </svg>
+                </div>
+                <span class="text-sm font-medium mt-0.5 ml-[5px] text-darkerGrey dark:text-darkGrey">
+                  based on <a class="inverse-link underline" href="/book_reviews/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">840 reviews</a>
+                </span>
+              </div>
+            </div>
+
+          <p class="review-question mt-4 font-semibold uppercase text-[15px]">Moods</p>
+          <div class="mt-2 moods-list-reviews text-sm flex flex-wrap gap-x-4 gap-y-1.5">
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">informative</span>: 73%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">reflective</span>: 69%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">inspiring</span>: 30%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">challenging</span>: 26%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">adventurous</span>: 14%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">relaxing</span>: 9%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">dark</span>: 7%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">funny</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">sad</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">tense</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">emotional</span>: 2%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">lighthearted</span>: 2%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">mysterious</span>: 2%</p>
+              </div>
+          </div>
+
+          <hr class="text-midGrey dark:text-darkerGrey my-6">
+
+            <div class="w-full">
+              <p class="text-center font-semibold mb-2">Pace</p>
+              <div class="flex gap-1 h-[26px] mb-1">
+              <div class="bg-[#FFA602] rounded-l-full  relative" style="width:26%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-blackish">
+                  <span aria-hidden="true">26%</span>
+                  <span class="sr-only">26% of readers chose fast</span>
+                </span>
+              </div>
+              <div class="bg-[#D23A53] dark:bg-[#D0475D]   relative" style="width:36%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-white">
+                  <span aria-hidden="true">36%</span>
+                  <span class="sr-only">36% of readers chose medium</span>
+                </span>
+              </div>
+              <div class="bg-[#591B5C] dark:bg-[#742378]  rounded-r-full relative" style="width:36%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-white">
+                  <span aria-hidden="true">36%</span>
+                  <span class="sr-only">36% of readers chose slow</span>
+                </span>
+              </div>
+              </div>
+            </div>
+
+            <div class="mt-3 flex justify-center gap-4 text-xs text-darkerGrey dark:text-darkGrey">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#FFA602] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">fast</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#D23A53] dark:bg-[#D0475D] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">medium</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#591B5C] dark:bg-[#742378] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">slow</span>
+                </div>
+            </div>
+
+
+      </div>
+</turbo-frame>
+        <turbo-frame id="content_warnings_section" src="https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/content_warnings_section" target="_top" complete="">
+    <div class="mb-6 lg:mb-0 mt-6 px-2 lg:px-unset lg:standard-pane inline-block lg:block book-pane break-words">
+      <h3 class="section-heading uppercase mb-0">Content Warnings</h3>
+        <p class="text-sm mb-4 text-darkerGrey dark:text-darkGrey">Submitted by users as part of their reviews</p>
+        <div class="content-warning-information">
+          <div class="toggle-content-warnings-information-book cursor-pointer dark:hidden">
+            <svg class="icon chevron-right content-warnings w-6 -ml-2 inline" viewBox="0 0 20 20" role="button"><title>Expand filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-right"><path class="secondary" d="M10.3 8.7a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4l3.29-3.3-3.3-3.3z"></path></svg>
+            </svg>
+            <svg class="hidden inline icon chevron-down content-warnings -ml-2  w-6" viewBox="0 0 20 20" role="button"><title>Collapse filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-down"><path class="secondary" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+            <span class="cursor-pointer font-semibold mb-4">View Summary</span>
+          </div>
+          <div class="toggle-content-warnings-information-book cursor-pointer hidden dark:inline">
+            <svg class="icon chevron-right content-warnings w-6 -ml-2 inline" stroke="#f5f5f5" viewBox="0 0 20 20" role="button"><title>Expand filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="#f5f5f5" fill="#f5f5f5" class="icon-cheveron-right"><path class="secondary" d="M10.3 8.7a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4l3.29-3.3-3.3-3.3z"></path></svg>
+            </svg>
+            <svg class="hidden inline icon chevron-down content-warnings -ml-2  w-6" stroke="#f5f5f5" viewBox="0 0 20 20" role="button"><title>Collapse filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="#f5f5f5" fill="#f5f5f5" class="icon-cheveron-down"><path class="secondary" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+            <span class="cursor-pointer font-semibold mb-4">View Summary</span>
+          </div>
+          <div class="hidden content-warnings-information mt-2 text-[15px]">
+              <p class="font-semibold">Graphic</p>
+              Suicide, Violence<br>
+              <p class="mt-4 font-semibold">Moderate</p>
+              Suicide attempt, War<br>
+              <p class="mt-4 font-semibold">Minor</p>
+              Gore
+            <br>
+            <p class="mt-5">
+            <a class="text-xs primary-btn py-1 pr-1 inline-flex items-center" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/content_warnings">
+              View all
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5"></path>
+              </svg>
+</a>            </p>
+          </div>
+        </div>
+            <p></p>
+    </div>
+</turbo-frame>    </div>
+
+    <div class="hidden lg:block col-span-1">
+      <div class="on-book-page action-menu action-menu-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+  <div class="w-full">
+    <div class="inline margin-auto">
+
+
+      <div class="inline-block relative w-full" data-controller="remove-book">
+          <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=to-read"><button data-disable-with="Adding..." data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button rounded-l-sm border-r border-r-white dark:border-r-darkestGrey w-full text-sm text-left" title="Add to your To-Read Pile" aria-label="Add to your To-Read Pile" type="submit">
+            to read
+</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>        <div class="dropdown inline right-0 top-0 border-l border-white dark:border-darkestGrey hover:border-cyan-700 dark:hover:border-cyan-500 text-sm">
+          <button class="btn-dropdown expand-dropdown-button" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <svg class="h-5 inline-block" role="button" viewBox="0 0 24 24" aria-label="Expand dropdown menu"><title>Expand dropdown menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-down"><path class="text-white dark:text-darkestGrey fill-current" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a 1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+          </button>
+            <div class="dropdown-content read-status-dropdown-content" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=read"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button w-max" title="Mark as read" aria-label="Mark as read" type="submit">read</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=currently-reading"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button border border-cyan-600 dark:border-cyan-400 w-max" title="Mark as currently reading" aria-label="Mark as currently reading" type="submit">currently reading</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=did-not-finish"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button border border-cyan-600 dark:border-cyan-400 w-max" title="Mark as did not finish" aria-label="Mark as did not finish" type="submit">did not finish</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+            </div>
+        </div>
+        <div data-remove-book-target="modal" data-action="click-&gt;remove-book#closeOnOutsideClick keydown@window-&gt;remove-book#closeOnEscape" class="hidden fixed inset-0 z-1000 flex items-center justify-center bg-black bg-opacity-50">
+     <div class="bg-white dark:bg-darkestGrey rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+
+       <!-- Tags Question Version -->
+       <div data-remove-book-target="tagsQuestion" class="hidden">
+         <h3 class="text-lg font-semibold mb-4">
+           Remove Book
+         </h3>
+         <p class="mb-2">
+         You have tagged this book. Do you also want to remove the tags?
+         </p>
+         <p class="text-sm italic mb-6">
+         Your reading history and any review will be deleted either way.
+         </p>
+         <div class="flex flex-col sm:flex-row gap-3">
+           <button type="button" data-action="click-&gt;remove-book#removeWithoutTags" class="inline text-center text-sm flex-1 text-center mt-0 secondary-btn-new">
+                   No, keep my tags
+           </button>
+           <button type="button" data-action="click-&gt;remove-book#removeWithTags" class="flex-1 text-sm primary-btn">
+                   Yes, remove my tags
+           </button>
+         </div>
+         <button type="button" data-action="click-&gt;remove-book#closeModal" class="w-full mt-5 inverse-link ">
+                 Cancel
+         </button>
+       </div>
+
+       <!-- Standard Confirm Version (no tags) -->
+       <div data-remove-book-target="standardConfirm" class="hidden">
+         <h3 class="text-lg font-semibold mb-4">
+           Remove Book
+         </h3>
+         <p class="mb-2">
+         Are you sure you want to remove this book from your lists?
+         </p>
+
+         <p class="italic mb-2">
+         Your reading history and any review will be deleted.
+         </p>
+         <div>
+           <button type="button" data-action="click-&gt;remove-book#confirmStandardRemove" class="mt-5 inline-block w-full primary-btn">
+                   Yes, remove book
+           </button>
+           <button type="button" data-action="click-&gt;remove-book#closeModal" class="inline-block w-full mt-4 inverse-link ">
+                   Cancel
+           </button>
+         </div>
+       </div>
+     </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-action-menu w-full text-sm lg:text-xs" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+        <form class="button_to" method="post" action="/add-to-up-next?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><button class="add-to-up-next-btn w-full text-left text-sm lg:text-xs text-darkerGrey dark:text-white" title="Add to your Up Next Queue" aria-label="Add to your Up Next Queue" type="submit">
+          <div class="py-1 lg:py-2 px-2 border-x-2 border-x-darkGrey dark:border-x-darkerGrey border-t-2 border-b-2 border-y border-y-darkGrey dark:border-y-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 lg:w-4 inline align-middle mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="btn-text align-middle text-[13px]">add to "up next"</span>
+          </div>
+</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+
+
+
+
+
+
+    <!-- Favorites - Desktop only -->
+    <div class="hidden lg:block js-book-favorite-toggle-desktop">
+        <a data-method="post" class="w-full text-left text-xs text-darkerGrey dark:text-white add-to-favorites-link" data-remote="true" href="/favorites/add/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175?from_book_page=true">
+          <div class="mt-4 w-full text-center text-sm lg:text-xs text-darkerGrey dark:text-white px-1 py-2 border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-[20px] inline align-middle -ml-1" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" class="fill-current text-transparent"></circle>
+              <path class="fill-current text-transparent stroke-2 stroke-darkerGrey dark:stroke-lightGrey" d="M9.53 16.93a1 1 0 0 1-1.45-1.05l.47-2.76-2-1.95a1 1 0 0 1 .55-1.7l2.77-.4 1.23-2.51a1 1 0 0 1 1.8 0l1.23 2.5 2.77.4a1 1 0 0 1 .55 1.71l-2 1.95.47 2.76a1 1 0 0 1-1.45 1.05L12 15.63l-2.47 1.3z"></path>
+            </svg>
+            <span class="link-text align-middle">add to favorites</span>
+          </div>
+</a>    </div>
+
+    <div class="mt-3 lg:mt-4 font-semibold">
+      <div class="flex lg:gap-2">
+          <a class="mark-as-owned-link flex-grow text-sm lg:text-xs text-darkerGrey dark:text-white px-4 py-1.5 lg:py-2 rounded-sm border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey text-center" title="Mark as owned" aria-label="Mark as owned" rel="nofollow" data-method="post" href="/mark-as-owned?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <span class="link-text">mark as owned</span>
+</a>
+          <button class="toggle-affiliate-links hidden lg:inline-block cursor-pointer text-sm lg:text-xs text-darkerGrey dark:text-white px-4 py-2 rounded-sm border-[1.5px] border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey text-center" title="Buy" aria-label="Reveal affiliate links to buy book" data-affiliate-target="desktop-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <span>buy</span>
+          </button>
+      </div>
+    </div>
+
+    <div class="affiliate-links hidden mt-4" data-affiliate-id="desktop-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><div class="mt-4 text-center text-sm">
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://bookshop.org/beta-search?affiliate=14456&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop US</a></p>
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://uk.bookshop.org/beta-search?affiliate=159&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop UK</a></p>
+  <div class="hidden lg:block">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links. We earn commission on any purchases made.</p>
+  </div>
+  <div class="block lg:hidden">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links.<br>We earn commission on any purchases made.</p>
+  </div>
+</div>
+</div>
+
+
+    <div class="mt-3 mb-1 block lg:hidden">
+      <details class="group block">
+        <summary class="flex items-center gap-2 cursor-pointer list-none font-semibold text-blackish dark:text-white uppercase text-sm [&amp;::-webkit-details-marker]:hidden !border-none">
+          More Options
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 transition-transform group-open:rotate-90">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+          </svg>
+        </summary>
+        <div class="mt-2">
+          <div class="mb-3 js-book-favorite-toggle-mobile">
+              <a data-method="post" class="w-full text-left text-xs text-darkerGrey dark:text-white add-to-favorites-link" data-remote="true" href="/favorites/add/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175?from_book_page=true">
+                <div class="w-full text-center text-sm text-darkerGrey dark:text-white px-1 py-2 border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-[20px] inline align-middle -ml-1" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" class="fill-current text-transparent"></circle>
+                    <path class="fill-current text-transparent stroke-2 stroke-darkerGrey dark:stroke-lightGrey" d="M9.53 16.93a1 1 0 0 1-1.45-1.05l.47-2.76-2-1.95a1 1 0 0 1 .55-1.7l2.77-.4 1.23-2.51a1 1 0 0 1 1.8 0l1.23 2.5 2.77.4a1 1 0 0 1 .55 1.71l-2 1.95.47 2.76a1 1 0 0 1-1.45 1.05L12 15.63l-2.47 1.3z"></path>
+                  </svg>
+                  <span class="link-text align-middle">add to favorites</span>
+                </div>
+</a>          </div>
+
+          <div class="mt-2 lg:mt-6">
+  <p>
+  <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/similar">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"></path>
+    </svg>
+    Browse Similar Books
+</a>  </p>
+</div>
+
+<div class="section user-interactions mt-4">
+  <div>
+    <p>
+    <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/book_club_questions?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2"> <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712 -.203.179-.43.326-.67.442 -.745.361-1.45.999-1.45 1.827v.75 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"></path> </svg>
+      View Question Bank
+</a>    </p>
+  </div>
+</div>
+
+  <div class="lg:hidden mt-4">
+    <button class="toggle-affiliate-links w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B] border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey cursor-pointer" title="Buy" aria-label="Reveal affiliate links to buy book" data-affiliate-target="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+      </svg>
+      Buy
+    </button>
+    <div class="affiliate-links hidden mt-4" data-affiliate-id="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><div class="mt-4 text-center text-sm">
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://bookshop.org/beta-search?affiliate=14456&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop US</a></p>
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://uk.bookshop.org/beta-search?affiliate=159&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop UK</a></p>
+  <div class="hidden lg:block">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links. We earn commission on any purchases made.</p>
+  </div>
+  <div class="block lg:hidden">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links.<br>We earn commission on any purchases made.</p>
+  </div>
+</div>
+</div>
+  </div>
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">Read With Others</p>
+
+<div class="section readalong-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+  <div class="text-[13px]">
+    <p class="!leading-6">
+    <a class="new-readalong-link standard-link underline" href="/readalongs/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Readalong</a>
+    </p>
+  </div>
+
+
+
+  <div class="mt-2 lg:mt-3 text-[13px]">
+    <p>
+    <a class="new-buddy-read-link standard-link underline" href="/buddy_reads/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Buddy Read</a>
+    </p><div class="buddy-read-loading" style="display: none;"></div>
+    <p></p>
+  </div>
+
+</div>
+
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">
+Book Information
+</p>
+
+<div class="section book-info-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+
+    <div class="mb-3 text-[13px]">
+      <p class="!leading-6">
+      <a class="standard-link underline" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/add_missing_info">Add Missing Information</a>
+      </p>
+    </div>
+
+  <div class="mt-1 text-[13px]">
+    <p class="!leading-6">
+    <a class="standard-link underline" href="/book_tickets/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Report Missing/Incorrect Information</a>
+    </p>
+  </div>
+</div>
+
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+
+
+    </div>
+  </div>
+</div>
+
+<div class="block lg:hidden container px-0 mx-auto">
+  <svg id="share-button" data-share-title="Hagakure: The Book of the Samurai" class="w-4 share-icon book-share-icon hidden" viewBox="0 0 24 24" role="button"><title>Share this book page</title><svg class="hidden dark:inline" id="share-icon" width="24" height="24" fill="none">
+<path fill="none" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14" undefined="1"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M12 17V2"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#FAFAFA" d="M7 7L12 2L17 7"></path>
+</svg>
+
+<svg class="inline dark:hidden" id="share-icon" width="24" height="24" fill="none">
+<path fill="none" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14" undefined="1"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M22 14V21C22 21.55 21.55 22 21 22H3C2.45 22 2 21.55 2 21V14"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M12 17V2"></path>
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="#666" d="M7 7L12 2L17 7"></path>
+</svg>
+</svg>
+  <div class="mt-2 grid grid-cols-6 gap-4 items-start">
+    <div class="col-span-2" data-controller="cover-zoom" data-action="keydown@window-&gt;cover-zoom#closeOnEscape">
+      <div class="text-center max-w-3xl mb-4">
+          <div class="book-cover cursor-pointer md:cursor-default" data-action="click-&gt;cover-zoom#open">
+            <img alt="Hagakure: The Book of the Samurai by Yamamoto Tsunetomo" class="rounded-sm shadow-lg dark:shadow-darkerGrey/40 inline w-[104px] min-[400px]:w-[120px] min-[520px]:w-[136px] sm:w-[148px]" src="https://cdn.thestorygraph.com/rjtkflxgt8uk31rrevplojaf2jsp">
+          </div>
+
+          <div data-cover-zoom-target="modal" data-action="click-&gt;cover-zoom#close" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4" style="z-index:2147483002;">
+            <button data-close="" class="absolute top-9 right-4">
+              <svg class="icon icon-baseline w-5" viewBox="0 0 23 23" role="button">
+                <title>Close pane</title>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close-circle">
+                  <circle cx="12" cy="12" r="10" class="text-cyan-700 dark:text-cyan-500 stroke-current" fill="none" stroke-width="2"></circle>
+                  <path class="text-cyan-700 dark:text-cyan-500 fill-current" d="M13.41 12l2.83 2.83a1 1 0 0 1-1.41 1.41L12 13.41l-2.83 2.83a1 1 0 1 1-1.41-1.41L10.59 12 7.76 9.17a1 1 0 0 1 1.41-1.41L12 10.59l2.83-2.83a1 1 0 0 1 1.41 1.41L13.41 12z" stroke-width="2"></path>
+                </svg>
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+            <img alt="Hagakure: The Book of the Samurai by Yamamoto Tsunetomo" class="max-h-[85vh] max-w-[90vw] object-contain rounded shadow-2xl" src="https://cdn.thestorygraph.com/dhpytmpte5gb2wafodqx5t7r4s7p">
+          </div>
+
+      </div>
+    </div>
+
+    <div class="col-span-4">
+      <div class="book-title-author-and-series">
+
+
+        <h3 class="font-semibold text-[17px] min-[520px]:text-2xl leading-tight">
+          Hagakure: The Book of the Samurai
+        </h3>
+
+        <p class="font-body font-medium text-base min-[520px]:text-lg leading-tight">
+        <a class="hover:text-cyan-700 dark:hover:text-cyan-500" href="/authors/798fadea-7226-4385-af64-5250c5eda073">Yamamoto Tsunetomo</a>
+        <span class="font-normal">with</span>
+        <a class="hover:text-cyan-700 dark:hover:text-cyan-500" href="/authors/07c29a51-b2d6-4b9d-b45a-c330dec994d9">William Scott Wilson</a> <span class="font-normal">(Translator)</span>
+        </p>
+      </div>
+
+      <p class="text-[13px] min-[520px]:text-sm leading-snug font-light text-darkestGrey dark:text-grey mt-1">
+        <span class="toggle-edition-info-link cursor-pointer transition-colors duration-200" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+
+          179 pages
+        </span>
+
+      <!-- the rest of your edition-info chevron / year / format logic stays exactly as you had it -->
+      <span class="toggle-edition-info-link cursor-pointer transition-colors duration-200" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+          <span class="text-darkerGrey dark:text-lightGrey"> • </span>paperback
+        <span class="whitespace-nowrap">
+          <span class="text-darkerGrey dark:text-lightGrey"> • </span>1716 <svg aria-hidden="true" focusable="false" class="inline w-3 h-3 transition-all duration-200 edition-chevron ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+
+      </span>
+      </span>
+      </p>
+
+
+      <div class="hidden edition-info mt-2" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+        <p class="text-xs"><span class="font-semibold">ISBN/UID:</span>  4770026129</p>
+        <p class="text-xs"><span class="font-semibold">Format:</span> Paperback</p>
+        <p class="text-xs"><span class="font-semibold">Language:</span> English</p>
+        <p class="text-xs"><span class="font-semibold">Publisher:</span> Not specified</p>
+        <p class="text-xs"><span class="font-semibold">Edition Pub Date:</span> Not specified</p>
+      </div>
+
+        <p class="text-[13px] min-[520px]:text-sm leading-snug font-light text-darkestGrey dark:text-grey mt-1">
+        <a class="browse-editions-link text-darkestGrey dark:text-grey cursor-pointer hover:text-cyan-700 dark:hover:text-cyan-500 underline decoration-darkerGrey dark:decoration-lightGrey hover:decoration-cyan-700 dark:hover:decoration-cyan-500" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/editions">63 editions</a>
+        </p>
+
+      <p class="mt-2">
+      </p>
+    </div>
+  </div>
+
+
+  <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+  <div class="mt-2 mb-3 inline-block w-full">
+      <div class="book-page-tag-section relative" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">nonfiction</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">history</span>
+        <span class="inline-block text-[13px] sm:text-sm text-teal-700 dark:text-teal-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">philosophy</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">informative</span>
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 mr-1 sm:mr-0.5 mt-1.5 sm:mt-2 border border-darkGrey dark:border-darkerGrey rounded-sm py-1 sm:py-0.5 px-2 sm:px-2">reflective</span>
+
+        <span class="inline-block text-[13px] sm:text-sm text-pink-500 dark:text-pink-200 border border-darkGrey dark:border-darkerGrey rounded-sm mt-1.5 sm:mt-2 mr-1 sm:mr-0.5 py-1 sm:py-0.5 px-2 sm:px-2">slow-paced</span>
+
+  </div>
+
+  </div>
+
+
+  <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+  <div class="mt-[20px] mb-2 inline-block w-full">
+    <div class="on-book-page action-menu action-menu-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+  <div class="w-full">
+    <div class="inline margin-auto">
+
+
+      <div class="inline-block relative w-full" data-controller="remove-book">
+          <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=to-read"><button data-disable-with="Adding..." data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button rounded-l-sm border-r border-r-white dark:border-r-darkestGrey w-full text-sm text-left" title="Add to your To-Read Pile" aria-label="Add to your To-Read Pile" type="submit">
+            to read
+</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>        <div class="dropdown inline right-0 top-0 border-l border-white dark:border-darkestGrey hover:border-cyan-700 dark:hover:border-cyan-500 text-sm">
+          <button class="btn-dropdown expand-dropdown-button" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <svg class="h-5 inline-block" role="button" viewBox="0 0 24 24" aria-label="Expand dropdown menu"><title>Expand dropdown menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-down"><path class="text-white dark:text-darkestGrey fill-current" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a 1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+          </button>
+            <div class="dropdown-content read-status-dropdown-content" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=read"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button w-max" title="Mark as read" aria-label="Mark as read" type="submit">read</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=currently-reading"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button border border-cyan-600 dark:border-cyan-400 w-max" title="Mark as currently reading" aria-label="Mark as currently reading" type="submit">currently reading</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+              <form class="button_to" method="post" action="/update-status.js?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&amp;status=did-not-finish"><button data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="btn-dropdown read-status-button border border-cyan-600 dark:border-cyan-400 w-max" title="Mark as did not finish" aria-label="Mark as did not finish" type="submit">did not finish</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+            </div>
+        </div>
+        <div data-remove-book-target="modal" data-action="click-&gt;remove-book#closeOnOutsideClick keydown@window-&gt;remove-book#closeOnEscape" class="hidden fixed inset-0 z-1000 flex items-center justify-center bg-black bg-opacity-50">
+     <div class="bg-white dark:bg-darkestGrey rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+
+       <!-- Tags Question Version -->
+       <div data-remove-book-target="tagsQuestion" class="hidden">
+         <h3 class="text-lg font-semibold mb-4">
+           Remove Book
+         </h3>
+         <p class="mb-2">
+         You have tagged this book. Do you also want to remove the tags?
+         </p>
+         <p class="text-sm italic mb-6">
+         Your reading history and any review will be deleted either way.
+         </p>
+         <div class="flex flex-col sm:flex-row gap-3">
+           <button type="button" data-action="click-&gt;remove-book#removeWithoutTags" class="inline text-center text-sm flex-1 text-center mt-0 secondary-btn-new">
+                   No, keep my tags
+           </button>
+           <button type="button" data-action="click-&gt;remove-book#removeWithTags" class="flex-1 text-sm primary-btn">
+                   Yes, remove my tags
+           </button>
+         </div>
+         <button type="button" data-action="click-&gt;remove-book#closeModal" class="w-full mt-5 inverse-link ">
+                 Cancel
+         </button>
+       </div>
+
+       <!-- Standard Confirm Version (no tags) -->
+       <div data-remove-book-target="standardConfirm" class="hidden">
+         <h3 class="text-lg font-semibold mb-4">
+           Remove Book
+         </h3>
+         <p class="mb-2">
+         Are you sure you want to remove this book from your lists?
+         </p>
+
+         <p class="italic mb-2">
+         Your reading history and any review will be deleted.
+         </p>
+         <div>
+           <button type="button" data-action="click-&gt;remove-book#confirmStandardRemove" class="mt-5 inline-block w-full primary-btn">
+                   Yes, remove book
+           </button>
+           <button type="button" data-action="click-&gt;remove-book#closeModal" class="inline-block w-full mt-4 inverse-link ">
+                   Cancel
+           </button>
+         </div>
+       </div>
+     </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-action-menu w-full text-sm lg:text-xs" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+        <form class="button_to" method="post" action="/add-to-up-next?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><button class="add-to-up-next-btn w-full text-left text-sm lg:text-xs text-darkerGrey dark:text-white" title="Add to your Up Next Queue" aria-label="Add to your Up Next Queue" type="submit">
+          <div class="py-1 lg:py-2 px-2 border-x-2 border-x-darkGrey dark:border-x-darkerGrey border-t-2 border-b-2 border-y border-y-darkGrey dark:border-y-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 lg:w-4 inline align-middle mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="btn-text align-middle text-[13px]">add to "up next"</span>
+          </div>
+</button><input type="hidden" name="authenticity_token" value="5qWZnYhYHnE-xDmqhhIYG3p6IbS4H6bmrNqHUQZyt7dr-7mgZNjsz7hGBHFNoN--r9Fx41mo_T44iAAFMPTNUA" autocomplete="off"></form>
+
+
+
+
+
+
+    <!-- Favorites - Desktop only -->
+    <div class="hidden lg:block js-book-favorite-toggle-desktop">
+        <a data-method="post" class="w-full text-left text-xs text-darkerGrey dark:text-white add-to-favorites-link" data-remote="true" href="/favorites/add/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175?from_book_page=true">
+          <div class="mt-4 w-full text-center text-sm lg:text-xs text-darkerGrey dark:text-white px-1 py-2 border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-[20px] inline align-middle -ml-1" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" class="fill-current text-transparent"></circle>
+              <path class="fill-current text-transparent stroke-2 stroke-darkerGrey dark:stroke-lightGrey" d="M9.53 16.93a1 1 0 0 1-1.45-1.05l.47-2.76-2-1.95a1 1 0 0 1 .55-1.7l2.77-.4 1.23-2.51a1 1 0 0 1 1.8 0l1.23 2.5 2.77.4a1 1 0 0 1 .55 1.71l-2 1.95.47 2.76a1 1 0 0 1-1.45 1.05L12 15.63l-2.47 1.3z"></path>
+            </svg>
+            <span class="link-text align-middle">add to favorites</span>
+          </div>
+</a>    </div>
+
+    <div class="mt-3 lg:mt-4 font-semibold">
+      <div class="flex lg:gap-2">
+          <a class="mark-as-owned-link flex-grow text-sm lg:text-xs text-darkerGrey dark:text-white px-4 py-1.5 lg:py-2 rounded-sm border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey text-center" title="Mark as owned" aria-label="Mark as owned" rel="nofollow" data-method="post" href="/mark-as-owned?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <span class="link-text">mark as owned</span>
+</a>
+          <button class="toggle-affiliate-links hidden lg:inline-block cursor-pointer text-sm lg:text-xs text-darkerGrey dark:text-white px-4 py-2 rounded-sm border-[1.5px] border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey text-center" title="Buy" aria-label="Reveal affiliate links to buy book" data-affiliate-target="desktop-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+            <span>buy</span>
+          </button>
+      </div>
+    </div>
+
+    <div class="affiliate-links hidden mt-4" data-affiliate-id="desktop-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><div class="mt-4 text-center text-sm">
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://bookshop.org/beta-search?affiliate=14456&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop US</a></p>
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://uk.bookshop.org/beta-search?affiliate=159&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop UK</a></p>
+  <div class="hidden lg:block">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links. We earn commission on any purchases made.</p>
+  </div>
+  <div class="block lg:hidden">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links.<br>We earn commission on any purchases made.</p>
+  </div>
+</div>
+</div>
+
+
+    <div class="mt-3 mb-1 block lg:hidden">
+      <details class="group block">
+        <summary class="flex items-center gap-2 cursor-pointer list-none font-semibold text-blackish dark:text-white uppercase text-sm [&amp;::-webkit-details-marker]:hidden !border-none">
+          More Options
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 transition-transform group-open:rotate-90">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+          </svg>
+        </summary>
+        <div class="mt-2">
+          <div class="mb-3 js-book-favorite-toggle-mobile">
+              <a data-method="post" class="w-full text-left text-xs text-darkerGrey dark:text-white add-to-favorites-link" data-remote="true" href="/favorites/add/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175?from_book_page=true">
+                <div class="w-full text-center text-sm text-darkerGrey dark:text-white px-1 py-2 border-2 border-darkGrey dark:border-darkerGrey bg-grey dark:bg-[#3B3B3B] hover:bg-darkGrey dark:hover:bg-darkerGrey inline-block w-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-[20px] inline align-middle -ml-1" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" class="fill-current text-transparent"></circle>
+                    <path class="fill-current text-transparent stroke-2 stroke-darkerGrey dark:stroke-lightGrey" d="M9.53 16.93a1 1 0 0 1-1.45-1.05l.47-2.76-2-1.95a1 1 0 0 1 .55-1.7l2.77-.4 1.23-2.51a1 1 0 0 1 1.8 0l1.23 2.5 2.77.4a1 1 0 0 1 .55 1.71l-2 1.95.47 2.76a1 1 0 0 1-1.45 1.05L12 15.63l-2.47 1.3z"></path>
+                  </svg>
+                  <span class="link-text align-middle">add to favorites</span>
+                </div>
+</a>          </div>
+
+          <div class="mt-2 lg:mt-6">
+  <p>
+  <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/similar">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"></path>
+    </svg>
+    Browse Similar Books
+</a>  </p>
+</div>
+
+<div class="section user-interactions mt-4">
+  <div>
+    <p>
+    <a class="w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B]  border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey" href="/book_club_questions?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2"> <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712 -.203.179-.43.326-.67.442 -.745.361-1.45.999-1.45 1.827v.75 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"></path> </svg>
+      View Question Bank
+</a>    </p>
+  </div>
+</div>
+
+  <div class="lg:hidden mt-4">
+    <button class="toggle-affiliate-links w-full text-[13px] inline-flex items-center gap-2 px-4 py-3 bg-lightGrey dark:bg-[#3B3B3B] border border-midGrey dark:border-darkerGrey rounded-md text-blackish dark:text-white font-semibold hover:bg-darkGrey dark:hover:bg-darkerGrey cursor-pointer" title="Buy" aria-label="Reveal affiliate links to buy book" data-affiliate-target="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+      </svg>
+      Buy
+    </button>
+    <div class="affiliate-links hidden mt-4" data-affiliate-id="mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175"><div class="mt-4 text-center text-sm">
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://bookshop.org/beta-search?affiliate=14456&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop US</a></p>
+  <p><a target="_blank" rel="nofollow" class="font-semibold hover:text-cyan-700 dark:hover:text-cyan-500 ext_link" href="https://uk.bookshop.org/beta-search?affiliate=159&amp;keywords=Hagakure:+The+Book+of+the+Samurai Yamamoto+Tsunetomo">Bookshop UK</a></p>
+  <div class="hidden lg:block">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links. We earn commission on any purchases made.</p>
+  </div>
+  <div class="block lg:hidden">
+    <p class="mt-3 italic text-xs">The StoryGraph is an affiliate of the featured links.<br>We earn commission on any purchases made.</p>
+  </div>
+</div>
+</div>
+  </div>
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">Read With Others</p>
+
+<div class="section readalong-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+  <div class="text-[13px]">
+    <p class="!leading-6">
+    <a class="new-readalong-link standard-link underline" href="/readalongs/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Readalong</a>
+    </p>
+  </div>
+
+
+
+  <div class="mt-2 lg:mt-3 text-[13px]">
+    <p>
+    <a class="new-buddy-read-link standard-link underline" href="/buddy_reads/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Start a Buddy Read</a>
+    </p><div class="buddy-read-loading" style="display: none;"></div>
+    <p></p>
+  </div>
+
+</div>
+
+
+<p class="mt-4 lg:mt-6 uppercase font-semibold text-darkerGrey dark:text-darkGrey">
+Book Information
+</p>
+
+<div class="section book-info-actions mt-1 lg:mt-2 border border-midGrey dark:border-darkerGrey px-5 py-4 pb-5 rounded-sm text-blackish dark:text-white">
+
+    <div class="mb-3 text-[13px]">
+      <p class="!leading-6">
+      <a class="standard-link underline" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/add_missing_info">Add Missing Information</a>
+      </p>
+    </div>
+
+  <div class="mt-1 text-[13px]">
+    <p class="!leading-6">
+    <a class="standard-link underline" href="/book_tickets/new?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">Report Missing/Incorrect Information</a>
+    </p>
+  </div>
+</div>
+
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+
+
+  <div id="storygraph-preview-pane-mobile" class="storygraph-preview-pane px-2">
+        <div class="mb-6 mt-6 pb-2 mb-5 inline-block book-pane blurb-pane break-words w-full">
+          <div>
+            <nav class="-mb-px flex space-x-4 sm:space-x-6" aria-label="Tabs">
+              <a href="#" data-personalized="false" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="cursor-default pointer-events-none whitespace-nowrap border-b-2 border-b-2 border-cyan-700 dark:border-cyan-500 text-cyan-700 dark:text-cyan-500 px-1 uppercase font-medium">Who's It For?</a>
+              <a href="#" data-personalized="true" data-book-id="fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="border-transparent whitespace-nowrap border-b-2 px-1 font-light text-sm uppercase">Personalized</a>
+            </nav>
+          </div>
+          <span title="This preview has been generated just for you using machine learning" class="mb-5 inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">
+            Powered by AI (Beta)
+          </span><br>
+          <turbo-frame id="personalized-preview-mobile-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="contents">
+  Log in, and then opt in, to see a short description of the type of reader this book is a good fit for. You will also get a unique-to-you analysis based on your reading history and preferences.
+</turbo-frame>
+        </div>
+      <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+  </div>
+
+    <div class="mb-6 mt-6 pb-2 mb-5 inline-block book-pane blurb-pane break-words">
+      <h4 class="section-heading uppercase">Description</h4>
+        <p class="trix-content mt-3">Hagakure ("In the Shadow of Leaves") is a manual for the samurai classes consisting of a series of short anecdotes and reflections that give both insight and instruction-in the philosophy and code of behavior that foster the true spirit of Bushido...</p>
+        <p class="mt-5 mb-4"><a id="read-more-fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175" class="read-more-btn text-xs primary-btn mb-4" href="">Show More</a></p>
+    </div>
+    <script>
+      $('.read-more-btn').on('click', function(e) {
+        e.preventDefault()
+        $(this).parent().parent().html('<h4 class="section-heading uppercase">Description</h4><div class="trix-content mt-3"><div>\n<em>Hagakure<\/em> (\"In the Shadow of Leaves\") is a manual for the samurai classes consisting of a series of short anecdotes and reflections that give both insight and instruction-in the philosophy and code of behavior that foster the true spirit of Bushido-the Way of the Warrior. It is not a book of philosophy as most would understand the word: it is a collection of thoughts and sayings recorded over a period of seven years, and as such covers a wide variety of subjects, often in no particular sequence. <br><br>The work represents an attitude far removed from our modern pragmatism and materialism, and possesses an intuitive rather than rational appeal in its assertion that Bushido is a Way of Dying, and that only a samurai retainer prepared and willing to die at any moment can be totally true to his lord. While <em>Hagakure<\/em> was for many years a secret text known only to the warrior vassals of the Hizen fief to which the author belonged, it later came to be recognized as a classic exposition of samurai thought and came to influence many subsequent generations, including Yukio Mishima. <br><br>This translation offers 300 selections that constitute the core texts of the 1,300 present in the original. <br><em>Hagakure<\/em> was featured prominently in the film <em>Ghost Dog<\/em>, by Jim Jarmusch.<\/div></div>')
+      })
+    </script>
+  <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+
+
+  <div>
+    <turbo-frame id="community_reviews" src="https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/community_reviews" target="_top" complete="">
+      <div class="mb-6 lg:mb-0 mt-6 px-2 lg:px-unset sm:!pt-[30px] !pb-[15px] sm:!pb-7  lg:standard-pane lg:block book-pane break-words">
+        <h3 class="community-reviews-heading section-heading uppercase">Community Reviews</h3>
+              <div class="flex items-center gap-3 mt-4" aria-label="Book rating: 3.64 out of 5 stars based on 840 reviews">
+              <span class="average-star-rating font-semibold text-[40px] text-cyan-700 dark:text-cyan-500">
+                3.64
+              </span>
+              <div class="flex flex-col pt-[0.5px]">
+                <div class="flex gap-1">
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <svg class="w-[26px] h-[26px]" aria-hidden="true" fill="#FFDB77" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                        </svg>
+                        <div class="relative w-[26px] h-[26px]" aria-hidden="true">
+                          <svg class="w-[26px] h-[26px] absolute top-0 left-0 z-0 text-midGrey dark:text-darkerGrey" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                          </svg>
+                          <div class="overflow-hidden absolute top-0 left-0" style="width: 64%;">
+                            <svg class="w-[26px] h-[26px]" fill="#FFDB77" viewBox="0 0 24 24">
+                              <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                      <svg class="w-[26px] h-[26px] text-midGrey dark:text-darkerGrey" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .587l3.668 7.412 8.167.747-6.18 5.203 2.325 7.678L12 18.204l-6.98 3.473 2.325-7.678-6.18-5.203 8.167-.747L12 .587z"></path>
+                      </svg>
+                </div>
+                <span class="text-sm font-medium mt-0.5 ml-[5px] text-darkerGrey dark:text-darkGrey">
+                  based on <a class="inverse-link underline" href="/book_reviews/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175">840 reviews</a>
+                </span>
+              </div>
+            </div>
+
+          <p class="review-question mt-4 font-semibold uppercase text-[15px]">Moods</p>
+          <div class="mt-2 moods-list-reviews text-sm flex flex-wrap gap-x-4 gap-y-1.5">
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">informative</span>: 73%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">reflective</span>: 69%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">inspiring</span>: 30%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">challenging</span>: 26%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">adventurous</span>: 14%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">relaxing</span>: 9%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">dark</span>: 7%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">funny</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">sad</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">tense</span>: 4%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">emotional</span>: 2%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">lighthearted</span>: 2%</p>
+              </div>
+              <div class="mood-item">
+                <p class="text-blackish dark:text-white"><span class="font-medium">mysterious</span>: 2%</p>
+              </div>
+          </div>
+
+          <hr class="text-midGrey dark:text-darkerGrey my-6">
+
+            <div class="w-full">
+              <p class="text-center font-semibold mb-2">Pace</p>
+              <div class="flex gap-1 h-[26px] mb-1">
+              <div class="bg-[#FFA602] rounded-l-full  relative" style="width:26%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-blackish">
+                  <span aria-hidden="true">26%</span>
+                  <span class="sr-only">26% of readers chose fast</span>
+                </span>
+              </div>
+              <div class="bg-[#D23A53] dark:bg-[#D0475D]   relative" style="width:36%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-white">
+                  <span aria-hidden="true">36%</span>
+                  <span class="sr-only">36% of readers chose medium</span>
+                </span>
+              </div>
+              <div class="bg-[#591B5C] dark:bg-[#742378]  rounded-r-full relative" style="width:36%">
+                <span class="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-semibold text-white">
+                  <span aria-hidden="true">36%</span>
+                  <span class="sr-only">36% of readers chose slow</span>
+                </span>
+              </div>
+              </div>
+            </div>
+
+            <div class="mt-3 flex justify-center gap-4 text-xs text-darkerGrey dark:text-darkGrey">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#FFA602] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">fast</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#D23A53] dark:bg-[#D0475D] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">medium</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-[#591B5C] dark:bg-[#742378] mr-1" aria-hidden="true"></div>
+                  <span class="capitalize">slow</span>
+                </div>
+            </div>
+
+
+      </div>
+</turbo-frame>  </div>
+
+  <div class="w-full absolute right-0 left-0 h-[1px] bg-darkGrey dark:bg-darkerGrey"></div>
+
+  <div>
+    <turbo-frame id="content_warnings_section" src="https://app.thestorygraph.com/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/content_warnings_section" target="_top" complete="">
+    <div class="mb-6 lg:mb-0 mt-6 px-2 lg:px-unset lg:standard-pane inline-block lg:block book-pane break-words">
+      <h3 class="section-heading uppercase mb-0">Content Warnings</h3>
+        <p class="text-sm mb-4 text-darkerGrey dark:text-darkGrey">Submitted by users as part of their reviews</p>
+        <div class="content-warning-information">
+          <div class="toggle-content-warnings-information-book cursor-pointer dark:hidden">
+            <svg class="icon chevron-right content-warnings w-6 -ml-2 inline" viewBox="0 0 20 20" role="button"><title>Expand filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-right"><path class="secondary" d="M10.3 8.7a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4l3.29-3.3-3.3-3.3z"></path></svg>
+            </svg>
+            <svg class="hidden inline icon chevron-down content-warnings -ml-2  w-6" viewBox="0 0 20 20" role="button"><title>Collapse filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-cheveron-down"><path class="secondary" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+            <span class="cursor-pointer font-semibold mb-4">View Summary</span>
+          </div>
+          <div class="toggle-content-warnings-information-book cursor-pointer hidden dark:inline">
+            <svg class="icon chevron-right content-warnings w-6 -ml-2 inline" stroke="#f5f5f5" viewBox="0 0 20 20" role="button"><title>Expand filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="#f5f5f5" fill="#f5f5f5" class="icon-cheveron-right"><path class="secondary" d="M10.3 8.7a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4l3.29-3.3-3.3-3.3z"></path></svg>
+            </svg>
+            <svg class="hidden inline icon chevron-down content-warnings -ml-2  w-6" stroke="#f5f5f5" viewBox="0 0 20 20" role="button"><title>Collapse filter menu</title>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="#f5f5f5" fill="#f5f5f5" class="icon-cheveron-down"><path class="secondary" fill-rule="evenodd" d="M15.3 10.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"></path></svg>
+            </svg>
+            <span class="cursor-pointer font-semibold mb-4">View Summary</span>
+          </div>
+          <div class="hidden content-warnings-information mt-2 text-[15px]">
+              <p class="font-semibold">Graphic</p>
+              Suicide, Violence<br>
+              <p class="mt-4 font-semibold">Moderate</p>
+              Suicide attempt, War<br>
+              <p class="mt-4 font-semibold">Minor</p>
+              Gore
+            <br>
+            <p class="mt-5">
+            <a class="text-xs primary-btn py-1 pr-1 inline-flex items-center" href="/books/fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175/content_warnings">
+              View all
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5"></path>
+              </svg>
+</a>            </p>
+          </div>
+        </div>
+            <p></p>
+    </div>
+</turbo-frame>  </div>
+</div>
+
+<button onclick="scrollToTopFunction()" class="fixed   bottom-8 right-1 md:right-2 z-100 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-darkestGrey focus:ring-cyan-600 dark:focus:ring-cyan-400" id="btn-scroll-to-top" title="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="button" class="icon-cheveron-up-circle h-7 w-7"><circle cx="12" cy="12" r="10" class="fill-current text-cyan-600 dark:text-cyan-400"></circle><path class="fill-current text-white dark:text-darkestGrey" d="M8.7 13.7a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 0 1-1.4 1.4L12 10.42l-3.3 3.3z"></path></svg></button>
+
+
+  <script>
+    var loadingHtml = `<div class="col-span-2 text-center">${document.getElementById("hidden-spinner").innerHTML}</div>`;
+
+    function updateTabStyles(link, isActive) {
+      if (isActive) {
+        link.classList.remove("cursor-pointer", "pointer-events-auto", "border-transparent", "font-light", "text-sm");
+        link.classList.add("cursor-default", "pointer-events-none", "text-cyan-700", "dark:text-cyan-500", "border-cyan-700", "dark:border-cyan-500", "font-medium");
+      } else {
+        link.classList.remove("cursor-default", "pointer-events-none", "text-cyan-700", "dark:text-cyan-500", "border-cyan-700", "dark:border-cyan-500", "font-medium");
+        link.classList.add("cursor-pointer", "pointer-events-auto", "border-transparent", "font-light", "text-sm");
+      }
+    }
+
+    document.addEventListener("turbo:load", () => {
+      var turboFrame = document.getElementById("hidden-personalized-preview");
+
+      document.querySelectorAll("[data-personalized]").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          var bookId = e.target.getAttribute("data-book-id");
+          var personalized = e.target.getAttribute("data-personalized") === 'true';
+
+          document.getElementById(`personalized-preview-desktop-${bookId}`).innerHTML = loadingHtml;
+          document.getElementById(`personalized-preview-mobile-${bookId}`).innerHTML = loadingHtml;
+
+          var newSrc = `/personalized-preview.turbo_stream?book_id=fbdd6b7c-f512-47f2-aa94-d8bf0d5f5175&personalized=false`.replace('false', personalized);
+          turboFrame.setAttribute("src", newSrc);
+
+          document.querySelectorAll(`[data-personalized='${personalized}']`).forEach(el => {
+            updateTabStyles(el, true);
+          });
+          document.querySelectorAll(`[data-personalized='${!personalized}']`).forEach(el => {
+            updateTabStyles(el, false);
+          });
+        });
+      });
+    });
+  </script>
+
+
+              <div id="cookies-popup" style="z-index:2147483002;" class="fixed border-2 bg-white dark:bg-darkestGrey border-darkGrey dark:border-darkerGrey bottom-0 left-0 rounded-md mx-2 pt-2 pb-4 pl-4 pr-2 shadow-2xl text-sm max-w-full md:w-13 m-2">
+                <svg id="close-cookies-popup" role="button" class="icon icon-baseline w-5 cursor-pointer float-right" viewBox="0 0 23 23"><title>Accept and close</title>
+                  <svg width="24" height="24">
+                    <path class="text-cyan-700 dark:text-cyan-500 fill-current" fill-rule="evenodd" clip-rule="evenodd" d="M9.59584 8.74731C9.36152 8.51299 8.98162 8.51299 8.74731 8.74731C8.51299 8.98162 8.51299 9.36152 8.74731 9.59584L11.1515 12L8.74731 14.4042C8.51299 14.6385 8.51299 15.0184 8.74731 15.2527C8.98162 15.487 9.36152 15.487 9.59584 15.2527L12 12.8485L14.4042 15.2527C14.6385 15.487 15.0184 15.487 15.2527 15.2527C15.487 15.0184 15.487 14.6385 15.2527 14.4042L12.8485 12L15.2527 9.59584C15.487 9.36152 15.487 8.98162 15.2527 8.74731C15.0184 8.51299 14.6385 8.51299 14.4042 8.74731L12 11.1515L9.59584 8.74731Z"></path>
+                    <path class="text-cyan-700 dark:text-cyan-500 fill-current" fill-rule="evenodd" clip-rule="evenodd" d="M3.4 12C3.4 7.25035 7.25035 3.4 12 3.4C16.7497 3.4 20.6 7.25035 20.6 12C20.6 16.7497 16.7497 20.6 12 20.6C7.25035 20.6 3.4 16.7497 3.4 12ZM12 4.6C7.91309 4.6 4.6 7.91309 4.6 12C4.6 16.0869 7.91309 19.4 12 19.4C16.0869 19.4 19.4 16.0869 19.4 12C19.4 7.91309 16.0869 4.6 12 4.6Z"></path>
+                  </svg>
+                </svg>
+                <div class="clear-right pr-6">
+                  <p>By using The StoryGraph, you agree to our <a class="font-semibold text-cyan-700 dark:text-cyan-500 hover:text-darkestGrey dark:text-grey cookies-find-out-more-btn" href="/cookies">use of cookies</a>.<br>We use a small number of cookies to provide you with a great experience.</p>
+                  <p class="mt-2"><a class="font-semibold text-cyan-700 dark:text-cyan-500 hover:text-darkestGrey dark:text-grey cookies-find-out-more-btn border-b" href="/cookies">Find out more</a></p>
+                </div>
+              </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+      <script>
+  window.fwSettings={
+      'widget_id':79000000885
+    };
+  !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
+</script>
+<script type="text/javascript" src="https://euc-widget.freshworks.com/widgets/79000000885.js" async="" defer=""></script>
+
+
+  
+
+<div id="freshworks-container" style="width: 0px; height: 0px; bottom: 0px; right: 0px; z-index: 2147483647;" data-html2canvas-ignore="true"><div aria-live="polite"><iframe allowfullscreen="" style="right: 4px; bottom: -4px; border: medium; position: fixed; min-width: 104px; max-width: 156px; height: 56px; z-index: 2147483000; visibility: visible;" id="launcher-frame" title="Help widget launcher" data-testid="launcher-frame"></iframe><iframe allowfullscreen="" style="display: none;" id="lightbox-frame" data-testid="lightbox-frame"></iframe></div></div><iframe title="FreshworksWidget" id="freshworks-frame" data-html2canvas-ignore="true" style="display: none;"></iframe></body>
+
+
+</html>

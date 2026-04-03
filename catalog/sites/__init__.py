@@ -26,6 +26,7 @@ from .qidian import Qidian
 from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
+from .storygraph import StoryGraph
 from .tmdb import TMDB_Movie
 from .wikidata import WikiData
 from .worldcat import WorldCat
@@ -61,6 +62,7 @@ __all__ = [
     "RSS",
     "Spotify",
     "Steam",
+    "StoryGraph",
     "TMDB_Movie",
     "WikiData",
     "WorldCat",

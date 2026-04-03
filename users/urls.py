@@ -16,6 +16,7 @@ urlpatterns = [
         "task/<str:task_type>/download", user_task_download, name="user_task_download"
     ),
     path("data/import/goodreads", import_goodreads, name="import_goodreads"),
+    path("data/import/storygraph", import_storygraph, name="import_storygraph"),
     path("data/import/douban", import_douban, name="import_douban"),
     path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),
     path("data/import/opml", import_opml, name="import_opml"),
