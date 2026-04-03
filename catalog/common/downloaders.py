@@ -4,7 +4,7 @@ import time
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Tuple, Union, cast
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode, urlparse
 
 import filetype
 import httpx
@@ -62,11 +62,18 @@ _local_response_path = (
 class MockResponse:
     def __init__(self, url):
         self.url = url
-        fn = _local_response_path + get_mock_file(url)
+        base = Path(_local_response_path).resolve()
+        fn = (base / get_mock_file(url)).resolve()
         try:
-            self.content = Path(fn).read_bytes()
+            fn.relative_to(base)  # raises ValueError if fn escapes base directory
+            self.content = fn.read_bytes()
             self.status_code = 200
             # logger.debug(f"use local response for {url} from {fn}")
+        except ValueError:
+            self.content = b"Error: response file not found"
+            self.status_code = 404
+            if ".jpg" not in self.url:
+                logger.warning(f"invalid mock response path for {url}")
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
@@ -731,11 +738,26 @@ class ScrapDownloader(BasicDownloader):
         """Scrape using custom URL template (backup provider)."""
         if not self.url.startswith(("http://", "https://")):
             return None, RESPONSE_NETWORK_ERROR
+        # Validate custom_url is a proper URL with a server-controlled host before substitution
+        custom_parsed = urlparse(custom_url)
+        if custom_parsed.scheme not in ("http", "https") or not custom_parsed.netloc:
+            logger.error("DOWNLOADER_CUSTOMSCRAPER_URL is not a valid http/https URL")
+            return None, RESPONSE_NETWORK_ERROR
         api_url = custom_url.replace("__URL__", quote(self.url, safe=""))
         if self.wait_for_selector:
             api_url = api_url.replace(
                 "__SELECTOR__", quote(self.wait_for_selector, safe="")
             )
+        # Ensure substitution did not alter the configured host (prevents SSRF via template injection)
+        api_parsed = urlparse(api_url)
+        if (
+            api_parsed.scheme != custom_parsed.scheme
+            or api_parsed.netloc != custom_parsed.netloc
+        ):
+            logger.error(
+                "SSRF check failed: api_url host does not match custom_url template"
+            )
+            return None, RESPONSE_NETWORK_ERROR
 
         try:
             response = requests.get(api_url, timeout=self.timeout)
