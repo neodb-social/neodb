@@ -91,17 +91,31 @@ class Album(Item):
         _("number of discs"), blank=True, default="", max_length=500
     )
 
-    def get_embed_link(self):
+    def get_embed_link(self) -> str | None:
+        bandcamp_link = None
+        youtube_link = None
+        spotify_link = None
+        apple_link = None
         for res in self.external_resources.all():
-            if res.id_type == IdType.Bandcamp.value and res.metadata.get(
-                "bandcamp_album_id"
+            if (
+                res.id_type == IdType.Bandcamp.value
+                and res.metadata.get("bandcamp_album_id")
+                and not bandcamp_link
             ):
-                return f"https://bandcamp.com/EmbeddedPlayer/album={res.metadata.get('bandcamp_album_id')}/size=large/bgcol=ffffff/linkcol=19A2CA/artwork=small/transparent=true/"
-            if res.id_type == IdType.Spotify_Album.value:
-                return res.url.replace("open.spotify.com/", "open.spotify.com/embed/")
-            if res.id_type == IdType.AppleMusic.value:
-                return res.url.replace("music.apple.com/", "embed.music.apple.com/us/")
-        return None
+                bandcamp_link = f"https://bandcamp.com/EmbeddedPlayer/album={res.metadata.get('bandcamp_album_id')}/size=large/bgcol=ffffff/linkcol=19A2CA/artwork=small/transparent=true/"
+            elif res.id_type == IdType.YouTubeMusic.value and not youtube_link:
+                youtube_link = (
+                    f"https://www.youtube.com/embed/videoseries?list={res.id_value}"
+                )
+            elif res.id_type == IdType.Spotify_Album.value and not spotify_link:
+                spotify_link = res.url.replace(
+                    "open.spotify.com/", "open.spotify.com/embed/"
+                )
+            elif res.id_type == IdType.AppleMusic.value and not apple_link:
+                apple_link = res.url.replace(
+                    "music.apple.com/", "embed.music.apple.com/us/"
+                )
+        return bandcamp_link or youtube_link or spotify_link or apple_link
 
     @classmethod
     def lookup_id_type_choices(cls):
@@ -110,6 +124,7 @@ class Album(Item):
             IdType.ISRC,
             IdType.Spotify_Album,
             IdType.Bandcamp,
+            IdType.YouTubeMusic,
             IdType.DoubanMusic,
             IdType.Bangumi,
         ]

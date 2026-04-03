@@ -270,9 +270,11 @@ class Edition(Item):
             IdType.ISBN,
             IdType.ASIN,
             IdType.CUBN,
+            IdType.OCLC,
             IdType.DoubanBook,
             IdType.Goodreads,
             IdType.GoogleBooks,
+            IdType.OpenLibrary,
             IdType.Qidian,
             IdType.JJWXC,
         ]
