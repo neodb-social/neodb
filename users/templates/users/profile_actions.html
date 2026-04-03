@@ -16,13 +16,14 @@
    hx-swap="innerHTML">{% trans "blocked" %}</a></span>
   </span>
 {% else %}
-  {% if relationship.status %}
-    <span class="tag-list">
-      <span><a>{{ relationship.status }}</a></span>
-    </span>
-  {% else %}
-    <span style="padding-bottom:1em;display:inline-block">&nbsp;</span>
-  {% endif %}
+  <span class="tag-list">
+    {% if not identity.is_person %}<span><a>{{ identity.actor_type|upper }}</a></span>{% endif %}
+    {% if relationship.status %}
+      <span><a>{{ relationship.status|upper }}</a></span>
+    {% else %}
+      <span style="padding-bottom:1em;display:inline-block">&nbsp;</span>
+    {% endif %}
+  </span>
   {% if show_home %}
     <span>
       <a title="{% trans "user profile" %}" href="{{ identity.url }}">
@@ -63,7 +64,7 @@
     {% if not identity.locked or request.user.is_superuser or relationship.status %}
       <span>
         <a title="{% trans 'compose a message' %}"
-           hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=2"
+           {% if identity.is_group %} hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=0" {% else %} hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility=2" {% endif %}
            hx-target="body"
            hx-swap="beforeend">
           <i class="fa-regular fa-paper-plane"></i>

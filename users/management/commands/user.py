@@ -35,6 +35,13 @@ class Command(BaseCommand):
             "--staff", action="store", nargs="*", help="list or toggle staff"
         )
         parser.add_argument("--active", action="store", nargs="*", help="toggle active")
+        parser.add_argument(
+            "--actor-type",
+            action="store",
+            nargs=2,
+            metavar=("USERNAME", "ACTOR_TYPE"),
+            help="set actor_type for user (person/service/application/group/organization)",
+        )
 
     def handle(self, *args, **options):
         self.verbose = options["verbose"]
@@ -55,6 +62,8 @@ class Command(BaseCommand):
         if options["delete"]:
             if input("Are you sure to delete? [Y/N] ").startswith("Y"):
                 self.delete(options["delete"])
+        if options["actor_type"]:
+            self.set_actor_type(options["actor_type"][0], options["actor_type"][1])
 
     def list(self, users):
         for user in users:
@@ -171,6 +180,21 @@ class Command(BaseCommand):
             u.is_active = not u.is_active
             u.save()
             self.stdout.write(f"update {u} is_active: {u.is_active}")
+
+    def set_actor_type(self, username: str, actor_type: str) -> None:
+        valid_types = ["person", "service", "application", "group", "organization"]
+        if actor_type not in valid_types:
+            self.stdout.write(
+                self.style.ERROR(
+                    f"Invalid actor_type '{actor_type}'. Valid types: {', '.join(valid_types)}"
+                )
+            )
+            return
+        u = User.objects.get(username=username, is_active=True)
+        identity = u.identity.takahe_identity
+        identity.actor_type = actor_type
+        identity.save()
+        self.stdout.write(f"update {u} actor_type: {actor_type}")
 
     def delete(self, v):
         for n in v:

@@ -74,6 +74,14 @@ class APIdentity(models.Model):
         )
 
     @property
+    def actor_type(self):
+        return self.takahe_identity.actor_type
+
+    @property
+    def is_person(self):
+        return self.takahe_identity.actor_type in ("person", "", None)
+
+    @property
     def is_group(self):
         return self.takahe_identity.actor_type == "group"
 
