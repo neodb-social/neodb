@@ -56,7 +56,8 @@ def profile(request: AuthedHttpRequest, user_name):
         if not target.local:
             return redirect(target.profile_uri)
         # anonymous user should not see local user's content unless permitted
-        elif not target.anonymous_viewable:
+        # anonymous user should not see group (for now)
+        elif not target.anonymous_viewable or target.is_group:
             return render(
                 request,
                 "users/home_anonymous.html",
