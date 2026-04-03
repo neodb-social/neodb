@@ -115,25 +115,31 @@ def _get_mpreb_id(playlist_id: str) -> str | None:
 
 def _parse_mpreb_data(data: dict) -> ResourceContent:
     """Parse a MPREb_ browse API response into ResourceContent."""
-    two_col = data["contents"]["twoColumnBrowseResultsRenderer"]
+    two_col = data.get("contents", {}).get("twoColumnBrowseResultsRenderer", {})
 
     # Header: title, artist, year, album type, cover
+    tabs = two_col.get("tabs", [])
     sections = (
-        two_col.get("tabs", [{}])[0]
+        tabs[0]
         .get("tabRenderer", {})
         .get("content", {})
         .get("sectionListRenderer", {})
         .get("contents", [])
+        if tabs
+        else []
     )
     header = sections[0].get("musicResponsiveHeaderRenderer", {}) if sections else {}
 
-    title = header.get("title", {}).get("runs", [{}])[0].get("text", "")
+    title_runs = header.get("title", {}).get("runs", [])
+    title = title_runs[0].get("text", "") if title_runs else ""
     artist = [
-        r["text"]
+        r.get("text", "")
         for r in header.get("straplineTextOne", {}).get("runs", [])
         if r.get("navigationEndpoint")
     ]
-    subtitle_texts = [r["text"] for r in header.get("subtitle", {}).get("runs", [])]
+    subtitle_texts = [
+        r.get("text", "") for r in header.get("subtitle", {}).get("runs", [])
+    ]
     year = next(
         (
             t.strip()
@@ -234,7 +240,9 @@ class YouTubeMusic(AbstractSite):
         except requests.exceptions.RequestException as e:
             raise ParseError(self, f"Innertube VL browse failed: {e}") from e
         if not mpreb_id:
-            raise ParseError(self, "MPREb_ album ID from OLAK5uy_ playlist")
+            raise ParseError(
+                self, "could not extract MPREb_ album ID from OLAK5uy_ playlist"
+            )
         logger.debug(f"YouTubeMusic: resolved {self.id_value} -> {mpreb_id}")
         try:
             data = _innertube_browse(mpreb_id)
