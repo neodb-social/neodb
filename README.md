@@ -55,6 +55,7 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * Goodreads reading list
     * Letterboxd watch list
     * Douban archive (via [Doufen](https://doufen.org/))
+    * StoryGraph reading list
     * Steam Library
 - social features:
   + view home feed with friends' activities
