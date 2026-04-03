@@ -10,6 +10,7 @@ import json
 
 from catalog.common import *
 from catalog.models import *
+from catalog.sites.wikidata import WikiData
 from common.models.lang import detect_language
 
 
@@ -110,7 +111,7 @@ class MobyGames(AbstractSite):
             og_image = self.query_list(content, '//meta[@property="og:image"]/@content')
             cover_image_url = og_image[0] if og_image else None
 
-        return ResourceContent(
+        pd = ResourceContent(
             metadata={
                 "title": title,
                 "localized_title": localized_title,
@@ -127,3 +128,10 @@ class MobyGames(AbstractSite):
                 "cover_image_url": cover_image_url,
             }
         )
+        # Look up the Wikidata QID for this MobyGames ID so the deduplication
+        # flow can match against items already imported from Steam, IGDB, etc.
+        if self.id_value:
+            qid = WikiData.lookup_qid_by_external_id(IdType.MobyGames, self.id_value)
+            if qid:
+                pd.lookup_ids[IdType.WikiData] = qid
+        return pd
