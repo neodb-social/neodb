@@ -10,7 +10,8 @@
                 align-items:center">
       <div class="avatar">
         <a href="{{ person.url }}">
-          <img src="{{ person.avatar|relative_uri }}" alt="">
+          <img src="{{ person.avatar|relative_uri }}"
+               alt="{{ person.display_name }}">
         </a>
       </div>
       <div style="min-width:0;">
@@ -24,9 +25,9 @@
           <small class="handler">@{{ person.handle }}</small>
         </div>
       </div>
-      {% if identity.safe_metadata %}
+      {% if person.safe_metadata %}
         <dl>
-          {% for entry in identity.safe_metadata %}
+          {% for entry in person.safe_metadata %}
             <dt>{{ entry.name }}</dt>
             <dd>
               {{ entry.value }}
@@ -34,7 +35,7 @@
           {% endfor %}
         </dl>
       {% endif %}
-      <div>{{ identity.safe_summary|safe }}</div>
+      <div>{{ person.safe_summary|safe }}</div>
     </div>
     <span class="action" style="margin-top:0.25rem; display:block;">
       {% include 'users/profile_actions.html' with identity=person %}

@@ -267,6 +267,22 @@ class Takahe:
         )
 
     @staticmethod
+    def get_mutual_page(
+        identity_pk: int, last_pk: int = 0, limit: int = 60
+    ) -> list[int]:
+        following = Follow.objects.filter(
+            source_id=identity_pk, state="accepted"
+        ).values("target_id")
+        qs = Follow.objects.filter(
+            target_id=identity_pk, state="accepted", source_id__in=following
+        )
+        if last_pk:
+            qs = qs.filter(source_id__gt=last_pk)
+        return list(
+            qs.order_by("source_id").values_list("source_id", flat=True)[:limit]
+        )
+
+    @staticmethod
     def get_following_request_ids(identity_pk: int):
         targets = Follow.objects.filter(
             source_id=identity_pk, state__in=["unrequested", "pending_approval"]

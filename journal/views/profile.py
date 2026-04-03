@@ -380,11 +380,8 @@ def user_follow_list(request: AuthedHttpRequest, user_name, list_type: str):
             identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
             title = _("Followers")
         case "mutuals":
-            mutual_ids = set(target.following) & set(target.followers)
-            qs = APIdentity.objects.filter(pk__in=mutual_ids).order_by("pk")
-            if last_pk:
-                qs = qs.filter(pk__gt=last_pk)
-            identities = list(qs[:_FOLLOW_LIST_PAGE_SIZE])
+            ids = Takahe.get_mutual_page(target.pk, last_pk, _FOLLOW_LIST_PAGE_SIZE)
+            identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
             title = _("Mutuals")
         case _:
             raise Http404()
