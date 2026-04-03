@@ -180,6 +180,7 @@ class WikidataProperties:
     P8419 = "P8419"  # Archive of Our Own tag
     P10319 = "P10319"  # Douban book works ID
     P648 = "P648"  # Open Library ID
+    P4300 = "P4300"  # YouTube playlist ID (YouTube Music album)
 
     IdTypeMapping = {
         "P345": IdType.IMDB,
@@ -207,6 +208,7 @@ class WikidataProperties:
         "P5813": IdType.MusicBrainz_Release,  # MusicBrainz release ID
         # "P5842": IdType.ApplePodcasts,
         "P2205": IdType.Spotify_Album,
+        "P4300": IdType.YouTubeMusic,  # YouTube playlist ID (YouTube Music album)
     }
 
 

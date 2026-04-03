@@ -36,6 +36,7 @@ class SiteName(models.TextChoices):
     WorldCat = "worldcat", _("WorldCat")
     MobyGames = "mobygames", _("MobyGames")
     StoryGraph = "storygraph", _("StoryGraph")
+    YouTubeMusic = "youtube_music", _("YouTube Music")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -89,6 +90,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     Bangumi = "bangumi", _("Bangumi")
     ApplePodcast = "apple_podcast", _("Apple Podcast")
     AppleMusic = "apple_music", _("Apple Music")
+    YouTubeMusic = "youtube_music", _("YouTube Music")
     Fediverse = "fedi", _("Fediverse")
     Qidian = "qidian", _("Qidian")
     Ypshuo = "ypshuo", _("Ypshuo")

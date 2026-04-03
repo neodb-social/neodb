@@ -4,6 +4,7 @@ from catalog.common import *
 from catalog.models import Album
 from catalog.models.utils import *
 from catalog.sites.spotify import Spotify
+from catalog.sites.youtube_music import YouTubeMusic
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -268,3 +269,37 @@ class TestAppleMusic:
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == ["Pop", "Music"]
         assert site.resource.item.duration == 2368000
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestYouTubeMusic:
+    # Real data: Synchronicity (Remastered 2003) by The Police
+    t_id = "OLAK5uy_mYp2X6OH03hsFOLZHrnMk7griAOuA9kuA"
+    t_url = f"https://music.youtube.com/playlist?list={t_id}"
+
+    def test_parse(self):
+        site = SiteManager.get_site_cls_by_id_type(IdType.YouTubeMusic)
+        assert site is not None
+        assert site is YouTubeMusic
+        assert site.validate_url(self.t_url)
+        site = SiteManager.get_site_by_url(self.t_url)
+        assert site is not None
+        assert site.url == self.t_url
+        assert site.id_value == self.t_id
+
+    @use_local_response
+    def test_scrape(self):
+        site = SiteManager.get_site_by_url(self.t_url)
+        assert site is not None
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        assert site.resource.metadata["title"] == "Synchronicity (Remastered 2003)"
+        assert site.resource.metadata["artist"] == ["The Police"]
+        assert site.resource.metadata["release_date"] == "1983-01-01"
+        assert site.resource.metadata["album_type"] == "Album"
+        assert site.resource.metadata["duration"] == 2675000
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Album)
+        assert str(site.resource.item.release_date) == "1983-01-01"

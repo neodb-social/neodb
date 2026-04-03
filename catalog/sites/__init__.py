@@ -30,6 +30,7 @@ from .storygraph import StoryGraph
 from .tmdb import TMDB_Movie
 from .wikidata import WikiData
 from .worldcat import WorldCat
+from .youtube_music import YouTubeMusic
 from .ypshuo import Ypshuo
 
 __all__ = [
@@ -70,5 +71,6 @@ __all__ = [
     "MobyGames",
     "MusicBrainzReleaseGroup",
     "MusicBrainzRelease",
+    "YouTubeMusic",
     # "ApplePodcast",
 ]
