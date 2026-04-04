@@ -601,3 +601,118 @@ class TestUpdateByApObject:
         assert result.progress_type == Note.ProgressType.CHAPTER
         assert result.progress_value == "3"
         assert result.local is False
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestUpdateByApObjectMissingUpdated:
+    """Verify update_by_ap_object handles AP objects that omit the 'updated' field.
+
+    The ActivityPub spec recommends but does not mandate 'updated'.  A remote
+    server that omits it must not cause a KeyError; the implementation should
+    fall back to 'published' as the edited timestamp.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.book = Edition.objects.create(title="Test Book")
+        self.user = User.register(email="noupd@test.com", username="noupd_user")
+        self.identity = self.user.identity
+
+    def _ap_obj_without_updated(self, base: dict) -> dict:
+        obj = dict(base)
+        obj.pop("updated", None)
+        return obj
+
+    def test_shelf_member_missing_updated(self):
+        """ShelfMember is created successfully when 'updated' is absent."""
+        Mark(self.identity, self.book).update(ShelfType.WISHLIST, visibility=0)
+        member = ShelfMember.objects.get(owner=self.identity, item=self.book)
+        ap_obj = self._ap_obj_without_updated(member.ap_object)
+        member.delete()
+
+        post = _make_remote_post(self.identity.pk, post_id=55551)
+        result = ShelfMember.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.parent.shelf_type == ShelfType.WISHLIST
+        assert result.local is False
+
+    def test_review_missing_updated(self):
+        """Review is created successfully when 'updated' is absent."""
+        review = Review.update_item_review(
+            self.book, self.identity, "Title", "Body", visibility=0
+        )
+        assert review is not None
+        ap_obj = self._ap_obj_without_updated(review.ap_object)
+        review.delete()
+
+        post = _make_remote_post(self.identity.pk, post_id=55552)
+        result = Review.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.title == "Title"
+        assert result.body == "Body"
+        assert result.local is False
+
+    def test_rating_missing_updated(self):
+        """Rating is created successfully when 'updated' is absent."""
+        Rating.update_item_rating(self.book, self.identity, 7, visibility=0)
+        rating = Rating.objects.get(owner=self.identity, item=self.book)
+        ap_obj = self._ap_obj_without_updated(rating.ap_object)
+        rating.delete()
+
+        post = _make_remote_post(self.identity.pk, post_id=55553)
+        result = Rating.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.grade == 7
+        assert result.local is False
+
+    def test_comment_missing_updated(self):
+        """Comment is created successfully when 'updated' is absent."""
+        comment = Comment.comment_item(self.book, self.identity, "text", visibility=0)
+        assert comment is not None
+        ap_obj = self._ap_obj_without_updated(comment.ap_object)
+        comment.delete()
+
+        post = _make_remote_post(self.identity.pk, post_id=55554)
+        result = Comment.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.text == "text"
+        assert result.local is False
+
+    def test_note_missing_updated(self):
+        """Note is created successfully when 'updated' is absent."""
+        note = Note.objects.create(
+            item=self.book,
+            owner=self.identity,
+            content="no-updated note",
+            visibility=0,
+        )
+        ap_obj = self._ap_obj_without_updated(note.ap_object)
+        note.delete()
+
+        post = _make_remote_post(self.identity.pk, post_id=55555)
+        result = Note.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.content == "no-updated note"
+        assert result.local is False
+
+    def test_staleness_check_without_updated_uses_published(self):
+        """Staleness guard falls back to 'published' and rejects truly stale objects."""
+        Mark(self.identity, self.book).update(ShelfType.COMPLETE, visibility=0)
+        member = ShelfMember.objects.get(owner=self.identity, item=self.book)
+        # Build an ap_object whose published time is older than the member's edited_time
+        old_ap = {
+            "id": member.absolute_url,
+            "type": "Status",
+            "status": "complete",
+            "published": "2000-01-01T00:00:00+00:00",  # clearly older
+            "attributedTo": self.identity.actor_uri,
+            "withRegardTo": self.book.absolute_url,
+            "href": member.absolute_url,
+            # no "updated" field
+        }
+        post = _make_remote_post(self.identity.pk, post_id=55556)
+        # Should be skipped because published < member.edited_time
+        result = ShelfMember.update_by_ap_object(self.identity, self.book, old_ap, post)
+        # Stale object — existing member returned unchanged
+        assert result is not None
+        assert result.pk == member.pk

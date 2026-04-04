@@ -42,7 +42,8 @@ class Comment(Content):
         if post.local:  # ignore local user updating their post via Mastodon API
             return
         p = cls.objects.filter(owner=owner, item=item).first()
-        if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
+        updated = obj.get("updated") or obj["published"]
+        if p and p.edited_time >= datetime.fromisoformat(updated):
             return p  # incoming ap object is older than what we have, no update needed
         content = obj.get("content", "").strip() if obj else ""
         if not content:
@@ -54,7 +55,7 @@ class Comment(Content):
             "remote_id": obj["id"],
             "visibility": Takahe.visibility_t2n(post.visibility),
             "created_time": datetime.fromisoformat(obj["published"]),
-            "edited_time": datetime.fromisoformat(obj["updated"]),
+            "edited_time": datetime.fromisoformat(updated),
         }
         if obj.get("relatedWithItemPosition"):
             d["metadata"] = {"position": obj["relatedWithItemPosition"]}

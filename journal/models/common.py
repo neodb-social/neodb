@@ -339,7 +339,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         d = cls.params_from_ap_object(post, obj, p)
         if p:
             # update existing piece
-            edited = post.edited if local else datetime.fromisoformat(obj["updated"])
+            edited = (
+                post.edited
+                if local
+                else datetime.fromisoformat(obj.get("updated") or obj["published"])
+            )
             if p.edited_time >= edited:
                 # incoming ap object is older than what we have, no update needed
                 return p
@@ -365,7 +369,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 d["edited_time"] = post.edited or post.published
             else:
                 d["created_time"] = datetime.fromisoformat(obj["published"])
-                d["edited_time"] = datetime.fromisoformat(obj["updated"])
+                d["edited_time"] = datetime.fromisoformat(
+                    obj.get("updated") or obj["published"]
+                )
             p = cls(**d)
             if crosspost is not None:
                 p.crosspost_when_save = crosspost

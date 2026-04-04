@@ -373,7 +373,8 @@ class ShelfMember(ListMember):
         if post.local:  # ignore local user updating their post via Mastodon API
             return
         p = cls.objects.filter(owner=owner, item=item).first()
-        if p and p.edited_time >= datetime.fromisoformat(obj["updated"]):
+        updated = obj.get("updated") or obj["published"]
+        if p and p.edited_time >= datetime.fromisoformat(updated):
             return p  # incoming ap object is older than what we have, no update needed
         shelf = owner.shelf_manager.get_shelf(obj["status"])
         if not shelf:
@@ -385,7 +386,7 @@ class ShelfMember(ListMember):
             "local": False,
             "visibility": Takahe.visibility_t2n(post.visibility),
             "created_time": datetime.fromisoformat(obj["published"]),
-            "edited_time": datetime.fromisoformat(obj["updated"]),
+            "edited_time": datetime.fromisoformat(updated),
         }
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
         p.link_post_id(post.id)
