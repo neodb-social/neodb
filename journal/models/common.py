@@ -116,18 +116,15 @@ def q_piece_visible_to_user(viewing_user: User):
             )
         return Q(visibility=0, owner__anonymous_viewable=True)
     viewer = viewing_user.identity
+    following = viewer.following
     base_q = (
         Q(visibility=0)
-        | Q(owner_id__in=viewer.following, visibility=1)
+        | Q(owner_id__in=following, visibility=1)
         | Q(owner_id=viewer.pk)
     ) & ~Q(owner_id__in=viewer.ignoring)
     if not restricted_ids:
         return base_q
-    non_followed_restricted = [
-        pk
-        for pk in restricted_ids
-        if pk not in set(viewer.following) and pk != viewer.pk
-    ]
+    non_followed_restricted = list(set(restricted_ids) - set(following) - {viewer.pk})
     if not non_followed_restricted:
         return base_q
     return base_q & ~Q(owner_id__in=non_followed_restricted)
