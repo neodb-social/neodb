@@ -191,9 +191,9 @@ class JournalQueryParser(QueryParser):
         if ignoring:
             self.exclude("owner_id", ignoring)
         if restricted_ids:
-            non_followed_restricted = [
-                pk for pk in restricted_ids if pk not in following_set
-            ]
+            non_followed_restricted = list(
+                set(restricted_ids) - following_set - {viewer.pk}
+            )
             if non_followed_restricted:
                 self.exclude("owner_id", non_followed_restricted)
 
