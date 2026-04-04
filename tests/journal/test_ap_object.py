@@ -278,8 +278,7 @@ class TestGetApData:
             "content": "Body text",
             "mediaType": "text/markdown",
         }
-        assert "Test Book" in obj_data["summary"]
-        assert review.absolute_url in obj_data["summary"]
+        assert "summary" not in obj_data
 
     def test_note_get_ap_data(self):
         note = Note.objects.create(
@@ -380,7 +379,7 @@ class TestPostTypeData:
             "content": "Review body",
             "mediaType": "text/markdown",
         }
-        assert review.absolute_url in post.type_data["object"]["summary"]
+        assert "summary" not in post.type_data["object"]
 
     def test_note_post_type_data_without_progress(self):
         note = Note.objects.create(
