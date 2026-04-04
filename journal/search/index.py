@@ -164,11 +164,21 @@ class JournalQueryParser(QueryParser):
         self.filter("owner_id", owner.pk)
 
     def filter_by_viewer(self, viewer: APIdentity | None):
+        from takahe.models import Identity as TakaheIdentity
+
+        restricted_ids = list(
+            TakaheIdentity.objects.filter(restriction__gt=0).values_list(
+                "pk", flat=True
+            )
+        )
         if not viewer:
             self.filter("visibility", 0)
+            if restricted_ids:
+                self.exclude("owner_id", restricted_ids)
             return
-        filters = ["visibility:0", f"owner_id:{viewer.pk}"]
         following = viewer.following
+        following_set = set(following)
+        filters = ["visibility:0", f"owner_id:{viewer.pk}"]
         if following:
             if len(following) > 420:
                 # randomly sample following to reduce query size
@@ -180,6 +190,12 @@ class JournalQueryParser(QueryParser):
         ignoring = viewer.ignoring
         if ignoring:
             self.exclude("owner_id", ignoring)
+        if restricted_ids:
+            non_followed_restricted = [
+                pk for pk in restricted_ids if pk not in following_set
+            ]
+            if non_followed_restricted:
+                self.exclude("owner_id", non_followed_restricted)
 
     def filter_by_owner_viewer(self, owner: APIdentity, viewer: APIdentity | None):
         self.filter("owner_id", owner.pk)

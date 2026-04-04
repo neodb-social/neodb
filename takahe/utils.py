@@ -911,6 +911,7 @@ class Takahe:
     @staticmethod
     def get_boosted_posts(
         identity_pk: int,
+        viewer_pk: int | None = None,
         days: int | None = 90,
     ):
         from django.db.models import OuterRef, Subquery
@@ -938,6 +939,11 @@ class Takahe:
             since = timezone.now() - timedelta(days=days)
             qs = qs.filter(interactions__published__gte=since)
         qs = qs.filter(visibility__in=[0, 1, 4])
+        qs = qs.filter(author__restriction=Identity.Restriction.none)
+        if viewer_pk:
+            rejected_ids = Takahe.get_rejecting_ids(viewer_pk)
+            if rejected_ids:
+                qs = qs.exclude(author_id__in=rejected_ids)
         return (
             qs.annotate(boost_pk=Subquery(boost_pk_subq))
             .order_by("-boost_pk")

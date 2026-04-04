@@ -104,14 +104,33 @@ def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
 
 
 def q_piece_visible_to_user(viewing_user: User):
+    from takahe.models import Identity as TakaheIdentity
+
+    restricted_ids = list(
+        TakaheIdentity.objects.filter(restriction__gt=0).values_list("pk", flat=True)
+    )
     if not viewing_user or not viewing_user.is_authenticated:
+        if restricted_ids:
+            return Q(visibility=0, owner__anonymous_viewable=True) & ~Q(
+                owner_id__in=restricted_ids
+            )
         return Q(visibility=0, owner__anonymous_viewable=True)
     viewer = viewing_user.identity
-    return (
+    base_q = (
         Q(visibility=0)
         | Q(owner_id__in=viewer.following, visibility=1)
         | Q(owner_id=viewer.pk)
     ) & ~Q(owner_id__in=viewer.ignoring)
+    if not restricted_ids:
+        return base_q
+    non_followed_restricted = [
+        pk
+        for pk in restricted_ids
+        if pk not in set(viewer.following) and pk != viewer.pk
+    ]
+    if not non_followed_restricted:
+        return base_q
+    return base_q & ~Q(owner_id__in=non_followed_restricted)
 
 
 def q_piece_in_home_feed_of_user(viewing_user: User):

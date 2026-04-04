@@ -197,7 +197,7 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     last_pk = int_(request.GET.get("last", 0))
     viewer_pk = request.user.identity.pk
     if target.is_group:
-        qs = Takahe.get_boosted_posts(target.pk, days=None)
+        qs = Takahe.get_boosted_posts(target.pk, viewer_pk=viewer_pk, days=None)
         if last_pk:
             qs = qs.filter(boost_pk__lt=last_pk)
         posts = list(qs[:20])

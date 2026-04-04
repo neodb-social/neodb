@@ -33,13 +33,19 @@ class UserOwnedObjectMixin:
         if owner.user == viewing_user:
             return True
         if not viewing_user or not viewing_user.is_authenticated:
-            return self.visibility == 0 and owner.anonymous_viewable
+            return (
+                self.visibility == 0
+                and owner.anonymous_viewable
+                and not owner.restricted
+            )
         viewer = viewing_user.identity
         if not viewer:
             return False
         if self.visibility == 2:
             return False
         if viewer.is_blocking(owner) or owner.is_blocking(viewer):
+            return False
+        if owner.restricted and not viewer.is_following(owner):
             return False
         if self.visibility == 1:
             return viewer.is_following(owner)

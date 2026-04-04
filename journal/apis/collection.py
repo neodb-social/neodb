@@ -419,7 +419,12 @@ def trending_collection(request):
     collection_ids = cache.get("featured_collections", [])
     i = rot * len(collection_ids) // 10
     collection_ids = collection_ids[i:] + collection_ids[:i]
-    featured_collections = Collection.objects.filter(
-        pk__in=collection_ids
-    ).prefetch_related("post_relations")
-    return featured_collections
+    from takahe.models import Identity as TakaheIdentity
+
+    restricted_owner_ids = list(
+        TakaheIdentity.objects.filter(restriction__gt=0).values_list("pk", flat=True)
+    )
+    qs = Collection.objects.filter(pk__in=collection_ids)
+    if restricted_owner_ids:
+        qs = qs.exclude(owner_id__in=restricted_owner_ids)
+    return qs.prefetch_related("post_relations")
