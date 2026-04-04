@@ -489,6 +489,7 @@ class Takahe:
         attachments: list | None = None,
         language: str = "",
         application_id: int | None = None,
+        post_type: str = "Note",
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -515,6 +516,7 @@ class Takahe:
                 edited=edit_time,
                 attachments=attachments,
                 language=language,
+                post_type=post_type,
             )
         else:
             post = Post.create_local(
@@ -533,6 +535,7 @@ class Takahe:
                 attachments=attachments,
                 language=language,
                 application_id=application_id,
+                post_type=post_type,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,

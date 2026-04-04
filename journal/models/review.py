@@ -66,6 +66,22 @@ class Review(Content):
             "href": self.absolute_url,
         }
 
+    def get_ap_data(self):
+        data = super().get_ap_data()
+        data["object"].update(
+            {
+                "name": self.title,
+                "content": self.html_content,
+                "source": {"content": self.body, "mediaType": "text/markdown"},
+                "summary": self.get_crosspost_template().format(
+                    item=self.item.display_title
+                )
+                + "\n"
+                + self.absolute_url,
+            }
+        )
+        return data
+
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
         if post.local:  # ignore local user updating their post via Mastodon API
@@ -122,6 +138,7 @@ class Review(Content):
         return {
             "prepend_content": prepend_content,
             "content": content,
+            "post_type": "Article",
         }
 
     @cached_property
