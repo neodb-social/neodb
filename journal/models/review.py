@@ -73,11 +73,6 @@ class Review(Content):
                 "name": self.title,
                 "content": self.html_content,
                 "source": {"content": self.body, "mediaType": "text/markdown"},
-                "summary": self.get_crosspost_template().format(
-                    item=self.item.display_title
-                )
-                + "\n"
-                + self.absolute_url,
             }
         )
         return data
