@@ -152,9 +152,7 @@ def profile(request: AuthedHttpRequest, user_name):
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
     viewer_identity_pk = None if anonymous else request.user.identity.pk
     if target.is_group:
-        recent_posts = list(
-            Takahe.get_boosted_posts(target.pk, viewer_identity_pk)[:10]
-        )
+        recent_posts = list(Takahe.get_boosted_posts(target.pk)[:10])
     else:
         recent_posts = list(Takahe.get_recent_posts(target.pk, viewer_identity_pk)[:10])
     prefetch_pieces_for_posts(recent_posts)
@@ -199,7 +197,7 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     last_pk = int_(request.GET.get("last", 0))
     viewer_pk = request.user.identity.pk
     if target.is_group:
-        qs = Takahe.get_boosted_posts(target.pk, viewer_pk, days=None)
+        qs = Takahe.get_boosted_posts(target.pk, days=None)
         if last_pk:
             qs = qs.filter(boost_pk__lt=last_pk)
         posts = list(qs[:20])

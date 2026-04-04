@@ -911,7 +911,6 @@ class Takahe:
     @staticmethod
     def get_boosted_posts(
         identity_pk: int,
-        viewer_pk: int | None = None,
         days: int | None = 90,
     ):
         from django.db.models import OuterRef, Subquery
@@ -938,10 +937,7 @@ class Takahe:
         if days is not None:
             since = timezone.now() - timedelta(days=days)
             qs = qs.filter(interactions__published__gte=since)
-        if viewer_pk and Takahe.get_is_following(viewer_pk, identity_pk):
-            qs = qs.exclude(visibility=3)
-        else:
-            qs = qs.filter(visibility__in=[0, 1, 4])
+        qs = qs.filter(visibility__in=[0, 1, 4])
         return (
             qs.annotate(boost_pk=Subquery(boost_pk_subq))
             .order_by("-boost_pk")

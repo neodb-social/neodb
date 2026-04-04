@@ -54,15 +54,13 @@
               </small>
             {% endif %}
           </h5>
-          <section>
-            <article>
-              <div hx-get="{% url 'journal:profile_posts_data' identity.handle %}"
-                   hx-trigger="intersect once delay:0.1s"
-                   hx-swap="outerHTML">
-                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-              </div>
-            </article>
-          </section>
+          <div class="feed">
+            <div hx-get="{% url 'journal:profile_posts_data' identity.handle %}"
+                 hx-trigger="intersect once delay:0.1s"
+                 hx-swap="outerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </div>
         {% else %}
           <div class="sortable"></div>
           <div class="unsorted" style="display:none;">
