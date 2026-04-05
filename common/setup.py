@@ -111,7 +111,10 @@ class Setup:
         SiteConfig.ensure_loaded()
 
         # Update site name if changed
-        self.sync_site_config()
+        try:
+            self.sync_site_config()
+        except Exception as e:
+            logger.warning(f"sync_site_config skipped: {e}")
 
         # Create basic emoji if not exists
 

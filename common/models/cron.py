@@ -34,7 +34,12 @@ class BaseJob:
         job_id = cls.__name__
         interval = cls.get_interval()
         i = timedelta(seconds=0) if now else interval
-        if interval <= timedelta(0) or job_id in SiteConfig.system.disable_cron_jobs:
+        disabled = (
+            getattr(SiteConfig, "system", None)
+            and SiteConfig.system.disable_cron_jobs
+            or []
+        )
+        if interval <= timedelta(0) or job_id in disabled:
             logger.info(f"Skip disabled job {job_id}")
             return
         logger.info(f"Scheduling job {job_id} in {i}")

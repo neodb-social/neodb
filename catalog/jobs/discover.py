@@ -34,7 +34,9 @@ class DiscoverGenerator(BaseJob):
 
     @classmethod
     def get_interval(cls) -> timedelta:
-        return timedelta(minutes=SiteConfig.system.discover_update_interval)
+        if getattr(SiteConfig, "system", None):
+            return timedelta(minutes=SiteConfig.system.discover_update_interval)
+        return cls.interval
 
     @property
     def min_marks(self) -> int:
