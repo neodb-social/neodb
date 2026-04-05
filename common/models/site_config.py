@@ -278,24 +278,6 @@ class SiteConfig(models.Model):
         si["enable_login_atproto"] = opts.enable_login_bluesky
         si["translate_enabled"] = bool(opts.deepl_api_key) or bool(opts.lt_api_url)
 
-        # Access Control
-        settings.INVITE_ONLY = opts.invite_only
-        settings.ENABLE_LOCAL_ONLY = opts.enable_local_only
-        settings.ENABLE_LOGIN_BLUESKY = opts.enable_login_bluesky
-        settings.ENABLE_LOGIN_THREADS = opts.enable_login_threads
-        settings.MASTODON_ALLOWED_SITES = opts.mastodon_login_whitelist
-        settings.MASTODON_ALLOW_ANY_SITE = len(opts.mastodon_login_whitelist) == 0
-
-        # Discover
-        settings.MIN_MARKS_FOR_DISCOVER = opts.min_marks_for_discover
-        settings.DISCOVER_UPDATE_INTERVAL = opts.discover_update_interval
-        settings.DISCOVER_FILTER_LANGUAGE = opts.discover_filter_language
-        settings.DISCOVER_SHOW_LOCAL_ONLY = opts.discover_show_local_only
-        settings.DISCOVER_SHOW_POPULAR_POSTS = opts.discover_show_popular_posts
-        settings.DISCOVER_SHOW_POPULAR_TAGS = opts.discover_show_popular_tags
-
-        # Localization
-        settings.PREFERRED_LANGUAGES = opts.preferred_languages
         # Refresh module-level language caches
         import common.models.lang as lang_module
 
@@ -305,17 +287,8 @@ class SiteConfig(models.Model):
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
         lang_module.SITE_PREFERRED_LOCALES = lang_module.get_preferred_locales()
 
-        # Federation
-        settings.DISABLE_DEFAULT_RELAY = opts.disable_default_relay
-        settings.FANOUT_LIMIT_DAYS = opts.fanout_limit_days
-        settings.REMOTE_PRUNE_HORIZON = opts.remote_prune_horizon
-
-        # Search/Catalog
-        settings.SEARCH_SITES = opts.search_sites
-        settings.SEARCH_PEERS = opts.search_peers
-        settings.HIDDEN_CATEGORIES = opts.hidden_categories
-
-        # API Keys
+        # Write-back for settings still read via settings.* in many files
+        # (API keys used across catalog sites, downloader config, derived values)
         settings.SPOTIFY_CREDENTIAL = opts.spotify_api_key
         settings.TMDB_API3_KEY = opts.tmdb_api_key
         settings.GOOGLE_API_KEY = opts.google_api_key
@@ -329,8 +302,6 @@ class SiteConfig(models.Model):
         settings.THREADS_APP_ID = opts.threads_app_id
         settings.THREADS_APP_SECRET = opts.threads_app_secret
         settings.DISCORD_WEBHOOKS = opts.discord_webhooks
-
-        # Downloader
         settings.DOWNLOADER_PROXY_LIST = opts.downloader_proxy_list
         settings.DOWNLOADER_BACKUP_PROXY = opts.downloader_backup_proxy
         settings.DOWNLOADER_PROVIDERS = opts.downloader_providers
@@ -342,12 +313,7 @@ class SiteConfig(models.Model):
         settings.DOWNLOADER_REQUEST_TIMEOUT = opts.downloader_request_timeout
         settings.DOWNLOADER_CACHE_TIMEOUT = opts.downloader_cache_timeout
         settings.DOWNLOADER_RETRIES = opts.downloader_retries
-
-        # Advanced / Operational
-        settings.ALTERNATIVE_DOMAINS = opts.alternative_domains
         settings.SITE_DOMAINS = [settings.SITE_DOMAIN] + opts.alternative_domains
-        settings.MASTODON_CLIENT_SCOPE = opts.mastodon_client_scope
-        settings.DISABLE_CRON_JOBS = opts.disable_cron_jobs
         settings.INDEX_ALIASES = opts.index_aliases
         settings.SKIP_MIGRATIONS = opts.skip_migrations
         if opts.log_level:

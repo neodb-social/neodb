@@ -5,10 +5,9 @@
 Set these in `.env` before starting the instance for the first time:
 
  - `NEODB_SECRET_KEY` - 50 characters of random string, no white space
- - `NEODB_SITE_NAME` - the name of your site
  - `NEODB_SITE_DOMAIN` - the domain name of your site
 
-**`NEODB_SECRET_KEY` and `NEODB_SITE_DOMAIN` must not be changed later.**
+**`NEODB_SECRET_KEY` and `NEODB_SITE_DOMAIN` MUST NOT be changed later.**
 
 If you are doing debug or development:
 
@@ -52,7 +51,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
 
 
-## Scaling up
+### Scaling Parameters
 
 For high-traffic instance, spin up these configurations to a higher number in `.env`, as long as the host server can handle them:
 
@@ -182,6 +181,7 @@ The following settings can still be set in `.env` for backward compatibility, bu
 ### Customization
  - `NEODB_SITE_LOGO`
  - `NEODB_SITE_ICON`
+ - `NEODB_SITE_NAME`
  - `NEODB_USER_ICON`
  - `NEODB_SITE_COLOR`
  - `NEODB_SITE_INTRO`

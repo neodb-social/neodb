@@ -24,6 +24,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from lxml import etree
 
+from common.models import SiteConfig
+
 from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
 
@@ -1374,7 +1376,9 @@ class Post(models.Model):
                 _delta = timezone.now() - published
                 if _delta > datetime.timedelta(0):
                     post_obj["published"] = published
-                    if _delta > datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS):
+                    if _delta > datetime.timedelta(
+                        days=SiteConfig.system.fanout_limit_days
+                    ):
                         post_obj["id"] = Snowflake.generate_post_at(
                             published.timestamp()
                         )

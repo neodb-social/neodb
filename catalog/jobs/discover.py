@@ -10,7 +10,7 @@ from loguru import logger
 
 from catalog.models import *
 from catalog.sites.fedi import FediverseInstance
-from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager
+from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager, SiteConfig
 from journal.models import (
     Collection,
     Comment,
@@ -34,11 +34,11 @@ class DiscoverGenerator(BaseJob):
 
     @classmethod
     def get_interval(cls) -> timedelta:
-        return timedelta(minutes=settings.DISCOVER_UPDATE_INTERVAL)
+        return timedelta(minutes=SiteConfig.system.discover_update_interval)
 
     @property
     def min_marks(self) -> int:
-        return settings.MIN_MARKS_FOR_DISCOVER
+        return SiteConfig.system.min_marks_for_discover
 
     def get_no_discover_identities(self):
         return list(
@@ -68,9 +68,12 @@ class DiscoverGenerator(BaseJob):
         )
         if local_only:
             qs = qs.filter(local=True)
-        if settings.DISCOVER_FILTER_LANGUAGE and settings.PREFERRED_LANGUAGES:
+        if (
+            SiteConfig.system.discover_filter_language
+            and SiteConfig.system.preferred_languages
+        ):
             q = None
-            for lang in settings.PREFERRED_LANGUAGES:
+            for lang in SiteConfig.system.preferred_languages:
                 if q:
                     q = q | Q(language__istartswith=lang)
                 else:
@@ -85,9 +88,9 @@ class DiscoverGenerator(BaseJob):
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
         )
-        if settings.DISCOVER_SHOW_LOCAL_ONLY:
+        if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
-        if settings.DISCOVER_FILTER_LANGUAGE:
+        if SiteConfig.system.discover_filter_language:
             q = None
             for loc in SITE_PREFERRED_LOCALES:
                 if q:
@@ -109,7 +112,7 @@ class DiscoverGenerator(BaseJob):
         qs = Comment.objects.filter(q_item_in_category(ItemCategory.Podcast)).filter(
             created_time__gt=timezone.now() - timedelta(days=days)
         )
-        if settings.DISCOVER_SHOW_LOCAL_ONLY:
+        if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
         return list(
             qs.annotate(p=F("item__podcastepisode__program"))
@@ -133,7 +136,7 @@ class DiscoverGenerator(BaseJob):
 
     def run(self):
         logger.info("Discover data update start.")
-        local = settings.DISCOVER_SHOW_LOCAL_ONLY
+        local = SiteConfig.system.discover_show_local_only
         gallery_categories = [
             ItemCategory.Book,
             ItemCategory.Movie,
@@ -225,7 +228,7 @@ class DiscoverGenerator(BaseJob):
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
         excluding_identities = self.get_no_discover_identities()
 
-        if settings.DISCOVER_SHOW_POPULAR_POSTS:
+        if SiteConfig.system.discover_show_popular_posts:
             reviews = (
                 Review.objects.filter(visibility=0)
                 .exclude(owner_id__in=excluding_identities)

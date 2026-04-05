@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from common.models import SiteConfig
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models.task import Task
@@ -39,10 +40,10 @@ def account_info(request):
         request,
         "users/account.html",
         {
-            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
-            "enable_threads": settings.ENABLE_LOGIN_THREADS,
-            "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
+            "enable_threads": SiteConfig.system.enable_login_threads,
+            "enable_bluesky": SiteConfig.system.enable_login_bluesky,
             "profile_form": profile_form,
             "has_pending_tasks": has_pending_tasks,
         },

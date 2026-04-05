@@ -1,12 +1,12 @@
 import datetime
 import sys
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 from tqdm import tqdm
 
+from common.models import SiteConfig
 from takahe.models import Domain, Post
 from takahe.utils import Takahe
 
@@ -34,7 +34,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, number: int, dry_run: bool, verbose: bool, *args, **options):
-        horizon = settings.REMOTE_PRUNE_HORIZON
+        SiteConfig.ensure_loaded()
+        horizon = SiteConfig.system.remote_prune_horizon
         if not horizon:
             self.stdout.write(self.style.WARNING("Pruning has been disabled"))
             sys.exit(0)

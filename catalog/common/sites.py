@@ -15,10 +15,10 @@ from typing import Type, TypeVar
 
 import django_rq
 import requests
-from django.conf import settings
 from django.core.cache import cache
 from loguru import logger
 
+from common.models import SiteConfig
 from common.models.misc import uniq
 from common.validators import is_valid_url
 
@@ -318,13 +318,16 @@ class SiteManager:
 
     @staticmethod
     def get_sites_for_search():
-        if settings.SEARCH_SITES == ["-"]:
+        if SiteConfig.system.search_sites == ["-"]:
             return []
         sites = SiteManager.get_all_sites()
-        if settings.SEARCH_SITES == ["*"] or not settings.SEARCH_SITES:
+        if (
+            SiteConfig.system.search_sites == ["*"]
+            or not SiteConfig.system.search_sites
+        ):
             return [s for s in sites if hasattr(s, "search_task")]
         ss = {s.SITE_NAME.value: s for s in sites if hasattr(s, "search_task")}
-        return [ss[s] for s in settings.SEARCH_SITES if s in ss]
+        return [ss[s] for s in SiteConfig.system.search_sites if s in ss]
 
     @classmethod
     def fetch_linked_resources(cls, resource, linked_resources, link_type):

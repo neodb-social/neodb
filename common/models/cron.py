@@ -5,7 +5,7 @@ from loguru import logger
 from rq.job import Job
 from rq.registry import ScheduledJobRegistry
 
-from boofilsic import settings
+from common.models.site_config import SiteConfig
 
 
 class BaseJob:
@@ -34,7 +34,7 @@ class BaseJob:
         job_id = cls.__name__
         interval = cls.get_interval()
         i = timedelta(seconds=0) if now else interval
-        if interval <= timedelta(0) or job_id in settings.DISABLE_CRON_JOBS:
+        if interval <= timedelta(0) or job_id in SiteConfig.system.disable_cron_jobs:
             logger.info(f"Skip disabled job {job_id}")
             return
         logger.info(f"Scheduling job {job_id} in {i}")
@@ -63,8 +63,6 @@ class BaseJob:
 
     @classmethod
     def _run(cls):
-        from common.models.site_config import SiteConfig
-
         SiteConfig.ensure_loaded()
         cls.schedule()  # schedule next run
         cls().run()

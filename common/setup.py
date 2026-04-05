@@ -3,7 +3,7 @@ from django.core.checks import Error, Warning
 from loguru import logger
 
 from catalog.search import CatalogIndex
-from common.models import JobManager
+from common.models import JobManager, SiteConfig
 from journal.search import JournalIndex
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
@@ -90,7 +90,7 @@ class Setup:
             state__in=["new", "subscribing", "subscribed"],
             inbox_uri=settings.DEFAULT_RELAY_SERVER,
         ).first()
-        if settings.DISABLE_DEFAULT_RELAY:
+        if SiteConfig.system.disable_default_relay:
             if relay:
                 logger.info("Default relay is disabled, unsubscribing...")
                 Takahe.update_state(relay, "unsubscribing")
@@ -108,8 +108,6 @@ class Setup:
 
     def run(self):
         logger.info("Running post-migration setup...")
-        from common.models import SiteConfig
-
         SiteConfig.ensure_loaded()
 
         # Update site name if changed
@@ -127,7 +125,10 @@ class Setup:
             return
 
         # Register cron jobs if not yet
-        if settings.DISABLE_CRON_JOBS and "*" in settings.DISABLE_CRON_JOBS:
+        if (
+            SiteConfig.system.disable_cron_jobs
+            and "*" in SiteConfig.system.disable_cron_jobs
+        ):
             logger.info("Cron jobs are disabled.")
             JobManager.cancel_all()
         else:

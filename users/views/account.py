@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models import SiteConfig
 from common.utils import AuthedHttpRequest
 from common.validators import get_safe_redirect_url, sanitize_next_url
 from mastodon.forms import EmailLoginForm
@@ -37,8 +38,8 @@ def login(request):
     next_url = sanitize_next_url(request.GET.get("next"))
     if next_url:
         request.session["next_url"] = next_url
-    invite_status = -1 if settings.INVITE_ONLY else 0
-    if settings.INVITE_ONLY and request.GET.get("invite"):
+    invite_status = -1 if SiteConfig.system.invite_only else 0
+    if SiteConfig.system.invite_only and request.GET.get("invite"):
         if Takahe.verify_invite(request.GET.get("invite")):
             invite_status = 1
             request.session["invite"] = request.GET.get("invite")
@@ -50,12 +51,12 @@ def login(request):
         "users/login.html",
         {
             "sites": sites,
-            "scope": quote(settings.MASTODON_CLIENT_SCOPE),
+            "scope": quote(SiteConfig.system.mastodon_client_scope),
             "selected_domain": selected_domain,
-            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
-            "enable_threads": settings.ENABLE_LOGIN_THREADS,
-            "enable_bluesky": settings.ENABLE_LOGIN_BLUESKY,
+            "enable_threads": SiteConfig.system.enable_login_threads,
+            "enable_bluesky": SiteConfig.system.enable_login_bluesky,
             "email_form": email_form,
             "invite_status": invite_status,
         },
@@ -142,7 +143,7 @@ def register(request: AuthedHttpRequest):
     """show registration page and process the submission from it"""
 
     # check invite code if invite-only
-    if settings.INVITE_ONLY and not request.user.is_authenticated:
+    if SiteConfig.system.invite_only and not request.user.is_authenticated:
         if not Takahe.verify_invite(str(request.session.get("invite"))):
             return render(
                 request,
@@ -167,7 +168,7 @@ def register(request: AuthedHttpRequest):
             return redirect(reverse("users:login"))
 
     # no registration form for closed community mode
-    if not settings.MASTODON_ALLOW_ANY_SITE:
+    if not len(SiteConfig.system.mastodon_login_whitelist) == 0:
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
             mastodon_account: MastodonAccount = verified_account

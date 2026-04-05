@@ -32,6 +32,7 @@ from catalog.models import (
     TVShow,
 )
 from catalog.search import ExternalSearchResultItem
+from common.models import SiteConfig
 
 
 @SiteManager.register
@@ -234,8 +235,12 @@ class FediverseInstance(AbstractSite):
     def get_peers_for_search(cls) -> list[str]:
         from takahe.utils import Takahe
 
-        if settings.SEARCH_PEERS:  # '-' = disable federated search
-            return [] if settings.SEARCH_PEERS == ["-"] else settings.SEARCH_PEERS
+        if SiteConfig.system.search_peers:  # '-' = disable federated search
+            return (
+                []
+                if SiteConfig.system.search_peers == ["-"]
+                else SiteConfig.system.search_peers
+            )
         return Takahe.get_neodb_peers()
 
     @classmethod

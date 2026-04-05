@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
+from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
 from journal.importers import (
@@ -86,7 +87,7 @@ def preferences(request):
     return render(
         request,
         "users/preferences.html",
-        {"enable_local_only": settings.ENABLE_LOCAL_ONLY},
+        {"enable_local_only": SiteConfig.system.enable_local_only},
     )
 
 
@@ -116,7 +117,7 @@ def data(request):
         request,
         "users/data.html",
         {
-            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "import_task": DoubanImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
             "csv_export_task": CsvExporter.latest_task(request.user),

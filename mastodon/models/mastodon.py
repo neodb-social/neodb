@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
-from common.models import jsondata
+from common.models import SiteConfig, jsondata
 from takahe.utils import Takahe
 
 from .common import SocialAccount
@@ -238,7 +238,10 @@ def _get_redirect_uris(server_version: str) -> str:
     u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
     if not allow_multiple_redir:
         return u
-    u2s = [f"https://{d}/account/login/oauth" for d in settings.ALTERNATIVE_DOMAINS]
+    u2s = [
+        f"https://{d}/account/login/oauth"
+        for d in SiteConfig.system.alternative_domains
+    ]
     return "\n".join([u] + u2s)
 
 
@@ -246,7 +249,7 @@ def _get_scopes(server_version: str) -> str:
     return (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
         if re.match(r".*(Pixelfed|Friendica).*", server_version or "")
-        else settings.MASTODON_CLIENT_SCOPE
+        else SiteConfig.system.mastodon_client_scope
     )
 
 
@@ -456,7 +459,7 @@ def get_or_create_fediverse_application(login_domain: str):
             app.vapid_key = data.get("vapid_key", "")
             app.save()
         return app
-    if not settings.MASTODON_ALLOW_ANY_SITE:
+    if not len(SiteConfig.system.mastodon_login_whitelist) == 0:
         logger.warning(f"Disallowed to create app for {domain}")
         raise ValueError("Unsupported instance")
     if login_domain.lower() in settings.SITE_DOMAINS:

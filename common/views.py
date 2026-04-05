@@ -15,6 +15,7 @@ from takahe.utils import Takahe
 from users.models.user import User
 
 from .api import api
+from .models import SiteConfig
 
 
 def render_error(request: HttpRequest, title, message=""):
@@ -94,7 +95,7 @@ def nodeinfo2(request, version: str):
                 "description": settings.SITE_INFO["site_description"],
             },
             "protocols": ["activitypub", "neodb"],
-            "openRegistrations": not settings.INVITE_ONLY,
+            "openRegistrations": not SiteConfig.system.invite_only,
             "services": {"outbound": [], "inbound": []},
             "usage": usage,
             "metadata": {
@@ -264,7 +265,7 @@ def about(request):
     }
     context["catalog_stats"] = cache.get("catalog_stats") or []
     context["instance_info_stats"] = cache.get("instance_info_stats") or {}
-    context["invite_only"] = settings.INVITE_ONLY
+    context["invite_only"] = SiteConfig.system.invite_only
     context["admin_users"] = User.objects.filter(is_superuser=True, is_active=True)
     context["staff_users"] = User.objects.filter(
         is_staff=True, is_superuser=False, is_active=True
@@ -276,7 +277,7 @@ def about(request):
             name = (d.nodeinfo or {}).get("metadata", {}).get("nodeName", peer)
             peers.append({"name": name, "domain": peer})
     context["neodb_peers"] = peers
-    context["preferred_languages"] = settings.PREFERRED_LANGUAGES
+    context["preferred_languages"] = SiteConfig.system.preferred_languages
     return render(request, "common/about.html", context)
 
 

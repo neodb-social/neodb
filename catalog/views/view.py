@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Count, F, Window
@@ -11,6 +10,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
+from common.models import SiteConfig
 from common.utils import (
     CustomPaginator,
     PageLinksGenerator,
@@ -419,7 +419,9 @@ def wikipedia_pages(request, item_path, item_uuid, wikidata_id):
     site = WikiData(id_value=wikidata.id_value)
     wiki_pages = sorted(
         site.get_wikipedia_pages(),
-        key=lambda p: p["lang"].split("-")[0] not in settings.PREFERRED_LANGUAGES,
+        key=lambda p: (
+            p["lang"].split("-")[0] not in SiteConfig.system.preferred_languages
+        ),
     )
     return render(
         request,
@@ -460,7 +462,7 @@ def discover(request):
     else:
         featured_collections = []
 
-    if settings.DISCOVER_SHOW_POPULAR_TAGS:
+    if SiteConfig.system.discover_show_popular_tags:
         popular_tags = cache.get("popular_tags", [])
     else:
         popular_tags = None
@@ -484,11 +486,13 @@ def discover(request):
 @login_required
 @require_http_methods(["GET"])
 def discover_popular_posts(request):
-    if settings.DISCOVER_SHOW_POPULAR_POSTS:
+    if SiteConfig.system.discover_show_popular_posts:
         post_ids = cache.get("popular_posts", [])
         popular_posts = Takahe.get_posts(post_ids).order_by("-published")
     else:
-        popular_posts = Takahe.get_public_posts(settings.DISCOVER_SHOW_LOCAL_ONLY)
+        popular_posts = Takahe.get_public_posts(
+            SiteConfig.system.discover_show_local_only
+        )
         # Limit to no more than 3 posts per author
         popular_posts = popular_posts.annotate(
             author_row=Window(

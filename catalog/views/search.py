@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
 
-from common.models import int_
+from common.models import SiteConfig, int_
 from common.utils import (
     HTTPResponseHXRedirect,
     PageLinksGenerator,
@@ -34,7 +34,9 @@ def default_visible_categories() -> list[ItemCategory]:
     global _VISIBLE_CATEGORIES
     if _VISIBLE_CATEGORIES is None:
         _VISIBLE_CATEGORIES = [
-            x for x in item_categories() if x.value not in settings.HIDDEN_CATEGORIES
+            x
+            for x in item_categories()
+            if x.value not in SiteConfig.system.hidden_categories
         ]
     return _VISIBLE_CATEGORIES
 
