@@ -256,7 +256,12 @@ class BrandingSettings(SiteConfigSettingsPage):
         },
         "site_links": {
             "title": _("Footer Links"),
-            "help_text": _("One per line, format: @Title=URL"),
+            "help_text": _("Link title mapped to URL."),
+            "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {"type": "string"},
+            },
         },
     }
     layout = {
