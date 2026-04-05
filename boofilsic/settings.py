@@ -169,7 +169,7 @@ RQ_QUEUES = {
         "PORT": _parsed_redis_url.port,
         "DB": _parsed_redis_url.path[1:],
         "DEFAULT_TIMEOUT": -1,
-        "JOB_CLASS": "common.rq.SiteConfigJob",
+        "JOB_CLASS": "common.rq.SiteJob",
     }
     for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron"]
 }

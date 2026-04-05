@@ -3,7 +3,7 @@ from typing import Any
 from rq.job import Job
 
 
-class SiteConfigJob(Job):
+class SiteJob(Job):
     """Custom RQ Job class that reloads SiteConfig before each job execution."""
 
     def perform(self) -> Any:
