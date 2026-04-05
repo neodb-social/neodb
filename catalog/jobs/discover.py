@@ -30,7 +30,11 @@ DAYS_FOR_TRENDS = 3
 
 @JobManager.register
 class DiscoverGenerator(BaseJob):
-    interval = timedelta(minutes=60)
+    interval = timedelta(minutes=60)  # default, overridden by get_interval()
+
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(minutes=settings.DISCOVER_UPDATE_INTERVAL)
 
     @property
     def min_marks(self) -> int:

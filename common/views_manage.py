@@ -2,6 +2,7 @@ import json
 from functools import partial
 from typing import ClassVar
 
+import pydantic
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -155,10 +156,7 @@ class SiteConfigSettingsPage(FormView):
                 return {}
             display = self.options[key].get("display")
             if display == "json":
-                try:
-                    return json.loads(raw_str)
-                except json.JSONDecodeError:
-                    return {}
+                return json.loads(raw_str) if raw_str else {}
             else:
                 result = {}
                 for line in raw_str.splitlines():
@@ -173,8 +171,16 @@ class SiteConfigSettingsPage(FormView):
         updates = {}
         for key in self.options:
             raw = form.cleaned_data[key]
-            updates[key] = self._convert_value(key, raw)
-        SiteConfig.set_system(**updates)
+            try:
+                updates[key] = self._convert_value(key, raw)
+            except (json.JSONDecodeError, ValueError) as e:
+                form.add_error(key, str(e))
+                return self.form_invalid(form)
+        try:
+            SiteConfig.set_system(**updates)
+        except pydantic.ValidationError as e:
+            messages.error(self.request, _("Invalid configuration: ") + str(e))
+            return self.form_invalid(form)
         SiteConfig.system = SiteConfig.load_system()
         SiteConfig._apply_to_settings(SiteConfig.system)
         messages.success(self.request, _("Settings have been saved."))

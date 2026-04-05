@@ -2,6 +2,7 @@ from typing import ClassVar
 
 import pydantic
 from django.db import models
+from django.db.utils import DatabaseError, ProgrammingError
 from loguru import logger
 
 
@@ -229,7 +230,7 @@ class SiteConfig(models.Model):
             obj = cls.objects.filter(pk=1).first()
             if obj and obj.data:
                 env_values.update({k: v for k, v in obj.data.items() if v is not None})
-        except Exception:
+        except (ProgrammingError, DatabaseError):
             logger.debug("SiteConfig table not available, using env defaults")
         return cls.SystemOptions(**env_values)
 
@@ -238,14 +239,16 @@ class SiteConfig(models.Model):
         """Partial update: merge new values into the JSON blob."""
         obj, created = cls.objects.get_or_create(pk=1, defaults={"data": {}})
         data = dict(obj.data)
-        defaults = cls.SystemOptions()
+        env_defaults = cls._env_defaults()
         for key, value in kwargs.items():
             if key not in cls.SystemOptions.model_fields:
                 raise KeyError(f"Unknown config key: {key}")
-            if value == getattr(defaults, key):
+            if value == env_defaults.get(key):
                 data.pop(key, None)
             else:
                 data[key] = value
+        # Validate before saving to prevent broken config
+        cls.SystemOptions(**{**env_defaults, **data})
         obj.data = data
         obj.save(update_fields=["data"])
 
