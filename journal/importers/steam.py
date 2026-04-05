@@ -75,7 +75,7 @@ class SteamImporter(BaseImporter):
         "imported": 0,
         "failed_items": [],
         "visibility": VisibilityType.Public,
-        "steam_apikey": SiteConfig.system.steam_api_key or "",
+        "steam_apikey": "",
         "steam_id": "",
         "config": {
             "wishlist": {
@@ -109,6 +109,8 @@ class SteamImporter(BaseImporter):
         Run task: fetch wishlist and/or owned games and import marks
         """
         logger.debug("Start importing")
+        if not self.metadata.get("steam_apikey"):
+            self.metadata["steam_apikey"] = SiteConfig.system.steam_api_key or ""
 
         # Validation of apikey and userid
         try:

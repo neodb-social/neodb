@@ -63,7 +63,7 @@ class BaseJob:
 
     @classmethod
     def _run(cls):
-        SiteConfig.reload()
+        # SiteConfig is reloaded automatically by SiteConfigJob.perform()
         cls.schedule()  # schedule next run
         cls().run()
 
