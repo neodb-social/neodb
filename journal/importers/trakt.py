@@ -8,6 +8,7 @@ from loguru import logger
 
 from catalog.common.sites import SiteManager
 from catalog.models import IdType, Item
+from catalog.models.tv import TVShow
 from journal.models import Collection, Mark, ShelfType
 from users.models import Task
 
@@ -53,6 +54,28 @@ class TraktImporter(Task):
         )
         self.save(update_fields=["metadata", "message"])
 
+    def _resolve_tv_season(self, item: Item, tmdb_id: int | None) -> Item:
+        """If item is a TVShow, resolve to its first season."""
+        if not isinstance(item, TVShow):
+            return item
+        # Check if season 1 already exists in DB
+        season = item.seasons.filter(season_number=1).first()
+        if season:
+            return season
+        # Fetch season 1 via TMDB
+        if tmdb_id:
+            try:
+                url = f"https://www.themoviedb.org/tv/{tmdb_id}/season/1"
+                site = SiteManager.get_site_by_url(url, detect_redirection=False)
+                if site:
+                    site.get_resource_ready()
+                    season_item = site.get_item()
+                    if season_item:
+                        return season_item
+            except Exception as e:
+                logger.warning(f"Failed to fetch season 1 for TMDB {tmdb_id}: {e}")
+        return item
+
     def _find_item(self, media_type: str, ids: dict) -> Item | None:
         """Resolve a Trakt media item to a NeoDB Item via IMDB or TMDB IDs."""
         imdb_id = ids.get("imdb")
@@ -64,7 +87,7 @@ class TraktImporter(Task):
             if site:
                 item = site.get_item()
                 if item:
-                    return item
+                    return self._resolve_tv_season(item, tmdb_id)
 
         # Try TMDB by ID
         if tmdb_id:
@@ -73,7 +96,7 @@ class TraktImporter(Task):
             if site:
                 item = site.get_item()
                 if item:
-                    return item
+                    return self._resolve_tv_season(item, tmdb_id)
 
         # Fetch from TMDB via URL
         if tmdb_id:
@@ -84,16 +107,10 @@ class TraktImporter(Task):
             try:
                 site = SiteManager.get_site_by_url(url, detect_redirection=False)
                 if site:
-                    if site.ID_TYPE == IdType.TMDB_TV:
-                        season_site = SiteManager.get_site_by_url(
-                            f"{site.url}/season/1"
-                        )
-                        if season_site:
-                            site = season_site
                     site.get_resource_ready()
                     item = site.get_item()
                     if item:
-                        return item
+                        return self._resolve_tv_season(item, tmdb_id)
             except Exception as e:
                 logger.warning(f"TMDB fetch failed for {url}: {e}")
 
@@ -106,7 +123,7 @@ class TraktImporter(Task):
                     site.get_resource_ready()
                     item = site.get_item()
                     if item:
-                        return item
+                        return self._resolve_tv_season(item, tmdb_id)
             except Exception as e:
                 logger.warning(f"IMDB fetch failed for {url}: {e}")
 
@@ -178,8 +195,8 @@ class TraktImporter(Task):
             self.progress(0)
             return
 
-        # Skip if same shelf and same rating
-        if mark.shelf_type == shelf_type and mark.rating_grade == rating_grade:
+        # Skip if already on the same shelf
+        if mark.shelf_type == shelf_type:
             self.progress(0)
             return
 
@@ -207,14 +224,6 @@ class TraktImporter(Task):
         except Exception as e:
             logger.warning(f"Failed to parse {filepath}: {e}")
         return []
-
-    def _load_json_files_by_prefix(self, tmpdir: str, prefix: str) -> list[dict]:
-        """Load all JSON files matching a prefix (e.g. 'watched-history-')."""
-        results: list[dict] = []
-        for fn in sorted(os.listdir(tmpdir)):
-            if fn.startswith(prefix) and fn.endswith(".json"):
-                results.extend(self._load_json_file(tmpdir, fn))
-        return results
 
     def _process_ratings(self, tmpdir: str, seen: set[str]) -> None:
         """Process ratings-movies.json and ratings-shows.json. Trakt ratings are 1-10."""
@@ -292,6 +301,7 @@ class TraktImporter(Task):
     def _process_lists(self, tmpdir: str) -> None:
         """Process custom lists from lists-lists.json and lists-list-*.json."""
         lists_meta = self._load_json_file(tmpdir, "lists-lists.json")
+        all_files = os.listdir(tmpdir)
         for list_meta in lists_meta:
             list_ids = list_meta.get("ids", {})
             trakt_id = list_ids.get("trakt")
@@ -304,7 +314,7 @@ class TraktImporter(Task):
             # Find the corresponding list items file
             pattern = f"lists-list-{trakt_id}-"
             items_file = None
-            for fn in os.listdir(tmpdir):
+            for fn in all_files:
                 if fn.startswith(pattern) and fn.endswith(".json"):
                     items_file = fn
                     break

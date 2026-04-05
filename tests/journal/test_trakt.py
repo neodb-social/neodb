@@ -2,6 +2,7 @@ import pytest
 
 from catalog.common.downloaders import use_local_response
 from catalog.models import Movie
+from catalog.models.tv import TVSeason
 from journal.importers import TraktImporter
 from journal.models import Collection, CollectionMember, Mark, ShelfType
 from users.models import User
@@ -48,6 +49,12 @@ class TestTraktImporter:
         mark = Mark(self.identity, billy)
         assert mark.shelf_type == ShelfType.COMPLETE
         assert mark.rating_grade is None
+
+        # Verify watched TV show resolves to TVSeason, not TVShow
+        season = TVSeason.objects.filter(season_number=1, show__isnull=False).first()
+        assert season is not None, "Doctor Who Season 1 was not created"
+        mark = Mark(self.identity, season)
+        assert mark.shelf_type == ShelfType.COMPLETE
 
         # Verify watchlist item (The Internet's Own Boy): marked wishlist
         tio = Movie.objects.filter(primary_lookup_id_value="tt3268458").first()
@@ -112,9 +119,9 @@ class TestTraktImporter:
         first_imported = task1.metadata["imported"]
         assert first_imported > 0
 
-        # Second import: marks and lists should mostly be skipped
+        # Second import: all marks skipped, lists deduplicated
         task2 = TraktImporter.create(self.user, visibility=0, file=zip_path)
         task2.run()
         assert task2.metadata["failed"] == 0
-        assert task2.metadata["skipped"] >= 3
-        assert task2.metadata["imported"] < first_imported
+        assert task2.metadata["imported"] == 0
+        assert task2.metadata["skipped"] == 4
