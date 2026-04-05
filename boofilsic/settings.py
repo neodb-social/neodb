@@ -380,6 +380,7 @@ for app in env("NEODB_EXTRA_APPS"):
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "common.middleware.SiteConfigMiddleware",
     # "silk.middleware.SilkyMiddleware",
     "common.middleware.APIAwareSessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -390,7 +391,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "common.middleware.IdentityMiddleware",
-    "common.middleware.SiteConfigMiddleware",
     # "django.middleware.locale.LocaleMiddleware",
     "users.middlewares.LanguageMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",
