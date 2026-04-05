@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-05 00:05-0400\n"
+"POT-Creation-Date: 2026-04-05 00:07-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -5135,8 +5135,8 @@ msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
 #: users/templates/users/data.html:246
-msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email."
-msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export Trakt Data</b>通过邮件获取ZIP文件。"
+msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
+msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链接出现。"
 
 #: users/templates/users/data.html:249
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
