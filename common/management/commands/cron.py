@@ -1,6 +1,6 @@
-from django.core.management.base import BaseCommand
 from loguru import logger
 
+from common.management.base import SiteCommand
 from common.models import JobManager
 
 # @JobManager.register
@@ -15,7 +15,7 @@ from common.models import JobManager
 #         logger.info("Dummy job stopped")
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Schedule timed jobs"
 
     def add_arguments(self, parser):

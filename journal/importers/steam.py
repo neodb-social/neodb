@@ -62,7 +62,6 @@ class SteamImporter(BaseImporter):
         imported: int
         failed_items: List[str]
         visibility: VisibilityType
-        steam_apikey: str
         steam_id: str
         config: dict
 
@@ -75,7 +74,6 @@ class SteamImporter(BaseImporter):
         "imported": 0,
         "failed_items": [],
         "visibility": VisibilityType.Public,
-        "steam_apikey": "",
         "steam_id": "",
         "config": {
             "wishlist": {
@@ -109,12 +107,11 @@ class SteamImporter(BaseImporter):
         Run task: fetch wishlist and/or owned games and import marks
         """
         logger.debug("Start importing")
-        if not self.metadata.get("steam_apikey"):
-            self.metadata["steam_apikey"] = SiteConfig.system.steam_api_key or ""
+        self.steam_apikey = SiteConfig.system.steam_api_key or ""
 
         # Validation of apikey and userid
         try:
-            self.validate(self.metadata["steam_apikey"], self.metadata["steam_id"])
+            self.validate(self.steam_apikey, self.metadata["steam_id"])
         except InvalidSteamAPIKeyException:
             self.failfast(
                 "Ask the site admin to set a valid STEAM_API_KEY to allow import from Steam"
@@ -265,7 +262,7 @@ class SteamImporter(BaseImporter):
         if file is None:
             url = f"{STEAM_API_BASE_URL}/IPlayerService/GetOwnedGames/v1/"
             params = {
-                "key": self.metadata["steam_apikey"],
+                "key": self.steam_apikey,
                 "steamid": self.metadata["steam_id"],
                 "include_appinfo": False,
                 "include_played_free_games": include_played_free_games,
@@ -321,7 +318,7 @@ class SteamImporter(BaseImporter):
         if file is None:
             url = f"{STEAM_API_BASE_URL}/IWishlistService/GetWishlist/v1/"
             params = {
-                "key": self.metadata["steam_apikey"],
+                "key": self.steam_apikey,
                 "steamid": self.metadata["steam_id"],
             }
             res = requests.get(url, params, timeout=1)

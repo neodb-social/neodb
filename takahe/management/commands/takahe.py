@@ -1,14 +1,14 @@
-from django.core.management.base import BaseCommand
 from loguru import logger
 from tqdm import tqdm
 
 from catalog.common import *
 from catalog.models import *
+from common.management.base import SiteCommand
 from takahe.utils import *
 from users.models import User as NeoUser
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--verbose",

@@ -2,14 +2,14 @@ import re
 from typing import cast
 from urllib.parse import urljoin
 
-from django.core.management.base import BaseCommand
 from loguru import logger
 from lxml import html
 
 from catalog.common import *
+from common.management.base import SiteCommand
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Crawl content"
 
     def add_arguments(self, parser):

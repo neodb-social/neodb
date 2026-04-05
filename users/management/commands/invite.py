@@ -1,11 +1,11 @@
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.urls import reverse
 
+from common.management.base import SiteCommand
 from takahe.utils import Invite
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Manage invite"
 
     def add_arguments(self, parser):

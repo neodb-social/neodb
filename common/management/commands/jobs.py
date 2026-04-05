@@ -1,11 +1,12 @@
 import django_rq
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from rq import Queue
 from rq.job import Job
 
+from common.management.base import SiteCommand
 
-class Command(BaseCommand):
+
+class Command(SiteCommand):
     help = "Manage jobs in RQ"
 
     def add_arguments(self, parser):

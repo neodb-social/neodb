@@ -1,10 +1,10 @@
-from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
+from common.management.base import SiteCommand
 from users.models import Task
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Manage tasks"
 
     def add_arguments(self, parser):

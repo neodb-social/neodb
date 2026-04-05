@@ -1,16 +1,16 @@
 from time import sleep
 
 import httpx
-from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
+from common.management.base import SiteCommand
 from takahe.models import Domain, Identity
 from takahe.utils import Takahe
 from users.models import Preference, User
 from users.models.apidentity import APIdentity
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Manage users"
 
     def add_arguments(self, parser):

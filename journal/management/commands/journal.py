@@ -1,13 +1,13 @@
 from argparse import RawTextHelpFormatter
 from datetime import timedelta
 
-from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item
+from common.management.base import SiteCommand
 from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
     Collection,
@@ -41,7 +41,7 @@ idx-catchup:    update index for journal items edited in last X hours (use --hou
 """
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "journal app utilities"
 
     def create_parser(self, *args, **kwargs):

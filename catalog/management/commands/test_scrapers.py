@@ -1,16 +1,16 @@
 import sys
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 
 from catalog.common.downloaders import (
     RESPONSE_OK,
     RESPONSE_QUOTA_EXCEEDED,
     ScrapDownloader,
 )
+from common.management.base import SiteCommand
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Test all configured scraping providers"
 
     def add_arguments(self, parser):

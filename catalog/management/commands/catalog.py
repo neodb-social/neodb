@@ -5,7 +5,6 @@ import time
 from datetime import timedelta
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 from django.db.models import Count, F
 from django.utils import timezone
@@ -23,6 +22,7 @@ from catalog.models import (
 from catalog.search import CatalogIndex, CatalogQueryParser
 from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
+from common.management.base import SiteCommand
 from common.models import detect_language, uniq
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
@@ -46,7 +46,7 @@ idx-catchup:    update index for items edited in last X hours (use --hour)
 """
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "catalog app utilities"
 
     def add_arguments(self, parser):

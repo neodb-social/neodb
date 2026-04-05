@@ -1,8 +1,7 @@
 import json
 
-from django.core.management.base import BaseCommand
-
 from catalog.models import Item
+from common.management.base import SiteCommand
 from common.utils import get_uuid_or_404
 from journal.models import *
 from takahe.utils import *
@@ -10,7 +9,7 @@ from users.models import APIdentity
 
 
 # TODO make this available in UI
-class Command(BaseCommand):
+class Command(SiteCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--verbose",

@@ -1,12 +1,11 @@
 import pprint
 
-from django.core.management.base import BaseCommand
-
 from catalog.common import SiteManager
 from catalog.sites import *
+from common.management.base import SiteCommand
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Scrape a catalog item from external resource (and save it)"
 
     def add_arguments(self, parser):

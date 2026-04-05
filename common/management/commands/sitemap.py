@@ -3,14 +3,14 @@ import shutil
 import tempfile
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.db.models import Count
 
 from catalog.models import *
+from common.management.base import SiteCommand
 from journal.models import *
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "generate sitemap.txt"
 
     def handle(self, *args, **options):

@@ -1,16 +1,16 @@
 from time import sleep
 
 import httpx
-from django.core.management.base import BaseCommand, CommandError
 
 from catalog.sites.fedi import FediverseInstance
+from common.management.base import CommandError, SiteCommand
 from takahe.models import Identity, InboxMessage, Post
 
 actor_types = ["person", "service", "application", "group", "organization"]
 post_types = ["note", "article", "post", "question", "event", "video", "audio", "image"]
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Fetch a post from a URL"
 
     def add_arguments(self, parser):

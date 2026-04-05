@@ -1,16 +1,16 @@
 from auditlog.context import set_actor
-from django.core.management.base import BaseCommand
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as t
 
 from catalog.models import *
+from common.management.base import SiteCommand
 from journal.models import *
 from users.middlewares import activate_language_for_user
 from users.models import *
 from users.models import APIdentity
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Calculate Top 10"
 
     def add_arguments(self, parser):

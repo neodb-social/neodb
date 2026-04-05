@@ -1,11 +1,11 @@
 from django.contrib.sessions.models import Session
-from django.core.management.base import BaseCommand, CommandError
 
+from common.management.base import CommandError, SiteCommand
 from takahe.models import Token
 from users.models import User
 
 
-class Command(BaseCommand):
+class Command(SiteCommand):
     help = "Wipe session data for a specific user, or all anonymous sessions if username is '-'"
 
     def add_arguments(self, parser):
