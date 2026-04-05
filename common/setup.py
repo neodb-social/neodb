@@ -108,6 +108,9 @@ class Setup:
 
     def run(self):
         logger.info("Running post-migration setup...")
+        from common.models import SiteConfig
+
+        SiteConfig.ensure_loaded()
 
         # Update site name if changed
         self.sync_site_config()

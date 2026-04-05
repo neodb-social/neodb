@@ -124,10 +124,7 @@
               </li>
               {% if request.user.is_superuser %}
                 <li>
-                  <a href="/neodb-admin/">{% trans 'Database' %}</a>
-                </li>
-                <li>
-                  <a href="/admin/">{% trans 'Manage' %}</a>
+                  <a href="{% url 'common:manage' %}">{% trans 'Manage' %}</a>
                 </li>
               {% endif %}
             {% else %}

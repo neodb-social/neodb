@@ -23,7 +23,6 @@ from takahe.models import Identity
 from takahe.utils import Post
 
 MAX_ITEMS_PER_PERIOD = 12
-MIN_MARKS = settings.MIN_MARKS_FOR_DISCOVER
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
 DAYS_FOR_TRENDS = 3
@@ -31,7 +30,11 @@ DAYS_FOR_TRENDS = 3
 
 @JobManager.register
 class DiscoverGenerator(BaseJob):
-    interval = timedelta(minutes=settings.DISCOVER_UPDATE_INTERVAL)
+    interval = timedelta(minutes=60)
+
+    @property
+    def min_marks(self) -> int:
+        return settings.MIN_MARKS_FOR_DISCOVER
 
     def get_no_discover_identities(self):
         return list(
@@ -93,7 +96,7 @@ class DiscoverGenerator(BaseJob):
             m["item_id"]
             for m in qs.values("item_id")
             .annotate(num=Count("item_id"))
-            .filter(num__gte=MIN_MARKS)
+            .filter(num__gte=self.min_marks)
             .order_by("-num")[:MAX_ITEMS_PER_PERIOD]
         ]
         return item_ids
@@ -110,7 +113,7 @@ class DiscoverGenerator(BaseJob):
             .exclude(p__in=exisiting_ids)
             .values("p")
             .annotate(num=Count("p"))
-            .filter(num__gte=MIN_MARKS)
+            .filter(num__gte=self.min_marks)
             .order_by("-num")
             .values_list("p", flat=True)[:MAX_ITEMS_PER_PERIOD]
         )
@@ -208,7 +211,7 @@ class DiscoverGenerator(BaseJob):
         collections = (
             Collection.objects.filter(visibility=0)
             .annotate(num=Count("interactions"))
-            .filter(num__gte=MIN_MARKS)
+            .filter(num__gte=self.min_marks)
             .order_by("-edited_time")
         )
         if local:
@@ -228,19 +231,19 @@ class DiscoverGenerator(BaseJob):
                 reviews = reviews.filter(local=True)
             post_ids = (
                 set(
-                    self.get_popular_posts(
-                        28, settings.MIN_MARKS_FOR_DISCOVER, local
-                    ).values_list("pk", flat=True)[:5]
+                    self.get_popular_posts(28, self.min_marks, local).values_list(
+                        "pk", flat=True
+                    )[:5]
                 )
                 | set(
-                    self.get_popular_posts(
-                        14, settings.MIN_MARKS_FOR_DISCOVER, local
-                    ).values_list("pk", flat=True)[:5]
+                    self.get_popular_posts(14, self.min_marks, local).values_list(
+                        "pk", flat=True
+                    )[:5]
                 )
                 | set(
-                    self.get_popular_posts(
-                        7, settings.MIN_MARKS_FOR_DISCOVER, local
-                    ).values_list("pk", flat=True)[:10]
+                    self.get_popular_posts(7, self.min_marks, local).values_list(
+                        "pk", flat=True
+                    )[:10]
                 )
                 | set(
                     self.get_popular_posts(1, 0, local).values_list("pk", flat=True)[:3]

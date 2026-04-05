@@ -390,6 +390,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "common.middleware.IdentityMiddleware",
+    "common.middleware.SiteConfigMiddleware",
     # "django.middleware.locale.LocaleMiddleware",
     "users.middlewares.LanguageMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",

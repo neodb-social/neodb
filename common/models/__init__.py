@@ -10,6 +10,7 @@ from .lang import (
     get_current_locales,
 )
 from .misc import int_, uniq
+from .site_config import SiteConfig
 
 __all__ = [
     "BaseJob",
@@ -20,6 +21,7 @@ __all__ = [
     "SITE_DEFAULT_LANGUAGE",
     "SITE_PREFERRED_LANGUAGES",
     "SITE_PREFERRED_LOCALES",
+    "SiteConfig",
     "detect_language",
     "get_current_locales",
     "uniq",

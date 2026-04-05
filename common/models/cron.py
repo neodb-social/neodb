@@ -57,6 +57,9 @@ class BaseJob:
 
     @classmethod
     def _run(cls):
+        from common.models.site_config import SiteConfig
+
+        SiteConfig.ensure_loaded()
         cls.schedule()  # schedule next run
         cls().run()
 

@@ -1,3 +1,5 @@
+import time
+
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.utils.deprecation import MiddlewareMixin
 
@@ -37,6 +39,33 @@ class APIAwareSessionMiddleware(SessionMiddleware):
         if isinstance(request.session, DummySession):
             return response
         return super().process_response(request, response)
+
+
+class SiteConfigMiddleware:
+    """
+    Periodically refreshes SiteConfig from the database and writes
+    values back to django.conf.settings for backward compatibility.
+    """
+
+    refresh_interval: float = 30.0
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.config_ts: float = 0.0
+
+    def __call__(self, request):
+        from common.models import SiteConfig
+
+        if not getattr(SiteConfig, "__forced__", False):
+            now = time.monotonic()
+            if (
+                not getattr(SiteConfig, "system", None)
+                or (now - self.config_ts) >= self.refresh_interval
+            ):
+                SiteConfig.system = SiteConfig.load_system()
+                self.config_ts = now
+                SiteConfig._apply_to_settings(SiteConfig.system)
+        return self.get_response(request)
 
 
 class IdentityMiddleware(MiddlewareMixin):

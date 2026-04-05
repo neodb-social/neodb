@@ -1,0 +1,141 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Site Settings" %}</title>
+    {% include "common_libs.html" %}
+    <style>
+      .classic-page main {
+        grid-template-columns: 1fr 3fr;
+        grid-template-areas: "aside main";
+      }
+      .manage-nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .manage-nav li {
+        margin-bottom: 0.15rem;
+      }
+      .manage-nav a {
+        display: block;
+        padding: 0.4rem 0.75rem;
+        border-radius: var(--pico-border-radius);
+        text-decoration: none;
+        color: var(--pico-color);
+      }
+      .manage-nav a:hover {
+        background: var(--pico-secondary-background);
+      }
+      .manage-nav a.active {
+        background: var(--pico-primary-background);
+        color: var(--pico-primary-inverse);
+      }
+      .manage-nav .nav-divider {
+        border-top: 1px solid var(--pico-muted-border-color);
+        margin: 0.75rem 0;
+      }
+      .manage-nav .nav-external a {
+        font-size: 0.85em;
+        color: var(--pico-muted-color);
+      }
+      .manage-form .field-group {
+        margin-bottom: 1.5rem;
+      }
+      .manage-form .field-group legend {
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+      }
+      .manage-form .field {
+        margin-bottom: 1rem;
+      }
+      .manage-form .field > label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.15rem;
+      }
+      .manage-form .field .help-text {
+        font-size: 0.85em;
+        color: var(--pico-muted-color);
+        margin-bottom: 0.35rem;
+      }
+      .manage-form .field .errorlist {
+        color: var(--pico-del-color);
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0;
+        font-size: 0.9em;
+      }
+      .manage-form .field input[type="text"],
+      .manage-form .field input[type="number"],
+      .manage-form .field select,
+      .manage-form .field textarea {
+        width: 100%;
+        margin-bottom: 0;
+      }
+      .manage-alert {
+        padding: 0.75rem 1rem;
+        border-radius: var(--pico-border-radius);
+        background: var(--pico-primary-background);
+        color: var(--pico-primary-inverse);
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <aside class="grid__aside">
+        <nav class="manage-nav">
+          <ul>
+            {% for key, label, url_name in nav_sections %}
+              <li>
+                <a href="{% url url_name %}"
+                   {% if key == section %}class="active"{% endif %}>{{ label }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="nav-divider"></div>
+          <ul class="nav-external">
+            <li>
+              <a href="/admin/">{% trans "Takahe Admin" %}</a>
+            </li>
+            <li>
+              <a href="/neodb-admin/">{% trans "Database Admin" %}</a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+      <div class="grid__main">
+        {% if messages %}
+          {% for message in messages %}<div class="manage-alert" role="alert">{{ message }}</div>{% endfor %}
+        {% endif %}
+        <form class="manage-form" action="." method="post">
+          {% csrf_token %}
+          {% for title, fields in fieldsets.items %}
+            <div class="field-group">
+              <legend>{{ title }}</legend>
+              {% for field in fields %}
+                <div class="field">
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+                  {{ field.errors }}
+                  {{ field }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          <button type="submit">{% trans "Save" %}</button>
+        </form>
+      </div>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>
