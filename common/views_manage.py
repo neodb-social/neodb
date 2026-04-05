@@ -485,10 +485,11 @@ class APIKeysSettings(SiteConfigSettingsPage):
             ),
             "schema": {
                 "type": "object",
-                "additionalProperties": {"type": "string"},
-                "keys": {
-                    "type": "string",
-                    "choices": ["default", "report", "audit", "suggest"],
+                "properties": {
+                    "default": {"type": "string", "title": "default"},
+                    "report": {"type": "string", "title": "report"},
+                    "audit": {"type": "string", "title": "audit"},
+                    "suggest": {"type": "string", "title": "suggest"},
                 },
             },
         },
@@ -615,6 +616,9 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "help_text": _("Map index names to their aliases."),
             "schema": {
                 "type": "object",
+                "properties": {
+                    "catalog": {"type": "string", "title": "catalog"},
+                },
                 "additionalProperties": {"type": "string"},
             },
         },
