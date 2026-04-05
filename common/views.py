@@ -102,7 +102,12 @@ def nodeinfo2(request, version: str):
                 "features": ["quote_posting", "editing", "polls"],
                 "nodeRevision": settings.NEODB_VERSION,
                 "nodeEnvironment": "development" if settings.DEBUG else "production",
-            },
+            }
+            | (
+                {"federation": {"enabled": False}}
+                if settings.SETUP.NO_FEDERATION
+                else {}
+            ),
         }
     )
 
