@@ -1,9 +1,9 @@
 from django.conf import settings
 
+from common.models.site_config import SiteConfig
+
 
 def site_info(request):
-    from common.models.site_config import SiteConfig
-
     context = dict(
         settings.SITE_INFO
     )  # static fields (site_url, site_domain, cdn_url, etc.)
