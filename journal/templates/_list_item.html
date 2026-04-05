@@ -114,7 +114,7 @@
               {% for tag in mark.tags %}
                 {% if forloop.counter <= 5 %}
                   <span>
-                    <a href="{% url 'common:search' %}?c=journal&amp;q=tag:{{ tag }}">{{ tag }}</a>
+                    <a href="{% url 'common:search' %}?c=journal&amp;q=tag:&quot;{{ tag }}&quot;">{{ tag }}</a>
                   </span>
                 {% endif %}
               {% endfor %}

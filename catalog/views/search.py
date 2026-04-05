@@ -144,7 +144,7 @@ def search(request):
         return fetch(request, keywords, None, False)
 
     if tag:
-        redir = reverse("common:search") + f"?q=tag:{tag}"
+        redir = reverse("common:search") + f'?q=tag:"{tag}"'
         return redirect(redir)
     excl = (
         request.user.preference.hidden_categories
