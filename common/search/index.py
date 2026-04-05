@@ -17,6 +17,8 @@ from typesense.types.collection import (
 from typesense.types.document import MultiSearchCommonParameters, SearchResponse
 from typesense.types.multi_search import MultiSearchRequestSchema
 
+from common.models.site_config import SiteConfig
+
 
 def _backtick(s: str | int) -> str:
     """Escape a string with backticks for Typesense filter syntax"""
@@ -234,9 +236,9 @@ class Index:
 
     def _get_collection(self, for_write=False) -> Collection:
         collection_id = self.name + ("_write" if for_write else "_read")
-        cname = settings.INDEX_ALIASES.get(collection_id) or settings.INDEX_ALIASES.get(
-            self.name, self.name
-        )
+        cname = SiteConfig.system.index_aliases.get(
+            collection_id
+        ) or SiteConfig.system.index_aliases.get(self.name, self.name)
         collection = self._client.collections[cname]
         if not collection:
             raise KeyError(f"Typesense: collection {collection_id} not found")
@@ -252,9 +254,9 @@ class Index:
 
     @classmethod
     def get_schema(cls) -> CollectionCreateSchema:
-        cname = settings.INDEX_ALIASES.get(
+        cname = SiteConfig.system.index_aliases.get(
             cls.name + "_write"
-        ) or settings.INDEX_ALIASES.get(cls.name, cls.name)
+        ) or SiteConfig.system.index_aliases.get(cls.name, cls.name)
         schema = {"name": cname}
         schema.update(cls.schema)
         return schema  # type: ignore
@@ -283,9 +285,9 @@ class Index:
             if not wait:
                 logger.error("Typesense: timeout waiting for server")
                 return False
-            cname = settings.INDEX_ALIASES.get(
+            cname = SiteConfig.system.index_aliases.get(
                 self.name + "_write"
-            ) or settings.INDEX_ALIASES.get(self.name, self.name)
+            ) or SiteConfig.system.index_aliases.get(self.name, self.name)
             collection = self._client.collections[cname]
             if collection:
                 try:

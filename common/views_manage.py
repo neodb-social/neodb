@@ -601,17 +601,6 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "title": _("Mastodon Client Scope"),
             "help_text": _("OAuth scope when creating Mastodon apps."),
         },
-        "log_level": {
-            "title": _("Log Level"),
-            "help_text": _("DEBUG, INFO, WARNING, ERROR. Empty = default."),
-            "choices": [
-                ("", "Default"),
-                ("DEBUG", "DEBUG"),
-                ("INFO", "INFO"),
-                ("WARNING", "WARNING"),
-                ("ERROR", "ERROR"),
-            ],
-        },
         "disable_cron_jobs": {
             "title": _("Disable Cron Jobs"),
             "help_text": _("Job names to disable, one per line. Use * to disable all."),
@@ -627,10 +616,6 @@ class AdvancedSettings(SiteConfigSettingsPage):
                 "additionalProperties": {"type": "string"},
             },
         },
-        "skip_migrations": {
-            "title": _("Skip Migrations"),
-            "help_text": _("Migration names to skip, one per line. Requires restart."),
-        },
     }
     layout = {
         _("Domains"): [
@@ -638,10 +623,8 @@ class AdvancedSettings(SiteConfigSettingsPage):
         ],
         _("Operational"): [
             "mastodon_client_scope",
-            "log_level",
             "disable_cron_jobs",
             "index_aliases",
-            "skip_migrations",
         ],
     }
 

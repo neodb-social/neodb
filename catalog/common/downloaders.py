@@ -17,6 +17,8 @@ from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
 
+from common.models import SiteConfig
+
 RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
 RESPONSE_NETWORK_ERROR = -2  # network error, retry next proxied url
@@ -203,7 +205,15 @@ class BasicDownloader:
         "Cache-Control": "no-cache",
     }
 
-    timeout = settings.DOWNLOADER_REQUEST_TIMEOUT
+    @property
+    def timeout(self):
+        if hasattr(self, "_timeout"):
+            return self._timeout
+        return SiteConfig.system.downloader_request_timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = value
 
     def __init__(
         self, url: str, headers: dict | None = None, timeout: float | None = None
@@ -309,17 +319,19 @@ class BasicDownloader2(BasicDownloader):
 
 class ProxiedDownloader(BasicDownloader):
     def get_proxied_urls(self):
-        if not settings.DOWNLOADER_PROXY_LIST:
+        if not SiteConfig.system.downloader_proxy_list:
             return [self.url]
         urls = []
-        for p in settings.DOWNLOADER_PROXY_LIST:
+        for p in SiteConfig.system.downloader_proxy_list:
             urls.append(p.replace("__URL__", quote(self.url)))
         return urls
 
     def get_special_proxied_url(self):
         return (
-            settings.DOWNLOADER_BACKUP_PROXY.replace("__URL__", quote(self.url))
-            if settings.DOWNLOADER_BACKUP_PROXY
+            SiteConfig.system.downloader_backup_proxy.replace(
+                "__URL__", quote(self.url)
+            )
+            if SiteConfig.system.downloader_backup_proxy
             else None
         )
 
@@ -351,7 +363,8 @@ class ProxiedDownloader(BasicDownloader):
 
 class RetryDownloader(BasicDownloader):
     def download(self):
-        retries = settings.DOWNLOADER_RETRIES
+        retries = SiteConfig.system.downloader_retries
+        total_retries = retries
         while retries:
             retries -= 1
             resp, self.response_type = self._download(self.url)
@@ -361,7 +374,7 @@ class RetryDownloader(BasicDownloader):
                 raise DownloadError(self)
             elif retries > 0:
                 logger.debug("Retry " + self.url)
-                time.sleep((settings.DOWNLOADER_RETRIES - retries) * 0.5)
+                time.sleep((total_retries - retries) * 0.5)
         raise DownloadError(self, "max out of retries")
 
 
@@ -374,7 +387,9 @@ class CachedDownloader(BasicDownloader):
         else:
             resp = super().download()
             if self.response_type == RESPONSE_OK:
-                cache.set(cache_key, resp, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
+                cache.set(
+                    cache_key, resp, timeout=SiteConfig.system.downloader_cache_timeout
+                )
         return resp
 
 
@@ -803,35 +818,35 @@ class ScrapDownloader(BasicDownloader):
         """Scrape using the specified provider."""
         logger.debug(f"Fetching {self.url} with {provider}...")
         if provider == "scrapfly":
-            api_key = settings.DOWNLOADER_SCRAPFLY_KEY
+            api_key = SiteConfig.system.downloader_scrapfly_key
             if not api_key:
                 logger.debug("DOWNLOADER_SCRAPFLY_KEY not configured")
                 return None, RESPONSE_NETWORK_ERROR
             return self._scrape_with_scrapfly(api_key)
 
         elif provider == "decodo":
-            token = settings.DOWNLOADER_DECODO_TOKEN
+            token = SiteConfig.system.downloader_decodo_token
             if not token:
                 logger.debug("DOWNLOADER_DECODO_TOKEN not configured")
                 return None, RESPONSE_NETWORK_ERROR
             return self._scrape_with_decodo(token)
 
         elif provider == "scraperapi":
-            api_key = settings.DOWNLOADER_SCRAPERAPI_KEY
+            api_key = SiteConfig.system.downloader_scraperapi_key
             if not api_key:
                 logger.debug("DOWNLOADER_SCRAPERAPI_KEY not configured")
                 return None, RESPONSE_NETWORK_ERROR
             return self._scrape_with_scraperapi(api_key)
 
         elif provider == "scrapingbee":
-            api_key = settings.DOWNLOADER_SCRAPINGBEE_KEY
+            api_key = SiteConfig.system.downloader_scrapingbee_key
             if not api_key:
                 logger.debug("DOWNLOADER_SCRAPINGBEE_KEY not configured")
                 return None, RESPONSE_NETWORK_ERROR
             return self._scrape_with_scrapingbee(api_key)
 
         elif provider == "custom":
-            custom_url = settings.DOWNLOADER_CUSTOMSCRAPER_URL
+            custom_url = SiteConfig.system.downloader_customscraper_url
             if not custom_url:
                 logger.debug("DOWNLOADER_CUSTOMSCRAPER_URL not configured")
                 return None, RESPONSE_NETWORK_ERROR
@@ -843,14 +858,14 @@ class ScrapDownloader(BasicDownloader):
 
     def get_providers(self):
         """Get list of providers to try, from settings."""
-        providers_str = settings.DOWNLOADER_PROVIDERS
+        providers_str = SiteConfig.system.downloader_providers
         if not providers_str:
             return []
         return [p.strip() for p in providers_str.split(",") if p.strip()]
 
     def get_backup_provider(self):
         """Get the backup provider (custom scraper)."""
-        return "custom" if settings.DOWNLOADER_CUSTOMSCRAPER_URL else None
+        return "custom" if SiteConfig.system.downloader_customscraper_url else None
 
     def download(self) -> ResponseType:
         """Download using configured scraping providers in order, with custom as backup."""

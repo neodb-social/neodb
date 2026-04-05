@@ -1,3 +1,4 @@
+import functools
 from typing import ClassVar
 
 import pydantic
@@ -105,10 +106,8 @@ class SiteConfig(models.Model):
             " read:blocks read:mutes"
             " write:statuses write:media"
         )
-        log_level: str = ""
         disable_cron_jobs: list[str] = []
         index_aliases: dict = {"catalog": "catalog2"}
-        skip_migrations: list[str] = []
 
     @classmethod
     def _env_defaults(cls) -> dict:
@@ -214,12 +213,10 @@ class SiteConfig(models.Model):
             # Advanced / Operational
             "alternative_domains": list(getattr(settings, "ALTERNATIVE_DOMAINS", [])),
             "mastodon_client_scope": getattr(settings, "MASTODON_CLIENT_SCOPE", ""),
-            "log_level": getattr(settings, "LOG_LEVEL", ""),
             "disable_cron_jobs": list(getattr(settings, "DISABLE_CRON_JOBS", [])),
             "index_aliases": dict(
                 getattr(settings, "INDEX_ALIASES", {"catalog": "catalog2"})
             ),
-            "skip_migrations": list(getattr(settings, "SKIP_MIGRATIONS", [])),
         }
 
     @classmethod
@@ -253,11 +250,27 @@ class SiteConfig(models.Model):
         obj.save(update_fields=["data"])
 
     @classmethod
+    def reload(cls) -> None:
+        """Force-reload config from DB. Used by workers on each job."""
+        cls.system = cls.load_system()
+        cls._apply_to_settings(cls.system)
+
+    @classmethod
     def ensure_loaded(cls) -> None:
-        """Ensure config is loaded, for use outside request cycle."""
+        """Load config if not yet loaded. For use outside request cycle."""
         if not getattr(cls, "system", None):
-            cls.system = cls.load_system()
-            cls._apply_to_settings(cls.system)
+            cls.reload()
+
+    @staticmethod
+    def ready(func):
+        """Decorator for RQ jobs that need SiteConfig loaded before execution."""
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            SiteConfig.reload()
+            return func(*args, **kwargs)
+
+        return wrapper
 
     @classmethod
     def _apply_to_settings(cls, opts: "SiteConfig.SystemOptions") -> None:
@@ -287,34 +300,5 @@ class SiteConfig(models.Model):
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
         lang_module.SITE_PREFERRED_LOCALES = lang_module.get_preferred_locales()
 
-        # Write-back for settings still read via settings.* in many files
-        # (API keys used across catalog sites, downloader config, derived values)
-        settings.SPOTIFY_CREDENTIAL = opts.spotify_api_key
-        settings.TMDB_API3_KEY = opts.tmdb_api_key
-        settings.GOOGLE_API_KEY = opts.google_api_key
-        settings.DISCOGS_API_KEY = opts.discogs_api_key
-        settings.IGDB_CLIENT_ID = opts.igdb_client_id
-        settings.IGDB_CLIENT_SECRET = opts.igdb_client_secret
-        settings.STEAM_API_KEY = opts.steam_api_key
-        settings.DEEPL_API_KEY = opts.deepl_api_key
-        settings.LT_API_URL = opts.lt_api_url
-        settings.LT_API_KEY = opts.lt_api_key
-        settings.THREADS_APP_ID = opts.threads_app_id
-        settings.THREADS_APP_SECRET = opts.threads_app_secret
-        settings.DISCORD_WEBHOOKS = opts.discord_webhooks
-        settings.DOWNLOADER_PROXY_LIST = opts.downloader_proxy_list
-        settings.DOWNLOADER_BACKUP_PROXY = opts.downloader_backup_proxy
-        settings.DOWNLOADER_PROVIDERS = opts.downloader_providers
-        settings.DOWNLOADER_SCRAPFLY_KEY = opts.downloader_scrapfly_key
-        settings.DOWNLOADER_DECODO_TOKEN = opts.downloader_decodo_token
-        settings.DOWNLOADER_SCRAPERAPI_KEY = opts.downloader_scraperapi_key
-        settings.DOWNLOADER_SCRAPINGBEE_KEY = opts.downloader_scrapingbee_key
-        settings.DOWNLOADER_CUSTOMSCRAPER_URL = opts.downloader_customscraper_url
-        settings.DOWNLOADER_REQUEST_TIMEOUT = opts.downloader_request_timeout
-        settings.DOWNLOADER_CACHE_TIMEOUT = opts.downloader_cache_timeout
-        settings.DOWNLOADER_RETRIES = opts.downloader_retries
+        # Derived value used in many places via settings.SITE_DOMAINS
         settings.SITE_DOMAINS = [settings.SITE_DOMAIN] + opts.alternative_domains
-        settings.INDEX_ALIASES = opts.index_aliases
-        settings.SKIP_MIGRATIONS = opts.skip_migrations
-        if opts.log_level:
-            settings.LOG_LEVEL = opts.log_level

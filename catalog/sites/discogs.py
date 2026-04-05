@@ -112,8 +112,10 @@ class DiscogsMaster(AbstractSite):
 def get_discogs_data(data_type: str, discogs_id):
     if data_type not in ("releases", "masters"):
         raise ValueError("data_type can only be in ('releases' or masters')")
+    from common.models import SiteConfig
+
     user_agent_string = settings.NEODB_USER_AGENT
-    user_token = settings.DISCOGS_API_KEY
+    user_token = SiteConfig.system.discogs_api_key
     headers = {
         "User-Agent": user_agent_string,
         "Authorization": f"Discogs token={user_token}",

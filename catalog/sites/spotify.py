@@ -14,6 +14,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
+from common.models import SiteConfig
 from common.models.lang import detect_language
 
 from .douban import *
@@ -67,7 +68,7 @@ class Spotify(AbstractSite):
         return pd
 
     def scrape(self):
-        if not settings.SPOTIFY_CREDENTIAL:
+        if not SiteConfig.system.spotify_api_key:
             return self.scrape_web()
         api_url = f"https://api.spotify.com/v1/albums/{self.id_value}"
         headers = {
@@ -141,7 +142,7 @@ class Spotify(AbstractSite):
     async def search_task(
         cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
-        if not settings.SPOTIFY_CREDENTIAL:
+        if not SiteConfig.system.spotify_api_key:
             return []
         if category not in ["music", "all"]:
             return []
@@ -199,8 +200,8 @@ def invoke_spotify_token():
     r = requests.post(
         "https://accounts.spotify.com/api/token",
         data={"grant_type": "client_credentials"},
-        headers={"Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"},
-        timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
+        headers={"Authorization": f"Basic {SiteConfig.system.spotify_api_key}"},
+        timeout=SiteConfig.system.downloader_request_timeout,
     )
     data = r.json()
     if r.status_code == 401:
@@ -210,8 +211,8 @@ def invoke_spotify_token():
         r = requests.post(
             "https://accounts.spotify.com/api/token",
             data={"grant_type": "client_credentials"},
-            headers={"Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"},
-            timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
+            headers={"Authorization": f"Basic {SiteConfig.system.spotify_api_key}"},
+            timeout=SiteConfig.system.downloader_request_timeout,
         )
         data = r.json()
     elif r.status_code != 200:

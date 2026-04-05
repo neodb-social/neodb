@@ -24,7 +24,7 @@ Most configuration settings can be managed through the web-based Site Settings p
  - **Federation** - default relay, fanout limit, prune horizon, search sites/peers, hidden categories
  - **API Keys** - Spotify, TMDB, Google Books, Discogs, IGDB, Steam, DeepL, LibreTranslate, Threads, Sentry, Discord webhooks
  - **Downloader** - scraping providers, proxy list, provider API keys, timeouts
- - **Advanced** - alternative domains, Mastodon client scope, log level, cron jobs, index aliases
+ - **Advanced** - alternative domains, Mastodon client scope, cron jobs, index aliases
 
 Settings configured in the UI take effect immediately (within 30 seconds) without restarting the server. Values set in the UI override `.env` values. If a setting has not been configured in the UI, the `.env` value is used as fallback.
 
@@ -46,9 +46,47 @@ These settings require infrastructure access or process restart and cannot be ma
  - `MEDIA_BACKEND` - storage backend (local/s3)
  - `NEODB_MEDIA_ROOT`, `NEODB_MEDIA_URL` - media storage paths
  - `SSL_ONLY` - Force HTTPS
- - `NEODB_PORT`, `NEODB_DATA`, `NEODB_IMAGE` - Docker/deployment settings
+ - `NEODB_DATA` - data directory for docker volumes (database, redis, typesense, media), default `../data`
+ - `NEODB_PORT` - the port to expose the main web server on
+ - `NEODB_IMAGE` - docker image to pull from
  - `TAKAHE_NO_FEDERATION` - disable federation (test/development only)
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
+ - `NEODB_LOG_LEVEL` - logging level (DEBUG, INFO, WARNING, ERROR). Requires restart.
+ - `SKIP_MIGRATIONS` - migrations to skip. Requires restart.
+
+
+### S3 and Compatible Storage
+
+#### Minio (S3-compatible local storage)
+
+If you are using Minio for local S3-compatible storage, add the following configuration to `compose.override.yml`
+```
+services:
+  minio:
+    image: minio/minio:latest
+    command: server --console-address :9001
+    environment:
+      MINIO_DOMAIN: ${MINIO_DOMAIN}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: change_password
+      MINIO_VOLUMES: /var/lib/minio
+    volumes:
+      - ${NEODB_DATA:-../data}/minio-files:/var/lib/minio
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+    ports:
+      - 9000:9000
+      - 9001:9001
+```
+
+And add these settings to `.env`:
+```
+MINIO_DOMAIN=neoimg.local
+MEDIA_BACKEND=s3-insecure://minioadmin:change_password@minio:9000/media
+MEDIA_URL=https://my.media.domain/media/
+```
+
+Also make sure `my.media.domain`  maps to your Minio server (port 9000 as configured above)
 
 
 ### Scaling Parameters
@@ -243,7 +281,5 @@ The following settings can still be set in `.env` for backward compatibility, bu
  - `NEODB_SENTRY_SAMPLE_RATE`
  - `THREADS_APP_ID`, `THREADS_APP_SECRET`
  - `NEODB_MASTODON_CLIENT_SCOPE`
- - `NEODB_LOG_LEVEL`
  - `NEODB_DISABLE_CRON_JOBS`
  - `INDEX_ALIASES`
- - `SKIP_MIGRATIONS`

@@ -4,6 +4,7 @@ from django.conf import settings
 
 from catalog.common import *
 from catalog.models import *
+from common.models import SiteConfig
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 from journal.models.renderers import html_to_text
 
@@ -42,8 +43,8 @@ class Steam(AbstractSite):
         api_url = (
             f"https://store.steampowered.com/api/appdetails?appids={self.id_value}"
         )
-        if settings.STEAM_API_KEY:
-            api_url += f"&key={settings.STEAM_API_KEY}"
+        if SiteConfig.system.steam_api_key:
+            api_url += f"&key={SiteConfig.system.steam_api_key}"
         headers = {
             "User-Agent": settings.NEODB_USER_AGENT,
             "Accept": "application/json",

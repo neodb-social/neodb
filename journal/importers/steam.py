@@ -3,7 +3,6 @@ from typing import Iterable, List, Optional, TypedDict
 
 import pytz
 import requests
-from django.conf import settings
 from django.utils import timezone
 from loguru import logger
 from requests import HTTPError
@@ -11,6 +10,7 @@ from requests import HTTPError
 from catalog.common.downloaders import DownloadError
 from catalog.common.sites import SiteManager
 from catalog.models import IdType, Item
+from common.models import SiteConfig
 from journal.models.common import VisibilityType
 from journal.models.mark import Mark
 from journal.models.shelf import ShelfType
@@ -75,7 +75,7 @@ class SteamImporter(BaseImporter):
         "imported": 0,
         "failed_items": [],
         "visibility": VisibilityType.Public,
-        "steam_apikey": settings.STEAM_API_KEY or "",
+        "steam_apikey": SiteConfig.system.steam_api_key or "",
         "steam_id": "",
         "config": {
             "wishlist": {

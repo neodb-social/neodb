@@ -20,6 +20,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
+from common.models import SiteConfig
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 from .douban import *
@@ -52,7 +53,7 @@ TMDB_PREFERRED_LANGS = _get_preferred_languages()
 
 
 def search_tmdb_by_imdb_id(imdb_id):
-    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&external_source=imdb_id"
+    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={SiteConfig.system.tmdb_api_key}&language={TMDB_DEFAULT_LANG}&external_source=imdb_id"
     try:
         return BasicDownloader(tmdb_api_url).download().json()
     except Exception:
@@ -60,7 +61,7 @@ def search_tmdb_by_imdb_id(imdb_id):
 
 
 def query_tmdb_tv_episode(tv, season, episode):
-    tmdb_api_url = f"https://api.themoviedb.org/3/tv/{tv}/season/{season}/episode/{episode}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids"
+    tmdb_api_url = f"https://api.themoviedb.org/3/tv/{tv}/season/{season}/episode/{episode}?api_key={SiteConfig.system.tmdb_api_key}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids"
     res_data = BasicDownloader(tmdb_api_url).download().json()
     return res_data
 
@@ -91,7 +92,7 @@ class TMDB_Movie(AbstractSite):
         # GET api urls in all locales
         # btw it seems no way to tell if TMDB does not have a certain translation
         for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
-            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/movie/{self.id_value}?api_key={SiteConfig.system.tmdb_api_key}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             if (
                 res_data["original_title"] == res_data["title"]
@@ -200,7 +201,7 @@ class TMDB_Movie(AbstractSite):
         p = (page - 1) * page_size // 20 + 1
         offset = (page - 1) * page_size % 20
         results = []
-        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={p}&api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&include_adult=true"
+        api_url = f"https://api.themoviedb.org/3/search/multi?query={quote_plus(q)}&page={p}&api_key={SiteConfig.system.tmdb_api_key}&language={TMDB_DEFAULT_LANG}&include_adult=true"
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(api_url, timeout=2)
@@ -262,7 +263,7 @@ class TMDB_TV(AbstractSite):
         localized_title = []
         localized_desc = []
         for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
-            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/tv/{self.id_value}?api_key={SiteConfig.system.tmdb_api_key}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             if (
                 res_data["original_name"] == res_data["name"]
@@ -398,7 +399,7 @@ class TMDB_TVSeason(AbstractSite):
         localized_title = []
         localized_desc = []
         for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
-            api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={settings.TMDB_API3_KEY}&language={lang_param}&append_to_response=external_ids,credits"
+            api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}?api_key={SiteConfig.system.tmdb_api_key}&language={lang_param}&append_to_response=external_ids,credits"
             res_data = BasicDownloader(api_url).download().json()
             localized_title.append({"lang": lang, "text": res_data["name"]})
             if res_data.get("overview", "").strip():
@@ -472,7 +473,7 @@ class TMDB_TVSeason(AbstractSite):
             )
         else:
             ep = pd.metadata["episode_number_list"][0]
-            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
+            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={SiteConfig.system.tmdb_api_key}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
                 raise ParseError(self, "first episode id for season")
@@ -518,7 +519,7 @@ class TMDB_TVEpisode(AbstractSite):
         episode_id = v[2]
         site = TMDB_TV(TMDB_TV.id_to_url(show_id))
         site.get_resource_ready(auto_create=False, auto_link=False)
-        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={settings.TMDB_API3_KEY}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
+        api_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_id}/episode/{episode_id}?api_key={SiteConfig.system.tmdb_api_key}&language={TMDB_DEFAULT_LANG}&append_to_response=external_ids,credits"
         d = BasicDownloader(api_url).download().json()
         if not d.get("id"):
             raise ParseError(self, "id")

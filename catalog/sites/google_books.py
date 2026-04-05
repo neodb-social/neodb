@@ -2,13 +2,13 @@ import re
 from urllib.parse import quote_plus
 
 import httpx
-from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import isbn_10_to_13
 from catalog.search import *
+from common.models import SiteConfig
 
 
 @SiteManager.register
@@ -29,8 +29,8 @@ class GoogleBooks(AbstractSite):
 
     def scrape(self):
         api_url = f"https://www.googleapis.com/books/v1/volumes/{self.id_value}"
-        if settings.GOOGLE_API_KEY:
-            api_url += f"?key={settings.GOOGLE_API_KEY}"
+        if SiteConfig.system.google_api_key:
+            api_url += f"?key={SiteConfig.system.google_api_key}"
         b = BasicDownloader(api_url).download().json()
         other = {}
         title = b["volumeInfo"]["title"]

@@ -35,6 +35,8 @@ from django.utils.translation import gettext_lazy as _
 from langdetect import detect
 from loguru import logger
 
+from common.models.site_config import SiteConfig
+
 FALLBACK_LANGUAGE = "en"
 SITE_PREFERRED_LANGUAGES: list[str] = settings.PREFERRED_LANGUAGES or [
     FALLBACK_LANGUAGE
@@ -579,18 +581,20 @@ def normalize_languages(languages: list[str]) -> list[str]:
 
 def _lt_detect_language(text) -> str | None:
     d = {"q": text}
-    if settings.LT_API_KEY:
-        d["api_key"] = settings.LT_API_KEY
-    r = httpx.post(settings.LT_API_URL + "/detect", data=d, timeout=5).json()
+    if SiteConfig.system.lt_api_key:
+        d["api_key"] = SiteConfig.system.lt_api_key
+    r = httpx.post(SiteConfig.system.lt_api_url + "/detect", data=d, timeout=5).json()
     if isinstance(r, list) and r:
         return r[0]["language"]
 
 
 def _lt_translate(text, src, dst) -> str | None:
     d = {"q": text, "format": "html", "source": src, "target": dst}
-    if settings.LT_API_KEY:
-        d["api_key"] = settings.LT_API_KEY
-    r = httpx.post(settings.LT_API_URL + "/translate", data=d, timeout=5).json()
+    if SiteConfig.system.lt_api_key:
+        d["api_key"] = SiteConfig.system.lt_api_key
+    r = httpx.post(
+        SiteConfig.system.lt_api_url + "/translate", data=d, timeout=5
+    ).json()
     return r.get("translatedText", text)
 
 
@@ -603,7 +607,7 @@ def translate(
     r = cache.get(cache_key)
     if r is not None:
         return r
-    if settings.LT_API_URL:
+    if SiteConfig.system.lt_api_url:
         try:
             # if not src:
             src = _lt_detect_language(message)
@@ -616,13 +620,13 @@ def translate(
                 r = _lt_translate(message, src, lang) or message
         except httpx.HTTPError as e:
             logger.error(f"LT API error: {e}")
-    if settings.DEEPL_API_KEY:
+    if SiteConfig.system.deepl_api_key:
         match lang:
             case "en":
                 lang = "EN-US"
             case "pt":
                 lang = "PT-BR"
-        deepl_client = deepl.DeepLClient(settings.DEEPL_API_KEY)
+        deepl_client = deepl.DeepLClient(SiteConfig.system.deepl_api_key)
         try:
             j = deepl_client.translate_text(
                 message, target_lang=lang, tag_handling="html"

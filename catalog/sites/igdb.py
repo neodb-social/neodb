@@ -18,19 +18,20 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem
+from common.models import SiteConfig
 
 _cache_key = "igdb_access_token"
 
 
 def _igdb_access_token():
-    if not settings.IGDB_CLIENT_SECRET:
+    if not SiteConfig.system.igdb_client_secret:
         return "<missing>"
     try:
         token = cache.get(_cache_key)
         if not token:
             j = requests.post(
-                f"https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials",
-                timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
+                f"https://id.twitch.tv/oauth2/token?client_id={SiteConfig.system.igdb_client_id}&client_secret={SiteConfig.system.igdb_client_secret}&grant_type=client_credentials",
+                timeout=SiteConfig.system.downloader_request_timeout,
             ).json()
             token = j["access_token"]
             ttl = j["expires_in"] - 60
@@ -73,7 +74,9 @@ class IGDB(AbstractSite):
         if get_mock_mode():
             r = BasicDownloader(key).download().json()
         else:
-            _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
+            _wrapper = IGDBWrapper(
+                SiteConfig.system.igdb_client_id, _igdb_access_token()
+            )
             try:
                 r = json.loads(_wrapper.api_request(p, q))
             except httpx.HTTPError as e:
@@ -180,7 +183,7 @@ class IGDB(AbstractSite):
         limit = page_size
         offset = (page - 1) * limit
         q = f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};'
-        _wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
+        _wrapper = IGDBWrapper(SiteConfig.system.igdb_client_id, _igdb_access_token())
         async with httpx.AsyncClient() as client:
             rs = []
             try:

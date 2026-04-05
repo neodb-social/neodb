@@ -257,9 +257,11 @@ def get_uuid_or_404(uuid_b62):
 
 
 def discord_send(channel, content, **args) -> bool:
-    dw = settings.DISCORD_WEBHOOKS.get(channel) or settings.DISCORD_WEBHOOKS.get(
-        "default"
-    )
+    from common.models import SiteConfig
+
+    dw = SiteConfig.system.discord_webhooks.get(
+        channel
+    ) or SiteConfig.system.discord_webhooks.get("default")
     if not dw:
         return False
     if "thread_name" in args:

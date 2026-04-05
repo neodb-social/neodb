@@ -17,6 +17,7 @@ from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
+from common.models import SiteConfig
 from mastodon.models import (
     BlueskyAccount,
     EmailAccount,
@@ -266,7 +267,9 @@ class User(AbstractUser):
                 url = bluesky.avatar
             if url:
                 try:
-                    r = httpx.get(url, timeout=settings.DOWNLOADER_REQUEST_TIMEOUT)
+                    r = httpx.get(
+                        url, timeout=SiteConfig.system.downloader_request_timeout
+                    )
                 except Exception as e:
                     logger.warning(
                         f"fetch icon failed: {identity} {url}",
