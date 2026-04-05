@@ -430,6 +430,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     from journal.models.common import prefetch_latest_posts
+    from takahe.utils import Takahe
 
     target = request.target_identity
     collections = list(
@@ -438,6 +439,9 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
         .order_by("-edited_time")
     )
     prefetch_latest_posts(collections)
+    if request.user.is_authenticated:
+        posts = [c.latest_post for c in collections if c.latest_post]
+        Takahe.prefetch_interaction_flags(posts, request.user.identity.pk)
     return render(
         request,
         "user_collection_list.html",
@@ -452,6 +456,7 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     from journal.models.common import prefetch_latest_posts
+    from takahe.utils import Takahe
 
     target = request.target_identity
     collections = Collection.objects.filter(
@@ -463,6 +468,9 @@ def user_liked_collection_list(request: AuthedHttpRequest, user_name):
         collections = collections.filter(q_piece_visible_to_user(request.user))
     collections = list(collections)
     prefetch_latest_posts(collections)
+    if request.user.is_authenticated:
+        posts = [c.latest_post for c in collections if c.latest_post]
+        Takahe.prefetch_interaction_flags(posts, request.user.identity.pk)
     return render(
         request,
         "user_collection_list.html",

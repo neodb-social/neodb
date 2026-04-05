@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count, F, Q
+from django.db.models.query import prefetch_related_objects
 from django.utils import timezone
 from loguru import logger
 
@@ -168,6 +169,10 @@ class DiscoverGenerator(BaseJob):
                 i.rating
                 i.rating_count
                 i.rating_distribution
+            prefetch_related_objects(items, "external_resources")
+            editions = [i for i in items if isinstance(i, Edition)]
+            if editions:
+                prefetch_related_objects(editions, "works")
             cache.set(key, items, timeout=None)
 
             item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[

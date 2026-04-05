@@ -112,6 +112,7 @@ EDITION_LOCALIZED_SUBTITLE_SCHEMA = {
 class Edition(Item):
     if TYPE_CHECKING:
         work: None  # this is to prevent accidental use of work property since it's not the work this edition belongs to
+        works: models.QuerySet["Work"]  # reverse M2M from Work.editions
 
     class BookFormat(models.TextChoices):
         PAPERBACK = "paperback", _("Paperback")
@@ -287,7 +288,7 @@ class Edition(Item):
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
     def get_work(self) -> "Work | None":
-        return Work.objects.filter(editions=self).first()
+        return self.works.first()
 
     def set_work(self, work: "Work | None"):
         w = self.get_work()

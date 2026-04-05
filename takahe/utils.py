@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from loguru import logger
@@ -555,6 +556,27 @@ class Takahe:
             .prefetch_related("author", "attachments")
             .select_related("application")
         )
+
+    @staticmethod
+    def prefetch_interaction_flags(
+        posts: list[Post] | QuerySet[Post], identity_id: int
+    ) -> None:
+        """Batch-set liked_by_current_user/boosted_by_current_user on posts."""
+        post_list = list(posts)
+        if not post_list:
+            return
+        post_ids = [p.pk for p in post_list]
+        interactions = set(
+            PostInteraction.objects.filter(
+                identity_id=identity_id,
+                post_id__in=post_ids,
+                type__in=["like", "boost"],
+                state__in=["new", "fanned_out"],
+            ).values_list("post_id", "type")
+        )
+        for post in post_list:
+            post.liked_by_current_user = (post.pk, "like") in interactions
+            post.boosted_by_current_user = (post.pk, "boost") in interactions
 
     @staticmethod
     def get_post_url(post_pk: int) -> str | None:
