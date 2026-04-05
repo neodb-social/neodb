@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
+from django_jsonform.forms.fields import JSONFormField
 
 from common.models import SiteConfig
 
@@ -80,6 +81,15 @@ class SiteConfigSettingsPage(FormView):
                     widget=forms.Textarea(attrs={"rows": 3}),
                 )
             elif annotation is dict or origin is dict:
+                json_schema = details.get("schema")
+                if json_schema:
+                    fields[key] = JSONFormField(
+                        schema=json_schema,
+                        label=details["title"],
+                        help_text=details.get("help_text", ""),
+                        required=False,
+                    )
+                    continue
                 form_field = partial(
                     forms.CharField,
                     widget=forms.Textarea(attrs={"rows": 4}),
@@ -105,9 +115,9 @@ class SiteConfigSettingsPage(FormView):
             if origin is list:
                 initial[key] = "\n".join(str(v) for v in value) if value else ""
             elif annotation is dict or origin is dict:
-                display = self.options[key].get("display")
-                if display == "json":
-                    initial[key] = json.dumps(value, indent=2) if value else ""
+                if self.options[key].get("schema"):
+                    # JSONFormField handles dicts natively
+                    initial[key] = value or {}
                 else:
                     # @Key=Value format
                     initial[key] = (
@@ -151,12 +161,12 @@ class SiteConfigSettingsPage(FormView):
                 if line.strip()
             ]
         elif annotation is dict or origin is dict:
+            if self.options[key].get("schema"):
+                # JSONFormField already returns a parsed dict
+                return raw_value if raw_value else {}
             raw_str = str(raw_value).strip() if raw_value else ""
             if not raw_str:
                 return {}
-            display = self.options[key].get("display")
-            if display == "json":
-                return json.loads(raw_str) if raw_str else {}
             else:
                 result = {}
                 for line in raw_str.splitlines():
@@ -470,8 +480,17 @@ class APIKeysSettings(SiteConfigSettingsPage):
         },
         "discord_webhooks": {
             "title": _("Discord Webhooks"),
-            "help_text": _('JSON format: {"default": "url", "report": "url"}'),
-            "display": "json",
+            "help_text": _(
+                "Webhook URLs keyed by channel (default, report, audit, suggest)."
+            ),
+            "schema": {
+                "type": "object",
+                "additionalProperties": {"type": "string"},
+                "keys": {
+                    "type": "string",
+                    "choices": ["default", "report", "audit", "suggest"],
+                },
+            },
         },
     }
     layout = {
@@ -593,8 +612,11 @@ class AdvancedSettings(SiteConfigSettingsPage):
         },
         "index_aliases": {
             "title": _("Index Aliases"),
-            "help_text": _('JSON format: {"catalog": "catalog2"}'),
-            "display": "json",
+            "help_text": _("Map index names to their aliases."),
+            "schema": {
+                "type": "object",
+                "additionalProperties": {"type": "string"},
+            },
         },
         "skip_migrations": {
             "title": _("Skip Migrations"),
