@@ -179,21 +179,21 @@ class Mark:
         q = q_owned_piece_visible_to_user(viewing_user, owner)
         q2 = q_owned_parent_piece_visible_to_user(viewing_user, owner)
         for m in ShelfMember.objects.filter(item__in=items).filter(q):
-            marks[m.item.pk].shelfmember = m
+            marks[m.item_id].shelfmember = m
         for c in Comment.objects.filter(item__in=items).filter(q):
-            marks[c.item.pk].comment = c
+            marks[c.item_id].comment = c
         for g in Rating.objects.filter(item__in=items).filter(q):
-            marks[g.item.pk].rating = g
+            marks[g.item_id].rating = g
         for r in Review.objects.filter(item__in=items).filter(q):
-            marks[r.item.pk].review = r
+            marks[r.item_id].review = r
         for n in Note.objects.filter(item__in=items).filter(q):
-            marks[n.item.pk].notes.append(n)
+            marks[n.item_id].notes.append(n)
         for t in (
             TagMember.objects.filter(item__in=items)
             .filter(q2)
             .annotate(title=F("parent__title"))
         ):
-            marks[t.item.pk].tags.append(t.title)
+            marks[t.item_id].tags.append(t.title)
         # Batch-prefetch latest_post for all pieces to avoid N+1 queries
         # when templates access mark.shelfmember.latest_post etc.
         pieces_to_prefetch = []

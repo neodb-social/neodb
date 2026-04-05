@@ -115,9 +115,10 @@ def render_list(
     page_number = int_(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
-    # Batch-fetch marks for all items on this page to avoid N+1 queries
+    # Batch-fetch marks and rating info for all items on this page to avoid N+1 queries
     items = [m.item for m in members]
     if items:
+        Rating.attach_to_items(items)
         marks = Mark.get_marks_by_items(target, items, request.user)
         for m in members:
             m.__dict__["mark"] = marks.get(m.item_id) or Mark(target, m.item)

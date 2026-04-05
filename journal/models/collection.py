@@ -175,7 +175,7 @@ class Collection(List):
                         viewer.user if viewer else None, self.owner
                     )
                     comments = {
-                        c.item.pk: c.text
+                        c.item_id: c.text
                         for c in Comment.objects.filter(item__in=items).filter(q)
                     }
                     for m in members:
@@ -202,10 +202,19 @@ class Collection(List):
         return members, pages
 
     def get_stats(self, viewer: APIdentity):
+        from .shelf import ShelfMember, ShelfType
+
         items = self.item_ids
-        stats = {"total": len(items)}
-        for st, shelf in viewer.shelf_manager.shelf_list.items():
-            stats[st] = shelf.members.all().filter(item_id__in=items).count()
+        stats: dict[str, int] = {"total": len(items)}
+        for st in ShelfType:
+            stats[st] = 0
+        counts = (
+            ShelfMember.objects.filter(owner=viewer, item_id__in=items)
+            .values("parent__shelf_type")
+            .annotate(count=models.Count("id"))
+        )
+        for row in counts:
+            stats[row["parent__shelf_type"]] = row["count"]
         stats["percentage"] = (
             round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
         )
