@@ -23,6 +23,7 @@ from journal.importers import (
     OPMLImporter,
     SteamImporter,
     StoryGraphImporter,
+    TraktImporter,
 )
 from journal.models import ShelfType
 from journal.models.common import VisibilityType
@@ -126,6 +127,7 @@ def data(request):
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
             "storygraph_task": StoryGraphImporter.latest_task(request.user),
             "steam_task": SteamImporter.latest_task(request.user),
+            "trakt_task": TraktImporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
         },
@@ -155,6 +157,8 @@ def user_task_status(request, task_type: str):
             task_cls = DoubanImporter
         case "journal.steamimporter":
             task_cls = SteamImporter
+        case "journal.traktimporter":
+            task_cls = TraktImporter
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
@@ -369,6 +373,30 @@ def import_letterboxd(request):
         for chunk in request.FILES["file"].chunks():
             destination.write(chunk)
     task = LetterboxdImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        file=f,
+    )
+    task.enqueue()
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
+
+
+@login_required
+def import_trakt(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not TraktImporter.validate_file(request.FILES.get("file")):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    task = TraktImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
         file=f,

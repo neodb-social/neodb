@@ -6,6 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("journal", "0001_initial_0_11"),
+        ("users", "0002_preference_mastodon_boost_enabled"),
     ]
 
     operations = [
@@ -13,5 +14,25 @@ class Migration(migrations.Migration):
             model_name="shelflogentry",
             name="metadata",
             field=models.JSONField(default=dict),
+        ),
+        migrations.CreateModel(
+            name="StoryGraphImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="TraktImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
         ),
     ]

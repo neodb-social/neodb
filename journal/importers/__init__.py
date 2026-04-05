@@ -6,6 +6,7 @@ from .ndjson import NdjsonImporter
 from .opml import OPMLImporter
 from .steam import SteamImporter
 from .storygraph import StoryGraphImporter
+from .trakt import TraktImporter
 
 __all__ = [
     "CsvImporter",
@@ -16,4 +17,5 @@ __all__ = [
     "GoodreadsImporter",
     "SteamImporter",
     "StoryGraphImporter",
+    "TraktImporter",
 ]

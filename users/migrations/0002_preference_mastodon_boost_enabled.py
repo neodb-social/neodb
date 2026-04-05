@@ -14,4 +14,27 @@ class Migration(migrations.Migration):
             name="mastodon_boost_enabled",
             field=models.BooleanField(default=False, null=True),
         ),
+        migrations.AlterField(
+            model_name="task",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("journal.baseimporter", "base importer"),
+                    ("journal.csvexporter", "csv exporter"),
+                    ("journal.csvimporter", "csv importer"),
+                    ("journal.doubanimporter", "douban importer"),
+                    ("journal.doufenexporter", "doufen exporter"),
+                    ("journal.goodreadsimporter", "goodreads importer"),
+                    ("journal.letterboxdimporter", "letterboxd importer"),
+                    ("journal.ndjsonexporter", "ndjson exporter"),
+                    ("journal.ndjsonimporter", "ndjson importer"),
+                    ("journal.opmlimporter", "opml importer"),
+                    ("journal.steamimporter", "steam importer"),
+                    ("journal.storygraphimporter", "story graph importer"),
+                    ("journal.traktimporter", "trakt importer"),
+                ],
+                db_index=True,
+                max_length=255,
+            ),
+        ),
     ]

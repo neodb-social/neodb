@@ -237,6 +237,57 @@
         </article>
         <article>
           <details>
+            <summary>{% trans 'Import from Trakt' %}</summary>
+            <form hx-post="{% url 'users:import_trakt' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <ul>
+                <li>
+                  {% blocktrans %}On <a href="https://trakt.tv/settings/data" target="_blank" rel="noopener">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email.{% endblocktrans %}
+                </li>
+                <li>
+                  {% blocktrans %}Upload the downloaded <code>.zip</code> file below, do not unzip.{% endblocktrans %}
+                </li>
+                <li>{% trans 'Ratings, watched movies/shows and watchlist will be imported.' %}</li>
+              </ul>
+              <input type="file" name="file" required accept=".zip">
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="trakt_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="trakt_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="trakt_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="trakt_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="trakt_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="trakt_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              <small>{% trans 'Only forward changes(none->to-watch->watched) will be imported.' %}</small>
+              {% include "users/user_task_status.html" with task=trakt_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans 'Import from Steam Wishlist / Library' %}</summary>
             <!-- For disabling form entries -->
             <script src="{{ cdn_url }}/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
