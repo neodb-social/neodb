@@ -32,9 +32,7 @@ DAYS_FOR_TRENDS = 3
 class DiscoverGenerator(BaseJob):
     @classmethod
     def get_interval(cls) -> timedelta:
-        if getattr(SiteConfig, "system", None):
-            return timedelta(minutes=SiteConfig.system.discover_update_interval)
-        return timedelta(minutes=60)
+        return timedelta(minutes=SiteConfig.system.discover_update_interval)
 
     @property
     def min_marks(self) -> int:
