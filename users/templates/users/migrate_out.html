@@ -1,0 +1,75 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Migrate Out" %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        {% if moved %}
+          <article>
+            <details open>
+              <summary>
+                <b>{% trans "Migration In Progress" %}</b>
+              </summary>
+              <p>{% trans "Your account is being migrated to:" %}</p>
+              {% for alias in aliases %}
+                <p>
+                  <b>{{ alias.handle }}</b>
+                </p>
+              {% endfor %}
+              <form action="{% url 'users:migrate_out' %}"
+                    method="post"
+                    onsubmit="return confirm('{% trans "Are you sure you want to cancel the migration?" %}')">
+                {% csrf_token %}
+                <input type="hidden" name="cancel" value="1">
+                <input type="submit"
+                       class="secondary"
+                       value="{% trans 'Cancel Migration' %}">
+              </form>
+            </details>
+          </article>
+        {% else %}
+          <article>
+            <details open>
+              <summary>
+                <b>{% trans "Migrate Out" %}</b>
+              </summary>
+              <p>
+                {% blocktrans with handle=identity.handle %}To migrate to another account, first add <code>@{{ handle }}</code> as an alias on the target server, and then type the target account below to start the migration.{% endblocktrans %}
+              </p>
+              <form action="{% url 'users:migrate_out' %}"
+                    method="post"
+                    onsubmit="return confirm('{% trans "Are you sure you want to migrate your account? Your followers will be moved to the target account." %}')">
+                {% csrf_token %}
+                <label for="alias">
+                  {% trans "Target account" %}
+                  <input type="text"
+                         name="alias"
+                         id="alias"
+                         placeholder="@user@example.com"
+                         required>
+                </label>
+                <input type="submit" value="{% trans 'Start Migration' %}">
+              </form>
+            </details>
+          </article>
+        {% endif %}
+        <article>
+          <p>
+            <a href="{% url 'users:preferences' %}">{% trans "Back to Preferences" %}</a>
+          </p>
+        </article>
+      </div>
+      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

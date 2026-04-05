@@ -200,14 +200,6 @@
           </details>
         </article>
         {% include "users/_pref_device.html" %}
-        <article>
-          <details>
-            <summary>{% trans 'Additional Settings' %}</summary>
-            <p>
-              <a href="/@{{ request.user.identity.handle }}/settings/tokens/">{% trans "View authorized applications" %}</a>
-            </p>
-          </details>
-        </article>
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>

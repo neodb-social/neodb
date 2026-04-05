@@ -493,6 +493,10 @@ class Identity(models.Model):
     # Should be a list of object URIs (we don't want a full M2M here)
     pinned = models.JSONField(blank=True, null=True)
 
+    # A list of other actor URIs - if this account was moved, should contain
+    # the one URI it was moved to.
+    aliases = models.JSONField(blank=True, null=True)
+
     # Admin-only moderation fields
     sensitive = models.BooleanField(default=False)
     restriction = models.IntegerField(

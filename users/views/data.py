@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 
@@ -11,6 +12,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_http_methods
 
 from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
@@ -28,6 +30,7 @@ from journal.importers import (
 )
 from journal.models import ShelfType
 from journal.models.common import VisibilityType
+from takahe.models import InboxMessage
 from takahe.utils import Takahe
 from users.models import Task
 
@@ -515,3 +518,300 @@ def import_steam(request):
     task = SteamImporter.create(user=request.user, **metadata)
     task.enqueue()
     return redirect(reverse("users:user_task_status", args=(task.type,)))
+
+
+# --- Authorized Apps ---
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def authorized_app_create(request):
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        scope = request.POST.get("scope", "read")
+        if not name:
+            messages.error(request, _("Name is required."))
+            return redirect(reverse("users:authorized_app_create"))
+        identity = request.user.identity
+        takahe_user = Takahe.get_identity(identity.pk).users.first()
+        if not takahe_user:
+            raise BadRequest("Identity not found")
+        token = Takahe.create_personal_token(identity.pk, takahe_user.pk, name, scope)
+        return render(
+            request,
+            "users/authorized_app_created.html",
+            {"new_token": token},
+        )
+    return render(request, "users/authorized_app_create.html")
+
+
+@login_required
+@require_http_methods(["POST"])
+def authorized_app_revoke(request):
+    token_pk = request.POST.get("token_id")
+    if token_pk:
+        identity = request.user.identity
+        Takahe.revoke_token(int(token_pk), identity.pk)
+        messages.info(request, _("Application access has been revoked."))
+    return redirect(reverse("users:info"))
+
+
+# --- Migration ---
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def migrate_in(request):
+    identity = request.user.identity
+    tidentity = Takahe.get_identity(identity.pk)
+    has_moved = Takahe.identity_has_moved(identity.pk)
+
+    if request.method == "POST":
+        if has_moved:
+            messages.error(request, _("Alias update not allowed for a moved account."))
+            return redirect(reverse("users:migrate_in"))
+
+        handle = request.POST.get("alias", "").strip().lstrip("@")
+        if not handle:
+            messages.error(request, _("No alias specified."))
+            return redirect(reverse("users:migrate_in"))
+
+        # Resolve the handle to an identity
+        target = Takahe.resolve_identity_by_handle(handle)
+        if not target:
+            # Try fetching remotely
+            Takahe.fetch_remote_identity(handle)
+            messages.info(
+                request,
+                _("Looking up the account. Please try again in a few seconds."),
+            )
+            return redirect(reverse("users:migrate_in"))
+
+        if "remove_alias" in request.POST:
+            Takahe.identity_remove_alias(identity.pk, target.actor_uri)
+            messages.info(
+                request, _("Alias to {handle} removed.").format(handle=target.handle)
+            )
+        else:
+            Takahe.identity_add_alias(identity.pk, target.actor_uri)
+            messages.info(
+                request, _("Alias to {handle} added.").format(handle=target.handle)
+            )
+        return redirect(reverse("users:migrate_in"))
+
+    aliases = Takahe.identity_get_aliases(identity.pk)
+    return render(
+        request,
+        "users/migrate_in.html",
+        {
+            "aliases": aliases,
+            "moved": has_moved,
+            "identity": tidentity,
+        },
+    )
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def migrate_out(request):
+    identity = request.user.identity
+    tidentity = Takahe.get_identity(identity.pk)
+    has_moved = Takahe.identity_has_moved(identity.pk)
+
+    if request.method == "POST":
+        if "cancel" in request.POST:
+            Takahe.identity_cancel_move(identity.pk)
+            messages.info(request, _("Migration cancelled."))
+            return redirect(reverse("users:migrate_out"))
+
+        handle = request.POST.get("alias", "").strip().lstrip("@")
+        if not handle:
+            messages.error(request, _("No target account specified."))
+            return redirect(reverse("users:migrate_out"))
+
+        target = Takahe.resolve_identity_by_handle(handle)
+        if not target:
+            Takahe.fetch_remote_identity(handle)
+            messages.info(
+                request,
+                _("Looking up the account. Please try again in a few seconds."),
+            )
+            return redirect(reverse("users:migrate_out"))
+
+        if target.local:
+            messages.error(request, _("Cannot migrate to a local account."))
+            return redirect(reverse("users:migrate_out"))
+
+        # Verify target has this identity as alias
+        if tidentity.actor_uri not in (target.aliases or []):
+            messages.error(
+                request,
+                _("You must set up an alias in the target account first."),
+            )
+            return redirect(reverse("users:migrate_out"))
+
+        Takahe.identity_start_move(identity.pk, target.actor_uri)
+        messages.info(
+            request, _("Start moving to {handle}.").format(handle=target.handle)
+        )
+        return redirect(reverse("users:migrate_out"))
+
+    aliases = Takahe.identity_get_aliases(identity.pk)
+    return render(
+        request,
+        "users/migrate_out.html",
+        {
+            "aliases": aliases,
+            "moved": has_moved,
+            "identity": tidentity,
+        },
+    )
+
+
+# --- Import/Export follow+block+mute ---
+
+
+@login_required
+@require_http_methods(["POST"])
+def import_social_graph(request):
+    identity = request.user.identity
+    import_type = request.POST.get("import_type", "following")
+    csv_file = request.FILES.get("csv_file")
+    if not csv_file:
+        raise BadRequest(_("No file uploaded."))
+
+    try:
+        lines = csv_file.read().decode("utf-8").splitlines()
+        reader = csv.DictReader(lines)
+        entries = []
+        for row in reader:
+            handle = row.get("Account address", "").strip()
+            if not handle:
+                continue
+            if len(handle.split("@")) != 2:
+                continue
+            entry = {"handle": handle}
+            if import_type == "following":
+                show_boosts = row.get("Show boosts", "true").strip().lower()
+                entry["boosts"] = show_boosts != "false"
+            entries.append(entry)
+    except (TypeError, ValueError, KeyError):
+        messages.error(request, _("The uploaded file is not a valid CSV."))
+        return redirect(reverse("users:info"))
+
+    if not entries:
+        messages.error(request, _("No valid entries found in the CSV file."))
+        return redirect(reverse("users:info"))
+
+    if import_type == "following":
+        for entry in entries:
+            InboxMessage.create_internal(
+                {
+                    "type": "AddFollow",
+                    "source": identity.pk,
+                    "target_handle": entry["handle"],
+                    "boosts": entry.get("boosts", True),
+                }
+            )
+        messages.info(
+            request,
+            _(
+                "Import of {count} entries received. They will be processed in the background."
+            ).format(count=len(entries)),
+        )
+    elif import_type in ("blocks", "mutes"):
+        is_mute = import_type == "mutes"
+        processed = 0
+        skipped = 0
+        for entry in entries:
+            target = Takahe.resolve_identity_by_handle(entry["handle"])
+            if target:
+                Takahe.block_or_mute(identity.pk, target.pk, is_mute)
+                processed += 1
+            else:
+                Takahe.fetch_remote_identity(entry["handle"])
+                skipped += 1
+        if skipped:
+            messages.info(
+                request,
+                _(
+                    "Processed {processed} entries, {skipped} unknown accounts are being looked up -- please retry for those."
+                ).format(processed=processed, skipped=skipped),
+            )
+        else:
+            messages.info(
+                request,
+                _("Processed {count} entries.").format(count=processed),
+            )
+
+    return redirect(reverse("users:info"))
+
+
+@login_required
+def export_social_graph_csv(request, export_type: str):
+    identity = request.user.identity
+
+    response = HttpResponse(content_type="text/csv")
+
+    if export_type == "following":
+        response["Content-Disposition"] = 'attachment; filename="following.csv"'
+        writer = csv.writer(response)
+        writer.writerow(
+            ["Account address", "Show boosts", "Notify on new posts", "Languages"]
+        )
+        from takahe.models import Follow
+
+        for follow in Follow.objects.filter(
+            source_id=identity.pk, state="accepted"
+        ).select_related("target", "target__domain"):
+            writer.writerow(
+                [
+                    follow.target.handle,
+                    "true" if follow.boosts else "false",
+                    "false",
+                    "",
+                ]
+            )
+    elif export_type == "followers":
+        response["Content-Disposition"] = 'attachment; filename="followers.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Account address"])
+        from takahe.models import Follow
+
+        for follow in Follow.objects.filter(
+            target_id=identity.pk, state="accepted"
+        ).select_related("source", "source__domain"):
+            writer.writerow([follow.source.handle])
+    elif export_type == "blocks":
+        response["Content-Disposition"] = 'attachment; filename="blocked_accounts.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Account address"])
+        from takahe.models import Block
+
+        for block in Block.objects.filter(
+            source_id=identity.pk,
+            mute=False,
+            state__in=["new", "sent", "awaiting_expiry"],
+        ).select_related("target", "target__domain"):
+            writer.writerow([block.target.handle])
+    elif export_type == "mutes":
+        response["Content-Disposition"] = 'attachment; filename="muted_accounts.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Account address", "Hide notifications"])
+        from takahe.models import Block
+
+        for block in Block.objects.filter(
+            source_id=identity.pk,
+            mute=True,
+            state__in=["new", "sent", "awaiting_expiry"],
+        ).select_related("target", "target__domain"):
+            writer.writerow(
+                [
+                    block.target.handle,
+                    "true" if block.include_notifications else "false",
+                ]
+            )
+    else:
+        raise BadRequest("Invalid export type")
+
+    return response

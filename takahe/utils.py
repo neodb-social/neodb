@@ -433,6 +433,134 @@ class Takahe:
         return Takahe.undo_block_or_mute(source_pk, target_pk, True)
 
     @staticmethod
+    def identity_has_moved(identity_pk: int) -> bool:
+        identity = Identity.objects.get(pk=identity_pk)
+        return identity.state in ("moved", "moved_fanned_out")
+
+    @staticmethod
+    def identity_add_alias(identity_pk: int, actor_uri: str) -> None:
+        identity = Identity.objects.get(pk=identity_pk)
+        if not identity.aliases or actor_uri not in identity.aliases:
+            identity.aliases = [actor_uri] + (identity.aliases or [])
+            identity.save(update_fields=["aliases"])
+
+    @staticmethod
+    def identity_remove_alias(identity_pk: int, actor_uri: str) -> None:
+        identity = Identity.objects.get(pk=identity_pk)
+        identity.aliases = [x for x in (identity.aliases or []) if x != actor_uri]
+        identity.save(update_fields=["aliases"])
+
+    @staticmethod
+    def identity_start_move(identity_pk: int, target_actor_uri: str) -> None:
+        identity = Identity.objects.get(pk=identity_pk)
+        identity.aliases = [target_actor_uri]
+        identity.state = "moved"
+        identity.save(update_fields=["aliases", "state"])
+
+    @staticmethod
+    def identity_cancel_move(identity_pk: int) -> None:
+        identity = Identity.objects.get(pk=identity_pk)
+        identity.aliases = []
+        identity.state = "updated"
+        identity.save(update_fields=["aliases", "state"])
+
+    @staticmethod
+    def resolve_identity_by_handle(handle: str) -> Identity | None:
+        """Resolve a handle like user@domain to an Identity, fetching if needed."""
+        handle = handle.lstrip("@")
+        parts = handle.split("@")
+        if len(parts) != 2:
+            return None
+        username, domain = parts
+        identity = Identity.objects.filter(
+            username__iexact=username, domain__domain__iexact=domain
+        ).first()
+        if identity:
+            return identity
+        # Try webfinger lookup for remote identities
+        try:
+            actor_uri, _ = Identity.fetch_webfinger(handle)
+            if actor_uri:
+                return Identity.objects.filter(actor_uri=actor_uri).first()
+        except Exception:
+            pass
+        return None
+
+    @staticmethod
+    def get_identity_by_actor_uri(actor_uri: str) -> Identity | None:
+        return Identity.objects.filter(actor_uri=actor_uri).first()
+
+    @staticmethod
+    def identity_get_aliases(identity_pk: int) -> list[Identity]:
+        """Return Identity objects for each alias URI."""
+        identity = Identity.objects.get(pk=identity_pk)
+        result = []
+        for uri in identity.aliases or []:
+            alias = Identity.objects.filter(actor_uri=uri).first()
+            if alias:
+                result.append(alias)
+        return result
+
+    @staticmethod
+    def create_personal_token(
+        identity_pk: int, user_pk: int, name: str, scope: str
+    ) -> Token:
+        import secrets as sec
+
+        scopes = "read write push" if scope == "write" else "read"
+        app = Application.objects.create(
+            client_id=sec.token_urlsafe(32),
+            client_secret=sec.token_urlsafe(32),
+            redirect_uris="urn:ietf:wg:oauth:2.0:oob",
+            scopes=scopes,
+            name=name,
+        )
+        token = Token.objects.create(
+            application=app,
+            user_id=user_pk,
+            identity_id=identity_pk,
+            token=sec.token_urlsafe(43),
+            scopes=scopes,
+        )
+        return token
+
+    @staticmethod
+    def get_tokens_for_identity(identity_pk: int) -> QuerySet:
+        return Token.objects.filter(
+            identity_id=identity_pk,
+            revoked__isnull=True,
+        ).select_related("application")
+
+    @staticmethod
+    def revoke_token(token_pk: int, identity_pk: int) -> bool:
+        token = Token.objects.filter(pk=token_pk, identity_id=identity_pk).first()
+        if token:
+            token.delete()
+            return True
+        return False
+
+    @staticmethod
+    def get_follow_block_mute_counts(identity_pk: int) -> dict[str, int]:
+        return {
+            "outbound_follows": Follow.objects.filter(
+                source_id=identity_pk, state="accepted"
+            ).count(),
+            "inbound_follows": Follow.objects.filter(
+                target_id=identity_pk, state="accepted"
+            ).count(),
+            "blocks": Block.objects.filter(
+                source_id=identity_pk,
+                mute=False,
+                state__in=["new", "sent", "awaiting_expiry"],
+            ).count(),
+            "mutes": Block.objects.filter(
+                source_id=identity_pk,
+                mute=True,
+                state__in=["new", "sent", "awaiting_expiry"],
+            ).count(),
+        }
+
+    @staticmethod
     def _force_state_cycle():  # for unit testing only
         Follow.objects.filter(
             state__in=["rejecting", "undone", "pending_removal"]

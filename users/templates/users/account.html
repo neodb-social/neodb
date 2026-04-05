@@ -328,6 +328,111 @@
             </form>
           </details>
         </article>
+        <article>
+          <details>
+            <summary>{% trans "Authorized Apps" %}</summary>
+            {% if tokens %}
+              <table role="grid">
+                <thead>
+                  <tr>
+                    <th>{% trans "Application" %}</th>
+                    <th>{% trans "Scopes" %}</th>
+                    <th>{% trans "Created" %}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for token in tokens %}
+                    <tr>
+                      <td>{{ token.application.name }}</td>
+                      <td>{{ token.scopes }}</td>
+                      <td>{{ token.created }}</td>
+                      <td>
+                        <form action="{% url 'users:authorized_app_revoke' %}"
+                              method="post"
+                              onsubmit="return confirm('{% trans "Revoke access for this application?" %}')">
+                          {% csrf_token %}
+                          <input type="hidden" name="token_id" value="{{ token.pk }}">
+                          <input type="submit" class="secondary" value="{% trans 'Revoke' %}">
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p>{% trans "No authorized applications." %}</p>
+            {% endif %}
+            <p>
+              <a href="{% url 'users:authorized_app_create' %}">{% trans "Create Personal Token" %}</a>
+            </p>
+          </details>
+        </article>
+        <article>
+          <details>
+            <summary>{% trans "Import/Export Social Graph" %}</summary>
+            <p>{% trans "Upload a CSV file exported from Mastodon or compatible services." %}</p>
+            <form action="{% url 'users:import_social_graph' %}"
+                  method="post"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <label for="import_type">
+                {% trans "Import type" %}
+                <select name="import_type" id="import_type">
+                  <option value="following">{% trans "Following list" %}</option>
+                  <option value="blocks">{% trans "Block list" %}</option>
+                  <option value="mutes">{% trans "Mute list" %}</option>
+                </select>
+              </label>
+              <label for="csv_file">
+                {% trans "CSV file" %}
+                <input type="file" name="csv_file" id="csv_file" required accept=".csv">
+              </label>
+              <input type="submit" value="{% trans 'Import' %}">
+            </form>
+            <hr>
+            <table role="grid">
+              <tbody>
+                <tr>
+                  <td>
+                    {% trans "Following" %}
+                    <small>({{ counts.outbound_follows }})</small>
+                  </td>
+                  <td>
+                    <a href="{% url 'users:export_social_graph_csv' 'following' %}">{% trans "Download CSV" %}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    {% trans "Followers" %}
+                    <small>({{ counts.inbound_follows }})</small>
+                  </td>
+                  <td>
+                    <a href="{% url 'users:export_social_graph_csv' 'followers' %}">{% trans "Download CSV" %}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    {% trans "Blocks" %}
+                    <small>({{ counts.blocks }})</small>
+                  </td>
+                  <td>
+                    <a href="{% url 'users:export_social_graph_csv' 'blocks' %}">{% trans "Download CSV" %}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    {% trans "Mutes" %}
+                    <small>({{ counts.mutes }})</small>
+                  </td>
+                  <td>
+                    <a href="{% url 'users:export_social_graph_csv' 'mutes' %}">{% trans "Download CSV" %}</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+        </article>
         {% if allow_any_site %}
           <article>
             <details>
@@ -338,14 +443,10 @@
                   {% trans "Linking an email to your account is highly recommended before migrating from another Fediverse instance." %}
                 {% endif %}
                 <div>
-                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_in/">
-                    <button>{% trans "Migrate from anther instance to here" %}</button>
-                  </form>
-                </p>
-                <p>
-                  <form action="/@{{ request.user.identity.handle }}/settings/migrate_out/">
-                    <button>{% trans "Migrate to another instance" %}</button>
-                  </form>
+                  <a href="{% url 'users:migrate_in' %}">{% trans "Migrate another account here" %}</a>
+                </div>
+                <div>
+                  <a href="{% url 'users:migrate_out' %}">{% trans "Migrate to another account" %}</a>
                 </div>
               </p>
             </details>

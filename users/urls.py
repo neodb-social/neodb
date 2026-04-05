@@ -36,6 +36,20 @@ urlpatterns = [
     path("data/clear_data", clear_data, name="clear_data"),
     path("data/logout_everywhere", logout_everywhere, name="logout_everywhere"),
     path("preferences", preferences, name="preferences"),
+    path(
+        "preferences/apps/create", authorized_app_create, name="authorized_app_create"
+    ),
+    path(
+        "preferences/apps/revoke", authorized_app_revoke, name="authorized_app_revoke"
+    ),
+    path("preferences/migrate_in", migrate_in, name="migrate_in"),
+    path("preferences/migrate_out", migrate_out, name="migrate_out"),
+    path("data/social_graph/import", import_social_graph, name="import_social_graph"),
+    path(
+        "data/social_graph/export/<str:export_type>",
+        export_social_graph_csv,
+        name="export_social_graph_csv",
+    ),
     path("logout", logout, name="logout"),
     path("layout", set_layout, name="set_layout"),
     path("follow/<str:user_name>", follow, name="follow"),

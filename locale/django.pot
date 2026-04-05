@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-05 00:07-0400\n"
+"POT-Creation-Date: 2026-04-05 19:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,44 +18,44 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:461 common/models/lang.py:221
+#: boofilsic/settings.py:465 common/models/lang.py:223
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:462 common/models/lang.py:68
+#: boofilsic/settings.py:466 common/models/lang.py:70
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:463 common/models/lang.py:69
+#: boofilsic/settings.py:467 common/models/lang.py:71
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:464 common/models/lang.py:174
+#: boofilsic/settings.py:468 common/models/lang.py:176
 msgid "Spanish"
 msgstr ""
 
-#: boofilsic/settings.py:465 common/models/lang.py:78
+#: boofilsic/settings.py:469 common/models/lang.py:80
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:466 common/models/lang.py:103
+#: boofilsic/settings.py:470 common/models/lang.py:105
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:467 common/models/lang.py:157
-#: common/models/lang.py:295
+#: boofilsic/settings.py:471 common/models/lang.py:159
+#: common/models/lang.py:297
 msgid "Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:468
+#: boofilsic/settings.py:472
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:469 common/models/lang.py:306
+#: boofilsic/settings.py:473 common/models/lang.py:308
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:470 common/models/lang.py:307
+#: boofilsic/settings.py:474 common/models/lang.py:309
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -77,93 +77,93 @@ msgstr ""
 msgid "text content"
 msgstr ""
 
-#: catalog/models/book.py:117
+#: catalog/models/book.py:118
 msgid "Paperback"
 msgstr ""
 
-#: catalog/models/book.py:118
+#: catalog/models/book.py:119
 msgid "Hardcover"
 msgstr ""
 
-#: catalog/models/book.py:119
+#: catalog/models/book.py:120
 msgid "eBook"
 msgstr ""
 
-#: catalog/models/book.py:120
+#: catalog/models/book.py:121
 msgid "Audiobook"
 msgstr ""
 
-#: catalog/models/book.py:122
+#: catalog/models/book.py:123
 msgid "Web Fiction"
 msgstr ""
 
-#: catalog/models/book.py:123 catalog/models/game.py:31
+#: catalog/models/book.py:124 catalog/models/game.py:31
 msgid "Other"
 msgstr ""
 
-#: catalog/models/book.py:162
+#: catalog/models/book.py:163
 msgid "subtitle"
 msgstr ""
 
-#: catalog/models/book.py:172 catalog/models/movie.py:65
+#: catalog/models/book.py:173 catalog/models/movie.py:65
 #: catalog/models/performance.py:317 catalog/models/tv.py:137
 #: catalog/models/tv.py:364
 msgid "original title"
 msgstr ""
 
-#: catalog/models/book.py:176
+#: catalog/models/book.py:177
 msgid "other title"
 msgstr ""
 
-#: catalog/models/book.py:182 catalog/models/book.py:452
+#: catalog/models/book.py:183 catalog/models/book.py:453
 msgid "author"
 msgstr ""
 
-#: catalog/models/book.py:189
+#: catalog/models/book.py:190
 msgid "translator"
 msgstr ""
 
-#: catalog/models/book.py:196 catalog/templates/edition.html:26
+#: catalog/models/book.py:197 catalog/templates/edition.html:26
 msgid "book format"
 msgstr ""
 
-#: catalog/models/book.py:203 catalog/templates/edition.html:32
+#: catalog/models/book.py:204 catalog/templates/edition.html:32
 msgid "publishing house"
 msgstr ""
 
-#: catalog/models/book.py:206
+#: catalog/models/book.py:207
 msgid "publication year"
 msgstr ""
 
-#: catalog/models/book.py:212
+#: catalog/models/book.py:213
 msgid "publication month"
 msgstr ""
 
-#: catalog/models/book.py:217 catalog/templates/edition.html:54
+#: catalog/models/book.py:218 catalog/templates/edition.html:54
 msgid "binding"
 msgstr ""
 
-#: catalog/models/book.py:218
+#: catalog/models/book.py:219
 msgid "pages"
 msgstr ""
 
-#: catalog/models/book.py:219 catalog/templates/edition.html:48
+#: catalog/models/book.py:220 catalog/templates/edition.html:48
 msgid "series"
 msgstr ""
 
-#: catalog/models/book.py:220 catalog/templates/edition.html:73
+#: catalog/models/book.py:221 catalog/templates/edition.html:73
 msgid "contents"
 msgstr ""
 
-#: catalog/models/book.py:221 catalog/templates/edition.html:59
+#: catalog/models/book.py:222 catalog/templates/edition.html:59
 msgid "price"
 msgstr ""
 
-#: catalog/models/book.py:222 catalog/templates/edition.html:37
+#: catalog/models/book.py:223 catalog/templates/edition.html:37
 msgid "imprint"
 msgstr ""
 
-#: catalog/models/common.py:9 common/models/lang.py:247
+#: catalog/models/common.py:9 common/models/lang.py:249
 msgid "Unknown"
 msgstr ""
 
@@ -507,7 +507,7 @@ msgid "Podcast"
 msgstr ""
 
 #: catalog/models/common.py:241 catalog/templates/_language_list.html:5
-#: users/models/user.py:127
+#: users/models/user.py:128
 msgid "language"
 msgstr ""
 
@@ -966,7 +966,7 @@ msgstr ""
 #: catalog/views/edit.py:253 catalog/views/edit.py:299
 #: catalog/views/edit.py:314 catalog/views/edit.py:352
 #: catalog/views/edit.py:362 catalog/views/edit.py:388
-#: catalog/views/search.py:210
+#: catalog/views/search.py:207
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1311,10 +1311,12 @@ msgid "Edit"
 msgstr ""
 
 #: catalog/templates/catalog_edit.html:14
+#: users/templates/users/authorized_app_create.html:41
 msgid "Create"
 msgstr ""
 
 #: catalog/templates/catalog_edit.html:51
+#: common/templates/manage/settings.html:136
 #: journal/templates/add_to_collection.html:43
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
@@ -1347,7 +1349,8 @@ msgstr ""
 msgid "This operation cannot be undone. Sure to merge?"
 msgstr ""
 
-#: catalog/templates/discover.html:28 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:28 common/views_manage.py:144
+#: common/views_manage.py:335 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr ""
 
@@ -1656,7 +1659,7 @@ msgstr ""
 #: journal/views/collection.py:286 journal/views/collection.py:321
 #: journal/views/collection.py:333 journal/views/collection.py:358
 #: journal/views/collection.py:361 journal/views/collection.py:398
-#: journal/views/common.py:152 journal/views/mark.py:187
+#: journal/views/common.py:153 journal/views/mark.py:187
 #: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
 #: journal/views/post.py:117 journal/views/post.py:179
 #: journal/views/post.py:258 journal/views/post.py:273
@@ -1705,15 +1708,15 @@ msgstr ""
 msgid "Cannot link items other than editions"
 msgstr ""
 
-#: catalog/views/search.py:82
+#: catalog/views/search.py:79
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:199
+#: catalog/views/search.py:196
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:202
+#: catalog/views/search.py:199
 msgid "Unsupported URL"
 msgstr ""
 
@@ -1725,759 +1728,759 @@ msgstr ""
 msgid "Item no longer exists"
 msgstr ""
 
-#: common/models/lang.py:45
+#: common/models/lang.py:47
 msgid "Afar"
 msgstr ""
 
-#: common/models/lang.py:46
+#: common/models/lang.py:48
 msgid "Afrikaans"
 msgstr ""
 
-#: common/models/lang.py:47
+#: common/models/lang.py:49
 msgid "Akan"
 msgstr ""
 
-#: common/models/lang.py:48
+#: common/models/lang.py:50
 msgid "Aragonese"
 msgstr ""
 
-#: common/models/lang.py:49
+#: common/models/lang.py:51
 msgid "Assamese"
 msgstr ""
 
-#: common/models/lang.py:50
+#: common/models/lang.py:52
 msgid "Avaric"
 msgstr ""
 
-#: common/models/lang.py:51
+#: common/models/lang.py:53
 msgid "Avestan"
 msgstr ""
 
-#: common/models/lang.py:52
+#: common/models/lang.py:54
 msgid "Aymara"
 msgstr ""
 
-#: common/models/lang.py:53
+#: common/models/lang.py:55
 msgid "Azerbaijani"
 msgstr ""
 
-#: common/models/lang.py:54
+#: common/models/lang.py:56
 msgid "Bashkir"
 msgstr ""
 
-#: common/models/lang.py:55
+#: common/models/lang.py:57
 msgid "Bambara"
 msgstr ""
 
-#: common/models/lang.py:56
+#: common/models/lang.py:58
 msgid "Bislama"
 msgstr ""
 
-#: common/models/lang.py:57
+#: common/models/lang.py:59
 msgid "Tibetan"
 msgstr ""
 
-#: common/models/lang.py:58
+#: common/models/lang.py:60
 msgid "Breton"
 msgstr ""
 
-#: common/models/lang.py:59
+#: common/models/lang.py:61
 msgid "Catalan"
 msgstr ""
 
-#: common/models/lang.py:60
+#: common/models/lang.py:62
 msgid "Czech"
 msgstr ""
 
-#: common/models/lang.py:61
+#: common/models/lang.py:63
 msgid "Chechen"
 msgstr ""
 
-#: common/models/lang.py:62
+#: common/models/lang.py:64
 msgid "Slavic"
 msgstr ""
 
-#: common/models/lang.py:63
+#: common/models/lang.py:65
 msgid "Chuvash"
 msgstr ""
 
-#: common/models/lang.py:64
+#: common/models/lang.py:66
 msgid "Cornish"
 msgstr ""
 
-#: common/models/lang.py:65
+#: common/models/lang.py:67
 msgid "Corsican"
 msgstr ""
 
-#: common/models/lang.py:66
+#: common/models/lang.py:68
 msgid "Cree"
 msgstr ""
 
-#: common/models/lang.py:67
+#: common/models/lang.py:69
 msgid "Welsh"
 msgstr ""
 
-#: common/models/lang.py:70
+#: common/models/lang.py:72
 msgid "Divehi"
 msgstr ""
 
-#: common/models/lang.py:71
+#: common/models/lang.py:73
 msgid "Dzongkha"
 msgstr ""
 
-#: common/models/lang.py:72
+#: common/models/lang.py:74
 msgid "Esperanto"
 msgstr ""
 
-#: common/models/lang.py:73
+#: common/models/lang.py:75
 msgid "Estonian"
 msgstr ""
 
-#: common/models/lang.py:74
+#: common/models/lang.py:76
 msgid "Basque"
 msgstr ""
 
-#: common/models/lang.py:75
+#: common/models/lang.py:77
 msgid "Faroese"
 msgstr ""
 
-#: common/models/lang.py:76
+#: common/models/lang.py:78
 msgid "Fijian"
 msgstr ""
 
-#: common/models/lang.py:77
+#: common/models/lang.py:79
 msgid "Finnish"
 msgstr ""
 
-#: common/models/lang.py:79
+#: common/models/lang.py:81
 msgid "Frisian"
 msgstr ""
 
-#: common/models/lang.py:80
+#: common/models/lang.py:82
 msgid "Fulah"
 msgstr ""
 
-#: common/models/lang.py:81
+#: common/models/lang.py:83
 msgid "Gaelic"
 msgstr ""
 
-#: common/models/lang.py:82
+#: common/models/lang.py:84
 msgid "Irish"
 msgstr ""
 
-#: common/models/lang.py:83
+#: common/models/lang.py:85
 msgid "Galician"
 msgstr ""
 
-#: common/models/lang.py:84
+#: common/models/lang.py:86
 msgid "Manx"
 msgstr ""
 
-#: common/models/lang.py:85
+#: common/models/lang.py:87
 msgid "Guarani"
 msgstr ""
 
-#: common/models/lang.py:86
+#: common/models/lang.py:88
 msgid "Gujarati"
 msgstr ""
 
-#: common/models/lang.py:87
+#: common/models/lang.py:89
 msgid "Haitian; Haitian Creole"
 msgstr ""
 
-#: common/models/lang.py:88
+#: common/models/lang.py:90
 msgid "Hausa"
 msgstr ""
 
-#: common/models/lang.py:89
+#: common/models/lang.py:91
 msgid "Serbo-Croatian"
 msgstr ""
 
-#: common/models/lang.py:90
+#: common/models/lang.py:92
 msgid "Herero"
 msgstr ""
 
-#: common/models/lang.py:91
+#: common/models/lang.py:93
 msgid "Hiri Motu"
 msgstr ""
 
-#: common/models/lang.py:92
+#: common/models/lang.py:94
 msgid "Croatian"
 msgstr ""
 
-#: common/models/lang.py:93
+#: common/models/lang.py:95
 msgid "Hungarian"
 msgstr ""
 
-#: common/models/lang.py:94
+#: common/models/lang.py:96
 msgid "Igbo"
 msgstr ""
 
-#: common/models/lang.py:95
+#: common/models/lang.py:97
 msgid "Ido"
 msgstr ""
 
-#: common/models/lang.py:96
+#: common/models/lang.py:98
 msgid "Yi"
 msgstr ""
 
-#: common/models/lang.py:97
+#: common/models/lang.py:99
 msgid "Inuktitut"
 msgstr ""
 
-#: common/models/lang.py:98
+#: common/models/lang.py:100
 msgid "Interlingue"
 msgstr ""
 
-#: common/models/lang.py:99
+#: common/models/lang.py:101
 msgid "Interlingua"
 msgstr ""
 
-#: common/models/lang.py:100
+#: common/models/lang.py:102
 msgid "Indonesian"
 msgstr ""
 
-#: common/models/lang.py:101
+#: common/models/lang.py:103
 msgid "Inupiaq"
 msgstr ""
 
-#: common/models/lang.py:102
+#: common/models/lang.py:104
 msgid "Icelandic"
 msgstr ""
 
-#: common/models/lang.py:104
+#: common/models/lang.py:106
 msgid "Javanese"
 msgstr ""
 
-#: common/models/lang.py:105
+#: common/models/lang.py:107
 msgid "Japanese"
 msgstr ""
 
-#: common/models/lang.py:106
+#: common/models/lang.py:108
 msgid "Kalaallisut"
 msgstr ""
 
-#: common/models/lang.py:107
+#: common/models/lang.py:109
 msgid "Kannada"
 msgstr ""
 
-#: common/models/lang.py:108
+#: common/models/lang.py:110
 msgid "Kashmiri"
 msgstr ""
 
-#: common/models/lang.py:109
+#: common/models/lang.py:111
 msgid "Kanuri"
 msgstr ""
 
-#: common/models/lang.py:110
+#: common/models/lang.py:112
 msgid "Kazakh"
 msgstr ""
 
-#: common/models/lang.py:111
+#: common/models/lang.py:113
 msgid "Khmer"
 msgstr ""
 
-#: common/models/lang.py:112
+#: common/models/lang.py:114
 msgid "Kikuyu"
 msgstr ""
 
-#: common/models/lang.py:113
+#: common/models/lang.py:115
 msgid "Kinyarwanda"
 msgstr ""
 
-#: common/models/lang.py:114
+#: common/models/lang.py:116
 msgid "Kirghiz"
 msgstr ""
 
-#: common/models/lang.py:115
+#: common/models/lang.py:117
 msgid "Komi"
 msgstr ""
 
-#: common/models/lang.py:116
+#: common/models/lang.py:118
 msgid "Kongo"
 msgstr ""
 
-#: common/models/lang.py:117
+#: common/models/lang.py:119
 msgid "Korean"
 msgstr ""
 
-#: common/models/lang.py:118
+#: common/models/lang.py:120
 msgid "Kuanyama"
 msgstr ""
 
-#: common/models/lang.py:119
+#: common/models/lang.py:121
 msgid "Kurdish"
 msgstr ""
 
-#: common/models/lang.py:120
+#: common/models/lang.py:122
 msgid "Lao"
 msgstr ""
 
-#: common/models/lang.py:121
+#: common/models/lang.py:123
 msgid "Latin"
 msgstr ""
 
-#: common/models/lang.py:122
+#: common/models/lang.py:124
 msgid "Latvian"
 msgstr ""
 
-#: common/models/lang.py:123
+#: common/models/lang.py:125
 msgid "Limburgish"
 msgstr ""
 
-#: common/models/lang.py:124
+#: common/models/lang.py:126
 msgid "Lingala"
 msgstr ""
 
-#: common/models/lang.py:125
+#: common/models/lang.py:127
 msgid "Lithuanian"
 msgstr ""
 
-#: common/models/lang.py:126
+#: common/models/lang.py:128
 msgid "Letzeburgesch"
 msgstr ""
 
-#: common/models/lang.py:127
+#: common/models/lang.py:129
 msgid "Luba-Katanga"
 msgstr ""
 
-#: common/models/lang.py:128
+#: common/models/lang.py:130
 msgid "Ganda"
 msgstr ""
 
-#: common/models/lang.py:129
+#: common/models/lang.py:131
 msgid "Marshall"
 msgstr ""
 
-#: common/models/lang.py:130
+#: common/models/lang.py:132
 msgid "Malayalam"
 msgstr ""
 
-#: common/models/lang.py:131
+#: common/models/lang.py:133
 msgid "Marathi"
 msgstr ""
 
-#: common/models/lang.py:132
+#: common/models/lang.py:134
 msgid "Malagasy"
 msgstr ""
 
-#: common/models/lang.py:133
+#: common/models/lang.py:135
 msgid "Maltese"
 msgstr ""
 
-#: common/models/lang.py:134
+#: common/models/lang.py:136
 msgid "Moldavian"
 msgstr ""
 
-#: common/models/lang.py:135
+#: common/models/lang.py:137
 msgid "Mongolian"
 msgstr ""
 
-#: common/models/lang.py:136
+#: common/models/lang.py:138
 msgid "Maori"
 msgstr ""
 
-#: common/models/lang.py:137
+#: common/models/lang.py:139
 msgid "Malay"
 msgstr ""
 
-#: common/models/lang.py:138
+#: common/models/lang.py:140
 msgid "Burmese"
 msgstr ""
 
-#: common/models/lang.py:139
+#: common/models/lang.py:141
 msgid "Nauru"
 msgstr ""
 
-#: common/models/lang.py:140
+#: common/models/lang.py:142
 msgid "Navajo"
 msgstr ""
 
-#: common/models/lang.py:141 common/models/lang.py:142
+#: common/models/lang.py:143 common/models/lang.py:144
 msgid "Ndebele"
 msgstr ""
 
-#: common/models/lang.py:143
+#: common/models/lang.py:145
 msgid "Ndonga"
 msgstr ""
 
-#: common/models/lang.py:144
+#: common/models/lang.py:146
 msgid "Nepali"
 msgstr ""
 
-#: common/models/lang.py:145
+#: common/models/lang.py:147
 msgid "Dutch"
 msgstr ""
 
-#: common/models/lang.py:146
+#: common/models/lang.py:148
 msgid "Norwegian Nynorsk"
 msgstr ""
 
-#: common/models/lang.py:147
+#: common/models/lang.py:149
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: common/models/lang.py:148
+#: common/models/lang.py:150
 msgid "Norwegian"
 msgstr ""
 
-#: common/models/lang.py:149
+#: common/models/lang.py:151
 msgid "Chichewa; Nyanja"
 msgstr ""
 
-#: common/models/lang.py:150
+#: common/models/lang.py:152
 msgid "Occitan"
 msgstr ""
 
-#: common/models/lang.py:151
+#: common/models/lang.py:153
 msgid "Ojibwa"
 msgstr ""
 
-#: common/models/lang.py:152
+#: common/models/lang.py:154
 msgid "Oriya"
 msgstr ""
 
-#: common/models/lang.py:153
+#: common/models/lang.py:155
 msgid "Oromo"
 msgstr ""
 
-#: common/models/lang.py:154
+#: common/models/lang.py:156
 msgid "Ossetian; Ossetic"
 msgstr ""
 
-#: common/models/lang.py:155
+#: common/models/lang.py:157
 msgid "Pali"
 msgstr ""
 
-#: common/models/lang.py:156
+#: common/models/lang.py:158
 msgid "Polish"
 msgstr ""
 
-#: common/models/lang.py:158
+#: common/models/lang.py:160
 msgid "Quechua"
 msgstr ""
 
-#: common/models/lang.py:159
+#: common/models/lang.py:161
 msgid "Raeto-Romance"
 msgstr ""
 
-#: common/models/lang.py:160
+#: common/models/lang.py:162
 msgid "Romanian"
 msgstr ""
 
-#: common/models/lang.py:161
+#: common/models/lang.py:163
 msgid "Rundi"
 msgstr ""
 
-#: common/models/lang.py:162
+#: common/models/lang.py:164
 msgid "Russian"
 msgstr ""
 
-#: common/models/lang.py:163
+#: common/models/lang.py:165
 msgid "Sango"
 msgstr ""
 
-#: common/models/lang.py:164
+#: common/models/lang.py:166
 msgid "Sanskrit"
 msgstr ""
 
-#: common/models/lang.py:165
+#: common/models/lang.py:167
 msgid "Sinhalese"
 msgstr ""
 
-#: common/models/lang.py:166
+#: common/models/lang.py:168
 msgid "Slovak"
 msgstr ""
 
-#: common/models/lang.py:167
+#: common/models/lang.py:169
 msgid "Slovenian"
 msgstr ""
 
-#: common/models/lang.py:168
+#: common/models/lang.py:170
 msgid "Northern Sami"
 msgstr ""
 
-#: common/models/lang.py:169
+#: common/models/lang.py:171
 msgid "Samoan"
 msgstr ""
 
-#: common/models/lang.py:170
+#: common/models/lang.py:172
 msgid "Shona"
 msgstr ""
 
-#: common/models/lang.py:171
+#: common/models/lang.py:173
 msgid "Sindhi"
 msgstr ""
 
-#: common/models/lang.py:172
+#: common/models/lang.py:174
 msgid "Somali"
 msgstr ""
 
-#: common/models/lang.py:173
+#: common/models/lang.py:175
 msgid "Sotho"
 msgstr ""
 
-#: common/models/lang.py:175
+#: common/models/lang.py:177
 msgid "Albanian"
 msgstr ""
 
-#: common/models/lang.py:176
+#: common/models/lang.py:178
 msgid "Sardinian"
 msgstr ""
 
-#: common/models/lang.py:177
+#: common/models/lang.py:179
 msgid "Serbian"
 msgstr ""
 
-#: common/models/lang.py:178
+#: common/models/lang.py:180
 msgid "Swati"
 msgstr ""
 
-#: common/models/lang.py:179
+#: common/models/lang.py:181
 msgid "Sundanese"
 msgstr ""
 
-#: common/models/lang.py:180
+#: common/models/lang.py:182
 msgid "Swahili"
 msgstr ""
 
-#: common/models/lang.py:181
+#: common/models/lang.py:183
 msgid "Swedish"
 msgstr ""
 
-#: common/models/lang.py:182
+#: common/models/lang.py:184
 msgid "Tahitian"
 msgstr ""
 
-#: common/models/lang.py:183
+#: common/models/lang.py:185
 msgid "Tamil"
 msgstr ""
 
-#: common/models/lang.py:184
+#: common/models/lang.py:186
 msgid "Tatar"
 msgstr ""
 
-#: common/models/lang.py:185
+#: common/models/lang.py:187
 msgid "Telugu"
 msgstr ""
 
-#: common/models/lang.py:186
+#: common/models/lang.py:188
 msgid "Tajik"
 msgstr ""
 
-#: common/models/lang.py:187
+#: common/models/lang.py:189
 msgid "Tagalog"
 msgstr ""
 
-#: common/models/lang.py:188
+#: common/models/lang.py:190
 msgid "Thai"
 msgstr ""
 
-#: common/models/lang.py:189
+#: common/models/lang.py:191
 msgid "Tigrinya"
 msgstr ""
 
-#: common/models/lang.py:190
+#: common/models/lang.py:192
 msgid "Tonga"
 msgstr ""
 
-#: common/models/lang.py:191
+#: common/models/lang.py:193
 msgid "Tswana"
 msgstr ""
 
-#: common/models/lang.py:192
+#: common/models/lang.py:194
 msgid "Tsonga"
 msgstr ""
 
-#: common/models/lang.py:193
+#: common/models/lang.py:195
 msgid "Turkmen"
 msgstr ""
 
-#: common/models/lang.py:194
+#: common/models/lang.py:196
 msgid "Turkish"
 msgstr ""
 
-#: common/models/lang.py:195
+#: common/models/lang.py:197
 msgid "Twi"
 msgstr ""
 
-#: common/models/lang.py:196
+#: common/models/lang.py:198
 msgid "Uighur"
 msgstr ""
 
-#: common/models/lang.py:197
+#: common/models/lang.py:199
 msgid "Ukrainian"
 msgstr ""
 
-#: common/models/lang.py:198
+#: common/models/lang.py:200
 msgid "Urdu"
 msgstr ""
 
-#: common/models/lang.py:199
+#: common/models/lang.py:201
 msgid "Uzbek"
 msgstr ""
 
-#: common/models/lang.py:200
+#: common/models/lang.py:202
 msgid "Venda"
 msgstr ""
 
-#: common/models/lang.py:201
+#: common/models/lang.py:203
 msgid "Vietnamese"
 msgstr ""
 
-#: common/models/lang.py:202
+#: common/models/lang.py:204
 msgid "Volapük"
 msgstr ""
 
-#: common/models/lang.py:203
+#: common/models/lang.py:205
 msgid "Walloon"
 msgstr ""
 
-#: common/models/lang.py:204
+#: common/models/lang.py:206
 msgid "Wolof"
 msgstr ""
 
-#: common/models/lang.py:205
+#: common/models/lang.py:207
 msgid "Xhosa"
 msgstr ""
 
-#: common/models/lang.py:206
+#: common/models/lang.py:208
 msgid "Yiddish"
 msgstr ""
 
-#: common/models/lang.py:207
+#: common/models/lang.py:209
 msgid "Zhuang"
 msgstr ""
 
-#: common/models/lang.py:208
+#: common/models/lang.py:210
 msgid "Zulu"
 msgstr ""
 
-#: common/models/lang.py:209
+#: common/models/lang.py:211
 msgid "Abkhazian"
 msgstr ""
 
-#: common/models/lang.py:210
+#: common/models/lang.py:212
 msgid "Chinese"
 msgstr ""
 
-#: common/models/lang.py:211
+#: common/models/lang.py:213
 msgid "Pushto"
 msgstr ""
 
-#: common/models/lang.py:212
+#: common/models/lang.py:214
 msgid "Amharic"
 msgstr ""
 
-#: common/models/lang.py:213
+#: common/models/lang.py:215
 msgid "Arabic"
 msgstr ""
 
-#: common/models/lang.py:214
+#: common/models/lang.py:216
 msgid "Bulgarian"
 msgstr ""
 
-#: common/models/lang.py:215
+#: common/models/lang.py:217
 msgid "Macedonian"
 msgstr ""
 
-#: common/models/lang.py:216
+#: common/models/lang.py:218
 msgid "Greek"
 msgstr ""
 
-#: common/models/lang.py:217
+#: common/models/lang.py:219
 msgid "Persian"
 msgstr ""
 
-#: common/models/lang.py:218
+#: common/models/lang.py:220
 msgid "Hebrew"
 msgstr ""
 
-#: common/models/lang.py:219
+#: common/models/lang.py:221
 msgid "Hindi"
 msgstr ""
 
-#: common/models/lang.py:220
+#: common/models/lang.py:222
 msgid "Armenian"
 msgstr ""
 
-#: common/models/lang.py:222
+#: common/models/lang.py:224
 msgid "Ewe"
 msgstr ""
 
-#: common/models/lang.py:223
+#: common/models/lang.py:225
 msgid "Georgian"
 msgstr ""
 
-#: common/models/lang.py:224
+#: common/models/lang.py:226
 msgid "Punjabi"
 msgstr ""
 
-#: common/models/lang.py:225
+#: common/models/lang.py:227
 msgid "Bengali"
 msgstr ""
 
-#: common/models/lang.py:226
+#: common/models/lang.py:228
 msgid "Bosnian"
 msgstr ""
 
-#: common/models/lang.py:227
+#: common/models/lang.py:229
 msgid "Chamorro"
 msgstr ""
 
-#: common/models/lang.py:228
+#: common/models/lang.py:230
 msgid "Belarusian"
 msgstr ""
 
-#: common/models/lang.py:229
+#: common/models/lang.py:231
 msgid "Yoruba"
 msgstr ""
 
-#: common/models/lang.py:290
+#: common/models/lang.py:292
 msgid "Simplified Chinese (Mainland)"
 msgstr ""
 
-#: common/models/lang.py:291
+#: common/models/lang.py:293
 msgid "Traditional Chinese (Taiwan)"
 msgstr ""
 
-#: common/models/lang.py:292
+#: common/models/lang.py:294
 msgid "Traditional Chinese (Hongkong)"
 msgstr ""
 
-#: common/models/lang.py:300
+#: common/models/lang.py:302
 msgid "Portuguese (Brazil)"
 msgstr ""
 
-#: common/models/lang.py:303
+#: common/models/lang.py:305
 msgid "Simplified Chinese (Singapore)"
 msgstr ""
 
-#: common/models/lang.py:304
+#: common/models/lang.py:306
 msgid "Simplified Chinese (Malaysia)"
 msgstr ""
 
-#: common/models/lang.py:305
+#: common/models/lang.py:307
 msgid "Traditional Chinese (Macau)"
 msgstr ""
 
-#: common/models/lang.py:313
+#: common/models/lang.py:315
 msgid "Mandarin Chinese"
 msgstr ""
 
-#: common/models/lang.py:314
+#: common/models/lang.py:316
 msgid "Yue Chinese"
 msgstr ""
 
-#: common/models/lang.py:318
+#: common/models/lang.py:320
 msgid "Min Nan Chinese"
 msgstr ""
 
-#: common/models/lang.py:319
+#: common/models/lang.py:321
 msgid "Wu Chinese"
 msgstr ""
 
-#: common/models/lang.py:320
+#: common/models/lang.py:322
 msgid "Hakka Chinese"
 msgstr ""
 
@@ -2535,7 +2538,7 @@ msgstr ""
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
 
-#: common/templates/_header.html:17 common/templates/_header.html:153
+#: common/templates/_header.html:17 common/templates/_header.html:150
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr ""
 
@@ -2577,7 +2580,7 @@ msgstr ""
 msgid "Data"
 msgstr ""
 
-#: common/templates/_header.html:117 common/templates/_header.html:138
+#: common/templates/_header.html:117 common/templates/_header.html:135
 #: users/templates/users/preferences.html:12
 #: users/templates/users/preferences.html:23
 #: users/templates/users/preferences_anonymous.html:13
@@ -2588,27 +2591,23 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#: common/templates/_header.html:123
-msgid "Logout"
-msgstr ""
-
-#: common/templates/_header.html:127
-msgid "Database"
-msgstr ""
-
-#: common/templates/_header.html:130
+#: common/templates/_header.html:124
 msgid "Manage"
 msgstr ""
 
-#: common/templates/_header.html:135
+#: common/templates/_header.html:128
+msgid "Logout"
+msgstr ""
+
+#: common/templates/_header.html:132
 msgid "Sign up or Login"
 msgstr ""
 
-#: common/templates/_header.html:151
+#: common/templates/_header.html:148
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
 
-#: common/templates/_header.html:168
+#: common/templates/_header.html:165
 msgid "Open"
 msgstr ""
 
@@ -2723,7 +2722,7 @@ msgstr ""
 msgid "Registration"
 msgstr ""
 
-#: common/templates/common/about.html:35
+#: common/templates/common/about.html:35 common/views_manage.py:350
 msgid "Invite Only"
 msgstr ""
 
@@ -2731,7 +2730,7 @@ msgstr ""
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:40
+#: common/templates/common/about.html:40 common/views_manage.py:371
 msgid "Preferred Languages"
 msgstr ""
 
@@ -2775,6 +2774,18 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+#: common/templates/manage/settings.html:9
+msgid "Site Settings"
+msgstr ""
+
+#: common/templates/manage/settings.html:109
+msgid "Takahe Admin"
+msgstr ""
+
+#: common/templates/manage/settings.html:112
+msgid "Database Admin"
+msgstr ""
+
 #: common/templatetags/duration.py:54
 msgid "just now"
 msgstr ""
@@ -2816,6 +2827,486 @@ msgstr ""
 #: common/utils.py:102 common/utils.py:104 journal/views/profile.py:392
 #: journal/views/review.py:167
 msgid "Login required"
+msgstr ""
+
+#: common/views_manage.py:49
+msgid "Enabled"
+msgstr ""
+
+#: common/views_manage.py:49
+msgid "Disabled"
+msgstr ""
+
+#: common/views_manage.py:143 common/views_manage.py:284
+msgid "Branding"
+msgstr ""
+
+#: common/views_manage.py:145
+msgid "Access"
+msgstr ""
+
+#: common/views_manage.py:146 common/views_manage.py:430
+msgid "Federation"
+msgstr ""
+
+#: common/views_manage.py:147
+msgid "API Keys"
+msgstr ""
+
+#: common/views_manage.py:148
+msgid "Downloader"
+msgstr ""
+
+#: common/views_manage.py:149 common/views_manage.py:292
+msgid "Advanced"
+msgstr ""
+
+#: common/views_manage.py:196
+msgid "Invalid configuration: "
+msgstr ""
+
+#: common/views_manage.py:200
+msgid "Settings have been saved."
+msgstr ""
+
+#: common/views_manage.py:220
+msgid "Site Name"
+msgstr ""
+
+#: common/views_manage.py:223
+msgid "Site Description"
+msgstr ""
+
+#: common/views_manage.py:224
+msgid "Short description shown in metadata and about page."
+msgstr ""
+
+#: common/views_manage.py:227
+msgid "Site Logo URL"
+msgstr ""
+
+#: common/views_manage.py:228
+msgid "URL path to the site logo image."
+msgstr ""
+
+#: common/views_manage.py:231
+msgid "Site Icon URL"
+msgstr ""
+
+#: common/views_manage.py:232
+msgid "URL path to the site icon/favicon."
+msgstr ""
+
+#: common/views_manage.py:235
+msgid "Default User Avatar URL"
+msgstr ""
+
+#: common/views_manage.py:236
+msgid "URL path to the default user avatar."
+msgstr ""
+
+#: common/views_manage.py:239
+msgid "Site Color Theme"
+msgstr ""
+
+#: common/views_manage.py:240
+msgid "PicoCSS color theme."
+msgstr ""
+
+#: common/views_manage.py:265
+msgid "Site Introduction"
+msgstr ""
+
+#: common/views_manage.py:266
+msgid "URL path for the intro/welcome sidebar page."
+msgstr ""
+
+#: common/views_manage.py:269
+msgid "Custom HTML Head"
+msgstr ""
+
+#: common/views_manage.py:270
+msgid "Extra HTML injected into the <head> of all pages."
+msgstr ""
+
+#: common/views_manage.py:274
+msgid "Footer Links"
+msgstr ""
+
+#: common/views_manage.py:275
+msgid "Link title mapped to URL."
+msgstr ""
+
+#: common/views_manage.py:304
+msgid "Minimum Marks for Discover"
+msgstr ""
+
+#: common/views_manage.py:306
+msgid "Number of marks required for an item to appear in discover."
+msgstr ""
+
+#: common/views_manage.py:311
+msgid "Update Interval (minutes)"
+msgstr ""
+
+#: common/views_manage.py:312
+msgid "How often to refresh the popular items list."
+msgstr ""
+
+#: common/views_manage.py:316
+msgid "Filter by Preferred Languages"
+msgstr ""
+
+#: common/views_manage.py:317
+msgid "Only show items with titles in the preferred languages."
+msgstr ""
+
+#: common/views_manage.py:320
+msgid "Show Local Only"
+msgstr ""
+
+#: common/views_manage.py:322
+msgid "Only show items marked by local users, not the entire network."
+msgstr ""
+
+#: common/views_manage.py:326
+msgid "Show Popular Posts"
+msgstr ""
+
+#: common/views_manage.py:327
+msgid "Show popular public posts instead of recent ones."
+msgstr ""
+
+#: common/views_manage.py:330
+msgid "Show Popular Tags"
+msgstr ""
+
+#: common/views_manage.py:331
+msgid "Show popular public tags on the discover page."
+msgstr ""
+
+#: common/views_manage.py:352
+msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
+msgstr ""
+
+#: common/views_manage.py:357
+msgid "Enable Local-Only Posting"
+msgstr ""
+
+#: common/views_manage.py:358
+msgid "Allow users to create posts visible only to local users."
+msgstr ""
+
+#: common/views_manage.py:361
+msgid "Mastodon Login Whitelist"
+msgstr ""
+
+#: common/views_manage.py:362
+msgid "One domain per line. Leave empty to allow any instance."
+msgstr ""
+
+#: common/views_manage.py:365
+msgid "Enable Bluesky Login"
+msgstr ""
+
+#: common/views_manage.py:368
+msgid "Enable Threads Login"
+msgstr ""
+
+#: common/views_manage.py:373
+msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
+msgstr ""
+
+#: common/views_manage.py:379
+msgid "Access Control"
+msgstr ""
+
+#: common/views_manage.py:384
+msgid "Login Methods"
+msgstr ""
+
+#: common/views_manage.py:388
+msgid "Localization"
+msgstr ""
+
+#: common/views_manage.py:398
+msgid "Disable Default Relay"
+msgstr ""
+
+#: common/views_manage.py:400
+msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
+msgstr ""
+
+#: common/views_manage.py:405
+msgid "Fanout Limit (days)"
+msgstr ""
+
+#: common/views_manage.py:406
+msgid "Posts older than this many days will not be fanned out."
+msgstr ""
+
+#: common/views_manage.py:410
+msgid "Remote Prune Horizon (days)"
+msgstr ""
+
+#: common/views_manage.py:412
+msgid "Remote profiles inactive for this many days will be pruned."
+msgstr ""
+
+#: common/views_manage.py:417
+msgid "Search Sites"
+msgstr ""
+
+#: common/views_manage.py:418
+msgid "External search sites to include, one per line."
+msgstr ""
+
+#: common/views_manage.py:421
+msgid "Federated Search Peers"
+msgstr ""
+
+#: common/views_manage.py:422
+msgid "NeoDB peer instances for federated search, one per line."
+msgstr ""
+
+#: common/views_manage.py:425
+msgid "Hidden Categories"
+msgstr ""
+
+#: common/views_manage.py:426
+msgid "Category values to hide from the catalog, one per line."
+msgstr ""
+
+#: common/views_manage.py:435
+msgid "Search"
+msgstr ""
+
+#: common/views_manage.py:447
+msgid "Spotify API Key"
+msgstr ""
+
+#: common/views_manage.py:448
+msgid "https://developer.spotify.com/"
+msgstr ""
+
+#: common/views_manage.py:451
+msgid "TMDB API Key"
+msgstr ""
+
+#: common/views_manage.py:452
+msgid "https://developer.themoviedb.org/"
+msgstr ""
+
+#: common/views_manage.py:455
+msgid "Google Books API Key"
+msgstr ""
+
+#: common/views_manage.py:456
+msgid "https://developers.google.com/books/"
+msgstr ""
+
+#: common/views_manage.py:459
+msgid "Discogs API Key"
+msgstr ""
+
+#: common/views_manage.py:461
+msgid "Personal access token from https://www.discogs.com/settings/developers"
+msgstr ""
+
+#: common/views_manage.py:465
+msgid "IGDB Client ID"
+msgstr ""
+
+#: common/views_manage.py:466
+msgid "https://api-docs.igdb.com/"
+msgstr ""
+
+#: common/views_manage.py:469
+msgid "IGDB Client Secret"
+msgstr ""
+
+#: common/views_manage.py:472
+msgid "Steam API Key"
+msgstr ""
+
+#: common/views_manage.py:473
+msgid "https://steamcommunity.com/dev - used for Steam importer."
+msgstr ""
+
+#: common/views_manage.py:476
+msgid "DeepL API Key"
+msgstr ""
+
+#: common/views_manage.py:477
+msgid "For translation features."
+msgstr ""
+
+#: common/views_manage.py:480
+msgid "LibreTranslate API URL"
+msgstr ""
+
+#: common/views_manage.py:483
+msgid "LibreTranslate API Key"
+msgstr ""
+
+#: common/views_manage.py:486
+msgid "Threads App ID"
+msgstr ""
+
+#: common/views_manage.py:487
+msgid "OAuth app ID for Threads login."
+msgstr ""
+
+#: common/views_manage.py:490
+msgid "Threads App Secret"
+msgstr ""
+
+#: common/views_manage.py:493
+msgid "Sentry DSN"
+msgstr ""
+
+#: common/views_manage.py:494
+msgid "Requires restart to take effect."
+msgstr ""
+
+#: common/views_manage.py:497
+msgid "Sentry Sample Rate"
+msgstr ""
+
+#: common/views_manage.py:498
+msgid "0.0 to 1.0. Requires restart to take effect."
+msgstr ""
+
+#: common/views_manage.py:503
+msgid "Discord Webhooks"
+msgstr ""
+
+#: common/views_manage.py:505
+msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
+msgstr ""
+
+#: common/views_manage.py:519
+msgid "Catalog APIs"
+msgstr ""
+
+#: common/views_manage.py:528
+msgid "Translation"
+msgstr ""
+
+#: common/views_manage.py:533
+msgid "Third-Party Login"
+msgstr ""
+
+#: common/views_manage.py:537
+msgid "Monitoring"
+msgstr ""
+
+#: common/views_manage.py:549
+msgid "Scraping Providers"
+msgstr ""
+
+#: common/views_manage.py:550
+msgid "Comma-separated list of providers to try in order."
+msgstr ""
+
+#: common/views_manage.py:553
+msgid "Proxy List"
+msgstr ""
+
+#: common/views_manage.py:554
+msgid "One per line, format: http://server?url=__URL__"
+msgstr ""
+
+#: common/views_manage.py:557
+msgid "Backup Proxy"
+msgstr ""
+
+#: common/views_manage.py:560
+msgid "Scrapfly API Key"
+msgstr ""
+
+#: common/views_manage.py:563
+msgid "Decodo Base64 Auth Token"
+msgstr ""
+
+#: common/views_manage.py:566
+msgid "ScraperAPI Key"
+msgstr ""
+
+#: common/views_manage.py:569
+msgid "ScrapingBee API Key"
+msgstr ""
+
+#: common/views_manage.py:572
+msgid "Custom Scraper URL"
+msgstr ""
+
+#: common/views_manage.py:573
+msgid "URL with __URL__ and __SELECTOR__ placeholders."
+msgstr ""
+
+#: common/views_manage.py:576
+msgid "Request Timeout (seconds)"
+msgstr ""
+
+#: common/views_manage.py:580
+msgid "Cache Timeout (seconds)"
+msgstr ""
+
+#: common/views_manage.py:584
+msgid "Retries"
+msgstr ""
+
+#: common/views_manage.py:589
+msgid "Providers"
+msgstr ""
+
+#: common/views_manage.py:594
+msgid "Provider Keys"
+msgstr ""
+
+#: common/views_manage.py:601
+msgid "Timeouts"
+msgstr ""
+
+#: common/views_manage.py:613
+msgid "Alternative Domains"
+msgstr ""
+
+#: common/views_manage.py:614
+msgid "One domain per line."
+msgstr ""
+
+#: common/views_manage.py:617
+msgid "Mastodon Client Scope"
+msgstr ""
+
+#: common/views_manage.py:618
+msgid "OAuth scope when creating Mastodon apps."
+msgstr ""
+
+#: common/views_manage.py:621
+msgid "Disable Cron Jobs"
+msgstr ""
+
+#: common/views_manage.py:622
+msgid "Job names to disable, one per line. Use * to disable all."
+msgstr ""
+
+#: common/views_manage.py:625
+msgid "Index Aliases"
+msgstr ""
+
+#: common/views_manage.py:626
+msgid "Map index names to their aliases."
+msgstr ""
+
+#: common/views_manage.py:637
+msgid "Domains"
+msgstr ""
+
+#: common/views_manage.py:640
+msgid "Operational"
 msgstr ""
 
 #: journal/forms.py:20 journal/forms.py:43
@@ -2888,7 +3379,7 @@ msgstr ""
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:262
+#: journal/models/collection.py:271
 msgid "created collection"
 msgstr ""
 
@@ -3828,6 +4319,7 @@ msgid "Alt text"
 msgstr ""
 
 #: journal/templates/post_compose.html:165
+#: users/templates/users/migrate_in.html:53
 msgid "Remove"
 msgstr ""
 
@@ -3907,10 +4399,12 @@ msgid "Liked Collections"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:359
+#: users/templates/users/account.html:398
 msgid "Following"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:363
+#: users/templates/users/account.html:407
 msgid "Followers"
 msgstr ""
 
@@ -4200,47 +4694,47 @@ msgid ""
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
 
-#: mastodon/models/mastodon.py:525
+#: mastodon/models/mastodon.py:528
 msgid "site domain name"
 msgstr ""
 
-#: mastodon/models/mastodon.py:526
+#: mastodon/models/mastodon.py:529
 msgid "domain for api call"
 msgstr ""
 
-#: mastodon/models/mastodon.py:527
+#: mastodon/models/mastodon.py:530
 msgid "type and verion"
 msgstr ""
 
-#: mastodon/models/mastodon.py:528
+#: mastodon/models/mastodon.py:531
 msgid "in-site app id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:529
+#: mastodon/models/mastodon.py:532
 msgid "client id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:530
+#: mastodon/models/mastodon.py:533
 msgid "client secret"
 msgstr ""
 
-#: mastodon/models/mastodon.py:531
+#: mastodon/models/mastodon.py:534
 msgid "vapid key"
 msgstr ""
 
-#: mastodon/models/mastodon.py:533
+#: mastodon/models/mastodon.py:536
 msgid "0: unicode moon; 1: custom emoji"
 msgstr ""
 
-#: mastodon/models/mastodon.py:536
+#: mastodon/models/mastodon.py:539
 msgid "max toot len"
 msgstr ""
 
-#: mastodon/models/mastodon.py:648
+#: mastodon/models/mastodon.py:651
 msgid "Boost"
 msgstr ""
 
-#: mastodon/models/mastodon.py:649
+#: mastodon/models/mastodon.py:652
 msgid "New Post"
 msgstr ""
 
@@ -4249,7 +4743,7 @@ msgstr ""
 #: mastodon/views/mastodon.py:45 mastodon/views/mastodon.py:52
 #: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:69
 #: mastodon/views/threads.py:41 mastodon/views/threads.py:49
-#: mastodon/views/threads.py:55 users/views/account.py:151
+#: mastodon/views/threads.py:55 users/views/account.py:152
 msgid "Authentication failed"
 msgstr ""
 
@@ -4579,31 +5073,31 @@ msgstr ""
 msgid "Post"
 msgstr ""
 
-#: takahe/models.py:448
+#: takahe/models.py:450
 msgid "Display Name"
 msgstr ""
 
-#: takahe/models.py:450
+#: takahe/models.py:452
 msgid "Bio"
 msgstr ""
 
-#: takahe/models.py:452
+#: takahe/models.py:454
 msgid "Manually approve new followers"
 msgstr ""
 
-#: takahe/models.py:456
+#: takahe/models.py:458
 msgid "Include profile and posts in discovery"
 msgstr ""
 
-#: takahe/models.py:459
+#: takahe/models.py:461
 msgid "Include posts in search results"
 msgstr ""
 
-#: takahe/models.py:477
+#: takahe/models.py:479
 msgid "Profile picture"
 msgstr ""
 
-#: takahe/models.py:484
+#: takahe/models.py:486
 msgid "Header picture"
 msgstr ""
 
@@ -4623,19 +5117,19 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: users/models/user.py:67
+#: users/models/user.py:68
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
 
-#: users/models/user.py:115
+#: users/models/user.py:116
 msgid "username"
 msgstr ""
 
-#: users/models/user.py:120
+#: users/models/user.py:121
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr ""
 
-#: users/models/user.py:123
+#: users/models/user.py:124
 msgid "A user with that username already exists."
 msgstr ""
 
@@ -4881,44 +5375,169 @@ msgstr ""
 msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
 msgstr ""
 
-#: users/templates/users/account.html:334
-msgid "Migrate Account"
+#: users/templates/users/account.html:333
+msgid "Authorized Apps"
 msgstr ""
 
 #: users/templates/users/account.html:338
-msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
+msgid "Application"
 msgstr ""
 
-#: users/templates/users/account.html:342
-msgid "Migrate from anther instance to here"
+#: users/templates/users/account.html:339
+msgid "Scopes"
 msgstr ""
 
-#: users/templates/users/account.html:347
-msgid "Migrate to another instance"
+#: users/templates/users/account.html:340
+msgid "Created"
 msgstr ""
 
-#: users/templates/users/account.html:355
-msgid "Delete Account"
+#: users/templates/users/account.html:353
+msgid "Revoke access for this application?"
 msgstr ""
 
-#: users/templates/users/account.html:358
-msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
+#: users/templates/users/account.html:356
+msgid "Revoke"
 msgstr ""
 
-#: users/templates/users/account.html:361
-msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
+#: users/templates/users/account.html:364
+msgid "No authorized applications."
 msgstr ""
 
-#: users/templates/users/account.html:371
-msgid "Once deleted, account data cannot be recovered."
+#: users/templates/users/account.html:367
+#: users/templates/users/authorized_app_create.html:9
+#: users/templates/users/authorized_app_create.html:19
+msgid "Create Personal Token"
+msgstr ""
+
+#: users/templates/users/account.html:373
+msgid "Import/Export Social Graph"
 msgstr ""
 
 #: users/templates/users/account.html:374
+msgid "Upload a CSV file exported from Mastodon or compatible services."
+msgstr ""
+
+#: users/templates/users/account.html:380
+msgid "Import type"
+msgstr ""
+
+#: users/templates/users/account.html:382
+msgid "Following list"
+msgstr ""
+
+#: users/templates/users/account.html:383
+msgid "Block list"
+msgstr ""
+
+#: users/templates/users/account.html:384
+msgid "Mute list"
+msgstr ""
+
+#: users/templates/users/account.html:388
+msgid "CSV file"
+msgstr ""
+
+#: users/templates/users/account.html:391 users/templates/users/data.html:74
+#: users/templates/users/data.html:126 users/templates/users/data.html:179
+#: users/templates/users/data.html:232 users/templates/users/data.html:283
+#: users/templates/users/data.html:451 users/templates/users/data.html:504
+#: users/templates/users/data.html:564
+msgid "Import"
+msgstr ""
+
+#: users/templates/users/account.html:402
+#: users/templates/users/account.html:411
+#: users/templates/users/account.html:420
+#: users/templates/users/account.html:429
+msgid "Download CSV"
+msgstr ""
+
+#: users/templates/users/account.html:416
+msgid "Blocks"
+msgstr ""
+
+#: users/templates/users/account.html:425
+msgid "Mutes"
+msgstr ""
+
+#: users/templates/users/account.html:439
+msgid "Migrate Account"
+msgstr ""
+
+#: users/templates/users/account.html:443
+msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
+msgstr ""
+
+#: users/templates/users/account.html:446
+msgid "Migrate another account here"
+msgstr ""
+
+#: users/templates/users/account.html:449
+msgid "Migrate to another account"
+msgstr ""
+
+#: users/templates/users/account.html:456
+msgid "Delete Account"
+msgstr ""
+
+#: users/templates/users/account.html:459
+msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
+msgstr ""
+
+#: users/templates/users/account.html:462
+msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
+msgstr ""
+
+#: users/templates/users/account.html:472
+msgid "Once deleted, account data cannot be recovered."
+msgstr ""
+
+#: users/templates/users/account.html:475
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:378
+#: users/templates/users/account.html:479
 msgid "Permanently Delete"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:23
+msgid "Name"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:28
+msgid "Identifies this app in your app list"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:31
+msgid "Access Level"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:34
+msgid "Read-only access"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:38
+msgid "Full access"
+msgstr ""
+
+#: users/templates/users/authorized_app_create.html:47
+#: users/templates/users/authorized_app_created.html:36
+#: users/templates/users/migrate_in.html:64
+#: users/templates/users/migrate_out.html:62
+msgid "Back to Preferences"
+msgstr ""
+
+#: users/templates/users/authorized_app_created.html:9
+#: users/templates/users/authorized_app_created.html:19
+msgid "Token Created"
+msgstr ""
+
+#: users/templates/users/authorized_app_created.html:21
+msgid "Your new personal access token has been created. Copy it now -- you will not be able to see it again."
+msgstr ""
+
+#: users/templates/users/authorized_app_created.html:22
+msgid "Token"
 msgstr ""
 
 #: users/templates/users/data.html:11
@@ -4951,13 +5570,6 @@ msgstr ""
 
 #: users/templates/users/data.html:74
 msgid "Import in progress, please wait"
-msgstr ""
-
-#: users/templates/users/data.html:74 users/templates/users/data.html:126
-#: users/templates/users/data.html:179 users/templates/users/data.html:232
-#: users/templates/users/data.html:283 users/templates/users/data.html:451
-#: users/templates/users/data.html:504 users/templates/users/data.html:564
-msgid "Import"
 msgstr ""
 
 #: users/templates/users/data.html:81
@@ -5303,6 +5915,69 @@ msgstr ""
 msgid "Domain of your instance (excl. @)"
 msgstr ""
 
+#: users/templates/users/migrate_in.html:9
+#: users/templates/users/migrate_in.html:19
+msgid "Migrate Here"
+msgstr ""
+
+#: users/templates/users/migrate_in.html:22
+msgid "To move another account to this one, first add it as an alias here, and then go to the server where it is hosted and initiate the move."
+msgstr ""
+
+#: users/templates/users/migrate_in.html:26
+msgid "Account to alias"
+msgstr ""
+
+#: users/templates/users/migrate_in.html:34
+msgid "Add Alias"
+msgstr ""
+
+#: users/templates/users/migrate_in.html:42
+msgid "Current Aliases"
+msgstr ""
+
+#: users/templates/users/migrate_in.html:58
+msgid "No aliases configured."
+msgstr ""
+
+#: users/templates/users/migrate_out.html:9
+#: users/templates/users/migrate_out.html:39
+msgid "Migrate Out"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:20
+msgid "Migration In Progress"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:22
+msgid "Your account is being migrated to:"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:28
+msgid "Are you sure you want to cancel the migration?"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:31
+msgid "Cancel Migration"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:42
+#, python-format
+msgid "To migrate to another account, first add <code>@%(handle)s</code> as an alias on the target server, and then type the target account below to start the migration."
+msgstr ""
+
+#: users/templates/users/migrate_out.html:46
+msgid "Are you sure you want to migrate your account? Your followers will be moved to the target account."
+msgstr ""
+
+#: users/templates/users/migrate_out.html:48
+msgid "Target account"
+msgstr ""
+
+#: users/templates/users/migrate_out.html:55
+msgid "Start Migration"
+msgstr ""
+
 #: users/templates/users/preferences.html:28
 msgid "Default view once logged in"
 msgstr ""
@@ -5391,14 +6066,6 @@ msgstr ""
 
 #: users/templates/users/preferences.html:195
 msgid "Show your name on item page if you recently edited it"
-msgstr ""
-
-#: users/templates/users/preferences.html:205
-msgid "Additional Settings"
-msgstr ""
-
-#: users/templates/users/preferences.html:207
-msgid "View authorized applications"
 msgstr ""
 
 #: users/templates/users/profile_actions.html:12
@@ -5563,55 +6230,133 @@ msgstr ""
 msgid "Accept"
 msgstr ""
 
-#: users/views/account.py:88
+#: users/views/account.py:89
 msgid "This username is already in use."
 msgstr ""
 
-#: users/views/account.py:99
+#: users/views/account.py:100
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:152
+#: users/views/account.py:153
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:204
+#: users/views/account.py:205
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:266
+#: users/views/account.py:267
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:269
+#: users/views/account.py:270
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:179 users/views/data.py:208
+#: users/views/data.py:183 users/views/data.py:212
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:202
+#: users/views/data.py:206
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:220
+#: users/views/data.py:224
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:235 users/views/data.py:255
+#: users/views/data.py:239 users/views/data.py:259
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:269
+#: users/views/data.py:273
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:283
+#: users/views/data.py:287
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:292 users/views/data.py:316 users/views/data.py:340
-#: users/views/data.py:365 users/views/data.py:389 users/views/data.py:413
+#: users/views/data.py:296 users/views/data.py:320 users/views/data.py:344
+#: users/views/data.py:369 users/views/data.py:393 users/views/data.py:417
 msgid "Invalid file."
+msgstr ""
+
+#: users/views/data.py:533
+msgid "Name is required."
+msgstr ""
+
+#: users/views/data.py:555
+msgid "Application access has been revoked."
+msgstr ""
+
+#: users/views/data.py:571
+msgid "Alias update not allowed for a moved account."
+msgstr ""
+
+#: users/views/data.py:576
+msgid "No alias specified."
+msgstr ""
+
+#: users/views/data.py:586 users/views/data.py:637
+msgid "Looking up the account. Please try again in a few seconds."
+msgstr ""
+
+#: users/views/data.py:593
+#, python-brace-format
+msgid "Alias to {handle} removed."
+msgstr ""
+
+#: users/views/data.py:598
+#, python-brace-format
+msgid "Alias to {handle} added."
+msgstr ""
+
+#: users/views/data.py:624
+msgid "Migration cancelled."
+msgstr ""
+
+#: users/views/data.py:629
+msgid "No target account specified."
+msgstr ""
+
+#: users/views/data.py:642
+msgid "Cannot migrate to a local account."
+msgstr ""
+
+#: users/views/data.py:649
+msgid "You must set up an alias in the target account first."
+msgstr ""
+
+#: users/views/data.py:655
+#, python-brace-format
+msgid "Start moving to {handle}."
+msgstr ""
+
+#: users/views/data.py:681
+msgid "No file uploaded."
+msgstr ""
+
+#: users/views/data.py:699
+msgid "The uploaded file is not a valid CSV."
+msgstr ""
+
+#: users/views/data.py:703
+msgid "No valid entries found in the CSV file."
+msgstr ""
+
+#: users/views/data.py:719
+#, python-brace-format
+msgid "Import of {count} entries received. They will be processed in the background."
+msgstr ""
+
+#: users/views/data.py:738
+#, python-brace-format
+msgid "Processed {processed} entries, {skipped} unknown accounts are being looked up -- please retry for those."
+msgstr ""
+
+#: users/views/data.py:744
+#, python-brace-format
+msgid "Processed {count} entries."
 msgstr ""
