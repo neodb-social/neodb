@@ -110,22 +110,8 @@ class Setup:
         logger.info("Running post-migration setup...")
         SiteConfig.ensure_loaded()
 
-        # Update site name if changed (queries takahe DB which may not be ready)
-        from django.db import connections
-
-        try:
-            with connections["takahe"].cursor() as cursor:
-                cursor.execute(
-                    "SELECT 1 FROM information_schema.tables WHERE table_name = 'users_domain'"
-                )
-                if cursor.fetchone():
-                    self.sync_site_config()
-                else:
-                    logger.warning(
-                        "sync_site_config skipped: takahe DB not migrated yet"
-                    )
-        except Exception as e:
-            logger.warning(f"sync_site_config skipped: {e}")
+        # Update site name if changed
+        self.sync_site_config()
 
         # Create basic emoji if not exists
 
