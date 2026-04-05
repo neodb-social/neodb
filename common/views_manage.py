@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 from django_jsonform.forms.fields import JSONFormField
+from loguru import logger
 
 from common.models import SiteConfig
 
@@ -95,7 +96,10 @@ class SiteConfigSettingsPage(FormView):
                     widget=forms.Textarea(attrs={"rows": 4}),
                 )
             else:
-                raise ValueError(f"Cannot render settings type {annotation}")
+                logger.warning(
+                    f"Cannot render settings type {annotation} for key {key}"
+                )
+                continue
 
             fields[key] = form_field(
                 label=details["title"],

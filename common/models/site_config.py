@@ -294,11 +294,13 @@ class SiteConfig(models.Model):
         # Refresh module-level language caches
         import common.models.lang as lang_module
 
-        lang_module.SITE_PREFERRED_LANGUAGES = opts.preferred_languages or [
+        lang_module.SITE_PREFERRED_LANGUAGES[:] = opts.preferred_languages or [
             lang_module.FALLBACK_LANGUAGE
         ]
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
-        lang_module.SITE_PREFERRED_LOCALES = lang_module.get_preferred_locales()
+        lang_module.SITE_PREFERRED_LOCALES[:] = lang_module.get_preferred_locales()
 
-        # Derived value used in many places via settings.SITE_DOMAINS
+        # Derived values used in many places via settings.SITE_DOMAINS
         settings.SITE_DOMAINS = [settings.SITE_DOMAIN] + opts.alternative_domains
+        if settings.SSL_ONLY:
+            settings.ALLOWED_HOSTS = settings.SITE_DOMAINS + ["127.0.0.1"]

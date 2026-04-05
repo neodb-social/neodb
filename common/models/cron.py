@@ -49,7 +49,7 @@ class BaseJob:
                 job_id=job_id,
                 result_ttl=-1,
                 failure_ttl=-1,
-                job_timeout=interval.seconds - 5,
+                job_timeout=int(interval.total_seconds()) - 5,
             )
         else:
             django_rq.get_queue("cron").enqueue_in(
@@ -58,7 +58,7 @@ class BaseJob:
                 job_id=job_id,
                 result_ttl=-1,
                 failure_ttl=-1,
-                job_timeout=interval.seconds - 5,
+                job_timeout=int(interval.total_seconds()) - 5,
             )
 
     @classmethod
