@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-04 22:23-0400\n"
+"POT-Creation-Date: 2026-04-05 00:05-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -2855,9 +2855,9 @@ msgstr "转发到时间轴"
 #: journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:204 users/templates/users/data.html:257
-#: users/templates/users/data.html:437 users/templates/users/data.html:477
-#: users/templates/users/data.html:536
+#: users/templates/users/data.html:204 users/templates/users/data.html:255
+#: users/templates/users/data.html:435 users/templates/users/data.html:475
+#: users/templates/users/data.html:534
 msgid "Visibility"
 msgstr "可见性"
 
@@ -2873,7 +2873,7 @@ msgstr "创建者和他们的本地互关"
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/forms.py:78 users/templates/users/data.html:691
+#: journal/forms.py:78 users/templates/users/data.html:689
 msgid "Status"
 msgstr "状态"
 
@@ -2918,8 +2918,8 @@ msgstr "创建了收藏单"
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
 #: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:266 users/templates/users/data.html:441
-#: users/templates/users/data.html:485 users/templates/users/data.html:545
+#: users/templates/users/data.html:264 users/templates/users/data.html:439
+#: users/templates/users/data.html:483 users/templates/users/data.html:543
 #: users/templates/users/preferences.html:56
 msgid "Public"
 msgstr "公开"
@@ -2929,9 +2929,9 @@ msgstr "公开"
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:70
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:221 users/templates/users/data.html:274
-#: users/templates/users/data.html:445 users/templates/users/data.html:493
-#: users/templates/users/data.html:553
+#: users/templates/users/data.html:221 users/templates/users/data.html:272
+#: users/templates/users/data.html:443 users/templates/users/data.html:491
+#: users/templates/users/data.html:551
 #: users/templates/users/preferences.html:63
 msgid "Followers Only"
 msgstr "仅关注者"
@@ -2941,9 +2941,9 @@ msgstr "仅关注者"
 #: journal/templates/post_compose.html:77
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:229 users/templates/users/data.html:282
-#: users/templates/users/data.html:449 users/templates/users/data.html:501
-#: users/templates/users/data.html:561
+#: users/templates/users/data.html:229 users/templates/users/data.html:280
+#: users/templates/users/data.html:447 users/templates/users/data.html:499
+#: users/templates/users/data.html:559
 #: users/templates/users/preferences.html:70
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
@@ -5051,7 +5051,7 @@ msgstr "导入豆瓣标记和评论"
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:464
+#: users/templates/users/data.html:34 users/templates/users/data.html:462
 msgid "Import Method"
 msgstr "导入方式"
 
@@ -5073,8 +5073,8 @@ msgstr "备份文件已上传，请等待导入完成或刷新页面查看最新
 
 #: users/templates/users/data.html:74 users/templates/users/data.html:126
 #: users/templates/users/data.html:179 users/templates/users/data.html:232
-#: users/templates/users/data.html:285 users/templates/users/data.html:453
-#: users/templates/users/data.html:506 users/templates/users/data.html:566
+#: users/templates/users/data.html:283 users/templates/users/data.html:451
+#: users/templates/users/data.html:504 users/templates/users/data.html:564
 msgid "Import"
 msgstr "导入"
 
@@ -5126,7 +5126,7 @@ msgstr ""
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:233 users/templates/users/data.html:286
+#: users/templates/users/data.html:233 users/templates/users/data.html:284
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
@@ -5135,198 +5135,198 @@ msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
 #: users/templates/users/data.html:246
-msgid "On <a href=\"https://trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email."
-msgstr "在<a href=\"https://trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export Trakt Data</b>通过邮件获取ZIP文件。"
+msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email."
+msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export Trakt Data</b>通过邮件获取ZIP文件。"
 
 #: users/templates/users/data.html:249
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr "上传下载的<code>.zip</code>文件，无需解压。"
 
-#: users/templates/users/data.html:252
+#: users/templates/users/data.html:251
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr "将导入评分、已看的电影/剧集和想看列表。"
 
-#: users/templates/users/data.html:293
+#: users/templates/users/data.html:291
 msgid "Import from Steam Wishlist / Library"
 msgstr "导入Steam游戏库和愿望清单"
 
-#: users/templates/users/data.html:300
+#: users/templates/users/data.html:298
 msgid "Steam User ID"
 msgstr "Steam用户ID"
 
-#: users/templates/users/data.html:304
+#: users/templates/users/data.html:302
 msgid "Available in Steam Account Details"
 msgstr "可在Steam账号页面获得"
 
-#: users/templates/users/data.html:307
+#: users/templates/users/data.html:305
 msgid "To import from Steam, your account profile must be visible to public"
 msgstr "Steam资料必须公开可见才能导入"
 
-#: users/templates/users/data.html:313
+#: users/templates/users/data.html:311
 msgid "Import Sources"
 msgstr "导入来源"
 
-#: users/templates/users/data.html:320
+#: users/templates/users/data.html:318
 msgid "Steam Wishlist"
 msgstr "Steam愿望清单"
 
-#: users/templates/users/data.html:328
+#: users/templates/users/data.html:326
 msgid "Steam Library (owned games)"
 msgstr "Steam游戏库（已购买的游戏）"
 
-#: users/templates/users/data.html:335
+#: users/templates/users/data.html:333
 msgid "Include all free games"
 msgstr "包括所有免费游戏"
 
-#: users/templates/users/data.html:343
+#: users/templates/users/data.html:341
 msgid "Include played free games"
 msgstr "包括玩过的免费游戏"
 
-#: users/templates/users/data.html:350
+#: users/templates/users/data.html:348
 msgid "Include no free games"
 msgstr "不包括免费游戏"
 
-#: users/templates/users/data.html:358
+#: users/templates/users/data.html:356
 msgid "Status filter"
 msgstr "筛选状态"
 
-#: users/templates/users/data.html:359
+#: users/templates/users/data.html:357
 msgid "import marks with these estimated status"
 msgstr "导入以下标记状态的游戏"
 
-#: users/templates/users/data.html:365
+#: users/templates/users/data.html:363
 msgid "Launched in playing threshold"
 msgstr "近期（按照阈值决定）玩过"
 
-#: users/templates/users/data.html:367
+#: users/templates/users/data.html:365
 msgid "Playing"
 msgstr "在玩"
 
-#: users/templates/users/data.html:373
+#: users/templates/users/data.html:371
 msgid "Not launched in playing threshold & play time > finished threshold"
 msgstr "未在近期玩过，且游玩时间大于指定阈值"
 
-#: users/templates/users/data.html:375
+#: users/templates/users/data.html:373
 msgid "Played"
 msgstr "玩过"
 
-#: users/templates/users/data.html:381
+#: users/templates/users/data.html:379
 msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
 msgstr "愿望清单中的游戏；以及游戏库中从未打开过的游戏"
 
-#: users/templates/users/data.html:382
+#: users/templates/users/data.html:380
 msgid "To play"
 msgstr "想玩"
 
-#: users/templates/users/data.html:388
+#: users/templates/users/data.html:386
 msgid "Not launched in playing threshold & play time < finished threshold"
 msgstr "未在近期玩过，且游玩时间小于指定阈值"
 
-#: users/templates/users/data.html:389
+#: users/templates/users/data.html:387
 msgid "No longer playing"
 msgstr "不再玩"
 
-#: users/templates/users/data.html:392
+#: users/templates/users/data.html:390
 msgid "Playing threshold"
 msgstr "近期玩过阈值"
 
-#: users/templates/users/data.html:393
+#: users/templates/users/data.html:391
 msgid "in days, launched in recent X days to be consided playing"
 msgstr "以天计，最近X天内玩过视为在玩"
 
-#: users/templates/users/data.html:395
+#: users/templates/users/data.html:393
 msgid "Finished threshold"
 msgstr "完成游戏的阈值"
 
-#: users/templates/users/data.html:396
+#: users/templates/users/data.html:394
 msgid "in hours, played for more than these hours to be consided finished"
 msgstr "以小时计，超过这些小时数视为玩过"
 
-#: users/templates/users/data.html:401
+#: users/templates/users/data.html:399
 msgid "Ignored Games"
 msgstr "忽略游戏"
 
-#: users/templates/users/data.html:402
+#: users/templates/users/data.html:400
 msgid "input comma-separated Steam AppIDs"
 msgstr "以逗号分隔的Steam AppID列表"
 
-#: users/templates/users/data.html:408
+#: users/templates/users/data.html:406
 msgid "Override mark status"
 msgstr "强制覆盖标记"
 
-#: users/templates/users/data.html:411
+#: users/templates/users/data.html:409
 msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
 msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过->在玩）"
 
-#: users/templates/users/data.html:460
+#: users/templates/users/data.html:458
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:471
+#: users/templates/users/data.html:469
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:475
+#: users/templates/users/data.html:473
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:504
+#: users/templates/users/data.html:502
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:514
+#: users/templates/users/data.html:512
 msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
-#: users/templates/users/data.html:520
+#: users/templates/users/data.html:518
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
 
-#: users/templates/users/data.html:522
+#: users/templates/users/data.html:520
 msgid "Existing data may be overwritten."
 msgstr "现有数据可能会被覆盖。"
 
-#: users/templates/users/data.html:532
+#: users/templates/users/data.html:530
 msgid "Detected format"
 msgstr "检测到格式"
 
-#: users/templates/users/data.html:593
+#: users/templates/users/data.html:591
 msgid "Detecting format..."
 msgstr "检测格式中"
 
-#: users/templates/users/data.html:619
+#: users/templates/users/data.html:617
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: users/templates/users/data.html:644
+#: users/templates/users/data.html:642
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:668
+#: users/templates/users/data.html:666
 msgid "Export NeoDB Archive"
 msgstr "导出NeoDB备份"
 
-#: users/templates/users/data.html:672
+#: users/templates/users/data.html:670
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
-#: users/templates/users/data.html:679
+#: users/templates/users/data.html:677
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:687
+#: users/templates/users/data.html:685
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr "导出标记、短评和评论 （豆坟xlsx格式）"
 
-#: users/templates/users/data.html:690
+#: users/templates/users/data.html:688
 msgid "Last export"
 msgstr "最近导出"
 
-#: users/templates/users/data.html:695
+#: users/templates/users/data.html:693
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:704
+#: users/templates/users/data.html:702
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 

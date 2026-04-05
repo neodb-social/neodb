@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-04 22:23-0400\n"
+"POT-Creation-Date: 2026-04-05 00:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2835,9 +2835,9 @@ msgstr ""
 #: journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:204 users/templates/users/data.html:257
-#: users/templates/users/data.html:437 users/templates/users/data.html:477
-#: users/templates/users/data.html:536
+#: users/templates/users/data.html:204 users/templates/users/data.html:255
+#: users/templates/users/data.html:435 users/templates/users/data.html:475
+#: users/templates/users/data.html:534
 msgid "Visibility"
 msgstr ""
 
@@ -2853,7 +2853,7 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:78 users/templates/users/data.html:691
+#: journal/forms.py:78 users/templates/users/data.html:689
 msgid "Status"
 msgstr ""
 
@@ -2898,8 +2898,8 @@ msgstr ""
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
 #: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:266 users/templates/users/data.html:441
-#: users/templates/users/data.html:485 users/templates/users/data.html:545
+#: users/templates/users/data.html:264 users/templates/users/data.html:439
+#: users/templates/users/data.html:483 users/templates/users/data.html:543
 #: users/templates/users/preferences.html:56
 msgid "Public"
 msgstr ""
@@ -2909,9 +2909,9 @@ msgstr ""
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:70
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:221 users/templates/users/data.html:274
-#: users/templates/users/data.html:445 users/templates/users/data.html:493
-#: users/templates/users/data.html:553
+#: users/templates/users/data.html:221 users/templates/users/data.html:272
+#: users/templates/users/data.html:443 users/templates/users/data.html:491
+#: users/templates/users/data.html:551
 #: users/templates/users/preferences.html:63
 msgid "Followers Only"
 msgstr ""
@@ -2921,9 +2921,9 @@ msgstr ""
 #: journal/templates/post_compose.html:77
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:229 users/templates/users/data.html:282
-#: users/templates/users/data.html:449 users/templates/users/data.html:501
-#: users/templates/users/data.html:561
+#: users/templates/users/data.html:229 users/templates/users/data.html:280
+#: users/templates/users/data.html:447 users/templates/users/data.html:499
+#: users/templates/users/data.html:559
 #: users/templates/users/preferences.html:70
 msgid "Mentioned Only"
 msgstr ""
@@ -4933,7 +4933,7 @@ msgstr ""
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:464
+#: users/templates/users/data.html:34 users/templates/users/data.html:462
 msgid "Import Method"
 msgstr ""
 
@@ -4955,8 +4955,8 @@ msgstr ""
 
 #: users/templates/users/data.html:74 users/templates/users/data.html:126
 #: users/templates/users/data.html:179 users/templates/users/data.html:232
-#: users/templates/users/data.html:285 users/templates/users/data.html:453
-#: users/templates/users/data.html:506 users/templates/users/data.html:566
+#: users/templates/users/data.html:283 users/templates/users/data.html:451
+#: users/templates/users/data.html:504 users/templates/users/data.html:564
 msgid "Import"
 msgstr ""
 
@@ -5008,7 +5008,7 @@ msgstr ""
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:233 users/templates/users/data.html:286
+#: users/templates/users/data.html:233 users/templates/users/data.html:284
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
 
@@ -5017,198 +5017,198 @@ msgid "Import from Trakt"
 msgstr ""
 
 #: users/templates/users/data.html:246
-msgid "On <a href=\"https://trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email."
+msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export Trakt Data</b> to request a ZIP file via email."
 msgstr ""
 
 #: users/templates/users/data.html:249
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr ""
 
-#: users/templates/users/data.html:252
+#: users/templates/users/data.html:251
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr ""
 
-#: users/templates/users/data.html:293
+#: users/templates/users/data.html:291
 msgid "Import from Steam Wishlist / Library"
 msgstr ""
 
-#: users/templates/users/data.html:300
+#: users/templates/users/data.html:298
 msgid "Steam User ID"
 msgstr ""
 
-#: users/templates/users/data.html:304
+#: users/templates/users/data.html:302
 msgid "Available in Steam Account Details"
 msgstr ""
 
-#: users/templates/users/data.html:307
+#: users/templates/users/data.html:305
 msgid "To import from Steam, your account profile must be visible to public"
 msgstr ""
 
-#: users/templates/users/data.html:313
+#: users/templates/users/data.html:311
 msgid "Import Sources"
 msgstr ""
 
-#: users/templates/users/data.html:320
+#: users/templates/users/data.html:318
 msgid "Steam Wishlist"
 msgstr ""
 
-#: users/templates/users/data.html:328
+#: users/templates/users/data.html:326
 msgid "Steam Library (owned games)"
 msgstr ""
 
-#: users/templates/users/data.html:335
+#: users/templates/users/data.html:333
 msgid "Include all free games"
 msgstr ""
 
-#: users/templates/users/data.html:343
+#: users/templates/users/data.html:341
 msgid "Include played free games"
 msgstr ""
 
-#: users/templates/users/data.html:350
+#: users/templates/users/data.html:348
 msgid "Include no free games"
 msgstr ""
 
-#: users/templates/users/data.html:358
+#: users/templates/users/data.html:356
 msgid "Status filter"
 msgstr ""
 
-#: users/templates/users/data.html:359
+#: users/templates/users/data.html:357
 msgid "import marks with these estimated status"
 msgstr ""
 
-#: users/templates/users/data.html:365
+#: users/templates/users/data.html:363
 msgid "Launched in playing threshold"
 msgstr ""
 
-#: users/templates/users/data.html:367
+#: users/templates/users/data.html:365
 msgid "Playing"
 msgstr ""
 
-#: users/templates/users/data.html:373
+#: users/templates/users/data.html:371
 msgid "Not launched in playing threshold & play time > finished threshold"
 msgstr ""
 
-#: users/templates/users/data.html:375
+#: users/templates/users/data.html:373
 msgid "Played"
 msgstr ""
 
-#: users/templates/users/data.html:381
+#: users/templates/users/data.html:379
 msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
 msgstr ""
 
-#: users/templates/users/data.html:382
+#: users/templates/users/data.html:380
 msgid "To play"
 msgstr ""
 
-#: users/templates/users/data.html:388
+#: users/templates/users/data.html:386
 msgid "Not launched in playing threshold & play time < finished threshold"
 msgstr ""
 
-#: users/templates/users/data.html:389
+#: users/templates/users/data.html:387
 msgid "No longer playing"
 msgstr ""
 
-#: users/templates/users/data.html:392
+#: users/templates/users/data.html:390
 msgid "Playing threshold"
 msgstr ""
 
-#: users/templates/users/data.html:393
+#: users/templates/users/data.html:391
 msgid "in days, launched in recent X days to be consided playing"
 msgstr ""
 
-#: users/templates/users/data.html:395
+#: users/templates/users/data.html:393
 msgid "Finished threshold"
 msgstr ""
 
-#: users/templates/users/data.html:396
+#: users/templates/users/data.html:394
 msgid "in hours, played for more than these hours to be consided finished"
 msgstr ""
 
-#: users/templates/users/data.html:401
+#: users/templates/users/data.html:399
 msgid "Ignored Games"
 msgstr ""
 
-#: users/templates/users/data.html:402
+#: users/templates/users/data.html:400
 msgid "input comma-separated Steam AppIDs"
 msgstr ""
 
-#: users/templates/users/data.html:408
+#: users/templates/users/data.html:406
 msgid "Override mark status"
 msgstr ""
 
-#: users/templates/users/data.html:411
+#: users/templates/users/data.html:409
 msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
 msgstr ""
 
-#: users/templates/users/data.html:460
+#: users/templates/users/data.html:458
 msgid "Import Podcast Subscriptions"
 msgstr ""
 
-#: users/templates/users/data.html:471
+#: users/templates/users/data.html:469
 msgid "Mark as listening"
 msgstr ""
 
-#: users/templates/users/data.html:475
+#: users/templates/users/data.html:473
 msgid "Import as a new collection"
 msgstr ""
 
-#: users/templates/users/data.html:504
+#: users/templates/users/data.html:502
 msgid "Select OPML file"
 msgstr ""
 
-#: users/templates/users/data.html:514
+#: users/templates/users/data.html:512
 msgid "Import NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:520
+#: users/templates/users/data.html:518
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr ""
 
-#: users/templates/users/data.html:522
+#: users/templates/users/data.html:520
 msgid "Existing data may be overwritten."
 msgstr ""
 
-#: users/templates/users/data.html:532
+#: users/templates/users/data.html:530
 msgid "Detected format"
 msgstr ""
 
-#: users/templates/users/data.html:593
+#: users/templates/users/data.html:591
 msgid "Detecting format..."
 msgstr ""
 
-#: users/templates/users/data.html:619
+#: users/templates/users/data.html:617
 msgid "Unknown format"
 msgstr ""
 
-#: users/templates/users/data.html:644
+#: users/templates/users/data.html:642
 msgid "Error detecting format"
 msgstr ""
 
-#: users/templates/users/data.html:668
+#: users/templates/users/data.html:666
 msgid "Export NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:672
+#: users/templates/users/data.html:670
 msgid "Export marks, reviews and notes in CSV"
 msgstr ""
 
-#: users/templates/users/data.html:679
+#: users/templates/users/data.html:677
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:687
+#: users/templates/users/data.html:685
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr ""
 
-#: users/templates/users/data.html:690
+#: users/templates/users/data.html:688
 msgid "Last export"
 msgstr ""
 
-#: users/templates/users/data.html:695
+#: users/templates/users/data.html:693
 msgid "Download"
 msgstr ""
 
-#: users/templates/users/data.html:704
+#: users/templates/users/data.html:702
 msgid "View Annual Summary"
 msgstr ""
 
