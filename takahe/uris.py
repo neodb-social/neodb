@@ -62,7 +62,7 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
             # When provided, attach a hash of the remote URL
             # SHA1 chosen as it generally has the best performance in modern python, and security is not a concern
             # Hash truncation is generally fine, as in the typical use case the hash is scoped to the identity PK.
-            relative += f"{hashlib.sha1(remote_url.encode('ascii')).hexdigest()[:10]}.{extension}"
+            relative += f"{hashlib.sha1(remote_url.encode('utf-8')).hexdigest()[:10]}.{extension}"
         super().__init__(relative, identity)
 
 
