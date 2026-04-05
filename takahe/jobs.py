@@ -11,7 +11,10 @@ from takahe.models import Domain, Identity, Post
 
 @JobManager.register
 class TakaheStats(BaseJob):
-    interval = timedelta(hours=6)
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(hours=6)
+
     max_unreachable_days = 31
 
     def active_users(self, d: int) -> int:

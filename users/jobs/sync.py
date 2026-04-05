@@ -11,7 +11,10 @@ from users.models import User
 @JobManager.register
 class MastodonUserSync(BaseJob):
     interval_hours = 3
-    interval = timedelta(hours=interval_hours)
+
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(hours=cls.interval_hours)
 
     def run(self):
         inactive_threshold = timezone.now() - timedelta(days=30)

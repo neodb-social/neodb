@@ -10,7 +10,9 @@ from common.models import BaseJob, JobManager
 
 @JobManager.register
 class PodcastUpdater(BaseJob):
-    interval = timedelta(hours=2)
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(hours=2)
 
     def run(self):
         logger.info("Podcasts update start.")

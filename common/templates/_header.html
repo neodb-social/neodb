@@ -119,14 +119,14 @@
               <li>
                 <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
               </li>
-              <li>
-                <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
-              </li>
               {% if request.user.is_superuser %}
                 <li>
                   <a href="{% url 'common:manage' %}">{% trans 'Manage' %}</a>
                 </li>
               {% endif %}
+              <li>
+                <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
+              </li>
             {% else %}
               <li>
                 <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>

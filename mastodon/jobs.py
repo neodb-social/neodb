@@ -10,7 +10,10 @@ from mastodon.models import MastodonApplication, detect_server_info
 
 @JobManager.register
 class MastodonSiteCheck(BaseJob):
-    interval = timedelta(days=1)
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(days=1)
+
     max_unreachable_days = 31
 
     def run(self):

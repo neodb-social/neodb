@@ -9,8 +9,6 @@ from common.models.site_config import SiteConfig
 
 
 class BaseJob:
-    interval = timedelta(0)  # 0 = disabled, don't set it less than 1 minute
-
     @classmethod
     def cancel(cls):
         job_id = cls.__name__
@@ -26,8 +24,8 @@ class BaseJob:
 
     @classmethod
     def get_interval(cls) -> timedelta:
-        """Override this to provide a dynamic interval from settings."""
-        return cls.interval
+        """Return job interval. Override to read from SiteConfig."""
+        return timedelta(0)
 
     @classmethod
     def schedule(cls, now=False):

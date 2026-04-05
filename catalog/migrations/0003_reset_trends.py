@@ -6,10 +6,8 @@ from django.db import migrations
 
 def reset_trends(apps, schema_editor):
     """reset trends cache as the model class names changed"""
-    from catalog.jobs.discover import DiscoverGenerator
-
     cache.set("public_gallery", [], timeout=None)
-    DiscoverGenerator.reschedule(now=True)
+    # DiscoverGenerator is rescheduled by Setup.run() after all migrations
 
 
 class Migration(migrations.Migration):
