@@ -459,7 +459,7 @@ def get_or_create_fediverse_application(login_domain: str):
             app.vapid_key = data.get("vapid_key", "")
             app.save()
         return app
-    if not len(SiteConfig.system.mastodon_login_whitelist) == 0:
+    if SiteConfig.system.mastodon_login_whitelist:
         logger.warning(f"Disallowed to create app for {domain}")
         raise ValueError("Unsupported instance")
     if login_domain.lower() in settings.SITE_DOMAINS:

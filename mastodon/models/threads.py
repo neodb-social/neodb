@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from loguru import logger
 
-from common.models import jsondata
+from common.models import SiteConfig, jsondata
 from takahe.utils import Takahe
 
 from .common import SocialAccount
@@ -52,7 +52,7 @@ class Threads:
         redirect_url = request.build_absolute_uri(reverse("mastodon:threads_oauth"))
         state = secrets.token_urlsafe(32)
         request.session["oauth_state"] = state
-        url = f"https://threads.net/oauth/authorize?client_id={settings.THREADS_APP_ID}&redirect_uri={redirect_url}&scope={Threads.SCOPE}&response_type=code&state={state}"
+        url = f"https://threads.net/oauth/authorize?client_id={SiteConfig.system.threads_app_id}&redirect_uri={redirect_url}&scope={Threads.SCOPE}&response_type=code&state={state}"
         return url
 
     @staticmethod
@@ -61,8 +61,8 @@ class Threads:
     ) -> tuple[str, int, str] | tuple[None, None, None]:
         redirect_url = request.build_absolute_uri(reverse("mastodon:threads_oauth"))
         payload = {
-            "client_id": settings.THREADS_APP_ID,
-            "client_secret": settings.THREADS_APP_SECRET,
+            "client_id": SiteConfig.system.threads_app_id,
+            "client_secret": SiteConfig.system.threads_app_secret,
             "redirect_uri": redirect_url,
             "grant_type": "authorization_code",
             "code": code,
@@ -84,7 +84,7 @@ class Threads:
         user_id = data.get("user_id")
 
         # exchange for a 60-days token
-        url = f"https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret={settings.THREADS_APP_SECRET}&access_token={short_token}"
+        url = f"https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret={SiteConfig.system.threads_app_secret}&access_token={short_token}"
         try:
             response = get(url)
         except Exception as e:

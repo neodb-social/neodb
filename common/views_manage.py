@@ -203,6 +203,18 @@ class SiteConfigSettingsPage(FormView):
 
 class BrandingSettings(SiteConfigSettingsPage):
     section = "branding"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # Sync branding changes into Takahe's Config table
+        from common.setup import Setup
+
+        try:
+            Setup().sync_site_config()
+        except Exception:
+            pass
+        return response
+
     options = {
         "site_name": {
             "title": _("Site Name"),
