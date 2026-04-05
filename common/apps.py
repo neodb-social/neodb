@@ -7,7 +7,14 @@ class CommonConfig(AppConfig):
     name = "common"
 
     def ready(self):
+        import warnings
+
         post_migrate.connect(self.setup, sender=self)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", "Accessing the database during app")
+            from common.models.site_config import SiteConfig
+
+            SiteConfig.ensure_loaded()
 
     def setup(self, **kwargs):
         from .setup import Setup

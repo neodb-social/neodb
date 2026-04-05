@@ -12,8 +12,8 @@ class SiteConfig(models.Model):
     Singleton model storing site-wide configuration as a single JSON blob.
 
     Only the row with pk=1 is used. Access the current config via the
-    class-level ``SiteConfig.system`` attribute, which is refreshed
-    periodically by ``SiteConfigMiddleware``.
+    class-level ``SiteConfig.system`` attribute, which is auto-loaded
+    on first access and refreshed periodically by ``SiteConfigMiddleware``.
     """
 
     data = models.JSONField(default=dict)

@@ -34,7 +34,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, number: int, dry_run: bool, verbose: bool, *args, **options):
-        SiteConfig.ensure_loaded()
         horizon = SiteConfig.system.remote_prune_horizon
         if not horizon:
             self.stdout.write(self.style.WARNING("Pruning has been disabled"))
