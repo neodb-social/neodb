@@ -11,6 +11,7 @@ from catalog.common import ResourceContent
 from catalog.common.downloaders import DownloadError, use_local_response
 from catalog.models import IdType
 from catalog.sites.fedi import FediverseInstance
+from common.models import SiteConfig
 
 
 class TestFediverseInstance:
@@ -420,14 +421,14 @@ class TestFediverseInstance:
 
     def test_get_peers_for_search_disabled(self):
         """Test get_peers_for_search when disabled"""
-        with patch("catalog.sites.fedi.settings.SEARCH_PEERS", ["-"]):
+        with patch.object(SiteConfig.system, "search_peers", ["-"]):
             result = FediverseInstance.get_peers_for_search()
             assert result == []
 
     def test_get_peers_for_search_custom_peers(self):
         """Test get_peers_for_search with custom peers"""
-        with patch(
-            "catalog.sites.fedi.settings.SEARCH_PEERS", ["peer1.com", "peer2.com"]
+        with patch.object(
+            SiteConfig.system, "search_peers", ["peer1.com", "peer2.com"]
         ):
             result = FediverseInstance.get_peers_for_search()
             assert result == ["peer1.com", "peer2.com"]
@@ -435,7 +436,7 @@ class TestFediverseInstance:
     def test_get_peers_for_search_from_takahe(self):
         """Test get_peers_for_search from Takahe"""
         with (
-            patch("catalog.sites.fedi.settings.SEARCH_PEERS", None),
+            patch.object(SiteConfig.system, "search_peers", []),
             patch(
                 "takahe.utils.Takahe.get_neodb_peers",
                 return_value=["takahe1.com", "takahe2.com"],
