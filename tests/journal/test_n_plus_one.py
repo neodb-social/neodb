@@ -716,3 +716,187 @@ class TestCollectionListLatestPostPrefetch:
             and "IN" not in q["sql"].upper()
         ]
         assert len(piecepost_individual) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionGetStats:
+    """Test that Collection.get_stats() uses a single aggregation query."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="cstats@example.com", username="cstatsuser")
+        self.books = [Edition.objects.create(title=f"Stats Book {i}") for i in range(5)]
+        self.collection = Collection.objects.create(
+            title="Stats Collection",
+            owner=self.user.identity,
+        )
+        for book in self.books:
+            self.collection.append_item(book)
+        # Mark some items on different shelves
+        Mark(self.user.identity, self.books[0]).update(ShelfType.WISHLIST, visibility=0)
+        Mark(self.user.identity, self.books[1]).update(ShelfType.COMPLETE, visibility=0)
+        Mark(self.user.identity, self.books[2]).update(ShelfType.COMPLETE, visibility=0)
+
+    def test_get_stats_returns_correct_counts(self):
+        stats = self.collection.get_stats(self.user.identity)
+        assert stats["total"] == 5
+        assert stats["wishlist"] == 1
+        assert stats["complete"] == 2
+        assert stats["progress"] == 0
+        assert stats["dropped"] == 0
+        assert stats["percentage"] == round(2 * 100 / 5)
+
+    def test_get_stats_bounded_queries(self):
+        """get_stats should use a single aggregation query, not one per shelf type."""
+        # Warm up shelf_manager
+        _ = self.user.identity.shelf_manager
+        with CaptureQueriesContext(connection) as ctx:
+            self.collection.get_stats(self.user.identity)
+        shelfmember_queries = [
+            q for q in ctx.captured_queries if "journal_shelfmember" in q["sql"]
+        ]
+        # Should be 1 aggregation query, not 5 (one per shelf type)
+        assert len(shelfmember_queries) == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestProfileShelfItemsPrefetch:
+    """Test that profile_shelf_items view prefetches items and rating info."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="psi@example.com", username="psiuser")
+        self.books = [Edition.objects.create(title=f"PSI Book {i}") for i in range(3)]
+        for i, book in enumerate(self.books):
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.ISBN,
+                id_value=f"978222200000{book.pk}",
+                url=f"https://example.com/psi/{book.pk}",
+            )
+            Mark(self.user.identity, book).update(
+                ShelfType.WISHLIST, f"note {i}", i + 5, [], 0
+            )
+
+    def test_shelf_items_renders(self):
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(
+            f"/users/{self.user.username}/profile/book/wishlist/items",
+        )
+        assert response.status_code == 200
+        for book in self.books:
+            assert book.display_title in response.content.decode()
+
+    def test_shelf_items_no_per_item_queries(self):
+        """Profile shelf items should batch-fetch items, not query per member."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/profile/book/wishlist/items",
+            )
+        assert response.status_code == 200
+        individual_item_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_item" in q["sql"] and 'WHERE "catalog_item"."id" =' in q["sql"]
+        ]
+        assert len(individual_item_queries) == 0
+
+    def test_shelf_items_no_per_item_rating_queries(self):
+        """Rating info should be batch-fetched, not queried per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/profile/book/wishlist/items",
+            )
+        assert response.status_code == 200
+        individual_rating_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_rating" in q["sql"]
+            and "GROUP BY" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(individual_rating_queries) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRenderListRatingPrefetch:
+    """Test that render_list batch-prefetches rating info for items."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="rlr@example.com", username="rlruser")
+        self.books = [Edition.objects.create(title=f"RLR Book {i}") for i in range(3)]
+        self.tag = Tag.objects.create(
+            owner=self.user.identity, title="rlr-tag", visibility=0
+        )
+        for book in self.books:
+            Mark(self.user.identity, book).update(
+                ShelfType.WISHLIST, f"comment {book.title}", 7, ["rlr-tag"], 0
+            )
+            self.tag.append_item(book)
+
+    def test_tag_list_no_per_item_rating_queries(self):
+        """Tag list should batch-fetch rating info, not query per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/tags/rlr-tag/",
+            )
+        assert response.status_code == 200
+        individual_rating_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_rating" in q["sql"]
+            and "GROUP BY" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(individual_rating_queries) == 0
+
+    def test_shelf_list_no_per_item_rating_queries(self):
+        """Shelf list should batch-fetch rating info, not query per item."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/users/{self.user.username}/wishlist/book/",
+            )
+        assert response.status_code == 200
+        individual_rating_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_rating" in q["sql"]
+            and "GROUP BY" in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert len(individual_rating_queries) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMarkBatchFetchNoFKResolution:
+    """Test that Mark.get_marks_by_items uses item_id, not item.pk."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="fk@example.com", username="fkuser")
+        self.books = [Edition.objects.create(title=f"FK Book {i}") for i in range(3)]
+        for book in self.books:
+            Mark(self.user.identity, book).update(
+                ShelfType.COMPLETE, "comment", 8, ["tag"], 0
+            )
+
+    def test_no_individual_item_queries(self):
+        """get_marks_by_items should not trigger per-item catalog_item queries."""
+        with CaptureQueriesContext(connection) as ctx:
+            Mark.get_marks_by_items(self.user.identity, self.books, self.user)
+        individual_item_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_item" in q["sql"] and 'WHERE "catalog_item"."id" =' in q["sql"]
+        ]
+        assert len(individual_item_queries) == 0

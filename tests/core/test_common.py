@@ -1,4 +1,6 @@
 import pytest
+from django.conf import settings
+from django.test import Client
 from django.utils import translation
 
 from common.models import (
@@ -137,3 +139,42 @@ class TestNormalizeLanguages:
         assert aliases.get("eng") == "en"
         assert aliases.get("fra") == "fr"
         assert aliases.get("deu") == "de"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestNodeInfo:
+    def test_nodeinfo_basic(self):
+        client = Client()
+        response = client.get("/nodeinfo/2.0/")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["version"] == "2.0"
+        assert data["software"]["name"] == "neodb"
+        assert "activitypub" in data["protocols"]
+        assert "features" in data["metadata"]
+
+    def test_nodeinfo_federation_disabled(self):
+        """When NO_FEDERATION is set, nodeinfo should include federation.enabled=false."""
+        setup = type("Setup", (), {"NO_FEDERATION": True})()
+        had_setup = hasattr(settings, "SETUP")
+        original = getattr(settings, "SETUP", None)
+        try:
+            settings.SETUP = setup
+            client = Client()
+            response = client.get("/nodeinfo/2.0/")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["metadata"]["federation"] == {"enabled": False}
+        finally:
+            if had_setup:
+                settings.SETUP = original
+            else:
+                delattr(settings, "SETUP")
+
+    def test_nodeinfo_federation_not_disabled(self):
+        """When SETUP is absent, nodeinfo should not include federation key."""
+        client = Client()
+        response = client.get("/nodeinfo/2.0/")
+        assert response.status_code == 200
+        data = response.json()
+        assert "federation" not in data["metadata"]

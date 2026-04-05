@@ -206,7 +206,7 @@ class Collection(List):
 
         items = self.item_ids
         stats: dict[str, int] = {"total": len(items)}
-        for st in ShelfType:
+        for st in ShelfType.values:
             stats[st] = 0
         counts = (
             ShelfMember.objects.filter(owner=viewer, item_id__in=items)

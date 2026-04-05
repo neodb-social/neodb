@@ -105,7 +105,7 @@ def nodeinfo2(request, version: str):
             }
             | (
                 {"federation": {"enabled": False}}
-                if settings.SETUP.NO_FEDERATION
+                if getattr(settings, "SETUP", None) and settings.SETUP.NO_FEDERATION
                 else {}
             ),
         }
