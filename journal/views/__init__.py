@@ -20,6 +20,7 @@ from .mark import comment, comment_translate, mark, mark_log, user_mark_list, wi
 from .note import note_edit
 from .post import (
     piece_replies,
+    piece_retrieve,
     post_boost,
     post_compose,
     post_delete,
@@ -81,6 +82,7 @@ __all__ = [
     "wish",
     "note_edit",
     "piece_replies",
+    "piece_retrieve",
     "post_translate",
     "post_flag",
     "post_boost",

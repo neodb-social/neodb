@@ -39,6 +39,12 @@ def review_retrieve(request, review_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "HEAD":
         return HttpResponse()
+    if request.headers.get("Accept", "").endswith("json"):
+        from django.http import JsonResponse
+
+        return JsonResponse(
+            piece.ap_object_response(), content_type="application/activity+json"
+        )
     return render(request, "review.html", {"review": piece})
 
 

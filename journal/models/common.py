@@ -40,6 +40,35 @@ if TYPE_CHECKING:
 
     from .like import Like
 
+# NeoDB ActivityPub / JSON-LD context for journal piece objects.
+# Namespace: https://neodb.social/ns#
+# Note: "Note" and "Collection" are intentionally omitted to avoid
+# conflicting with ActivityStreams 2.0 types of the same name.
+NEODB_JOURNAL_AP_CONTEXT: list[Any] = [
+    "https://www.w3.org/ns/activitystreams",
+    {
+        "neodb": "https://neodb.social/ns#",
+        "Review": "neodb:Review",
+        "Rating": "neodb:Rating",
+        "Comment": "neodb:Comment",
+        "Status": "neodb:Status",
+        "CollectionItem": "neodb:CollectionItem",
+        "withRegardTo": {"@id": "neodb:withRegardTo", "@type": "@id"},
+        "relatedWith": {"@id": "neodb:relatedWith", "@container": "@set"},
+        "best": "neodb:best",
+        "worst": "neodb:worst",
+        "value": "neodb:value",
+        "status": "neodb:status",
+        "progress": "neodb:progress",
+        "collection": {"@id": "neodb:collection", "@type": "@id"},
+        "relatedWithItemPosition": "neodb:relatedWithItemPosition",
+        "relatedWithItemPositionType": "neodb:relatedWithItemPositionType",
+        "sensitive": "as:sensitive",
+        "title": "neodb:title",
+        "note": "neodb:note",
+    },
+]
+
 
 class VisibilityType(models.IntegerChoices):
     Public = 0, _("Public")
@@ -308,8 +337,14 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return post_ids
 
     @property
-    def ap_object(self):
+    def ap_object(self) -> dict[str, Any]:
         raise NotImplementedError("subclass must implement this")
+
+    def ap_object_response(self) -> dict[str, Any]:
+        """Return ap_object with JSON-LD @context, for serving as standalone AP JSON."""
+        data = dict(self.ap_object)
+        data["@context"] = NEODB_JOURNAL_AP_CONTEXT
+        return data
 
     @classmethod
     @abstractmethod

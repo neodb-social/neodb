@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -93,6 +93,10 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if request.headers.get("Accept", "").endswith("json"):
+        return JsonResponse(
+            collection.ap_object_response(), content_type="application/activity+json"
+        )
     page_number = int_(request.GET.get("page"), 1)
     per_page = get_page_size_from_request(request)
     viewer = request.user.identity if request.user.is_authenticated else None

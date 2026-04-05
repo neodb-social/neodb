@@ -44,6 +44,28 @@ if TYPE_CHECKING:
 
     from ..common import ResourceContent
 
+# NeoDB ActivityPub / JSON-LD context for catalog item objects.
+# Namespace: https://neodb.social/ns#
+_NEODB_CATALOG_AP_CONTEXT: list[Any] = [
+    "https://www.w3.org/ns/activitystreams",
+    {
+        "neodb": "https://neodb.social/ns#",
+        "Movie": "neodb:Movie",
+        "Edition": "neodb:Edition",
+        "Work": "neodb:Work",
+        "Series": "neodb:Series",
+        "TVShow": "neodb:TVShow",
+        "TVSeason": "neodb:TVSeason",
+        "TVEpisode": "neodb:TVEpisode",
+        "Album": "neodb:Album",
+        "Game": "neodb:Game",
+        "Performance": "neodb:Performance",
+        "PerformanceProduction": "neodb:PerformanceProduction",
+        "Podcast": "neodb:Podcast",
+        "PodcastEpisode": "neodb:PodcastEpisode",
+    },
+]
+
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
     def __init__(self, id_type: IdType):
@@ -300,8 +322,10 @@ class Item(PolymorphicModel):
         return self.get_ap_object_type()
 
     @property
-    def ap_object(self):
-        return self.schema.from_orm(self).model_dump()
+    def ap_object(self) -> dict[str, Any]:
+        data = self.schema.from_orm(self).model_dump()
+        data["@context"] = _NEODB_CATALOG_AP_CONTEXT
+        return data
 
     @property
     def ap_object_ref(self) -> dict[str, Any]:

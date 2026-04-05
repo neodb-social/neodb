@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -45,6 +45,28 @@ def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> 
     if post.visibility == 2 and viewer.is_following(owner):
         return 1
     return -1
+
+
+@require_http_methods(["GET", "HEAD"])
+def piece_retrieve(request: AuthedHttpRequest, piece_uuid: str):
+    """Serve a journal piece as ActivityPub JSON-LD, or redirect to its post for browsers."""
+    piece = Piece.get_by_url(piece_uuid)
+    if piece is None:
+        raise Http404(_("Content not found"))
+    if not piece.is_visible_to(request.user):
+        raise PermissionDenied(_("Insufficient permission"))
+    if request.method == "HEAD":
+        return HttpResponse()
+    if request.headers.get("Accept", "").endswith("json"):
+        return JsonResponse(
+            piece.ap_object_response(), content_type="application/activity+json"
+        )
+    post = piece.latest_post
+    if post:
+        return redirect(
+            f"/@{post.author.username}@{post.author.domain.name}/posts/{post.pk}/"
+        )
+    return redirect(piece.url)
 
 
 @login_required
