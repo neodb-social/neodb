@@ -701,9 +701,9 @@ def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
     for post, piece in zip(posts, all_pieces):
         item_id = getattr(piece, "item_id", None) if piece else None
         if item_id:
-            item = items_by_id.get(piece.item_id)
+            item = items_by_id.get(item_id)
             if item:
-                piece.item = item
+                setattr(piece, "item", item)
             post.__dict__["item"] = item
         else:
             post.__dict__["item"] = None
