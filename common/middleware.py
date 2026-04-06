@@ -69,7 +69,12 @@ class SiteConfigMiddleware:
 
 
 class SafeTimezoneMiddleware(MiddlewareMixin):
-    """tz_detect TimezoneMiddleware that gracefully handles invalid timezones."""
+    """Drop-in replacement for tz_detect.middleware.TimezoneMiddleware.
+
+    Handles invalid timezone strings (e.g. 'Etc/GMT 8') gracefully instead
+    of crashing with UnknownTimeZoneError. The tz_detect app is still needed
+    for JS-based detection and the detected_tz session key.
+    """
 
     def process_request(self, request):
         from django.utils import timezone
