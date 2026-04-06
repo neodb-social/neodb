@@ -207,9 +207,11 @@ def register(request: AuthedHttpRequest):
             if not form.cleaned_data.get("username"):
                 error = _("Valid username required")
             else:
-                return _handle_new_user_registration(
+                response = _handle_new_user_registration(
                     request, form, verified_account, email_readonly
                 )
+                if response:
+                    return response
 
     return render(
         request,
