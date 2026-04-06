@@ -2,7 +2,7 @@ import functools
 from typing import ClassVar
 
 import pydantic
-from django.db import models
+from django.db import models, transaction
 from django.db.utils import DatabaseError, ProgrammingError
 from loguru import logger
 
@@ -234,20 +234,23 @@ class SiteConfig(models.Model):
     @classmethod
     def set_system(cls, **kwargs: object) -> None:
         """Partial update: merge new values into the JSON blob."""
-        obj, created = cls.objects.get_or_create(pk=1, defaults={"data": {}})
-        data = dict(obj.data)
-        env_defaults = cls._env_defaults()
-        for key, value in kwargs.items():
-            if key not in cls.SystemOptions.model_fields:
-                raise KeyError(f"Unknown config key: {key}")
-            if value == env_defaults.get(key):
-                data.pop(key, None)
-            else:
-                data[key] = value
-        # Validate before saving to prevent broken config
-        cls.SystemOptions(**{**env_defaults, **data})
-        obj.data = data
-        obj.save(update_fields=["data"])
+        with transaction.atomic():
+            obj, created = cls.objects.select_for_update().get_or_create(
+                pk=1, defaults={"data": {}}
+            )
+            data = dict(obj.data)
+            env_defaults = cls._env_defaults()
+            for key, value in kwargs.items():
+                if key not in cls.SystemOptions.model_fields:
+                    raise KeyError(f"Unknown config key: {key}")
+                if value == env_defaults.get(key):
+                    data.pop(key, None)
+                else:
+                    data[key] = value
+            # Validate before saving to prevent broken config
+            cls.SystemOptions(**{**env_defaults, **data})
+            obj.data = data
+            obj.save(update_fields=["data"])
 
     @classmethod
     def reload(cls) -> None:

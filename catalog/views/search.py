@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse
 
 import django_rq
 from django.conf import settings
@@ -130,8 +131,8 @@ def search(request):
         )
 
     if keywords.find("://") > 0:
-        host = keywords.split("://")[1].split("/")[0]
-        if host in settings.SITE_DOMAINS:
+        host = urlparse(keywords).hostname
+        if host and host in settings.SITE_DOMAINS:
             return redirect(keywords)
         # skip detecting redirection to avoid timeout
         site = SiteManager.get_site_by_url(

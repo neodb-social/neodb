@@ -193,7 +193,10 @@ class SiteConfigSettingsPage(FormView):
         try:
             SiteConfig.set_system(**updates)
         except pydantic.ValidationError as e:
-            messages.error(self.request, _("Invalid configuration: ") + str(e))
+            logger.warning(f"SiteConfig validation failed: {e}")
+            messages.error(
+                self.request, _("Invalid configuration. Please check your input.")
+            )
             return self.form_invalid(form)
         SiteConfig.system = SiteConfig.load_system()
         SiteConfig._apply_to_settings(SiteConfig.system)
