@@ -20,22 +20,25 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
 
     from django.conf import settings
 
-    # If full URL with our hostname, strip to path
     parsed = urlparse(src)
+    media_parsed = urlparse(settings.MEDIA_URL)
+    site_domains = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
+    media_host = media_parsed.hostname or ""
+    media_path = media_parsed.path
+
     if parsed.scheme in ("http", "https") and parsed.netloc:
-        site_domains = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
-        if parsed.hostname not in site_domains:
+        src_host = parsed.hostname or ""
+        is_our_server = src_host in site_domains
+        is_media_host = media_host and src_host == media_host
+        if not (is_our_server or is_media_host):
             return None  # external URL, skip
         src = parsed.path
-
-    # Only handle absolute paths
-    if not src.startswith("/"):
+    elif not src.startswith("/"):
         return None
 
-    media_prefix = settings.MEDIA_URL
-    if not src.startswith(media_prefix):
+    if not src.startswith(media_path):
         return None
-    rel_path = src[len(media_prefix) :]
+    rel_path = src[len(media_path) :]
 
     # Already migrated
     if rel_path.startswith("upload/"):
