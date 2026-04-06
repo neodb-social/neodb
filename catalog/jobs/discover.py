@@ -34,7 +34,7 @@ class DiscoverGenerator(BaseJob):
 
     def get_no_discover_identities(self):
         return list(
-            Identity.objects.exclude(discoverable=False).values_list("pk", flat=True)
+            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
         )
 
     def get_popular_posts(
