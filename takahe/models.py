@@ -497,6 +497,9 @@ class Identity(models.Model):
     # the one URI it was moved to.
     aliases = models.JSONField(blank=True, null=True)
 
+    # Calculated (or fetched) statistics: follower/post counts, etc.
+    stats = models.JSONField(blank=True, null=True)
+
     # Admin-only moderation fields
     sensitive = models.BooleanField(default=False)
     restriction = models.IntegerField(

@@ -226,6 +226,8 @@ class Migration(migrations.Migration):
                 ),
                 ("metadata", models.JSONField(blank=True, null=True)),
                 ("pinned", models.JSONField(blank=True, null=True)),
+                ("aliases", models.JSONField(blank=True, null=True)),
+                ("stats", models.JSONField(blank=True, null=True)),
                 ("sensitive", models.BooleanField(default=False)),
                 (
                     "restriction",
