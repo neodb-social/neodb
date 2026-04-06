@@ -68,6 +68,33 @@ class SiteConfigMiddleware:
         return self.get_response(request)
 
 
+class SafeTimezoneMiddleware(MiddlewareMixin):
+    """tz_detect TimezoneMiddleware that gracefully handles invalid timezones."""
+
+    def process_request(self, request):
+        from django.utils import timezone
+
+        tz = request.session.get("detected_tz")
+        if tz:
+            try:
+                import pytz
+                from pytz.tzinfo import BaseTzInfo
+                from tz_detect.utils import offset_to_timezone
+
+                request.timezone_active = True
+                if isinstance(tz, BaseTzInfo):
+                    timezone.activate(tz)
+                elif isinstance(tz, str):
+                    timezone.activate(pytz.timezone(tz))
+                else:
+                    timezone.activate(offset_to_timezone(tz))
+            except Exception:
+                request.session.pop("detected_tz", None)
+                timezone.deactivate()
+        else:
+            timezone.deactivate()
+
+
 class IdentityMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.identity = None

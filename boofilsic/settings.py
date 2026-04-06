@@ -397,7 +397,7 @@ MIDDLEWARE = [
     "common.middleware.IdentityMiddleware",
     # "django.middleware.locale.LocaleMiddleware",
     "users.middlewares.LanguageMiddleware",
-    "tz_detect.middleware.TimezoneMiddleware",
+    "common.middleware.SafeTimezoneMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
     # "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last if enabled
 ]
