@@ -1,10 +1,10 @@
-import os
 import re
 from datetime import datetime
 
 import openpyxl
 import pytz
-from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from loguru import logger
 from markdownify import markdownify as md
 
@@ -13,27 +13,22 @@ from catalog.common.downloaders import *
 from catalog.models import *
 from catalog.sites import DoubanBook, DoubanDrama, DoubanGame, DoubanMovie, DoubanMusic
 from catalog.sites.douban import DoubanDownloader
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import *
+from journal.views.common import generate_upload_path
 from users.models import Task
 
 _tz_sh = pytz.timezone("Asia/Shanghai")
 
 
-def _fetch_remote_image(url):
+def _fetch_remote_image(url, identity_id):
     try:
         logger.info(f"fetching remote image {url}")
         imgdl = ProxiedImageDownloader(url)
         raw_img = imgdl.download().content
-        ext = imgdl.extention
-        f = GenerateDateUUIDMediaFilePath(f"x.{ext}", settings.REVIEW_MEDIA_PATH)
-        file = settings.MEDIA_ROOT + "/" + f
-        local_url = settings.MEDIA_URL + f
-        os.makedirs(os.path.dirname(file), exist_ok=True)
-        with open(file, "wb") as binary_file:
-            binary_file.write(raw_img)
-        # logger.info(f'remote image saved as {local_url}')
-        return local_url
+        ext = imgdl.extention or "jpg"
+        rel_path = generate_upload_path(identity_id, ext)
+        saved_path = default_storage.save(rel_path, ContentFile(raw_img))
+        return default_storage.url(saved_path)
     except Exception as e:
         logger.error("unable to fetch image", extra={"url": url, "exception": e})
         return url
@@ -350,7 +345,9 @@ class DoubanImporter(Task):
         )
         content = md(content)
         content = re.sub(
-            r"(?<=!\[\]\()([^)]+)(?=\))", lambda x: _fetch_remote_image(x[1]), content
+            r"(?<=!\[\]\()([^)]+)(?=\))",
+            lambda x: _fetch_remote_image(x[1], self.user.identity.pk),
+            content,
         )
         params = {
             "created_time": time,

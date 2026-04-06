@@ -608,7 +608,6 @@ if DEBUG:
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = "report/"
-REVIEW_MEDIA_PATH = "review/"
 BOOK_MEDIA_PATH_ROOT = "book/"
 DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, "default.svg")
 MOVIE_MEDIA_PATH_ROOT = "movie/"

@@ -15,7 +15,7 @@ from .collection import (
     user_collection_list,
     user_liked_collection_list,
 )
-from .common import piece_delete, upload_image
+from .common import generate_upload_path, piece_delete, upload_image
 from .mark import comment, comment_translate, mark, mark_log, user_mark_list, wish
 from .note import note_edit
 from .post import (
@@ -105,6 +105,7 @@ __all__ = [
     "user_follow_list",
     "ReviewFeed",
     "review_edit",
+    "generate_upload_path",
     "upload_image",
     "review_retrieve",
     "review_translate",

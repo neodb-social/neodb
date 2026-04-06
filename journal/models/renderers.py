@@ -76,8 +76,8 @@ def _normalize_image_src(src: str) -> str | None:
     if is_our_server or is_media_host:
         if not src_path.startswith(media_path):
             return None
-        # normalize to MEDIA_URL form
-        return settings.MEDIA_URL.rstrip("/") + src_path[len(media_path) - 1 :]
+        # normalize to MEDIA_URL + relative path
+        return settings.MEDIA_URL + src_path[len(media_path) :]
 
     # external URL
     return src

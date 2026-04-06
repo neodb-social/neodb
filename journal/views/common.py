@@ -1,11 +1,11 @@
 import datetime
-import os
 import uuid
 
 import filetype
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db.models import F, Min, OuterRef, Subquery
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -41,6 +41,13 @@ _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 _MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
+def generate_upload_path(identity_id: int | str, ext: str) -> str:
+    """Generate a storage-relative upload path: upload/<identity_id>/<year>/<uuid>.<ext>"""
+    year = timezone.now().strftime("%Y")
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"upload/{identity_id}/{year}/{filename}"
+
+
 @login_required
 @require_http_methods(["POST"])
 def upload_image(request: AuthedHttpRequest) -> JsonResponse:
@@ -52,16 +59,11 @@ def upload_image(request: AuthedHttpRequest) -> JsonResponse:
     kind = filetype.guess(image)
     if not kind or kind.mime not in _ALLOWED_IMAGE_TYPES:
         return JsonResponse({"error": "Unsupported image type"}, status=400)
-    year = timezone.now().strftime("%Y")
-    identity_id = request.user.identity.pk
-    filename = f"{uuid.uuid4()}.{kind.extension}"
-    rel_path = f"upload/{identity_id}/{year}/{filename}"
-    abs_path = os.path.join(settings.MEDIA_ROOT, rel_path)
-    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-    with open(abs_path, "wb") as f:
-        for chunk in image.chunks():
-            f.write(chunk)
-    return JsonResponse({"data": {"filePath": settings.MEDIA_URL + rel_path}})
+    image.seek(0)
+    rel_path = generate_upload_path(request.user.identity.pk, kind.extension)
+    saved_path = default_storage.save(rel_path, ContentFile(image.read()))
+    url = default_storage.url(saved_path)
+    return JsonResponse({"data": {"filePath": url}})
 
 
 PAGE_SIZE = 10
