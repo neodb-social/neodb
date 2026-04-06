@@ -221,6 +221,8 @@ def user_calendar_data(request, user_name):
     if request.method == "HEAD":
         return HttpResponse()
     target = request.target_identity
+    if not request.user.is_authenticated and target.is_group:
+        return HttpResponse()
     max_visiblity = max_visiblity_to_user(request.user, target)
     if max_visiblity == 2:
         calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
