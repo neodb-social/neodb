@@ -491,6 +491,31 @@ class Takahe:
         return Identity.objects.filter(actor_uri=actor_uri).first()
 
     @staticmethod
+    def refresh_remote_identity(identity_pk: int) -> None:
+        """Fetch latest actor data for a remote identity to refresh aliases etc."""
+        import httpx
+
+        identity = Identity.objects.get(pk=identity_pk)
+        if identity.local:
+            return
+        try:
+            response = httpx.get(
+                identity.actor_uri,
+                headers={
+                    "Accept": "application/activity+json",
+                    "User-Agent": settings.TAKAHE_USER_AGENT,
+                },
+                timeout=settings.TAKAHE_REMOTE_TIMEOUT,
+                follow_redirects=True,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                identity.aliases = data.get("alsoKnownAs")
+                identity.save(update_fields=["aliases"])
+        except Exception:
+            pass
+
+    @staticmethod
     def identity_get_aliases(identity_pk: int) -> list[Identity]:
         """Return Identity objects for each alias URI."""
         identity = Identity.objects.get(pk=identity_pk)

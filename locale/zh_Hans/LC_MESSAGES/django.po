@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-05 19:53-0400\n"
+"POT-Creation-Date: 2026-04-05 20:03-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1310,7 +1310,7 @@ msgid "Edit"
 msgstr "编辑"
 
 #: catalog/templates/catalog_edit.html:14
-#: users/templates/users/authorized_app_create.html:41
+#: users/templates/users/authorized_app_create.html:42
 msgid "Create"
 msgstr "创建"
 
@@ -4446,7 +4446,7 @@ msgid "Alt text"
 msgstr "替代文本"
 
 #: journal/templates/post_compose.html:165
-#: users/templates/users/migrate_in.html:53
+#: users/templates/users/migrate_in.html:59
 msgid "Remove"
 msgstr "移除"
 
@@ -5680,30 +5680,30 @@ msgstr "暂时无法删除，因为有导入或导出任务正在进行"
 msgid "Permanently Delete"
 msgstr "永久删除"
 
-#: users/templates/users/authorized_app_create.html:23
+#: users/templates/users/authorized_app_create.html:24
 msgid "Name"
 msgstr "名称"
 
-#: users/templates/users/authorized_app_create.html:28
+#: users/templates/users/authorized_app_create.html:29
 msgid "Identifies this app in your app list"
 msgstr "在应用列表中标识此应用"
 
-#: users/templates/users/authorized_app_create.html:31
+#: users/templates/users/authorized_app_create.html:32
 msgid "Access Level"
 msgstr "访问级别"
 
-#: users/templates/users/authorized_app_create.html:34
+#: users/templates/users/authorized_app_create.html:35
 msgid "Read-only access"
 msgstr "只读访问"
 
-#: users/templates/users/authorized_app_create.html:38
+#: users/templates/users/authorized_app_create.html:39
 msgid "Full access"
 msgstr "完全访问"
 
-#: users/templates/users/authorized_app_create.html:47
-#: users/templates/users/authorized_app_created.html:36
-#: users/templates/users/migrate_in.html:64
-#: users/templates/users/migrate_out.html:62
+#: users/templates/users/authorized_app_create.html:48
+#: users/templates/users/authorized_app_created.html:39
+#: users/templates/users/migrate_in.html:70
+#: users/templates/users/migrate_out.html:67
 msgid "Back to Preferences"
 msgstr "返回设置"
 
@@ -5712,11 +5712,11 @@ msgstr "返回设置"
 msgid "Token Created"
 msgstr "令牌已创建"
 
-#: users/templates/users/authorized_app_created.html:21
+#: users/templates/users/authorized_app_created.html:22
 msgid "Your new personal access token has been created. Copy it now -- you will not be able to see it again."
 msgstr "你的个人访问令牌已创建。请立即复制，之后将无法再次查看。"
 
-#: users/templates/users/authorized_app_created.html:22
+#: users/templates/users/authorized_app_created.html:25
 msgid "Token"
 msgstr "令牌"
 
@@ -6104,24 +6104,24 @@ msgstr "迁入账号"
 msgid "To move another account to this one, first add it as an alias here, and then go to the server where it is hosted and initiate the move."
 msgstr "要将其他账号迁移到此账号，请先在此处添加别名，然后前往该账号所在的服务器发起迁移。"
 
-#: users/templates/users/migrate_in.html:26
+#: users/templates/users/migrate_in.html:27
 msgid "Account to alias"
 msgstr "要添加别名的账号"
 
-#: users/templates/users/migrate_in.html:34
+#: users/templates/users/migrate_in.html:35
 msgid "Add Alias"
 msgstr "添加别名"
 
-#: users/templates/users/migrate_in.html:42
+#: users/templates/users/migrate_in.html:43
 msgid "Current Aliases"
 msgstr "当前别名"
 
-#: users/templates/users/migrate_in.html:58
+#: users/templates/users/migrate_in.html:64
 msgid "No aliases configured."
 msgstr "未配置别名。"
 
 #: users/templates/users/migrate_out.html:9
-#: users/templates/users/migrate_out.html:39
+#: users/templates/users/migrate_out.html:43
 msgid "Migrate Out"
 msgstr "迁出账号"
 
@@ -6133,28 +6133,28 @@ msgstr "迁移进行中"
 msgid "Your account is being migrated to:"
 msgstr "你的账号正在迁移到："
 
-#: users/templates/users/migrate_out.html:28
+#: users/templates/users/migrate_out.html:30
 msgid "Are you sure you want to cancel the migration?"
 msgstr "确定要取消迁移吗？"
 
-#: users/templates/users/migrate_out.html:31
+#: users/templates/users/migrate_out.html:35
 msgid "Cancel Migration"
 msgstr "取消迁移"
 
-#: users/templates/users/migrate_out.html:42
+#: users/templates/users/migrate_out.html:46
 #, python-format
 msgid "To migrate to another account, first add <code>@%(handle)s</code> as an alias on the target server, and then type the target account below to start the migration."
 msgstr "要迁移到其他账号，请先在目标服务器上将 <code>@%(handle)s</code> 添加为别名，然后在下方输入目标账号以开始迁移。"
 
-#: users/templates/users/migrate_out.html:46
+#: users/templates/users/migrate_out.html:50
 msgid "Are you sure you want to migrate your account? Your followers will be moved to the target account."
 msgstr "确定要迁移你的账号吗？你的关注者将被迁移到目标账号。"
 
-#: users/templates/users/migrate_out.html:48
+#: users/templates/users/migrate_out.html:53
 msgid "Target account"
 msgstr "目标账号"
 
-#: users/templates/users/migrate_out.html:55
+#: users/templates/users/migrate_out.html:60
 msgid "Start Migration"
 msgstr "开始迁移"
 
@@ -6437,109 +6437,99 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:183 users/views/data.py:212
+#: users/views/data.py:185 users/views/data.py:214
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:206
+#: users/views/data.py:208
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:224
+#: users/views/data.py:226
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:239 users/views/data.py:259
+#: users/views/data.py:241 users/views/data.py:261
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:273
+#: users/views/data.py:275
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:287
+#: users/views/data.py:289
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:296 users/views/data.py:320 users/views/data.py:344
-#: users/views/data.py:369 users/views/data.py:393 users/views/data.py:417
+#: users/views/data.py:298 users/views/data.py:322 users/views/data.py:346
+#: users/views/data.py:371 users/views/data.py:395 users/views/data.py:419
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:533
+#: users/views/data.py:535
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:555
+#: users/views/data.py:557
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:571
+#: users/views/data.py:573
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:576
+#: users/views/data.py:578
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:586 users/views/data.py:637
+#: users/views/data.py:588 users/views/data.py:639
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:593
+#: users/views/data.py:595
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:598
+#: users/views/data.py:600
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:624
+#: users/views/data.py:626
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:629
+#: users/views/data.py:631
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:642
+#: users/views/data.py:644
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:649
+#: users/views/data.py:655
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:655
+#: users/views/data.py:661
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:681
+#: users/views/data.py:719
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:699
+#: users/views/data.py:735
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:703
+#: users/views/data.py:739
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:719
+#: users/views/data.py:748
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
-
-#: users/views/data.py:738
-#, python-brace-format
-msgid "Processed {processed} entries, {skipped} unknown accounts are being looked up -- please retry for those."
-msgstr "已处理 {processed} 条，{skipped} 个未知账号正在查找中，请稍后重试。"
-
-#: users/views/data.py:744
-#, python-brace-format
-msgid "Processed {count} entries."
-msgstr "已处理 {count} 条。"

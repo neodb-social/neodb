@@ -2,6 +2,7 @@ import csv
 import datetime
 import os
 
+import django_rq
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -13,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
@@ -642,6 +644,10 @@ def migrate_out(request):
             messages.error(request, _("Cannot migrate to a local account."))
             return redirect(reverse("users:migrate_out"))
 
+        # Refresh remote identity to get latest aliases
+        Takahe.refresh_remote_identity(target.pk)
+        target.refresh_from_db()
+
         # Verify target has this identity as alias
         if tidentity.actor_uri not in (target.aliases or []):
             messages.error(
@@ -671,6 +677,38 @@ def migrate_out(request):
 # --- Import/Export follow+block+mute ---
 
 
+def _import_social_graph_task(
+    identity_pk: int, import_type: str, entries: list[dict]
+) -> None:
+    """Background task to process social graph CSV import."""
+    for entry in entries:
+        handle = entry["handle"]
+        try:
+            if import_type == "following":
+                InboxMessage.create_internal(
+                    {
+                        "type": "AddFollow",
+                        "source": identity_pk,
+                        "target_handle": handle,
+                        "boosts": entry.get("boosts", True),
+                    }
+                )
+            elif import_type == "blocks":
+                target = Takahe.resolve_identity_by_handle(handle)
+                if target:
+                    Takahe.block(identity_pk, target.pk)
+                else:
+                    Takahe.fetch_remote_identity(handle)
+            elif import_type == "mutes":
+                target = Takahe.resolve_identity_by_handle(handle)
+                if target:
+                    Takahe.mute(identity_pk, target.pk)
+                else:
+                    Takahe.fetch_remote_identity(handle)
+        except Exception as e:
+            logger.warning(f"Error importing {import_type} for {handle}: {e}")
+
+
 @login_required
 @require_http_methods(["POST"])
 def import_social_graph(request):
@@ -681,14 +719,12 @@ def import_social_graph(request):
         raise BadRequest(_("No file uploaded."))
 
     try:
-        lines = csv_file.read().decode("utf-8").splitlines()
-        reader = csv.DictReader(lines)
+        decoded_file = (line.decode("utf-8") for line in csv_file)
+        reader = csv.DictReader(decoded_file)
         entries = []
         for row in reader:
-            handle = row.get("Account address", "").strip()
-            if not handle:
-                continue
-            if len(handle.split("@")) != 2:
+            handle = row.get("Account address", "").strip().lstrip("@")
+            if not handle or "@" not in handle:
                 continue
             entry = {"handle": handle}
             if import_type == "following":
@@ -703,47 +739,15 @@ def import_social_graph(request):
         messages.error(request, _("No valid entries found in the CSV file."))
         return redirect(reverse("users:info"))
 
-    if import_type == "following":
-        for entry in entries:
-            InboxMessage.create_internal(
-                {
-                    "type": "AddFollow",
-                    "source": identity.pk,
-                    "target_handle": entry["handle"],
-                    "boosts": entry.get("boosts", True),
-                }
-            )
-        messages.info(
-            request,
-            _(
-                "Import of {count} entries received. They will be processed in the background."
-            ).format(count=len(entries)),
-        )
-    elif import_type in ("blocks", "mutes"):
-        is_mute = import_type == "mutes"
-        processed = 0
-        skipped = 0
-        for entry in entries:
-            target = Takahe.resolve_identity_by_handle(entry["handle"])
-            if target:
-                Takahe.block_or_mute(identity.pk, target.pk, is_mute)
-                processed += 1
-            else:
-                Takahe.fetch_remote_identity(entry["handle"])
-                skipped += 1
-        if skipped:
-            messages.info(
-                request,
-                _(
-                    "Processed {processed} entries, {skipped} unknown accounts are being looked up -- please retry for those."
-                ).format(processed=processed, skipped=skipped),
-            )
-        else:
-            messages.info(
-                request,
-                _("Processed {count} entries.").format(count=processed),
-            )
-
+    django_rq.get_queue("mastodon").enqueue(
+        _import_social_graph_task, identity.pk, import_type, entries
+    )
+    messages.info(
+        request,
+        _(
+            "Import of {count} entries received. They will be processed in the background."
+        ).format(count=len(entries)),
+    )
     return redirect(reverse("users:info"))
 
 

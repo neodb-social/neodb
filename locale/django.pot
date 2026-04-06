@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-05 19:53-0400\n"
+"POT-Creation-Date: 2026-04-05 20:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1311,7 +1311,7 @@ msgid "Edit"
 msgstr ""
 
 #: catalog/templates/catalog_edit.html:14
-#: users/templates/users/authorized_app_create.html:41
+#: users/templates/users/authorized_app_create.html:42
 msgid "Create"
 msgstr ""
 
@@ -4319,7 +4319,7 @@ msgid "Alt text"
 msgstr ""
 
 #: journal/templates/post_compose.html:165
-#: users/templates/users/migrate_in.html:53
+#: users/templates/users/migrate_in.html:59
 msgid "Remove"
 msgstr ""
 
@@ -5500,30 +5500,30 @@ msgstr ""
 msgid "Permanently Delete"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:23
+#: users/templates/users/authorized_app_create.html:24
 msgid "Name"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:28
+#: users/templates/users/authorized_app_create.html:29
 msgid "Identifies this app in your app list"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:31
+#: users/templates/users/authorized_app_create.html:32
 msgid "Access Level"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:34
+#: users/templates/users/authorized_app_create.html:35
 msgid "Read-only access"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:38
+#: users/templates/users/authorized_app_create.html:39
 msgid "Full access"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:47
-#: users/templates/users/authorized_app_created.html:36
-#: users/templates/users/migrate_in.html:64
-#: users/templates/users/migrate_out.html:62
+#: users/templates/users/authorized_app_create.html:48
+#: users/templates/users/authorized_app_created.html:39
+#: users/templates/users/migrate_in.html:70
+#: users/templates/users/migrate_out.html:67
 msgid "Back to Preferences"
 msgstr ""
 
@@ -5532,11 +5532,11 @@ msgstr ""
 msgid "Token Created"
 msgstr ""
 
-#: users/templates/users/authorized_app_created.html:21
+#: users/templates/users/authorized_app_created.html:22
 msgid "Your new personal access token has been created. Copy it now -- you will not be able to see it again."
 msgstr ""
 
-#: users/templates/users/authorized_app_created.html:22
+#: users/templates/users/authorized_app_created.html:25
 msgid "Token"
 msgstr ""
 
@@ -5924,24 +5924,24 @@ msgstr ""
 msgid "To move another account to this one, first add it as an alias here, and then go to the server where it is hosted and initiate the move."
 msgstr ""
 
-#: users/templates/users/migrate_in.html:26
+#: users/templates/users/migrate_in.html:27
 msgid "Account to alias"
 msgstr ""
 
-#: users/templates/users/migrate_in.html:34
+#: users/templates/users/migrate_in.html:35
 msgid "Add Alias"
 msgstr ""
 
-#: users/templates/users/migrate_in.html:42
+#: users/templates/users/migrate_in.html:43
 msgid "Current Aliases"
 msgstr ""
 
-#: users/templates/users/migrate_in.html:58
+#: users/templates/users/migrate_in.html:64
 msgid "No aliases configured."
 msgstr ""
 
 #: users/templates/users/migrate_out.html:9
-#: users/templates/users/migrate_out.html:39
+#: users/templates/users/migrate_out.html:43
 msgid "Migrate Out"
 msgstr ""
 
@@ -5953,28 +5953,28 @@ msgstr ""
 msgid "Your account is being migrated to:"
 msgstr ""
 
-#: users/templates/users/migrate_out.html:28
+#: users/templates/users/migrate_out.html:30
 msgid "Are you sure you want to cancel the migration?"
 msgstr ""
 
-#: users/templates/users/migrate_out.html:31
+#: users/templates/users/migrate_out.html:35
 msgid "Cancel Migration"
 msgstr ""
 
-#: users/templates/users/migrate_out.html:42
+#: users/templates/users/migrate_out.html:46
 #, python-format
 msgid "To migrate to another account, first add <code>@%(handle)s</code> as an alias on the target server, and then type the target account below to start the migration."
 msgstr ""
 
-#: users/templates/users/migrate_out.html:46
+#: users/templates/users/migrate_out.html:50
 msgid "Are you sure you want to migrate your account? Your followers will be moved to the target account."
 msgstr ""
 
-#: users/templates/users/migrate_out.html:48
+#: users/templates/users/migrate_out.html:53
 msgid "Target account"
 msgstr ""
 
-#: users/templates/users/migrate_out.html:55
+#: users/templates/users/migrate_out.html:60
 msgid "Start Migration"
 msgstr ""
 
@@ -6254,109 +6254,99 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:183 users/views/data.py:212
+#: users/views/data.py:185 users/views/data.py:214
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:206
+#: users/views/data.py:208
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:224
+#: users/views/data.py:226
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:239 users/views/data.py:259
+#: users/views/data.py:241 users/views/data.py:261
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:273
+#: users/views/data.py:275
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:287
+#: users/views/data.py:289
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:296 users/views/data.py:320 users/views/data.py:344
-#: users/views/data.py:369 users/views/data.py:393 users/views/data.py:417
+#: users/views/data.py:298 users/views/data.py:322 users/views/data.py:346
+#: users/views/data.py:371 users/views/data.py:395 users/views/data.py:419
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:533
+#: users/views/data.py:535
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:555
+#: users/views/data.py:557
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:571
+#: users/views/data.py:573
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:576
+#: users/views/data.py:578
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:586 users/views/data.py:637
+#: users/views/data.py:588 users/views/data.py:639
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:593
+#: users/views/data.py:595
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:598
+#: users/views/data.py:600
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:624
+#: users/views/data.py:626
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:629
+#: users/views/data.py:631
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:642
+#: users/views/data.py:644
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:649
+#: users/views/data.py:655
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:655
+#: users/views/data.py:661
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:681
+#: users/views/data.py:719
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:699
+#: users/views/data.py:735
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:703
+#: users/views/data.py:739
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:719
+#: users/views/data.py:748
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
-msgstr ""
-
-#: users/views/data.py:738
-#, python-brace-format
-msgid "Processed {processed} entries, {skipped} unknown accounts are being looked up -- please retry for those."
-msgstr ""
-
-#: users/views/data.py:744
-#, python-brace-format
-msgid "Processed {count} entries."
 msgstr ""
