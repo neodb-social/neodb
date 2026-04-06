@@ -38,8 +38,10 @@ class DiscoverGenerator(BaseJob):
     def min_marks(self) -> int:
         return SiteConfig.system.min_marks_for_discover
 
-    def get_no_discover_identities(self):
-        return Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+    def get_no_discover_identities(self) -> list:
+        return list(
+            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+        )
 
     def get_popular_posts(
         self,
