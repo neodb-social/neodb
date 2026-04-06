@@ -16,12 +16,21 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
 
     Returns new path if migrated, None if no change needed.
     """
-    # Only handle local storage paths (starting with /)
+    from urllib.parse import urlparse
+
+    from django.conf import settings
+
+    # If full URL with our hostname, strip to path
+    parsed = urlparse(src)
+    if parsed.scheme in ("http", "https") and parsed.netloc:
+        site_domains = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
+        if parsed.hostname not in site_domains:
+            return None  # external URL, skip
+        src = parsed.path
+
+    # Only handle absolute paths
     if not src.startswith("/"):
         return None
-
-    # Strip media URL prefix to get storage-relative path
-    from django.conf import settings
 
     media_prefix = settings.MEDIA_URL
     if not src.startswith(media_prefix):
