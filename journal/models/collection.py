@@ -155,6 +155,7 @@ class Collection(List):
         from .common import q_owned_piece_visible_to_user
         from .mark import Mark
         from .rating import Rating
+        from .tag import Tag
 
         if self.is_dynamic:
             # Dynamic collections: use existing search-based pagination
@@ -166,6 +167,7 @@ class Collection(List):
                 items = r.items
                 pages = r.pages
                 Rating.attach_to_items(items)
+                Tag.attach_to_items(items)
                 if viewer:
                     Mark.attach_to_items(viewer, items, viewer.user)
                 members = [{"item": i, "parent": self} for i in items]
@@ -197,6 +199,7 @@ class Collection(List):
                 for member in members:
                     member.item = items_map.get(member.item_id)
                 Rating.attach_to_items(items)
+                Tag.attach_to_items(items)
                 if viewer:
                     Mark.attach_to_items(viewer, items, viewer.user)
         return members, pages
