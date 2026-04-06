@@ -71,6 +71,7 @@ dev = [
     "pytest-django>=4.11.1",
     "coverage>=7.6.10",
     "mkdocs-material>=9.5.42",
+    "pytest-xdist>=3.8.0",
 ]
 
 [tool.ty.src]
