@@ -2,6 +2,7 @@ import datetime
 from urllib.parse import quote_plus
 
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -215,14 +216,20 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
 
 
 @require_http_methods(["GET", "HEAD"])
-@login_required
 @target_identity_required
 def user_calendar_data(request, user_name):
     if request.method == "HEAD":
         return HttpResponse()
     target = request.target_identity
     max_visiblity = max_visiblity_to_user(request.user, target)
-    calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
+    if max_visiblity == 2:
+        calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
+    else:
+        cache_key = f"user_calendar:{target.pk}:{max_visiblity}"
+        calendar_data = cache.get(cache_key)
+        if calendar_data is None:
+            calendar_data = target.shelf_manager.get_calendar_data(max_visiblity)
+            cache.set(cache_key, calendar_data, timeout=3600)
     return render(
         request,
         "calendar_data.html",
