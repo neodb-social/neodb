@@ -18,7 +18,6 @@ dependencies = [
     "django-hijack>=3.7.0",
     "django-jsonform @ git+https://github.com/alphatownsman/django-jsonform",
     "django-maintenance-mode",
-    "django-markdownx>=4.0.7",
     "django-ninja>=1.3.0",
     "django-polymorphic>=4.1.0",
     "django-redis",

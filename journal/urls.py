@@ -56,6 +56,7 @@ urlpatterns = [
     path(
         "review/translate/<str:review_uuid>", review_translate, name="review_translate"
     ),
+    path("upload_image/", upload_image, name="upload_image"),
     path("review/create/<str:item_uuid>/", review_edit, name="review_create"),
     path(
         "review/edit/<str:item_uuid>/<str:review_uuid>", review_edit, name="review_edit"

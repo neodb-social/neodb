@@ -25,7 +25,38 @@
   }
 }
 
+.EasyMDEContainer {
+  color-scheme: light;
+  color: #2c3e50;
+  background: #fff;
+}
 
-.markdownx-editor {
-  font-family: monospace;
+.editor-toolbar {
+  button {
+    all: unset;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    border: none;
+    border-radius: 3px;
+    color: #2c3e50;
+
+    &:hover,
+    &.active {
+      background: #fcfcfc;
+      color: #2c3e50;
+    }
+  }
+
+  i.separator {
+    display: inline-block;
+    width: 0;
+    border-left: 1px solid #d9d9d9;
+    border-right: 1px solid #fff;
+    margin: 0 6px;
+    height: 30px;
+  }
 }

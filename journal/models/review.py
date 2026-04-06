@@ -9,7 +9,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
-from markdownx.models import MarkdownxField
 
 from catalog.models import Item
 from takahe.utils import Takahe
@@ -29,7 +28,7 @@ class Review(Content):
     post_when_save = True
     index_when_save = True
     title = models.CharField(max_length=500, blank=False, null=False)
-    body = MarkdownxField()
+    body = models.TextField()
 
     @property
     def display_title(self):

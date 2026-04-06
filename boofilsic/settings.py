@@ -357,7 +357,6 @@ INSTALLED_APPS = [
     "tz_detect",
     "sass_processor",
     "auditlog",
-    "markdownx",
     "polymorphic",
     "easy_thumbnails",
     "user_messages",
@@ -459,7 +458,6 @@ logging.getLogger("boto3").setLevel(logging.WARNING)
 logging.getLogger("botocore").setLevel(logging.WARNING)
 logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
-MARKDOWNX_MARKDOWNIFY_FUNCTION = "journal.models.render_md"
 
 SUPPORTED_UI_LANGUAGES = {
     "en": _("English"),
@@ -610,7 +608,7 @@ if DEBUG:
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = "report/"
-MARKDOWNX_MEDIA_PATH = "review/"
+REVIEW_MEDIA_PATH = "review/"
 BOOK_MEDIA_PATH_ROOT = "book/"
 DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, "default.svg")
 MOVIE_MEDIA_PATH_ROOT = "movie/"

@@ -1,0 +1,96 @@
+{% load i18n %}
+<dialog id="markdown-guide">
+  <article>
+    <header>
+      <link to="#"
+            aria-label="Close"
+            class="close"
+            _="on click set d to the closest <dialog/> then call d.close()" />
+      <strong>{% trans "Markdown format references" %}</strong>
+    </header>
+    <pre>
+{% blocktrans %}
+## Subtitle
+
+  Paragraphs need to be separated by a blank line
+
+[Link](https://zh.wikipedia.org/wiki/Markdown)
+
+**Bold**  *Italic* ~~Strikethrough~~
+
+==Highlight==  ^Super^script ~Sub~script
+
+> Quote
+>> Multi-level quote
+
+Inline >! spoiler warning !<
+
+>! Multi-line
+>! Spoiler
+
+---
+
+- Bullet
+- Points
+
+```
+code
+```
+
+Table Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)
+
+{% endblocktrans %}
+    </pre>
+  </article>
+</dialog>
+<link rel="stylesheet"
+      href="{{ cdn_url }}/npm/easymde@2.18.0/dist/easymde.min.css">
+<script src="{{ cdn_url }}/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+<script>
+  document.querySelectorAll(".easymde-editor").forEach(function(el) {
+    var csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    var mde = new EasyMDE({
+      element: el,
+      spellChecker: false,
+      status: false,
+      minHeight: "300px",
+      uploadImage: true,
+      imageUploadEndpoint: "{% url 'journal:upload_image' %}",
+      imageCSRFToken: csrfToken,
+      imageCSRFHeader: false,
+      imagePathAbsolute: true,
+      toolbar: [
+        "bold", "italic", "quote", "upload-image", "|", "preview", "fullscreen",
+        {
+          name: "guide",
+          action: function() {
+            document.getElementById("markdown-guide").showModal();
+          },
+          className: "fa fa-question-circle",
+          title: "Markdown Guide",
+        }
+      ],
+      previewRender: function(text) {
+        text = text.replace(/((?:^>![^\n]*$\n?)+)/gm, function(block) {
+          var lines = block.trim().split("\n").map(function(l) {
+            return l.replace(/^>!\s?/, "");
+          });
+          return '<div class="spoiler">' + lines.join("\n") + "</div>\n";
+        });
+        text = text.replace(/>!\s*(.*?)\s*!</g, '<span class="spoiler">$1</span>');
+        text = text.replace(/(?<![~])~(?!~)([^~\n]+?)~(?!~)/g, "<sub>$1</sub>");
+        var html = mde.markdown(text);
+        html = html.replace(/==([^=]+)==/g, "<mark>$1</mark>");
+        html = html.replace(/\^([^^]+)\^/g, "<sup>$1</sup>");
+        return html;
+      },
+    });
+    el.removeAttribute("required");
+    mde.codemirror.on("change", function() { mde.codemirror.save(); });
+  });
+</script>

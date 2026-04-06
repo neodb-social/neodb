@@ -1,10 +1,16 @@
 import datetime
+import os
+import uuid
 
+import filetype
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import F, Min, OuterRef, Subquery
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -30,6 +36,33 @@ from ..models import (
     q_item_in_category,
     q_owned_piece_visible_to_user,
 )
+
+_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+_MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+@login_required
+@require_http_methods(["POST"])
+def upload_image(request: AuthedHttpRequest) -> JsonResponse:
+    image = request.FILES.get("image")
+    if not image:
+        return JsonResponse({"error": "No image provided"}, status=400)
+    if image.size and image.size > _MAX_IMAGE_SIZE:
+        return JsonResponse({"error": "Image too large (max 10MB)"}, status=400)
+    kind = filetype.guess(image)
+    if not kind or kind.mime not in _ALLOWED_IMAGE_TYPES:
+        return JsonResponse({"error": "Unsupported image type"}, status=400)
+    year = timezone.now().strftime("%Y")
+    identity_id = request.user.identity.pk
+    filename = f"{uuid.uuid4()}.{kind.extension}"
+    rel_path = f"upload/{identity_id}/{year}/{filename}"
+    abs_path = os.path.join(settings.MEDIA_ROOT, rel_path)
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    with open(abs_path, "wb") as f:
+        for chunk in image.chunks():
+            f.write(chunk)
+    return JsonResponse({"data": {"filePath": settings.MEDIA_URL + rel_path}})
+
 
 PAGE_SIZE = 10
 

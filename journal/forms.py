@@ -2,7 +2,6 @@ from django import forms
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
-from markdownx.fields import MarkdownxFormField
 
 from common.forms import PreviewImageInput
 
@@ -18,7 +17,11 @@ class ReviewForm(forms.ModelForm):
         }
 
     title = forms.CharField(label=_("Title"))
-    body = MarkdownxFormField(label=_("Content (Markdown)"), strip=False)
+    body = forms.CharField(
+        label=_("Content (Markdown)"),
+        strip=False,
+        widget=forms.Textarea(attrs={"class": "easymde-editor"}),
+    )
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost to timeline"), initial=True, required=False
     )
@@ -41,7 +44,11 @@ COLLABORATIVE_CHOICES = [
 class CollectionForm(forms.ModelForm):
     # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     title = forms.CharField(label=_("Title"))
-    brief = MarkdownxFormField(label=_("Content (Markdown)"), strip=False)
+    brief = forms.CharField(
+        label=_("Content (Markdown)"),
+        strip=False,
+        widget=forms.Textarea(attrs={"class": "easymde-editor"}),
+    )
     # share_to_mastodon = forms.BooleanField(label=_("Crosspost to timeline"), initial=True, required=False)
     visibility = forms.TypedChoiceField(
         label=_("Visibility"),

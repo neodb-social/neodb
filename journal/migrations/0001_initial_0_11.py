@@ -5,7 +5,6 @@ import uuid
 import django.core.validators
 import django.db.models.deletion
 import django.utils.timezone
-import markdownx.models
 from django.db import migrations, models
 
 import catalog.models.utils
@@ -432,7 +431,7 @@ class Migration(migrations.Migration):
                     models.CharField(default=None, max_length=200, null=True),
                 ),
                 ("title", models.CharField(max_length=500)),
-                ("body", markdownx.models.MarkdownxField()),
+                ("body", models.TextField()),
             ],
             options={
                 "abstract": False,

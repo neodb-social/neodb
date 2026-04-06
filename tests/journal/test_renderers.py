@@ -3,6 +3,7 @@ import pytest
 from catalog.models import Edition
 from journal.models.renderers import (
     _linkify,
+    _normalize_image_src,
     convert_leading_space_in_md,
     has_spoiler,
     html_to_text,
@@ -11,6 +12,7 @@ from journal.models.renderers import (
     render_spoiler_text,
     render_text,
     render_title_as_hashtag,
+    sanitize_md_images,
 )
 
 
@@ -317,3 +319,121 @@ class TestRenderPostWithMacro:
     def test_no_placeholders_unchanged(self):
         result = render_post_with_macro("just a post", self.item)
         assert result == "just a post"
+
+
+class TestNormalizeImageSrc:
+    """Tests for _normalize_image_src with default MEDIA_URL='/m/'."""
+
+    def test_valid_media_path(self):
+        result = _normalize_image_src("/m/upload/1/2025/abc.jpg")
+        assert result == "/m/upload/1/2025/abc.jpg"
+
+    def test_external_url_allowed(self):
+        result = _normalize_image_src("https://example.com/photo.jpg")
+        assert result == "https://example.com/photo.jpg"
+
+    def test_relative_path_invalid(self):
+        assert _normalize_image_src("relative/path.jpg") is None
+
+    def test_absolute_path_not_under_media_invalid(self):
+        assert _normalize_image_src("/static/secret.txt") is None
+
+    def test_data_scheme_invalid(self):
+        assert _normalize_image_src("data:image/png;base64,abc") is None
+
+    def test_ftp_scheme_invalid(self):
+        assert _normalize_image_src("ftp://example.com/file.jpg") is None
+
+    def test_our_domain_media_path_valid(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local"]
+        result = _normalize_image_src("https://mysite.local/m/upload/1/abc.jpg")
+        assert result == "/m/upload/1/abc.jpg"
+
+    def test_our_domain_non_media_path_invalid(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local"]
+        assert _normalize_image_src("https://mysite.local/admin/") is None
+
+    def test_alt_domain_media_path_valid(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local", "alt.mysite.local"]
+        result = _normalize_image_src("https://alt.mysite.local/m/upload/1/abc.jpg")
+        assert result == "/m/upload/1/abc.jpg"
+
+    def test_empty_src_invalid(self):
+        assert _normalize_image_src("") is None
+
+    def test_bare_filename_invalid(self):
+        assert _normalize_image_src("image.jpg") is None
+
+
+class TestNormalizeImageSrcS3:
+    """Tests for _normalize_image_src with S3 MEDIA_URL."""
+
+    @pytest.fixture(autouse=True)
+    def setup_s3(self, settings):
+        settings.MEDIA_URL = "https://cdn.example.com/m/"
+
+    def test_s3_url_valid(self):
+        src = "https://cdn.example.com/m/upload/1/2025/abc.jpg"
+        result = _normalize_image_src(src)
+        assert result == src
+
+    def test_s3_host_wrong_path_invalid(self):
+        assert _normalize_image_src("https://cdn.example.com/other/file.jpg") is None
+
+    def test_absolute_path_under_media_normalized_to_s3(self):
+        result = _normalize_image_src("/m/upload/1/2025/abc.jpg")
+        assert result == "https://cdn.example.com/m/upload/1/2025/abc.jpg"
+
+    def test_absolute_path_not_under_media_invalid(self):
+        assert _normalize_image_src("/static/file.jpg") is None
+
+    def test_external_url_allowed(self):
+        result = _normalize_image_src("https://other.com/photo.jpg")
+        assert result == "https://other.com/photo.jpg"
+
+    def test_our_domain_media_path_normalized(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local"]
+        result = _normalize_image_src("https://mysite.local/m/upload/1/abc.jpg")
+        assert result == "https://cdn.example.com/m/upload/1/abc.jpg"
+
+    def test_our_domain_non_media_invalid(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local"]
+        assert _normalize_image_src("https://mysite.local/admin/") is None
+
+
+class TestSanitizeMdImages:
+    def test_valid_image_kept(self):
+        md = "![alt](/m/upload/1/2025/abc.jpg)"
+        assert sanitize_md_images(md) == md
+
+    def test_external_image_kept(self):
+        md = "![photo](https://example.com/photo.jpg)"
+        assert sanitize_md_images(md) == md
+
+    def test_invalid_image_replaced_with_highlight(self):
+        md = "![bad](relative/path.jpg)"
+        result = sanitize_md_images(md)
+        assert "==[invalid image: relative/path.jpg]==" in result
+        assert "![" not in result
+
+    def test_mixed_valid_and_invalid(self):
+        md = "![ok](/m/upload/1/abc.jpg) and ![bad](/etc/passwd)"
+        result = sanitize_md_images(md)
+        assert "![ok](/m/upload/1/abc.jpg)" in result
+        assert "==[invalid image: /etc/passwd]==" in result
+
+    def test_no_images_unchanged(self):
+        md = "just text with **bold** and [link](https://example.com)"
+        assert sanitize_md_images(md) == md
+
+    def test_multiple_invalid_images(self):
+        md = "![a](bad1.jpg) ![b](bad2.jpg)"
+        result = sanitize_md_images(md)
+        assert "==[invalid image: bad1.jpg]==" in result
+        assert "==[invalid image: bad2.jpg]==" in result
+
+    def test_our_domain_normalized(self, settings):
+        settings.SITE_DOMAINS = ["mysite.local"]
+        md = "![img](https://mysite.local/m/upload/1/abc.jpg)"
+        result = sanitize_md_images(md)
+        assert result == "![img](/m/upload/1/abc.jpg)"

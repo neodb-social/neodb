@@ -1,6 +1,7 @@
 import re
 from html import unescape
 from typing import cast
+from urllib.parse import urlparse
 
 import mistune
 import nh3
@@ -38,6 +39,62 @@ def convert_leading_space_in_md(body: str) -> str:
 
 def render_md(s: str) -> str:
     return cast(str, _markdown(s))
+
+
+_RE_MD_IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
+
+
+def _normalize_image_src(src: str) -> str | None:
+    """Normalize an image src. Return normalized src or None if invalid.
+
+    Convert to full URL for checking. If on our server or media host,
+    must be under MEDIA_URL prefix. External URLs are allowed as-is.
+    Relative paths are always invalid.
+    """
+    parsed = urlparse(src)
+    media_parsed = urlparse(settings.MEDIA_URL)
+    site_domains = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
+    media_host = media_parsed.hostname or ""
+    media_path = media_parsed.path
+
+    if parsed.scheme in ("http", "https") and parsed.netloc:
+        src_host = parsed.hostname or ""
+        src_path = parsed.path
+    elif parsed.scheme:
+        return None
+    elif src.startswith("/"):
+        # absolute path: treat as on our server
+        src_host = ""
+        src_path = src
+    else:
+        # relative path
+        return None
+
+    is_our_server = src_host == "" or src_host in site_domains
+    is_media_host = media_host and src_host == media_host
+
+    if is_our_server or is_media_host:
+        if not src_path.startswith(media_path):
+            return None
+        # normalize to MEDIA_URL form
+        return settings.MEDIA_URL.rstrip("/") + src_path[len(media_path) - 1 :]
+
+    # external URL
+    return src
+
+
+def sanitize_md_images(md_text: str) -> str:
+    """Validate image paths in markdown, replacing invalid ones with warnings."""
+
+    def _replace(m: re.Match[str]) -> str:
+        alt = m.group(1)
+        src = m.group(2).strip()
+        normalized = _normalize_image_src(src)
+        if normalized is not None:
+            return f"![{alt}]({normalized})"
+        return f"==[invalid image: {src}]=="
+
+    return _RE_MD_IMAGE.sub(_replace, md_text)
 
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")

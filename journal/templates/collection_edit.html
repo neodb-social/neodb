@@ -38,7 +38,7 @@
             {{ form }}
             <input class="button" type="submit" value="{% trans 'Save' %}">
           </form>
-          {{ form.media }}
+          {% include "markdown_editor.html" %}
         </details>
         {% if collection and not collection.is_dynamic %}
           <hr>

@@ -19,6 +19,7 @@ from users.models import User
 
 from ..forms import *
 from ..models import *
+from ..models.renderers import sanitize_md_images
 from .common import render_relogin, target_identity_required
 
 
@@ -419,6 +420,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
         if form.is_valid():
             if not collection:
                 form.instance.owner = request.user.identity
+            form.instance.brief = sanitize_md_images(form.instance.brief)
             form.save()
             return redirect(
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])

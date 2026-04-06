@@ -26,7 +26,6 @@ urlpatterns = [
     path("api/", api.urls),
     path("login/", login),
     path("captcha/", include("captcha.urls")),
-    path("markdownx/", include("markdownx.urls")),
     path("account/", include("users.urls")),
     path("account/", include("mastodon.urls")),
     path(
