@@ -424,7 +424,11 @@ def trending_collection(request):
     restricted_owner_ids = list(
         TakaheIdentity.objects.filter(restriction__gt=0).values_list("pk", flat=True)
     )
+    from journal.models.common import prefetch_latest_posts
+
     qs = Collection.objects.filter(pk__in=collection_ids)
     if restricted_owner_ids:
         qs = qs.exclude(owner_id__in=restricted_owner_ids)
-    return qs.prefetch_related("post_relations")
+    collections = list(qs)
+    prefetch_latest_posts(collections)
+    return collections

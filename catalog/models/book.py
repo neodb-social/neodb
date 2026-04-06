@@ -288,7 +288,10 @@ class Edition(Item):
         return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
     def get_work(self) -> "Work | None":
-        return self.works.first()
+        try:
+            return self.works.all()[0]
+        except IndexError:
+            return None
 
     def set_work(self, work: "Work | None"):
         w = self.get_work()
