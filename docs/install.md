@@ -1,7 +1,7 @@
 Install
 =======
 
-For small and medium NeoDB instances, it's recommended to deploy as a container cluster with Docker Compose. To run a large instance, please see [scaling up](configuration.md#scaling-up) for some tips.
+For small and medium NeoDB instances, it's recommended to deploy as a container cluster with Docker Compose. To run a large instance, please see [scaling up](configuration.md#scaling-parameters) for some tips.
 
 ## Install docker compose
 

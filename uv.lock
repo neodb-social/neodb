@@ -1509,7 +1509,7 @@ dev = [
     { name = "django-stubs", specifier = ">=5.1.2" },
     { name = "djlint", specifier = ">=1.36.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },
-    { name = "mkdocs-material", specifier = ">=9.5.42" },
+    { name = "mkdocs-material", specifier = ">=9.5.42,<10" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest-django", specifier = ">=4.11.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
