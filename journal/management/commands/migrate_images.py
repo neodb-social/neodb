@@ -50,8 +50,8 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
     new_rel = f"upload/{identity_id}/{created_year}/{uuid.uuid4()}.{ext}"
 
     # Copy file to new location
-    content = default_storage.open(rel_path).read()
-    default_storage.save(new_rel, ContentFile(content))
+    with default_storage.open(rel_path) as f:
+        default_storage.save(new_rel, ContentFile(f.read()))
 
     return settings.MEDIA_URL + new_rel
 
