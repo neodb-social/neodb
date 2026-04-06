@@ -6,7 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -124,10 +124,13 @@ def _handle_new_user_registration(request, form, verified_account, email_readonl
         "mastodon_skip_relationship": request.POST.get("pref_sync_graph") is None,
     }
 
-    # Form validation already checked for username existence
-    new_user = User.register(
-        username=username, account=verified_account, preference=pref
-    )
+    try:
+        new_user = User.register(
+            username=username, account=verified_account, preference=pref
+        )
+    except ValidationError as e:
+        form.add_error("username", e.message)
+        return None
     auth_login(request, new_user)
 
     if not email_readonly and form.cleaned_data["email"]:

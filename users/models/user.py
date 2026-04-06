@@ -9,7 +9,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import translation
@@ -341,7 +341,10 @@ class User(AbstractUser):
             if "language" not in param:
                 new_user.language = translation.get_language()
             new_user.set_unusable_password()
-            new_user.save()
+            try:
+                new_user.save()
+            except IntegrityError as e:
+                raise ValidationError(_("This username is already taken.")) from e
             pref["user"] = new_user
             Preference.objects.create(**pref)
             if account:
