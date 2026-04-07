@@ -11,7 +11,11 @@ from ninja.pagination import paginate
 from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
 from common.api import PageNumberPagination, Result, api
 from common.utils import get_uuid_or_404
-from journal.models.common import max_visiblity_to_user, q_owned_piece_visible_to_user
+from journal.models.common import (
+    max_visiblity_to_user,
+    prefetch_latest_posts,
+    q_owned_piece_visible_to_user,
+)
 from journal.models.rating import Rating
 from journal.models.shelf import ShelfMember
 from journal.models.tag import Tag
@@ -33,6 +37,9 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     # Batch-fetch item-level data (public rating/tags for ItemSchema)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
+    # Batch-fetch latest_post_id for all members to avoid N+1 queries
+    # when MarkSchema accesses latest_post_id
+    prefetch_latest_posts(members)
     # Batch-fetch user's tags for MarkSchema.tags
     owner = members[0].owner
     item_ids = [m.item_id for m in members]

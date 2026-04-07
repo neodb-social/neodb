@@ -178,7 +178,11 @@ class Mark:
             marks[i.pk] = m
         q = q_owned_piece_visible_to_user(viewing_user, owner)
         q2 = q_owned_parent_piece_visible_to_user(viewing_user, owner)
-        for m in ShelfMember.objects.filter(item__in=items).filter(q):
+        for m in (
+            ShelfMember.objects.filter(item__in=items)
+            .filter(q)
+            .select_related("parent")
+        ):
             marks[m.item_id].shelfmember = m
         for c in Comment.objects.filter(item__in=items).filter(q):
             marks[c.item_id].comment = c
