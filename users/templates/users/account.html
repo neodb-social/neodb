@@ -223,6 +223,51 @@
             </article>
           {% endif %}
         {% endif %}
+        <article>
+          <details>
+            <summary>{% trans "Passkeys" %}</summary>
+            {% if passkeys %}
+              <table role="grid">
+                <thead>
+                  <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Created" %}</th>
+                    <th>{% trans "Last Used" %}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="passkey-table-body">
+                  {% for pk in passkeys %}
+                    <tr id="passkey-row-{{ pk.id }}">
+                      <td>
+                        <span class="passkey-name">{{ pk.name }}</span>
+                        <a href="#"
+                           class="passkey-rename-link"
+                           data-pk="{{ pk.id }}"
+                           style="margin-left:0.5em">
+                          <i class="fa-solid fa-pencil" style="font-size:80%"></i>
+                        </a>
+                      </td>
+                      <td>{{ pk.created|date:"Y-m-d" }}</td>
+                      <td>{{ pk.last_used|date:"Y-m-d"|default:"-" }}</td>
+                      <td>
+                        <button class="secondary passkey-delete-btn" data-pk="{{ pk.id }}">{% trans "Delete" %}</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p>{% trans "No passkeys registered." %}</p>
+            {% endif %}
+            <button type="button"
+                    id="passkey-add-btn"
+                    _="on load if window.PublicKeyCredential is undefined add @disabled to me">
+              {% trans "Add Passkey" %}
+            </button>
+            <small id="passkey-mgmt-status"></small>
+          </details>
+        </article>
         {% if request.user.social_accounts.all %}
           <article>
             <details>
@@ -490,5 +535,66 @@
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
+    <script src="{% static 'js/passkey.js' %}"></script>
+    <script>
+      (function() {
+        if (!window.Passkey || !Passkey.isSupported()) return;
+        var status = document.getElementById('passkey-mgmt-status');
+
+        // Add passkey
+        var addBtn = document.getElementById('passkey-add-btn');
+        if (addBtn) {
+          addBtn.addEventListener('click', function() {
+            addBtn.setAttribute('aria-busy', 'true');
+            status.textContent = '';
+            Passkey.register(
+              '{% url "users:passkey_register_options" %}',
+              '{% url "users:passkey_register_verify" %}',
+              function() { location.reload(); },
+              function(err) {
+                addBtn.removeAttribute('aria-busy');
+                if (err) status.textContent = err;
+              }
+            );
+          });
+        }
+
+        // Delete passkey
+        document.querySelectorAll('.passkey-delete-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (!confirm('{% trans "Delete this passkey?" %}')) return;
+            var pk = btn.dataset.pk;
+            Passkey.remove(
+              '{% url "users:passkey_delete" %}',
+              parseInt(pk),
+              function() {
+                var row = document.getElementById('passkey-row-' + pk);
+                if (row) row.remove();
+              },
+              function(err) { if (err) status.textContent = err; }
+            );
+          });
+        });
+
+        // Rename passkey
+        document.querySelectorAll('.passkey-rename-link').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var pk = link.dataset.pk;
+            var nameEl = link.closest('td').querySelector('.passkey-name');
+            var newName = prompt('{% trans "Rename passkey:" %}', nameEl.textContent);
+            if (newName && newName.trim()) {
+              Passkey.rename(
+                '{% url "users:passkey_rename" %}',
+                parseInt(pk),
+                newName.trim(),
+                function() { nameEl.textContent = newName.trim(); },
+                function(err) { if (err) status.textContent = err; }
+              );
+            }
+          });
+        });
+      })();
+    </script>
   </body>
 </html>

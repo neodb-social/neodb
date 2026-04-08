@@ -90,7 +90,12 @@
               {% endif %}
             </fieldset>
             {% csrf_token %}
-            <input type="submit" value="{% trans 'Confirm and save' %}">
+            <div role="group">
+              <input type="submit" value="{% trans 'Confirm and save' %}">
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'users:info' %}" role="button" class="secondary">{% trans "Close" %}</a>
+              {% endif %}
+            </div>
           </form>
         {% else %}
           <form action="{% url 'common:home' %}" method="get">

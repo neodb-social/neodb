@@ -50,6 +50,28 @@ urlpatterns = [
         export_social_graph_csv,
         name="export_social_graph_csv",
     ),
+    path(
+        "passkey/register/options",
+        passkey_register_options,
+        name="passkey_register_options",
+    ),
+    path(
+        "passkey/register/verify",
+        passkey_register_verify,
+        name="passkey_register_verify",
+    ),
+    path(
+        "passkey/login/options",
+        passkey_login_options,
+        name="passkey_login_options",
+    ),
+    path(
+        "passkey/login/verify",
+        passkey_login_verify,
+        name="passkey_login_verify",
+    ),
+    path("passkey/delete", passkey_delete, name="passkey_delete"),
+    path("passkey/rename", passkey_rename, name="passkey_rename"),
     path("logout", logout, name="logout"),
     path("layout", set_layout, name="set_layout"),
     path("follow/<str:user_name>", follow, name="follow"),

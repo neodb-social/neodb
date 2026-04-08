@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-05 20:03-0400\n"
+"POT-Creation-Date: 2026-04-07 21:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -115,7 +115,7 @@ msgstr ""
 msgid "other title"
 msgstr ""
 
-#: catalog/models/book.py:183 catalog/models/book.py:453
+#: catalog/models/book.py:183 catalog/models/book.py:456
 msgid "author"
 msgstr ""
 
@@ -726,6 +726,7 @@ msgid "number of discs"
 msgstr ""
 
 #: catalog/models/performance.py:68 catalog/models/performance.py:83
+#: users/models/webauthn.py:14
 msgid "name"
 msgstr ""
 
@@ -966,7 +967,7 @@ msgstr ""
 #: catalog/views/edit.py:253 catalog/views/edit.py:299
 #: catalog/views/edit.py:314 catalog/views/edit.py:352
 #: catalog/views/edit.py:362 catalog/views/edit.py:388
-#: catalog/views/search.py:207
+#: catalog/views/search.py:208
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1093,6 +1094,7 @@ msgstr ""
 #: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34 journal/templates/review.html:102
+#: users/templates/users/account.html:254
 msgid "Delete"
 msgstr ""
 
@@ -1350,7 +1352,7 @@ msgid "This operation cannot be undone. Sure to merge?"
 msgstr ""
 
 #: catalog/templates/discover.html:28 common/views_manage.py:144
-#: common/views_manage.py:335 users/templates/users/preferences.html:34
+#: common/views_manage.py:343 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr ""
 
@@ -1405,7 +1407,7 @@ msgstr ""
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_follow_list_items.html:65
 #: journal/templates/user_item_list_base.html:27
-#: social/templates/events.html:45 users/templates/users/announcements.html:55
+#: social/templates/events.html:45 users/templates/users/announcements.html:52
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
 msgstr ""
@@ -1653,30 +1655,30 @@ msgstr ""
 
 #: catalog/views/edit.py:161 catalog/views/edit.py:215
 #: catalog/views/edit.py:301 catalog/views/edit.py:390
-#: catalog/views/edit.py:422 journal/views/collection.py:95
-#: journal/views/collection.py:155 journal/views/collection.py:167
-#: journal/views/collection.py:184 journal/views/collection.py:250
-#: journal/views/collection.py:286 journal/views/collection.py:321
-#: journal/views/collection.py:333 journal/views/collection.py:358
-#: journal/views/collection.py:361 journal/views/collection.py:398
-#: journal/views/common.py:153 journal/views/mark.py:187
+#: catalog/views/edit.py:422 journal/views/collection.py:96
+#: journal/views/collection.py:156 journal/views/collection.py:168
+#: journal/views/collection.py:185 journal/views/collection.py:251
+#: journal/views/collection.py:287 journal/views/collection.py:322
+#: journal/views/collection.py:334 journal/views/collection.py:359
+#: journal/views/collection.py:362 journal/views/collection.py:399
+#: journal/views/common.py:188 journal/views/mark.py:187
 #: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
 #: journal/views/post.py:117 journal/views/post.py:179
 #: journal/views/post.py:258 journal/views/post.py:273
-#: journal/views/post.py:418 journal/views/review.py:39
-#: journal/views/review.py:52 journal/views/review.py:77
+#: journal/views/post.py:418 journal/views/review.py:40
+#: journal/views/review.py:53 journal/views/review.py:78
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:218 catalog/views/edit.py:221
-#: journal/views/collection.py:57 journal/views/collection.py:82
-#: journal/views/collection.py:338 journal/views/collection.py:427
-#: journal/views/common.py:92 journal/views/mark.py:127
+#: journal/views/collection.py:58 journal/views/collection.py:83
+#: journal/views/collection.py:339 journal/views/collection.py:429
+#: journal/views/common.py:127 journal/views/mark.py:127
 #: journal/views/post.py:129 journal/views/post.py:131
 #: journal/views/post.py:175 journal/views/post.py:197
 #: journal/views/post.py:199 journal/views/post.py:217
-#: journal/views/post.py:230 journal/views/review.py:124
-#: journal/views/review.py:127 users/views/actions.py:170
+#: journal/views/post.py:230 journal/views/review.py:126
+#: journal/views/review.py:129 users/views/actions.py:170
 msgid "Invalid parameter"
 msgstr ""
 
@@ -1708,15 +1710,15 @@ msgstr ""
 msgid "Cannot link items other than editions"
 msgstr ""
 
-#: catalog/views/search.py:79
+#: catalog/views/search.py:80
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:196
+#: catalog/views/search.py:197
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:199
+#: catalog/views/search.py:200
 msgid "Unsupported URL"
 msgstr ""
 
@@ -2533,7 +2535,7 @@ msgstr ""
 msgid "Developer"
 msgstr ""
 
-#: common/templates/_footer.html:12 users/templates/users/login.html:216
+#: common/templates/_footer.html:12 users/templates/users/login.html:228
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
@@ -2611,6 +2613,18 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
+#: common/templates/_header.html:180
+msgid "Secure your account with a passkey for quick sign-in."
+msgstr ""
+
+#: common/templates/_header.html:181
+msgid "Set up"
+msgstr ""
+
+#: common/templates/_header.html:183
+msgid "Dismiss"
+msgstr ""
+
 #: common/templates/_sidebar.html:54
 #: users/templates/users/profile_actions.html:36
 msgid "approving followers manually"
@@ -2644,7 +2658,7 @@ msgstr ""
 msgid "Currently watching"
 msgstr ""
 
-#: common/templates/_sidebar.html:206 journal/forms.py:84
+#: common/templates/_sidebar.html:206 journal/forms.py:91
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
@@ -2702,7 +2716,7 @@ msgstr ""
 
 #: common/templates/_sidebar_anonymous.html:43
 #: users/templates/users/announcements.html:12
-#: users/templates/users/announcements.html:42
+#: users/templates/users/announcements.html:39
 msgid "Announcements"
 msgstr ""
 
@@ -2722,7 +2736,7 @@ msgstr ""
 msgid "Registration"
 msgstr ""
 
-#: common/templates/common/about.html:35 common/views_manage.py:350
+#: common/templates/common/about.html:35 common/views_manage.py:358
 msgid "Invite Only"
 msgstr ""
 
@@ -2730,7 +2744,7 @@ msgstr ""
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:40 common/views_manage.py:371
+#: common/templates/common/about.html:40 common/views_manage.py:379
 msgid "Preferred Languages"
 msgstr ""
 
@@ -2820,12 +2834,12 @@ msgid "User no longer exists"
 msgstr ""
 
 #: common/utils.py:94 common/utils.py:96 common/utils.py:99 common/utils.py:135
-#: common/utils.py:139 journal/views/profile.py:351
+#: common/utils.py:139 journal/views/profile.py:360
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:392
-#: journal/views/review.py:167
+#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:401
+#: journal/views/review.py:169
 msgid "Login required"
 msgstr ""
 
@@ -2837,7 +2851,7 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: common/views_manage.py:143 common/views_manage.py:284
+#: common/views_manage.py:143 common/views_manage.py:292
 msgid "Branding"
 msgstr ""
 
@@ -2845,7 +2859,7 @@ msgstr ""
 msgid "Access"
 msgstr ""
 
-#: common/views_manage.py:146 common/views_manage.py:430
+#: common/views_manage.py:146 common/views_manage.py:438
 msgid "Federation"
 msgstr ""
 
@@ -2857,472 +2871,476 @@ msgstr ""
 msgid "Downloader"
 msgstr ""
 
-#: common/views_manage.py:149 common/views_manage.py:292
+#: common/views_manage.py:149 common/views_manage.py:300
 msgid "Advanced"
 msgstr ""
 
-#: common/views_manage.py:196
-msgid "Invalid configuration: "
+#: common/views_manage.py:199
+msgid "Invalid value."
 msgstr ""
 
-#: common/views_manage.py:200
+#: common/views_manage.py:203
+msgid "Invalid configuration. Please check your input."
+msgstr ""
+
+#: common/views_manage.py:208
 msgid "Settings have been saved."
 msgstr ""
 
-#: common/views_manage.py:220
+#: common/views_manage.py:228
 msgid "Site Name"
 msgstr ""
 
-#: common/views_manage.py:223
+#: common/views_manage.py:231
 msgid "Site Description"
 msgstr ""
 
-#: common/views_manage.py:224
+#: common/views_manage.py:232
 msgid "Short description shown in metadata and about page."
 msgstr ""
 
-#: common/views_manage.py:227
+#: common/views_manage.py:235
 msgid "Site Logo URL"
 msgstr ""
 
-#: common/views_manage.py:228
+#: common/views_manage.py:236
 msgid "URL path to the site logo image."
 msgstr ""
 
-#: common/views_manage.py:231
+#: common/views_manage.py:239
 msgid "Site Icon URL"
 msgstr ""
 
-#: common/views_manage.py:232
+#: common/views_manage.py:240
 msgid "URL path to the site icon/favicon."
 msgstr ""
 
-#: common/views_manage.py:235
+#: common/views_manage.py:243
 msgid "Default User Avatar URL"
 msgstr ""
 
-#: common/views_manage.py:236
+#: common/views_manage.py:244
 msgid "URL path to the default user avatar."
 msgstr ""
 
-#: common/views_manage.py:239
+#: common/views_manage.py:247
 msgid "Site Color Theme"
 msgstr ""
 
-#: common/views_manage.py:240
+#: common/views_manage.py:248
 msgid "PicoCSS color theme."
 msgstr ""
 
-#: common/views_manage.py:265
+#: common/views_manage.py:273
 msgid "Site Introduction"
 msgstr ""
 
-#: common/views_manage.py:266
+#: common/views_manage.py:274
 msgid "URL path for the intro/welcome sidebar page."
 msgstr ""
 
-#: common/views_manage.py:269
+#: common/views_manage.py:277
 msgid "Custom HTML Head"
 msgstr ""
 
-#: common/views_manage.py:270
+#: common/views_manage.py:278
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr ""
 
-#: common/views_manage.py:274
+#: common/views_manage.py:282
 msgid "Footer Links"
 msgstr ""
 
-#: common/views_manage.py:275
+#: common/views_manage.py:283
 msgid "Link title mapped to URL."
 msgstr ""
 
-#: common/views_manage.py:304
+#: common/views_manage.py:312
 msgid "Minimum Marks for Discover"
 msgstr ""
 
-#: common/views_manage.py:306
+#: common/views_manage.py:314
 msgid "Number of marks required for an item to appear in discover."
 msgstr ""
 
-#: common/views_manage.py:311
+#: common/views_manage.py:319
 msgid "Update Interval (minutes)"
 msgstr ""
 
-#: common/views_manage.py:312
+#: common/views_manage.py:320
 msgid "How often to refresh the popular items list."
 msgstr ""
 
-#: common/views_manage.py:316
+#: common/views_manage.py:324
 msgid "Filter by Preferred Languages"
 msgstr ""
 
-#: common/views_manage.py:317
+#: common/views_manage.py:325
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
-#: common/views_manage.py:320
+#: common/views_manage.py:328
 msgid "Show Local Only"
 msgstr ""
 
-#: common/views_manage.py:322
+#: common/views_manage.py:330
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
-#: common/views_manage.py:326
+#: common/views_manage.py:334
 msgid "Show Popular Posts"
 msgstr ""
 
-#: common/views_manage.py:327
+#: common/views_manage.py:335
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
-#: common/views_manage.py:330
+#: common/views_manage.py:338
 msgid "Show Popular Tags"
 msgstr ""
 
-#: common/views_manage.py:331
+#: common/views_manage.py:339
 msgid "Show popular public tags on the discover page."
 msgstr ""
 
-#: common/views_manage.py:352
+#: common/views_manage.py:360
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
 msgstr ""
 
-#: common/views_manage.py:357
+#: common/views_manage.py:365
 msgid "Enable Local-Only Posting"
 msgstr ""
 
-#: common/views_manage.py:358
+#: common/views_manage.py:366
 msgid "Allow users to create posts visible only to local users."
 msgstr ""
 
-#: common/views_manage.py:361
+#: common/views_manage.py:369
 msgid "Mastodon Login Whitelist"
 msgstr ""
 
-#: common/views_manage.py:362
+#: common/views_manage.py:370
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
-#: common/views_manage.py:365
+#: common/views_manage.py:373
 msgid "Enable Bluesky Login"
 msgstr ""
 
-#: common/views_manage.py:368
+#: common/views_manage.py:376
 msgid "Enable Threads Login"
 msgstr ""
 
-#: common/views_manage.py:373
+#: common/views_manage.py:381
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr ""
 
-#: common/views_manage.py:379
+#: common/views_manage.py:387
 msgid "Access Control"
 msgstr ""
 
-#: common/views_manage.py:384
+#: common/views_manage.py:392
 msgid "Login Methods"
 msgstr ""
 
-#: common/views_manage.py:388
+#: common/views_manage.py:396
 msgid "Localization"
 msgstr ""
 
-#: common/views_manage.py:398
+#: common/views_manage.py:406
 msgid "Disable Default Relay"
 msgstr ""
 
-#: common/views_manage.py:400
+#: common/views_manage.py:408
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
 msgstr ""
 
-#: common/views_manage.py:405
+#: common/views_manage.py:413
 msgid "Fanout Limit (days)"
 msgstr ""
 
-#: common/views_manage.py:406
+#: common/views_manage.py:414
 msgid "Posts older than this many days will not be fanned out."
 msgstr ""
 
-#: common/views_manage.py:410
+#: common/views_manage.py:418
 msgid "Remote Prune Horizon (days)"
 msgstr ""
 
-#: common/views_manage.py:412
+#: common/views_manage.py:420
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
-#: common/views_manage.py:417
+#: common/views_manage.py:425
 msgid "Search Sites"
 msgstr ""
 
-#: common/views_manage.py:418
+#: common/views_manage.py:426
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:421
+#: common/views_manage.py:429
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:422
+#: common/views_manage.py:430
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:425
+#: common/views_manage.py:433
 msgid "Hidden Categories"
 msgstr ""
 
-#: common/views_manage.py:426
+#: common/views_manage.py:434
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:435
+#: common/views_manage.py:443
 msgid "Search"
 msgstr ""
 
-#: common/views_manage.py:447
+#: common/views_manage.py:455
 msgid "Spotify API Key"
 msgstr ""
 
-#: common/views_manage.py:448
+#: common/views_manage.py:456
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:451
+#: common/views_manage.py:459
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:452
+#: common/views_manage.py:460
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:455
+#: common/views_manage.py:463
 msgid "Google Books API Key"
 msgstr ""
 
-#: common/views_manage.py:456
+#: common/views_manage.py:464
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:459
+#: common/views_manage.py:467
 msgid "Discogs API Key"
 msgstr ""
 
-#: common/views_manage.py:461
+#: common/views_manage.py:469
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:465
+#: common/views_manage.py:473
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:466
+#: common/views_manage.py:474
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:469
+#: common/views_manage.py:477
 msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:472
+#: common/views_manage.py:480
 msgid "Steam API Key"
 msgstr ""
 
-#: common/views_manage.py:473
+#: common/views_manage.py:481
 msgid "https://steamcommunity.com/dev - used for Steam importer."
 msgstr ""
 
-#: common/views_manage.py:476
+#: common/views_manage.py:484
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:477
+#: common/views_manage.py:485
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:480
+#: common/views_manage.py:488
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:483
+#: common/views_manage.py:491
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:486
+#: common/views_manage.py:494
 msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:487
+#: common/views_manage.py:495
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:490
+#: common/views_manage.py:498
 msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:493
+#: common/views_manage.py:501
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:494
+#: common/views_manage.py:502
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:497
+#: common/views_manage.py:505
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:498
+#: common/views_manage.py:506
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:503
+#: common/views_manage.py:511
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:505
+#: common/views_manage.py:513
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
 msgstr ""
 
-#: common/views_manage.py:519
+#: common/views_manage.py:527
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:528
+#: common/views_manage.py:536
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:533
+#: common/views_manage.py:541
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:537
+#: common/views_manage.py:545
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:549
+#: common/views_manage.py:557
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:550
+#: common/views_manage.py:558
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:553
+#: common/views_manage.py:561
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:554
+#: common/views_manage.py:562
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:557
+#: common/views_manage.py:565
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:560
+#: common/views_manage.py:568
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:563
+#: common/views_manage.py:571
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:566
+#: common/views_manage.py:574
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:569
+#: common/views_manage.py:577
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:572
+#: common/views_manage.py:580
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:573
+#: common/views_manage.py:581
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:576
+#: common/views_manage.py:584
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:580
+#: common/views_manage.py:588
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:592
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:589
+#: common/views_manage.py:597
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:594
+#: common/views_manage.py:602
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:601
+#: common/views_manage.py:609
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:613
+#: common/views_manage.py:621
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:614
+#: common/views_manage.py:622
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:617
+#: common/views_manage.py:625
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:618
+#: common/views_manage.py:626
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:621
+#: common/views_manage.py:629
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:622
+#: common/views_manage.py:630
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:625
+#: common/views_manage.py:633
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:626
+#: common/views_manage.py:634
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:637
+#: common/views_manage.py:645
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:640
+#: common/views_manage.py:648
 msgid "Operational"
 msgstr ""
 
-#: journal/forms.py:20 journal/forms.py:43
+#: journal/forms.py:19 journal/forms.py:46
 msgid "Title"
 msgstr ""
 
-#: journal/forms.py:21 journal/forms.py:44
+#: journal/forms.py:21 journal/forms.py:48
 msgid "Content (Markdown)"
 msgstr ""
 
-#: journal/forms.py:23 journal/forms.py:93 journal/templates/comment.html:62
+#: journal/forms.py:26 journal/forms.py:100 journal/templates/comment.html:62
 #: journal/templates/mark.html:115 journal/views/note.py:27
 msgid "Crosspost to timeline"
 msgstr ""
 
-#: journal/forms.py:27 journal/forms.py:47 journal/forms.py:86
+#: journal/forms.py:30 journal/forms.py:54 journal/forms.py:93
 #: journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
@@ -3332,27 +3350,27 @@ msgstr ""
 msgid "Visibility"
 msgstr ""
 
-#: journal/forms.py:36
+#: journal/forms.py:39
 msgid "owner only"
 msgstr ""
 
-#: journal/forms.py:37
+#: journal/forms.py:40
 msgid "owner and their local mutuals"
 msgstr ""
 
-#: journal/forms.py:54 journal/templates/collection.html:149
+#: journal/forms.py:61 journal/templates/collection.html:149
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:78 users/templates/users/data.html:689
+#: journal/forms.py:85 users/templates/users/data.html:689
 msgid "Status"
 msgstr ""
 
-#: journal/forms.py:80 journal/templates/comment.html:16
+#: journal/forms.py:87 journal/templates/comment.html:16
 msgid "Comment"
 msgstr ""
 
-#: journal/forms.py:82
+#: journal/forms.py:89
 msgid "Rating"
 msgstr ""
 
@@ -3379,7 +3397,7 @@ msgstr ""
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:271
+#: journal/models/collection.py:274
 msgid "created collection"
 msgstr ""
 
@@ -3497,7 +3515,7 @@ msgstr ""
 msgid "Cycle {value}"
 msgstr ""
 
-#: journal/models/renderers.py:142
+#: journal/models/renderers.py:199
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr ""
@@ -4214,33 +4232,27 @@ msgstr ""
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
 
-#: journal/templates/markdown.html:3
+#: journal/templates/markdown_editor.html:9
 msgid "Markdown format references"
 msgstr ""
 
-#: journal/templates/markdown.html:5
+#: journal/templates/markdown_editor.html:12
 msgid ""
 "\n"
-"Title\n"
-"=====\n"
+"## Subtitle\n"
 "\n"
-"Subtitle\n"
-"--------\n"
-"\n"
-"  Paragraphs need to be separated by a blank line\n"
-"\n"
-"  Indentation at the beginning of the paragraph requires using a Unicode full-width space\n"
+"  Paragraphs need to be separated by a blank line\n"
 "\n"
 "[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
-"**Bold**  *Italic* ==Highlight== ~~Strikethrough~~\n"
-"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
 "\n"
-"Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"**Bold**  *Italic* ~~Strikethrough~~\n"
+"\n"
+"==Highlight==  ^Super^script ~Sub~script\n"
 "\n"
 "> Quote\n"
 ">> Multi-level quote\n"
 "\n"
-"Inline >! spoiler warning !< (also in short comments)\n"
+"Inline >! spoiler warning !<\n"
 "\n"
 ">! Multi-line\n"
 ">! Spoiler\n"
@@ -4250,9 +4262,6 @@ msgid ""
 "- Bullet\n"
 "- Points\n"
 "\n"
-"content in paragraph with footnote[^1] markup.\n"
-"[^1]: footnote explain\n"
-"\n"
 "```\n"
 "code\n"
 "```\n"
@@ -4261,6 +4270,9 @@ msgid ""
 "------------- | -------------\n"
 "Content Cell  | Content Cell\n"
 "Content Cell  | Content Cell\n"
+"\n"
+"Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"\n"
 msgstr ""
 
 #: journal/templates/note.html:16
@@ -4336,12 +4348,12 @@ msgstr ""
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:140 journal/views/collection.py:220
-#: journal/views/profile.py:291
+#: journal/templates/profile.html:140 journal/views/collection.py:221
+#: journal/views/profile.py:300
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:157 journal/views/profile.py:332
+#: journal/templates/profile.html:157 journal/views/profile.py:341
 msgid "liked collection"
 msgstr ""
 
@@ -4398,17 +4410,17 @@ msgstr ""
 msgid "Liked Collections"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:359
-#: users/templates/users/account.html:398
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:368
+#: users/templates/users/account.html:443
 msgid "Following"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:363
-#: users/templates/users/account.html:407
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:372
+#: users/templates/users/account.html:452
 msgid "Followers"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:367
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:376
 msgid "Mutuals"
 msgstr ""
 
@@ -4493,46 +4505,46 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/views/collection.py:46 journal/views/collection.py:76
+#: journal/views/collection.py:47 journal/views/collection.py:77
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr ""
 
-#: journal/views/collection.py:225
+#: journal/views/collection.py:226
 msgid "shared my collection"
 msgstr ""
 
-#: journal/views/collection.py:228
+#: journal/views/collection.py:229
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:288 journal/views/collection.py:323
-#: journal/views/collection.py:335 journal/views/collection.py:363
+#: journal/views/collection.py:289 journal/views/collection.py:324
+#: journal/views/collection.py:336 journal/views/collection.py:364
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:300
+#: journal/views/collection.py:301
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:302
+#: journal/views/collection.py:303
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:348
+#: journal/views/collection.py:349
 msgid "Saved."
 msgstr ""
 
-#: journal/views/common.py:45 journal/views/mark.py:98
+#: journal/views/common.py:80 journal/views/mark.py:98
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
-#: journal/views/common.py:47
+#: journal/views/common.py:82
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr ""
 
-#: journal/views/common.py:54
+#: journal/views/common.py:89
 msgid "List not found."
 msgstr ""
 
@@ -4545,7 +4557,7 @@ msgid "Invalid input"
 msgstr ""
 
 #: journal/views/mark.py:149 journal/views/mark.py:185 journal/views/note.py:99
-#: journal/views/review.py:37 journal/views/review.py:50
+#: journal/views/review.py:38 journal/views/review.py:51
 msgid "Content not found"
 msgstr ""
 
@@ -4589,25 +4601,25 @@ msgstr ""
 msgid "Invalid post"
 msgstr ""
 
-#: journal/views/review.py:149
+#: journal/views/review.py:151
 msgid "User not local"
 msgstr ""
 
-#: journal/views/review.py:155 journal/views/review.py:169
+#: journal/views/review.py:157 journal/views/review.py:171
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr ""
 
-#: journal/views/review.py:157 journal/views/review.py:165
+#: journal/views/review.py:159 journal/views/review.py:167
 msgid "Link invalid"
 msgstr ""
 
-#: journal/views/review.py:178
+#: journal/views/review.py:180
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr ""
 
-#: journal/views/review.py:182
+#: journal/views/review.py:184
 msgid "may contain spoiler or triggering content"
 msgstr ""
 
@@ -4636,7 +4648,7 @@ msgid "Summary posted to timeline."
 msgstr ""
 
 #: mastodon/models/common.py:12 users/templates/users/account.html:45
-#: users/templates/users/account.html:55 users/templates/users/login.html:61
+#: users/templates/users/account.html:55 users/templates/users/login.html:67
 msgid "Email"
 msgstr ""
 
@@ -4644,7 +4656,7 @@ msgstr ""
 msgid "Mastodon"
 msgstr ""
 
-#: mastodon/models/common.py:14 users/templates/users/login.html:95
+#: mastodon/models/common.py:14 users/templates/users/login.html:101
 msgid "Threads"
 msgstr ""
 
@@ -4743,7 +4755,7 @@ msgstr ""
 #: mastodon/views/mastodon.py:45 mastodon/views/mastodon.py:52
 #: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:69
 #: mastodon/views/threads.py:41 mastodon/views/threads.py:49
-#: mastodon/views/threads.py:55 users/views/account.py:152
+#: mastodon/views/threads.py:55 users/views/account.py:155
 msgid "Authentication failed"
 msgstr ""
 
@@ -5133,6 +5145,34 @@ msgstr ""
 msgid "A user with that username already exists."
 msgstr ""
 
+#: users/models/user.py:347
+msgid "This username is already taken."
+msgstr ""
+
+#: users/models/webauthn.py:15
+msgid "credential ID"
+msgstr ""
+
+#: users/models/webauthn.py:16
+msgid "public key"
+msgstr ""
+
+#: users/models/webauthn.py:17
+msgid "sign count"
+msgstr ""
+
+#: users/models/webauthn.py:18
+msgid "transports"
+msgstr ""
+
+#: users/models/webauthn.py:19
+msgid "created"
+msgstr ""
+
+#: users/models/webauthn.py:20
+msgid "last used"
+msgstr ""
+
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
 msgstr ""
@@ -5210,7 +5250,7 @@ msgstr ""
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr ""
 
-#: users/templates/users/account.html:73 users/templates/users/login.html:68
+#: users/templates/users/account.html:73 users/templates/users/login.html:74
 msgid "Fediverse (Mastodon)"
 msgstr ""
 
@@ -5220,7 +5260,7 @@ msgstr ""
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
-#: users/templates/users/account.html:263
+#: users/templates/users/account.html:308
 msgid "Last updated"
 msgstr ""
 
@@ -5282,7 +5322,7 @@ msgstr ""
 msgid "Disconnect with Threads"
 msgstr ""
 
-#: users/templates/users/account.html:173 users/templates/users/login.html:103
+#: users/templates/users/account.html:173 users/templates/users/login.html:109
 msgid "Bluesky (ATProto)"
 msgstr ""
 
@@ -5294,7 +5334,7 @@ msgstr ""
 msgid "Bluesky Login ID"
 msgstr ""
 
-#: users/templates/users/account.html:202 users/templates/users/login.html:180
+#: users/templates/users/account.html:202 users/templates/users/login.html:192
 msgid "Bluesky app password"
 msgstr ""
 
@@ -5306,7 +5346,7 @@ msgstr ""
 msgid "Link with an ATProto identity"
 msgstr ""
 
-#: users/templates/users/account.html:209 users/templates/users/login.html:185
+#: users/templates/users/account.html:209 users/templates/users/login.html:197
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 msgstr ""
 
@@ -5314,130 +5354,152 @@ msgstr ""
 msgid "Disconnect with ATProto identity"
 msgstr ""
 
-#: users/templates/users/account.html:229
-msgid "Sync and import social account"
+#: users/templates/users/account.html:228
+msgid "Passkeys"
 msgstr ""
 
-#: users/templates/users/account.html:239
-msgid "Sync display name, bio and avatar"
+#: users/templates/users/account.html:233
+#: users/templates/users/authorized_app_create.html:24
+msgid "Name"
 msgstr ""
 
-#: users/templates/users/account.html:247
-msgid "Sync follow, mute and block"
-msgstr ""
-
-#: users/templates/users/account.html:250
-msgid "Save sync settings"
-msgstr ""
-
-#: users/templates/users/account.html:252
-msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
-msgstr ""
-
-#: users/templates/users/account.html:259
-msgid "Click button below to start sync now."
-msgstr ""
-
-#: users/templates/users/account.html:260
-msgid "Sync now"
-msgstr ""
-
-#: users/templates/users/account.html:272
-msgid "Users you are following"
-msgstr ""
-
-#: users/templates/users/account.html:281
-msgid "Users who follow you"
-msgstr ""
-
-#: users/templates/users/account.html:290
-msgid "Users who request to follow you"
-msgstr ""
-
-#: users/templates/users/account.html:299
-msgid "Users you are muting"
-msgstr ""
-
-#: users/templates/users/account.html:308
-msgid "Users you are blocking"
-msgstr ""
-
-#: users/templates/users/account.html:317
-#: users/templates/users/account.html:326
-msgid "Log out everywhere"
-msgstr ""
-
-#: users/templates/users/account.html:320
-msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
-msgstr ""
-
-#: users/templates/users/account.html:323
-msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
-msgstr ""
-
-#: users/templates/users/account.html:333
-msgid "Authorized Apps"
-msgstr ""
-
-#: users/templates/users/account.html:338
-msgid "Application"
-msgstr ""
-
-#: users/templates/users/account.html:339
-msgid "Scopes"
-msgstr ""
-
-#: users/templates/users/account.html:340
+#: users/templates/users/account.html:234
+#: users/templates/users/account.html:385
 msgid "Created"
 msgstr ""
 
+#: users/templates/users/account.html:235
+msgid "Last Used"
+msgstr ""
+
+#: users/templates/users/account.html:261
+msgid "No passkeys registered."
+msgstr ""
+
+#: users/templates/users/account.html:266
+msgid "Add Passkey"
+msgstr ""
+
+#: users/templates/users/account.html:274
+msgid "Sync and import social account"
+msgstr ""
+
+#: users/templates/users/account.html:284
+msgid "Sync display name, bio and avatar"
+msgstr ""
+
+#: users/templates/users/account.html:292
+msgid "Sync follow, mute and block"
+msgstr ""
+
+#: users/templates/users/account.html:295
+msgid "Save sync settings"
+msgstr ""
+
+#: users/templates/users/account.html:297
+msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
+msgstr ""
+
+#: users/templates/users/account.html:304
+msgid "Click button below to start sync now."
+msgstr ""
+
+#: users/templates/users/account.html:305
+msgid "Sync now"
+msgstr ""
+
+#: users/templates/users/account.html:317
+msgid "Users you are following"
+msgstr ""
+
+#: users/templates/users/account.html:326
+msgid "Users who follow you"
+msgstr ""
+
+#: users/templates/users/account.html:335
+msgid "Users who request to follow you"
+msgstr ""
+
+#: users/templates/users/account.html:344
+msgid "Users you are muting"
+msgstr ""
+
 #: users/templates/users/account.html:353
+msgid "Users you are blocking"
+msgstr ""
+
+#: users/templates/users/account.html:362
+#: users/templates/users/account.html:371
+msgid "Log out everywhere"
+msgstr ""
+
+#: users/templates/users/account.html:365
+msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
+msgstr ""
+
+#: users/templates/users/account.html:368
+msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
+msgstr ""
+
+#: users/templates/users/account.html:378
+msgid "Authorized Apps"
+msgstr ""
+
+#: users/templates/users/account.html:383
+msgid "Application"
+msgstr ""
+
+#: users/templates/users/account.html:384
+msgid "Scopes"
+msgstr ""
+
+#: users/templates/users/account.html:398
 msgid "Revoke access for this application?"
 msgstr ""
 
-#: users/templates/users/account.html:356
+#: users/templates/users/account.html:401
 msgid "Revoke"
 msgstr ""
 
-#: users/templates/users/account.html:364
+#: users/templates/users/account.html:409
 msgid "No authorized applications."
 msgstr ""
 
-#: users/templates/users/account.html:367
+#: users/templates/users/account.html:412
 #: users/templates/users/authorized_app_create.html:9
 #: users/templates/users/authorized_app_create.html:19
 msgid "Create Personal Token"
 msgstr ""
 
-#: users/templates/users/account.html:373
+#: users/templates/users/account.html:418
 msgid "Import/Export Social Graph"
 msgstr ""
 
-#: users/templates/users/account.html:374
+#: users/templates/users/account.html:419
 msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr ""
 
-#: users/templates/users/account.html:380
+#: users/templates/users/account.html:425
 msgid "Import type"
 msgstr ""
 
-#: users/templates/users/account.html:382
+#: users/templates/users/account.html:427
 msgid "Following list"
 msgstr ""
 
-#: users/templates/users/account.html:383
+#: users/templates/users/account.html:428
 msgid "Block list"
 msgstr ""
 
-#: users/templates/users/account.html:384
+#: users/templates/users/account.html:429
 msgid "Mute list"
 msgstr ""
 
-#: users/templates/users/account.html:388
+#: users/templates/users/account.html:433
 msgid "CSV file"
 msgstr ""
 
-#: users/templates/users/account.html:391 users/templates/users/data.html:74
+#: users/templates/users/account.html:436 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
 #: users/templates/users/data.html:451 users/templates/users/data.html:504
@@ -5445,63 +5507,67 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: users/templates/users/account.html:402
-#: users/templates/users/account.html:411
-#: users/templates/users/account.html:420
-#: users/templates/users/account.html:429
+#: users/templates/users/account.html:447
+#: users/templates/users/account.html:456
+#: users/templates/users/account.html:465
+#: users/templates/users/account.html:474
 msgid "Download CSV"
 msgstr ""
 
-#: users/templates/users/account.html:416
+#: users/templates/users/account.html:461
 msgid "Blocks"
 msgstr ""
 
-#: users/templates/users/account.html:425
+#: users/templates/users/account.html:470
 msgid "Mutes"
 msgstr ""
 
-#: users/templates/users/account.html:439
+#: users/templates/users/account.html:484
 msgid "Migrate Account"
 msgstr ""
 
-#: users/templates/users/account.html:443
+#: users/templates/users/account.html:488
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr ""
 
-#: users/templates/users/account.html:446
+#: users/templates/users/account.html:491
 msgid "Migrate another account here"
 msgstr ""
 
-#: users/templates/users/account.html:449
+#: users/templates/users/account.html:494
 msgid "Migrate to another account"
 msgstr ""
 
-#: users/templates/users/account.html:456
+#: users/templates/users/account.html:501
 msgid "Delete Account"
 msgstr ""
 
-#: users/templates/users/account.html:459
+#: users/templates/users/account.html:504
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
 
-#: users/templates/users/account.html:462
+#: users/templates/users/account.html:507
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
 
-#: users/templates/users/account.html:472
+#: users/templates/users/account.html:517
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:475
+#: users/templates/users/account.html:520
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:479
+#: users/templates/users/account.html:524
 msgid "Permanently Delete"
 msgstr ""
 
-#: users/templates/users/authorized_app_create.html:24
-msgid "Name"
+#: users/templates/users/account.html:565
+msgid "Delete this passkey?"
+msgstr ""
+
+#: users/templates/users/account.html:585
+msgid "Rename passkey:"
 msgstr ""
 
 #: users/templates/users/authorized_app_create.html:29
@@ -5843,75 +5909,88 @@ msgstr ""
 
 #: users/templates/users/login.html:54
 #: users/templates/users/verify_email.html:25
+#: users/templates/users/welcome.html:47
 msgid "Continue"
 msgstr ""
 
-#: users/templates/users/login.html:120
+#: users/templates/users/login.html:60 users/views/webauthn.py:97
+msgid "Passkey"
+msgstr ""
+
+#: users/templates/users/login.html:116
+msgid "Sign in with a passkey saved on this device or in your password manager."
+msgstr ""
+
+#: users/templates/users/login.html:117
+msgid "Sign in with Passkey"
+msgstr ""
+
+#: users/templates/users/login.html:132
 msgid "Enter your email address"
 msgstr ""
 
-#: users/templates/users/login.html:122
+#: users/templates/users/login.html:134
 msgid "Send verification code"
 msgstr ""
 
-#: users/templates/users/login.html:137
+#: users/templates/users/login.html:149
 msgid "Domain of your instance, e.g. mastodon.social"
 msgstr ""
 
-#: users/templates/users/login.html:143
+#: users/templates/users/login.html:155
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr ""
 
-#: users/templates/users/login.html:146 users/templates/users/login.html:199
+#: users/templates/users/login.html:158 users/templates/users/login.html:211
 msgid "Authorize via Fediverse instance"
 msgstr ""
 
-#: users/templates/users/login.html:148
+#: users/templates/users/login.html:160
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr ""
 
-#: users/templates/users/login.html:158
+#: users/templates/users/login.html:170
 msgid "Authorize via Threads"
 msgstr ""
 
-#: users/templates/users/login.html:171
+#: users/templates/users/login.html:183
 msgid "ATProto handle"
 msgstr ""
 
-#: users/templates/users/login.html:176
+#: users/templates/users/login.html:188
 msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
 msgstr ""
 
-#: users/templates/users/login.html:186
+#: users/templates/users/login.html:198
 msgid "Authorize via bsky.app"
 msgstr ""
 
-#: users/templates/users/login.html:190
+#: users/templates/users/login.html:202
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr ""
 
-#: users/templates/users/login.html:206
+#: users/templates/users/login.html:218
 msgid "Valid invitation code, please login or register."
 msgstr ""
 
-#: users/templates/users/login.html:208
+#: users/templates/users/login.html:220
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr ""
 
-#: users/templates/users/login.html:210
+#: users/templates/users/login.html:222
 msgid "Invitation code invalid or expired."
 msgstr ""
 
-#: users/templates/users/login.html:218
+#: users/templates/users/login.html:230
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr ""
 
-#: users/templates/users/login.html:224
+#: users/templates/users/login.html:236
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr ""
 
-#: users/templates/users/login.html:230
+#: users/templates/users/login.html:248
 msgid "Domain of your instance (excl. @)"
 msgstr ""
 
@@ -6173,11 +6252,15 @@ msgstr ""
 msgid "Add follow, mute and block list from the social network you authenticated with"
 msgstr ""
 
-#: users/templates/users/register.html:93
+#: users/templates/users/register.html:94
 msgid "Confirm and save"
 msgstr ""
 
-#: users/templates/users/register.html:97
+#: users/templates/users/register.html:96
+msgid "Close"
+msgstr ""
+
+#: users/templates/users/register.html:102
 msgid "Cut the sh*t and get me in!"
 msgstr ""
 
@@ -6226,8 +6309,24 @@ msgid ""
 "        "
 msgstr ""
 
-#: users/templates/users/welcome.html:29
-msgid "Accept"
+#: users/templates/users/welcome.html:33
+msgid "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock."
+msgstr ""
+
+#: users/templates/users/welcome.html:35
+msgid "Creating a passkey is highly recommended, as the website or email you use to create this account may not be always available."
+msgstr ""
+
+#: users/templates/users/welcome.html:39
+msgid "Create Passkey"
+msgstr ""
+
+#: users/templates/users/welcome.html:43
+msgid "Maybe later"
+msgstr ""
+
+#: users/templates/users/welcome.html:72
+msgid "Passkey created"
 msgstr ""
 
 #: users/views/account.py:89
@@ -6238,19 +6337,19 @@ msgstr ""
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:153
+#: users/views/account.py:156
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:205
+#: users/views/account.py:208
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:267
+#: users/views/account.py:272
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:270
+#: users/views/account.py:275
 msgid "Account mismatch."
 msgstr ""
 
@@ -6349,4 +6448,29 @@ msgstr ""
 #: users/views/data.py:748
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
+msgstr ""
+
+#: users/views/webauthn.py:94
+msgid "Passkey registration failed"
+msgstr ""
+
+#: users/views/webauthn.py:138 users/views/webauthn.py:144
+#: users/views/webauthn.py:153
+msgid "Passkey not recognized"
+msgstr ""
+
+#: users/views/webauthn.py:158
+msgid "Account is inactive"
+msgstr ""
+
+#: users/views/webauthn.py:174
+msgid "Passkey verification failed"
+msgstr ""
+
+#: users/views/webauthn.py:200 users/views/webauthn.py:221
+msgid "Passkey not found"
+msgstr ""
+
+#: users/views/webauthn.py:215
+msgid "Name is required"
 msgstr ""

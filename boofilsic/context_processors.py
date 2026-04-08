@@ -23,4 +23,6 @@ def site_info(request):
         context["enable_login_atproto"] = opts.enable_login_bluesky
         context["translate_enabled"] = bool(opts.deepl_api_key) or bool(opts.lt_api_url)
     context["debug_enabled"] = settings.DEBUG
+    if hasattr(request, "user") and request.user.is_authenticated:
+        context["has_passkeys"] = request.user.webauthn_credentials.exists()
     return context

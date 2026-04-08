@@ -169,6 +169,34 @@ _search_cat_change();
     {% endfor %}
   </ul>
 {% endif %}
+{% if request.user.is_authenticated and not has_passkeys %}
+  <div id="passkey-nudge"
+       style="display:none;
+              text-align:center;
+              padding:0.5em 1em"
+       role="alert">
+    <small>
+      <i class="fa-solid fa-key"></i>
+      {% trans "Secure your account with a passkey for quick sign-in." %}
+      <a href="{% url 'users:info' %}">{% trans "Set up" %}</a>
+      &middot;
+      <a href="#" id="passkey-nudge-dismiss">{% trans "Dismiss" %}</a>
+    </small>
+  </div>
+  <script>
+    (function() {
+      if (!window.PublicKeyCredential || sessionStorage.getItem('passkey_nudge_dismissed')) return;
+      var el = document.getElementById('passkey-nudge');
+      if (el) el.style.display = '';
+      var dismiss = document.getElementById('passkey-nudge-dismiss');
+      if (dismiss) dismiss.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.setItem('passkey_nudge_dismissed', '1');
+        el.style.display = 'none';
+      });
+    })();
+  </script>
+{% endif %}
 <form id="logout" action="{% url 'users:logout' %}" method="post">
   {% csrf_token %}
 </form>

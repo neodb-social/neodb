@@ -25,16 +25,59 @@
               {{ site_name }} is flourishing because of collaborations and contributions from users like you. Please read our <a href="/pages/rules">rules</a>, and feel free to <a href="{{ support_link }}">contact us</a> if you have any question or feedback.
         {% endblocktrans %}
         </p>
+        <form style="display:none">
+          {% csrf_token %}
+        </form>
+        <div id="passkey-prompt" style="display:none">
+          <hr>
+          <p>{% trans "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock." %}</p>
+          <p>
+            {% trans "Creating a passkey is highly recommended, as the website or email you use to create this account may not be always available." %}
+          </p>
+          <small id="passkey-setup-status"></small>
+          <div role="group">
+            <button type="button" id="passkey-setup-btn">{% trans "Create Passkey" %}</button>
+            <a href="{{ request.session.next_url|safe_next_url:'/' }}"
+               role="button"
+               class="secondary"
+               id="skip-btn">{% trans "Maybe later" %}</a>
+          </div>
+        </div>
         <input type="button"
-               value="{% trans 'Accept' %}"
+               value="{% trans 'Continue' %}"
                id="accept-btn"
                data-redirect-url="{{ request.session.next_url|safe_next_url:'/' }}">
       </article>
     </div>
+    <script src="{% static 'js/passkey.js' %}"></script>
     <script>
       document.getElementById('accept-btn').addEventListener('click', function() {
         location = this.dataset.redirectUrl;
       });
+      (function() {
+        if (!window.Passkey || !Passkey.isSupported()) return;
+        document.getElementById('passkey-prompt').style.display = '';
+        document.getElementById('accept-btn').style.display = 'none';
+        var btn = document.getElementById('passkey-setup-btn');
+        var status = document.getElementById('passkey-setup-status');
+        btn.addEventListener('click', function() {
+          btn.setAttribute('aria-busy', 'true');
+          status.textContent = '';
+          Passkey.register(
+            '{% url "users:passkey_register_options" %}',
+            '{% url "users:passkey_register_verify" %}',
+            function() {
+              btn.removeAttribute('aria-busy');
+              btn.disabled = true;
+              btn.textContent = '{% trans "Passkey created" %}';
+            },
+            function(err) {
+              btn.removeAttribute('aria-busy');
+              if (err) status.textContent = err;
+            }
+          );
+        });
+      })();
     </script>
   </body>
 </html>

@@ -10,6 +10,7 @@ from common.models import SiteConfig
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models.task import Task
+from users.models.webauthn import WebAuthnCredential
 
 
 class ProfileForm(forms.ModelForm):
@@ -49,6 +50,7 @@ def account_info(request):
             "has_pending_tasks": has_pending_tasks,
             "tokens": Takahe.get_tokens_for_identity(identity.pk),
             "counts": Takahe.get_follow_block_mute_counts(identity.pk),
+            "passkeys": WebAuthnCredential.objects.filter(user=request.user),
         },
     )
 
