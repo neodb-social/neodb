@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("users", "0008_alter_task_type"),
         ("users", "0002_preference_mastodon_boost_enabled"),
     ]
 
