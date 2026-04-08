@@ -141,7 +141,8 @@ def passkey_login_verify(request):
             {"ok": False, "error": _("Passkey not recognized")}, status=400
         )
     try:
-        credential_id_bytes = base64.urlsafe_b64decode(raw_id_b64 + "==")
+        padding = "=" * (-len(raw_id_b64) % 4)
+        credential_id_bytes = base64.urlsafe_b64decode(raw_id_b64 + padding)
     except Exception:
         return JsonResponse(
             {"ok": False, "error": _("Passkey not recognized")}, status=400
