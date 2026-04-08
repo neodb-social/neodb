@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-07 21:29-0400\n"
+"POT-Creation-Date: 2026-04-07 21:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1094,7 +1094,7 @@ msgstr ""
 #: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34 journal/templates/review.html:102
-#: users/templates/users/account.html:254
+#: users/templates/users/account.html:258
 msgid "Delete"
 msgstr ""
 
@@ -4411,12 +4411,12 @@ msgid "Liked Collections"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:368
-#: users/templates/users/account.html:443
+#: users/templates/users/account.html:447
 msgid "Following"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:372
-#: users/templates/users/account.html:452
+#: users/templates/users/account.html:456
 msgid "Followers"
 msgstr ""
 
@@ -5260,7 +5260,7 @@ msgstr ""
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
-#: users/templates/users/account.html:308
+#: users/templates/users/account.html:312
 msgid "Last updated"
 msgstr ""
 
@@ -5358,148 +5358,157 @@ msgstr ""
 msgid "Passkeys"
 msgstr ""
 
-#: users/templates/users/account.html:233
+#: users/templates/users/account.html:230 users/templates/users/welcome.html:32
+msgid "Name this passkey:"
+msgstr ""
+
+#: users/templates/users/account.html:231 users/templates/users/login.html:60
+#: users/templates/users/welcome.html:33 users/views/webauthn.py:97
+msgid "Passkey"
+msgstr ""
+
+#: users/templates/users/account.html:237
 #: users/templates/users/authorized_app_create.html:24
 msgid "Name"
 msgstr ""
 
-#: users/templates/users/account.html:234
-#: users/templates/users/account.html:385
+#: users/templates/users/account.html:238
+#: users/templates/users/account.html:389
 msgid "Created"
 msgstr ""
 
-#: users/templates/users/account.html:235
+#: users/templates/users/account.html:239
 msgid "Last Used"
 msgstr ""
 
-#: users/templates/users/account.html:261
+#: users/templates/users/account.html:265
 msgid "No passkeys registered."
 msgstr ""
 
-#: users/templates/users/account.html:266
+#: users/templates/users/account.html:270
 msgid "Add Passkey"
 msgstr ""
 
-#: users/templates/users/account.html:274
+#: users/templates/users/account.html:278
 msgid "Sync and import social account"
 msgstr ""
 
-#: users/templates/users/account.html:284
+#: users/templates/users/account.html:288
 msgid "Sync display name, bio and avatar"
 msgstr ""
 
-#: users/templates/users/account.html:292
+#: users/templates/users/account.html:296
 msgid "Sync follow, mute and block"
 msgstr ""
 
-#: users/templates/users/account.html:295
+#: users/templates/users/account.html:299
 msgid "Save sync settings"
 msgstr ""
 
-#: users/templates/users/account.html:297
+#: users/templates/users/account.html:301
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
 
-#: users/templates/users/account.html:304
+#: users/templates/users/account.html:308
 msgid "Click button below to start sync now."
 msgstr ""
 
-#: users/templates/users/account.html:305
+#: users/templates/users/account.html:309
 msgid "Sync now"
 msgstr ""
 
-#: users/templates/users/account.html:317
+#: users/templates/users/account.html:321
 msgid "Users you are following"
 msgstr ""
 
-#: users/templates/users/account.html:326
+#: users/templates/users/account.html:330
 msgid "Users who follow you"
 msgstr ""
 
-#: users/templates/users/account.html:335
+#: users/templates/users/account.html:339
 msgid "Users who request to follow you"
 msgstr ""
 
-#: users/templates/users/account.html:344
+#: users/templates/users/account.html:348
 msgid "Users you are muting"
 msgstr ""
 
-#: users/templates/users/account.html:353
+#: users/templates/users/account.html:357
 msgid "Users you are blocking"
 msgstr ""
 
-#: users/templates/users/account.html:362
-#: users/templates/users/account.html:371
+#: users/templates/users/account.html:366
+#: users/templates/users/account.html:375
 msgid "Log out everywhere"
 msgstr ""
 
-#: users/templates/users/account.html:365
+#: users/templates/users/account.html:369
 msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
 msgstr ""
 
-#: users/templates/users/account.html:368
+#: users/templates/users/account.html:372
 msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
 msgstr ""
 
-#: users/templates/users/account.html:378
+#: users/templates/users/account.html:382
 msgid "Authorized Apps"
 msgstr ""
 
-#: users/templates/users/account.html:383
+#: users/templates/users/account.html:387
 msgid "Application"
 msgstr ""
 
-#: users/templates/users/account.html:384
+#: users/templates/users/account.html:388
 msgid "Scopes"
 msgstr ""
 
-#: users/templates/users/account.html:398
+#: users/templates/users/account.html:402
 msgid "Revoke access for this application?"
 msgstr ""
 
-#: users/templates/users/account.html:401
+#: users/templates/users/account.html:405
 msgid "Revoke"
 msgstr ""
 
-#: users/templates/users/account.html:409
+#: users/templates/users/account.html:413
 msgid "No authorized applications."
 msgstr ""
 
-#: users/templates/users/account.html:412
+#: users/templates/users/account.html:416
 #: users/templates/users/authorized_app_create.html:9
 #: users/templates/users/authorized_app_create.html:19
 msgid "Create Personal Token"
 msgstr ""
 
-#: users/templates/users/account.html:418
+#: users/templates/users/account.html:422
 msgid "Import/Export Social Graph"
 msgstr ""
 
-#: users/templates/users/account.html:419
+#: users/templates/users/account.html:423
 msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr ""
 
-#: users/templates/users/account.html:425
+#: users/templates/users/account.html:429
 msgid "Import type"
 msgstr ""
 
-#: users/templates/users/account.html:427
+#: users/templates/users/account.html:431
 msgid "Following list"
 msgstr ""
 
-#: users/templates/users/account.html:428
+#: users/templates/users/account.html:432
 msgid "Block list"
 msgstr ""
 
-#: users/templates/users/account.html:429
+#: users/templates/users/account.html:433
 msgid "Mute list"
 msgstr ""
 
-#: users/templates/users/account.html:433
+#: users/templates/users/account.html:437
 msgid "CSV file"
 msgstr ""
 
-#: users/templates/users/account.html:436 users/templates/users/data.html:74
+#: users/templates/users/account.html:440 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
 #: users/templates/users/data.html:451 users/templates/users/data.html:504
@@ -5507,66 +5516,66 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: users/templates/users/account.html:447
-#: users/templates/users/account.html:456
-#: users/templates/users/account.html:465
-#: users/templates/users/account.html:474
+#: users/templates/users/account.html:451
+#: users/templates/users/account.html:460
+#: users/templates/users/account.html:469
+#: users/templates/users/account.html:478
 msgid "Download CSV"
 msgstr ""
 
-#: users/templates/users/account.html:461
+#: users/templates/users/account.html:465
 msgid "Blocks"
 msgstr ""
 
-#: users/templates/users/account.html:470
+#: users/templates/users/account.html:474
 msgid "Mutes"
 msgstr ""
 
-#: users/templates/users/account.html:484
+#: users/templates/users/account.html:488
 msgid "Migrate Account"
 msgstr ""
 
-#: users/templates/users/account.html:488
+#: users/templates/users/account.html:492
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr ""
 
-#: users/templates/users/account.html:491
+#: users/templates/users/account.html:495
 msgid "Migrate another account here"
 msgstr ""
 
-#: users/templates/users/account.html:494
+#: users/templates/users/account.html:498
 msgid "Migrate to another account"
 msgstr ""
 
-#: users/templates/users/account.html:501
+#: users/templates/users/account.html:505
 msgid "Delete Account"
 msgstr ""
 
-#: users/templates/users/account.html:504
+#: users/templates/users/account.html:508
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
 
-#: users/templates/users/account.html:507
+#: users/templates/users/account.html:511
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
 
-#: users/templates/users/account.html:517
+#: users/templates/users/account.html:521
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:520
+#: users/templates/users/account.html:524
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:524
+#: users/templates/users/account.html:528
 msgid "Permanently Delete"
 msgstr ""
 
-#: users/templates/users/account.html:565
+#: users/templates/users/account.html:569
 msgid "Delete this passkey?"
 msgstr ""
 
-#: users/templates/users/account.html:585
+#: users/templates/users/account.html:589
 msgid "Rename passkey:"
 msgstr ""
 
@@ -5909,12 +5918,8 @@ msgstr ""
 
 #: users/templates/users/login.html:54
 #: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:47
+#: users/templates/users/welcome.html:51
 msgid "Continue"
-msgstr ""
-
-#: users/templates/users/login.html:60 users/views/webauthn.py:97
-msgid "Passkey"
 msgstr ""
 
 #: users/templates/users/login.html:116
@@ -6309,23 +6314,23 @@ msgid ""
 "        "
 msgstr ""
 
-#: users/templates/users/welcome.html:33
+#: users/templates/users/welcome.html:37
 msgid "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock."
 msgstr ""
 
-#: users/templates/users/welcome.html:35
+#: users/templates/users/welcome.html:39
 msgid "Creating a passkey is highly recommended, as the website or email you use to create this account may not be always available."
 msgstr ""
 
-#: users/templates/users/welcome.html:39
+#: users/templates/users/welcome.html:43
 msgid "Create Passkey"
 msgstr ""
 
-#: users/templates/users/welcome.html:43
+#: users/templates/users/welcome.html:47
 msgid "Maybe later"
 msgstr ""
 
-#: users/templates/users/welcome.html:72
+#: users/templates/users/welcome.html:76
 msgid "Passkey created"
 msgstr ""
 
@@ -6454,23 +6459,23 @@ msgstr ""
 msgid "Passkey registration failed"
 msgstr ""
 
-#: users/views/webauthn.py:138 users/views/webauthn.py:144
-#: users/views/webauthn.py:153
+#: users/views/webauthn.py:141 users/views/webauthn.py:147
+#: users/views/webauthn.py:156
 msgid "Passkey not recognized"
 msgstr ""
 
-#: users/views/webauthn.py:158
+#: users/views/webauthn.py:161
 msgid "Account is inactive"
 msgstr ""
 
-#: users/views/webauthn.py:174
+#: users/views/webauthn.py:177
 msgid "Passkey verification failed"
 msgstr ""
 
-#: users/views/webauthn.py:200 users/views/webauthn.py:221
+#: users/views/webauthn.py:203 users/views/webauthn.py:225
 msgid "Passkey not found"
 msgstr ""
 
-#: users/views/webauthn.py:215
+#: users/views/webauthn.py:219
 msgid "Name is required"
 msgstr ""

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-07 21:29-0400\n"
+"POT-Creation-Date: 2026-04-07 21:41-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1093,7 +1093,7 @@ msgstr "合并到另一条目"
 #: journal/templates/collection.html:146 journal/templates/mark.html:157
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34 journal/templates/review.html:102
-#: users/templates/users/account.html:254
+#: users/templates/users/account.html:258
 msgid "Delete"
 msgstr "删除"
 
@@ -4583,12 +4583,12 @@ msgid "Liked Collections"
 msgstr "喜欢的收藏单"
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:368
-#: users/templates/users/account.html:443
+#: users/templates/users/account.html:447
 msgid "Following"
 msgstr "正在关注"
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:372
-#: users/templates/users/account.html:452
+#: users/templates/users/account.html:456
 msgid "Followers"
 msgstr "关注者"
 
@@ -5376,37 +5376,27 @@ msgstr "用户名已被使用"
 
 #: users/models/webauthn.py:15
 msgid "credential ID"
-msgstr ""
+msgstr "凭证 ID"
 
 #: users/models/webauthn.py:16
-#, fuzzy
-#| msgid "publisher"
 msgid "public key"
-msgstr "出版发行"
+msgstr "公钥"
 
 #: users/models/webauthn.py:17
-#, fuzzy
-#| msgid "Migrate Account"
 msgid "sign count"
-msgstr "迁移账号"
+msgstr "签名计数"
 
 #: users/models/webauthn.py:18
-#, fuzzy
-#| msgid "translator"
 msgid "transports"
-msgstr "译者"
+msgstr "传输方式"
 
 #: users/models/webauthn.py:19
-#, fuzzy
-#| msgid "create"
 msgid "created"
-msgstr "创建"
+msgstr "创建时间"
 
 #: users/models/webauthn.py:20
-#, fuzzy
-#| msgid "Last updated"
 msgid "last used"
-msgstr "最近更新"
+msgstr "最近使用"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -5495,7 +5485,7 @@ msgstr "已验证的身份"
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
-#: users/templates/users/account.html:308
+#: users/templates/users/account.html:312
 msgid "Last updated"
 msgstr "最近更新"
 
@@ -5593,148 +5583,157 @@ msgstr "取消关联"
 msgid "Passkeys"
 msgstr "通行密钥"
 
-#: users/templates/users/account.html:233
+#: users/templates/users/account.html:230 users/templates/users/welcome.html:32
+msgid "Name this passkey:"
+msgstr "为通行密钥命名:"
+
+#: users/templates/users/account.html:231 users/templates/users/login.html:60
+#: users/templates/users/welcome.html:33 users/views/webauthn.py:97
+msgid "Passkey"
+msgstr "通行密钥"
+
+#: users/templates/users/account.html:237
 #: users/templates/users/authorized_app_create.html:24
 msgid "Name"
 msgstr "名称"
 
-#: users/templates/users/account.html:234
-#: users/templates/users/account.html:385
+#: users/templates/users/account.html:238
+#: users/templates/users/account.html:389
 msgid "Created"
 msgstr "创建时间"
 
-#: users/templates/users/account.html:235
+#: users/templates/users/account.html:239
 msgid "Last Used"
 msgstr "最近使用"
 
-#: users/templates/users/account.html:261
+#: users/templates/users/account.html:265
 msgid "No passkeys registered."
 msgstr "尚未注册通行密钥。"
 
-#: users/templates/users/account.html:266
+#: users/templates/users/account.html:270
 msgid "Add Passkey"
 msgstr "添加通行密钥"
 
-#: users/templates/users/account.html:274
+#: users/templates/users/account.html:278
 msgid "Sync and import social account"
 msgstr "同步第三方社交网络上的个人信息和社交数据"
 
-#: users/templates/users/account.html:284
+#: users/templates/users/account.html:288
 msgid "Sync display name, bio and avatar"
 msgstr "自动同步用户昵称等基本信息"
 
-#: users/templates/users/account.html:292
+#: users/templates/users/account.html:296
 msgid "Sync follow, mute and block"
 msgstr "自动导入新增的关注、屏蔽和隐藏列表"
 
-#: users/templates/users/account.html:295
+#: users/templates/users/account.html:299
 msgid "Save sync settings"
 msgstr "保存同步设置"
 
-#: users/templates/users/account.html:297
+#: users/templates/users/account.html:301
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr "本站会按照以上设置每天自动导入你在联邦宇宙实例等社交网络中新增的关注、屏蔽和隐藏列表；如果你在联邦宇宙实例中关注的用户加入了本站，你会自动关注她；如果你在联邦宇宙实例中取消了关注、屏蔽或隐藏，本站不会自动取消，但你可以手动移除。"
 
-#: users/templates/users/account.html:304
+#: users/templates/users/account.html:308
 msgid "Click button below to start sync now."
 msgstr "如果希望立即开始同步，可以点击下方按钮。"
 
-#: users/templates/users/account.html:305
+#: users/templates/users/account.html:309
 msgid "Sync now"
 msgstr "立即同步"
 
-#: users/templates/users/account.html:317
+#: users/templates/users/account.html:321
 msgid "Users you are following"
 msgstr "正在关注的用户"
 
-#: users/templates/users/account.html:326
+#: users/templates/users/account.html:330
 msgid "Users who follow you"
 msgstr "关注了你的用户"
 
-#: users/templates/users/account.html:335
+#: users/templates/users/account.html:339
 msgid "Users who request to follow you"
 msgstr "请求关注你的用户"
 
-#: users/templates/users/account.html:344
+#: users/templates/users/account.html:348
 msgid "Users you are muting"
 msgstr "已隐藏的用户"
 
-#: users/templates/users/account.html:353
+#: users/templates/users/account.html:357
 msgid "Users you are blocking"
 msgstr "已屏蔽的用户"
 
-#: users/templates/users/account.html:362
-#: users/templates/users/account.html:371
+#: users/templates/users/account.html:366
+#: users/templates/users/account.html:375
 msgid "Log out everywhere"
 msgstr "在所有设备上登出"
 
-#: users/templates/users/account.html:365
+#: users/templates/users/account.html:369
 msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
 msgstr "这将使你在所有浏览器和设备（包括当前设备）上登出，并撤销所有API令牌。继续吗？"
 
-#: users/templates/users/account.html:368
+#: users/templates/users/account.html:372
 msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
 msgstr "如果你留意到任何可疑活动，或者曾在公共电脑上登录过，可以选择在所有设备上登出并撤销所有API令牌。"
 
-#: users/templates/users/account.html:378
+#: users/templates/users/account.html:382
 msgid "Authorized Apps"
 msgstr "已授权的应用"
 
-#: users/templates/users/account.html:383
+#: users/templates/users/account.html:387
 msgid "Application"
 msgstr "应用"
 
-#: users/templates/users/account.html:384
+#: users/templates/users/account.html:388
 msgid "Scopes"
 msgstr "权限范围"
 
-#: users/templates/users/account.html:398
+#: users/templates/users/account.html:402
 msgid "Revoke access for this application?"
 msgstr "撤销此应用的访问权限？"
 
-#: users/templates/users/account.html:401
+#: users/templates/users/account.html:405
 msgid "Revoke"
 msgstr "撤销"
 
-#: users/templates/users/account.html:409
+#: users/templates/users/account.html:413
 msgid "No authorized applications."
 msgstr "没有已授权的应用。"
 
-#: users/templates/users/account.html:412
+#: users/templates/users/account.html:416
 #: users/templates/users/authorized_app_create.html:9
 #: users/templates/users/authorized_app_create.html:19
 msgid "Create Personal Token"
 msgstr "创建个人令牌"
 
-#: users/templates/users/account.html:418
+#: users/templates/users/account.html:422
 msgid "Import/Export Social Graph"
 msgstr "导入/导出社交关系"
 
-#: users/templates/users/account.html:419
+#: users/templates/users/account.html:423
 msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr "上传从 Mastodon 或兼容服务导出的 CSV 文件。"
 
-#: users/templates/users/account.html:425
+#: users/templates/users/account.html:429
 msgid "Import type"
 msgstr "导入类型"
 
-#: users/templates/users/account.html:427
+#: users/templates/users/account.html:431
 msgid "Following list"
 msgstr "关注列表"
 
-#: users/templates/users/account.html:428
+#: users/templates/users/account.html:432
 msgid "Block list"
 msgstr "屏蔽列表"
 
-#: users/templates/users/account.html:429
+#: users/templates/users/account.html:433
 msgid "Mute list"
 msgstr "静音列表"
 
-#: users/templates/users/account.html:433
+#: users/templates/users/account.html:437
 msgid "CSV file"
 msgstr "CSV 文件"
 
-#: users/templates/users/account.html:436 users/templates/users/data.html:74
+#: users/templates/users/account.html:440 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
 #: users/templates/users/data.html:451 users/templates/users/data.html:504
@@ -5742,66 +5741,66 @@ msgstr "CSV 文件"
 msgid "Import"
 msgstr "导入"
 
-#: users/templates/users/account.html:447
-#: users/templates/users/account.html:456
-#: users/templates/users/account.html:465
-#: users/templates/users/account.html:474
+#: users/templates/users/account.html:451
+#: users/templates/users/account.html:460
+#: users/templates/users/account.html:469
+#: users/templates/users/account.html:478
 msgid "Download CSV"
 msgstr "下载 CSV"
 
-#: users/templates/users/account.html:461
+#: users/templates/users/account.html:465
 msgid "Blocks"
 msgstr "屏蔽"
 
-#: users/templates/users/account.html:470
+#: users/templates/users/account.html:474
 msgid "Mutes"
 msgstr "静音"
 
-#: users/templates/users/account.html:484
+#: users/templates/users/account.html:488
 msgid "Migrate Account"
 msgstr "迁移账号"
 
-#: users/templates/users/account.html:488
+#: users/templates/users/account.html:492
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr "建议关联电子邮件后再从其他实例迁入。"
 
-#: users/templates/users/account.html:491
+#: users/templates/users/account.html:495
 msgid "Migrate another account here"
 msgstr "将其他账号迁入此处"
 
-#: users/templates/users/account.html:494
+#: users/templates/users/account.html:498
 msgid "Migrate to another account"
 msgstr "迁移到其他账号"
 
-#: users/templates/users/account.html:501
+#: users/templates/users/account.html:505
 msgid "Delete Account"
 msgstr "删除账号"
 
-#: users/templates/users/account.html:504
+#: users/templates/users/account.html:508
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
-#: users/templates/users/account.html:507
+#: users/templates/users/account.html:511
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除"
 
-#: users/templates/users/account.html:517
+#: users/templates/users/account.html:521
 msgid "Once deleted, account data cannot be recovered."
 msgstr "账号数据一旦删除后将无法恢复"
 
-#: users/templates/users/account.html:520
+#: users/templates/users/account.html:524
 msgid "Task in progress, can't delete now."
 msgstr "暂时无法删除，因为有导入或导出任务正在进行"
 
-#: users/templates/users/account.html:524
+#: users/templates/users/account.html:528
 msgid "Permanently Delete"
 msgstr "永久删除"
 
-#: users/templates/users/account.html:565
+#: users/templates/users/account.html:569
 msgid "Delete this passkey?"
 msgstr "确定删除这个通行密钥吗?"
 
-#: users/templates/users/account.html:585
+#: users/templates/users/account.html:589
 msgid "Rename passkey:"
 msgstr "重命名通行密钥:"
 
@@ -6144,13 +6143,9 @@ msgstr "图标"
 
 #: users/templates/users/login.html:54
 #: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:47
+#: users/templates/users/welcome.html:51
 msgid "Continue"
 msgstr "继续"
-
-#: users/templates/users/login.html:60 users/views/webauthn.py:97
-msgid "Passkey"
-msgstr "通行密钥"
 
 #: users/templates/users/login.html:116
 msgid "Sign in with a passkey saved on this device or in your password manager."
@@ -6547,23 +6542,23 @@ msgstr ""
 "              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！\n"
 "        "
 
-#: users/templates/users/welcome.html:33
+#: users/templates/users/welcome.html:37
 msgid "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock."
 msgstr "设置通行密钥，下次可以使用指纹、面容或屏幕锁快速登录。"
 
-#: users/templates/users/welcome.html:35
+#: users/templates/users/welcome.html:39
 msgid "Creating a passkey is highly recommended, as the website or email you use to create this account may not be always available."
 msgstr "强烈建议创建通行密钥，因为你用来注册此账户的第三方网站或邮箱可能失效。"
 
-#: users/templates/users/welcome.html:39
+#: users/templates/users/welcome.html:43
 msgid "Create Passkey"
 msgstr "创建通行密钥"
 
-#: users/templates/users/welcome.html:43
+#: users/templates/users/welcome.html:47
 msgid "Maybe later"
 msgstr "以后再说"
 
-#: users/templates/users/welcome.html:72
+#: users/templates/users/welcome.html:76
 msgid "Passkey created"
 msgstr "通行密钥已创建"
 
@@ -6692,23 +6687,23 @@ msgstr "已接收 {count} 条导入数据，将在后台处理。"
 msgid "Passkey registration failed"
 msgstr "通行密钥注册失败"
 
-#: users/views/webauthn.py:138 users/views/webauthn.py:144
-#: users/views/webauthn.py:153
+#: users/views/webauthn.py:141 users/views/webauthn.py:147
+#: users/views/webauthn.py:156
 msgid "Passkey not recognized"
 msgstr "无法识别此通行密钥"
 
-#: users/views/webauthn.py:158
+#: users/views/webauthn.py:161
 msgid "Account is inactive"
 msgstr "账户未激活"
 
-#: users/views/webauthn.py:174
+#: users/views/webauthn.py:177
 msgid "Passkey verification failed"
 msgstr "通行密钥验证失败"
 
-#: users/views/webauthn.py:200 users/views/webauthn.py:221
+#: users/views/webauthn.py:203 users/views/webauthn.py:225
 msgid "Passkey not found"
 msgstr "通行密钥未找到"
 
-#: users/views/webauthn.py:215
+#: users/views/webauthn.py:219
 msgid "Name is required"
 msgstr "名称不能为空"

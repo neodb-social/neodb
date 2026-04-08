@@ -24,5 +24,9 @@ def site_info(request):
         context["translate_enabled"] = bool(opts.deepl_api_key) or bool(opts.lt_api_url)
     context["debug_enabled"] = settings.DEBUG
     if hasattr(request, "user") and request.user.is_authenticated:
-        context["has_passkeys"] = request.user.webauthn_credentials.exists()
+        has_passkeys = request.session.get("has_passkeys")
+        if has_passkeys is None:
+            has_passkeys = request.user.webauthn_credentials.exists()
+            request.session["has_passkeys"] = has_passkeys
+        context["has_passkeys"] = has_passkeys
     return context

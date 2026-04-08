@@ -28,6 +28,10 @@
         <form style="display:none">
           {% csrf_token %}
         </form>
+        <div id="passkey-strings"
+             data-name-prompt="{% trans 'Name this passkey:' %}"
+             data-default-name="{% trans 'Passkey' %}"
+             style="display:none"></div>
         <div id="passkey-prompt" style="display:none">
           <hr>
           <p>{% trans "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock." %}</p>

@@ -226,6 +226,10 @@
         <article>
           <details>
             <summary>{% trans "Passkeys" %}</summary>
+            <div id="passkey-strings"
+                 data-name-prompt="{% trans 'Name this passkey:' %}"
+                 data-default-name="{% trans 'Passkey' %}"
+                 style="display:none"></div>
             {% if passkeys %}
               <table role="grid">
                 <thead>

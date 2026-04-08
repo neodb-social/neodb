@@ -82,12 +82,10 @@
       };
 
       // 5. Ask user for a friendly name
-      var name = prompt(
-        document.documentElement.lang.startsWith("zh")
-          ? "为这个通行密钥取个名字:"
-          : "Name this passkey:",
-        "Passkey"
-      );
+      var stringsEl = document.getElementById("passkey-strings");
+      var promptMsg = stringsEl ? stringsEl.dataset.namePrompt : "Name this passkey:";
+      var defaultName = stringsEl ? stringsEl.dataset.defaultName : "Passkey";
+      var name = prompt(promptMsg, defaultName);
       if (name) body.name = name;
 
       // 6. Verify with server

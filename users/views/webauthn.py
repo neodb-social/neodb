@@ -108,6 +108,7 @@ def passkey_register_verify(request):
         sign_count=verification.sign_count,
         transports=transports,
     )
+    request.session["has_passkeys"] = True
     return JsonResponse({"ok": True})
 
 
@@ -200,6 +201,7 @@ def passkey_delete(request):
     ).delete()
     if not deleted_count:
         return JsonResponse({"ok": False, "error": _("Passkey not found")}, status=404)
+    request.session["has_passkeys"] = request.user.webauthn_credentials.exists()
     return JsonResponse({"ok": True})
 
 
