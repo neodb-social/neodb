@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-12 01:06-0400\n"
+"POT-Creation-Date: 2026-04-12 15:46-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -2887,7 +2887,7 @@ msgstr "在读"
 msgid "Access"
 msgstr "接受"
 
-#: common/views_manage.py:146 common/views_manage.py:438
+#: common/views_manage.py:146 common/views_manage.py:446
 #, fuzzy
 #| msgid "duration"
 msgid "Federation"
@@ -3127,284 +3127,292 @@ msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:425
+msgid "Task Cleanup (days)"
+msgstr "任务清理（天）"
+
+#: common/views_manage.py:427
+msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
+msgstr "在指定天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
+
+#: common/views_manage.py:433
 #, fuzzy
 #| msgid "Search filters"
 msgid "Search Sites"
 msgstr "筛选搜索结果"
 
-#: common/views_manage.py:426
+#: common/views_manage.py:434
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:429
+#: common/views_manage.py:437
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:430
+#: common/views_manage.py:438
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:433
+#: common/views_manage.py:441
 #, fuzzy
 #| msgid "Add tv series"
 msgid "Hidden Categories"
 msgstr "添加电视剧集"
 
-#: common/views_manage.py:434
+#: common/views_manage.py:442
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:443
+#: common/views_manage.py:452
 #, fuzzy
 #| msgid "Search filters"
 msgid "Search"
 msgstr "筛选搜索结果"
 
-#: common/views_manage.py:455
+#: common/views_manage.py:464
 #, fuzzy
 #| msgid "Spotify Album"
 msgid "Spotify API Key"
 msgstr "Spotify专辑"
 
-#: common/views_manage.py:456
+#: common/views_manage.py:465
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:459
+#: common/views_manage.py:468
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:460
+#: common/views_manage.py:469
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:463
+#: common/views_manage.py:472
 #, fuzzy
 #| msgid "Google Books"
 msgid "Google Books API Key"
 msgstr "谷歌图书"
 
-#: common/views_manage.py:464
+#: common/views_manage.py:473
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:467
+#: common/views_manage.py:476
 #, fuzzy
 #| msgid "Discogs"
 msgid "Discogs API Key"
 msgstr "Discogs"
 
-#: common/views_manage.py:469
+#: common/views_manage.py:478
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:473
+#: common/views_manage.py:482
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:474
+#: common/views_manage.py:483
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:477
+#: common/views_manage.py:486
 #, fuzzy
 #| msgid "client secret"
 msgid "IGDB Client Secret"
 msgstr "实例应用Client Secret"
 
-#: common/views_manage.py:480 users/templates/users/steam_import.html:26
+#: common/views_manage.py:489 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Steam API 密钥"
 
-#: common/views_manage.py:482
+#: common/views_manage.py:491
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr "https://steamcommunity.com/dev - Steam 导入的备用密钥。用户可在导入时提供自己的密钥。"
 
-#: common/views_manage.py:487
+#: common/views_manage.py:496
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:488
+#: common/views_manage.py:497
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:491
+#: common/views_manage.py:500
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:494
+#: common/views_manage.py:503
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:497
+#: common/views_manage.py:506
 #, fuzzy
 #| msgid "Threads"
 msgid "Threads App ID"
 msgstr "Threads"
 
-#: common/views_manage.py:498
+#: common/views_manage.py:507
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:501
+#: common/views_manage.py:510
 #, fuzzy
 #| msgid "Threads.net"
 msgid "Threads App Secret"
 msgstr "Threads.net"
 
-#: common/views_manage.py:504
+#: common/views_manage.py:513
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:505
+#: common/views_manage.py:514
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:508
+#: common/views_manage.py:517
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:509
+#: common/views_manage.py:518
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:514
+#: common/views_manage.py:523
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:516
+#: common/views_manage.py:525
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
 msgstr ""
 
-#: common/views_manage.py:530
+#: common/views_manage.py:539
 #, fuzzy
 #| msgid "Catalog Moderators"
 msgid "Catalog APIs"
 msgstr "条目管理员"
 
-#: common/views_manage.py:539
+#: common/views_manage.py:548
 #, fuzzy
 #| msgid "translator"
 msgid "Translation"
 msgstr "译者"
 
-#: common/views_manage.py:544
+#: common/views_manage.py:553
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:548
+#: common/views_manage.py:557
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:560
+#: common/views_manage.py:569
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:561
+#: common/views_manage.py:570
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:564
+#: common/views_manage.py:573
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:565
+#: common/views_manage.py:574
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:568
+#: common/views_manage.py:577
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:571
+#: common/views_manage.py:580
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:574
+#: common/views_manage.py:583
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:586
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:580
+#: common/views_manage.py:589
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:583
+#: common/views_manage.py:592
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:593
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:587
+#: common/views_manage.py:596
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:591
+#: common/views_manage.py:600
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:595
+#: common/views_manage.py:604
 #, fuzzy
 #| msgid "series"
 msgid "Retries"
 msgstr "丛书"
 
-#: common/views_manage.py:600
+#: common/views_manage.py:609
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:605
+#: common/views_manage.py:614
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:612
+#: common/views_manage.py:621
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:624
+#: common/views_manage.py:633
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:625
+#: common/views_manage.py:634
 #, fuzzy
 #| msgid "site domain name"
 msgid "One domain per line."
 msgstr "站点域名"
 
-#: common/views_manage.py:628
+#: common/views_manage.py:637
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:629
+#: common/views_manage.py:638
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:632
+#: common/views_manage.py:641
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:642
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:636
+#: common/views_manage.py:645
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:637
+#: common/views_manage.py:646
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:648
+#: common/views_manage.py:657
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:651
+#: common/views_manage.py:660
 #, fuzzy
 #| msgid "optional"
 msgid "Operational"
@@ -6599,99 +6607,99 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:185 users/views/data.py:214
+#: users/views/data.py:186 users/views/data.py:215
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:208
+#: users/views/data.py:209
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:226
+#: users/views/data.py:227
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:241 users/views/data.py:261
+#: users/views/data.py:242 users/views/data.py:262
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:275
+#: users/views/data.py:276
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:289
+#: users/views/data.py:290
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:298 users/views/data.py:322 users/views/data.py:346
-#: users/views/data.py:371 users/views/data.py:395 users/views/data.py:419
+#: users/views/data.py:299 users/views/data.py:323 users/views/data.py:347
+#: users/views/data.py:372 users/views/data.py:396 users/views/data.py:420
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:539
+#: users/views/data.py:540
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:561
+#: users/views/data.py:562
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:577
+#: users/views/data.py:578
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:582
+#: users/views/data.py:583
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:592 users/views/data.py:643
+#: users/views/data.py:593 users/views/data.py:644
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:599
+#: users/views/data.py:600
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:604
+#: users/views/data.py:605
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:630
+#: users/views/data.py:631
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:635
+#: users/views/data.py:636
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:648
+#: users/views/data.py:649
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:659
+#: users/views/data.py:660
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:665
+#: users/views/data.py:666
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:723
+#: users/views/data.py:724
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:739
+#: users/views/data.py:740
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:743
+#: users/views/data.py:744
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:752
+#: users/views/data.py:753
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

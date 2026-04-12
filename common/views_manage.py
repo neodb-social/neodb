@@ -421,6 +421,14 @@ class FederationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 1,
         },
+        "task_cleanup_days": {
+            "title": _("Task Cleanup (days)"),
+            "help_text": _(
+                "Delete import/export tasks and their files after this many days. "
+                "Set to 0 to disable cleanup."
+            ),
+            "min_value": 0,
+        },
         "search_sites": {
             "title": _("Search Sites"),
             "help_text": _("External search sites to include, one per line."),
@@ -439,6 +447,7 @@ class FederationSettings(SiteConfigSettingsPage):
             "disable_default_relay",
             "fanout_limit_days",
             "remote_prune_horizon",
+            "task_cleanup_days",
         ],
         _("Search"): [
             "search_sites",

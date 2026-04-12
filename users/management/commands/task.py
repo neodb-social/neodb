@@ -1,6 +1,8 @@
 from tqdm import tqdm
 
 from common.management.base import SiteCommand
+from common.models import SiteConfig
+from users.jobs.cleanup import prune_tasks
 from users.models import Task
 
 
@@ -15,13 +17,28 @@ class Command(SiteCommand):
         parser.add_argument("--failed", action="store_true")
         parser.add_argument("--complete", action="store_true")
         parser.add_argument("--list", action="store_true")
-        parser.add_argument("--prune", action="store_true")
+        parser.add_argument(
+            "--prune",
+            nargs="?",
+            const=0,
+            type=int,
+            metavar="DAYS",
+            help="Delete tasks older than DAYS (default: from site config) and their files",
+        )
         parser.add_argument("--rerun", action="store_true")
         parser.add_argument("--requeue", action="store_true")
         # parser.add_argument("--set-fail", action="store_true")
         parser.add_argument("--delete", action="store_true")
 
     def handle(self, *args, **options):
+        if options["prune"] is not None:
+            days = options["prune"] or SiteConfig.system.task_cleanup_days
+            tasks_deleted, files_deleted = prune_tasks(days=days)
+            self.stdout.write(
+                f"Pruned {tasks_deleted} tasks and {files_deleted} files older than {days} days."
+            )
+            return
+
         tasks = Task.objects.all().order_by("id")
         states = []
         if options["pending"]:

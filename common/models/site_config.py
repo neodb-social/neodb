@@ -99,6 +99,9 @@ class SiteConfig(models.Model):
         downloader_cache_timeout: int = 300
         downloader_retries: int = 3
 
+        # Cleanup
+        task_cleanup_days: int = 28
+
         # Advanced / Operational
         alternative_domains: list[str] = []
         mastodon_client_scope: str = (
