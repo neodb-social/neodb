@@ -34,6 +34,7 @@ class Steam(AbstractSite):
     URL_PATTERNS = [r"\w+://store\.steampowered\.com/app/(\d+)"]
     WIKI_PROPERTY_ID = "?"
     DEFAULT_MODEL = Game
+    api_key: str = ""
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -43,8 +44,9 @@ class Steam(AbstractSite):
         api_url = (
             f"https://store.steampowered.com/api/appdetails?appids={self.id_value}"
         )
-        if SiteConfig.system.steam_api_key:
-            api_url += f"&key={SiteConfig.system.steam_api_key}"
+        key = self.api_key or SiteConfig.system.steam_api_key
+        if key:
+            api_url += f"&key={key}"
         headers = {
             "User-Agent": settings.NEODB_USER_AGENT,
             "Accept": "application/json",

@@ -1,0 +1,148 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Import from Steam' %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <article>
+          <h3>{% trans 'Import from Steam Wishlist / Library' %}</h3>
+          <p>
+            {% trans 'Steam ID' %}: <strong>{{ steam_id }}</strong>
+          </p>
+          <form method="post" action="{% url 'users:import_steam' %}">
+            {% csrf_token %}
+            <input type="hidden" name="steam_id" value="{{ steam_id }}">
+            <fieldset>
+              <legend>{% trans 'Steam API Key' %}</legend>
+              <label>
+                {% trans 'Your personal Steam API key' %}
+                <input type="text"
+                       name="steam_api_key"
+                       placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
+                <small>
+                  {% trans 'Get a free key at' %}
+                  <a href="https://steamcommunity.com/dev/apikey"
+                     target="_blank"
+                     rel="noopener noreferrer">steamcommunity.com/dev/apikey</a>.
+                  {% trans 'You can revoke or regenerate the key after the import is complete.' %}
+                </small>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>{% trans 'Import Sources' %}</legend>
+              <label>
+                <input type="checkbox" name="source[]" value="wishlist" checked>
+                {% trans 'Steam Wishlist' %}
+              </label>
+              <label>
+                <input type="checkbox" name="source[]" value="library" checked>
+                {% trans 'Steam Library (owned games)' %}
+              </label>
+              <div style="margin-left: 1.5rem;">
+                <label>
+                  <input type="radio" name="free_filter" value="all">
+                  {% trans 'Include all free games' %}
+                </label>
+                <label>
+                  <input type="radio" name="free_filter" value="played" checked>
+                  {% trans 'Include played free games' %}
+                </label>
+                <label>
+                  <input type="radio" name="free_filter" value="no">
+                  {% trans 'Include no free games' %}
+                </label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>{% trans 'Status filter' %}</legend>
+              <small>{% trans "Import marks with these estimated status" %}</small>
+              <div class="grid">
+                <label>
+                  <input type="checkbox"
+                         name="shelf_filters[]"
+                         value="progress"
+                         data-tooltip="{% trans 'Launched in playing threshold' %}"
+                         checked>
+                  {% trans 'Playing' %}
+                </label>
+                <label>
+                  <input type="checkbox"
+                         name="shelf_filters[]"
+                         value="complete"
+                         data-tooltip="{% trans 'Not launched in playing threshold & play time > finished threshold' %}"
+                         checked>
+                  {% trans 'Played' %}
+                </label>
+                <label>
+                  <input type="checkbox"
+                         name="shelf_filters[]"
+                         value="wishlist"
+                         data-tooltip="{% trans 'Games in wishlist; or purchased in library but never played, mark date will be set as today' %}">
+                  {% trans 'To play' %}
+                </label>
+                <label>
+                  <input type="checkbox"
+                         name="shelf_filters[]"
+                         value="dropped"
+                         data-tooltip="{% trans 'Not launched in playing threshold & play time < finished threshold' %}">
+                  {% trans 'No longer playing' %}
+                </label>
+              </div>
+              <label>
+                {% trans 'Playing threshold' %}
+                <input type="number" name="playing_thresh" value="12">
+                <small>{% trans "in days, launched in recent X days to be considered playing" %}</small>
+              </label>
+              <label>
+                {% trans 'Finished threshold' %}
+                <input type="number" name="finish_thresh" value="2">
+                <small>{% trans "in hours, played for more than these hours to be considered finished" %}</small>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>{% trans 'Advanced' %}</legend>
+              <label>
+                {% trans 'Ignored Games' %}
+                <input type="text" name="ignored_appids" placeholder="12345,67890,54321">
+                <small>{% trans 'Comma-separated Steam AppIDs' %}</small>
+              </label>
+              <label>
+                <input type="checkbox" role="switch" name="allow_shelf_type_reversion">
+                {% trans 'Allow reverse override of status (e.g. playing -> want to, or played -> playing)' %}
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>{% trans 'Visibility' %}</legend>
+              <label>
+                <input type="radio" name="visibility" value="0" checked>
+                {% trans 'Public' %}
+              </label>
+              <label>
+                <input type="radio" name="visibility" value="1">
+                {% trans 'Followers Only' %}
+              </label>
+              <label>
+                <input type="radio" name="visibility" value="2">
+                {% trans 'Mentioned Only' %}
+              </label>
+            </fieldset>
+            <small>{% trans 'To import from Steam, your game details must be visible to public in Steam privacy settings.' %}</small>
+            <input type="submit" value="{% trans 'Import' %}">
+          </form>
+        </article>
+      </div>
+      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

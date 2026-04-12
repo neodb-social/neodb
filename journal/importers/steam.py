@@ -63,6 +63,7 @@ class SteamImporter(BaseImporter):
         failed_items: List[str]
         visibility: VisibilityType
         steam_id: str
+        steam_api_key: str
         config: dict
 
     TaskQueue = "import"
@@ -75,6 +76,7 @@ class SteamImporter(BaseImporter):
         "failed_items": [],
         "visibility": VisibilityType.Public,
         "steam_id": "",
+        "steam_api_key": "",
         "config": {
             "wishlist": {
                 "enable": False,
@@ -107,14 +109,21 @@ class SteamImporter(BaseImporter):
         Run task: fetch wishlist and/or owned games and import marks
         """
         logger.debug("Start importing")
-        self.steam_apikey = SiteConfig.system.steam_api_key or ""
+        # Use per-user API key if provided, fall back to admin key
+        self.steam_apikey = (
+            self.metadata.get("steam_api_key", "")
+            or SiteConfig.system.steam_api_key
+            or ""
+        )
 
         # Validation of apikey and userid
         try:
             self.validate(self.steam_apikey, self.metadata["steam_id"])
         except InvalidSteamAPIKeyException:
             self.failfast(
-                "Ask the site admin to set a valid STEAM_API_KEY to allow import from Steam"
+                "A valid Steam API key is required. "
+                "Provide your own key from https://steamcommunity.com/dev/apikey "
+                "or ask the site admin to configure one."
             )
             return
         except InvalidSteamIDException as e:
@@ -232,6 +241,8 @@ class SteamImporter(BaseImporter):
         site = SiteManager.get_site_by_id(id_type, app_id)
         if not site:
             raise ValueError(f"{id_type} not in site registry")
+        if hasattr(site, "api_key"):
+            setattr(site, "api_key", self.steam_apikey)
         item = site.get_item()
         if item:
             return item

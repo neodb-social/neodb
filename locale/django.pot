@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-07 21:41-0400\n"
+"POT-Creation-Date: 2026-04-12 01:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2872,6 +2872,7 @@ msgid "Downloader"
 msgstr ""
 
 #: common/views_manage.py:149 common/views_manage.py:300
+#: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr ""
 
@@ -3143,187 +3144,187 @@ msgstr ""
 msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:480
+#: common/views_manage.py:480 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr ""
 
-#: common/views_manage.py:481
-msgid "https://steamcommunity.com/dev - used for Steam importer."
+#: common/views_manage.py:482
+msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:484
+#: common/views_manage.py:487
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:485
+#: common/views_manage.py:488
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:488
+#: common/views_manage.py:491
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:491
+#: common/views_manage.py:494
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:494
+#: common/views_manage.py:497
 msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:495
+#: common/views_manage.py:498
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:498
+#: common/views_manage.py:501
 msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:501
+#: common/views_manage.py:504
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:502
+#: common/views_manage.py:505
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:505
+#: common/views_manage.py:508
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:506
+#: common/views_manage.py:509
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:511
+#: common/views_manage.py:514
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:513
+#: common/views_manage.py:516
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
 msgstr ""
 
-#: common/views_manage.py:527
+#: common/views_manage.py:530
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:536
+#: common/views_manage.py:539
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:541
+#: common/views_manage.py:544
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:545
+#: common/views_manage.py:548
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:557
+#: common/views_manage.py:560
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:558
+#: common/views_manage.py:561
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:561
+#: common/views_manage.py:564
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:562
+#: common/views_manage.py:565
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:565
+#: common/views_manage.py:568
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:568
+#: common/views_manage.py:571
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:571
+#: common/views_manage.py:574
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:574
+#: common/views_manage.py:577
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:580
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:580
+#: common/views_manage.py:583
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:581
+#: common/views_manage.py:584
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:587
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:588
+#: common/views_manage.py:591
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:592
+#: common/views_manage.py:595
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:597
+#: common/views_manage.py:600
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:602
+#: common/views_manage.py:605
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:609
+#: common/views_manage.py:612
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:621
+#: common/views_manage.py:624
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:622
+#: common/views_manage.py:625
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:625
+#: common/views_manage.py:628
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:626
+#: common/views_manage.py:629
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:629
+#: common/views_manage.py:632
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:630
+#: common/views_manage.py:633
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:636
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:634
+#: common/views_manage.py:637
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:645
+#: common/views_manage.py:648
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:648
+#: common/views_manage.py:651
 msgid "Operational"
 msgstr ""
 
@@ -3345,8 +3346,8 @@ msgstr ""
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
 #: users/templates/users/data.html:204 users/templates/users/data.html:255
-#: users/templates/users/data.html:435 users/templates/users/data.html:475
-#: users/templates/users/data.html:534
+#: users/templates/users/data.html:317 users/templates/users/data.html:376
+#: users/templates/users/steam_import.html:125
 msgid "Visibility"
 msgstr ""
 
@@ -3362,7 +3363,7 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:85 users/templates/users/data.html:689
+#: journal/forms.py:85 users/templates/users/data.html:531
 msgid "Status"
 msgstr ""
 
@@ -3407,9 +3408,10 @@ msgstr ""
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
 #: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:264 users/templates/users/data.html:439
-#: users/templates/users/data.html:483 users/templates/users/data.html:543
+#: users/templates/users/data.html:264 users/templates/users/data.html:325
+#: users/templates/users/data.html:385
 #: users/templates/users/preferences.html:56
+#: users/templates/users/steam_import.html:128
 msgid "Public"
 msgstr ""
 
@@ -3419,9 +3421,9 @@ msgstr ""
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
 #: users/templates/users/data.html:221 users/templates/users/data.html:272
-#: users/templates/users/data.html:443 users/templates/users/data.html:491
-#: users/templates/users/data.html:551
+#: users/templates/users/data.html:333 users/templates/users/data.html:393
 #: users/templates/users/preferences.html:63
+#: users/templates/users/steam_import.html:132
 msgid "Followers Only"
 msgstr ""
 
@@ -3431,9 +3433,9 @@ msgstr ""
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
 #: users/templates/users/data.html:229 users/templates/users/data.html:280
-#: users/templates/users/data.html:447 users/templates/users/data.html:499
-#: users/templates/users/data.html:559
+#: users/templates/users/data.html:341 users/templates/users/data.html:401
 #: users/templates/users/preferences.html:70
+#: users/templates/users/steam_import.html:136
 msgid "Mentioned Only"
 msgstr ""
 
@@ -5511,8 +5513,8 @@ msgstr ""
 #: users/templates/users/account.html:440 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:451 users/templates/users/data.html:504
-#: users/templates/users/data.html:564
+#: users/templates/users/data.html:346 users/templates/users/data.html:406
+#: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr ""
 
@@ -5627,7 +5629,7 @@ msgstr ""
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:462
+#: users/templates/users/data.html:34 users/templates/users/data.html:304
 msgid "Import Method"
 msgstr ""
 
@@ -5716,186 +5718,83 @@ msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr ""
 
 #: users/templates/users/data.html:291
+#: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr ""
 
-#: users/templates/users/data.html:298
-msgid "Steam User ID"
+#: users/templates/users/data.html:294
+msgid "Login with Steam"
 msgstr ""
 
-#: users/templates/users/data.html:302
-msgid "Available in Steam Account Details"
-msgstr ""
-
-#: users/templates/users/data.html:305
-msgid "To import from Steam, your account profile must be visible to public"
-msgstr ""
-
-#: users/templates/users/data.html:311
-msgid "Import Sources"
-msgstr ""
-
-#: users/templates/users/data.html:318
-msgid "Steam Wishlist"
-msgstr ""
-
-#: users/templates/users/data.html:326
-msgid "Steam Library (owned games)"
-msgstr ""
-
-#: users/templates/users/data.html:333
-msgid "Include all free games"
-msgstr ""
-
-#: users/templates/users/data.html:341
-msgid "Include played free games"
-msgstr ""
-
-#: users/templates/users/data.html:348
-msgid "Include no free games"
-msgstr ""
-
-#: users/templates/users/data.html:356
-msgid "Status filter"
-msgstr ""
-
-#: users/templates/users/data.html:357
-msgid "import marks with these estimated status"
-msgstr ""
-
-#: users/templates/users/data.html:363
-msgid "Launched in playing threshold"
-msgstr ""
-
-#: users/templates/users/data.html:365
-msgid "Playing"
-msgstr ""
-
-#: users/templates/users/data.html:371
-msgid "Not launched in playing threshold & play time > finished threshold"
-msgstr ""
-
-#: users/templates/users/data.html:373
-msgid "Played"
-msgstr ""
-
-#: users/templates/users/data.html:379
-msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
-msgstr ""
-
-#: users/templates/users/data.html:380
-msgid "To play"
-msgstr ""
-
-#: users/templates/users/data.html:386
-msgid "Not launched in playing threshold & play time < finished threshold"
-msgstr ""
-
-#: users/templates/users/data.html:387
-msgid "No longer playing"
-msgstr ""
-
-#: users/templates/users/data.html:390
-msgid "Playing threshold"
-msgstr ""
-
-#: users/templates/users/data.html:391
-msgid "in days, launched in recent X days to be consided playing"
-msgstr ""
-
-#: users/templates/users/data.html:393
-msgid "Finished threshold"
-msgstr ""
-
-#: users/templates/users/data.html:394
-msgid "in hours, played for more than these hours to be consided finished"
-msgstr ""
-
-#: users/templates/users/data.html:399
-msgid "Ignored Games"
-msgstr ""
-
-#: users/templates/users/data.html:400
-msgid "input comma-separated Steam AppIDs"
-msgstr ""
-
-#: users/templates/users/data.html:406
-msgid "Override mark status"
-msgstr ""
-
-#: users/templates/users/data.html:409
-msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
-msgstr ""
-
-#: users/templates/users/data.html:458
+#: users/templates/users/data.html:300
 msgid "Import Podcast Subscriptions"
 msgstr ""
 
-#: users/templates/users/data.html:469
+#: users/templates/users/data.html:311
 msgid "Mark as listening"
 msgstr ""
 
-#: users/templates/users/data.html:473
+#: users/templates/users/data.html:315
 msgid "Import as a new collection"
 msgstr ""
 
-#: users/templates/users/data.html:502
+#: users/templates/users/data.html:344
 msgid "Select OPML file"
 msgstr ""
 
-#: users/templates/users/data.html:512
+#: users/templates/users/data.html:354
 msgid "Import NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:518
+#: users/templates/users/data.html:360
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr ""
 
-#: users/templates/users/data.html:520
+#: users/templates/users/data.html:362
 msgid "Existing data may be overwritten."
 msgstr ""
 
-#: users/templates/users/data.html:530
+#: users/templates/users/data.html:372
 msgid "Detected format"
 msgstr ""
 
-#: users/templates/users/data.html:591
+#: users/templates/users/data.html:433
 msgid "Detecting format..."
 msgstr ""
 
-#: users/templates/users/data.html:617
+#: users/templates/users/data.html:459
 msgid "Unknown format"
 msgstr ""
 
-#: users/templates/users/data.html:642
+#: users/templates/users/data.html:484
 msgid "Error detecting format"
 msgstr ""
 
-#: users/templates/users/data.html:666
+#: users/templates/users/data.html:508
 msgid "Export NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:670
+#: users/templates/users/data.html:512
 msgid "Export marks, reviews and notes in CSV"
 msgstr ""
 
-#: users/templates/users/data.html:677
+#: users/templates/users/data.html:519
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:685
+#: users/templates/users/data.html:527
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr ""
 
-#: users/templates/users/data.html:688
+#: users/templates/users/data.html:530
 msgid "Last export"
 msgstr ""
 
-#: users/templates/users/data.html:693
+#: users/templates/users/data.html:535
 msgid "Download"
 msgstr ""
 
-#: users/templates/users/data.html:702
+#: users/templates/users/data.html:544
 msgid "View Annual Summary"
 msgstr ""
 
@@ -6277,6 +6176,122 @@ msgstr ""
 msgid "You may download the list here."
 msgstr ""
 
+#: users/templates/users/steam_import.html:10
+msgid "Import from Steam"
+msgstr ""
+
+#: users/templates/users/steam_import.html:20
+msgid "Steam ID"
+msgstr ""
+
+#: users/templates/users/steam_import.html:28
+msgid "Your personal Steam API key"
+msgstr ""
+
+#: users/templates/users/steam_import.html:33
+msgid "Get a free key at"
+msgstr ""
+
+#: users/templates/users/steam_import.html:37
+msgid "You can revoke or regenerate the key after the import is complete."
+msgstr ""
+
+#: users/templates/users/steam_import.html:42
+msgid "Import Sources"
+msgstr ""
+
+#: users/templates/users/steam_import.html:45
+msgid "Steam Wishlist"
+msgstr ""
+
+#: users/templates/users/steam_import.html:49
+msgid "Steam Library (owned games)"
+msgstr ""
+
+#: users/templates/users/steam_import.html:54
+msgid "Include all free games"
+msgstr ""
+
+#: users/templates/users/steam_import.html:58
+msgid "Include played free games"
+msgstr ""
+
+#: users/templates/users/steam_import.html:62
+msgid "Include no free games"
+msgstr ""
+
+#: users/templates/users/steam_import.html:67
+msgid "Status filter"
+msgstr ""
+
+#: users/templates/users/steam_import.html:68
+msgid "Import marks with these estimated status"
+msgstr ""
+
+#: users/templates/users/steam_import.html:74
+msgid "Launched in playing threshold"
+msgstr ""
+
+#: users/templates/users/steam_import.html:76
+msgid "Playing"
+msgstr ""
+
+#: users/templates/users/steam_import.html:82
+msgid "Not launched in playing threshold & play time > finished threshold"
+msgstr ""
+
+#: users/templates/users/steam_import.html:84
+msgid "Played"
+msgstr ""
+
+#: users/templates/users/steam_import.html:90
+msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
+msgstr ""
+
+#: users/templates/users/steam_import.html:91
+msgid "To play"
+msgstr ""
+
+#: users/templates/users/steam_import.html:97
+msgid "Not launched in playing threshold & play time < finished threshold"
+msgstr ""
+
+#: users/templates/users/steam_import.html:98
+msgid "No longer playing"
+msgstr ""
+
+#: users/templates/users/steam_import.html:102
+msgid "Playing threshold"
+msgstr ""
+
+#: users/templates/users/steam_import.html:104
+msgid "in days, launched in recent X days to be considered playing"
+msgstr ""
+
+#: users/templates/users/steam_import.html:107
+msgid "Finished threshold"
+msgstr ""
+
+#: users/templates/users/steam_import.html:109
+msgid "in hours, played for more than these hours to be considered finished"
+msgstr ""
+
+#: users/templates/users/steam_import.html:115
+msgid "Ignored Games"
+msgstr ""
+
+#: users/templates/users/steam_import.html:117
+msgid "Comma-separated Steam AppIDs"
+msgstr ""
+
+#: users/templates/users/steam_import.html:121
+msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
+msgstr ""
+
+#: users/templates/users/steam_import.html:139
+msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
+msgstr ""
+
 #: users/templates/users/user_task_status.html:29
 msgid "Failed items"
 msgstr ""
@@ -6387,70 +6402,70 @@ msgstr ""
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:535
+#: users/views/data.py:539
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:557
+#: users/views/data.py:561
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:573
+#: users/views/data.py:577
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:578
+#: users/views/data.py:582
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:588 users/views/data.py:639
+#: users/views/data.py:592 users/views/data.py:643
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:595
+#: users/views/data.py:599
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:600
+#: users/views/data.py:604
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:626
+#: users/views/data.py:630
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:631
+#: users/views/data.py:635
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:644
+#: users/views/data.py:648
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:655
+#: users/views/data.py:659
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:661
+#: users/views/data.py:665
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:719
+#: users/views/data.py:723
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:735
+#: users/views/data.py:739
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:739
+#: users/views/data.py:743
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:748
+#: users/views/data.py:752
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""
@@ -6459,23 +6474,23 @@ msgstr ""
 msgid "Passkey registration failed"
 msgstr ""
 
-#: users/views/webauthn.py:141 users/views/webauthn.py:147
-#: users/views/webauthn.py:156
+#: users/views/webauthn.py:141 users/views/webauthn.py:148
+#: users/views/webauthn.py:157
 msgid "Passkey not recognized"
 msgstr ""
 
-#: users/views/webauthn.py:161
+#: users/views/webauthn.py:162
 msgid "Account is inactive"
 msgstr ""
 
-#: users/views/webauthn.py:177
+#: users/views/webauthn.py:178
 msgid "Passkey verification failed"
 msgstr ""
 
-#: users/views/webauthn.py:203 users/views/webauthn.py:225
+#: users/views/webauthn.py:204 users/views/webauthn.py:226
 msgid "Passkey not found"
 msgstr ""
 
-#: users/views/webauthn.py:219
+#: users/views/webauthn.py:220
 msgid "Name is required"
 msgstr ""

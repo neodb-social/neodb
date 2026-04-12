@@ -476,7 +476,11 @@ def import_steam(request):
 
     # core metadatas
     metadata = SteamImporter.DefaultMetadata.copy()
-    metadata["steam_id"] = request.POST.get("steam_id", "").strip()
+    steam_id = request.POST.get("steam_id", "").strip()
+    if not steam_id:
+        steam_id = request.session.get("steam_id", "")
+    metadata["steam_id"] = steam_id
+    metadata["steam_api_key"] = request.POST.get("steam_api_key", "").strip()
     metadata["visibility"] = VisibilityType(int(request.POST.get("visibility", 0)))
 
     # config source

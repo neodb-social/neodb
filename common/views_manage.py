@@ -478,7 +478,10 @@ class APIKeysSettings(SiteConfigSettingsPage):
         },
         "steam_api_key": {
             "title": _("Steam API Key"),
-            "help_text": _("https://steamcommunity.com/dev - used for Steam importer."),
+            "help_text": _(
+                "https://steamcommunity.com/dev - fallback key for Steam importer. "
+                "Users can provide their own key when importing."
+            ),
         },
         "deepl_api_key": {
             "title": _("DeepL API Key"),

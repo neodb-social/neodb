@@ -22,6 +22,17 @@ urlpatterns = [
     path("data/import/trakt", import_trakt, name="import_trakt"),
     path("data/import/opml", import_opml, name="import_opml"),
     path("data/import/steam", import_steam, name="import_steam"),
+    path(
+        "data/import/steam/openid/start",
+        steam_openid_start,
+        name="steam_openid_start",
+    ),
+    path(
+        "data/import/steam/openid/callback",
+        steam_openid_callback,
+        name="steam_openid_callback",
+    ),
+    path("data/import/steam/config", steam_import_page, name="steam_import_page"),
     path("data/import/neodb", import_neodb, name="import_neodb"),
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),
