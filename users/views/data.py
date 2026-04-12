@@ -1,3 +1,4 @@
+import copy
 import csv
 import datetime
 import os
@@ -475,10 +476,10 @@ def import_steam(request):
         return redirect(reverse("users:data"))
 
     # core metadatas
-    metadata = SteamImporter.DefaultMetadata.copy()
+    metadata = copy.deepcopy(SteamImporter.DefaultMetadata)
     steam_id = request.POST.get("steam_id", "").strip()
     if not steam_id:
-        steam_id = request.session.get("steam_id", "")
+        steam_id = request.session.pop("steam_id", "")
     metadata["steam_id"] = steam_id
     metadata["steam_api_key"] = request.POST.get("steam_api_key", "").strip()
     metadata["visibility"] = VisibilityType(int(request.POST.get("visibility", 0)))
