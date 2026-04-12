@@ -33,6 +33,9 @@ class Command(SiteCommand):
     def handle(self, *args, **options):
         if options["prune"] is not None:
             days = options["prune"] or SiteConfig.system.task_cleanup_days
+            if days <= 0:
+                self.stdout.write("Task cleanup skipped (days <= 0).")
+                return
             tasks_deleted, files_deleted = prune_tasks(days=days)
             self.stdout.write(
                 f"Pruned {tasks_deleted} tasks and {files_deleted} files older than {days} days."

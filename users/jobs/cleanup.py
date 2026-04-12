@@ -40,20 +40,20 @@ def delete_task_file(task: Task) -> bool:
     return False
 
 
-def prune_tasks(days: int = 90) -> tuple[int, int]:
+def prune_tasks(days: int = 28) -> tuple[int, int]:
     """Delete tasks older than the given number of days and their files.
 
     Returns (tasks_deleted, files_deleted) counts.
     """
+    if days <= 0:
+        return 0, 0
     cutoff = timezone.now() - timedelta(days=days)
     old_tasks = Task.objects.filter(created_time__lt=cutoff)
-    tasks_deleted = 0
     files_deleted = 0
     for task in old_tasks.iterator():
         if delete_task_file(task):
             files_deleted += 1
-        task.delete()
-        tasks_deleted += 1
+    tasks_deleted, _ = old_tasks.delete()
     return tasks_deleted, files_deleted
 
 
