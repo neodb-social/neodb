@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models import Avg, Count
 
 from catalog.models import Item, Performance, TVShow
+from catalog.models.performance import PerformanceProduction
+from catalog.models.tv import TVSeason
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -136,10 +138,36 @@ class Rating(Content):
         item_to_parent = {}
         all_item_ids = set(item_ids)
 
-        # Handle items with child items and build mapping
+        # Batch-fetch child IDs for parent item types (TVShow, Performance)
+        # to avoid per-item queries from item.child_item_ids
+        tvshow_ids = [i.pk for i in items if isinstance(i, TVShow)]
+        perf_ids = [i.pk for i in items if isinstance(i, Performance)]
+        child_id_map: dict[int, list[int]] = {}
+        if tvshow_ids:
+            for show_id, season_id in (
+                TVSeason.objects.filter(
+                    show_id__in=tvshow_ids,
+                    is_deleted=False,
+                    merged_to_item=None,
+                )
+                .values_list("show_id", "pk")
+                .iterator()
+            ):
+                child_id_map.setdefault(show_id, []).append(season_id)
+        if perf_ids:
+            for show_id, prod_id in (
+                PerformanceProduction.objects.filter(
+                    show_id__in=perf_ids,
+                    is_deleted=False,
+                    merged_to_item=None,
+                )
+                .values_list("show_id", "pk")
+                .iterator()
+            ):
+                child_id_map.setdefault(show_id, []).append(prod_id)
         for item in items:
             if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
-                for child_id in item.child_item_ids:
+                for child_id in child_id_map.get(item.pk, []):
                     item_to_parent[child_id] = item.pk
                     all_item_ids.add(child_id)
             if item.pk not in item_to_parent:

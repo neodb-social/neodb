@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count, F, Window
+from django.db.models import Count, F, Window, prefetch_related_objects
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -88,6 +88,9 @@ def retrieve(request, item_path, item_uuid):
         return JsonResponse(item.ap_object, content_type="application/activity+json")
     if request.method == "HEAD":
         return HttpResponse()
+    # Prefetch parent item and external resources to avoid N+1 in templates
+    prefetch_related_objects([item], "external_resources")
+    Item.prefetch_parent_items([item])
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(

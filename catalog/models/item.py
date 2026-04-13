@@ -13,7 +13,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import connection, models
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -544,6 +544,43 @@ class Item(PolymorphicModel):
     @classmethod
     def get_final_items(cls, items: Iterable["Item"]) -> list["Item"]:
         return [j for j in [i.final_item for i in items] if not j.is_deleted]
+
+    @staticmethod
+    def prefetch_parent_items(items: "Iterable[Item]") -> None:
+        """Batch-prefetch parent item relationships to avoid N+1 queries.
+
+        Call this on a list of polymorphic Item instances before rendering
+        templates that access item.parent_item (e.g. _item_card_metadata_base).
+        Note: Edition is excluded because the template short-circuits
+        parent_item access for editions (type.value == 'edition').
+        """
+        from .performance import PerformanceProduction
+        from .podcast import PodcastEpisode
+        from .tv import TVEpisode, TVSeason
+
+        tvseasons: list[TVSeason] = []
+        tvepisodes: list[TVEpisode] = []
+        podcastepisodes: list[PodcastEpisode] = []
+        performanceproductions: list[PerformanceProduction] = []
+
+        for i in items:
+            if isinstance(i, TVSeason):
+                tvseasons.append(i)
+            elif isinstance(i, TVEpisode):
+                tvepisodes.append(i)
+            elif isinstance(i, PodcastEpisode):
+                podcastepisodes.append(i)
+            elif isinstance(i, PerformanceProduction):
+                performanceproductions.append(i)
+
+        if tvseasons:
+            prefetch_related_objects(tvseasons, "show")
+        if tvepisodes:
+            prefetch_related_objects(tvepisodes, "season")
+        if podcastepisodes:
+            prefetch_related_objects(podcastepisodes, "program")
+        if performanceproductions:
+            prefetch_related_objects(performanceproductions, "show")
 
     METADATA_COPY_LIST = [
         # "title",

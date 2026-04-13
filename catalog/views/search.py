@@ -25,7 +25,7 @@ from journal.models.rating import Rating
 from users.views import query_identity
 
 from ..common.sites import AbstractSite, SiteManager
-from ..models import ExternalResource, ItemCategory, SiteName, item_categories
+from ..models import ExternalResource, Item, ItemCategory, SiteName, item_categories
 from ..search import ExternalSources, enqueue_fetch, get_fetch_lock, query_index
 
 
@@ -156,6 +156,7 @@ def search(request):
     items, num_pages, __, by_cat, q = query_index(
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
+    Item.prefetch_parent_items(items)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     if request.user.is_authenticated:

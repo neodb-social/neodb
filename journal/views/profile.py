@@ -442,6 +442,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
         items = [member.item for member in members_queryset[:20]]
         total = members_queryset.count()
     if items:
+        Item.prefetch_parent_items(items)
         Rating.attach_to_items(items)
 
     if not label:

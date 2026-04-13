@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from catalog.models import Item
 from common.models.misc import int_
 from common.utils import (
     AuthedHttpRequest,
@@ -153,6 +154,7 @@ def render_list(
     # Batch-fetch marks and rating info for all items on this page to avoid N+1 queries
     items = [m.item for m in members]
     if items:
+        Item.prefetch_parent_items(items)
         Rating.attach_to_items(items)
         marks = Mark.get_marks_by_items(target, items, request.user)
         for m in members:

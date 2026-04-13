@@ -116,6 +116,7 @@ def search_item(
         prepare_external=False,
         exclude_categories=exclude_categories,
     )
+    Item.prefetch_parent_items(items)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     if request.user.is_authenticated:

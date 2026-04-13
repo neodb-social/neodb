@@ -166,6 +166,7 @@ class Collection(List):
                 r = JournalIndex.instance().search(q)
                 items = r.items
                 pages = r.pages
+                Item.prefetch_parent_items(items)
                 Rating.attach_to_items(items)
                 Tag.attach_to_items(items)
                 if viewer:
@@ -198,6 +199,7 @@ class Collection(List):
                 items_map = {i.pk: i for i in items}
                 for member in members:
                     member.item = items_map.get(member.item_id)
+                Item.prefetch_parent_items(items)
                 Rating.attach_to_items(items)
                 Tag.attach_to_items(items)
                 if viewer:

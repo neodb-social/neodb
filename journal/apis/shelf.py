@@ -34,7 +34,8 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     if not members:
         return
     items = [m.item for m in members]
-    # Batch-fetch item-level data (public rating/tags for ItemSchema)
+    # Batch-fetch parent items and item-level data to avoid N+1 queries
+    Item.prefetch_parent_items(items)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     # Batch-fetch latest_post_id for all members to avoid N+1 queries
