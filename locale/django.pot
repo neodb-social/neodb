@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-12 18:27-0400\n"
+"POT-Creation-Date: 2026-04-12 20:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1989,106 +1989,110 @@ msgid "Shooter"
 msgstr ""
 
 #: common/models/genre.py:90
-msgid "Fighting"
+msgid "FPS"
 msgstr ""
 
 #: common/models/genre.py:91
-msgid "Survival"
+msgid "Fighting"
 msgstr ""
 
 #: common/models/genre.py:92
-msgid "Sandbox"
+msgid "Survival"
 msgstr ""
 
 #: common/models/genre.py:93
-msgid "Roguelike"
+msgid "Sandbox"
 msgstr ""
 
 #: common/models/genre.py:94
-msgid "Visual Novel"
+msgid "Roguelike"
 msgstr ""
 
 #: common/models/genre.py:95
-msgid "Card Game"
+msgid "Visual Novel"
 msgstr ""
 
 #: common/models/genre.py:96
-msgid "Board Game"
+msgid "Card Game"
 msgstr ""
 
 #: common/models/genre.py:97
-msgid "Arcade"
+msgid "Board Game"
 msgstr ""
 
 #: common/models/genre.py:98
-msgid "MMO"
+msgid "Arcade"
 msgstr ""
 
 #: common/models/genre.py:99
-msgid "MOBA"
+msgid "MMO"
 msgstr ""
 
 #: common/models/genre.py:100
-msgid "Pinball"
+msgid "MOBA"
 msgstr ""
 
 #: common/models/genre.py:101
-msgid "Point-and-Click"
+msgid "Pinball"
 msgstr ""
 
 #: common/models/genre.py:102
+msgid "Point-and-Click"
+msgstr ""
+
+#: common/models/genre.py:103
 msgid "Casual"
 msgstr ""
 
-#: common/models/genre.py:104
+#: common/models/genre.py:105
 msgid "Opera"
 msgstr ""
 
-#: common/models/genre.py:105
+#: common/models/genre.py:106
 msgid "Ballet"
 msgstr ""
 
-#: common/models/genre.py:106
+#: common/models/genre.py:107
 msgid "Theater"
 msgstr ""
 
-#: common/models/genre.py:107
+#: common/models/genre.py:108
 msgid "Cabaret"
 msgstr ""
 
-#: common/models/genre.py:108
+#: common/models/genre.py:109
 msgid "Xiqu"
 msgstr ""
 
-#: common/models/genre.py:110
+#: common/models/genre.py:111
 msgid "True Crime"
 msgstr ""
 
-#: common/models/genre.py:111
+#: common/models/genre.py:112
 msgid "Self-Help"
 msgstr ""
 
-#: common/models/genre.py:112
+#: common/models/genre.py:113
 msgid "Business"
 msgstr ""
 
-#: common/models/genre.py:113
+#: common/models/genre.py:114
 msgid "Technology"
 msgstr ""
 
-#: common/models/genre.py:114
+#: common/models/genre.py:115
 msgid "Education"
 msgstr ""
 
-#: common/models/genre.py:115
+#: common/models/genre.py:116
 msgid "Religion"
 msgstr ""
 
-#: common/models/genre.py:116
+#: common/models/genre.py:117
 msgid "Leisure"
 msgstr ""
 
-#: common/models/genre.py:117
+#: common/models/genre.py:118
 msgid "Health"
 msgstr ""
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-12 18:27-0400\n"
+"POT-Creation-Date: 2026-04-12 20:18-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1990,106 +1990,110 @@ msgid "Shooter"
 msgstr "射击"
 
 #: common/models/genre.py:90
+msgid "FPS"
+msgstr "第一人称射击"
+
+#: common/models/genre.py:91
 msgid "Fighting"
 msgstr "格斗"
 
-#: common/models/genre.py:91
+#: common/models/genre.py:92
 msgid "Survival"
 msgstr "生存"
 
-#: common/models/genre.py:92
+#: common/models/genre.py:93
 msgid "Sandbox"
 msgstr "沙盒"
 
-#: common/models/genre.py:93
+#: common/models/genre.py:94
 msgid "Roguelike"
 msgstr "肉鸽"
 
-#: common/models/genre.py:94
+#: common/models/genre.py:95
 msgid "Visual Novel"
 msgstr "视觉小说"
 
-#: common/models/genre.py:95
+#: common/models/genre.py:96
 msgid "Card Game"
 msgstr "卡牌"
 
-#: common/models/genre.py:96
+#: common/models/genre.py:97
 msgid "Board Game"
 msgstr "桌游"
 
-#: common/models/genre.py:97
+#: common/models/genre.py:98
 msgid "Arcade"
 msgstr "街机"
 
-#: common/models/genre.py:98
+#: common/models/genre.py:99
 msgid "MMO"
 msgstr "MMO"
 
-#: common/models/genre.py:99
+#: common/models/genre.py:100
 msgid "MOBA"
 msgstr "MOBA"
 
-#: common/models/genre.py:100
+#: common/models/genre.py:101
 msgid "Pinball"
 msgstr "弹珠"
 
-#: common/models/genre.py:101
+#: common/models/genre.py:102
 msgid "Point-and-Click"
 msgstr "点击冒险"
 
-#: common/models/genre.py:102
+#: common/models/genre.py:103
 msgid "Casual"
 msgstr "休闲"
 
-#: common/models/genre.py:104
+#: common/models/genre.py:105
 msgid "Opera"
 msgstr "歌剧"
 
-#: common/models/genre.py:105
+#: common/models/genre.py:106
 msgid "Ballet"
 msgstr "芭蕾"
 
-#: common/models/genre.py:106
+#: common/models/genre.py:107
 msgid "Theater"
 msgstr "话剧"
 
-#: common/models/genre.py:107
+#: common/models/genre.py:108
 msgid "Cabaret"
 msgstr "歌舞表演"
 
-#: common/models/genre.py:108
+#: common/models/genre.py:109
 msgid "Xiqu"
 msgstr "戏曲"
 
-#: common/models/genre.py:110
+#: common/models/genre.py:111
 msgid "True Crime"
 msgstr "真实犯罪"
 
-#: common/models/genre.py:111
+#: common/models/genre.py:112
 msgid "Self-Help"
 msgstr "个人成长"
 
-#: common/models/genre.py:112
+#: common/models/genre.py:113
 msgid "Business"
 msgstr "商业"
 
-#: common/models/genre.py:113
+#: common/models/genre.py:114
 msgid "Technology"
 msgstr "科技"
 
-#: common/models/genre.py:114
+#: common/models/genre.py:115
 msgid "Education"
 msgstr "教育"
 
-#: common/models/genre.py:115
+#: common/models/genre.py:116
 msgid "Religion"
 msgstr "宗教"
 
-#: common/models/genre.py:116
+#: common/models/genre.py:117
 msgid "Leisure"
 msgstr "休闲娱乐"
 
-#: common/models/genre.py:117
+#: common/models/genre.py:118
 msgid "Health"
 msgstr "健康"
 
