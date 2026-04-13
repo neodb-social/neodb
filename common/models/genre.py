@@ -87,7 +87,6 @@ GENRE_CATALOG = {
     "puzzle": _("Puzzle"),
     "platformer": _("Platformer"),
     "shooter": _("Shooter"),
-    "fps": _("FPS"),
     "fighting": _("Fighting"),
     "survival": _("Survival"),
     "sandbox": _("Sandbox"),
@@ -220,7 +219,7 @@ _SCRAPER_ALIASES: dict[str, str] = {
     # -----------------------------------------------------------
     # Douban Game (Chinese)
     # -----------------------------------------------------------
-    "第一人称射击": "fps",
+    "第一人称射击": "shooter",
     # -----------------------------------------------------------
     # MusicBrainz / Spotify (only confident mappings)
     # -----------------------------------------------------------

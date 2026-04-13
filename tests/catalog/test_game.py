@@ -126,7 +126,7 @@ class TestDoubanGame:
         titles = sorted([t["text"] for t in site.resource.item.localized_title])
         assert titles == ["Portal 2", "传送门2"]
         assert site.resource.item.douban_game == "10734307"
-        assert site.resource.item.genre == ["fps", "puzzle"]
+        assert site.resource.item.genre == ["shooter", "puzzle"]
 
 
 @pytest.mark.django_db(databases="__all__")
