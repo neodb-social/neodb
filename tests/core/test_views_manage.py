@@ -27,10 +27,18 @@ class TestSettingsCoverage:
 
     def test_all_system_options_in_ui(self):
         all_model_fields = set(SiteConfig.SystemOptions.model_fields.keys())
-        ui_fields: set[str] = set()
+        ui_fields_list: list[str] = []
         for page_cls in ALL_SETTINGS_PAGES:
-            ui_fields.update(page_cls.options.keys())
-        missing = all_model_fields - ui_fields
+            ui_fields_list.extend(page_cls.options.keys())
+
+        ui_fields_set = set(ui_fields_list)
+
+        duplicates = [f for f in ui_fields_set if ui_fields_list.count(f) > 1]
+        assert not duplicates, (
+            f"Fields appearing in multiple settings pages: {duplicates}"
+        )
+
+        missing = all_model_fields - ui_fields_set
         assert not missing, (
             f"SystemOptions fields missing from settings UI: {missing}. "
             f"Add them to a SiteConfigSettingsPage subclass."
@@ -46,10 +54,18 @@ class TestSettingsCoverage:
 
     def test_layout_matches_options(self):
         for page_cls in ALL_SETTINGS_PAGES:
-            layout_fields: set[str] = set()
+            layout_fields_list: list[str] = []
             for fields in page_cls.layout.values():
-                layout_fields.update(fields)
+                layout_fields_list.extend(fields)
+
+            layout_fields = set(layout_fields_list)
             options_fields = set(page_cls.options.keys())
+
+            duplicates = [f for f in layout_fields if layout_fields_list.count(f) > 1]
+            assert not duplicates, (
+                f"{page_cls.__name__}.layout has duplicate fields: {duplicates}"
+            )
+
             missing = options_fields - layout_fields
             assert not missing, (
                 f"{page_cls.__name__}.layout is missing fields from options: {missing}"
