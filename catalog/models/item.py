@@ -833,7 +833,7 @@ class Item(PolymorphicModel):
             for i, value in enumerate(values):
                 if isinstance(value, dict):
                     name = value.get("name", "")
-                    character = value.get("role", "")
+                    character = value.get("role") or ""
                 else:
                     name = str(value)
                     character = ""
