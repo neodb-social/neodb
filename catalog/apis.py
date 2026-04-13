@@ -24,6 +24,7 @@ from .models import (
     ItemSchema,
     Movie,
     MovieSchema,
+    PeopleSchema,
     Performance,
     PerformanceProduction,
     PerformanceProductionSchema,
@@ -55,6 +56,7 @@ class SearchResult(Schema):
         | GameSchema
         | PerformanceSchema
         | PodcastEpisodeSchema
+        | PeopleSchema
     ]
     pages: int
     count: int

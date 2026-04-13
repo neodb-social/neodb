@@ -22,6 +22,7 @@ from catalog.models import (
     Edition,
     Game,
     Movie,
+    People,
     Performance,
     Podcast,
     PodcastEpisode,
@@ -148,6 +149,10 @@ class WikidataProperties:
     P5029 = "P5029"  # costume designer
     P5030 = "P5030"  # lighting designer
 
+    # Person-specific properties
+    P569 = "P569"  # date of birth
+    P570 = "P570"  # date of death
+
     # External identifiers
     P123 = "P123"  # publisher
     P212 = "P212"  # ISBN-13
@@ -182,6 +187,11 @@ class WikidataProperties:
     P648 = "P648"  # Open Library ID
     P4300 = "P4300"  # YouTube playlist ID (YouTube Music album)
 
+    # Person-specific external identifiers
+    P4985 = "P4985"  # TMDb person ID
+    P2963 = "P2963"  # Goodreads author ID
+    P1902 = "P1902"  # Spotify artist ID
+
     IdTypeMapping = {
         "P345": IdType.IMDB,
         "P4529": IdType.DoubanMovie,
@@ -209,6 +219,10 @@ class WikidataProperties:
         # "P5842": IdType.ApplePodcasts,
         "P2205": IdType.Spotify_Album,
         "P4300": IdType.YouTubeMusic,  # YouTube playlist ID (YouTube Music album)
+        # Person-specific
+        "P4985": IdType.TMDB_Person,
+        "P2963": IdType.Goodreads_Author,
+        "P1902": IdType.Spotify_Artist,
     }
 
 
@@ -269,10 +283,12 @@ class WikiData(AbstractSite):
         Work,
         Album,
         Edition,
+        People,
     ]
 
     # Map of Wikidata entity types to NeoDB models
     TYPE_TO_MODEL_MAP = {
+        WikidataTypes.HUMAN: People,
         WikidataTypes.FILM: Movie,
         WikidataTypes.ANIME_FILM: Movie,
         WikidataTypes.ANIMATED_FILM: Movie,
@@ -550,13 +566,6 @@ class WikiData(AbstractSite):
         if not entity_types:
             return None
 
-        # Check for human type (not supported)
-        if WikidataTypes.HUMAN in entity_types:
-            raise ParseError(
-                self,
-                f"Entity {entity_id} is a person (Q5). Person entities are not supported.",
-            )
-
         # Check priority types first
         for priority_type in self.PRIORITY_TYPES:
             if (
@@ -783,6 +792,8 @@ class WikiData(AbstractSite):
             self._extract_tv_episode_metadata(entity_data, data)
         elif model == Work:
             self._extract_work_metadata(entity_data, data)
+        elif model == People:
+            self._extract_people_metadata(entity_data, data)
 
         resources = self._extract_external_ids(entity_data)
         prematched_resources = []
@@ -796,7 +807,7 @@ class WikiData(AbstractSite):
                     prematched_resources.append(res)
                     data.lookup_ids[res["id_type"]] = res["id_value"]
                 else:
-                    logger.error(
+                    logger.warning(
                         f"IdType {res['id_type']} does not match Model {model}, skipping",
                         extra={
                             "id_type": self.ID_TYPE,
@@ -804,10 +815,9 @@ class WikiData(AbstractSite):
                             "prematched": res,
                         },
                     )
-            except Exception as e:
-                logger.error(
-                    f"Error processing {res['id_type']} for {self.id_value}: {e}"
-                )
+            except Exception:
+                # No registered site for this IdType; still store the lookup ID
+                data.lookup_ids[res["id_type"]] = res["id_value"]
         # data.metadata["prematched_resources"] = prematched_resources
         return data
 
@@ -1071,6 +1081,21 @@ class WikiData(AbstractSite):
         # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
         # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
         # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
+
+    def _extract_people_metadata(self, entity_data, data):
+        """Extract People-specific metadata"""
+        # People uses localized_name/localized_bio instead of localized_title/localized_description
+        data.metadata["localized_name"] = data.metadata.pop("localized_title", [])
+        data.metadata["localized_bio"] = data.metadata.pop("localized_description", [])
+        data.metadata["birth_date"] = self._extract_date(
+            entity_data, WikidataProperties.P569
+        )
+        data.metadata["death_date"] = self._extract_date(
+            entity_data, WikidataProperties.P570
+        )
+        data.metadata["official_site"] = self._extract_url(
+            entity_data, WikidataProperties.P856
+        )
 
     def get_wikipedia_pages(self, entity_data=None):
         """Fetch all Wikipedia pages for this Wikidata entity

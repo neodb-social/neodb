@@ -12,6 +12,7 @@ from catalog.models import (
     Game,
     IdType,
     Movie,
+    People,
     Performance,
     Podcast,
     PodcastEpisode,
@@ -216,6 +217,9 @@ def test_basic_entity_type_detection():
     assert_entity_type_mapping("Q25379", WikidataTypes.PLAY, Performance)
     assert_entity_type_mapping("Q2743", WikidataTypes.MUSICAL, Performance)
     assert_entity_type_mapping("Q1344", WikidataTypes.OPERA, Performance)
+
+    # People test
+    assert_entity_type_mapping("Q42", WikidataTypes.HUMAN, People)
 
 
 # Group 2: Multiple entity type tests
@@ -472,32 +476,10 @@ def test_determine_entity_type_v1_api_format():
 # Group 5: Edge case and error tests
 def test_edge_cases_and_errors():
     """Test edge cases and error handling"""
-    # Test person entity - should raise ParseError
-    person_entity = {
-        "id": "Q42",
-        "claims": {
-            WikidataProperties.P31: [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": WikidataProperties.P31,
-                        "datatype": "wikibase-item",
-                        "datavalue": {
-                            "value": {
-                                "id": WikidataTypes.HUMAN,
-                                "type": "wikibase-entityid",
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    }
-                }
-            ]
-        },
-    }
+    # Test person entity - should map to People
+    assert_entity_type_mapping("Q42", WikidataTypes.HUMAN, People)
 
     wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q42")
-    with pytest.raises(ParseError):
-        wiki_site._determine_entity_type(person_entity)
 
     # Test entity with no instance of properties
     empty_entity = {"id": "Q12345", "claims": {}}
@@ -811,3 +793,151 @@ def test_openlibrary_work_reverse_lookup():
 
     # This verifies that the lookup_qid_by_external_id method would work correctly
     # for both OpenLibrary Edition and Work IDs
+
+
+def test_openlibrary_author_id_detection():
+    """Test that OL...A author IDs are correctly detected"""
+    from catalog.sites.openlibrary import OpenLibrary
+
+    assert OpenLibrary.guess_id_type("OL34184A") == IdType.OpenLibrary_Author
+    assert OpenLibrary.guess_id_type("OL8694710W") == IdType.OpenLibrary_Work
+    assert OpenLibrary.guess_id_type("OL7353617M") == IdType.OpenLibrary
+
+
+def test_wikidata_person_id_type_mappings():
+    """Test that person-specific IdType mappings exist in WikidataProperties"""
+    mapping = WikidataProperties.IdTypeMapping
+    assert mapping.get("P4985") == IdType.TMDB_Person
+    assert mapping.get("P2963") == IdType.Goodreads_Author
+    assert mapping.get("P1902") == IdType.Spotify_Artist
+
+
+class TestWikiDataPerson:
+    @use_local_response
+    def test_scrape_person(self):
+        """Test scraping Wikidata Q42 (Douglas Adams) as a People entity"""
+        site = WikiData(url="https://www.wikidata.org/wiki/Q42")
+        content = site.scrape()
+
+        # Should detect as People model
+        assert content.metadata["preferred_model"] == "People"
+
+        # localized_name (remapped from localized_title)
+        assert "localized_name" in content.metadata
+        assert "localized_title" not in content.metadata
+        names = content.metadata["localized_name"]
+        assert any(n["lang"] == "en" and n["text"] == "Douglas Adams" for n in names)
+
+        # localized_bio (remapped from localized_description)
+        assert "localized_bio" in content.metadata
+        assert "localized_description" not in content.metadata
+
+        # Birth and death dates
+        assert content.metadata["birth_date"] == "1952-03-11"
+        assert content.metadata["death_date"] == "2001-05-11"
+
+        # Official site
+        assert content.metadata["official_site"] == "https://douglasadams.com"
+
+        # Cover image
+        assert content.metadata.get("cover_image_url") is not None
+
+        # External ID lookup_ids
+        assert content.lookup_ids.get(IdType.IMDB) == "nm0010930"
+        assert content.lookup_ids.get(IdType.TMDB_Person) == "52843"
+
+
+class TestTMDBPerson:
+    def test_url_parsing(self):
+        from catalog.sites.tmdb import TMDB_Person
+
+        assert TMDB_Person.ID_TYPE == IdType.TMDB_Person
+        assert TMDB_Person.DEFAULT_MODEL == People
+        assert (
+            TMDB_Person.id_to_url("17419") == "https://www.themoviedb.org/person/17419"
+        )
+        site = TMDB_Person(url="https://www.themoviedb.org/person/17419")
+        assert site.id_value == "17419"
+
+    @use_local_response
+    def test_scrape_person(self):
+        """Test scraping TMDB person 17419 (Bryan Cranston) with real cached data"""
+        from catalog.sites.tmdb import TMDB_Person
+
+        site = TMDB_Person(url="https://www.themoviedb.org/person/17419")
+        content = site.scrape()
+
+        assert content.metadata["title"] == "Bryan Cranston"
+        assert content.metadata["birth_date"] == "1956-03-07"
+        assert content.metadata["death_date"] is None
+
+        # Cover image (profile photo)
+        assert content.metadata["cover_image_url"] is not None
+        assert "image.tmdb.org" in content.metadata["cover_image_url"]
+
+        # Verify localized_name (not localized_title)
+        assert any(
+            n["text"] == "Bryan Cranston" for n in content.metadata["localized_name"]
+        )
+        # Verify localized_bio (not localized_description)
+        assert any("Bryan" in b["text"] for b in content.metadata["localized_bio"])
+
+        # External IDs
+        assert content.lookup_ids.get(IdType.IMDB) == "nm0186505"
+        assert content.lookup_ids.get(IdType.WikiData) == "Q23547"
+
+
+class TestGoodreadsAuthor:
+    def test_url_parsing(self):
+        from catalog.sites.goodreads import Goodreads_Author
+
+        assert Goodreads_Author.ID_TYPE == IdType.Goodreads_Author
+        assert Goodreads_Author.DEFAULT_MODEL == People
+        assert (
+            Goodreads_Author.id_to_url("874602")
+            == "https://www.goodreads.com/author/show/874602"
+        )
+        site = Goodreads_Author(
+            url="https://www.goodreads.com/author/show/874602.Ursula_K_Le_Guin"
+        )
+        assert site.id_value == "874602"
+
+    @use_local_response
+    def test_scrape_author(self):
+        """Test scraping Goodreads author 874602 (Ursula K. Le Guin) with real cached data"""
+        from catalog.sites.goodreads import Goodreads_Author
+
+        site = Goodreads_Author(
+            url="https://www.goodreads.com/author/show/874602.Ursula_K_Le_Guin"
+        )
+        content = site.scrape()
+
+        assert content.metadata["title"] == "Ursula K. Le Guin"
+
+        # Localized name
+        names = content.metadata["localized_name"]
+        assert any(n["text"] == "Ursula K. Le Guin" for n in names)
+
+        # Bio
+        assert len(content.metadata["localized_bio"]) > 0
+        assert "novel" in content.metadata["localized_bio"][0]["text"].lower()
+
+        # Birth and death dates
+        assert content.metadata["birth_date"] == "1929-10-21"
+        assert content.metadata["death_date"] == "2018-01-22"
+
+        # Website
+        assert content.metadata["official_site"] == "http://www.ursulakleguin.com/"
+
+        # Cover image
+        assert content.metadata["cover_image_url"] is not None
+        assert "gr-assets.com" in content.metadata["cover_image_url"]
+
+    def test_parse_date(self):
+        from catalog.sites.goodreads import Goodreads_Author
+
+        assert Goodreads_Author._parse_date("October 21, 1929") == "1929-10-21"
+        assert Goodreads_Author._parse_date("January 22, 2018") == "2018-01-22"
+        assert Goodreads_Author._parse_date("March 1964") == "1964-03"
+        assert Goodreads_Author._parse_date("") is None
+        assert not Goodreads_Author._parse_date("  ")

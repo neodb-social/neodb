@@ -565,3 +565,58 @@ class TMDB_TVEpisode(AbstractSite):
 
         # This redundant code is removed
         return pd
+
+
+@SiteManager.register
+class TMDB_Person(AbstractSite):
+    SITE_NAME = SiteName.TMDB
+    ID_TYPE = IdType.TMDB_Person
+    URL_PATTERNS = [r"^\w+://www.themoviedb.org/person/(\d+)"]
+    WIKI_PROPERTY_ID = "?"
+    DEFAULT_MODEL = People
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return f"https://www.themoviedb.org/person/{id_value}"
+
+    def scrape(self):
+        localized_name = []
+        localized_bio = []
+        res_data = {}
+        for lang, lang_param in reversed(TMDB_PREFERRED_LANGS.items()):
+            api_url = (
+                f"https://api.themoviedb.org/3/person/{self.id_value}"
+                f"?api_key={SiteConfig.system.tmdb_api_key}"
+                f"&language={lang_param}&append_to_response=external_ids"
+            )
+            res_data = BasicDownloader(api_url).download().json()
+            if res_data.get("name"):
+                localized_name.append({"lang": lang, "text": res_data["name"]})
+            if res_data.get("biography", "").strip():
+                localized_bio.append({"lang": lang, "text": res_data["biography"]})
+
+        if not localized_name:
+            raise ParseError(self, "name")
+        name = res_data.get("name", "")
+        img_url = (
+            f"https://image.tmdb.org/t/p/original{res_data['profile_path']}"
+            if res_data.get("profile_path")
+            else None
+        )
+        pd = ResourceContent(
+            metadata={
+                "localized_name": localized_name,
+                "localized_bio": localized_bio,
+                "title": name,
+                "birth_date": res_data.get("birthday"),
+                "death_date": res_data.get("deathday"),
+                "official_site": res_data.get("homepage"),
+                "cover_image_url": img_url,
+            }
+        )
+        ext = res_data.get("external_ids", {})
+        if ext.get("imdb_id"):
+            pd.lookup_ids[IdType.IMDB] = ext["imdb_id"]
+        if ext.get("wikidata_id"):
+            pd.lookup_ids[IdType.WikiData] = ext["wikidata_id"]
+        return pd

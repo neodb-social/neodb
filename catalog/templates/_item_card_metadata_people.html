@@ -1,0 +1,13 @@
+{% extends "_item_card_metadata_base.html" %}
+{% load i18n %}
+{% block brief %}
+  <div class="multi-fields">
+    {% if item.birth_date %}<span>{{ item.birth_date }}</span>{% endif %}
+  </div>
+{% endblock brief %}
+{% block full %}
+  <div class="multi-fields">{% include '_people.html' with people=item.additional_names role='' max=2 %}</div>
+  <div>
+    {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
+  </div>
+{% endblock full %}

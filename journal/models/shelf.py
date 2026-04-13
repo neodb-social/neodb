@@ -308,6 +308,14 @@ _SHELF_LABELS = [
         _("wrote a review of {item}"),
         "",
     ],
+    [
+        ItemCategory.People,
+        ShelfType.PROGRESS,
+        _("people following"),
+        _("follow"),
+        _("started following {item}"),
+        _("following"),
+    ],
 ]
 # grammatically problematic, for translation only
 

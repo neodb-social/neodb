@@ -42,12 +42,16 @@ class IMDB(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www.imdb.com/title/(tt\d+)",
         r"\w+://m.imdb.com/title/(tt\d+)",
+        r"\w+://www.imdb.com/name/(nm\d+)",
+        r"\w+://m.imdb.com/name/(nm\d+)",
     ]
     WIKI_PROPERTY_ID = "?"
-    MATCHABLE_MODELS = [Movie, TVShow, TVEpisode]
+    MATCHABLE_MODELS = [Movie, TVShow, TVEpisode, People]
 
     @classmethod
     def id_to_url(cls, id_value):
+        if id_value and id_value.startswith("nm"):
+            return "https://www.imdb.com/name/" + id_value + "/"
         return "https://www.imdb.com/title/" + id_value + "/"
 
     def scrape(self):
@@ -55,6 +59,12 @@ class IMDB(AbstractSite):
         url = None
         pd = None
         if (
+            "person_results" in res_data
+            and len(res_data["person_results"]) > 0
+            and (self.id_value or "").startswith("nm")
+        ):
+            url = f"https://www.themoviedb.org/person/{res_data['person_results'][0]['id']}"
+        elif (
             "movie_results" in res_data
             and len(res_data["movie_results"]) > 0
             and self.DEFAULT_MODEL in [None, Movie]
@@ -87,6 +97,8 @@ class IMDB(AbstractSite):
                 # do not auto fetch parent season
                 pd.metadata["required_resources"] = []
         if not pd:
+            if (self.id_value or "").startswith("nm"):
+                raise ParseError(self, "person not found in TMDB")
             # if IMDB id not found in TMDB, use real IMDB scraper
             pd = self.scrape_imdb()
         return pd

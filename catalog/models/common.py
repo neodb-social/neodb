@@ -85,11 +85,12 @@ class IdType(models.TextChoices):  # values must be in lowercase
         _("MusicBrainz Release Group"),
     )
     MusicBrainz_Release = "musicbrainz_release", _("MusicBrainz Release")
-    # DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
-    # DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
-    # Goodreads_Author = "goodreads_author", _("Goodreads Author")
-    # Spotify_Artist = "spotify_artist", _("Spotify Artist")
-    # TMDB_Person = "tmdb_person", _("TMDB Person")
+    DoubanBook_Author = "doubanbook_author", _("Douban Book Author")
+    DoubanCelebrity = "doubanmovie_celebrity", _("Douban Movie Celebrity")
+    Goodreads_Author = "goodreads_author", _("Goodreads Author")
+    Spotify_Artist = "spotify_artist", _("Spotify Artist")
+    TMDB_Person = "tmdb_person", _("TMDB Person")
+    OpenLibrary_Author = "openlibrary_author", _("Open Library Author")
     IGDB = "igdb", _("IGDB Game")
     BGG = "bgg", _("BGG Boardgame")
     Steam = "steam", _("Steam Game")
@@ -120,6 +121,7 @@ IdealIdTypes = [
     IdType.IMDB,
     IdType.Steam,
     IdType.WikiData,
+    IdType.TMDB_Person,
 ]
 
 

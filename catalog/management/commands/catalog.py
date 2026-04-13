@@ -18,8 +18,13 @@ from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
 from catalog.models import (
+    CreditRole,
     Edition,
+    ExternalResource,
+    IdType,
     Item,
+    ItemCredit,
+    People,
     Podcast,
     TVSeason,
     TVShow,
@@ -32,23 +37,26 @@ from common.models import detect_language, uniq
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
 _HELP_TEXT = """
-integrity:      check and fix integrity for merged and deleted items
-purge:          purge deleted items
-migrate:        run migration
-search:         search docs in index
-extsearch:      search external sites
-storage-test:   test write/read/delete on default storage backend
-wikidata-tmdb:  link TMDB resources to WikiData resources (using TMDB API)
-wikidata-link:  link external resources to WikiData (use --query for IdType)
-wikidata-find:  lookup Wikidata QID from URL and scrape (use --query for URL)
-idx-info:       show index information
-idx-init:       check and create index if not exists
-idx-destroy:    delete index
-idx-alt:        update index schema
-idx-delete:     delete docs in index
-idx-reindex:    reindex docs
-idx-get:        dump one doc (use --query for URL)
-idx-catchup:    update index for items edited in last X hours (use --hour)
+integrity:        check and fix integrity for merged and deleted items
+purge:            purge deleted items
+migrate:          run migration
+search:           search docs in index
+extsearch:        search external sites
+storage-test:     test write/read/delete on default storage backend
+wikidata-tmdb:    link TMDB resources to WikiData resources (using TMDB API)
+wikidata-link:    link external resources to WikiData (use --query for IdType)
+wikidata-find:    lookup Wikidata QID from URL and scrape (use --query for URL)
+populate-credits: populate ItemCredit from jsondata credit fields
+link-credits:     link unlinked ItemCredits to matching People
+fetch-people:     bulk fetch/update People data (use --query for source: wikidata|tmdb)
+idx-info:         show index information
+idx-init:         check and create index if not exists
+idx-destroy:      delete index
+idx-alt:          update index schema
+idx-delete:       delete docs in index
+idx-reindex:      reindex docs
+idx-get:          dump one doc (use --query for URL)
+idx-catchup:      update index for items edited in last X hours (use --hour)
 """
 
 
@@ -67,6 +75,9 @@ class Command(SiteCommand):
                 "wikidata-tmdb",
                 "wikidata-link",
                 "wikidata-find",
+                "populate-credits",
+                "link-credits",
+                "fetch-people",
                 "idx-info",
                 "idx-init",
                 "idx-alt",
@@ -124,6 +135,16 @@ class Command(SiteCommand):
             help="starting pk for processing",
         )
         parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Preview changes without writing to DB",
+        )
+        parser.add_argument(
+            "--source",
+            choices=["wikidata", "tmdb"],
+            help="Source for fetch-people command",
+        )
+        parser.add_argument(
             "--log-level",
             choices=[
                 "TRACE",
@@ -173,6 +194,8 @@ class Command(SiteCommand):
                 from catalog.common.migrations import normalize_genre_20260412
 
                 normalize_genre_20260412()
+            case "people_bio":
+                self.migrate_people_bio()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -225,7 +248,7 @@ class Command(SiteCommand):
 
     def wikidata_link(self, id_type_str, limit=None, start_pk=None):
         """Link external resources to WikiData resources using lookup_qid_by_external_id"""
-        from catalog.models import ExternalResource, IdType
+        from catalog.models import IdType
         from catalog.sites.wikidata import WikiData
 
         types = [t.value for t in IdType]
@@ -478,6 +501,156 @@ class Command(SiteCommand):
                     logger.error(f"Error updating index for item {item.pk}: {e}")
                 pbar.update(1)
 
+    # Mapping from jsondata field name to CreditRole value
+    FIELD_TO_CREDIT_ROLE = {
+        "director": CreditRole.Director,
+        "playwright": CreditRole.Playwright,
+        "actor": CreditRole.Actor,
+        "author": CreditRole.Author,
+        "translator": CreditRole.Translator,
+        "artist": CreditRole.Artist,
+        "designer": CreditRole.Designer,
+        "composer": CreditRole.Composer,
+        "choreographer": CreditRole.Choreographer,
+        "performer": CreditRole.Performer,
+        "orig_creator": CreditRole.OrigCreator,
+        "crew": CreditRole.Crew,
+        "host": CreditRole.Host,
+    }
+
+    def populate_credits(self, dry_run=False, limit=None, start=None, batch_size=1000):
+        """Populate ItemCredit rows from jsondata credit fields on all items."""
+        qs = Item.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True
+        ).order_by("pk")
+        if start:
+            qs = qs.filter(pk__gte=start)
+        if limit:
+            qs = qs[:limit]
+        total = qs.count()
+        created = 0
+        skipped = 0
+        for item in tqdm(qs.iterator(), total=total, desc="Populating credits"):
+            for field_name, credit_role in self.FIELD_TO_CREDIT_ROLE.items():
+                values = getattr(item, field_name, None)
+                if not values:
+                    continue
+                for i, value in enumerate(values):
+                    if isinstance(value, dict):
+                        name = value.get("name", "")
+                        character = value.get("role", "")
+                    else:
+                        name = str(value)
+                        character = ""
+                    if not name:
+                        continue
+                    if dry_run:
+                        self.stdout.write(
+                            f"  [dry-run] {item.display_title}: {credit_role} = {name}"
+                        )
+                        created += 1
+                    else:
+                        _, is_new = ItemCredit.objects.get_or_create(
+                            item=item,
+                            role=credit_role,
+                            name=name,
+                            defaults={"order": i, "character_name": character},
+                        )
+                        if is_new:
+                            created += 1
+                        else:
+                            skipped += 1
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{'[dry-run] ' if dry_run else ''}Credits: {created} created, {skipped} skipped"
+            )
+        )
+
+    def link_credits(self, dry_run=False, limit=None):
+        """Link unlinked ItemCredits to matching People items."""
+        # Build a lookup: name -> People
+        people_by_name: dict[str, list[People]] = {}
+        for p in People.objects.filter(is_deleted=False, merged_to_item__isnull=True):
+            for entry in p.localized_name or []:
+                name = entry.get("text", "")
+                if name:
+                    people_by_name.setdefault(name, []).append(p)
+
+        unlinked = ItemCredit.objects.filter(person__isnull=True)
+        if limit:
+            unlinked = unlinked[:limit]
+        total = unlinked.count()
+        linked = 0
+        ambiguous = 0
+        for credit in tqdm(unlinked.iterator(), total=total, desc="Linking credits"):
+            matches = people_by_name.get(credit.name, [])
+            if len(matches) == 1:
+                if dry_run:
+                    self.stdout.write(
+                        f"  [dry-run] {credit.name} -> {matches[0].display_name}"
+                    )
+                else:
+                    credit.person = matches[0]
+                    credit.save(update_fields=["person"])
+                linked += 1
+            elif len(matches) > 1:
+                ambiguous += 1
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{'[dry-run] ' if dry_run else ''}Linked: {linked}, ambiguous: {ambiguous}, total: {total}"
+            )
+        )
+
+    def fetch_people(self, source, limit=None, start=None):
+        """Bulk fetch/update People data from external sources."""
+        qs = People.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True
+        ).order_by("pk")
+        if start:
+            qs = qs.filter(pk__gte=start)
+        if limit:
+            qs = qs[:limit]
+        total = qs.count()
+        updated = 0
+        skipped = 0
+        id_type = IdType.WikiData if source == "wikidata" else IdType.TMDB_Person
+        for person in tqdm(qs.iterator(), total=total, desc=f"Fetching from {source}"):
+            res = person.external_resources.filter(id_type=id_type).first()
+            if not res:
+                skipped += 1
+                continue
+            try:
+                site = SiteManager.get_site_by_id(id_type, res.id_value)
+                if site:
+                    resource = site.get_resource_ready(
+                        ignore_existing_content=True, auto_link=False
+                    )
+                    if resource:
+                        updated += 1
+                    else:
+                        skipped += 1
+                else:
+                    skipped += 1
+            except Exception as e:
+                logger.warning(f"Error fetching {person.display_name}: {e}")
+                skipped += 1
+        self.stdout.write(
+            self.style.SUCCESS(f"Fetch {source}: {updated} updated, {skipped} skipped")
+        )
+
+    def migrate_people_bio(self):
+        """Migrate People.localized_description to localized_bio for pre-existing records."""
+        migrated = 0
+        for p in People.objects.filter(is_deleted=False, merged_to_item__isnull=True):
+            desc = p.metadata.get("localized_description", [])
+            bio = p.metadata.get("localized_bio", [])
+            if desc and not bio:
+                p.metadata["localized_bio"] = desc
+                p.save(update_fields=["metadata"])
+                migrated += 1
+                self.stdout.write(f"  Migrated bio for {p.display_name}")
+        self.stdout.write(self.style.SUCCESS(f"Migrated {migrated} People bios"))
+
     def localize(self):
         c = Item.objects.all().count()
         qs = Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
@@ -690,6 +863,33 @@ class Command(SiteCommand):
 
             case "wikidata-find":
                 self.wikidata_lookup(query)
+
+            case "populate-credits":
+                self.populate_credits(
+                    dry_run=options.get("dry_run", False),
+                    limit=limit,
+                    start=start,
+                    batch_size=batch_size,
+                )
+
+            case "link-credits":
+                self.link_credits(
+                    dry_run=options.get("dry_run", False),
+                    limit=limit,
+                )
+
+            case "fetch-people":
+                source = options.get("source")
+                if not source:
+                    self.stderr.write(
+                        self.style.ERROR("--source is required (wikidata or tmdb)")
+                    )
+                    return
+                self.fetch_people(
+                    source=source,
+                    limit=limit,
+                    start=start,
+                )
 
             case "idx-destroy":
                 if yes or input(_CONFIRM).upper().startswith("Y"):

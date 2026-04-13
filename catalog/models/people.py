@@ -1,15 +1,29 @@
 import json
 from functools import cached_property
-from typing import Any
+from typing import TYPE_CHECKING, Any, Self
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 from ninja import Field, Schema
 
 from common.models import get_current_locales, jsondata, uniq
 
-from .common import LOCALIZED_LABEL_SCHEMA, LocalizedLabelSchema
-from .item import Item, ItemCategory, ItemType
+if TYPE_CHECKING:
+    from .item import ExternalResource
+
+from .common import (
+    LOCALIZED_DESCRIPTION_SCHEMA,
+    LOCALIZED_LABEL_SCHEMA,
+    IdType,
+    LocalizedLabelSchema,
+)
+from .item import (
+    Item,
+    ItemCategory,
+    ItemType,
+    PrimaryLookupIdDescriptor,
+)
 
 
 class PeopleType(models.TextChoices):
@@ -49,11 +63,14 @@ class PeopleRole(models.TextChoices):
 
 class PeopleInSchema(Schema):
     name: str = Field(alias="display_name")
-    description: str = Field(default="", alias="display_description")
+    bio: str = Field(default="", alias="display_description")
     people_type: str
     localized_name: list[LocalizedLabelSchema] = []
-    localized_description: list[LocalizedLabelSchema] = []
+    localized_bio: list[LocalizedLabelSchema] = []
     cover_image_url: str | None
+    birth_date: str | None = None
+    death_date: str | None = None
+    official_site: str | None = None
 
 
 class PeopleSchema(Schema):
@@ -64,16 +81,21 @@ class PeopleSchema(Schema):
     people_type: str
     display_name: str
     name: str = Field(alias="display_name")
-    description: str = Field(default="", alias="display_description")
+    bio: str = Field(default="", alias="display_description")
     localized_name: list[LocalizedLabelSchema] = []
-    localized_description: list[LocalizedLabelSchema] = []
+    localized_bio: list[LocalizedLabelSchema] = []
     cover_image_url: str | None
+    birth_date: str | None = None
+    death_date: str | None = None
+    official_site: str | None = None
+    imdb: str | None = None
 
 
 class People(Item):
     """
     Model for people and organizations that can be linked to items with roles.
-    Now inherits from Item to share common functionality.
+    Inherits from Item to share common functionality. Uses localized_name
+    (not localized_title) for person/organization names.
     """
 
     schema = PeopleSchema
@@ -83,10 +105,16 @@ class People(Item):
 
     # People can have any role
     available_roles = list(PeopleRole)
+    if TYPE_CHECKING:
+        from .item import ItemCredit
+
+        credited_items: models.QuerySet[ItemCredit]
     item_relations: models.QuerySet["ItemPeopleRelation"]
+
     people_type = models.CharField(
         _("type"), max_length=20, choices=PeopleType.choices, default=PeopleType.PERSON
     )
+
     localized_name = jsondata.JSONField(
         verbose_name=_("name"),
         null=False,
@@ -95,24 +123,40 @@ class People(Item):
         schema=LOCALIZED_LABEL_SCHEMA,
     )
 
-    # localized_description is inherited from Item
+    localized_bio = jsondata.JSONField(
+        verbose_name=_("bio"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LOCALIZED_DESCRIPTION_SCHEMA,
+    )
 
-    # # ManyToMany relationship with Items through ItemPeopleRelation
-    # related_items = models.ManyToManyField(
-    #     "catalog.Item",
-    #     through="ItemPeopleRelation",
-    #     related_name="related_people",
-    #     blank=True,
-    #     help_text=_("Items this person/organization is associated with"),
-    # )
+    # Metadata fields stored in JSONField via jsondata descriptors
+    birth_date = jsondata.CharField(
+        verbose_name=_("date of birth"), blank=True, default="", max_length=50
+    )
+    death_date = jsondata.CharField(
+        verbose_name=_("date of death"), blank=True, default="", max_length=50
+    )
+    official_site = jsondata.URLField(
+        verbose_name=_("website"), blank=True, default="", max_length=500
+    )
+
+    # External ID descriptors
+    imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
+    tmdb_person = PrimaryLookupIdDescriptor(IdType.TMDB_Person)
+    douban_celebrity = PrimaryLookupIdDescriptor(IdType.DoubanCelebrity)
 
     METADATA_COPY_LIST = [
         "localized_name",
-        "localized_description",
+        "localized_bio",
+        "birth_date",
+        "death_date",
+        "official_site",
     ]
     METADATA_MERGE_LIST = [
         "localized_name",
-        "localized_description",
+        "localized_bio",
     ]
 
     @property
@@ -132,25 +176,123 @@ class People(Item):
                 ).get("text")
                 if v:
                     return v
+        return None
+
+    def get_localized_bio(self) -> str | None:
+        if self.localized_bio:
+            locales = get_current_locales()
+            for loc in locales:
+                v = next(
+                    filter(lambda t: t["lang"] == loc, self.localized_bio), {}
+                ).get("text")
+                if v:
+                    return v
+        return None
+
+    @cached_property
+    def display_description(self) -> str:
+        return (
+            self.get_localized_bio()
+            or (self.localized_bio[0]["text"] if self.localized_bio else "")
+            # Fall back to localized_description for pre-migration People records
+            or self.get_localized_description()
+            or self.brief
+        )
 
     @cached_property
     def display_name(self) -> str:
-        # return name in current locale if possible, otherwise any name
         return self.get_localized_name() or (
             self.localized_name[0]["text"] if self.localized_name else ""
         )
+
+    @cached_property
+    def display_title(self) -> str:
+        return self.display_name
 
     @cached_property
     def additional_names(self) -> list[str]:
         name = self.display_name
         return uniq([t["text"] for t in self.localized_name if t["text"] != name])
 
+    @cached_property
+    def related_items_by_role(self) -> list[tuple[str, str, list]]:
+        """Return related items grouped by role, as (role_value, role_label, items) tuples."""
+        from collections import OrderedDict
+
+        from .item import Item
+
+        relations = self.item_relations.order_by("role").values_list("role", "item_id")
+        role_item_ids: OrderedDict[str, list[int]] = OrderedDict()
+        for role, item_id in relations:
+            role_item_ids.setdefault(role, []).append(item_id)
+        all_ids = [i for ids in role_item_ids.values() for i in ids]
+        items_by_id = {
+            item.pk: item
+            for item in Item.objects.filter(
+                pk__in=all_ids, is_deleted=False, merged_to_item__isnull=True
+            )
+        }
+        return [
+            (
+                role,
+                PeopleRole(role).label,
+                [items_by_id[i] for i in ids if i in items_by_id],
+            )
+            for role, ids in role_item_ids.items()
+            if any(i in items_by_id for i in ids)
+        ]
+
+    def link_matching_credits(self):
+        """Find unlinked ItemCredits whose name matches this person and link them."""
+        from .item import ItemCredit
+
+        names = {n["text"] for n in (self.localized_name or []) if n.get("text")}
+        if not names:
+            return
+        unlinked = ItemCredit.objects.filter(name__in=names, person__isnull=True)
+        count = unlinked.update(person=self)
+        if count:
+            logger.info(f"Linked {count} credits to {self.display_name}")
+            # Also create ItemPeopleRelation for newly linked items
+            for credit in self.credited_items.select_related("item").all():
+                role = self._credit_role_to_people_role(credit.role)
+                if role:
+                    ItemPeopleRelation.objects.get_or_create(
+                        item=credit.item, people=self, role=role
+                    )
+
+    @staticmethod
+    def _credit_role_to_people_role(credit_role: str) -> str | None:
+        """Map CreditRole value to PeopleRole value."""
+        mapping = {
+            "author": PeopleRole.AUTHOR,
+            "translator": PeopleRole.TRANSLATOR,
+            "director": PeopleRole.DIRECTOR,
+            "playwright": PeopleRole.PLAYWRIGHT,
+            "actor": PeopleRole.ACTOR,
+            "artist": PeopleRole.ARTIST,
+            "designer": PeopleRole.DESIGNER,
+            "composer": PeopleRole.COMPOSER,
+            "choreographer": PeopleRole.CHOREOGRAPHER,
+            "performer": PeopleRole.PERFORMER,
+            "host": PeopleRole.HOST,
+            "orig_creator": PeopleRole.ORIGINAL_CREATOR,
+            "crew": PeopleRole.CREW,
+        }
+        return mapping.get(credit_role)
+
+    @classmethod
+    def create_from_external_resource(cls, p: "ExternalResource") -> Self:
+        item = super().create_from_external_resource(p)
+        item.link_matching_credits()
+        return item
+
     def is_deletable(self):
         return (
             not self.is_deleted
             and not self.merged_to_item_id
             and not self.merged_from_items.exists()
-            and not self.item_relations.exists()  # has linked items
+            and not self.item_relations.exists()
         )
 
     def merge_relations(self, to_item):
@@ -167,11 +309,43 @@ class People(Item):
                 link.people = to_item
                 link.save()
 
+    def merge_credits(self, to_item):
+        """Reparent ItemCredits from this person to the target person."""
+        from .item import ItemCredit
+
+        for credit in ItemCredit.objects.filter(person=self):
+            credit.person = to_item
+            credit.save(update_fields=["person"])
+
     def merge_to(self, to_item):
         super().merge_to(to_item)
         if not to_item:
             return
         self.merge_relations(to_item)
+        self.merge_credits(to_item)
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.WikiData,
+            IdType.IMDB,
+            IdType.TMDB_Person,
+            IdType.DoubanCelebrity,
+            IdType.DoubanBook_Author,
+            IdType.Goodreads_Author,
+            IdType.Spotify_Artist,
+            IdType.OpenLibrary_Author,
+        ]
+        return [(i.value, i.label) for i in id_types]
+
+    @classmethod
+    def lookup_id_cleanup(cls, lookup_id_type, lookup_id_value):
+        if lookup_id_type == IdType.IMDB.value and lookup_id_value:
+            v = lookup_id_value.strip()
+            if not v.startswith("nm"):
+                return None, None
+            return lookup_id_type, v
+        return super().lookup_id_cleanup(lookup_id_type, lookup_id_value)
 
     def to_schema_org(self):
         data: dict[str, Any] = {
@@ -186,6 +360,12 @@ class People(Item):
 
         if self.has_cover():
             data["image"] = self.cover_image_url
+
+        if self.birth_date:
+            data["birthDate"] = self.birth_date
+
+        if self.death_date:
+            data["deathDate"] = self.death_date
 
         return data
 

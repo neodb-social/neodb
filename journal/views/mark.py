@@ -39,6 +39,20 @@ def wish(request: AuthedHttpRequest, item_uuid):
 
 
 @login_required
+@require_http_methods(["POST"])
+def follow(request: AuthedHttpRequest, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    mark = Mark(request.user.identity, item)
+    if mark.shelf_type == ShelfType.PROGRESS:
+        mark.delete()
+    else:
+        mark.update(
+            ShelfType.PROGRESS, application_id=getattr(request, "application_id", None)
+        )
+    return HttpResponseRedirect(item.url)
+
+
+@login_required
 @require_http_methods(["GET", "POST"])
 def mark(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))

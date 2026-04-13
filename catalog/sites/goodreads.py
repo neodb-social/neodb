@@ -14,6 +14,7 @@ from catalog.models import (
     Edition,
     IdType,
     ItemCategory,
+    People,
     SiteName,
     Work,
 )
@@ -89,6 +90,16 @@ class Goodreads(AbstractSite):
             [{"lang": lang, "text": data["brief"]}] if data["brief"] else []
         )
         data["author"] = [c["name"] for c in o["Contributor"] if c.get("name")]
+        data["related_resources"] = [
+            {
+                "model": "People",
+                "id_type": IdType.Goodreads_Author,
+                "id_value": str(c["legacyId"]),
+                "url": c["webUrl"],
+            }
+            for c in o["Contributor"]
+            if c.get("legacyId") and c.get("webUrl")
+        ]
         ids = {}
         t, n = detect_isbn_asin(b["details"].get("asin"))
         if t:
@@ -251,4 +262,102 @@ class Goodreads_Work(AbstractSite):
                 "first_published": first_published,
             }
         )
+        return pd
+
+
+@SiteManager.register
+class Goodreads_Author(AbstractSite):
+    SITE_NAME = SiteName.Goodreads
+    ID_TYPE = IdType.Goodreads_Author
+    WIKI_PROPERTY_ID = "P2963"
+    DEFAULT_MODEL = People
+    URL_PATTERNS = [
+        r".+goodreads\.com/author/show/(\d+)",
+    ]
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return "https://www.goodreads.com/author/show/" + id_value
+
+    @staticmethod
+    def _parse_date(date_str: str) -> str | None:
+        """Parse Goodreads date format (e.g. 'October 21, 1929') to ISO format."""
+        if not date_str:
+            return None
+        try:
+            dt = datetime.strptime(date_str.strip(), "%B %d, %Y")
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            try:
+                dt = datetime.strptime(date_str.strip(), "%B %Y")
+                return dt.strftime("%Y-%m")
+            except ValueError:
+                return date_str.strip()
+
+    def scrape(self):
+        assert self.url
+        content = BasicDownloader(self.url).download().html()
+
+        name = self.query_str(
+            content,
+            '//h1[contains(@class,"authorName")]//span[@itemprop="name"]/text()',
+        )
+        if not name:
+            raise ParseError(self, "author name")
+        name = name.strip()
+        lang = detect_language(name)
+
+        # Bio
+        bio_spans = content.xpath('//div[contains(@class,"aboutAuthorInfo")]//span')
+        bio = ""
+        if len(bio_spans) >= 2:
+            bio = bio_spans[-1].text_content().strip()
+        elif bio_spans:
+            bio = bio_spans[0].text_content().strip()
+
+        # Birth/death dates
+        born_els = content.xpath('//*[@itemprop="birthDate"]/text()')
+        born = self._parse_date(born_els[0]) if born_els else None
+        died_els = content.xpath('//*[@itemprop="deathDate"]/text()')
+        died = self._parse_date(died_els[0]) if died_els else None
+
+        # Cover image (author photo)
+        img_els = content.xpath('//img[@itemprop="image"]/@src')
+        cover_url = img_els[0] if img_els else None
+        # Try to get a larger version
+        if cover_url and "p5/" in cover_url:
+            cover_url = cover_url.replace("p5/", "p8/")
+
+        # Website
+        website = None
+        website_divs = content.xpath(
+            '//div[@class="dataTitle" and contains(text(),"Website")]'
+        )
+        if website_divs:
+            next_div = website_divs[0].getnext()
+            if next_div is not None:
+                links = next_div.xpath(".//a/@href")
+                if links and links[0].startswith("http"):
+                    website = links[0]
+
+        pd = ResourceContent(
+            metadata={
+                "title": name,
+                "localized_name": [{"lang": lang, "text": name}],
+                "localized_bio": ([{"lang": lang, "text": bio}] if bio else []),
+                "birth_date": born,
+                "death_date": died,
+                "official_site": website,
+                "cover_image_url": cover_url,
+            }
+        )
+        # Look up Wikidata QID from Goodreads author ID
+        if self.id_value:
+            from catalog.sites.wikidata import WikiData
+
+            qid = WikiData.lookup_qid_by_external_id(
+                IdType.Goodreads_Author, self.id_value
+            )
+            if qid:
+                pd.lookup_ids[IdType.WikiData] = qid
         return pd

@@ -31,6 +31,7 @@ from journal.models import (
 from takahe.utils import Takahe
 
 from ..models import ExternalResource, IdType, Item, Podcast, TVEpisode
+from ..models.people import ItemPeopleRelation, People, PeopleRole
 from ..sites import WikiData
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
@@ -138,6 +139,59 @@ def retrieve(request, item_path, item_uuid):
             "collection_list": collection_list,
             "shelf_actions": shelf_actions,
             "shelf_statuses": shelf_statuses,
+        },
+    )
+
+
+@require_http_methods(["GET"])
+def people_works(request, item_path, item_uuid, role):
+    item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
+    if role not in PeopleRole.values:
+        raise Http404(_("Invalid role"))
+    role_label = PeopleRole(role).label
+
+    # All roles this person has, for the role filter dropdown
+    all_roles = (
+        ItemPeopleRelation.objects.filter(people=item)
+        .values_list("role", flat=True)
+        .distinct()
+    )
+    role_choices = [(r, PeopleRole(r).label) for r in all_roles]
+
+    # Filter by role
+    qs = ItemPeopleRelation.objects.filter(people=item, role=role)
+    item_ids = list(qs.values_list("item_id", flat=True))
+    works_qs = Item.objects.filter(
+        pk__in=item_ids, is_deleted=False, merged_to_item__isnull=True
+    )
+
+    # Filter by shelf status if user is authenticated
+    status_filter = request.GET.get("status", "")
+    if status_filter and request.user.is_authenticated:
+        shelf_item_ids = ShelfMember.objects.filter(
+            owner=request.user.identity,
+            item_id__in=item_ids,
+            parent__shelf_type=status_filter,
+        ).values_list("item_id", flat=True)
+        works_qs = works_qs.filter(pk__in=shelf_item_ids)
+
+    total = works_qs.count()
+    paginator = CustomPaginator(works_qs, request)
+    page_number = request.GET.get("page", default=1)
+    works_page = paginator.get_page(page_number)
+    pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
+    return render(
+        request,
+        "people_works.html",
+        {
+            "item": item,
+            "role_label": role_label,
+            "current_role": role,
+            "role_choices": role_choices,
+            "current_status": status_filter,
+            "works": works_page,
+            "pagination": pagination,
+            "total": total,
         },
     )
 

@@ -88,10 +88,51 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 #     id_value = models.CharField(_("ID Value"), blank=False, max_length=1000)
 
 
-# class ItemCredit(models.Model):
-#     item = models.ForeignKey('Item', models.CASCADE)
-#     credit_type = models.CharField(_("Credit Type"), choices=CreditType.choices, blank=False, max_length=50)
-#     name = models.CharField(_("Name"), blank=False, max_length=1000)
+class CreditRole(models.TextChoices):
+    Author = "author", _("author")
+    Translator = "translator", _("translator")
+    Director = "director", _("director")
+    Playwright = "playwright", _("playwright")
+    Actor = "actor", _("actor")
+    Artist = "artist", _("artist")
+    Designer = "designer", _("designer")
+    Composer = "composer", _("composer")
+    Choreographer = "choreographer", _("choreographer")
+    Performer = "performer", _("performer")
+    Host = "host", _("host")
+    OrigCreator = "orig_creator", _("original creator")
+    Crew = "crew", _("crew")
+
+
+class ItemCredit(models.Model):
+    """Links a person to an item with a role. Person FK is optional --
+    when null, the credit is ad-hoc (name only, not linked to a People item)."""
+
+    item = models.ForeignKey("Item", on_delete=models.CASCADE, related_name="credits")
+    person = models.ForeignKey(
+        "People",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="credited_items",
+    )
+    role = models.CharField(_("role"), max_length=100, choices=CreditRole.choices)
+    name = models.CharField(_("name"), max_length=1000)
+    character_name = models.CharField(
+        _("character name"), blank=True, default="", max_length=500
+    )
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["role", "order"]
+        indexes = [
+            models.Index(fields=["item", "role"]),
+            models.Index(fields=["person"]),
+        ]
+
+    def __str__(self):
+        linked = f" -> {self.person}" if self.person else ""
+        return f"{self.name} ({self.role}) on {self.item}{linked}"
 
 
 # def check_source_id(sid):
@@ -146,6 +187,7 @@ class Item(PolymorphicModel):
         merged_to_item_id: int
         mark: "Mark"
         people_relations: QuerySet["ItemPeopleRelation"]
+        credits: QuerySet["ItemCredit"]
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     type: ItemType  # subclass must specify this
@@ -330,8 +372,14 @@ class Item(PolymorphicModel):
                 people=relation.people, role=relation.role
             ).first()
             if existing_relation:
+                save_existing = False
+                if relation.character and not existing_relation.character:
+                    existing_relation.character = relation.character
+                    save_existing = True
                 if relation.metadata and not existing_relation.metadata:
                     existing_relation.metadata = relation.metadata
+                    save_existing = True
+                if save_existing:
                     existing_relation.save()
                 relation.delete()
             else:
@@ -376,6 +424,14 @@ class Item(PolymorphicModel):
             updated = True
         updated |= to_item.normalize_metadata()
         updated |= self.merge_people_relations(to_item)
+        # Reparent ItemCredits to the target item
+        for credit in self.credits.all():
+            if not to_item.credits.filter(role=credit.role, name=credit.name).exists():
+                credit.item = to_item
+                credit.save()
+                updated = True
+            else:
+                credit.delete()
         to_item.log_action({"!merged_from": [str(self.merged_to_item), str(to_item)]})
         if updated:
             to_item.save()
@@ -745,6 +801,17 @@ class Item(PolymorphicModel):
         return People.objects.filter(
             item_relations__item=self, item_relations__role=role
         )
+
+    def get_credits_by_role(self, role: str) -> "QuerySet[ItemCredit]":
+        return self.credits.filter(role=role).select_related("person")
+
+    @cached_property
+    def role_credits(self) -> dict[str, list["ItemCredit"]]:
+        """All credits grouped by role, for template access."""
+        result: dict[str, list[ItemCredit]] = {}
+        for credit in self.credits.select_related("person").all():
+            result.setdefault(credit.role, []).append(credit)
+        return result
 
     @property
     def mark_count(self):

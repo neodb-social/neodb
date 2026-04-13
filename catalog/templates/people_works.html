@@ -1,0 +1,73 @@
+{% load static %}
+{% load i18n %}
+{% load thumb %}
+{% load user_actions %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ item.display_title }} - {{ role_label }}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <h5>
+          <a href="{{ item.url }}">{{ item.display_title }}</a>
+          &mdash;
+          {{ role_label }}
+          <small>({{ total }})</small>
+        </h5>
+        <div>
+          {% for work in works %}
+            {% include "_list_item.html" with item=work %}
+          {% empty %}
+            <div>{% trans 'nothing so far.' %}</div>
+          {% endfor %}
+        </div>
+        {% include "_pagination.html" %}
+      </div>
+      <aside class="grid__aside top">
+        {% include "_sidebar_item.html" %}
+        <section class="filter">
+          <script>
+            function applyFilter() {
+              var role = document.getElementById('role_filter').value;
+              var status = document.getElementById('status_filter');
+              var url = '{{ item.url }}/works/' + role;
+              if (status && status.value) {
+                url += '?status=' + status.value;
+              }
+              location.href = url;
+            }
+          </script>
+          <form method="get" action="">
+            <fieldset role="search" style="width: 100%;">
+              <select id="role_filter" onchange="applyFilter()">
+                {% for role_value, role_display in role_choices %}
+                  <option value="{{ role_value }}"
+                          {% if role_value == current_role %}selected{% endif %}>{{ role_display }}</option>
+                {% endfor %}
+              </select>
+              {% if request.user.is_authenticated %}
+                <select id="status_filter" onchange="applyFilter()">
+                  <option value="" {% if not current_status %}selected{% endif %}>{% trans 'all' %}</option>
+                  <option value="wishlist"
+                          {% if current_status == 'wishlist' %}selected{% endif %}>{% trans 'wishlist' %}</option>
+                  <option value="progress"
+                          {% if current_status == 'progress' %}selected{% endif %}>{% trans 'in progress' %}</option>
+                  <option value="complete"
+                          {% if current_status == 'complete' %}selected{% endif %}>{% trans 'complete' %}</option>
+                </select>
+              {% endif %}
+            </fieldset>
+          </form>
+        </section>
+      </aside>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

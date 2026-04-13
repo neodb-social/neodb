@@ -11,8 +11,10 @@ from .common import (
 )
 from .game import Game, GameInSchema, GameSchema
 from .item import (
+    CreditRole,
     ExternalResource,
     Item,
+    ItemCredit,
     ItemInSchema,
     ItemSchema,
     LookupIdDescriptor,
@@ -151,4 +153,6 @@ __all__ = [
     "PeopleType",
     "PeopleRole",
     "ItemPeopleRelation",
+    "CreditRole",
+    "ItemCredit",
 ]

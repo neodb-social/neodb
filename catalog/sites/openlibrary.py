@@ -34,6 +34,8 @@ class OpenLibrary(AbstractSite):
             return IdType.OpenLibrary
         elif re.match(r"^OL\d+W$", id_value):
             return IdType.OpenLibrary_Work
+        elif re.match(r"^OL\d+A$", id_value):
+            return IdType.OpenLibrary_Author
 
     def scrape(self):
         # id_value should always be an OpenLibrary book ID (OL...M format)

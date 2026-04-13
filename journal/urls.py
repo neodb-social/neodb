@@ -19,6 +19,7 @@ def _get_all_shelf_types():
 
 urlpatterns = [
     path("wish/<str:item_uuid>", wish, name="wish"),
+    path("follow/<str:item_uuid>", follow, name="follow"),
     path("mark/<str:item_uuid>", mark, name="mark"),
     path("comment/<str:item_uuid>", comment, name="comment"),
     path(

@@ -72,73 +72,74 @@
         <img src="{{ item.cover_image_url|default:item.cover.url|default:item.default_cover_image_url|relative_uri }}"
              alt="{{ item.display_title }}">
       </div>
-      {% if request.user.is_authenticated and not mark.shelf_type %}
-        <div id="item-primary-action" class="right mark">
-          <div class="item-action item-mark-buttons">
-            {% for k, v in shelf_statuses %}
-              {% if v and k != 'dropped' %}
-                <button class="primary"
-                        data-status="{{ k }}"
-                        hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}"
-                        hx-target="body"
-                        hx-swap="beforeend">{% trans v %}</button>
-              {% endif %}
-            {% endfor %}
-          </div>
-          <div class="tvshow-tip">
-            {% trans 'select one of the seasons to comment' %}
-            {% if item.class_name == 'tvshow' %}
-              {% with item.all_seasons as seasons %}
-                {% if seasons %}
-                  <div>
-                    {% for s in seasons %}
-                      <span class="season-number">
-                        <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
-                      </span>
-                    {% endfor %}
-                  </div>
+      {% block primary_action %}
+        {% if request.user.is_authenticated and not mark.shelf_type %}
+          <div id="item-primary-action" class="right mark">
+            <div class="item-action item-mark-buttons">
+              {% for k, v in shelf_statuses %}
+                {% if v and k != 'dropped' %}
+                  <button class="primary"
+                          data-status="{{ k }}"
+                          hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}"
+                          hx-target="body"
+                          hx-swap="beforeend">{% trans v %}</button>
                 {% endif %}
-              {% endwith %}
-            {% endif %}
-          </div>
-        </div>
-      {% endif %}
-      {% if request.user.is_authenticated and mark.shelf_type %}
-        <div id="item-primary-mark" class="right mark">
-          <div class="item-action">
-            <button class="outline edit"
-                    hx-get="{% url 'journal:mark' item.uuid %}"
-                    hx-target="body"
-                    hx-swap="beforeend">
-              <strong>{% trans mark.status_label %}</strong>
-              <br>
-              {% if mark.rating_grade %}
-                {{ mark.rating_grade | rating_star }}
-                <br>
+              {% endfor %}
+            </div>
+            <div class="tvshow-tip">
+              {% trans 'select one of the seasons to comment' %}
+              {% if item.class_name == 'tvshow' %}
+                {% with item.all_seasons as seasons %}
+                  {% if seasons %}
+                    <div>
+                      {% for s in seasons %}
+                        <span class="season-number">
+                          <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>
+                        </span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
               {% endif %}
-              <small>{{ mark.created_time | date }}</small>
-              <!-- <span style="white-space: nowrap;">
-          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
-        </span> -->
-            </button>
+            </div>
           </div>
-          <div class="small-only" style="margin-top:2vh;">
-            <a href="#item-sidebar">{% trans 'mark, comment and collect' %}</a>
-          </div>
-        </div>
-      {% endif %}
-      <div id="item-sidebar" class="right">
-        {% if request.user.is_authenticated %}
-          {% include "_item_user_pieces.html" %}
-        {% else %}
-          <section>
-            <p class="empty">
-              <span><a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">
-                {% trans 'Login or register to review or add this item to your collection.' %}
-              </a></span>
-            </p>
-          </section>
         {% endif %}
+        {% if request.user.is_authenticated and mark.shelf_type %}
+          <div id="item-primary-mark" class="right mark">
+            <div class="item-action">
+              <button class="outline edit"
+                      hx-get="{% url 'journal:mark' item.uuid %}"
+                      hx-target="body"
+                      hx-swap="beforeend">
+                <strong>{% trans mark.status_label %}</strong>
+                <br>
+                {% if mark.rating_grade %}
+                  {{ mark.rating_grade | rating_star }}
+                  <br>
+                {% endif %}
+                <small>{{ mark.created_time | date }}</small>
+              </button>
+            </div>
+            <div class="small-only" style="margin-top:2vh;">
+              <a href="#item-sidebar">{% trans 'mark, comment and collect' %}</a>
+            </div>
+          </div>
+        {% endif %}
+      {% endblock %}
+      <div id="item-sidebar" class="right">
+        {% block item_sidebar_pieces %}
+          {% if request.user.is_authenticated %}
+            {% include "_item_user_pieces.html" %}
+          {% else %}
+            <section>
+              <p class="empty">
+                <span><a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">
+                  {% trans 'Login or register to review or add this item to your collection.' %}
+                </a></span>
+              </p>
+            </section>
+          {% endif %}
+        {% endblock %}
         {% block sidebar %}{% endblock %}
         {% if collection_list %}
           <section>
@@ -180,52 +181,54 @@
               {% endif %}
             </div>
           {% endif %}
-          <div class="rating solo-hidden {% if not item.rating %}unavailable{% endif %}">
-            <div class="display">
-              <div>
-                <hgroup>
-                  <h3>
-                    {{ item.rating | floatformat:1 }} <small>/ 10</small>
-                  </h3>
-                  <p>{{ item.rating_count }} {% trans 'ratings' %}</p>
-                </hgroup>
+          {% block rating_and_tags %}
+            <div class="rating solo-hidden {% if not item.rating %}unavailable{% endif %}">
+              <div class="display">
+                <div>
+                  <hgroup>
+                    <h3>
+                      {{ item.rating | floatformat:1 }} <small>/ 10</small>
+                    </h3>
+                    <p>{{ item.rating_count }} {% trans 'ratings' %}</p>
+                  </hgroup>
+                </div>
+                <div data-placement="top">
+                  <ul class="chart">
+                    <li data-tooltip="{{ item.rating_distribution.0 }}%"
+                        data-placement="left">
+                      <span style="height:{{ item.rating_distribution.0 }}%"></span>
+                    </li>
+                    <li data-tooltip="{{ item.rating_distribution.1 }}%"
+                        data-placement="left">
+                      <span style="height:{{ item.rating_distribution.1 }}%"></span>
+                    </li>
+                    <li data-tooltip="{{ item.rating_distribution.2 }}%"
+                        data-placement="left">
+                      <span style="height:{{ item.rating_distribution.2 }}%"></span>
+                    </li>
+                    <li data-tooltip="{{ item.rating_distribution.3 }}%"
+                        data-placement="left">
+                      <span style="height:{{ item.rating_distribution.3 }}%"></span>
+                    </li>
+                    <li data-tooltip="{{ item.rating_distribution.4 }}%"
+                        data-placement="left">
+                      <span style="height:{{ item.rating_distribution.4 }}%"></span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-              <div data-placement="top">
-                <ul class="chart">
-                  <li data-tooltip="{{ item.rating_distribution.0 }}%"
-                      data-placement="left">
-                    <span style="height:{{ item.rating_distribution.0 }}%"></span>
-                  </li>
-                  <li data-tooltip="{{ item.rating_distribution.1 }}%"
-                      data-placement="left">
-                    <span style="height:{{ item.rating_distribution.1 }}%"></span>
-                  </li>
-                  <li data-tooltip="{{ item.rating_distribution.2 }}%"
-                      data-placement="left">
-                    <span style="height:{{ item.rating_distribution.2 }}%"></span>
-                  </li>
-                  <li data-tooltip="{{ item.rating_distribution.3 }}%"
-                      data-placement="left">
-                    <span style="height:{{ item.rating_distribution.3 }}%"></span>
-                  </li>
-                  <li data-tooltip="{{ item.rating_distribution.4 }}%"
-                      data-placement="left">
-                    <span style="height:{{ item.rating_distribution.4 }}%"></span>
-                  </li>
-                </ul>
+              <div class="undisplay">
+                <span>{% trans 'No enough ratings' %}</span>
               </div>
             </div>
-            <div class="undisplay">
-              <span>{% trans 'No enough ratings' %}</span>
+            <div class="tag-list solo-hidden">
+              {% for tag in item.tags %}
+                <span>
+                  <a href="{% url 'common:search' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                </span>
+              {% endfor %}
             </div>
-          </div>
-          <div class="tag-list solo-hidden">
-            {% for tag in item.tags %}
-              <span>
-                <a href="{% url 'common:search' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
-              </span>
-            {% endfor %}
-          </div>
+          {% endblock %}
         </section>
         {% block left_sidebar %}{% endblock %}
       </div>
@@ -243,14 +246,26 @@
           {% if item.parent_item and item.type.value != 'edition' %}
             {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.display_title }}</a>
           {% endif %}
-          {% if item.author or item.translator %}
+          {% if item.role_credits.author or item.author %}
             <p>
               <i>
-                {% include '_people.html' with people=item.author _role='author' max=2 %}
+                {% with item.role_credits.author as credits %}
+                  {% if credits %}
+                    {% include '_credits.html' with credits=credits max=2 %}
+                  {% else %}
+                    {% include '_people.html' with people=item.author _role='author' max=2 %}
+                  {% endif %}
+                {% endwith %}
               </i>
               &nbsp;&nbsp;
               <i>
-                {% include '_people.html' with people=item.translator role='translator' max=2 %}
+                {% with item.role_credits.translator as credits %}
+                  {% if credits %}
+                    {% include '_credits.html' with credits=credits max=2 %}
+                  {% else %}
+                    {% include '_people.html' with people=item.translator role='translator' max=2 %}
+                  {% endif %}
+                {% endwith %}
               </i>
             </p>
           {% endif %}
@@ -286,46 +301,48 @@
           {% block content %}
           {% endblock %}
         </section>
-        <section class="solo-hidden">
-          <div>
-            <h5>
-              {% trans 'comments' %}
-              <small>
-                {% if request.user.is_authenticated %}
-                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
-                  | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
-                {% endif %}
-              </small>
-            </h5>
-            <div id="comments">
-              <div hx-swap="outerHTML"
-                   hx-get="{% if request.GET.focus and item.class_name == "tvseason" %}{% url 'catalog:comments_by_episode' item.url_path item.uuid %}?episode_uuid={{ request.GET.focus }}{% else %}{% url 'catalog:comments' item.url_path item.uuid %}{% endif %}"
-                   hx-trigger="intersect once">
+        {% block comments_reviews_notes %}
+          <section class="solo-hidden">
+            <div>
+              <h5>
+                {% trans 'comments' %}
+                <small>
+                  {% if request.user.is_authenticated %}
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
+                  {% endif %}
+                </small>
+              </h5>
+              <div id="comments">
+                <div hx-swap="outerHTML"
+                     hx-get="{% if request.GET.focus and item.class_name == "tvseason" %}{% url 'catalog:comments_by_episode' item.url_path item.uuid %}?episode_uuid={{ request.GET.focus }}{% else %}{% url 'catalog:comments' item.url_path item.uuid %}{% endif %}"
+                     hx-trigger="intersect once">
+                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="solo-hidden">
+            <h5>{% trans 'reviews' %}</h5>
+            <div>
+              <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
+                   hx-trigger="intersect once"
+                   hx-swap="outerHTML">
                 <i class="fa-solid fa-compact-disc fa-spin loading"></i>
               </div>
             </div>
-          </div>
-        </section>
-        <section class="solo-hidden">
-          <h5>{% trans 'reviews' %}</h5>
-          <div>
-            <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
-                 hx-trigger="intersect once"
-                 hx-swap="outerHTML">
-              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </section>
+          <section class="solo-hidden">
+            <h5>{% trans 'notes' %}</h5>
+            <div>
+              <div hx-get="{% url 'catalog:notes' item.url_path item.uuid %}"
+                   hx-trigger="intersect once"
+                   hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+              </div>
             </div>
-          </div>
-        </section>
-        <section class="solo-hidden">
-          <h5>{% trans 'notes' %}</h5>
-          <div>
-            <div hx-get="{% url 'catalog:notes' item.url_path item.uuid %}"
-                 hx-trigger="intersect once"
-                 hx-swap="outerHTML">
-              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-            </div>
-          </div>
-        </section>
+          </section>
+        {% endblock %}
       </div>
       <div id="item-more" class="middle">
         <!-- test more content -->

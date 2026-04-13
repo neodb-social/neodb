@@ -16,7 +16,15 @@ from .collection import (
     user_liked_collection_list,
 )
 from .common import generate_upload_path, piece_delete, upload_image
-from .mark import comment, comment_translate, mark, mark_log, user_mark_list, wish
+from .mark import (
+    comment,
+    comment_translate,
+    follow,
+    mark,
+    mark_log,
+    user_mark_list,
+    wish,
+)
 from .note import note_edit
 from .post import (
     piece_replies,
@@ -79,6 +87,7 @@ __all__ = [
     "mark_log",
     "user_mark_list",
     "wish",
+    "follow",
     "note_edit",
     "piece_replies",
     "post_translate",

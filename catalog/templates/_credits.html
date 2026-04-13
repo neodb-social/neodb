@@ -1,0 +1,20 @@
+{% load i18n %}
+{% if credits %}
+  <span>
+    {% if role_label %}
+      {% trans role_label %}:
+    {% endif %}
+    {% for credit in credits %}
+      {% if forloop.counter <= max %}
+        {% if not forloop.first %}/{% endif %}
+        {% if credit.person %}
+          <a href="{{ credit.person.url }}">{{ credit.name }}</a>
+        {% else %}
+          <span>{{ credit.name }}</span>
+        {% endif %}
+      {% elif forloop.last %}
+        …
+      {% endif %}
+    {% endfor %}
+  </span>
+{% endif %}
