@@ -18,12 +18,10 @@ from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
 from catalog.models import (
-    CreditRole,
     Edition,
     ExternalResource,
     IdType,
     Item,
-    ItemCredit,
     People,
     Podcast,
     TVSeason,
@@ -46,8 +44,6 @@ storage-test:     test write/read/delete on default storage backend
 wikidata-tmdb:    link TMDB resources to WikiData resources (using TMDB API)
 wikidata-link:    link external resources to WikiData (use --query for IdType)
 wikidata-find:    lookup Wikidata QID from URL and scrape (use --query for URL)
-populate-credits: populate ItemCredit from jsondata credit fields
-link-credits:     link unlinked ItemCredits to matching People
 fetch-people:     bulk fetch/update People data (use --query for source: wikidata|tmdb)
 idx-info:         show index information
 idx-init:         check and create index if not exists
@@ -75,8 +71,6 @@ class Command(SiteCommand):
                 "wikidata-tmdb",
                 "wikidata-link",
                 "wikidata-find",
-                "populate-credits",
-                "link-credits",
                 "fetch-people",
                 "idx-info",
                 "idx-init",
@@ -164,7 +158,7 @@ class Command(SiteCommand):
             help="Number of hours to look back for edited items (used with idx-catchup)",
         )
 
-    def migrate(self, m):
+    def migrate(self, m, start=None):
         match m:
             case "merge_works":
                 from catalog.common.migrations import merge_works_20250301
@@ -194,6 +188,10 @@ class Command(SiteCommand):
                 from catalog.common.migrations import normalize_genre_20260412
 
                 normalize_genre_20260412()
+            case "populate_credits":
+                from catalog.common.migrations import populate_credits_20260412
+
+                populate_credits_20260412(start_pk=start or 0)
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -499,118 +497,6 @@ class Command(SiteCommand):
                     logger.error(f"Error updating index for item {item.pk}: {e}")
                 pbar.update(1)
 
-    # Mapping from jsondata field name to CreditRole value
-    FIELD_TO_CREDIT_ROLE = {
-        # Person roles
-        "director": CreditRole.Director,
-        "playwright": CreditRole.Playwright,
-        "actor": CreditRole.Actor,
-        "author": CreditRole.Author,
-        "translator": CreditRole.Translator,
-        "artist": CreditRole.Artist,
-        "designer": CreditRole.Designer,
-        "composer": CreditRole.Composer,
-        "choreographer": CreditRole.Choreographer,
-        "performer": CreditRole.Performer,
-        "orig_creator": CreditRole.OrigCreator,
-        "crew": CreditRole.Crew,
-        "host": CreditRole.Host,
-        # Organization roles
-        "publisher": CreditRole.Publisher,
-        "developer": CreditRole.Developer,
-        "company": CreditRole.RecordLabel,  # Album.company is record label
-        "pub_house": CreditRole.Publisher,
-        "troupe": CreditRole.Troupe,
-    }
-
-    def populate_credits(self, dry_run=False, limit=None, start=None):
-        """Populate ItemCredit rows from jsondata credit fields on all items."""
-        qs = Item.objects.filter(
-            is_deleted=False, merged_to_item__isnull=True
-        ).order_by("pk")
-        if start:
-            qs = qs.filter(pk__gte=start)
-        if limit:
-            qs = qs[:limit]
-        total = qs.count()
-        created = 0
-        skipped = 0
-        for item in tqdm(qs.iterator(), total=total, desc="Populating credits"):
-            for field_name, credit_role in self.FIELD_TO_CREDIT_ROLE.items():
-                values = getattr(item, field_name, None)
-                if not values:
-                    continue
-                # Single string fields (e.g. pub_house) -> wrap in list
-                if isinstance(values, str):
-                    values = [values]
-                for i, value in enumerate(values):
-                    if isinstance(value, dict):
-                        name = value.get("name", "")
-                        character = value.get("role", "")
-                    else:
-                        name = str(value)
-                        character = ""
-                    if not name:
-                        continue
-                    if dry_run:
-                        self.stdout.write(
-                            f"  [dry-run] {item.display_title}: {credit_role} = {name}"
-                        )
-                        created += 1
-                    else:
-                        _, is_new = ItemCredit.objects.get_or_create(
-                            item=item,
-                            role=credit_role,
-                            name=name,
-                            defaults={"order": i, "character_name": character},
-                        )
-                        if is_new:
-                            created += 1
-                        else:
-                            skipped += 1
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"{'[dry-run] ' if dry_run else ''}Credits: {created} created, {skipped} skipped"
-            )
-        )
-
-    def link_credits(self, dry_run=False, limit=None):
-        """Link unlinked ItemCredits to matching People items."""
-        # Build a lookup: name -> People
-        people_by_name: dict[str, list[People]] = {}
-        for p in People.objects.filter(
-            is_deleted=False, merged_to_item__isnull=True
-        ).iterator():
-            for entry in p.localized_name or []:
-                name = entry.get("text", "")
-                if name:
-                    people_by_name.setdefault(name, []).append(p)
-
-        unlinked = ItemCredit.objects.filter(person__isnull=True)
-        if limit:
-            unlinked = unlinked[:limit]
-        total = unlinked.count()
-        linked = 0
-        ambiguous = 0
-        for credit in tqdm(unlinked.iterator(), total=total, desc="Linking credits"):
-            matches = people_by_name.get(credit.name, [])
-            if len(matches) == 1:
-                if dry_run:
-                    self.stdout.write(
-                        f"  [dry-run] {credit.name} -> {matches[0].display_name}"
-                    )
-                else:
-                    credit.person = matches[0]
-                    credit.save(update_fields=["person"])
-                linked += 1
-            elif len(matches) > 1:
-                ambiguous += 1
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"{'[dry-run] ' if dry_run else ''}Linked: {linked}, ambiguous: {ambiguous}, total: {total}"
-            )
-        )
-
     def fetch_people(self, source, limit=None, start=None):
         """Bulk fetch/update People data from external sources."""
         qs = People.objects.filter(
@@ -637,6 +523,9 @@ class Command(SiteCommand):
                     )
                     if resource:
                         updated += 1
+                        # Auto-link matching ItemCredits after update
+                        person.refresh_from_db()
+                        person.link_matching_credits()
                     else:
                         skipped += 1
                 else:
@@ -861,19 +750,6 @@ class Command(SiteCommand):
             case "wikidata-find":
                 self.wikidata_lookup(query)
 
-            case "populate-credits":
-                self.populate_credits(
-                    dry_run=options.get("dry_run", False),
-                    limit=limit,
-                    start=start,
-                )
-
-            case "link-credits":
-                self.link_credits(
-                    dry_run=options.get("dry_run", False),
-                    limit=limit,
-                )
-
             case "fetch-people":
                 source = options.get("source")
                 if not source:
@@ -950,7 +826,7 @@ class Command(SiteCommand):
                 if not name:
                     self.stdout.write(self.style.ERROR("name is required."))
                     return
-                self.migrate(name)
+                self.migrate(name, start=start)
 
             case "idx-catchup":
                 hour = options.get("hour")

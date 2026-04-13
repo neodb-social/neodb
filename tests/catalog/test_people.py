@@ -503,7 +503,7 @@ class TestPopulateCredits:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         credits = list(movie.credits.all())
         directors = [c for c in credits if c.role == CreditRole.Director]
         assert len(directors) == 2
@@ -525,7 +525,7 @@ class TestPopulateCredits:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         authors = list(book.credits.filter(role=CreditRole.Author))
         assert len(authors) == 1
         assert authors[0].name == "Frank Herbert"
@@ -540,9 +540,9 @@ class TestPopulateCredits:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         assert movie.credits.count() == 1
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         assert movie.credits.count() == 1
 
     def test_role_credits_property(self):
@@ -608,19 +608,21 @@ class TestLinkCredits:
         credit.refresh_from_db()
         assert credit.person is None
 
-    def test_link_credits_command(self):
+    def test_link_credits_bulk(self):
+        """link_credits migration function links all unlinked credits."""
+        from catalog.common.migrations import link_credits_20260412
+
         book = Edition.objects.create(title="Hyperion")
-        ItemCredit.objects.create(
+        credit = ItemCredit.objects.create(
             item=book, role=CreditRole.Author, name="Dan Simmons", order=0
         )
         People.objects.create(
             metadata=_DAN_SIMMONS_METADATA,
             people_type=PeopleType.PERSON,
         )
-        out = StringIO()
-        call_command("catalog", "link-credits", stdout=out)
-        output = out.getvalue()
-        assert "Linked: 1" in output
+        link_credits_20260412()
+        credit.refresh_from_db()
+        assert credit.person is not None
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -647,7 +649,7 @@ class TestOrganizationSupport:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         devs = list(game.credits.filter(role=CreditRole.Developer))
         assert len(devs) == 1
         assert devs[0].name == "Nintendo EAD"
@@ -667,7 +669,7 @@ class TestOrganizationSupport:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         pubs = list(book.credits.filter(role=CreditRole.Publisher))
         assert len(pubs) == 1
         assert pubs[0].name == "Penguin Books"
@@ -680,7 +682,7 @@ class TestOrganizationSupport:
             }
         )
         out = StringIO()
-        call_command("catalog", "populate-credits", stdout=out)
+        call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         labels = list(album.credits.filter(role=CreditRole.RecordLabel))
         assert len(labels) == 2
         assert labels[0].name == "Apple Records"

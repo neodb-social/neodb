@@ -253,3 +253,95 @@ def fix_missing_cover_20250821(days=0):
             i.save()
             updated += 1
     logger.success(f"{updated} items with missing covers has been fixed.")
+
+
+# Mapping from jsondata field name to CreditRole value
+_FIELD_TO_CREDIT_ROLE: dict[str, str] = {
+    # Person roles
+    "director": "director",
+    "playwright": "playwright",
+    "actor": "actor",
+    "author": "author",
+    "translator": "translator",
+    "artist": "artist",
+    "designer": "designer",
+    "composer": "composer",
+    "choreographer": "choreographer",
+    "performer": "performer",
+    "orig_creator": "orig_creator",
+    "crew": "crew",
+    "host": "host",
+    # Organization roles
+    "publisher": "publisher",
+    "developer": "developer",
+    "company": "record_label",  # Album.company is record label
+    "pub_house": "publisher",
+    "troupe": "troupe",
+}
+
+
+def populate_credits_20260412(start_pk=0):
+    """Populate ItemCredit rows from jsondata credit fields on all items."""
+    from catalog.models import Item, ItemCredit
+
+    qs = Item.objects.filter(
+        is_deleted=False, merged_to_item__isnull=True, pk__gt=start_pk
+    ).order_by("pk")
+    total = qs.count()
+    created = 0
+    skipped = 0
+    for item in tqdm(qs.iterator(), total=total, desc="Populating credits"):
+        for field_name, credit_role in _FIELD_TO_CREDIT_ROLE.items():
+            values = getattr(item, field_name, None)
+            if not values:
+                continue
+            if isinstance(values, str):
+                values = [values]
+            for i, value in enumerate(values):
+                if isinstance(value, dict):
+                    name = value.get("name", "")
+                    character = value.get("role", "")
+                else:
+                    name = str(value)
+                    character = ""
+                if not name:
+                    continue
+                _, is_new = ItemCredit.objects.get_or_create(
+                    item=item,
+                    role=credit_role,
+                    name=name,
+                    defaults={"order": i, "character_name": character},
+                )
+                if is_new:
+                    created += 1
+                else:
+                    skipped += 1
+    logger.success(f"Credits: {created} created, {skipped} skipped")
+
+
+def link_credits_20260412():
+    """Link unlinked ItemCredits to matching People items."""
+    from catalog.models import ItemCredit, People
+
+    people_by_name: dict[str, list] = {}
+    for p in People.objects.filter(
+        is_deleted=False, merged_to_item__isnull=True
+    ).iterator():
+        for entry in p.localized_name or []:
+            name = entry.get("text", "")
+            if name:
+                people_by_name.setdefault(name, []).append(p)
+
+    unlinked = ItemCredit.objects.filter(person__isnull=True)
+    total = unlinked.count()
+    linked = 0
+    ambiguous = 0
+    for credit in tqdm(unlinked.iterator(), total=total, desc="Linking credits"):
+        matches = people_by_name.get(credit.name, [])
+        if len(matches) == 1:
+            credit.person = matches[0]
+            credit.save(update_fields=["person"])
+            linked += 1
+        elif len(matches) > 1:
+            ambiguous += 1
+    logger.success(f"Linked: {linked}, ambiguous: {ambiguous}, total: {total}")
