@@ -17,15 +17,18 @@ from journal.models import update_journal_for_merged_item_task
 
 from ..forms import CatalogForms
 from ..models import (
+    CreditRole,
     Edition,
     ExternalResource,
     IdealIdTypes,
     IdType,
     Item,
+    ItemCredit,
     Movie,
     TVSeason,
     TVShow,
 )
+from ..models.people import People
 from ..sites import IMDB
 
 
@@ -423,3 +426,88 @@ def protect(request, item_path, item_uuid):
     item.is_protected = bool(request.POST.get("protected"))
     item.save()
     return redirect(item.url)
+
+
+@require_http_methods(["GET"])
+@login_required
+def item_credits(request, item_path, item_uuid):
+    """Render the credits list for an item (HTMX partial)."""
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    credits = item.credits.select_related("person").all()
+    return render(
+        request,
+        "_item_credits_list.html",
+        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+    )
+
+
+@require_http_methods(["POST"])
+@login_required
+def add_credit(request, item_path, item_uuid):
+    """Add a credit to an item. Accepts name or People URL."""
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    role = request.POST.get("role", "")
+    name_input = request.POST.get("name", "").strip()
+    if not role or not name_input:
+        raise BadRequest("role and name are required")
+    if role not in CreditRole.values:
+        raise BadRequest("invalid role")
+
+    person = None
+    name = name_input
+
+    # Check if input is a People URL (e.g., /people/xxxx or full URL)
+    if "/people/" in name_input:
+        uuid_part = name_input.rstrip("/").split("/people/")[-1].split("/")[0]
+        person = People.objects.filter(uid=get_uuid_or_404(uuid_part)).first()
+        if person:
+            name = person.display_name
+
+    # If not a URL, search for matching People by name
+    if not person:
+        matches = People.find_by_name(name)
+        if len(matches) == 1:
+            person = matches[0]
+
+    order = item.credits.count()
+    ItemCredit.objects.get_or_create(
+        item=item,
+        role=role,
+        name=name,
+        defaults={"person": person, "order": order},
+    )
+    credits = item.credits.select_related("person").all()
+    return render(
+        request,
+        "_item_credits_list.html",
+        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+    )
+
+
+@require_http_methods(["POST"])
+@login_required
+def remove_credit(request, item_path, item_uuid, credit_id):
+    """Remove a credit from an item."""
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    ItemCredit.objects.filter(pk=credit_id, item=item).delete()
+    credits = item.credits.select_related("person").all()
+    return render(
+        request,
+        "_item_credits_list.html",
+        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+    )
+
+
+@require_http_methods(["GET"])
+def search_people(request):
+    """Search People by name for autocomplete (returns JSON)."""
+    from django.http import JsonResponse
+
+    q = request.GET.get("q", "").strip()
+    if len(q) < 2:
+        return JsonResponse([], safe=False)
+    results = [
+        {"url": p.url, "name": p.display_name, "cover": p.cover_image_url}
+        for p in People.find_by_name(q, exact=False)[:10]
+    ]
+    return JsonResponse(results, safe=False)

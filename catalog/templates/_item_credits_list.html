@@ -1,0 +1,51 @@
+{% load i18n %}
+<div id="credits-list">
+  {% for credit in credits %}
+    <div style="display: flex;
+                align-items: center;
+                gap: 0.5em;
+                margin-bottom: 0.3em">
+      <small>[{{ credit.get_role_display }}]</small>
+      {% if credit.person %}
+        <a href="{{ credit.person.url }}">{{ credit.name }}</a>
+        <i class="fa-solid fa-link" style="font-size: 0.7em; opacity: 0.5;"></i>
+      {% else %}
+        <span>{{ credit.name }}</span>
+      {% endif %}
+      {% if credit.character_name %}<small>({{ credit.character_name }})</small>{% endif %}
+      <span class="action inline" style="margin-left: auto;">
+        <a hx-post="{% url 'catalog:remove_credit' item.url_path item.uuid credit.pk %}"
+           hx-target="#credits-section"
+           hx-swap="innerHTML"
+           title="{% trans 'remove' %}">
+          <i class="fa-solid fa-xmark"></i>
+        </a>
+      </span>
+    </div>
+  {% empty %}
+    <p class="empty">{% trans 'No credits yet.' %}</p>
+  {% endfor %}
+  <form hx-post="{% url 'catalog:add_credit' item.url_path item.uuid %}"
+        hx-target="#credits-section"
+        hx-swap="innerHTML"
+        style="display: flex;
+               gap: 0.5em;
+               margin-top: 0.5em;
+               align-items: center">
+    {% csrf_token %}
+    <select name="role" required style="max-width: 10em; margin-bottom: 0;">
+      {% for value, label in credit_roles %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+    </select>
+    <input type="text"
+           name="name"
+           placeholder="{% trans 'Name or /people/... URL' %}"
+           required
+           style="margin-bottom: 0">
+    <button type="submit"
+            class="outline"
+            style="white-space: nowrap;
+                   margin-bottom: 0">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </form>
+</div>

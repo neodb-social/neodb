@@ -51,6 +51,17 @@
       </li>
       {% if forloop.last %}</ul>{% endif %}
   {% endfor %}
+  {% if item.class_name != 'people' and item.class_name != 'collection' %}
+    <details open>
+      <summary>{% trans 'Credits' %}</summary>
+      <div id="credits-section"
+           hx-get="{% url 'catalog:item_credits' item.url_path item.uuid %}"
+           hx-trigger="load"
+           hx-swap="innerHTML">
+        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+      </div>
+    </details>
+  {% endif %}
   {% if item.is_editable or request.user.is_staff %}
     {% for res in item.external_resources.all %}
       <details>

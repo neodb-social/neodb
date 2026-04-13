@@ -135,7 +135,7 @@ class Command(SiteCommand):
         )
         parser.add_argument(
             "--source",
-            choices=["wikidata", "tmdb"],
+            choices=["wikidata", "tmdb", "igdb"],
             help="Source for fetch-people command",
         )
         parser.add_argument(
@@ -509,7 +509,12 @@ class Command(SiteCommand):
         total = qs.count()
         updated = 0
         skipped = 0
-        id_type = IdType.WikiData if source == "wikidata" else IdType.TMDB_Person
+        source_to_id_type = {
+            "wikidata": IdType.WikiData,
+            "tmdb": IdType.TMDB_Person,
+            "igdb": IdType.IGDB_Company,
+        }
+        id_type = source_to_id_type[source]
         for person in tqdm(qs.iterator(), total=total, desc=f"Fetching from {source}"):
             res = person.external_resources.filter(id_type=id_type).first()
             if not res:

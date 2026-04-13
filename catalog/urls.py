@@ -53,6 +53,7 @@ urlpatterns = [
         name="people_works",
     ),
     path("podcast/<str:item_uuid>/episodes", episode_data, name="episode_data"),
+    path("catalog/search_people", search_people, name="search_people"),
     path("catalog/create/<str:item_model>", create, name="create"),
     re_path(
         r"^(?P<item_path>"
@@ -67,6 +68,27 @@ urlpatterns = [
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/edit$",
         edit,
         name="edit",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/credits$",
+        item_credits,
+        name="item_credits",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/credits/add$",
+        add_credit,
+        name="add_credit",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/credits/(?P<credit_id>\d+)/remove$",
+        remove_credit,
+        name="remove_credit",
     ),
     re_path(
         r"^(?P<item_path>"

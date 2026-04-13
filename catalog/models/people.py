@@ -333,6 +333,18 @@ class People(Item):
         self.merge_credits(to_item)
 
     @classmethod
+    def find_by_name(cls, name: str, exact: bool = True) -> list["People"]:
+        """Find People by localized_name match."""
+        qs = cls.objects.filter(is_deleted=False, merged_to_item__isnull=True)
+        if exact:
+            return list(qs.filter(metadata__localized_name__contains=[{"text": name}]))
+        else:
+            # Partial match: search localized_name text fields
+            from django.db.models import Q
+
+            return list(qs.filter(Q(metadata__localized_name__icontains=name)))
+
+    @classmethod
     def lookup_id_type_choices(cls):
         id_types = [
             IdType.WikiData,

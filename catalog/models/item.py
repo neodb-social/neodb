@@ -137,6 +137,7 @@ class ItemCredit(models.Model):
         indexes = [
             models.Index(fields=["item", "role"]),
             models.Index(fields=["person"]),
+            models.Index(fields=["name"]),
         ]
 
     def __str__(self):
