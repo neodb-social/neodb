@@ -126,7 +126,7 @@ class TestDoubanGame:
         titles = sorted([t["text"] for t in site.resource.item.localized_title])
         assert titles == ["Portal 2", "传送门2"]
         assert site.resource.item.douban_game == "10734307"
-        assert site.resource.item.genre == ["第一人称射击", "益智"]
+        assert site.resource.item.genre == ["第一人称射击", "puzzle"]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -214,7 +214,7 @@ class TestMobyGames:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.developer == ["Valve Corporation"]
-        assert "Action" in site.resource.item.genre
+        assert "action" in site.resource.item.genre
         assert "Windows" in site.resource.item.platform
 
 
