@@ -2,7 +2,13 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
-from common.models import LANGUAGE_CHOICES, LOCALE_CHOICES, SCRIPT_CHOICES, jsondata
+from common.models import (
+    GENRE_CHOICES,
+    LANGUAGE_CHOICES,
+    LOCALE_CHOICES,
+    SCRIPT_CHOICES,
+    jsondata,
+)
 
 
 class SiteName(models.TextChoices):
@@ -182,6 +188,7 @@ LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(
     LANGUAGE_CHOICES, const=True
 )
 SCRIPT_CHOICES_JSONFORM = get_locale_choices_for_jsonform(SCRIPT_CHOICES, const=True)
+GENRE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(GENRE_CHOICES, const=True)
 
 LOCALIZED_LABEL_SCHEMA = {
     "type": "list",
@@ -234,6 +241,23 @@ LIST_OF_ONE_PLUS_STR_SCHEMA = {
     "minItems": 1,
     "uniqueItems": True,
 }
+
+
+def GenreListField():
+    return jsondata.ArrayField(
+        verbose_name=_("genre"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
+        null=True,
+        blank=True,
+        default=list,
+        schema={
+            "type": "array",
+            "items": {
+                "oneOf": GENRE_CHOICES_JSONFORM + [{"title": "Other", "type": "string"}]
+            },
+            "uniqueItems": True,
+        },
+    )
 
 
 def LanguageListField(script=False):

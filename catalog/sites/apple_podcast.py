@@ -34,7 +34,7 @@ class ApplePodcast(AbstractSite):
                 "title": title,
                 "feed_url": feed_url,
                 "host": [r["artistName"]],
-                "genres": r["genres"],
+                "genre": r["genres"],
                 "cover_image_url": r["artworkUrl600"],
             }
         )

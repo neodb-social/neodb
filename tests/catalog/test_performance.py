@@ -40,7 +40,7 @@ class TestDoubanDrama:
         assert isinstance(item, Performance)
         assert item.display_title == "不眠之人·拿破仑"
         assert len(item.localized_title) == 2
-        assert item.genre == ["音乐剧"]
+        assert item.genre == ["musical"]
         assert item.troupe == ["宝塚歌剧团"]
         assert item.composer == ["ジェラール・プレスギュルヴィック"]
 
@@ -86,7 +86,7 @@ class TestDoubanDrama:
         assert item.display_title == "THE SCARLET PIMPERNEL"
         assert len(item.localized_title) == 3
         assert len(item.display_description) == 545
-        assert item.genre == ["音乐剧"]
+        assert item.genre == ["musical"]
         # assert item.version == ["08星组公演版", "10年月組公演版", "17年星組公演版", "ュージカル（2017年）版"]
         assert item.director == ["小池修一郎", "小池 修一郎", "石丸さち子"]
         assert item.playwright == [

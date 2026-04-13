@@ -21,6 +21,7 @@ from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from common.models import get_current_locales, jsondata, uniq
+from common.models.genre import normalize_genres
 from common.models.lang import normalize_languages
 from common.utils import get_file_absolute_url
 
@@ -639,9 +640,19 @@ class Item(PolymorphicModel):
                 changed = True
         return changed
 
+    def _normalize_genres(self) -> bool:
+        changed = False
+        if hasattr(self, "genre"):
+            genre = normalize_genres(self.genre)
+            if self.genre != genre:
+                self.genre = genre
+                changed = True
+        return changed
+
     def normalize_metadata(self, override_resources=[]) -> bool:
         r = self._update_primary_lookup_id(override_resources)
         r |= self._normalize_languages()
+        r |= self._normalize_genres()
         return r
 
     def merge_data_from_external_resource(

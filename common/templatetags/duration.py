@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 
 from catalog.models import item_categories
 from catalog.views import visible_categories as _visible_categories
+from common.models.genre import GENRE_CODES
 from common.models.lang import (
     LANGUAGE_CODES,
     LOCALE_CODES,
@@ -100,3 +101,9 @@ def code_to_lang(code):
         or LOCALE_CODES.get(code)
         or code
     )
+
+
+@register.filter
+def code_to_genre(code):
+    label = GENRE_CODES.get(code)
+    return str(label) if label else code

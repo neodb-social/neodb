@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load duration %}
+{% if list %}
+  <span>
+    {% trans 'genre' %}:
+    {% for p in list %}
+      {% if forloop.counter <= max %}
+        {% if not forloop.first %}/{% endif %}
+        <span>{{ p|code_to_genre }}</span>
+      {% elif forloop.last %}
+        …
+      {% endif %}
+    {% endfor %}
+  </span>
+{% endif %}

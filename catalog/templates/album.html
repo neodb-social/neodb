@@ -22,7 +22,7 @@
       {% trans 'duration' %}: {{ item.duration|duration_format:1000 }}
     {% endif %}
   </div>
-  <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
+  <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
   <div>
     {% if item.barcode %}
       {% trans 'barcode' %}: {{ item.barcode }}

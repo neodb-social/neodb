@@ -33,10 +33,10 @@ class TestIGDB:
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.steam == "620"
         assert site.resource.item.genre == [
-            "Shooter",
-            "Platform",
-            "Puzzle",
-            "Adventure",
+            "shooter",
+            "platformer",
+            "puzzle",
+            "adventure",
         ]
 
     @use_local_response
@@ -54,7 +54,7 @@ class TestIGDB:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.primary_lookup_id_type == IdType.IGDB
-        assert site.resource.item.genre == ["Puzzle", "Role-playing (RPG)", "Adventure"]
+        assert site.resource.item.genre == ["puzzle", "rpg", "adventure"]
         assert (
             site.resource.item.primary_lookup_id_value
             == "the-legend-of-zelda-breath-of-the-wild"
@@ -91,10 +91,10 @@ class TestSteam:
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.steam == "620"
         assert site.resource.item.genre == [
-            "Shooter",
-            "Platform",
-            "Puzzle",
-            "Adventure",
+            "shooter",
+            "platformer",
+            "puzzle",
+            "adventure",
         ]
 
 

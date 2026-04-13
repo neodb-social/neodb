@@ -5,6 +5,7 @@ from common.models.misc import int_
 
 from .common import (
     LIST_OF_STR_SCHEMA,
+    GenreListField,
     LanguageListField,
     jsondata,
 )
@@ -85,13 +86,7 @@ class Movie(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    genre = jsondata.ArrayField(
-        verbose_name=_("genre"),
-        base_field=models.CharField(blank=True, default="", max_length=50),
-        null=True,
-        blank=True,
-        default=list,
-    )  # , choices=MovieGenreEnum.choices
+    genre = GenreListField()
     showtime = jsondata.JSONField(
         _("release date"),
         null=True,

@@ -7,6 +7,7 @@ from ninja import Field
 
 from .common import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
+    GenreListField,
     LanguageListField,
     jsondata,
 )
@@ -56,13 +57,7 @@ class Podcast(Item):
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
-    genre = jsondata.ArrayField(
-        verbose_name=_("genre"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    genre = GenreListField()
 
     language = LanguageListField()
 

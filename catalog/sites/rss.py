@@ -104,7 +104,7 @@ class RSS(AbstractSite):
                 ),
                 "official_site": feed.get("link"),
                 "cover_image_url": feed.get("cover_url"),
-                "genre": feed.get("itunes_categories", [None])[0],
+                "genre": [x for x in feed.get("itunes_categories", []) if x],
             }
         )
         pd.lookup_ids[IdType.RSS] = RSS.url_to_id(self.url)

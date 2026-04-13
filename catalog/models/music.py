@@ -1,12 +1,11 @@
 from datetime import date
 
-from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext_lazy
 
 from .common import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
     LIST_OF_STR_SCHEMA,
+    GenreListField,
     jsondata,
 )
 from .item import (
@@ -69,13 +68,7 @@ class Album(Item):
         default=list,
         schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
-    genre = jsondata.ArrayField(
-        verbose_name=pgettext_lazy("music", "genre"),
-        base_field=models.CharField(blank=True, default="", max_length=50),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    genre = GenreListField()
     company = jsondata.JSONField(
         verbose_name=_("publisher"),
         null=False,

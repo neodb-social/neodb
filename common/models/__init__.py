@@ -1,4 +1,10 @@
 from .cron import BaseJob, JobManager
+from .genre import (
+    GENRE_CHOICES,
+    GENRE_CODES,
+    normalize_genre,
+    normalize_genres,
+)
 from .lang import (
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
@@ -14,6 +20,8 @@ from .site_config import SiteConfig
 
 __all__ = [
     "BaseJob",
+    "GENRE_CHOICES",
+    "GENRE_CODES",
     "JobManager",
     "LANGUAGE_CHOICES",
     "LOCALE_CHOICES",
@@ -24,6 +32,8 @@ __all__ = [
     "SiteConfig",
     "detect_language",
     "get_current_locales",
+    "normalize_genre",
+    "normalize_genres",
     "uniq",
     "int_",
 ]

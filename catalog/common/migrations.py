@@ -142,6 +142,24 @@ def normalize_language_20250524():
     logger.warning(f"normalize_language finished. {u} of {c} items updated.")
 
 
+def normalize_genre_20260412():
+    from catalog.models import Item
+    from common.models.genre import normalize_genres
+
+    logger.warning("normalize_genre start")
+    c = Item.objects.all().count()
+    u = 0
+    for i in tqdm(Item.objects.all().iterator(), total=c):
+        genre = getattr(i, "genre", None)
+        if genre:
+            genre2 = normalize_genres(genre)
+            if genre2 != genre:
+                setattr(i, "genre", genre2)
+                i.save(update_fields=["metadata"])
+                u += 1
+    logger.warning(f"normalize_genre finished. {u} of {c} items updated.")
+
+
 def link_tmdb_wikidata_20250815(limit=None):
     """
     Scan all TMDB Movie and TVShow resources, refetch them, and link to WikiData resources if available.

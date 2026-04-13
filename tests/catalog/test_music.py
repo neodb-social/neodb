@@ -92,7 +92,7 @@ class TestDoubanMusic:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.barcode == "0077774644020"
-        assert site.resource.item.genre == ["摇滚"]
+        assert site.resource.item.genre == ["rock"]
         assert len(site.resource.item.localized_title) == 2
 
 
@@ -205,7 +205,7 @@ class TestDiscogsRelease:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.barcode == "0602445804689"
-        assert site.resource.item.genre == ["Hip Hop"]
+        assert site.resource.item.genre == ["hip-hop"]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -236,7 +236,7 @@ class TestDiscogsMaster:
         assert site.resource.metadata["artist"] == ["The XX"]
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
-        assert site.resource.item.genre == ["Electronic", "Rock", "Pop"]
+        assert site.resource.item.genre == ["electronic", "rock", "pop"]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -267,7 +267,7 @@ class TestAppleMusic:
         assert site.resource.metadata["artist"] == ["Leah Dou"]
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
-        assert site.resource.item.genre == ["Pop", "Music"]
+        assert site.resource.item.genre == ["pop", "music"]
         assert site.resource.item.duration == 2368000
 
 

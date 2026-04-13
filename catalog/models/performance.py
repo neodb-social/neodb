@@ -9,6 +9,7 @@ from common.models.misc import datetime_
 
 from .common import (
     LIST_OF_STR_SCHEMA,
+    GenreListField,
     LanguageListField,
     jsondata,
 )
@@ -114,13 +115,7 @@ class Performance(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("original name"), blank=True, max_length=500
     )
-    genre = jsondata.ArrayField(
-        verbose_name=_("genre"),
-        base_field=models.CharField(blank=False, default="", max_length=200),
-        null=False,
-        blank=False,
-        default=list,
-    )
+    genre = GenreListField()
     language = LanguageListField()
     director = jsondata.JSONField(
         verbose_name=_("director"),

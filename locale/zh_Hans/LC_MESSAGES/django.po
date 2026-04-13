@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-12 15:46-0400\n"
+"POT-Creation-Date: 2026-04-12 18:27-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -58,21 +58,21 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:28 catalog/models/item.py:156
+#: catalog/forms.py:29 catalog/models/item.py:157
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:33 catalog/models/item.py:159
+#: catalog/forms.py:34 catalog/models/item.py:160
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
 #: catalog/models/book.py:80 catalog/models/book.py:99
-#: catalog/models/common.py:193 catalog/models/common.py:211
+#: catalog/models/common.py:200 catalog/models/common.py:218
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:83 catalog/models/book.py:102
-#: catalog/models/common.py:196 catalog/models/common.py:216
+#: catalog/models/common.py:203 catalog/models/common.py:223
 msgid "text content"
 msgstr "文本内容"
 
@@ -96,7 +96,7 @@ msgstr "有声书"
 msgid "Web Fiction"
 msgstr "网络作品"
 
-#: catalog/models/book.py:124 catalog/models/game.py:31
+#: catalog/models/book.py:124 catalog/models/game.py:32
 msgid "Other"
 msgstr "其它"
 
@@ -104,9 +104,9 @@ msgstr "其它"
 msgid "subtitle"
 msgstr "副标题"
 
-#: catalog/models/book.py:173 catalog/models/movie.py:65
-#: catalog/models/performance.py:317 catalog/models/tv.py:137
-#: catalog/models/tv.py:364
+#: catalog/models/book.py:173 catalog/models/movie.py:66
+#: catalog/models/performance.py:312 catalog/models/tv.py:138
+#: catalog/models/tv.py:359
 msgid "original title"
 msgstr "原名"
 
@@ -162,433 +162,431 @@ msgstr "价格"
 msgid "imprint"
 msgstr "出品方"
 
-#: catalog/models/common.py:9 common/models/lang.py:249
+#: catalog/models/common.py:15 common/models/lang.py:249
 msgid "Unknown"
 msgstr "未知"
 
-#: catalog/models/common.py:10
+#: catalog/models/common.py:16
 msgid "Douban"
 msgstr "豆瓣"
 
-#: catalog/models/common.py:11 catalog/models/common.py:58
+#: catalog/models/common.py:17 catalog/models/common.py:64
 msgid "Goodreads"
 msgstr "Goodreads"
 
-#: catalog/models/common.py:12 catalog/models/common.py:60
+#: catalog/models/common.py:18 catalog/models/common.py:66
 msgid "Google Books"
 msgstr "谷歌图书"
 
-#: catalog/models/common.py:13
+#: catalog/models/common.py:19
 msgid "BooksTW"
 msgstr "博客來"
 
-#: catalog/models/common.py:14 catalog/models/common.py:69
-#: catalog/models/common.py:71
+#: catalog/models/common.py:20 catalog/models/common.py:75
+#: catalog/models/common.py:77
 msgid "Bibliotek.dk"
 msgstr "Bibliotek"
 
-#: catalog/models/common.py:15 catalog/models/common.py:70
+#: catalog/models/common.py:21 catalog/models/common.py:76
 msgid "eReolen.dk"
 msgstr "eReolen"
 
-#: catalog/models/common.py:16 catalog/models/common.py:53
+#: catalog/models/common.py:22 catalog/models/common.py:59
 #: catalog/templates/movie.html:51 catalog/templates/tvseason.html:68
 #: catalog/templates/tvshow.html:63
 msgid "IMDb"
 msgstr "IMDb"
 
-#: catalog/models/common.py:17
+#: catalog/models/common.py:23
 msgid "TMDB"
 msgstr "TMDB"
 
-#: catalog/models/common.py:18 catalog/models/common.py:72
+#: catalog/models/common.py:24 catalog/models/common.py:78
 msgid "Bandcamp"
 msgstr "Bandcamp"
 
-#: catalog/models/common.py:19
+#: catalog/models/common.py:25
 msgid "Spotify"
 msgstr "Spotify"
 
-#: catalog/models/common.py:20
+#: catalog/models/common.py:26
 msgid "IGDB"
 msgstr "IGDB"
 
-#: catalog/models/common.py:21
+#: catalog/models/common.py:27
 msgid "Steam"
 msgstr "Steam"
 
-#: catalog/models/common.py:22 catalog/models/common.py:90
+#: catalog/models/common.py:28 catalog/models/common.py:96
 msgid "Bangumi"
 msgstr "Bangumi"
 
-#: catalog/models/common.py:23
+#: catalog/models/common.py:29
 msgid "BGG"
 msgstr "BGG"
 
-#: catalog/models/common.py:24 catalog/models/common.py:91
+#: catalog/models/common.py:30 catalog/models/common.py:97
 msgid "Apple Podcast"
 msgstr "苹果播客"
 
-#: catalog/models/common.py:25
+#: catalog/models/common.py:31
 msgid "RSS"
 msgstr "RSS"
 
-#: catalog/models/common.py:26
+#: catalog/models/common.py:32
 msgid "Discogs"
 msgstr "Discogs"
 
-#: catalog/models/common.py:27 catalog/models/common.py:92
+#: catalog/models/common.py:33 catalog/models/common.py:98
 msgid "Apple Music"
 msgstr "苹果音乐"
 
-#: catalog/models/common.py:28 catalog/models/common.py:94
+#: catalog/models/common.py:34 catalog/models/common.py:100
 msgid "Fediverse"
 msgstr "联邦宇宙"
 
-#: catalog/models/common.py:29 catalog/models/common.py:95
+#: catalog/models/common.py:35 catalog/models/common.py:101
 msgid "Qidian"
 msgstr "起点"
 
-#: catalog/models/common.py:30 catalog/models/common.py:96
+#: catalog/models/common.py:36 catalog/models/common.py:102
 msgid "Ypshuo"
 msgstr "阅评说"
 
-#: catalog/models/common.py:31 catalog/models/common.py:97
+#: catalog/models/common.py:37 catalog/models/common.py:103
 msgid "Archive of Our Own"
 msgstr "AO3"
 
-#: catalog/models/common.py:32 catalog/models/common.py:98
+#: catalog/models/common.py:38 catalog/models/common.py:104
 msgid "JinJiang"
 msgstr "晋江文学"
 
-#: catalog/models/common.py:33 catalog/models/common.py:43
+#: catalog/models/common.py:39 catalog/models/common.py:49
 msgid "WikiData"
 msgstr "维基数据"
 
-#: catalog/models/common.py:34 catalog/models/common.py:99
+#: catalog/models/common.py:40 catalog/models/common.py:105
 msgid "Open Library"
 msgstr "开放图书馆"
 
-#: catalog/models/common.py:35
+#: catalog/models/common.py:41
 msgid "MusicBrainz"
 msgstr "MusicBrainz"
 
-#: catalog/models/common.py:36
+#: catalog/models/common.py:42
 msgid "WorldCat"
 msgstr "WorldCat"
 
-#: catalog/models/common.py:37 catalog/models/common.py:101
+#: catalog/models/common.py:43 catalog/models/common.py:107
 msgid "MobyGames"
 msgstr "MobyGames"
 
-#: catalog/models/common.py:38 catalog/models/common.py:102
+#: catalog/models/common.py:44 catalog/models/common.py:108
 msgid "StoryGraph"
 msgstr ""
 
-#: catalog/models/common.py:39 catalog/models/common.py:93
+#: catalog/models/common.py:45 catalog/models/common.py:99
 msgid "YouTube Music"
 msgstr "YouTube Music"
 
-#: catalog/models/common.py:44
+#: catalog/models/common.py:50
 msgid "ISBN10"
 msgstr "ISBN10"
 
-#: catalog/models/common.py:45 catalog/templates/edition.html:19
+#: catalog/models/common.py:51 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr "ISBN"
 
-#: catalog/models/common.py:46
+#: catalog/models/common.py:52
 msgid "ASIN"
 msgstr "ASIN"
 
-#: catalog/models/common.py:47
+#: catalog/models/common.py:53
 msgid "ISSN"
 msgstr "ISSN"
 
-#: catalog/models/common.py:48
+#: catalog/models/common.py:54
 msgid "CUBN"
 msgstr "统一书号"
 
-#: catalog/models/common.py:49
+#: catalog/models/common.py:55
 msgid "ISRC"
 msgstr "ISRC"
 
-#: catalog/models/common.py:50
+#: catalog/models/common.py:56
 msgid "GTIN UPC EAN"
 msgstr "条形码"
 
-#: catalog/models/common.py:51
+#: catalog/models/common.py:57
 msgid "OCLC Number"
 msgstr "OCLC控制号"
 
-#: catalog/models/common.py:52
+#: catalog/models/common.py:58
 msgid "RSS Feed URL"
 msgstr "RSS网址"
 
-#: catalog/models/common.py:54
+#: catalog/models/common.py:60
 msgid "TMDB TV Series"
 msgstr "TMDB电视剧集"
 
-#: catalog/models/common.py:55
+#: catalog/models/common.py:61
 msgid "TMDB TV Season"
 msgstr "TMDB电视分季"
 
-#: catalog/models/common.py:56
+#: catalog/models/common.py:62
 msgid "TMDB TV Episode"
 msgstr "TMDB电视单集"
 
-#: catalog/models/common.py:57
+#: catalog/models/common.py:63
 msgid "TMDB Movie"
 msgstr "TMDB电影"
 
-#: catalog/models/common.py:59
+#: catalog/models/common.py:65
 msgid "Goodreads Work"
 msgstr "Goodreads著作"
 
-#: catalog/models/common.py:61
+#: catalog/models/common.py:67
 msgid "Douban Book"
 msgstr "豆瓣图书"
 
-#: catalog/models/common.py:62
+#: catalog/models/common.py:68
 msgid "Douban Book Work"
 msgstr "豆瓣图书著作"
 
-#: catalog/models/common.py:63
+#: catalog/models/common.py:69
 msgid "Douban Movie"
 msgstr "豆瓣电影"
 
-#: catalog/models/common.py:64
+#: catalog/models/common.py:70
 msgid "Douban Music"
 msgstr "豆瓣音乐"
 
-#: catalog/models/common.py:65
+#: catalog/models/common.py:71
 msgid "Douban Game"
 msgstr "豆瓣游戏"
 
-#: catalog/models/common.py:66
+#: catalog/models/common.py:72
 msgid "Douban Drama"
 msgstr "豆瓣舞台剧"
 
-#: catalog/models/common.py:67
+#: catalog/models/common.py:73
 msgid "Douban Drama Version"
 msgstr "豆瓣舞台剧版本"
 
-#: catalog/models/common.py:68
+#: catalog/models/common.py:74
 msgid "BooksTW Book"
 msgstr "博客来图书"
 
-#: catalog/models/common.py:73
+#: catalog/models/common.py:79
 msgid "Spotify Album"
 msgstr "Spotify专辑"
 
-#: catalog/models/common.py:74
+#: catalog/models/common.py:80
 msgid "Spotify Podcast"
 msgstr "Spotify播客"
 
-#: catalog/models/common.py:75
+#: catalog/models/common.py:81
 msgid "Discogs Release"
 msgstr "Discogs发行"
 
-#: catalog/models/common.py:76
+#: catalog/models/common.py:82
 msgid "Discogs Master"
 msgstr "Discogs作品"
 
-#: catalog/models/common.py:79
+#: catalog/models/common.py:85
 msgid "MusicBrainz Release Group"
 msgstr "MusicBrainz发行列表"
 
-#: catalog/models/common.py:81
+#: catalog/models/common.py:87
 msgid "MusicBrainz Release"
 msgstr "MusicBrainz发行"
 
-#: catalog/models/common.py:87
+#: catalog/models/common.py:93
 msgid "IGDB Game"
 msgstr "IGDB游戏"
 
-#: catalog/models/common.py:88
+#: catalog/models/common.py:94
 msgid "BGG Boardgame"
 msgstr "BGG桌游"
 
-#: catalog/models/common.py:89
+#: catalog/models/common.py:95
 msgid "Steam Game"
 msgstr "Steam游戏"
 
-#: catalog/models/common.py:100
+#: catalog/models/common.py:106
 msgid "Open Library Work"
 msgstr "开放图书馆著作"
 
-#: catalog/models/common.py:121
+#: catalog/models/common.py:127
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:122 catalog/templates/_sidebar_edit.html:224
+#: catalog/models/common.py:128 catalog/templates/_sidebar_edit.html:224
 msgid "Work"
 msgstr "作品"
 
-#: catalog/models/common.py:123
+#: catalog/models/common.py:129
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:124 catalog/templates/_sidebar_edit.html:145
+#: catalog/models/common.py:130 catalog/templates/_sidebar_edit.html:145
 msgid "TV Season"
 msgstr "电视分季"
 
-#: catalog/models/common.py:125
+#: catalog/models/common.py:131
 msgid "TV Episode"
 msgstr "电视单集"
 
-#: catalog/models/common.py:126 catalog/models/common.py:142
-#: catalog/models/common.py:156 catalog/templates/_sidebar_edit.html:138
+#: catalog/models/common.py:132 catalog/models/common.py:148
+#: catalog/models/common.py:162 catalog/templates/_sidebar_edit.html:138
 #: journal/templates/_sidebar_user_mark_list.html:32
 msgid "Movie"
 msgstr "电影"
 
-#: catalog/models/common.py:127
+#: catalog/models/common.py:133
 msgid "Album"
 msgstr "专辑"
 
-#: catalog/models/common.py:128 catalog/models/common.py:145
-#: catalog/models/common.py:159 common/templates/_header.html:41
+#: catalog/models/common.py:134 catalog/models/common.py:151
+#: catalog/models/common.py:165 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:45
 msgid "Game"
 msgstr "游戏"
 
-#: catalog/models/common.py:129
+#: catalog/models/common.py:135
 msgid "Podcast Program"
 msgstr "播客节目"
 
-#: catalog/models/common.py:130
+#: catalog/models/common.py:136
 msgid "Podcast Episode"
 msgstr "播客单集"
 
-#: catalog/models/common.py:131 catalog/models/common.py:147
-#: catalog/models/common.py:161 common/templates/_header.html:45
+#: catalog/models/common.py:137 catalog/models/common.py:153
+#: catalog/models/common.py:167 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:49
 msgid "Performance"
 msgstr "演出"
 
-#: catalog/models/common.py:132
+#: catalog/models/common.py:138
 msgid "Production"
 msgstr "上演"
 
-#: catalog/models/common.py:133
+#: catalog/models/common.py:139
 msgid "Exhibition"
 msgstr "展览"
 
-#: catalog/models/common.py:134 catalog/models/common.py:151
+#: catalog/models/common.py:140 catalog/models/common.py:157
 #: journal/templates/collection.html:23 journal/templates/collection.html:29
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr "收藏单"
 
-#: catalog/models/common.py:141 catalog/models/common.py:155
+#: catalog/models/common.py:147 catalog/models/common.py:161
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:29
 msgid "Book"
 msgstr "图书"
 
-#: catalog/models/common.py:143 catalog/models/common.py:157
+#: catalog/models/common.py:149 catalog/models/common.py:163
 #: journal/templates/_sidebar_user_mark_list.html:35
 msgid "TV"
 msgstr "剧集"
 
-#: catalog/models/common.py:144 catalog/models/common.py:158
-#: common/templates/_header.html:37
+#: catalog/models/common.py:150 catalog/models/common.py:164
+#: common/models/genre.py:39 common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:42
 msgid "Music"
 msgstr "音乐"
 
-#: catalog/models/common.py:146 catalog/models/common.py:160
+#: catalog/models/common.py:152 catalog/models/common.py:166
 #: catalog/templates/_sidebar_edit.html:157 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:39
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:241 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:248 catalog/templates/_genre_list.html:5
+msgid "genre"
+msgstr "类型"
+
+#: catalog/models/common.py:265 catalog/templates/_language_list.html:5
 #: users/models/user.py:128
 msgid "language"
 msgstr "语言"
 
-#: catalog/models/game.py:23
+#: catalog/models/game.py:24
 msgid "Main Game"
 msgstr "游戏"
 
-#: catalog/models/game.py:24
+#: catalog/models/game.py:25
 msgid "Expansion"
 msgstr "资料片"
 
-#: catalog/models/game.py:25
+#: catalog/models/game.py:26
 msgid "Downloadable Content"
 msgstr "可下载内容"
 
-#: catalog/models/game.py:26
+#: catalog/models/game.py:27
 msgid "Mod"
 msgstr "模组"
 
-#: catalog/models/game.py:27
+#: catalog/models/game.py:28
 msgid "Bundle"
 msgstr "合集"
 
-#: catalog/models/game.py:28
+#: catalog/models/game.py:29
 msgid "Remaster"
 msgstr "复刻"
 
-#: catalog/models/game.py:29
+#: catalog/models/game.py:30
 msgid "Remake"
 msgstr "重制"
 
-#: catalog/models/game.py:30
+#: catalog/models/game.py:31
 msgid "Special Edition"
 msgstr "特别版"
 
-#: catalog/models/game.py:73
+#: catalog/models/game.py:74
 msgid "designer"
 msgstr "设计者"
 
-#: catalog/models/game.py:81 catalog/models/music.py:66
+#: catalog/models/game.py:82 catalog/models/music.py:65
 msgid "artist"
 msgstr "艺术家"
 
-#: catalog/models/game.py:89
+#: catalog/models/game.py:90
 msgid "developer"
 msgstr "开发者"
 
-#: catalog/models/game.py:97 catalog/models/music.py:80
+#: catalog/models/game.py:98 catalog/models/music.py:73
 msgid "publisher"
 msgstr "出版发行"
 
-#: catalog/models/game.py:105
+#: catalog/models/game.py:106
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:109 catalog/models/podcast.py:161
+#: catalog/models/game.py:110 catalog/models/podcast.py:156
 msgid "date of publication"
 msgstr "发行日期"
 
-#: catalog/models/game.py:114 catalog/models/music.py:60
-#: catalog/models/tv.py:181
+#: catalog/models/game.py:115 catalog/models/music.py:59
+#: catalog/models/tv.py:176
 msgid "YYYY-MM-DD"
 msgstr "YYYY-MM-DD"
 
-#: catalog/models/game.py:118 catalog/templates/game.html:16
+#: catalog/models/game.py:119 catalog/templates/game.html:16
 msgid "release type"
 msgstr "发布类型"
 
-#: catalog/models/game.py:125 catalog/models/movie.py:89
-#: catalog/models/performance.py:118 catalog/models/podcast.py:60
-#: catalog/models/tv.py:161 catalog/models/tv.py:388
-msgid "genre"
-msgstr "类型"
-
-#: catalog/models/game.py:133
+#: catalog/models/game.py:128
 msgid "platform"
 msgstr "平台"
 
-#: catalog/models/game.py:139 catalog/models/movie.py:123
-#: catalog/models/performance.py:202 catalog/models/performance.py:397
-#: catalog/models/podcast.py:79 catalog/models/tv.py:195
-#: catalog/models/tv.py:423 catalog/templates/game.html:34
+#: catalog/models/game.py:134 catalog/models/movie.py:118
+#: catalog/models/performance.py:197 catalog/models/performance.py:392
+#: catalog/models/podcast.py:74 catalog/models/tv.py:190
+#: catalog/models/tv.py:412 catalog/templates/game.html:34
 #: catalog/templates/movie.html:58 catalog/templates/performance.html:33
 #: catalog/templates/performanceproduction.html:33
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
@@ -596,67 +594,67 @@ msgstr "平台"
 msgid "website"
 msgstr "网站"
 
-#: catalog/models/item.py:153 catalog/models/item.py:185
+#: catalog/models/item.py:154 catalog/models/item.py:186
 #: journal/models/collection.py:64
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:154 catalog/models/item.py:193
+#: catalog/models/item.py:155 catalog/models/item.py:194
 #: journal/models/collection.py:65
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:165
+#: catalog/models/item.py:166
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:167 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:168 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:743
+#: catalog/models/item.py:754
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:745
+#: catalog/models/item.py:756
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:747
+#: catalog/models/item.py:758
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:763
+#: catalog/models/item.py:774
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:769
+#: catalog/models/item.py:780
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:772
+#: catalog/models/item.py:783
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
-#: catalog/models/movie.py:68 catalog/models/performance.py:126
-#: catalog/models/performance.py:321 catalog/models/tv.py:140
-#: catalog/models/tv.py:367
+#: catalog/models/movie.py:69 catalog/models/performance.py:121
+#: catalog/models/performance.py:316 catalog/models/tv.py:141
+#: catalog/models/tv.py:362
 msgid "director"
 msgstr "导演"
 
-#: catalog/models/movie.py:75 catalog/models/performance.py:133
-#: catalog/models/performance.py:328 catalog/models/tv.py:147
-#: catalog/models/tv.py:374
+#: catalog/models/movie.py:76 catalog/models/performance.py:128
+#: catalog/models/performance.py:323 catalog/models/tv.py:148
+#: catalog/models/tv.py:369
 msgid "playwright"
 msgstr "编剧"
 
-#: catalog/models/movie.py:82 catalog/models/performance.py:161
-#: catalog/models/performance.py:356 catalog/models/tv.py:154
-#: catalog/models/tv.py:381
+#: catalog/models/movie.py:83 catalog/models/performance.py:156
+#: catalog/models/performance.py:351 catalog/models/tv.py:155
+#: catalog/models/tv.py:376
 msgid "actor"
 msgstr "演员"
 
-#: catalog/models/movie.py:96 catalog/models/music.py:60
+#: catalog/models/movie.py:91 catalog/models/music.py:59
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:17 catalog/templates/game.html:21
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
@@ -664,161 +662,156 @@ msgstr "演员"
 msgid "release date"
 msgstr "发布日期"
 
-#: catalog/models/movie.py:108 catalog/models/tv.py:407
+#: catalog/models/movie.py:103 catalog/models/tv.py:396
 #: journal/templates/_sidebar_user_mark_list.html:60
 msgid "date"
 msgstr "日期"
 
-#: catalog/models/movie.py:109 catalog/models/performance.py:84
-#: catalog/models/tv.py:408
+#: catalog/models/movie.py:104 catalog/models/performance.py:85
+#: catalog/models/tv.py:397
 msgid "required"
 msgstr "必填"
 
-#: catalog/models/movie.py:113 catalog/models/tv.py:412
+#: catalog/models/movie.py:108 catalog/models/tv.py:401
 msgid "region or event"
 msgstr "地区或类型"
 
-#: catalog/models/movie.py:115 catalog/models/tv.py:187
-#: catalog/models/tv.py:414
+#: catalog/models/movie.py:110 catalog/models/tv.py:182
+#: catalog/models/tv.py:403
 msgid "Germany or Toronto International Film Festival"
 msgstr "德国或多伦多国际电影节"
 
-#: catalog/models/movie.py:125 catalog/models/tv.py:197
-#: catalog/models/tv.py:426
+#: catalog/models/movie.py:120 catalog/models/tv.py:192
+#: catalog/models/tv.py:415
 msgid "region"
 msgstr "地区"
 
-#: catalog/models/movie.py:136 catalog/models/tv.py:209
-#: catalog/models/tv.py:437
+#: catalog/models/movie.py:131 catalog/models/tv.py:204
+#: catalog/models/tv.py:426
 msgid "year"
 msgstr "年份"
 
-#: catalog/models/movie.py:137 catalog/models/music.py:63
+#: catalog/models/movie.py:132 catalog/models/music.py:62
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
 msgid "length"
 msgstr "长度"
 
-#: catalog/models/music.py:63
+#: catalog/models/music.py:62
 msgid "milliseconds"
 msgstr "微秒"
 
-#: catalog/models/music.py:73
-msgctxt "music"
-msgid "genre"
-msgstr "风格"
-
-#: catalog/models/music.py:86
+#: catalog/models/music.py:79
 msgid "tracks"
 msgstr "曲目"
 
-#: catalog/models/music.py:87 catalog/templates/album.html:33
+#: catalog/models/music.py:80 catalog/templates/album.html:33
 msgid "album type"
 msgstr "专辑类型"
 
-#: catalog/models/music.py:88
+#: catalog/models/music.py:81
 msgid "media type"
 msgstr "介质类型"
 
-#: catalog/models/music.py:91 catalog/templates/album.html:43
+#: catalog/models/music.py:84 catalog/templates/album.html:43
 msgid "number of discs"
 msgstr "碟片数"
 
-#: catalog/models/performance.py:68 catalog/models/performance.py:83
+#: catalog/models/performance.py:69 catalog/models/performance.py:84
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/performance.py:69 catalog/models/performance.py:88
+#: catalog/models/performance.py:70 catalog/models/performance.py:89
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/performance.py:89
+#: catalog/models/performance.py:90
 msgid "optional"
 msgstr "可选"
 
-#: catalog/models/performance.py:115
+#: catalog/models/performance.py:116
 msgid "original name"
 msgstr "原名"
 
-#: catalog/models/performance.py:140 catalog/models/performance.py:335
+#: catalog/models/performance.py:135 catalog/models/performance.py:330
 msgid "original creator"
 msgstr "原始创作者"
 
-#: catalog/models/performance.py:147 catalog/models/performance.py:342
+#: catalog/models/performance.py:142 catalog/models/performance.py:337
 msgid "composer"
 msgstr "作曲"
 
-#: catalog/models/performance.py:154 catalog/models/performance.py:349
+#: catalog/models/performance.py:149 catalog/models/performance.py:344
 msgid "choreographer"
 msgstr "编舞"
 
-#: catalog/models/performance.py:168 catalog/models/performance.py:363
+#: catalog/models/performance.py:163 catalog/models/performance.py:358
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/performance.py:175 catalog/models/performance.py:370
+#: catalog/models/performance.py:170 catalog/models/performance.py:365
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/performance.py:182 catalog/models/performance.py:377
+#: catalog/models/performance.py:177 catalog/models/performance.py:372
 msgid "crew"
 msgstr "工作人员"
 
-#: catalog/models/performance.py:189 catalog/models/performance.py:384
+#: catalog/models/performance.py:184 catalog/models/performance.py:379
 msgid "theater"
 msgstr "剧院"
 
-#: catalog/models/performance.py:196 catalog/models/performance.py:391
+#: catalog/models/performance.py:191 catalog/models/performance.py:386
 #: catalog/templates/performance.html:14
 #: catalog/templates/performanceproduction.html:13
 msgid "opening date"
 msgstr "上演日期"
 
-#: catalog/models/performance.py:199 catalog/models/performance.py:394
+#: catalog/models/performance.py:194 catalog/models/performance.py:389
 msgid "closing date"
 msgstr "结束日期"
 
-#: catalog/models/podcast.py:70
+#: catalog/models/podcast.py:65
 msgid "host"
 msgstr "主播"
 
-#: catalog/models/tv.py:112 catalog/templates/tvseason.html:37
+#: catalog/models/tv.py:113 catalog/templates/tvseason.html:37
 #: catalog/templates/tvshow.html:32
 msgid "number of seasons"
 msgstr "季数"
 
-#: catalog/models/tv.py:115 catalog/models/tv.py:342
+#: catalog/models/tv.py:116 catalog/models/tv.py:337
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
 msgid "number of episodes"
 msgstr "集数"
 
-#: catalog/models/tv.py:168 catalog/models/tv.py:395
+#: catalog/models/tv.py:163 catalog/models/tv.py:384
 msgid "show time"
 msgstr "上映时间"
 
-#: catalog/models/tv.py:180
+#: catalog/models/tv.py:175
 msgid "Date"
 msgstr "日期"
 
-#: catalog/models/tv.py:185
+#: catalog/models/tv.py:180
 msgid "Region or Event"
 msgstr "地区或场合"
 
-#: catalog/models/tv.py:211 catalog/models/tv.py:439
+#: catalog/models/tv.py:206 catalog/models/tv.py:428
 msgid "episode length"
 msgstr "单集长度"
 
-#: catalog/models/tv.py:339 catalog/templates/tvseason.html:32
+#: catalog/models/tv.py:334 catalog/templates/tvseason.html:32
 msgid "season number"
 msgstr "本季序号"
 
-#: catalog/models/tv.py:472
+#: catalog/models/tv.py:461
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr "{show_title} 第{season_number}季"
 
-#: catalog/models/tv.py:620
+#: catalog/models/tv.py:609
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
@@ -1728,6 +1721,377 @@ msgstr "条目不存在"
 #: catalog/views/view.py:57 catalog/views/view.py:86
 msgid "Item no longer exists"
 msgstr "条目已不存在"
+
+#: common/models/genre.py:20
+msgid "Action"
+msgstr "动作"
+
+#: common/models/genre.py:21
+msgid "Adventure"
+msgstr "冒险"
+
+#: common/models/genre.py:22
+msgid "Comedy"
+msgstr "喜剧"
+
+#: common/models/genre.py:23
+msgid "Drama"
+msgstr "剧情"
+
+#: common/models/genre.py:24
+msgid "Fantasy"
+msgstr "奇幻"
+
+#: common/models/genre.py:25
+msgid "Horror"
+msgstr "恐怖"
+
+#: common/models/genre.py:26
+msgid "Mystery"
+msgstr "悬疑"
+
+#: common/models/genre.py:27
+msgid "Romance"
+msgstr "爱情"
+
+#: common/models/genre.py:28
+msgid "Sci-Fi"
+msgstr "科幻"
+
+#: common/models/genre.py:29
+msgid "Thriller"
+msgstr "惊悚"
+
+#: common/models/genre.py:30
+msgid "Animation"
+msgstr "动画"
+
+#: common/models/genre.py:31
+msgid "Documentary"
+msgstr "纪录片"
+
+#: common/models/genre.py:32
+msgid "Family"
+msgstr "家庭"
+
+#: common/models/genre.py:33
+msgid "History"
+msgstr "历史"
+
+#: common/models/genre.py:34
+msgid "Biographical"
+msgstr "传记"
+
+#: common/models/genre.py:35
+msgid "War"
+msgstr "战争"
+
+#: common/models/genre.py:36
+msgid "Western"
+msgstr "西部"
+
+#: common/models/genre.py:37
+msgid "Crime"
+msgstr "犯罪"
+
+#: common/models/genre.py:38
+msgid "Sports"
+msgstr "运动"
+
+#: common/models/genre.py:41
+msgid "Film Noir"
+msgstr "黑色电影"
+
+#: common/models/genre.py:42
+msgid "Musical"
+msgstr "音乐剧"
+
+#: common/models/genre.py:43
+msgid "Reality"
+msgstr "真人秀"
+
+#: common/models/genre.py:44
+msgid "Talk Show"
+msgstr "脱口秀"
+
+#: common/models/genre.py:45
+msgid "News"
+msgstr "新闻"
+
+#: common/models/genre.py:46
+msgid "Game Show"
+msgstr "综艺"
+
+#: common/models/genre.py:47
+msgid "Martial Arts"
+msgstr "武侠"
+
+#: common/models/genre.py:48
+msgid "Period Drama"
+msgstr "古装"
+
+#: common/models/genre.py:49
+msgid "Superhero"
+msgstr "超级英雄"
+
+#: common/models/genre.py:50
+msgid "Disaster"
+msgstr "灾难"
+
+#: common/models/genre.py:51
+msgid "Erotic"
+msgstr "情色"
+
+#: common/models/genre.py:52
+msgid "Short Film"
+msgstr "短片"
+
+#: common/models/genre.py:53
+msgid "LGBTQ"
+msgstr "多元性别"
+
+#: common/models/genre.py:54
+msgid "TV Movie"
+msgstr "电视电影"
+
+#: common/models/genre.py:56
+msgid "Rock"
+msgstr "摇滚"
+
+#: common/models/genre.py:57
+msgid "Pop"
+msgstr "流行"
+
+#: common/models/genre.py:58
+msgid "Hip Hop"
+msgstr "说唱"
+
+#: common/models/genre.py:59
+msgid "Electronic"
+msgstr "电子"
+
+#: common/models/genre.py:60
+msgid "Jazz"
+msgstr "爵士"
+
+#: common/models/genre.py:61
+msgid "Classical"
+msgstr "古典"
+
+#: common/models/genre.py:62
+msgid "Blues"
+msgstr "蓝调"
+
+#: common/models/genre.py:63
+msgid "Country"
+msgstr "乡村"
+
+#: common/models/genre.py:64
+msgid "Folk"
+msgstr "民谣"
+
+#: common/models/genre.py:65
+msgid "R&B"
+msgstr "节奏布鲁斯"
+
+#: common/models/genre.py:66
+msgid "Metal"
+msgstr "金属"
+
+#: common/models/genre.py:67
+msgid "Punk"
+msgstr "朋克"
+
+#: common/models/genre.py:68
+msgid "Soul"
+msgstr "灵魂乐"
+
+#: common/models/genre.py:69
+msgid "Reggae"
+msgstr "雷鬼"
+
+#: common/models/genre.py:70
+#, fuzzy
+#| msgid "Latin"
+msgctxt "genre"
+msgid "Latin"
+msgstr "拉丁"
+
+#: common/models/genre.py:71
+msgid "World Music"
+msgstr "世界音乐"
+
+#: common/models/genre.py:72
+msgid "Ambient"
+msgstr "氛围"
+
+#: common/models/genre.py:73
+msgid "New Age"
+msgstr "新世纪"
+
+#: common/models/genre.py:74
+msgid "Indie"
+msgstr "独立"
+
+#: common/models/genre.py:75
+msgid "Alternative"
+msgstr "另类"
+
+#: common/models/genre.py:76
+msgid "Dance"
+msgstr "舞曲"
+
+#: common/models/genre.py:77
+msgid "Funk"
+msgstr "放克"
+
+#: common/models/genre.py:78
+msgid "Gospel"
+msgstr "福音"
+
+#: common/models/genre.py:79
+msgid "Soundtrack"
+msgstr "原声"
+
+#: common/models/genre.py:80
+msgid "K-Pop"
+msgstr "韩流"
+
+#: common/models/genre.py:81
+msgid "Easy Listening"
+msgstr "轻音乐"
+
+#: common/models/genre.py:83
+msgid "RPG"
+msgstr "角色扮演"
+
+#: common/models/genre.py:84
+msgid "Strategy"
+msgstr "策略"
+
+#: common/models/genre.py:85
+msgid "Simulation"
+msgstr "模拟"
+
+#: common/models/genre.py:86
+msgid "Racing"
+msgstr "竞速"
+
+#: common/models/genre.py:87
+msgid "Puzzle"
+msgstr "益智"
+
+#: common/models/genre.py:88
+msgid "Platformer"
+msgstr "平台"
+
+#: common/models/genre.py:89
+msgid "Shooter"
+msgstr "射击"
+
+#: common/models/genre.py:90
+msgid "Fighting"
+msgstr "格斗"
+
+#: common/models/genre.py:91
+msgid "Survival"
+msgstr "生存"
+
+#: common/models/genre.py:92
+msgid "Sandbox"
+msgstr "沙盒"
+
+#: common/models/genre.py:93
+msgid "Roguelike"
+msgstr "肉鸽"
+
+#: common/models/genre.py:94
+msgid "Visual Novel"
+msgstr "视觉小说"
+
+#: common/models/genre.py:95
+msgid "Card Game"
+msgstr "卡牌"
+
+#: common/models/genre.py:96
+msgid "Board Game"
+msgstr "桌游"
+
+#: common/models/genre.py:97
+msgid "Arcade"
+msgstr "街机"
+
+#: common/models/genre.py:98
+msgid "MMO"
+msgstr "MMO"
+
+#: common/models/genre.py:99
+msgid "MOBA"
+msgstr "MOBA"
+
+#: common/models/genre.py:100
+msgid "Pinball"
+msgstr "弹珠"
+
+#: common/models/genre.py:101
+msgid "Point-and-Click"
+msgstr "点击冒险"
+
+#: common/models/genre.py:102
+msgid "Casual"
+msgstr "休闲"
+
+#: common/models/genre.py:104
+msgid "Opera"
+msgstr "歌剧"
+
+#: common/models/genre.py:105
+msgid "Ballet"
+msgstr "芭蕾"
+
+#: common/models/genre.py:106
+msgid "Theater"
+msgstr "话剧"
+
+#: common/models/genre.py:107
+msgid "Cabaret"
+msgstr "歌舞表演"
+
+#: common/models/genre.py:108
+msgid "Xiqu"
+msgstr "戏曲"
+
+#: common/models/genre.py:110
+msgid "True Crime"
+msgstr "真实犯罪"
+
+#: common/models/genre.py:111
+msgid "Self-Help"
+msgstr "个人成长"
+
+#: common/models/genre.py:112
+msgid "Business"
+msgstr "商业"
+
+#: common/models/genre.py:113
+msgid "Technology"
+msgstr "科技"
+
+#: common/models/genre.py:114
+msgid "Education"
+msgstr "教育"
+
+#: common/models/genre.py:115
+msgid "Religion"
+msgstr "宗教"
+
+#: common/models/genre.py:116
+msgid "Leisure"
+msgstr "休闲娱乐"
+
+#: common/models/genre.py:117
+msgid "Health"
+msgstr "健康"
 
 #: common/models/lang.py:47
 msgid "Afar"
@@ -2824,7 +3188,7 @@ msgstr ""
 msgid "Database Admin"
 msgstr "数据库"
 
-#: common/templatetags/duration.py:54
+#: common/templatetags/duration.py:55
 msgid "just now"
 msgstr "刚刚"
 

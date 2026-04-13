@@ -16,7 +16,7 @@
     {% endif %}
   </div>
   <div>{% include '_people.html' with people=item.additional_title _role='' max=99 %}</div>
-  <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
+  <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
   <div>{% include '_people.html' with people=item.troupe role='troupe' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>
   <div>{% include '_language_list.html' with list=item.language max=5 %}</div>

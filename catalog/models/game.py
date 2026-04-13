@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .common import (
     LIST_OF_STR_SCHEMA,
+    GenreListField,
     jsondata,
 )
 from .item import (
@@ -121,13 +122,7 @@ class Game(Item):
         choices=GameReleaseType.choices,
     )
 
-    genre = jsondata.ArrayField(
-        verbose_name=_("genre"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    genre = GenreListField()
 
     platform = jsondata.ArrayField(
         verbose_name=_("platform"),

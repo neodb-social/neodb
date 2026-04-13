@@ -13,7 +13,7 @@
 <script src="{% static 'js/podcast.js' %}"></script>
 {% endblock %}
 {% block details %}
-  <div>{% include '_people.html' with people=item.genre role='genre' max=5 %}</div>
+  <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
   <div>{% include '_people.html' with people=item.host role='host' max=5 %}</div>
   <div>
     {% if item.official_site %}
