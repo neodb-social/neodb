@@ -152,6 +152,8 @@ def normalize_genre_20260412():
     for i in tqdm(Item.objects.all().iterator(), total=c):
         genre = getattr(i, "genre", None)
         if genre:
+            if isinstance(genre, str):
+                genre = [genre]
             genre2 = normalize_genres(genre)
             if genre2 != genre:
                 setattr(i, "genre", genre2)
