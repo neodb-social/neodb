@@ -47,6 +47,11 @@ class Album(Item):
         PeopleRole.PRODUCER,
         PeopleRole.RECORD_LABEL,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "artist": "artist",
+        "company": "record_label",
+    }
+
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)

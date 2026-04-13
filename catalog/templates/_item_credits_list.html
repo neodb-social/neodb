@@ -17,6 +17,7 @@
         <a hx-post="{% url 'catalog:remove_credit' item.url_path item.uuid credit.pk %}"
            hx-target="#credits-section"
            hx-swap="innerHTML"
+           hx-confirm="{% trans 'Remove this credit?' %}"
            title="{% trans 'remove' %}">
           <i class="fa-solid fa-xmark"></i>
         </a>

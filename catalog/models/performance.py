@@ -126,6 +126,17 @@ class Performance(Item):
         PeopleRole.CREW,
         PeopleRole.PRODUCER,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "director": "director",
+        "playwright": "playwright",
+        "orig_creator": "orig_creator",
+        "composer": "composer",
+        "choreographer": "choreographer",
+        "actor": "actor",
+        "performer": "performer",
+        "crew": "crew",
+        "troupe": "troupe",
+    }
     orig_title = jsondata.CharField(
         verbose_name=_("original name"), blank=True, max_length=500
     )

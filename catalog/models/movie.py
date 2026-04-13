@@ -57,6 +57,12 @@ class Movie(Item):
     tmdb_movie = PrimaryLookupIdDescriptor(IdType.TMDB_Movie)
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
 
+    CREDIT_FIELD_MAPPING = {
+        "director": "director",
+        "playwright": "playwright",
+        "actor": "actor",
+    }
+
     METADATA_COPY_LIST = [
         "localized_title",
         "orig_title",

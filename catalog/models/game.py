@@ -60,6 +60,12 @@ class Game(Item):
         PeopleRole.PUBLISHER,
         PeopleRole.PRODUCER,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "designer": "designer",
+        "developer": "developer",
+        "publisher": "publisher",
+    }
+
     igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
     steam = PrimaryLookupIdDescriptor(IdType.Steam)
     douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)

@@ -137,6 +137,12 @@ class Edition(Item):
         PeopleRole.IMPRINT,
     ]
 
+    CREDIT_FIELD_MAPPING = {
+        "author": "author",
+        "translator": "translator",
+        "pub_house": "publisher",
+    }
+
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
     cubn = PrimaryLookupIdDescriptor(IdType.CUBN)

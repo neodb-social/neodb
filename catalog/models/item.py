@@ -711,6 +711,9 @@ class Item(PolymorphicModel):
     def default_cover_image_url(self) -> str:
         return f"{settings.SITE_INFO['site_url']}{settings.DEFAULT_ITEM_COVER}"
 
+    # Mapping from jsondata field name to CreditRole value for auto-sync
+    CREDIT_FIELD_MAPPING: dict[str, str] = {}
+
     @classmethod
     def create_from_external_resource(cls, p: "ExternalResource") -> Self:
         logger.debug(f"creating new item from {p}")
@@ -721,6 +724,7 @@ class Item(PolymorphicModel):
         item.normalize_metadata([p])
         item.save()
         item.ap_object  # validate schema
+        item.sync_credits_from_metadata()
         return item
 
     def _update_primary_lookup_id(self, override_resources=[]) -> bool:
@@ -804,6 +808,31 @@ class Item(PolymorphicModel):
         self.normalize_metadata()
         self.save()
         self.ap_object  # validate schema
+        self.sync_credits_from_metadata()
+
+    def sync_credits_from_metadata(self):
+        """Sync ItemCredit rows from jsondata credit fields."""
+        for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
+            values = getattr(self, field_name, None)
+            if not values:
+                continue
+            if isinstance(values, str):
+                values = [values]
+            for i, value in enumerate(values):
+                if isinstance(value, dict):
+                    name = value.get("name", "")
+                    character = value.get("role", "")
+                else:
+                    name = str(value)
+                    character = ""
+                if not name:
+                    continue
+                ItemCredit.objects.get_or_create(
+                    item=self,
+                    role=credit_role,
+                    name=name,
+                    defaults={"order": i, "character_name": character},
+                )
 
     def process_fetched_item(
         self, fetched: Self, link_type: "ExternalResource.LinkType"
