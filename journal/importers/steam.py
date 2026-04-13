@@ -146,7 +146,7 @@ class SteamImporter(BaseImporter):
                     self.fetch_library(**self.metadata["config"]["library"])
                 )
         except RequestException as e:
-            self.failfast(f"HTTP error when fetching data: {e}")
+            self.failfast(f"Request error when fetching data: {e}")
             return
         logger.debug(f"{len(raw_marks)} raw marks fetched")
 

@@ -30,6 +30,7 @@ from ..models import WebAuthnCredential
 from .account import auth_login
 
 _VALID_TRANSPORTS = {"usb", "nfc", "ble", "hybrid", "internal"}
+_CHALLENGE_TIMEOUT = 300  # 5 minutes
 
 
 def _get_rp_id() -> str:
@@ -74,12 +75,11 @@ def passkey_register_options(request):
 @require_http_methods(["POST"])
 @login_required
 def passkey_register_verify(request):
-    CHALLENGE_TIMEOUT = 300  # 5 minutes
     entry = request.session.pop("webauthn_register_challenge", None)
     if not entry:
         return HttpResponseBadRequest("No registration challenge in session")
     challenge_b64 = entry["challenge"]
-    if time.time() - entry.get("ts", 0) > CHALLENGE_TIMEOUT:
+    if time.time() - entry.get("ts", 0) > _CHALLENGE_TIMEOUT:
         return HttpResponseBadRequest("Registration challenge expired")
 
     try:
@@ -139,12 +139,11 @@ def passkey_login_options(request):
 
 @require_http_methods(["POST"])
 def passkey_login_verify(request):
-    CHALLENGE_TIMEOUT = 300  # 5 minutes
     entry = request.session.pop("webauthn_login_challenge", None)
     if not entry:
         return HttpResponseBadRequest("No login challenge in session")
     challenge_b64 = entry["challenge"]
-    if time.time() - entry.get("ts", 0) > CHALLENGE_TIMEOUT:
+    if time.time() - entry.get("ts", 0) > _CHALLENGE_TIMEOUT:
         return HttpResponseBadRequest("Login challenge expired")
 
     try:
