@@ -48,7 +48,7 @@ dependencies = [
     "typesense>=0.21.0",
     "urlman>=2.0.2",
     "validators>=0.34.0",
-    "deepmerge>=1.1.1",
+    "deepmerge>=2.0",
     "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
     "atproto>=0.0.55",
     "discord-py>=2.4.0",
