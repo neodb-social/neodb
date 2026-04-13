@@ -3,6 +3,7 @@ from io import StringIO
 import pytest
 from django.core.management import call_command
 
+from catalog.common import SiteManager, use_local_response
 from catalog.models import (
     Album,
     CreditRole,
@@ -16,6 +17,11 @@ from catalog.models import (
     PeopleType,
 )
 from catalog.models.common import IdType
+from catalog.sites.douban_personage import (
+    _parse_douban_date,
+    _split_alt_names,
+    _split_name,
+)
 from catalog.sites.wikidata import WikiData, WikidataTypes
 
 _DAN_SIMMONS_METADATA = {"localized_name": [{"lang": "en", "text": "Dan Simmons"}]}
@@ -777,3 +783,84 @@ class TestDisplayFallback:
             wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999")
             model = wiki_site._determine_entity_type(entity_data)
             assert model == People, f"{org_type} should map to People"
+
+
+class TestDoubanPersonageHelpers:
+    """Tests for helper functions in douban_personage module."""
+
+    def test_split_name_cn_and_en(self):
+        cn, en = _split_name("成龙 Jackie Chan")
+        assert cn == "成龙"
+        assert en == "Jackie Chan"
+
+    def test_split_name_cn_and_en_with_middledot(self):
+        cn, en = _split_name("马丁·斯科塞斯 Martin Scorsese")
+        assert cn == "马丁·斯科塞斯"
+        assert en == "Martin Scorsese"
+
+    def test_split_name_cn_only(self):
+        cn, en = _split_name("张艺谋")
+        assert cn == "张艺谋"
+        assert en is None
+
+    def test_split_name_en_only(self):
+        cn, en = _split_name("Leonardo DiCaprio")
+        assert cn is None
+        assert en == "Leonardo DiCaprio"
+
+    def test_parse_douban_date_full(self):
+        assert _parse_douban_date("1954年4月7日") == "1954-04-07"
+
+    def test_parse_douban_date_year_month(self):
+        assert _parse_douban_date("1954年4月") == "1954-04"
+
+    def test_parse_douban_date_year_only(self):
+        assert _parse_douban_date("1954年") == "1954"
+
+    def test_parse_douban_date_empty(self):
+        assert _parse_douban_date("") is None
+
+    def test_parse_douban_date_zero_padded(self):
+        assert _parse_douban_date("2000年1月2日") == "2000-01-02"
+
+    def test_split_alt_names(self):
+        result = _split_alt_names("房仕龙(本名) / 陈港生(原名) / 元楼(前艺名)")
+        assert result == ["房仕龙", "陈港生", "元楼"]
+
+    def test_split_alt_names_empty(self):
+        assert _split_alt_names("") == []
+
+    def test_split_alt_names_no_annotations(self):
+        result = _split_alt_names("Kong-sang Chan / Pao Pao")
+        assert result == ["Kong-sang Chan", "Pao Pao"]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDoubanPersonage:
+    def test_parse_personage_url(self):
+        t_url = "https://www.douban.com/personage/27228768/"
+        p = SiteManager.get_site_cls_by_id_type(IdType.DoubanPersonage)
+        assert p is not None
+        assert p.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == "27228768"
+        assert site.url is not None
+        assert "personage/27228768" in site.url
+
+    @use_local_response
+    def test_scrape_personage_url(self):
+        """Test scraping Chen Kaige from personage URL."""
+        t_url = "https://www.douban.com/personage/27228768/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.item is not None
+        item = site.resource.item
+        assert isinstance(item, People)
+        assert item.display_name == "陈凯歌"
+        names = [n["text"] for n in item.localized_name]
+        assert "Kaige Chen" in names
+        assert item.birth_date == "1952-08-12"
+        assert item.imdb == "nm0155280"

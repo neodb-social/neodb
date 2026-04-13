@@ -13,6 +13,7 @@ from .douban_drama import DoubanDrama
 from .douban_game import DoubanGame
 from .douban_movie import DoubanMovie
 from .douban_music import DoubanMusic
+from .douban_personage import DoubanPersonage
 from .fedi import FediverseInstance
 from .goodreads import Goodreads
 from .google_books import GoogleBooks
@@ -47,6 +48,7 @@ __all__ = [
     "DiscogsMaster",
     "DiscogsRelease",
     "DoubanBook",
+    "DoubanPersonage",
     "DoubanDrama",
     "DoubanGame",
     "DoubanMovie",

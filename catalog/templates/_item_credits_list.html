@@ -4,7 +4,12 @@
     <div style="display: flex;
                 align-items: center;
                 gap: 0.5em;
-                margin-bottom: 0.3em">
+                padding: 0.2em 0.3em;
+                margin-bottom: 0.1em;
+                border-radius: 4px;
+                transition: background-color 0.15s"
+         onmouseover="this.style.backgroundColor='color-mix(in srgb, var(--pico-color) 8%, transparent)'"
+         onmouseout="this.style.backgroundColor='transparent'">
       <small>[{{ credit.get_role_display }}]</small>
       {% if credit.person %}
         <a href="{{ credit.person.url }}">{{ credit.name }}</a>
@@ -12,7 +17,34 @@
       {% else %}
         <span>{{ credit.name }}</span>
       {% endif %}
-      {% if credit.character_name %}<small>({{ credit.character_name }})</small>{% endif %}
+      <small style="cursor: pointer;
+                    opacity: 0.7"
+             title="{% trans 'click to edit character name' %}"
+             onclick="var s=this;var f=s.nextElementSibling;s.style.display='none';f.style.display='flex';f.querySelector('input').focus();">
+        {% if credit.character_name %}
+          ({{ credit.character_name }})
+        {% else %}
+          <i class="fa-solid fa-pen" style="font-size: 0.6em; opacity: 0.4;"></i>
+        {% endif %}
+      </small>
+      <form hx-post="{% url 'catalog:update_credit' item.url_path item.uuid credit.pk %}"
+            hx-target="#credits-section"
+            hx-swap="innerHTML"
+            style="display: none;
+                   align-items: center;
+                   gap: 0.3em">
+        {% csrf_token %}
+        <input type="text"
+               name="character_name"
+               value="{{ credit.character_name }}"
+               placeholder="{% trans 'character name' %}"
+               style="margin-bottom: 0;
+                      max-width: 12em;
+                      font-size: 0.85em;
+                      padding: 0.2em 0.4em"
+               onblur="this.form.requestSubmit()"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit();}if(event.key==='Escape'){this.form.style.display='none';this.form.previousElementSibling.style.display='';}">
+      </form>
       <span class="action inline" style="margin-left: auto;">
         <a hx-post="{% url 'catalog:remove_credit' item.url_path item.uuid credit.pk %}"
            hx-target="#credits-section"

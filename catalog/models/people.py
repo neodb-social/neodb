@@ -147,7 +147,7 @@ class People(Item):
     # External ID descriptors
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_person = PrimaryLookupIdDescriptor(IdType.TMDB_Person)
-    douban_celebrity = PrimaryLookupIdDescriptor(IdType.DoubanCelebrity)
+    douban_personage = PrimaryLookupIdDescriptor(IdType.DoubanPersonage)
 
     METADATA_COPY_LIST = [
         "localized_name",
@@ -348,7 +348,7 @@ class People(Item):
             IdType.WikiData,
             IdType.IMDB,
             IdType.TMDB_Person,
-            IdType.DoubanCelebrity,
+            IdType.DoubanPersonage,
             IdType.DoubanBook_Author,
             IdType.Goodreads_Author,
             IdType.Spotify_Artist,

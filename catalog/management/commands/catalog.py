@@ -513,6 +513,7 @@ class Command(SiteCommand):
             "wikidata": IdType.WikiData,
             "tmdb": IdType.TMDB_Person,
             "igdb": IdType.IGDB_Company,
+            "douban": IdType.DoubanPersonage,
         }
         id_type = source_to_id_type[source]
         for person in tqdm(qs.iterator(), total=total, desc=f"Fetching from {source}"):

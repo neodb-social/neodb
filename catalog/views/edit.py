@@ -91,8 +91,30 @@ def create(request, item_model):
 @require_http_methods(["GET"])
 @login_required
 def history(request, item_path, item_uuid):
+    from auditlog.models import LogEntry
+    from django.contrib.contenttypes.models import ContentType
+
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    return render(request, "catalog_history.html", {"item": item})
+    # Include ItemCredit audit log entries for this item.
+    # Create/delete entries have 'item' in changes; update entries may not.
+    # First collect all credit object_ids that reference this item, then
+    # fetch ALL log entries for those object_ids (including updates).
+    credit_ct = ContentType.objects.get_for_model(ItemCredit)
+    current_ids = set(str(pk) for pk in item.credits.values_list("pk", flat=True))
+    deleted_ids = set(
+        LogEntry.objects.filter(
+            content_type=credit_ct,
+            changes__item__contains=str(item.pk),
+        ).values_list("object_id", flat=True)
+    )
+    all_credit_ids = current_ids | deleted_ids
+    credit_logs = LogEntry.objects.filter(
+        content_type=credit_ct, object_id__in=all_credit_ids
+    )
+    all_logs = (item.history.all() | credit_logs).order_by("-timestamp")
+    return render(
+        request, "catalog_history.html", {"item": item, "history_logs": all_logs}
+    )
 
 
 @require_http_methods(["GET", "POST"])
@@ -489,7 +511,25 @@ def add_credit(request, item_path, item_uuid):
 def remove_credit(request, item_path, item_uuid, credit_id):
     """Remove a credit from an item."""
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    ItemCredit.objects.filter(pk=credit_id, item=item).delete()
+    credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
+    credit.delete()
+    credits = item.credits.select_related("person").all()
+    return render(
+        request,
+        "_item_credits_list.html",
+        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+    )
+
+
+@require_http_methods(["POST"])
+@login_required
+def update_credit(request, item_path, item_uuid, credit_id):
+    """Update a credit's character name."""
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
+    character_name = request.POST.get("character_name", "").strip()
+    credit.character_name = character_name
+    credit.save()
     credits = item.credits.select_related("person").all()
     return render(
         request,

@@ -102,6 +102,9 @@ class DoubanMovie(AbstractSite):
         )
         actor = list(map(lambda a: a[:200], actor_elem)) if actor_elem else None
 
+        # Extract personage IDs for auto-fetching People
+        related_people = _extract_personage_links(content)
+
         genre_elem = self.query_list(content, "//span[@property='v:genre']/text()")
         genre = []
         if genre_elem:
@@ -317,5 +320,40 @@ class DoubanMovie(AbstractSite):
                         }
                     ]
         # TODO parse sister seasons
-        # pd.metadata['related_resources'] = []
+        pd.metadata["related_resources"] = related_people
         return pd
+
+
+def _extract_personage_links(content) -> list[dict]:
+    """Extract personage links from a Douban movie page.
+
+    Collects directors, playwrights, and top 10 actors as related People resources.
+    """
+    seen_ids: set[str] = set()
+    resources: list[dict] = []
+
+    for role_label in ["导演", "编剧", "主演"]:
+        anchors = content.xpath(
+            f"//div[@id='info']//span[text()='{role_label}']/following-sibling::span[1]/a"
+        )
+        for a in anchors:
+            href = a.get("href", "")
+            name = "".join(a.itertext()).strip()
+            m = re.search(r"personage/(\d+)", href)
+            if not m or not name:
+                continue
+            pid = m.group(1)
+            if pid in seen_ids:
+                continue
+            seen_ids.add(pid)
+            resources.append(
+                {
+                    "model": "People",
+                    "id_type": IdType.DoubanPersonage,
+                    "id_value": pid,
+                    "url": f"https://www.douban.com/personage/{pid}/",
+                }
+            )
+            if len(resources) >= 15:
+                return resources
+    return resources

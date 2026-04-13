@@ -93,6 +93,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/credits/(?P<credit_id>\d+)/update$",
+        update_credit,
+        name="update_credit",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/delete$",
         delete,
         name="delete",
