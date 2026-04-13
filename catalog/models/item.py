@@ -140,6 +140,10 @@ class ItemCredit(models.Model):
             models.Index(fields=["name"]),
         ]
 
+    @property
+    def person_api_url(self) -> str | None:
+        return self.person.api_url if self.person else None
+
     def __str__(self):
         linked = f" -> {self.person}" if self.person else ""
         return f"{self.name} ({self.role}) on {self.item}{linked}"
@@ -158,6 +162,13 @@ class ExternalResourceSchema(Schema):
     url: str
 
 
+class CreditSchema(Schema):
+    role: str
+    name: str
+    character_name: str = ""
+    person_url: str | None = Field(None, alias="person_api_url")
+
+
 class BaseSchema(Schema):
     id: str = Field(alias="absolute_url")
     type: str = Field(alias="ap_object_type")
@@ -168,6 +179,7 @@ class BaseSchema(Schema):
     parent_uuid: str | None
     display_title: str
     external_resources: list[ExternalResourceSchema] | None
+    credits: list[CreditSchema] = Field([], alias="api_credits")
 
 
 class ItemInSchema(Schema):
@@ -852,6 +864,29 @@ class Item(PolymorphicModel):
 
     def get_credits_by_role(self, role: str) -> "QuerySet[ItemCredit]":
         return self.credits.filter(role=role).select_related("person")
+
+    @cached_property
+    def api_credits(self) -> list["ItemCredit"]:
+        """Credits for API serialization."""
+        return list(self.credits.select_related("person").all())
+
+    def credit_names_by_role(self, role: str) -> list[str]:
+        """Return credit names as list[str] for API compatibility."""
+        names = [c.name for c in self.role_credits.get(role, [])]
+        return (
+            names
+            if names
+            else getattr(self, self._credit_role_to_field(role), []) or []
+        )
+
+    @staticmethod
+    def _credit_role_to_field(role: str) -> str:
+        """Map CreditRole value to legacy jsondata field name."""
+        return {
+            "record_label": "company",
+            "publisher": "pub_house",
+            "orig_creator": "orig_creator",
+        }.get(role, role)
 
     @cached_property
     def role_credits(self) -> dict[str, list["ItemCredit"]]:
