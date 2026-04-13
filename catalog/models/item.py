@@ -89,6 +89,7 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 
 
 class CreditRole(models.TextChoices):
+    # Person roles
     Author = "author", _("author")
     Translator = "translator", _("translator")
     Director = "director", _("director")
@@ -102,6 +103,14 @@ class CreditRole(models.TextChoices):
     Host = "host", _("host")
     OrigCreator = "orig_creator", _("original creator")
     Crew = "crew", _("crew")
+    # Organization roles
+    Publisher = "publisher", _("publisher")
+    Developer = "developer", _("developer")
+    ProductionCompany = "production_company", _("production company")
+    RecordLabel = "record_label", _("record label")
+    Distributor = "distributor", _("distributor")
+    Studio = "studio", _("studio")
+    Troupe = "troupe", _("troupe")
 
 
 class ItemCredit(models.Model):

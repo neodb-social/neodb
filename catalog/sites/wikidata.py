@@ -86,6 +86,16 @@ class WikidataTypes:
     SHORT_FILM = "Q24862"  # Short film
     FILM_PROJECT = "Q18011172"  # Film project (unpublished or unfinished film)
     MANGA_SERIES = "Q21198342"  # Manga series
+    # Organization types
+    BUSINESS_ENTERPRISE = "Q4830453"  # Business enterprise
+    PUBLISHER = "Q2085381"  # Publisher
+    RECORD_LABEL = "Q18127"  # Record label
+    FILM_PRODUCTION_COMPANY = "Q1762059"  # Film production company
+    VIDEO_GAME_DEVELOPER = "Q210167"  # Video game developer
+    VIDEO_GAME_PUBLISHER = "Q1137109"  # Video game publisher
+    ANIMATION_STUDIO = "Q17313235"  # Animation studio
+    FILM_STUDIO = "Q1660723"  # Film studio
+    THEATER_COMPANY = "Q3529889"  # Theater company
 
 
 # Wikidata Properties for metadata extraction
@@ -289,6 +299,15 @@ class WikiData(AbstractSite):
     # Map of Wikidata entity types to NeoDB models
     TYPE_TO_MODEL_MAP = {
         WikidataTypes.HUMAN: People,
+        WikidataTypes.BUSINESS_ENTERPRISE: People,
+        WikidataTypes.PUBLISHER: People,
+        WikidataTypes.RECORD_LABEL: People,
+        WikidataTypes.FILM_PRODUCTION_COMPANY: People,
+        WikidataTypes.VIDEO_GAME_DEVELOPER: People,
+        WikidataTypes.VIDEO_GAME_PUBLISHER: People,
+        WikidataTypes.ANIMATION_STUDIO: People,
+        WikidataTypes.FILM_STUDIO: People,
+        WikidataTypes.THEATER_COMPANY: People,
         WikidataTypes.FILM: Movie,
         WikidataTypes.ANIME_FILM: Movie,
         WikidataTypes.ANIMATED_FILM: Movie,
@@ -1082,11 +1101,29 @@ class WikiData(AbstractSite):
         # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
         # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
 
+    _ORGANIZATION_TYPES = {
+        WikidataTypes.BUSINESS_ENTERPRISE,
+        WikidataTypes.PUBLISHER,
+        WikidataTypes.RECORD_LABEL,
+        WikidataTypes.FILM_PRODUCTION_COMPANY,
+        WikidataTypes.VIDEO_GAME_DEVELOPER,
+        WikidataTypes.VIDEO_GAME_PUBLISHER,
+        WikidataTypes.ANIMATION_STUDIO,
+        WikidataTypes.FILM_STUDIO,
+        WikidataTypes.THEATER_COMPANY,
+    }
+
     def _extract_people_metadata(self, entity_data, data):
         """Extract People-specific metadata"""
         # People uses localized_name/localized_bio instead of localized_title/localized_description
         data.metadata["localized_name"] = data.metadata.pop("localized_title", [])
         data.metadata["localized_bio"] = data.metadata.pop("localized_description", [])
+        # Determine people_type from entity types
+        instance_types = set(
+            self._extract_entity_types(entity_data, WikidataProperties.P31)
+        )
+        if instance_types & self._ORGANIZATION_TYPES:
+            data.metadata["people_type"] = "organization"
         data.metadata["birth_date"] = self._extract_date(
             entity_data, WikidataProperties.P569
         )

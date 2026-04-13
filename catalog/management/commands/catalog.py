@@ -503,6 +503,7 @@ class Command(SiteCommand):
 
     # Mapping from jsondata field name to CreditRole value
     FIELD_TO_CREDIT_ROLE = {
+        # Person roles
         "director": CreditRole.Director,
         "playwright": CreditRole.Playwright,
         "actor": CreditRole.Actor,
@@ -516,6 +517,12 @@ class Command(SiteCommand):
         "orig_creator": CreditRole.OrigCreator,
         "crew": CreditRole.Crew,
         "host": CreditRole.Host,
+        # Organization roles
+        "publisher": CreditRole.Publisher,
+        "developer": CreditRole.Developer,
+        "company": CreditRole.RecordLabel,  # Album.company is record label
+        "pub_house": CreditRole.Publisher,
+        "troupe": CreditRole.Troupe,
     }
 
     def populate_credits(self, dry_run=False, limit=None, start=None, batch_size=1000):
@@ -535,6 +542,9 @@ class Command(SiteCommand):
                 values = getattr(item, field_name, None)
                 if not values:
                     continue
+                # Single string fields (e.g. pub_house) -> wrap in list
+                if isinstance(values, str):
+                    values = [values]
                 for i, value in enumerate(values):
                     if isinstance(value, dict):
                         name = value.get("name", "")

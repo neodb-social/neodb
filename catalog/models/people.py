@@ -278,12 +278,24 @@ class People(Item):
             "host": PeopleRole.HOST,
             "orig_creator": PeopleRole.ORIGINAL_CREATOR,
             "crew": PeopleRole.CREW,
+            "publisher": PeopleRole.PUBLISHER,
+            "developer": PeopleRole.DEVELOPER,
+            "production_company": PeopleRole.PRODUCTION_COMPANY,
+            "record_label": PeopleRole.RECORD_LABEL,
+            "distributor": PeopleRole.DISTRIBUTOR,
+            "studio": PeopleRole.STUDIO,
+            "troupe": PeopleRole.TROUPE,
         }
         return mapping.get(credit_role)
 
     @classmethod
     def create_from_external_resource(cls, p: "ExternalResource") -> Self:
         item = super().create_from_external_resource(p)
+        # Set people_type from metadata if present (e.g., "organization" from Wikidata)
+        people_type = p.metadata.get("people_type")
+        if people_type and people_type in PeopleType.values:
+            item.people_type = people_type
+            item.save(update_fields=["people_type"])
         item.link_matching_credits()
         return item
 
