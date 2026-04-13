@@ -140,8 +140,13 @@ class Rating(Content):
 
         # Batch-fetch child IDs for parent item types (TVShow, Performance)
         # to avoid per-item queries from item.child_item_ids
-        tvshow_ids = [i.pk for i in items if isinstance(i, TVShow)]
-        perf_ids = [i.pk for i in items if isinstance(i, Performance)]
+        tvshow_ids: list[int] = []
+        perf_ids: list[int] = []
+        for i in items:
+            if isinstance(i, TVShow):
+                tvshow_ids.append(i.pk)
+            elif isinstance(i, Performance):
+                perf_ids.append(i.pk)
         child_id_map: dict[int, list[int]] = {}
         if tvshow_ids:
             for show_id, season_id in (
