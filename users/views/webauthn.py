@@ -1,8 +1,10 @@
 import base64
 import json
+import time
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -58,22 +60,27 @@ def passkey_register_options(request):
         user_display_name=user.display_name or user.username,
         authenticator_selection=AuthenticatorSelectionCriteria(
             resident_key=ResidentKeyRequirement.REQUIRED,
-            user_verification=UserVerificationRequirement.PREFERRED,
+            user_verification=UserVerificationRequirement.REQUIRED,
         ),
         exclude_credentials=existing_credentials,
     )
-    request.session["webauthn_register_challenge"] = base64.b64encode(
-        options.challenge
-    ).decode("ascii")
+    request.session["webauthn_register_challenge"] = {
+        "challenge": base64.b64encode(options.challenge).decode("ascii"),
+        "ts": time.time(),
+    }
     return JsonResponse(json.loads(options_to_json(options)), safe=True)
 
 
 @require_http_methods(["POST"])
 @login_required
 def passkey_register_verify(request):
-    challenge_b64 = request.session.pop("webauthn_register_challenge", None)
-    if not challenge_b64:
+    CHALLENGE_TIMEOUT = 300  # 5 minutes
+    entry = request.session.pop("webauthn_register_challenge", None)
+    if not entry:
         return HttpResponseBadRequest("No registration challenge in session")
+    challenge_b64 = entry["challenge"]
+    if time.time() - entry.get("ts", 0) > CHALLENGE_TIMEOUT:
+        return HttpResponseBadRequest("Registration challenge expired")
 
     try:
         body = json.loads(request.body)
@@ -100,14 +107,19 @@ def passkey_register_verify(request):
         t for t in raw_transports if isinstance(t, str) and t in _VALID_TRANSPORTS
     ]
 
-    WebAuthnCredential.objects.create(
-        user=request.user,
-        name=name,
-        credential_id=verification.credential_id,
-        public_key=verification.credential_public_key,
-        sign_count=verification.sign_count,
-        transports=transports,
-    )
+    try:
+        WebAuthnCredential.objects.create(
+            user=request.user,
+            name=name,
+            credential_id=verification.credential_id,
+            public_key=verification.credential_public_key,
+            sign_count=verification.sign_count,
+            transports=transports,
+        )
+    except IntegrityError:
+        return JsonResponse(
+            {"ok": False, "error": _("Credential already registered")}, status=409
+        )
     request.session["has_passkeys"] = True
     return JsonResponse({"ok": True})
 
@@ -116,19 +128,24 @@ def passkey_register_verify(request):
 def passkey_login_options(request):
     options = generate_authentication_options(
         rp_id=_get_rp_id(),
-        user_verification=UserVerificationRequirement.PREFERRED,
+        user_verification=UserVerificationRequirement.REQUIRED,
     )
-    request.session["webauthn_login_challenge"] = base64.b64encode(
-        options.challenge
-    ).decode("ascii")
+    request.session["webauthn_login_challenge"] = {
+        "challenge": base64.b64encode(options.challenge).decode("ascii"),
+        "ts": time.time(),
+    }
     return JsonResponse(json.loads(options_to_json(options)), safe=True)
 
 
 @require_http_methods(["POST"])
 def passkey_login_verify(request):
-    challenge_b64 = request.session.pop("webauthn_login_challenge", None)
-    if not challenge_b64:
+    CHALLENGE_TIMEOUT = 300  # 5 minutes
+    entry = request.session.pop("webauthn_login_challenge", None)
+    if not entry:
         return HttpResponseBadRequest("No login challenge in session")
+    challenge_b64 = entry["challenge"]
+    if time.time() - entry.get("ts", 0) > CHALLENGE_TIMEOUT:
+        return HttpResponseBadRequest("Login challenge expired")
 
     try:
         body = json.loads(request.body)

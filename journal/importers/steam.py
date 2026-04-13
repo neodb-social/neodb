@@ -5,7 +5,7 @@ import pytz
 import requests
 from django.utils import timezone
 from loguru import logger
-from requests import HTTPError
+from requests import RequestException
 
 from catalog.common.downloaders import DownloadError
 from catalog.common.sites import SiteManager
@@ -87,8 +87,8 @@ class SteamImporter(BaseImporter):
                 "file": None,
                 "include_played_free_games": False,
                 "include_free_sub": False,
-                "playing_thresh": 0,  # in hours
-                "finish_thresh": 0,  # in days
+                "playing_thresh": 0,  # in days
+                "finish_thresh": 0,  # in hours
                 "last_play_to_ctime": True,  # use last played time as created time
             },
             "allow_shelf_type_reversion": False,
@@ -145,7 +145,7 @@ class SteamImporter(BaseImporter):
                 raw_marks.extend(
                     self.fetch_library(**self.metadata["config"]["library"])
                 )
-        except HTTPError as e:
+        except RequestException as e:
             self.failfast(f"HTTP error when fetching data: {e}")
             return
         logger.debug(f"{len(raw_marks)} raw marks fetched")
@@ -282,7 +282,9 @@ class SteamImporter(BaseImporter):
                 "language": "en",  # appinfo not used, can be anything
                 "include_extended_appinfo": False,
             }
-            res = requests.get(url, params, timeout=1)
+            res = requests.get(
+                url, params, timeout=SiteConfig.system.downloader_request_timeout
+            )
             res.raise_for_status()
             file = res.json()
 
@@ -332,7 +334,9 @@ class SteamImporter(BaseImporter):
                 "key": self.steam_apikey,
                 "steamid": self.metadata["steam_id"],
             }
-            res = requests.get(url, params, timeout=1)
+            res = requests.get(
+                url, params, timeout=SiteConfig.system.downloader_request_timeout
+            )
             res.raise_for_status()
             file = res.json()
 
@@ -394,8 +398,10 @@ class SteamImporter(BaseImporter):
             "key": steam_apikey,
             "steamid": steam_id,
         }
-        resp = requests.get(url, params)
-        if resp.status_code == [401, 403]:
+        resp = requests.get(
+            url, params, timeout=SiteConfig.system.downloader_request_timeout
+        )
+        if resp.status_code in (401, 403):
             logger.error(f"Response when validating Steam API Key: {resp.status_code}")
             logger.debug(f"Full response: {resp}")
             raise InvalidSteamAPIKeyException("Invalid steam API key")

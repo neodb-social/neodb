@@ -72,7 +72,7 @@ class Steam(AbstractSite):
             desc = html_to_text(data["detailed_description"])
             localized_desc.append({"lang": lang, "text": desc})
         if not en_data:
-            en_data = self.download("en")
+            en_data = self.download("en").get(self.id_value, {}).get("data", {})
         if not en_data or not en_data.get("name"):
             raise ParseError(self, "id")
         # merge data from IGDB, use localized Steam data if available

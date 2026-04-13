@@ -175,10 +175,20 @@ def register(request: AuthedHttpRequest):
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
             mastodon_account: MastodonAccount = verified_account
-            new_user = User.register(
-                account=mastodon_account,
-                username=mastodon_account.username,
-            )
+            try:
+                new_user = User.register(
+                    account=mastodon_account,
+                    username=mastodon_account.username,
+                )
+            except ValidationError:
+                return render(
+                    request,
+                    "common/error.html",
+                    {
+                        "msg": _("Registration failed"),
+                        "secondary_msg": _("Username already taken. Please try again."),
+                    },
+                )
             auth_login(request, new_user)
             return render(request, "users/welcome.html")
         else:
