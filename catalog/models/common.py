@@ -91,6 +91,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     Spotify_Artist = "spotify_artist", _("Spotify Artist")
     TMDB_Person = "tmdb_person", _("TMDB Person")
     OpenLibrary_Author = "openlibrary_author", _("Open Library Author")
+    IGDB_Company = "igdb_company", _("IGDB Company")
     IGDB = "igdb", _("IGDB Game")
     BGG = "bgg", _("BGG Boardgame")
     Steam = "steam", _("Steam Game")

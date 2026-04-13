@@ -343,6 +343,7 @@ class People(Item):
             IdType.Goodreads_Author,
             IdType.Spotify_Artist,
             IdType.OpenLibrary_Author,
+            IdType.IGDB_Company,
         ]
         return [(i.value, i.label) for i in id_types]
 

@@ -107,6 +107,7 @@ class IGDB(AbstractSite):
         release_date = None
         genre = None
         platform = None
+        related_companies = []
         if "involved_companies" in r:
             developer = next(
                 iter(
@@ -128,6 +129,18 @@ class IGDB(AbstractSite):
                 ),
                 None,
             )
+            for c in r["involved_companies"]:
+                company = c.get("company", {})
+                if company.get("url"):
+                    slug = company["url"].rstrip("/").split("/")[-1]
+                    related_companies.append(
+                        {
+                            "model": "People",
+                            "id_type": IdType.IGDB_Company,
+                            "id_value": slug,
+                            "url": company["url"],
+                        }
+                    )
         if "platforms" in r:
             ps = sorted(r["platforms"], key=lambda p: p["id"])
             platform = [(p["name"] if p["id"] != 6 else "Windows") for p in ps]
@@ -166,6 +179,7 @@ class IGDB(AbstractSite):
                     if r.get("cover")
                     else None
                 ),
+                "related_resources": related_companies,
             }
         )
         if steam_url:
@@ -225,3 +239,62 @@ class IGDB(AbstractSite):
                 )
             )
         return result
+
+
+@SiteManager.register
+class IGDB_Company(AbstractSite):
+    SITE_NAME = SiteName.IGDB
+    ID_TYPE = IdType.IGDB_Company
+    URL_PATTERNS = [
+        r"\w+://www\.igdb\.com/companies/([a-zA-Z0-9\-_]+)",
+    ]
+    WIKI_PROPERTY_ID = "?"
+    DEFAULT_MODEL = People
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return "https://www.igdb.com/companies/" + id_value
+
+    def scrape(self):
+        if not self.url:
+            raise ParseError(self, "no url")
+        escaped_url = self.url.replace('"', '\\"')
+        fields = "*, logo.url, websites.*"
+        r = IGDB.api_query(
+            "companies", f'fields {fields}; where url = "{escaped_url}";'
+        )
+        if not r:
+            raise ParseError(self, "no data")
+        r = r[0]
+        name = r.get("name", "")
+        if not name:
+            raise ParseError(self, "name")
+        brief = r.get("description", "")
+        logo_url = (
+            "https:" + r["logo"]["url"].replace("t_thumb", "t_logo_med")
+            if r.get("logo")
+            else None
+        )
+        official_site = None
+        if "websites" in r:
+            for w in r["websites"]:
+                if w.get("category") == 1:
+                    official_site = w.get("url")
+                    break
+        start_date = None
+        if r.get("start_date"):
+            start_date = datetime.datetime.fromtimestamp(
+                r["start_date"], datetime.timezone.utc
+            ).strftime("%Y-%m-%d")
+        pd = ResourceContent(
+            metadata={
+                "title": name,
+                "localized_name": [{"lang": "en", "text": name}],
+                "localized_bio": ([{"lang": "en", "text": brief}] if brief else []),
+                "people_type": "organization",
+                "birth_date": start_date,
+                "official_site": official_site,
+                "cover_image_url": logo_url,
+            }
+        )
+        return pd
