@@ -129,7 +129,7 @@ class Performance(Item):
     CREDIT_FIELD_MAPPING = {
         "director": "director",
         "playwright": "playwright",
-        "orig_creator": "orig_creator",
+        "orig_creator": "original_creator",
         "composer": "composer",
         "choreographer": "choreographer",
         "actor": "actor",

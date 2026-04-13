@@ -101,7 +101,7 @@ class CreditRole(models.TextChoices):
     Choreographer = "choreographer", _("choreographer")
     Performer = "performer", _("performer")
     Host = "host", _("host")
-    OrigCreator = "orig_creator", _("original creator")
+    OriginalCreator = "original_creator", _("original creator")
     Crew = "crew", _("crew")
     # Organization roles
     Publisher = "publisher", _("publisher")
@@ -885,7 +885,7 @@ class Item(PolymorphicModel):
         return {
             "record_label": "company",
             "publisher": "pub_house",
-            "orig_creator": "orig_creator",
+            "original_creator": "orig_creator",
         }.get(role, role)
 
     @cached_property

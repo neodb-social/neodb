@@ -272,7 +272,7 @@ class People(Item):
             "choreographer": PeopleRole.CHOREOGRAPHER,
             "performer": PeopleRole.PERFORMER,
             "host": PeopleRole.HOST,
-            "orig_creator": PeopleRole.ORIGINAL_CREATOR,
+            "original_creator": PeopleRole.ORIGINAL_CREATOR,
             "crew": PeopleRole.CREW,
             "publisher": PeopleRole.PUBLISHER,
             "developer": PeopleRole.DEVELOPER,

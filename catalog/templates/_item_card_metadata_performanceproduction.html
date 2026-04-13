@@ -11,7 +11,7 @@
     {% include '_credits.html' with credits=item.role_credits.troupe role_label='troupe' max=2 %}
     {% include '_people.html' with people=item.location role='theater' max=2 %}
     {% include '_credits.html' with credits=item.role_credits.director role_label='director' max=2 %}
-    {% include '_credits.html' with credits=item.role_credits.orig_creator role_label='original creator' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.original_creator role_label='original creator' max=2 %}
   </div>
 {% endblock brief %}
 {% block full %}

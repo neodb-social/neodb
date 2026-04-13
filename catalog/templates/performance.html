@@ -21,7 +21,7 @@
   <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>
   <div>{% include '_language_list.html' with list=item.language max=5 %}</div>
   <div>
-    {% include '_credits.html' with credits=item.role_credits.orig_creator role_label='original creator' max=5 %}
+    {% include '_credits.html' with credits=item.role_credits.original_creator role_label='original creator' max=5 %}
   </div>
   <div>{% include '_credits.html' with credits=item.role_credits.director role_label='director' max=5 %}</div>
   <div>{% include '_credits.html' with credits=item.role_credits.playwright role_label='playwright' max=5 %}</div>
