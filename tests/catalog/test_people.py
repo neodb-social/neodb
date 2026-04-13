@@ -4,8 +4,10 @@ import pytest
 from django.core.management import call_command
 
 from catalog.models import (
+    Album,
     CreditRole,
     Edition,
+    Game,
     ItemCredit,
     ItemPeopleRelation,
     Movie,
@@ -14,6 +16,7 @@ from catalog.models import (
     PeopleType,
 )
 from catalog.models.common import IdType
+from catalog.sites.wikidata import WikiData, WikidataTypes
 
 _DAN_SIMMONS_METADATA = {"localized_name": [{"lang": "en", "text": "Dan Simmons"}]}
 _BANTAM_BOOKS_METADATA = {"localized_name": [{"lang": "en", "text": "Bantam Books"}]}
@@ -618,3 +621,176 @@ class TestLinkCredits:
         call_command("catalog", "link-credits", stdout=out)
         output = out.getvalue()
         assert "Linked: 1" in output
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestOrganizationSupport:
+    def test_create_organization_with_type(self):
+        org = People.objects.create(
+            metadata={
+                "localized_name": [{"lang": "en", "text": "Nintendo"}],
+                "people_type": "organization",
+            },
+            people_type=PeopleType.ORGANIZATION,
+        )
+        assert org.is_organization
+        assert not org.is_person
+        assert org.display_name == "Nintendo"
+
+    def test_populate_credits_from_game(self):
+        game = Game.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Zelda"}],
+                "developer": ["Nintendo EAD"],
+                "publisher": ["Nintendo"],
+                "designer": ["Shigeru Miyamoto"],
+            }
+        )
+        out = StringIO()
+        call_command("catalog", "populate-credits", stdout=out)
+        devs = list(game.credits.filter(role=CreditRole.Developer))
+        assert len(devs) == 1
+        assert devs[0].name == "Nintendo EAD"
+        pubs = list(game.credits.filter(role=CreditRole.Publisher))
+        assert len(pubs) == 1
+        assert pubs[0].name == "Nintendo"
+        designers = list(game.credits.filter(role=CreditRole.Designer))
+        assert len(designers) == 1
+        assert designers[0].name == "Shigeru Miyamoto"
+
+    def test_populate_credits_single_string_field(self):
+        """pub_house is a single string, not a list."""
+        book = Edition.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Test Book"}],
+                "pub_house": "Penguin Books",
+            }
+        )
+        out = StringIO()
+        call_command("catalog", "populate-credits", stdout=out)
+        pubs = list(book.credits.filter(role=CreditRole.Publisher))
+        assert len(pubs) == 1
+        assert pubs[0].name == "Penguin Books"
+
+    def test_populate_credits_album_company(self):
+        album = Album.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Abbey Road"}],
+                "company": ["Apple Records", "EMI"],
+            }
+        )
+        out = StringIO()
+        call_command("catalog", "populate-credits", stdout=out)
+        labels = list(album.credits.filter(role=CreditRole.RecordLabel))
+        assert len(labels) == 2
+        assert labels[0].name == "Apple Records"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMergeCredits:
+    def test_item_merge_reparents_credits(self):
+        movie1 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie v1"}]}
+        )
+        movie2 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie v2"}]}
+        )
+        c1 = ItemCredit.objects.create(
+            item=movie1, role=CreditRole.Director, name="Director A", order=0
+        )
+        movie1.merge_to(movie2)
+        c1.refresh_from_db()
+        assert c1.item == movie2
+
+    def test_item_merge_deduplicates_credits(self):
+        movie1 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie v1"}]}
+        )
+        movie2 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie v2"}]}
+        )
+        ItemCredit.objects.create(
+            item=movie1, role=CreditRole.Director, name="Same Dir", order=0
+        )
+        ItemCredit.objects.create(
+            item=movie2, role=CreditRole.Director, name="Same Dir", order=0
+        )
+        movie1.merge_to(movie2)
+        assert movie2.credits.filter(role=CreditRole.Director).count() == 1
+
+    def test_people_merge_reparents_credited_items(self):
+        book = Edition.objects.create(title="Book")
+        person1 = People.objects.create(
+            metadata=_DAN_SIMMONS_METADATA, people_type=PeopleType.PERSON
+        )
+        person2 = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Daniel Simmons"}]},
+            people_type=PeopleType.PERSON,
+        )
+        credit = ItemCredit.objects.create(
+            item=book,
+            role=CreditRole.Author,
+            name="Dan Simmons",
+            person=person1,
+            order=0,
+        )
+        person1.merge_to(person2)
+        credit.refresh_from_db()
+        assert credit.person == person2
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDisplayFallback:
+    def test_display_description_from_bio(self):
+        person = People.objects.create(
+            metadata={
+                "localized_name": [{"lang": "en", "text": "Test"}],
+                "localized_bio": [{"lang": "en", "text": "Bio text"}],
+            },
+            people_type=PeopleType.PERSON,
+        )
+        assert person.display_description == "Bio text"
+
+    def test_display_description_fallback_to_description(self):
+        """Pre-migration records have localized_description but not localized_bio."""
+        person = People.objects.create(
+            metadata={
+                "localized_name": [{"lang": "en", "text": "Test"}],
+                "localized_description": [{"lang": "en", "text": "Old description"}],
+            },
+            people_type=PeopleType.PERSON,
+        )
+        assert person.display_description == "Old description"
+
+    def test_display_description_fallback_to_brief(self):
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Test"}]},
+            people_type=PeopleType.PERSON,
+            brief="Brief fallback",
+        )
+        assert person.display_description == "Brief fallback"
+
+    def test_wikidata_org_type_mapping(self):
+        """Wikidata org types should map to People model."""
+        for org_type in [
+            WikidataTypes.BUSINESS_ENTERPRISE,
+            WikidataTypes.PUBLISHER,
+            WikidataTypes.RECORD_LABEL,
+            WikidataTypes.VIDEO_GAME_DEVELOPER,
+            WikidataTypes.FILM_PRODUCTION_COMPANY,
+        ]:
+            entity_data = {
+                "id": "Q999",
+                "claims": {
+                    "P31": [
+                        {
+                            "mainsnak": {
+                                "datavalue": {"value": {"id": org_type}},
+                            }
+                        }
+                    ]
+                },
+            }
+            wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999")
+            model = wiki_site._determine_entity_type(entity_data)
+            assert model == People, f"{org_type} should map to People"

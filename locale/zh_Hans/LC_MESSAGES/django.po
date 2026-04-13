@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-12 20:53-0400\n"
+"POT-Creation-Date: 2026-04-12 21:07-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -58,21 +58,21 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:28 catalog/models/item.py:209
+#: catalog/forms.py:29 catalog/models/item.py:210
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:33 catalog/models/item.py:212
+#: catalog/forms.py:34 catalog/models/item.py:213
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
 #: catalog/models/book.py:81 catalog/models/book.py:100
-#: catalog/models/common.py:195 catalog/models/common.py:213
+#: catalog/models/common.py:202 catalog/models/common.py:220
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:84 catalog/models/book.py:103
-#: catalog/models/common.py:198 catalog/models/common.py:218
+#: catalog/models/common.py:205 catalog/models/common.py:225
 msgid "text content"
 msgstr "文本内容"
 
@@ -96,7 +96,7 @@ msgstr "有声书"
 msgid "Web Fiction"
 msgstr "网络作品"
 
-#: catalog/models/book.py:125 catalog/models/game.py:32
+#: catalog/models/book.py:125 catalog/models/game.py:33
 msgid "Other"
 msgstr "其它"
 
@@ -104,9 +104,9 @@ msgstr "其它"
 msgid "subtitle"
 msgstr "副标题"
 
-#: catalog/models/book.py:182 catalog/models/movie.py:75
-#: catalog/models/performance.py:344 catalog/models/tv.py:147
-#: catalog/models/tv.py:383
+#: catalog/models/book.py:182 catalog/models/movie.py:76
+#: catalog/models/performance.py:339 catalog/models/tv.py:148
+#: catalog/models/tv.py:378
 msgid "original title"
 msgstr "原名"
 
@@ -115,11 +115,11 @@ msgid "other title"
 msgstr "其它标题"
 
 #: catalog/models/book.py:192 catalog/models/book.py:470
-#: catalog/models/item.py:92
+#: catalog/models/item.py:93
 msgid "author"
 msgstr "作者"
 
-#: catalog/models/book.py:199 catalog/models/item.py:93
+#: catalog/models/book.py:199 catalog/models/item.py:94
 msgid "translator"
 msgstr "译者"
 
@@ -163,463 +163,461 @@ msgstr "价格"
 msgid "imprint"
 msgstr "出品方"
 
-#: catalog/models/common.py:9 common/models/lang.py:249
+#: catalog/models/common.py:15 common/models/lang.py:249
 msgid "Unknown"
 msgstr "未知"
 
-#: catalog/models/common.py:10
+#: catalog/models/common.py:16
 msgid "Douban"
 msgstr "豆瓣"
 
-#: catalog/models/common.py:11 catalog/models/common.py:58
+#: catalog/models/common.py:17 catalog/models/common.py:64
 msgid "Goodreads"
 msgstr "Goodreads"
 
-#: catalog/models/common.py:12 catalog/models/common.py:60
+#: catalog/models/common.py:18 catalog/models/common.py:66
 msgid "Google Books"
 msgstr "谷歌图书"
 
-#: catalog/models/common.py:13
+#: catalog/models/common.py:19
 msgid "BooksTW"
 msgstr "博客來"
 
-#: catalog/models/common.py:14 catalog/models/common.py:69
-#: catalog/models/common.py:71
+#: catalog/models/common.py:20 catalog/models/common.py:75
+#: catalog/models/common.py:77
 msgid "Bibliotek.dk"
 msgstr "Bibliotek"
 
-#: catalog/models/common.py:15 catalog/models/common.py:70
+#: catalog/models/common.py:21 catalog/models/common.py:76
 msgid "eReolen.dk"
 msgstr "eReolen"
 
-#: catalog/models/common.py:16 catalog/models/common.py:53
+#: catalog/models/common.py:22 catalog/models/common.py:59
 #: catalog/templates/movie.html:75 catalog/templates/people.html:37
 #: catalog/templates/tvseason.html:68 catalog/templates/tvshow.html:63
 msgid "IMDb"
 msgstr "IMDb"
 
-#: catalog/models/common.py:17
+#: catalog/models/common.py:23
 msgid "TMDB"
 msgstr "TMDB"
 
-#: catalog/models/common.py:18 catalog/models/common.py:72
+#: catalog/models/common.py:24 catalog/models/common.py:78
 msgid "Bandcamp"
 msgstr "Bandcamp"
 
-#: catalog/models/common.py:19
+#: catalog/models/common.py:25
 msgid "Spotify"
 msgstr "Spotify"
 
-#: catalog/models/common.py:20
+#: catalog/models/common.py:26
 msgid "IGDB"
 msgstr "IGDB"
 
-#: catalog/models/common.py:21
+#: catalog/models/common.py:27
 msgid "Steam"
 msgstr "Steam"
 
-#: catalog/models/common.py:22 catalog/models/common.py:91
+#: catalog/models/common.py:28 catalog/models/common.py:97
 msgid "Bangumi"
 msgstr "Bangumi"
 
-#: catalog/models/common.py:23
+#: catalog/models/common.py:29
 msgid "BGG"
 msgstr "BGG"
 
-#: catalog/models/common.py:24 catalog/models/common.py:92
+#: catalog/models/common.py:30 catalog/models/common.py:98
 msgid "Apple Podcast"
 msgstr "苹果播客"
 
-#: catalog/models/common.py:25
+#: catalog/models/common.py:31
 msgid "RSS"
 msgstr "RSS"
 
-#: catalog/models/common.py:26
+#: catalog/models/common.py:32
 msgid "Discogs"
 msgstr "Discogs"
 
-#: catalog/models/common.py:27 catalog/models/common.py:93
+#: catalog/models/common.py:33 catalog/models/common.py:99
 msgid "Apple Music"
 msgstr "苹果音乐"
 
-#: catalog/models/common.py:28 catalog/models/common.py:95
+#: catalog/models/common.py:34 catalog/models/common.py:101
 msgid "Fediverse"
 msgstr "联邦宇宙"
 
-#: catalog/models/common.py:29 catalog/models/common.py:96
+#: catalog/models/common.py:35 catalog/models/common.py:102
 msgid "Qidian"
 msgstr "起点"
 
-#: catalog/models/common.py:30 catalog/models/common.py:97
+#: catalog/models/common.py:36 catalog/models/common.py:103
 msgid "Ypshuo"
 msgstr "阅评说"
 
-#: catalog/models/common.py:31 catalog/models/common.py:98
+#: catalog/models/common.py:37 catalog/models/common.py:104
 msgid "Archive of Our Own"
 msgstr "AO3"
 
-#: catalog/models/common.py:32 catalog/models/common.py:99
+#: catalog/models/common.py:38 catalog/models/common.py:105
 msgid "JinJiang"
 msgstr "晋江文学"
 
-#: catalog/models/common.py:33 catalog/models/common.py:43
+#: catalog/models/common.py:39 catalog/models/common.py:49
 msgid "WikiData"
 msgstr "维基数据"
 
-#: catalog/models/common.py:34 catalog/models/common.py:100
+#: catalog/models/common.py:40 catalog/models/common.py:106
 msgid "Open Library"
 msgstr "开放图书馆"
 
-#: catalog/models/common.py:35
+#: catalog/models/common.py:41
 msgid "MusicBrainz"
 msgstr "MusicBrainz"
 
-#: catalog/models/common.py:36
+#: catalog/models/common.py:42
 msgid "WorldCat"
 msgstr "WorldCat"
 
-#: catalog/models/common.py:37 catalog/models/common.py:102
+#: catalog/models/common.py:43 catalog/models/common.py:108
 msgid "MobyGames"
 msgstr "MobyGames"
 
-#: catalog/models/common.py:38 catalog/models/common.py:103
+#: catalog/models/common.py:44 catalog/models/common.py:109
 msgid "StoryGraph"
 msgstr ""
 
-#: catalog/models/common.py:39 catalog/models/common.py:94
+#: catalog/models/common.py:45 catalog/models/common.py:100
 msgid "YouTube Music"
 msgstr "YouTube Music"
 
-#: catalog/models/common.py:44
+#: catalog/models/common.py:50
 msgid "ISBN10"
 msgstr "ISBN10"
 
-#: catalog/models/common.py:45 catalog/templates/edition.html:19
+#: catalog/models/common.py:51 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr "ISBN"
 
-#: catalog/models/common.py:46
+#: catalog/models/common.py:52
 msgid "ASIN"
 msgstr "ASIN"
 
-#: catalog/models/common.py:47
+#: catalog/models/common.py:53
 msgid "ISSN"
 msgstr "ISSN"
 
-#: catalog/models/common.py:48
+#: catalog/models/common.py:54
 msgid "CUBN"
 msgstr "统一书号"
 
-#: catalog/models/common.py:49
+#: catalog/models/common.py:55
 msgid "ISRC"
 msgstr "ISRC"
 
-#: catalog/models/common.py:50
+#: catalog/models/common.py:56
 msgid "GTIN UPC EAN"
 msgstr "条形码"
 
-#: catalog/models/common.py:51
+#: catalog/models/common.py:57
 msgid "OCLC Number"
 msgstr "OCLC控制号"
 
-#: catalog/models/common.py:52
+#: catalog/models/common.py:58
 msgid "RSS Feed URL"
 msgstr "RSS网址"
 
-#: catalog/models/common.py:54
+#: catalog/models/common.py:60
 msgid "TMDB TV Series"
 msgstr "TMDB电视剧集"
 
-#: catalog/models/common.py:55
+#: catalog/models/common.py:61
 msgid "TMDB TV Season"
 msgstr "TMDB电视分季"
 
-#: catalog/models/common.py:56
+#: catalog/models/common.py:62
 msgid "TMDB TV Episode"
 msgstr "TMDB电视单集"
 
-#: catalog/models/common.py:57
+#: catalog/models/common.py:63
 msgid "TMDB Movie"
 msgstr "TMDB电影"
 
-#: catalog/models/common.py:59
+#: catalog/models/common.py:65
 msgid "Goodreads Work"
 msgstr "Goodreads著作"
 
-#: catalog/models/common.py:61
+#: catalog/models/common.py:67
 msgid "Douban Book"
 msgstr "豆瓣图书"
 
-#: catalog/models/common.py:62
+#: catalog/models/common.py:68
 msgid "Douban Book Work"
 msgstr "豆瓣图书著作"
 
-#: catalog/models/common.py:63
+#: catalog/models/common.py:69
 msgid "Douban Movie"
 msgstr "豆瓣电影"
 
-#: catalog/models/common.py:64
+#: catalog/models/common.py:70
 msgid "Douban Music"
 msgstr "豆瓣音乐"
 
-#: catalog/models/common.py:65
+#: catalog/models/common.py:71
 msgid "Douban Game"
 msgstr "豆瓣游戏"
 
-#: catalog/models/common.py:66
+#: catalog/models/common.py:72
 msgid "Douban Drama"
 msgstr "豆瓣舞台剧"
 
-#: catalog/models/common.py:67
+#: catalog/models/common.py:73
 msgid "Douban Drama Version"
 msgstr "豆瓣舞台剧版本"
 
-#: catalog/models/common.py:68
+#: catalog/models/common.py:74
 msgid "BooksTW Book"
 msgstr "博客来图书"
 
-#: catalog/models/common.py:73
+#: catalog/models/common.py:79
 msgid "Spotify Album"
 msgstr "Spotify专辑"
 
-#: catalog/models/common.py:74
+#: catalog/models/common.py:80
 msgid "Spotify Podcast"
 msgstr "Spotify播客"
 
-#: catalog/models/common.py:75
+#: catalog/models/common.py:81
 msgid "Discogs Release"
 msgstr "Discogs发行"
 
-#: catalog/models/common.py:76
+#: catalog/models/common.py:82
 msgid "Discogs Master"
 msgstr "Discogs作品"
 
-#: catalog/models/common.py:79
+#: catalog/models/common.py:85
 msgid "MusicBrainz Release Group"
 msgstr "MusicBrainz发行列表"
 
-#: catalog/models/common.py:81
+#: catalog/models/common.py:87
 msgid "MusicBrainz Release"
 msgstr "MusicBrainz发行"
 
-#: catalog/models/common.py:82
+#: catalog/models/common.py:88
 msgid "Douban Book Author"
 msgstr "豆瓣图书作者"
 
-#: catalog/models/common.py:83
+#: catalog/models/common.py:89
 msgid "Douban Movie Celebrity"
 msgstr "豆瓣电影影人"
 
-#: catalog/models/common.py:84
+#: catalog/models/common.py:90
 msgid "Goodreads Author"
 msgstr "Goodreads作者"
 
-#: catalog/models/common.py:85
+#: catalog/models/common.py:91
 msgid "Spotify Artist"
 msgstr "Spotify艺术家"
 
-#: catalog/models/common.py:86
+#: catalog/models/common.py:92
 msgid "TMDB Person"
 msgstr "TMDB人物"
 
-#: catalog/models/common.py:87
+#: catalog/models/common.py:93
 msgid "Open Library Author"
 msgstr "Open Library作者"
 
-#: catalog/models/common.py:88
+#: catalog/models/common.py:94
 msgid "IGDB Game"
 msgstr "IGDB游戏"
 
-#: catalog/models/common.py:89
+#: catalog/models/common.py:95
 msgid "BGG Boardgame"
 msgstr "BGG桌游"
 
-#: catalog/models/common.py:90
+#: catalog/models/common.py:96
 msgid "Steam Game"
 msgstr "Steam游戏"
 
-#: catalog/models/common.py:101
+#: catalog/models/common.py:107
 msgid "Open Library Work"
 msgstr "开放图书馆著作"
 
-#: catalog/models/common.py:123
+#: catalog/models/common.py:129
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:124 catalog/templates/_sidebar_edit.html:224
+#: catalog/models/common.py:130 catalog/templates/_sidebar_edit.html:224
 msgid "Work"
 msgstr "作品"
 
-#: catalog/models/common.py:125
+#: catalog/models/common.py:131
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:126 catalog/templates/_sidebar_edit.html:145
+#: catalog/models/common.py:132 catalog/templates/_sidebar_edit.html:145
 msgid "TV Season"
 msgstr "电视分季"
 
-#: catalog/models/common.py:127
+#: catalog/models/common.py:133
 msgid "TV Episode"
 msgstr "电视单集"
 
-#: catalog/models/common.py:128 catalog/models/common.py:144
-#: catalog/models/common.py:158 catalog/templates/_sidebar_edit.html:138
+#: catalog/models/common.py:134 catalog/models/common.py:150
+#: catalog/models/common.py:164 catalog/templates/_sidebar_edit.html:138
 #: journal/templates/_sidebar_user_mark_list.html:32
 msgid "Movie"
 msgstr "电影"
 
-#: catalog/models/common.py:129
+#: catalog/models/common.py:135
 msgid "Album"
 msgstr "专辑"
 
-#: catalog/models/common.py:130 catalog/models/common.py:147
-#: catalog/models/common.py:161 common/templates/_header.html:41
+#: catalog/models/common.py:136 catalog/models/common.py:153
+#: catalog/models/common.py:167 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:45
 msgid "Game"
 msgstr "游戏"
 
-#: catalog/models/common.py:131
+#: catalog/models/common.py:137
 msgid "Podcast Program"
 msgstr "播客节目"
 
-#: catalog/models/common.py:132
+#: catalog/models/common.py:138
 msgid "Podcast Episode"
 msgstr "播客单集"
 
-#: catalog/models/common.py:133 catalog/models/common.py:149
-#: catalog/models/common.py:163 common/templates/_header.html:45
+#: catalog/models/common.py:139 catalog/models/common.py:155
+#: catalog/models/common.py:169 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:49
 msgid "Performance"
 msgstr "演出"
 
-#: catalog/models/common.py:134
+#: catalog/models/common.py:140
 msgid "Production"
 msgstr "上演"
 
-#: catalog/models/common.py:135
+#: catalog/models/common.py:141
 msgid "Exhibition"
 msgstr "展览"
 
-#: catalog/models/common.py:136 catalog/models/common.py:153
+#: catalog/models/common.py:142 catalog/models/common.py:159
 #: journal/templates/collection.html:23 journal/templates/collection.html:29
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr "收藏单"
 
-#: catalog/models/common.py:139 catalog/models/common.py:152
+#: catalog/models/common.py:145 catalog/models/common.py:158
 msgid "Person / Organization"
 msgstr ""
 
-#: catalog/models/common.py:143 catalog/models/common.py:157
+#: catalog/models/common.py:149 catalog/models/common.py:163
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:29
 msgid "Book"
 msgstr "图书"
 
-#: catalog/models/common.py:145 catalog/models/common.py:159
+#: catalog/models/common.py:151 catalog/models/common.py:165
 #: journal/templates/_sidebar_user_mark_list.html:35
 msgid "TV"
 msgstr "剧集"
 
-#: catalog/models/common.py:146 catalog/models/common.py:160
-#: common/templates/_header.html:37
+#: catalog/models/common.py:152 catalog/models/common.py:166
+#: common/models/genre.py:39 common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:42
 msgid "Music"
 msgstr "音乐"
 
-#: catalog/models/common.py:148 catalog/models/common.py:162
+#: catalog/models/common.py:154 catalog/models/common.py:168
 #: catalog/templates/_sidebar_edit.html:157 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:39
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:243 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:250 catalog/templates/_genre_list.html:5
+msgid "genre"
+msgstr "类型"
+
+#: catalog/models/common.py:267 catalog/templates/_language_list.html:5
 #: users/models/user.py:128
 msgid "language"
 msgstr "语言"
 
-#: catalog/models/game.py:24
+#: catalog/models/game.py:25
 msgid "Main Game"
 msgstr "游戏"
 
-#: catalog/models/game.py:25
+#: catalog/models/game.py:26
 msgid "Expansion"
 msgstr "资料片"
 
-#: catalog/models/game.py:26
+#: catalog/models/game.py:27
 msgid "Downloadable Content"
 msgstr "可下载内容"
 
-#: catalog/models/game.py:27
+#: catalog/models/game.py:28
 msgid "Mod"
 msgstr "模组"
 
-#: catalog/models/game.py:28
+#: catalog/models/game.py:29
 msgid "Bundle"
 msgstr "合集"
 
-#: catalog/models/game.py:29
+#: catalog/models/game.py:30
 msgid "Remaster"
 msgstr "复刻"
 
-#: catalog/models/game.py:30
+#: catalog/models/game.py:31
 msgid "Remake"
 msgstr "重制"
 
-#: catalog/models/game.py:31
+#: catalog/models/game.py:32
 msgid "Special Edition"
 msgstr "特别版"
 
-#: catalog/models/game.py:82 catalog/models/item.py:98
+#: catalog/models/game.py:83 catalog/models/item.py:99
 msgid "designer"
 msgstr "设计者"
 
-#: catalog/models/game.py:90 catalog/models/item.py:97
-#: catalog/models/music.py:75
+#: catalog/models/game.py:91 catalog/models/item.py:98
+#: catalog/models/music.py:74
 msgid "artist"
 msgstr "艺术家"
 
-#: catalog/models/game.py:98 catalog/models/item.py:107
+#: catalog/models/game.py:99 catalog/models/item.py:108
 msgid "developer"
 msgstr "开发者"
 
-#: catalog/models/game.py:106 catalog/models/item.py:106
-#: catalog/models/music.py:89
+#: catalog/models/game.py:107 catalog/models/item.py:107
+#: catalog/models/music.py:82
 msgid "publisher"
 msgstr "出版发行"
 
-#: catalog/models/game.py:114
+#: catalog/models/game.py:115
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:118 catalog/models/podcast.py:172
+#: catalog/models/game.py:119 catalog/models/podcast.py:167
 msgid "date of publication"
 msgstr "发行日期"
 
-#: catalog/models/game.py:123 catalog/models/music.py:69
-#: catalog/models/tv.py:191
+#: catalog/models/game.py:124 catalog/models/music.py:68
+#: catalog/models/tv.py:186
 msgid "YYYY-MM-DD"
 msgstr "YYYY-MM-DD"
 
-#: catalog/models/game.py:127 catalog/templates/game.html:16
+#: catalog/models/game.py:128 catalog/templates/game.html:16
 msgid "release type"
 msgstr "发布类型"
 
-#: catalog/models/game.py:134 catalog/models/movie.py:99
-#: catalog/models/performance.py:132 catalog/models/podcast.py:66
-#: catalog/models/tv.py:171 catalog/models/tv.py:407
-msgid "genre"
-msgstr "类型"
-
-#: catalog/models/game.py:142
+#: catalog/models/game.py:137
 msgid "platform"
 msgstr "平台"
 
-#: catalog/models/game.py:148 catalog/models/movie.py:133
-#: catalog/models/people.py:142 catalog/models/performance.py:216
-#: catalog/models/performance.py:424 catalog/models/podcast.py:85
-#: catalog/models/tv.py:205 catalog/models/tv.py:442
+#: catalog/models/game.py:143 catalog/models/movie.py:128
+#: catalog/models/people.py:142 catalog/models/performance.py:211
+#: catalog/models/performance.py:419 catalog/models/podcast.py:80
+#: catalog/models/tv.py:200 catalog/models/tv.py:431
 #: catalog/templates/game.html:34 catalog/templates/movie.html:82
 #: catalog/templates/people.html:44 catalog/templates/performance.html:33
 #: catalog/templates/performanceproduction.html:33
@@ -628,132 +626,132 @@ msgstr "平台"
 msgid "website"
 msgstr "网站"
 
-#: catalog/models/item.py:94 catalog/models/movie.py:78
-#: catalog/models/performance.py:140 catalog/models/performance.py:348
-#: catalog/models/tv.py:150 catalog/models/tv.py:386
+#: catalog/models/item.py:95 catalog/models/movie.py:79
+#: catalog/models/performance.py:135 catalog/models/performance.py:343
+#: catalog/models/tv.py:151 catalog/models/tv.py:381
 msgid "director"
 msgstr "导演"
 
-#: catalog/models/item.py:95 catalog/models/movie.py:85
-#: catalog/models/performance.py:147 catalog/models/performance.py:355
-#: catalog/models/tv.py:157 catalog/models/tv.py:393
+#: catalog/models/item.py:96 catalog/models/movie.py:86
+#: catalog/models/performance.py:142 catalog/models/performance.py:350
+#: catalog/models/tv.py:158 catalog/models/tv.py:388
 msgid "playwright"
 msgstr "编剧"
 
-#: catalog/models/item.py:96 catalog/models/movie.py:92
-#: catalog/models/performance.py:175 catalog/models/performance.py:383
-#: catalog/models/tv.py:164 catalog/models/tv.py:400
+#: catalog/models/item.py:97 catalog/models/movie.py:93
+#: catalog/models/performance.py:170 catalog/models/performance.py:378
+#: catalog/models/tv.py:165 catalog/models/tv.py:395
 msgid "actor"
 msgstr "演员"
 
-#: catalog/models/item.py:99 catalog/models/performance.py:161
-#: catalog/models/performance.py:369
+#: catalog/models/item.py:100 catalog/models/performance.py:156
+#: catalog/models/performance.py:364
 msgid "composer"
 msgstr "作曲"
 
-#: catalog/models/item.py:100 catalog/models/performance.py:168
-#: catalog/models/performance.py:376
+#: catalog/models/item.py:101 catalog/models/performance.py:163
+#: catalog/models/performance.py:371
 msgid "choreographer"
 msgstr "编舞"
 
-#: catalog/models/item.py:101 catalog/models/performance.py:182
-#: catalog/models/performance.py:390
+#: catalog/models/item.py:102 catalog/models/performance.py:177
+#: catalog/models/performance.py:385
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/item.py:102 catalog/models/podcast.py:76
+#: catalog/models/item.py:103 catalog/models/podcast.py:71
 msgid "host"
 msgstr "主播"
 
-#: catalog/models/item.py:103 catalog/models/performance.py:154
-#: catalog/models/performance.py:362
+#: catalog/models/item.py:104 catalog/models/performance.py:149
+#: catalog/models/performance.py:357
 msgid "original creator"
 msgstr "原始创作者"
 
-#: catalog/models/item.py:104 catalog/models/performance.py:196
-#: catalog/models/performance.py:404
+#: catalog/models/item.py:105 catalog/models/performance.py:191
+#: catalog/models/performance.py:399
 msgid "crew"
 msgstr "工作人员"
 
-#: catalog/models/item.py:108
+#: catalog/models/item.py:109
 msgid "production company"
 msgstr "制作公司"
 
-#: catalog/models/item.py:109
+#: catalog/models/item.py:110
 msgid "record label"
 msgstr "唱片公司"
 
-#: catalog/models/item.py:110
+#: catalog/models/item.py:111
 msgid "distributor"
 msgstr "发行商"
 
-#: catalog/models/item.py:111
+#: catalog/models/item.py:112
 msgid "studio"
 msgstr "工作室"
 
-#: catalog/models/item.py:112 catalog/models/performance.py:189
-#: catalog/models/performance.py:397
+#: catalog/models/item.py:113 catalog/models/performance.py:184
+#: catalog/models/performance.py:392
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:127 catalog/models/people.py:409
-#: catalog/models/performance.py:70 catalog/models/performance.py:89
+#: catalog/models/item.py:128 catalog/models/people.py:409
+#: catalog/models/performance.py:71 catalog/models/performance.py:90
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:128 catalog/models/people.py:119
-#: catalog/models/performance.py:69 catalog/models/performance.py:84
+#: catalog/models/item.py:129 catalog/models/people.py:119
+#: catalog/models/performance.py:70 catalog/models/performance.py:85
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/item.py:130
+#: catalog/models/item.py:131
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:206 catalog/models/item.py:238
+#: catalog/models/item.py:207 catalog/models/item.py:239
 #: journal/models/collection.py:64
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:207 catalog/models/item.py:246
+#: catalog/models/item.py:208 catalog/models/item.py:247
 #: journal/models/collection.py:65
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:218 catalog/models/people.py:417
+#: catalog/models/item.py:219 catalog/models/people.py:417
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:220 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:221 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:847
+#: catalog/models/item.py:895
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:849
+#: catalog/models/item.py:897
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:851
+#: catalog/models/item.py:899
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:867
+#: catalog/models/item.py:915
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:873
+#: catalog/models/item.py:921
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:876
+#: catalog/models/item.py:924
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
-#: catalog/models/movie.py:106 catalog/models/music.py:69
+#: catalog/models/movie.py:101 catalog/models/music.py:68
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:25 catalog/templates/game.html:21
 #: catalog/templates/movie.html:64 catalog/templates/tvseason.html:57
@@ -761,63 +759,58 @@ msgstr "指向外部资源的网址"
 msgid "release date"
 msgstr "发布日期"
 
-#: catalog/models/movie.py:118 catalog/models/tv.py:426
+#: catalog/models/movie.py:113 catalog/models/tv.py:415
 #: journal/templates/_sidebar_user_mark_list.html:60
 msgid "date"
 msgstr "日期"
 
-#: catalog/models/movie.py:119 catalog/models/performance.py:85
-#: catalog/models/tv.py:427
+#: catalog/models/movie.py:114 catalog/models/performance.py:86
+#: catalog/models/tv.py:416
 msgid "required"
 msgstr "必填"
 
-#: catalog/models/movie.py:123 catalog/models/tv.py:431
+#: catalog/models/movie.py:118 catalog/models/tv.py:420
 msgid "region or event"
 msgstr "地区或类型"
 
-#: catalog/models/movie.py:125 catalog/models/tv.py:197
-#: catalog/models/tv.py:433
+#: catalog/models/movie.py:120 catalog/models/tv.py:192
+#: catalog/models/tv.py:422
 msgid "Germany or Toronto International Film Festival"
 msgstr "德国或多伦多国际电影节"
 
-#: catalog/models/movie.py:135 catalog/models/tv.py:207
-#: catalog/models/tv.py:445
+#: catalog/models/movie.py:130 catalog/models/tv.py:202
+#: catalog/models/tv.py:434
 msgid "region"
 msgstr "地区"
 
-#: catalog/models/movie.py:146 catalog/models/tv.py:219
-#: catalog/models/tv.py:456
+#: catalog/models/movie.py:141 catalog/models/tv.py:214
+#: catalog/models/tv.py:445
 msgid "year"
 msgstr "年份"
 
-#: catalog/models/movie.py:147 catalog/models/music.py:72
+#: catalog/models/movie.py:142 catalog/models/music.py:71
 #: catalog/templates/movie.html:44 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
 msgid "length"
 msgstr "长度"
 
-#: catalog/models/music.py:72
+#: catalog/models/music.py:71
 msgid "milliseconds"
 msgstr "微秒"
 
-#: catalog/models/music.py:82
-msgctxt "music"
-msgid "genre"
-msgstr "风格"
-
-#: catalog/models/music.py:95
+#: catalog/models/music.py:88
 msgid "tracks"
 msgstr "曲目"
 
-#: catalog/models/music.py:96 catalog/templates/album.html:41
+#: catalog/models/music.py:89 catalog/templates/album.html:41
 msgid "album type"
 msgstr "专辑类型"
 
-#: catalog/models/music.py:97
+#: catalog/models/music.py:90
 msgid "media type"
 msgstr "介质类型"
 
-#: catalog/models/music.py:100 catalog/templates/album.html:51
+#: catalog/models/music.py:93 catalog/templates/album.html:51
 msgid "number of discs"
 msgstr "碟片数"
 
@@ -949,64 +942,64 @@ msgstr ""
 msgid "Character name for actor roles"
 msgstr ""
 
-#: catalog/models/performance.py:90
+#: catalog/models/performance.py:91
 msgid "optional"
 msgstr "可选"
 
-#: catalog/models/performance.py:129
+#: catalog/models/performance.py:130
 msgid "original name"
 msgstr "原名"
 
-#: catalog/models/performance.py:203 catalog/models/performance.py:411
+#: catalog/models/performance.py:198 catalog/models/performance.py:406
 msgid "theater"
 msgstr "剧院"
 
-#: catalog/models/performance.py:210 catalog/models/performance.py:418
+#: catalog/models/performance.py:205 catalog/models/performance.py:413
 #: catalog/templates/performance.html:14
 #: catalog/templates/performanceproduction.html:13
 msgid "opening date"
 msgstr "上演日期"
 
-#: catalog/models/performance.py:213 catalog/models/performance.py:421
+#: catalog/models/performance.py:208 catalog/models/performance.py:416
 msgid "closing date"
 msgstr "结束日期"
 
-#: catalog/models/tv.py:122 catalog/templates/tvseason.html:37
+#: catalog/models/tv.py:123 catalog/templates/tvseason.html:37
 #: catalog/templates/tvshow.html:32
 msgid "number of seasons"
 msgstr "季数"
 
-#: catalog/models/tv.py:125 catalog/models/tv.py:361
+#: catalog/models/tv.py:126 catalog/models/tv.py:356
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
 msgid "number of episodes"
 msgstr "集数"
 
-#: catalog/models/tv.py:178 catalog/models/tv.py:414
+#: catalog/models/tv.py:173 catalog/models/tv.py:403
 msgid "show time"
 msgstr "上映时间"
 
-#: catalog/models/tv.py:190
+#: catalog/models/tv.py:185
 msgid "Date"
 msgstr "日期"
 
-#: catalog/models/tv.py:195
+#: catalog/models/tv.py:190
 msgid "Region or Event"
 msgstr "地区或场合"
 
-#: catalog/models/tv.py:221 catalog/models/tv.py:458
+#: catalog/models/tv.py:216 catalog/models/tv.py:447
 msgid "episode length"
 msgstr "单集长度"
 
-#: catalog/models/tv.py:358 catalog/templates/tvseason.html:32
+#: catalog/models/tv.py:353 catalog/templates/tvseason.html:32
 msgid "season number"
 msgstr "本季序号"
 
-#: catalog/models/tv.py:491
+#: catalog/models/tv.py:480
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr "{show_title} 第{season_number}季"
 
-#: catalog/models/tv.py:646
+#: catalog/models/tv.py:635
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
@@ -1154,7 +1147,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:253 catalog/views/edit.py:299
 #: catalog/views/edit.py:314 catalog/views/edit.py:352
 #: catalog/views/edit.py:362 catalog/views/edit.py:388
-#: catalog/views/search.py:208
+#: catalog/views/search.py:209
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1757,22 +1750,16 @@ msgid "all"
 msgstr "全部"
 
 #: catalog/templates/people_works.html:59
-#, fuzzy
-#| msgid "Steam Wishlist"
 msgid "wishlist"
-msgstr "Steam愿望清单"
+msgstr "想看"
 
 #: catalog/templates/people_works.html:61
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "in progress"
-msgstr "正在同步。"
+msgstr "在看"
 
 #: catalog/templates/people_works.html:63
-#, fuzzy
-#| msgid "Complete"
 msgid "complete"
-msgstr "完成"
+msgstr "看过"
 
 #: catalog/templates/performance.html:40
 msgid "production"
@@ -1885,7 +1872,7 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:287 journal/views/collection.py:322
 #: journal/views/collection.py:334 journal/views/collection.py:359
 #: journal/views/collection.py:362 journal/views/collection.py:399
-#: journal/views/common.py:188 journal/views/mark.py:201
+#: journal/views/common.py:190 journal/views/mark.py:201
 #: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
 #: journal/views/post.py:117 journal/views/post.py:179
 #: journal/views/post.py:258 journal/views/post.py:273
@@ -1897,7 +1884,7 @@ msgstr "权限不足"
 #: catalog/views/edit.py:218 catalog/views/edit.py:221
 #: journal/views/collection.py:58 journal/views/collection.py:83
 #: journal/views/collection.py:339 journal/views/collection.py:429
-#: journal/views/common.py:127 journal/views/mark.py:141
+#: journal/views/common.py:128 journal/views/mark.py:141
 #: journal/views/post.py:129 journal/views/post.py:131
 #: journal/views/post.py:175 journal/views/post.py:197
 #: journal/views/post.py:199 journal/views/post.py:217
@@ -1938,11 +1925,11 @@ msgstr "无法关联到非图书类的条目"
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:197
+#: catalog/views/search.py:198
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:200
+#: catalog/views/search.py:201
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -1954,11 +1941,444 @@ msgstr "条目不存在"
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
-#: catalog/views/view.py:147
+#: catalog/views/view.py:150
 #, fuzzy
 #| msgid "Invalid file."
 msgid "Invalid role"
 msgstr "无效文件。"
+
+#: common/models/genre.py:20
+#, fuzzy
+#| msgid "Application"
+msgid "Action"
+msgstr "应用"
+
+#: common/models/genre.py:21
+msgid "Adventure"
+msgstr ""
+
+#: common/models/genre.py:22
+msgid "Comedy"
+msgstr ""
+
+#: common/models/genre.py:23
+msgid "Drama"
+msgstr ""
+
+#: common/models/genre.py:24
+msgid "Fantasy"
+msgstr ""
+
+#: common/models/genre.py:25
+#, fuzzy
+#| msgid "Error"
+msgid "Horror"
+msgstr "错误"
+
+#: common/models/genre.py:26
+#, fuzzy
+#| msgid "system"
+msgid "Mystery"
+msgstr "系统"
+
+#: common/models/genre.py:27
+#, fuzzy
+#| msgid "Raeto-Romance"
+msgid "Romance"
+msgstr "罗曼什语"
+
+#: common/models/genre.py:28
+msgid "Sci-Fi"
+msgstr ""
+
+#: common/models/genre.py:29
+msgid "Thriller"
+msgstr ""
+
+#: common/models/genre.py:30
+#, fuzzy
+#| msgid "Application"
+msgid "Animation"
+msgstr "应用"
+
+#: common/models/genre.py:31
+msgid "Documentary"
+msgstr ""
+
+#: common/models/genre.py:32
+#, fuzzy
+#| msgid "Tamil"
+msgid "Family"
+msgstr "泰米尔语"
+
+#: common/models/genre.py:33
+#, fuzzy
+#| msgid "no history."
+msgid "History"
+msgstr "暂无标记历史。"
+
+#: common/models/genre.py:34
+msgid "Biographical"
+msgstr ""
+
+#: common/models/genre.py:35
+msgid "War"
+msgstr ""
+
+#: common/models/genre.py:36
+#, fuzzy
+#| msgid "Remaster"
+msgid "Western"
+msgstr "复刻"
+
+#: common/models/genre.py:37
+msgid "Crime"
+msgstr ""
+
+#: common/models/genre.py:38
+#, fuzzy
+#| msgid "Import"
+msgid "Sports"
+msgstr "导入"
+
+#: common/models/genre.py:41
+msgid "Film Noir"
+msgstr ""
+
+#: common/models/genre.py:42
+#, fuzzy
+#| msgid "Music"
+msgid "Musical"
+msgstr "音乐"
+
+#: common/models/genre.py:43
+msgid "Reality"
+msgstr ""
+
+#: common/models/genre.py:44
+#, fuzzy
+#| msgid "TV Show"
+msgid "Talk Show"
+msgstr "电视剧集"
+
+#: common/models/genre.py:45
+msgid "News"
+msgstr ""
+
+#: common/models/genre.py:46
+#, fuzzy
+#| msgid "TV Show"
+msgid "Game Show"
+msgstr "电视剧集"
+
+#: common/models/genre.py:47
+msgid "Martial Arts"
+msgstr ""
+
+#: common/models/genre.py:48
+msgid "Period Drama"
+msgstr ""
+
+#: common/models/genre.py:49
+msgid "Superhero"
+msgstr ""
+
+#: common/models/genre.py:50
+#, fuzzy
+#| msgid "Discogs Master"
+msgid "Disaster"
+msgstr "Discogs作品"
+
+#: common/models/genre.py:51
+msgid "Erotic"
+msgstr ""
+
+#: common/models/genre.py:52
+msgid "Short Film"
+msgstr ""
+
+#: common/models/genre.py:53
+msgid "LGBTQ"
+msgstr ""
+
+#: common/models/genre.py:54
+#, fuzzy
+#| msgid "TMDB Movie"
+msgid "TV Movie"
+msgstr "TMDB电影"
+
+#: common/models/genre.py:56
+msgid "Rock"
+msgstr ""
+
+#: common/models/genre.py:57
+msgid "Pop"
+msgstr ""
+
+#: common/models/genre.py:58
+msgid "Hip Hop"
+msgstr ""
+
+#: common/models/genre.py:59
+#, fuzzy
+#| msgid "Collection"
+msgid "Electronic"
+msgstr "收藏单"
+
+#: common/models/genre.py:60
+msgid "Jazz"
+msgstr ""
+
+#: common/models/genre.py:61
+msgid "Classical"
+msgstr ""
+
+#: common/models/genre.py:62
+#, fuzzy
+#| msgid "Bluesky"
+msgid "Blues"
+msgstr "Bluesky"
+
+#: common/models/genre.py:63
+msgid "Country"
+msgstr ""
+
+#: common/models/genre.py:64
+msgid "Folk"
+msgstr ""
+
+#: common/models/genre.py:65
+msgid "R&B"
+msgstr ""
+
+#: common/models/genre.py:66
+msgid "Metal"
+msgstr ""
+
+#: common/models/genre.py:67
+msgid "Punk"
+msgstr ""
+
+#: common/models/genre.py:68
+msgid "Soul"
+msgstr ""
+
+#: common/models/genre.py:69
+msgid "Reggae"
+msgstr ""
+
+#: common/models/genre.py:70
+#, fuzzy
+#| msgid "Latin"
+msgctxt "genre"
+msgid "Latin"
+msgstr "拉丁语"
+
+#: common/models/genre.py:71
+#, fuzzy
+#| msgid "Apple Music"
+msgid "World Music"
+msgstr "苹果音乐"
+
+#: common/models/genre.py:72
+msgid "Ambient"
+msgstr ""
+
+#: common/models/genre.py:73
+msgid "New Age"
+msgstr ""
+
+#: common/models/genre.py:74
+msgid "Indie"
+msgstr ""
+
+#: common/models/genre.py:75
+#, fuzzy
+#| msgid "filter unrated"
+msgid "Alternative"
+msgstr "筛选未评分"
+
+#: common/models/genre.py:76
+#, fuzzy
+#| msgid "Cancel"
+msgid "Dance"
+msgstr "取消"
+
+#: common/models/genre.py:77
+msgid "Funk"
+msgstr ""
+
+#: common/models/genre.py:78
+msgid "Gospel"
+msgstr ""
+
+#: common/models/genre.py:79
+#, fuzzy
+#| msgid "tracks"
+msgid "Soundtrack"
+msgstr "曲目"
+
+#: common/models/genre.py:80
+msgid "K-Pop"
+msgstr ""
+
+#: common/models/genre.py:81
+#, fuzzy
+#| msgid "albums listening"
+msgid "Easy Listening"
+msgstr "正在听的专辑"
+
+#: common/models/genre.py:83
+msgid "RPG"
+msgstr ""
+
+#: common/models/genre.py:84
+msgid "Strategy"
+msgstr ""
+
+#: common/models/genre.py:85
+#, fuzzy
+#| msgid "duration"
+msgid "Simulation"
+msgstr "时长"
+
+#: common/models/genre.py:86
+msgid "Racing"
+msgstr ""
+
+#: common/models/genre.py:87
+msgid "Puzzle"
+msgstr ""
+
+#: common/models/genre.py:88
+#, fuzzy
+#| msgid "platform"
+msgid "Platformer"
+msgstr "平台"
+
+#: common/models/genre.py:89
+msgid "Shooter"
+msgstr ""
+
+#: common/models/genre.py:90
+#, fuzzy
+#| msgid "light"
+msgid "Fighting"
+msgstr "明亮"
+
+#: common/models/genre.py:91
+msgid "Survival"
+msgstr ""
+
+#: common/models/genre.py:92
+msgid "Sandbox"
+msgstr ""
+
+#: common/models/genre.py:93
+#, fuzzy
+#| msgid "like"
+msgid "Roguelike"
+msgstr "喜欢"
+
+#: common/models/genre.py:94
+msgid "Visual Novel"
+msgstr ""
+
+#: common/models/genre.py:95
+#, fuzzy
+#| msgid "Main Game"
+msgid "Card Game"
+msgstr "游戏"
+
+#: common/models/genre.py:96
+#, fuzzy
+#| msgid "Ignored Games"
+msgid "Board Game"
+msgstr "忽略游戏"
+
+#: common/models/genre.py:97
+msgid "Arcade"
+msgstr ""
+
+#: common/models/genre.py:98
+msgid "MMO"
+msgstr ""
+
+#: common/models/genre.py:99
+msgid "MOBA"
+msgstr ""
+
+#: common/models/genre.py:100
+msgid "Pinball"
+msgstr ""
+
+#: common/models/genre.py:101
+msgid "Point-and-Click"
+msgstr ""
+
+#: common/models/genre.py:102
+msgid "Casual"
+msgstr ""
+
+#: common/models/genre.py:104
+#, fuzzy
+#| msgid "optional"
+msgid "Opera"
+msgstr "可选"
+
+#: common/models/genre.py:105
+msgid "Ballet"
+msgstr ""
+
+#: common/models/genre.py:106
+#, fuzzy
+#| msgid "theater"
+msgid "Theater"
+msgstr "剧院"
+
+#: common/models/genre.py:107
+msgid "Cabaret"
+msgstr ""
+
+#: common/models/genre.py:108
+msgid "Xiqu"
+msgstr ""
+
+#: common/models/genre.py:110
+msgid "True Crime"
+msgstr ""
+
+#: common/models/genre.py:111
+msgid "Self-Help"
+msgstr ""
+
+#: common/models/genre.py:112
+msgid "Business"
+msgstr ""
+
+#: common/models/genre.py:113
+msgid "Technology"
+msgstr ""
+
+#: common/models/genre.py:114
+#, fuzzy
+#| msgid "duration"
+msgid "Education"
+msgstr "时长"
+
+#: common/models/genre.py:115
+#, fuzzy
+#| msgid "region"
+msgid "Religion"
+msgstr "地区"
+
+#: common/models/genre.py:116
+msgid "Leisure"
+msgstr ""
+
+#: common/models/genre.py:117
+msgid "Health"
+msgstr ""
 
 #: common/models/lang.py:47
 msgid "Afar"
@@ -3047,7 +3467,7 @@ msgstr ""
 msgid "Database Admin"
 msgstr "数据库"
 
-#: common/templatetags/duration.py:54
+#: common/templatetags/duration.py:55
 msgid "just now"
 msgstr "刚刚"
 
@@ -3110,7 +3530,7 @@ msgstr "在读"
 msgid "Access"
 msgstr "接受"
 
-#: common/views_manage.py:146 common/views_manage.py:438
+#: common/views_manage.py:146 common/views_manage.py:446
 #, fuzzy
 #| msgid "duration"
 msgid "Federation"
@@ -3127,6 +3547,7 @@ msgid "Downloader"
 msgstr "下载"
 
 #: common/views_manage.py:149 common/views_manage.py:300
+#: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr ""
 
@@ -3349,286 +3770,294 @@ msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:425
+msgid "Task Cleanup (days)"
+msgstr ""
+
+#: common/views_manage.py:427
+msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
+msgstr ""
+
+#: common/views_manage.py:433
 #, fuzzy
 #| msgid "Search filters"
 msgid "Search Sites"
 msgstr "筛选搜索结果"
 
-#: common/views_manage.py:426
+#: common/views_manage.py:434
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:429
+#: common/views_manage.py:437
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:430
+#: common/views_manage.py:438
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:433
+#: common/views_manage.py:441
 #, fuzzy
 #| msgid "Add tv series"
 msgid "Hidden Categories"
 msgstr "添加电视剧集"
 
-#: common/views_manage.py:434
+#: common/views_manage.py:442
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:443
+#: common/views_manage.py:452
 #, fuzzy
 #| msgid "Search filters"
 msgid "Search"
 msgstr "筛选搜索结果"
 
-#: common/views_manage.py:455
+#: common/views_manage.py:464
 #, fuzzy
 #| msgid "Spotify Album"
 msgid "Spotify API Key"
 msgstr "Spotify专辑"
 
-#: common/views_manage.py:456
+#: common/views_manage.py:465
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:459
+#: common/views_manage.py:468
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:460
+#: common/views_manage.py:469
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:463
+#: common/views_manage.py:472
 #, fuzzy
 #| msgid "Google Books"
 msgid "Google Books API Key"
 msgstr "谷歌图书"
 
-#: common/views_manage.py:464
+#: common/views_manage.py:473
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:467
+#: common/views_manage.py:476
 #, fuzzy
 #| msgid "Discogs"
 msgid "Discogs API Key"
 msgstr "Discogs"
 
-#: common/views_manage.py:469
+#: common/views_manage.py:478
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:473
+#: common/views_manage.py:482
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:474
+#: common/views_manage.py:483
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:477
+#: common/views_manage.py:486
 #, fuzzy
 #| msgid "client secret"
 msgid "IGDB Client Secret"
 msgstr "实例应用Client Secret"
 
-#: common/views_manage.py:480
+#: common/views_manage.py:489 users/templates/users/steam_import.html:26
 #, fuzzy
 #| msgid "Steam Game"
 msgid "Steam API Key"
 msgstr "Steam游戏"
 
-#: common/views_manage.py:481
-msgid "https://steamcommunity.com/dev - used for Steam importer."
+#: common/views_manage.py:491
+msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:484
+#: common/views_manage.py:496
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:485
+#: common/views_manage.py:497
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:488
+#: common/views_manage.py:500
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:491
+#: common/views_manage.py:503
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:494
+#: common/views_manage.py:506
 #, fuzzy
 #| msgid "Threads"
 msgid "Threads App ID"
 msgstr "Threads"
 
-#: common/views_manage.py:495
+#: common/views_manage.py:507
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:498
+#: common/views_manage.py:510
 #, fuzzy
 #| msgid "Threads.net"
 msgid "Threads App Secret"
 msgstr "Threads.net"
 
-#: common/views_manage.py:501
+#: common/views_manage.py:513
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:502
+#: common/views_manage.py:514
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:505
+#: common/views_manage.py:517
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:506
+#: common/views_manage.py:518
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:511
+#: common/views_manage.py:523
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:513
+#: common/views_manage.py:525
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
 msgstr ""
 
-#: common/views_manage.py:527
+#: common/views_manage.py:539
 #, fuzzy
 #| msgid "Catalog Moderators"
 msgid "Catalog APIs"
 msgstr "条目管理员"
 
-#: common/views_manage.py:536
+#: common/views_manage.py:548
 #, fuzzy
 #| msgid "translator"
 msgid "Translation"
 msgstr "译者"
 
-#: common/views_manage.py:541
+#: common/views_manage.py:553
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:545
+#: common/views_manage.py:557
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:557
+#: common/views_manage.py:569
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:558
+#: common/views_manage.py:570
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:561
+#: common/views_manage.py:573
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:562
+#: common/views_manage.py:574
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:565
+#: common/views_manage.py:577
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:568
+#: common/views_manage.py:580
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:571
+#: common/views_manage.py:583
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:574
+#: common/views_manage.py:586
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:589
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:580
+#: common/views_manage.py:592
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:581
+#: common/views_manage.py:593
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:596
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:588
+#: common/views_manage.py:600
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:592
+#: common/views_manage.py:604
 #, fuzzy
 #| msgid "series"
 msgid "Retries"
 msgstr "丛书"
 
-#: common/views_manage.py:597
+#: common/views_manage.py:609
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:602
+#: common/views_manage.py:614
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:609
+#: common/views_manage.py:621
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:621
+#: common/views_manage.py:633
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:622
+#: common/views_manage.py:634
 #, fuzzy
 #| msgid "site domain name"
 msgid "One domain per line."
 msgstr "站点域名"
 
-#: common/views_manage.py:625
+#: common/views_manage.py:637
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:626
+#: common/views_manage.py:638
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:629
+#: common/views_manage.py:641
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:630
+#: common/views_manage.py:642
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:645
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:634
+#: common/views_manage.py:646
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:645
+#: common/views_manage.py:657
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:648
+#: common/views_manage.py:660
 #, fuzzy
 #| msgid "optional"
 msgid "Operational"
@@ -3652,8 +4081,8 @@ msgstr "转发到时间轴"
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
 #: users/templates/users/data.html:204 users/templates/users/data.html:255
-#: users/templates/users/data.html:435 users/templates/users/data.html:475
-#: users/templates/users/data.html:534
+#: users/templates/users/data.html:317 users/templates/users/data.html:376
+#: users/templates/users/steam_import.html:125
 msgid "Visibility"
 msgstr "可见性"
 
@@ -3669,7 +4098,7 @@ msgstr "创建者和他们的本地互关"
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/forms.py:85 users/templates/users/data.html:689
+#: journal/forms.py:85 users/templates/users/data.html:531
 msgid "Status"
 msgstr "状态"
 
@@ -3704,7 +4133,7 @@ msgstr "备注"
 msgid "search query for dynamic collection"
 msgstr "动态收藏单查询条件"
 
-#: journal/models/collection.py:274
+#: journal/models/collection.py:276
 msgid "created collection"
 msgstr "创建了收藏单"
 
@@ -3714,9 +4143,10 @@ msgstr "创建了收藏单"
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
 #: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:264 users/templates/users/data.html:439
-#: users/templates/users/data.html:483 users/templates/users/data.html:543
+#: users/templates/users/data.html:264 users/templates/users/data.html:325
+#: users/templates/users/data.html:385
 #: users/templates/users/preferences.html:56
+#: users/templates/users/steam_import.html:128
 msgid "Public"
 msgstr "公开"
 
@@ -3726,9 +4156,9 @@ msgstr "公开"
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
 #: users/templates/users/data.html:221 users/templates/users/data.html:272
-#: users/templates/users/data.html:443 users/templates/users/data.html:491
-#: users/templates/users/data.html:551
+#: users/templates/users/data.html:333 users/templates/users/data.html:393
 #: users/templates/users/preferences.html:63
+#: users/templates/users/steam_import.html:132
 msgid "Followers Only"
 msgstr "仅关注者"
 
@@ -3738,9 +4168,9 @@ msgstr "仅关注者"
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
 #: users/templates/users/data.html:229 users/templates/users/data.html:280
-#: users/templates/users/data.html:447 users/templates/users/data.html:499
-#: users/templates/users/data.html:559
+#: users/templates/users/data.html:341 users/templates/users/data.html:401
 #: users/templates/users/preferences.html:70
+#: users/templates/users/steam_import.html:136
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
@@ -4940,15 +5370,15 @@ msgstr "找不到条目，请使用本站条目网址。"
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:80 journal/views/mark.py:112
+#: journal/views/common.py:81 journal/views/mark.py:112
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:82
+#: journal/views/common.py:83
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:89
+#: journal/views/common.py:90
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -5192,7 +5622,7 @@ msgstr "Bluesky返回了无效的账号数据。"
 msgid "Invalid user."
 msgstr "无效用户。"
 
-#: mastodon/views/common.py:46
+#: mastodon/views/common.py:46 users/views/account.py:188
 msgid "Registration failed"
 msgstr "注册失败"
 
@@ -5816,7 +6246,7 @@ msgid "Name this passkey:"
 msgstr "为通行密钥命名:"
 
 #: users/templates/users/account.html:231 users/templates/users/login.html:60
-#: users/templates/users/welcome.html:33 users/views/webauthn.py:97
+#: users/templates/users/welcome.html:33 users/views/webauthn.py:104
 msgid "Passkey"
 msgstr "通行密钥"
 
@@ -5964,8 +6394,8 @@ msgstr "CSV 文件"
 #: users/templates/users/account.html:440 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:451 users/templates/users/data.html:504
-#: users/templates/users/data.html:564
+#: users/templates/users/data.html:346 users/templates/users/data.html:406
+#: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr "导入"
 
@@ -6080,7 +6510,7 @@ msgstr "导入豆瓣标记和评论"
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:462
+#: users/templates/users/data.html:34 users/templates/users/data.html:304
 msgid "Import Method"
 msgstr "导入方式"
 
@@ -6169,186 +6599,83 @@ msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr "将导入评分、已看的电影/剧集和想看列表。"
 
 #: users/templates/users/data.html:291
+#: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr "导入Steam游戏库和愿望清单"
 
-#: users/templates/users/data.html:298
-msgid "Steam User ID"
-msgstr "Steam用户ID"
+#: users/templates/users/data.html:294
+msgid "Login with Steam"
+msgstr ""
 
-#: users/templates/users/data.html:302
-msgid "Available in Steam Account Details"
-msgstr "可在Steam账号页面获得"
-
-#: users/templates/users/data.html:305
-msgid "To import from Steam, your account profile must be visible to public"
-msgstr "Steam资料必须公开可见才能导入"
-
-#: users/templates/users/data.html:311
-msgid "Import Sources"
-msgstr "导入来源"
-
-#: users/templates/users/data.html:318
-msgid "Steam Wishlist"
-msgstr "Steam愿望清单"
-
-#: users/templates/users/data.html:326
-msgid "Steam Library (owned games)"
-msgstr "Steam游戏库（已购买的游戏）"
-
-#: users/templates/users/data.html:333
-msgid "Include all free games"
-msgstr "包括所有免费游戏"
-
-#: users/templates/users/data.html:341
-msgid "Include played free games"
-msgstr "包括玩过的免费游戏"
-
-#: users/templates/users/data.html:348
-msgid "Include no free games"
-msgstr "不包括免费游戏"
-
-#: users/templates/users/data.html:356
-msgid "Status filter"
-msgstr "筛选状态"
-
-#: users/templates/users/data.html:357
-msgid "import marks with these estimated status"
-msgstr "导入以下标记状态的游戏"
-
-#: users/templates/users/data.html:363
-msgid "Launched in playing threshold"
-msgstr "近期（按照阈值决定）玩过"
-
-#: users/templates/users/data.html:365
-msgid "Playing"
-msgstr "在玩"
-
-#: users/templates/users/data.html:371
-msgid "Not launched in playing threshold & play time > finished threshold"
-msgstr "未在近期玩过，且游玩时间大于指定阈值"
-
-#: users/templates/users/data.html:373
-msgid "Played"
-msgstr "玩过"
-
-#: users/templates/users/data.html:379
-msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
-msgstr "愿望清单中的游戏；以及游戏库中从未打开过的游戏"
-
-#: users/templates/users/data.html:380
-msgid "To play"
-msgstr "想玩"
-
-#: users/templates/users/data.html:386
-msgid "Not launched in playing threshold & play time < finished threshold"
-msgstr "未在近期玩过，且游玩时间小于指定阈值"
-
-#: users/templates/users/data.html:387
-msgid "No longer playing"
-msgstr "不再玩"
-
-#: users/templates/users/data.html:390
-msgid "Playing threshold"
-msgstr "近期玩过阈值"
-
-#: users/templates/users/data.html:391
-msgid "in days, launched in recent X days to be consided playing"
-msgstr "以天计，最近X天内玩过视为在玩"
-
-#: users/templates/users/data.html:393
-msgid "Finished threshold"
-msgstr "完成游戏的阈值"
-
-#: users/templates/users/data.html:394
-msgid "in hours, played for more than these hours to be consided finished"
-msgstr "以小时计，超过这些小时数视为玩过"
-
-#: users/templates/users/data.html:399
-msgid "Ignored Games"
-msgstr "忽略游戏"
-
-#: users/templates/users/data.html:400
-msgid "input comma-separated Steam AppIDs"
-msgstr "以逗号分隔的Steam AppID列表"
-
-#: users/templates/users/data.html:406
-msgid "Override mark status"
-msgstr "强制覆盖标记"
-
-#: users/templates/users/data.html:409
-msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
-msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过->在玩）"
-
-#: users/templates/users/data.html:458
+#: users/templates/users/data.html:300
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:469
+#: users/templates/users/data.html:311
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:473
+#: users/templates/users/data.html:315
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:502
+#: users/templates/users/data.html:344
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:512
+#: users/templates/users/data.html:354
 msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
-#: users/templates/users/data.html:518
+#: users/templates/users/data.html:360
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
 
-#: users/templates/users/data.html:520
+#: users/templates/users/data.html:362
 msgid "Existing data may be overwritten."
 msgstr "现有数据可能会被覆盖。"
 
-#: users/templates/users/data.html:530
+#: users/templates/users/data.html:372
 msgid "Detected format"
 msgstr "检测到格式"
 
-#: users/templates/users/data.html:591
+#: users/templates/users/data.html:433
 msgid "Detecting format..."
 msgstr "检测格式中"
 
-#: users/templates/users/data.html:617
+#: users/templates/users/data.html:459
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: users/templates/users/data.html:642
+#: users/templates/users/data.html:484
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:666
+#: users/templates/users/data.html:508
 msgid "Export NeoDB Archive"
 msgstr "导出NeoDB备份"
 
-#: users/templates/users/data.html:670
+#: users/templates/users/data.html:512
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
-#: users/templates/users/data.html:677
+#: users/templates/users/data.html:519
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:685
+#: users/templates/users/data.html:527
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr "导出标记、短评和评论 （豆坟xlsx格式）"
 
-#: users/templates/users/data.html:688
+#: users/templates/users/data.html:530
 msgid "Last export"
 msgstr "最近导出"
 
-#: users/templates/users/data.html:693
+#: users/templates/users/data.html:535
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:702
+#: users/templates/users/data.html:544
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
@@ -6730,6 +7057,138 @@ msgstr "导出"
 msgid "You may download the list here."
 msgstr "此处可导出你在本站的关系列表。"
 
+#: users/templates/users/steam_import.html:10
+#, fuzzy
+#| msgid "Import from StoryGraph"
+msgid "Import from Steam"
+msgstr "从StoryGraph导入"
+
+#: users/templates/users/steam_import.html:20
+#, fuzzy
+#| msgid "Steam"
+msgid "Steam ID"
+msgstr "Steam"
+
+#: users/templates/users/steam_import.html:28
+#, fuzzy
+#| msgid "Steam Game"
+msgid "Your personal Steam API key"
+msgstr "Steam游戏"
+
+#: users/templates/users/steam_import.html:33
+msgid "Get a free key at"
+msgstr ""
+
+#: users/templates/users/steam_import.html:37
+msgid "You can revoke or regenerate the key after the import is complete."
+msgstr ""
+
+#: users/templates/users/steam_import.html:42
+msgid "Import Sources"
+msgstr "导入来源"
+
+#: users/templates/users/steam_import.html:45
+msgid "Steam Wishlist"
+msgstr "Steam愿望清单"
+
+#: users/templates/users/steam_import.html:49
+msgid "Steam Library (owned games)"
+msgstr "Steam游戏库（已购买的游戏）"
+
+#: users/templates/users/steam_import.html:54
+msgid "Include all free games"
+msgstr "包括所有免费游戏"
+
+#: users/templates/users/steam_import.html:58
+msgid "Include played free games"
+msgstr "包括玩过的免费游戏"
+
+#: users/templates/users/steam_import.html:62
+msgid "Include no free games"
+msgstr "不包括免费游戏"
+
+#: users/templates/users/steam_import.html:67
+msgid "Status filter"
+msgstr "筛选状态"
+
+#: users/templates/users/steam_import.html:68
+#, fuzzy
+#| msgid "import marks with these estimated status"
+msgid "Import marks with these estimated status"
+msgstr "导入以下标记状态的游戏"
+
+#: users/templates/users/steam_import.html:74
+msgid "Launched in playing threshold"
+msgstr "近期（按照阈值决定）玩过"
+
+#: users/templates/users/steam_import.html:76
+msgid "Playing"
+msgstr "在玩"
+
+#: users/templates/users/steam_import.html:82
+msgid "Not launched in playing threshold & play time > finished threshold"
+msgstr "未在近期玩过，且游玩时间大于指定阈值"
+
+#: users/templates/users/steam_import.html:84
+msgid "Played"
+msgstr "玩过"
+
+#: users/templates/users/steam_import.html:90
+msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
+msgstr "愿望清单中的游戏；以及游戏库中从未打开过的游戏"
+
+#: users/templates/users/steam_import.html:91
+msgid "To play"
+msgstr "想玩"
+
+#: users/templates/users/steam_import.html:97
+msgid "Not launched in playing threshold & play time < finished threshold"
+msgstr "未在近期玩过，且游玩时间小于指定阈值"
+
+#: users/templates/users/steam_import.html:98
+msgid "No longer playing"
+msgstr "不再玩"
+
+#: users/templates/users/steam_import.html:102
+msgid "Playing threshold"
+msgstr "近期玩过阈值"
+
+#: users/templates/users/steam_import.html:104
+#, fuzzy
+#| msgid "in days, launched in recent X days to be consided playing"
+msgid "in days, launched in recent X days to be considered playing"
+msgstr "以天计，最近X天内玩过视为在玩"
+
+#: users/templates/users/steam_import.html:107
+msgid "Finished threshold"
+msgstr "完成游戏的阈值"
+
+#: users/templates/users/steam_import.html:109
+#, fuzzy
+#| msgid "in hours, played for more than these hours to be consided finished"
+msgid "in hours, played for more than these hours to be considered finished"
+msgstr "以小时计，超过这些小时数视为玩过"
+
+#: users/templates/users/steam_import.html:115
+msgid "Ignored Games"
+msgstr "忽略游戏"
+
+#: users/templates/users/steam_import.html:117
+#, fuzzy
+#| msgid "input comma-separated Steam AppIDs"
+msgid "Comma-separated Steam AppIDs"
+msgstr "以逗号分隔的Steam AppID列表"
+
+#: users/templates/users/steam_import.html:121
+msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
+msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过->在玩）"
+
+#: users/templates/users/steam_import.html:139
+#, fuzzy
+#| msgid "To import from Steam, your account profile must be visible to public"
+msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
+msgstr "Steam资料必须公开可见才能导入"
+
 #: users/templates/users/user_task_status.html:29
 msgid "Failed items"
 msgstr "失败条目"
@@ -6802,136 +7261,146 @@ msgstr "此电子邮件地址已被使用"
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/views/account.py:208
+#: users/views/account.py:189
+#, fuzzy
+#| msgid "Invalid OAuth state. Please try again."
+msgid "Username already taken. Please try again."
+msgstr "无效的OAuth认证状态，请重试"
+
+#: users/views/account.py:218
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
 
-#: users/views/account.py:272
+#: users/views/account.py:282
 msgid "Account is being deleted."
 msgstr "账户删除进行中。"
 
-#: users/views/account.py:275
+#: users/views/account.py:285
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:185 users/views/data.py:214
+#: users/views/data.py:186 users/views/data.py:215
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:208
+#: users/views/data.py:209
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:226
+#: users/views/data.py:227
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:241 users/views/data.py:261
+#: users/views/data.py:242 users/views/data.py:262
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:275
+#: users/views/data.py:276
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:289
+#: users/views/data.py:290
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:298 users/views/data.py:322 users/views/data.py:346
-#: users/views/data.py:371 users/views/data.py:395 users/views/data.py:419
+#: users/views/data.py:299 users/views/data.py:323 users/views/data.py:347
+#: users/views/data.py:372 users/views/data.py:396 users/views/data.py:420
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:535
+#: users/views/data.py:540
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:557
+#: users/views/data.py:562
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:573
+#: users/views/data.py:578
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:578
+#: users/views/data.py:583
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:588 users/views/data.py:639
+#: users/views/data.py:593 users/views/data.py:644
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:595
+#: users/views/data.py:600
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:600
+#: users/views/data.py:605
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:626
+#: users/views/data.py:631
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:631
+#: users/views/data.py:636
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:644
+#: users/views/data.py:649
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:655
+#: users/views/data.py:660
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:661
+#: users/views/data.py:666
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:719
+#: users/views/data.py:724
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:735
+#: users/views/data.py:740
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:739
+#: users/views/data.py:744
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:748
+#: users/views/data.py:753
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
 
-#: users/views/webauthn.py:94
+#: users/views/webauthn.py:101
 msgid "Passkey registration failed"
 msgstr "通行密钥注册失败"
 
-#: users/views/webauthn.py:141 users/views/webauthn.py:148
-#: users/views/webauthn.py:157
+#: users/views/webauthn.py:121
+msgid "Credential already registered"
+msgstr ""
+
+#: users/views/webauthn.py:157 users/views/webauthn.py:164
+#: users/views/webauthn.py:173
 msgid "Passkey not recognized"
 msgstr "无法识别此通行密钥"
 
-#: users/views/webauthn.py:162
+#: users/views/webauthn.py:178
 msgid "Account is inactive"
 msgstr "账户未激活"
 
-#: users/views/webauthn.py:178
+#: users/views/webauthn.py:194
 msgid "Passkey verification failed"
 msgstr "通行密钥验证失败"
 
-#: users/views/webauthn.py:204 users/views/webauthn.py:226
+#: users/views/webauthn.py:220 users/views/webauthn.py:242
 msgid "Passkey not found"
 msgstr "通行密钥未找到"
 
-#: users/views/webauthn.py:220
+#: users/views/webauthn.py:236
 msgid "Name is required"
 msgstr "名称不能为空"
