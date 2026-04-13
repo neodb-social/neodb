@@ -213,6 +213,8 @@ class SiteConfig(models.Model):
                 settings, "DOWNLOADER_CACHE_TIMEOUT", 300
             ),
             "downloader_retries": getattr(settings, "DOWNLOADER_RETRIES", 3),
+            # Cleanup
+            "task_cleanup_days": getattr(settings, "TASK_CLEANUP_DAYS", 28),
             # Advanced / Operational
             "alternative_domains": list(getattr(settings, "ALTERNATIVE_DOMAINS", [])),
             "mastodon_client_scope": getattr(settings, "MASTODON_CLIENT_SCOPE", ""),
