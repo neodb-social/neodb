@@ -246,26 +246,14 @@
           {% if item.parent_item and item.type.value != 'edition' %}
             {% trans 'part of' %} {{ item.parent_item.type.label }}: <span><a href="{{ item.parent_item.url }}"></span>{{ item.parent_item.display_title }}</a>
           {% endif %}
-          {% if item.role_credits.author or item.author %}
+          {% if item.role_credits.author %}
             <p>
               <i>
-                {% with item.role_credits.author as credits %}
-                  {% if credits %}
-                    {% include '_credits.html' with credits=credits max=2 %}
-                  {% else %}
-                    {% include '_people.html' with people=item.author _role='author' max=2 %}
-                  {% endif %}
-                {% endwith %}
+                {% include '_credits.html' with credits=item.role_credits.author max=2 %}
               </i>
               &nbsp;&nbsp;
               <i>
-                {% with item.role_credits.translator as credits %}
-                  {% if credits %}
-                    {% include '_credits.html' with credits=credits max=2 %}
-                  {% else %}
-                    {% include '_people.html' with people=item.translator role='translator' max=2 %}
-                  {% endif %}
-                {% endwith %}
+                {% include '_credits.html' with credits=item.role_credits.translator max=2 %}
               </i>
             </p>
           {% endif %}

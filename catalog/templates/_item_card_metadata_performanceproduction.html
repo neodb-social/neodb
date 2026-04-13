@@ -8,20 +8,20 @@
     {% endif %}
     {% include '_genre_list.html' with list=item.genre max=2 %}
     {% include '_language_list.html' with list=item.language max=5 %}
-    {% include '_people.html' with people=item.troupe role='troupe' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.troupe role_label='troupe' max=2 %}
     {% include '_people.html' with people=item.location role='theater' max=2 %}
-    {% include '_people.html' with people=item.director role='director' max=2 %}
-    {% include '_people.html' with people=item.orig_creator role='original creator' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.director role_label='director' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.orig_creator role_label='original creator' max=2 %}
   </div>
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">
     {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
-    {% include '_people.html' with people=item.playwright role='playwright' max=2 %}
-    {% include '_people.html' with people=item.composer role='composer' max=2 %}
-    {% include '_people.html' with people=item.choreographer role='choreographer' max=2 %}
-    {% include '_actor.html' with people=item.actor role='actor' max=2 %}
-    {% include '_people.html' with people=item.performer role='performer' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.playwright role_label='playwright' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.composer role_label='composer' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.choreographer role_label='choreographer' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.actor role_label='actor' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.performer role_label='performer' max=2 %}
   </div>
   <div>
     {% if not hide_brief %}

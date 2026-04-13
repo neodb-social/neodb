@@ -14,7 +14,7 @@
 {% endblock %}
 {% block details %}
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
-  <div>{% include '_people.html' with people=item.host role='host' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.host role_label='host' max=5 %}</div>
   <div>
     {% if item.official_site %}
       {% trans 'website' %}: {{ item.official_site|urlizetrunc:24 }}

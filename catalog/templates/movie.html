@@ -9,33 +9,9 @@
 <!-- class specific details -->
 {% block details %}
   <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
-  <div>
-    {% with item.role_credits.director as credits %}
-      {% if credits %}
-        {% include '_credits.html' with credits=credits role_label='director' max=5 %}
-      {% else %}
-        {% include '_people.html' with people=item.director role='director' max=5 %}
-      {% endif %}
-    {% endwith %}
-  </div>
-  <div>
-    {% with item.role_credits.playwright as credits %}
-      {% if credits %}
-        {% include '_credits.html' with credits=credits role_label='playwright' max=5 %}
-      {% else %}
-        {% include '_people.html' with people=item.playwright role='playwright' max=5 %}
-      {% endif %}
-    {% endwith %}
-  </div>
-  <div>
-    {% with item.role_credits.actor as credits %}
-      {% if credits %}
-        {% include '_credits.html' with credits=credits role_label='actor' max=5 %}
-      {% else %}
-        {% include '_people.html' with people=item.actor role='actor' max=5 %}
-      {% endif %}
-    {% endwith %}
-  </div>
+  <div>{% include '_credits.html' with credits=item.role_credits.director role_label='director' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.playwright role_label='playwright' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.actor role_label='actor' max=5 %}</div>
   <div>{% include '_genre_list.html' with list=item.genre max=10 %}</div>
   <div>{% include '_people.html' with people=item.area role='region' max=10 %}</div>
   <div>{% include '_language_list.html' with list=item.language max=5 %}</div>

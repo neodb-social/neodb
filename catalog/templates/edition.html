@@ -19,24 +19,8 @@
       {% trans 'ISBN' %}: {{ item.isbn }}
     {% endif %}
   </div>
-  <div>
-    {% with item.role_credits.author as credits %}
-      {% if credits %}
-        {% include '_credits.html' with credits=credits role_label='author' max=5 %}
-      {% else %}
-        {% include '_people.html' with people=item.author role='author' max=5 %}
-      {% endif %}
-    {% endwith %}
-  </div>
-  <div>
-    {% with item.role_credits.translator as credits %}
-      {% if credits %}
-        {% include '_credits.html' with credits=credits role_label='translator' max=5 %}
-      {% else %}
-        {% include '_people.html' with people=item.translator role='translator' max=5 %}
-      {% endif %}
-    {% endwith %}
-  </div>
+  <div>{% include '_credits.html' with credits=item.role_credits.author role_label='author' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.translator role_label='translator' max=5 %}</div>
   <div>
     {% if item.format %}
       {% trans 'book format' %}: {{ item.get_format_display }}

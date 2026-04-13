@@ -1,8 +1,10 @@
 import json
+from collections import OrderedDict
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
 
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
@@ -213,8 +215,6 @@ class People(Item):
     @cached_property
     def related_items_by_role(self) -> list[tuple[str, str, list]]:
         """Return related items grouped by role, as (role_value, role_label, items) tuples."""
-        from collections import OrderedDict
-
         from .item import Item
 
         relations = self.item_relations.order_by("role").values_list("role", "item_id")
@@ -340,8 +340,6 @@ class People(Item):
             return list(qs.filter(metadata__localized_name__contains=[{"text": name}]))
         else:
             # Partial match: search localized_name text fields
-            from django.db.models import Q
-
             return list(qs.filter(Q(metadata__localized_name__icontains=name)))
 
     @classmethod

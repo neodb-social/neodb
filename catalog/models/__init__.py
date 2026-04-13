@@ -91,6 +91,11 @@ def init_catalog_audit_log():
         ExternalResource, include_fields=["item", "id_type", "id_value", "url"]
     )
 
+    auditlog.register(
+        ItemCredit,
+        include_fields=["item", "person", "role", "name", "character_name"],
+    )
+
     # logger.debug(f"Catalog audit log initialized for {item_content_types().values()}")
 
 

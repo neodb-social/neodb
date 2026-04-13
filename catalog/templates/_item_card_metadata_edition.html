@@ -6,8 +6,8 @@
     {% if item.rating %}
       <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
     {% endif %}
-    {% include '_people.html' with people=item.author role='author' max=2 %}
-    {% include '_people.html' with people=item.translator role='translator' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.author role_label='author' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.translator role_label='translator' max=2 %}
     {% if item.pub_house %}<span>{{ item.pub_house }}</span>{% endif %}
     {% if item.pub_year %}
       <span>

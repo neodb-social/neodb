@@ -17,17 +17,19 @@
     {% endif %}
   </div>
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
-  <div>{% include '_people.html' with people=item.troupe role='troupe' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.troupe role_label='troupe' max=5 %}</div>
   <div>{% include '_people.html' with people=item.location role='theater' max=5 %}</div>
   <div>{% include '_language_list.html' with list=item.language max=5 %}</div>
-  <div>{% include '_people.html' with people=item.orig_creator role='original creator' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.director role='director' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.playwright role='playwright' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.composer role='composer' max=5 %}</div>
-  <div>{% include '_people.html' with people=item.choreographer role='choreographer' max=5 %}</div>
-  <div>{% include '_actor.html' with people=item.actor role='actor' max=10 %}</div>
-  <div>{% include '_people.html' with people=item.performer role='performer' max=10 %}</div>
-  <div>{% include '_crew.html' with people=item.crew_by_role role='crew' max=10 %}</div>
+  <div>
+    {% include '_credits.html' with credits=item.role_credits.orig_creator role_label='original creator' max=5 %}
+  </div>
+  <div>{% include '_credits.html' with credits=item.role_credits.director role_label='director' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.playwright role_label='playwright' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.composer role_label='composer' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.choreographer role_label='choreographer' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.actor role_label='actor' max=10 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.performer role_label='performer' max=10 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.crew role_label='crew' max=10 %}</div>
   <div>
     {% if item.official_site %}
       {% trans 'website' %}: <span>{{ item.official_site|urlizetrunc:24 }}</span>
@@ -49,17 +51,17 @@
                 <span>{{ prod.opening_date }}</span>
                 {% if prod.closing_date %}~ <span>{{ prod.closing_date }}</span>{% endif %}
               {% endif %}
-              {% include '_people.html' with people=prod.troupe _role='troupe' max=2 %}
+              {% include '_credits.html' with credits=prod.role_credits.troupe role_label='troupe' max=2 %}
               {% include '_people.html' with people=prod.location _role='production theater' max=2 %}
               {% include '_people.html' with people=prod.language _role='language' max=5 %}
             </div>
             <div class="tldr-2">
-              {% include '_people.html' with people=prod.director role='director' max=2 %}
-              {% include '_people.html' with people=prod.playwright role='playwright' max=2 %}
-              {% include '_actor.html' with people=prod.actor role='actor' max=5 %}
-              {% include '_people.html' with people=prod.performer role='performer' max=5 %}
-              {% include '_people.html' with people=prod.composer role='composer' max=2 %}
-              {% include '_people.html' with people=prod.choreographer role='choreographer' max=2 %}
+              {% include '_credits.html' with credits=prod.role_credits.director role_label='director' max=2 %}
+              {% include '_credits.html' with credits=prod.role_credits.playwright role_label='playwright' max=2 %}
+              {% include '_credits.html' with credits=prod.role_credits.actor role_label='actor' max=5 %}
+              {% include '_credits.html' with credits=prod.role_credits.performer role_label='performer' max=5 %}
+              {% include '_credits.html' with credits=prod.role_credits.composer role_label='composer' max=2 %}
+              {% include '_credits.html' with credits=prod.role_credits.choreographer role_label='choreographer' max=2 %}
             </div>
           </hgroup>
         {% endfor %}

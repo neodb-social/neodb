@@ -3,7 +3,7 @@ from auditlog.context import set_actor
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -501,8 +501,6 @@ def remove_credit(request, item_path, item_uuid, credit_id):
 @require_http_methods(["GET"])
 def search_people(request):
     """Search People by name for autocomplete (returns JSON)."""
-    from django.http import JsonResponse
-
     q = request.GET.get("q", "").strip()
     if len(q) < 2:
         return JsonResponse([], safe=False)

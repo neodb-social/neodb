@@ -9,7 +9,7 @@
 <!-- class specific details -->
 {% block details %}
   <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
-  <div>{% include '_people.html' with people=item.author role='author' max=5 %}</div>
+  <div>{% include '_credits.html' with credits=item.role_credits.author role_label='author' max=5 %}</div>
 {% endblock %}
 {% block left_sidebar %}
   <div>

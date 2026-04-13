@@ -14,8 +14,8 @@
   <div class="multi-fields">
     {% include '_genre_list.html' with list=item.genre max=2 %}
     {% include '_people.html' with people=item.platform role='platform' max=5 %}
-    {% include '_people.html' with people=item.developer role='developer' max=2 %}
-    {% include '_people.html' with people=item.publisher role='publisher' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.developer role_label='developer' max=2 %}
+    {% include '_credits.html' with credits=item.role_credits.publisher role_label='publisher' max=2 %}
   </div>
   <div>
     {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
