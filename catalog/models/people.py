@@ -191,12 +191,8 @@ class People(Item):
 
     @cached_property
     def display_description(self) -> str:
-        return (
-            self.get_localized_bio()
-            or (self.localized_bio[0]["text"] if self.localized_bio else "")
-            # Fall back to localized_description for pre-migration People records
-            or self.get_localized_description()
-            or self.brief
+        return self.get_localized_bio() or (
+            self.localized_bio[0]["text"] if self.localized_bio else ""
         )
 
     @cached_property

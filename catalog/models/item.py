@@ -435,12 +435,21 @@ class Item(PolymorphicModel):
         updated |= self.merge_people_relations(to_item)
         # Reparent ItemCredits to the target item
         for credit in self.credits.all():
-            if not to_item.credits.filter(role=credit.role, name=credit.name).exists():
+            existing = to_item.credits.filter(
+                role=credit.role, name=credit.name
+            ).first()
+            if existing:
+                if credit.character_name and not existing.character_name:
+                    existing.character_name = credit.character_name
+                    existing.save(update_fields=["character_name"])
+                if credit.person and not existing.person:
+                    existing.person = credit.person
+                    existing.save(update_fields=["person"])
+                credit.delete()
+            else:
                 credit.item = to_item
                 credit.save()
                 updated = True
-            else:
-                credit.delete()
         to_item.log_action({"!merged_from": [str(self.merged_to_item), str(to_item)]})
         if updated:
             to_item.save()

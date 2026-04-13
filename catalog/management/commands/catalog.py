@@ -194,8 +194,6 @@ class Command(SiteCommand):
                 from catalog.common.migrations import normalize_genre_20260412
 
                 normalize_genre_20260412()
-            case "people_bio":
-                self.migrate_people_bio()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -525,7 +523,7 @@ class Command(SiteCommand):
         "troupe": CreditRole.Troupe,
     }
 
-    def populate_credits(self, dry_run=False, limit=None, start=None, batch_size=1000):
+    def populate_credits(self, dry_run=False, limit=None, start=None):
         """Populate ItemCredit rows from jsondata credit fields on all items."""
         qs = Item.objects.filter(
             is_deleted=False, merged_to_item__isnull=True
@@ -580,7 +578,9 @@ class Command(SiteCommand):
         """Link unlinked ItemCredits to matching People items."""
         # Build a lookup: name -> People
         people_by_name: dict[str, list[People]] = {}
-        for p in People.objects.filter(is_deleted=False, merged_to_item__isnull=True):
+        for p in People.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True
+        ).iterator():
             for entry in p.localized_name or []:
                 name = entry.get("text", "")
                 if name:
@@ -647,19 +647,6 @@ class Command(SiteCommand):
         self.stdout.write(
             self.style.SUCCESS(f"Fetch {source}: {updated} updated, {skipped} skipped")
         )
-
-    def migrate_people_bio(self):
-        """Migrate People.localized_description to localized_bio for pre-existing records."""
-        migrated = 0
-        for p in People.objects.filter(is_deleted=False, merged_to_item__isnull=True):
-            desc = p.metadata.get("localized_description", [])
-            bio = p.metadata.get("localized_bio", [])
-            if desc and not bio:
-                p.metadata["localized_bio"] = desc
-                p.save(update_fields=["metadata"])
-                migrated += 1
-                self.stdout.write(f"  Migrated bio for {p.display_name}")
-        self.stdout.write(self.style.SUCCESS(f"Migrated {migrated} People bios"))
 
     def localize(self):
         c = Item.objects.all().count()
@@ -879,7 +866,6 @@ class Command(SiteCommand):
                     dry_run=options.get("dry_run", False),
                     limit=limit,
                     start=start,
-                    batch_size=batch_size,
                 )
 
             case "link-credits":

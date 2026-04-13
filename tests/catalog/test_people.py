@@ -751,25 +751,6 @@ class TestDisplayFallback:
         )
         assert person.display_description == "Bio text"
 
-    def test_display_description_fallback_to_description(self):
-        """Pre-migration records have localized_description but not localized_bio."""
-        person = People.objects.create(
-            metadata={
-                "localized_name": [{"lang": "en", "text": "Test"}],
-                "localized_description": [{"lang": "en", "text": "Old description"}],
-            },
-            people_type=PeopleType.PERSON,
-        )
-        assert person.display_description == "Old description"
-
-    def test_display_description_fallback_to_brief(self):
-        person = People.objects.create(
-            metadata={"localized_name": [{"lang": "en", "text": "Test"}]},
-            people_type=PeopleType.PERSON,
-            brief="Brief fallback",
-        )
-        assert person.display_description == "Brief fallback"
-
     def test_wikidata_org_type_mapping(self):
         """Wikidata org types should map to People model."""
         for org_type in [
