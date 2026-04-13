@@ -126,20 +126,31 @@ class TMDB_Movie(AbstractSite):
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
 
-        director = list(
-            map(
-                lambda x: x["name"],
-                filter(lambda c: c["job"] == "Director", res_data["credits"]["crew"]),
-            )
-        )
-        playwright = list(
-            map(
-                lambda x: x["name"],
-                filter(lambda c: c["job"] == "Screenplay", res_data["credits"]["crew"]),
-            )
-        )
-        actor = list(map(lambda x: x["name"], res_data["credits"]["cast"]))
+        directors = [c for c in res_data["credits"]["crew"] if c["job"] == "Director"]
+        screenwriters = [
+            c for c in res_data["credits"]["crew"] if c["job"] == "Screenplay"
+        ]
+        cast = res_data["credits"]["cast"]
+        director = [c["name"] for c in directors]
+        playwright = [c["name"] for c in screenwriters]
+        actor = [c["name"] for c in cast]
         area = []
+
+        # Collect key people as related_resources for auto-fetch
+        related_people = []
+        seen_ids = set()
+        for person in directors + screenwriters + cast[:10]:
+            pid = person.get("id")
+            if pid and pid not in seen_ids:
+                seen_ids.add(pid)
+                related_people.append(
+                    {
+                        "model": "People",
+                        "id_type": IdType.TMDB_Person,
+                        "id_value": str(pid),
+                        "url": f"https://www.themoviedb.org/person/{pid}",
+                    }
+                )
 
         # other_info = {}
         # other_info['TMDB评分'] = res_data['vote_average']
@@ -181,6 +192,7 @@ class TMDB_Movie(AbstractSite):
                 "single_episode_length": None,
                 "brief": brief,
                 "cover_image_url": img_url,
+                "related_resources": related_people,
             }
         )
         # Add external IDs to lookup_ids
@@ -295,15 +307,30 @@ class TMDB_TV(AbstractSite):
         genre = [x["name"] for x in res_data["genres"]]
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
-        director = list(map(lambda x: x["name"], res_data["created_by"]))
-        playwright = list(
-            map(
-                lambda x: x["name"],
-                filter(lambda c: c["job"] == "Screenplay", res_data["credits"]["crew"]),
-            )
-        )
-        actor = list(map(lambda x: x["name"], res_data["credits"]["cast"]))
+        creators = res_data.get("created_by", [])
+        screenwriters = [
+            c for c in res_data["credits"]["crew"] if c["job"] == "Screenplay"
+        ]
+        cast = res_data["credits"]["cast"]
+        director = [c["name"] for c in creators]
+        playwright = [c["name"] for c in screenwriters]
+        actor = [c["name"] for c in cast]
         area = []
+
+        related_people = []
+        seen_ids = set()
+        for person in creators + screenwriters + cast[:10]:
+            pid = person.get("id")
+            if pid and pid not in seen_ids:
+                seen_ids.add(pid)
+                related_people.append(
+                    {
+                        "model": "People",
+                        "id_type": IdType.TMDB_Person,
+                        "id_value": str(pid),
+                        "url": f"https://www.themoviedb.org/person/{pid}",
+                    }
+                )
         # other_info = {}
         # other_info["Seasons"] = res_data["number_of_seasons"]
         # other_info["Episodes"] = res_data["number_of_episodes"]
@@ -349,7 +376,8 @@ class TMDB_TV(AbstractSite):
                 "single_episode_length": None,
                 "brief": brief,
                 "cover_image_url": img_url,
-                "related_resources": season_links,  # FIXME crawling them for now, but many douban tv season data may have wrong imdb links
+                "related_resources": season_links
+                + related_people,  # FIXME crawling them for now, but many douban tv season data may have wrong imdb links
             }
         )
         # Add external IDs to lookup_ids
