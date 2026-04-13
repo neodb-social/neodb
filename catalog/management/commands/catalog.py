@@ -157,6 +157,10 @@ class Command(SiteCommand):
                 from catalog.common.migrations import fix_missing_cover_20250821
 
                 fix_missing_cover_20250821()
+            case "normalize_genre":
+                from catalog.common.migrations import normalize_genre_20260412
+
+                normalize_genre_20260412()
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
