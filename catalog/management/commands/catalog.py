@@ -2,9 +2,14 @@ import json
 import logging
 import sys
 import time
+import uuid
 from datetime import timedelta
 
+import httpx
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Count, F
 from django.utils import timezone
@@ -89,6 +94,11 @@ class Command(SiteCommand):
         parser.add_argument(
             "--yes",
             action="store_true",
+        )
+        parser.add_argument(
+            "--keep",
+            action="store_true",
+            help="Keep test file after storage-test (for manual URL verification)",
         )
         parser.add_argument(
             "--query",
@@ -356,15 +366,8 @@ class Command(SiteCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error: {e}"))
 
-    def storage_test(self):
+    def storage_test(self, keep: bool = False):
         """Test write/read/delete on the default storage backend."""
-        import uuid
-
-        import httpx
-        from django.conf import settings
-        from django.core.files.base import ContentFile
-        from django.core.files.storage import default_storage
-
         test_path = f"_storage_test/{uuid.uuid4().hex}.txt"
         test_content = f"storage test {uuid.uuid4().hex}"
         self.stdout.write(f"MEDIA_BACKEND: {settings.MEDIA_BACKEND}")
@@ -426,8 +429,20 @@ class Command(SiteCommand):
                 self.stdout.write(
                     self.style.WARNING(f"  remote read HTTP {resp.status_code}")
                 )
+                self.stdout.write(
+                    "  use --keep to retain the file for manual verification:"
+                )
+                self.stdout.write(f"    curl '{media_url}'")
         except Exception as e:
             self.stdout.write(self.style.WARNING(f"  remote read failed: {e}"))
+            self.stdout.write(
+                "  use --keep to retain the file for manual verification:"
+            )
+            self.stdout.write(f"    curl '{media_url}'")
+
+        if keep:
+            self.stdout.write(f"Test file kept. Expected content: {test_content}")
+            return
 
         # Delete
         self.stdout.write("Deleting test file...")
@@ -746,7 +761,7 @@ class Command(SiteCommand):
                 self.idx_catchup(hour)
 
             case "storage-test":
-                self.storage_test()
+                self.storage_test(keep=options["keep"])
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))

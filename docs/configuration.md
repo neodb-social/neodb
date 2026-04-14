@@ -57,9 +57,16 @@ These settings require infrastructure access or process restart and cannot be ma
 
 ### S3 and Compatible Storage
 
+To test storage configuration, you can use the following command to upload a test file and check if it's accessible:
+
+```
+neodb-manage catalog storage-test
+```
+
 #### Minio (S3-compatible local storage)
 
-If you are using Minio for local S3-compatible storage, add the following configuration to `compose.override.yml`
+If you are using Minio or [its forks](https://github.com/minio/minio/network) for local S3-compatible storage, add the following configuration to `compose.override.yml` (change `minio/minio` to your chosen fork as the original one is unmaintained and may have known security issues):
+
 ```
 services:
   minio:
@@ -81,12 +88,81 @@ services:
 
 And add these settings to `.env`:
 ```
-MINIO_DOMAIN=neoimg.local
+MINIO_DOMAIN=my.media.domain
 MEDIA_BACKEND=s3-insecure://minioadmin:change_password@minio:9000/media
 MEDIA_URL=https://my.media.domain/media/
 ```
 
 Also make sure `my.media.domain`  maps to your Minio server (port 9000 as configured above)
+
+
+#### Garage (S3-compatible local storage)
+
+[Garage](https://garagehq.deuxfleurs.fr/) is a lightweight S3-compatible storage engine. Add the following to `compose.override.yml`:
+```
+services:
+  garage:
+    image: dxflrs/garage:v2.2.0
+    volumes:
+      - ${NEODB_DATA:-../data}/garage/garage.toml:/etc/garage.toml
+      - ${NEODB_DATA:-../data}/garage/data:/var/lib/garage/data
+      - ${NEODB_DATA:-../data}/garage/meta:/var/lib/garage/meta
+    ports:
+      - 3900:3900
+      - 3902:3902
+```
+
+Create a `garage.toml` configuration file (see [Garage quick start](https://garagehq.deuxfleurs.fr/documentation/quick-start/) for details), then initialize after first start:
+```
+# Assign node layout
+docker compose exec garage /garage -c /etc/garage.toml status
+docker compose exec garage /garage -c /etc/garage.toml layout assign -z dc1 -c 1G <node_id>
+docker compose exec garage /garage -c /etc/garage.toml layout apply --version 1
+
+# Create bucket and key
+docker compose exec garage /garage -c /etc/garage.toml bucket create media
+docker compose exec garage /garage -c /etc/garage.toml key create neodb-app-key
+docker compose exec garage /garage -c /etc/garage.toml bucket allow --read --write --owner media --key neodb-app-key
+docker compose exec garage /garage -c /etc/garage.toml bucket website --allow media
+```
+
+Add these settings to `.env`, using the key ID and secret from the output of `key create` above:
+```
+MEDIA_BACKEND=s3-insecure://KEY_ID:SECRET_KEY@garage:3900/media
+MEDIA_URL=https://media.my.media.domain/
+```
+
+Garage serves files publicly via its S3 Web endpoint (port 3902) using virtual-host-style routing. The `MEDIA_URL` hostname must match `{bucket}.{root_domain}` configured in `[s3_web]` section of `garage.toml`. For example, with `root_domain = ".my.media.domain"` and bucket `media`, the public URL becomes `https://media.my.media.domain/`. Make sure DNS for that hostname points to Garage's port 3902.
+
+
+#### SeaweedFS (S3-compatible local storage)
+
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a distributed storage system with S3 API support. Add the following to `compose.override.yml`, mounting an [S3 credentials config](https://github.com/seaweedfs/seaweedfs/wiki/Amazon-S3-API) file with anonymous `Read` and an admin identity (see [Docker Compose for S3](https://github.com/seaweedfs/seaweedfs/wiki/Docker-Compose-for-S3) for details):
+
+```
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs
+    command: "server -s3 -s3.config /etc/seaweedfs/config.json"
+    volumes:
+      - ${NEODB_DATA:-../data}/seaweedfs/config.json:/etc/seaweedfs/config.json
+      - ${NEODB_DATA:-../data}/seaweedfs/data:/data
+    ports:
+      - 8333:8333
+```
+
+Create the `media` bucket after first start (using [awscli](https://aws.amazon.com/cli/) or any S3 client):
+```
+aws --endpoint-url http://localhost:8333 s3 mb s3://media
+```
+
+Add these settings to `.env`, matching the credentials in the config file:
+```
+MEDIA_BACKEND=s3-insecure://some_access_key:some_secret_key@seaweedfs:8333/media
+MEDIA_URL=https://my.media.domain/media/
+```
+
+Make sure `my.media.domain` maps to your SeaweedFS server (port 8333). Files are publicly readable via the same port thanks to the anonymous read identity.
 
 
 ### Scaling Parameters
