@@ -32,6 +32,7 @@ purge:          purge deleted items
 migrate:        run migration
 search:         search docs in index
 extsearch:      search external sites
+storage-test:   test write/read/delete on default storage backend
 wikidata-tmdb:  link TMDB resources to WikiData resources (using TMDB API)
 wikidata-link:  link external resources to WikiData (use --query for IdType)
 wikidata-find:  lookup Wikidata QID from URL and scrape (use --query for URL)
@@ -69,6 +70,7 @@ class Command(SiteCommand):
                 "idx-delete",
                 "idx-get",
                 "idx-catchup",
+                "storage-test",
             ],
             help=_HELP_TEXT,
         )
@@ -353,6 +355,91 @@ class Command(SiteCommand):
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error: {e}"))
+
+    def storage_test(self):
+        """Test write/read/delete on the default storage backend."""
+        import uuid
+
+        import httpx
+        from django.conf import settings
+        from django.core.files.base import ContentFile
+        from django.core.files.storage import default_storage
+
+        test_path = f"_storage_test/{uuid.uuid4().hex}.txt"
+        test_content = f"storage test {uuid.uuid4().hex}"
+        self.stdout.write(f"MEDIA_BACKEND: {settings.MEDIA_BACKEND}")
+        self.stdout.write(f"MEDIA_URL:     {settings.MEDIA_URL}")
+        self.stdout.write(f"Test file path: {test_path}")
+
+        # Write
+        self.stdout.write("Writing test file...")
+        try:
+            saved_path = default_storage.save(test_path, ContentFile(test_content))
+            self.stdout.write(self.style.SUCCESS(f"  saved as: {saved_path}"))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"  write failed: {e}"))
+            return
+
+        # Verify existence
+        exists = default_storage.exists(saved_path)
+        self.stdout.write(f"  exists check: {exists}")
+        if not exists:
+            self.stdout.write(self.style.ERROR("  file does not exist after write"))
+            return
+
+        # Read via storage API
+        self.stdout.write("Reading test file via storage API...")
+        try:
+            with default_storage.open(saved_path, "r") as f:
+                read_content = f.read()
+            if read_content == test_content:
+                self.stdout.write(self.style.SUCCESS("  content matches"))
+            else:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"  content mismatch: expected {test_content!r}, "
+                        f"got {read_content!r}"
+                    )
+                )
+                return
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"  read failed: {e}"))
+            return
+
+        # Read via media URL
+        media_url = default_storage.url(saved_path)
+        if not media_url.startswith("http"):
+            media_url = f"{settings.SITE_INFO['site_url']}{media_url}"
+        self.stdout.write(f"Reading test file via media URL: {media_url}")
+        try:
+            resp = httpx.get(media_url, follow_redirects=True, timeout=10, verify=False)
+            if resp.status_code == 200 and resp.text == test_content:
+                self.stdout.write(self.style.SUCCESS("  remote content matches"))
+            elif resp.status_code == 200:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"  remote content mismatch: expected {test_content!r}, "
+                        f"got {resp.text!r}"
+                    )
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"  remote read HTTP {resp.status_code}")
+                )
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"  remote read failed: {e}"))
+
+        # Delete
+        self.stdout.write("Deleting test file...")
+        try:
+            default_storage.delete(saved_path)
+            exists_after = default_storage.exists(saved_path)
+            if not exists_after:
+                self.stdout.write(self.style.SUCCESS("  deleted successfully"))
+            else:
+                self.stdout.write(self.style.ERROR("  file still exists after delete"))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"  delete failed: {e}"))
 
     def idx_catchup(self, hours):
         """Update index for items edited in the last X hours"""
@@ -657,6 +744,9 @@ class Command(SiteCommand):
             case "idx-catchup":
                 hour = options.get("hour")
                 self.idx_catchup(hour)
+
+            case "storage-test":
+                self.storage_test()
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))
