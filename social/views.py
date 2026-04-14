@@ -7,6 +7,7 @@ from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
 from common.validators import get_safe_referer_url
 from journal.models import Piece, ShelfType
+from journal.models.common import prefetch_pieces_for_posts
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
@@ -156,7 +157,7 @@ def data(request):
         events.select_related(
             "subject_post",
             "subject_post__author",
-            # "subject_post__author__domain",
+            "subject_post__author__domain",
             "subject_identity",
             # "subject_identity__domain",
             "subject_post_interaction",
@@ -165,12 +166,13 @@ def data(request):
         )
         .prefetch_related(
             "subject_post__attachments",
-            # "subject_post__mentions",
+            "subject_post__mentions",
             # "subject_post__emojis",
         )
         .order_by("-id")[:PAGE_SIZE]
     )
     _add_interaction_to_events(events, identity_id)
+    prefetch_pieces_for_posts([e.subject_post for e in events if e.subject_post_id])
     return render(
         request,
         "feed_events.html",
