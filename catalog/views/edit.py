@@ -104,7 +104,7 @@ def history(request, item_path, item_uuid):
     deleted_ids = set(
         LogEntry.objects.filter(
             content_type=credit_ct,
-            changes__item__contains=str(item.pk),
+            changes__item__contains=[str(item.pk)],
         ).values_list("object_id", flat=True)
     )
     all_credit_ids = current_ids | deleted_ids
@@ -481,7 +481,11 @@ def add_credit(request, item_path, item_uuid):
     # Check if input is a People URL (e.g., /people/xxxx or full URL)
     if "/people/" in name_input:
         uuid_part = name_input.rstrip("/").split("/people/")[-1].split("/")[0]
-        person = People.objects.filter(uid=get_uuid_or_404(uuid_part)).first()
+        try:
+            uid = get_uuid_or_404(uuid_part)
+            person = People.objects.filter(uid=uid).first()
+        except Http404:
+            person = None
         if person:
             name = person.display_name
 
@@ -539,6 +543,7 @@ def update_credit(request, item_path, item_uuid, credit_id):
 
 
 @require_http_methods(["GET"])
+@login_required
 def search_people(request):
     """Search People by name for autocomplete (returns JSON)."""
     q = request.GET.get("q", "").strip()

@@ -246,16 +246,22 @@ class People(Item):
         if not names:
             return
         unlinked = ItemCredit.objects.filter(name__in=names, person__isnull=True)
-        count = unlinked.update(person=self)
-        if count:
-            logger.info(f"Linked {count} credits to {self.display_name}")
-            # Also create ItemPeopleRelation for newly linked items
-            for credit in self.credited_items.select_related("item").all():
-                role = self._credit_role_to_people_role(credit.role)
-                if role:
-                    ItemPeopleRelation.objects.get_or_create(
-                        item=credit.item, people=self, role=role
-                    )
+        newly_linked_ids = list(unlinked.values_list("pk", flat=True))
+        if not newly_linked_ids:
+            return
+        count = ItemCredit.objects.filter(pk__in=newly_linked_ids).update(person=self)
+        logger.info(f"Linked {count} credits to {self.display_name}")
+        # Create ItemPeopleRelation only for the newly linked credits
+        for credit in (
+            ItemCredit.objects.filter(pk__in=newly_linked_ids)
+            .select_related("item")
+            .all()
+        ):
+            role = self._credit_role_to_people_role(credit.role)
+            if role:
+                ItemPeopleRelation.objects.get_or_create(
+                    item=credit.item, people=self, role=role
+                )
 
     @staticmethod
     def _credit_role_to_people_role(credit_role: str) -> str | None:
@@ -301,6 +307,7 @@ class People(Item):
             and not self.merged_to_item_id
             and not self.merged_from_items.exists()
             and not self.item_relations.exists()
+            and not self.credited_items.exists()
         )
 
     def merge_relations(self, to_item):

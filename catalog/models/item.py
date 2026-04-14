@@ -839,12 +839,15 @@ class Item(PolymorphicModel):
                     character = ""
                 if not name:
                     continue
-                ItemCredit.objects.get_or_create(
+                credit, created = ItemCredit.objects.get_or_create(
                     item=self,
                     role=credit_role,
                     name=name,
                     defaults={"order": i, "character_name": character},
                 )
+                if not created and character and not credit.character_name:
+                    credit.character_name = character
+                    credit.save(update_fields=["character_name"])
 
     def process_fetched_item(
         self, fetched: Self, link_type: "ExternalResource.LinkType"
