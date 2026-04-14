@@ -15,6 +15,7 @@ from catalog.models import (
     People,
     PeopleRole,
     PeopleType,
+    Performance,
 )
 from catalog.models.common import IdType
 from catalog.sites.douban_personage import (
@@ -864,3 +865,448 @@ class TestDoubanPersonage:
         assert "Kaige Chen" in names
         assert item.birth_date == "1952-08-12"
         assert item.imdb == "nm0155280"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTMDBPerson:
+    def test_parse(self):
+        t_url = "https://www.themoviedb.org/person/17419"
+        p = SiteManager.get_site_cls_by_id_type(IdType.TMDB_Person)
+        assert p is not None
+        assert p.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == "17419"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.themoviedb.org/person/17419"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.item is not None
+        item = site.resource.item
+        assert isinstance(item, People)
+        names = [n["text"] for n in item.localized_name]
+        assert len(names) >= 1
+        assert item.birth_date is not None
+        # Should have external IDs
+        assert site.resource.other_lookup_ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestGoodreadsAuthor:
+    def test_parse(self):
+        t_url = "https://www.goodreads.com/author/show/874602"
+        p = SiteManager.get_site_cls_by_id_type(IdType.Goodreads_Author)
+        assert p is not None
+        assert p.validate_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == "874602"
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.goodreads.com/author/show/874602"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.item is not None
+        item = site.resource.item
+        assert isinstance(item, People)
+        assert "Ursula" in item.display_name or "Le Guin" in item.display_name
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSyncCreditsFromMetadata:
+    def test_sync_movie_credits(self):
+        movie = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Test"}],
+                "director": ["Dir A"],
+                "playwright": ["Writer B"],
+                "actor": ["Actor C", "Actor D"],
+            }
+        )
+        movie.sync_credits_from_metadata()
+        assert movie.credits.filter(role=CreditRole.Director).count() == 1
+        assert movie.credits.filter(role=CreditRole.Actor).count() == 2
+        assert movie.credits.filter(role=CreditRole.Playwright).count() == 1
+
+    def test_sync_preserves_order(self):
+        movie = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Test"}],
+                "actor": ["First", "Second", "Third"],
+            }
+        )
+        movie.sync_credits_from_metadata()
+        actors = list(movie.credits.filter(role=CreditRole.Actor).order_by("order"))
+        assert [a.name for a in actors] == ["First", "Second", "Third"]
+        assert [a.order for a in actors] == [0, 1, 2]
+
+    def test_sync_idempotent(self):
+        movie = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Test"}],
+                "director": ["Dir A"],
+            }
+        )
+        movie.sync_credits_from_metadata()
+        movie.sync_credits_from_metadata()
+        assert movie.credits.count() == 1
+
+    def test_sync_dict_values_with_character(self):
+        perf = Performance.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Show"}],
+                "actor": [
+                    {"name": "Alice", "role": "Hamlet"},
+                    {"name": "Bob", "role": None},
+                ],
+            }
+        )
+        perf.sync_credits_from_metadata()
+        actors = list(perf.credits.filter(role=CreditRole.Actor).order_by("order"))
+        assert len(actors) == 2
+        assert actors[0].character_name == "Hamlet"
+        assert actors[1].character_name == ""
+
+    def test_sync_single_string_field(self):
+        book = Edition.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Book"}],
+                "pub_house": "Penguin",
+            }
+        )
+        book.sync_credits_from_metadata()
+        pubs = list(book.credits.filter(role=CreditRole.Publisher))
+        assert len(pubs) == 1
+        assert pubs[0].name == "Penguin"
+
+    def test_sync_skips_empty_names(self):
+        movie = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Test"}],
+                "director": ["", "Real Director", ""],
+            }
+        )
+        movie.sync_credits_from_metadata()
+        assert movie.credits.count() == 1
+        credit = movie.credits.first()
+        assert credit is not None
+        assert credit.name == "Real Director"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRoleCreditsAndAPI:
+    def test_role_credits_grouped(self):
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "M"}]}
+        )
+        ItemCredit.objects.create(
+            item=movie, role=CreditRole.Director, name="Dir", order=0
+        )
+        ItemCredit.objects.create(
+            item=movie, role=CreditRole.Actor, name="Act1", order=0
+        )
+        ItemCredit.objects.create(
+            item=movie, role=CreditRole.Actor, name="Act2", order=1
+        )
+        rc = movie.role_credits
+        assert len(rc["director"]) == 1
+        assert len(rc["actor"]) == 2
+        assert rc["director"][0].name == "Dir"
+
+    def test_api_credits(self):
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "M"}]}
+        )
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Dir"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ItemCredit.objects.create(
+            item=movie,
+            role=CreditRole.Director,
+            name="Dir",
+            person=person,
+            order=0,
+        )
+        ItemCredit.objects.create(
+            item=movie,
+            role=CreditRole.Actor,
+            name="Unknown Actor",
+            order=0,
+        )
+        api = movie.api_credits
+        assert len(api) == 2
+        dir_credit = next(c for c in api if c.role == CreditRole.Director)
+        assert dir_credit.name == "Dir"
+        assert dir_credit.person is not None
+        act_credit = next(c for c in api if c.role == CreditRole.Actor)
+        assert act_credit.person is None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPeopleFindByName:
+    def test_exact_match(self):
+        People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "John Smith"}]},
+            people_type=PeopleType.PERSON,
+        )
+        results = People.find_by_name("John Smith", exact=True)
+        assert len(results) == 1
+        assert results[0].display_name == "John Smith"
+
+    def test_exact_no_match(self):
+        People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "John Smith"}]},
+            people_type=PeopleType.PERSON,
+        )
+        results = People.find_by_name("Jane Smith", exact=True)
+        assert len(results) == 0
+
+    def test_partial_match(self):
+        People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "John Smith"}]},
+            people_type=PeopleType.PERSON,
+        )
+        results = People.find_by_name("Smith", exact=False)
+        assert len(results) == 1
+
+    def test_excludes_deleted(self):
+        p = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Deleted Person"}]},
+            people_type=PeopleType.PERSON,
+        )
+        p.is_deleted = True
+        p.save()
+        results = People.find_by_name("Deleted Person", exact=True)
+        assert len(results) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRelatedItemsByRole:
+    def test_groups_by_role(self):
+        movie1 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie 1"}]}
+        )
+        movie2 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Movie 2"}]}
+        )
+        book = Edition.objects.create(title="Book 1")
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Multi-talent"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ItemPeopleRelation.objects.create(
+            item=movie1, people=person, role=PeopleRole.DIRECTOR
+        )
+        ItemPeopleRelation.objects.create(
+            item=movie2, people=person, role=PeopleRole.ACTOR
+        )
+        ItemPeopleRelation.objects.create(
+            item=book, people=person, role=PeopleRole.AUTHOR
+        )
+        groups = person.related_items_by_role
+        assert len(groups) == 3
+        roles = [g[0] for g in groups]
+        assert PeopleRole.DIRECTOR in roles
+        assert PeopleRole.ACTOR in roles
+        assert PeopleRole.AUTHOR in roles
+
+    def test_excludes_deleted_items(self):
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Deleted Movie"}]}
+        )
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Person"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ItemPeopleRelation.objects.create(
+            item=movie, people=person, role=PeopleRole.DIRECTOR
+        )
+        movie.is_deleted = True
+        movie.save()
+        groups = person.related_items_by_role
+        assert len(groups) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCreditRoleMapping:
+    def test_all_credit_roles_map(self):
+        """All CreditRole values that have a PeopleRole equivalent should map correctly."""
+        mapped = {
+            CreditRole.Author: PeopleRole.AUTHOR,
+            CreditRole.Director: PeopleRole.DIRECTOR,
+            CreditRole.Actor: PeopleRole.ACTOR,
+            CreditRole.Playwright: PeopleRole.PLAYWRIGHT,
+            CreditRole.Composer: PeopleRole.COMPOSER,
+            CreditRole.Artist: PeopleRole.ARTIST,
+            CreditRole.Designer: PeopleRole.DESIGNER,
+            CreditRole.Performer: PeopleRole.PERFORMER,
+            CreditRole.Host: PeopleRole.HOST,
+            CreditRole.Publisher: PeopleRole.PUBLISHER,
+            CreditRole.Developer: PeopleRole.DEVELOPER,
+        }
+        for credit_role, people_role in mapped.items():
+            result = People._credit_role_to_people_role(credit_role)
+            assert result == people_role, f"{credit_role} should map to {people_role}"
+
+    def test_unmapped_role_returns_none(self):
+        result = People._credit_role_to_people_role("nonexistent_role")
+        assert result is None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLinkCreditsMultiLingual:
+    def test_link_by_alternate_name(self):
+        """Credits should link when matching any localized_name entry."""
+        book = Edition.objects.create(title="Book")
+        credit = ItemCredit.objects.create(
+            item=book, role=CreditRole.Author, name="Hayao Miyazaki", order=0
+        )
+        person = People.objects.create(
+            metadata=_HAYAO_MIYAZAKI_METADATA,
+            people_type=PeopleType.PERSON,
+        )
+        person.link_matching_credits()
+        credit.refresh_from_db()
+        assert credit.person == person
+
+    def test_link_by_japanese_name(self):
+        book = Edition.objects.create(title="Book")
+        credit = ItemCredit.objects.create(
+            item=book, role=CreditRole.Author, name="宮崎駿", order=0
+        )
+        person = People.objects.create(
+            metadata=_HAYAO_MIYAZAKI_METADATA,
+            people_type=PeopleType.PERSON,
+        )
+        person.link_matching_credits()
+        credit.refresh_from_db()
+        assert credit.person == person
+
+
+class TestExtractPersonageLinks:
+    def test_extract_personage_links(self):
+        """_extract_personage_links should extract personage IDs from page HTML."""
+        from lxml import html
+
+        from catalog.sites.douban_movie import _extract_personage_links
+
+        page_html = """
+        <div id="info">
+          <span>导演</span><span class="attrs">
+            <a href="https://www.douban.com/personage/12345/">Director</a>
+          </span>
+          <span>主演</span><span class="attrs">
+            <a href="https://www.douban.com/personage/67890/">Actor One</a>
+            /
+            <a href="https://www.douban.com/personage/11111/">Actor Two</a>
+          </span>
+        </div>
+        """
+        content = html.fromstring(page_html)
+        resources = _extract_personage_links(content)
+        assert len(resources) == 3
+        assert resources[0]["id_value"] == "12345"
+        assert resources[0]["id_type"] == IdType.DoubanPersonage
+        assert "personage/12345" in resources[0]["url"]
+        assert resources[1]["id_value"] == "67890"
+        assert resources[2]["id_value"] == "11111"
+
+    def test_extract_deduplicates(self):
+        """Same person appearing as director and actor should not be duplicated."""
+        from lxml import html
+
+        from catalog.sites.douban_movie import _extract_personage_links
+
+        page_html = """
+        <div id="info">
+          <span>导演</span><span class="attrs">
+            <a href="https://www.douban.com/personage/12345/">Person</a>
+          </span>
+          <span>主演</span><span class="attrs">
+            <a href="https://www.douban.com/personage/12345/">Person</a>
+          </span>
+        </div>
+        """
+        content = html.fromstring(page_html)
+        resources = _extract_personage_links(content)
+        assert len(resources) == 1
+
+    def test_ignores_non_personage_links(self):
+        """Old celebrity links should be ignored."""
+        from lxml import html
+
+        from catalog.sites.douban_movie import _extract_personage_links
+
+        page_html = """
+        <div id="info">
+          <span>导演</span><span class="attrs">
+            <a href="https://movie.douban.com/celebrity/99999/">Old Dir</a>
+          </span>
+        </div>
+        """
+        content = html.fromstring(page_html)
+        resources = _extract_personage_links(content)
+        assert len(resources) == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestItemMergeCreditsAdvanced:
+    def test_merge_preserves_character_name(self):
+        movie1 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "v1"}]}
+        )
+        movie2 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "v2"}]}
+        )
+        ItemCredit.objects.create(
+            item=movie1,
+            role=CreditRole.Actor,
+            name="Actor",
+            character_name="Batman",
+            order=0,
+        )
+        ItemCredit.objects.create(
+            item=movie2,
+            role=CreditRole.Actor,
+            name="Actor",
+            order=0,
+        )
+        movie1.merge_to(movie2)
+        credit = movie2.credits.get(role=CreditRole.Actor, name="Actor")
+        assert credit.character_name == "Batman"
+
+    def test_merge_preserves_person_link(self):
+        movie1 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "v1"}]}
+        )
+        movie2 = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "v2"}]}
+        )
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ItemCredit.objects.create(
+            item=movie1,
+            role=CreditRole.Actor,
+            name="Actor",
+            person=person,
+            order=0,
+        )
+        ItemCredit.objects.create(
+            item=movie2,
+            role=CreditRole.Actor,
+            name="Actor",
+            order=0,
+        )
+        movie1.merge_to(movie2)
+        credit = movie2.credits.get(role=CreditRole.Actor, name="Actor")
+        assert credit.person == person
