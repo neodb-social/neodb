@@ -55,7 +55,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `SKIP_MIGRATIONS` - migrations to skip. Requires restart.
 
 
-### S3 and Compatible Storage
+## S3 and Compatible Storage
 
 To test storage configuration, you can use the following command to upload a test file and check if it's accessible:
 
@@ -63,7 +63,7 @@ To test storage configuration, you can use the following command to upload a tes
 neodb-manage catalog storage-test
 ```
 
-#### Minio (S3-compatible local storage)
+### Minio (S3-compatible local storage)
 
 If you are using Minio or [its forks](https://github.com/minio/minio/network) for local S3-compatible storage, add the following configuration to `compose.override.yml` (change `minio/minio` to your chosen fork as the original one is unmaintained and may have known security issues):
 
@@ -96,7 +96,7 @@ MEDIA_URL=https://my.media.domain/media/
 Also make sure `my.media.domain`  maps to your Minio server (port 9000 as configured above)
 
 
-#### Garage (S3-compatible local storage)
+### Garage (S3-compatible local storage)
 
 [Garage](https://garagehq.deuxfleurs.fr/) is a lightweight S3-compatible storage engine. Add the following to `compose.override.yml`:
 ```
@@ -135,7 +135,7 @@ MEDIA_URL=https://media.my.media.domain/
 Garage serves files publicly via its S3 Web endpoint (port 3902) using virtual-host-style routing. The `MEDIA_URL` hostname must match `{bucket}.{root_domain}` configured in `[s3_web]` section of `garage.toml`. For example, with `root_domain = ".my.media.domain"` and bucket `media`, the public URL becomes `https://media.my.media.domain/`. Make sure DNS for that hostname points to Garage's port 3902.
 
 
-#### SeaweedFS (S3-compatible local storage)
+### SeaweedFS (S3-compatible local storage)
 
 [SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a distributed storage system with S3 API support. Add the following to `compose.override.yml`, mounting an [S3 credentials config](https://github.com/seaweedfs/seaweedfs/wiki/Amazon-S3-API) file with anonymous `Read` and an admin identity (see [Docker Compose for S3](https://github.com/seaweedfs/seaweedfs/wiki/Docker-Compose-for-S3) for details):
 
@@ -165,7 +165,7 @@ MEDIA_URL=https://my.media.domain/media/
 Make sure `my.media.domain` maps to your SeaweedFS server (port 8333). Files are publicly readable via the same port thanks to the anonymous read identity.
 
 
-### Scaling Parameters
+## Scaling Parameters
 
 For high-traffic instance, spin up these configurations to a higher number in `.env`, as long as the host server can handle them:
 
@@ -179,7 +179,7 @@ For high-traffic instance, spin up these configurations to a higher number in `.
 Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider run db/redis/typesense separately, and then duplicate web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once when start or upgrade, it should be kept that way.
 
 
-## Other maintenance tasks
+## Other Maintenance Tasks
 
 Add alias to your shell for easier access. Not necessary, just for convenience.
 
