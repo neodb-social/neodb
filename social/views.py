@@ -159,15 +159,15 @@ def data(request):
             "subject_post__author",
             "subject_post__author__domain",
             "subject_identity",
-            # "subject_identity__domain",
+            "subject_identity__domain",
             "subject_post_interaction",
             "subject_post_interaction__identity",
-            # "subject_post_interaction__identity__domain",
+            "subject_post_interaction__identity__domain",
         )
         .prefetch_related(
             "subject_post__attachments",
             "subject_post__mentions",
-            # "subject_post__emojis",
+            "subject_post__emojis",
         )
         .order_by("-id")[:PAGE_SIZE]
     )
