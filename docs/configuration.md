@@ -63,7 +63,7 @@ To test storage configuration, you can use the following command to upload a tes
 neodb-manage catalog storage-test
 ```
 
-### Minio (S3-compatible local storage)
+### Minio
 
 If you are using Minio or [its forks](https://github.com/minio/minio/network) for local S3-compatible storage, add the following configuration to `compose.override.yml` (change `minio/minio` to your chosen fork as the original one is unmaintained and may have known security issues):
 
@@ -96,7 +96,7 @@ MEDIA_URL=https://my.media.domain/media/
 Also make sure `my.media.domain`  maps to your Minio server (port 9000 as configured above)
 
 
-### Garage (S3-compatible local storage)
+### Garage
 
 [Garage](https://garagehq.deuxfleurs.fr/) is a lightweight S3-compatible storage engine. Add the following to `compose.override.yml`:
 ```
@@ -135,7 +135,7 @@ MEDIA_URL=https://media.my.media.domain/
 Garage serves files publicly via its S3 Web endpoint (port 3902) using virtual-host-style routing. The `MEDIA_URL` hostname must match `{bucket}.{root_domain}` configured in `[s3_web]` section of `garage.toml`. For example, with `root_domain = ".my.media.domain"` and bucket `media`, the public URL becomes `https://media.my.media.domain/`. Make sure DNS for that hostname points to Garage's port 3902.
 
 
-### SeaweedFS (S3-compatible local storage)
+### SeaweedFS
 
 [SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a distributed storage system with S3 API support. Add the following to `compose.override.yml`, mounting an [S3 credentials config](https://github.com/seaweedfs/seaweedfs/wiki/Amazon-S3-API) file with anonymous `Read` and an admin identity (see [Docker Compose for S3](https://github.com/seaweedfs/seaweedfs/wiki/Docker-Compose-for-S3) for details):
 
