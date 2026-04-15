@@ -4,7 +4,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
 
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
@@ -340,14 +339,40 @@ class People(Item):
         self.merge_credits(to_item)
 
     @classmethod
-    def find_by_name(cls, name: str, exact: bool = True) -> list["People"]:
-        """Find People by localized_name match."""
+    def find_by_name(
+        cls, name: str, exact: bool = True, limit: int = 0
+    ) -> list["People"]:
+        """Find People by localized_name match.
+
+        For partial match, uses indexed ItemCredit.name lookup first, then
+        falls back to JSONB search for People without credits.
+        """
+        from .item import ItemCredit
+
         qs = cls.objects.filter(is_deleted=False, merged_to_item__isnull=True)
         if exact:
-            return list(qs.filter(metadata__localized_name__contains=[{"text": name}]))
+            results = qs.filter(metadata__localized_name__contains=[{"text": name}])
         else:
-            # Partial match: search localized_name text fields
-            return list(qs.filter(Q(metadata__localized_name__icontains=name)))
+            # Find People linked from credits whose name matches (uses DB index)
+            credit_people_ids = (
+                ItemCredit.objects.filter(name__icontains=name, person__isnull=False)
+                .values_list("person_id", flat=True)
+                .distinct()
+            )
+            # Also search localized_name text values in JSONB
+            json_qs = qs.extra(
+                where=[
+                    "EXISTS (SELECT 1 FROM jsonb_array_elements("
+                    "metadata->'localized_name') elem "
+                    "WHERE elem->>'text' ILIKE %s)"
+                ],
+                params=[f"%{name}%"],
+            )
+            results = qs.filter(pk__in=credit_people_ids) | json_qs
+        results = results.distinct()
+        if limit:
+            results = results[:limit]
+        return list(results)
 
     @classmethod
     def lookup_id_type_choices(cls):

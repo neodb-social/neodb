@@ -135,7 +135,7 @@ class Command(SiteCommand):
         )
         parser.add_argument(
             "--source",
-            choices=["wikidata", "tmdb", "igdb"],
+            choices=["wikidata", "tmdb", "igdb", "douban"],
             help="Source for fetch-people command",
         )
         parser.add_argument(
@@ -760,7 +760,9 @@ class Command(SiteCommand):
                 source = options.get("source")
                 if not source:
                     self.stderr.write(
-                        self.style.ERROR("--source is required (wikidata or tmdb)")
+                        self.style.ERROR(
+                            "--source is required (wikidata, tmdb, igdb, or douban)"
+                        )
                     )
                     return
                 self.fetch_people(

@@ -551,6 +551,6 @@ def search_people(request):
         return JsonResponse([], safe=False)
     results = [
         {"url": p.url, "name": p.display_name, "cover": p.cover_image_url}
-        for p in People.find_by_name(q, exact=False)[:10]
+        for p in People.find_by_name(q, exact=False, limit=10)
     ]
     return JsonResponse(results, safe=False)
