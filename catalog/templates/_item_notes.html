@@ -28,24 +28,37 @@
       {% if note.item != item %}
         <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ note.item.title_deco }}</small>
       {% endif %}
-      <blockquote {% if note.sensitive %}class="spoiler tldr" _="on click toggle .revealed .tldr on me"{% else %}class="tldr" _="on click toggle .tldr on me"{% endif %}>
-        {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
-        {{ note.content|linebreaksbr }}
-        <div class="attachments">
-          {% for attachment in note.attachments %}
-            {% if attachment.type == 'image' %}
-              <a href="#img_{{ note.uuid }}_{{ loop.index }}">
-                <img src="{{ attachment.preview_url }}"
-                     alt="image attachment"
-                     class="preview">
-              </a>
-              <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
-                <span style="background-image: url('{{ attachment.url }}')"></span>
-              </a>
-            {% endif %}
-          {% endfor %}
+      <div class="note-card{% if note.sensitive %} spoiler{% endif %}"
+           {% if note.sensitive %}_="on click toggle .revealed on me"{% endif %}>
+        <div class="note-card-quote-mark">&ldquo;</div>
+        <div class="note-card-content{% if not note.sensitive %} tldr{% endif %}"
+             {% if not note.sensitive %}_="on click toggle .tldr on me"{% endif %}>
+          {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
+          {{ note.content|linebreaksbr }}
+          <div class="attachments">
+            {% for attachment in note.attachments %}
+              {% if attachment.type == 'image' %}
+                <a href="#img_{{ note.uuid }}_{{ loop.index }}">
+                  <img src="{{ attachment.preview_url }}"
+                       alt="image attachment"
+                       class="preview">
+                </a>
+                <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
+                  <span style="background-image: url('{{ attachment.url }}')"></span>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
         </div>
-      </blockquote>
+        <div class="note-card-footer">
+          <span>{{ note.item.display_title }}</span>
+          <a href="{{ note.owner.url }}" title="@{{ note.owner.handle }}">
+            <img src="{{ note.owner.avatar }}"
+                 alt="{{ note.owner.display_name }}"
+                 class="note-card-avatar">
+          </a>
+        </div>
+      </div>
       {% if note.rows and note.rows > 1 %}
         <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?from={{ note.uuid }}"
            hx-trigger="click"

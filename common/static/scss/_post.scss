@@ -99,6 +99,56 @@ section.activity.post>section.replies {
 	margin: 0;
 }
 
+.note-card {
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: 12px;
+	padding: 1.25em 1.25em 1em;
+	margin: 0.5em 0;
+	position: relative;
+	background: var(--pico-card-background-color);
+
+	.note-card-quote-mark {
+		font-size: 3em;
+		line-height: 1;
+		color: var(--pico-muted-color);
+		opacity: 0.3;
+		font-family: Georgia, "Times New Roman", serif;
+		margin-bottom: -0.25em;
+		user-select: none;
+	}
+
+	.note-card-content {
+		font-size: 0.95em;
+		line-height: 1.6;
+		word-break: break-word;
+
+		strong {
+			display: block;
+			margin-bottom: 0.25em;
+		}
+
+		.attachments {
+			margin-top: 0.5em;
+		}
+	}
+
+	.note-card-footer {
+		margin-top: 0.75em;
+		font-size: 0.85em;
+		color: var(--pico-muted-color);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.note-card-avatar {
+		width: 2em;
+		height: 2em;
+		border-radius: 50%;
+		object-fit: cover;
+	}
+}
+
 .quote-post {
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-card-border-color);

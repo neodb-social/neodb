@@ -90,25 +90,28 @@
         {% include "action_open_post.html" with post=note.latest_post %}
       {% endif %}
     </span>
-    {% if note.title %}<h6>{{ note.title|default:'' }}</h6>{% endif %}
-    <p>
-      {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
-      {{ note.content|linebreaksbr }}
-      <div class="attachments">
-        {% for attachment in note.attachments %}
-          {% if attachment.type == 'image' %}
-            <a href="#img_{{ note.uuid }}_{{ loop.index }}">
-              <img src="{{ attachment.preview_url }}"
-                   alt="image attachment"
-                   class="preview">
-            </a>
-            <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
-              <span style="background-image: url('{{ attachment.url }}')"></span>
-            </a>
-          {% endif %}
-        {% endfor %}
+    <div class="note-card">
+      <div class="note-card-quote-mark">&ldquo;</div>
+      <div class="note-card-content tldr" _="on click toggle .tldr on me">
+        {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
+        {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
+        {{ note.content|linebreaksbr }}
+        <div class="attachments">
+          {% for attachment in note.attachments %}
+            {% if attachment.type == 'image' %}
+              <a href="#img_{{ note.uuid }}_{{ loop.index }}">
+                <img src="{{ attachment.preview_url }}"
+                     alt="image attachment"
+                     class="preview">
+              </a>
+              <a href="#" class="lightbox" id="img_{{ note.uuid }}_{{ loop.index }}">
+                <span style="background-image: url('{{ attachment.url }}')"></span>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
       </div>
-    </p>
+    </div>
   {% endfor %}
 </section>
 <section>
