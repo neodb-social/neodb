@@ -1342,6 +1342,7 @@ class Post(models.Model):
         edited: datetime.datetime | None = None,
         language: str = "",
         application_id=None,
+        post_type: str = "Note",
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
@@ -1374,6 +1375,7 @@ class Post(models.Model):
                 "in_reply_to": reply_to.object_uri if reply_to else None,
                 "quote_url": quote_url,
                 "language": language,
+                "type": post_type,
             }
             if application_id:
                 post_obj["application_id"] = application_id
@@ -1429,6 +1431,7 @@ class Post(models.Model):
         published: datetime.datetime | None = None,
         edited: datetime.datetime | None = None,
         language: str | None = None,
+        post_type: str | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -1452,6 +1455,8 @@ class Post(models.Model):
                 self.language = language
             if type_data:
                 self.type_data = type_data
+            if post_type is not None:
+                self.type = post_type
             self.save()
 
             for attrs in attachment_attributes or []:

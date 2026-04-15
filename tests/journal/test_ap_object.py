@@ -264,11 +264,21 @@ class TestGetApData:
         obj_data = data["object"]
         assert "tag" in obj_data
         assert "relatedWith" in obj_data
+        # relatedWith still carries type "Review" with markdown
         related = obj_data["relatedWith"]
         assert len(related) == 1
         assert related[0]["type"] == "Review"
         assert related[0]["name"] == "My Title"
         assert related[0]["content"] == "Body text"
+        assert related[0]["mediaType"] == "text/markdown"
+        # Article fields injected at the object level
+        assert obj_data["name"] == "My Title"
+        assert "<p>" in obj_data["content"]  # HTML
+        assert obj_data["source"] == {
+            "content": "Body text",
+            "mediaType": "text/markdown",
+        }
+        assert "summary" not in obj_data
 
     def test_note_get_ap_data(self):
         note = Note.objects.create(
@@ -353,12 +363,23 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        # Post type must be Article
+        assert post.type == "Article"
+        # relatedWith carries the NeoDB Review object unchanged
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 1
         assert related[0]["type"] == "Review"
         assert related[0]["name"] == "Test Review"
         assert related[0]["content"] == "Review body"
         assert related[0]["mediaType"] == "text/markdown"
+        # Article fields are present in type_data["object"]
+        assert post.type_data["object"]["name"] == "Test Review"
+        assert "<p>" in post.type_data["object"]["content"]
+        assert post.type_data["object"]["source"] == {
+            "content": "Review body",
+            "mediaType": "text/markdown",
+        }
+        assert "summary" not in post.type_data["object"]
 
     def test_note_post_type_data_without_progress(self):
         note = Note.objects.create(
