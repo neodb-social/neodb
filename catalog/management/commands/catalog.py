@@ -158,7 +158,7 @@ class Command(SiteCommand):
             help="Number of hours to look back for edited items (used with idx-catchup)",
         )
 
-    def migrate(self, m, start=None):
+    def migrate(self, m, start=None, batch_size=1000):
         match m:
             case "merge_works":
                 from catalog.common.migrations import merge_works_20250301
@@ -191,7 +191,7 @@ class Command(SiteCommand):
             case "populate_credits":
                 from catalog.common.migrations import populate_credits_20260412
 
-                populate_credits_20260412(start_pk=start or 0)
+                populate_credits_20260412(start_pk=start or 0, batch_size=batch_size)
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -834,7 +834,7 @@ class Command(SiteCommand):
                 if not name:
                     self.stdout.write(self.style.ERROR("name is required."))
                     return
-                self.migrate(name, start=start)
+                self.migrate(name, start=start, batch_size=int(batch_size))
 
             case "idx-catchup":
                 hour = options.get("hour")

@@ -255,20 +255,69 @@ def fix_missing_cover_20250821(days=0):
     logger.success(f"{updated} items with missing covers has been fixed.")
 
 
-def populate_credits_20260412(start_pk=0):
-    """Populate ItemCredit rows from jsondata credit fields on all items."""
-    from catalog.models import Item
+def populate_credits_20260412(start_pk=0, batch_size=1000):
+    """Populate ItemCredit rows from jsondata credit fields on all items.
 
-    qs = Item.objects.filter(
-        is_deleted=False, merged_to_item__isnull=True, pk__gt=start_pk
-    ).order_by("pk")
+    Restart-safe: skips items that already have credits. Shows last processed
+    pk in the progress bar so you can resume with --start <pk>.
+    """
+    from django.db.models import Exists, OuterRef
+
+    from catalog.models import Item, ItemCredit
+
+    has_credits = ItemCredit.objects.filter(item_id=OuterRef("pk"))
+    qs = (
+        Item.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True, pk__gt=start_pk
+        )
+        .exclude(Exists(has_credits))
+        .order_by("pk")
+    )
     total = qs.count()
+    logger.info(f"Items to process: {total} (starting after pk {start_pk})")
     created = 0
-    for item in tqdm(qs.iterator(), total=total, desc="Populating credits"):
-        before = item.credits.count()
-        item.sync_credits_from_metadata()
-        created += item.credits.count() - before
-    logger.success(f"Credits: {created} created")
+    last_pk = start_pk
+    pending: list[ItemCredit] = []
+
+    with tqdm(total=total, desc="Populating credits") as pbar:
+        for item in qs.iterator():
+            for field_name, credit_role in item.CREDIT_FIELD_MAPPING.items():
+                values = getattr(item, field_name, None)
+                if not values:
+                    continue
+                if isinstance(values, str):
+                    values = [values]
+                for i, value in enumerate(values):
+                    if isinstance(value, dict):
+                        name = value.get("name", "")
+                        character = value.get("role") or ""
+                    else:
+                        name = str(value)
+                        character = ""
+                    if not name:
+                        continue
+                    pending.append(
+                        ItemCredit(
+                            item=item,
+                            role=credit_role,
+                            name=name,
+                            character_name=character,
+                            order=i,
+                        )
+                    )
+            last_pk = item.pk
+            pbar.update(1)
+            pbar.set_postfix(pk=last_pk, created=created + len(pending))
+            if len(pending) >= batch_size:
+                ItemCredit.objects.bulk_create(pending)
+                created += len(pending)
+                pending = []
+
+    if pending:
+        ItemCredit.objects.bulk_create(pending)
+        created += len(pending)
+
+    logger.success(f"Credits: {created} created, last pk: {last_pk}")
 
 
 def link_credits_20260412():
