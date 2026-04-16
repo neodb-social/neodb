@@ -328,13 +328,13 @@ def populate_credits_extra_20260415(batch_size=1000):
     this checks per-role so it won't duplicate credits that already exist.
     """
     from django.core.paginator import Paginator
-    from django.db.models import Exists, OuterRef
 
     from catalog.models import (
         Edition,
         Game,
         Item,
         ItemCredit,
+        PerformanceProduction,
         Podcast,
         TVSeason,
         TVShow,
@@ -352,16 +352,26 @@ def populate_credits_extra_20260415(batch_size=1000):
         (Podcast, {"host": "host"}),
         (Game, {"artist": "artist"}),
         (Edition, {"imprint": "imprint"}),
+        (
+            PerformanceProduction,
+            {
+                "director": "director",
+                "playwright": "playwright",
+                "orig_creator": "original_creator",
+                "composer": "composer",
+                "choreographer": "choreographer",
+                "actor": "actor",
+                "performer": "performer",
+                "crew": "crew",
+                "troupe": "troupe",
+            },
+        ),
     ]
     total_created = 0
     for model_cls, field_mapping in new_mappings:
-        roles = list(field_mapping.values())
-        # Skip items that already have credits for ALL target roles
-        qs = model_cls.objects.filter(is_deleted=False, merged_to_item__isnull=True)
-        for role in roles:
-            has_role = ItemCredit.objects.filter(item_id=OuterRef("pk"), role=role)
-            qs = qs.exclude(Exists(has_role))
-        qs = qs.order_by("pk")
+        qs = model_cls.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True
+        ).order_by("pk")
         total = qs.count()
         logger.info(f"Processing {model_cls.__name__}: {total} items...")
         created = 0

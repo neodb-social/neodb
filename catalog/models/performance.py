@@ -366,6 +366,17 @@ class PerformanceProduction(Item):
         PeopleRole.CREW,
         PeopleRole.PRODUCER,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "director": "director",
+        "playwright": "playwright",
+        "orig_creator": "original_creator",
+        "composer": "composer",
+        "choreographer": "choreographer",
+        "actor": "actor",
+        "performer": "performer",
+        "crew": "crew",
+        "troupe": "troupe",
+    }
     show = models.ForeignKey(
         Performance, null=True, on_delete=models.SET_NULL, related_name="productions"
     )
