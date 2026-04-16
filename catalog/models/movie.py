@@ -33,6 +33,18 @@ class MovieInSchema(ItemInSchema):
     site: str | None = None
     duration: str | None = None
 
+    @staticmethod
+    def resolve_director(obj: "Movie") -> list[str]:
+        return obj.credit_names_by_role("director")
+
+    @staticmethod
+    def resolve_playwright(obj: "Movie") -> list[str]:
+        return obj.credit_names_by_role("playwright")
+
+    @staticmethod
+    def resolve_actor(obj: "Movie") -> list[str]:
+        return obj.credit_names_by_role("actor")
+
 
 class MovieSchema(MovieInSchema, BaseSchema):
     imdb: str | None = None

@@ -55,7 +55,21 @@ from .item import (
 from .people import PeopleRole
 
 
-class TVShowInSchema(ItemInSchema):
+class _TVCreditResolverMixin:
+    @staticmethod
+    def resolve_director(obj: "TVShow | TVSeason") -> list[str]:
+        return obj.credit_names_by_role("director")
+
+    @staticmethod
+    def resolve_playwright(obj: "TVShow | TVSeason") -> list[str]:
+        return obj.credit_names_by_role("playwright")
+
+    @staticmethod
+    def resolve_actor(obj: "TVShow | TVSeason") -> list[str]:
+        return obj.credit_names_by_role("actor")
+
+
+class TVShowInSchema(_TVCreditResolverMixin, ItemInSchema):
     season_count: int | None = None
     orig_title: str | None = None
     director: list[str]
@@ -76,7 +90,7 @@ class TVShowSchema(TVShowInSchema, BaseSchema):
     pass
 
 
-class TVSeasonInSchema(ItemInSchema):
+class TVSeasonInSchema(_TVCreditResolverMixin, ItemInSchema):
     season_number: int | None = None
     orig_title: str | None = None
     director: list[str]

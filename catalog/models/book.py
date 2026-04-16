@@ -65,6 +65,14 @@ class EditionInSchema(ItemInSchema):
     imprint: str | None = None
     contents: str | None = None
 
+    @staticmethod
+    def resolve_author(obj: "Edition") -> list[str]:
+        return obj.credit_names_by_role("author")
+
+    @staticmethod
+    def resolve_translator(obj: "Edition") -> list[str]:
+        return obj.credit_names_by_role("translator")
+
 
 class EditionSchema(EditionInSchema, BaseSchema):
     isbn: str | None = None

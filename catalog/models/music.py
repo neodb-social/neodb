@@ -28,6 +28,14 @@ class AlbumInSchema(ItemInSchema):
     release_date: date | None = None
     track_list: str | None = None
 
+    @staticmethod
+    def resolve_artist(obj: "Album") -> list[str]:
+        return obj.credit_names_by_role("artist")
+
+    @staticmethod
+    def resolve_company(obj: "Album") -> list[str]:
+        return obj.credit_names_by_role("record_label")
+
 
 class AlbumSchema(AlbumInSchema, BaseSchema):
     barcode: str | None = None

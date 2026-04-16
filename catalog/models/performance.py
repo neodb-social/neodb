@@ -29,7 +29,33 @@ class CrewMemberSchema(Schema):
     role: str | None
 
 
-class PerformanceSchema(ItemSchema):
+class _PerformanceCreditResolverMixin:
+    @staticmethod
+    def resolve_director(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("director")
+
+    @staticmethod
+    def resolve_playwright(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("playwright")
+
+    @staticmethod
+    def resolve_orig_creator(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("original_creator")
+
+    @staticmethod
+    def resolve_composer(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("composer")
+
+    @staticmethod
+    def resolve_choreographer(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("choreographer")
+
+    @staticmethod
+    def resolve_performer(obj: "Performance | PerformanceProduction") -> list[str]:
+        return obj.credit_names_by_role("performer")
+
+
+class PerformanceSchema(_PerformanceCreditResolverMixin, ItemSchema):
     orig_title: str | None = None
     genre: list[str]
     language: list[str]
@@ -46,7 +72,7 @@ class PerformanceSchema(ItemSchema):
     official_site: str | None = None
 
 
-class PerformanceProductionSchema(ItemSchema):
+class PerformanceProductionSchema(_PerformanceCreditResolverMixin, ItemSchema):
     orig_title: str | None = None
     language: list[str]
     opening_date: str | None = None

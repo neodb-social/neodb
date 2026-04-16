@@ -30,6 +30,10 @@ class PodcastInSchema(ItemInSchema):
     # hosts is deprecated
     hosts: list[str] = Field(deprecated=True, alias="host")
 
+    @staticmethod
+    def resolve_host(obj: "Podcast") -> list[str]:
+        return obj.credit_names_by_role("host")
+
 
 class PodcastSchema(PodcastInSchema, BaseSchema):
     pass

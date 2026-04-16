@@ -42,6 +42,14 @@ class GameInSchema(ItemInSchema):
     release_date: date | None = None
     official_site: str | None = None
 
+    @staticmethod
+    def resolve_developer(obj: "Game") -> list[str]:
+        return obj.credit_names_by_role("developer")
+
+    @staticmethod
+    def resolve_publisher(obj: "Game") -> list[str]:
+        return obj.credit_names_by_role("publisher")
+
 
 class GameSchema(GameInSchema, BaseSchema):
     pass
