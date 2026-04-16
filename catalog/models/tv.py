@@ -116,6 +116,11 @@ class TVShow(Item):
         PeopleRole.PRODUCTION_COMPANY,
         PeopleRole.DISTRIBUTOR,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "director": "director",
+        "playwright": "playwright",
+        "actor": "actor",
+    }
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
@@ -343,6 +348,11 @@ class TVSeason(Item):
         PeopleRole.PRODUCTION_COMPANY,
         PeopleRole.DISTRIBUTOR,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "director": "director",
+        "playwright": "playwright",
+        "actor": "actor",
+    }
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)

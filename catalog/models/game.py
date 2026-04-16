@@ -62,6 +62,7 @@ class Game(Item):
     ]
     CREDIT_FIELD_MAPPING = {
         "designer": "designer",
+        "artist": "artist",
         "developer": "developer",
         "publisher": "publisher",
     }

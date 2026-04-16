@@ -320,6 +320,87 @@ def populate_credits_20260412(start_pk=0, batch_size=1000):
     logger.success(f"Credits: {created} created, last pk: {last_pk}")
 
 
+def populate_credits_extra_20260415(start_pk=0, batch_size=1000):
+    """Populate ItemCredit rows for models that were missing CREDIT_FIELD_MAPPING.
+
+    Covers TVShow, TVSeason, Podcast (new mappings) and Game artist (was missing).
+    Unlike populate_credits_20260412 which skips items with any existing credits,
+    this only creates credits for the specific roles that were missing.
+    """
+    from catalog.models import Game, Item, ItemCredit, Podcast, TVSeason, TVShow
+
+    new_mappings: list[tuple[type[Item], dict[str, str]]] = [
+        (
+            TVShow,
+            {"director": "director", "playwright": "playwright", "actor": "actor"},
+        ),
+        (
+            TVSeason,
+            {"director": "director", "playwright": "playwright", "actor": "actor"},
+        ),
+        (Podcast, {"host": "host"}),
+        (Game, {"artist": "artist"}),
+    ]
+    total_created = 0
+    for model_cls, field_mapping in new_mappings:
+        logger.info(f"Processing {model_cls.__name__}...")
+        qs = model_cls.objects.filter(
+            is_deleted=False, merged_to_item__isnull=True, pk__gte=start_pk
+        ).order_by("pk")
+        total = qs.count()
+        created = 0
+        last_pk = start_pk
+        pending: list[ItemCredit] = []
+
+        with tqdm(total=total, desc=model_cls.__name__) as pbar:
+            for item in qs.iterator():
+                for field_name, credit_role in field_mapping.items():
+                    # Skip if this item already has credits for this role
+                    if ItemCredit.objects.filter(item=item, role=credit_role).exists():
+                        continue
+                    values = getattr(item, field_name, None)
+                    if not values:
+                        continue
+                    if isinstance(values, str):
+                        values = [values]
+                    for i, value in enumerate(values):
+                        if isinstance(value, dict):
+                            name = value.get("name", "")
+                            character = value.get("role") or ""
+                        else:
+                            name = str(value)
+                            character = ""
+                        if not name:
+                            continue
+                        pending.append(
+                            ItemCredit(
+                                item=item,
+                                role=credit_role,
+                                name=name,
+                                character_name=character,
+                                order=i,
+                            )
+                        )
+                last_pk = item.pk
+                pbar.update(1)
+                pbar.set_postfix(pk=last_pk, created=created + len(pending))
+                if len(pending) >= batch_size:
+                    ItemCredit.objects.bulk_create(pending)
+                    created += len(pending)
+                    pending = []
+
+        if pending:
+            ItemCredit.objects.bulk_create(pending)
+            created += len(pending)
+
+        logger.info(
+            f"{model_cls.__name__}: {created} credits created, last pk: {last_pk}"
+        )
+        total_created += created
+
+    logger.success(f"Total credits created: {total_created}")
+
+
 def link_credits_20260412():
     """Link unlinked ItemCredits to matching People items."""
     from catalog.models import ItemCredit, People

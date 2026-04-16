@@ -60,6 +60,9 @@ class Podcast(Item):
         PeopleRole.HOST,
         PeopleRole.PRODUCER,
     ]
+    CREDIT_FIELD_MAPPING = {
+        "host": "host",
+    }
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
