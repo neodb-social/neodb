@@ -10,20 +10,8 @@ from lxml.html import HtmlElement
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
+from common.models.misc import uniq
 from journal.models.renderers import html_to_text
-
-
-def _uniq(values: Iterable[str]) -> list[str]:
-    seen = set()
-    result = []
-    for v in values:
-        if not v:
-            continue
-        if v in seen:
-            continue
-        seen.add(v)
-        result.append(v)
-    return result
 
 
 @SiteManager.register
@@ -71,7 +59,7 @@ class Itch(AbstractSite):
             if val:
                 return val[0].strip()
         except (etree.XPathError, AttributeError, TypeError, IndexError):
-            return None
+            pass
         return None
 
     @classmethod
@@ -163,7 +151,7 @@ class Itch(AbstractSite):
         for a in anchors:
             try:
                 text = a.text_content() or ""
-            except Exception:
+            except (AttributeError, TypeError):
                 continue
             norm = cls._normalize_embed_button_text(text)
             if "itchio" in norm and ("download" in norm or "play" in norm):
@@ -322,35 +310,8 @@ class Itch(AbstractSite):
         numeric_id = game_id.split("/", 1)[1]
         if not numeric_id.isdigit():
             return None
-        # NOTE: API access may require verification; keep code here for later enablement.
-        # api_url = f"https://api.itch.io/games/{numeric_id}"
-        # headers = {
-        #     "Accept": "application/json",
-        #     "User-Agent": settings.NEODB_USER_AGENT,
-        # }
-        # logger.info("Itch API fetch", extra={"url": api_url})
-        # dl = BasicDownloader(api_url, headers=headers)
-        # resp, response_type = dl._download(api_url)
-        # if response_type != RESPONSE_OK or not resp:
-        #     status = getattr(resp, "status_code", None)
-        #     body = getattr(resp, "text", "") if resp else ""
-        #     logger.warning(
-        #         "Itch API request failed (status={status}, response_type={rtype}, url={url}, body={body})",
-        #         status=status,
-        #         rtype=response_type,
-        #         url=api_url,
-        #         body=(body[:200] if body else ""),
-        #     )
-        #     return None
-        # try:
-        #     return resp.json()
-        # except Exception:
-        #     body = getattr(resp, "text", "")
-        #     logger.warning(
-        #         "Itch API response not JSON",
-        #         extra={"url": api_url, "body": (body[:200] if body else "")},
-        #     )
-        #     return None
+        # TODO: Authenticated Itch API access is disabled pending key verification.
+        # See review discussion / tracking issue for future enablement.
         return None
 
     @classmethod
@@ -379,6 +340,9 @@ class Itch(AbstractSite):
         preloaded_content=None,
         ignore_existing_content=False,
     ) -> ExternalResource | None:
+        """Pre-fetch page content and store it in _preloaded_content/_preloaded_html_text
+        so that scrape() can reuse it without downloading the same page twice.
+        """
         if self.url:
             parsed = urlparse(self.url)
             host = parsed.netloc.lower()
@@ -416,28 +380,18 @@ class Itch(AbstractSite):
             ignore_existing_content=ignore_existing_content,
         )
 
-    def scrape(self):
-        if not self.url:
-            raise ParseError(self, "url")
-
+    def _scrape_load_content(self):
         content = getattr(self, "_preloaded_content", None)
         html_text = getattr(self, "_preloaded_html_text", "")
         if content is None:
             resp = BasicDownloader2(self.url).download()
             content = resp.html()
             html_text = resp.text or ""
+        return content, html_text
 
-        parsed = urlparse(self.url)
-        host = parsed.netloc.lower()
-        if host == "itch.io" and parsed.path.startswith("/embed/"):
-            canonical_url = self._extract_embed_target_url(content)
-        else:
-            canonical_url = self._extract_canonical(
-                content
-            ) or self._extract_any_game_url(html_text)
-
+    def _scrape_extract_json_ld_game(self, content):
         json_ld_items = self._extract_json_ld(content)
-        json_ld_game: dict[str, Any] | None = None
+        json_ld_game = None
         for item in json_ld_items:
             typ = item.get("@type") or item.get("type")
             types = []
@@ -448,7 +402,9 @@ class Itch(AbstractSite):
             if any("game" in t for t in types):
                 json_ld_game = item
                 break
+        return json_ld_items, json_ld_game
 
+    def _scrape_title(self, content, json_ld_game):
         title = (
             self._extract_meta(
                 content,
@@ -460,8 +416,9 @@ class Itch(AbstractSite):
             or self._extract_meta(content, "//meta[@name='twitter:title']/@content")
             or self._extract_meta(content, "//title/text()")
         )
-        title = title.strip() if title else None
+        return title.strip() if title else None
 
+    def _scrape_description(self, content, html_text, json_ld_game):
         description = (
             (json_ld_game.get("description") if json_ld_game else None)
             or self._extract_meta(
@@ -487,13 +444,15 @@ class Itch(AbstractSite):
                     description = (
                         description + "\n\n" + body_text if description else body_text
                     )
-            except Exception:
+            except (etree.XPathError, TypeError):
                 pass
         if description:
             description = description.replace("\r\n", "\n").replace("\r", "\n")
             description = re.sub(r"[ \t]+\n", "\n", description)
             description = re.sub(r"\n{3,}", "\n\n", description).strip()
+        return description
 
+    def _scrape_cover_url(self, content, json_ld_game):
         cover_url = (
             (json_ld_game.get("image") if json_ld_game else None)
             or self._extract_meta(content, "//meta[@property='og:image']/@content")
@@ -503,43 +462,38 @@ class Itch(AbstractSite):
             cover_url = cover_url[0] if cover_url else None
         elif isinstance(cover_url, dict):
             cover_url = cover_url.get("url") or cover_url.get("@id")
+        return cover_url
 
-        release_date = None
+    def _scrape_release_date(self, content, json_ld_game):
         if json_ld_game and json_ld_game.get("datePublished"):
             dt = dateparser.parse(str(json_ld_game.get("datePublished")))
-            release_date = dt.strftime("%Y-%m-%d") if dt else None
+            return dt.strftime("%Y-%m-%d") if dt else None
 
+        published_cell = self._extract_table_row(content, "Published")
+        if published_cell is not None:
+            published_title = self._extract_meta(published_cell, ".//abbr/@title")
+            published_text = "".join(published_cell.xpath(".//text()")).strip()
+            return (
+                self._parse_release_date(published_title)
+                or self._parse_release_date(published_text)
+            )
+        return None
+
+    def _scrape_platforms(self, content, json_ld_game):
         platforms = []
         if json_ld_game:
             platforms = self._extract_platforms(
                 json_ld_game.get("gamePlatform") or json_ld_game.get("operatingSystem")
             )
         platforms += self._extract_platforms_from_links(content)
+        return platforms
 
+    def _scrape_authors(self, content, json_ld_game):
         author = []
         if json_ld_game:
             author = self._extract_people(
                 json_ld_game.get("author") or json_ld_game.get("creator")
             )
-
-        genre = []
-        if json_ld_game:
-            genre_val = json_ld_game.get("genre")
-            if isinstance(genre_val, list):
-                genre = [str(g) for g in genre_val if g]
-            elif isinstance(genre_val, str):
-                genre = [genre_val]
-
-        published_cell = self._extract_table_row(content, "Published")
-        if published_cell is not None and not release_date:
-            published_title = self._extract_meta(published_cell, ".//abbr/@title")
-            published_text = "".join(published_cell.xpath(".//text()")).strip()
-            release_date = (
-                self._parse_release_date(published_title)
-                or self._parse_release_date(published_text)
-                or release_date
-            )
-
         authors_cell = self._extract_table_row(content, "Authors")
         if authors_cell is not None:
             author_names = [
@@ -548,7 +502,17 @@ class Itch(AbstractSite):
                 if isinstance(t, str) and t.strip()
             ]
             if author_names:
-                author = _uniq(author + author_names)
+                author = uniq(author + author_names)
+        return author
+
+    def _scrape_genres(self, content, json_ld_game):
+        genre = []
+        if json_ld_game:
+            genre_val = json_ld_game.get("genre")
+            if isinstance(genre_val, list):
+                genre = [str(g) for g in genre_val if g]
+            elif isinstance(genre_val, str):
+                genre = [genre_val]
 
         genre_cell = self._extract_table_row(content, "Genre")
         if genre_cell is not None:
@@ -558,7 +522,7 @@ class Itch(AbstractSite):
                 if isinstance(t, str) and t.strip()
             ]
             if genre_names:
-                genre = _uniq(genre + genre_names)
+                genre = uniq(genre + genre_names)
 
         tags_cell = self._extract_table_row(content, "Tags")
         if tags_cell is not None:
@@ -568,7 +532,7 @@ class Itch(AbstractSite):
                 if isinstance(t, str) and t.strip()
             ]
             if tag_names:
-                genre = _uniq(genre + tag_names)
+                genre = uniq(genre + tag_names)
 
         keywords = self._extract_meta(content, "//meta[@name='keywords']/@content")
         if keywords:
@@ -583,8 +547,9 @@ class Itch(AbstractSite):
                 [t.strip() for t in tag_nodes if isinstance(t, str) and t.strip()]
             )
 
-        genre = _uniq(genre)
+        return uniq(genre)
 
+    def _scrape_game_id(self, content, html_text, json_ld_items):
         game_id = self._normalize_game_id(
             self._extract_itch_path(content)
             or self._extract_game_id_from_json_ld(json_ld_items)
@@ -592,7 +557,11 @@ class Itch(AbstractSite):
         )
         if not game_id:
             raise ParseError(self, "itch:path")
+        return game_id
 
+    def _scrape_merge_api_data(
+        self, game_id, title, description, author, platforms, cover_url, canonical_url, release_date
+    ):
         api_data = self._fetch_api_game(game_id)
         if api_data and isinstance(api_data, dict) and api_data.get("game"):
             game = api_data.get("game") or {}
@@ -605,7 +574,7 @@ class Itch(AbstractSite):
             user = game.get("user") or {}
             display_name = user.get("display_name")
             username = user.get("username")
-            author = _uniq([display_name or "", username or ""])
+            author = uniq([display_name or "", username or ""])
             api_traits = game.get("traits") or []
             if isinstance(api_traits, list):
                 platforms += self._platforms_from_traits(api_traits)
@@ -620,8 +589,41 @@ class Itch(AbstractSite):
         else:
             if not title:
                 raise ParseError(self, "title")
+        return title, description, author, platforms, cover_url, canonical_url, release_date
 
-        platforms = _uniq(platforms)
+    def scrape(self):
+        if not self.url:
+            raise ParseError(self, "url")
+
+        content, html_text = self._scrape_load_content()
+
+        parsed = urlparse(self.url)
+        host = parsed.netloc.lower()
+        if host == "itch.io" and parsed.path.startswith("/embed/"):
+            canonical_url = self._extract_embed_target_url(content)
+        else:
+            canonical_url = self._extract_canonical(
+                content
+            ) or self._extract_any_game_url(html_text)
+
+        json_ld_items, json_ld_game = self._scrape_extract_json_ld_game(content)
+
+        title = self._scrape_title(content, json_ld_game)
+        description = self._scrape_description(content, html_text, json_ld_game)
+        cover_url = self._scrape_cover_url(content, json_ld_game)
+        release_date = self._scrape_release_date(content, json_ld_game)
+        platforms = self._scrape_platforms(content, json_ld_game)
+        author = self._scrape_authors(content, json_ld_game)
+        genre = self._scrape_genres(content, json_ld_game)
+        game_id = self._scrape_game_id(content, html_text, json_ld_items)
+
+        title, description, author, platforms, cover_url, canonical_url, release_date = (
+            self._scrape_merge_api_data(
+                game_id, title, description, author, platforms, cover_url, canonical_url, release_date
+            )
+        )
+
+        platforms = uniq(platforms)
 
         localized_title = (
             [{"lang": detect_language(title), "text": title}] if title else []
