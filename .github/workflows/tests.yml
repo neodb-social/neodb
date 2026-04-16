@@ -46,7 +46,7 @@ jobs:
       matrix:
         python-version: ['3.13']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -70,8 +70,7 @@ jobs:
         NEODB_SEARCH_URL: typesense://testuser:testpass@127.0.0.1:8108/cat
       run: |
         uv run manage.py compilemessages -i .venv -l zh_Hans
-        uv run python -m coverage run --parallel-mode -m pytest -n auto
-        uv run python -m coverage combine
+        uv run python -m coverage run -m pytest
         uv run python -m coverage report -m
         uv run python -m coverage xml -o coverage.xml
     - name: Upload coverage to Codecov
