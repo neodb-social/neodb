@@ -887,22 +887,8 @@ class Item(PolymorphicModel):
         return list(self.credits.select_related("person").all())
 
     def credit_names_by_role(self, role: str) -> list[str]:
-        """Return credit names as list[str] for API compatibility."""
-        names = [c.name for c in self.role_credits.get(role, [])]
-        return (
-            names
-            if names
-            else getattr(self, self._credit_role_to_field(role), []) or []
-        )
-
-    @staticmethod
-    def _credit_role_to_field(role: str) -> str:
-        """Map CreditRole value to legacy jsondata field name."""
-        return {
-            "record_label": "company",
-            "publisher": "pub_house",
-            "original_creator": "orig_creator",
-        }.get(role, role)
+        """Return credit names as list[str] from the credits table."""
+        return [c.name for c in self.role_credits.get(role, [])]
 
     @cached_property
     def role_credits(self) -> dict[str, list["ItemCredit"]]:
