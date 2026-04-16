@@ -29,6 +29,12 @@ A step-by-step admin account creation. If you already got an account and want to
 docker compose --profile production run --rm shell neodb-manage createsuperuser
 ```
 
+Alternatively, set `NEODB_ADMIN_HANDLES` in `.env` to auto-promote users to superuser when they register with a matching handle:
+```
+NEODB_ADMIN_HANDLES=mastodon:user@mastodon.social,email:admin@example.com
+```
+Supported types: `mastodon`, `email`, `bluesky`, `threads`. The format is `type:handle`.
+
 ---
 
 ## **Toggle an existing account to admin**

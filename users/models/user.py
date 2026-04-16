@@ -351,6 +351,8 @@ class User(AbstractUser):
                 account.user = new_user
                 account.save()
             Takahe.init_identity_for_local_user(new_user)
+            if account and not new_user.is_superuser:
+                _check_auto_promote_superuser(new_user, account)
             new_user.identity.shelf_manager
             return new_user
 
@@ -359,3 +361,22 @@ class User(AbstractUser):
             SocialAccount.objects.filter(user=self, type=account.type).delete()
             account.user = self
             account.save()
+
+
+def _check_auto_promote_superuser(user: User, account: SocialAccount) -> None:
+    from takahe.models import User as TakaheUser
+
+    admin_handles = settings.ADMIN_HANDLES
+    if not admin_handles:
+        return
+    account_handle = f"{account.platform}:{account.handle}"
+    match = any(account_handle.lower() == h.strip().lower() for h in admin_handles)
+    if not match:
+        return
+    user.is_superuser = True
+    user.save(update_fields=["is_superuser"])
+    tu = TakaheUser.objects.filter(pk=user.pk).first()
+    if tu:
+        tu.admin = True
+        tu.save(update_fields=["admin"])
+    logger.info(f"Auto-promoted {user} to superuser (handle: {account_handle})")

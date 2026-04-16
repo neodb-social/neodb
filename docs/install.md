@@ -31,14 +31,17 @@ Follow [official instructions](https://docs.docker.com/engine/install/linux-post
 ## Set up .env file and web root
 Change essential options like `NEODB_SITE_DOMAIN` in `.env` before starting the cluster for the first time. Changing them later may have unintended consequences, please make sure they are correct before exposing the service externally.
 
-- `NEODB_SITE_NAME` - name of your site
 - `NEODB_SITE_DOMAIN` - domain name of your site
 - `NEODB_SECRET_KEY` - encryption key of session data
 - `NEODB_DATA` is the path to store db/media/cache, it's `../data` by default, but can be any path that's writable
 - `NEODB_DEBUG` - set to `False` for production deployment
-- `NEODB_PREFERRED_LANGUAGES` - preferred languages when importing titles from 3rd party sites like TMDB and Steam, comma-separated list of ISO-639-1 two-letter codes, 'en,zh' by default.
 
-Optionally, `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
+Optionally:
+
+- `NEODB_ADMIN_HANDLES` - auto-promote users to superuser on registration by matching handle, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
+- `robots.txt` and `logo.png` may be placed under `$NEODB_DATA/www-root/`.
+
+Site name, preferred languages, and other customization options can be configured later through the Site Settings UI at `/manage/`.
 
 See [neodb.env.example](https://raw.githubusercontent.com/neodb-social/neodb/main/neodb.env.example) and [configuration](configuration.md) for more options
 
@@ -81,11 +84,12 @@ You should see the same JSON response as above, and the site is now accessible t
 
 ## Register an account and make it admin
 
-Open `https://yourdomain.tld` in your browser and register an account, assuming username is `admin`, run the following command to make it super user
+Open `https://yourdomain.tld` in your browser and register an account. If `NEODB_ADMIN_HANDLES` is configured, the account will be auto-promoted to superuser on registration. Otherwise, assuming username is `admin`, run the following command to make it super user:
 
 ```
 docker compose --profile production run --rm shell neodb-manage user --super admin
 ```
+
 Take a look at [Manage Accounts](accounts.md) for more information.
 
 ## What now?

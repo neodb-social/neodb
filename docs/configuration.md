@@ -51,6 +51,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_IMAGE` - docker image to pull from
  - `TAKAHE_NO_FEDERATION` - disable federation (test/development only)
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
+ - `NEODB_ADMIN_HANDLES` - comma-separated list of handles to auto-promote to superuser on registration, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
  - `NEODB_LOG_LEVEL` - logging level (DEBUG, INFO, WARNING, ERROR). Requires restart.
  - `SKIP_MIGRATIONS` - migrations to skip. Requires restart.
 
