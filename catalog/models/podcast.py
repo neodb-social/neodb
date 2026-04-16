@@ -98,6 +98,10 @@ class Podcast(Item):
         "localized_description",
     ]
 
+    @property
+    def host_names(self) -> list[str]:
+        return self.credit_names_by_role("host")
+
     @classmethod
     def lookup_id_type_choices(cls):
         id_types = [

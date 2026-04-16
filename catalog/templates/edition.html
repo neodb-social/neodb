@@ -28,11 +28,7 @@
   </div>
   <div>{% include '_people.html' with people=item.additional_title role='other title' max=99 %}</div>
   <div>{% include '_credits.html' with credits=item.role_credits.publisher role_label='publishing house' max=5 %}</div>
-  <div>
-    {% if item.imprint %}
-      {% trans 'imprint' %}: {{ item.imprint }}
-    {% endif %}
-  </div>
+  <div>{% include '_credits.html' with credits=item.role_credits.imprint role_label='imprint' max=5 %}</div>
   <div>
     {% if item.pub_year %}
       {% trans 'publication date' %}: {{ item.pub_year }}
@@ -92,7 +88,7 @@
                      loading="lazy">
                 <div>
                   <span>{{ b.display_title }}</span>
-                  <small class="title_deco"><span>{{ b.pub_house }}</span>
+                  <small class="title_deco"><span>{{ b.publisher_name }}</span>
                     <span>{{ b.pub_year }}</span></small>
                 </div>
               </a>

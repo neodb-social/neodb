@@ -407,8 +407,13 @@ class Edition(Item):
         ] + self.other_title
 
     @property
+    def publisher_name(self) -> str:
+        names = self.credit_names_by_role("publisher")
+        return names[0] if names else ""
+
+    @property
     def title_deco(self):
-        a = [str(i) for i in [self.pub_house, self.pub_year] if i]
+        a = [str(i) for i in [self.publisher_name, self.pub_year] if i]
         return f"({' '.join(a)})" if a else ""
 
     def to_schema_org(self):

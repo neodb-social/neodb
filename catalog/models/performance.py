@@ -141,14 +141,6 @@ _ACTOR_SCHEMA = {
 }
 
 
-def _crew_by_role(crew):
-    roles = set([c["role"] for c in crew if c.get("role")])
-    r = {key: [] for key in roles}
-    for c in crew:
-        r[c["role"]].append(c["name"])
-    return r
-
-
 class Performance(Item):
     if TYPE_CHECKING:
         productions: models.QuerySet["PerformanceProduction"]
@@ -301,10 +293,6 @@ class Performance(Item):
             .order_by("metadata__opening_date", "title")
             .filter(is_deleted=False, merged_to_item=None)
         )
-
-    @cached_property
-    def crew_by_role(self):
-        return _crew_by_role(self.crew)
 
     @property
     def child_items(self):
@@ -519,10 +507,6 @@ class PerformanceProduction(Item):
             self.show = fetched
             return True
         return False
-
-    @cached_property
-    def crew_by_role(self):
-        return _crew_by_role(self.crew)
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]

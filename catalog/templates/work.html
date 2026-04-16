@@ -18,7 +18,7 @@
       {% for b in item.editions.all %}
         <div>
           <a href="{{ b.url }}">{{ b.display_title }}</a>
-          <small>({{ b.pub_house | default:'' }} {{ b.pub_year | default:'' }})</small>
+          <small>({{ b.publisher_name }} {{ b.pub_year | default:'' }})</small>
         </div>
       {% endfor %}
     </details>
