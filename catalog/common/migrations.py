@@ -268,7 +268,7 @@ def populate_credits_20260412(start_pk=0, batch_size=1000):
     has_credits = ItemCredit.objects.filter(item_id=OuterRef("pk"))
     qs = (
         Item.objects.filter(
-            is_deleted=False, merged_to_item__isnull=True, pk__gt=start_pk
+            is_deleted=False, merged_to_item__isnull=True, pk__gte=start_pk
         )
         .exclude(Exists(has_credits))
         .order_by("pk")
