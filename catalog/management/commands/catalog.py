@@ -195,9 +195,7 @@ class Command(SiteCommand):
             case "populate_credits_extra":
                 from catalog.common.migrations import populate_credits_extra_20260415
 
-                populate_credits_extra_20260415(
-                    start_pk=start or 0, batch_size=batch_size
-                )
+                populate_credits_extra_20260415(batch_size=batch_size)
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
