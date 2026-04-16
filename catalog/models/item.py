@@ -584,6 +584,17 @@ class Item(PolymorphicModel):
         return list(set(titles))
 
     def to_indexable_doc(self) -> dict[str, str | int | list[str] | list[int]]:
+        from .people import PeopleRole
+
+        org_roles = PeopleRole.organization_roles()
+        people: list[str] = []
+        company: list[str] = []
+        for role, credits in self.role_credits.items():
+            names = [c.name for c in credits]
+            if role in org_roles:
+                company.extend(names)
+            else:
+                people.extend(names)
         doc = {
             "id": str(self.pk),
             "item_id": [self.pk],
@@ -592,6 +603,8 @@ class Item(PolymorphicModel):
             "tag": self.tags,
             "mark_count": self.mark_count,
             "language": getattr(self, "language", None) or [],
+            "people": people,
+            "company": company,
         }
         return doc
 

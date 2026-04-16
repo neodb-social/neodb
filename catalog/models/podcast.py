@@ -128,7 +128,6 @@ class Podcast(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = self.host or []
         d["genre"] = self.genre or []
         return d
 
@@ -142,10 +141,9 @@ class Podcast(Item):
         if self.genre:
             data["genre"] = self.genre
 
-        if self.host:
-            data["author"] = [
-                {"@type": "Person", "name": person} for person in self.host
-            ]
+        hosts = self.credit_names_by_role("host")
+        if hosts:
+            data["author"] = [{"@type": "Person", "name": person} for person in hosts]
 
         if self.official_site:
             data["sameAs"] = self.official_site

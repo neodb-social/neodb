@@ -184,9 +184,6 @@ class Movie(Item):
         d = super().to_indexable_doc()
         if self.imdb:
             d["lookup_id"] = [str(self.imdb)]
-        d["people"] = (
-            (self.director or []) + (self.actor or []) + (self.playwright or [])
-        )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
@@ -205,15 +202,15 @@ class Movie(Item):
         if self.duration:
             data["duration"] = self.duration
 
-        if self.director:
+        directors = self.credit_names_by_role("director")
+        if directors:
             data["director"] = [
-                {"@type": "Person", "name": person} for person in self.director
+                {"@type": "Person", "name": person} for person in directors
             ]
 
-        if self.actor:
-            data["actor"] = [
-                {"@type": "Person", "name": person} for person in self.actor
-            ]
+        actors = self.credit_names_by_role("actor")
+        if actors:
+            data["actor"] = [{"@type": "Person", "name": person} for person in actors]
 
         if self.genre:
             data["genre"] = self.genre

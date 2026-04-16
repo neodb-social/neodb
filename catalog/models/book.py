@@ -262,10 +262,12 @@ class Edition(Item):
             d["extra_title"] = [self.series]
         if self.format:
             d["format"] = [self.format]
-        d["company"] = ([self.pub_house] if self.pub_house else []) + (
-            [self.imprint] if self.imprint else []
-        )
-        d["people"] = self.author + self.translator
+        if self.imprint:
+            company = d.get("company")
+            if isinstance(company, list):
+                company.append(self.imprint)
+            else:
+                d["company"] = [self.imprint]
         dt = int_(self.pub_year) * 10000
         if dt:
             dt += int_(self.pub_month) * 100
@@ -413,16 +415,16 @@ class Edition(Item):
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
 
-        if self.author:
-            data["author"] = [
-                {"@type": "Person", "name": person} for person in self.author
-            ]
+        authors = self.credit_names_by_role("author")
+        if authors:
+            data["author"] = [{"@type": "Person", "name": person} for person in authors]
 
         if self.isbn:
             data["isbn"] = str(self.isbn)
 
-        if self.pub_house:
-            data["publisher"] = {"@type": "Organization", "name": self.pub_house}
+        publishers = self.credit_names_by_role("publisher")
+        if publishers:
+            data["publisher"] = {"@type": "Organization", "name": publishers[0]}
 
         if self.pub_year:
             pub_date = str(self.pub_year)

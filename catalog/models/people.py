@@ -61,6 +61,20 @@ class PeopleRole(models.TextChoices):
     TROUPE = "troupe", _("Troupe")
     CREW = "crew", _("Crew")
 
+    @classmethod
+    def organization_roles(cls) -> set[str]:
+        return {
+            cls.PUBLISHER,
+            cls.DISTRIBUTOR,
+            cls.PRODUCTION_COMPANY,
+            cls.RECORD_LABEL,
+            cls.DEVELOPER,
+            cls.STUDIO,
+            cls.PUBLISHING_HOUSE,
+            cls.IMPRINT,
+            cls.TROUPE,
+        }
+
 
 class PeopleInSchema(Schema):
     name: str = Field(alias="display_name")

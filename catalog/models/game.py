@@ -164,8 +164,6 @@ class Game(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = (self.designer or []) + (self.artist or [])
-        d["company"] = (self.developer or []) + (self.publisher or [])
         d["date"] = (
             [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
         )
@@ -184,16 +182,16 @@ class Game(Item):
         if self.platform:
             data["gamePlatform"] = self.platform
 
-        if self.developer:
+        developers = self.credit_names_by_role("developer")
+        if developers:
             data["author"] = [
-                {"@type": "Organization", "name": developer}
-                for developer in self.developer
+                {"@type": "Organization", "name": developer} for developer in developers
             ]
 
-        if self.publisher:
+        publishers = self.credit_names_by_role("publisher")
+        if publishers:
             data["publisher"] = [
-                {"@type": "Organization", "name": publisher}
-                for publisher in self.publisher
+                {"@type": "Organization", "name": publisher} for publisher in publishers
             ]
 
         if self.release_date:

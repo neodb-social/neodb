@@ -141,8 +141,6 @@ class Album(Item):
         d = super().to_indexable_doc()
         if self.barcode:
             d["lookup_id"] = [str(self.barcode)]
-        d["people"] = self.artist or []
-        d["company"] = self.company or []
         d["date"] = (
             [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
         )
@@ -155,9 +153,10 @@ class Album(Item):
         data = super().to_schema_org()
         data["@type"] = "MusicAlbum"
 
-        if self.artist:
+        artists = self.credit_names_by_role("artist")
+        if artists:
             data["byArtist"] = [
-                {"@type": "MusicGroup", "name": person} for person in self.artist
+                {"@type": "MusicGroup", "name": person} for person in artists
             ]
 
         if self.genre:
@@ -167,8 +166,9 @@ class Album(Item):
             # Simplified track list as text
             data["numTracks"] = len(self.track_list.split("\n"))
 
-        if self.company and len(self.company) > 0:
-            data["publisher"] = {"@type": "Organization", "name": self.company[0]}
+        labels = self.credit_names_by_role("record_label")
+        if labels:
+            data["publisher"] = {"@type": "Organization", "name": labels[0]}
 
         if self.release_date:
             data["datePublished"] = self.release_date.isoformat()

@@ -7,9 +7,9 @@
 {% load strip_scheme %}
 {% load thumb %}
 {% block head %}
-  {% if item.author %}
+  {% if item.role_credits.author %}
     <meta property="og:book:author"
-          content="{% for author in item.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
+          content="{% for credit in item.role_credits.author %}{{ credit.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
   {% endif %}
   {% if item.isbn %}<meta property="og:book:isbn" content="{{ item.isbn }}">{% endif %}
 {% endblock %}
@@ -27,11 +27,7 @@
     {% endif %}
   </div>
   <div>{% include '_people.html' with people=item.additional_title role='other title' max=99 %}</div>
-  <div>
-    {% if item.pub_house %}
-      {% trans 'publishing house' %}: {{ item.pub_house }}
-    {% endif %}
-  </div>
+  <div>{% include '_credits.html' with credits=item.role_credits.publisher role_label='publishing house' max=5 %}</div>
   <div>
     {% if item.imprint %}
       {% trans 'imprint' %}: {{ item.imprint }}

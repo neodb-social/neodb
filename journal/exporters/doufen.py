@@ -90,9 +90,9 @@ class DoufenExporter(Task):
                         + " / "
                         + ",".join(movie.genre or [])
                         + " / "
-                        + ",".join(movie.director or [])
+                        + ",".join(movie.credit_names_by_role("director"))
                         + " / "
-                        + ",".join(movie.actor or [])
+                        + ",".join(movie.credit_names_by_role("actor"))
                     )
                 tags = ",".join(mark.tags)
                 world_rating = (movie.rating / 2) if movie.rating else None
@@ -130,7 +130,7 @@ class DoufenExporter(Task):
                 album = mark.item
                 title = album.display_title
                 summary = (
-                    ",".join(album.artist)
+                    ",".join(album.credit_names_by_role("artist"))
                     + " / "
                     + (album.release_date.strftime("%Y") if album.release_date else "")
                 )
@@ -170,11 +170,11 @@ class DoufenExporter(Task):
                 book = mark.item
                 title = book.display_title
                 summary = (
-                    ",".join(book.author or [])
+                    ",".join(book.credit_names_by_role("author"))
                     + " / "
                     + str(book.pub_year or "")
                     + " / "
-                    + (book.pub_house or "")
+                    + ",".join(book.credit_names_by_role("publisher"))
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (book.rating / 2) if book.rating else None
@@ -257,7 +257,7 @@ class DoufenExporter(Task):
                 mark = mm.mark
                 podcast = mark.item
                 title = podcast.display_title
-                summary = ",".join(podcast.host or [])
+                summary = ",".join(podcast.credit_names_by_role("host"))
                 tags = ",".join(mark.tags)
                 world_rating = (podcast.rating / 2) if podcast.rating else None
                 timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")

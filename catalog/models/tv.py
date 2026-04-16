@@ -262,9 +262,6 @@ class TVShow(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = (
-            (self.director or []) + (self.actor or []) + (self.playwright or [])
-        )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
@@ -283,19 +280,20 @@ class TVShow(Item):
         if self.language:
             data["inLanguage"] = self.language[0]
 
-        if self.actor:
-            data["actor"] = [
-                {"@type": "Person", "name": person} for person in self.actor
-            ]
+        actors = self.credit_names_by_role("actor")
+        if actors:
+            data["actor"] = [{"@type": "Person", "name": person} for person in actors]
 
-        if self.director:
+        directors = self.credit_names_by_role("director")
+        if directors:
             data["director"] = [
-                {"@type": "Person", "name": person} for person in self.director
+                {"@type": "Person", "name": person} for person in directors
             ]
 
-        if self.playwright:
+        playwrights = self.credit_names_by_role("playwright")
+        if playwrights:
             data["creator"] = [
-                {"@type": "Person", "name": person} for person in self.playwright
+                {"@type": "Person", "name": person} for person in playwrights
             ]
 
         if self.year:
@@ -517,9 +515,6 @@ class TVSeason(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = (
-            (self.director or []) + (self.actor or []) + (self.playwright or [])
-        )
         dt = int_(self.year) * 10000
         d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
@@ -551,19 +546,20 @@ class TVSeason(Item):
         if self.language:
             data["inLanguage"] = self.language[0]
 
-        if self.actor:
-            data["actor"] = [
-                {"@type": "Person", "name": person} for person in self.actor
-            ]
+        actors = self.credit_names_by_role("actor")
+        if actors:
+            data["actor"] = [{"@type": "Person", "name": person} for person in actors]
 
-        if self.director:
+        directors = self.credit_names_by_role("director")
+        if directors:
             data["director"] = [
-                {"@type": "Person", "name": person} for person in self.director
+                {"@type": "Person", "name": person} for person in directors
             ]
 
-        if self.playwright:
+        playwrights = self.credit_names_by_role("playwright")
+        if playwrights:
             data["creator"] = [
-                {"@type": "Person", "name": person} for person in self.playwright
+                {"@type": "Person", "name": person} for person in playwrights
             ]
 
         if self.year:

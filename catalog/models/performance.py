@@ -273,18 +273,6 @@ class Performance(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = (
-            (self.orig_creator or [])
-            + (self.playwright or [])
-            + (self.director or [])
-            + (self.troupe or [])
-            + [a["name"] for a in (self.actor or [])]
-            + (self.performer or [])
-            + (self.composer or [])
-            + (self.choreographer or [])
-            + [a["name"] for a in (self.crew or [])]
-        )
-        d["company"] = self.troupe or []
         dt = self.opening_date or self.closing_date or ""
         dd = datetime_(dt)
         d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
@@ -304,19 +292,22 @@ class Performance(Item):
         if self.language:
             data["inLanguage"] = self.language[0]
 
-        if self.playwright:
+        playwrights = self.credit_names_by_role("playwright")
+        if playwrights:
             data["author"] = [
-                {"@type": "Person", "name": person} for person in self.playwright
+                {"@type": "Person", "name": person} for person in playwrights
             ]
 
-        if self.director:
+        creators = self.credit_names_by_role("original_creator")
+        if creators:
             data["creator"] = [
-                {"@type": "Person", "name": person} for person in self.orig_creator
+                {"@type": "Person", "name": person} for person in creators
             ]
 
-        if self.composer:
+        composers = self.credit_names_by_role("composer")
+        if composers:
             data["composer"] = [
-                {"@type": "Person", "name": person} for person in self.composer
+                {"@type": "Person", "name": person} for person in composers
             ]
 
         if self.official_site:
@@ -496,18 +487,6 @@ class PerformanceProduction(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["people"] = (
-            (self.orig_creator or [])
-            + (self.playwright or [])
-            + (self.director or [])
-            + (self.troupe or [])
-            + [a["name"] for a in (self.actor or [])]
-            + (self.performer or [])
-            + (self.composer or [])
-            + (self.choreographer or [])
-            + [a["name"] for a in (self.crew or [])]
-        )
-        d["company"] = self.troupe or []
         dt = self.opening_date or self.closing_date or ""
         dd = datetime_(dt)
         d["date"] = [int(dd.strftime("%Y%m%d"))] if dd else []
@@ -535,21 +514,24 @@ class PerformanceProduction(Item):
         if self.language:
             data["inLanguage"] = self.language[0]
 
-        if self.troupe and len(self.troupe) > 0:
-            data["performer"] = {"@type": "TheaterGroup", "name": self.troupe[0]}
+        troupes = self.credit_names_by_role("troupe")
+        if troupes:
+            data["performer"] = {"@type": "TheaterGroup", "name": troupes[0]}
 
-        if self.director:
+        directors = self.credit_names_by_role("director")
+        if directors:
             data["director"] = [
-                {"@type": "Person", "name": person} for person in self.director
+                {"@type": "Person", "name": person} for person in directors
             ]
 
-        if self.actor:
+        actors = self.credit_names_by_role("actor")
+        if actors:
             data["actor"] = [
                 {
                     "@type": "Person",
-                    "name": person["name"],
+                    "name": person,
                 }
-                for person in self.actor
+                for person in actors
             ]
 
         if self.official_site:
