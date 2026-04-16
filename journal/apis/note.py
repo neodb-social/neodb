@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from django.http import Http404
-from ninja import Field, Schema
+from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
@@ -62,7 +62,7 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     note = Note()
     note.item = item
     note.owner = request.user.identity

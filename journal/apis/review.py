@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from django.utils import timezone
-from ninja import Field, Schema
+from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
 from catalog.models import AvailableItemCategory, Item, ItemSchema
@@ -63,10 +63,10 @@ def get_review_by_item(request, item_uuid: str):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     review = Review.objects.filter(owner=request.user.identity, item=item).first()
     if not review:
-        return 404, {"message": "Review not found"}
+        return Status(404, {"message": "Review not found"})
     return review
 
 
@@ -85,7 +85,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     if review.created_time and review.created_time >= timezone.now():
         review.created_time = None
     Review.update_item_review(
@@ -98,7 +98,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         share_to_mastodon=review.post_to_fediverse,
         application_id=getattr(request, "application_id", None),
     )
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.delete(
@@ -112,9 +112,9 @@ def delete_review(request, item_uuid: str):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     Review.update_item_review(item, request.user.identity, None, None)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -132,7 +132,7 @@ def get_any_review(request, review_uuid: str):
     """
     r = Review.get_by_url(review_uuid)
     if not r:
-        return 404, {"message": "Review not found"}
+        return Status(404, {"message": "Review not found"})
     if not r.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     return r

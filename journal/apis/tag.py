@@ -2,7 +2,7 @@ from typing import List
 
 from django.core.cache import cache
 from django.http import Http404
-from ninja import Field, Schema
+from ninja import Field, Schema, Status
 from ninja.errors import HttpError
 from ninja.pagination import paginate
 
@@ -60,9 +60,9 @@ def get_tag(request, tag_uuid: str):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        return Status(404, {"message": "Tag not found"})
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     return tag
 
 
@@ -103,9 +103,9 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        return Status(404, {"message": "Tag not found"})
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     title = Tag.cleanup_title(t_in.title)
     visibility = 2 if t_in.visibility else 0
     if title != tag.title:
@@ -114,7 +114,7 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
             tag.visibility = visibility
             tag.save()
         except Exception:
-            return 409, {"message": "Tag with same title exists"}
+            return Status(409, {"message": "Tag with same title exists"})
     return tag
 
 
@@ -129,11 +129,11 @@ def delete_tag(request, tag_uuid: str):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        return Status(404, {"message": "Tag not found"})
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     tag.delete()
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -165,16 +165,16 @@ def tag_add_item(request, tag_uuid: str, tag_item: TagItemInSchema):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        return Status(404, {"message": "Tag not found"})
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     if not tag_item.item_uuid:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     item = Item.get_by_url(tag_item.item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     tag.append_item(item)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.delete(
@@ -188,14 +188,14 @@ def tag_delete_item(request, tag_uuid: str, item_uuid: str):
     """
     tag = Tag.get_by_url(tag_uuid)
     if not tag:
-        return 404, {"message": "Tag not found"}
+        return Status(404, {"message": "Tag not found"})
     if tag.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     tag.remove_item(item)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(

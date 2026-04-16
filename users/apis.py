@@ -1,7 +1,7 @@
 from typing import Literal
 
 from django.conf import settings
-from ninja import Schema
+from ninja import Schema, Status
 from ninja.schema import Field
 
 from common.api import NOT_FOUND, Result, api
@@ -43,7 +43,7 @@ class PreferenceSchema(Schema):
     tags=["user"],
 )
 def token(request):
-    return 200, {"active": request.auth is not None}
+    return Status(200, {"active": request.auth is not None})
 
 
 @api.get(
@@ -54,18 +54,21 @@ def token(request):
 )
 def me(request):
     accts = SocialAccount.objects.filter(user=request.user)
-    return 200, {
-        # "id": str(request.user.identity.pk),
-        "username": request.user.username,
-        "url": settings.SITE_INFO["site_url"] + request.user.url,
-        "external_acct": (
-            request.user.mastodon.handle if request.user.mastodon else None
-        ),
-        "external_accounts": accts,
-        "display_name": request.user.display_name,
-        "avatar": request.user.avatar,
-        "roles": request.user.get_roles(),
-    }
+    return Status(
+        200,
+        {
+            # "id": str(request.user.identity.pk),
+            "username": request.user.username,
+            "url": settings.SITE_INFO["site_url"] + request.user.url,
+            "external_acct": (
+                request.user.mastodon.handle if request.user.mastodon else None
+            ),
+            "external_accounts": accts,
+            "display_name": request.user.display_name,
+            "avatar": request.user.avatar,
+            "roles": request.user.get_roles(),
+        },
+    )
 
 
 @api.get(
@@ -75,7 +78,7 @@ def me(request):
     tags=["user"],
 )
 def preference(request):
-    return 200, request.user.preference
+    return Status(200, request.user.preference)
 
 
 @api.get(
@@ -95,13 +98,16 @@ def user(request, handle: str):
         return NOT_FOUND
     viewer = request.user.identity
     if target.is_blocking(viewer) or target.is_blocked_by(viewer):
-        return 403, {"message": "unavailable"}
-    return 200, {
-        "username": target.handle,
-        "url": target.url,
-        "external_acct": None,
-        "external_accounts": [],
-        "display_name": target.display_name,
-        "avatar": target.avatar,
-        "roles": target.user.get_roles() if target.local else [],
-    }
+        return Status(403, {"message": "unavailable"})
+    return Status(
+        200,
+        {
+            "username": target.handle,
+            "url": target.url,
+            "external_acct": None,
+            "external_accounts": [],
+            "display_name": target.display_name,
+            "avatar": target.avatar,
+            "roles": target.user.get_roles() if target.local else [],
+        },
+    )

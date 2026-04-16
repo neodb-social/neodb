@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from loguru import logger
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI, Schema, Status
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
 from ninja.security import HttpBearer
 
@@ -112,7 +112,7 @@ api = NinjaAPI(
     description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.SITE_INFO['site_url']}'>Learn more</a>",
 )
 
-NOT_FOUND = 404, {"message": "Not found"}
-OK = 200, {"message": "OK"}
+NOT_FOUND = Status(404, {"message": "Not found"})
+OK = Status(200, {"message": "OK"})
 NO_DATA = {"data": [], "count": 0, "pages": 0}
-INVALID_PAGE = 400, {"message": "Invalid page number"}
+INVALID_PAGE = Status(400, {"message": "Invalid page number"})

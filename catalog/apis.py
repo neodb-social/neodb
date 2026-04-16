@@ -4,7 +4,7 @@ from typing import List
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.utils import timezone
-from ninja import Schema
+from ninja import Schema, Status
 from ninja.pagination import paginate
 
 from common.api import PageNumberPagination, RedirectedResult, Result, api
@@ -104,7 +104,7 @@ def search_item(
     """
     query = query.strip()
     if not query:
-        return 400, {"message": "Invalid query"}
+        return Status(400, {"message": "Invalid query"})
     categories = category.value.split(",") if category else None
     exclude_categories = (
         request.user.preference.hidden_categories
@@ -123,7 +123,7 @@ def search_item(
     Tag.attach_to_items(items)
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
-    return 200, {"data": items, "pages": num_pages, "count": count}
+    return Status(200, {"data": items, "pages": num_pages, "count": count})
 
 
 @api.get(
@@ -147,16 +147,16 @@ def fetch_item(request, url: str, response: HttpResponse):
     """
     site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
-        return 422, {"message": "URL not supported"}
+        return Status(422, {"message": "URL not supported"})
     item = site.get_item()
     if item:
         response["Location"] = item.api_url
-        return 302, {"message": "Item fetched", "url": item.api_url}
+        return Status(302, {"message": "Item fetched", "url": item.api_url})
     if get_fetch_lock(request.user, url):
         enqueue_fetch(url, False, request.user)
     else:
-        return 429, {"message": "Try again later"}
-    return 202, {"message": "Fetch in progress"}
+        return Status(429, {"message": "Try again later"})
+    return Status(202, {"message": "Fetch in progress"})
 
 
 @api.get(
@@ -179,7 +179,7 @@ def trending_items(request):
         items = cache.get(gallery["name"], [])
         i = rot * len(items) // 10
         gallery["items"] = items[i:] + items[:i]
-    return 200, gallery_list
+    return Status(200, gallery_list)
 
 
 def _get_trending(name):
@@ -269,15 +269,17 @@ def trending_performance(request):
 def _get_item(cls, uuid, response):
     item = Item.get_by_url(uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     if item.merged_to_item:
         response["Location"] = item.merged_to_item.api_url
-        return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
     if item.is_deleted:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     if item.__class__ != cls:
         response["Location"] = item.api_url
-        return 302, {"message": "Item recasted", "url": item.api_url}
+        return Status(302, {"message": "Item recasted", "url": item.api_url})
     return item
 
 

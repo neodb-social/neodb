@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
-from ninja import Field, Schema
+from ninja import Field, Schema, Status
 from ninja.decorators import decorate_view
 from ninja.errors import HttpError
 from ninja.pagination import paginate
@@ -90,9 +90,9 @@ def get_user_collection(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     return c
 
 
@@ -108,9 +108,9 @@ def get_collection(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     return c
 
 
@@ -173,13 +173,13 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     q = (c_in.query or "").strip() or None
     is_dynamic = bool(q)
     if c.is_dynamic != is_dynamic:
-        return 403, {"message": "Cannot change collection type"}
+        return Status(403, {"message": "Cannot change collection type"})
     c.title = c_in.title
     c.brief = c_in.brief
     c.visibility = c_in.visibility
@@ -200,11 +200,11 @@ def delete_collection(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     c.delete()
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -243,18 +243,20 @@ def collection_add_item(
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     if c.is_dynamic:
-        return 403, {"message": "Item list of dynamic collection cannot be updated"}
+        return Status(
+            403, {"message": "Item list of dynamic collection cannot be updated"}
+        )
     if not collection_item.item_uuid:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     item = Item.get_by_url(collection_item.item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     c.append_item(item, note=collection_item.note)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.delete(
@@ -268,16 +270,18 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if c.owner != request.user.identity:
-        return 403, {"message": "Not owner"}
+        return Status(403, {"message": "Not owner"})
     if c.is_dynamic:
-        return 403, {"message": "Item list of dynamic collection cannot be updated"}
+        return Status(
+            403, {"message": "Item list of dynamic collection cannot be updated"}
+        )
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     c.remove_item(item)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -309,11 +313,11 @@ def collection_set_featured(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     FeaturedCollection.objects.update_or_create(owner=request.user.identity, target=c)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.delete(
@@ -327,11 +331,11 @@ def collection_unset_featured(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     FeaturedCollection.objects.filter(owner=request.user.identity, target=c).delete()
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -357,15 +361,15 @@ def get_featured_collection(request, collection_uuid: str, response: HttpRespons
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not FeaturedCollection.objects.filter(
         owner=request.user.identity, target=c
     ).exists():
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     response["Location"] = f"/api/collection/{c.uuid}"
-    return 302, {"message": "OK", "url": c.api_url}
+    return Status(302, {"message": "OK", "url": c.api_url})
 
 
 @api.get(
@@ -384,13 +388,13 @@ def get_featured_collection_stats(request, collection_uuid: str):
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not FeaturedCollection.objects.filter(
         owner=request.user.identity, target=c
     ).exists():
-        return 404, {"message": "Collection not found"}
+        return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
-        return 403, {"message": "Permission denied"}
+        return Status(403, {"message": "Permission denied"})
     items = c.item_ids
     stats = {"total": len(items)}
     for st in ShelfType:

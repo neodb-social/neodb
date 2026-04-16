@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.db.models import QuerySet
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
-from ninja import Field, Schema
+from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
 from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
@@ -114,14 +114,14 @@ def get_user_calendar_data(request, handle: str):
     try:
         target = APIdentity.get_by_handle(handle)
     except APIdentity.DoesNotExist:
-        return 404, {"message": "User not found"}
+        return Status(404, {"message": "User not found"})
 
     viewer = getattr(request.user, "identity", None)
     if not viewer:
-        return 401, {"message": "Login required"}
+        return Status(401, {"message": "Login required"})
     if request.user != target.user:
         if target.restricted or target.is_rejecting(viewer):
-            return 403, {"message": "Access denied"}
+            return Status(403, {"message": "Access denied"})
     max_visibility = max_visiblity_to_user(request.user, target)
     cache_key = f"user_calendar:{target.pk}:{max_visibility}"
     calendar_data = cache.get_or_set(
@@ -200,13 +200,15 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     """
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     if item.merged_to_item:
         response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}"
-        return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
     shelfmember = request.user.shelf_manager.locate_item(item)
     if not shelfmember:
-        return 404, {"message": "Mark not found"}
+        return Status(404, {"message": "Mark not found"})
     return shelfmember
 
 
@@ -247,7 +249,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     """
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted or item.merged_to_item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     if mark.created_time:
         if mark.created_time.tzinfo is None:
             mark.created_time = timezone.make_aware(
@@ -266,7 +268,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
         share_to_mastodon=mark.post_to_fediverse,
         application_id=getattr(request, "application_id", None),
     )
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.delete(
@@ -280,10 +282,10 @@ def delete_mark(request, item_uuid: str):
     """
     item = Item.get_by_url(item_uuid)
     if not item:
-        return 404, {"message": "Item not found"}
+        return Status(404, {"message": "Item not found"})
     m = Mark(request.user.identity, item)
     m.delete(keep_tags=True)
-    return 200, {"message": "OK"}
+    return Status(200, {"message": "OK"})
 
 
 @api.get(
@@ -306,5 +308,7 @@ def get_mark_logs_by_item(request, item_uuid: str, response: HttpResponse):
         raise Http404("Item not found")
     if item.merged_to_item:
         response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/logs"
-        return 302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
     return Mark(request.user.identity, item).logs
