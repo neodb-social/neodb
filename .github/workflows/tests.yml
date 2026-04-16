@@ -56,11 +56,14 @@ jobs:
       with:
         enable-cache: true
     - name: Install Dependencies
+      env:
+        UV_PYTHON: ${{ matrix.python-version }}
       run: |
-        uv sync
+        uv sync -p ${{ matrix.python-version }}
         sudo apt install -y gettext
     - name: Run Tests
       env:
+        UV_PYTHON: ${{ matrix.python-version }}
         NEODB_SECRET_KEY: test
         NEODB_SITE_NAME: test
         NEODB_SITE_DOMAIN: example.org
