@@ -255,6 +255,7 @@ class TestCatalogSearch:
         self.book1.pub_house = "Allen & Unwin"
         self.book1.language = ["en"]
         self.book1.save()
+        self.book1.sync_credits_from_metadata()
 
         self.book2 = Edition.objects.create(title="The Hobbit")
         self.book2.localized_title = [{"lang": "en", "text": "The Hobbit"}]
@@ -264,6 +265,7 @@ class TestCatalogSearch:
         self.book2.pub_house = "Allen & Unwin"
         self.book2.language = ["en"]
         self.book2.save()
+        self.book2.sync_credits_from_metadata()
 
         self.book3 = Edition.objects.create(title="Dune")
         self.book3.localized_title = [{"lang": "en", "text": "Dune"}]
@@ -273,6 +275,7 @@ class TestCatalogSearch:
         self.book3.pub_house = "Chilton Books"
         self.book3.language = ["en", "fr"]
         self.book3.save()
+        self.book3.sync_credits_from_metadata()
 
         # Create movie test data
         self.movie1 = Movie.objects.create(title="The Godfather")
@@ -283,6 +286,7 @@ class TestCatalogSearch:
         self.movie1.year = 1972
         self.movie1.language = ["it"]
         self.movie1.save()
+        self.movie1.sync_credits_from_metadata()
 
         self.movie2 = Movie.objects.create(title="The Godfather: Part II")
         self.movie2.localized_title = [{"lang": "en", "text": "The Godfather: Part II"}]
@@ -292,6 +296,7 @@ class TestCatalogSearch:
         self.movie2.year = 1974
         self.movie2.language = ["it", "en"]
         self.movie2.save()
+        self.movie2.sync_credits_from_metadata()
 
         self.movie3 = Movie.objects.create(title="Inception")
         self.movie3.localized_title = [{"lang": "en", "text": "Inception"}]
@@ -306,6 +311,7 @@ class TestCatalogSearch:
         self.movie3.year = 2010
         self.movie3.language = ["en"]
         self.movie3.save()
+        self.movie3.sync_credits_from_metadata()
 
         # Index the items for searching
         for item in [

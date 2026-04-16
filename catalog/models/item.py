@@ -861,6 +861,8 @@ class Item(PolymorphicModel):
                 if not created and character and not credit.character_name:
                     credit.character_name = character
                     credit.save(update_fields=["character_name"])
+        # Invalidate cached credits so subsequent reads reflect the new data
+        self.__dict__.pop("role_credits", None)
 
     def process_fetched_item(
         self, fetched: Self, link_type: "ExternalResource.LinkType"

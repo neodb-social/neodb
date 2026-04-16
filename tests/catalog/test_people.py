@@ -47,7 +47,7 @@ class TestPeople:
         assert not person.is_organization
         assert person.display_name == "Dan Simmons"
         assert person.uuid
-        assert person.url == f"/people/{person.uuid}"
+        assert person.url == f"/person/{person.uuid}"
 
     def test_create_organization(self):
         org = People.objects.create(
@@ -58,6 +58,7 @@ class TestPeople:
         assert not org.is_person
         assert org.is_organization
         assert org.display_name == "Bantam Books"
+        assert org.url == f"/company/{org.uuid}"
 
     def test_localized_names(self):
         person = People.objects.create(
@@ -567,6 +568,8 @@ class TestPopulateCredits:
         ItemCredit.objects.create(
             item=movie, role=CreditRole.Actor, name="Act B", order=1
         )
+        # Re-fetch to clear cached_property from save()->update_index()
+        movie = Movie.objects.get(pk=movie.pk)
         rc = movie.role_credits
         assert len(rc.get("director", [])) == 1
         assert len(rc.get("actor", [])) == 2
@@ -1015,6 +1018,7 @@ class TestRoleCreditsAndAPI:
         ItemCredit.objects.create(
             item=movie, role=CreditRole.Actor, name="Act2", order=1
         )
+        movie = Movie.objects.get(pk=movie.pk)
         rc = movie.role_credits
         assert len(rc["director"]) == 1
         assert len(rc["actor"]) == 2
@@ -1041,6 +1045,7 @@ class TestRoleCreditsAndAPI:
             name="Unknown Actor",
             order=0,
         )
+        movie = Movie.objects.get(pk=movie.pk)
         api = movie.api_credits
         assert len(api) == 2
         dir_credit = next(c for c in api if c.role == CreditRole.Director)
