@@ -3,7 +3,13 @@ from catalog.models import *
 from catalog.models.utils import *
 from common.models.lang import detect_language
 
-from .douban import RE_NUMBERS, RE_WHITESPACES, DoubanDownloader, DoubanSearcher
+from .douban import (
+    RE_NUMBERS,
+    RE_WHITESPACES,
+    DoubanDownloader,
+    DoubanSearcher,
+    extract_people_links_from_anchors,
+)
 
 
 @SiteManager.register
@@ -183,6 +189,31 @@ class DoubanBook(AbstractSite):
         else:
             translators = None
 
+        # Extract author/translator person links for related resources
+        author_anchors = self.query_list(
+            content,
+            """//div[@id='info']//span[text()='作者:']/following-sibling::br[1]/
+            preceding-sibling::a[preceding-sibling::span[text()='作者:']]""",
+        )
+        if not author_anchors:
+            author_anchors = self.query_list(
+                content,
+                """//div[@id='info']//span[text()=' 作者']/following-sibling::a""",
+            )
+        translator_anchors = self.query_list(
+            content,
+            """//div[@id='info']//span[text()='译者:']/following-sibling::br[1]/
+            preceding-sibling::a[preceding-sibling::span[text()='译者:']]""",
+        )
+        if not translator_anchors:
+            translator_anchors = self.query_list(
+                content,
+                """//div[@id='info']//span[text()=' 译者']/following-sibling::a""",
+            )
+        related_people = extract_people_links_from_anchors(
+            author_anchors + translator_anchors
+        )
+
         cncode_elem = self.query_list(
             content, "//div[@id='info']//span[text()='统一书号:']/following::text()"
         )
@@ -248,6 +279,9 @@ class DoubanBook(AbstractSite):
                     },
                 }
             ]
+
+        if related_people:
+            data["related_resources"] = related_people
 
         pd = ResourceContent(metadata=data)
         t, n = detect_isbn_asin(isbn or "")

@@ -8,7 +8,7 @@ from catalog.models import *
 from common.models.lang import detect_language
 from common.models.misc import int_
 
-from .douban import DoubanDownloader, DoubanSearcher
+from .douban import DoubanDownloader, DoubanSearcher, extract_people_links_from_anchors
 from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
 
 
@@ -329,31 +329,9 @@ def _extract_personage_links(content) -> list[dict]:
 
     Collects directors, playwrights, and top 10 actors as related People resources.
     """
-    seen_ids: set[str] = set()
-    resources: list[dict] = []
-
+    anchors = []
     for role_label in ["导演", "编剧", "主演"]:
-        anchors = content.xpath(
+        anchors += content.xpath(
             f"//div[@id='info']//span[text()='{role_label}']/following-sibling::span[1]/a"
         )
-        for a in anchors:
-            href = a.get("href", "")
-            name = "".join(a.itertext()).strip()
-            m = re.search(r"personage/(\d+)", href)
-            if not m or not name:
-                continue
-            pid = m.group(1)
-            if pid in seen_ids:
-                continue
-            seen_ids.add(pid)
-            resources.append(
-                {
-                    "model": "People",
-                    "id_type": IdType.DoubanPersonage,
-                    "id_value": pid,
-                    "url": f"https://www.douban.com/personage/{pid}/",
-                }
-            )
-            if len(resources) >= 15:
-                return resources
-    return resources
+    return extract_people_links_from_anchors(anchors)

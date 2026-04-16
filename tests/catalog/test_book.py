@@ -411,6 +411,21 @@ class TestDoubanBook:
         assert site.resource.item.display_title == "1984 Nineteen Eighty-Four"
 
     @use_local_response
+    def test_author_related_resources(self):
+        t_url = "https://book.douban.com/subject/36255848/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready is True
+        assert site.resource is not None
+        assert site.resource.metadata.get("title") == "工厂日记"
+        related = site.resource.metadata.get("related_resources", [])
+        assert len(related) >= 1
+        # Author link /author/4608425 should be normalized to full URL
+        urls = [r.get("url", "") for r in related]
+        assert "https://book.douban.com/author/4608425/" in urls
+
+    @use_local_response
     def test_publisher(self):
         t_url = "https://book.douban.com/subject/35902899/"
         site = SiteManager.get_site_by_url(t_url)

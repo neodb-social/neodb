@@ -2,11 +2,64 @@ import json
 import re
 
 from ..common import *
-from ..models import ItemCategory, SiteName
+from ..models import IdType, ItemCategory, SiteName
 from ..search import ExternalSearchResultItem
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
+
+_RE_PERSONAGE = re.compile(r"personage/(\d+)")
+_RE_AUTHOR = re.compile(r"(?:https?://book\.douban\.com)?/author/(\d+)")
+_RE_MUSICIAN = re.compile(r"(?:https?://music\.douban\.com)?/musician/(\d+)")
+
+_AUTHOR_URL_FMT = "https://book.douban.com/author/{}/"
+_MUSICIAN_URL_FMT = "https://music.douban.com/musician/{}/"
+
+
+def extract_people_links_from_anchors(anchors: list, limit: int = 15) -> list[dict]:
+    """Extract Douban person links from <a> elements.
+
+    Handles personage/N (direct), author/N, and musician/N (redirect) patterns.
+    Both absolute and relative URLs are supported.
+    """
+    seen: set[str] = set()
+    resources: list[dict] = []
+    for a in anchors:
+        href = a.get("href", "")
+        if not href:
+            continue
+        # Direct personage link
+        m = _RE_PERSONAGE.search(href)
+        if m:
+            pid = m.group(1)
+            if pid in seen:
+                continue
+            seen.add(pid)
+            resources.append(
+                {
+                    "model": "People",
+                    "id_type": IdType.DoubanPersonage,
+                    "id_value": pid,
+                    "url": f"https://www.douban.com/personage/{pid}/",
+                }
+            )
+        else:
+            # Author or musician link -- resolved via HTTP redirect
+            m_author = _RE_AUTHOR.search(href)
+            m_musician = _RE_MUSICIAN.search(href)
+            if m_author:
+                url = _AUTHOR_URL_FMT.format(m_author.group(1))
+            elif m_musician:
+                url = _MUSICIAN_URL_FMT.format(m_musician.group(1))
+            else:
+                continue
+            if url in seen:
+                continue
+            seen.add(url)
+            resources.append({"url": url})
+        if len(resources) >= limit:
+            break
+    return resources
 
 
 class DoubanDownloader(ScrapDownloader):

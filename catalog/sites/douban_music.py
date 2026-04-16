@@ -5,7 +5,7 @@ from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
 from common.models.lang import detect_language
 
-from .douban import DoubanDownloader, DoubanSearcher
+from .douban import DoubanDownloader, DoubanSearcher, extract_people_links_from_anchors
 
 
 @SiteManager.register
@@ -38,12 +38,17 @@ class DoubanMusic(AbstractSite):
         if not title:
             raise ParseError(self, "title")
 
-        artists_elem = self.query_list(
-            content, "//div[@id='info']/span/span[@class='pl']/a/text()"
+        artist_anchors = self.query_list(
+            content, "//div[@id='info']/span/span[@class='pl']/a"
         )
         artist = (
-            None if not artists_elem else list(map(lambda a: a[:200], artists_elem))
+            None
+            if not artist_anchors
+            else list(
+                map(lambda a: "".join(a.itertext()).strip()[:200], artist_anchors)
+            )
         )
+        related_people = extract_people_links_from_anchors(artist_anchors)
 
         genre_elem = self.query_list(
             content, "//div[@id='info']//span[text()='流派:']/following::text()[1]"
@@ -103,6 +108,8 @@ class DoubanMusic(AbstractSite):
             "brief": brief,
             "cover_image_url": img_url,
         }
+        if related_people:
+            data["related_resources"] = related_people
         gtin = None
         isrc = None
         other_elem = self.query_list(

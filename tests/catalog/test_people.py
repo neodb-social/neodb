@@ -1262,6 +1262,148 @@ class TestExtractPersonageLinks:
         assert len(resources) == 0
 
 
+class TestExtractPeopleLinksFromAnchors:
+    def test_author_links(self):
+        """Author links should be extracted with their full URL."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="https://book.douban.com/author/4608425">Author One</a>
+          <a href="https://book.douban.com/author/9999999/">Author Two</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 2
+        assert resources[0]["url"] == "https://book.douban.com/author/4608425/"
+        assert resources[1]["url"] == "https://book.douban.com/author/9999999/"
+        # Author links don't have id_type (resolved via redirect)
+        assert "id_type" not in resources[0]
+
+    def test_musician_links(self):
+        """Musician links should be extracted with their full URL."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="https://music.douban.com/musician/104916/">Artist</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 1
+        assert resources[0]["url"] == "https://music.douban.com/musician/104916/"
+
+    def test_personage_links_direct(self):
+        """Personage links should be extracted with id_type and id_value."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="https://www.douban.com/personage/30098574/">Person</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 1
+        assert resources[0]["id_type"] == IdType.DoubanPersonage
+        assert resources[0]["id_value"] == "30098574"
+        assert resources[0]["url"] == "https://www.douban.com/personage/30098574/"
+
+    def test_mixed_link_types(self):
+        """Mix of personage, author, and musician links."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="https://www.douban.com/personage/11111/">Direct Person</a>
+          <a href="https://book.douban.com/author/22222">Book Author</a>
+          <a href="https://music.douban.com/musician/33333/">Musician</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 3
+        assert resources[0]["id_type"] == IdType.DoubanPersonage
+        assert resources[1]["url"] == "https://book.douban.com/author/22222/"
+        assert resources[2]["url"] == "https://music.douban.com/musician/33333/"
+
+    def test_relative_urls(self):
+        """Relative author and musician paths should be normalized to full URLs."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="/author/4608425">Author (relative)</a>
+          <a href="/musician/104916/">Musician (relative)</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 2
+        assert resources[0]["url"] == "https://book.douban.com/author/4608425/"
+        assert resources[1]["url"] == "https://music.douban.com/musician/104916/"
+
+    def test_deduplicates(self):
+        """Same author via relative and absolute URL should not be duplicated."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="/author/4608425">Name 1</a>
+          <a href="https://book.douban.com/author/4608425/">Name 1</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 1
+
+    def test_limit(self):
+        """Should respect the limit parameter."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        anchors_html = "".join(
+            f'<a href="https://www.douban.com/personage/{i}/">P{i}</a>'
+            for i in range(1, 20)
+        )
+        fragment = html.fromstring(f"<div>{anchors_html}</div>")
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors, limit=5)
+        assert len(resources) == 5
+
+    def test_ignores_unrelated_links(self):
+        """Non-person links should be ignored."""
+        from lxml import html
+
+        from catalog.sites.douban import extract_people_links_from_anchors
+
+        fragment = html.fromstring("""
+        <div>
+          <a href="https://book.douban.com/subject/12345/">A Book</a>
+          <a href="https://movie.douban.com/celebrity/99999/">Celebrity</a>
+          <a href="https://example.com/">External</a>
+        </div>
+        """)
+        anchors = fragment.findall(".//a")
+        resources = extract_people_links_from_anchors(anchors)
+        assert len(resources) == 0
+
+
 @pytest.mark.django_db(databases="__all__")
 class TestItemMergeCreditsAdvanced:
     def test_merge_preserves_character_name(self):
