@@ -54,6 +54,24 @@ class _PerformanceCreditResolverMixin:
     def resolve_performer(obj: "Performance | PerformanceProduction") -> list[str]:
         return obj.credit_names_by_role("performer")
 
+    @staticmethod
+    def resolve_actor(
+        obj: "Performance | PerformanceProduction",
+    ) -> list[dict[str, str]]:
+        credits = obj.role_credits.get("actor", [])
+        if credits:
+            return [{"name": c.name, "role": c.character_name or ""} for c in credits]
+        return getattr(obj, "actor", []) or []
+
+    @staticmethod
+    def resolve_crew(
+        obj: "Performance | PerformanceProduction",
+    ) -> list[dict[str, str]]:
+        credits = obj.role_credits.get("crew", [])
+        if credits:
+            return [{"name": c.name, "role": c.character_name or ""} for c in credits]
+        return getattr(obj, "crew", []) or []
+
 
 class PerformanceSchema(_PerformanceCreditResolverMixin, ItemSchema):
     orig_title: str | None = None
