@@ -330,7 +330,15 @@ def populate_credits_extra_20260415(batch_size=1000):
     from django.core.paginator import Paginator
     from django.db.models import Exists, OuterRef
 
-    from catalog.models import Game, Item, ItemCredit, Podcast, TVSeason, TVShow
+    from catalog.models import (
+        Edition,
+        Game,
+        Item,
+        ItemCredit,
+        Podcast,
+        TVSeason,
+        TVShow,
+    )
 
     new_mappings: list[tuple[type[Item], dict[str, str]]] = [
         (
@@ -343,6 +351,7 @@ def populate_credits_extra_20260415(batch_size=1000):
         ),
         (Podcast, {"host": "host"}),
         (Game, {"artist": "artist"}),
+        (Edition, {"imprint": "imprint"}),
     ]
     total_created = 0
     for model_cls, field_mapping in new_mappings:

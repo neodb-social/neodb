@@ -141,6 +141,7 @@ class Edition(Item):
         "author": "author",
         "translator": "translator",
         "pub_house": "publisher",
+        "imprint": "imprint",
     }
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
@@ -262,12 +263,6 @@ class Edition(Item):
             d["extra_title"] = [self.series]
         if self.format:
             d["format"] = [self.format]
-        if self.imprint:
-            company = d.get("company")
-            if isinstance(company, list):
-                company.append(self.imprint)
-            else:
-                d["company"] = [self.imprint]
         dt = int_(self.pub_year) * 10000
         if dt:
             dt += int_(self.pub_month) * 100
