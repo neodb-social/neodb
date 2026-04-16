@@ -116,6 +116,8 @@ class People(Item):
     schema = PeopleSchema
     category = ItemCategory.People
     url_path = "people"
+    url_path_person = "person"
+    url_path_organization = "company"
     type = ItemType.People
 
     # People can have any role
@@ -181,6 +183,12 @@ class People(Item):
     @property
     def is_organization(self) -> bool:
         return self.people_type == PeopleType.ORGANIZATION
+
+    @property
+    def url(self):
+        if self.is_organization:
+            return f"/{self.url_path_organization}/{self.uuid}"
+        return f"/{self.url_path_person}/{self.uuid}"
 
     def get_localized_name(self) -> str | None:
         if self.localized_name:

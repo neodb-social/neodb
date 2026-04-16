@@ -14,6 +14,10 @@ def _get_all_url_paths():
         p = getattr(cls, "url_path", None)
         if p:
             paths.append(p)
+        for attr in ("url_path_person", "url_path_organization"):
+            p = getattr(cls, attr, None)
+            if p:
+                paths.append(p)
     res = "|".join(paths)
     return res
 
