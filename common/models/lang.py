@@ -260,13 +260,14 @@ def localize_number(i: int) -> str:
         if i < 0 or i > 99:
             return str(i)
         s = "零一二三四五六七八九"
+        r = i % 10
         match i // 10:
             case 0:
-                return s[i % 10]
+                return s[r]
             case 1:
-                return "十" + s[i % 10]
+                return "十" + (s[r] if r else "")
             case _:
-                return s[i // 10] + "十" + s[i % 10]
+                return s[i // 10] + "十" + (s[r] if r else "")
     return str(i)
 
 

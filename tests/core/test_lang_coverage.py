@@ -13,7 +13,7 @@ class TestLocalizeNumber:
 
     def test_chinese_teens(self):
         with translation.override("zh-hans"):
-            assert localize_number(10) == "\u5341\u96f6"  # ten + zero
+            assert localize_number(10) == "\u5341"  # ten
             assert localize_number(11) == "\u5341\u4e00"  # ten + one
             assert localize_number(19) == "\u5341\u4e5d"  # ten + nine
 

@@ -129,7 +129,7 @@ class TestDateTimeField:
         assert result is not None
 
     def test_to_json_with_invalid_string(self):
-        with pytest.raises(ValueError, match="invalid datatime format"):
+        with pytest.raises(ValueError, match="invalid datetime format"):
             self.field.to_json("not-a-date")
 
     def test_from_json_with_value(self):

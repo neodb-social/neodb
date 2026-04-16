@@ -3,8 +3,10 @@ import pytest
 from catalog.models import Edition
 from journal.models import (
     Collection,
+    CollectionMember,
     Comment,
     Mark,
+    Note,
     Rating,
     Review,
     ShelfLogEntry,
@@ -31,15 +33,18 @@ class TestResetJournalVisibility:
         Mark(self.identity, self.book).update(
             ShelfType.WISHLIST, "comment", 5, ["tag"], 0
         )
+        Review.update_item_review(self.book, self.identity, "Title", "Body")
 
     def test_reset_visibility_updates_all_pieces(self):
         assert ShelfMember.objects.filter(owner=self.identity, visibility=0).exists()
         assert Comment.objects.filter(owner=self.identity, visibility=0).exists()
         assert Rating.objects.filter(owner=self.identity, visibility=0).exists()
+        assert Review.objects.filter(owner=self.identity, visibility=0).exists()
         reset_journal_visibility_for_user(self.identity, 2)
         assert ShelfMember.objects.filter(owner=self.identity, visibility=2).exists()
         assert Comment.objects.filter(owner=self.identity, visibility=2).exists()
         assert Rating.objects.filter(owner=self.identity, visibility=2).exists()
+        assert Review.objects.filter(owner=self.identity, visibility=2).exists()
         assert not ShelfMember.objects.filter(
             owner=self.identity, visibility=0
         ).exists()
@@ -65,11 +70,16 @@ class TestRemoveDataByIdentity:
         Review.update_item_review(self.book, self.identity, "Title", "Body")
         collection = Collection.objects.create(title="col", owner=self.identity)
         collection.append_item(self.book)
+        Note.objects.create(
+            owner=self.identity, item=self.book, content="note", visibility=0
+        )
         assert ShelfMember.objects.filter(owner=self.identity).exists()
         assert Comment.objects.filter(owner=self.identity).exists()
         assert Rating.objects.filter(owner=self.identity).exists()
         assert Review.objects.filter(owner=self.identity).exists()
         assert TagMember.objects.filter(owner=self.identity).exists()
+        assert Note.objects.filter(owner=self.identity).exists()
+        assert CollectionMember.objects.filter(owner=self.identity).exists()
         remove_data_by_identity(self.identity)
         assert not ShelfMember.objects.filter(owner=self.identity).exists()
         assert not ShelfLogEntry.objects.filter(owner=self.identity).exists()
@@ -78,6 +88,8 @@ class TestRemoveDataByIdentity:
         assert not Review.objects.filter(owner=self.identity).exists()
         assert not TagMember.objects.filter(owner=self.identity).exists()
         assert not Tag.objects.filter(owner=self.identity).exists()
+        assert not Note.objects.filter(owner=self.identity).exists()
+        assert not CollectionMember.objects.filter(owner=self.identity).exists()
         assert not Collection.objects.filter(owner=self.identity).exists()
 
 
