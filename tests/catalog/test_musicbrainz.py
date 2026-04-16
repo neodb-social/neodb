@@ -52,7 +52,9 @@ class TestMusicBrainzReleaseGroup:
         ]
 
         for url in invalid_urls:
-            site = SiteManager.get_site_by_url(url)
+            site = SiteManager.get_site_by_url(
+                url, detect_redirection=False, detect_fallback=False
+            )
             if site is not None:
                 assert not isinstance(site, MusicBrainzReleaseGroup)
 
@@ -216,7 +218,9 @@ class TestMusicBrainzRelease:
         ]
 
         for url in invalid_urls:
-            site = SiteManager.get_site_by_url(url)
+            site = SiteManager.get_site_by_url(
+                url, detect_redirection=False, detect_fallback=False
+            )
             if site is not None:
                 assert not isinstance(site, MusicBrainzRelease)
 
