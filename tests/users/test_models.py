@@ -1,7 +1,9 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from users.models import User
+from catalog.models import Edition
+from journal.models import Mark, ShelfType
+from users.models import APIdentity, User
 from users.models.user import UsernameValidator
 
 
@@ -135,6 +137,43 @@ class TestUserModel:
         self.user.refresh_from_db()
         assert self.user.is_active is False
 
+    def test_clear_saves_username_to_last_name(self):
+        self.user.clear()
+        self.user.refresh_from_db()
+        assert self.user.last_name == "alice"
+
+    def test_register_duplicate_username_raises(self):
+        with pytest.raises(ValidationError):
+            User.register(username="alice")
+
+    def test_register_no_username_raises(self):
+        with pytest.raises(ValueError, match="username is not set"):
+            User.register(username="")
+
+    def test_display_name(self):
+        assert self.user.display_name == self.user.identity.display_name
+
+    def test_mastodon_acct_empty_when_no_mastodon(self):
+        assert self.user.mastodon_acct == ""
+
+    def test_email_account_none_when_no_email(self):
+        assert self.user.email_account is None
+
+    def test_last_usage_none_when_no_marks(self):
+        assert self.user.last_usage is None
+
+    def test_last_usage_returns_time_when_marked(self):
+        book = Edition.objects.create(title="Test Book")
+        Mark(self.user.identity, book).update(ShelfType.WISHLIST)
+        assert self.user.last_usage is not None
+
+    def test_absolute_url_contains_domain(self):
+        assert "example.org" in self.user.absolute_url
+
+    def test_avatar_returns_value(self):
+        avatar = self.user.avatar
+        assert avatar is not None
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestAPIdentityModel:
@@ -178,3 +217,45 @@ class TestAPIdentityModel:
 
     def test_tag_manager_available(self):
         assert self.identity.tag_manager is not None
+
+    def test_get_by_handle_local(self):
+        found = APIdentity.get_by_handle("iduser")
+        assert found.pk == self.identity.pk
+
+    def test_get_by_handle_local_with_at(self):
+        found = APIdentity.get_by_handle("@iduser")
+        assert found.pk == self.identity.pk
+
+    def test_get_by_handle_nonexistent_raises(self):
+        with pytest.raises(APIdentity.DoesNotExist):
+            APIdentity.get_by_handle("nonexistent")
+
+    def test_get_by_handle_invalid_format_raises(self):
+        with pytest.raises(APIdentity.DoesNotExist):
+            APIdentity.get_by_handle("a@b@c@d")
+
+    def test_identity_clear(self):
+        self.identity.clear()
+        self.identity.refresh_from_db()
+        assert self.identity.deleted is not None
+
+    def test_following_identities_empty_initially(self):
+        assert list(self.identity.following_identities) == []
+
+    def test_follower_identities_empty_initially(self):
+        assert list(self.identity.follower_identities) == []
+
+    def test_blocking_identities_empty_initially(self):
+        assert list(self.identity.blocking_identities) == []
+
+    def test_muting_identities_empty_initially(self):
+        assert list(self.identity.muting_identities) == []
+
+    def test_is_person(self):
+        assert self.identity.is_person is True
+
+    def test_discoverable(self):
+        assert self.identity.discoverable is not None
+
+    def test_actor_type(self):
+        assert self.identity.actor_type is not None
