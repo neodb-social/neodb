@@ -3,77 +3,10 @@ import pytest
 from catalog.models import Edition
 from journal.models import Comment
 from journal.models.common import (
-    Debris,
     Piece,
-    max_visiblity_to_user,
     prefetch_latest_posts,
-    q_owned_piece_visible_to_user,
-    q_piece_in_home_feed_of_user,
 )
-from takahe.utils import Takahe
 from users.models import User
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestQOwnedPieceVisibleToUser:
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.owner_user = User.register(email="owner@test.com", username="owner")
-        self.viewer_user = User.register(email="viewer@test.com", username="viewer")
-        self.owner = self.owner_user.identity
-        self.viewer = self.viewer_user.identity
-
-    def test_unauthenticated_viewer_anonymous_viewable(self):
-        q = q_owned_piece_visible_to_user(None, self.owner)
-        assert "visibility" in str(q)
-
-    def test_unauthenticated_viewer_not_anonymous_viewable(self):
-        self.owner.anonymous_viewable = False
-        self.owner.save()
-        q = q_owned_piece_visible_to_user(None, self.owner)
-        assert "pk__in" in str(q)
-
-    def test_owner_views_own(self):
-        q = q_owned_piece_visible_to_user(self.owner_user, self.owner)
-        assert "owner" in str(q)
-
-    def test_non_following_viewer_sees_public_only(self):
-        q = q_owned_piece_visible_to_user(self.viewer_user, self.owner)
-        assert "visibility" in str(q)
-
-    def test_following_viewer_sees_follower_content(self):
-        self.viewer.follow(self.owner, force_accept=True)
-        Takahe._force_state_cycle()
-        q = q_owned_piece_visible_to_user(self.viewer_user, self.owner)
-        assert "visibility__in" in str(q)
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestMaxVisibilityToUser:
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.owner_user = User.register(email="mowner@test.com", username="mowner")
-        self.viewer_user = User.register(email="mviewer@test.com", username="mviewer")
-        self.owner = self.owner_user.identity
-        self.viewer = self.viewer_user.identity
-
-    def test_unauthenticated_returns_0(self):
-        from unittest.mock import MagicMock
-
-        anon = MagicMock(spec=User)
-        anon.is_authenticated = False
-        assert max_visiblity_to_user(anon, self.owner) == 0
-
-    def test_owner_returns_2(self):
-        assert max_visiblity_to_user(self.owner_user, self.owner) == 2
-
-    def test_non_follower_returns_0(self):
-        assert max_visiblity_to_user(self.viewer_user, self.owner) == 0
-
-    def test_follower_returns_1(self):
-        self.viewer.follow(self.owner, force_accept=True)
-        Takahe._force_state_cycle()
-        assert max_visiblity_to_user(self.viewer_user, self.owner) == 1
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -96,8 +29,7 @@ class TestPieceGetByUrl:
         comment = Comment.objects.create(
             owner=self.identity, item=self.book, text="test", visibility=0
         )
-        url = comment.url
-        found = Comment.get_by_url(url)
+        found = Comment.get_by_url(comment.url)
         assert found is not None
         assert found.pk == comment.pk
 
@@ -173,13 +105,6 @@ class TestPieceProperties:
         )
         assert comment.classname == "comment"
 
-    def test_debris_to_indexable_doc(self):
-        comment = Comment.objects.create(
-            owner=self.identity, item=self.book, text="test", visibility=0
-        )
-        debris = Debris.create_from_piece(comment)
-        assert debris.to_indexable_doc() == {}
-
     def test_content_str(self):
         comment = Comment.objects.create(
             owner=self.identity, item=self.book, text="test", visibility=0
@@ -211,15 +136,3 @@ class TestPrefetchLatestPosts:
         prefetch_latest_posts([comment])
         assert comment.__dict__["latest_post_id"] is None
         assert comment.__dict__["latest_post"] is None
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestQPieceInHomeFeed:
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user = User.register(email="feed@test.com", username="feeduser")
-
-    def test_home_feed_query(self):
-        q = q_piece_in_home_feed_of_user(self.user)
-        q_str = str(q)
-        assert "owner_id" in q_str

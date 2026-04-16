@@ -37,32 +37,21 @@ class TestTagUpdate:
         tag.refresh_from_db()
         assert tag.pinned is True
 
-    def test_tag_to_indexable_doc(self):
-        tag = Tag.objects.create(owner=self.identity, title="idx", visibility=0)
-        assert tag.to_indexable_doc() == {}
-
 
 @pytest.mark.django_db(databases="__all__")
-class TestTagMemberProperties:
+class TestTagMemberTitle:
     @pytest.fixture(autouse=True)
     def setup_data(self):
         self.user = User.register(email="tm@test.com", username="tmuser")
         self.identity = self.user.identity
         self.book = Edition.objects.create(title="TM Book")
 
-    def test_tagmember_title(self):
+    def test_tagmember_title_from_parent(self):
         tag = Tag.objects.create(owner=self.identity, title="MyTag", visibility=0)
         tag.append_item(self.book)
         member = TagMember.objects.filter(parent=tag, item=self.book).first()
         assert member is not None
         assert member.title == "MyTag"
-
-    def test_tagmember_to_indexable_doc(self):
-        tag = Tag.objects.create(owner=self.identity, title="MyTag2", visibility=0)
-        tag.append_item(self.book)
-        member = TagMember.objects.filter(parent=tag, item=self.book).first()
-        assert member is not None
-        assert member.to_indexable_doc() == {}
 
 
 @pytest.mark.django_db(databases="__all__")

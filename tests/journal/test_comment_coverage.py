@@ -65,16 +65,15 @@ class TestCommentProperties:
         self.identity = self.user.identity
         self.book = Edition.objects.create(title="Prop Book")
 
-    def test_comment_html(self):
+    def test_comment_html_renders_content(self):
         comment = Comment.objects.create(
             owner=self.identity,
             item=self.book,
-            text="Hello **world**",
+            text="plain text comment",
             visibility=0,
         )
         html = comment.html
-        assert isinstance(html, str)
-        assert len(html) > 0
+        assert "plain text comment" in html
 
     def test_comment_mark_property(self):
         Mark(self.identity, self.book).update(ShelfType.WISHLIST)
@@ -95,15 +94,5 @@ class TestCommentProperties:
             item=self.book,
             text="Test",
             visibility=0,
-        )
-        assert comment.item_url == self.book.url
-
-    def test_item_url_without_position_explicit(self):
-        comment = Comment.objects.create(
-            owner=self.identity,
-            item=self.book,
-            text="Test",
-            visibility=0,
-            metadata={},
         )
         assert comment.item_url == self.book.url

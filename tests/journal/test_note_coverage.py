@@ -1,6 +1,15 @@
 import pytest
 
-from catalog.models import Album, Edition, Game, Movie, Podcast, TVSeason, TVShow
+from catalog.models import (
+    Album,
+    Edition,
+    Game,
+    Movie,
+    Podcast,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+)
 from journal.models import Note
 
 
@@ -129,8 +138,6 @@ class TestNoteGetProgressTypesByItem:
         assert Note.ProgressType.EPISODE in types
 
     def test_tvepisode_returns_empty(self):
-        from catalog.models import TVEpisode
-
         ep = TVEpisode.objects.create(title="Test Episode")
         types = Note.get_progress_types_by_item(ep)
         assert types == []
