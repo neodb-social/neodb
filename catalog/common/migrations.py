@@ -1,10 +1,104 @@
+import re
+import time
+import traceback
 from datetime import timedelta
 from time import sleep
 
+import django_rq
+from django.conf import settings
 from django.db import connection, models
 from django.utils import timezone
 from loguru import logger
+from rq.job import Job
 from tqdm import tqdm
+
+from common.utils import discord_send
+
+_CHAIN_KEY = "neodb:migration_enqueue:last_job_id"
+_CHAIN_TTL = 7 * 24 * 3600
+_DATE_SUFFIX_RE = re.compile(r"_\d{8}$")
+_NOTIFY_CHANNEL = "system"
+_DEFAULT_HEAD_DELAY = timedelta(seconds=5)
+_NO_DELAY = object()
+
+
+def _derive_skip_key(func) -> str:
+    return _DATE_SUFFIX_RE.sub("", func.__name__)
+
+
+def _run_migration_job(func, skip_key, args, kwargs):
+    discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: started")
+    t0 = time.monotonic()
+    try:
+        result = func(*args, **(kwargs or {}))
+    except Exception:
+        dt = time.monotonic() - t0
+        tb = traceback.format_exc(limit=4)
+        discord_send(
+            _NOTIFY_CHANNEL,
+            f"[migration] {skip_key}: FAILED after {dt:.0f}s\n```\n{tb[-1500:]}\n```",
+        )
+        raise
+    dt = time.monotonic() - t0
+    discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: finished in {dt:.0f}s")
+    return result
+
+
+def enqueue_migration_job(
+    func,
+    *,
+    skip_key: str | None = None,
+    queue: str = "cron",
+    delay=_NO_DELAY,
+    args: tuple = (),
+    kwargs: dict | None = None,
+):
+    """Enqueue a post-migration background job, chained after any previously
+    enqueued migration job so they run sequentially even on multi-worker queues.
+    The worker-side wrapper posts begin/end/failure to the Discord 'system'
+    channel. When this is the first job in a chain, a default 5-second delay
+    lets the enclosing migrate transaction commit before the worker picks up.
+    """
+    key = skip_key or _derive_skip_key(func)
+
+    if key in getattr(settings, "SKIP_MIGRATIONS", []):
+        print(f"(Skipped {key})", end="")
+        return None
+
+    q = django_rq.get_queue(queue)
+    conn = q.connection
+    depends_on = None
+
+    last_id = conn.get(_CHAIN_KEY)
+    if last_id is not None:
+        if isinstance(last_id, bytes):
+            last_id = last_id.decode()
+        if isinstance(last_id, str):
+            try:
+                prev = Job.fetch(last_id, connection=conn)
+                if prev.get_status() in ("queued", "scheduled", "deferred", "started"):
+                    depends_on = prev
+            except Exception:
+                depends_on = None
+
+    job_args = (func, key, tuple(args), dict(kwargs or {}))
+    enqueue_kwargs: dict = {"args": job_args}
+    if depends_on is not None:
+        enqueue_kwargs["depends_on"] = depends_on
+
+    if delay is _NO_DELAY:
+        effective_delay = _DEFAULT_HEAD_DELAY if depends_on is None else None
+    else:
+        effective_delay = delay
+
+    if depends_on is None and isinstance(effective_delay, timedelta):
+        job = q.enqueue_in(effective_delay, _run_migration_job, **enqueue_kwargs)
+    else:
+        job = q.enqueue(_run_migration_job, **enqueue_kwargs)
+
+    conn.set(_CHAIN_KEY, job.id, ex=_CHAIN_TTL)
+    print(f"(Queued {key})", end="")
+    return job
 
 
 def fix_20250208():
