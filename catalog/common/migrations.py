@@ -33,7 +33,7 @@ def _run_migration_job(func, skip_key, args, kwargs):
         result = func(*args, **(kwargs or {}))
     except Exception:
         dt = time.monotonic() - t0
-        tb = traceback.format_exc(limit=4)
+        tb = traceback.format_exc()
         discord_send(
             _NOTIFY_CHANNEL,
             f"[migration] {skip_key}: FAILED after {dt:.0f}s\n```\n{tb[-1500:]}\n```",
