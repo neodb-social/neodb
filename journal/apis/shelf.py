@@ -2,7 +2,7 @@ import datetime
 from typing import Any, List
 
 from django.core.cache import cache
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Prefetch, QuerySet, prefetch_related_objects
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
@@ -41,6 +41,11 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
         return
     items = [m.item for m in members]
     # Batch-fetch parent items and item-level data to avoid N+1 queries
+    prefetch_related_objects(
+        items,
+        "external_resources",
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
     Item.prefetch_parent_items(items)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
@@ -167,14 +172,7 @@ def list_marks_on_user_shelf(
         )
         .filter(qv)
         .select_related("owner")
-        .prefetch_related(
-            "item",
-            "item__external_resources",
-            Prefetch(
-                "item__credits",
-                queryset=ItemCredit.objects.select_related("person"),
-            ),
-        )
+        .prefetch_related("item")
     )
     return queryset
 
@@ -197,14 +195,7 @@ def list_marks_on_shelf(
     queryset = (
         request.user.shelf_manager.get_latest_members(type, category)
         .select_related("owner")
-        .prefetch_related(
-            "item",
-            "item__external_resources",
-            Prefetch(
-                "item__credits",
-                queryset=ItemCredit.objects.select_related("person"),
-            ),
-        )
+        .prefetch_related("item")
     )
     return queryset
 
