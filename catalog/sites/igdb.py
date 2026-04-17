@@ -139,6 +139,7 @@ class IGDB(AbstractSite):
                             "id_type": IdType.IGDB_Company,
                             "id_value": slug,
                             "url": company["url"],
+                            "title": company.get("name") or "",
                         }
                     )
         if "platforms" in r:

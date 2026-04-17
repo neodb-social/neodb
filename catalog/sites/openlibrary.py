@@ -21,12 +21,13 @@ def _author_id_from_key(key: str) -> str | None:
     return m.group(1) if m else None
 
 
-def _build_author_resource(author_id: str) -> dict:
+def _build_author_resource(author_id: str, name: str = "") -> dict:
     return {
         "model": "People",
         "id_type": IdType.OpenLibrary_Author,
         "id_value": author_id,
         "url": f"https://openlibrary.org/authors/{author_id}",
+        "title": name or "",
     }
 
 
@@ -74,11 +75,14 @@ class OpenLibrary(AbstractSite):
                     continue
                 author_url = "https://openlibrary.org" + author_key + ".json"
                 author_json = BasicDownloader(author_url).download().json()
-                authors.append(author_json.get("name", ""))
+                author_name = author_json.get("name", "")
+                authors.append(author_name)
                 author_id = _author_id_from_key(author_key)
                 if author_id and author_id not in seen_author_ids:
                     seen_author_ids.add(author_id)
-                    author_resources.append(_build_author_resource(author_id))
+                    author_resources.append(
+                        _build_author_resource(author_id, author_name)
+                    )
         publishers = book_data.get("publishers", [])
         pub_house = publishers[0] if publishers else None
         pub_year = None
@@ -331,11 +335,14 @@ class OpenLibrary_Work(AbstractSite):
                     continue
                 author_url = "https://openlibrary.org" + author_key + ".json"
                 author_json = BasicDownloader(author_url).download().json()
-                authors.append(author_json.get("name", ""))
+                author_name = author_json.get("name", "")
+                authors.append(author_name)
                 author_id = _author_id_from_key(author_key)
                 if author_id and author_id not in seen_author_ids:
                     seen_author_ids.add(author_id)
-                    author_resources.append(_build_author_resource(author_id))
+                    author_resources.append(
+                        _build_author_resource(author_id, author_name)
+                    )
 
         description = ""
         if "description" in work_data:

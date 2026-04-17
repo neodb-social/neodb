@@ -97,6 +97,7 @@ class Goodreads(AbstractSite):
                 "id_type": IdType.Goodreads_Author,
                 "id_value": str(c["legacyId"]),
                 "url": c["webUrl"],
+                "title": c.get("name") or "",
             }
             for c in o["Contributor"]
             if c.get("legacyId") and c.get("webUrl")
@@ -257,7 +258,8 @@ class Goodreads_Work(AbstractSite):
             first_published = None
         related_resources = []
         seen_ids: set[str] = set()
-        for href in cast(list[str], content.xpath("//h2//a/@href")) or []:
+        for anchor in cast(list, content.xpath("//h2//a")) or []:
+            href = anchor.get("href") or ""
             m = re.search(r"/author/show/(\d+)", href)
             if not m:
                 continue
@@ -271,6 +273,7 @@ class Goodreads_Work(AbstractSite):
                     "id_type": IdType.Goodreads_Author,
                     "id_value": author_id,
                     "url": Goodreads_Author.id_to_url(author_id),
+                    "title": (anchor.text_content() or "").strip(),
                 }
             )
         metadata: dict = {

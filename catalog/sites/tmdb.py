@@ -118,6 +118,7 @@ def _extract_tmdb_credits(credits_data: dict, cast_limit: int = 10) -> dict:
                     "id_type": IdType.TMDB_Person,
                     "id_value": str(pid),
                     "url": f"https://www.themoviedb.org/person/{pid}",
+                    "title": person.get("name") or "",
                 }
             )
     return {
@@ -370,6 +371,7 @@ class TMDB_TV(AbstractSite):
                         "id_type": IdType.TMDB_Person,
                         "id_value": str(pid),
                         "url": f"https://www.themoviedb.org/person/{pid}",
+                        "title": person.get("name") or "",
                     }
                 )
         # other_info = {}

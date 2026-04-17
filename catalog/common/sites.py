@@ -329,6 +329,44 @@ class SiteManager:
         ss = {s.SITE_NAME.value: s for s in sites if hasattr(s, "search_task")}
         return [ss[s] for s in SiteConfig.system.search_sites if s in ss]
 
+    @staticmethod
+    def _find_sibling_person(linked_resource, parent_item):
+        """Return an existing People already credited on parent_item whose
+        localized_name contains the link's display name, provided the
+        candidate does not already have an ExternalResource of the link's
+        id_type (so two distinct people with the same name but different IDs
+        from the same source are never collapsed).
+
+        Returns None unless there is exactly one unambiguous match.
+        """
+        if linked_resource.get("model") != "People":
+            return None
+        name = linked_resource.get("title") or linked_resource.get("name")
+        if not name or parent_item is None:
+            return None
+        link_id_type = linked_resource.get("id_type")
+        if not link_id_type:
+            return None
+        from django.db.models import Q
+
+        from ..models import People
+
+        candidates = list(
+            People.objects.filter(
+                Q(credited_items__item=parent_item)
+                | Q(item_relations__item=parent_item),
+                is_deleted=False,
+                merged_to_item__isnull=True,
+                metadata__localized_name__contains=[{"text": name}],
+            ).distinct()[:2]
+        )
+        if len(candidates) != 1:
+            return None
+        c = candidates[0]
+        if c.external_resources.filter(id_type=link_id_type).exists():
+            return None
+        return c
+
     @classmethod
     def fetch_linked_resources(cls, resource, linked_resources, link_type):
         processed = False
@@ -346,6 +384,52 @@ class SiteManager:
                 )
             else:
                 continue
+            # For People CHILD links, try to reuse an existing People that is
+            # already credited on this parent item before hitting the network.
+            # Keeps cross-source duplicates (same director named across TMDB
+            # and Douban) from splitting into two People rows.
+            if (
+                linked_site
+                and link_type == ExternalResource.LinkType.CHILD
+                and resource.item is not None
+                and linked_resource.get("model") == "People"
+            ):
+                # URL-only links (Douban author/musician) resolve id_type/
+                # id_value via the site object after HEAD redirect.
+                id_type = linked_resource.get("id_type") or linked_site.ID_TYPE
+                id_value = linked_resource.get("id_value") or linked_site.id_value
+                if (
+                    id_type
+                    and id_value
+                    and not ExternalResource.objects.filter(
+                        id_type=id_type, id_value=id_value
+                    ).exists()
+                ):
+                    sibling = cls._find_sibling_person(
+                        {**linked_resource, "id_type": id_type}, resource.item
+                    )
+                    if sibling is not None:
+                        try:
+                            content = linked_site.scrape()
+                        except Exception as e:
+                            logger.warning(
+                                f"sibling-dedup scrape failed for "
+                                f"{id_type}:{id_value}: {e}"
+                            )
+                            # Don't leave a placeholder -- next run re-dedupes.
+                            continue
+                        new_res = ExternalResource.objects.create(
+                            id_type=id_type,
+                            id_value=id_value,
+                            url=linked_site.url,
+                            item=sibling,
+                        )
+                        new_res.update_content(content)
+                        logger.info(
+                            f"reused sibling person {sibling} for "
+                            f"{id_type}:{id_value} on {resource.item}"
+                        )
+                        continue
             if linked_site:
                 try:
                     fetched = linked_site.get_resource_ready(

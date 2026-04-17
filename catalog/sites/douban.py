@@ -28,6 +28,7 @@ def extract_people_links_from_anchors(anchors: list, limit: int = 15) -> list[di
         href = a.get("href", "")
         if not href:
             continue
+        name = (a.text_content() or "").strip() if hasattr(a, "text_content") else ""
         # Direct personage link
         m = _RE_PERSONAGE.search(href)
         if m:
@@ -41,6 +42,7 @@ def extract_people_links_from_anchors(anchors: list, limit: int = 15) -> list[di
                     "id_type": IdType.DoubanPersonage,
                     "id_value": pid,
                     "url": f"https://www.douban.com/personage/{pid}/",
+                    "title": name,
                 }
             )
         else:
@@ -56,7 +58,11 @@ def extract_people_links_from_anchors(anchors: list, limit: int = 15) -> list[di
             if url in seen:
                 continue
             seen.add(url)
-            resources.append({"url": url})
+            # No id_type/id_value -- SiteManager.get_site_by_url HEAD-resolves
+            # the redirect to https://www.douban.com/personage/<pid>/ (which
+            # maps to DoubanPersonage). Tag with model=People so the backfill
+            # filter keeps these entries.
+            resources.append({"model": "People", "url": url, "title": name})
         if len(resources) >= limit:
             break
     return resources

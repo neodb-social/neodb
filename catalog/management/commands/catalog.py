@@ -44,7 +44,7 @@ storage-test:     test write/read/delete on default storage backend
 wikidata-tmdb:    link TMDB resources to WikiData resources (using TMDB API)
 wikidata-link:    link external resources to WikiData (use --query for IdType)
 wikidata-find:    lookup Wikidata QID from URL and scrape (use --query for URL)
-fetch-people:     bulk fetch/update People data (use --query for source: wikidata|tmdb)
+backfill-people:  materialize People from existing Items' resources (use --source for IdType)
 idx-info:         show index information
 idx-init:         check and create index if not exists
 idx-destroy:      delete index
@@ -71,7 +71,7 @@ class Command(SiteCommand):
                 "wikidata-tmdb",
                 "wikidata-link",
                 "wikidata-find",
-                "fetch-people",
+                "backfill-people",
                 "idx-info",
                 "idx-init",
                 "idx-alt",
@@ -135,8 +135,12 @@ class Command(SiteCommand):
         )
         parser.add_argument(
             "--source",
-            choices=["wikidata", "tmdb", "igdb", "douban"],
-            help="Source for fetch-people command",
+            help="IdType for backfill-people (e.g. tmdb_movie, douban_book, igdb)",
+        )
+        parser.add_argument(
+            "--force-rescrape",
+            action="store_true",
+            help="Rescrape even when related_resources already has People links",
         )
         parser.add_argument(
             "--log-level",
@@ -501,50 +505,139 @@ class Command(SiteCommand):
                     logger.error(f"Error updating index for item {item.pk}: {e}")
                 pbar.update(1)
 
-    def fetch_people(self, source, limit=None, start=None):
-        """Bulk fetch/update People data from external sources."""
-        qs = People.objects.filter(
-            is_deleted=False, merged_to_item__isnull=True
+    # Item-side IdTypes whose scrapers emit People entries in related_resources.
+    # Listed explicitly because the command rejects anything outside this set.
+    BACKFILL_PEOPLE_SOURCES = {
+        IdType.TMDB_Movie,
+        IdType.TMDB_TV,
+        IdType.TMDB_TVSeason,
+        IdType.DoubanMovie,
+        IdType.DoubanBook,
+        IdType.DoubanMusic,
+        IdType.DoubanDrama,
+        IdType.Goodreads,
+        IdType.Goodreads_Work,
+        IdType.OpenLibrary,
+        IdType.OpenLibrary_Work,
+        IdType.IGDB,
+    }
+
+    def backfill_people(
+        self,
+        source,
+        limit=None,
+        start=None,
+        force_rescrape=False,
+    ):
+        """Materialize People (and link ItemCredits / ItemPeopleRelations) from
+        existing Items' ExternalResources.
+
+        Iterates Item-side ExternalResources of the given IdType, and for each
+        one, promotes its related_resources People links to actual People rows
+        via SiteManager.fetch_linked_resources. The parent Item's own metadata
+        is never touched -- only the resource cache (when a rescrape is needed
+        to populate related_resources) and the People-side rows.
+
+        Safe to rerun: People links whose ExternalResource already exists and
+        is bound to a live People item are skipped without any network call.
+        Cross-source dedupe (e.g. same director on TMDB and Douban) happens
+        inside SiteManager.fetch_linked_resources.
+        """
+        if source not in self.BACKFILL_PEOPLE_SOURCES:
+            supported = ", ".join(sorted(self.BACKFILL_PEOPLE_SOURCES))
+            self.stderr.write(
+                self.style.ERROR(
+                    f"--source must be one of: {supported} (got '{source}')"
+                )
+            )
+            return
+
+        qs = ExternalResource.objects.filter(
+            id_type=source,
+            item__isnull=False,
+            item__is_deleted=False,
+            item__merged_to_item__isnull=True,
         ).order_by("pk")
         if start:
             qs = qs.filter(pk__gte=start)
         if limit:
             qs = qs[:limit]
         total = qs.count()
-        updated = 0
-        skipped = 0
-        source_to_id_type = {
-            "wikidata": IdType.WikiData,
-            "tmdb": IdType.TMDB_Person,
-            "igdb": IdType.IGDB_Company,
-            "douban": IdType.DoubanPersonage,
+
+        stats = {
+            "resources": 0,
+            "rescraped": 0,
+            "rescrape_errors": 0,
+            "no_site": 0,
+            "links_total": 0,
+            "links_already_present": 0,
+            "links_fetched": 0,
         }
-        id_type = source_to_id_type[source]
-        for person in tqdm(qs.iterator(), total=total, desc=f"Fetching from {source}"):
-            res = person.external_resources.filter(id_type=id_type).first()
-            if not res:
-                skipped += 1
-                continue
-            try:
-                site = SiteManager.get_site_by_id(id_type, res.id_value)
-                if site:
-                    resource = site.get_resource_ready(
-                        ignore_existing_content=True, auto_link=False
-                    )
-                    if resource:
-                        updated += 1
-                        # Auto-link matching ItemCredits after update
-                        person.refresh_from_db()
-                        person.link_matching_credits()
-                    else:
-                        skipped += 1
-                else:
-                    skipped += 1
-            except Exception as e:
-                logger.warning(f"Error fetching {person.display_name}: {e}")
-                skipped += 1
+        for resource in tqdm(qs.iterator(), total=total, desc=f"Backfill {source}"):
+            stats["resources"] += 1
+            people_links = [
+                link
+                for link in (resource.related_resources or [])
+                if link.get("model") == "People"
+            ]
+            if not people_links or force_rescrape:
+                site = SiteManager.get_site_by_id(resource.id_type, resource.id_value)
+                if not site:
+                    stats["no_site"] += 1
+                    continue
+                site.resource = resource
+                try:
+                    content = site.scrape()
+                except Exception as e:
+                    stats["rescrape_errors"] += 1
+                    logger.warning(f"Rescrape failed for {resource}: {e}")
+                    continue
+                resource.metadata = content.metadata
+                resource.other_lookup_ids = content.lookup_ids
+                resource.scraped_time = timezone.now()
+                resource.save(
+                    update_fields=["metadata", "other_lookup_ids", "scraped_time"]
+                )
+                stats["rescraped"] += 1
+                people_links = [
+                    link
+                    for link in (resource.related_resources or [])
+                    if link.get("model") == "People"
+                ]
+
+            stats["links_total"] += len(people_links)
+            pending = []
+            for link in people_links:
+                id_type = link.get("id_type")
+                id_value = link.get("id_value")
+                if not id_type or not id_value:
+                    continue
+                existing = ExternalResource.objects.filter(
+                    id_type=id_type, id_value=id_value
+                ).first()
+                if existing is not None and existing.item is not None:
+                    existing_item = existing.item
+                    if (
+                        not existing_item.is_deleted
+                        and existing_item.merged_to_item is None
+                    ):
+                        stats["links_already_present"] += 1
+                        continue
+                pending.append(link)
+
+            if pending:
+                SiteManager.fetch_linked_resources(
+                    resource, pending, ExternalResource.LinkType.CHILD
+                )
+                stats["links_fetched"] += len(pending)
+
         self.stdout.write(
-            self.style.SUCCESS(f"Fetch {source}: {updated} updated, {skipped} skipped")
+            self.style.SUCCESS(
+                "backfill-people "
+                + source
+                + ": "
+                + ", ".join(f"{k}={v}" for k, v in stats.items())
+            )
         )
 
     def localize(self):
@@ -760,19 +853,19 @@ class Command(SiteCommand):
             case "wikidata-find":
                 self.wikidata_lookup(query)
 
-            case "fetch-people":
+            case "backfill-people":
                 source = options.get("source")
                 if not source:
+                    supported = ", ".join(sorted(self.BACKFILL_PEOPLE_SOURCES))
                     self.stderr.write(
-                        self.style.ERROR(
-                            "--source is required (wikidata, tmdb, igdb, or douban)"
-                        )
+                        self.style.ERROR(f"--source is required; one of: {supported}")
                     )
                     return
-                self.fetch_people(
+                self.backfill_people(
                     source=source,
                     limit=limit,
                     start=start,
+                    force_rescrape=options.get("force_rescrape", False),
                 )
 
             case "idx-destroy":
