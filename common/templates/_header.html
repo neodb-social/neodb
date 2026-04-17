@@ -45,7 +45,7 @@
                       value="performance">{% trans 'Performance' %}</option>
             {% endif %}
             <option {% if request.GET.c == 'people' or '/person/' in request.path or '/organization/' in request.path %}selected{% endif %}
-                    value="people">{% trans 'Person / Org' %}</option>
+                    value="people">{% trans 'People & Organizations' %}</option>
             <option {% if request.GET.c == 'journal' %}selected{% endif %}
                     value="journal">{% trans 'Journal' %}</option>
             <option {% if request.GET.c == 'timeline' %}selected{% endif %}

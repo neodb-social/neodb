@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 18:45-0400\n"
+"POT-Creation-Date: 2026-04-17 19:40-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -513,7 +513,7 @@ msgstr "收藏单"
 
 #: catalog/models/common.py:148 catalog/models/common.py:161
 msgid "Person / Organization"
-msgstr "个人 / 团体"
+msgstr "人物 / 团体"
 
 #: catalog/models/common.py:152 catalog/models/common.py:166
 #: common/templates/_header.html:25
@@ -826,7 +826,7 @@ msgstr "碟片数"
 #: catalog/models/people.py:31 catalog/templates/search_results_people.html:31
 #: catalog/templates/search_results_people.html:33
 msgid "Person"
-msgstr "个人"
+msgstr "人物"
 
 #: catalog/models/people.py:32 catalog/templates/search_results_people.html:37
 #: catalog/templates/search_results_people.html:39
@@ -1635,7 +1635,7 @@ msgstr "热门标签"
 #: catalog/templates/people_works.html:28 common/templates/_sidebar.html:114
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
-#: journal/templates/profile_following.html:29
+#: journal/templates/profile_following.html:30
 #: journal/templates/profile_items.html:34
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_collection_list.html:52
@@ -1863,17 +1863,22 @@ msgstr "游戏"
 msgid "performances"
 msgstr "演出"
 
-#: catalog/templates/search_header.html:76
-#: catalog/templates/search_header.html:78
-msgid "your journal"
-msgstr "你的记录"
+#: catalog/templates/search_header.html:75
+#: catalog/templates/search_header.html:77 common/templates/_header.html:48
+msgid "People & Organizations"
+msgstr "人物与团体"
 
 #: catalog/templates/search_header.html:82
 #: catalog/templates/search_header.html:84
+msgid "your journal"
+msgstr "你的记录"
+
+#: catalog/templates/search_header.html:88
+#: catalog/templates/search_header.html:90
 msgid "your timeline"
 msgstr "你的帖文"
 
-#: catalog/templates/search_header.html:91
+#: catalog/templates/search_header.html:97
 #: journal/templates/add_to_collection.html:14
 msgid "Save as dynamic collection"
 msgstr "保存为动态收藏单"
@@ -3265,10 +3270,6 @@ msgstr "全部"
 #: common/templates/_header.html:29
 msgid "Movie & TV"
 msgstr "影视"
-
-#: common/templates/_header.html:48
-msgid "Person / Org"
-msgstr "人物 / 团体"
 
 #: common/templates/_header.html:50
 msgid "Journal"

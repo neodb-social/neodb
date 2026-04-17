@@ -70,6 +70,12 @@
       {% endif %}
       {% if by_category.performance %}<small>({{ by_category.performance }})</small>{% endif %}
     {% endif %}
+    |
+    {% if request.GET.c != 'people' %}
+      <a href="?q={{ request.GET.q }}&amp;c=people">{% trans "People & Organizations" %}</a>
+    {% else %}
+      {% trans "People & Organizations" %}
+    {% endif %}
     {% if user.is_authenticated %}
       |
       {% if request.GET.c != 'journal' %}
