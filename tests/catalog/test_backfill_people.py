@@ -2,6 +2,7 @@ from io import StringIO
 
 import pytest
 from django.core.management import call_command
+from django.utils import timezone
 
 from catalog.common import SiteManager, use_local_response
 from catalog.models import (
@@ -136,6 +137,90 @@ class TestBackfillPeople:
         err = StringIO()
         call_command("catalog", "backfill-people", stderr=err)
         assert "--source is required" in err.getvalue()
+
+    def test_url_only_link_reaches_fetch(self):
+        """URL-only People links (Douban author/musician HEAD-redirects) must
+        reach SiteManager.fetch_linked_resources instead of being silently
+        dropped by an id_type/id_value filter."""
+        url_only = [
+            {
+                "model": "People",
+                "url": "https://book.douban.com/author/4608425/",
+                "title": "Sibling Match",
+            }
+        ]
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Stub"}]},
+        )
+        ExternalResource.objects.create(
+            item=movie,
+            id_type=IdType.DoubanMovie,
+            id_value="66666",
+            url="https://movie.douban.com/subject/66666/",
+            scraped_time=timezone.now(),  # force "already scraped" path
+            metadata={"related_resources": url_only},
+        )
+
+        captured: dict = {}
+        orig = SiteManager.fetch_linked_resources
+
+        def _spy(cls_resource, links, link_type):
+            captured["links"] = list(links)
+            captured["link_type"] = link_type
+
+        setattr(SiteManager, "fetch_linked_resources", staticmethod(_spy))
+        try:
+            call_command(
+                "catalog",
+                "backfill-people",
+                "--source",
+                IdType.DoubanMovie,
+                stdout=StringIO(),
+            )
+        finally:
+            setattr(SiteManager, "fetch_linked_resources", orig)
+        assert captured.get("links") == url_only
+        assert captured.get("link_type") == ExternalResource.LinkType.CHILD
+
+    def test_scraped_resource_without_people_is_not_rescraped(self):
+        """A resource that has already been scraped and genuinely has no
+        People links must not trigger a rescrape on every run."""
+        from catalog.sites import tmdb as tmdb_mod
+
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "No-cast Movie"}]},
+        )
+        ExternalResource.objects.create(
+            item=movie,
+            id_type=IdType.TMDB_Movie,
+            id_value="55555",
+            url="https://www.themoviedb.org/movie/55555",
+            scraped_time=timezone.now(),
+            metadata={
+                "localized_title": [{"lang": "en", "text": "No-cast Movie"}],
+                # intentionally empty -- legit "no people" resource
+                "related_resources": [],
+            },
+        )
+        calls = {"scrape": 0}
+        orig_scrape = tmdb_mod.TMDB_Movie.scrape
+
+        def _boom(self):
+            calls["scrape"] += 1
+            raise AssertionError("should not rescrape a scraped+empty resource")
+
+        setattr(tmdb_mod.TMDB_Movie, "scrape", _boom)
+        try:
+            call_command(
+                "catalog",
+                "backfill-people",
+                "--source",
+                IdType.TMDB_Movie,
+                stdout=StringIO(),
+            )
+        finally:
+            setattr(tmdb_mod.TMDB_Movie, "scrape", orig_scrape)
+        assert calls["scrape"] == 0
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -580,7 +580,10 @@ class Command(SiteCommand):
                 for link in (resource.related_resources or [])
                 if link.get("model") == "People"
             ]
-            if not people_links or force_rescrape:
+            # Rescrape only when we have no People links AND the resource
+            # has never been scraped (scraped_time is null). A resource
+            # that's been scraped and legitimately has no people stays as-is.
+            if (not people_links and not resource.scraped_time) or force_rescrape:
                 site = SiteManager.get_site_by_id(resource.id_type, resource.id_value)
                 if not site:
                     stats["no_site"] += 1
@@ -592,12 +595,9 @@ class Command(SiteCommand):
                     stats["rescrape_errors"] += 1
                     logger.warning(f"Rescrape failed for {resource}: {e}")
                     continue
-                resource.metadata = content.metadata
-                resource.other_lookup_ids = content.lookup_ids
-                resource.scraped_time = timezone.now()
-                resource.save(
-                    update_fields=["metadata", "other_lookup_ids", "scraped_time"]
-                )
+                # update_content writes metadata/other_lookup_ids/cover/
+                # scraped_time and saves. It does NOT touch the parent Item.
+                resource.update_content(content)
                 stats["rescraped"] += 1
                 people_links = [
                     link
@@ -610,19 +610,24 @@ class Command(SiteCommand):
             for link in people_links:
                 id_type = link.get("id_type")
                 id_value = link.get("id_value")
-                if not id_type or not id_value:
+                if id_type and id_value:
+                    existing = ExternalResource.objects.filter(
+                        id_type=id_type, id_value=id_value
+                    ).first()
+                    if existing is not None and existing.item is not None:
+                        existing_item = existing.item
+                        if (
+                            not existing_item.is_deleted
+                            and existing_item.merged_to_item is None
+                        ):
+                            stats["links_already_present"] += 1
+                            continue
+                elif not link.get("url"):
+                    # No id_type/id_value AND no url -- unroutable, skip.
                     continue
-                existing = ExternalResource.objects.filter(
-                    id_type=id_type, id_value=id_value
-                ).first()
-                if existing is not None and existing.item is not None:
-                    existing_item = existing.item
-                    if (
-                        not existing_item.is_deleted
-                        and existing_item.merged_to_item is None
-                    ):
-                        stats["links_already_present"] += 1
-                        continue
+                # URL-only links (Douban author/musician) fall through here;
+                # SiteManager.fetch_linked_resources HEAD-resolves them and
+                # reuses already-scraped resources via get_resource_ready.
                 pending.append(link)
 
             if pending:
