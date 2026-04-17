@@ -68,14 +68,25 @@
         var video = document.getElementById("scan-video");
         var statusEl = document.getElementById("scan-status");
         var searchUrl = "{% url 'common:search' %}";
-        var formats = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf", "qr_code"];
+        var formats = ["ean_13", "ean_8", "upc_a", "upc_e"];
         var stream = null;
         var stopped = false;
 
         function setStatus(msg) { statusEl.textContent = msg; }
 
+        function isValidBookCode(code) {
+          if (!code) return false;
+          var digits = code.replace(/[-\s]/g, "");
+          // EAN-13 / ISBN-13, UPC-A (12), ISBN-10 (allow trailing X), EAN-8 / UPC-E (8)
+          return /^\d{13}$/.test(digits)
+            || /^\d{12}$/.test(digits)
+            || /^\d{9}[\dX]$/i.test(digits)
+            || /^\d{8}$/.test(digits);
+        }
+
         function redirect(code) {
           if (stopped) return;
+          if (!isValidBookCode(code)) return;
           stopped = true;
           stopStream();
           var url = searchUrl + "?q=" + encodeURIComponent(code) + "&c=book";
@@ -131,13 +142,16 @@
 
         function runZxing() {
           setStatus("{% translate 'Loading scanner library...' %}");
-          return import("{{ cdn_url }}/npm/@zxing/browser@0.1.5/+esm").then(function (mod) {
+          return import("https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/+esm").then(function (mod) {
             var reader = new mod.BrowserMultiFormatReader();
             setStatus("{% translate 'Scanning...' %}");
             return reader.decodeFromVideoElement(video, function (result, err, controls) {
               if (result) {
-                if (controls) controls.stop();
-                redirect(result.getText());
+                var text = result.getText();
+                if (isValidBookCode(text)) {
+                  if (controls) controls.stop();
+                  redirect(text);
+                }
               }
             });
           }).catch(function () {
