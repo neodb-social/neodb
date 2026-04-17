@@ -1217,10 +1217,18 @@ class WikiData(AbstractSite):
         """
         # Find the Wikidata property ID for this ID type
         property_id = None
-        for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
-            if mapped_type == id_type:
-                property_id = prop_id
-                break
+        # OpenLibrary Edition / Work / Author all share property P648
+        if id_type in (
+            IdType.OpenLibrary,
+            IdType.OpenLibrary_Work,
+            IdType.OpenLibrary_Author,
+        ):
+            property_id = "P648"
+        else:
+            for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
+                if mapped_type == id_type:
+                    property_id = prop_id
+                    break
 
         if not property_id:
             logger.warning(f"No Wikidata property mapping found for {id_type}")

@@ -69,10 +69,13 @@ class OpenLibrary(AbstractSite):
         seen_author_ids: set[str] = set()
         if "authors" in book_data:
             for a in book_data["authors"]:
-                author_url = "https://openlibrary.org" + a["key"] + ".json"
+                author_key = a.get("key", "")
+                if not author_key:
+                    continue
+                author_url = "https://openlibrary.org" + author_key + ".json"
                 author_json = BasicDownloader(author_url).download().json()
                 authors.append(author_json.get("name", ""))
-                author_id = _author_id_from_key(a.get("key", ""))
+                author_id = _author_id_from_key(author_key)
                 if author_id and author_id not in seen_author_ids:
                     seen_author_ids.add(author_id)
                     author_resources.append(_build_author_resource(author_id))
@@ -324,6 +327,8 @@ class OpenLibrary_Work(AbstractSite):
         if "authors" in work_data:
             for author_ref in work_data["authors"]:
                 author_key = author_ref.get("author", {}).get("key", "")
+                if not author_key:
+                    continue
                 author_url = "https://openlibrary.org" + author_key + ".json"
                 author_json = BasicDownloader(author_url).download().json()
                 authors.append(author_json.get("name", ""))
@@ -419,10 +424,10 @@ class OpenLibrary_Author(AbstractSite):
 
         name = (data.get("name") or "").strip()
         if not name:
-            raise ParseError(self, "author name")
-        lang = detect_language(name)
+            raise ParseError(self, "missing author name")
+        name_lang = detect_language(name)
 
-        localized_name = [{"lang": lang, "text": name}]
+        localized_name = [{"lang": name_lang, "text": name}]
         seen_names = {name}
         for alt in data.get("alternate_names", []) or []:
             alt = (alt or "").strip()
@@ -431,7 +436,7 @@ class OpenLibrary_Author(AbstractSite):
                 localized_name.append({"lang": detect_language(alt), "text": alt})
 
         bio = self._text_value(data.get("bio"))
-        localized_bio = [{"lang": lang, "text": bio}] if bio else []
+        localized_bio = [{"lang": detect_language(bio), "text": bio}] if bio else []
 
         birth_date = self._parse_date(data.get("birth_date", ""))
         death_date = self._parse_date(data.get("death_date", ""))
@@ -443,11 +448,21 @@ class OpenLibrary_Author(AbstractSite):
             cover_image_url = f"https://covers.openlibrary.org/a/id/{photo_id}-L.jpg"
 
         official_site = None
+        fallback_site = None
         for link in data.get("links", []) or []:
-            url = (link or {}).get("url")
-            if url and url.startswith("http"):
+            if not isinstance(link, dict):
+                continue
+            url = link.get("url")
+            if not url or not url.startswith("http"):
+                continue
+            title = (link.get("title") or "").lower()
+            if "official" in title or "website" in title:
                 official_site = url
                 break
+            if fallback_site is None:
+                fallback_site = url
+        if official_site is None:
+            official_site = fallback_site
 
         remote_ids = data.get("remote_ids") or {}
         lookup_ids: dict = {}
@@ -465,7 +480,7 @@ class OpenLibrary_Author(AbstractSite):
         if cover_image_url:
             try:
                 raw_img, ext = BasicImageDownloader.download_image(
-                    cover_image_url, None, headers={}
+                    cover_image_url, self.url, headers={}
                 )
             except Exception as e:
                 logger.warning(
