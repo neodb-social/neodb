@@ -17,7 +17,6 @@ from journal.models import update_journal_for_merged_item_task
 
 from ..forms import CatalogForms
 from ..models import (
-    CreditRole,
     Edition,
     ExternalResource,
     IdealIdTypes,
@@ -465,7 +464,11 @@ def item_credits(request, item_path, item_uuid):
     return render(
         request,
         "_item_credits_list.html",
-        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+        {
+            "item": item,
+            "credits": credits,
+            "credit_roles": type(item).credit_role_choices(),
+        },
     )
 
 
@@ -478,7 +481,8 @@ def add_credit(request, item_path, item_uuid):
     name_input = request.POST.get("name", "").strip()
     if not role or not name_input:
         raise BadRequest("role and name are required")
-    if role not in CreditRole.values:
+    allowed_roles = {v for v, _ in type(item).credit_role_choices()}
+    if role not in allowed_roles:
         raise BadRequest("invalid role")
 
     person = None
@@ -512,7 +516,11 @@ def add_credit(request, item_path, item_uuid):
     return render(
         request,
         "_item_credits_list.html",
-        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+        {
+            "item": item,
+            "credits": credits,
+            "credit_roles": type(item).credit_role_choices(),
+        },
     )
 
 
@@ -527,7 +535,11 @@ def remove_credit(request, item_path, item_uuid, credit_id):
     return render(
         request,
         "_item_credits_list.html",
-        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+        {
+            "item": item,
+            "credits": credits,
+            "credit_roles": type(item).credit_role_choices(),
+        },
     )
 
 
@@ -544,7 +556,11 @@ def update_credit(request, item_path, item_uuid, credit_id):
     return render(
         request,
         "_item_credits_list.html",
-        {"item": item, "credits": credits, "credit_roles": CreditRole.choices},
+        {
+            "item": item,
+            "credits": credits,
+            "credit_roles": type(item).credit_role_choices(),
+        },
     )
 
 

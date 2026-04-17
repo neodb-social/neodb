@@ -740,6 +740,21 @@ class Item(PolymorphicModel):
     CREDIT_FIELD_MAPPING: dict[str, str] = {}
 
     @classmethod
+    def credit_role_choices(cls):
+        """CreditRole choices relevant to this item class.
+
+        Derived from the class's `available_roles` (PeopleRole values share
+        string values with CreditRole) plus any role in CREDIT_FIELD_MAPPING.
+        Falls back to all CreditRole choices if neither is set.
+        """
+        allowed: set[str] = {str(r) for r in getattr(cls, "available_roles", [])}
+        allowed.update(cls.CREDIT_FIELD_MAPPING.values())
+        allowed &= set(CreditRole.values)
+        if not allowed:
+            return list(CreditRole.choices)
+        return [(v, label) for v, label in CreditRole.choices if v in allowed]
+
+    @classmethod
     def create_from_external_resource(cls, p: "ExternalResource") -> Self:
         logger.debug(f"creating new item from {p}")
         obj = cls.copy_metadata(p.metadata)
