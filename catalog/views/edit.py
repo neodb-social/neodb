@@ -55,9 +55,18 @@ def create(request, item_model):
         initial = {}
         t = request.GET.get("title", "")
         if t:
-            initial = {
-                "localized_title": [{"text": t, "lang": get_current_locales()[0]}],
-            }
+            if item_model == "People":
+                initial["localized_name"] = [
+                    {"text": t, "lang": get_current_locales()[0]}
+                ]
+            else:
+                initial["localized_title"] = [
+                    {"text": t, "lang": get_current_locales()[0]}
+                ]
+        if item_model == "People":
+            pt = request.GET.get("people_type", "")
+            if pt in ("person", "organization"):
+                initial["people_type"] = pt
         form = form_cls(initial=initial)
 
     if request.method == "POST":

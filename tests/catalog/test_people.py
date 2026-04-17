@@ -24,6 +24,7 @@ from catalog.sites.douban_personage import (
     _split_name,
 )
 from catalog.sites.wikidata import WikiData, WikidataTypes
+from users.models import User
 
 _DAN_SIMMONS_METADATA = {"localized_name": [{"lang": "en", "text": "Dan Simmons"}]}
 _BANTAM_BOOKS_METADATA = {"localized_name": [{"lang": "en", "text": "Bantam Books"}]}
@@ -409,9 +410,49 @@ class TestPeople:
         assert "birth_date" in People.METADATA_COPY_LIST
         assert "death_date" in People.METADATA_COPY_LIST
         assert "official_site" in People.METADATA_COPY_LIST
+        assert "people_type" in People.METADATA_COPY_LIST
         # Should NOT include localized_title or localized_description
         assert "localized_title" not in People.METADATA_COPY_LIST
         assert "localized_description" not in People.METADATA_COPY_LIST
+
+    def test_people_form_includes_people_type(self):
+        from catalog.forms import CatalogForms
+
+        form_cls = CatalogForms["People"]
+        assert "people_type" in form_cls.base_fields
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+class TestPeopleCreateView:
+    def _login(self):
+        from django.test import Client
+
+        user = User.register(email="creator@example.com", username="creator")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        return client
+
+    def test_create_form_prefills_organization_type(self):
+        client = self._login()
+        response = client.get(
+            "/catalog/create/People?title=Acme&people_type=organization"
+        )
+        assert response.status_code == 200
+        form = response.context["form"]
+        assert form.initial.get("people_type") == "organization"
+        assert form.initial["localized_name"][0]["text"] == "Acme"
+
+    def test_create_form_prefills_person_type(self):
+        client = self._login()
+        response = client.get("/catalog/create/People?people_type=person")
+        assert response.status_code == 200
+        assert response.context["form"].initial.get("people_type") == "person"
+
+    def test_create_form_ignores_invalid_people_type(self):
+        client = self._login()
+        response = client.get("/catalog/create/People?people_type=bogus")
+        assert response.status_code == 200
+        assert "people_type" not in response.context["form"].initial
 
 
 @pytest.mark.django_db(databases="__all__")

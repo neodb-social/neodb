@@ -165,6 +165,7 @@ class People(Item):
     douban_personage = PrimaryLookupIdDescriptor(IdType.DoubanPersonage)
 
     METADATA_COPY_LIST = [
+        "people_type",
         "localized_name",
         "localized_bio",
         "birth_date",
