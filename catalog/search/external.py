@@ -95,6 +95,11 @@ class ExternalSources:
             results = [
                 r
                 for r in results
-                if getattr(r.source_site, "value", r.source_site) not in ds
+                if (
+                    r.source_site.value
+                    if isinstance(r.source_site, SiteName)
+                    else r.source_site
+                )
+                not in ds
             ]
         return results
