@@ -36,7 +36,12 @@ def _make_migration_notifier(skip_key: str):
     dw = SiteConfig.system.discord_webhooks.get(
         _NOTIFY_CHANNEL
     ) or SiteConfig.system.discord_webhooks.get("default")
-    webhook = SyncWebhook.from_url(dw) if dw else None
+    webhook = None
+    if dw:
+        try:
+            webhook = SyncWebhook.from_url(dw)
+        except Exception as e:
+            logger.warning(f"[migration] {skip_key}: discord webhook init failed: {e}")
     state: dict = {"thread_id": None}
 
     def notify(content: str) -> None:
