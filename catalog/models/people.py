@@ -404,7 +404,6 @@ class People(Item):
             IdType.IMDB,
             IdType.TMDB_Person,
             IdType.DoubanPersonage,
-            IdType.DoubanBook_Author,
             IdType.Goodreads_Author,
             IdType.Spotify_Artist,
             IdType.OpenLibrary_Author,
