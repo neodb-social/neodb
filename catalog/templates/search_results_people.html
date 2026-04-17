@@ -22,19 +22,19 @@
               <h5>&ldquo;{{ request.GET.q }}&rdquo;</h5>
               <div class="search-category-picker">
                 {% if request.GET.type %}
-                  <a href="?q={{ request.GET.q }}&amp;c=people">{% trans 'all' %}</a>
+                  <a href="?q={{ request.GET.q|urlencode }}&amp;c=people">{% trans 'all' %}</a>
                 {% else %}
                   {% trans 'all' %}
                 {% endif %}
                 |
                 {% if request.GET.type != 'person' %}
-                  <a href="?q={{ request.GET.q }}&amp;c=people&amp;type=person">{% trans 'Person' %}</a>
+                  <a href="?q={{ request.GET.q|urlencode }}&amp;c=people&amp;type=person">{% trans 'Person' %}</a>
                 {% else %}
                   {% trans 'Person' %}
                 {% endif %}
                 |
                 {% if request.GET.type != 'organization' %}
-                  <a href="?q={{ request.GET.q }}&amp;c=people&amp;type=organization">{% trans 'Organization' %}</a>
+                  <a href="?q={{ request.GET.q|urlencode }}&amp;c=people&amp;type=organization">{% trans 'Organization' %}</a>
                 {% else %}
                   {% trans 'Organization' %}
                 {% endif %}

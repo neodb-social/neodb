@@ -10,14 +10,14 @@
   <div class="search-category-picker">
     {% visible_categories as cats %}
     {% if request.GET.c and request.GET.c != 'all' %}
-      <a href="?q={{ request.GET.q }}&amp;c=all">{% trans "all" %}</a>
+      <a href="?q={{ request.GET.q|urlencode }}&amp;c=all">{% trans "all" %}</a>
     {% else %}
       {% trans "all" %}
     {% endif %}
     {% if 'book' in cats %}
       |
       {% if request.GET.c != 'book' %}
-        <a href="?q={{ request.GET.q }}&amp;c=book">{% trans "books" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=book">{% trans "books" %}</a>
       {% else %}
         {% trans "books" %}
       {% endif %}
@@ -26,7 +26,7 @@
     {% if 'movie' in cats or 'tv' in cats %}
       |
       {% if request.GET.c != 'movietv' %}
-        <a href="?q={{ request.GET.q }}&amp;c=movietv">{% trans "movie & tv" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=movietv">{% trans "movie & tv" %}</a>
       {% else %}
         {% trans "movie & tv" %}
       {% endif %}
@@ -37,7 +37,7 @@
     {% if 'podcast' in cats %}
       |
       {% if request.GET.c != 'podcast' %}
-        <a href="?q={{ request.GET.q }}&amp;c=podcast">{% trans "podcasts" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=podcast">{% trans "podcasts" %}</a>
       {% else %}
         {% trans "podcasts" %}
       {% endif %}
@@ -46,7 +46,7 @@
     {% if 'music' in cats %}
       |
       {% if request.GET.c != 'music' %}
-        <a href="?q={{ request.GET.q }}&amp;c=music">{% trans "music" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=music">{% trans "music" %}</a>
       {% else %}
         {% trans "music" %}
       {% endif %}
@@ -55,7 +55,7 @@
     {% if 'game' in cats %}
       |
       {% if request.GET.c != 'game' %}
-        <a href="?q={{ request.GET.q }}&amp;c=game">{% trans "games" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=game">{% trans "games" %}</a>
       {% else %}
         {% trans "games" %}
       {% endif %}
@@ -64,7 +64,7 @@
     {% if 'performance' in cats %}
       |
       {% if request.GET.c != 'performance' %}
-        <a href="?q={{ request.GET.q }}&amp;c=performance">{% trans "performances" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=performance">{% trans "performances" %}</a>
       {% else %}
         {% trans "performances" %}
       {% endif %}
@@ -72,20 +72,20 @@
     {% endif %}
     |
     {% if request.GET.c != 'people' %}
-      <a href="?q={{ request.GET.q }}&amp;c=people">{% trans "People & Organizations" %}</a>
+      <a href="?q={{ request.GET.q|urlencode }}&amp;c=people">{% trans "people & organizations" %}</a>
     {% else %}
-      {% trans "People & Organizations" %}
+      {% trans "people & organizations" %}
     {% endif %}
     {% if user.is_authenticated %}
       |
       {% if request.GET.c != 'journal' %}
-        <a href="?q={{ request.GET.q }}&amp;c=journal">{% trans "your journal" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=journal">{% trans "your journal" %}</a>
       {% else %}
         {% trans "your journal" %}
       {% endif %}
       |
       {% if request.GET.c != 'timeline' %}
-        <a href="?q={{ request.GET.q }}&amp;c=timeline">{% trans "your timeline" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=timeline">{% trans "your timeline" %}</a>
       {% else %}
         {% trans "your timeline" %}
       {% endif %}

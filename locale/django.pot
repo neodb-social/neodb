@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 19:40-0400\n"
+"POT-Creation-Date: 2026-04-17 19:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1863,8 +1863,8 @@ msgid "performances"
 msgstr ""
 
 #: catalog/templates/search_header.html:75
-#: catalog/templates/search_header.html:77 common/templates/_header.html:48
-msgid "People & Organizations"
+#: catalog/templates/search_header.html:77
+msgid "people & organizations"
 msgstr ""
 
 #: catalog/templates/search_header.html:82
@@ -3202,6 +3202,10 @@ msgstr ""
 
 #: common/templates/_header.html:29
 msgid "Movie & TV"
+msgstr ""
+
+#: common/templates/_header.html:48
+msgid "People & Organizations"
 msgstr ""
 
 #: common/templates/_header.html:50
