@@ -32,6 +32,7 @@ class Preference(models.Model):
     classic_homepage = models.PositiveSmallIntegerField(null=False, default=0)
     show_last_edit = models.PositiveSmallIntegerField(null=False, default=1)
     hidden_categories = models.JSONField(default=list)
+    disabled_search_sources = models.JSONField(default=list)
     auto_bookmark_cats = models.JSONField(default=_default_book_cats)
     mastodon_append_tag = models.CharField(max_length=2048, default="")
     mastodon_default_repost = models.BooleanField(null=False, default=True)

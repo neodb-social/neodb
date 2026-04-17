@@ -179,6 +179,17 @@
                 </select>
               </fieldset>
               <fieldset>
+                <label>{% trans 'Disable these sources in external search' %}</label>
+                <select name="disabled_search_sources" size="5" multiple>
+                  {% for site in search_sources %}
+                    <option value="{{ site.value }}"
+                            {% if site.value in request.user.preference.disabled_search_sources %}selected{% endif %}>
+                      {{ site.label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </fieldset>
+              <fieldset>
                 <label>
                   <input type="checkbox"
                          name="anonymous_viewable"

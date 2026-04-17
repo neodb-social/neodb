@@ -180,9 +180,14 @@ def external_search(request):
     category = request.GET.get("c", default="all").strip().lower()
     keywords = request.GET.get("q", default="").strip()
     page_number = int_(request.GET.get("page"), 1)
+    disabled = request.user.preference.disabled_search_sources or []
     items = (
         ExternalSources.search(
-            keywords, page_number, category, visible_categories(request)
+            keywords,
+            page_number,
+            category,
+            visible_categories(request),
+            disabled_sources=disabled,
         )
         if keywords
         else []

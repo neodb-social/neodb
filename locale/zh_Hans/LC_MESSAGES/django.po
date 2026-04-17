@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-16 20:54-0400\n"
+"POT-Creation-Date: 2026-04-16 22:00-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -424,11 +424,11 @@ msgstr "TMDB人物"
 
 #: catalog/models/common.py:93
 msgid "Open Library Author"
-msgstr "Open Library作者"
+msgstr "开放图书馆作者"
 
 #: catalog/models/common.py:94
 msgid "IGDB Company"
-msgstr ""
+msgstr "IGDB公司"
 
 #: catalog/models/common.py:95
 msgid "IGDB Game"
@@ -513,7 +513,7 @@ msgstr "收藏单"
 
 #: catalog/models/common.py:146 catalog/models/common.py:159
 msgid "Person / Organization"
-msgstr ""
+msgstr "个人 / 组织"
 
 #: catalog/models/common.py:150 catalog/models/common.py:164
 #: common/templates/_header.html:25
@@ -1165,13 +1165,13 @@ msgstr "回到条目"
 msgid "Edit Options"
 msgstr "编辑选项"
 
-#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:134
-#: catalog/views/edit.py:168 catalog/views/edit.py:206
-#: catalog/views/edit.py:265 catalog/views/edit.py:269
-#: catalog/views/edit.py:287 catalog/views/edit.py:333
-#: catalog/views/edit.py:348 catalog/views/edit.py:386
-#: catalog/views/edit.py:396 catalog/views/edit.py:422
-#: catalog/views/search.py:209
+#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:131
+#: catalog/views/edit.py:165 catalog/views/edit.py:203
+#: catalog/views/edit.py:262 catalog/views/edit.py:266
+#: catalog/views/edit.py:284 catalog/views/edit.py:330
+#: catalog/views/edit.py:345 catalog/views/edit.py:383
+#: catalog/views/edit.py:393 catalog/views/edit.py:419
+#: catalog/views/search.py:214
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1450,12 +1450,16 @@ msgid "Add performance or theater pieces"
 msgstr "添加戏剧演出"
 
 #: catalog/templates/_sidebar_search.html:68
+#, fuzzy
+#| msgid "Add games"
 msgid "Add a person"
-msgstr "添加人物"
+msgstr "添加游戏"
 
 #: catalog/templates/_sidebar_search.html:71
+#, fuzzy
+#| msgid "Organization"
 msgid "Add an organization"
-msgstr "添加公司或组织"
+msgstr "组织"
 
 #: catalog/templates/_wikipedia_pages.html:10
 msgid "Wikipedia Pages"
@@ -1547,7 +1551,7 @@ msgstr "演职员"
 #: journal/templates/review_edit.html:40 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:198
+#: users/templates/users/preferences.html:209
 msgid "Save"
 msgstr "保存"
 
@@ -1898,17 +1902,17 @@ msgstr "本剧所有季"
 msgid "Editions"
 msgstr "版本"
 
-#: catalog/views/edit.py:170
+#: catalog/views/edit.py:167
 msgid "Item in use."
 msgstr "条目已被引用或标记。"
 
-#: catalog/views/edit.py:172
+#: catalog/views/edit.py:169
 msgid "Item cannot be deleted."
 msgstr "条目不可被删除。"
 
-#: catalog/views/edit.py:195 catalog/views/edit.py:249
-#: catalog/views/edit.py:335 catalog/views/edit.py:424
-#: catalog/views/edit.py:456 journal/views/collection.py:96
+#: catalog/views/edit.py:192 catalog/views/edit.py:246
+#: catalog/views/edit.py:332 catalog/views/edit.py:421
+#: catalog/views/edit.py:453 journal/views/collection.py:96
 #: journal/views/collection.py:156 journal/views/collection.py:168
 #: journal/views/collection.py:185 journal/views/collection.py:251
 #: journal/views/collection.py:287 journal/views/collection.py:322
@@ -1923,7 +1927,7 @@ msgstr "条目不可被删除。"
 msgid "Insufficient permission"
 msgstr "权限不足"
 
-#: catalog/views/edit.py:252 catalog/views/edit.py:255
+#: catalog/views/edit.py:249 catalog/views/edit.py:252
 #: journal/views/collection.py:58 journal/views/collection.py:83
 #: journal/views/collection.py:339 journal/views/collection.py:429
 #: journal/views/common.py:128 journal/views/mark.py:141
@@ -1935,31 +1939,31 @@ msgstr "权限不足"
 msgid "Invalid parameter"
 msgstr "无效参数"
 
-#: catalog/views/edit.py:309
+#: catalog/views/edit.py:306
 msgid "TV Season with IMDB id and season number required."
 msgstr "必须是电视剧分季，且包含IMDB id和分季序号。"
 
-#: catalog/views/edit.py:314
+#: catalog/views/edit.py:311
 msgid "Updating episodes"
 msgstr "正在更新单集列表"
 
-#: catalog/views/edit.py:346
+#: catalog/views/edit.py:343
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr "无法合并到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:351
+#: catalog/views/edit.py:348
 msgid "Cannot merge items in different categories"
 msgstr "无法合并不同类型的条目"
 
-#: catalog/views/edit.py:355
+#: catalog/views/edit.py:352
 msgid "Cannot merge an item to itself"
 msgstr "无法合并条目和它自己"
 
-#: catalog/views/edit.py:394
+#: catalog/views/edit.py:391
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr "无法关联到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:398
+#: catalog/views/edit.py:395
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
@@ -1967,11 +1971,11 @@ msgstr "无法关联到非图书类的条目"
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:198
+#: catalog/views/search.py:203
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:201
+#: catalog/views/search.py:206
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -6962,15 +6966,19 @@ msgstr "将这些类型的条目标记为在读/在看/在玩/...时，自动把
 msgid "Hide these categories in search results"
 msgstr "搜索时不显示以下类型"
 
-#: users/templates/users/preferences.html:186
+#: users/templates/users/preferences.html:182
+msgid "Disable these sources in external search"
+msgstr "在外部搜索中不使用以下来源"
+
+#: users/templates/users/preferences.html:197
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr "匿名访客和搜索引擎可以查看你的个人主页"
 
-#: users/templates/users/preferences.html:187
+#: users/templates/users/preferences.html:198
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"
 
-#: users/templates/users/preferences.html:195
+#: users/templates/users/preferences.html:206
 msgid "Show your name on item page if you recently edited it"
 msgstr "显示你是某条目的最近编辑者"
 
@@ -7321,99 +7329,99 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:186 users/views/data.py:215
+#: users/views/data.py:202 users/views/data.py:231
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:209
+#: users/views/data.py:225
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:227
+#: users/views/data.py:243
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:242 users/views/data.py:262
+#: users/views/data.py:258 users/views/data.py:278
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:276
+#: users/views/data.py:292
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:290
+#: users/views/data.py:306
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:299 users/views/data.py:323 users/views/data.py:347
-#: users/views/data.py:372 users/views/data.py:396 users/views/data.py:420
+#: users/views/data.py:315 users/views/data.py:339 users/views/data.py:363
+#: users/views/data.py:388 users/views/data.py:412 users/views/data.py:436
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:540
+#: users/views/data.py:556
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:562
+#: users/views/data.py:578
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:578
+#: users/views/data.py:594
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:583
+#: users/views/data.py:599
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:593 users/views/data.py:644
+#: users/views/data.py:609 users/views/data.py:660
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:600
+#: users/views/data.py:616
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:605
+#: users/views/data.py:621
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:631
+#: users/views/data.py:647
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:636
+#: users/views/data.py:652
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:649
+#: users/views/data.py:665
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:660
+#: users/views/data.py:676
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:666
+#: users/views/data.py:682
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:724
+#: users/views/data.py:740
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:740
+#: users/views/data.py:756
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:744
+#: users/views/data.py:760
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:753
+#: users/views/data.py:769
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

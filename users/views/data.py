@@ -17,6 +17,9 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
 
+from catalog.common import SiteManager
+from catalog.models import SiteName
+from catalog.sites import FediverseInstance
 from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
@@ -61,6 +64,9 @@ def preferences(request):
         )
         preference.classic_homepage = int(request.POST.get("classic_homepage", 0))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
+        preference.disabled_search_sources = request.POST.getlist(
+            "disabled_search_sources"
+        )
         preference.auto_bookmark_cats = request.POST.getlist("auto_bookmark_cats")
         preference.post_public_mode = int(request.POST.get("post_public_mode", 0))
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
@@ -82,6 +88,7 @@ def preferences(request):
                 "mastodon_boost_enabled",
                 "show_last_edit",
                 "hidden_categories",
+                "disabled_search_sources",
             ]
         )
         lang = request.POST.get("language")
@@ -91,10 +98,19 @@ def preferences(request):
             request.LANGUAGE_CODE = translation.get_language()
             request.user.save(update_fields=["language"])
         clear_preference_cache(request)
+    names = {s.SITE_NAME for s in SiteManager.get_sites_for_search()}
+    names.add(FediverseInstance.SITE_NAME)
+    search_sources = sorted(
+        [n for n in SiteName if n in names and n != SiteName.Unknown],
+        key=lambda n: str(n.label),
+    )
     return render(
         request,
         "users/preferences.html",
-        {"enable_local_only": SiteConfig.system.enable_local_only},
+        {
+            "enable_local_only": SiteConfig.system.enable_local_only,
+            "search_sources": search_sources,
+        },
     )
 
 

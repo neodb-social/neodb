@@ -59,6 +59,7 @@ class ExternalSources:
         page: int = 1,
         category: str | None = None,
         visible_categories: list[ItemCategory] = [],
+        disabled_sources: list[str] = [],
     ) -> list[ExternalSearchResultItem]:
         from catalog.common import SiteManager
         from catalog.sites import FediverseInstance
@@ -89,4 +90,7 @@ class ExternalSources:
             cache.set("ext_" + cache_key, results, 300)
         dedupe_urls = cache.get(cache_key, [])
         results = [i for i in results if i.source_url not in dedupe_urls]
+        if disabled_sources:
+            ds = set(disabled_sources)
+            results = [r for r in results if str(r.source_site) not in ds]
         return results
