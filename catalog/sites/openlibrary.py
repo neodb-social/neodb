@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from urllib.parse import quote_plus
 
 import httpx
@@ -10,6 +11,23 @@ from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from catalog.search import *
 from common.models import detect_language
 from common.models.lang import normalize_language
+
+
+def _author_id_from_key(key: str) -> str | None:
+    """Extract `OL...A` author id from a key like `/authors/OL34184A`."""
+    if not key:
+        return None
+    m = re.search(r"/authors/(OL\d+A)", key)
+    return m.group(1) if m else None
+
+
+def _build_author_resource(author_id: str) -> dict:
+    return {
+        "model": "People",
+        "id_type": IdType.OpenLibrary_Author,
+        "id_value": author_id,
+        "url": f"https://openlibrary.org/authors/{author_id}",
+    }
 
 
 @SiteManager.register
@@ -47,11 +65,17 @@ class OpenLibrary(AbstractSite):
         title = book_data.get("title", "")
         subtitle = book_data.get("subtitle")
         authors = []
+        author_resources: list[dict] = []
+        seen_author_ids: set[str] = set()
         if "authors" in book_data:
             for a in book_data["authors"]:
                 author_url = "https://openlibrary.org" + a["key"] + ".json"
                 author_json = BasicDownloader(author_url).download().json()
                 authors.append(author_json.get("name", ""))
+                author_id = _author_id_from_key(a.get("key", ""))
+                if author_id and author_id not in seen_author_ids:
+                    seen_author_ids.add(author_id)
+                    author_resources.append(_build_author_resource(author_id))
         publishers = book_data.get("publishers", [])
         pub_house = publishers[0] if publishers else None
         pub_year = None
@@ -142,6 +166,8 @@ class OpenLibrary(AbstractSite):
 
         if work_info:
             metadata["required_resources"] = [work_info]
+        if author_resources:
+            metadata["related_resources"] = author_resources
 
         return ResourceContent(
             metadata=metadata,
@@ -293,13 +319,18 @@ class OpenLibrary_Work(AbstractSite):
         title = work_data.get("title", "")
 
         authors = []
+        author_resources: list[dict] = []
+        seen_author_ids: set[str] = set()
         if "authors" in work_data:
             for author_ref in work_data["authors"]:
-                author_url = (
-                    "https://openlibrary.org" + author_ref["author"]["key"] + ".json"
-                )
+                author_key = author_ref.get("author", {}).get("key", "")
+                author_url = "https://openlibrary.org" + author_key + ".json"
                 author_json = BasicDownloader(author_url).download().json()
                 authors.append(author_json.get("name", ""))
+                author_id = _author_id_from_key(author_key)
+                if author_id and author_id not in seen_author_ids:
+                    seen_author_ids.add(author_id)
+                    author_resources.append(_build_author_resource(author_id))
 
         description = ""
         if "description" in work_data:
@@ -314,8 +345,9 @@ class OpenLibrary_Work(AbstractSite):
 
         lang = detect_language(title + " " + description)
 
-        # Fetch related editions
+        # Fetch related editions and merge with author People resources
         related_resources = self.fetch_editions()
+        related_resources.extend(author_resources)
 
         metadata = {
             "title": title,
@@ -329,3 +361,128 @@ class OpenLibrary_Work(AbstractSite):
         }
 
         return ResourceContent(metadata=metadata)
+
+
+@SiteManager.register
+class OpenLibrary_Author(AbstractSite):
+    SITE_NAME = SiteName.OpenLibrary
+    ID_TYPE = IdType.OpenLibrary_Author
+    WIKI_PROPERTY_ID = "P648"
+    DEFAULT_MODEL = People
+    URL_PATTERNS = [
+        r"https://openlibrary\.org/authors/(OL\d+A)",
+        r"https://www\.openlibrary\.org/authors/(OL\d+A)",
+    ]
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return f"https://openlibrary.org/authors/{id_value}"
+
+    @staticmethod
+    def _parse_date(date_str: str) -> str | None:
+        """Parse OpenLibrary date strings into ISO format where possible.
+
+        Handles variants like '13 September 1916', 'September 1916', '1916',
+        and already-ISO values.
+        """
+        if not date_str:
+            return None
+        s = date_str.strip()
+        if not s:
+            return None
+        for fmt, out in (
+            ("%d %B %Y", "%Y-%m-%d"),
+            ("%B %d, %Y", "%Y-%m-%d"),
+            ("%B %Y", "%Y-%m"),
+            ("%Y-%m-%d", "%Y-%m-%d"),
+            ("%Y-%m", "%Y-%m"),
+            ("%Y", "%Y"),
+        ):
+            try:
+                return datetime.strptime(s, fmt).strftime(out)
+            except ValueError:
+                continue
+        return s
+
+    @staticmethod
+    def _text_value(value) -> str:
+        if isinstance(value, dict):
+            return str(value.get("value") or "").strip()
+        return str(value or "").strip()
+
+    def scrape(self):
+        api_url = f"https://openlibrary.org/authors/{self.id_value}.json"
+        response = BasicDownloader(api_url).download()
+        data = response.json()
+        if not data:
+            raise ParseError(self, "no author data")
+
+        name = (data.get("name") or "").strip()
+        if not name:
+            raise ParseError(self, "author name")
+        lang = detect_language(name)
+
+        localized_name = [{"lang": lang, "text": name}]
+        seen_names = {name}
+        for alt in data.get("alternate_names", []) or []:
+            alt = (alt or "").strip()
+            if alt and alt not in seen_names:
+                seen_names.add(alt)
+                localized_name.append({"lang": detect_language(alt), "text": alt})
+
+        bio = self._text_value(data.get("bio"))
+        localized_bio = [{"lang": lang, "text": bio}] if bio else []
+
+        birth_date = self._parse_date(data.get("birth_date", ""))
+        death_date = self._parse_date(data.get("death_date", ""))
+
+        cover_image_url = None
+        photos = data.get("photos") or []
+        photo_id = next((p for p in photos if isinstance(p, int) and p > 0), None)
+        if photo_id:
+            cover_image_url = f"https://covers.openlibrary.org/a/id/{photo_id}-L.jpg"
+
+        official_site = None
+        for link in data.get("links", []) or []:
+            url = (link or {}).get("url")
+            if url and url.startswith("http"):
+                official_site = url
+                break
+
+        remote_ids = data.get("remote_ids") or {}
+        lookup_ids: dict = {}
+        wikidata_qid = remote_ids.get("wikidata")
+        if wikidata_qid:
+            lookup_ids[IdType.WikiData] = wikidata_qid
+        goodreads_author = remote_ids.get("goodreads")
+        if goodreads_author:
+            lookup_ids[IdType.Goodreads_Author] = str(goodreads_author)
+        imdb_id = remote_ids.get("imdb")
+        if imdb_id and str(imdb_id).startswith("nm"):
+            lookup_ids[IdType.IMDB] = imdb_id
+
+        raw_img, ext = (None, None)
+        if cover_image_url:
+            try:
+                raw_img, ext = BasicImageDownloader.download_image(
+                    cover_image_url, None, headers={}
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to download author photo for {self.id_value}: {e}"
+                )
+
+        return ResourceContent(
+            metadata={
+                "title": name,
+                "localized_name": localized_name,
+                "localized_bio": localized_bio,
+                "birth_date": birth_date,
+                "death_date": death_date,
+                "official_site": official_site,
+                "cover_image_url": cover_image_url,
+            },
+            cover_image=raw_img,
+            cover_image_extention=ext,
+            lookup_ids=lookup_ids,
+        )

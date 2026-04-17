@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import SiteManager, use_local_response
-from catalog.models import Edition, IdType, SiteName, Work
+from catalog.models import Edition, IdType, People, SiteName, Work
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -53,6 +53,14 @@ class TestOpenLibrary:
             {"lang": "en", "text": "Fantastic Mr. Fox"}
         ]
         assert metadata["author"] == ["Roald Dahl"]
+        related = metadata.get("related_resources") or []
+        author_refs = [
+            r for r in related if r.get("id_type") == IdType.OpenLibrary_Author
+        ]
+        assert author_refs
+        assert author_refs[0]["model"] == "People"
+        assert author_refs[0]["id_value"] == "OL34184A"
+        assert author_refs[0]["url"] == "https://openlibrary.org/authors/OL34184A"
 
     @use_local_response
     def test_work_relationship(self):
@@ -116,13 +124,30 @@ class TestOpenLibraryWork:
         assert len(metadata["related_resources"]) > 0
 
         # Verify structure of related edition resources
-        first_edition = metadata["related_resources"][0]
+        editions_only = [
+            r
+            for r in metadata["related_resources"]
+            if r.get("id_type") == IdType.OpenLibrary
+        ]
+        assert editions_only
+        first_edition = editions_only[0]
         assert first_edition["model"] == "Edition"
         assert first_edition["id_type"] == IdType.OpenLibrary
         assert "id_value" in first_edition
         assert first_edition["id_value"].endswith("M")  # OpenLibrary edition format
         assert "url" in first_edition
         assert first_edition["url"].startswith("https://openlibrary.org/books/")
+
+        # Verify author People resource is present
+        author_refs = [
+            r
+            for r in metadata["related_resources"]
+            if r.get("id_type") == IdType.OpenLibrary_Author
+        ]
+        assert author_refs
+        assert author_refs[0]["model"] == "People"
+        assert author_refs[0]["id_value"] == "OL34184A"
+        assert author_refs[0]["url"] == "https://openlibrary.org/authors/OL34184A"
 
     @use_local_response
     def test_fetch_editions(self):
@@ -142,6 +167,50 @@ class TestOpenLibraryWork:
             assert edition["id_value"].endswith("M")
             assert edition["url"].startswith("https://openlibrary.org/books/")
             assert "title" in edition
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestOpenLibraryAuthor:
+    def test_parse(self):
+        t_type = IdType.OpenLibrary_Author
+        t_id = "OL34184A"
+        t_url = "https://openlibrary.org/authors/OL34184A"
+        p1 = SiteManager.get_site_cls_by_id_type(t_type)
+        p2 = SiteManager.get_site_by_url(t_url)
+        assert p1 is not None
+        assert p1.id_to_url(t_id) == t_url
+        assert p2 is not None
+        assert p2.url_to_id(t_url) == t_id
+        assert p2.ID_TYPE == t_type
+        assert p2.id_value == t_id
+
+    @use_local_response
+    def test_scrape_author(self):
+        t_url = "https://openlibrary.org/authors/OL34184A"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.site_name == SiteName.OpenLibrary
+        assert site.resource.id_type == IdType.OpenLibrary_Author
+        assert site.resource.id_value == "OL34184A"
+        assert isinstance(site.resource.item, People)
+
+        metadata = site.resource.metadata
+        assert metadata["title"] == "Roald Dahl"
+        assert metadata["birth_date"] == "1916-09-13"
+        assert metadata["death_date"] == "1990-11-23"
+        assert metadata["official_site"] == "http://www.roalddahl.com/"
+        names = {n["text"] for n in metadata["localized_name"]}
+        assert "Roald Dahl" in names
+        assert (metadata.get("cover_image_url") or "").startswith(
+            "https://covers.openlibrary.org/a/id/"
+        )
+
+        lookup = site.resource.other_lookup_ids
+        assert lookup.get(IdType.WikiData) == "Q25161"
+        assert lookup.get(IdType.Goodreads_Author) == "4273"
+        assert lookup.get(IdType.IMDB) == "nm0001094"
 
 
 def test_openlibrary_search_categories_sync():
