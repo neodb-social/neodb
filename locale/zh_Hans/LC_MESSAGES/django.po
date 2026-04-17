@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 01:33-0400\n"
+"POT-Creation-Date: 2026-04-17 00:59-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -709,7 +709,7 @@ msgstr "角色"
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:40
+#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:135
 msgid "character name"
 msgstr "角色名"
 
@@ -1081,25 +1081,33 @@ msgstr "添加短评"
 msgid "comment this episode"
 msgstr "写该集短评"
 
-#: catalog/templates/_item_credits_list.html:22
+#: catalog/templates/_item_credits_list.html:114
+msgid "linked to a person page"
+msgstr "已关联人物页面"
+
+#: catalog/templates/_item_credits_list.html:120
 msgid "click to edit character name"
 msgstr "点击编辑角色名"
 
-#: catalog/templates/_item_credits_list.html:52
+#: catalog/templates/_item_credits_list.html:142
 msgid "Remove this credit?"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:53
+#: catalog/templates/_item_credits_list.html:143
 msgid "remove"
 msgstr "移除"
 
-#: catalog/templates/_item_credits_list.html:59
+#: catalog/templates/_item_credits_list.html:149
 msgid "No credits yet."
 msgstr "暂无演职员信息。"
 
-#: catalog/templates/_item_credits_list.html:74
+#: catalog/templates/_item_credits_list.html:161
 msgid "Name or /people/... URL"
 msgstr "姓名或 /people/... 链接"
+
+#: catalog/templates/_item_credits_list.html:165
+msgid "Add"
+msgstr "添加"
 
 #: catalog/templates/_item_notes.html:68 catalog/templates/_item_notes.html:79
 msgid "more notes from them"

@@ -1,51 +1,144 @@
 {% load i18n %}
+<style>
+  #credits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  #credits-list .credit-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+  }
+
+  #credits-list .credit-row:hover {
+    background-color: color-mix(in srgb, var(--pico-color) 8%, transparent);
+  }
+
+  #credits-list .credit-role {
+    color: var(--pico-muted-color);
+    font-size: 0.8em;
+    min-width: 6em;
+    flex-shrink: 0;
+  }
+
+  #credits-list .credit-name {
+    font-weight: 500;
+  }
+
+  #credits-list .credit-person-link {
+    color: var(--pico-muted-color);
+    font-size: 0.75em;
+  }
+
+  #credits-list .credit-character {
+    cursor: pointer;
+    color: var(--pico-muted-color);
+    font-size: 0.9em;
+  }
+
+  #credits-list .credit-character:hover {
+    color: var(--pico-color);
+  }
+
+  #credits-list .credit-character .fa-pen {
+    font-size: 0.7em;
+    opacity: 0.5;
+  }
+
+  #credits-list .credit-character-form {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  #credits-list .credit-character-form input {
+    margin-bottom: 0;
+    max-width: 14em;
+    font-size: 0.9em;
+    padding: 0.2rem 0.4rem;
+  }
+
+  #credits-list .credit-row.editing .credit-character {
+    display: none;
+  }
+
+  #credits-list .credit-row.editing .credit-character-form {
+    display: flex;
+  }
+
+  #credits-list .credit-actions {
+    margin-left: auto;
+  }
+
+  #credits-list .credit-empty {
+    color: var(--pico-muted-color);
+    padding: 0.5rem 0.4rem;
+  }
+
+  #credits-list .credit-add-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+  }
+
+  #credits-list .credit-add-form select {
+    max-width: 10em;
+    margin-bottom: 0;
+  }
+
+  #credits-list .credit-add-form input {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #credits-list .credit-add-form button {
+    white-space: nowrap;
+    margin-bottom: 0;
+    width: auto;
+    flex-shrink: 0;
+  }
+</style>
 <div id="credits-list">
   {% for credit in credits %}
-    <div style="display: flex;
-                align-items: center;
-                gap: 0.5em;
-                padding: 0.2em 0.3em;
-                margin-bottom: 0.1em;
-                border-radius: 4px;
-                transition: background-color 0.15s"
-         onmouseover="this.style.backgroundColor='color-mix(in srgb, var(--pico-color) 8%, transparent)'"
-         onmouseout="this.style.backgroundColor='transparent'">
-      <small>[{{ credit.get_role_display }}]</small>
+    <div class="credit-row" data-credit-row>
+      <small class="credit-role">{{ credit.get_role_display }}</small>
       {% if credit.person %}
-        <a href="{{ credit.person.url }}">{{ credit.name }}</a>
-        <i class="fa-solid fa-link" style="font-size: 0.7em; opacity: 0.5;"></i>
+        <a class="credit-name" href="{{ credit.person.url }}">{{ credit.name }}</a>
+        <i class="fa-solid fa-link credit-person-link"
+           title="{% trans 'linked to a person page' %}"></i>
       {% else %}
-        <span>{{ credit.name }}</span>
+        <span class="credit-name">{{ credit.name }}</span>
       {% endif %}
-      <small style="cursor: pointer;
-                    opacity: 0.7"
-             title="{% trans 'click to edit character name' %}"
-             onclick="var s=this;var f=s.nextElementSibling;s.style.display='none';f.style.display='flex';f.querySelector('input').focus();">
+      <span class="credit-character"
+            data-edit-character
+            title="{% trans 'click to edit character name' %}">
         {% if credit.character_name %}
           ({{ credit.character_name }})
         {% else %}
-          <i class="fa-solid fa-pen" style="font-size: 0.6em; opacity: 0.4;"></i>
+          <i class="fa-solid fa-pen"></i>
         {% endif %}
-      </small>
-      <form hx-post="{% url 'catalog:update_credit' item.url_path item.uuid credit.pk %}"
+      </span>
+      <form class="credit-character-form"
+            hx-post="{% url 'catalog:update_credit' item.url_path item.uuid credit.pk %}"
             hx-target="#credits-section"
-            hx-swap="innerHTML"
-            style="display: none;
-                   align-items: center;
-                   gap: 0.3em">
+            hx-swap="innerHTML">
         {% csrf_token %}
         <input type="text"
                name="character_name"
                value="{{ credit.character_name }}"
                placeholder="{% trans 'character name' %}"
-               style="margin-bottom: 0;
-                      max-width: 12em;
-                      font-size: 0.85em;
-                      padding: 0.2em 0.4em"
-               onblur="this.form.requestSubmit()"
-               onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit();}if(event.key==='Escape'){this.form.style.display='none';this.form.previousElementSibling.style.display='';}">
+               data-character-input>
       </form>
-      <span class="action inline" style="margin-left: auto;">
+      <span class="action inline credit-actions">
         <a hx-post="{% url 'catalog:remove_credit' item.url_path item.uuid credit.pk %}"
            hx-target="#credits-section"
            hx-swap="innerHTML"
@@ -56,29 +149,62 @@
       </span>
     </div>
   {% empty %}
-    <p class="empty">{% trans 'No credits yet.' %}</p>
+    <p class="credit-empty">{% trans 'No credits yet.' %}</p>
   {% endfor %}
-  <form hx-post="{% url 'catalog:add_credit' item.url_path item.uuid %}"
+  <form class="credit-add-form"
+        hx-post="{% url 'catalog:add_credit' item.url_path item.uuid %}"
         hx-target="#credits-section"
-        hx-swap="innerHTML"
-        style="display: flex;
-               gap: 0.5em;
-               margin-top: 0.5em;
-               align-items: center">
+        hx-swap="innerHTML">
     {% csrf_token %}
-    <select name="role" required style="max-width: 10em; margin-bottom: 0;">
+    <select name="role" required>
       {% for value, label in credit_roles %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
     </select>
     <input type="text"
            name="name"
            placeholder="{% trans 'Name or /people/... URL' %}"
-           required
-           style="margin-bottom: 0">
-    <button type="submit"
-            class="outline"
-            style="white-space: nowrap;
-                   margin-bottom: 0">
+           required>
+    <button type="submit" class="outline">
       <i class="fa-solid fa-plus"></i>
+      {% trans 'Add' %}
     </button>
   </form>
 </div>
+<script>
+  (function () {
+    var list = document.getElementById('credits-list');
+    if (!list) return;
+    list.addEventListener('click', function (e) {
+      var trigger = e.target.closest('[data-edit-character]');
+      if (!trigger) return;
+      var row = trigger.closest('[data-credit-row]');
+      if (!row) return;
+      row.classList.add('editing');
+      var input = row.querySelector('[data-character-input]');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+    list.addEventListener('keydown', function (e) {
+      var input = e.target.closest('[data-character-input]');
+      if (!input) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        input.form.requestSubmit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        input.closest('[data-credit-row]').classList.remove('editing');
+      }
+    });
+    list.addEventListener('focusout', function (e) {
+      var input = e.target.closest('[data-character-input]');
+      if (!input) return;
+      setTimeout(function () {
+        var row = input.closest('[data-credit-row]');
+        if (row && !row.contains(document.activeElement)) {
+          input.form.requestSubmit();
+        }
+      }, 0);
+    });
+  })();
+</script>

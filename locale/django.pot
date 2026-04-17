@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 01:33-0400\n"
+"POT-Creation-Date: 2026-04-17 00:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -710,7 +710,7 @@ msgstr ""
 msgid "name"
 msgstr ""
 
-#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:40
+#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:135
 msgid "character name"
 msgstr ""
 
@@ -1082,24 +1082,32 @@ msgstr ""
 msgid "comment this episode"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:22
+#: catalog/templates/_item_credits_list.html:114
+msgid "linked to a person page"
+msgstr ""
+
+#: catalog/templates/_item_credits_list.html:120
 msgid "click to edit character name"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:52
+#: catalog/templates/_item_credits_list.html:142
 msgid "Remove this credit?"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:53
+#: catalog/templates/_item_credits_list.html:143
 msgid "remove"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:59
+#: catalog/templates/_item_credits_list.html:149
 msgid "No credits yet."
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:74
+#: catalog/templates/_item_credits_list.html:161
 msgid "Name or /people/... URL"
+msgstr ""
+
+#: catalog/templates/_item_credits_list.html:165
+msgid "Add"
 msgstr ""
 
 #: catalog/templates/_item_notes.html:68 catalog/templates/_item_notes.html:79
