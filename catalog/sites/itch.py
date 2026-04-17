@@ -1,10 +1,13 @@
 import json
 import re
+from hashlib import md5
 from typing import Any, Iterable, cast
 from urllib.parse import urlparse
 
 import dateparser
+from django.core.cache import cache
 from lxml import etree
+from lxml import html as lxml_html
 from lxml.html import HtmlElement
 
 from catalog.common import *
@@ -13,13 +16,16 @@ from common.models.lang import detect_language
 from common.models.misc import uniq
 from journal.models.renderers import html_to_text
 
+_PROBE_CACHE_TTL = 600
+_PROBE_URL_PREFIX = "itch_u2p_"
+_PROBE_ID_PREFIX = "itch_id2p_"
+
 
 @SiteManager.register
 class Itch(AbstractSite):
     SITE_NAME = SiteName.Itch
     ID_TYPE = IdType.Itch
     URL_PATTERNS = [
-        r"^https?://([a-z0-9\-]+\.itch\.io/[^/?#]+).*",
         r"^https?://itch\.io/embed/(\d+).*",
     ]
     WIKI_PROPERTY_ID = ""
@@ -29,10 +35,10 @@ class Itch(AbstractSite):
     def id_to_url(cls, id_value: str):
         if id_value.startswith("games/"):
             game_id = id_value.split("/", 1)[1]
+            probe = cache.get(_PROBE_ID_PREFIX + id_value)
+            if probe and probe.get("canonical_url"):
+                return probe["canonical_url"]
             return f"https://itch.io/embed/{game_id}"
-        if id_value.startswith("embed/"):
-            embed_id = id_value.split("/", 1)[1]
-            return f"https://itch.io/embed/{embed_id}"
         return f"https://{id_value}"
 
     @classmethod
@@ -41,16 +47,11 @@ class Itch(AbstractSite):
         host = parsed.netloc.lower()
         if not host:
             return None
-        path = parsed.path.strip("/")
-        if host.endswith(".itch.io"):
-            slug = path.split("/")[0] if path else ""
-            return f"{host}/{slug}" if slug else None
-        if host == "itch.io":
-            parts = path.split("/")
-            if len(parts) >= 2 and parts[0] == "embed":
-                return f"{parts[0]}/{parts[1]}"
-        slug = path.split("/")[0] if path else ""
-        return f"{host}/{slug}" if slug else host
+        if host == "itch.io" and parsed.path.startswith("/embed/"):
+            m = re.match(r"^/embed/(\d+)", parsed.path)
+            return f"games/{m.group(1)}" if m else None
+        probe = cache.get(_PROBE_URL_PREFIX + md5(url.encode()).hexdigest())
+        return probe.get("game_id") if probe else None
 
     @classmethod
     def _extract_meta(cls, content, xpath: str) -> str | None:
@@ -315,9 +316,25 @@ class Itch(AbstractSite):
         return None
 
     @classmethod
-    def _probe_itch_page(cls, url: str) -> dict[str, str | None]:
-        info, _, _ = cls._probe_itch_page_with_content(url)
-        return info
+    def _probe_cached(cls, url: str) -> dict:
+        """Probe an itch URL once and cache the result by both URL and id_value,
+        so subsequent url_to_id / id_to_url / scrape calls reuse the same fetch.
+        """
+        url_key = _PROBE_URL_PREFIX + md5(url.encode()).hexdigest()
+        cached = cache.get(url_key)
+        if cached is not None:
+            return cached
+        info, _content, html_text = cls._probe_itch_page_with_content(url)
+        probe = {
+            "game_id": info.get("game_id"),
+            "canonical_url": info.get("canonical_url"),
+            "html_text": html_text or "",
+            "probed_url": url,
+        }
+        cache.set(url_key, probe, _PROBE_CACHE_TTL)
+        if probe["game_id"]:
+            cache.set(_PROBE_ID_PREFIX + probe["game_id"], probe, _PROBE_CACHE_TTL)
+        return probe
 
     @classmethod
     def validate_url_fallback(cls, url: str) -> bool:
@@ -325,12 +342,9 @@ class Itch(AbstractSite):
         if parsed.scheme not in ("http", "https"):
             return False
         host = parsed.netloc.lower()
-        if host.endswith(".itch.io") or host == "itch.io":
+        if not host.endswith(".itch.io"):
             return False
-        info = cls._probe_itch_page(url)
-        if info.get("canonical_url"):
-            return True
-        return bool(info.get("game_id"))
+        return bool(cls._probe_cached(url).get("game_id"))
 
     def get_resource_ready(
         self,
@@ -340,38 +354,30 @@ class Itch(AbstractSite):
         preloaded_content=None,
         ignore_existing_content=False,
     ) -> ExternalResource | None:
-        """Pre-fetch page content and store it in _preloaded_content/_preloaded_html_text
-        so that scrape() can reuse it without downloading the same page twice.
+        """If the probe cache already holds HTML for this game (populated by
+        validate_url_fallback), normalize self.url to the canonical page and
+        hand the HTML to scrape() via _preloaded_* so we don't refetch.
         """
-        if self.url:
-            parsed = urlparse(self.url)
-            host = parsed.netloc.lower()
-            info, content, html_text = self._probe_itch_page_with_content(self.url)
-            self._preloaded_content = content
-            self._preloaded_html_text = html_text
-            canonical_url = info.get("canonical_url")
-            game_id = info.get("game_id")
-            if host == "itch.io" and parsed.path.startswith("/embed/"):
-                if not canonical_url:
-                    return None
-                canonical_site = SiteManager.get_site_by_url(
-                    canonical_url, detect_redirection=False, detect_fallback=False
-                )
-                if canonical_site and canonical_site.ID_TYPE == self.ID_TYPE:
-                    return canonical_site.get_resource_ready(
-                        auto_save=auto_save,
-                        auto_create=auto_create,
-                        auto_link=auto_link,
-                        preloaded_content=preloaded_content,
-                        ignore_existing_content=ignore_existing_content,
-                    )
-                return None
+        if self.url and self.id_value:
+            probe = cache.get(_PROBE_ID_PREFIX + self.id_value)
+            if probe is None:
+                probe = self._probe_cached(self.url)
+            canonical_url = probe.get("canonical_url")
             if canonical_url:
                 self.url = canonical_url
-            if game_id:
-                self.id_value = game_id
-            else:
-                return None
+            html_text = probe.get("html_text") or ""
+            probed_url = probe.get("probed_url") or ""
+            probed_parsed = urlparse(probed_url)
+            probed_was_embed = (
+                probed_parsed.netloc.lower() == "itch.io"
+                and probed_parsed.path.startswith("/embed/")
+            )
+            if html_text and not probed_was_embed:
+                self._preloaded_html_text = html_text
+                try:
+                    self._preloaded_content = lxml_html.fromstring(html_text)
+                except (etree.ParserError, ValueError):
+                    self._preloaded_content = None
         return super().get_resource_ready(
             auto_save=auto_save,
             auto_create=auto_create,
@@ -384,6 +390,7 @@ class Itch(AbstractSite):
         content = getattr(self, "_preloaded_content", None)
         html_text = getattr(self, "_preloaded_html_text", "")
         if content is None:
+            assert self.url
             resp = BasicDownloader2(self.url).download()
             content = resp.html()
             html_text = resp.text or ""
@@ -473,10 +480,9 @@ class Itch(AbstractSite):
         if published_cell is not None:
             published_title = self._extract_meta(published_cell, ".//abbr/@title")
             published_text = "".join(published_cell.xpath(".//text()")).strip()
-            return (
-                self._parse_release_date(published_title)
-                or self._parse_release_date(published_text)
-            )
+            return self._parse_release_date(
+                published_title
+            ) or self._parse_release_date(published_text)
         return None
 
     def _scrape_platforms(self, content, json_ld_game):
@@ -560,7 +566,15 @@ class Itch(AbstractSite):
         return game_id
 
     def _scrape_merge_api_data(
-        self, game_id, title, description, author, platforms, cover_url, canonical_url, release_date
+        self,
+        game_id,
+        title,
+        description,
+        author,
+        platforms,
+        cover_url,
+        canonical_url,
+        release_date,
     ):
         api_data = self._fetch_api_game(game_id)
         if api_data and isinstance(api_data, dict) and api_data.get("game"):
@@ -589,7 +603,15 @@ class Itch(AbstractSite):
         else:
             if not title:
                 raise ParseError(self, "title")
-        return title, description, author, platforms, cover_url, canonical_url, release_date
+        return (
+            title,
+            description,
+            author,
+            platforms,
+            cover_url,
+            canonical_url,
+            release_date,
+        )
 
     def scrape(self):
         if not self.url:
@@ -617,10 +639,23 @@ class Itch(AbstractSite):
         genre = self._scrape_genres(content, json_ld_game)
         game_id = self._scrape_game_id(content, html_text, json_ld_items)
 
-        title, description, author, platforms, cover_url, canonical_url, release_date = (
-            self._scrape_merge_api_data(
-                game_id, title, description, author, platforms, cover_url, canonical_url, release_date
-            )
+        (
+            title,
+            description,
+            author,
+            platforms,
+            cover_url,
+            canonical_url,
+            release_date,
+        ) = self._scrape_merge_api_data(
+            game_id,
+            title,
+            description,
+            author,
+            platforms,
+            cover_url,
+            canonical_url,
+            release_date,
         )
 
         platforms = uniq(platforms)

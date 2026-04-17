@@ -100,18 +100,18 @@ class TestSteam:
 
 @pytest.mark.django_db(databases="__all__")
 class TestItch:
+    @use_local_response
     def test_parse(self):
         t_url = "https://william-rous.itch.io/type-help"
         t_embed = "https://itch.io/embed/3268593"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         assert site.url == t_url
-        assert site.id_value == "william-rous.itch.io/type-help"
+        assert site.id_value == "games/3268593"
 
         site3 = SiteManager.get_site_by_url(t_embed)
         assert site3 is not None
-        assert site3.url == t_embed
-        assert site3.id_value == "embed/3268593"
+        assert site3.id_value == "games/3268593"
 
     @use_local_response
     def test_scrape(self):
