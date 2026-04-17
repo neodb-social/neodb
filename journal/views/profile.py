@@ -363,9 +363,10 @@ def profile_following(request: AuthedHttpRequest, user_name):
     viewer = request.identity if request.user.is_authenticated else None
     if target.user != request.user:
         if not (viewer and viewer.is_following(target) and target.is_following(viewer)):
-            return HttpResponse()
-    ids = Takahe.get_following_page(target.pk, 0, 20)
-    identities = list(APIdentity.objects.filter(pk__in=ids))
+            # Render empty so {% empty %} hides the outer section; an empty response would leave it visible.
+            return render(request, "profile_following.html", {"identities": []})
+    ids = Takahe.get_following_page(target.pk, 0, _FOLLOW_LIST_PAGE_SIZE)
+    identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
     # Prefetch Takahe Identity rows in bulk to avoid N+1 when the template
     # accesses avatar / display_name / url for each person.
     takahe_identities = {i.pk: i for i in Identity.objects.filter(pk__in=ids)}
