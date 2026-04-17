@@ -82,27 +82,33 @@ _PRODUCER_JOBS = {"Producer", "Executive Producer"}
 def _extract_tmdb_credits(credits_data: dict, cast_limit: int = 10) -> dict:
     """Pull directors, writers, producers, and cast out of a TMDB credits block.
 
-    Returns a dict with name lists plus a deduplicated list of related People
-    resources (top cast + all pulled crew) ready for related_resources.
+    Crew roles are deduplicated by person id (a person may be credited under
+    multiple jobs within the same role, e.g. "Screenplay" + "Story" or
+    "Producer" + "Executive Producer"). Returns a dict with name lists plus a
+    deduplicated list of related People resources ready for related_resources.
     """
     crew = credits_data.get("crew") or []
     cast = credits_data.get("cast") or []
-    directors = [c for c in crew if c.get("job") == "Director"]
-    writers = [c for c in crew if c.get("job") in _WRITER_JOBS]
-    producers = [c for c in crew if c.get("job") in _PRODUCER_JOBS]
-    # Deduplicate producers by person id (a person may be credited under both
-    # "Producer" and "Executive Producer" or similar)
-    seen_producer_ids = set()
-    unique_producers = []
-    for p in producers:
-        pid = p.get("id")
-        if pid is None or pid not in seen_producer_ids:
-            if pid is not None:
-                seen_producer_ids.add(pid)
-            unique_producers.append(p)
+
+    def select_unique(jobs: set[str]) -> list[dict]:
+        seen_ids: set = set()
+        out: list[dict] = []
+        for c in crew:
+            if c.get("job") not in jobs:
+                continue
+            pid = c.get("id")
+            if pid is None or pid not in seen_ids:
+                out.append(c)
+                if pid is not None:
+                    seen_ids.add(pid)
+        return out
+
+    directors = select_unique({"Director"})
+    writers = select_unique(_WRITER_JOBS)
+    producers = select_unique(_PRODUCER_JOBS)
     related: list[dict] = []
     seen: set = set()
-    for person in directors + writers + unique_producers + cast[:cast_limit]:
+    for person in directors + writers + producers + cast[:cast_limit]:
         pid = person.get("id")
         if pid and pid not in seen:
             seen.add(pid)
@@ -117,7 +123,7 @@ def _extract_tmdb_credits(credits_data: dict, cast_limit: int = 10) -> dict:
     return {
         "directors": directors,
         "writers": writers,
-        "producers": unique_producers,
+        "producers": producers,
         "cast": cast,
         "related_people": related,
     }
