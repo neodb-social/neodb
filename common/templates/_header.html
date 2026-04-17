@@ -105,6 +105,9 @@
             </span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
+            <li>
+              <a href="{% url 'common:scan' %}">{% trans 'Scan Barcode' %}</a>
+            </li>
             {% if request.user.is_authenticated %}
               <li>
                 <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>

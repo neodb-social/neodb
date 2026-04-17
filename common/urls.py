@@ -16,6 +16,7 @@ app_name = "common"
 urlpatterns = [
     path("", home),
     path("search", search, name="search"),
+    path("scan/", scan, name="scan"),
     path("home/", home, name="home"),
     path("site/share", share, name="share"),
     path("site/manifest.json", manifest, name="manifest"),

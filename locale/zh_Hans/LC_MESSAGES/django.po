@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-16 22:00-0400\n"
+"POT-Creation-Date: 2026-04-16 22:10-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -3232,7 +3232,7 @@ msgstr "关于"
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
 
-#: common/templates/_header.html:17 common/templates/_header.html:150
+#: common/templates/_header.html:17 common/templates/_header.html:153
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr "标题、创作者、ISBN、站外条目链接、@用户名、@用户名@实例"
 
@@ -3265,55 +3265,60 @@ msgstr "动态"
 msgid "Home"
 msgstr "主页"
 
-#: common/templates/_header.html:110 social/templates/notification.html:12
+#: common/templates/_header.html:109 common/templates/common/scan.html:9
+#: common/templates/common/scan.html:42
+msgid "Scan Barcode"
+msgstr "扫描条形码"
+
+#: common/templates/_header.html:113 social/templates/notification.html:12
 #: social/templates/notification.html:60
 msgid "Notification"
 msgstr "通知"
 
-#: common/templates/_header.html:114
+#: common/templates/_header.html:117
 msgid "Data"
 msgstr "数据"
 
-#: common/templates/_header.html:117 common/templates/_header.html:135
+#: common/templates/_header.html:120 common/templates/_header.html:138
 #: users/templates/users/preferences.html:12
 #: users/templates/users/preferences.html:23
 #: users/templates/users/preferences_anonymous.html:13
 msgid "Preferences"
 msgstr "设置"
 
-#: common/templates/_header.html:120
+#: common/templates/_header.html:123
 msgid "Account"
 msgstr "账号"
 
-#: common/templates/_header.html:124
+#: common/templates/_header.html:127
 msgid "Manage"
 msgstr "管理"
 
-#: common/templates/_header.html:128
+#: common/templates/_header.html:131
 msgid "Logout"
 msgstr "登出"
 
-#: common/templates/_header.html:132
+#: common/templates/_header.html:135
 msgid "Sign up or Login"
 msgstr "注册或登录"
 
-#: common/templates/_header.html:148
+#: common/templates/_header.html:151
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr "搜索你的评论或条目，可加过滤条件如 category:tv status:complete rating:8..10 date:2021-09-11..2022-02"
 
-#: common/templates/_header.html:165
+#: common/templates/_header.html:168
 msgid "Open"
 msgstr "打开"
 
-#: common/templates/_header.html:180
+#: common/templates/_header.html:183
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr "设置通行密钥，快速安全地登录。"
 
-#: common/templates/_header.html:181
+#: common/templates/_header.html:184
 msgid "Set up"
 msgstr "去设置"
 
-#: common/templates/_header.html:183
+#: common/templates/_header.html:186
 msgid "Dismiss"
 msgstr "忽略"
 
@@ -3496,6 +3501,50 @@ msgstr "条目管理员"
 #: common/templates/common/error.html:12
 msgid "Error"
 msgstr "错误"
+
+#: common/templates/common/scan.html:45
+msgid "Point the camera at a book ISBN or product barcode (EAN / UPC). You will be redirected to the search once a code is detected."
+msgstr "将摄像头对准图书 ISBN 或商品条形码（EAN / UPC），检测到编码后将自动跳转到搜索。"
+
+#: common/templates/common/scan.html:50
+msgid "Requesting camera access..."
+msgstr "正在请求摄像头权限…"
+
+#: common/templates/common/scan.html:57
+msgid "Or type barcode / ISBN manually"
+msgstr "或手动输入条形码 / ISBN"
+
+#: common/templates/common/scan.html:60 common/views_manage.py:443
+msgid "Search"
+msgstr "搜索"
+
+#: common/templates/common/scan.html:94
+msgid "Camera not supported on this device. Use manual entry below."
+msgstr "当前设备不支持摄像头，请使用下方手动输入。"
+
+#: common/templates/common/scan.html:115 common/templates/common/scan.html:136
+msgid "Scanning..."
+msgstr "扫描中…"
+
+#: common/templates/common/scan.html:133
+msgid "Loading scanner library..."
+msgstr "正在加载扫描器…"
+
+#: common/templates/common/scan.html:144
+msgid "Could not load scanner. Use manual entry below."
+msgstr "无法加载扫描器，请使用下方手动输入。"
+
+#: common/templates/common/scan.html:152
+msgid "Camera permission denied. Use manual entry below."
+msgstr "摄像头权限被拒绝，请使用下方手动输入。"
+
+#: common/templates/common/scan.html:154
+msgid "No camera found. Use manual entry below."
+msgstr "未找到摄像头，请使用下方手动输入。"
+
+#: common/templates/common/scan.html:156
+msgid "Camera unavailable. Use manual entry below."
+msgstr "摄像头不可用，请使用下方手动输入。"
 
 #: common/templates/manage/settings.html:9
 #, fuzzy
@@ -3842,12 +3891,6 @@ msgstr "添加电视剧集"
 #: common/views_manage.py:434
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
-
-#: common/views_manage.py:443
-#, fuzzy
-#| msgid "Search filters"
-msgid "Search"
-msgstr "筛选搜索结果"
 
 #: common/views_manage.py:455
 #, fuzzy

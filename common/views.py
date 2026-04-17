@@ -58,6 +58,10 @@ def search(request):
             return catalog_search(request)
 
 
+def scan(request):
+    return render(request, "common/scan.html")
+
+
 def home(request):
     if request.user.is_authenticated:
         home = request.user.preference.classic_homepage

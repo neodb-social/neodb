@@ -1,0 +1,164 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% translate "Scan Barcode" %} - {{ site_name }}</title>
+    {% include "common_libs.html" %}
+    <style>
+      .scan-wrap {
+        max-width: 560px;
+        margin: 1rem auto;
+      }
+      .scan-wrap video {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: #000;
+        border-radius: var(--pico-border-radius);
+        object-fit: cover;
+      }
+      .scan-status {
+        text-align: center;
+        margin: 0.5rem 0;
+        min-height: 1.4em;
+      }
+      .scan-manual {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .scan-manual input {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <section class="scan-wrap">
+          <h1>{% translate "Scan Barcode" %}</h1>
+          <p>
+            <small>
+              {% blocktranslate %}Point the camera at a book ISBN or product barcode (EAN / UPC). You will be redirected to the search once a code is detected.{% endblocktranslate %}
+            </small>
+          </p>
+          <video id="scan-video" autoplay playsinline muted>
+          </video>
+          <div class="scan-status" id="scan-status">{% translate "Requesting camera access..." %}</div>
+          <form class="scan-manual"
+                id="scan-manual"
+                method="get"
+                action="{% url 'common:search' %}">
+            <input type="search"
+                   name="q"
+                   placeholder="{% translate 'Or type barcode / ISBN manually' %}"
+                   autocomplete="off" />
+            <input type="hidden" name="c" value="book" />
+            <button type="submit">{% translate "Search" %}</button>
+          </form>
+        </section>
+      </div>
+    </main>
+    {% include "_footer.html" %}
+    <script>
+      (function () {
+        var video = document.getElementById("scan-video");
+        var statusEl = document.getElementById("scan-status");
+        var searchUrl = "{% url 'common:search' %}";
+        var formats = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf", "qr_code"];
+        var stream = null;
+        var stopped = false;
+
+        function setStatus(msg) { statusEl.textContent = msg; }
+
+        function redirect(code) {
+          if (stopped) return;
+          stopped = true;
+          stopStream();
+          var url = searchUrl + "?q=" + encodeURIComponent(code) + "&c=book";
+          window.location.href = url;
+        }
+
+        function stopStream() {
+          if (stream) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            stream = null;
+          }
+        }
+
+        function startCamera() {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setStatus("{% translate 'Camera not supported on this device. Use manual entry below.' %}");
+            return Promise.reject(new Error("no getUserMedia"));
+          }
+          return navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false
+          }).then(function (s) {
+            stream = s;
+            video.srcObject = s;
+            return video.play();
+          });
+        }
+
+        function runNativeDetector() {
+          if (!("BarcodeDetector" in window)) return false;
+          var detector;
+          try {
+            detector = new window.BarcodeDetector({ formats: formats });
+          } catch (e) {
+            return false;
+          }
+          setStatus("{% translate 'Scanning...' %}");
+          var loop = function () {
+            if (stopped) return;
+            detector.detect(video).then(function (codes) {
+              if (codes && codes.length > 0) {
+                redirect(codes[0].rawValue);
+              } else {
+                requestAnimationFrame(loop);
+              }
+            }).catch(function () {
+              requestAnimationFrame(loop);
+            });
+          };
+          requestAnimationFrame(loop);
+          return true;
+        }
+
+        function runZxing() {
+          setStatus("{% translate 'Loading scanner library...' %}");
+          return import("{{ cdn_url }}/npm/@zxing/browser@0.1.5/+esm").then(function (mod) {
+            var reader = new mod.BrowserMultiFormatReader();
+            setStatus("{% translate 'Scanning...' %}");
+            return reader.decodeFromVideoElement(video, function (result, err, controls) {
+              if (result) {
+                if (controls) controls.stop();
+                redirect(result.getText());
+              }
+            });
+          }).catch(function () {
+            setStatus("{% translate 'Could not load scanner. Use manual entry below.' %}");
+          });
+        }
+
+        startCamera().then(function () {
+          if (!runNativeDetector()) runZxing();
+        }).catch(function (err) {
+          if (err && (err.name === "NotAllowedError" || err.name === "SecurityError")) {
+            setStatus("{% translate 'Camera permission denied. Use manual entry below.' %}");
+          } else if (err && err.name === "NotFoundError") {
+            setStatus("{% translate 'No camera found. Use manual entry below.' %}");
+          } else {
+            setStatus("{% translate 'Camera unavailable. Use manual entry below.' %}");
+          }
+        });
+
+        window.addEventListener("pagehide", stopStream);
+      })();
+    </script>
+  </body>
+</html>
