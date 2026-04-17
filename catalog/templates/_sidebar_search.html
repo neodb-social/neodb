@@ -44,31 +44,31 @@
   <p>{% trans "Or you may create items manually" %}:</p>
   <ul>
     <li>
-      <a href="{% url 'catalog:create' 'Edition' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add books' %}</a>
+      <a href="{% url 'catalog:create' 'Edition' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add books' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'Movie' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add movies' %}</a>
+      <a href="{% url 'catalog:create' 'Movie' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add movies' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'TVShow' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add tv series' %}</a>
+      <a href="{% url 'catalog:create' 'TVShow' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add tv series' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'Podcast' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add podcasts' %}</a>
+      <a href="{% url 'catalog:create' 'Podcast' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add podcasts' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'Album' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add albums' %}</a>
+      <a href="{% url 'catalog:create' 'Album' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add albums' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'Game' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add games' %}</a>
+      <a href="{% url 'catalog:create' 'Game' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add games' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'Performance' %}?title={{ request.GET.q | default:'' }}">{% trans 'Add performance or theater pieces' %}</a>
+      <a href="{% url 'catalog:create' 'Performance' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add performance or theater pieces' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' }}&people_type=person">{% trans 'Add a person' %}</a>
+      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' | urlencode }}&people_type=person">{% trans 'Add a person' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' }}&people_type=organization">{% trans 'Add an organization' %}</a>
+      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' | urlencode }}&people_type=organization">{% trans 'Add an organization' %}</a>
     </li>
   </ul>
 </details>
