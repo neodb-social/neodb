@@ -548,3 +548,46 @@ def link_credits_20260412():
         elif len(matches) > 1:
             ambiguous += 1
     logger.success(f"Linked: {linked}, ambiguous: {ambiguous}, total: {total}")
+
+
+def reindex_people_20260417():
+    """Initialize the people Typesense collection, purge any legacy People docs
+    from the catalog collection, and populate the people collection from the DB.
+
+    Safe to run repeatedly. Before this migration existed, People were indexed
+    alongside every other Item in the `catalog` collection but with an empty
+    `title` (People use `localized_name`), so they could not be found there.
+    """
+    from django.core.paginator import Paginator
+    from django.db.models import Count
+
+    from catalog.models import People
+    from catalog.search import CatalogIndex, PeopleIndex
+
+    catalog_index = CatalogIndex.instance()
+    if not catalog_index.initialize_collection(max_wait=30):
+        logger.error("Catalog index is not ready, people reindex aborted.")
+        return
+    people_index = PeopleIndex.instance()
+    if not people_index.initialize_collection(max_wait=30):
+        logger.error("People index is not ready, people reindex aborted.")
+        return
+
+    purged = catalog_index.delete_docs("item_class", "People")
+    if purged:
+        logger.warning(f"Purged {purged} legacy People docs from catalog index.")
+
+    people_qs = (
+        People.objects.filter(is_deleted=False, merged_to_item_id__isnull=True)
+        .annotate(credit_count=Count("credited_items"))
+        .prefetch_related("external_resources")
+        .order_by("id")
+    )
+    pg = Paginator(people_qs, 1000)
+    indexed = 0
+    seen = 0
+    for p in tqdm(pg.page_range, desc="People reindex"):
+        docs = people_index.people_to_docs(pg.get_page(p).object_list)
+        indexed += people_index.replace_docs(docs)
+        seen += len(docs)
+    logger.success(f"People reindex complete: {indexed} of {seen} docs indexed.")
