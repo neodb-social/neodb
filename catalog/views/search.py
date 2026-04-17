@@ -26,7 +26,14 @@ from users.views import query_identity
 
 from ..common.sites import AbstractSite, SiteManager
 from ..models import ExternalResource, Item, ItemCategory, SiteName, item_categories
-from ..search import ExternalSources, enqueue_fetch, get_fetch_lock, query_index
+from ..search import (
+    ExternalSources,
+    PeopleIndex,
+    PeopleQueryParser,
+    enqueue_fetch,
+    get_fetch_lock,
+    query_index,
+)
 
 
 def default_visible_categories() -> list[ItemCategory]:
@@ -171,6 +178,37 @@ def search(request):
             "hide_category": hide_category,
             "by_category": by_cat,
             "q": q,
+        },
+    )
+
+
+@user_identity_required
+def people_search(request):
+    keywords = request.GET.get("q", default="").strip()
+    people_type = request.GET.get("type", default="").strip().lower() or None
+    p = int_(request.GET.get("page", default="1"), 1)
+    per_page = get_page_size_from_request(request)
+    sites = [n.label for n in SiteName if n != SiteName.Unknown]
+    if not keywords:
+        return render(
+            request,
+            "search_results_people.html",
+            {"items": None, "sites": sites},
+        )
+    parser = PeopleQueryParser(
+        keywords, page=p, page_size=per_page, people_type=people_type
+    )
+    result = PeopleIndex.instance().search(parser) if parser else None
+    items = result.items if result else []
+    num_pages = result.pages if result else 0
+    return render(
+        request,
+        "search_results_people.html",
+        {
+            "items": items,
+            "pagination": PageLinksGenerator(p, num_pages, request.GET),
+            "sites": sites,
+            "q": keywords,
         },
     )
 

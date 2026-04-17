@@ -1,0 +1,61 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-search">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'People' %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include '_header.html' %}
+    <main>
+      <div class="grid__main">
+        <div>
+          {% if request.GET.q %}
+            <hgroup>
+              <h5>&ldquo;{{ request.GET.q }}&rdquo;</h5>
+              <div class="search-category-picker">
+                {% if request.GET.type %}
+                  <a href="?q={{ request.GET.q }}&amp;c=people">{% trans 'all' %}</a>
+                {% else %}
+                  {% trans 'all' %}
+                {% endif %}
+                |
+                {% if request.GET.type != 'person' %}
+                  <a href="?q={{ request.GET.q }}&amp;c=people&amp;type=person">{% trans 'Person' %}</a>
+                {% else %}
+                  {% trans 'Person' %}
+                {% endif %}
+                |
+                {% if request.GET.type != 'organization' %}
+                  <a href="?q={{ request.GET.q }}&amp;c=people&amp;type=organization">{% trans 'Organization' %}</a>
+                {% else %}
+                  {% trans 'Organization' %}
+                {% endif %}
+              </div>
+            </hgroup>
+          {% endif %}
+          <div class="item-card-list">
+            {% for item in items %}
+              <article class="entity-sort item-card">{% include "_item_card.html" with item=item hide_category=True %}</article>
+            {% empty %}
+              {% if request.GET.q %}
+                <p class="caveat">{% trans "No people matching your search query." %}</p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% include "_pagination.html" %}
+      </div>
+      <aside class="grid__aside bottom">
+      </aside>
+    </main>
+    {% include '_footer.html' %}
+  </body>
+</html>
