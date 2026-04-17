@@ -189,6 +189,14 @@ class JSONFieldMixin(object):
         # deferred during obj initialization so it don't overwrite json with default value
         return DEFERRED
 
+    def formfield(self: "fields.Field", **kwargs):
+        # Field.formfield() seeds initial from get_default(), which we override
+        # to DEFERRED for model init. Supply the real default for forms instead.
+        if self.has_default() and "initial" not in kwargs:
+            default = self.default
+            kwargs["initial"] = default() if callable(default) else default
+        return super().formfield(**kwargs)  # type: ignore
+
 
 class BooleanField(JSONFieldMixin, fields.BooleanField):
     pass

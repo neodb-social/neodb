@@ -454,6 +454,19 @@ class TestPeopleCreateView:
         assert response.status_code == 200
         assert "people_type" not in response.context["form"].initial
 
+    def test_create_form_jsondata_fields_have_no_deferred_initial(self):
+        """jsondata fields must not surface Django's DEFERRED sentinel as form initial."""
+        client = self._login()
+        response = client.get("/catalog/create/People")
+        assert response.status_code == 200
+        form = response.context["form"]
+        for name in ("birth_date", "death_date", "official_site"):
+            initial = form[name].value()
+            assert initial in (None, "", [], {}), (
+                f"{name} initial leaked non-empty value: {initial!r}"
+            )
+            assert "Deferred" not in str(initial)
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestItemCredit:
