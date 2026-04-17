@@ -65,10 +65,7 @@
       <a href="{% url 'catalog:create' 'Performance' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add performance or theater pieces' %}</a>
     </li>
     <li>
-      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' | urlencode }}&people_type=person">{% trans 'Add a person' %}</a>
-    </li>
-    <li>
-      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' | urlencode }}&people_type=organization">{% trans 'Add an organization' %}</a>
+      <a href="{% url 'catalog:create' 'People' %}?title={{ request.GET.q | default:'' | urlencode }}">{% trans 'Add a person or organization' %}</a>
     </li>
   </ul>
 </details>

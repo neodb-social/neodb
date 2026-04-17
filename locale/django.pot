@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 00:59-0400\n"
+"POT-Creation-Date: 2026-04-17 09:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -710,7 +710,7 @@ msgstr ""
 msgid "name"
 msgstr ""
 
-#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:135
+#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr ""
 
@@ -732,27 +732,27 @@ msgstr ""
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:973
+#: catalog/models/item.py:988
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:975
+#: catalog/models/item.py:990
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:977
+#: catalog/models/item.py:992
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:993
+#: catalog/models/item.py:1008
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:999
+#: catalog/models/item.py:1014
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1002
+#: catalog/models/item.py:1017
 msgid "url to the resource"
 msgstr ""
 
@@ -1082,31 +1082,31 @@ msgstr ""
 msgid "comment this episode"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:114
+#: catalog/templates/_item_credits_list.html:117
 msgid "linked to a person page"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:120
+#: catalog/templates/_item_credits_list.html:123
 msgid "click to edit character name"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:142
+#: catalog/templates/_item_credits_list.html:145
 msgid "Remove this credit?"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:143
+#: catalog/templates/_item_credits_list.html:146
 msgid "remove"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:149
+#: catalog/templates/_item_credits_list.html:152
 msgid "No credits yet."
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:161
+#: catalog/templates/_item_credits_list.html:164
 msgid "Name or /people/... URL"
 msgstr ""
 
-#: catalog/templates/_item_credits_list.html:165
+#: catalog/templates/_item_credits_list.html:168
 msgid "Add"
 msgstr ""
 
@@ -1176,13 +1176,13 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:131
-#: catalog/views/edit.py:165 catalog/views/edit.py:203
-#: catalog/views/edit.py:262 catalog/views/edit.py:266
-#: catalog/views/edit.py:284 catalog/views/edit.py:330
-#: catalog/views/edit.py:345 catalog/views/edit.py:383
-#: catalog/views/edit.py:393 catalog/views/edit.py:419
-#: catalog/views/search.py:254
+#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:130
+#: catalog/views/edit.py:164 catalog/views/edit.py:202
+#: catalog/views/edit.py:261 catalog/views/edit.py:265
+#: catalog/views/edit.py:283 catalog/views/edit.py:329
+#: catalog/views/edit.py:344 catalog/views/edit.py:382
+#: catalog/views/edit.py:392 catalog/views/edit.py:418
+#: catalog/views/search.py:256
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1461,11 +1461,7 @@ msgid "Add performance or theater pieces"
 msgstr ""
 
 #: catalog/templates/_sidebar_search.html:68
-msgid "Add a person"
-msgstr ""
-
-#: catalog/templates/_sidebar_search.html:71
-msgid "Add an organization"
+msgid "Add a person or organization"
 msgstr ""
 
 #: catalog/templates/_wikipedia_pages.html:10
@@ -1902,7 +1898,6 @@ msgid "Logged in user may see search results from other sites."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:12
-#: common/templates/_header.html:48
 msgid "People"
 msgstr ""
 
@@ -1922,17 +1917,17 @@ msgstr ""
 msgid "Editions"
 msgstr ""
 
-#: catalog/views/edit.py:167
+#: catalog/views/edit.py:166
 msgid "Item in use."
 msgstr ""
 
-#: catalog/views/edit.py:169
+#: catalog/views/edit.py:168
 msgid "Item cannot be deleted."
 msgstr ""
 
-#: catalog/views/edit.py:192 catalog/views/edit.py:246
-#: catalog/views/edit.py:332 catalog/views/edit.py:421
-#: catalog/views/edit.py:453 journal/views/collection.py:96
+#: catalog/views/edit.py:191 catalog/views/edit.py:245
+#: catalog/views/edit.py:331 catalog/views/edit.py:420
+#: catalog/views/edit.py:452 journal/views/collection.py:96
 #: journal/views/collection.py:156 journal/views/collection.py:168
 #: journal/views/collection.py:185 journal/views/collection.py:251
 #: journal/views/collection.py:287 journal/views/collection.py:322
@@ -1947,7 +1942,7 @@ msgstr ""
 msgid "Insufficient permission"
 msgstr ""
 
-#: catalog/views/edit.py:249 catalog/views/edit.py:252
+#: catalog/views/edit.py:248 catalog/views/edit.py:251
 #: journal/views/collection.py:58 journal/views/collection.py:83
 #: journal/views/collection.py:339 journal/views/collection.py:429
 #: journal/views/common.py:128 journal/views/mark.py:141
@@ -1959,31 +1954,31 @@ msgstr ""
 msgid "Invalid parameter"
 msgstr ""
 
-#: catalog/views/edit.py:306
+#: catalog/views/edit.py:305
 msgid "TV Season with IMDB id and season number required."
 msgstr ""
 
-#: catalog/views/edit.py:311
+#: catalog/views/edit.py:310
 msgid "Updating episodes"
 msgstr ""
 
-#: catalog/views/edit.py:343
+#: catalog/views/edit.py:342
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:348
+#: catalog/views/edit.py:347
 msgid "Cannot merge items in different categories"
 msgstr ""
 
-#: catalog/views/edit.py:352
+#: catalog/views/edit.py:351
 msgid "Cannot merge an item to itself"
 msgstr ""
 
-#: catalog/views/edit.py:391
+#: catalog/views/edit.py:390
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:395
+#: catalog/views/edit.py:394
 msgid "Cannot link items other than editions"
 msgstr ""
 
@@ -1991,11 +1986,11 @@ msgstr ""
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:243
+#: catalog/views/search.py:245
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:246
+#: catalog/views/search.py:248
 msgid "Unsupported URL"
 msgstr ""
 
@@ -3196,6 +3191,10 @@ msgstr ""
 
 #: common/templates/_header.html:29
 msgid "Movie & TV"
+msgstr ""
+
+#: common/templates/_header.html:48
+msgid "Person / Org"
 msgstr ""
 
 #: common/templates/_header.html:50

@@ -59,7 +59,7 @@ class TestPeople:
         assert not org.is_person
         assert org.is_organization
         assert org.display_name == "Bantam Books"
-        assert org.url == f"/company/{org.uuid}"
+        assert org.url == f"/organization/{org.uuid}"
 
     def test_localized_names(self):
         person = People.objects.create(

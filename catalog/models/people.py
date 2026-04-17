@@ -117,7 +117,7 @@ class People(Item):
     category = ItemCategory.People
     url_path = "people"
     url_path_person = "person"
-    url_path_organization = "company"
+    url_path_organization = "organization"
     type = ItemType.People
 
     # People can have any role
