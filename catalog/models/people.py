@@ -361,41 +361,40 @@ class People(Item):
         self.merge_relations(to_item)
         self.merge_credits(to_item)
 
+    def update_index(self, later: bool = False):
+        from catalog.search import PeopleIndex
+
+        if later:
+            PeopleIndex.enqueue_replace_people([self.pk])
+        else:
+            PeopleIndex.instance().replace_person(self)
+
     @classmethod
     def find_by_name(
         cls, name: str, exact: bool = True, limit: int = 0
     ) -> list["People"]:
         """Find People by localized_name match.
 
-        For partial match, uses indexed ItemCredit.name lookup first, then
-        falls back to JSONB search for People without credits.
+        Exact matches use a DB query against localized_name (used by merge and
+        scraper flows that need deterministic lookups). Partial matches query
+        the PeopleIndex Typesense collection.
         """
-        from .item import ItemCredit
-
         qs = cls.objects.filter(is_deleted=False, merged_to_item__isnull=True)
         if exact:
-            results = qs.filter(metadata__localized_name__contains=[{"text": name}])
-        else:
-            # Find People linked from credits whose name matches (uses DB index)
-            credit_people_ids = (
-                ItemCredit.objects.filter(name__icontains=name, person__isnull=False)
-                .values_list("person_id", flat=True)
-                .distinct()
-            )
-            # Also search localized_name text values in JSONB
-            json_qs = qs.extra(
-                where=[
-                    "EXISTS (SELECT 1 FROM jsonb_array_elements("
-                    "metadata->'localized_name') elem "
-                    "WHERE elem->>'text' ILIKE %s)"
-                ],
-                params=[f"%{name}%"],
-            )
-            results = qs.filter(pk__in=credit_people_ids) | json_qs
-        results = results.distinct()
-        if limit:
-            results = results[:limit]
-        return list(results)
+            results = qs.filter(
+                metadata__localized_name__contains=[{"text": name}]
+            ).distinct()
+            if limit:
+                results = results[:limit]
+            return list(results)
+
+        from catalog.search import PeopleIndex, PeopleQueryParser
+
+        page_size = limit if limit else 20
+        parser = PeopleQueryParser(name, page=1, page_size=page_size)
+        if not parser.q and not parser.filter_by:
+            return []
+        return PeopleIndex.instance().search(parser).items
 
     @classmethod
     def lookup_id_type_choices(cls):

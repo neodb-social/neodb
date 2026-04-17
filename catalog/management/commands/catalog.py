@@ -27,7 +27,7 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
-from catalog.search import CatalogIndex, CatalogQueryParser
+from catalog.search import CatalogIndex, CatalogQueryParser, PeopleIndex
 from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
 from common.management.base import SiteCommand
@@ -786,6 +786,7 @@ class Command(SiteCommand):
 
             case "idx-init":
                 index.initialize_collection()
+                PeopleIndex.instance().initialize_collection()
                 self.stdout.write(self.style.SUCCESS("initialized."))
 
             case "idx-info":
@@ -800,9 +801,14 @@ class Command(SiteCommand):
                 self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
 
             case "idx-reindex":
-                items = Item.objects.filter(
-                    is_deleted=False, merged_to_item_id__isnull=True
-                ).order_by("id")
+                people_ct_id = ContentType.objects.get_for_model(People).id
+                items = (
+                    Item.objects.filter(
+                        is_deleted=False, merged_to_item_id__isnull=True
+                    )
+                    .exclude(polymorphic_ctype_id=people_ct_id)
+                    .order_by("id")
+                )
                 c = 0
                 t = 0
                 pg = Paginator(items, batch_size)
@@ -812,6 +818,28 @@ class Command(SiteCommand):
                     t += len(docs)
                     c += r
                 self.stdout.write(self.style.SUCCESS(f"indexed {c} of {t} docs."))
+                # Purge any People docs that were indexed before the split.
+                purged = index.delete_docs("item_class", "People")
+                if purged:
+                    self.stdout.write(
+                        self.style.WARNING(f"purged {purged} People docs.")
+                    )
+                people_index = PeopleIndex.instance()
+                people_index.initialize_collection()
+                people_qs = People.objects.filter(
+                    is_deleted=False, merged_to_item_id__isnull=True
+                ).order_by("id")
+                pc = 0
+                pt = 0
+                pg = Paginator(people_qs, batch_size)
+                for p in tqdm(pg.page_range):
+                    docs = people_index.people_to_docs(pg.get_page(p).object_list)
+                    r = people_index.replace_docs(docs)
+                    pt += len(docs)
+                    pc += r
+                self.stdout.write(
+                    self.style.SUCCESS(f"indexed {pc} of {pt} people docs.")
+                )
 
             case "idx-get":
                 item = Item.get_by_url(query)

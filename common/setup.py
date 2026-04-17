@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.checks import Error, Warning
 from loguru import logger
 
-from catalog.search import CatalogIndex
+from catalog.search import CatalogIndex, PeopleIndex
 from common.models import JobManager, SiteConfig
 from journal.search import JournalIndex
 from takahe.models import Config as TakaheConfig
@@ -117,6 +117,7 @@ class Setup:
 
         # Create search index if not exists
         CatalogIndex.instance().initialize_collection()
+        PeopleIndex.instance().initialize_collection()
         JournalIndex.instance().initialize_collection()
 
         if settings.TESTING:
@@ -173,6 +174,15 @@ class Setup:
             errors.append(
                 Error(
                     "Catalog index is not available",
+                    hint="Check NEODB_SEARCH_URL in .env, and run neodb-manage catalog idx-init",
+                    id="neodb.E003",
+                )
+            )
+        r = PeopleIndex.instance().initialize_collection()
+        if not r:
+            errors.append(
+                Error(
+                    "People index is not available",
                     hint="Check NEODB_SEARCH_URL in .env, and run neodb-manage catalog idx-init",
                     id="neodb.E003",
                 )
