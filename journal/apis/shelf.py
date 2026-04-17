@@ -2,13 +2,19 @@ import datetime
 from typing import Any, List
 
 from django.core.cache import cache
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
-from catalog.models import AvailableItemCategory, Item, ItemCategory, ItemSchema
+from catalog.models import (
+    AvailableItemCategory,
+    Item,
+    ItemCategory,
+    ItemCredit,
+    ItemSchema,
+)
 from common.api import PageNumberPagination, Result, api
 from common.utils import get_uuid_or_404
 from journal.models.common import (
@@ -161,7 +167,14 @@ def list_marks_on_user_shelf(
         )
         .filter(qv)
         .select_related("owner")
-        .prefetch_related("item", "item__external_resources")
+        .prefetch_related(
+            "item",
+            "item__external_resources",
+            Prefetch(
+                "item__credits",
+                queryset=ItemCredit.objects.select_related("person"),
+            ),
+        )
     )
     return queryset
 
@@ -184,7 +197,14 @@ def list_marks_on_shelf(
     queryset = (
         request.user.shelf_manager.get_latest_members(type, category)
         .select_related("owner")
-        .prefetch_related("item", "item__external_resources")
+        .prefetch_related(
+            "item",
+            "item__external_resources",
+            Prefetch(
+                "item__credits",
+                queryset=ItemCredit.objects.select_related("person"),
+            ),
+        )
     )
     return queryset
 

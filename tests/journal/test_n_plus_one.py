@@ -5,7 +5,18 @@ from django.db import connection
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 
-from catalog.models import Edition, ExternalResource, IdType, Movie
+from catalog.models import (
+    CreditRole,
+    Edition,
+    ExternalResource,
+    IdType,
+    ItemCredit,
+    Movie,
+    People,
+    PeopleRole,
+    PeopleType,
+)
+from catalog.models.people import ItemPeopleRelation
 from journal.models import Collection, Mark, ShelfType, Tag
 from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
@@ -900,3 +911,209 @@ class TestMarkBatchFetchNoFKResolution:
             if "catalog_item" in q["sql"] and 'WHERE "catalog_item"."id" =' in q["sql"]
         ]
         assert len(individual_item_queries) == 0
+
+
+def _per_item_credit_queries(captured_queries):
+    return [
+        q
+        for q in captured_queries
+        if "catalog_itemcredit" in q["sql"]
+        and '"catalog_itemcredit"."item_id" =' in q["sql"]
+    ]
+
+
+def _per_item_external_resource_queries(captured_queries):
+    return [
+        q
+        for q in captured_queries
+        if "catalog_externalresource" in q["sql"]
+        and '"catalog_externalresource"."item_id" =' in q["sql"]
+    ]
+
+
+def _per_item_rating_group_queries(captured_queries):
+    return [
+        q
+        for q in captured_queries
+        if "journal_rating" in q["sql"]
+        and "GROUP BY" in q["sql"]
+        and '"journal_rating"."item_id" =' in q["sql"]
+    ]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPeopleWorksPrefetch:
+    """people_works view should batch-fetch credits, external_resources, and ratings."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="pw@example.com", username="pwuser")
+        self.author = People.objects.create(
+            title="PW Author",
+            people_type=PeopleType.PERSON,
+            metadata={"localized_name": [{"lang": "en", "text": "PW Author"}]},
+        )
+        self.books = []
+        for i in range(4):
+            book = Edition.objects.create(title=f"PW Book {i}")
+            ItemCredit.objects.create(
+                item=book,
+                person=self.author,
+                role=CreditRole.Author,
+                name=self.author.display_name,
+            )
+            ItemPeopleRelation.objects.create(
+                item=book, people=self.author, role=PeopleRole.AUTHOR
+            )
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.ISBN,
+                id_value=f"978222200000{i}",
+                url=f"https://example.com/pwbook/{i}",
+            )
+            self.books.append(book)
+
+    def _fetch(self):
+        client = Client()
+        url = f"/people/{self.author.uuid}/works/{PeopleRole.AUTHOR.value}"
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(url)
+        return response, ctx
+
+    def test_page_renders(self):
+        response, _ = self._fetch()
+        assert response.status_code == 200
+        body = response.content.decode()
+        for book in self.books:
+            assert book.display_title in body
+
+    def _queries_for_book_ids(self, queries):
+        """Keep only queries whose item_id = <book_pk> for one of the listed works.
+
+        The People sidebar item triggers its own single-item lookups that are
+        not N+1, so we scope assertions to the per-work page items.
+        """
+        book_ids = {b.pk for b in self.books}
+        return [
+            q for q in queries if any(f'item_id" = {pk}' in q["sql"] for pk in book_ids)
+        ]
+
+    def test_no_per_item_credits_queries(self):
+        """Credits should be prefetched, not queried per work."""
+        response, ctx = self._fetch()
+        assert response.status_code == 200
+        assert (
+            self._queries_for_book_ids(_per_item_credit_queries(ctx.captured_queries))
+            == []
+        )
+
+    def test_no_per_item_external_resource_queries(self):
+        response, ctx = self._fetch()
+        assert response.status_code == 200
+        assert (
+            self._queries_for_book_ids(
+                _per_item_external_resource_queries(ctx.captured_queries)
+            )
+            == []
+        )
+
+    def test_no_per_item_rating_queries(self):
+        response, ctx = self._fetch()
+        assert response.status_code == 200
+        assert (
+            self._queries_for_book_ids(
+                _per_item_rating_group_queries(ctx.captured_queries)
+            )
+            == []
+        )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestItemRetrieveCreditsPrefetch:
+    """catalog.retrieve (edition detail page) should only query credits once."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="ir@example.com", username="iruser")
+        self.author = People.objects.create(
+            title="IR Author",
+            people_type=PeopleType.PERSON,
+            metadata={"localized_name": [{"lang": "en", "text": "IR Author"}]},
+        )
+        self.translator = People.objects.create(
+            title="IR Translator",
+            people_type=PeopleType.PERSON,
+            metadata={"localized_name": [{"lang": "en", "text": "IR Translator"}]},
+        )
+        self.book = Edition.objects.create(title="IR Book")
+        ItemCredit.objects.create(
+            item=self.book,
+            person=self.author,
+            role=CreditRole.Author,
+            name=self.author.display_name,
+        )
+        ItemCredit.objects.create(
+            item=self.book,
+            person=self.translator,
+            role=CreditRole.Translator,
+            name=self.translator.display_name,
+        )
+
+    def test_credits_queried_at_most_once(self):
+        """edition.html reads role_credits multiple times; prefetch means 1 DB hit."""
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(self.book.url)
+        assert response.status_code == 200
+        credit_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_itemcredit" in q["sql"] and "SELECT" in q["sql"].upper()
+        ]
+        # One prefetch query is allowed; should never scale with access count.
+        assert len(credit_queries) <= 1
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestShelfAPICreditsPrefetch:
+    """Shelf API must prefetch item credits across paginated marks."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="sac@example.com", username="sacuser")
+        self.author = People.objects.create(
+            title="SAC Author",
+            people_type=PeopleType.PERSON,
+            metadata={"localized_name": [{"lang": "en", "text": "SAC Author"}]},
+        )
+        self.books = []
+        for i in range(3):
+            book = Edition.objects.create(title=f"SAC Book {i}")
+            ItemCredit.objects.create(
+                item=book,
+                person=self.author,
+                role=CreditRole.Author,
+                name=self.author.display_name,
+            )
+            Mark(self.user.identity, book).update(
+                ShelfType.WISHLIST, f"n{i}", i + 5, [], 0
+            )
+            self.books.append(book)
+        self.app = Takahe.get_or_create_app(
+            "Test",
+            "https://example.org",
+            "https://example.org/cb",
+            owner_pk=self.user.identity.pk,
+        )
+        self.token = Takahe.refresh_token(self.app, self.user.identity.pk, self.user.pk)
+
+    def test_shelf_api_no_per_item_credit_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                "/api/me/shelf/wishlist",
+                HTTP_AUTHORIZATION=f"Bearer {self.token}",
+            )
+        assert response.status_code == 200
+        assert _per_item_credit_queries(ctx.captured_queries) == []

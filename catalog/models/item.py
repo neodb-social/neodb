@@ -898,10 +898,19 @@ class Item(PolymorphicModel):
     def get_credits_by_role(self, role: str) -> "QuerySet[ItemCredit]":
         return self.credits.filter(role=role).select_related("person")
 
+    def _credits_with_person(self) -> list["ItemCredit"]:
+        # Use the prefetch cache when callers have prefetched
+        # `credits` (ideally with `credits__person`). Applying
+        # `.select_related("person")` here would bypass that cache
+        # and re-query once per item.
+        if "credits" in getattr(self, "_prefetched_objects_cache", {}):
+            return list(self.credits.all())
+        return list(self.credits.select_related("person").all())
+
     @cached_property
     def api_credits(self) -> list["ItemCredit"]:
         """Credits for API serialization."""
-        return list(self.credits.select_related("person").all())
+        return self._credits_with_person()
 
     def credit_names_by_role(self, role: str) -> list[str]:
         """Return credit names as list[str] from the credits table."""
@@ -911,7 +920,7 @@ class Item(PolymorphicModel):
     def role_credits(self) -> dict[str, list["ItemCredit"]]:
         """All credits grouped by role, for template access."""
         result: dict[str, list[ItemCredit]] = {}
-        for credit in self.credits.select_related("person").all():
+        for credit in self._credits_with_person():
             result.setdefault(credit.role, []).append(credit)
         return result
 

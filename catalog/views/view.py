@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count, F, Window, prefetch_related_objects
+from django.db.models import Count, F, Prefetch, Window, prefetch_related_objects
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -22,15 +22,17 @@ from journal.models import (
     Comment,
     Mark,
     Note,
+    Rating,
     Review,
     ShelfManager,
     ShelfMember,
+    Tag,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
 from takahe.utils import Takahe
 
-from ..models import ExternalResource, IdType, Item, Podcast, TVEpisode
+from ..models import ExternalResource, IdType, Item, ItemCredit, Podcast, TVEpisode
 from ..models.people import ItemPeopleRelation, People, PeopleRole
 from ..sites import WikiData
 
@@ -89,8 +91,12 @@ def retrieve(request, item_path, item_uuid):
         return JsonResponse(item.ap_object, content_type="application/activity+json")
     if request.method == "HEAD":
         return HttpResponse()
-    # Prefetch parent item and external resources to avoid N+1 in templates
-    prefetch_related_objects([item], "external_resources")
+    # Prefetch parent item, external resources, and credits to avoid N+1 in templates
+    prefetch_related_objects(
+        [item],
+        "external_resources",
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
     Item.prefetch_parent_items([item])
     focus_item = None
     if request.GET.get("focus"):
@@ -180,6 +186,17 @@ def people_works(request, item_path, item_uuid, role):
     page_number = request.GET.get("page", default=1)
     works_page = paginator.get_page(page_number)
     pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
+    # Batch-prefetch per-item data used by _item_card_* partials to avoid N+1
+    works_items = list(works_page.object_list)
+    if works_items:
+        prefetch_related_objects(
+            works_items,
+            "external_resources",
+            Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        )
+        Item.prefetch_parent_items(works_items)
+        Rating.attach_to_items(works_items)
+        Tag.attach_to_items(works_items)
     return render(
         request,
         "people_works.html",
