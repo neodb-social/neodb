@@ -651,6 +651,14 @@ class AdvancedSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "skip_migrations": {
+            "title": _("Skip Migration Jobs"),
+            "help_text": _(
+                "Post-migration job keys to skip, one per line "
+                "(e.g. normalize_genre). Checked by the worker at dequeue time; "
+                "skipped jobs log a warning and notify the Discord system channel."
+            ),
+        },
     }
     layout = {
         _("Domains"): [
@@ -661,6 +669,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "disable_cron_jobs",
             "index_aliases",
             "task_cleanup_days",
+            "skip_migrations",
         ],
     }
 

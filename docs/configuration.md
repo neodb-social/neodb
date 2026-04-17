@@ -53,7 +53,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
  - `NEODB_ADMIN_HANDLES` - comma-separated list of handles to auto-promote to superuser on registration, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
  - `NEODB_LOG_LEVEL` - logging level (DEBUG, INFO, WARNING, ERROR). Requires restart.
- - `SKIP_MIGRATIONS` - migrations to skip. Requires restart.
+ - `SKIP_MIGRATIONS` - **deprecated**, retained as a fallback only. Configure skipped post-migration job keys in Admin > Advanced > "Skip Migration Jobs" instead. The UI value is read by the worker at dequeue time (no restart needed); skipped jobs log a warning and post a `[migration] <key>: skipped` notice to the Discord `system` channel.
 
 
 ## S3 and Compatible Storage

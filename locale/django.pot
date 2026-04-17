@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-16 22:38-0400\n"
+"POT-Creation-Date: 2026-04-17 00:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3986,11 +3986,19 @@ msgstr ""
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:656
+#: common/views_manage.py:655
+msgid "Skip Migration Jobs"
+msgstr ""
+
+#: common/views_manage.py:657
+msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
+msgstr ""
+
+#: common/views_manage.py:664
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:659
+#: common/views_manage.py:667
 msgid "Operational"
 msgstr ""
 

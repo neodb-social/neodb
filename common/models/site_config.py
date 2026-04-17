@@ -111,6 +111,7 @@ class SiteConfig(models.Model):
         )
         disable_cron_jobs: list[str] = []
         index_aliases: dict = {"catalog": "catalog2"}
+        skip_migrations: list[str] = []
 
     @classmethod
     def _env_defaults(cls) -> dict:
@@ -222,6 +223,9 @@ class SiteConfig(models.Model):
             "index_aliases": dict(
                 getattr(settings, "INDEX_ALIASES", {"catalog": "catalog2"})
             ),
+            # SKIP_MIGRATIONS env is deprecated; kept as a fallback so existing
+            # deployments keep working until the admin sets the UI value.
+            "skip_migrations": list(getattr(settings, "SKIP_MIGRATIONS", [])),
         }
 
     @classmethod

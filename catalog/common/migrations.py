@@ -5,13 +5,13 @@ from datetime import timedelta
 from time import sleep
 
 import django_rq
-from django.conf import settings
 from django.db import connection, models
 from django.utils import timezone
 from loguru import logger
 from rq.job import Job
 from tqdm import tqdm
 
+from common.models.site_config import SiteConfig
 from common.utils import discord_send
 
 _CHAIN_KEY = "neodb:migration_enqueue:last_job_id"
@@ -27,6 +27,11 @@ def _derive_skip_key(func) -> str:
 
 
 def _run_migration_job(func, skip_key, args, kwargs):
+    SiteConfig.ensure_loaded()
+    if skip_key in (SiteConfig.system.skip_migrations or []):
+        logger.warning(f"[migration] {skip_key}: skipped (skip_migrations)")
+        discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: skipped")
+        return None
     discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: started")
     t0 = time.monotonic()
     try:
@@ -56,16 +61,17 @@ def enqueue_migration_job(
     """Enqueue a post-migration background job, chained after any previously
     enqueued migration job so they run sequentially even on multi-worker queues.
     The worker-side wrapper posts begin/end/failure to the Discord 'system'
-    channel. When this is the first job in a chain, a default 5-second delay
+    channel, and honours SiteConfig.system.skip_migrations at dequeue time so
+    the skip list can be toggled from the Admin > Advanced UI without a
+    restart. When this is the first job in a chain, a default 5-second delay
     lets the enclosing migrate transaction commit before the worker picks up.
     """
     key = skip_key or _derive_skip_key(func)
 
-    if key in getattr(settings, "SKIP_MIGRATIONS", []):
-        print(f"(Skipped {key})", end="")
-        return None
-
-    q = django_rq.get_queue(queue)
+    # Migrations run inside an atomic block; django_rq's default
+    # commit_mode='on_db_commit' would defer enqueue to transaction.on_commit
+    # and return None, breaking the chain. Force 'auto' so we get the Job back.
+    q = django_rq.get_queue(queue, commit_mode="auto")
     conn = q.connection
     depends_on = None
 
