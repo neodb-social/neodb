@@ -26,6 +26,7 @@ class MovieInSchema(ItemInSchema):
     director: list[str]
     playwright: list[str]
     actor: list[str]
+    producer: list[str]
     genre: list[str]
     language: list[str]
     area: list[str]
@@ -44,6 +45,10 @@ class MovieInSchema(ItemInSchema):
     @staticmethod
     def resolve_actor(obj: "Movie") -> list[str]:
         return obj.credit_names_by_role("actor")
+
+    @staticmethod
+    def resolve_producer(obj: "Movie") -> list[str]:
+        return obj.credit_names_by_role("producer")
 
 
 class MovieSchema(MovieInSchema, BaseSchema):
@@ -73,6 +78,7 @@ class Movie(Item):
         "director": "director",
         "playwright": "playwright",
         "actor": "actor",
+        "producer": "producer",
     }
 
     METADATA_COPY_LIST = [
@@ -81,6 +87,7 @@ class Movie(Item):
         "director",
         "playwright",
         "actor",
+        "producer",
         "genre",
         "showtime",
         "site",
@@ -109,6 +116,13 @@ class Movie(Item):
     )
     actor = jsondata.JSONField(
         verbose_name=_("actor"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LIST_OF_STR_SCHEMA,
+    )
+    producer = jsondata.JSONField(
+        verbose_name=_("producer"),
         null=False,
         blank=True,
         default=list,

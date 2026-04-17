@@ -68,6 +68,10 @@ class _TVCreditResolverMixin:
     def resolve_actor(obj: "TVShow | TVSeason") -> list[str]:
         return obj.credit_names_by_role("actor")
 
+    @staticmethod
+    def resolve_producer(obj: "TVShow | TVSeason") -> list[str]:
+        return obj.credit_names_by_role("producer")
+
 
 class TVShowInSchema(_TVCreditResolverMixin, ItemInSchema):
     season_count: int | None = None
@@ -75,6 +79,7 @@ class TVShowInSchema(_TVCreditResolverMixin, ItemInSchema):
     director: list[str]
     playwright: list[str]
     actor: list[str]
+    producer: list[str]
     genre: list[str]
     language: list[str]
     area: list[str]
@@ -96,6 +101,7 @@ class TVSeasonInSchema(_TVCreditResolverMixin, ItemInSchema):
     director: list[str]
     playwright: list[str]
     actor: list[str]
+    producer: list[str]
     genre: list[str]
     language: list[str]
     area: list[str]
@@ -134,6 +140,7 @@ class TVShow(Item):
         "director": "director",
         "playwright": "playwright",
         "actor": "actor",
+        "producer": "producer",
     }
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
@@ -152,6 +159,7 @@ class TVShow(Item):
         "director",
         "playwright",
         "actor",
+        "producer",
         "localized_description",
         "genre",
         "showtime",
@@ -182,6 +190,13 @@ class TVShow(Item):
     )
     actor = jsondata.JSONField(
         verbose_name=_("actor"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LIST_OF_STR_SCHEMA,
+    )
+    producer = jsondata.JSONField(
+        verbose_name=_("producer"),
         null=False,
         blank=True,
         default=list,
@@ -364,6 +379,7 @@ class TVSeason(Item):
         "director": "director",
         "playwright": "playwright",
         "actor": "actor",
+        "producer": "producer",
     }
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
@@ -386,6 +402,7 @@ class TVSeason(Item):
         "director",
         "playwright",
         "actor",
+        "producer",
         "genre",
         "showtime",
         "site",
@@ -415,6 +432,13 @@ class TVSeason(Item):
     )
     actor = jsondata.JSONField(
         verbose_name=_("actor"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LIST_OF_STR_SCHEMA,
+    )
+    producer = jsondata.JSONField(
+        verbose_name=_("producer"),
         null=False,
         blank=True,
         default=list,

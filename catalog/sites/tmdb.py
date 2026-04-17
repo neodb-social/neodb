@@ -73,6 +73,56 @@ def _copy_dict(s, key_map):
     return d
 
 
+# TMDB writing department job titles we treat as playwright
+_WRITER_JOBS = {"Screenplay", "Writer", "Teleplay", "Story"}
+# TMDB production department job titles we treat as producer
+_PRODUCER_JOBS = {"Producer", "Executive Producer"}
+
+
+def _extract_tmdb_credits(credits_data: dict, cast_limit: int = 10) -> dict:
+    """Pull directors, writers, producers, and cast out of a TMDB credits block.
+
+    Returns a dict with name lists plus a deduplicated list of related People
+    resources (top cast + all pulled crew) ready for related_resources.
+    """
+    crew = credits_data.get("crew") or []
+    cast = credits_data.get("cast") or []
+    directors = [c for c in crew if c.get("job") == "Director"]
+    writers = [c for c in crew if c.get("job") in _WRITER_JOBS]
+    producers = [c for c in crew if c.get("job") in _PRODUCER_JOBS]
+    # Deduplicate producers by person id (a person may be credited under both
+    # "Producer" and "Executive Producer" or similar)
+    seen_producer_ids = set()
+    unique_producers = []
+    for p in producers:
+        pid = p.get("id")
+        if pid is None or pid not in seen_producer_ids:
+            if pid is not None:
+                seen_producer_ids.add(pid)
+            unique_producers.append(p)
+    related: list[dict] = []
+    seen: set = set()
+    for person in directors + writers + unique_producers + cast[:cast_limit]:
+        pid = person.get("id")
+        if pid and pid not in seen:
+            seen.add(pid)
+            related.append(
+                {
+                    "model": "People",
+                    "id_type": IdType.TMDB_Person,
+                    "id_value": str(pid),
+                    "url": f"https://www.themoviedb.org/person/{pid}",
+                }
+            )
+    return {
+        "directors": directors,
+        "writers": writers,
+        "producers": unique_producers,
+        "cast": cast,
+        "related_people": related,
+    }
+
+
 @SiteManager.register
 class TMDB_Movie(AbstractSite):
     SITE_NAME = SiteName.TMDB
@@ -126,31 +176,13 @@ class TMDB_Movie(AbstractSite):
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
 
-        directors = [c for c in res_data["credits"]["crew"] if c["job"] == "Director"]
-        screenwriters = [
-            c for c in res_data["credits"]["crew"] if c["job"] == "Screenplay"
-        ]
-        cast = res_data["credits"]["cast"]
-        director = [c["name"] for c in directors]
-        playwright = [c["name"] for c in screenwriters]
-        actor = [c["name"] for c in cast]
+        credits = _extract_tmdb_credits(res_data.get("credits") or {})
+        director = [c["name"] for c in credits["directors"]]
+        playwright = [c["name"] for c in credits["writers"]]
+        producer = [c["name"] for c in credits["producers"]]
+        actor = [c["name"] for c in credits["cast"]]
+        related_people = credits["related_people"]
         area = []
-
-        # Collect key people as related_resources for auto-fetch
-        related_people = []
-        seen_ids = set()
-        for person in directors + screenwriters + cast[:10]:
-            pid = person.get("id")
-            if pid and pid not in seen_ids:
-                seen_ids.add(pid)
-                related_people.append(
-                    {
-                        "model": "People",
-                        "id_type": IdType.TMDB_Person,
-                        "id_value": str(pid),
-                        "url": f"https://www.themoviedb.org/person/{pid}",
-                    }
-                )
 
         # other_info = {}
         # other_info['TMDB评分'] = res_data['vote_average']
@@ -180,6 +212,7 @@ class TMDB_Movie(AbstractSite):
                 "director": director,
                 "playwright": playwright,
                 "actor": actor,
+                "producer": producer,
                 "genre": genre,
                 "showtime": showtime,
                 "site": None,
@@ -307,19 +340,21 @@ class TMDB_TV(AbstractSite):
         genre = [x["name"] for x in res_data["genres"]]
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
-        creators = res_data.get("created_by", [])
-        screenwriters = [
-            c for c in res_data["credits"]["crew"] if c["job"] == "Screenplay"
-        ]
-        cast = res_data["credits"]["cast"]
-        director = [c["name"] for c in creators]
-        playwright = [c["name"] for c in screenwriters]
-        actor = [c["name"] for c in cast]
+        creators = res_data.get("created_by") or []
+        credits = _extract_tmdb_credits(res_data.get("credits") or {})
+        # TV shows rarely list a single series-level director; fall back to
+        # "created_by" when crew Director entries are empty so the field stays
+        # meaningful for Douban compatibility.
+        director_people = credits["directors"] or creators
+        director = [c["name"] for c in director_people]
+        playwright = [c["name"] for c in credits["writers"]]
+        producer = [c["name"] for c in credits["producers"]]
+        actor = [c["name"] for c in credits["cast"]]
         area = []
 
-        related_people = []
-        seen_ids = set()
-        for person in creators + screenwriters + cast[:10]:
+        related_people = credits["related_people"]
+        seen_ids = {int(r["id_value"]) for r in related_people}
+        for person in creators:
             pid = person.get("id")
             if pid and pid not in seen_ids:
                 seen_ids.add(pid)
@@ -363,6 +398,7 @@ class TMDB_TV(AbstractSite):
                 "director": director,
                 "playwright": playwright,
                 "actor": actor,
+                "producer": producer,
                 "genre": genre,
                 "showtime": showtime,
                 "site": None,
@@ -460,6 +496,12 @@ class TMDB_TVSeason(AbstractSite):
                 "url": f"https://www.themoviedb.org/tv/{show_id}",
             }
         ]
+        credits = _extract_tmdb_credits(d.get("credits") or {})
+        pd.metadata["director"] = [c["name"] for c in credits["directors"]]
+        pd.metadata["playwright"] = [c["name"] for c in credits["writers"]]
+        pd.metadata["producer"] = [c["name"] for c in credits["producers"]]
+        pd.metadata["actor"] = [c["name"] for c in credits["cast"]]
+        pd.metadata["related_resources"] = credits["related_people"]
         # Add external IDs to lookup_ids
         if d["external_ids"].get("imdb_id"):
             pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")

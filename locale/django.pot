@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 09:08-0400\n"
+"POT-Creation-Date: 2026-04-17 15:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,11 +59,11 @@ msgstr ""
 msgid "Traditional Chinese"
 msgstr ""
 
-#: catalog/forms.py:30 catalog/models/item.py:223
+#: catalog/forms.py:30 catalog/models/item.py:224
 msgid "Primary ID Type"
 msgstr ""
 
-#: catalog/forms.py:35 catalog/models/item.py:226
+#: catalog/forms.py:35 catalog/models/item.py:227
 msgid "Primary ID Value"
 msgstr ""
 
@@ -105,9 +105,9 @@ msgstr ""
 msgid "subtitle"
 msgstr ""
 
-#: catalog/models/book.py:197 catalog/models/movie.py:94
-#: catalog/models/performance.py:384 catalog/models/tv.py:167
-#: catalog/models/tv.py:400
+#: catalog/models/book.py:197 catalog/models/movie.py:101
+#: catalog/models/performance.py:384 catalog/models/tv.py:175
+#: catalog/models/tv.py:417
 msgid "original title"
 msgstr ""
 
@@ -580,20 +580,20 @@ msgstr ""
 msgid "Special Edition"
 msgstr ""
 
-#: catalog/models/game.py:99 catalog/models/item.py:99
+#: catalog/models/game.py:99 catalog/models/item.py:100
 msgid "designer"
 msgstr ""
 
-#: catalog/models/game.py:107 catalog/models/item.py:98
+#: catalog/models/game.py:107 catalog/models/item.py:99
 #: catalog/models/music.py:87
 msgid "artist"
 msgstr ""
 
-#: catalog/models/game.py:115 catalog/models/item.py:108
+#: catalog/models/game.py:115 catalog/models/item.py:109
 msgid "developer"
 msgstr ""
 
-#: catalog/models/game.py:123 catalog/models/item.py:107
+#: catalog/models/game.py:123 catalog/models/item.py:108
 #: catalog/models/music.py:95
 msgid "publisher"
 msgstr ""
@@ -607,7 +607,7 @@ msgid "date of publication"
 msgstr ""
 
 #: catalog/models/game.py:140 catalog/models/music.py:81
-#: catalog/models/tv.py:205
+#: catalog/models/tv.py:220
 msgid "YYYY-MM-DD"
 msgstr ""
 
@@ -619,10 +619,10 @@ msgstr ""
 msgid "platform"
 msgstr ""
 
-#: catalog/models/game.py:159 catalog/models/movie.py:146
+#: catalog/models/game.py:159 catalog/models/movie.py:160
 #: catalog/models/people.py:159 catalog/models/performance.py:258
 #: catalog/models/performance.py:464 catalog/models/podcast.py:87
-#: catalog/models/tv.py:219 catalog/models/tv.py:453
+#: catalog/models/tv.py:234 catalog/models/tv.py:477
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
 #: catalog/templates/people.html:44 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
@@ -631,132 +631,137 @@ msgstr ""
 msgid "website"
 msgstr ""
 
-#: catalog/models/item.py:95 catalog/models/movie.py:97
+#: catalog/models/item.py:95 catalog/models/movie.py:104
 #: catalog/models/performance.py:182 catalog/models/performance.py:388
-#: catalog/models/tv.py:170 catalog/models/tv.py:403
+#: catalog/models/tv.py:178 catalog/models/tv.py:420
 msgid "director"
 msgstr ""
 
-#: catalog/models/item.py:96 catalog/models/movie.py:104
+#: catalog/models/item.py:96 catalog/models/movie.py:111
 #: catalog/models/performance.py:189 catalog/models/performance.py:395
-#: catalog/models/tv.py:177 catalog/models/tv.py:410
+#: catalog/models/tv.py:185 catalog/models/tv.py:427
 msgid "playwright"
 msgstr ""
 
-#: catalog/models/item.py:97 catalog/models/movie.py:111
+#: catalog/models/item.py:97 catalog/models/movie.py:118
 #: catalog/models/performance.py:217 catalog/models/performance.py:423
-#: catalog/models/tv.py:184 catalog/models/tv.py:417
+#: catalog/models/tv.py:192 catalog/models/tv.py:434
 msgid "actor"
 msgstr ""
 
-#: catalog/models/item.py:100 catalog/models/performance.py:203
+#: catalog/models/item.py:98 catalog/models/movie.py:125
+#: catalog/models/tv.py:199 catalog/models/tv.py:441
+msgid "producer"
+msgstr ""
+
+#: catalog/models/item.py:101 catalog/models/performance.py:203
 #: catalog/models/performance.py:409
 msgid "composer"
 msgstr ""
 
-#: catalog/models/item.py:101 catalog/models/performance.py:210
+#: catalog/models/item.py:102 catalog/models/performance.py:210
 #: catalog/models/performance.py:416
 msgid "choreographer"
 msgstr ""
 
-#: catalog/models/item.py:102 catalog/models/performance.py:224
+#: catalog/models/item.py:103 catalog/models/performance.py:224
 #: catalog/models/performance.py:430
 msgid "performer"
 msgstr ""
 
-#: catalog/models/item.py:103 catalog/models/podcast.py:78
+#: catalog/models/item.py:104 catalog/models/podcast.py:78
 msgid "host"
 msgstr ""
 
-#: catalog/models/item.py:104 catalog/models/performance.py:196
+#: catalog/models/item.py:105 catalog/models/performance.py:196
 #: catalog/models/performance.py:402
 msgid "original creator"
 msgstr ""
 
-#: catalog/models/item.py:105 catalog/models/performance.py:238
+#: catalog/models/item.py:106 catalog/models/performance.py:238
 #: catalog/models/performance.py:444
 msgid "crew"
 msgstr ""
 
-#: catalog/models/item.py:109
+#: catalog/models/item.py:110
 msgid "production company"
 msgstr ""
 
-#: catalog/models/item.py:110
+#: catalog/models/item.py:111
 msgid "record label"
 msgstr ""
 
-#: catalog/models/item.py:111
+#: catalog/models/item.py:112
 msgid "distributor"
 msgstr ""
 
-#: catalog/models/item.py:112
+#: catalog/models/item.py:113
 msgid "studio"
 msgstr ""
 
-#: catalog/models/item.py:113 catalog/models/performance.py:231
+#: catalog/models/item.py:114 catalog/models/performance.py:231
 #: catalog/models/performance.py:437
 msgid "troupe"
 msgstr ""
 
-#: catalog/models/item.py:128 catalog/models/people.py:472
+#: catalog/models/item.py:129 catalog/models/people.py:473
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr ""
 
-#: catalog/models/item.py:129 catalog/models/people.py:136
+#: catalog/models/item.py:130 catalog/models/people.py:136
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr ""
 
-#: catalog/models/item.py:131 catalog/templates/_item_credits_list.html:138
+#: catalog/models/item.py:132 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr ""
 
-#: catalog/models/item.py:220 catalog/models/item.py:252
+#: catalog/models/item.py:221 catalog/models/item.py:253
 #: journal/models/collection.py:64
 msgid "title"
 msgstr ""
 
-#: catalog/models/item.py:221 catalog/models/item.py:260
+#: catalog/models/item.py:222 catalog/models/item.py:261
 #: journal/models/collection.py:65
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:232 catalog/models/people.py:480
+#: catalog/models/item.py:233 catalog/models/people.py:481
 msgid "metadata"
 msgstr ""
 
-#: catalog/models/item.py:234 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:235 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:988
+#: catalog/models/item.py:998
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:990
+#: catalog/models/item.py:1000
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:992
+#: catalog/models/item.py:1002
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:1008
+#: catalog/models/item.py:1018
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:1014
+#: catalog/models/item.py:1024
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1017
+#: catalog/models/item.py:1027
 msgid "url to the resource"
 msgstr ""
 
-#: catalog/models/movie.py:119 catalog/models/music.py:81
+#: catalog/models/movie.py:133 catalog/models/music.py:81
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:17 catalog/templates/game.html:21
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
@@ -764,36 +769,36 @@ msgstr ""
 msgid "release date"
 msgstr ""
 
-#: catalog/models/movie.py:131 catalog/models/tv.py:437
+#: catalog/models/movie.py:145 catalog/models/tv.py:461
 #: journal/templates/_sidebar_user_mark_list.html:60
 msgid "date"
 msgstr ""
 
-#: catalog/models/movie.py:132 catalog/models/performance.py:130
-#: catalog/models/tv.py:438
+#: catalog/models/movie.py:146 catalog/models/performance.py:130
+#: catalog/models/tv.py:462
 msgid "required"
 msgstr ""
 
-#: catalog/models/movie.py:136 catalog/models/tv.py:442
+#: catalog/models/movie.py:150 catalog/models/tv.py:466
 msgid "region or event"
 msgstr ""
 
-#: catalog/models/movie.py:138 catalog/models/tv.py:211
-#: catalog/models/tv.py:444
+#: catalog/models/movie.py:152 catalog/models/tv.py:226
+#: catalog/models/tv.py:468
 msgid "Germany or Toronto International Film Festival"
 msgstr ""
 
-#: catalog/models/movie.py:148 catalog/models/tv.py:221
-#: catalog/models/tv.py:456
+#: catalog/models/movie.py:162 catalog/models/tv.py:236
+#: catalog/models/tv.py:480
 msgid "region"
 msgstr ""
 
-#: catalog/models/movie.py:159 catalog/models/tv.py:233
-#: catalog/models/tv.py:467
+#: catalog/models/movie.py:173 catalog/models/tv.py:248
+#: catalog/models/tv.py:491
 msgid "year"
 msgstr ""
 
-#: catalog/models/movie.py:160 catalog/models/music.py:84
+#: catalog/models/movie.py:174 catalog/models/music.py:84
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
 msgid "length"
@@ -941,11 +946,11 @@ msgstr ""
 msgid "date of death"
 msgstr ""
 
-#: catalog/models/people.py:474
+#: catalog/models/people.py:475
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:478
+#: catalog/models/people.py:479
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -971,42 +976,42 @@ msgstr ""
 msgid "closing date"
 msgstr ""
 
-#: catalog/models/tv.py:142 catalog/templates/tvseason.html:37
+#: catalog/models/tv.py:149 catalog/templates/tvseason.html:37
 #: catalog/templates/tvshow.html:32
 msgid "number of seasons"
 msgstr ""
 
-#: catalog/models/tv.py:145 catalog/models/tv.py:378
+#: catalog/models/tv.py:152 catalog/models/tv.py:394
 #: catalog/templates/tvseason.html:42 catalog/templates/tvshow.html:37
 msgid "number of episodes"
 msgstr ""
 
-#: catalog/models/tv.py:192 catalog/models/tv.py:425
+#: catalog/models/tv.py:207 catalog/models/tv.py:449
 msgid "show time"
 msgstr ""
 
-#: catalog/models/tv.py:204
+#: catalog/models/tv.py:219
 msgid "Date"
 msgstr ""
 
-#: catalog/models/tv.py:209
+#: catalog/models/tv.py:224
 msgid "Region or Event"
 msgstr ""
 
-#: catalog/models/tv.py:235 catalog/models/tv.py:469
+#: catalog/models/tv.py:250 catalog/models/tv.py:493
 msgid "episode length"
 msgstr ""
 
-#: catalog/models/tv.py:375 catalog/templates/tvseason.html:32
+#: catalog/models/tv.py:391 catalog/templates/tvseason.html:32
 msgid "season number"
 msgstr ""
 
-#: catalog/models/tv.py:502
+#: catalog/models/tv.py:526
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr ""
 
-#: catalog/models/tv.py:655
+#: catalog/models/tv.py:679
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr ""
@@ -1994,15 +1999,15 @@ msgstr ""
 msgid "Unsupported URL"
 msgstr ""
 
-#: catalog/views/view.py:54 catalog/views/view.py:79
+#: catalog/views/view.py:56 catalog/views/view.py:81
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views/view.py:58 catalog/views/view.py:87
+#: catalog/views/view.py:60 catalog/views/view.py:89
 msgid "Item no longer exists"
 msgstr ""
 
-#: catalog/views/view.py:150
+#: catalog/views/view.py:156
 msgid "Invalid role"
 msgstr ""
 

@@ -95,6 +95,7 @@ class CreditRole(models.TextChoices):
     Director = "director", _("director")
     Playwright = "playwright", _("playwright")
     Actor = "actor", _("actor")
+    Producer = "producer", _("producer")
     Artist = "artist", _("artist")
     Designer = "designer", _("designer")
     Composer = "composer", _("composer")

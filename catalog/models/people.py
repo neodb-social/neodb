@@ -294,6 +294,7 @@ class People(Item):
             "director": PeopleRole.DIRECTOR,
             "playwright": PeopleRole.PLAYWRIGHT,
             "actor": PeopleRole.ACTOR,
+            "producer": PeopleRole.PRODUCER,
             "artist": PeopleRole.ARTIST,
             "designer": PeopleRole.DESIGNER,
             "composer": PeopleRole.COMPOSER,
