@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 15:43-0400\n"
+"POT-Creation-Date: 2026-04-17 18:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1594,23 +1594,23 @@ msgstr ""
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:188
+#: catalog/templates/discover.html:104 journal/templates/profile.html:205
 msgid "edit layout"
 msgstr ""
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:191
+#: catalog/templates/discover.html:107 journal/templates/profile.html:208
 msgid "save"
 msgstr ""
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:202
+#: catalog/templates/discover.html:118 journal/templates/profile.html:219
 msgid "cancel"
 msgstr ""
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:208
+#: catalog/templates/discover.html:124 journal/templates/profile.html:225
 msgid "show"
 msgstr ""
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:209
+#: catalog/templates/discover.html:125 journal/templates/profile.html:226
 msgid "hide"
 msgstr ""
 
@@ -1634,6 +1634,7 @@ msgstr ""
 #: catalog/templates/people_works.html:28 common/templates/_sidebar.html:114
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
+#: journal/templates/profile_following.html:29
 #: journal/templates/profile_items.html:34
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_collection_list.html:52
@@ -3533,11 +3534,11 @@ msgid "User no longer exists"
 msgstr ""
 
 #: common/utils.py:94 common/utils.py:96 common/utils.py:99 common/utils.py:135
-#: common/utils.py:139 journal/views/profile.py:360
+#: common/utils.py:139 journal/views/profile.py:397
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:401
+#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:438
 #: journal/views/review.py:169
 msgid "Login required"
 msgstr ""
@@ -3896,146 +3897,146 @@ msgid "Discord Webhooks"
 msgstr ""
 
 #: common/views_manage.py:516
-msgid "Webhook URLs keyed by channel (default, report, audit, suggest)."
+msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr ""
 
-#: common/views_manage.py:530
+#: common/views_manage.py:533
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:539
+#: common/views_manage.py:542
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:544
+#: common/views_manage.py:547
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:548
+#: common/views_manage.py:551
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:560
+#: common/views_manage.py:563
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:561
+#: common/views_manage.py:564
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:564
+#: common/views_manage.py:567
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:565
+#: common/views_manage.py:568
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:568
+#: common/views_manage.py:571
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:571
+#: common/views_manage.py:574
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:574
+#: common/views_manage.py:577
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:580
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:580
+#: common/views_manage.py:583
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:583
+#: common/views_manage.py:586
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:587
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:587
+#: common/views_manage.py:590
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:591
+#: common/views_manage.py:594
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:595
+#: common/views_manage.py:598
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:600
+#: common/views_manage.py:603
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:605
+#: common/views_manage.py:608
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:612
+#: common/views_manage.py:615
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:624
+#: common/views_manage.py:627
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:625
+#: common/views_manage.py:628
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:628
+#: common/views_manage.py:631
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:629
+#: common/views_manage.py:632
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:632
+#: common/views_manage.py:635
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:636
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:636
+#: common/views_manage.py:639
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:637
+#: common/views_manage.py:640
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:647
+#: common/views_manage.py:650
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:649
+#: common/views_manage.py:652
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:655
+#: common/views_manage.py:658
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:657
+#: common/views_manage.py:660
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:664
+#: common/views_manage.py:667
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:667
+#: common/views_manage.py:670
 msgid "Operational"
 msgstr ""
 
@@ -5071,12 +5072,18 @@ msgid "annual summary"
 msgstr ""
 
 #: journal/templates/profile.html:140 journal/views/collection.py:221
-#: journal/views/profile.py:300
+#: journal/views/profile.py:302
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:157 journal/views/profile.py:341
+#: journal/templates/profile.html:157 journal/views/profile.py:343
 msgid "liked collection"
+msgstr ""
+
+#: journal/templates/profile.html:174
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:381
+#: journal/views/profile.py:405 users/templates/users/account.html:447
+msgid "Following"
 msgstr ""
 
 #: journal/templates/quote_form.html:4
@@ -5132,17 +5139,12 @@ msgstr ""
 msgid "Liked Collections"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:368
-#: users/templates/users/account.html:447
-msgid "Following"
-msgstr ""
-
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:372
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:409
 #: users/templates/users/account.html:456
 msgid "Followers"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:376
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:413
 msgid "Mutuals"
 msgstr ""
 

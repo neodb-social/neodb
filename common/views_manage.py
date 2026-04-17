@@ -513,7 +513,9 @@ class APIKeysSettings(SiteConfigSettingsPage):
         "discord_webhooks": {
             "title": _("Discord Webhooks"),
             "help_text": _(
-                "Webhook URLs keyed by channel (default, report, audit, suggest)."
+                "Webhook URLs keyed by channel (default, report, audit, suggest, system). "
+                "All channels must be Discord forum or media channels (thread mode) "
+                "because notifications are posted as threads."
             ),
             "schema": {
                 "type": "object",
@@ -522,6 +524,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
                     "report": {"type": "string", "title": "report"},
                     "audit": {"type": "string", "title": "audit"},
                     "suggest": {"type": "string", "title": "suggest"},
+                    "system": {"type": "string", "title": "system"},
                 },
             },
         },

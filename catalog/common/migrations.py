@@ -30,8 +30,10 @@ def _make_migration_notifier(skip_key: str):
     """Return a notify(content) callable that posts all messages for one
     migration into the same Discord thread. The first call creates the
     thread via thread_name; subsequent calls reuse the captured thread id.
-    If the channel doesn't support threads or Discord is unreachable,
-    errors are logged and swallowed so notifications never break a run.
+    The configured `system` (or `default`) webhook MUST target a Discord
+    forum or media channel -- regular text channels reject thread_name and
+    all notifications for the run will fail. Errors are logged and swallowed
+    so notifications never break a run.
     """
     dw = SiteConfig.system.discord_webhooks.get(
         _NOTIFY_CHANNEL
