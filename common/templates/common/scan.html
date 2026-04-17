@@ -129,11 +129,10 @@
             detector.detect(video).then(function (codes) {
               if (codes && codes.length > 0) {
                 redirect(codes[0].rawValue);
-              } else {
-                requestAnimationFrame(loop);
               }
+              if (!stopped) requestAnimationFrame(loop);
             }).catch(function () {
-              requestAnimationFrame(loop);
+              if (!stopped) requestAnimationFrame(loop);
             });
           };
           requestAnimationFrame(loop);
