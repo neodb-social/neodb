@@ -128,6 +128,22 @@ class TestPeopleIndex:
             with pytest.raises(RuntimeError):
                 People.find_by_name("anything", exact=False)
 
+    def test_people_search_view_flags_error_on_outage(self, client):
+        """Regression: SearchResult is falsy when there are no hits, so the
+        view must detect the error via .error (not via bool(result))."""
+        from unittest.mock import MagicMock, patch
+
+        outage = MagicMock()
+        outage.error = "typesense down"
+        outage.__bool__.return_value = False  # no hits
+        outage.items = []
+        outage.pages = 0
+        with patch.object(PeopleIndex, "search", return_value=outage):
+            resp = client.get("/search?q=tolkien&c=people")
+        assert resp.status_code == 200
+        assert resp.context["search_error"] is True
+        assert resp.context["items"] == []
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogExcludesPeople:

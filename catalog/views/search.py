@@ -199,9 +199,11 @@ def people_search(request):
         keywords, page=p, page_size=per_page, people_type=people_type
     )
     result = PeopleIndex.instance().search(parser) if parser else None
-    search_error = bool(result and result.error)
-    items = [] if search_error else (result.items if result else [])
-    num_pages = 0 if search_error else (result.pages if result else 0)
+    # Note: SearchResult.__bool__ is "has hits", so `bool(result)` is False on
+    # outage even when result.error is set. Compare to None explicitly.
+    search_error = result is not None and bool(result.error)
+    items = [] if result is None or search_error else result.items
+    num_pages = 0 if result is None or search_error else result.pages
     return render(
         request,
         "search_results_people.html",
