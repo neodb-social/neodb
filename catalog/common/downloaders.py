@@ -3,7 +3,7 @@ import re
 import time
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Tuple, Union, cast
+from typing import Any, Tuple, Union, cast
 from urllib.parse import quote, urlencode, urlparse
 
 import filetype
@@ -552,7 +552,7 @@ class ScrapDownloader(BasicDownloader):
     def _scrape_with_decodo(self, token: str) -> Tuple[ResponseType | None, int]:
         """Scrape using Decodo Web Scraping API."""
         api_url = "https://scraper-api.decodo.com/v2/scrape"
-        payload = {
+        payload: dict[str, Any] = {
             "target": "universal",
             "url": self.url,
             "headless": "html",
