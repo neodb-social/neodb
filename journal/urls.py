@@ -104,6 +104,11 @@ urlpatterns = [
         name="profile_liked_collections",
     ),
     path(
+        "users/<str:user_name>/profile/following",
+        profile_following,
+        name="profile_following",
+    ),
+    path(
         "users/<str:user_name>/profile/<str:category>/<str:shelf_type>/items",
         profile_shelf_items,
         name="profile_shelf_items",

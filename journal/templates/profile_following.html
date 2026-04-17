@@ -1,0 +1,31 @@
+{% load thumb %}
+{% load i18n %}
+{% load mastodon %}
+<span class="action">
+  <span>
+    <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+  </span>
+  <span>
+    <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+  </span>
+</span>
+<h5>
+  {{ title }}
+  <small>
+    <a href="{{ url }}">{{ total }}</a>
+  </small>
+</h5>
+<ul class="cards">
+  {% for person in identities %}
+    <li class="card">
+      <a href="{{ person.url }}" title="{{ person.display_name }}">
+        <img src="{{ person.avatar|relative_uri }}"
+             alt="{{ person.display_name }}"
+             loading="lazy">
+        <div>{{ person.display_name }}</div>
+      </a>
+    </li>
+  {% empty %}
+    <div _="init hide closest .shelf">{% trans "nothing so far." %}</div>
+  {% endfor %}
+</ul>

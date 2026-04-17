@@ -167,6 +167,23 @@
                 </ul>
               </div>
             </section>
+            <section class="entity-sort shelf" id="following">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_following' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <h5>{% trans 'Following' %}</h5>
+                <ul class="cards">
+                  <li class="card">
+                    <a>
+                      <img src="{{ default_cover_url }}" alt="" loading="lazy">
+                      <div>
+                        <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
           </div>
           {{ layout|json_script:"layout-data" }}
           <script>

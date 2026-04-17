@@ -17,6 +17,7 @@ from common.utils import (
     profile_identity_required,
     target_identity_required,
 )
+from takahe.models import Identity
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -159,6 +160,7 @@ def profile(request: AuthedHttpRequest, user_name):
     prefetch_pieces_for_posts(recent_posts)
     default_layout.append({"id": "collection_created", "visibility": True})
     default_layout.append({"id": "collection_marked", "visibility": True})
+    default_layout.append({"id": "following", "visibility": True})
     pinned_collections = (
         Collection.objects.filter(
             interactions__interaction_type="pin", interactions__identity=target
@@ -347,6 +349,40 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
 
 
 _FOLLOW_LIST_PAGE_SIZE = 20
+
+
+@require_http_methods(["GET", "HEAD"])
+@profile_identity_required
+def profile_following(request: AuthedHttpRequest, user_name):
+    """
+    Display the following people shelf on profile pages.
+    """
+    target = request.target_identity
+    if request.method == "HEAD":
+        return HttpResponse()
+    viewer = request.identity if request.user.is_authenticated else None
+    if target.user != request.user:
+        if not (viewer and viewer.is_following(target) and target.is_following(viewer)):
+            return HttpResponse()
+    ids = Takahe.get_following_page(target.pk, 0, 20)
+    identities = list(APIdentity.objects.filter(pk__in=ids))
+    # Prefetch Takahe Identity rows in bulk to avoid N+1 when the template
+    # accesses avatar / display_name / url for each person.
+    takahe_identities = {i.pk: i for i in Identity.objects.filter(pk__in=ids)}
+    for apid in identities:
+        t = takahe_identities.get(apid.pk)
+        if t is not None:
+            apid.__dict__["takahe_identity"] = t
+    return render(
+        request,
+        "profile_following.html",
+        {
+            "title": _("Following"),
+            "url": f"{target.url}following/",
+            "identities": identities,
+            "total": target.following_count,
+        },
+    )
 
 
 @require_http_methods(["GET", "HEAD"])
