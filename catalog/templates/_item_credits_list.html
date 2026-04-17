@@ -201,7 +201,7 @@
       if (!input) return;
       setTimeout(function () {
         var row = input.closest('[data-credit-row]');
-        if (row && !row.contains(document.activeElement)) {
+        if (row && row.classList.contains('editing') && !row.contains(document.activeElement)) {
           input.form.requestSubmit();
         }
       }, 0);
