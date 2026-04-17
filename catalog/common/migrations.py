@@ -5,6 +5,7 @@ from datetime import timedelta
 from time import sleep
 
 import django_rq
+from discord import Object, SyncWebhook
 from django.db import connection, models
 from django.utils import timezone
 from loguru import logger
@@ -12,7 +13,6 @@ from rq.job import Job
 from tqdm import tqdm
 
 from common.models.site_config import SiteConfig
-from common.utils import discord_send
 
 _CHAIN_KEY = "neodb:migration_enqueue:last_job_id"
 _CHAIN_TTL = 7 * 24 * 3600
@@ -26,26 +26,54 @@ def _derive_skip_key(func) -> str:
     return _DATE_SUFFIX_RE.sub("", func.__name__)
 
 
+def _make_migration_notifier(skip_key: str):
+    """Return a notify(content) callable that posts all messages for one
+    migration into the same Discord thread. The first call creates the
+    thread via thread_name; subsequent calls reuse the captured thread id.
+    If the channel doesn't support threads or Discord is unreachable,
+    errors are logged and swallowed so notifications never break a run.
+    """
+    dw = SiteConfig.system.discord_webhooks.get(
+        _NOTIFY_CHANNEL
+    ) or SiteConfig.system.discord_webhooks.get("default")
+    webhook = SyncWebhook.from_url(dw) if dw else None
+    state: dict = {"thread_id": None}
+
+    def notify(content: str) -> None:
+        if webhook is None:
+            return
+        try:
+            if state["thread_id"] is None:
+                msg = webhook.send(content[:1989], thread_name=skip_key[:99], wait=True)
+                state["thread_id"] = msg.channel.id
+            else:
+                webhook.send(content[:1989], thread=Object(id=state["thread_id"]))
+        except Exception as e:
+            logger.warning(f"[migration] {skip_key}: discord notify failed: {e}")
+
+    return notify
+
+
 def _run_migration_job(func, skip_key, args, kwargs):
     SiteConfig.ensure_loaded()
+    notify = _make_migration_notifier(skip_key)
     if skip_key in (SiteConfig.system.skip_migrations or []):
         logger.warning(f"[migration] {skip_key}: skipped (skip_migrations)")
-        discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: skipped")
+        notify(f"[migration] {skip_key}: skipped")
         return None
-    discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: started")
+    notify(f"[migration] {skip_key}: started")
     t0 = time.monotonic()
     try:
         result = func(*args, **(kwargs or {}))
     except Exception:
         dt = time.monotonic() - t0
         tb = traceback.format_exc()
-        discord_send(
-            _NOTIFY_CHANNEL,
-            f"[migration] {skip_key}: FAILED after {dt:.0f}s\n```\n{tb[-1500:]}\n```",
+        notify(
+            f"[migration] {skip_key}: FAILED after {dt:.0f}s\n```\n{tb[-1500:]}\n```"
         )
         raise
     dt = time.monotonic() - t0
-    discord_send(_NOTIFY_CHANNEL, f"[migration] {skip_key}: finished in {dt:.0f}s")
+    notify(f"[migration] {skip_key}: finished in {dt:.0f}s")
     return result
 
 
