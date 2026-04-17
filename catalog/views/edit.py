@@ -555,8 +555,13 @@ def search_people(request):
     q = request.GET.get("q", "").strip()
     if len(q) < 2:
         return JsonResponse([], safe=False)
+    try:
+        people = People.find_by_name(q, exact=False, limit=10)
+    except RuntimeError as e:
+        logger.error(f"search_people index error: {e}")
+        return JsonResponse({"error": "search_unavailable"}, status=503)
     results = [
         {"url": p.url, "name": p.display_name, "cover": p.cover_image_url}
-        for p in People.find_by_name(q, exact=False, limit=10)
+        for p in people
     ]
     return JsonResponse(results, safe=False)

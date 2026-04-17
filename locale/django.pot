@@ -699,7 +699,7 @@ msgstr ""
 msgid "troupe"
 msgstr ""
 
-#: catalog/models/item.py:128 catalog/models/people.py:469
+#: catalog/models/item.py:128 catalog/models/people.py:472
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr ""
@@ -724,7 +724,7 @@ msgstr ""
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:232 catalog/models/people.py:477
+#: catalog/models/item.py:232 catalog/models/people.py:480
 msgid "metadata"
 msgstr ""
 
@@ -941,11 +941,11 @@ msgstr ""
 msgid "date of death"
 msgstr ""
 
-#: catalog/models/people.py:471
+#: catalog/models/people.py:474
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:475
+#: catalog/models/people.py:478
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -1174,7 +1174,7 @@ msgstr ""
 #: catalog/views/edit.py:284 catalog/views/edit.py:330
 #: catalog/views/edit.py:345 catalog/views/edit.py:383
 #: catalog/views/edit.py:393 catalog/views/edit.py:419
-#: catalog/views/search.py:252
+#: catalog/views/search.py:254
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1898,7 +1898,11 @@ msgstr ""
 msgid "People"
 msgstr ""
 
-#: catalog/templates/search_results_people.html:49
+#: catalog/templates/search_results_people.html:45
+msgid "Search is temporarily unavailable. Please try again later."
+msgstr ""
+
+#: catalog/templates/search_results_people.html:52
 msgid "No people matching your search query."
 msgstr ""
 
@@ -1979,11 +1983,11 @@ msgstr ""
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:241
+#: catalog/views/search.py:243
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:244
+#: catalog/views/search.py:246
 msgid "Unsupported URL"
 msgstr ""
 

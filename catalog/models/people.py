@@ -394,7 +394,10 @@ class People(Item):
         parser = PeopleQueryParser(name, page=1, page_size=page_size)
         if not parser.q and not parser.filter_by:
             return []
-        return PeopleIndex.instance().search(parser).items
+        result = PeopleIndex.instance().search(parser)
+        if result.error:
+            raise RuntimeError(f"People index search failed: {result.error}")
+        return result.items
 
     @classmethod
     def lookup_id_type_choices(cls):

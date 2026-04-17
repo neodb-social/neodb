@@ -112,6 +112,22 @@ class TestPeopleIndex:
         doc = PeopleIndex.person_to_doc(empty)
         assert doc == {}
 
+    def test_person_to_doc_prefers_annotated_credit_count(self):
+        # Simulate a bulk-loaded instance with .annotate(credit_count=Count(...))
+        setattr(self.tolkien, "credit_count", 42)
+        doc = PeopleIndex.person_to_doc(self.tolkien)
+        assert doc["credit_count"] == 42
+
+    def test_find_by_name_raises_on_index_error(self):
+        from unittest.mock import MagicMock, patch
+
+        err = MagicMock()
+        err.error = "typesense down"
+        err.items = []
+        with patch.object(PeopleIndex, "search", return_value=err):
+            with pytest.raises(RuntimeError):
+                People.find_by_name("anything", exact=False)
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogExcludesPeople:

@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Iterable
 
 import django_rq
+from django.db.models import Count
 from django_redis import get_redis_connection
 from loguru import logger
 from rq.job import Job
@@ -173,12 +174,18 @@ class PeopleIndex(Index):
             v = res.id_value
             if v and str(v) not in lookup_ids:
                 lookup_ids.append(str(v))
+        # Prefer annotated credit_count (set by bulk callers with .annotate())
+        # to avoid an N+1 query per person during reindexing.
+        annotated = getattr(person, "credit_count", None)
+        credit_count = (
+            annotated if isinstance(annotated, int) else person.credited_items.count()
+        )
         doc: dict = {
             "id": str(person.pk),
             "item_id": [person.pk],
             "people_type": person.people_type,
             "name": names,
-            "credit_count": person.credited_items.count(),
+            "credit_count": credit_count,
         }
         if lookup_ids:
             doc["lookup_id"] = lookup_ids
@@ -199,7 +206,11 @@ class PeopleIndex(Index):
     def replace_people(self, item_ids: list[int]):
         from catalog.models import People
 
-        people = list(People.objects.filter(pk__in=item_ids))
+        people = list(
+            People.objects.filter(pk__in=item_ids)
+            .annotate(credit_count=Count("credited_items"))
+            .prefetch_related("external_resources")
+        )
         docs = [
             self.person_to_doc(p)
             for p in people

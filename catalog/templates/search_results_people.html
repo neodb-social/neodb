@@ -41,15 +41,19 @@
               </div>
             </hgroup>
           {% endif %}
-          <div class="item-card-list">
-            {% for item in items %}
-              <article class="entity-sort item-card">{% include "_item_card.html" with item=item hide_category=True %}</article>
-            {% empty %}
-              {% if request.GET.q %}
-                <p class="caveat">{% trans "No people matching your search query." %}</p>
-              {% endif %}
-            {% endfor %}
-          </div>
+          {% if search_error %}
+            <p class="caveat">{% trans "Search is temporarily unavailable. Please try again later." %}</p>
+          {% else %}
+            <div class="item-card-list">
+              {% for item in items %}
+                <article class="entity-sort item-card">{% include "_item_card.html" with item=item hide_category=True %}</article>
+              {% empty %}
+                {% if request.GET.q %}
+                  <p class="caveat">{% trans "No people matching your search query." %}</p>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
         {% include "_pagination.html" %}
       </div>

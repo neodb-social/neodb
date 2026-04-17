@@ -826,9 +826,14 @@ class Command(SiteCommand):
                     )
                 people_index = PeopleIndex.instance()
                 people_index.initialize_collection()
-                people_qs = People.objects.filter(
-                    is_deleted=False, merged_to_item_id__isnull=True
-                ).order_by("id")
+                people_qs = (
+                    People.objects.filter(
+                        is_deleted=False, merged_to_item_id__isnull=True
+                    )
+                    .annotate(credit_count=Count("credited_items"))
+                    .prefetch_related("external_resources")
+                    .order_by("id")
+                )
                 pc = 0
                 pt = 0
                 pg = Paginator(people_qs, batch_size)
