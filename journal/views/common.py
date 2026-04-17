@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from catalog.models import Item
+from catalog.models import Item, ItemCategory, PeopleType
 from common.models.misc import int_
 from common.utils import (
     AuthedHttpRequest,
@@ -146,6 +146,9 @@ def render_list(
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
+    people_type = request.GET.get("people_type") or ""
+    if people_type in PeopleType.values and item_category == ItemCategory.People:
+        queryset = queryset.filter(item__people__people_type=people_type)
     queryset = queryset.prefetch_related("item", "item__external_resources")
     paginator = CustomPaginator(queryset, request)
     page_number = int_(request.GET.get("page", default=1))

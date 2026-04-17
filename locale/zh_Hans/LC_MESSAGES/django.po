@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 19:51-0400\n"
+"POT-Creation-Date: 2026-04-17 20:02-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1595,23 +1595,23 @@ msgstr "发现"
 msgid "Collections"
 msgstr "收藏单"
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:205
+#: catalog/templates/discover.html:104 journal/templates/profile.html:222
 msgid "edit layout"
 msgstr "编辑布局"
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:208
+#: catalog/templates/discover.html:107 journal/templates/profile.html:225
 msgid "save"
 msgstr "保存"
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:219
+#: catalog/templates/discover.html:118 journal/templates/profile.html:236
 msgid "cancel"
 msgstr "取消"
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:225
+#: catalog/templates/discover.html:124 journal/templates/profile.html:242
 msgid "show"
 msgstr "显示"
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:226
+#: catalog/templates/discover.html:125 journal/templates/profile.html:243
 msgid "hide"
 msgstr "隐藏"
 
@@ -1635,7 +1635,6 @@ msgstr "热门标签"
 #: catalog/templates/people_works.html:28 common/templates/_sidebar.html:114
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
-#: journal/templates/profile_following.html:30
 #: journal/templates/profile_items.html:34
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_collection_list.html:52
@@ -1910,6 +1909,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
+#: journal/templates/profile.html:174 journal/views/profile.py:457
 msgid "People"
 msgstr "人物"
 
@@ -1945,7 +1945,7 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:287 journal/views/collection.py:322
 #: journal/views/collection.py:334 journal/views/collection.py:359
 #: journal/views/collection.py:362 journal/views/collection.py:399
-#: journal/views/common.py:190 journal/views/mark.py:201
+#: journal/views/common.py:193 journal/views/mark.py:201
 #: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
 #: journal/views/post.py:117 journal/views/post.py:179
 #: journal/views/post.py:258 journal/views/post.py:273
@@ -3631,11 +3631,11 @@ msgid "User no longer exists"
 msgstr "用户不存在了"
 
 #: common/utils.py:94 common/utils.py:96 common/utils.py:99 common/utils.py:135
-#: common/utils.py:139 journal/views/profile.py:397
+#: common/utils.py:139 journal/views/profile.py:362
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:438
+#: common/utils.py:102 common/utils.py:104 journal/views/profile.py:403
 #: journal/views/review.py:169
 msgid "Login required"
 msgstr "登录后访问"
@@ -5325,11 +5325,9 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:174
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:381
-#: journal/views/profile.py:405 users/templates/users/account.html:447
-msgid "Following"
-msgstr "正在关注"
+#: journal/templates/profile.html:191 journal/views/profile.py:459
+msgid "Organizations"
+msgstr "团体"
 
 #: journal/templates/quote_form.html:4
 msgid "Quoted."
@@ -5384,12 +5382,17 @@ msgstr "删除这个标签"
 msgid "Liked Collections"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:409
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:370
+#: users/templates/users/account.html:447
+msgid "Following"
+msgstr "正在关注"
+
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:374
 #: users/templates/users/account.html:456
 msgid "Followers"
 msgstr "关注者"
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:413
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:378
 msgid "Mutuals"
 msgstr ""
 
