@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime
 from typing import cast
 from urllib.parse import quote_plus
@@ -254,15 +255,33 @@ class Goodreads_Work(AbstractSite):
             first_published = self.query_str(content, "//h2/span/text()")
         except Exception:
             first_published = None
-        pd = ResourceContent(
-            metadata={
-                "title": title,
-                "localized_title": [{"lang": "en", "text": title}],
-                "author": [author] if author else [],
-                "first_published": first_published,
-            }
-        )
-        return pd
+        related_resources = []
+        seen_ids: set[str] = set()
+        for href in cast(list[str], content.xpath("//h2//a/@href")) or []:
+            m = re.search(r"/author/show/(\d+)", href)
+            if not m:
+                continue
+            author_id = m.group(1)
+            if author_id in seen_ids:
+                continue
+            seen_ids.add(author_id)
+            related_resources.append(
+                {
+                    "model": "People",
+                    "id_type": IdType.Goodreads_Author,
+                    "id_value": author_id,
+                    "url": Goodreads_Author.id_to_url(author_id),
+                }
+            )
+        metadata: dict = {
+            "title": title,
+            "localized_title": [{"lang": "en", "text": title}],
+            "author": [author] if author else [],
+            "first_published": first_published,
+        }
+        if related_resources:
+            metadata["related_resources"] = related_resources
+        return ResourceContent(metadata=metadata)
 
 
 @SiteManager.register
