@@ -1,6 +1,8 @@
+import importlib
 import re
 import time
 import traceback
+from collections.abc import Callable
 from datetime import timedelta
 from time import sleep
 
@@ -20,10 +22,34 @@ _DATE_SUFFIX_RE = re.compile(r"_\d{8}$")
 _NOTIFY_CHANNEL = "system"
 _DEFAULT_HEAD_DELAY = timedelta(seconds=5)
 _NO_DELAY = object()
+_DEFAULT_FUNC_MODULE = "catalog.common.migrations"
 
 
-def _derive_skip_key(func) -> str:
-    return _DATE_SUFFIX_RE.sub("", func.__name__)
+def _normalize_func_ref(func: "str | Callable") -> tuple[str, str]:
+    """Return (func_path, short_name) for a callable or dotted-path string.
+
+    A bare name resolves from the default migrations module so callers can
+    enqueue by short name for functions living in `catalog.common.migrations`.
+    """
+    if not isinstance(func, str):
+        name = getattr(func, "__name__", None) or repr(func)
+        module = getattr(func, "__module__", _DEFAULT_FUNC_MODULE)
+        return f"{module}:{name}", name
+    if ":" in func:
+        return func, func.rsplit(":", 1)[1]
+    return f"{_DEFAULT_FUNC_MODULE}:{func}", func
+
+
+def _resolve_func(func_or_path):
+    """Resolve a callable, a dotted path, or a bare function name."""
+    if callable(func_or_path):
+        return func_or_path
+    path = str(func_or_path)
+    module_name, _, func_name = path.rpartition(":")
+    if not module_name:
+        module_name = _DEFAULT_FUNC_MODULE
+        func_name = path
+    return getattr(importlib.import_module(module_name), func_name)
 
 
 def _make_migration_notifier(skip_key: str):
@@ -61,13 +87,20 @@ def _make_migration_notifier(skip_key: str):
     return notify
 
 
-def _run_migration_job(func, skip_key, args, kwargs):
+def _run_migration_job(func_ref, skip_key, args, kwargs):
     SiteConfig.ensure_loaded()
     notify = _make_migration_notifier(skip_key)
     if skip_key in (SiteConfig.system.skip_migrations or []):
         logger.warning(f"[migration] {skip_key}: skipped (skip_migrations)")
         notify(f"[migration] {skip_key}: skipped")
         return None
+    try:
+        func = _resolve_func(func_ref)
+    except (ImportError, AttributeError) as e:
+        msg = f"[migration] {skip_key}: could not resolve {func_ref!r}: {e}"
+        logger.error(msg)
+        notify(msg)
+        raise
     notify(f"[migration] {skip_key}: started")
     t0 = time.monotonic()
     try:
@@ -85,7 +118,7 @@ def _run_migration_job(func, skip_key, args, kwargs):
 
 
 def enqueue_migration_job(
-    func,
+    func: "str | Callable",
     *,
     skip_key: str | None = None,
     queue: str = "cron",
@@ -100,8 +133,14 @@ def enqueue_migration_job(
     the skip list can be toggled from the Admin > Advanced UI without a
     restart. When this is the first job in a chain, a default 5-second delay
     lets the enclosing migrate transaction commit before the worker picks up.
+
+    ``func`` may be a callable or a dotted-path string (``"module:func"``, or
+    just ``"func"`` to resolve from ``catalog.common.migrations``). A string
+    is preferred: it is resolved on the worker at execution time, so a queued
+    job survives an unrelated rename/refactor between enqueue and dequeue.
     """
-    key = skip_key or _derive_skip_key(func)
+    func_path, short_name = _normalize_func_ref(func)
+    key = skip_key or _DATE_SUFFIX_RE.sub("", short_name)
 
     # Migrations run inside an atomic block; django_rq's default
     # commit_mode='on_db_commit' would defer enqueue to transaction.on_commit
@@ -122,7 +161,7 @@ def enqueue_migration_job(
             except Exception:
                 depends_on = None
 
-    job_args = (func, key, tuple(args), dict(kwargs or {}))
+    job_args = (func_path, key, tuple(args), dict(kwargs or {}))
     enqueue_kwargs: dict = {"args": job_args}
     if depends_on is not None:
         enqueue_kwargs["depends_on"] = depends_on
