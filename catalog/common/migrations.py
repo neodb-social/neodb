@@ -132,6 +132,7 @@ def enqueue_migration_job(
     else:
         effective_delay = delay
 
+    enqueue_kwargs["description"] = key
     if depends_on is None and isinstance(effective_delay, timedelta):
         job = q.enqueue_in(effective_delay, _run_migration_job, **enqueue_kwargs)
     else:
@@ -277,24 +278,48 @@ def normalize_language_20250524():
     logger.warning(f"normalize_language finished. {u} of {c} items updated.")
 
 
-def normalize_genre_20260412():
+def normalize_genre_20260412(start_pk=0, batch_size=500):
+    """Normalize stored genre lists on items whose metadata contains a genre key.
+
+    Restart-safe: normalize_genres is idempotent, and the queryset is pk-ordered
+    with a start_pk parameter so interrupted runs can resume. Uses a raw
+    .update() per changed item to skip post_save signals (reindex, federation,
+    edited_time bump) which dominated the previous implementation's cost.
+    """
     from catalog.models import Item
     from common.models.genre import normalize_genres
 
-    logger.warning("normalize_genre start")
-    c = Item.objects.all().count()
-    u = 0
-    for i in tqdm(Item.objects.all().iterator(), total=c):
-        genre = getattr(i, "genre", None)
-        if genre:
+    logger.warning(f"normalize_genre start (from pk {start_pk})")
+    qs = Item.objects.filter(
+        is_deleted=False,
+        merged_to_item__isnull=True,
+        metadata__has_key="genre",
+        pk__gte=start_pk,
+    ).order_by("pk")
+    total = qs.count()
+    logger.warning(f"normalize_genre scanning {total} items")
+    updated = 0
+    last_pk = start_pk
+    with tqdm(total=total, desc="normalize_genre") as pbar:
+        for pk, metadata in qs.values_list("pk", "metadata").iterator(
+            chunk_size=batch_size
+        ):
+            last_pk = pk
+            pbar.update(1)
+            genre = metadata.get("genre") if metadata else None
+            if not genre:
+                continue
             if isinstance(genre, str):
                 genre = [genre]
             genre2 = normalize_genres(genre)
             if genre2 != genre:
-                setattr(i, "genre", genre2)
-                i.save(update_fields=["metadata"])
-                u += 1
-    logger.warning(f"normalize_genre finished. {u} of {c} items updated.")
+                metadata["genre"] = genre2
+                Item.objects.filter(pk=pk).update(metadata=metadata)
+                updated += 1
+                pbar.set_postfix(updated=updated, pk=last_pk)
+    logger.warning(
+        f"normalize_genre finished. {updated} items updated, last pk: {last_pk}."
+    )
 
 
 def link_tmdb_wikidata_20250815(limit=None):
