@@ -659,7 +659,9 @@ THUMBNAIL_DEBUG = DEBUG
 
 DJANGO_REDIS_IGNORE_EXCEPTIONS = not DEBUG
 
-RQ_SHOW_ADMIN_LINK = DEBUG
+# Show the django-rq dashboard link in the Django admin index.
+# URL access is already gated to superusers in `boofilsic/urls.py`.
+RQ_SHOW_ADMIN_LINK = True
 
 SEARCH_INDEX_NEW_ONLY = False
 

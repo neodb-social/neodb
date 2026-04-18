@@ -14,13 +14,76 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from functools import wraps
+
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.core.exceptions import PermissionDenied
+from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import RedirectView
 
 from common.api import api
 from users.views import login
+
+
+def _superuser_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+
+
+def _gate_urlpatterns(patterns, decorator):
+    for p in patterns:
+        if isinstance(p, URLPattern):
+            p.callback = decorator(p.callback)
+        elif isinstance(p, URLResolver):
+            _gate_urlpatterns(p.url_patterns, decorator)
+
+
+# Restrict django-rq to superusers:
+#   * the standalone `/admin-rq/` include (below) has every view wrapped
+#   * the Django-admin Dashboard entry (auto-registered when
+#     RQ_SHOW_ADMIN_LINK is True) is re-registered with a superuser-only
+#     QueueAdmin so it shows up for supers but 403s everyone else
+import django_rq.admin as _django_rq_admin  # noqa: E402
+import django_rq.urls as _django_rq_urls  # noqa: E402
+from django_rq.models import Dashboard as _RQDashboard  # noqa: E402
+
+_gate_urlpatterns(_django_rq_urls.urlpatterns, _superuser_required)
+
+
+class _SuperuserQueueAdmin(_django_rq_admin.QueueAdmin):
+    def has_module_permission(self, request):
+        return bool(
+            getattr(request, "user", None)
+            and request.user.is_active
+            and request.user.is_superuser
+        )
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_module_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_module_permission(request)
+
+    def get_urls(self):
+        patterns = super().get_urls()
+        _gate_urlpatterns(patterns, _superuser_required)
+        return patterns
+
+
+from django.contrib.admin.exceptions import NotRegistered  # noqa: E402
+
+try:
+    admin.site.unregister(_RQDashboard)
+except NotRegistered:
+    pass
+
+admin.site.register(_RQDashboard, _SuperuserQueueAdmin)
 
 urlpatterns = [
     path("api/", api.urls),
