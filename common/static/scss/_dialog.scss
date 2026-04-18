@@ -25,46 +25,6 @@ dialog {
     animation-timing-function: ease;
   }
 
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-    }
-
-    100% {
-      opacity: 1;
-    }
-  }
-
-  @keyframes fadeOut {
-    0% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes zoomIn {
-    0% {
-      transform: scale(0.9);
-    }
-
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  @keyframes zoomOut {
-    0% {
-      transform: scale(1);
-    }
-
-    100% {
-      transform: scale(0.9);
-    }
-  }
-
   .grid>div {
     min-width: max-content;
   }

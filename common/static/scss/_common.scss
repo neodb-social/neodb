@@ -177,10 +177,6 @@ span.invisible {
 }
 
 .post {
-  span.invisible {
-    display: none;
-  }
-
   span.ellipsis:after {
     content: "…";
   }
