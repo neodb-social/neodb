@@ -107,25 +107,18 @@ section.activity.post>section.replies {
 	position: relative;
 	background: var(--pico-card-background-color);
 
-	.note-card-quote-mark {
-		font-size: 3em;
-		line-height: 1;
-		color: var(--pico-muted-color);
-		opacity: 0.3;
-		font-family: Georgia, "Times New Roman", serif;
-		margin-bottom: -0.25em;
-		user-select: none;
+	.note-card-title {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin-bottom: 0.5em;
 	}
 
 	.note-card-content {
 		font-size: 0.95em;
 		line-height: 1.6;
 		word-break: break-word;
-
-		strong {
-			display: block;
-			margin-bottom: 0.25em;
-		}
 
 		.attachments {
 			margin-top: 0.5em;
@@ -139,14 +132,29 @@ section.activity.post>section.replies {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		gap: 0.5em;
+
+		> span {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 
 	.note-card-avatar {
 		width: 2em;
 		height: 2em;
+		flex-shrink: 0;
 		border-radius: 50%;
 		object-fit: cover;
 	}
+}
+
+.note-card-actionbar {
+	display: block;
+	width: auto;
+	text-align: right;
 }
 
 .quote-post {

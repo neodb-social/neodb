@@ -35,8 +35,15 @@
             </label>
           </div>
         </div>
-        <div>
-          <input type="submit" class="button float-right" value="{% trans "Save" %}">
+        <div class="note-edit-buttons">
+          <input type="submit" value="{% trans "Save" %}">
+          {% if note %}
+            <a hx-post="{% url 'journal:note_delete' note.uuid %}?return_url={{ request.META.HTTP_REFERER|default:'/' }}"
+               hx-confirm="{% trans 'Are you sure to delete this note?' %}"
+               class="button secondary outline"
+               role="button"
+               title="{% trans 'Delete' %}"><i class="fa-regular fa-trash-can"></i></a>
+          {% endif %}
         </div>
       </form>
     </div>

@@ -6,6 +6,22 @@
   }
 }
 
+.note-edit-buttons {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+
+  [type=submit] {
+    flex: 1;
+    margin: 0;
+  }
+
+  > a.button {
+    width: auto;
+    margin: 0;
+  }
+}
+
 #mark_date {
   width: unset !important;
 }

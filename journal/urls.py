@@ -29,6 +29,7 @@ urlpatterns = [
     ),
     path("item/<str:item_uuid>/note", note_edit, name="note"),
     path("item/<str:item_uuid>/note/<str:note_uuid>", note_edit, name="note"),
+    path("note/delete/<str:piece_uuid>", piece_delete, name="note_delete"),
     path("piece/<str:piece_uuid>/replies", piece_replies, name="piece_replies"),
     path("@<str:handle>/posts/<int:post_pk>/", post_view, name="post_view"),
     path("post/<int:post_id>/translate", post_translate, name="post_translate"),

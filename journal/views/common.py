@@ -7,7 +7,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db.models import F, Min, OuterRef, Subquery
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -195,6 +195,9 @@ def piece_delete(request, piece_uuid):
         return render(
             request, "piece_delete.html", {"piece": piece, "return_url": return_url}
         )
-    else:
-        piece.delete()
-        return redirect(return_url)
+    piece.delete()
+    if request.headers.get("HX-Request"):
+        response = HttpResponse(status=204)
+        response["HX-Redirect"] = return_url
+        return response
+    return redirect(return_url)

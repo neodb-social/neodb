@@ -22,7 +22,6 @@
       </span>
       <span class="action inline">
         <span class="timestamp">{{ note.created_time|date }}</span>
-        {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
         <span class="timestamp"></span>
       </span>
       {% if note.item != item %}
@@ -30,10 +29,14 @@
       {% endif %}
       <div class="note-card{% if note.sensitive %} spoiler{% endif %}"
            {% if note.sensitive %}_="on click toggle .revealed on me"{% endif %}>
-        <div class="note-card-quote-mark">&ldquo;</div>
+        {% if note.title or note.progress_value %}
+          <div class="note-card-title">
+            {% if note.title %}<strong>{{ note.title }}</strong>{% endif %}
+            {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
+          </div>
+        {% endif %}
         <div class="note-card-content{% if not note.sensitive %} tldr{% endif %}"
              {% if not note.sensitive %}_="on click toggle .tldr on me"{% endif %}>
-          {% if note.title %}<strong>{{ note.title|default:'' }}</strong> -{% endif %}
           {{ note.content|linebreaksbr }}
           <div class="attachments">
             {% for attachment in note.attachments %}
