@@ -321,9 +321,10 @@ def normalize_genre_20260412(start_pk=0, batch_size=500):
     """Normalize stored genre lists on items whose metadata contains a genre key.
 
     Restart-safe: normalize_genres is idempotent, and the queryset is pk-ordered
-    with a start_pk parameter so interrupted runs can resume. Uses a raw
-    .update() per changed item to skip post_save signals (reindex, federation,
-    edited_time bump) which dominated the previous implementation's cost.
+    with a start_pk parameter so interrupted runs can resume. Changes are
+    flushed per batch via bulk_update, which skips post_save signals
+    (reindex, federation, edited_time bump) that dominated the previous
+    implementation's cost and collapses writes to one UPDATE per batch.
     """
     from catalog.models import Item
     from common.models.genre import normalize_genres
@@ -339,6 +340,13 @@ def normalize_genre_20260412(start_pk=0, batch_size=500):
     logger.warning(f"normalize_genre scanning {total} items")
     updated = 0
     last_pk = start_pk
+    pending: list[Item] = []
+
+    def flush() -> None:
+        if pending:
+            Item.objects.bulk_update(pending, ["metadata"])
+            pending.clear()
+
     with tqdm(total=total, desc="normalize_genre") as pbar:
         for pk, metadata in qs.values_list("pk", "metadata").iterator(
             chunk_size=batch_size
@@ -353,9 +361,13 @@ def normalize_genre_20260412(start_pk=0, batch_size=500):
             genre2 = normalize_genres(genre)
             if genre2 != genre:
                 metadata["genre"] = genre2
-                Item.objects.filter(pk=pk).update(metadata=metadata)
+                pending.append(Item(pk=pk, metadata=metadata))
                 updated += 1
+            if len(pending) >= batch_size:
+                flush()
                 pbar.set_postfix(updated=updated, pk=last_pk)
+        flush()
+
     logger.warning(
         f"normalize_genre finished. {updated} items updated, last pk: {last_pk}."
     )
