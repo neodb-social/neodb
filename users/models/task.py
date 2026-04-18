@@ -38,7 +38,7 @@ class Task(TypedModel):
     def job_id(self):
         if not self.pk:
             raise ValueError("task not saved yet")
-        return f"{self.type}-{self.pk}"
+        return f"{self.type.replace('.', '_')}-{self.pk}"
 
     def __str__(self):
         return self.job_id
