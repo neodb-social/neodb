@@ -15,6 +15,7 @@ from catalog.models import (
     People,
     PeopleRole,
     PeopleType,
+    Work,
 )
 from catalog.models.people import ItemPeopleRelation
 from journal.models import Collection, Mark, ShelfType, Tag
@@ -1073,6 +1074,37 @@ class TestItemRetrieveCreditsPrefetch:
         ]
         # One prefetch query is allowed; should never scale with access count.
         assert len(credit_queries) <= 1
+
+    def test_sibling_editions_credits_prefetched(self):
+        """edition.html shows publisher_name per sibling edition; must not N+1."""
+        work = Work.objects.create(title="IR Work")
+        work.editions.add(self.book)
+        publisher = People.objects.create(
+            title="IR Publisher",
+            people_type=PeopleType.ORGANIZATION,
+            metadata={"localized_name": [{"lang": "en", "text": "IR Publisher"}]},
+        )
+        for i in range(3):
+            sibling = Edition.objects.create(title=f"IR Sibling {i}")
+            work.editions.add(sibling)
+            ItemCredit.objects.create(
+                item=sibling,
+                person=publisher,
+                role=CreditRole.Publisher,
+                name=publisher.display_name,
+            )
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(self.book.url)
+        assert response.status_code == 200
+        credit_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_itemcredit" in q["sql"] and "SELECT" in q["sql"].upper()
+        ]
+        # One for the main item + one prefetch batch for siblings = at most 2.
+        assert len(credit_queries) <= 2
 
 
 @pytest.mark.django_db(databases="__all__")
