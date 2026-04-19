@@ -146,7 +146,7 @@ class TestNormalizeGenre:
     # ----- Douban Drama genres (Chinese) -----
 
     def test_douban_drama_genres(self):
-        assert normalize_genre("话剧") == "theater"
+        assert normalize_genre("话剧") == "huaju"
         assert normalize_genre("音乐剧") == "musical"
         assert normalize_genre("歌剧") == "opera"
         assert normalize_genre("舞蹈") == "dance"
@@ -513,7 +513,7 @@ class TestGenreNormalizationInModel:
         performance.genre = ["话剧", "音乐剧"]
         changed = performance._normalize_genres()
         assert changed is True
-        assert performance.genre == ["theater", "musical"]
+        assert performance.genre == ["huaju", "musical"]
 
 
 @pytest.mark.django_db(databases="__all__")

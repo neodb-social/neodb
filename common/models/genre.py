@@ -103,8 +103,8 @@ GENRE_CATALOG = {
     # Performance
     "opera": _("Opera"),
     "ballet": _("Ballet"),
-    "theater": _("Theater"),
-    "cabaret": _("Cabaret"),
+    "play": pgettext_lazy("genre", "Play"),
+    "huaju": _("Huaju"),
     "xiqu": _("Xiqu"),
     # Podcast-relevant
     "true-crime": _("True Crime"),
@@ -195,7 +195,7 @@ _SCRAPER_ALIASES: dict[str, str] = {
     # -----------------------------------------------------------
     # Douban Drama / Performance (Chinese)
     # -----------------------------------------------------------
-    "话剧": "theater",
+    "话剧": "huaju",
     "音乐剧": "musical",
     "歌剧": "opera",
     "舞蹈": "dance",
