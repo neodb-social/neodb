@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from users.models import User
 
     from ..common import ResourceContent
-    from .people import ItemPeopleRelation, People, PeopleRole
+    from .people import ItemPeopleRelation, PeopleRole
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -74,27 +74,19 @@ _PEOPLE_URL_RE = re.compile(
 )
 
 
-def _resolve_people_ref(value: str) -> tuple["People | None", str]:
-    """Parse a credit value. If it references a People (/people/<uuid> path
-    or a full URL containing /people/<uuid>), return the resolved People and
-    their display name; otherwise return (None, value)."""
-    from .people import People
-
-    s = (value or "").strip()
-    if not s:
-        return None, s
-    m = _PEOPLE_URL_RE.search(s)
+def _extract_people_uid(value: str) -> "uuid.UUID | None":
+    """Return the UUID referenced by a /people|person|organization/<uuid>
+    path (or a full URL containing one), or None if the value does not look
+    like such a reference."""
+    if not value:
+        return None
+    m = _PEOPLE_URL_RE.search(value)
     if not m:
-        return None, s
-    b62 = m.group(1)
+        return None
     try:
-        uid = uuid.UUID(int=b62_decode(b62))
+        return uuid.UUID(int=b62_decode(m.group(1)))
     except Exception:
-        return None, s
-    person = People.objects.filter(uid=uid).first()
-    if not person:
-        return None, s
-    return person, person.display_name or s
+        return None
 
 
 class LookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -892,13 +884,53 @@ class Item(PolymorphicModel):
         """
         from .people import People
 
+        if not self.CREDIT_FIELD_MAPPING:
+            return
+
+        managed_roles = set(self.CREDIT_FIELD_MAPPING.values())
+        credits_by_role: dict[str, list[ItemCredit]] = {r: [] for r in managed_roles}
+        for c in self.credits.select_related("person").filter(role__in=managed_roles):
+            credits_by_role.setdefault(c.role, []).append(c)
+
+        # Collect every People UUID referenced across all managed fields so we
+        # can resolve them in one query instead of per-value.
+        uuids: set[uuid.UUID] = set()
+
+        def _iter_raw_names():
+            for field_name in self.CREDIT_FIELD_MAPPING:
+                values = getattr(self, field_name, None) or []
+                if isinstance(values, str):
+                    values = [values]
+                for v in values:
+                    if isinstance(v, dict):
+                        yield (v.get("name") or "").strip()
+                    else:
+                        yield str(v or "").strip()
+
+        for raw in _iter_raw_names():
+            uid = _extract_people_uid(raw)
+            if uid is not None:
+                uuids.add(uid)
+        people_by_uid = (
+            {p.uid: p for p in People.objects.filter(uid__in=uuids)} if uuids else {}
+        )
+
+        def _resolve(raw: str) -> tuple[People | None, str]:
+            uid = _extract_people_uid(raw)
+            if uid is None:
+                return None, raw
+            person = people_by_uid.get(uid)
+            if not person:
+                return None, raw
+            return person, person.display_name or raw
+
         metadata_changed = False
         for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
             values = getattr(self, field_name, None) or []
             if isinstance(values, str):
                 values = [values]
 
-            existing = list(self.credits.filter(role=credit_role))
+            existing = credits_by_role.get(credit_role, [])
             linked_by_name = {c.name: c.person for c in existing if c.person}
 
             desired: list[tuple[str, str, People | None]] = []
@@ -913,7 +945,7 @@ class Item(PolymorphicModel):
                 if not raw_name:
                     new_values.append(value)
                     continue
-                person, display = _resolve_people_ref(raw_name)
+                person, display = _resolve(raw_name)
                 if person is None and raw_name in linked_by_name:
                     person = linked_by_name[raw_name]
                     display = person.display_name or raw_name
@@ -926,7 +958,7 @@ class Item(PolymorphicModel):
                     new_values.append(canonical)
                 desired.append((display, character, person))
 
-            if metadata_changed and new_values != values:
+            if new_values != values:
                 setattr(self, field_name, new_values)
 
             existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}

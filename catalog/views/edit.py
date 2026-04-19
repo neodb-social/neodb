@@ -80,8 +80,7 @@ def create(request, item_model):
             if parent:
                 form.instance.set_parent_item(parent)
             form.instance.save()
-            if hasattr(form.instance, "sync_credits_from_metadata"):
-                form.instance.sync_credits_from_metadata()
+            form.instance.sync_credits_from_metadata()
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
@@ -136,8 +135,6 @@ def edit(request, item_path, item_uuid):
     if request.method == "POST":
         form = form_cls(request.POST, request.FILES, instance=item)
     else:
-        if hasattr(item, "sync_credits_from_metadata"):
-            item.sync_credits_from_metadata()
         form = form_cls(instance=item)
 
     if (
@@ -160,9 +157,10 @@ def edit(request, item_path, item_uuid):
 
     people_names: dict[str, str] = {}
     if hasattr(item, "credits"):
-        for credit in item.credits.select_related("person").all():
-            if credit.person:
-                people_names[credit.person.uuid] = credit.person.display_name
+        for credit in item.credits.select_related("person").filter(
+            person__isnull=False
+        ):
+            people_names[credit.person.uuid] = credit.person.display_name
     return render(
         request,
         "catalog_edit.html",

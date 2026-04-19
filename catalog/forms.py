@@ -45,6 +45,7 @@ def _EditForm(item_model):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.migrate_initial()
+            self.canonicalize_credit_initials()
 
         def migrate_initial(self):
             if self.initial and self.instance and self.instance.pk:
@@ -99,6 +100,50 @@ def _EditForm(item_model):
                 #     and self.initial["language"]
                 # ):
                 #     if isinstance(self.initial["language"], str):
+
+        def canonicalize_credit_initials(self):
+            """Display-only: replace credit names with /person|organization/<uuid>
+            in initial form values when an ItemCredit already links them to a
+            People. Does not mutate the instance or the database; a later save
+            persists whatever the user submits back.
+            """
+            instance = self.instance
+            if not instance or not instance.pk:
+                return
+            mapping = getattr(type(instance), "CREDIT_FIELD_MAPPING", {}) or {}
+            if not mapping:
+                return
+            roles_in_form = {r for r in mapping.values()}
+            if not roles_in_form:
+                return
+            credits = instance.credits.filter(
+                role__in=roles_in_form, person__isnull=False
+            ).select_related("person")
+            linked: dict[tuple[str, str], str] = {}
+            for c in credits:
+                if c.person:
+                    linked[(c.role, c.name)] = c.person.url
+            if not linked:
+                return
+            for field_name, role in mapping.items():
+                if field_name not in self.fields:
+                    continue
+                values = self.initial.get(field_name)
+                if not values:
+                    continue
+                if isinstance(values, str):
+                    values = [values]
+                new_values: list[str | dict] = []
+                for v in values:
+                    if isinstance(v, dict):
+                        name = v.get("name") or ""
+                        canonical = linked.get((role, name))
+                        new_values.append({**v, "name": canonical} if canonical else v)
+                    else:
+                        name = str(v or "")
+                        canonical = linked.get((role, name))
+                        new_values.append(canonical if canonical else v)
+                self.initial[field_name] = new_values
 
         def clean(self):
             data = super().clean() or {}
