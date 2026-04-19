@@ -158,7 +158,16 @@ def edit(request, item_path, item_uuid):
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
 
-    return render(request, "catalog_edit.html", {"form": form, "item": item})
+    people_names: dict[str, str] = {}
+    if hasattr(item, "credits"):
+        for credit in item.credits.select_related("person").all():
+            if credit.person:
+                people_names[credit.person.uuid] = credit.person.display_name
+    return render(
+        request,
+        "catalog_edit.html",
+        {"form": form, "item": item, "people_names_json": people_names},
+    )
 
 
 @require_http_methods(["POST"])

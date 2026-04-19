@@ -31,11 +31,15 @@
       .people-ref-link {
         display: inline-flex;
         align-items: center;
+        gap: 0.25rem;
         margin-left: 0.4rem;
         font-size: 0.85em;
         color: var(--pico-muted-color);
       }
       .people-ref-link[hidden] {
+        display: none;
+      }
+      .people-ref-link .people-ref-name:empty {
         display: none;
       }
     </style>
@@ -70,10 +74,16 @@
         {% include "_sidebar_edit.html" %}
       </aside>
     </main>
+    {{ people_names_json|json_script:"people-names-data" }}
     {% include "_footer.html" %}
     <script>
       (function () {
         var re = /(?:^|\/)(people|person|organization)\/([A-Za-z0-9]{21,22})(?:\/|$)/;
+        var names = {};
+        try {
+          var el = document.getElementById('people-names-data');
+          if (el && el.textContent) names = JSON.parse(el.textContent) || {};
+        } catch (e) { names = {}; }
         function decorate(input) {
           if (!input || input.type !== 'text') return;
           var sibling = input.nextElementSibling;
@@ -90,11 +100,13 @@
             link.target = '_blank';
             link.rel = 'noopener';
             link.title = '{% trans "open linked people page" %}';
-            link.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i>';
+            link.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i><span class="people-ref-name"></span>';
             input.insertAdjacentElement('afterend', link);
           }
           link.href = href;
           link.hidden = false;
+          var nameEl = link.querySelector('.people-ref-name');
+          if (nameEl) nameEl.textContent = names[m[2]] || '';
         }
         function scan(root) {
           (root || document).querySelectorAll('input[type="text"]').forEach(decorate);
