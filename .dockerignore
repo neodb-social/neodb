@@ -15,6 +15,7 @@
 codecov.yml
 compose.override.yml
 compose.yml
+data-svc
 Dockerfile
 docs
 FEDERATION.md

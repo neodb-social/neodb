@@ -76,7 +76,7 @@ dev = [
 ]
 
 [tool.ty.src]
-exclude = ["neodb-takahe"]
+exclude = ["neodb-takahe", "data-svc"]
 
 [tool.ty.rules]
 unused-ignore-comment = "ignore"
@@ -91,6 +91,7 @@ profile = "black"
 [tool.mypy]
 exclude = [
     '^neodb-takahe/',
+    '^data-svc/',
     '^legacy/',
     '^media/',
     '^playground/',
@@ -104,6 +105,7 @@ django_settings_module = "boofilsic.settings"
 [tool.ruff]
 exclude = [
     "neodb-takahe/*",
+    "data-svc/*",
     "media",
     ".venv",
     ".git",
