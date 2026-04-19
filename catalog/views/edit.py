@@ -136,6 +136,8 @@ def edit(request, item_path, item_uuid):
     if request.method == "POST":
         form = form_cls(request.POST, request.FILES, instance=item)
     else:
+        if hasattr(item, "sync_credits_from_metadata"):
+            item.sync_credits_from_metadata()
         form = form_cls(instance=item)
 
     if (

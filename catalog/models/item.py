@@ -884,17 +884,25 @@ class Item(PolymorphicModel):
 
         For each role mapped in CREDIT_FIELD_MAPPING, rebuild ItemCredit rows
         from the jsondata list: create/update matching rows, link to a People
-        when the raw value is a /people/<uuid> reference, and when ``prune``
-        is true, delete rows for that role that are no longer present.
+        when the raw value is a /people|person|organization/<uuid> reference
+        or when an existing ItemCredit for the same name is already linked.
+        When a People is resolved, the jsondata entry is rewritten to the
+        canonical ``person.url`` form so subsequent edits show a link. When
+        ``prune`` is true, ItemCredit rows no longer present are deleted.
         """
         from .people import People
 
+        metadata_changed = False
         for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
             values = getattr(self, field_name, None) or []
             if isinstance(values, str):
                 values = [values]
 
+            existing = list(self.credits.filter(role=credit_role))
+            linked_by_name = {c.name: c.person for c in existing if c.person}
+
             desired: list[tuple[str, str, People | None]] = []
+            new_values: list[str | dict] = []
             for value in values:
                 if isinstance(value, dict):
                     raw_name = (value.get("name") or "").strip()
@@ -903,11 +911,24 @@ class Item(PolymorphicModel):
                     raw_name = str(value or "").strip()
                     character = ""
                 if not raw_name:
+                    new_values.append(value)
                     continue
                 person, display = _resolve_people_ref(raw_name)
+                if person is None and raw_name in linked_by_name:
+                    person = linked_by_name[raw_name]
+                    display = person.display_name or raw_name
+                canonical = person.url if person else raw_name
+                if canonical != raw_name:
+                    metadata_changed = True
+                if isinstance(value, dict):
+                    new_values.append({**value, "name": canonical})
+                else:
+                    new_values.append(canonical)
                 desired.append((display, character, person))
 
-            existing = list(self.credits.filter(role=credit_role))
+            if metadata_changed and new_values != values:
+                setattr(self, field_name, new_values)
+
             existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
             for c in existing:
                 key = (c.name, c.person.pk if c.person else None)
@@ -942,6 +963,9 @@ class Item(PolymorphicModel):
                 stale = [c.pk for c in existing if c.pk not in used_pks]
                 if stale:
                     ItemCredit.objects.filter(pk__in=stale).delete()
+
+        if metadata_changed:
+            self.save(update_fields=["metadata"])
         # Invalidate cached credits so subsequent reads reflect the new data
         self.__dict__.pop("role_credits", None)
 

@@ -105,6 +105,50 @@ class TestSyncCreditsFromMetadata:
         m.sync_credits_from_metadata()
         assert {c.name for c in m.credits.filter(role=CreditRole.Director)} == {"Alice"}
 
+    def test_canonicalizes_jsondata_when_credit_is_linked(self):
+        person = People.objects.create(people_type="person", title="Pre-linked")
+        person.localized_name = [{"lang": "en", "text": "Pre-linked"}]
+        person.save()
+        m = self._make_movie()
+        # Simulate legacy state: jsondata has plain name, ItemCredit is linked.
+        m.director = ["Pre-linked"]
+        m.save()
+        ItemCredit.objects.create(
+            item=m,
+            role=CreditRole.Director,
+            name="Pre-linked",
+            person=person,
+            order=0,
+        )
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [person.url]
+        credit = m.credits.get(role=CreditRole.Director)
+        assert credit.person == person
+        assert credit.name == "Pre-linked"
+
+    def test_canonicalizes_dict_entry_name_field(self):
+        person = People.objects.create(people_type="person", title="Star")
+        person.localized_name = [{"lang": "en", "text": "Star"}]
+        person.save()
+        from catalog.models import Performance
+
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [{"name": "Star", "role": "Hero"}]
+        perf.save()
+        ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Hero",
+            person=person,
+            order=0,
+        )
+        perf.sync_credits_from_metadata()
+        perf.refresh_from_db()
+        assert perf.actor == [{"name": person.url, "role": "Hero"}]
+
     def test_unmanaged_role_credits_preserved(self):
         m = self._make_movie()
         ItemCredit.objects.create(
