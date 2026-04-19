@@ -80,6 +80,8 @@ def create(request, item_model):
             if parent:
                 form.instance.set_parent_item(parent)
             form.instance.save()
+            if hasattr(form.instance, "sync_credits_from_metadata"):
+                form.instance.sync_credits_from_metadata()
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
@@ -149,6 +151,7 @@ def edit(request, item_path, item_uuid):
         if form.is_valid():
             form.instance.edited_time = timezone.now()
             form.instance.save()
+            form.instance.sync_credits_from_metadata()
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))

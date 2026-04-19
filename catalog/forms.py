@@ -11,10 +11,9 @@ CatalogForms = {}
 
 
 def _EditForm(item_model):
-    exclude = set(getattr(item_model, "CREDIT_FIELD_MAPPING", {}).keys())
     item_fields = (
         ["id"]
-        + [f for f in item_model.METADATA_COPY_LIST if f not in exclude]
+        + list(item_model.METADATA_COPY_LIST)
         + ["cover"]
         + ["primary_lookup_id_type", "primary_lookup_id_value"]
     )

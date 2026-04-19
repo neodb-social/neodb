@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from users.models import User
 
     from ..common import ResourceContent
-    from .people import ItemPeopleRelation, PeopleRole
+    from .people import ItemPeopleRelation, People, PeopleRole
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -67,6 +67,34 @@ class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
         else:
             instance.primary_lookup_id_type = None
             instance.primary_lookup_id_value = None
+
+
+_PEOPLE_URL_RE = re.compile(
+    r"(?:^|/)(?:people|person|organization)/([A-Za-z0-9]{21,22})(?:/|$)"
+)
+
+
+def _resolve_people_ref(value: str) -> tuple["People | None", str]:
+    """Parse a credit value. If it references a People (/people/<uuid> path
+    or a full URL containing /people/<uuid>), return the resolved People and
+    their display name; otherwise return (None, value)."""
+    from .people import People
+
+    s = (value or "").strip()
+    if not s:
+        return None, s
+    m = _PEOPLE_URL_RE.search(s)
+    if not m:
+        return None, s
+    b62 = m.group(1)
+    try:
+        uid = uuid.UUID(int=b62_decode(b62))
+    except Exception:
+        return None, s
+    person = People.objects.filter(uid=uid).first()
+    if not person:
+        return None, s
+    return person, person.display_name or s
 
 
 class LookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -851,32 +879,69 @@ class Item(PolymorphicModel):
         self.ap_object  # validate schema
         self.sync_credits_from_metadata()
 
-    def sync_credits_from_metadata(self):
-        """Sync ItemCredit rows from jsondata credit fields."""
+    def sync_credits_from_metadata(self, prune: bool = True):
+        """Sync ItemCredit rows from jsondata credit fields.
+
+        For each role mapped in CREDIT_FIELD_MAPPING, rebuild ItemCredit rows
+        from the jsondata list: create/update matching rows, link to a People
+        when the raw value is a /people/<uuid> reference, and when ``prune``
+        is true, delete rows for that role that are no longer present.
+        """
+        from .people import People
+
         for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
-            values = getattr(self, field_name, None)
-            if not values:
-                continue
+            values = getattr(self, field_name, None) or []
             if isinstance(values, str):
                 values = [values]
-            for i, value in enumerate(values):
+
+            desired: list[tuple[str, str, People | None]] = []
+            for value in values:
                 if isinstance(value, dict):
-                    name = value.get("name", "")
-                    character = value.get("role") or ""
+                    raw_name = (value.get("name") or "").strip()
+                    character = (value.get("role") or "").strip()
                 else:
-                    name = str(value)
+                    raw_name = str(value or "").strip()
                     character = ""
-                if not name:
+                if not raw_name:
                     continue
-                credit, created = ItemCredit.objects.get_or_create(
-                    item=self,
-                    role=credit_role,
-                    name=name,
-                    defaults={"order": i, "character_name": character},
-                )
-                if not created and character and not credit.character_name:
-                    credit.character_name = character
-                    credit.save(update_fields=["character_name"])
+                person, display = _resolve_people_ref(raw_name)
+                desired.append((display, character, person))
+
+            existing = list(self.credits.filter(role=credit_role))
+            existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
+            for c in existing:
+                key = (c.name, c.person.pk if c.person else None)
+                existing_by_key.setdefault(key, c)
+
+            used_pks: set[int] = set()
+            for order, (name, character, person) in enumerate(desired):
+                key = (name, person.pk if person else None)
+                credit = existing_by_key.get(key)
+                if credit is not None and credit.pk not in used_pks:
+                    used_pks.add(credit.pk)
+                    update_fields = []
+                    if credit.order != order:
+                        credit.order = order
+                        update_fields.append("order")
+                    if (credit.character_name or "") != character:
+                        credit.character_name = character
+                        update_fields.append("character_name")
+                    if update_fields:
+                        credit.save(update_fields=update_fields)
+                else:
+                    ItemCredit.objects.create(
+                        item=self,
+                        role=credit_role,
+                        name=name,
+                        character_name=character,
+                        person=person,
+                        order=order,
+                    )
+
+            if prune:
+                stale = [c.pk for c in existing if c.pk not in used_pks]
+                if stale:
+                    ItemCredit.objects.filter(pk__in=stale).delete()
         # Invalidate cached credits so subsequent reads reflect the new data
         self.__dict__.pop("role_credits", None)
 

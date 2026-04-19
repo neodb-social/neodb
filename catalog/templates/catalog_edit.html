@@ -28,27 +28,16 @@
       main>div {
         margin-bottom: 4rem;
       }
-      .edit-tabs {
-        display: flex;
-        gap: 0;
-        border-bottom: 2px solid var(--pico-muted-border-color);
-        margin-bottom: 1.5rem;
-      }
-      .edit-tabs a {
-        padding: 0.5em 1.2em;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-        text-decoration: none;
+      .people-ref-link {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 0.4rem;
+        font-size: 0.85em;
         color: var(--pico-muted-color);
       }
-      .edit-tabs a.active {
-        border-bottom-color: var(--pico-primary);
-        color: var(--pico-color);
-        font-weight: bold;
+      .people-ref-link[hidden] {
+        display: none;
       }
-      .tab-panel { display: none; }
-      .tab-panel.active { display: block; }
     </style>
   </head>
   <body>
@@ -61,51 +50,65 @@
         {% if item.merged_to_item %}
           <i>{% trans "Item contains sub-items." %}</i>
         {% endif %}
-        {% if item and item.class_name != 'people' and item.class_name != 'collection' %}
-          <nav class="edit-tabs" id="edit-tabs">
-            <a class="active"
-               data-tab="tab-metadata"
-               onclick="document.querySelectorAll('#edit-tabs a').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab-metadata').classList.add('active');">
-              {% trans 'Metadata' %}
-            </a>
-            <a data-tab="tab-credits"
-               onclick="document.querySelectorAll('#edit-tabs a').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab-credits').classList.add('active');">
-              {% trans 'Credits' %}
-            </a>
-          </nav>
-        {% endif %}
-        <div id="tab-metadata" class="tab-panel active">
-          <form method="post"
-                enctype="multipart/form-data"
-                _=" init set .rjf-add-button's innerHTML to '➕' end">
-            {% csrf_token %}
-            {{ form.media }}
-            {{ form }}
-            <div class="grid">
-              {% if not item or item.is_editable or request.user.is_staff %}
-                <input type="submit" value="{% trans 'Save' %}">
-              {% endif %}
-              <input type="reset"
-                     value="{% trans 'Cancel' %}"
-                     onclick="{% if item %}window.location='{{ item.url }}'{% else %}history.go(-1){% endif %}">
-            </div>
-          </form>
-        </div>
-        {% if item and item.class_name != 'people' and item.class_name != 'collection' %}
-          <div id="tab-credits" class="tab-panel">
-            <div id="credits-section"
-                 hx-get="{% url 'catalog:item_credits' item.url_path item.uuid %}"
-                 hx-trigger="intersect once"
-                 hx-swap="innerHTML">
-              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-            </div>
+        <form method="post"
+              enctype="multipart/form-data"
+              _=" init set .rjf-add-button's innerHTML to '➕' end">
+          {% csrf_token %}
+          {{ form.media }}
+          {{ form }}
+          <div class="grid">
+            {% if not item or item.is_editable or request.user.is_staff %}
+              <input type="submit" value="{% trans 'Save' %}">
+            {% endif %}
+            <input type="reset"
+                   value="{% trans 'Cancel' %}"
+                   onclick="{% if item %}window.location='{{ item.url }}'{% else %}history.go(-1){% endif %}">
           </div>
-        {% endif %}
+        </form>
       </div>
       <aside class="grid__aside">
         {% include "_sidebar_edit.html" %}
       </aside>
     </main>
     {% include "_footer.html" %}
+    <script>
+      (function () {
+        var re = /(?:^|\/)(people|person|organization)\/([A-Za-z0-9]{21,22})(?:\/|$)/;
+        function decorate(input) {
+          if (!input || input.type !== 'text') return;
+          var sibling = input.nextElementSibling;
+          var link = (sibling && sibling.classList && sibling.classList.contains('people-ref-link')) ? sibling : null;
+          var m = re.exec(input.value || '');
+          if (!m) {
+            if (link) link.hidden = true;
+            return;
+          }
+          var href = '/' + m[1] + '/' + m[2];
+          if (!link) {
+            link = document.createElement('a');
+            link.className = 'people-ref-link';
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.title = '{% trans "open linked people page" %}';
+            link.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i>';
+            input.insertAdjacentElement('afterend', link);
+          }
+          link.href = href;
+          link.hidden = false;
+        }
+        function scan(root) {
+          (root || document).querySelectorAll('input[type="text"]').forEach(decorate);
+        }
+        document.addEventListener('DOMContentLoaded', function () { scan(document); });
+        document.addEventListener('input', function (e) {
+          if (e.target && e.target.tagName === 'INPUT') decorate(e.target);
+        });
+        document.addEventListener('click', function (e) {
+          if (!e.target) return;
+          var btn = e.target.closest('.rjf-add-button');
+          if (btn) setTimeout(function () { scan(document); }, 0);
+        });
+      })();
+    </script>
   </body>
 </html>
