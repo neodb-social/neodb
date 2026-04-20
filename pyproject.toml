@@ -23,7 +23,7 @@ dependencies = [
     "django-redis",
     "django-rq>=3.1",
     "django-sass-processor>=1.4.1",
-    "django-storages[boto3]>=1.14.2",
+    "django-storages[boto3]>=1.14.6",
     "django-tz-detect>=0.5.0",
     "django-user-messages>=1.1.0",
     "dnspython>=2.7.0",
