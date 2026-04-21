@@ -167,12 +167,9 @@ def people_works(request, item_path, item_uuid, role):
     # Filter by role
     qs = ItemPeopleRelation.objects.filter(people=item, role=role)
     item_ids = list(qs.values_list("item_id", flat=True))
-    # Hide child items (e.g. Edition, TVSeason, TVEpisode) when their parent
-    # is also credited for this person+role, to avoid redundant entries.
-    hidden_ids = Item.descendant_ids_with_ancestor_in(item_ids)
     works_qs = Item.objects.filter(
         pk__in=item_ids, is_deleted=False, merged_to_item__isnull=True
-    ).exclude(pk__in=hidden_ids)
+    )
 
     # Filter by shelf status if user is authenticated
     status_filter = request.GET.get("status", "")
@@ -183,6 +180,15 @@ def people_works(request, item_path, item_uuid, role):
             parent__shelf_type=status_filter,
         ).values_list("item_id", flat=True)
         works_qs = works_qs.filter(pk__in=shelf_item_ids)
+
+    # Hide child items (e.g. Edition, TVSeason, TVEpisode) when their parent
+    # is also visible in this list, to avoid redundant entries. Compute over
+    # the already-filtered ids so deleted/merged parents or items outside the
+    # status filter do not mask their children.
+    visible_ids = list(works_qs.values_list("pk", flat=True))
+    hidden_ids = Item.descendant_ids_with_ancestor_in(visible_ids)
+    if hidden_ids:
+        works_qs = works_qs.exclude(pk__in=hidden_ids)
 
     total = works_qs.count()
     paginator = CustomPaginator(works_qs, request)
