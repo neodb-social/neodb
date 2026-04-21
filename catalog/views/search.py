@@ -91,6 +91,29 @@ def fetch(request, url, site: AbstractSite | None, is_refetch: bool = False):
     )
 
 
+def resolve_url_query(request, keywords):
+    """If `keywords` looks like a URL, resolve it to a redirect or fetch
+    response and return it; otherwise return None.
+
+    Shared by the generic and people/org search views so paste-URL
+    behavior stays consistent.
+    """
+    if keywords.find("://") <= 0:
+        return None
+    host = urlparse(keywords).hostname
+    if host and host in settings.SITE_DOMAINS:
+        return redirect(keywords)
+    # skip detecting redirection to avoid timeout
+    site = SiteManager.get_site_by_url(
+        keywords, detect_redirection=False, detect_fallback=False
+    )
+    if site:
+        return fetch(request, keywords, site, False)
+    if request.GET.get("r") and is_safe_url(keywords):
+        return redirect(keywords)
+    return fetch(request, keywords, None, False)
+
+
 def visible_categories(request):
     if not request or not hasattr(request, "user") or not request.user.is_authenticated:
         return default_visible_categories()
@@ -137,19 +160,9 @@ def search(request):
             },
         )
 
-    if keywords.find("://") > 0:
-        host = urlparse(keywords).hostname
-        if host and host in settings.SITE_DOMAINS:
-            return redirect(keywords)
-        # skip detecting redirection to avoid timeout
-        site = SiteManager.get_site_by_url(
-            keywords, detect_redirection=False, detect_fallback=False
-        )
-        if site:
-            return fetch(request, keywords, site, False)
-        if request.GET.get("r") and is_safe_url(keywords):
-            return redirect(keywords)
-        return fetch(request, keywords, None, False)
+    url_response = resolve_url_query(request, keywords)
+    if url_response is not None:
+        return url_response
 
     if tag:
         redir = reverse("common:search") + f'?q=tag:"{tag}"'
@@ -195,18 +208,9 @@ def people_search(request):
             "search_results_people.html",
             {"items": None, "sites": sites},
         )
-    if keywords.find("://") > 0:
-        host = urlparse(keywords).hostname
-        if host and host in settings.SITE_DOMAINS:
-            return redirect(keywords)
-        site = SiteManager.get_site_by_url(
-            keywords, detect_redirection=False, detect_fallback=False
-        )
-        if site:
-            return fetch(request, keywords, site, False)
-        if request.GET.get("r") and is_safe_url(keywords):
-            return redirect(keywords)
-        return fetch(request, keywords, None, False)
+    url_response = resolve_url_query(request, keywords)
+    if url_response is not None:
+        return url_response
     parser = PeopleQueryParser(
         keywords, page=p, page_size=per_page, people_type=people_type
     )
