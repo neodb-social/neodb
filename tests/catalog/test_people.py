@@ -1568,8 +1568,11 @@ class TestTMDBCombinedCreditUrls:
 @pytest.mark.django_db(databases="__all__")
 class TestFetchWorksForPersonTask:
     def test_enqueues_per_url(self, monkeypatch):
+        import sys
+
         from catalog.views.edit import fetch_works_for_person_task
 
+        edit_module = sys.modules["catalog.views.edit"]
         person = People.objects.create(
             metadata={"localized_name": [{"lang": "en", "text": "Actor X"}]},
             people_type=PeopleType.PERSON,
@@ -1580,18 +1583,20 @@ class TestFetchWorksForPersonTask:
         user = User.register(email="worker@example.com", username="worker")
         calls: list[tuple[str, bool]] = []
         monkeypatch.setattr(
-            "catalog.search.utils.enqueue_fetch",
+            edit_module,
+            "enqueue_fetch",
             lambda url, is_refetch=False, user=None: calls.append((url, is_refetch)),
         )
         monkeypatch.setattr(
-            "catalog.sites.tmdb.tmdb_person_combined_credit_urls",
+            edit_module,
+            "tmdb_person_combined_credit_urls",
             lambda tmdb_id: [
                 "https://www.themoviedb.org/movie/11",
                 "https://www.themoviedb.org/tv/22",
             ],
         )
 
-        fetch_works_for_person_task(person.uuid, user)
+        fetch_works_for_person_task(person.uuid, user.pk)
 
         assert len(calls) == 2
         assert {c[0] for c in calls} == {
@@ -1601,8 +1606,11 @@ class TestFetchWorksForPersonTask:
         assert all(not c[1] for c in calls)
 
     def test_noop_without_tmdb_id(self, monkeypatch):
+        import sys
+
         from catalog.views.edit import fetch_works_for_person_task
 
+        edit_module = sys.modules["catalog.views.edit"]
         person = People.objects.create(
             metadata={"localized_name": [{"lang": "en", "text": "Actor Y"}]},
             people_type=PeopleType.PERSON,
@@ -1610,14 +1618,14 @@ class TestFetchWorksForPersonTask:
         user = User.register(email="worker2@example.com", username="worker2")
         called = []
         monkeypatch.setattr(
-            "catalog.search.utils.enqueue_fetch",
-            lambda *a, **kw: called.append(a),
+            edit_module, "enqueue_fetch", lambda *a, **kw: called.append(a)
         )
         monkeypatch.setattr(
-            "catalog.sites.tmdb.tmdb_person_combined_credit_urls",
+            edit_module,
+            "tmdb_person_combined_credit_urls",
             lambda tmdb_id: ["https://www.themoviedb.org/movie/11"],
         )
-        fetch_works_for_person_task(person.uuid, user)
+        fetch_works_for_person_task(person.uuid, user.pk)
         assert called == []
 
 

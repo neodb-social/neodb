@@ -2,6 +2,7 @@ import django_rq
 from auditlog.context import set_actor
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,6 +15,7 @@ from common.models.lang import get_current_locales
 from common.utils import discord_send, get_uuid_or_404
 from common.validators import get_safe_referer_url
 from journal.models import update_journal_for_merged_item_task
+from users.models import User
 
 from ..forms import CatalogForms
 from ..models import (
@@ -28,7 +30,9 @@ from ..models import (
     TVShow,
 )
 from ..models.people import People
+from ..search.utils import enqueue_fetch
 from ..sites import IMDB
+from ..sites.tmdb import tmdb_person_combined_credit_urls
 
 
 def _add_error_map_detail(e):
@@ -317,13 +321,14 @@ def fetch_tvepisodes(request, item_path, item_uuid):
         raise BadRequest(_("TV Season with IMDB id and season number required."))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
     django_rq.get_queue("crawl").enqueue(
-        fetch_episodes_for_season_task, item.uuid, request.user
+        fetch_episodes_for_season_task, item.uuid, request.user.pk
     )
     messages.add_message(request, messages.INFO, _("Updating episodes"))
     return redirect(item.url)
 
 
-def fetch_episodes_for_season_task(item_uuid, user):
+def fetch_episodes_for_season_task(item_uuid, user_id):
+    user = User.objects.filter(pk=user_id).first() if user_id else None
     with set_actor(user):
         season = TVSeason.get_by_url(item_uuid)
         if not season:
@@ -339,34 +344,29 @@ FETCH_PEOPLE_WORKS_LOCK_TTL = 600
 @require_http_methods(["POST"])
 @login_required
 def fetch_people_works(request, item_path, item_uuid):
-    from django.core.cache import cache
-
     item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
     if item.is_protected and not request.user.is_staff:
         raise PermissionDenied(_("Editing this item is restricted."))
     if not item.tmdb_person:
         raise BadRequest(_("This person has no supported source to fetch works from."))
     lock_key = f"_fetch_works_lock:{item.pk}"
-    if cache.get(lock_key):
+    if not cache.add(lock_key, 1, timeout=FETCH_PEOPLE_WORKS_LOCK_TTL):
         messages.add_message(
             request,
             messages.WARNING,
             _("Already pulling works for this person, try again later."),
         )
         return redirect(item.url)
-    cache.set(lock_key, 1, timeout=FETCH_PEOPLE_WORKS_LOCK_TTL)
     item.log_action({"!fetch_works": ["tmdb", ""]})
     django_rq.get_queue("crawl").enqueue(
-        fetch_works_for_person_task, item.uuid, request.user
+        fetch_works_for_person_task, item.uuid, request.user.pk
     )
     messages.add_message(request, messages.INFO, _("Pulling works in background."))
     return redirect(item.url)
 
 
-def fetch_works_for_person_task(person_uuid, user):
-    from ..search.utils import enqueue_fetch
-    from ..sites.tmdb import tmdb_person_combined_credit_urls
-
+def fetch_works_for_person_task(person_uuid, user_id):
+    user = User.objects.filter(pk=user_id).first() if user_id else None
     with set_actor(user):
         person = People.get_by_url(person_uuid)
         if not person or not person.tmdb_person:
