@@ -965,6 +965,18 @@ class TestGoodreadsAuthor:
         assert site is not None
         assert site.id_value == "874602"
 
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://www.goodreads.com/author/show/874602"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.item is not None
+        item = site.resource.item
+        assert isinstance(item, People)
+        assert "Ursula" in item.display_name or "Le Guin" in item.display_name
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestSpotifyArtist:
@@ -1002,18 +1014,6 @@ class TestIGDBCompany:
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         assert site.id_value == t_id_value
-
-    @use_local_response
-    def test_scrape(self):
-        t_url = "https://www.goodreads.com/author/show/874602"
-        site = SiteManager.get_site_by_url(t_url)
-        assert site is not None
-        site.get_resource_ready()
-        assert site.resource is not None
-        assert site.resource.item is not None
-        item = site.resource.item
-        assert isinstance(item, People)
-        assert "Ursula" in item.display_name or "Le Guin" in item.display_name
 
 
 @pytest.mark.django_db(databases="__all__")
