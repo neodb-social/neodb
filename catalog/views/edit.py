@@ -333,6 +333,51 @@ def fetch_episodes_for_season_task(item_uuid, user):
         season.log_action({"!fetch_tvepisodes": [episodes, season.episode_uuids]})
 
 
+FETCH_PEOPLE_WORKS_LOCK_TTL = 600
+
+
+@require_http_methods(["POST"])
+@login_required
+def fetch_people_works(request, item_path, item_uuid):
+    from django.core.cache import cache
+
+    item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
+    if item.is_protected and not request.user.is_staff:
+        raise PermissionDenied(_("Editing this item is restricted."))
+    if not item.tmdb_person:
+        raise BadRequest(_("This person has no supported source to fetch works from."))
+    lock_key = f"_fetch_works_lock:{item.pk}"
+    if cache.get(lock_key):
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Already pulling works for this person, try again later."),
+        )
+        return redirect(item.url)
+    cache.set(lock_key, 1, timeout=FETCH_PEOPLE_WORKS_LOCK_TTL)
+    item.log_action({"!fetch_works": ["tmdb", ""]})
+    django_rq.get_queue("crawl").enqueue(
+        fetch_works_for_person_task, item.uuid, request.user
+    )
+    messages.add_message(request, messages.INFO, _("Pulling works in background."))
+    return redirect(item.url)
+
+
+def fetch_works_for_person_task(person_uuid, user):
+    from ..search.utils import enqueue_fetch
+    from ..sites.tmdb import tmdb_person_combined_credit_urls
+
+    with set_actor(user):
+        person = People.get_by_url(person_uuid)
+        if not person or not person.tmdb_person:
+            return
+        urls = tmdb_person_combined_credit_urls(str(person.tmdb_person))
+        for url in urls:
+            enqueue_fetch(url, is_refetch=False, user=user)
+        person.link_matching_credits()
+        person.log_action({"!fetch_works": ["tmdb", len(urls)]})
+
+
 @require_http_methods(["POST"])
 @login_required
 def merge(request, item_path, item_uuid):

@@ -1511,3 +1511,210 @@ class TestItemMergeCreditsAdvanced:
         movie1.merge_to(movie2)
         credit = movie2.credits.get(role=CreditRole.Actor, name="Actor")
         assert credit.person == person
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTMDBCombinedCreditUrls:
+    def test_parses_and_dedupes(self, monkeypatch):
+        from catalog.sites import tmdb as tmdb_site
+
+        payload = {
+            "cast": [
+                {"id": 11, "media_type": "movie"},
+                {"id": 22, "media_type": "tv"},
+                {"id": 11, "media_type": "movie"},
+                {"id": 33, "media_type": "person"},
+                {"id": None, "media_type": "movie"},
+            ],
+            "crew": [
+                {"id": 44, "media_type": "movie"},
+                {"id": 22, "media_type": "tv"},
+            ],
+        }
+
+        class _FakeResp:
+            def json(self):
+                return payload
+
+        class _FakeDL:
+            def __init__(self, url):
+                pass
+
+            def download(self):
+                return _FakeResp()
+
+        monkeypatch.setattr(tmdb_site, "BasicDownloader", _FakeDL)
+        urls = tmdb_site.tmdb_person_combined_credit_urls("999")
+        assert urls == [
+            "https://www.themoviedb.org/movie/11",
+            "https://www.themoviedb.org/movie/44",
+            "https://www.themoviedb.org/tv/22",
+        ]
+
+    def test_returns_empty_on_error(self, monkeypatch):
+        from catalog.sites import tmdb as tmdb_site
+
+        class _FakeDL:
+            def __init__(self, url):
+                pass
+
+            def download(self):
+                raise RuntimeError("boom")
+
+        monkeypatch.setattr(tmdb_site, "BasicDownloader", _FakeDL)
+        assert tmdb_site.tmdb_person_combined_credit_urls("999") == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestFetchWorksForPersonTask:
+    def test_enqueues_per_url(self, monkeypatch):
+        from catalog.views.edit import fetch_works_for_person_task
+
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor X"}]},
+            people_type=PeopleType.PERSON,
+        )
+        person.tmdb_person = "17419"
+        person.save()
+
+        user = User.register(email="worker@example.com", username="worker")
+        calls: list[tuple[str, bool]] = []
+        monkeypatch.setattr(
+            "catalog.search.utils.enqueue_fetch",
+            lambda url, is_refetch=False, user=None: calls.append((url, is_refetch)),
+        )
+        monkeypatch.setattr(
+            "catalog.sites.tmdb.tmdb_person_combined_credit_urls",
+            lambda tmdb_id: [
+                "https://www.themoviedb.org/movie/11",
+                "https://www.themoviedb.org/tv/22",
+            ],
+        )
+
+        fetch_works_for_person_task(person.uuid, user)
+
+        assert len(calls) == 2
+        assert {c[0] for c in calls} == {
+            "https://www.themoviedb.org/movie/11",
+            "https://www.themoviedb.org/tv/22",
+        }
+        assert all(not c[1] for c in calls)
+
+    def test_noop_without_tmdb_id(self, monkeypatch):
+        from catalog.views.edit import fetch_works_for_person_task
+
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor Y"}]},
+            people_type=PeopleType.PERSON,
+        )
+        user = User.register(email="worker2@example.com", username="worker2")
+        called = []
+        monkeypatch.setattr(
+            "catalog.search.utils.enqueue_fetch",
+            lambda *a, **kw: called.append(a),
+        )
+        monkeypatch.setattr(
+            "catalog.sites.tmdb.tmdb_person_combined_credit_urls",
+            lambda tmdb_id: ["https://www.themoviedb.org/movie/11"],
+        )
+        fetch_works_for_person_task(person.uuid, user)
+        assert called == []
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+class TestFetchPeopleWorksView:
+    def _make_person(self, *, with_tmdb: bool = True) -> People:
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor Z"}]},
+            people_type=PeopleType.PERSON,
+        )
+        if with_tmdb:
+            person.tmdb_person = "17419"
+            person.save()
+        return person
+
+    def _url(self, person: People) -> str:
+        return f"{person.url}/fetch_people_works"
+
+    def test_unauthenticated_redirects(self):
+        from django.core.cache import cache
+        from django.test import Client
+
+        cache.clear()
+        person = self._make_person()
+        client = Client()
+        response = client.post(self._url(person))
+        assert response.status_code in (302, 301)
+
+    def test_non_person_uuid_returns_404(self):
+        from django.test import Client
+
+        movie = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "M"}]}
+        )
+        user = User.register(email="viewer1@example.com", username="viewer1")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(f"{movie.url}/fetch_people_works")
+        assert response.status_code == 404
+
+    def test_person_without_tmdb_returns_400(self):
+        from django.core.cache import cache
+        from django.test import Client
+
+        cache.clear()
+        person = self._make_person(with_tmdb=False)
+        user = User.register(email="viewer2@example.com", username="viewer2")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(self._url(person))
+        assert response.status_code == 400
+
+    def test_enqueues_and_locks(self, monkeypatch):
+        import sys
+
+        from django.core.cache import cache
+        from django.test import Client
+
+        from catalog.views.edit import fetch_works_for_person_task
+
+        cache.clear()
+        person = self._make_person()
+        user = User.register(email="viewer3@example.com", username="viewer3")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+        enqueued: list[tuple] = []
+
+        class _FakeQueue:
+            def enqueue(self, fn, *args, **kwargs):
+                enqueued.append((fn, args))
+
+        edit_module = sys.modules["catalog.views.edit"]
+        monkeypatch.setattr(
+            edit_module.django_rq, "get_queue", lambda name: _FakeQueue()
+        )
+
+        response = client.post(self._url(person))
+        assert response.status_code == 302
+        assert len(enqueued) == 1
+        assert enqueued[0][0] is fetch_works_for_person_task
+        assert cache.get(f"_fetch_works_lock:{person.pk}") == 1
+
+        response2 = client.post(self._url(person))
+        assert response2.status_code == 302
+        assert len(enqueued) == 1  # lock prevents re-enqueue
+
+    def test_protected_person_forbidden_for_non_staff(self):
+        from django.core.cache import cache
+        from django.test import Client
+
+        cache.clear()
+        person = self._make_person()
+        person.is_protected = True
+        person.save()
+        user = User.register(email="viewer4@example.com", username="viewer4")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(self._url(person))
+        assert response.status_code == 403
