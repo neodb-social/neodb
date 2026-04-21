@@ -167,9 +167,12 @@ def people_works(request, item_path, item_uuid, role):
     # Filter by role
     qs = ItemPeopleRelation.objects.filter(people=item, role=role)
     item_ids = list(qs.values_list("item_id", flat=True))
+    # Hide child items (e.g. Edition, TVSeason, TVEpisode) when their parent
+    # is also credited for this person+role, to avoid redundant entries.
+    hidden_ids = Item.descendant_ids_with_ancestor_in(item_ids)
     works_qs = Item.objects.filter(
         pk__in=item_ids, is_deleted=False, merged_to_item__isnull=True
-    )
+    ).exclude(pk__in=hidden_ids)
 
     # Filter by shelf status if user is authenticated
     status_filter = request.GET.get("status", "")

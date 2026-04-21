@@ -725,6 +725,58 @@ class Item(PolymorphicModel):
         if performanceproductions:
             prefetch_related_objects(performanceproductions, "show")
 
+    @staticmethod
+    def descendant_ids_with_ancestor_in(item_ids: "Iterable[int]") -> set[int]:
+        """IDs within item_ids whose parent (or grandparent, for TVEpisode)
+        is also in item_ids.
+
+        Used to hide redundant child entries when both the parent and child
+        appear in a list (e.g. Work + its Edition, TVShow + its TVSeason).
+        Runs a bounded set of indexed id-only lookups; no item rows are
+        fetched.
+        """
+        from .book import Work
+        from .performance import PerformanceProduction
+        from .podcast import PodcastEpisode
+        from .tv import TVEpisode, TVSeason
+
+        ids = list(item_ids)
+        hidden: set[int] = set()
+        if not ids:
+            return hidden
+
+        # Edition -> Work via Work.editions M2M
+        hidden.update(
+            Work.editions.through.objects.filter(
+                edition_id__in=ids, work_id__in=ids
+            ).values_list("edition_id", flat=True)
+        )
+        # TVSeason -> TVShow
+        hidden.update(
+            TVSeason.objects.filter(pk__in=ids, show_id__in=ids).values_list(
+                "pk", flat=True
+            )
+        )
+        # TVEpisode -> TVSeason or TVShow (grandparent)
+        hidden.update(
+            TVEpisode.objects.filter(pk__in=ids)
+            .filter(Q(season_id__in=ids) | Q(season__show_id__in=ids))
+            .values_list("pk", flat=True)
+        )
+        # PodcastEpisode -> Podcast
+        hidden.update(
+            PodcastEpisode.objects.filter(pk__in=ids, program_id__in=ids).values_list(
+                "pk", flat=True
+            )
+        )
+        # PerformanceProduction -> Performance
+        hidden.update(
+            PerformanceProduction.objects.filter(
+                pk__in=ids, show_id__in=ids
+            ).values_list("pk", flat=True)
+        )
+        return hidden
+
     METADATA_COPY_LIST = [
         # "title",
         # "brief",
