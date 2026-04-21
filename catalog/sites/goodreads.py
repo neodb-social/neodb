@@ -46,7 +46,7 @@ class GoodreadsDownloader(RetryDownloader):
 class Goodreads(AbstractSite):
     SITE_NAME = SiteName.Goodreads
     ID_TYPE = IdType.Goodreads
-    WIKI_PROPERTY_ID = "P2968"
+    WIKI_PROPERTY_ID = "P2969"
     DEFAULT_MODEL = Edition
     URL_PATTERNS = [
         r".+goodreads\.com/.*book/show/(\d+)",

@@ -135,7 +135,7 @@ class TMDB_Movie(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_Movie
     URL_PATTERNS = [r"^\w+://www.themoviedb.org/movie/(\d+)"]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P4947"
     DEFAULT_MODEL = Movie
 
     @classmethod
@@ -303,7 +303,7 @@ class TMDB_TV(AbstractSite):
         r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/?$",
         r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/seasons$",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P4983"
     DEFAULT_MODEL = TVShow
 
     @classmethod
@@ -440,7 +440,7 @@ class TMDB_TVSeason(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_TVSeason
     URL_PATTERNS = [r"^\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)[^/]*/?$"]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = TVSeason
     ID_PATTERN = r"^(\d+)-(\d+)$"
 
@@ -572,7 +572,7 @@ class TMDB_TVEpisode(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)/episode/(\d+)[^/]*$"
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P12559"
     DEFAULT_MODEL = TVEpisode
     ID_PATTERN = r"^(\d+)-(\d+)-(\d+)$"
 
@@ -650,7 +650,7 @@ class TMDB_Person(AbstractSite):
     SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_Person
     URL_PATTERNS = [r"^\w+://www.themoviedb.org/person/(\d+)"]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P4985"
     DEFAULT_MODEL = People
 
     @classmethod

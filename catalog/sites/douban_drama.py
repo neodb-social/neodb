@@ -29,7 +29,7 @@ class DoubanDramaVersion(AbstractSite):
         r"\w+://www.douban.com/location/drama/(\d+)/#(\d+)$",
     ]
 
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = PerformanceProduction
 
     @classmethod

@@ -10,7 +10,7 @@ class BooksTW(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www\.books\.com\.tw/products/(\w+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Edition
 
     @classmethod

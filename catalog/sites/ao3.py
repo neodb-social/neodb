@@ -15,7 +15,7 @@ class ArchiveOfOurOwn(AbstractSite):
     URL_PATTERNS = [
         r"\w+://archiveofourown\.org/works/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Edition
 
     @classmethod

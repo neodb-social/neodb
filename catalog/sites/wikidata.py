@@ -201,6 +201,8 @@ class WikidataProperties:
     P4985 = "P4985"  # TMDb person ID
     P2963 = "P2963"  # Goodreads author ID
     P1902 = "P1902"  # Spotify artist ID
+    P9650 = "P9650"  # IGDB company ID
+    P12836 = "P12836"  # Douban personage ID
 
     IdTypeMapping = {
         "P345": IdType.IMDB,
@@ -233,6 +235,8 @@ class WikidataProperties:
         "P4985": IdType.TMDB_Person,
         "P2963": IdType.Goodreads_Author,
         "P1902": IdType.Spotify_Artist,
+        "P9650": IdType.IGDB_Company,
+        "P12836": IdType.DoubanPersonage,
     }
 
 

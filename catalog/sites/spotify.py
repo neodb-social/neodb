@@ -34,7 +34,7 @@ class Spotify(AbstractSite):
         r"^\w+://open\.spotify\.com/album/([a-zA-Z0-9]+).*",
         r"^\w+://open\.spotify\.com/[\w\-]+/album/([a-zA-Z0-9]+).*",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P2205"
     DEFAULT_MODEL = Album
 
     @classmethod
@@ -179,6 +179,45 @@ class Spotify(AbstractSite):
             except Exception as e:
                 logger.error("Spotify search error", extra={"query": q, "exception": e})
         return results
+
+
+@SiteManager.register
+class Spotify_Artist(AbstractSite):
+    SITE_NAME = SiteName.Spotify
+    ID_TYPE = IdType.Spotify_Artist
+    URL_PATTERNS = [
+        r"^\w+://open\.spotify\.com/artist/([a-zA-Z0-9]+).*",
+        r"^\w+://open\.spotify\.com/[\w\-]+/artist/([a-zA-Z0-9]+).*",
+    ]
+    WIKI_PROPERTY_ID = "P1902"
+    DEFAULT_MODEL = People
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return f"https://open.spotify.com/artist/{id_value}"
+
+    def scrape(self):
+        if not SiteConfig.system.spotify_api_key:
+            raise ParseError(self, "no Spotify API key")
+        api_url = f"https://api.spotify.com/v1/artists/{self.id_value}"
+        headers = {
+            "Authorization": f"Bearer {get_spotify_token()}",
+            "User-Agent": settings.NEODB_USER_AGENT,
+        }
+        res_data = BasicDownloader(api_url, headers=headers).download().json()
+        name = res_data.get("name", "")
+        if not name:
+            raise ParseError(self, "name")
+        lang = detect_language(name)
+        image_url = res_data["images"][0]["url"] if res_data.get("images") else None
+        return ResourceContent(
+            metadata={
+                "title": name,
+                "localized_name": [{"lang": lang, "text": name}],
+                "localized_bio": [],
+                "cover_image_url": image_url,
+            }
+        )
 
 
 def get_spotify_token():

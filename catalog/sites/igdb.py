@@ -61,7 +61,7 @@ class IGDB(AbstractSite):
         r"\w+://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)",
         r"\w+://m\.igdb\.com/games/([a-zA-Z0-9\-_]+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P5794"
     DEFAULT_MODEL = Game
 
     @classmethod
@@ -249,7 +249,7 @@ class IGDB_Company(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www\.igdb\.com/companies/([a-zA-Z0-9\-_]+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P9650"
     DEFAULT_MODEL = People
 
     @classmethod

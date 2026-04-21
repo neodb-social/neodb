@@ -22,7 +22,7 @@ class DoubanBook(AbstractSite):
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/book/(\d+)/",
         r"\w+://www.douban.com/doubanapp/dispatch/book/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P6442"
     DEFAULT_MODEL = Edition
 
     @classmethod
@@ -296,7 +296,7 @@ class DoubanBook_Work(AbstractSite):
     SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanBook_Work
     URL_PATTERNS = [r"\w+://book\.douban\.com/works/(\d+)"]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P10319"
     DEFAULT_MODEL = Work
 
     @classmethod

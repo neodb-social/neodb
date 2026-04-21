@@ -314,7 +314,7 @@ class MusicBrainzRelease(AbstractSite):
     URL_PATTERNS = [
         r"^\w+://musicbrainz\.org/release/([a-f0-9\-]{36}).*",
     ]
-    WIKI_PROPERTY_ID = "P437"  # MusicBrainz release ID
+    WIKI_PROPERTY_ID = "P5813"  # MusicBrainz release ID
     DEFAULT_MODEL = Album
 
     @classmethod

@@ -22,7 +22,7 @@ class DoubanMovie(AbstractSite):
         r"\w+://www.douban.com/doubanapp/dispatch\?uri=/movie/(\d+)/",
         r"\w+://www.douban.com/doubanapp/dispatch/movie/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P4529"
     MATCHABLE_MODELS = [Movie, TVSeason]
 
     @classmethod

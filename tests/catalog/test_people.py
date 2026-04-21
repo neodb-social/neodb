@@ -381,6 +381,8 @@ class TestPeople:
         assert IdType.Goodreads_Author.value in id_types
         assert IdType.Spotify_Artist.value in id_types
         assert IdType.OpenLibrary_Author.value in id_types
+        assert IdType.IGDB_Company.value in id_types
+        assert IdType.DoubanPersonage.value in id_types
         # Should not include movie-specific types
         assert IdType.TMDB_Movie.value not in id_types
 
@@ -962,6 +964,44 @@ class TestGoodreadsAuthor:
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         assert site.id_value == "874602"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSpotifyArtist:
+    def test_parse(self):
+        t_id_value = "4Z8W4fKeB5YxbusRsdQVPb"
+        t_url = f"https://open.spotify.com/artist/{t_id_value}"
+        p = SiteManager.get_site_cls_by_id_type(IdType.Spotify_Artist)
+        assert p is not None
+        assert p.validate_url(t_url)
+        assert p.DEFAULT_MODEL == People
+        assert p.WIKI_PROPERTY_ID == "P1902"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == t_id_value
+
+    def test_parse_regional_url(self):
+        """intl-xx regional prefix should still parse."""
+        t_id_value = "4Z8W4fKeB5YxbusRsdQVPb"
+        t_url = f"https://open.spotify.com/intl-ja/artist/{t_id_value}"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == t_id_value
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestIGDBCompany:
+    def test_parse(self):
+        t_id_value = "valve"
+        t_url = f"https://www.igdb.com/companies/{t_id_value}"
+        p = SiteManager.get_site_cls_by_id_type(IdType.IGDB_Company)
+        assert p is not None
+        assert p.validate_url(t_url)
+        assert p.DEFAULT_MODEL == People
+        assert p.WIKI_PROPERTY_ID == "P9650"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.id_value == t_id_value
 
     @use_local_response
     def test_scrape(self):

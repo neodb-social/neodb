@@ -810,6 +810,8 @@ def test_wikidata_person_id_type_mappings():
     assert mapping.get("P4985") == IdType.TMDB_Person
     assert mapping.get("P2963") == IdType.Goodreads_Author
     assert mapping.get("P1902") == IdType.Spotify_Artist
+    assert mapping.get("P9650") == IdType.IGDB_Company
+    assert mapping.get("P12836") == IdType.DoubanPersonage
 
 
 class TestWikiDataPerson:

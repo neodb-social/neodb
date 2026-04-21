@@ -380,7 +380,7 @@ class TestMusicBrainzIntegration:
         assert (
             MusicBrainzReleaseGroup.WIKI_PROPERTY_ID == "P436"
         )  # MusicBrainz release group ID
-        assert MusicBrainzRelease.WIKI_PROPERTY_ID == "P437"  # MusicBrainz release ID
+        assert MusicBrainzRelease.WIKI_PROPERTY_ID == "P5813"  # MusicBrainz release ID
         assert (
             MusicBrainzReleaseGroup.WIKI_PROPERTY_ID
             != MusicBrainzRelease.WIKI_PROPERTY_ID

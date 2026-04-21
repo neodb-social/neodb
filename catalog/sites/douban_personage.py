@@ -14,7 +14,7 @@ class DoubanPersonage(AbstractSite):
     URL_PATTERNS = [
         r"\w+://www\.douban\.com/personage/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P12836"
     DEFAULT_MODEL = People
 
     @classmethod

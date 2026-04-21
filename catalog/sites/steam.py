@@ -32,7 +32,7 @@ class Steam(AbstractSite):
     SITE_NAME = SiteName.Steam
     ID_TYPE = IdType.Steam
     URL_PATTERNS = [r"\w+://store\.steampowered\.com/app/(\d+)"]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P1733"
     DEFAULT_MODEL = Game
     api_key: str = ""
 

@@ -34,7 +34,7 @@ class AppleMusic(AbstractSite):
         r"https://music\.apple\.com/[a-z]{2}/album/(\d+)",
         r"https://music\.apple\.com/album/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P2281"
     DEFAULT_MODEL = Album
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0",

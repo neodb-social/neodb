@@ -18,7 +18,7 @@ class DiscogsRelease(AbstractSite):
         r"https://www\.discogs\.com/[a-z]{2}/release/(\d+)[^\d]*",
         r"https://www\.discogs\.com/[a-z]{2}_[A-Z]{2}/release/(\d+)[^\d]*",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P2206"
     DEFAULT_MODEL = Album
 
     @classmethod
@@ -79,7 +79,7 @@ class DiscogsMaster(AbstractSite):
         r"^https://www\.discogs\.com/master/(\d+)[^\d]*",
         r"^https://www\.discogs\.com/[\w\-]+/master/(\d+)[^\d]*",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P1954"
     DEFAULT_MODEL = Album
 
     @classmethod

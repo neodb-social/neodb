@@ -20,7 +20,7 @@ class BoardGameGeek(AbstractSite):
         r"^\w+://boardgamegeek\.com/boardgame/(\d+)",
         r"^\w+://boardgamegeek\.com/boardgameexpansion/(\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P2339"
     DEFAULT_MODEL = Game
 
     @classmethod

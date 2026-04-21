@@ -45,7 +45,7 @@ class IMDB(AbstractSite):
         r"\w+://www.imdb.com/name/(nm\d+)",
         r"\w+://m.imdb.com/name/(nm\d+)",
     ]
-    WIKI_PROPERTY_ID = "?"
+    WIKI_PROPERTY_ID = "P345"
     MATCHABLE_MODELS = [Movie, TVShow, TVEpisode, People]
 
     @classmethod
