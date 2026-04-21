@@ -3,7 +3,19 @@
 # This file is distributed under the same license as the NeoDB package.
 #
 msgid ""
-msgstr "Project-Id-Version: PACKAGE VERSION\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-04-19 00:37-0400\nPO-Revision-Date: 2025-04-27 04:24+0000\nLast-Translator: Anonymous <noreply@weblate.org>\nLanguage-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\nLanguage: zh_Hans\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 5.12-dev\n"
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-20 22:57-0400\n"
+"PO-Revision-Date: 2025-04-27 04:24+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: boofilsic/settings.py:469 common/models/lang.py:223
 msgid "English"
@@ -46,11 +58,11 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:29 catalog/models/item.py:252
+#: catalog/forms.py:29 catalog/models/item.py:244
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:34 catalog/models/item.py:255
+#: catalog/forms.py:34 catalog/models/item.py:247
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
@@ -103,11 +115,11 @@ msgid "other title"
 msgstr "其它标题"
 
 #: catalog/models/book.py:209 catalog/models/book.py:494
-#: catalog/models/item.py:121
+#: catalog/models/item.py:113
 msgid "author"
 msgstr "作者"
 
-#: catalog/models/book.py:216 catalog/models/item.py:122
+#: catalog/models/book.py:216 catalog/models/item.py:114
 msgid "translator"
 msgstr "译者"
 
@@ -181,7 +193,7 @@ msgid "eReolen.dk"
 msgstr "eReolen"
 
 #: catalog/models/common.py:22 catalog/models/common.py:60
-#: catalog/templates/movie.html:51 catalog/templates/people.html:37
+#: catalog/templates/movie.html:51 catalog/templates/people.html:49
 #: catalog/templates/tvseason.html:68 catalog/templates/tvshow.html:63
 msgid "IMDb"
 msgstr "IMDb"
@@ -567,20 +579,20 @@ msgstr "重制"
 msgid "Special Edition"
 msgstr "特别版"
 
-#: catalog/models/game.py:99 catalog/models/item.py:128
+#: catalog/models/game.py:99 catalog/models/item.py:120
 msgid "designer"
 msgstr "设计者"
 
-#: catalog/models/game.py:107 catalog/models/item.py:127
+#: catalog/models/game.py:107 catalog/models/item.py:119
 #: catalog/models/music.py:87
 msgid "artist"
 msgstr "艺术家"
 
-#: catalog/models/game.py:115 catalog/models/item.py:137
+#: catalog/models/game.py:115 catalog/models/item.py:129
 msgid "developer"
 msgstr "开发者"
 
-#: catalog/models/game.py:123 catalog/models/item.py:136
+#: catalog/models/game.py:123 catalog/models/item.py:128
 #: catalog/models/music.py:95
 msgid "publisher"
 msgstr "出版发行"
@@ -611,140 +623,140 @@ msgstr "平台"
 #: catalog/models/performance.py:464 catalog/models/podcast.py:87
 #: catalog/models/tv.py:234 catalog/models/tv.py:477
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
-#: catalog/templates/people.html:44 catalog/templates/performance.html:35
+#: catalog/templates/people.html:56 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
 #: catalog/templates/tvshow.html:70
 msgid "website"
 msgstr "网站"
 
-#: catalog/models/item.py:123 catalog/models/movie.py:104
+#: catalog/models/item.py:115 catalog/models/movie.py:104
 #: catalog/models/performance.py:182 catalog/models/performance.py:388
 #: catalog/models/tv.py:178 catalog/models/tv.py:420
 msgid "director"
 msgstr "导演"
 
-#: catalog/models/item.py:124 catalog/models/movie.py:111
+#: catalog/models/item.py:116 catalog/models/movie.py:111
 #: catalog/models/performance.py:189 catalog/models/performance.py:395
 #: catalog/models/tv.py:185 catalog/models/tv.py:427
 msgid "playwright"
 msgstr "编剧"
 
-#: catalog/models/item.py:125 catalog/models/movie.py:118
+#: catalog/models/item.py:117 catalog/models/movie.py:118
 #: catalog/models/performance.py:217 catalog/models/performance.py:423
 #: catalog/models/tv.py:192 catalog/models/tv.py:434
 msgid "actor"
 msgstr "演员"
 
-#: catalog/models/item.py:126 catalog/models/movie.py:125
+#: catalog/models/item.py:118 catalog/models/movie.py:125
 #: catalog/models/tv.py:199 catalog/models/tv.py:441
 msgid "producer"
 msgstr "制片人"
 
-#: catalog/models/item.py:129 catalog/models/performance.py:203
+#: catalog/models/item.py:121 catalog/models/performance.py:203
 #: catalog/models/performance.py:409
 msgid "composer"
 msgstr "作曲"
 
-#: catalog/models/item.py:130 catalog/models/performance.py:210
+#: catalog/models/item.py:122 catalog/models/performance.py:210
 #: catalog/models/performance.py:416
 msgid "choreographer"
 msgstr "编舞"
 
-#: catalog/models/item.py:131 catalog/models/performance.py:224
+#: catalog/models/item.py:123 catalog/models/performance.py:224
 #: catalog/models/performance.py:430
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/item.py:132 catalog/models/podcast.py:78
+#: catalog/models/item.py:124 catalog/models/podcast.py:78
 msgid "host"
 msgstr "主播"
 
-#: catalog/models/item.py:133 catalog/models/performance.py:196
+#: catalog/models/item.py:125 catalog/models/performance.py:196
 #: catalog/models/performance.py:402
 msgid "original creator"
 msgstr "原始创作者"
 
-#: catalog/models/item.py:134 catalog/models/performance.py:238
+#: catalog/models/item.py:126 catalog/models/performance.py:238
 #: catalog/models/performance.py:444
 msgid "crew"
 msgstr "工作人员"
 
-#: catalog/models/item.py:138
+#: catalog/models/item.py:130
 msgid "production company"
 msgstr "制作公司"
 
-#: catalog/models/item.py:139
+#: catalog/models/item.py:131
 msgid "record label"
 msgstr "唱片公司"
 
-#: catalog/models/item.py:140
+#: catalog/models/item.py:132
 msgid "distributor"
 msgstr "发行商"
 
-#: catalog/models/item.py:141
+#: catalog/models/item.py:133
 msgid "studio"
 msgstr "工作室"
 
-#: catalog/models/item.py:142 catalog/models/performance.py:231
+#: catalog/models/item.py:134 catalog/models/performance.py:231
 #: catalog/models/performance.py:437
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:157 catalog/models/people.py:473
+#: catalog/models/item.py:149 catalog/models/people.py:473
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:158 catalog/models/people.py:136
+#: catalog/models/item.py:150 catalog/models/people.py:136
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/item.py:160 catalog/templates/_item_credits_list.html:138
+#: catalog/models/item.py:152 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:249 catalog/models/item.py:281
+#: catalog/models/item.py:241 catalog/models/item.py:273
 #: journal/models/collection.py:64
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:250 catalog/models/item.py:289
+#: catalog/models/item.py:242 catalog/models/item.py:281
 #: journal/models/collection.py:65
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:261 catalog/models/people.py:481
+#: catalog/models/item.py:253 catalog/models/people.py:481
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:263 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:255 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1087
+#: catalog/models/item.py:1119
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1089
+#: catalog/models/item.py:1121
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1091
+#: catalog/models/item.py:1123
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1107
+#: catalog/models/item.py:1139
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1113
+#: catalog/models/item.py:1145
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1116
+#: catalog/models/item.py:1148
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -1174,13 +1186,13 @@ msgstr "回到条目"
 msgid "Edit Options"
 msgstr "编辑选项"
 
-#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:132
-#: catalog/views/edit.py:178 catalog/views/edit.py:216
-#: catalog/views/edit.py:275 catalog/views/edit.py:279
-#: catalog/views/edit.py:297 catalog/views/edit.py:343
-#: catalog/views/edit.py:358 catalog/views/edit.py:396
-#: catalog/views/edit.py:406 catalog/views/edit.py:432
-#: catalog/views/search.py:256
+#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:131
+#: catalog/views/edit.py:176 catalog/views/edit.py:214
+#: catalog/views/edit.py:273 catalog/views/edit.py:277
+#: catalog/views/edit.py:295 catalog/views/edit.py:346
+#: catalog/views/edit.py:386 catalog/views/edit.py:401
+#: catalog/views/edit.py:439 catalog/views/edit.py:449
+#: catalog/views/edit.py:475 catalog/views/search.py:256
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1768,11 +1780,19 @@ msgstr "正在关注"
 msgid "follow"
 msgstr "关注"
 
-#: catalog/templates/people.html:29
+#: catalog/templates/people.html:25
+msgid "Fetch films and TV shows for this person from TMDB"
+msgstr "从 TMDB 获取此人的电影与电视剧作品"
+
+#: catalog/templates/people.html:26
+msgid "pull works"
+msgstr "获取作品"
+
+#: catalog/templates/people.html:41
 msgid "born"
 msgstr "出生"
 
-#: catalog/templates/people.html:31
+#: catalog/templates/people.html:43
 msgid "died"
 msgstr "逝世"
 
@@ -1910,17 +1930,17 @@ msgstr "本剧所有季"
 msgid "Editions"
 msgstr "版本"
 
-#: catalog/views/edit.py:180
+#: catalog/views/edit.py:178
 msgid "Item in use."
 msgstr "条目已被引用或标记。"
 
-#: catalog/views/edit.py:182
+#: catalog/views/edit.py:180
 msgid "Item cannot be deleted."
 msgstr "条目不可被删除。"
 
-#: catalog/views/edit.py:205 catalog/views/edit.py:259
-#: catalog/views/edit.py:345 catalog/views/edit.py:434
-#: catalog/views/edit.py:466 journal/views/collection.py:96
+#: catalog/views/edit.py:203 catalog/views/edit.py:257
+#: catalog/views/edit.py:388 catalog/views/edit.py:477
+#: catalog/views/edit.py:509 journal/views/collection.py:96
 #: journal/views/collection.py:156 journal/views/collection.py:168
 #: journal/views/collection.py:185 journal/views/collection.py:251
 #: journal/views/collection.py:287 journal/views/collection.py:322
@@ -1935,7 +1955,7 @@ msgstr "条目不可被删除。"
 msgid "Insufficient permission"
 msgstr "权限不足"
 
-#: catalog/views/edit.py:262 catalog/views/edit.py:265
+#: catalog/views/edit.py:260 catalog/views/edit.py:263
 #: journal/views/collection.py:58 journal/views/collection.py:83
 #: journal/views/collection.py:339 journal/views/collection.py:429
 #: journal/views/common.py:128 journal/views/mark.py:141
@@ -1947,31 +1967,43 @@ msgstr "权限不足"
 msgid "Invalid parameter"
 msgstr "无效参数"
 
-#: catalog/views/edit.py:319
+#: catalog/views/edit.py:317
 msgid "TV Season with IMDB id and season number required."
 msgstr "必须是电视剧分季，且包含IMDB id和分季序号。"
 
-#: catalog/views/edit.py:324
+#: catalog/views/edit.py:322
 msgid "Updating episodes"
 msgstr "正在更新单集列表"
 
-#: catalog/views/edit.py:356
+#: catalog/views/edit.py:348
+msgid "This person has no supported source to fetch works from."
+msgstr "此人没有可供获取作品的数据源。"
+
+#: catalog/views/edit.py:354
+msgid "Already pulling works for this person, try again later."
+msgstr "已在获取此人的作品，请稍后再试。"
+
+#: catalog/views/edit.py:362
+msgid "Pulling works in background."
+msgstr "正在后台获取作品。"
+
+#: catalog/views/edit.py:399
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr "无法合并到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:361
+#: catalog/views/edit.py:404
 msgid "Cannot merge items in different categories"
 msgstr "无法合并不同类型的条目"
 
-#: catalog/views/edit.py:365
+#: catalog/views/edit.py:408
 msgid "Cannot merge an item to itself"
 msgstr "无法合并条目和它自己"
 
-#: catalog/views/edit.py:404
+#: catalog/views/edit.py:447
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr "无法关联到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:408
+#: catalog/views/edit.py:451
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
@@ -3431,8 +3463,50 @@ msgstr "撰写"
 
 #: common/templates/_sidebar_anonymous.html:16
 #, python-format
-msgid "\n        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n        <p>\n          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can manage your collections, share your thoughts, discover new content, and connect with others.\n        </p>\n        <p>\n          <i class=\"fa-solid fa-globe\"></i> &nbsp; The best way to log in to %(site_name)s is through a Fediverse (a distributed social network, including Mastodon/Pleroma/etc) instance account. If you haven’t registered yet, you can <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">choose a Fediverse instance and sign up</a>.\n        </p>\n        <p>\n          <i class=\"fa-brands fa-bluesky\"></i> &nbsp; Another way to log in is through a Bluesky (another distributed social network, also called ATProto) account. If you haven’t registered yet, you may <a href=\"https://bsky.app\" target=\"_blank\">sign up via bsky.app</a>.\n        </p>\n        <p>\n          <i class=\"fa-solid fa-envelope\"></i> &nbsp; If you’re not ready to join either Fediverse or Bluesky, that’s perfectly fine. You can create an account here using your email address, and link it to the Fediverse and Bluesky in settings whenever you’re ready.\n        </p>\n        <p>\n          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; If you have any questions or suggestions, please feel free to contact us via <a href=\"https://mastodon.social/@neodb\">Fediverse</a> or <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n        </p>\n        <p>\n          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">Click here</a> to register or log in.\n        </p>\n        "
-msgstr "\n<h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n<p>\n  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里管理收藏、记录想法，以及发现新的内容和朋友。\n</p>\n<p>\n  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Firefish、Catodon等联邦宇宙实例服务\">联邦宇宙（Fediverse，一种分布式社交网络）</em>实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n</p>\n<p>\n  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过<em data-tooltip=\"也称ATProto，另一种分布式社交网络\">Bluesky</em>账号，如果你还没有注册过，可先<a href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n</p>\n<p>\n  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙或蓝天也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n</p>\n<p>\n  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n</p>\n<p>\n  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">点击这里</a>注册或登录。\n</p>\n        "
+msgid ""
+"\n"
+"        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can manage your collections, share your thoughts, discover new content, and connect with others.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-globe\"></i> &nbsp; The best way to log in to %(site_name)s is through a Fediverse (a distributed social network, including Mastodon/Pleroma/etc) instance account. If you haven’t registered yet, you can <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">choose a Fediverse instance and sign up</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-brands fa-bluesky\"></i> &nbsp; Another way to log in is through a Bluesky (another distributed social network, also called ATProto) account. If you haven’t registered yet, you may <a href=\"https://bsky.app\" target=\"_blank\">sign up via bsky.app</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; If you’re not ready to join either Fediverse or Bluesky, that’s perfectly fine. You can create an account here using your email address, and link it to the Fediverse and Bluesky in settings whenever you’re ready.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; If you have any questions or suggestions, please feel free to contact us via <a href=\"https://mastodon.social/@neodb\">Fediverse</a> or <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">Click here</a> to register or log in.\n"
+"        </p>\n"
+"        "
+msgstr ""
+"\n"
+"<h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里管理收藏、记录想法，以及发现新的内容和朋友。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Firefish、Catodon等联邦宇宙实例服务\">联邦宇宙（Fediverse，一种分布式社交网络）</em>实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过<em data-tooltip=\"也称ATProto，另一种分布式社交网络\">Bluesky</em>账号，如果你还没有注册过，可先<a href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙或蓝天也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
+"</p>\n"
+"<p>\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">点击这里</a>注册或登录。\n"
+"</p>\n"
+"        "
 
 #: common/templates/_sidebar_anonymous.html:43
 #: users/templates/users/announcements.html:12
@@ -5131,8 +5205,88 @@ msgstr "Markdown语法参考"
 #| "------------- | -------------\n"
 #| "Content Cell  | Content Cell\n"
 #| "Content Cell  | Content Cell\n"
-msgid "\n## Subtitle\n\n  Paragraphs need to be separated by a blank line\n\n[Link](https://zh.wikipedia.org/wiki/Markdown)\n\n**Bold**  *Italic* ~~Strikethrough~~\n\n==Highlight==  ^Super^script ~Sub~script\n\n> Quote\n>> Multi-level quote\n\nInline >! spoiler warning !<\n\n>! Multi-line\n>! Spoiler\n\n---\n\n- Bullet\n- Points\n\n```\ncode\n```\n\nTable Header  | Second Header\n------------- | -------------\nContent Cell  | Content Cell\nContent Cell  | Content Cell\n\nPaste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n\n"
-msgstr "\n标题\n====\n\n副标题\n------\n\n  新起段落需隔开一空行\n\n  段首缩进需使用中文全角空格\n\n[链接](https://zh.wikipedia.org/wiki/Markdown)\n**粗体**  *斜体* ==高亮== ~~删除~~\n^上^标 ~下~标 [拼(pīn)音(yīn)]\n\n> 引用\n> 文本\n>> 多级引用\n\n行内 >! 剧透预警 !< （在短评中也可使用）\n\n>! 多行\n>! 剧透\n\n引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n\n上传图片可拖拽图片文件到编辑框，或从剪贴板粘贴\n\n---\n\n- Bullet\n- Points\n\ncontent in paragraph with footnote[^1] markup.\n[^1]: footnote explain\n\n```\ncode\n```\n\nTable Header  | Second Header\n------------- | -------------\nContent Cell  | Content Cell\nContent Cell  | Content Cell\n\n"
+msgid ""
+"\n"
+"## Subtitle\n"
+"\n"
+"  Paragraphs need to be separated by a blank line\n"
+"\n"
+"[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
+"\n"
+"**Bold**  *Italic* ~~Strikethrough~~\n"
+"\n"
+"==Highlight==  ^Super^script ~Sub~script\n"
+"\n"
+"> Quote\n"
+">> Multi-level quote\n"
+"\n"
+"Inline >! spoiler warning !<\n"
+"\n"
+">! Multi-line\n"
+">! Spoiler\n"
+"\n"
+"---\n"
+"\n"
+"- Bullet\n"
+"- Points\n"
+"\n"
+"```\n"
+"code\n"
+"```\n"
+"\n"
+"Table Header  | Second Header\n"
+"------------- | -------------\n"
+"Content Cell  | Content Cell\n"
+"Content Cell  | Content Cell\n"
+"\n"
+"Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"\n"
+msgstr ""
+"\n"
+"标题\n"
+"====\n"
+"\n"
+"副标题\n"
+"------\n"
+"\n"
+"  新起段落需隔开一空行\n"
+"\n"
+"  段首缩进需使用中文全角空格\n"
+"\n"
+"[链接](https://zh.wikipedia.org/wiki/Markdown)\n"
+"**粗体**  *斜体* ==高亮== ~~删除~~\n"
+"^上^标 ~下~标 [拼(pīn)音(yīn)]\n"
+"\n"
+"> 引用\n"
+"> 文本\n"
+">> 多级引用\n"
+"\n"
+"行内 >! 剧透预警 !< （在短评中也可使用）\n"
+"\n"
+">! 多行\n"
+">! 剧透\n"
+"\n"
+"引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"\n"
+"上传图片可拖拽图片文件到编辑框，或从剪贴板粘贴\n"
+"\n"
+"---\n"
+"\n"
+"- Bullet\n"
+"- Points\n"
+"\n"
+"content in paragraph with footnote[^1] markup.\n"
+"[^1]: footnote explain\n"
+"\n"
+"```\n"
+"code\n"
+"```\n"
+"\n"
+"Table Header  | Second Header\n"
+"------------- | -------------\n"
+"Content Cell  | Content Cell\n"
+"Content Cell  | Content Cell\n"
+"\n"
 
 #: journal/templates/note.html:16
 msgid "Note"
@@ -5534,8 +5688,14 @@ msgid "Bluesky"
 msgstr "Bluesky"
 
 #: mastodon/models/email.py:59
-msgid "\n\nIf you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
-msgstr "\n\n如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
+msgid ""
+"\n"
+"\n"
+"If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
+msgstr ""
+"\n"
+"\n"
+"如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
 
 #: mastodon/models/email.py:64 mastodon/models/email.py:69
 msgid "Verification Code"
@@ -5543,13 +5703,27 @@ msgstr "验证码"
 
 #: mastodon/models/email.py:66
 #, python-brace-format
-msgid "Use this code to verify your email address {email}\n\n{code}"
-msgstr "你好，\n请用以下代码验证你的电子邮件地址 {email}\n\n{code}"
+msgid ""
+"Use this code to verify your email address {email}\n"
+"\n"
+"{code}"
+msgstr ""
+"你好，\n"
+"请用以下代码验证你的电子邮件地址 {email}\n"
+"\n"
+"{code}"
 
 #: mastodon/models/email.py:70
 #, python-brace-format
-msgid "Use this code to login as {email}\n\n{code}"
-msgstr "你好，\n请输入如下验证码登录{email}账号：\n\n{code}"
+msgid ""
+"Use this code to login as {email}\n"
+"\n"
+"{code}"
+msgstr ""
+"你好，\n"
+"请输入如下验证码登录{email}账号：\n"
+"\n"
+"{code}"
 
 #: mastodon/models/email.py:74 users/templates/users/login.html:18
 #: users/templates/users/register.html:9 users/templates/users/welcome.html:10
@@ -5558,8 +5732,19 @@ msgstr "注册"
 
 #: mastodon/models/email.py:76
 #, python-brace-format
-msgid "There is no account registered with this email address yet: {email}\n\nIf you already have an account with us, just login and add this email to you account.\n\nIf you prefer to register a new account with this email, please use this verification code: {code}"
-msgstr "你好，\n本站没有与{email}关联的账号。你希望注册一个新账号吗？\n\n如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n\n如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
+msgid ""
+"There is no account registered with this email address yet: {email}\n"
+"\n"
+"If you already have an account with us, just login and add this email to you account.\n"
+"\n"
+"If you prefer to register a new account with this email, please use this verification code: {code}"
+msgstr ""
+"你好，\n"
+"本站没有与{email}关联的账号。你希望注册一个新账号吗？\n"
+"\n"
+"如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
+"\n"
+"如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
 
 #: mastodon/models/mastodon.py:528
 msgid "site domain name"
@@ -5753,33 +5938,57 @@ msgstr "转播了你的帖文"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
-msgid "\nboosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n转播了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
-msgid "\nboosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgid ""
+"\n"
+"boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
-msgid "\nboosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
+msgid ""
+"\n"
+"boosted your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
 
 #: social/templates/event/boosted_rating.html:3
 #, python-format
-msgid "\nboosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+msgid ""
+"\n"
+"boosted your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/boosted_review.html:2
 #, python-format
-msgid "\nboosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
-msgid "\nboosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgid ""
+"\n"
+"boosted your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
@@ -5795,33 +6004,57 @@ msgstr "赞了你的帖文"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
-msgid "\nliked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n赞了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_comment.html:3
 #, python-format
-msgid "\nliked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgid ""
+"\n"
+"liked your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/liked_note.html:3
 #, python-format
-msgid "\nliked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
+msgid ""
+"\n"
+"liked your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
 
 #: social/templates/event/liked_rating.html:3
 #, python-format
-msgid "\nliked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+msgid ""
+"\n"
+"liked your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/liked_review.html:2
 #, python-format
-msgid "\nliked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
-msgid "\nliked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgid ""
+"\n"
+"liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
@@ -5829,33 +6062,57 @@ msgstr "提到了你"
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
-msgid "\nreplied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
-msgstr "\n回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_comment.html:3
 #, python-format
-msgid "\nreplied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
+msgid ""
+"\n"
+"replied to your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的短评\n"
 
 #: social/templates/event/mentioned_note.html:3
 #, python-format
-msgid "\nreplied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
+msgid ""
+"\n"
+"replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 作的笔记\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
-msgid "\nreplied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
+msgid ""
+"\n"
+"replied to your rating on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的打分\n"
 
 #: social/templates/event/mentioned_review.html:2
 #, python-format
-msgid "\nreplied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+msgid ""
+"\n"
+"replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
 #, python-format
-msgid "\nreplied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
-msgstr "\n回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
+msgid ""
+"\n"
+"replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+msgstr ""
+"\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
 #: social/templates/feed.html:12 social/templates/feed.html:46
 #: social/templates/search_feed.html:12
@@ -7156,8 +7413,14 @@ msgstr "欢迎"
 
 #: users/templates/users/welcome.html:24
 #, python-format
-msgid "\n              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/rules\">rules</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n        "
-msgstr "\n              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！\n        "
+msgid ""
+"\n"
+"              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/rules\">rules</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
+"        "
+msgstr ""
+"\n"
+"              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！\n"
+"        "
 
 #: users/templates/users/welcome.html:37
 msgid "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock."

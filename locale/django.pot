@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-19 00:37-0400\n"
+"POT-Creation-Date: 2026-04-20 22:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,11 +59,11 @@ msgstr ""
 msgid "Traditional Chinese"
 msgstr ""
 
-#: catalog/forms.py:29 catalog/models/item.py:252
+#: catalog/forms.py:29 catalog/models/item.py:244
 msgid "Primary ID Type"
 msgstr ""
 
-#: catalog/forms.py:34 catalog/models/item.py:255
+#: catalog/forms.py:34 catalog/models/item.py:247
 msgid "Primary ID Value"
 msgstr ""
 
@@ -116,11 +116,11 @@ msgid "other title"
 msgstr ""
 
 #: catalog/models/book.py:209 catalog/models/book.py:494
-#: catalog/models/item.py:121
+#: catalog/models/item.py:113
 msgid "author"
 msgstr ""
 
-#: catalog/models/book.py:216 catalog/models/item.py:122
+#: catalog/models/book.py:216 catalog/models/item.py:114
 msgid "translator"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgid "eReolen.dk"
 msgstr ""
 
 #: catalog/models/common.py:22 catalog/models/common.py:60
-#: catalog/templates/movie.html:51 catalog/templates/people.html:37
+#: catalog/templates/movie.html:51 catalog/templates/people.html:49
 #: catalog/templates/tvseason.html:68 catalog/templates/tvshow.html:63
 msgid "IMDb"
 msgstr ""
@@ -580,20 +580,20 @@ msgstr ""
 msgid "Special Edition"
 msgstr ""
 
-#: catalog/models/game.py:99 catalog/models/item.py:128
+#: catalog/models/game.py:99 catalog/models/item.py:120
 msgid "designer"
 msgstr ""
 
-#: catalog/models/game.py:107 catalog/models/item.py:127
+#: catalog/models/game.py:107 catalog/models/item.py:119
 #: catalog/models/music.py:87
 msgid "artist"
 msgstr ""
 
-#: catalog/models/game.py:115 catalog/models/item.py:137
+#: catalog/models/game.py:115 catalog/models/item.py:129
 msgid "developer"
 msgstr ""
 
-#: catalog/models/game.py:123 catalog/models/item.py:136
+#: catalog/models/game.py:123 catalog/models/item.py:128
 #: catalog/models/music.py:95
 msgid "publisher"
 msgstr ""
@@ -624,140 +624,140 @@ msgstr ""
 #: catalog/models/performance.py:464 catalog/models/podcast.py:87
 #: catalog/models/tv.py:234 catalog/models/tv.py:477
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
-#: catalog/templates/people.html:44 catalog/templates/performance.html:35
+#: catalog/templates/people.html:56 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
 #: catalog/templates/podcast.html:20 catalog/templates/tvseason.html:75
 #: catalog/templates/tvshow.html:70
 msgid "website"
 msgstr ""
 
-#: catalog/models/item.py:123 catalog/models/movie.py:104
+#: catalog/models/item.py:115 catalog/models/movie.py:104
 #: catalog/models/performance.py:182 catalog/models/performance.py:388
 #: catalog/models/tv.py:178 catalog/models/tv.py:420
 msgid "director"
 msgstr ""
 
-#: catalog/models/item.py:124 catalog/models/movie.py:111
+#: catalog/models/item.py:116 catalog/models/movie.py:111
 #: catalog/models/performance.py:189 catalog/models/performance.py:395
 #: catalog/models/tv.py:185 catalog/models/tv.py:427
 msgid "playwright"
 msgstr ""
 
-#: catalog/models/item.py:125 catalog/models/movie.py:118
+#: catalog/models/item.py:117 catalog/models/movie.py:118
 #: catalog/models/performance.py:217 catalog/models/performance.py:423
 #: catalog/models/tv.py:192 catalog/models/tv.py:434
 msgid "actor"
 msgstr ""
 
-#: catalog/models/item.py:126 catalog/models/movie.py:125
+#: catalog/models/item.py:118 catalog/models/movie.py:125
 #: catalog/models/tv.py:199 catalog/models/tv.py:441
 msgid "producer"
 msgstr ""
 
-#: catalog/models/item.py:129 catalog/models/performance.py:203
+#: catalog/models/item.py:121 catalog/models/performance.py:203
 #: catalog/models/performance.py:409
 msgid "composer"
 msgstr ""
 
-#: catalog/models/item.py:130 catalog/models/performance.py:210
+#: catalog/models/item.py:122 catalog/models/performance.py:210
 #: catalog/models/performance.py:416
 msgid "choreographer"
 msgstr ""
 
-#: catalog/models/item.py:131 catalog/models/performance.py:224
+#: catalog/models/item.py:123 catalog/models/performance.py:224
 #: catalog/models/performance.py:430
 msgid "performer"
 msgstr ""
 
-#: catalog/models/item.py:132 catalog/models/podcast.py:78
+#: catalog/models/item.py:124 catalog/models/podcast.py:78
 msgid "host"
 msgstr ""
 
-#: catalog/models/item.py:133 catalog/models/performance.py:196
+#: catalog/models/item.py:125 catalog/models/performance.py:196
 #: catalog/models/performance.py:402
 msgid "original creator"
 msgstr ""
 
-#: catalog/models/item.py:134 catalog/models/performance.py:238
+#: catalog/models/item.py:126 catalog/models/performance.py:238
 #: catalog/models/performance.py:444
 msgid "crew"
 msgstr ""
 
-#: catalog/models/item.py:138
+#: catalog/models/item.py:130
 msgid "production company"
 msgstr ""
 
-#: catalog/models/item.py:139
+#: catalog/models/item.py:131
 msgid "record label"
 msgstr ""
 
-#: catalog/models/item.py:140
+#: catalog/models/item.py:132
 msgid "distributor"
 msgstr ""
 
-#: catalog/models/item.py:141
+#: catalog/models/item.py:133
 msgid "studio"
 msgstr ""
 
-#: catalog/models/item.py:142 catalog/models/performance.py:231
+#: catalog/models/item.py:134 catalog/models/performance.py:231
 #: catalog/models/performance.py:437
 msgid "troupe"
 msgstr ""
 
-#: catalog/models/item.py:157 catalog/models/people.py:473
+#: catalog/models/item.py:149 catalog/models/people.py:473
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr ""
 
-#: catalog/models/item.py:158 catalog/models/people.py:136
+#: catalog/models/item.py:150 catalog/models/people.py:136
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr ""
 
-#: catalog/models/item.py:160 catalog/templates/_item_credits_list.html:138
+#: catalog/models/item.py:152 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr ""
 
-#: catalog/models/item.py:249 catalog/models/item.py:281
+#: catalog/models/item.py:241 catalog/models/item.py:273
 #: journal/models/collection.py:64
 msgid "title"
 msgstr ""
 
-#: catalog/models/item.py:250 catalog/models/item.py:289
+#: catalog/models/item.py:242 catalog/models/item.py:281
 #: journal/models/collection.py:65
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:261 catalog/models/people.py:481
+#: catalog/models/item.py:253 catalog/models/people.py:481
 msgid "metadata"
 msgstr ""
 
-#: catalog/models/item.py:263 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:255 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:1087
+#: catalog/models/item.py:1119
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:1089
+#: catalog/models/item.py:1121
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:1091
+#: catalog/models/item.py:1123
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:1107
+#: catalog/models/item.py:1139
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:1113
+#: catalog/models/item.py:1145
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1116
+#: catalog/models/item.py:1148
 msgid "url to the resource"
 msgstr ""
 
@@ -1187,13 +1187,13 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:132
-#: catalog/views/edit.py:178 catalog/views/edit.py:216
-#: catalog/views/edit.py:275 catalog/views/edit.py:279
-#: catalog/views/edit.py:297 catalog/views/edit.py:343
-#: catalog/views/edit.py:358 catalog/views/edit.py:396
-#: catalog/views/edit.py:406 catalog/views/edit.py:432
-#: catalog/views/search.py:256
+#: catalog/templates/_sidebar_edit.html:21 catalog/views/edit.py:131
+#: catalog/views/edit.py:176 catalog/views/edit.py:214
+#: catalog/views/edit.py:273 catalog/views/edit.py:277
+#: catalog/views/edit.py:295 catalog/views/edit.py:346
+#: catalog/views/edit.py:386 catalog/views/edit.py:401
+#: catalog/views/edit.py:439 catalog/views/edit.py:449
+#: catalog/views/edit.py:475 catalog/views/search.py:256
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1779,11 +1779,19 @@ msgstr ""
 msgid "follow"
 msgstr ""
 
-#: catalog/templates/people.html:29
+#: catalog/templates/people.html:25
+msgid "Fetch films and TV shows for this person from TMDB"
+msgstr ""
+
+#: catalog/templates/people.html:26
+msgid "pull works"
+msgstr ""
+
+#: catalog/templates/people.html:41
 msgid "born"
 msgstr ""
 
-#: catalog/templates/people.html:31
+#: catalog/templates/people.html:43
 msgid "died"
 msgstr ""
 
@@ -1921,17 +1929,17 @@ msgstr ""
 msgid "Editions"
 msgstr ""
 
-#: catalog/views/edit.py:180
+#: catalog/views/edit.py:178
 msgid "Item in use."
 msgstr ""
 
-#: catalog/views/edit.py:182
+#: catalog/views/edit.py:180
 msgid "Item cannot be deleted."
 msgstr ""
 
-#: catalog/views/edit.py:205 catalog/views/edit.py:259
-#: catalog/views/edit.py:345 catalog/views/edit.py:434
-#: catalog/views/edit.py:466 journal/views/collection.py:96
+#: catalog/views/edit.py:203 catalog/views/edit.py:257
+#: catalog/views/edit.py:388 catalog/views/edit.py:477
+#: catalog/views/edit.py:509 journal/views/collection.py:96
 #: journal/views/collection.py:156 journal/views/collection.py:168
 #: journal/views/collection.py:185 journal/views/collection.py:251
 #: journal/views/collection.py:287 journal/views/collection.py:322
@@ -1946,7 +1954,7 @@ msgstr ""
 msgid "Insufficient permission"
 msgstr ""
 
-#: catalog/views/edit.py:262 catalog/views/edit.py:265
+#: catalog/views/edit.py:260 catalog/views/edit.py:263
 #: journal/views/collection.py:58 journal/views/collection.py:83
 #: journal/views/collection.py:339 journal/views/collection.py:429
 #: journal/views/common.py:128 journal/views/mark.py:141
@@ -1958,31 +1966,43 @@ msgstr ""
 msgid "Invalid parameter"
 msgstr ""
 
-#: catalog/views/edit.py:319
+#: catalog/views/edit.py:317
 msgid "TV Season with IMDB id and season number required."
 msgstr ""
 
-#: catalog/views/edit.py:324
+#: catalog/views/edit.py:322
 msgid "Updating episodes"
 msgstr ""
 
-#: catalog/views/edit.py:356
+#: catalog/views/edit.py:348
+msgid "This person has no supported source to fetch works from."
+msgstr ""
+
+#: catalog/views/edit.py:354
+msgid "Already pulling works for this person, try again later."
+msgstr ""
+
+#: catalog/views/edit.py:362
+msgid "Pulling works in background."
+msgstr ""
+
+#: catalog/views/edit.py:399
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:361
+#: catalog/views/edit.py:404
 msgid "Cannot merge items in different categories"
 msgstr ""
 
-#: catalog/views/edit.py:365
+#: catalog/views/edit.py:408
 msgid "Cannot merge an item to itself"
 msgstr ""
 
-#: catalog/views/edit.py:404
+#: catalog/views/edit.py:447
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:408
+#: catalog/views/edit.py:451
 msgid "Cannot link items other than editions"
 msgstr ""
 
