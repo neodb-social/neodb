@@ -195,6 +195,18 @@ def people_search(request):
             "search_results_people.html",
             {"items": None, "sites": sites},
         )
+    if keywords.find("://") > 0:
+        host = urlparse(keywords).hostname
+        if host and host in settings.SITE_DOMAINS:
+            return redirect(keywords)
+        site = SiteManager.get_site_by_url(
+            keywords, detect_redirection=False, detect_fallback=False
+        )
+        if site:
+            return fetch(request, keywords, site, False)
+        if request.GET.get("r") and is_safe_url(keywords):
+            return redirect(keywords)
+        return fetch(request, keywords, None, False)
     parser = PeopleQueryParser(
         keywords, page=p, page_size=per_page, people_type=people_type
     )
