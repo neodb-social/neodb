@@ -82,8 +82,8 @@ class DiscoverGenerator(BaseJob):
 
     def _top_post_ids(self, qs, limit: int, max_per_author: int = 2) -> list:
         pks = []
-        author_count: dict = {}
-        for pk, author_id in qs.values_list("pk", "author_id").iterator():
+        author_count: dict[int, int] = {}
+        for pk, author_id in qs.values_list("pk", "author_id")[: limit * 10]:
             if author_count.get(author_id, 0) >= max_per_author:
                 continue
             pks.append(pk)
