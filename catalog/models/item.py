@@ -695,7 +695,9 @@ class Item(PolymorphicModel):
         Call this on a list of polymorphic Item instances before rendering
         templates that access item.parent_item (e.g. _item_card_metadata_base).
         Note: Edition is excluded because the template short-circuits
-        parent_item access for editions (type.value == 'edition').
+        parent_item access for editions (type.value == 'edition'). Callers
+        that serialize through ItemSchema (which reads parent_uuid
+        unconditionally) should additionally call ``Item.prefetch_edition_works``.
         """
         from .performance import PerformanceProduction
         from .podcast import PodcastEpisode
@@ -724,6 +726,21 @@ class Item(PolymorphicModel):
             prefetch_related_objects(podcastepisodes, "program")
         if performanceproductions:
             prefetch_related_objects(performanceproductions, "show")
+
+    @staticmethod
+    def prefetch_edition_works(items: "Iterable[Item]") -> None:
+        """Batch-prefetch Edition.works for ItemSchema/parent_uuid serialization.
+
+        Edition.parent_item calls Edition.get_work() -> self.works.all()[0],
+        which would fire one ORDER-BY-pk-LIMIT-1 query per edition when the
+        schema reads parent_uuid. Templates that short-circuit parent_item for
+        editions don't need this.
+        """
+        from .book import Edition
+
+        editions = [i for i in items if isinstance(i, Edition)]
+        if editions:
+            prefetch_related_objects(editions, "works")
 
     @staticmethod
     def descendant_ids_with_ancestor_in(item_ids: "Iterable[int]") -> set[int]:

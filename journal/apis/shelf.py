@@ -47,6 +47,7 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
         Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
     )
     Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     # Batch-fetch latest_post_id for all members to avoid N+1 queries

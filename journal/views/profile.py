@@ -4,6 +4,7 @@ from urllib.parse import quote_plus
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.db.models import Prefetch, prefetch_related_objects
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
@@ -161,12 +162,32 @@ def profile(request: AuthedHttpRequest, user_name):
     default_layout.append({"id": "collection_marked", "visibility": True})
     default_layout.append({"id": "people_person_following", "visibility": True})
     default_layout.append({"id": "people_organization_following", "visibility": True})
-    pinned_collections = (
+    pinned_collections = list(
         Collection.objects.filter(
             interactions__interaction_type="pin", interactions__identity=target
         )
         .order_by("-interactions__created_time")
-        .filter(qv)[:10]
+        .filter(qv)
+        .select_related("owner", "owner__user")[:10]
+    )
+    # _sidebar.html iterates identity.featured_collections, calls is_visible_to
+    # (hits owner, owner.user, owner.takahe_identity) and get_stats
+    # (hits collection_members + shelf counts) for each one. Prefetch eagerly
+    # so those derefs reuse cached rows.
+    prefetch_related_objects(
+        [target],
+        Prefetch(
+            "featured_collections",
+            queryset=Collection.objects.select_related("owner", "owner__user"),
+        ),
+    )
+    featured_owners = [
+        c.owner
+        for c in target.featured_collections.all()  # ty: ignore[unresolved-attribute]
+        if getattr(c, "owner_id", None)
+    ]
+    Takahe.prefetch_takahe_identities(
+        [c.owner for c in pinned_collections if c.owner_id] + featured_owners
     )
     default_layout[0:0] = [
         {"id": f"collection_{collection.uuid}", "visibility": True}

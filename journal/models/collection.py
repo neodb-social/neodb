@@ -195,6 +195,11 @@ class Collection(List):
                     "external_resources"
                 )
             )
+            # All members share this Collection as their parent. Setting it on
+            # each instance avoids a per-member parent FK load (and consequent
+            # owner/identity/domain dereferences) in collection_items.html.
+            for member in members:
+                member.parent = self
             if items:
                 items_map = {i.pk: i for i in items}
                 for member in members:

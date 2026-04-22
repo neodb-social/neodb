@@ -342,7 +342,10 @@ def _prefetch_comments(comments_list: list["Comment"]):
     from journal.models import Rating
     from journal.models.common import PiecePost
 
-    # Batch-fetch ShelfMembers for all (owner, item) pairs
+    # Batch-fetch ShelfMembers for all (owner, item) pairs.
+    # select_related("parent") eagerly loads the owning Shelf, so mark.action_label
+    # (which reads shelfmember.parent.shelf_type) does not trigger a Piece->Shelf
+    # polymorphic downcast per comment.
     pairs = {(c.owner_id, c.item_id) for c in comments_list}
     shelfmembers: dict[tuple[int, int], ShelfMember] = {}
     ratings: dict[tuple[int, int], int | None] = {}
@@ -352,10 +355,14 @@ def _prefetch_comments(comments_list: list["Comment"]):
         q = Q()
         for owner_id, item_id in pairs:
             q |= Q(owner_id=owner_id, item_id=item_id)
-        for sm in ShelfMember.objects.filter(q):
+        for sm in ShelfMember.objects.filter(q).select_related("parent"):
             shelfmembers[(sm.owner_id, sm.item_id)] = sm
         for r in Rating.objects.filter(q):
             ratings[(r.owner_id, r.item_id)] = r.grade
+
+    # Batch-fetch Takahe identities so comment.owner.display_name (which reads
+    # APIdentity.takahe_identity.name) does not trigger a per-comment lookup.
+    Takahe.prefetch_takahe_identities([c.owner for c in comments_list if c.owner_id])
 
     # Batch-fetch latest post IDs for all comments
     piece_ids = [c.pk for c in comments_list]
@@ -384,6 +391,30 @@ def _prefetch_comments(comments_list: list["Comment"]):
         post_id = piece_to_latest.get(c.pk)
         c.__dict__["latest_post_id"] = post_id
         c.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
+
+
+def _prefetch_reviews(reviews_list: list["Review"]):
+    """Batch-fetch ratings and latest posts for a list of reviews to avoid N+1."""
+    if not reviews_list:
+        return
+    from journal.models.common import prefetch_latest_posts
+
+    # Batch-fetch reviewer's own rating on the reviewed item
+    pairs = {(r.owner_id, r.item_id) for r in reviews_list}
+    ratings: dict[tuple[int, int], int | None] = {}
+    if pairs:
+        from django.db.models import Q
+
+        q = Q()
+        for owner_id, item_id in pairs:
+            q |= Q(owner_id=owner_id, item_id=item_id)
+        for rg in Rating.objects.filter(q):
+            ratings[(rg.owner_id, rg.item_id)] = rg.grade
+
+    prefetch_latest_posts(reviews_list)
+    Takahe.prefetch_takahe_identities([r.owner for r in reviews_list if r.owner_id])
+    for r in reviews_list:
+        r.__dict__["rating_grade"] = ratings.get((r.owner_id, r.item_id))
 
 
 def comments(request, item_path, item_uuid):
@@ -441,17 +472,24 @@ def comments_by_episode(request, item_path, item_uuid):
 def reviews(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
-    queryset = Review.objects.filter(item_id__in=ids).order_by("-created_time")
+    queryset = (
+        Review.objects.filter(item_id__in=ids)
+        .order_by("-created_time")
+        .select_related("owner", "owner__user")
+        .prefetch_related("item")
+    )
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     before_time = request.GET.get("last")
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
+    reviews_list = list(queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1])
+    _prefetch_reviews(reviews_list)
     return render(
         request,
         "_item_reviews.html",
         {
             "item": item,
-            "reviews": queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1],
+            "reviews": reviews_list,
         },
     )
 

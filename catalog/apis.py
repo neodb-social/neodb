@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List
 
 from django.core.cache import cache
+from django.db.models import Prefetch, prefetch_related_objects
 from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Schema, Status
@@ -21,6 +22,7 @@ from .models import (
     Game,
     GameSchema,
     Item,
+    ItemCredit,
     ItemSchema,
     Movie,
     MovieSchema,
@@ -119,6 +121,11 @@ def search_item(
         exclude_categories=exclude_categories,
     )
     Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
+    prefetch_related_objects(
+        items,
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     if request.user.is_authenticated:

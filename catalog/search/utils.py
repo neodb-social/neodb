@@ -60,9 +60,11 @@ def query_index(
         key = getattr(i, "isbn", getattr(i, "imdb_code", getattr(i, "barcode", None)))
         my_key = {key: i} if key else {}
         if isinstance(i, Edition):
-            work = i.works.first()
-            if work:
-                my_key[work.id] = i
+            # Iterate the prefetched cache rather than .first(), which would
+            # ignore it and emit a per-edition `ORDER BY pk LIMIT 1` query.
+            works = list(i.works.all())
+            if works:
+                my_key[works[0].pk] = i
         if my_key:
             dup_by = None
             for k in my_key:

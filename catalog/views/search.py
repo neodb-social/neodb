@@ -5,6 +5,7 @@ import django_rq
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.db.models import Prefetch, prefetch_related_objects
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -25,7 +26,14 @@ from journal.models.rating import Rating
 from users.views import query_identity
 
 from ..common.sites import AbstractSite, SiteManager
-from ..models import ExternalResource, Item, ItemCategory, SiteName, item_categories
+from ..models import (
+    ExternalResource,
+    Item,
+    ItemCategory,
+    ItemCredit,
+    SiteName,
+    item_categories,
+)
 from ..search import (
     ExternalSources,
     PeopleIndex,
@@ -177,6 +185,10 @@ def search(request):
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
     Item.prefetch_parent_items(items)
+    prefetch_related_objects(
+        items,
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
     if request.user.is_authenticated:

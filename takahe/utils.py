@@ -39,9 +39,20 @@ class Takahe:
 
     @staticmethod
     def get_node_name_for_domain(d: str):
+        # ExternalResource.site_label calls this per rendered Fediverse
+        # resource; caching keeps a page of 40 linked items from firing 40
+        # identical domain lookups. Sentinel "" means "known to have no name".
+        cache_key = f"takahe:node_name:{d}"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached or None
+        name = ""
         domain = Domain.objects.filter(domain=d).first()
         if domain and domain.nodeinfo:
-            return domain.nodeinfo.get("metadata", {}).get("nodeName")
+            name = domain.nodeinfo.get("metadata", {}).get("nodeName") or ""
+        cache.set(cache_key, name, 600)
+        if name:
+            return name
 
     @staticmethod
     def sync_password(u: "NeoUser"):
@@ -153,6 +164,33 @@ class Takahe:
     @staticmethod
     def get_identity(pk: int):
         return Identity.objects.get(pk=pk)
+
+    @staticmethod
+    def prefetch_takahe_identities(owners):
+        """Populate ``APIdentity.takahe_identity`` on each APIdentity in ``owners``.
+
+        Without this, the first access of ``apidentity.takahe_identity`` (used by
+        display_name, avatar, restricted, etc.) fires a single-row lookup on
+        users_identity — one per unique APIdentity in the list.
+        """
+        seen: dict[int, object] = {}
+        to_load: set[int] = set()
+        for owner in owners:
+            if owner is None or owner.pk in seen:
+                continue
+            seen[owner.pk] = owner
+            if "takahe_identity" not in owner.__dict__:
+                to_load.add(owner.pk)
+        if not to_load:
+            return
+        identities = {
+            i.pk: i
+            for i in Identity.objects.filter(pk__in=to_load).select_related("domain")
+        }
+        for pk, owner in seen.items():
+            identity = identities.get(pk)
+            if identity is not None:
+                owner.__dict__["takahe_identity"] = identity
 
     @staticmethod
     def get_identity_by_local_user(u: "NeoUser"):

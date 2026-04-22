@@ -1149,3 +1149,133 @@ class TestShelfAPICreditsPrefetch:
             )
         assert response.status_code == 200
         assert _per_item_credit_queries(ctx.captured_queries) == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestShelfAPIEditionWorksPrefetch:
+    """Shelf API must prefetch Edition.works so ItemSchema.parent_uuid doesn't N+1."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="saw@example.com", username="sawuser")
+        self.work = Work.objects.create(title="Shelf Work")
+        self.editions = []
+        for i in range(4):
+            e = Edition.objects.create(title=f"SAW Edition {i}")
+            self.work.editions.add(e)
+            Mark(self.user.identity, e).update(
+                ShelfType.WISHLIST, f"n{i}", i + 5, [], 0
+            )
+            self.editions.append(e)
+        self.app = Takahe.get_or_create_app(
+            "Test",
+            "https://example.org",
+            "https://example.org/cb",
+            owner_pk=self.user.identity.pk,
+        )
+        self.token = Takahe.refresh_token(self.app, self.user.identity.pk, self.user.pk)
+
+    def test_shelf_api_no_per_edition_work_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                "/api/me/shelf/wishlist",
+                HTTP_AUTHORIZATION=f"Bearer {self.token}",
+            )
+        assert response.status_code == 200
+        work_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_work_editions" in q["sql"]
+            and '"catalog_work_editions"."edition_id" =' in q["sql"]
+        ]
+        assert work_queries == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestReviewsPrefetch:
+    """/item/.../reviews should batch rating, latest_post, and identity lookups."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.book = Edition.objects.create(title="Review Book")
+        self.reviewers = [
+            User.register(email=f"rv{i}@example.com", username=f"rvuser{i}")
+            for i in range(3)
+        ]
+        for i, u in enumerate(self.reviewers):
+            Mark(u.identity, self.book).update(ShelfType.COMPLETE, None, i + 5, [], 0)
+            u.identity.shelf_manager  # ensure manager exists
+            from journal.models import Review
+
+            Review.objects.create(
+                owner=u.identity,
+                item=self.book,
+                title=f"Title {i}",
+                body=f"Body {i}",
+            )
+
+    def test_reviews_page_renders(self):
+        client = Client()
+        response = client.get(f"/book/{self.book.uuid}/reviews")
+        assert response.status_code == 200
+
+    def test_reviews_no_per_review_rating_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/book/{self.book.uuid}/reviews")
+        assert response.status_code == 200
+        # Per-review rating_grade lookups would match this pattern
+        rating_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_rating" in q["sql"]
+            and '"journal_rating"."owner_id" =' in q["sql"]
+            and '"journal_rating"."item_id" =' in q["sql"]
+            and "IN" not in q["sql"].upper()
+        ]
+        assert rating_queries == []
+
+    def test_reviews_no_per_review_identity_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/book/{self.book.uuid}/reviews")
+        assert response.status_code == 200
+        identity_queries = [
+            q
+            for q in ctx.captured_queries
+            if "users_identity" in q["sql"]
+            and 'WHERE "users_identity"."id" =' in q["sql"]
+        ]
+        assert identity_queries == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionMemberParent:
+    """Collection page must not dereference member.parent per collection member."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="cmp@example.com", username="cmpuser")
+        self.collection = Collection.objects.create(
+            title="CMP Collection", owner=self.user.identity
+        )
+        for i in range(5):
+            self.collection.append_item(Edition.objects.create(title=f"CMP Book {i}"))
+
+    def test_no_per_member_collection_polymorphic_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/collection/{self.collection.uuid}")
+        assert response.status_code == 200
+        # A per-member parent dereference would polymorphically fetch
+        # journal_collection joined with journal_piece by piece_ptr_id.
+        parent_queries = [
+            q
+            for q in ctx.captured_queries
+            if "journal_collection" in q["sql"]
+            and "journal_piece" in q["sql"]
+            and '"journal_collection"."piece_ptr_id" =' in q["sql"]
+        ]
+        # One top-level collection fetch is expected; members should not add more.
+        assert len(parent_queries) <= 1
