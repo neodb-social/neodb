@@ -80,6 +80,18 @@ class DiscoverGenerator(BaseJob):
                 qs = qs.filter(q)
         return qs
 
+    def _top_post_ids(self, qs, limit: int, max_per_author: int = 2) -> list:
+        pks = []
+        author_count: dict = {}
+        for pk, author_id in qs.values_list("pk", "author_id").iterator():
+            if author_count.get(author_id, 0) >= max_per_author:
+                continue
+            pks.append(pk)
+            author_count[author_id] = author_count.get(author_id, 0) + 1
+            if len(pks) >= limit:
+                break
+        return pks
+
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         qs = (
             ShelfMember.objects.filter(q_item_in_category(category))
@@ -236,23 +248,21 @@ class DiscoverGenerator(BaseJob):
                 reviews = reviews.filter(local=True)
             post_ids = (
                 set(
-                    self.get_popular_posts(28, self.min_marks, local).values_list(
-                        "pk", flat=True
-                    )[:5]
+                    self._top_post_ids(
+                        self.get_popular_posts(28, self.min_marks, local), 5
+                    )
                 )
                 | set(
-                    self.get_popular_posts(14, self.min_marks, local).values_list(
-                        "pk", flat=True
-                    )[:5]
+                    self._top_post_ids(
+                        self.get_popular_posts(14, self.min_marks, local), 5
+                    )
                 )
                 | set(
-                    self.get_popular_posts(7, self.min_marks, local).values_list(
-                        "pk", flat=True
-                    )[:10]
+                    self._top_post_ids(
+                        self.get_popular_posts(7, self.min_marks, local), 10
+                    )
                 )
-                | set(
-                    self.get_popular_posts(1, 0, local).values_list("pk", flat=True)[:3]
-                )
+                | set(self._top_post_ids(self.get_popular_posts(1, 0, local), 3))
                 | set(reviews.values_list("posts", flat=True)[:5])
             )
         else:
