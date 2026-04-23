@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2025-12-16 09:00+0000\n"
+"PO-Revision-Date: 2026-04-20 12:09+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.15.1-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: boofilsic/settings.py:420 common/models/lang.py:216
 msgid "English"
@@ -60,11 +60,11 @@ msgstr "localização"
 #: catalog/book/models.py:81 catalog/book/models.py:100
 #: catalog/common/models.py:299 catalog/common/models.py:319
 msgid "text content"
-msgstr "Texto"
+msgstr "conteúdo do texto"
 
 #: catalog/book/models.py:115
 msgid "Paperback"
-msgstr "Livro de bolso (Capa mole)"
+msgstr "Encadernado"
 
 #: catalog/book/models.py:116
 msgid "Hardcover"
@@ -72,15 +72,15 @@ msgstr "Capa dura"
 
 #: catalog/book/models.py:117
 msgid "eBook"
-msgstr "e-book"
+msgstr "E-book"
 
 #: catalog/book/models.py:118
 msgid "Audiobook"
-msgstr "AudioLivro"
+msgstr "Livro de áudio"
 
 #: catalog/book/models.py:120
 msgid "Web Fiction"
-msgstr "Ficção web"
+msgstr "Ficção na Web"
 
 #: catalog/book/models.py:121 catalog/game/models.py:28
 msgid "Other"
@@ -88,7 +88,7 @@ msgstr "Outro"
 
 #: catalog/book/models.py:159
 msgid "subtitle"
-msgstr "subtítulo"
+msgstr "legenda"
 
 #: catalog/book/models.py:169 catalog/movie/models.py:59
 #: catalog/performance/models.py:278 catalog/tv/models.py:134
@@ -126,7 +126,7 @@ msgstr "mês de publicação"
 
 #: catalog/book/models.py:214 catalog/templates/edition.html:54
 msgid "binding"
-msgstr "Encadernação"
+msgstr "ligação"
 
 #: catalog/book/models.py:215
 msgid "pages"
@@ -146,7 +146,7 @@ msgstr "preço"
 
 #: catalog/book/models.py:219 catalog/templates/edition.html:37
 msgid "imprint"
-msgstr "selo editorial"
+msgstr "selo"
 
 #: catalog/common/models.py:36
 msgid "Unknown"
@@ -241,7 +241,7 @@ msgstr "Ypshuo"
 
 #: catalog/common/models.py:58 catalog/common/models.py:111
 msgid "Archive of Our Own"
-msgstr "Arquivo próprio"
+msgstr "Arquivo Nosso Próprio"
 
 #: catalog/common/models.py:59 catalog/common/models.py:112
 msgid "JinJiang"
@@ -289,19 +289,19 @@ msgstr "Série do TMDB"
 
 #: catalog/common/models.py:74
 msgid "TMDB TV Season"
-msgstr "Temporada do TMDB"
+msgstr "Temporada de TV do TMDB"
 
 #: catalog/common/models.py:75
 msgid "TMDB TV Episode"
-msgstr "Episódio do TMDB"
+msgstr "Episódio de TV do TMDB"
 
 #: catalog/common/models.py:76
 msgid "TMDB Movie"
-msgstr "Filme do TMDB"
+msgstr "Filme TMDB"
 
 #: catalog/common/models.py:78
 msgid "Goodreads Work"
-msgstr "Trabalho do Goodreads"
+msgstr "Obra do Goodreads"
 
 #: catalog/common/models.py:80
 msgid "Douban Book"
@@ -309,27 +309,27 @@ msgstr "Livro do Douban"
 
 #: catalog/common/models.py:81
 msgid "Douban Book Work"
-msgstr "Trabalho de Livro do Douban"
+msgstr "Obra do Livro do Douban"
 
 #: catalog/common/models.py:82
 msgid "Douban Movie"
-msgstr "Filme do Douban"
+msgstr "Filme Douban"
 
 #: catalog/common/models.py:83
 msgid "Douban Music"
-msgstr "Música do Douban"
+msgstr "Música Douban"
 
 #: catalog/common/models.py:84
 msgid "Douban Game"
-msgstr "Jogo do Douban"
+msgstr "Jogo Douban"
 
 #: catalog/common/models.py:85
 msgid "Douban Drama"
-msgstr "Drama do Douban"
+msgstr "Drama Douban"
 
 #: catalog/common/models.py:86
 msgid "Douban Drama Version"
-msgstr "Versão de drama do Douban"
+msgstr "Versão do Drama da Douban"
 
 #: catalog/common/models.py:87
 msgid "BooksTW Book"
@@ -377,11 +377,11 @@ msgstr "Série"
 
 #: catalog/common/models.py:130 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
-msgstr "Temporada"
+msgstr "Temporada de TV"
 
 #: catalog/common/models.py:131
 msgid "TV Episode"
-msgstr "Episódio"
+msgstr "Episódio de TV"
 
 #: catalog/common/models.py:132 catalog/common/models.py:145
 #: catalog/common/models.py:158 catalog/templates/_sidebar_edit.html:133
@@ -401,7 +401,7 @@ msgstr "Jogo"
 
 #: catalog/common/models.py:135
 msgid "Podcast Program"
-msgstr "Podcast"
+msgstr "Programa do Podcast"
 
 #: catalog/common/models.py:136
 msgid "Podcast Episode"
@@ -476,7 +476,7 @@ msgstr "Tipo de ID Primário"
 
 #: catalog/common/models.py:375 catalog/forms.py:32
 msgid "Primary ID Value"
-msgstr "Valor do ID Primário"
+msgstr "Valor de ID Primário"
 
 #: catalog/common/models.py:381
 msgid "metadata"
@@ -492,7 +492,7 @@ msgstr "site fonte"
 
 #: catalog/common/models.py:861
 msgid "ID on source site"
-msgstr "ID do site fonte"
+msgstr "ID no site fonte"
 
 #: catalog/common/models.py:863
 msgid "source url"
@@ -508,7 +508,7 @@ msgstr "Id primário do site fonte"
 
 #: catalog/common/models.py:888
 msgid "url to the resource"
-msgstr "url para o recurso"
+msgstr "url para pesquisa"
 
 #: catalog/game/models.py:20
 msgid "Main Game"
@@ -520,7 +520,7 @@ msgstr "Expansão"
 
 #: catalog/game/models.py:22
 msgid "Downloadable Content"
-msgstr "Conteúdo baixável"
+msgstr "Conteúdo Disponível para Download"
 
 #: catalog/game/models.py:23
 msgid "Mod"
@@ -564,7 +564,7 @@ msgstr "ano de publicação"
 
 #: catalog/game/models.py:105 catalog/podcast/models.py:138
 msgid "date of publication"
-msgstr "data da publicação"
+msgstr "data de publicação"
 
 #: catalog/game/models.py:110 catalog/music/models.py:55
 #: catalog/tv/models.py:178
@@ -720,7 +720,7 @@ msgstr "trupe"
 
 #: catalog/performance/models.py:177 catalog/performance/models.py:338
 msgid "crew"
-msgstr "grupo"
+msgstr "equipe"
 
 #: catalog/performance/models.py:184 catalog/performance/models.py:345
 msgid "theater"
@@ -2882,7 +2882,7 @@ msgstr "quero ler"
 #: journal/models/shelf.py:42
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr "quer ler {item}"
+msgstr "quero ler {item}"
 
 #: journal/models/shelf.py:43
 msgid "to read"
@@ -2890,7 +2890,7 @@ msgstr "para ler"
 
 #: journal/models/shelf.py:48
 msgid "books reading"
-msgstr "leitura de livros"
+msgstr "livros que estou lendo"
 
 #: journal/models/shelf.py:49
 msgid "start reading"
@@ -2903,7 +2903,7 @@ msgstr "começou a ler {item}"
 
 #: journal/models/shelf.py:51
 msgid "reading"
-msgstr "leitura"
+msgstr "lendo"
 
 #: journal/models/shelf.py:56
 msgid "books completed"
@@ -2911,7 +2911,7 @@ msgstr "livros concluídos"
 
 #: journal/models/shelf.py:57
 msgid "finish reading"
-msgstr "terminar de ler"
+msgstr "terminou de ler"
 
 #: journal/models/shelf.py:58
 #, python-brace-format
@@ -2920,7 +2920,7 @@ msgstr "terminou de ler {item}"
 
 #: journal/models/shelf.py:59
 msgid "read"
-msgstr "ler"
+msgstr "lido"
 
 #: journal/models/shelf.py:64
 msgid "books dropped"
@@ -3004,7 +3004,7 @@ msgstr "terminar de assistir"
 #: journal/models/shelf.py:98 journal/models/shelf.py:138
 #, python-brace-format
 msgid "finished watching {item}"
-msgstr "terminei de assistir {item}"
+msgstr "terminou de assistir {item}"
 
 #: journal/models/shelf.py:99 journal/models/shelf.py:139
 msgid "watched"
@@ -3021,7 +3021,7 @@ msgstr "pare de assistir"
 #: journal/models/shelf.py:106 journal/models/shelf.py:146
 #, python-brace-format
 msgid "stopped watching {item}"
-msgstr "parei de assistir {item}"
+msgstr "parou de assistir {item}"
 
 #: journal/models/shelf.py:107 journal/models/shelf.py:147
 msgid "stopped watching"
@@ -3037,7 +3037,7 @@ msgstr "Séries para assistir"
 
 #: journal/models/shelf.py:128
 msgid "TV shows watching"
-msgstr "Assistindo Séries"
+msgstr "séries que está Assistindo"
 
 #: journal/models/shelf.py:136
 msgid "TV shows watched"
@@ -3100,7 +3100,7 @@ msgstr "terminou de ouvir {item}"
 
 #: journal/models/shelf.py:179 journal/models/shelf.py:259
 msgid "listened"
-msgstr "ouvido"
+msgstr "ouviu"
 
 #: journal/models/shelf.py:184
 msgid "albums dropped"
@@ -3142,7 +3142,7 @@ msgstr "para jogar"
 
 #: journal/models/shelf.py:208
 msgid "games playing"
-msgstr "jogando jogos"
+msgstr "games que está jogando"
 
 #: journal/models/shelf.py:209
 msgid "start playing"
@@ -3159,7 +3159,7 @@ msgstr "jogando"
 
 #: journal/models/shelf.py:216
 msgid "games played"
-msgstr "jogos jogados"
+msgstr "games jogados"
 
 #: journal/models/shelf.py:217
 msgid "finish playing"
@@ -3509,7 +3509,7 @@ msgstr "Comentar"
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr ""
-"Dicas: use &gt;!text!&lt para spoilers; algumas instâncias podem não ser "
+"Dicas: use &gt;!text!&lt; para spoilers; algumas instâncias podem não ser "
 "capazes de mostrar postagens com mais de 360 caracteres."
 
 #: journal/templates/comment.html:75
@@ -4376,7 +4376,7 @@ msgstr "marcar"
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
-msgstr "escrever uma anotação"
+msgstr "escreveu uma anotação"
 
 #: social/templates/feed_events.html:139
 msgid "no matching activities."
@@ -4514,9 +4514,9 @@ msgstr "Última atualização"
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
 msgstr ""
-"Se você ainda não se registrou em nenhuma instância federada, pode <a href="
-"\"https://joinmastodon.org/en/servers\" target=\"_blank\">escolher uma "
-"instância</a> e registrar."
+"Se você ainda não se registrou em nenhuma instância federada, pode <a "
+"href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">escolha uma "
+"instância</a> e se registre."
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
@@ -4632,7 +4632,7 @@ msgstr "Salvar configurações de sincronização"
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
-"Novos seguidos, silenciados e bloqueados na identidade associada podem ser "
+"Novos seguidores, silenciados e bloqueados na identidade associada podem ser "
 "importados automaticamente; a remoção deve ser feita manualmente."
 
 #: users/templates/users/account.html:259
@@ -4735,7 +4735,7 @@ msgstr ""
 
 #: users/templates/users/data.html:41
 msgid "Overwrite: update all imported status."
-msgstr "Substituir: atualiza todo o status importado."
+msgstr "Substituir: atualiza todos os status importados."
 
 #: users/templates/users/data.html:74
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
@@ -5284,7 +5284,7 @@ msgstr "Este endereço de e-mail já está em uso."
 
 #: users/views/account.py:104
 msgid "Registration is for invitation only"
-msgstr "O registro é apenas para convite"
+msgstr "A inscrição é apenas por convite"
 
 #: users/views/account.py:176
 msgid "Valid username required"

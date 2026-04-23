@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2024-12-31 19:24-0500\n"
-"PO-Revision-Date: 2025-01-15 01:09+0000\n"
-"Last-Translator: Guérin <gu3rin@pm.me>\n"
+"PO-Revision-Date: 2026-04-23 13:09+0000\n"
+"Last-Translator: dordogne <ndjee@free.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/neodb/neodb/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -140,7 +140,7 @@ msgstr "Goodreads"
 
 #: catalog/common/models.py:38 catalog/common/models.py:83
 msgid "Google Books"
-msgstr "Google Books"
+msgstr "Google Livres"
 
 #: catalog/common/models.py:39
 msgid "BooksTW"
@@ -1383,7 +1383,7 @@ msgstr "livres"
 #: catalog/templates/search_header.html:28
 #: catalog/templates/search_header.html:30
 msgid "movie & tv"
-msgstr "cinéma & TV"
+msgstr "Films et séries"
 
 #: catalog/templates/search_header.html:36
 #: catalog/templates/search_header.html:38
@@ -2427,7 +2427,7 @@ msgstr ""
 
 #: common/templates/_header.html:22
 msgid "All Items"
-msgstr "Toutes les œuvres"
+msgstr "Tout"
 
 #: common/templates/_header.html:29
 msgid "Movie & TV"
@@ -4395,7 +4395,7 @@ msgstr ""
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
 msgstr ""
-"Pour associer ce compte NeoDB à un autre identifiant Fédivers, veuillez "
+"Pour associer ce compte NeoDB à un autre identifiant du Fédivers, veuillez "
 "entrer le nom de domaine de l'instance concernée."
 
 #: users/templates/users/account.html:99
@@ -4746,9 +4746,10 @@ msgstr "Autoriser via une instance du Fédivers"
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr ""
 "Si vous n'avez pas encore de <a href=\"https://joinmastodon.org/servers\" "
-"target=\"_blank\">compte sur le Fédivers (Mastodon)</a>, vous pouvez vous "
-"inscrire ou vous connecter avec votre adresse mail. Vous pourrez toujours y "
-"associer un compte du Fédivers plus tard, dans vos paramètres de compte."
+"target=\"_blank\">compte sur le Fédivers (par ex. Mastodon)</a>, vous pouvez "
+"vous inscrire ou vous connecter avec votre adresse de courriel. Vous pourrez "
+"toujours y associer un compte du Fédivers plus tard, dans vos paramètres de "
+"compte."
 
 #: users/templates/users/login.html:149
 msgid "Authorize via Threads"
