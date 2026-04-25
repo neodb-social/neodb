@@ -16,18 +16,6 @@
           {% endif %}
         </form>
       </div>
-      {% if item.tmdb_person %}
-        <div class="item-action">
-          <form method="post"
-                action="{% url 'catalog:fetch_people_works' item.url_path item.uuid %}">
-            {% csrf_token %}
-            <button class="outline"
-                    title="{% trans 'Fetch films and TV shows for this person from TMDB' %}">
-              {% trans 'pull works' %}
-            </button>
-          </form>
-        </div>
-      {% endif %}
     </div>
   {% endif %}
 {% endblock %}

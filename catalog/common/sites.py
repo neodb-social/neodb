@@ -50,6 +50,8 @@ class AbstractSite:
     DEFAULT_MODEL: Type[Item] | None = None
     MATCHABLE_MODELS: list[Type[Item]] = []
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
+    SUPPORTS_PEOPLE_WORK_FETCH = False
+    PEOPLE_WORKS_SOURCE_LABEL: str | None = None
 
     @classmethod
     def check_model_compatibility(cls, model: Type[Item]) -> bool:
@@ -127,6 +129,9 @@ class AbstractSite:
 
     def scrape_additional_data(self) -> bool:
         return False
+
+    def fetch_people_work_urls(self) -> list[str]:
+        return []
 
     @staticmethod
     def query_str(content, query: str) -> str:

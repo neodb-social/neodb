@@ -8,6 +8,7 @@ from catalog.models import (
     Album,
     CreditRole,
     Edition,
+    ExternalResource,
     Game,
     ItemCredit,
     ItemPeopleRelation,
@@ -925,6 +926,57 @@ class TestDoubanPersonage:
         assert item.birth_date == "1952-08-12"
         assert item.imdb == "nm0155280"
 
+    def test_work_urls(self, monkeypatch):
+        from catalog.sites import douban_personage as douban_personage_module
+
+        payloads = [
+            {
+                "r": 0,
+                "data": {
+                    "items": [
+                        {"subject": {"url": "https://movie.douban.com/subject/11/"}},
+                        {"subject": {"url": "https://music.douban.com/subject/22/"}},
+                    ]
+                },
+            },
+            {
+                "r": 0,
+                "data": {
+                    "items": [
+                        {"subject": {"url": "https://movie.douban.com/subject/11/"}},
+                        {"subject": {"url": "https://movie.douban.com/subject/33/"}},
+                    ]
+                },
+            },
+        ]
+        urls: list[str] = []
+
+        class _FakeResp:
+            def __init__(self, payload):
+                self.payload = payload
+
+            def json(self):
+                return self.payload
+
+        class _FakeDL:
+            headers = {}
+
+            def __init__(self, url, headers=None, timeout=None):
+                urls.append(url)
+
+            def download(self):
+                return _FakeResp(payloads.pop(0))
+
+        monkeypatch.setattr(douban_personage_module, "BasicDownloader", _FakeDL)
+
+        site = douban_personage_module.DoubanPersonage(id_value="27228768")
+        assert site.fetch_people_work_urls() == [
+            "https://movie.douban.com/subject/11/",
+            "https://movie.douban.com/subject/33/",
+        ]
+        assert "released=1" in urls[0]
+        assert "released=0" in urls[1]
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestTMDBPerson:
@@ -1584,7 +1636,7 @@ class TestTMDBCombinedCreditUrls:
                 return _FakeResp()
 
         monkeypatch.setattr(tmdb_site, "BasicDownloader", _FakeDL)
-        urls = tmdb_site.tmdb_person_combined_credit_urls("999")
+        urls = tmdb_site.TMDB_Person(id_value="999").fetch_people_work_urls()
         assert urls == [
             "https://www.themoviedb.org/movie/11",
             "https://www.themoviedb.org/movie/44",
@@ -1602,7 +1654,7 @@ class TestTMDBCombinedCreditUrls:
                 raise RuntimeError("boom")
 
         monkeypatch.setattr(tmdb_site, "BasicDownloader", _FakeDL)
-        assert tmdb_site.tmdb_person_combined_credit_urls("999") == []
+        assert tmdb_site.TMDB_Person(id_value="999").fetch_people_work_urls() == []
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -1610,34 +1662,45 @@ class TestFetchWorksForPersonTask:
     def test_enqueues_per_url(self, monkeypatch):
         import sys
 
-        from catalog.views.edit import fetch_works_for_person_task
+        from catalog.jobs.people_works import fetch_works_for_person_task
+        from catalog.sites.tmdb import TMDB_Person
 
-        edit_module = sys.modules["catalog.views.edit"]
+        people_works_module = sys.modules["catalog.jobs.people_works"]
         person = People.objects.create(
             metadata={"localized_name": [{"lang": "en", "text": "Actor X"}]},
             people_type=PeopleType.PERSON,
         )
-        person.tmdb_person = "17419"
+        person.primary_lookup_id_type = IdType.WikiData
+        person.primary_lookup_id_value = "Q123"
         person.save()
+        ExternalResource.objects.create(
+            item=person,
+            id_type=IdType.TMDB_Person,
+            id_value="17419",
+            url="https://www.themoviedb.org/person/17419",
+        )
 
         user = User.register(email="worker@example.com", username="worker")
         calls: list[tuple[str, bool]] = []
+        requested_ids: list[str] = []
         monkeypatch.setattr(
-            edit_module,
+            people_works_module,
             "enqueue_fetch",
             lambda url, is_refetch=False, user=None: calls.append((url, is_refetch)),
         )
-        monkeypatch.setattr(
-            edit_module,
-            "tmdb_person_combined_credit_urls",
-            lambda tmdb_id: [
+
+        def _fake_fetch_urls(site):
+            requested_ids.append(site.id_value)
+            return [
                 "https://www.themoviedb.org/movie/11",
                 "https://www.themoviedb.org/tv/22",
-            ],
-        )
+            ]
+
+        monkeypatch.setattr(TMDB_Person, "fetch_people_work_urls", _fake_fetch_urls)
 
         fetch_works_for_person_task(person.uuid, user.pk)
 
+        assert requested_ids == ["17419"]
         assert len(calls) == 2
         assert {c[0] for c in calls} == {
             "https://www.themoviedb.org/movie/11",
@@ -1645,40 +1708,134 @@ class TestFetchWorksForPersonTask:
         }
         assert all(not c[1] for c in calls)
 
+    def test_enqueues_douban_personage_urls(self, monkeypatch):
+        import sys
+
+        from catalog.jobs.people_works import fetch_works_for_person_task
+        from catalog.sites.douban_personage import DoubanPersonage
+
+        people_works_module = sys.modules["catalog.jobs.people_works"]
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor D"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ExternalResource.objects.create(
+            item=person,
+            id_type=IdType.DoubanPersonage,
+            id_value="27228768",
+            url="https://www.douban.com/personage/27228768/",
+        )
+
+        user = User.register(email="worker3@example.com", username="worker3")
+        calls: list[tuple[str, bool]] = []
+        requested_ids: list[str] = []
+        monkeypatch.setattr(
+            people_works_module,
+            "enqueue_fetch",
+            lambda url, is_refetch=False, user=None: calls.append((url, is_refetch)),
+        )
+
+        def _fake_fetch_urls(site):
+            requested_ids.append(site.id_value)
+            return [
+                "https://movie.douban.com/subject/11/",
+                "https://movie.douban.com/subject/22/",
+            ]
+
+        monkeypatch.setattr(DoubanPersonage, "fetch_people_work_urls", _fake_fetch_urls)
+
+        fetch_works_for_person_task(person.uuid, user.pk)
+
+        assert requested_ids == ["27228768"]
+        assert len(calls) == 2
+        assert {c[0] for c in calls} == {
+            "https://movie.douban.com/subject/11/",
+            "https://movie.douban.com/subject/22/",
+        }
+        assert all(not c[1] for c in calls)
+
     def test_noop_without_tmdb_id(self, monkeypatch):
         import sys
 
-        from catalog.views.edit import fetch_works_for_person_task
+        from catalog.jobs.people_works import fetch_works_for_person_task
+        from catalog.sites.tmdb import TMDB_Person
 
-        edit_module = sys.modules["catalog.views.edit"]
+        people_works_module = sys.modules["catalog.jobs.people_works"]
         person = People.objects.create(
             metadata={"localized_name": [{"lang": "en", "text": "Actor Y"}]},
             people_type=PeopleType.PERSON,
         )
+        person.tmdb_person = "17419"
+        person.save()
         user = User.register(email="worker2@example.com", username="worker2")
         called = []
+        requested_ids = []
         monkeypatch.setattr(
-            edit_module, "enqueue_fetch", lambda *a, **kw: called.append(a)
+            people_works_module, "enqueue_fetch", lambda *a, **kw: called.append(a)
         )
-        monkeypatch.setattr(
-            edit_module,
-            "tmdb_person_combined_credit_urls",
-            lambda tmdb_id: ["https://www.themoviedb.org/movie/11"],
-        )
+
+        def _fake_fetch_urls(site):
+            requested_ids.append(site.id_value)
+            return ["https://www.themoviedb.org/movie/11"]
+
+        monkeypatch.setattr(TMDB_Person, "fetch_people_work_urls", _fake_fetch_urls)
         fetch_works_for_person_task(person.uuid, user.pk)
+        assert requested_ids == []
         assert called == []
+
+    def test_accepts_legacy_tmdb_id_arg(self, monkeypatch):
+        import sys
+
+        from catalog.jobs.people_works import fetch_works_for_person_task
+        from catalog.sites.tmdb import TMDB_Person
+
+        people_works_module = sys.modules["catalog.jobs.people_works"]
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor Legacy"}]},
+            people_type=PeopleType.PERSON,
+        )
+        user = User.register(email="worker4@example.com", username="worker4")
+        calls = []
+        requested_ids = []
+        monkeypatch.setattr(
+            people_works_module, "enqueue_fetch", lambda *a, **kw: calls.append(a)
+        )
+
+        def _fake_fetch_urls(site):
+            requested_ids.append(site.id_value)
+            return ["https://www.themoviedb.org/movie/11"]
+
+        monkeypatch.setattr(TMDB_Person, "fetch_people_work_urls", _fake_fetch_urls)
+
+        fetch_works_for_person_task(person.uuid, user.pk, "17419")
+
+        assert requested_ids == ["17419"]
+        assert calls == [("https://www.themoviedb.org/movie/11",)]
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
 class TestFetchPeopleWorksView:
-    def _make_person(self, *, with_tmdb: bool = True) -> People:
+    def _make_person(
+        self, *, with_tmdb: bool = True, with_douban: bool = False
+    ) -> People:
         person = People.objects.create(
             metadata={"localized_name": [{"lang": "en", "text": "Actor Z"}]},
             people_type=PeopleType.PERSON,
         )
         if with_tmdb:
-            person.tmdb_person = "17419"
-            person.save()
+            ExternalResource.objects.create(
+                item=person,
+                id_type=IdType.TMDB_Person,
+                id_value="17419",
+                url="https://www.themoviedb.org/person/17419",
+            )
+        if with_douban:
+            ExternalResource.objects.create(
+                item=person,
+                id_type=IdType.DoubanPersonage,
+                id_value="27228768",
+                url="https://www.douban.com/personage/27228768/",
+            )
         return person
 
     def _url(self, person: People) -> str:
@@ -1718,16 +1875,31 @@ class TestFetchPeopleWorksView:
         response = client.post(self._url(person))
         assert response.status_code == 400
 
+    def test_primary_tmdb_id_without_resource_returns_400(self):
+        from django.core.cache import cache
+        from django.test import Client
+
+        cache.clear()
+        person = self._make_person(with_tmdb=False)
+        person.tmdb_person = "17419"
+        person.save()
+        user = User.register(email="viewer5@example.com", username="viewer5")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(self._url(person))
+        assert response.status_code == 400
+
     def test_enqueues_and_locks(self, monkeypatch):
         import sys
 
         from django.core.cache import cache
         from django.test import Client
 
-        from catalog.views.edit import fetch_works_for_person_task
+        from catalog.jobs.people_works import fetch_works_for_person_task
 
         cache.clear()
         person = self._make_person()
+        tmdb_resource = person.external_resources.get(id_type=IdType.TMDB_Person)
         user = User.register(email="viewer3@example.com", username="viewer3")
         client = Client()
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
@@ -1738,20 +1910,99 @@ class TestFetchPeopleWorksView:
             def enqueue(self, fn, *args, **kwargs):
                 enqueued.append((fn, args))
 
-        edit_module = sys.modules["catalog.views.edit"]
+        people_works_module = sys.modules["catalog.jobs.people_works"]
         monkeypatch.setattr(
-            edit_module.django_rq, "get_queue", lambda name: _FakeQueue()
+            people_works_module.django_rq, "get_queue", lambda name: _FakeQueue()
         )
 
-        response = client.post(self._url(person))
+        response = client.post(self._url(person), {"resource_id": tmdb_resource.pk})
         assert response.status_code == 302
         assert len(enqueued) == 1
         assert enqueued[0][0] is fetch_works_for_person_task
+        assert enqueued[0][1] == (
+            person.uuid,
+            user.pk,
+            IdType.TMDB_Person,
+            "17419",
+        )
         assert cache.get(f"_fetch_works_lock:{person.pk}") == 1
 
-        response2 = client.post(self._url(person))
+        response2 = client.post(self._url(person), {"resource_id": tmdb_resource.pk})
         assert response2.status_code == 302
         assert len(enqueued) == 1  # lock prevents re-enqueue
+
+    def test_enqueues_douban_resource(self, monkeypatch):
+        import sys
+
+        from django.core.cache import cache
+        from django.test import Client
+
+        from catalog.jobs.people_works import fetch_works_for_person_task
+
+        cache.clear()
+        person = self._make_person(with_tmdb=False, with_douban=True)
+        douban_resource = person.external_resources.get(id_type=IdType.DoubanPersonage)
+        user = User.register(email="viewer8@example.com", username="viewer8")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+        enqueued: list[tuple] = []
+
+        class _FakeQueue:
+            def enqueue(self, fn, *args, **kwargs):
+                enqueued.append((fn, args))
+
+        people_works_module = sys.modules["catalog.jobs.people_works"]
+        monkeypatch.setattr(
+            people_works_module.django_rq, "get_queue", lambda name: _FakeQueue()
+        )
+
+        response = client.post(self._url(person), {"resource_id": douban_resource.pk})
+        assert response.status_code == 302
+        assert len(enqueued) == 1
+        assert enqueued[0][0] is fetch_works_for_person_task
+        assert enqueued[0][1] == (
+            person.uuid,
+            user.pk,
+            IdType.DoubanPersonage,
+            "27228768",
+        )
+
+    def test_invalid_resource_id_returns_400(self):
+        from django.core.cache import cache
+        from django.test import Client
+
+        cache.clear()
+        person = self._make_person()
+        user = User.register(email="viewer6@example.com", username="viewer6")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(self._url(person), {"resource_id": "999999"})
+        assert response.status_code == 400
+
+    def test_edit_page_shows_pull_button_for_tmdb_resource(self):
+        from django.test import Client
+
+        person = self._make_person()
+        user = User.register(email="viewer7@example.com", username="viewer7")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(f"{person.url}/edit")
+        assert response.status_code == 200
+        assert b"pull works" in response.content
+        assert b'name="resource_id"' in response.content
+
+    def test_edit_page_shows_pull_button_for_douban_resource(self):
+        from django.test import Client
+
+        person = self._make_person(with_tmdb=False, with_douban=True)
+        user = User.register(email="viewer9@example.com", username="viewer9")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(f"{person.url}/edit")
+        assert response.status_code == 200
+        assert b"pull works" in response.content
+        assert b'name="resource_id"' in response.content
 
     def test_protected_person_forbidden_for_non_staff(self):
         from django.core.cache import cache

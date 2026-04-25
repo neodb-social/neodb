@@ -58,6 +58,19 @@
           {% trans 'External website' %}: <a href="{{ res.url }}" rel="noopener noreferrer">{{ res.site_label }}</a>
         </summary>
         <div class="grid">
+          {% if item.class_name == "people" %}
+            {% if res.id_type in people_works_source_ids %}
+              <form method="post"
+                    action="{% url 'catalog:fetch_people_works' item.url_path item.uuid %}">
+                {% csrf_token %}
+                <input type="hidden" name="resource_id" value="{{ res.id }}">
+                <input class="outline"
+                       type="submit"
+                       title="{% trans 'Fetch films and TV shows for this person from this external source' %}"
+                       value="{% trans 'pull works' %}">
+              </form>
+            {% endif %}
+          {% endif %}
           <form method="post"
                 action="{% url 'catalog:refetch' %}"
                 onsubmit="return confirm('{% trans "Existing metadata might get overwritten, sure to proceed?" %}');">

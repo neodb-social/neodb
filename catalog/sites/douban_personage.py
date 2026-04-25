@@ -1,6 +1,10 @@
 import re
+from urllib.parse import urlencode
+
+from loguru import logger
 
 from catalog.common import *
+from catalog.common.downloaders import BasicDownloader
 from catalog.models import *
 from common.models.lang import detect_language
 
@@ -16,6 +20,8 @@ class DoubanPersonage(AbstractSite):
     ]
     WIKI_PROPERTY_ID = "P12836"
     DEFAULT_MODEL = People
+    SUPPORTS_PEOPLE_WORK_FETCH = True
+    PEOPLE_WORKS_SOURCE_LABEL = "douban"
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -99,6 +105,64 @@ class DoubanPersonage(AbstractSite):
             pd.lookup_ids[IdType.IMDB] = imdb_id
 
         return pd
+
+    def fetch_people_work_urls(self) -> list[str]:
+        """Return deduped Douban movie/TV URLs from a personage's works endpoint."""
+        if not self.id_value:
+            return []
+        urls: list[str] = []
+        seen: set[str] = set()
+        headers = {
+            **BasicDownloader.headers,
+            "Accept": "application/json, text/plain, */*",
+            "Referer": self.url or self.id_to_url(self.id_value),
+        }
+        for released in (1, 0):
+            params = urlencode(
+                {
+                    "title": "影视",
+                    "sortby": "time",
+                    "count": 100,
+                    "released": released,
+                }
+            )
+            api_url = (
+                f"https://www.douban.com/j/personage/{self.id_value}/works?{params}"
+            )
+            try:
+                data = (
+                    BasicDownloader(api_url, headers=headers, timeout=10)
+                    .download()
+                    .json()
+                )
+            except Exception as e:
+                logger.error(
+                    f"Douban personage works fetch failed for {self.id_value}: {e}"
+                )
+                continue
+            if not isinstance(data, dict):
+                logger.error(
+                    f"Douban personage works response is invalid for {self.id_value}"
+                )
+                continue
+            for entry in (data.get("data") or {}).get("items") or []:
+                if not isinstance(entry, dict):
+                    continue
+                subject = entry.get("subject") or {}
+                if not isinstance(subject, dict):
+                    continue
+                url = subject.get("url") or ""
+                if not re.match(r"https?://movie\.douban\.com/subject/\d+/?$", url):
+                    continue
+                if url in seen:
+                    continue
+                seen.add(url)
+                urls.append(url)
+        return urls
+
+
+def douban_personage_work_urls(douban_personage_id: str) -> list[str]:
+    return DoubanPersonage(id_value=douban_personage_id).fetch_people_work_urls()
 
 
 def _split_name(raw_name: str) -> tuple[str | None, str | None]:

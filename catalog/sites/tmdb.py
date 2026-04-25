@@ -652,6 +652,8 @@ class TMDB_Person(AbstractSite):
     URL_PATTERNS = [r"^\w+://www.themoviedb.org/person/(\d+)"]
     WIKI_PROPERTY_ID = "P4985"
     DEFAULT_MODEL = People
+    SUPPORTS_PEOPLE_WORK_FETCH = True
+    PEOPLE_WORKS_SOURCE_LABEL = "tmdb"
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -699,6 +701,39 @@ class TMDB_Person(AbstractSite):
             pd.lookup_ids[IdType.WikiData] = ext["wikidata_id"]
         return pd
 
+    def fetch_people_work_urls(self) -> list[str]:
+        """Return deduped Movie/TV TMDB URLs from /person/{id}/combined_credits.
+
+        Returns an empty list on download or parse failure so background tasks stay
+        resilient. The endpoint is single-response (not paginated).
+        """
+        if not self.id_value:
+            return []
+        api_url = (
+            f"https://api.themoviedb.org/3/person/{self.id_value}/combined_credits"
+            f"?api_key={SiteConfig.system.tmdb_api_key}"
+        )
+        try:
+            data = BasicDownloader(api_url).download().json()
+        except Exception as e:
+            logger.error(f"TMDB combined_credits fetch failed for {self.id_value}: {e}")
+            return []
+        if not isinstance(data, dict):
+            logger.error(
+                f"TMDB combined_credits response is invalid for {self.id_value}"
+            )
+            return []
+        urls: set[str] = set()
+        for entry in (data.get("cast") or []) + (data.get("crew") or []):
+            if not isinstance(entry, dict):
+                continue
+            media_type = entry.get("media_type")
+            tmdb_id = entry.get("id")
+            template = TMDB_WORK_URL_TEMPLATES.get(media_type)
+            if template and tmdb_id:
+                urls.add(template.format(id=tmdb_id))
+        return sorted(urls)
+
 
 TMDB_WORK_URL_TEMPLATES = {
     "movie": "https://www.themoviedb.org/movie/{id}",
@@ -707,25 +742,4 @@ TMDB_WORK_URL_TEMPLATES = {
 
 
 def tmdb_person_combined_credit_urls(tmdb_person_id: str) -> list[str]:
-    """Return deduped Movie/TV TMDB URLs from /person/{id}/combined_credits.
-
-    Returns an empty list on download or parse failure so background tasks stay
-    resilient. The endpoint is single-response (not paginated).
-    """
-    api_url = (
-        f"https://api.themoviedb.org/3/person/{tmdb_person_id}/combined_credits"
-        f"?api_key={SiteConfig.system.tmdb_api_key}"
-    )
-    try:
-        data = BasicDownloader(api_url).download().json()
-    except Exception as e:
-        logger.error(f"TMDB combined_credits fetch failed for {tmdb_person_id}: {e}")
-        return []
-    urls: set[str] = set()
-    for entry in (data.get("cast") or []) + (data.get("crew") or []):
-        media_type = entry.get("media_type")
-        tmdb_id = entry.get("id")
-        template = TMDB_WORK_URL_TEMPLATES.get(media_type)
-        if template and tmdb_id:
-            urls.add(template.format(id=tmdb_id))
-    return sorted(urls)
+    return TMDB_Person(id_value=tmdb_person_id).fetch_people_work_urls()
