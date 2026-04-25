@@ -929,6 +929,9 @@ class TestDoubanPersonage:
     def test_work_urls(self, monkeypatch):
         from catalog.sites import douban_personage as douban_personage_module
 
+        monkeypatch.setattr(
+            douban_personage_module, "DOUBAN_PERSONAGE_WORKS_PAGE_SIZE", 2
+        )
         payloads = [
             {
                 "r": 0,
@@ -943,11 +946,20 @@ class TestDoubanPersonage:
                 "r": 0,
                 "data": {
                     "items": [
-                        {"subject": {"url": "https://movie.douban.com/subject/11/"}},
                         {"subject": {"url": "https://movie.douban.com/subject/33/"}},
                     ]
                 },
             },
+            {
+                "r": 0,
+                "data": {
+                    "items": [
+                        {"subject": {"url": "https://movie.douban.com/subject/11/"}},
+                        {"subject": {"url": "https://movie.douban.com/subject/44/"}},
+                    ]
+                },
+            },
+            {"r": 0, "data": {"items": []}},
         ]
         urls: list[str] = []
 
@@ -973,9 +985,16 @@ class TestDoubanPersonage:
         assert site.fetch_people_work_urls() == [
             "https://movie.douban.com/subject/11/",
             "https://movie.douban.com/subject/33/",
+            "https://movie.douban.com/subject/44/",
         ]
         assert "released=1" in urls[0]
-        assert "released=0" in urls[1]
+        assert "start=0" in urls[0]
+        assert "released=1" in urls[1]
+        assert "start=2" in urls[1]
+        assert "released=0" in urls[2]
+        assert "start=0" in urls[2]
+        assert "released=0" in urls[3]
+        assert "start=2" in urls[3]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -1707,6 +1726,67 @@ class TestFetchWorksForPersonTask:
             "https://www.themoviedb.org/tv/22",
         }
         assert all(not c[1] for c in calls)
+
+    def test_enqueues_credit_link_after_fetch_jobs(self, monkeypatch):
+        import sys
+
+        from catalog.jobs.people_works import (
+            fetch_works_for_person_task,
+            link_people_works_task,
+        )
+        from catalog.sites.tmdb import TMDB_Person
+
+        people_works_module = sys.modules["catalog.jobs.people_works"]
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Actor Async"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ExternalResource.objects.create(
+            item=person,
+            id_type=IdType.TMDB_Person,
+            id_value="17419",
+            url="https://www.themoviedb.org/person/17419",
+        )
+
+        user = User.register(email="worker5@example.com", username="worker5")
+        immediate_links = []
+        queued = []
+        monkeypatch.setattr(
+            people_works_module,
+            "enqueue_fetch",
+            lambda url, is_refetch=False, user=None: f"fetch-{url.rsplit('/', 1)[-1]}",
+        )
+        monkeypatch.setattr(
+            People,
+            "link_matching_credits",
+            lambda self: immediate_links.append(self.pk),
+        )
+
+        class _FakeQueue:
+            def enqueue(self, fn, *args, **kwargs):
+                queued.append((fn, args, kwargs))
+
+        monkeypatch.setattr(
+            people_works_module.django_rq, "get_queue", lambda name: _FakeQueue()
+        )
+        monkeypatch.setattr(
+            TMDB_Person,
+            "fetch_people_work_urls",
+            lambda site: [
+                "https://www.themoviedb.org/movie/11",
+                "https://www.themoviedb.org/tv/22",
+            ],
+        )
+
+        fetch_works_for_person_task(person.uuid, user.pk)
+
+        assert immediate_links == []
+        assert len(queued) == 1
+        fn, args, kwargs = queued[0]
+        assert fn is link_people_works_task
+        assert args == (person.uuid, user.pk)
+        assert kwargs["depends_on"].dependencies == ["fetch-11", "fetch-22"]
+        assert kwargs["depends_on"].allow_failure is True
 
     def test_enqueues_douban_personage_urls(self, monkeypatch):
         import sys

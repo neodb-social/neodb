@@ -1,5 +1,6 @@
 import django_rq
 from auditlog.context import set_actor
+from rq.job import Dependency
 
 from users.models import User
 
@@ -72,6 +73,14 @@ def enqueue_people_works(person: People, user: User, resource: ExternalResource)
     )
 
 
+def link_people_works_task(person_uuid, user_id):
+    user = User.objects.filter(pk=user_id).first() if user_id else None
+    with set_actor(user):
+        person = People.get_by_url(person_uuid)
+        if person:
+            person.link_matching_credits()
+
+
 def fetch_works_for_person_task(
     person_uuid, user_id, source_id_type=None, source_id_value=None
 ):
@@ -100,8 +109,17 @@ def fetch_works_for_person_task(
             return
         site = site_cls(id_value=str(source_id_value))
         urls = site.fetch_people_work_urls()
+        fetch_job_ids: list[str] = []
         for url in urls:
-            enqueue_fetch(url, is_refetch=False, user=user)
-        person.link_matching_credits()
+            fetch_job_id = enqueue_fetch(url, is_refetch=False, user=user)
+            if fetch_job_id:
+                fetch_job_ids.append(fetch_job_id)
+        if fetch_job_ids:
+            django_rq.get_queue("crawl").enqueue(
+                link_people_works_task,
+                person.uuid,
+                user.pk if user else None,
+                depends_on=Dependency(fetch_job_ids, allow_failure=True),
+            )
         source_label = get_people_works_source_label(source_id_type)
         person.log_action({"!fetch_works": [source_label, len(urls)]})
