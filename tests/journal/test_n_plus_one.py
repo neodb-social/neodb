@@ -1251,6 +1251,51 @@ class TestReviewsPrefetch:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestGetMarkForItemUsesPrefetched:
+    """get_mark_for_item template tag must reuse Mark.attach_to_items output."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="gmf@example.com", username="gmfuser")
+        self.books = [Edition.objects.create(title=f"GMF Book {i}") for i in range(3)]
+        for i, book in enumerate(self.books):
+            Mark(self.user.identity, book).update(
+                ShelfType.COMPLETE, f"comment {i}", i + 5, [f"tag{i}"], 0
+            )
+
+    def test_returns_prefetched_mark_without_queries(self):
+        from journal.templatetags.user_actions import get_mark_for_item
+
+        Mark.attach_to_items(self.user.identity, self.books, self.user)
+
+        class _Req:
+            user = self.user
+
+        context = {"request": _Req()}
+        with CaptureQueriesContext(connection) as ctx:
+            for book in self.books:
+                m = get_mark_for_item(context, book)
+                assert m is book.mark
+                assert m.shelf_type == ShelfType.COMPLETE
+                assert m.rating_grade is not None
+                assert m.comment is not None
+                assert m.tags
+        assert ctx.captured_queries == []
+
+    def test_falls_back_when_no_prefetch(self):
+        from journal.templatetags.user_actions import get_mark_for_item
+
+        class _Req:
+            user = self.user
+
+        context = {"request": _Req()}
+        m = get_mark_for_item(context, self.books[0])
+        # No item.mark attached, so a fresh Mark is created (will query lazily).
+        assert m is not None
+        assert m.shelf_type == ShelfType.COMPLETE
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestCollectionMemberParent:
     """Collection page must not dereference member.parent per collection member."""
 

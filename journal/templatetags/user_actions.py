@@ -9,9 +9,12 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def get_mark_for_item(context, item):
     user = context["request"].user
-    return (
-        Mark(user.identity, item) if user and user.is_authenticated and item else None
-    )
+    if not (user and user.is_authenticated and item):
+        return None
+    cached = getattr(item, "mark", None)
+    if cached is not None and cached.owner.pk == user.identity.pk:
+        return cached
+    return Mark(user.identity, item)
 
 
 @register.simple_tag(takes_context=True)
