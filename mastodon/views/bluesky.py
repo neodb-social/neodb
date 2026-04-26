@@ -3,6 +3,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import count as sentry_count
 from common.views import render_error
 
 from ..models import Bluesky
@@ -11,6 +12,7 @@ from .common import disconnect_identity, process_verified_account
 
 @require_http_methods(["POST"])
 def bluesky_login(request: HttpRequest):
+    sentry_count("login.attempt", attributes={"type": "bluesky"})
     username = request.POST.get("username", "").strip().lstrip("@")
     password = request.POST.get("password", "").strip()
     if not username or not password:

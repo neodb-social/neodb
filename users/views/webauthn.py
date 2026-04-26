@@ -24,6 +24,7 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
 )
 
+from common.sentry import count as sentry_count
 from common.validators import get_safe_redirect_url
 
 from ..models import WebAuthnCredential
@@ -139,6 +140,7 @@ def passkey_login_options(request):
 
 @require_http_methods(["POST"])
 def passkey_login_verify(request):
+    sentry_count("login.attempt", attributes={"type": "passkey"})
     entry = request.session.pop("webauthn_login_challenge", None)
     if not entry:
         return HttpResponseBadRequest("No login challenge in session")

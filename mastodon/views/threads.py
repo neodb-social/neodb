@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import count as sentry_count
 from common.views import render_error
 
 from ..models import Threads
@@ -14,6 +15,7 @@ from .common import disconnect_identity, process_verified_account
 @require_http_methods(["POST"])
 def threads_login(request: HttpRequest):
     """start login process via threads"""
+    sentry_count("login.attempt", attributes={"type": "threads"})
     return redirect(Threads.generate_auth_url(request))
 
 

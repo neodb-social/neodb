@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import count as sentry_count
 from common.views import render_error
 from mastodon.models import Mastodon
 from mastodon.views.common import disconnect_identity, process_verified_account
@@ -17,6 +18,10 @@ def mastodon_login(request):
         return render_error(request, _("Missing instance domain"))
     login_domain = (
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
+    )
+    sentry_count(
+        "login.attempt",
+        attributes={"type": "mastodon", "domain": login_domain or "unknown"},
     )
     try:
         login_url = Mastodon.generate_auth_url(login_domain, request)

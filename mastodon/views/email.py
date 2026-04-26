@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import count as sentry_count
 from common.views import render_error
 
 from ..forms import EmailLoginForm
@@ -25,6 +26,7 @@ def email_login_state(request):
 
 @require_http_methods(["POST"])
 def email_login(request: HttpRequest):
+    sentry_count("login.attempt", attributes={"type": "email"})
     form = EmailLoginForm(request.POST)
     if not form.is_valid():
         return render_error(request, _("Invalid captcha"))

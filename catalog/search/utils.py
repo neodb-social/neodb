@@ -13,6 +13,8 @@ from catalog.common import (
     DownloadError,
     SiteManager,
 )
+from common.sentry import count as sentry_count
+from common.sentry import url_domain
 from takahe.search import search_by_ap_url
 from users.models import User
 
@@ -133,6 +135,13 @@ def enqueue_fetch(url, is_refetch, user=None):
     return job_id
 
 
+def _record_fetch_failure(url: str) -> None:
+    sentry_count(
+        "catalog.fetch.failure",
+        attributes={"domain": url_domain(url)},
+    )
+
+
 def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
     user = User.objects.get(pk=user_pk) if user_pk else None
     with set_actor(user):
@@ -145,6 +154,7 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
                     logger.info(f"fetched {url} {item_url}")
                     return item_url
                 logger.warning(f"Site not found for {url}")
+                _record_fetch_failure(url)
                 return "-"
             res = site.get_resource_ready(ignore_existing_content=is_refetch)
             item = res.item if res else None
@@ -153,9 +163,12 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
                 return item.url
             else:
                 logger.error(f"fetch {url} failed")
+                _record_fetch_failure(url)
         except DownloadError as e:
             if e.response_type != RESPONSE_CENSORSHIP:
                 logger.error(f"fetch {url} error", extra={"exception": e})
+            _record_fetch_failure(url)
         except Exception as e:
             logger.error(f"parse {url} error {e}", extra={"exception": e})
+            _record_fetch_failure(url)
         return "-"

@@ -6,6 +6,8 @@ from loguru import logger
 from catalog.common import SiteManager
 from catalog.models import Item
 from catalog.sites.fedi import FediverseInstance
+from common.sentry import count as sentry_count
+from common.sentry import url_domain
 from common.utils import discord_send
 from journal.models import (
     Comment,
@@ -117,6 +119,24 @@ def post_fetched(pk, post_data):
     return _post_fetched(pk, False, post_data, True)
 
 
+def _remote_post_domain(post: Any) -> str:
+    author = getattr(post, "author", None)
+    if not author:
+        return "unknown"
+    try:
+        domain = getattr(author, "uri_domain", None)
+    except Exception:
+        domain = None
+    return domain or url_domain(getattr(author, "actor_uri", None))
+
+
+def _record_remote_post_fetched(post: Any) -> None:
+    sentry_count(
+        "post.fetched",
+        attributes={"domain": _remote_post_domain(post)},
+    )
+
+
 def _post_fetched(pk, local, post_data, create: bool | None = None):
     retry = 1
     while True:
@@ -158,6 +178,7 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
             JournalIndex.instance().replace_posts([post])
             return
     else:
+        _record_remote_post_fetched(post)
         if not post.type_data and not post_data:
             logger.warning(f"Remote post {post} has no type_data")
             return

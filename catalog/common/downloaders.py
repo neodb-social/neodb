@@ -18,6 +18,8 @@ from requests import Response
 from requests.exceptions import RequestException
 
 from common.models import SiteConfig
+from common.sentry import count as sentry_count
+from common.sentry import url_domain
 
 RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
@@ -226,6 +228,18 @@ class BasicDownloader:
         if timeout:
             self.timeout = timeout
 
+    def _record_download_invocation(self) -> None:
+        if getattr(self, "_suppress_download_invocation_metric", False):
+            self._suppress_download_invocation_metric = False
+            return
+        sentry_count(
+            "catalog.download",
+            attributes={"domain": url_domain(self.url)},
+        )
+
+    def _suppress_next_download_invocation_metric(self) -> None:
+        self._suppress_download_invocation_metric = True
+
     def validate_response(self, response) -> int:
         if response is None:
             return RESPONSE_NETWORK_ERROR
@@ -271,6 +285,7 @@ class BasicDownloader:
             return None, RESPONSE_NETWORK_ERROR
 
     def download(self) -> ResponseType:
+        self._record_download_invocation()
         resp, self.response_type = self._download(self.url)
         if self.response_type == RESPONSE_OK and resp:
             return resp
@@ -311,6 +326,7 @@ class BasicDownloader2(BasicDownloader):
             return None, RESPONSE_NETWORK_ERROR
 
     def download(self) -> ResponseType:
+        self._record_download_invocation()
         resp, self.response_type = self._download(self.url)
         if self.response_type == RESPONSE_OK and resp:
             return resp
@@ -336,6 +352,7 @@ class ProxiedDownloader(BasicDownloader):
         )
 
     def download(self):
+        self._record_download_invocation()
         urls = self.get_proxied_urls()
         last_try = False
         url = urls.pop(0) if len(urls) else None
@@ -363,6 +380,7 @@ class ProxiedDownloader(BasicDownloader):
 
 class RetryDownloader(BasicDownloader):
     def download(self):
+        self._record_download_invocation()
         retries = SiteConfig.system.downloader_retries
         total_retries = retries
         while retries:
@@ -380,11 +398,13 @@ class RetryDownloader(BasicDownloader):
 
 class CachedDownloader(BasicDownloader):
     def download(self):
+        self._record_download_invocation()
         cache_key = "dl:" + self.url
         resp = cache.get(cache_key)
         if resp:
             self.response_type = RESPONSE_OK
         else:
+            self._suppress_next_download_invocation_metric()
             resp = super().download()
             if self.response_type == RESPONSE_OK:
                 cache.set(
@@ -816,6 +836,10 @@ class ScrapDownloader(BasicDownloader):
 
     def _scrape_with_provider(self, provider: str) -> Tuple[ResponseType | None, int]:
         """Scrape using the specified provider."""
+        sentry_count(
+            "catalog.scraper",
+            attributes={"domain": url_domain(self.url), "provider": provider},
+        )
         logger.debug(f"Fetching {self.url} with {provider}...")
         if provider == "scrapfly":
             api_key = SiteConfig.system.downloader_scrapfly_key
@@ -880,6 +904,7 @@ class ScrapDownloader(BasicDownloader):
             logger.debug("No scraping providers configured, using basic download")
             return super().download()
 
+        self._record_download_invocation()
         resp = None
         resp_type = None
 
