@@ -80,15 +80,10 @@
 }
 
 .tag-input {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: start;
-  -ms-flex-pack: start;
   justify-content: flex-start;
-  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  border-bottom: 0.1rem solid #ccc;
+  border-bottom: 0.1rem solid var(--pico-muted-border-color);
   padding-bottom: 2px;
 }
 
@@ -97,19 +92,18 @@
   display: block;
   float: left;
   color: white;
-  background: #d5d5d5;
+  background: var(--pico-muted-color);
   padding: 5px 20px 5px 6px;
   margin: 4px;
   border-radius: .4rem;
   line-height: 1em;
-  -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
   height: min-content;
 }
 
 .tag-input__tag.tag-input__tag--highlight {
   color: white;
-  background: #00a1cc;
+  background: var(--pico-primary);
 }
 
 .tag-input__close {
@@ -120,7 +114,6 @@
   height: 100%;
   cursor: pointer;
   border-radius: 0 2px 2px 0;
-  -webkit-transition: background 0.2s;
   transition: background 0.2s;
 }
 
@@ -132,7 +125,7 @@
 }
 
 .tag-input__close:hover {
-  color: #606c76;
+  color: var(--pico-primary);
 }
 
 .tag-input input {
