@@ -29,7 +29,7 @@ class CrewMemberSchema(Schema):
     role: str | None
 
 
-class _PerformanceCreditResolverMixin:
+class _PerformanceCreditResolverMixin(Schema):
     @staticmethod
     def resolve_director(obj: "Performance | PerformanceProduction") -> list[str]:
         return obj.credit_names_by_role("director")

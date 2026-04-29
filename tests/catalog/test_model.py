@@ -1,6 +1,16 @@
 import pytest
 
-from catalog.models import CreditRole, Edition, Item, ItemCredit, Movie
+from catalog.models import (
+    CreditRole,
+    Edition,
+    Item,
+    ItemCredit,
+    Movie,
+    Performance,
+    PerformanceProduction,
+    TVSeason,
+    TVShow,
+)
 from catalog.models.people import People
 from common.models.jsondata import decrypt_str, encrypt_str
 
@@ -161,3 +171,56 @@ class TestSyncCreditsFromMetadata:
         m.save()
         m.sync_credits_from_metadata()
         assert m.credits.filter(role=CreditRole.Composer).count() == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSchemaCreditResolvers:
+    """Schemas must source credit fields from ItemCredit via resolve_*.
+
+    Regression for NEODB-SOCIAL-4MQ: resolver methods defined on a plain mixin
+    (not a Schema subclass) were silently dropped by ninja's ResolverMetaclass,
+    so ap_object fell back to the raw jsondata field. When that field held
+    corrupted scalar data (string instead of list) Pydantic raised
+    `Input should be a valid list`.
+    """
+
+    def _seed_credit(self, item: Item, role: str, name: str) -> None:
+        ItemCredit.objects.create(item=item, role=role, name=name, order=0)
+
+    def _assert_director_resolved(self, item: Item, expected: list[str]) -> None:
+        # Stash a corrupted scalar in the legacy jsondata field; the resolver
+        # must ignore it and read from credits instead.
+        setattr(item, "director", "corrupt-string")
+        item.save()
+        self._seed_credit(item, CreditRole.Director, expected[0])
+        # Bust the cached_property since we just inserted a credit.
+        item.__dict__.pop("role_credits", None)
+        assert item.ap_object["director"] == expected
+
+    def test_tvseason_resolves_director_from_credits(self):
+        season = TVSeason.objects.create(title="Season")
+        season.localized_title = [{"lang": "en", "text": "Season"}]
+        self._assert_director_resolved(season, ["Real Director"])
+
+    def test_tvshow_resolves_director_from_credits(self):
+        show = TVShow.objects.create(title="Show")
+        show.localized_title = [{"lang": "en", "text": "Show"}]
+        self._assert_director_resolved(show, ["Real Director"])
+
+    def test_performance_resolves_director_from_credits(self):
+        perf = Performance.objects.create(title="Play")
+        perf.localized_title = [{"lang": "en", "text": "Play"}]
+        self._assert_director_resolved(perf, ["Real Director"])
+
+    def test_performance_production_resolves_director_from_credits(self):
+        perf = Performance.objects.create(title="Play")
+        perf.localized_title = [{"lang": "en", "text": "Play"}]
+        perf.save()
+        prod = PerformanceProduction.objects.create(title="Run", show=perf)
+        prod.localized_title = [{"lang": "en", "text": "Run"}]
+        self._assert_director_resolved(prod, ["Real Director"])
+
+    def test_movie_resolves_director_from_credits(self):
+        m = Movie.objects.create(title="Film")
+        m.localized_title = [{"lang": "en", "text": "Film"}]
+        self._assert_director_resolved(m, ["Real Director"])

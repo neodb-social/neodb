@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
+from ninja import Schema
 
 from common.models.lang import RE_LOCALIZED_SEASON_NUMBERS, localize_number
 from common.models.misc import int_, uniq
@@ -55,7 +56,7 @@ from .item import (
 from .people import PeopleRole
 
 
-class _TVCreditResolverMixin:
+class _TVCreditResolverMixin(Schema):
     @staticmethod
     def resolve_director(obj: "TVShow | TVSeason") -> list[str]:
         return obj.credit_names_by_role("director")
