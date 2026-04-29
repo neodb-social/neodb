@@ -75,6 +75,16 @@ class EditionInSchema(ItemInSchema):
     def resolve_translator(obj: "Edition") -> list[str]:
         return obj.credit_names_by_role("translator")
 
+    @staticmethod
+    def resolve_pub_house(obj: "Edition") -> str | None:
+        names = obj.credit_names_by_role("publisher")
+        return "/".join(names) if names else None
+
+    @staticmethod
+    def resolve_imprint(obj: "Edition") -> str | None:
+        names = obj.credit_names_by_role("imprint")
+        return "/".join(names) if names else None
+
 
 class EditionSchema(EditionInSchema, BaseSchema):
     isbn: str | None = None

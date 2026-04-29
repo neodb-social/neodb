@@ -995,9 +995,11 @@ class Item(PolymorphicModel):
 
         metadata_changed = False
         for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
-            values = getattr(self, field_name, None) or []
-            if isinstance(values, str):
-                values = [values]
+            original = getattr(self, field_name, None)
+            scalar_field = isinstance(original, str)
+            values = original or []
+            if scalar_field:
+                values = [original]
 
             existing = credits_by_role.get(credit_role, [])
             linked_by_name = {c.name: c.person for c in existing if c.person}
@@ -1012,7 +1014,8 @@ class Item(PolymorphicModel):
                     raw_name = str(value or "").strip()
                     character = ""
                 if not raw_name:
-                    new_values.append(value)
+                    if value is not None:
+                        new_values.append(value)
                     continue
                 person, display = _resolve(raw_name)
                 if person is None and raw_name in linked_by_name:
@@ -1027,7 +1030,11 @@ class Item(PolymorphicModel):
                     new_values.append(canonical)
                 desired.append((display, character, person))
 
-            if new_values != values:
+            if scalar_field:
+                new_value = new_values[0] if new_values else ""
+                if new_value != original:
+                    setattr(self, field_name, new_value)
+            elif new_values != values:
                 setattr(self, field_name, new_values)
 
             existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}

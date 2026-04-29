@@ -224,3 +224,72 @@ class TestSchemaCreditResolvers:
         m = Movie.objects.create(title="Film")
         m.localized_title = [{"lang": "en", "text": "Film"}]
         self._assert_director_resolved(m, ["Real Director"])
+
+    def test_edition_resolves_pub_house_from_credits(self):
+        edition = Edition.objects.create(title="Book")
+        edition.localized_title = [{"lang": "en", "text": "Book"}]
+        edition.pub_house = "stale-jsondata"
+        edition.save()
+        ItemCredit.objects.create(
+            item=edition, role=CreditRole.Publisher, name="Penguin", order=0
+        )
+        edition.__dict__.pop("role_credits", None)
+        assert edition.ap_object["pub_house"] == "Penguin"
+
+    def test_edition_resolves_imprint_from_credits(self):
+        edition = Edition.objects.create(title="Book")
+        edition.localized_title = [{"lang": "en", "text": "Book"}]
+        edition.imprint = "stale-jsondata"
+        edition.save()
+        ItemCredit.objects.create(item=edition, role="imprint", name="Vintage", order=0)
+        edition.__dict__.pop("role_credits", None)
+        assert edition.ap_object["imprint"] == "Vintage"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSyncCreditsScalarFields:
+    """`sync_credits_from_metadata` must not coerce scalar CharField values
+    (Edition.pub_house, Edition.imprint) into list reprs.
+
+    Regression: a previous version always wrote `new_values` (a list) back to
+    the jsondata field, so re-saving an Edition with `pub_house="Foo"` flipped
+    it to `["Foo"]`, then to the literal string `"['Foo']"` once the form
+    round-tripped via `str(list)`.
+    """
+
+    def _make_edition(self) -> Edition:
+        e = Edition.objects.create(title="Test Book")
+        e.localized_title = [{"lang": "en", "text": "Test Book"}]
+        e.save()
+        return e
+
+    def test_pub_house_string_round_trips(self):
+        e = self._make_edition()
+        e.pub_house = "Penguin"
+        e.save()
+        e.sync_credits_from_metadata()
+        e.refresh_from_db()
+        assert e.pub_house == "Penguin"
+        assert e.credits.get(role=CreditRole.Publisher).name == "Penguin"
+
+    def test_imprint_string_round_trips(self):
+        e = self._make_edition()
+        e.imprint = "Vintage"
+        e.save()
+        e.sync_credits_from_metadata()
+        e.refresh_from_db()
+        assert e.imprint == "Vintage"
+        assert e.credits.get(role="imprint").name == "Vintage"
+
+    def test_pub_house_canonicalizes_to_person_url_as_string(self):
+        person = People.objects.create(people_type="organization", title="Penguin")
+        person.localized_name = [{"lang": "en", "text": "Penguin"}]
+        person.save()
+        e = self._make_edition()
+        e.pub_house = f"/organization/{person.uuid}"
+        e.save()
+        e.sync_credits_from_metadata()
+        e.refresh_from_db()
+        # Scalar field, not list — value must remain a string after canonicalization.
+        assert isinstance(e.pub_house, str)
+        assert e.pub_house == person.url

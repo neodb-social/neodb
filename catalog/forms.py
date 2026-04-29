@@ -131,10 +131,10 @@ def _EditForm(item_model):
                 values = self.initial.get(field_name)
                 if not values:
                     continue
-                if isinstance(values, str):
-                    values = [values]
+                scalar_field = isinstance(values, str)
+                iter_values = [values] if scalar_field else values
                 new_values: list[str | dict] = []
-                for v in values:
+                for v in iter_values:
                     if isinstance(v, dict):
                         name = v.get("name") or ""
                         canonical = linked.get((role, name))
@@ -143,7 +143,10 @@ def _EditForm(item_model):
                         name = str(v or "")
                         canonical = linked.get((role, name))
                         new_values.append(canonical if canonical else v)
-                self.initial[field_name] = new_values
+                if scalar_field:
+                    self.initial[field_name] = new_values[0] if new_values else ""
+                else:
+                    self.initial[field_name] = new_values
 
         def clean(self):
             data = super().clean() or {}
