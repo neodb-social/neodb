@@ -47,6 +47,7 @@ class CollectionForm(forms.ModelForm):
     brief = forms.CharField(
         label=_("Content (Markdown)"),
         strip=False,
+        required=False,
         widget=forms.Textarea(attrs={"class": "easymde-editor"}),
     )
     # share_to_mastodon = forms.BooleanField(label=_("Crosspost to timeline"), initial=True, required=False)
