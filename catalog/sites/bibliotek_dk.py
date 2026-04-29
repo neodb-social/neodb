@@ -152,7 +152,7 @@ class BibliotekDK_Edition(BibliotekDKSite):
             "author": authors,
             "language": language,
             "pub_year": pub_year,
-            "pub_house": pub_house,
+            "publisher": [pub_house] if pub_house else [],
             "isbn": isbn,
             "localized_description": (
                 [{"lang": language, "text": description}] if description else []

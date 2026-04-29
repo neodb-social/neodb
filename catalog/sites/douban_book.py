@@ -242,7 +242,7 @@ class DoubanBook(AbstractSite):
             "author": authors,
             "translator": translators,
             "language": language,
-            "pub_house": pub_house,
+            "publisher": [pub_house] if pub_house else [],
             "pub_year": pub_year,
             "pub_month": pub_month,
             "binding": binding,
@@ -254,7 +254,7 @@ class DoubanBook(AbstractSite):
             "brief": brief,
             "contents": contents,
             "series": series,
-            "imprint": imprint,
+            "imprint": [imprint] if imprint else [],
             "cover_image_url": img_url,
         }
 

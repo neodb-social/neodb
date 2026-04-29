@@ -118,7 +118,8 @@ class Goodreads(AbstractSite):
         data["pages"] = b["details"].get("numPages")
         data["binding"] = b["details"].get("format")
         data["format"] = binding_to_format(b["details"].get("format"))
-        data["pub_house"] = b["details"].get("publisher")
+        pub_house = b["details"].get("publisher")
+        data["publisher"] = [pub_house] if pub_house else []
         if b["details"].get("publicationTime"):
             dt = make_aware(
                 datetime.fromtimestamp(b["details"].get("publicationTime") / 1000)

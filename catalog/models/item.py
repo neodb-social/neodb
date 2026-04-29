@@ -806,6 +806,16 @@ class Item(PolymorphicModel):
     ]
 
     @classmethod
+    def normalize_legacy_metadata(cls, metadata: dict[str, Any]) -> None:
+        """Translate older metadata key/value shapes from federated peers,
+        backups, or pre-migration local DB into the current schema.
+
+        Mutates ``metadata`` in place. Subclasses extend for their own
+        legacy fields; call ``super()`` to chain.
+        """
+        return
+
+    @classmethod
     def copy_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
         d = {
             k: v
@@ -847,6 +857,7 @@ class Item(PolymorphicModel):
     @classmethod
     def create_from_external_resource(cls, p: "ExternalResource") -> Self:
         logger.debug(f"creating new item from {p}")
+        cls.normalize_legacy_metadata(p.metadata)
         obj = cls.copy_metadata(p.metadata)
         item = cls(**obj)
         if p.has_cover():
@@ -926,6 +937,7 @@ class Item(PolymorphicModel):
         self, p: "ExternalResource", ignore_existing_content: bool = False
     ):
         logger.debug(f"merging data from {p} to {self}")
+        type(self).normalize_legacy_metadata(p.metadata)
         for k in self.METADATA_COPY_LIST:
             v = p.metadata.get(k)
             if v:

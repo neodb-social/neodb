@@ -252,7 +252,7 @@ class TestCatalogSearch:
         self.book1.isbn = "9780618640157"
         self.book1.author = ["J.R.R. Tolkien"]
         self.book1.pub_year = 1954
-        self.book1.pub_house = "Allen & Unwin"
+        self.book1.publisher = ["Allen & Unwin"]
         self.book1.language = ["en"]
         self.book1.save()
         self.book1.sync_credits_from_metadata()
@@ -262,7 +262,7 @@ class TestCatalogSearch:
         self.book2.isbn = "9780547928227"
         self.book2.author = ["J.R.R. Tolkien"]
         self.book2.pub_year = 1937
-        self.book2.pub_house = "Allen & Unwin"
+        self.book2.publisher = ["Allen & Unwin"]
         self.book2.language = ["en"]
         self.book2.save()
         self.book2.sync_credits_from_metadata()
@@ -272,7 +272,7 @@ class TestCatalogSearch:
         self.book3.isbn = "9780441172719"
         self.book3.author = ["Frank Herbert"]
         self.book3.pub_year = 1965
-        self.book3.pub_house = "Chilton Books"
+        self.book3.publisher = ["Chilton Books"]
         self.book3.language = ["en", "fr"]
         self.book3.save()
         self.book3.sync_credits_from_metadata()

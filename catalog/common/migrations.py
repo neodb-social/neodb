@@ -702,3 +702,82 @@ def reindex_people_20260417():
         indexed += people_index.replace_docs(docs)
         seen += len(docs)
     logger.success(f"People reindex complete: {indexed} of {seen} docs indexed.")
+
+
+def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
+    """Convert Edition.pub_house (str) and Edition.imprint (str) jsondata to
+    `publisher` (list[str]) and `imprint` (list[str]), then resync credits.
+
+    Idempotent: rows where ``publisher``/``imprint`` are already lists are
+    left alone. Also repairs the ``"['Foo']"`` literal-string corruption
+    introduced by the prior form round-trip bug. After bulk-updating
+    metadata we call ``sync_credits_from_metadata`` per touched item so
+    fresh installs (where ``populate_credits_20260412`` ran before this
+    migration and saw empty ``publisher``) still get the credit rows.
+    """
+    from django.core.paginator import Paginator
+
+    from catalog.models import Edition
+    from catalog.models.book import _coerce_legacy_string_list
+
+    qs = Edition.objects.filter(is_deleted=False, merged_to_item__isnull=True).order_by(
+        "pk"
+    )
+    total = qs.count()
+    logger.info(f"Editions to scan: {total}")
+    converted = 0
+    pending: list[Edition] = []
+    touched_ids: list[int] = []
+    pg = Paginator(qs, batch_size)
+
+    def flush() -> None:
+        nonlocal converted
+        if pending:
+            Edition.objects.bulk_update(pending, ["metadata"])
+            converted += len(pending)
+            touched_ids.extend(item.pk for item in pending)
+            pending.clear()
+
+    with tqdm(total=total, desc="Edition publisher/imprint") as pbar:
+        for page_num in pg.page_range:
+            for item in pg.get_page(page_num).object_list:
+                metadata = item.metadata or {}
+                changed = False
+                pub_house = metadata.pop("pub_house", None)
+                publisher = metadata.get("publisher")
+                if pub_house is not None or not isinstance(publisher, list):
+                    new_publisher = _coerce_legacy_string_list(
+                        publisher if publisher else pub_house
+                    )
+                    if new_publisher != publisher:
+                        if new_publisher:
+                            metadata["publisher"] = new_publisher
+                        else:
+                            metadata.pop("publisher", None)
+                        changed = True
+                    elif pub_house is not None:
+                        # pub_house was popped; commit that drop.
+                        changed = True
+                imprint = metadata.get("imprint")
+                if imprint is not None and not isinstance(imprint, list):
+                    new_imprint = _coerce_legacy_string_list(imprint)
+                    if new_imprint:
+                        metadata["imprint"] = new_imprint
+                    else:
+                        metadata.pop("imprint", None)
+                    changed = True
+                if changed:
+                    item.metadata = metadata
+                    pending.append(item)
+                pbar.update(1)
+            if len(pending) >= batch_size:
+                flush()
+    flush()
+
+    logger.info(f"Resyncing credits for {len(touched_ids)} editions")
+    for pk in tqdm(touched_ids, desc="Edition credit resync"):
+        try:
+            Edition.objects.get(pk=pk).sync_credits_from_metadata()
+        except Edition.DoesNotExist:
+            continue
+    logger.success(f"Edition publisher/imprint normalization: {converted} updated")

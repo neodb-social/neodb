@@ -225,71 +225,68 @@ class TestSchemaCreditResolvers:
         m.localized_title = [{"lang": "en", "text": "Film"}]
         self._assert_director_resolved(m, ["Real Director"])
 
-    def test_edition_resolves_pub_house_from_credits(self):
+    def test_edition_resolves_publisher_from_credits(self):
         edition = Edition.objects.create(title="Book")
         edition.localized_title = [{"lang": "en", "text": "Book"}]
-        edition.pub_house = "stale-jsondata"
+        edition.publisher = ["stale-jsondata"]
         edition.save()
         ItemCredit.objects.create(
             item=edition, role=CreditRole.Publisher, name="Penguin", order=0
         )
         edition.__dict__.pop("role_credits", None)
-        assert edition.ap_object["pub_house"] == "Penguin"
+        ap = edition.ap_object
+        assert ap["publisher"] == ["Penguin"]
+        # Deprecated scalar still exposed for API back-compat.
+        assert ap["pub_house"] == "Penguin"
 
     def test_edition_resolves_imprint_from_credits(self):
         edition = Edition.objects.create(title="Book")
         edition.localized_title = [{"lang": "en", "text": "Book"}]
-        edition.imprint = "stale-jsondata"
+        edition.imprint = ["stale-jsondata"]
         edition.save()
         ItemCredit.objects.create(item=edition, role="imprint", name="Vintage", order=0)
         edition.__dict__.pop("role_credits", None)
-        assert edition.ap_object["imprint"] == "Vintage"
+        assert edition.ap_object["imprint"] == ["Vintage"]
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestSyncCreditsScalarFields:
-    """`sync_credits_from_metadata` must not coerce scalar CharField values
-    (Edition.pub_house, Edition.imprint) into list reprs.
-
-    Regression: a previous version always wrote `new_values` (a list) back to
-    the jsondata field, so re-saving an Edition with `pub_house="Foo"` flipped
-    it to `["Foo"]`, then to the literal string `"['Foo']"` once the form
-    round-tripped via `str(list)`.
+class TestEditionLegacyMetadataCoercion:
+    """Editions ingested from older peers / pre-migration backups carry
+    legacy ``pub_house`` (str) and scalar ``imprint`` keys. The
+    ``normalize_legacy_metadata`` hook must convert them to lists before
+    the metadata is applied to the model, including the
+    ``"['Foo']"`` literal-string corruption left by the prior form bug.
     """
 
-    def _make_edition(self) -> Edition:
-        e = Edition.objects.create(title="Test Book")
-        e.localized_title = [{"lang": "en", "text": "Test Book"}]
-        e.save()
-        return e
+    def test_normalizes_pub_house_string(self):
+        m = {"pub_house": "Penguin"}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"publisher": ["Penguin"]}
 
-    def test_pub_house_string_round_trips(self):
-        e = self._make_edition()
-        e.pub_house = "Penguin"
-        e.save()
-        e.sync_credits_from_metadata()
-        e.refresh_from_db()
-        assert e.pub_house == "Penguin"
-        assert e.credits.get(role=CreditRole.Publisher).name == "Penguin"
+    def test_normalizes_pub_house_list(self):
+        m = {"pub_house": ["Penguin", "Random House"]}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"publisher": ["Penguin", "Random House"]}
 
-    def test_imprint_string_round_trips(self):
-        e = self._make_edition()
-        e.imprint = "Vintage"
-        e.save()
-        e.sync_credits_from_metadata()
-        e.refresh_from_db()
-        assert e.imprint == "Vintage"
-        assert e.credits.get(role="imprint").name == "Vintage"
+    def test_unwraps_corrupted_list_repr(self):
+        m = {"pub_house": "['Penguin']"}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"publisher": ["Penguin"]}
 
-    def test_pub_house_canonicalizes_to_person_url_as_string(self):
-        person = People.objects.create(people_type="organization", title="Penguin")
-        person.localized_name = [{"lang": "en", "text": "Penguin"}]
-        person.save()
-        e = self._make_edition()
-        e.pub_house = f"/organization/{person.uuid}"
-        e.save()
-        e.sync_credits_from_metadata()
-        e.refresh_from_db()
-        # Scalar field, not list — value must remain a string after canonicalization.
-        assert isinstance(e.pub_house, str)
-        assert e.pub_house == person.url
+    def test_normalizes_scalar_imprint(self):
+        m = {"imprint": "Vintage"}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"imprint": ["Vintage"]}
+
+    def test_existing_publisher_list_takes_precedence(self):
+        # New shape already present; legacy pub_house is dropped, not merged.
+        m = {"publisher": ["Penguin"], "pub_house": "Old Stale"}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"publisher": ["Penguin"]}
+
+    def test_empty_pub_house_drops_key(self):
+        m = {"pub_house": "", "publisher": []}
+        Edition.normalize_legacy_metadata(m)
+        # Empty stays empty, pub_house dropped.
+        assert "pub_house" not in m
+        assert m.get("publisher", []) == []

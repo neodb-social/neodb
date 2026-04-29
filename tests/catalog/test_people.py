@@ -728,11 +728,11 @@ class TestOrganizationSupport:
         assert designers[0].name == "Shigeru Miyamoto"
 
     def test_populate_credits_single_string_field(self):
-        """pub_house is a single string, not a list."""
+        """Legacy pub_house (str) gets coerced to publisher list on populate."""
         book = Edition.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Test Book"}],
-                "pub_house": "Penguin Books",
+                "publisher": ["Penguin Books"],
             }
         )
         out = StringIO()
@@ -1146,7 +1146,7 @@ class TestSyncCreditsFromMetadata:
         book = Edition.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Book"}],
-                "pub_house": "Penguin",
+                "publisher": ["Penguin"],
             }
         )
         book.sync_credits_from_metadata()

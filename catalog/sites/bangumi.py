@@ -347,7 +347,7 @@ class Bangumi(AbstractSite):
                 "language": language,
                 "platform": platform,
                 "imdb_code": imdb_code,
-                "pub_house": pub_house,
+                "publisher": [pub_house] if pub_house else [],
                 "binding": None,
                 "episode_count": episodes or None,
                 "official_site": site,

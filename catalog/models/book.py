@@ -17,6 +17,7 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 
 """
 
+import ast
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -32,6 +33,7 @@ from common.models.misc import int_
 
 from .common import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
+    LIST_OF_STR_SCHEMA,
     LOCALE_CHOICES_JSONFORM,
     LanguageListField,
     jsondata,
@@ -51,20 +53,56 @@ from .people import PeopleRole
 from .utils import *
 
 
+def _coerce_legacy_string_list(value) -> list[str]:
+    """Normalize a legacy single-string credit field into list[str].
+
+    Handles: None/empty → [], plain str → [str], str that looks like a
+    Python list repr (corruption from form round-trip, e.g. ``"['Foo']"``)
+    → parsed list, list (incl. dict entries) → list of strings.
+    """
+    if not value:
+        return []
+    if isinstance(value, list):
+        out: list[str] = []
+        for v in value:
+            if isinstance(v, dict):
+                name = (v.get("name") or "").strip()
+            else:
+                name = str(v or "").strip()
+            if name:
+                out.append(name)
+        return out
+    if isinstance(value, str):
+        s = value.strip()
+        if s.startswith("[") and s.endswith("]"):
+            try:
+                parsed = ast.literal_eval(s)
+            except (ValueError, SyntaxError):
+                parsed = None
+            if isinstance(parsed, list):
+                return _coerce_legacy_string_list(parsed)
+        return [s] if s else []
+    return [str(value)]
+
+
 class EditionInSchema(ItemInSchema):
     subtitle: str | None = Field(default=None, alias="display_subtitle")
     orig_title: str | None = None
     author: list[str]
     translator: list[str]
     language: list[str]
-    pub_house: str | None = None
+    publisher: list[str]
+    pub_house: str | None = Field(
+        default=None,
+        deprecated="Use `publisher` (list) instead.",
+    )
     pub_year: int | None = None
     pub_month: int | None = None
     binding: str | None = None
     price: str | None = None
     pages: int | str | None = None
     series: str | None = None
-    imprint: str | None = None
+    imprint: list[str]
     contents: str | None = None
 
     @staticmethod
@@ -76,13 +114,16 @@ class EditionInSchema(ItemInSchema):
         return obj.credit_names_by_role("translator")
 
     @staticmethod
-    def resolve_pub_house(obj: "Edition") -> str | None:
-        names = obj.credit_names_by_role("publisher")
-        return "/".join(names) if names else None
+    def resolve_publisher(obj: "Edition") -> list[str]:
+        return obj.credit_names_by_role("publisher")
 
     @staticmethod
-    def resolve_imprint(obj: "Edition") -> str | None:
-        names = obj.credit_names_by_role("imprint")
+    def resolve_imprint(obj: "Edition") -> list[str]:
+        return obj.credit_names_by_role("imprint")
+
+    @staticmethod
+    def resolve_pub_house(obj: "Edition") -> str | None:
+        names = obj.credit_names_by_role("publisher")
         return "/".join(names) if names else None
 
 
@@ -149,6 +190,18 @@ class Edition(Item):
     type = ItemType.Edition
     url_path = "book"
 
+    @classmethod
+    def normalize_legacy_metadata(cls, metadata):
+        super().normalize_legacy_metadata(metadata)
+        # `pub_house` (str) → `publisher` (list[str]); imprint scalar → list.
+        # Sources: federated peers running older code, ndjson restores, and
+        # local DB rows that predate the field type change.
+        pub_house = metadata.pop("pub_house", None)
+        if pub_house and not metadata.get("publisher"):
+            metadata["publisher"] = _coerce_legacy_string_list(pub_house)
+        if "imprint" in metadata:
+            metadata["imprint"] = _coerce_legacy_string_list(metadata["imprint"])
+
     available_roles = [
         PeopleRole.AUTHOR,
         PeopleRole.TRANSLATOR,
@@ -160,7 +213,7 @@ class Edition(Item):
     CREDIT_FIELD_MAPPING = {
         "author": "author",
         "translator": "translator",
-        "pub_house": "publisher",
+        "publisher": "publisher",
         "imprint": "imprint",
     }
 
@@ -177,7 +230,7 @@ class Edition(Item):
         # "subtitle",
         "author",
         "format",
-        "pub_house",
+        "publisher",
         "pub_year",
         "pub_month",
         "language",
@@ -236,8 +289,12 @@ class Edition(Item):
         choices=BookFormat.choices,
     )
     language = LanguageListField(script=True)
-    pub_house = jsondata.CharField(
-        _("publishing house"), null=True, blank=True, max_length=500
+    publisher = jsondata.JSONField(
+        verbose_name=_("publisher"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LIST_OF_STR_SCHEMA,
     )
     pub_year = jsondata.IntegerField(
         _("publication year"),
@@ -256,7 +313,13 @@ class Edition(Item):
     series = jsondata.CharField(_("series"), null=True, blank=True, max_length=500)
     contents = jsondata.TextField(_("contents"), null=True, blank=True)
     price = jsondata.CharField(_("price"), null=True, blank=True, max_length=500)
-    imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
+    imprint = jsondata.JSONField(
+        verbose_name=_("imprint"),
+        null=False,
+        blank=True,
+        default=list,
+        schema=LIST_OF_STR_SCHEMA,
+    )
 
     def get_localized_subtitle(self) -> str | None:
         return self.localized_subtitle[0]["text"] if self.localized_subtitle else None

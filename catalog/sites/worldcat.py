@@ -215,7 +215,7 @@ class WorldCat(AbstractSite):
             "localized_title": [{"lang": lang, "text": title}] if title else [],
             "author": authors,
             "language": [lang] if lang else [],
-            "pub_house": pub_house,
+            "publisher": [pub_house] if pub_house else [],
             "pub_year": pub_year,
             "pub_month": pub_month,
             "pages": pages,

@@ -97,7 +97,7 @@ class GoogleBooks(AbstractSite):
             "author": authors,
             "translator": None,
             "language": language,
-            "pub_house": pub_house,
+            "publisher": [pub_house] if pub_house else [],
             "pub_year": pub_year,
             "pub_month": pub_month,
             "binding": None,

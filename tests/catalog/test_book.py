@@ -353,7 +353,7 @@ class TestBooksTW:
         assert site.resource.metadata.get("author") == ["Tim Mackintosh-Smith"]
         assert site.resource.metadata.get("translator") == ["吳莉君"]
         assert site.resource.metadata.get("language") == ["繁體中文"]
-        assert site.resource.metadata.get("pub_house") == "臉譜"
+        assert site.resource.metadata.get("publisher") == ["臉譜"]
         assert site.resource.metadata.get("pub_year") == 2023
         assert site.resource.metadata.get("pub_month") == 2
         assert site.resource.metadata.get("binding") == "平裝"
@@ -432,13 +432,13 @@ class TestDoubanBook:
         assert site is not None
         res = site.get_resource_ready()
         assert res is not None
-        assert res.metadata.get("pub_house") == "Alma Classics"
+        assert res.metadata.get("publisher") == ["Alma Classics"]
         t_url = "https://book.douban.com/subject/1089243/"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
         res = site.get_resource_ready()
         assert res is not None
-        assert res.metadata.get("pub_house") == "花城出版社"
+        assert res.metadata.get("publisher") == ["花城出版社"]
 
     @use_local_response
     def test_work(self):
