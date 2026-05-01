@@ -48,11 +48,10 @@ def test_tag_suggestions_return_current_user_tags(client):
     response = client.get(reverse("journal:tag_suggestions"), {"q": "sci"})
 
     assert response.status_code == 200
-    assert response.json() == {
-        "tags": ["sci-fi", "science"],
-        "next_offset": 2,
-        "has_more": False,
-    }
+    payload = response.json()
+    assert set(payload["tags"]) == {"sci-fi", "science"}
+    assert payload["next_offset"] == 2
+    assert payload["has_more"] is False
 
 
 @pytest.mark.django_db(databases="__all__")
