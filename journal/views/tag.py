@@ -72,14 +72,15 @@ def tag_suggestions(request):
     else:
         tags = tags.order_by("-total", "title")
 
-    total = tags.count()
-    titles = list(tags.values_list("title", flat=True)[offset : offset + limit])
+    titles = list(tags.values_list("title", flat=True)[offset : offset + limit + 1])
+    has_more = len(titles) > limit
+    titles = titles[:limit]
     next_offset = offset + len(titles)
     return JsonResponse(
         {
             "tags": titles,
             "next_offset": next_offset,
-            "has_more": next_offset < total,
+            "has_more": has_more,
         }
     )
 
