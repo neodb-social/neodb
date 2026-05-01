@@ -69,7 +69,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "item": item,
                 "mark": mark,
                 "shelf_type": shelf_type,
-                "tags": ",".join(tags),
+                "tags": tags,
                 "shelf_actions": shelf_actions,
                 "shelf_statuses": shelf_statuses,
                 "date_today": timezone.localdate().isoformat(),

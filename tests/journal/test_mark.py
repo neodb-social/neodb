@@ -1,11 +1,80 @@
 import time
 
 import pytest
+from django.urls import reverse
 
 from catalog.models import Edition
-from journal.models import Mark, ShelfType
+from journal.models import Mark, ShelfType, TagManager
 from takahe.utils import Takahe
 from users.models import User
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_editor_suggests_current_user_tags(client):
+    book = Edition.objects.create(title="Tagged Book")
+    other_book = Edition.objects.create(title="Other Tagged Book")
+    user = User.register(email="tag-suggest@example.com", username="tagsuggest")
+    other_user = User.register(email="other-tag@example.com", username="othertag")
+
+    TagManager.tag_item_for_owner(user.identity, book, ["current"])
+    TagManager.tag_item_for_owner(user.identity, other_book, ["future"])
+    TagManager.tag_item_for_owner(other_user.identity, book, ["other-only"])
+
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.get(reverse("journal:mark", args=[book.uuid]))
+
+    assert response.status_code == 200
+    assert response.context["tags"] == ["current"]
+    assert "all_tags" not in response.context.flatten()
+    assert (
+        f'data-suggestions-url="{reverse("journal:tag_suggestions")}"'
+        in response.content.decode()
+    )
+    assert "mark-all-tags-data" not in response.content.decode()
+    assert "other-only" not in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_suggestions_return_current_user_tags(client):
+    book = Edition.objects.create(title="Tagged Book")
+    other_book = Edition.objects.create(title="Other Tagged Book")
+    user = User.register(email="tag-suggest-list@example.com", username="tagsuggest2")
+    other_user = User.register(email="other-tag-list@example.com", username="othertag2")
+
+    TagManager.tag_item_for_owner(user.identity, book, ["sci-fi", "science", "future"])
+    TagManager.tag_item_for_owner(other_user.identity, other_book, ["other-only"])
+
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.get(reverse("journal:tag_suggestions"), {"q": "sci"})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "tags": ["sci-fi", "science"],
+        "next_offset": 2,
+        "has_more": False,
+    }
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_suggestions_are_paginated(client):
+    book = Edition.objects.create(title="Tagged Book")
+    user = User.register(email="tag-page@example.com", username="tagpage")
+    tags = [f"tag-{i:02d}" for i in range(35)]
+
+    TagManager.tag_item_for_owner(user.identity, book, tags)
+
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    first_page = client.get(reverse("journal:tag_suggestions"), {"limit": 10}).json()
+    last_page = client.get(
+        reverse("journal:tag_suggestions"), {"limit": 10, "offset": 30}
+    ).json()
+
+    assert first_page["tags"] == tags[:10]
+    assert first_page["next_offset"] == 10
+    assert first_page["has_more"] is True
+    assert last_page["tags"] == tags[30:]
+    assert last_page["next_offset"] == 35
+    assert last_page["has_more"] is False
 
 
 @pytest.mark.django_db(databases="__all__")
