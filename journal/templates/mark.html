@@ -192,6 +192,7 @@
         this.tags_array = [];
         this.suggestions_url = configs.suggestionsUrl || "";
         this.suggestion_page_size = configs.suggestionPageSize || 30;
+        this.suggestion_debounce_time = configs.suggestionDebounceTime || 250;
         this.suggestions = Array.from(new Set((configs.suggestions || []).filter(Boolean)));
         this.filtered_suggestions = [];
         this.suggestion_index = -1;
@@ -200,6 +201,7 @@
         this.suggestions_loading = false;
         this.suggestions_query = "";
         this.suggestions_request_id = 0;
+        this.suggestions_debounce_timer = null;
 
         let suggestions_menu = document.createElement('div');
         suggestions_menu.setAttribute('class', 'tag-input__suggestions hidden');
@@ -242,13 +244,18 @@
         });
 
         input.addEventListener("input", function () {
-          self.refreshSuggestions();
+          self.refreshSuggestions(true);
         });
 
         input.addEventListener("focusout", function () {
 
-          self.commitInput();
-          self.hideSuggestions();
+          window.clearTimeout(self.suggestions_debounce_timer);
+          window.setTimeout(function () {
+            if (document.activeElement !== input) {
+              self.commitInput();
+              self.hideSuggestions();
+            }
+          }, 100);
 
         });
 
@@ -271,9 +278,9 @@
             self.hideSuggestions();
             ev.preventDefault();
           }
-          else if (ev.keyCode === 13 || ev.keyCode === 188 ||
-            (ev.keyCode === 32 && configs.allowDuplicateTags)) { // enter || comma || space
-            if (ev.keyCode === 13 && self.filtered_suggestions && self.suggestion_index >= 0) {
+          else if (ev.key === 'Enter' || ev.key === ',' ||
+            (ev.key === ' ' && configs.allowDuplicateTags)) { // enter || comma || space
+            if (ev.key === 'Enter' && self.filtered_suggestions && self.suggestion_index >= 0) {
               self.selectSuggestion(self.filtered_suggestions[self.suggestion_index]);
             }
             else {
@@ -298,7 +305,7 @@
           tag_exists = false;
 
         if (this.tags_array) {
-          tag_exists = Boolean(this.tags_array.indexOf(tag_txt) + 1);
+          tag_exists = this.tags_array.includes(tag_txt);
         }
 
         if (tag_txt && tag_exists && !configs.allowDuplicateTags) {
@@ -432,12 +439,35 @@
         });
       },
 
-      refreshSuggestions: function () {
+      resetSuggestions: function () {
+        this.suggestions_request_id++;
+        this.suggestions_query = input.value.trim();
+        this.suggestions = [];
+        this.filtered_suggestions = [];
+        this.suggestions_offset = 0;
+        this.suggestions_has_more = true;
+        this.suggestions_loading = false;
+        this.suggestion_index = -1;
+        this.suggestions_menu.innerHTML = "";
+        this.hideSuggestions();
+      },
+
+      refreshSuggestions: function (debounced) {
         if (!this.suggestions_menu || document.activeElement !== input) {
           return;
         }
         if (this.suggestions_url) {
-          this.loadRemoteSuggestions(true);
+          window.clearTimeout(this.suggestions_debounce_timer);
+          if (debounced) {
+            let self = this;
+            this.resetSuggestions();
+            this.suggestions_debounce_timer = window.setTimeout(function () {
+              self.loadRemoteSuggestions(false);
+            }, this.suggestion_debounce_time);
+          }
+          else {
+            this.loadRemoteSuggestions(true);
+          }
         }
         else {
           this.filtered_suggestions = this.matchedSuggestions();
@@ -571,7 +601,7 @@
 
       selectSuggestion: function (tag_txt) {
         if (tag_txt) {
-          if (this.tags_array.indexOf(tag_txt) + 1 && !configs.allowDuplicateTags) {
+          if (this.tags_array.includes(tag_txt) && !configs.allowDuplicateTags) {
             this.showDuplicate(tag_txt);
           }
           else {
@@ -595,6 +625,7 @@
       tags: current_tags,
       suggestionsUrl: tag_input.dataset.suggestionsUrl,
       suggestionPageSize: 30,
+      suggestionDebounceTime: 250,
       allowDuplicateTags: false,
       duplicateTime: 300,
       onTagRemove: function (tag) { },
