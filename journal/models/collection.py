@@ -283,7 +283,9 @@ class Collection(List):
                 if st:
                     stats[st] = stats.get(st, 0) + 1
             stats["percentage"] = (
-                round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
+                round(stats.get("complete", 0) * 100 / stats["total"])
+                if stats["total"]
+                else 0
             )
             cache = getattr(c, "_stats_cache", None)
             if cache is None:
