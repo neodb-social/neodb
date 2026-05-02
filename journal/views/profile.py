@@ -189,6 +189,10 @@ def profile(request: AuthedHttpRequest, user_name):
     Takahe.prefetch_takahe_identities(
         [c.owner for c in pinned_collections if c.owner_id] + featured_owners
     )
+    Collection.attach_stats_for_viewer(
+        list(target.featured_collections.all()),  # ty: ignore[unresolved-attribute]
+        target,
+    )
     default_layout[0:0] = [
         {"id": f"collection_{collection.uuid}", "visibility": True}
         for collection in pinned_collections

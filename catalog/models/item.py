@@ -728,6 +728,23 @@ class Item(PolymorphicModel):
             prefetch_related_objects(performanceproductions, "show")
 
     @staticmethod
+    def prefetch_credits(items: "Iterable[Item]") -> None:
+        """Batch-prefetch credits (with person) for templates that render
+        ``item.role_credits`` per card. Without this, each card fires a
+        ``catalog_itemcredit`` join query.
+        """
+        item_list = [i for i in items if i is not None]
+        if not item_list:
+            return
+        prefetch_related_objects(
+            item_list,
+            models.Prefetch(
+                "credits",
+                queryset=ItemCredit.objects.select_related("person"),
+            ),
+        )
+
+    @staticmethod
     def prefetch_edition_works(items: "Iterable[Item]") -> None:
         """Batch-prefetch Edition.works for ItemSchema/parent_uuid serialization.
 

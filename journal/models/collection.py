@@ -54,6 +54,7 @@ class CollectionMember(ListMember):
 class Collection(List):
     if TYPE_CHECKING:
         members: models.QuerySet[CollectionMember]
+        _stats_cache: dict[int, dict[str, int]]
     url_path = "collection"
     post_when_save = True
     index_when_save = True
@@ -167,6 +168,7 @@ class Collection(List):
                 items = r.items
                 pages = r.pages
                 Item.prefetch_parent_items(items)
+                Item.prefetch_credits(items)
                 Rating.attach_to_items(items)
                 Tag.attach_to_items(items)
                 if viewer:
@@ -205,6 +207,7 @@ class Collection(List):
                 for member in members:
                     member.item = items_map.get(member.item_id)
                 Item.prefetch_parent_items(items)
+                Item.prefetch_credits(items)
                 Rating.attach_to_items(items)
                 Tag.attach_to_items(items)
                 if viewer:
@@ -214,6 +217,9 @@ class Collection(List):
     def get_stats(self, viewer: APIdentity):
         from .shelf import ShelfMember, ShelfType
 
+        cached = getattr(self, "_stats_cache", {}).get(getattr(viewer, "pk", None))
+        if cached is not None:
+            return cached
         items = self.item_ids
         stats: dict[str, int] = {"total": len(items)}
         for st in ShelfType.values:
@@ -229,6 +235,61 @@ class Collection(List):
             round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
         )
         return stats
+
+    @classmethod
+    def attach_stats_for_viewer(
+        cls, collections: list["Collection"], viewer: APIdentity
+    ) -> None:
+        """Pre-compute ``get_stats(viewer)`` for many collections in two queries.
+
+        ``_sidebar.html`` iterates ``identity.featured_collections`` and calls
+        ``get_stats`` once per collection; without batching, each call hits
+        ``CollectionMember`` and ``ShelfMember`` separately. This loads all
+        member item_ids and the viewer's shelf placements in a single round
+        trip each, then stores the per-collection stats on the instance for
+        ``get_stats`` to return on cache hit.
+        """
+        from .shelf import ShelfMember, ShelfType
+
+        if not collections or viewer is None:
+            return
+        # Static collections share their item ids via CollectionMember; dynamic
+        # ones compute item_ids from the search index, so we let those fall
+        # through to per-instance get_stats.
+        static = [c for c in collections if not c.is_dynamic]
+        items_by_collection: dict[int, list[int]] = {c.pk: [] for c in static}
+        if static:
+            rows = CollectionMember.objects.filter(
+                parent_id__in=[c.pk for c in static]
+            ).values_list("parent_id", "item_id")
+            for parent_id, item_id in rows:
+                items_by_collection.setdefault(parent_id, []).append(item_id)
+        all_item_ids = {iid for ids in items_by_collection.values() for iid in ids}
+        # One ShelfMember per (owner, item) within standard shelves, so a
+        # single map of item_id -> shelf_type lets us tally per collection.
+        shelf_by_item: dict[int, str] = {}
+        if all_item_ids:
+            for row in ShelfMember.objects.filter(
+                owner=viewer, item_id__in=all_item_ids
+            ).values("item_id", "parent__shelf_type"):
+                shelf_by_item[row["item_id"]] = row["parent__shelf_type"]
+        for c in static:
+            items = items_by_collection.get(c.pk, [])
+            stats: dict[str, int] = {"total": len(items)}
+            for st in ShelfType.values:
+                stats[st] = 0
+            for item_id in items:
+                st = shelf_by_item.get(item_id)
+                if st:
+                    stats[st] = stats.get(st, 0) + 1
+            stats["percentage"] = (
+                round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
+            )
+            cache = getattr(c, "_stats_cache", None)
+            if cache is None:
+                cache = {}
+                c._stats_cache = cache
+            cache[viewer.pk] = stats
 
     def get_progress(self, viewer: APIdentity):
         items = self.item_ids
