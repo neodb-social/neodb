@@ -17,9 +17,9 @@ from common.models import SiteConfig
 
 
 def superuser_required(view_func):
-    return user_passes_test(lambda u: u.is_superuser, login_url="/account/login")(
-        view_func
-    )
+    return user_passes_test(
+        lambda u: getattr(u, "is_superuser", False), login_url="/account/login"
+    )(view_func)
 
 
 @method_decorator(login_required, name="dispatch")

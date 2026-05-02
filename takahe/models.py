@@ -7,7 +7,7 @@ import ssl
 import time
 from datetime import date, timedelta
 from functools import cached_property, partial
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import httpx
 import urlman
@@ -235,7 +235,7 @@ class User(AbstractBaseUser):
     last_seen = models.DateTimeField(auto_now_add=True)
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
-    REQUIRED_FIELDS: list[str] = []
+    REQUIRED_FIELDS: ClassVar[list[str]] = []
 
     @property
     def is_active(self):
@@ -1210,7 +1210,7 @@ class Post(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    objects: PostManager = PostManager()
+    objects: ClassVar[PostManager] = PostManager()
 
     class Meta:
         # managed = False

@@ -137,7 +137,7 @@ class JSONFieldMixin(object):
         self.set_attributes_from_name(name)
         self.model = cls
         self.concrete = False
-        self.column = None  # type: ignore
+        self.column = None
         cls._meta.add_field(self, private=True)
 
         if not getattr(cls, self.attname, None):
