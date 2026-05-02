@@ -718,10 +718,10 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
     - Delete those orphan ``role="imprint"`` ``ItemCredit`` rows; imprint
       is no longer in ``Edition.CREDIT_FIELD_MAPPING``.
 
-    Idempotent: rows already in the target shape are skipped.
+    Idempotent: rows already in the target shape are skipped. Iterates
+    via keyset pagination so cost stays linear on large catalogs, and
+    only flags a row dirty when there is something to write.
     """
-    from django.core.paginator import Paginator
-
     from catalog.models import Edition, ItemCredit
     from catalog.models.book import _coerce_legacy_string_list
 
@@ -733,10 +733,10 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
     ):
         imprint_credits_by_item.setdefault(item_id, []).append(name)
 
-    qs = Edition.objects.filter(is_deleted=False, merged_to_item__isnull=True).order_by(
-        "pk"
-    )
-    total = qs.count()
+    base_qs = Edition.objects.filter(
+        is_deleted=False, merged_to_item__isnull=True
+    ).order_by("pk")
+    total = base_qs.count()
     logger.info(
         f"Editions to scan: {total}; imprint credit rows to consume: "
         f"{sum(len(v) for v in imprint_credits_by_item.values())}"
@@ -744,7 +744,6 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
     converted = 0
     pending: list[Edition] = []
     publisher_touched: list[int] = []
-    pg = Paginator(qs, batch_size)
 
     def flush() -> None:
         nonlocal converted
@@ -753,15 +752,22 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
             converted += len(pending)
             pending.clear()
 
+    last_pk = 0
     with tqdm(total=total, desc="Edition publisher/imprint") as pbar:
-        for page_num in pg.page_range:
-            for item in pg.get_page(page_num).object_list:
+        while True:
+            batch = list(base_qs.filter(pk__gt=last_pk)[:batch_size])
+            if not batch:
+                break
+            for item in batch:
+                last_pk = item.pk
                 metadata = item.metadata or {}
                 changed = False
 
                 pub_house = metadata.pop("pub_house", None)
                 publisher = metadata.get("publisher")
-                if pub_house is not None or not isinstance(publisher, list):
+                if pub_house is not None or (
+                    publisher is not None and not isinstance(publisher, list)
+                ):
                     new_publisher = _coerce_legacy_string_list(
                         publisher if publisher else pub_house
                     )
@@ -807,11 +813,12 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
     flush()
 
     logger.info(f"Resyncing publisher credits for {len(publisher_touched)} editions")
-    for pk in tqdm(publisher_touched, desc="Edition credit resync"):
-        try:
-            Edition.objects.get(pk=pk).sync_credits_from_metadata()
-        except Edition.DoesNotExist:
-            continue
+    with tqdm(total=len(publisher_touched), desc="Edition credit resync") as pbar:
+        for i in range(0, len(publisher_touched), batch_size):
+            chunk = publisher_touched[i : i + batch_size]
+            for edition in Edition.objects.filter(pk__in=chunk):
+                edition.sync_credits_from_metadata()
+                pbar.update(1)
 
     deleted, _ = ItemCredit.objects.filter(role="imprint").delete()
     logger.success(
