@@ -102,7 +102,7 @@ class EditionInSchema(ItemInSchema):
     price: str | None = None
     pages: int | str | None = None
     series: str | None = None
-    imprint: list[str]
+    imprint: str | None = None
     contents: str | None = None
 
     @staticmethod
@@ -116,10 +116,6 @@ class EditionInSchema(ItemInSchema):
     @staticmethod
     def resolve_publisher(obj: "Edition") -> list[str]:
         return obj.credit_names_by_role("publisher")
-
-    @staticmethod
-    def resolve_imprint(obj: "Edition") -> list[str]:
-        return obj.credit_names_by_role("imprint")
 
     @staticmethod
     def resolve_pub_house(obj: "Edition") -> str | None:
@@ -193,28 +189,32 @@ class Edition(Item):
     @classmethod
     def normalize_legacy_metadata(cls, metadata):
         super().normalize_legacy_metadata(metadata)
-        # `pub_house` (str) → `publisher` (list[str]); imprint scalar → list.
         # Sources: federated peers running older code, ndjson restores, and
         # local DB rows that predate the field type change.
+        # - `pub_house` (str/list) -> `publisher` (list[str])
+        # - `imprint` list/`"['Foo']"` corruption -> scalar str
         pub_house = metadata.pop("pub_house", None)
         if pub_house and not metadata.get("publisher"):
             metadata["publisher"] = _coerce_legacy_string_list(pub_house)
         if "imprint" in metadata:
-            metadata["imprint"] = _coerce_legacy_string_list(metadata["imprint"])
+            imprint = metadata["imprint"]
+            coerced = _coerce_legacy_string_list(imprint)
+            if coerced:
+                metadata["imprint"] = "/".join(coerced)
+            else:
+                metadata.pop("imprint", None)
 
     available_roles = [
         PeopleRole.AUTHOR,
         PeopleRole.TRANSLATOR,
         PeopleRole.PUBLISHER,
         PeopleRole.PUBLISHING_HOUSE,
-        PeopleRole.IMPRINT,
     ]
 
     CREDIT_FIELD_MAPPING = {
         "author": "author",
         "translator": "translator",
         "publisher": "publisher",
-        "imprint": "imprint",
     }
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
@@ -313,13 +313,7 @@ class Edition(Item):
     series = jsondata.CharField(_("series"), null=True, blank=True, max_length=500)
     contents = jsondata.TextField(_("contents"), null=True, blank=True)
     price = jsondata.CharField(_("price"), null=True, blank=True, max_length=500)
-    imprint = jsondata.JSONField(
-        verbose_name=_("imprint"),
-        null=False,
-        blank=True,
-        default=list,
-        schema=LIST_OF_STR_SCHEMA,
-    )
+    imprint = jsondata.CharField(_("imprint"), null=True, blank=True, max_length=500)
 
     def get_localized_subtitle(self) -> str | None:
         return self.localized_subtitle[0]["text"] if self.localized_subtitle else None

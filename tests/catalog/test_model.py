@@ -239,23 +239,14 @@ class TestSchemaCreditResolvers:
         # Deprecated scalar still exposed for API back-compat.
         assert ap["pub_house"] == "Penguin"
 
-    def test_edition_resolves_imprint_from_credits(self):
-        edition = Edition.objects.create(title="Book")
-        edition.localized_title = [{"lang": "en", "text": "Book"}]
-        edition.imprint = ["stale-jsondata"]
-        edition.save()
-        ItemCredit.objects.create(item=edition, role="imprint", name="Vintage", order=0)
-        edition.__dict__.pop("role_credits", None)
-        assert edition.ap_object["imprint"] == ["Vintage"]
-
 
 @pytest.mark.django_db(databases="__all__")
 class TestEditionLegacyMetadataCoercion:
-    """Editions ingested from older peers / pre-migration backups carry
-    legacy ``pub_house`` (str) and scalar ``imprint`` keys. The
-    ``normalize_legacy_metadata`` hook must convert them to lists before
-    the metadata is applied to the model, including the
-    ``"['Foo']"`` literal-string corruption left by the prior form bug.
+    """Editions ingested from older peers / pre-migration backups may carry
+    legacy ``pub_house`` (str) keys or list-shaped ``imprint`` keys (from
+    the short-lived intermediate state). ``normalize_legacy_metadata``
+    rewrites them to the current shape, including the ``"['Foo']"``
+    literal-string corruption left by the prior form round-trip bug.
     """
 
     def test_normalizes_pub_house_string(self):
@@ -268,15 +259,35 @@ class TestEditionLegacyMetadataCoercion:
         Edition.normalize_legacy_metadata(m)
         assert m == {"publisher": ["Penguin", "Random House"]}
 
-    def test_unwraps_corrupted_list_repr(self):
+    def test_unwraps_corrupted_pub_house_list_repr(self):
         m = {"pub_house": "['Penguin']"}
         Edition.normalize_legacy_metadata(m)
         assert m == {"publisher": ["Penguin"]}
 
-    def test_normalizes_scalar_imprint(self):
+    def test_collapses_list_imprint_to_string(self):
+        m = {"imprint": ["Vintage"]}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"imprint": "Vintage"}
+
+    def test_collapses_multi_imprint_list_with_slash(self):
+        m = {"imprint": ["Vintage", "Anchor"]}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"imprint": "Vintage/Anchor"}
+
+    def test_unwraps_corrupted_imprint_list_repr(self):
+        m = {"imprint": "['Vintage']"}
+        Edition.normalize_legacy_metadata(m)
+        assert m == {"imprint": "Vintage"}
+
+    def test_keeps_scalar_imprint(self):
         m = {"imprint": "Vintage"}
         Edition.normalize_legacy_metadata(m)
-        assert m == {"imprint": ["Vintage"]}
+        assert m == {"imprint": "Vintage"}
+
+    def test_drops_empty_imprint_list(self):
+        m = {"imprint": []}
+        Edition.normalize_legacy_metadata(m)
+        assert "imprint" not in m
 
     def test_existing_publisher_list_takes_precedence(self):
         # New shape already present; legacy pub_house is dropped, not merged.

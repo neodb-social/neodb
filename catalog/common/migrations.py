@@ -541,7 +541,6 @@ def populate_credits_extra_20260415(batch_size=1000):
     from django.core.paginator import Paginator
 
     from catalog.models import (
-        Edition,
         Game,
         Item,
         ItemCredit,
@@ -562,7 +561,6 @@ def populate_credits_extra_20260415(batch_size=1000):
         ),
         (Podcast, {"host": "host"}),
         (Game, {"artist": "artist"}),
-        (Edition, {"imprint": "imprint"}),
         (
             PerformanceProduction,
             {
@@ -704,30 +702,48 @@ def reindex_people_20260417():
     logger.success(f"People reindex complete: {indexed} of {seen} docs indexed.")
 
 
-def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
-    """Convert Edition.pub_house (str) and Edition.imprint (str) jsondata to
-    `publisher` (list[str]) and `imprint` (list[str]), then resync credits.
+def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None:
+    """Normalize Edition publisher/imprint metadata and clean up imprint
+    credits.
 
-    Idempotent: rows where ``publisher``/``imprint`` are already lists are
-    left alone. Also repairs the ``"['Foo']"`` literal-string corruption
-    introduced by the prior form round-trip bug. After bulk-updating
-    metadata we call ``sync_credits_from_metadata`` per touched item so
-    fresh installs (where ``populate_credits_20260412`` ran before this
-    migration and saw empty ``publisher``) still get the credit rows.
+    Migrates editions to the current shape and repairs any corruption from
+    the prior form round-trip bug:
+
+    - ``pub_house`` (legacy scalar/list) -> ``publisher`` (list[str])
+    - ``imprint`` (list / ``"['Foo']"`` literal corruption) -> scalar str
+    - Backfill missing ``imprint`` scalars from any ``ItemCredit`` rows with
+      ``role="imprint"`` previously created by
+      ``populate_credits_extra_20260415`` before resyncing publisher
+      credits.
+    - Delete those orphan ``role="imprint"`` ``ItemCredit`` rows; imprint
+      is no longer in ``Edition.CREDIT_FIELD_MAPPING``.
+
+    Idempotent: rows already in the target shape are skipped.
     """
     from django.core.paginator import Paginator
 
-    from catalog.models import Edition
+    from catalog.models import Edition, ItemCredit
     from catalog.models.book import _coerce_legacy_string_list
+
+    imprint_credits_by_item: dict[int, list[str]] = {}
+    for item_id, name in (
+        ItemCredit.objects.filter(role="imprint")
+        .order_by("item_id", "order")
+        .values_list("item_id", "name")
+    ):
+        imprint_credits_by_item.setdefault(item_id, []).append(name)
 
     qs = Edition.objects.filter(is_deleted=False, merged_to_item__isnull=True).order_by(
         "pk"
     )
     total = qs.count()
-    logger.info(f"Editions to scan: {total}")
+    logger.info(
+        f"Editions to scan: {total}; imprint credit rows to consume: "
+        f"{sum(len(v) for v in imprint_credits_by_item.values())}"
+    )
     converted = 0
     pending: list[Edition] = []
-    touched_ids: list[int] = []
+    publisher_touched: list[int] = []
     pg = Paginator(qs, batch_size)
 
     def flush() -> None:
@@ -735,7 +751,6 @@ def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
         if pending:
             Edition.objects.bulk_update(pending, ["metadata"])
             converted += len(pending)
-            touched_ids.extend(item.pk for item in pending)
             pending.clear()
 
     with tqdm(total=total, desc="Edition publisher/imprint") as pbar:
@@ -743,6 +758,7 @@ def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
             for item in pg.get_page(page_num).object_list:
                 metadata = item.metadata or {}
                 changed = False
+
                 pub_house = metadata.pop("pub_house", None)
                 publisher = metadata.get("publisher")
                 if pub_house is not None or not isinstance(publisher, list):
@@ -755,17 +771,33 @@ def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
                         else:
                             metadata.pop("publisher", None)
                         changed = True
+                        publisher_touched.append(item.pk)
                     elif pub_house is not None:
-                        # pub_house was popped; commit that drop.
+                        # pub_house key dropped; commit that.
                         changed = True
+
                 imprint = metadata.get("imprint")
-                if imprint is not None and not isinstance(imprint, list):
-                    new_imprint = _coerce_legacy_string_list(imprint)
-                    if new_imprint:
-                        metadata["imprint"] = new_imprint
+                if imprint is not None and not isinstance(imprint, str):
+                    coerced = _coerce_legacy_string_list(imprint)
+                    if coerced:
+                        metadata["imprint"] = "/".join(coerced)
                     else:
                         metadata.pop("imprint", None)
                     changed = True
+                elif isinstance(imprint, str):
+                    # Repair the ``"['Foo']"`` literal-corruption that
+                    # survived the original scalar field.
+                    coerced = _coerce_legacy_string_list(imprint)
+                    if coerced and coerced != [imprint]:
+                        metadata["imprint"] = "/".join(coerced)
+                        changed = True
+
+                if not metadata.get("imprint"):
+                    backfill = imprint_credits_by_item.get(item.pk)
+                    if backfill:
+                        metadata["imprint"] = "/".join(backfill)
+                        changed = True
+
                 if changed:
                     item.metadata = metadata
                     pending.append(item)
@@ -774,10 +806,15 @@ def edition_publisher_imprint_to_list_20260428(batch_size: int = 1000) -> None:
                 flush()
     flush()
 
-    logger.info(f"Resyncing credits for {len(touched_ids)} editions")
-    for pk in tqdm(touched_ids, desc="Edition credit resync"):
+    logger.info(f"Resyncing publisher credits for {len(publisher_touched)} editions")
+    for pk in tqdm(publisher_touched, desc="Edition credit resync"):
         try:
             Edition.objects.get(pk=pk).sync_credits_from_metadata()
         except Edition.DoesNotExist:
             continue
-    logger.success(f"Edition publisher/imprint normalization: {converted} updated")
+
+    deleted, _ = ItemCredit.objects.filter(role="imprint").delete()
+    logger.success(
+        f"Edition publisher/imprint normalization: {converted} updated, "
+        f"{deleted} orphan imprint credits deleted"
+    )

@@ -57,7 +57,6 @@ class PeopleRole(models.TextChoices):
     DEVELOPER = "developer", _("Developer")
     STUDIO = "studio", _("Studio")
     PUBLISHING_HOUSE = "publishing_house", _("Publishing House")
-    IMPRINT = "imprint", _("Imprint")
     TROUPE = "troupe", _("Troupe")
     CREW = "crew", _("Crew")
 
@@ -71,7 +70,6 @@ class PeopleRole(models.TextChoices):
             cls.DEVELOPER,
             cls.STUDIO,
             cls.PUBLISHING_HOUSE,
-            cls.IMPRINT,
             cls.TROUPE,
         }
 

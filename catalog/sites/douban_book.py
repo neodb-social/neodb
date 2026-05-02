@@ -254,7 +254,7 @@ class DoubanBook(AbstractSite):
             "brief": brief,
             "contents": contents,
             "series": series,
-            "imprint": [imprint] if imprint else [],
+            "imprint": imprint,
             "cover_image_url": img_url,
         }
 
