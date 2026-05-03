@@ -200,6 +200,12 @@ class Command(SiteCommand):
                 from catalog.common.migrations import populate_credits_extra_20260415
 
                 populate_credits_extra_20260415(batch_size=batch_size)
+            case "edition_normalize_publisher_imprint":
+                from catalog.common.migrations import (
+                    edition_normalize_publisher_imprint_20260428,
+                )
+
+                edition_normalize_publisher_imprint_20260428(batch_size=batch_size)
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
