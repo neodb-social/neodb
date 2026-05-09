@@ -78,9 +78,7 @@ def fetch_remote_list_members(class_path: str, pk: int, attempts: int = 0) -> No
     cls = _resolve_class(class_path)
     inst = cls.objects.filter(pk=pk, local=False).first()
     if not inst or not inst.remote_id:
-        logger.debug(
-            f"list_sync: {class_path}#{pk} gone or no remote_id"
-        )
+        logger.debug(f"list_sync: {class_path}#{pk} gone or no remote_id")
         return
     envelope = _signed_get_json(inst.remote_id)
     if envelope is None:
@@ -138,6 +136,4 @@ def _maybe_retry(class_path: str, pk: int, attempts: int) -> None:
             attempts + 1,
         )
     except Exception as e:
-        logger.warning(
-            f"list_sync: failed to reschedule {class_path}#{pk}: {e}"
-        )
+        logger.warning(f"list_sync: failed to reschedule {class_path}#{pk}: {e}")

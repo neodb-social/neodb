@@ -429,7 +429,10 @@ class Collection(List):
             extras["query"] = self.query
         return extras
 
-    def ap_member_entry(self, member: CollectionMember) -> dict[str, Any]:
+    def ap_member_entry(self, member: ListMember) -> dict[str, Any]:
+        # ``member`` is always a ``CollectionMember`` here (the list's
+        # MEMBER_CLASS), but the signature follows the base class contract.
+        assert isinstance(member, CollectionMember)
         entry: dict[str, Any] = {
             "type": "ShelfItem",
             "withRegardTo": member.item.absolute_url,
@@ -497,9 +500,7 @@ class Collection(List):
         # generous soft cap to prevent pathological memory use.
         MAX_TOTAL_ITEMS = AP_PAGE_SIZE * 1000  # 100k items soft cap
         item_objs = [
-            e
-            for e in item_objs
-            if isinstance(e, dict) and e.get("type") == "ShelfItem"
+            e for e in item_objs if isinstance(e, dict) and e.get("type") == "ShelfItem"
         ][:MAX_TOTAL_ITEMS]
         resolved: list[tuple[Item, dict[str, Any]]] = []
         pending = 0

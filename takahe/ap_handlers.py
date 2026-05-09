@@ -39,6 +39,7 @@ _supported_ap_catalog_item_types = [
     "PerformanceProduction",
 ]
 
+
 class _ShelfDispatcher:
     """Inbound dispatcher for the shared ``"Shelf"`` AP wire type.
 

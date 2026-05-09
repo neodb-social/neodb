@@ -127,9 +127,7 @@ class TestCollectionApShapes:
         assert obj["id"] == c.absolute_url
 
     def test_items_envelope_no_page(self):
-        c = Collection.objects.create(
-            owner=self.identity, title="L", visibility=0
-        )
+        c = Collection.objects.create(owner=self.identity, title="L", visibility=0)
         c.append_item(self.book1, note="x")
         env = c.ap_items_envelope()
         assert env["type"] == "OrderedCollection"
@@ -139,9 +137,7 @@ class TestCollectionApShapes:
         assert env["last"].endswith("/items?page=1")
 
     def test_items_page_shape(self):
-        c = Collection.objects.create(
-            owner=self.identity, title="L", visibility=0
-        )
+        c = Collection.objects.create(owner=self.identity, title="L", visibility=0)
         c.append_item(self.book1, note="hello")
         c.append_item(self.book2, note=None)
         page = c.ap_items_page(1)
@@ -163,9 +159,7 @@ class TestCollectionApShapes:
         # the shared envelope helpers — cheaper than creating 100+ items.
         from journal.models import itemlist as itemlist_mod
 
-        c = Collection.objects.create(
-            owner=self.identity, title="L", visibility=0
-        )
+        c = Collection.objects.create(owner=self.identity, title="L", visibility=0)
         c.append_item(self.book1, note="x")
         c.append_item(self.book2, note="y")
         with patch.object(itemlist_mod, "AP_PAGE_SIZE", 1):
@@ -182,9 +176,7 @@ class TestCollectionApShapes:
             assert "next" not in page2
 
     def test_items_page_out_of_range_returns_empty(self):
-        c = Collection.objects.create(
-            owner=self.identity, title="L", visibility=0
-        )
+        c = Collection.objects.create(owner=self.identity, title="L", visibility=0)
         c.append_item(self.book1, note="x")
         page = c.ap_items_page(99)
         assert page["orderedItems"] == []

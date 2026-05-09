@@ -624,7 +624,10 @@ class Shelf(List):
     def ap_object_extra_fields(self) -> dict[str, Any]:
         return {"shelfType": self.shelf_type}
 
-    def ap_member_entry(self, member: ShelfMember) -> dict[str, Any]:
+    def ap_member_entry(self, member: ListMember) -> dict[str, Any]:
+        # ``member`` is always a ``ShelfMember`` here (the list's
+        # MEMBER_CLASS), but the signature follows the base class contract.
+        assert isinstance(member, ShelfMember)
         entry: dict[str, Any] = {
             "type": "ShelfItem",
             "withRegardTo": member.item.absolute_url,
@@ -673,20 +676,18 @@ class Shelf(List):
         ``_post_fetched`` flow to ingest Mark + Comment + Rating + Review;
         that hop is left as a follow-up.
         """
-        from common.validators import is_valid_url
         from django.db import transaction
 
         from catalog.models import Item
         from catalog.search.utils import enqueue_fetch
+        from common.validators import is_valid_url
         from journal.models.itemlist import AP_PAGE_SIZE
 
         if not isinstance(item_objs, list):
             return 0
         max_total = AP_PAGE_SIZE * 1000
         item_objs = [
-            e
-            for e in item_objs
-            if isinstance(e, dict) and e.get("type") == "ShelfItem"
+            e for e in item_objs if isinstance(e, dict) and e.get("type") == "ShelfItem"
         ][:max_total]
         resolved: list[Item] = []
         pending = 0

@@ -61,8 +61,8 @@ from .review import (
     review_translate,
     user_review_list,
 )
-from .shelf_ap import shelf_ap_items, shelf_ap_retrieve
 from .search import search
+from .shelf_ap import shelf_ap_items, shelf_ap_retrieve
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
 

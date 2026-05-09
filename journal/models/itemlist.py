@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import django.dispatch
 import django_rq
-from django.db import models, transaction
+from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from loguru import logger
@@ -200,6 +200,13 @@ class List(Piece):
 
     AP_OBJECT_TYPE: str = "Shelf"
 
+    if TYPE_CHECKING:
+        # Subclasses (e.g. ``Collection`` via its own ``display_title`` and
+        # ``Shelf``'s override) provide this; declare it on the base so
+        # ``ap_envelope`` typechecks against ``List``.
+        @property
+        def display_title(self) -> str: ...
+
     @property
     def ap_items_url(self) -> str:
         return f"{self.absolute_url}/items"
@@ -307,9 +314,7 @@ class List(Piece):
         return "journal.jobs.list_sync.fetch_remote_list_members"
 
     @classmethod
-    def update_by_ap_envelope(
-        cls, owner, obj: dict[str, Any], post
-    ) -> "List | None":
+    def update_by_ap_envelope(cls, owner, obj: dict[str, Any], post) -> "List | None":
         """Inbound mirror builder. Validates the envelope, persists / updates
         the local mirror keyed by `remote_id`, and enqueues a member fetch.
 
@@ -345,7 +350,9 @@ class List(Piece):
             or timezone.is_naive(edited)
             or timezone.is_naive(published)
         ):
-            logger.warning(f"{cls.__name__} inbound rejected: bad datetime in {list_id}")
+            logger.warning(
+                f"{cls.__name__} inbound rejected: bad datetime in {list_id}"
+            )
             return None
         if existing and existing.edited_time >= edited:
             return existing
@@ -384,7 +391,9 @@ class List(Piece):
                 inst.pk,
             )
         except Exception as e:
-            logger.warning(f"Failed to enqueue {cls.__name__} member fetch for {inst.pk}: {e}")
+            logger.warning(
+                f"Failed to enqueue {cls.__name__} member fetch for {inst.pk}: {e}"
+            )
         return inst
 
 

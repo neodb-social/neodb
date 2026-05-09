@@ -17,7 +17,6 @@ from common.utils import (
     get_page_size_from_request,
     get_uuid_or_404,
 )
-from common.validators import get_safe_referer_url
 from takahe.auth import _SigError, verify_http_signature
 from users.models import User
 
@@ -187,9 +186,7 @@ def collection_ap_items(request, collection_uuid):
 
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     if _wants_activitypub(request):
-        collection = get_object_or_404(
-            Collection, uid=get_uuid_or_404(collection_uuid)
-        )
+        collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         return _list_ap_object_view(request, collection)
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
