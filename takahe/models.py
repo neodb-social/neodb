@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 from lxml import etree
 
 from common.models import SiteConfig
+from common.validators import is_valid_url
 
 from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
@@ -611,13 +612,16 @@ class Identity(models.Model):
         Given a domain (hostname), returns the correct webfinger URL to use
         based on probing host-meta.
         """
+        host_meta_url = f"https://{domain}/.well-known/host-meta"
+        if not is_valid_url(host_meta_url):
+            return f"https://{domain}/.well-known/webfinger?resource={{uri}}"
         with httpx.Client(
             timeout=settings.TAKAHE_REMOTE_TIMEOUT,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
                 response = client.get(
-                    f"https://{domain}/.well-known/host-meta",
+                    host_meta_url,
                     follow_redirects=True,
                     headers={"Accept": "application/xml"},
                 )
@@ -650,13 +654,16 @@ class Identity(models.Model):
             return None, None
 
         # Go make a Webfinger request
+        resolved_webfinger_url = webfinger_url.format(uri=f"acct:{handle}")
+        if not is_valid_url(resolved_webfinger_url):
+            return None, None
         with httpx.Client(
             timeout=settings.TAKAHE_REMOTE_TIMEOUT,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
                 response = client.get(
-                    webfinger_url.format(uri=f"acct:{handle}"),
+                    resolved_webfinger_url,
                     follow_redirects=True,
                     headers={"Accept": "application/json"},
                 )

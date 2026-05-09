@@ -231,9 +231,9 @@ def post_toot2(
 
 
 def _get_redirect_uris(server_version: str) -> str:
+    v = server_version or ""
     allow_multiple_redir = not (
-        re.match(r".*(Pixelfed|Friendica).*", server_version or "")
-        or re.match(r"^0\..*", server_version or "")
+        re.search(r"Pixelfed|Friendica", v) or v.startswith("0.")
     )  # GoToSocial and a few don't support multiple redirect uris
     u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
     if not allow_multiple_redir:
@@ -248,13 +248,13 @@ def _get_redirect_uris(server_version: str) -> str:
 def _get_scopes(server_version: str) -> str:
     return (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
-        if re.match(r".*(Pixelfed|Friendica).*", server_version or "")
+        if re.search(r"Pixelfed|Friendica", server_version or "")
         else SiteConfig.system.mastodon_client_scope
     )
 
 
 def _force_recreate_app(server_version):
-    return re.match(r".+(Sharkey|Firefish).+", server_version or "")
+    return re.search(r".(Sharkey|Firefish).", server_version or "")
 
 
 def create_app(domain_name, server_version):

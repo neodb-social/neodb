@@ -2,11 +2,42 @@ import ipaddress
 import socket
 from urllib.parse import urlparse
 
+from cachetools import TTLCache
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.http import url_has_allowed_host_and_scheme
 from loguru import logger
 from validators import url as _url_validate
+
+# In-process TTL cache for hostname → public-IP resolution. Avoids paying the
+# DNS roundtrip twice when validating then fetching the same remote, and stays
+# in-process to keep `socket.getaddrinfo` the only network dependency (so tests
+# that patch it don't accidentally route a shared cache backend through the
+# patched resolver).
+_HOST_TTL = 300
+_host_cache: TTLCache = TTLCache(maxsize=4096, ttl=_HOST_TTL)
+
+
+def _hostname_is_public(hostname: str) -> bool:
+    """Return True if `hostname` resolves only to public IPs."""
+    cached = _host_cache.get(hostname)
+    if cached is not None:
+        return cached
+    try:
+        results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
+    except (socket.gaierror, socket.timeout, OSError):
+        # Don't cache transient resolver failures so they recover quickly.
+        return False
+    if not results:
+        return False
+    for _family, _type, _proto, _canonname, sockaddr in results:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if ip.is_private or ip.is_reserved or ip.is_loopback or ip.is_link_local:
+            logger.warning(f"Blocked request to {hostname}: resolves to {ip}")
+            _host_cache[hostname] = False
+            return False
+    _host_cache[hostname] = True
+    return True
 
 
 def is_valid_url(url: str | None) -> bool:
@@ -25,18 +56,7 @@ def is_valid_url(url: str | None) -> bool:
     hostname = urlparse(url).hostname
     if not hostname:
         return False
-    try:
-        results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
-    except (socket.gaierror, socket.timeout, OSError):
-        return False
-    if not results:
-        return False
-    for _family, _type, _proto, _canonname, sockaddr in results:
-        ip = ipaddress.ip_address(sockaddr[0])
-        if ip.is_private or ip.is_reserved or ip.is_loopback or ip.is_link_local:
-            logger.warning(f"Blocked request to {hostname}: resolves to {ip}")
-            return False
-    return True
+    return _hostname_is_public(hostname)
 
 
 def is_safe_url(url: str | None, allowed_hosts: set[str] | None = None) -> bool:

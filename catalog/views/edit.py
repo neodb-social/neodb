@@ -1,5 +1,6 @@
 import django_rq
 from auditlog.context import set_actor
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -7,13 +8,13 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.models.lang import get_current_locales
 from common.utils import discord_send, get_uuid_or_404
-from common.validators import get_safe_referer_url
 from journal.models import update_journal_for_merged_item_task
 from users.models import User
 
@@ -272,7 +273,14 @@ def unlink(request):
     if not resource.item:
         raise BadRequest(_("Invalid parameter"))
     resource.unlink_from_item()
-    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
 
 
 @require_http_methods(["POST"])

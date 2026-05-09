@@ -8,6 +8,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Prefetch, prefetch_related_objects
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from rq.job import Job
@@ -19,7 +20,6 @@ from common.utils import (
     get_page_size_from_request,
     user_identity_required,
 )
-from common.validators import is_safe_url
 from journal.models import Tag
 from journal.models.mark import Mark
 from journal.models.rating import Rating
@@ -109,7 +109,14 @@ def resolve_url_query(request, keywords):
     if keywords.find("://") <= 0:
         return None
     host = urlparse(keywords).hostname
-    if host and host in settings.SITE_DOMAINS:
+    allowed_hosts = set(settings.SITE_DOMAINS)
+    if (
+        host
+        and host in allowed_hosts
+        and url_has_allowed_host_and_scheme(
+            keywords, allowed_hosts=allowed_hosts, require_https=settings.SSL_ONLY
+        )
+    ):
         return redirect(keywords)
     # skip detecting redirection to avoid timeout
     site = SiteManager.get_site_by_url(
@@ -117,7 +124,9 @@ def resolve_url_query(request, keywords):
     )
     if site:
         return fetch(request, keywords, site, False)
-    if request.GET.get("r") and is_safe_url(keywords):
+    if request.GET.get("r") and url_has_allowed_host_and_scheme(
+        keywords, allowed_hosts=allowed_hosts, require_https=settings.SSL_ONLY
+    ):
         return redirect(keywords)
     return fetch(request, keywords, None, False)
 

@@ -88,17 +88,20 @@
 
                     var items = [];
                     var legend = '', items_str = '';
+                    var escapeAttr = function (s) {
+                        return String(s)
+                            .replaceAll('&', '&amp;')
+                            .replaceAll('"', '&quot;')
+                            .replaceAll('<', '&lt;')
+                            .replaceAll('>', '&gt;');
+                    };
                     if (obj_timestamp[data_date]) {
                         if (obj_timestamp[data_date].items) {
                             items = obj_timestamp[data_date].items;
-							items_str = items.join(", ")
-							items_str = items_str.replaceAll('&', '&amp;');
-							items_str = items_str.replaceAll('"', '&quot;');
+                            items_str = escapeAttr(items.join(", "));
                         }
                         if (obj_timestamp[data_date].legend) {
-                            legend = obj_timestamp[data_date].legend;
-							legend = legend.replaceAll('&', '&amp;');
-							legend = legend.replaceAll('"', '&quot;');
+                            legend = escapeAttr(obj_timestamp[data_date].legend);
                         }
                     }
 
@@ -201,12 +204,20 @@
             var legend = $(evt.target).attr('data-legend');
             var date = $(evt.target).attr('data-date');
 
-            var text = settings.tooltip_style === 'default' ? "{0}: <br />{1}".formatString(date, legend ? legend : items) : (legend ? legend : items);
-
             // Depending on settings, only show a tooltip when there's something to be shown
             if (items.length >= 1 ||  settings.always_show_tooltip === true) {
                 var svg_tip = $('.svg-tip').show();
-                svg_tip.html(text);
+                // Build the tooltip using safe text nodes to avoid XSS via
+                // user-supplied legend/items content. Preserve the line break
+                // when the default tooltip style is requested.
+                svg_tip.empty();
+                if (settings.tooltip_style === 'default') {
+                    svg_tip[0].appendChild(document.createTextNode(date + ': '));
+                    svg_tip[0].appendChild(document.createElement('br'));
+                    svg_tip[0].appendChild(document.createTextNode(legend ? legend : items));
+                } else {
+                    svg_tip[0].appendChild(document.createTextNode(legend ? legend : items));
+                }
                 var svg_width = Math.round(svg_tip.width() / 2 + 5);
                 var svg_height = svg_tip.height() * 2 + 10;
 

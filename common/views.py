@@ -5,6 +5,7 @@ from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from boofilsic import __version__
 from catalog.views import people_search as catalog_people_search
@@ -79,7 +80,14 @@ def home(request):
 
 
 def ap_redirect(request, uri):
-    return redirect(request.get_full_path().replace("/~neodb~/", "/"))
+    redirect_to = request.get_full_path().replace("/~neodb~/", "/")
+    if not url_has_allowed_host_and_scheme(
+        redirect_to,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        redirect_to = "/"
+    return redirect(redirect_to)
 
 
 def nodeinfo2(request, version: str):

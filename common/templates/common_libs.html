@@ -41,21 +41,23 @@
 (function(){
   const s = localStorage.getItem("user_style");
   if (s) {
+    // Use textContent so any closing-style-tag sequence is treated as
+    // text, preventing the value from terminating the style element.
     const style = document.createElement("style");
-    style.innerHTML = s;
+    style.textContent = s;
     document.head.appendChild(style);
   }
   const solo = localStorage.getItem("solo_mode")=="1";
   if (solo) {
     const style = document.createElement("style");
-    style.innerHTML = ".solo-hidden {display: none;}\n"
-                    + ".notification-dot {display: none !important;}\n";
+    style.textContent = ".solo-hidden {display: none;}\n"
+                      + ".notification-dot {display: none !important;}\n";
     document.head.appendChild(style);
   }
   const demetrication = localStorage.getItem("demetrication")=="1";
   if (demetrication) {
     const style2 = document.createElement("style");
-    style2.innerHTML = ".metrics {display: none;}";
+    style2.textContent = ".metrics {display: none;}";
     document.head.appendChild(style2);
   }
   $('html').attr('data-theme', localStorage.getItem("theme_color")||null)

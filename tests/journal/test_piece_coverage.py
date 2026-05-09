@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 import pytest
 
 from catalog.models import Edition
@@ -78,7 +80,7 @@ class TestPieceProperties:
         comment = Comment.objects.create(
             owner=self.identity, item=self.book, text="test", visibility=0
         )
-        assert "example.org" in comment.absolute_url
+        assert urlparse(comment.absolute_url).hostname == "example.org"
         assert comment.uuid in comment.absolute_url
 
     def test_piece_like_count_no_post(self):

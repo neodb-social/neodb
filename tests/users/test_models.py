@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 import pytest
 from django.core.exceptions import ValidationError
 
@@ -168,7 +170,7 @@ class TestUserModel:
         assert self.user.last_usage is not None
 
     def test_absolute_url_contains_domain(self):
-        assert "example.org" in self.user.absolute_url
+        assert urlparse(self.user.absolute_url).hostname == "example.org"
 
     def test_avatar_returns_value(self):
         avatar = self.user.avatar

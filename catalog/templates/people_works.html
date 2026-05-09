@@ -37,9 +37,9 @@
             function applyFilter() {
               var role = document.getElementById('role_filter').value;
               var status = document.getElementById('status_filter');
-              var url = '{{ item.url }}/works/' + role;
+              var url = '{{ item.url }}/works/' + encodeURIComponent(role);
               if (status && status.value) {
-                url += '?status=' + status.value;
+                url += '?status=' + encodeURIComponent(status.value);
               }
               location.href = url;
             }

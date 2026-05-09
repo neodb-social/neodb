@@ -400,6 +400,11 @@ def get_current_locales() -> list[str]:
 
 
 _eng = re.compile(r"^[A-Z-a-z0-9]+$")
+# Intentionally broad Unicode ranges below cover Chinese text:
+# U+4E00..U+9FFF  CJK Unified Ideographs
+# U+3400..U+4DBF  CJK Extension A
+# U+F900..U+FAFF  CJK Compatibility Ideographs
+# U+FF01..U+FF5E  Halfwidth/Fullwidth ASCII variants used in Chinese typography
 _chn = re.compile(
     r"^[\d\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\uff01-\uff5e\s，。、·︰：— 0-9\-\(\)]+$"
 )

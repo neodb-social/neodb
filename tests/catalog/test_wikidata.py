@@ -3,6 +3,7 @@ Tests for the WikiData site implementation
 """
 
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 import pytest
 
@@ -875,7 +876,9 @@ class TestTMDBPerson:
 
         # Cover image (profile photo)
         assert content.metadata["cover_image_url"] is not None
-        assert "image.tmdb.org" in content.metadata["cover_image_url"]
+        assert (
+            urlparse(content.metadata["cover_image_url"]).hostname == "image.tmdb.org"
+        )
 
         # Verify localized_name (not localized_title)
         assert any(
@@ -933,7 +936,8 @@ class TestGoodreadsAuthor:
 
         # Cover image
         assert content.metadata["cover_image_url"] is not None
-        assert "gr-assets.com" in content.metadata["cover_image_url"]
+        cover_host = urlparse(content.metadata["cover_image_url"]).hostname or ""
+        assert cover_host == "gr-assets.com" or cover_host.endswith(".gr-assets.com")
 
     def test_parse_date(self):
         from catalog.sites.goodreads import Goodreads_Author

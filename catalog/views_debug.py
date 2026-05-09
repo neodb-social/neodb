@@ -11,6 +11,7 @@ from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from .common import (
     BasicDownloader,
@@ -19,6 +20,21 @@ from .common import (
     ScrapDownloader,
     SiteManager,
 )
+
+
+def _debug_payload(error: str, logs: list[str]) -> dict:
+    """Return error payload, including traceback only when DEBUG is on.
+
+    In production we always log the traceback server-side via loguru so
+    operators can investigate, but never expose it in the HTTP response.
+    """
+    payload: dict = {"error": error, "logs": logs}
+    tb = traceback.format_exc()
+    if settings.DEBUG:
+        payload["traceback"] = tb
+    else:
+        logger.error("scraper_debug error: {} {}", error, tb)
+    return payload
 
 
 def _check_access(request):
@@ -84,15 +100,9 @@ def scraper_debug_api(request):
 
             except Exception as e:
                 logs.append(f"Scrape error: {e}")
-                logs.append(traceback.format_exc())
-                return JsonResponse(
-                    {
-                        "error": str(e),
-                        "logs": logs,
-                        "traceback": traceback.format_exc(),
-                    },
-                    status=500,
-                )
+                if settings.DEBUG:
+                    logs.append(traceback.format_exc())
+                return JsonResponse(_debug_payload(str(e), logs), status=500)
 
         elif mode == "downloader":
             # Mode 2: Test different downloader types
@@ -132,14 +142,7 @@ def scraper_debug_api(request):
                 logs.append(f"Download error: {e}")
                 for log in getattr(dl, "logs", []):
                     logs.append(f"DL: {log}")
-                return JsonResponse(
-                    {
-                        "error": str(e),
-                        "logs": logs,
-                        "traceback": traceback.format_exc(),
-                    },
-                    status=500,
-                )
+                return JsonResponse(_debug_payload(str(e), logs), status=500)
 
         elif mode == "provider":
             # Mode 3: Test specific ScrapDownloader provider
@@ -188,14 +191,7 @@ def scraper_debug_api(request):
                 logs.append(f"Provider error: {e}")
                 for log in getattr(dl, "logs", []):
                     logs.append(f"DL: {log}")
-                return JsonResponse(
-                    {
-                        "error": str(e),
-                        "logs": logs,
-                        "traceback": traceback.format_exc(),
-                    },
-                    status=500,
-                )
+                return JsonResponse(_debug_payload(str(e), logs), status=500)
 
         else:
             return JsonResponse({"error": f"Unknown mode: {mode}"}, status=400)
@@ -214,6 +210,4 @@ def scraper_debug_api(request):
         )
 
     except Exception as e:
-        return JsonResponse(
-            {"error": str(e), "traceback": traceback.format_exc()}, status=500
-        )
+        return JsonResponse(_debug_payload(str(e), []), status=500)

@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
-from common.validators import get_safe_referer_url
 from journal.models import Piece, ShelfType
 from journal.models.common import prefetch_pieces_for_posts
 from journal.search import JournalIndex, JournalQueryParser
@@ -192,7 +193,14 @@ def dismiss_notification(request):
     Takahe.get_events(request.user.identity.pk, _all_notification_types).update(
         seen=True
     )
-    return redirect(get_safe_referer_url(request, reverse("social:notification")))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = reverse("social:notification")
+    return redirect(referer)
 
 
 class NotificationEvent:

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
@@ -10,7 +11,6 @@ from loguru import logger
 from common.models.lang import LOCALE_CHOICES, translate
 from common.models.misc import int_
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from common.validators import get_safe_referer_url
 from journal.models.renderers import bleach_post_content
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -353,7 +353,14 @@ def post_compose(request: AuthedHttpRequest):
         language=language or "",
         attachments=attachments if attachments else None,
     )
-    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
 
 
 @require_http_methods(["GET", "HEAD"])

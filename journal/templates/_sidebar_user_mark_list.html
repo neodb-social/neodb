@@ -6,12 +6,15 @@
 		function filter() {
       var q = [];
       if ($('#year')[0].value) {
-        q.push('year=' + $('#year')[0].value)
+        q.push('year=' + encodeURIComponent($('#year')[0].value))
       }
       if ($('#sort')[0].value) {
-        q.push('sort=' + $('#sort')[0].value)
+        q.push('sort=' + encodeURIComponent($('#sort')[0].value))
       }
-      location = '{{ user.identity.url }}' + $('#shelf')[0].value + '/' + $('#category')[0].value + '/' + (q.length ? '?' + q.join('&') : '')
+      location = '{{ user.identity.url }}'
+        + encodeURIComponent($('#shelf')[0].value) + '/'
+        + encodeURIComponent($('#category')[0].value) + '/'
+        + (q.length ? '?' + q.join('&') : '')
 		}
   </script>
   <form method="get" action="">

@@ -256,6 +256,8 @@ class SiteManager:
             return u
         elif not allow_head:
             return url
+        if not is_valid_url(url):
+            return url
         try:
             u = requests.head(url, allow_redirects=True, timeout=2).url
         except requests.RequestException:

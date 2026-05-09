@@ -20,6 +20,7 @@ from requests.exceptions import RequestException
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
+from common.validators import is_valid_url
 
 RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
@@ -67,22 +68,21 @@ class MockResponse:
     def __init__(self, url):
         self.url = url
         base = Path(_local_response_path).resolve()
-        fn = (base / get_mock_file(url)).resolve()
-        try:
-            fn.relative_to(base)  # raises ValueError if fn escapes base directory
-            self.content = fn.read_bytes()
-            self.status_code = 200
-            # logger.debug(f"use local response for {url} from {fn}")
-        except ValueError:
+        candidate = (base / get_mock_file(url)).resolve()
+        if not candidate.is_relative_to(base):
             self.content = b"Error: response file not found"
             self.status_code = 404
             if ".jpg" not in self.url:
                 logger.warning(f"invalid mock response path for {url}")
+            return
+        try:
+            self.content = candidate.read_bytes()
+            self.status_code = 200
         except Exception:
             self.content = b"Error: response file not found"
             self.status_code = 404
             if ".jpg" not in self.url:
-                logger.warning(f"local response not found for {url} at {fn}")
+                logger.warning(f"local response not found for {url} at {candidate}")
 
     @property
     def text(self):
@@ -261,15 +261,14 @@ class BasicDownloader:
                 )
                 resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
-                    try:
-                        with open(
-                            settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url),
-                            "w",
-                            encoding="utf-8",
-                        ) as fp:
-                            fp.write(resp.text)
-                    except Exception:
-                        logger.warning("Save downloaded data failed.")
+                    savedir = Path(settings.DOWNLOADER_SAVEDIR).resolve()
+                    target = (savedir / get_mock_file(url)).resolve()
+                    if target.is_relative_to(savedir):
+                        try:
+                            with open(target, "w", encoding="utf-8") as fp:
+                                fp.write(resp.text)
+                        except Exception:
+                            logger.warning("Save downloaded data failed.")
             else:
                 resp = MockResponse(self.url)
             response_type = self.validate_response(resp)
@@ -302,15 +301,14 @@ class BasicDownloader2(BasicDownloader):
                 )
                 resp.__class__ = DownloaderResponse2
                 if settings.DOWNLOADER_SAVEDIR:
-                    try:
-                        with open(
-                            settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url),
-                            "w",
-                            encoding="utf-8",
-                        ) as fp:
-                            fp.write(resp.text)
-                    except Exception:
-                        logger.warning("Save downloaded data failed.")
+                    savedir = Path(settings.DOWNLOADER_SAVEDIR).resolve()
+                    target = (savedir / get_mock_file(url)).resolve()
+                    if target.is_relative_to(savedir):
+                        try:
+                            with open(target, "w", encoding="utf-8") as fp:
+                                fp.write(resp.text)
+                        except Exception:
+                            logger.warning("Save downloaded data failed.")
             else:
                 resp = MockResponse(self.url)
             response_type = self.validate_response(resp)
@@ -771,7 +769,9 @@ class ScrapDownloader(BasicDownloader):
 
     def _scrape_with_custom(self, custom_url: str) -> Tuple[ResponseType | None, int]:
         """Scrape using custom URL template (backup provider)."""
-        if not self.url.startswith(("http://", "https://")):
+        if not self.url.startswith(("http://", "https://")) or not is_valid_url(
+            self.url
+        ):
             return None, RESPONSE_NETWORK_ERROR
         # Validate custom_url is a proper URL with a server-controlled host before substitution
         custom_parsed = urlparse(custom_url)

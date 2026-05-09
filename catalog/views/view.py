@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.db.models import Count, F, Prefetch, Window, prefetch_related_objects
@@ -5,6 +6,7 @@ from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -41,7 +43,14 @@ NUM_COMMENTS_ON_ITEM_PAGE = 10
 
 def retrieve_by_uuid(request, item_uid):
     item = get_object_or_404(Item, uid=item_uid)
-    return redirect(item.url)
+    url = item.url
+    if not url_has_allowed_host_and_scheme(
+        url,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        raise Http404()
+    return redirect(url)
 
 
 def retrieve_redirect(request, item_path, item_uuid):

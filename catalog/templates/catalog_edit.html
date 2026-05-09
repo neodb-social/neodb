@@ -93,17 +93,23 @@
             if (link) link.hidden = true;
             return;
           }
-          var href = '/' + m[1] + '/' + m[2];
+          // m[1] is restricted to a fixed set of slugs and m[2] to [A-Za-z0-9]{21,22}
+          // by the regex above, so href is always a safe relative path.
+          var href = '/' + encodeURIComponent(m[1]) + '/' + encodeURIComponent(m[2]);
           if (!link) {
             link = document.createElement('a');
             link.className = 'people-ref-link';
             link.target = '_blank';
             link.rel = 'noopener';
             link.title = '{% trans "open linked people page" %}';
-            link.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i><span class="people-ref-name"></span>';
+            var icon = document.createElement('i');
+            icon.className = 'fa-solid fa-up-right-from-square';
+            var nameSpan = document.createElement('span');
+            nameSpan.className = 'people-ref-name';
+            link.append(icon, nameSpan);
             input.insertAdjacentElement('afterend', link);
           }
-          link.href = href;
+          link.setAttribute('href', href);
           link.hidden = false;
           var nameEl = link.querySelector('.people-ref-name');
           if (nameEl) nameEl.textContent = names[m[2]] || '';

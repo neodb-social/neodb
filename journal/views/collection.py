@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -14,7 +16,6 @@ from common.utils import (
     get_page_size_from_request,
     get_uuid_or_404,
 )
-from common.validators import get_safe_referer_url
 from users.models import User
 
 from ..forms import *
@@ -48,7 +49,14 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             ).pk
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
 
 
 @login_required
@@ -87,7 +95,8 @@ def save_as_dynamic_collection(request: AuthedHttpRequest):
 
 
 def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
-    return redirect(f"/collection/{collection_uuid}", permanent=True)
+    uid = get_uuid_or_404(collection_uuid)
+    return redirect(f"/collection/{uid}", permanent=True)
 
 
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
@@ -157,7 +166,14 @@ def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
     FeaturedCollection.objects.update_or_create(
         owner=request.user.identity, target=collection
     )
-    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
 
 
 @login_required
@@ -171,7 +187,14 @@ def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
     ).first()
     if fc:
         fc.delete()
-    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
 
 
 @login_required
@@ -204,7 +227,14 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             ) or ""
             if not share_collection(collection, comment, user, visibility, link):
                 return render_relogin(request)
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
 
 
 def share_collection(

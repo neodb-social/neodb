@@ -5,10 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.backends.signed_cookies import SessionStore
 from django.http import HttpRequest
 from django.shortcuts import redirect
-from django.utils.http import http_date
+from django.utils.http import http_date, url_has_allowed_host_and_scheme
 
 from common.utils import user_identity_required
-from common.validators import get_safe_redirect_url
 
 from .utils import Takahe
 
@@ -39,7 +38,13 @@ def auth_login(request):
     # )
     # session_key = request.session.session_key
 
-    redirect_url = get_safe_redirect_url(request.GET.get("next"), "/")
+    redirect_url = request.GET.get("next") or ""
+    if not url_has_allowed_host_and_scheme(
+        redirect_url,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        redirect_url = "/"
     response = redirect(redirect_url)
     if request.session.get_expire_at_browser_close():
         max_age = None

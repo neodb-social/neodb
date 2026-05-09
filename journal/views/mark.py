@@ -6,6 +6,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from loguru import logger
@@ -13,7 +14,6 @@ from loguru import logger
 from catalog.models import *
 from common.models.lang import translate
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from common.validators import get_safe_referer_url
 
 from ..forms import MarkForm
 from ..models import Comment, Mark, ShelfManager, ShelfType
@@ -34,7 +34,14 @@ def wish(request: AuthedHttpRequest, item_uuid):
             ShelfType.WISHLIST, application_id=getattr(request, "application_id", None)
         )
     if request.GET.get("back"):
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
     return HttpResponse(_checkmark)
 
 
@@ -78,7 +85,14 @@ def mark(request: AuthedHttpRequest, item_uuid):
     else:
         if request.POST.get("delete", default=False):
             mark.delete()
-            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+            referer = request.META.get("HTTP_REFERER") or ""
+            if not url_has_allowed_host_and_scheme(
+                referer,
+                allowed_hosts=set(settings.SITE_DOMAINS),
+                require_https=settings.SSL_ONLY,
+            ):
+                referer = "/"
+            return HttpResponseRedirect(referer)
         else:
             form = MarkForm(request.POST)
             if form.is_valid():
@@ -114,7 +128,14 @@ def mark(request: AuthedHttpRequest, item_uuid):
                             "secondary_msg": err,
                         },
                     )
-                return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+                referer = request.META.get("HTTP_REFERER") or ""
+                if not url_has_allowed_host_and_scheme(
+                    referer,
+                    allowed_hosts=set(settings.SITE_DOMAINS),
+                    require_https=settings.SSL_ONLY,
+                ):
+                    referer = "/"
+                return HttpResponseRedirect(referer)
             else:
                 # In a real app we'd handle form errors better, but preserving existing behavior of falling through or erroring
                 # For now, let's just log and redirect or error if really invalid.
@@ -162,7 +183,14 @@ def comment(request: AuthedHttpRequest, item_uuid):
             if not comment:
                 raise Http404(_("Content not found"))
             comment.delete()
-            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+            referer = request.META.get("HTTP_REFERER") or ""
+            if not url_has_allowed_host_and_scheme(
+                referer,
+                allowed_hosts=set(settings.SITE_DOMAINS),
+                require_https=settings.SSL_ONLY,
+            ):
+                referer = "/"
+            return HttpResponseRedirect(referer)
         visibility = int(request.POST.get("visibility", default=0))
         text = request.POST.get("text")
         position = None
@@ -188,7 +216,14 @@ def comment(request: AuthedHttpRequest, item_uuid):
         if share_to_mastodon:
             comment.sync_to_social_accounts(update_mode)
         comment.update_index()
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
 
 
 @require_http_methods(["POST"])

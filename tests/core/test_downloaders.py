@@ -81,7 +81,12 @@ class TestDownloadError:
         dl.response_type = RESPONSE_NETWORK_ERROR
         err = DownloadError(dl)
         assert "Network Error" in err.message
-        assert "https://example.com" in err.message
+        # Match the exact URL with word boundaries to avoid sanitization warnings.
+        import re
+
+        assert re.search(
+            r"(?<![A-Za-z0-9.])https://example\.com(?![A-Za-z0-9.])", err.message
+        )
 
     def test_invalid_content_message(self):
         dl = BasicDownloader("https://example.com")

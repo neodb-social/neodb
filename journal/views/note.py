@@ -1,15 +1,16 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.forms import NeoModelForm
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from common.validators import get_safe_referer_url
 
 from ..models import Note
 from ..models.common import VisibilityType
@@ -98,9 +99,23 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
         if not note:
             raise Http404(_("Content not found"))
         note.delete()
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
     if not form.is_valid():
         raise BadRequest(_("Invalid form data"))
     form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
     note = form.save()
-    return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)

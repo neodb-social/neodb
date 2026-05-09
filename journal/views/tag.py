@@ -1,13 +1,14 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from user_messages import api as msg
 
 from catalog.models import *
-from common.validators import get_safe_referer_url
 from users.models import APIdentity
 
 from ..forms import *
@@ -53,7 +54,14 @@ def user_tag_edit(request):
         )
         if not tag or not tag_title:
             msg.error(request.user, _("Invalid tag"))
-            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+            referer = request.META.get("HTTP_REFERER") or ""
+            if not url_has_allowed_host_and_scheme(
+                referer,
+                allowed_hosts=set(settings.SITE_DOMAINS),
+                require_https=settings.SSL_ONLY,
+            ):
+                referer = "/"
+            return HttpResponseRedirect(referer)
         if request.POST.get("delete"):
             tag.delete()
             msg.info(request.user, _("Tag deleted."))
@@ -67,7 +75,14 @@ def user_tag_edit(request):
             ).exists()
         ):
             msg.error(request.user, _("Duplicated tag."))
-            return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+            referer = request.META.get("HTTP_REFERER") or ""
+            if not url_has_allowed_host_and_scheme(
+                referer,
+                allowed_hosts=set(settings.SITE_DOMAINS),
+                require_https=settings.SSL_ONLY,
+            ):
+                referer = "/"
+            return HttpResponseRedirect(referer)
         tag.update(
             tag_title,
             int(request.POST.get("visibility", 0)),

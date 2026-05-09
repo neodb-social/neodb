@@ -3,12 +3,14 @@ import calendar
 import datetime
 from typing import Any
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, F
 from django.db.models.functions import ExtractMonth
 from django.http import HttpRequest, HttpResponseRedirect
 from django.http.response import HttpResponse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
@@ -19,7 +21,6 @@ from catalog.models import (
     item_content_types,
 )
 from common.utils import int_
-from common.validators import get_safe_referer_url
 from journal.models import Comment, ShelfType
 from journal.models.common import VisibilityType
 from mastodon.models.bluesky import EmbedObj
@@ -148,4 +149,11 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             except Exception:
                 pass
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
-        return HttpResponseRedirect(get_safe_referer_url(request, "/"))
+        referer = request.META.get("HTTP_REFERER") or ""
+        if not url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=set(settings.SITE_DOMAINS),
+            require_https=settings.SSL_ONLY,
+        ):
+            referer = "/"
+        return HttpResponseRedirect(referer)
