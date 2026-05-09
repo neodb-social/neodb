@@ -226,6 +226,19 @@ existing catalog fetch path.
 makes the field nullable). Remote mirrors don't get stub catalog
 entries.
 
+### AP endpoints refuse mirrors
+
+`_list_ap_object_view` and `_list_items_view`
+(`journal/views/collection.py`) gate on `_is_locally_owned(instance)`
+and 404 otherwise. The origin server is authoritative for their own
+users' lists; we hold a possibly-stale snapshot. The check requires
+both `instance.local` AND `instance.owner.local` because
+`ShelfManager` auto-initializes a `Shelf` row per `shelf_type` for any
+APIdentity it touches (local OR remote, with `local=True` from the
+model default), so a remote owner's auto-initialized shelf row would
+otherwise sneak through. Peers chasing a federated link should follow
+the original `id` URL on the origin instead.
+
 ### Known limitation: followers-only inbound list sync
 
 The page-walking inbound sync signs every fetch as the local Takahe

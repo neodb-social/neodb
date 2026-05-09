@@ -86,6 +86,33 @@ class TestShelfApEnvelope:
         assert entry["withRegardTo"] == self.book.absolute_url
         assert "post" not in entry
 
+    def test_remote_owner_shelf_envelope_returns_404(self):
+        # ShelfManager auto-initializes a Shelf row per shelf_type for
+        # any APIdentity (including remote mirrors); those rows have
+        # ``local=True`` from the model default but are owned by a
+        # remote APIdentity. The AP view must refuse them — only the
+        # origin server is authoritative.
+        from journal.views.collection import _list_ap_object_view
+        from takahe.models import Domain, Identity
+        from takahe.utils import Takahe
+
+        domain, _ = Domain.objects.get_or_create(
+            domain="origin.example", defaults={"local": False}
+        )
+        identity = Identity.objects.create(
+            actor_uri="https://origin.example/users/bob/",
+            local=False,
+            username="bobapview",
+            domain=domain,
+        )
+        remote_owner = Takahe.get_or_create_remote_apidentity(identity)
+        remote_shelf = remote_owner.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        from django.test import RequestFactory
+
+        rf = RequestFactory().get(remote_shelf.url)
+        response = _list_ap_object_view(rf, remote_shelf)
+        assert response.status_code == 404
+
     def test_items_page_includes_post_url_when_member_has_latest_post(self):
         wishlist = self.user.identity.shelf_manager.get_shelf(ShelfType.WISHLIST)
         m = ShelfMember.objects.create(

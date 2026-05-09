@@ -449,6 +449,55 @@ class TestApContentNegotiation:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestApViewRefusesRemote:
+    """AP endpoints must never serve a mirror's content — the origin
+    server is authoritative for their own users' lists. We only expose
+    AP for lists that are local AND owned by a local APIdentity.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="apremote@test.com", username="apremote_u")
+        self.identity = self.user.identity
+        self._url_patch = patch(
+            "journal.models.itemlist.is_valid_url", return_value=True
+        )
+        self._url_patch.start()
+        yield
+        self._url_patch.stop()
+
+    def test_envelope_view_returns_404_for_local_mirror(self):
+        from journal.views.collection import _list_ap_object_view
+
+        col = Collection(
+            owner=self.identity,
+            local=False,
+            remote_id="https://remote.example/collection/zzz",
+            title="Mirror",
+            visibility=0,
+        )
+        col.save(post_when_save=False, index_when_save=False)
+        rf = RequestFactory().get(col.url)
+        response = _list_ap_object_view(rf, col)
+        assert response.status_code == 404
+
+    def test_items_view_returns_404_for_local_mirror(self):
+        from journal.views.collection import _list_items_view
+
+        col = Collection(
+            owner=self.identity,
+            local=False,
+            remote_id="https://remote.example/collection/yyy",
+            title="Mirror",
+            visibility=0,
+        )
+        col.save(post_when_save=False, index_when_save=False)
+        rf = RequestFactory().get(col.url + "/items")
+        response = _list_items_view(rf, col)
+        assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestVisibilityByIdentity:
     @pytest.fixture(autouse=True)
     def setup_data(self):

@@ -131,12 +131,32 @@ def _resolve_signed_viewer(request):
         )
 
 
+def _is_locally_owned(instance) -> bool:
+    """True iff the list and its owner are both local. ``Piece.local`` is
+    False on mirrors but auto-initialized rows (e.g. ``ShelfManager``
+    creates a Shelf row per ``ShelfType`` for any APIdentity, including
+    remote ones, with ``local=True`` by default), so we also check that
+    the owner is a local APIdentity. A remote owner is the authoritative
+    one for their own content; we must not pretend to speak for them.
+    """
+    if not getattr(instance, "local", False):
+        return False
+    owner = getattr(instance, "owner", None)
+    return bool(owner and getattr(owner, "local", False))
+
+
 def _list_ap_object_view(request, instance):
     """Dereferenceable AP endpoint for any List subclass (Collection, Shelf).
 
     Returns the lightweight Shelf envelope; the items list lives behind
     ``first``/``last`` URLs that point at ``_list_items_view``.
     """
+    # Mirror / remote-owned lists must not be served back over AP — the
+    # origin server is authoritative; we hold a possibly-stale snapshot
+    # and have no business pretending to speak for them. Peers chasing a
+    # federated link should follow the original `id` URL on the origin.
+    if not _is_locally_owned(instance):
+        return JsonResponse({"error": "Not found"}, status=404)
     viewer, err = _resolve_signed_viewer(request)
     if err is not None:
         return err
@@ -155,6 +175,11 @@ def _list_items_view(request, instance):
     No ``page`` query param: returns the ``OrderedCollection`` envelope.
     ``?page=N``: returns one ``OrderedCollectionPage`` slice.
     """
+    # Same gate as ``_list_ap_object_view`` — never serve the items list
+    # of a mirror or a remote-owned auto-initialized shelf row; the
+    # origin owns it.
+    if not _is_locally_owned(instance):
+        return JsonResponse({"error": "Not found"}, status=404)
     viewer, err = _resolve_signed_viewer(request)
     if err is not None:
         return err
