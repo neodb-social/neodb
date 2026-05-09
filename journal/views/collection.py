@@ -115,38 +115,82 @@ def _wants_activitypub(request) -> bool:
     return any(t in accept for t in _AP_ACCEPT_TYPES)
 
 
-def _collection_ap_view(request, collection_uuid):
-    """Dereferenceable AP endpoint.
+def _resolve_signed_viewer(request):
+    """Return ``(viewer | None, error_response | None)``.
 
-    Authentication is *optional* — a Signature header is verified if
-    present, otherwise the caller is treated as anonymous. The visibility
-    check (``is_visible_to_identity``) decides whether to disclose the
-    object. This lets public collections be fetched by any peer (including
-    those whose actor isn't yet cached locally) while followers-only and
-    private collections still require a signed GET from an authorized
-    follower / the owner.
+    Signatures are verified when present and resolve to the signing
+    ``APIdentity``; absent signatures resolve to ``None`` (anonymous);
+    invalid signatures yield a 401 response.
     """
-    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
-    viewer = None
-    if request.headers.get("Signature"):
-        try:
-            viewer = verify_http_signature(request)
-        except _SigError as e:
-            return HttpResponse(
-                f"Bad signature: {e}", status=401, content_type="text/plain"
-            )
-    if not collection.is_visible_to_identity(viewer):
+    if not request.headers.get("Signature"):
+        return None, None
+    try:
+        return verify_http_signature(request), None
+    except _SigError as e:
+        return None, HttpResponse(
+            f"Bad signature: {e}", status=401, content_type="text/plain"
+        )
+
+
+def _list_ap_object_view(request, instance):
+    """Dereferenceable AP endpoint for any List subclass (Collection, Shelf).
+
+    Returns the lightweight Shelf envelope; the items list lives behind
+    ``first``/``last`` URLs that point at ``_list_items_view``.
+    """
+    viewer, err = _resolve_signed_viewer(request)
+    if err is not None:
+        return err
+    if not instance.is_visible_to_identity(viewer):
         # 404 rather than 403 to avoid leaking existence to unauthorized callers.
         return JsonResponse({"error": "Not found"}, status=404)
     return JsonResponse(
-        collection.full_ap_object(),
+        instance.ap_envelope(),
         content_type="application/activity+json",
     )
 
 
+def _list_items_view(request, instance):
+    """Paginated AP items endpoint for any List subclass.
+
+    No ``page`` query param: returns the ``OrderedCollection`` envelope.
+    ``?page=N``: returns one ``OrderedCollectionPage`` slice.
+    """
+    viewer, err = _resolve_signed_viewer(request)
+    if err is not None:
+        return err
+    if not instance.is_visible_to_identity(viewer):
+        return JsonResponse({"error": "Not found"}, status=404)
+    raw_page = request.GET.get("page")
+    if raw_page is None:
+        body = instance.ap_items_envelope()
+    else:
+        try:
+            page = int(raw_page)
+        except (TypeError, ValueError):
+            return HttpResponse("Bad page", status=400, content_type="text/plain")
+        body = instance.ap_items_page(page)
+    return JsonResponse(body, content_type="application/activity+json")
+
+
+def collection_ap_items(request, collection_uuid):
+    """URL handler for ``/collection/<uuid>/items`` (AP only).
+
+    Always returns AP, regardless of Accept header — this URL is the
+    items endpoint advertised by the Shelf envelope's ``first``/``last``
+    fields, and HTML browsing for the same data lives at the parent
+    Collection page.
+    """
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    return _list_items_view(request, collection)
+
+
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     if _wants_activitypub(request):
-        return _collection_ap_view(request, collection_uuid)
+        collection = get_object_or_404(
+            Collection, uid=get_uuid_or_404(collection_uuid)
+        )
+        return _list_ap_object_view(request, collection)
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))

@@ -1,3 +1,3 @@
-from .collection_sync import fetch_remote_collection_members
+from .list_sync import fetch_remote_list_members
 
-__all__ = ["fetch_remote_collection_members"]
+__all__ = ["fetch_remote_list_members"]

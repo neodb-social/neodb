@@ -20,7 +20,7 @@ from common.utils import (
     get_page_size_from_request,
     user_identity_required,
 )
-from journal.models import Collection, Note, Review, Tag
+from journal.models import Collection, Note, Review, Shelf, Tag
 from journal.models.mark import Mark
 from journal.models.rating import Rating
 from users.views import query_identity
@@ -107,18 +107,19 @@ def _maybe_remote_piece(url: str, user):
     redirect to confirm the existence of a private or followers-only mirror,
     and cannot trigger the resync side effect by paste-probing remote URLs.
 
-    For Collection we also enqueue ``resync_remote_collection`` so newly-fetched
-    catalog items show up on a follow-up view. TODO: trigger an analogous
-    refetch for Review / Note so out-of-sync mirrors can be refreshed by
-    URL paste.
+    For Collection / Shelf we also enqueue a paginated member resync so
+    newly-fetched catalog items show up on a follow-up view. TODO:
+    trigger an analogous refetch for Review / Note so out-of-sync
+    mirrors can be refreshed by URL paste.
     """
-    for cls in (Collection, Review, Note):
+    for cls in (Collection, Shelf, Review, Note):
         piece = cls.objects.filter(remote_id=url, local=False).first()
         if piece and piece.is_visible_to(user):
-            if isinstance(piece, Collection):
+            if isinstance(piece, (Collection, Shelf)):
                 try:
                     django_rq.get_queue("fetch").enqueue(
-                        "journal.jobs.collection_sync.fetch_remote_collection_members",
+                        "journal.jobs.list_sync.fetch_remote_list_members",
+                        f"{type(piece).__module__}.{type(piece).__name__}",
                         piece.pk,
                     )
                 except Exception:

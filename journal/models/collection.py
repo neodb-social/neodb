@@ -1,15 +1,11 @@
 import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
 
-import django_rq
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
-from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
@@ -18,20 +14,15 @@ from catalog.models.utils import piece_cover_path
 from catalog.search.utils import enqueue_fetch
 from common.models import jsondata
 from common.utils import get_file_absolute_url
-from common.validators import is_valid_url
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Piece
-from .itemlist import List, ListMember, list_add, list_remove
+from .itemlist import AP_PAGE_SIZE, List, ListMember, list_add, list_remove
 from .renderers import render_md, render_text
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
-
-# Cap on the number of members included in the federated Collection AP object.
-# Larger lists are truncated (sender side); receivers honor whatever they get.
-MAX_AP_COLLECTION_ITEMS = 250
 
 
 class CollectionMember(ListMember):
@@ -54,15 +45,18 @@ class CollectionMember(ListMember):
 
     @property
     def ap_object(self):
+        # `commentText` (was `note` in pre-rename versions) carries the
+        # user's per-collection note. `note` collided with the AS Note
+        # type and was confusing in code review.
         return {
             "id": self.absolute_url,
-            "type": "CollectionItem",
+            "type": "ShelfItem",
             "collection": self.parent.absolute_url,
             "published": self.created_time.isoformat(),
             "updated": self.edited_time.isoformat(),
             "attributedTo": self.owner.actor_uri,
             "withRegardTo": self.item.absolute_url,
-            "note": self.note,
+            "commentText": self.note or "",
             "href": self.absolute_url,
         }
 
@@ -400,94 +394,68 @@ class Collection(List):
             self.link_post_id(post.pk)
         return post
 
-    def _ap_object_base(self, total_items: int) -> dict[str, Any]:
-        return {
-            "id": self.absolute_url,
-            "type": "Collection",
-            "name": self.title,
-            "content": self.brief,
-            "mediaType": "text/markdown",
-            "published": self.created_time.isoformat(),
-            "updated": self.edited_time.isoformat(),
-            "attributedTo": self.owner.actor_uri,
-            "href": self.absolute_url,
-            "totalItems": total_items,
-        }
+    # --- ActivityPub: outbound -----------------------------------------
 
-    @property
-    def ap_object(self):
-        """Lightweight AP object embedded in the announcement Note Post.
-
-        The full ordered member list is served only by the dereferenceable
-        AP endpoint at ``self.absolute_url`` (signed GET), so receivers
-        must follow up with their own signed fetch to materialize members.
-        ``totalItems`` is included so receivers can show a count without
-        fetching, but ``orderedItems`` is intentionally absent.
-
-        ``totalItems`` is computed from a count query (no member load) for
-        non-dynamic collections; dynamic collections snapshot 0 here because
-        their item list is generated lazily by the dereferenceable endpoint.
-        """
+    def ap_total_items(self) -> int:
         if self.is_dynamic:
-            total = 0
-        else:
-            total = min(self.members.count(), MAX_AP_COLLECTION_ITEMS)
-        return self._ap_object_base(total)
+            r = self.query_result
+            return len(list(r.items)) if r else 0
+        return self.members.count()
 
-    def full_ap_object(self) -> dict[str, Any]:
-        """Dereferenceable AP object including ordered members.
-
-        Returned by the ``/collection/<uuid>`` AP endpoint after the caller's
-        HTTP signature is verified and ``is_visible_to_identity`` passes.
-        """
-        ordered_items = self._members_ap_payload()
-        obj = self._ap_object_base(len(ordered_items))
-        obj["orderedItems"] = ordered_items
-        return obj
-
-    def _members_ap_payload(self) -> list[dict[str, Any]]:
-        """Serialize members for ``orderedItems`` in the Collection AP object.
-
-        Dynamic collections snapshot their current query result at post time;
-        the receiving server treats it as a static list. The list is capped
-        at ``MAX_AP_COLLECTION_ITEMS`` to bound payload size; ``totalItems``
-        in ``ap_object`` reflects the truncated count rather than the full
-        member set.
-        """
+    def ap_member_queryset(self):
+        # Dynamic collections snapshot the current search result; each page
+        # call materializes the same in-memory list. Receivers see it as a
+        # static ordered list.
         if self.is_dynamic:
             r = self.query_result
             items = list(r.items) if r else []
-            items = items[:MAX_AP_COLLECTION_ITEMS]
+            # Wrap each Item in a transient CollectionMember so the shared
+            # paginator can re-use the same per-entry serializer hook.
             return [
-                {
-                    "type": "CollectionItem",
-                    "withRegardTo": item.absolute_url,
-                    "itemType": item.__class__.__name__,
-                    "note": "",
-                }
-                for item in items
+                CollectionMember(
+                    parent=self,
+                    item=item,
+                    owner=self.owner,
+                    position=i + 1,
+                    note=None,
+                )
+                for i, item in enumerate(items)
             ]
-        members = list(
-            self.members.order_by("position", "id")[:MAX_AP_COLLECTION_ITEMS]
-        )
-        # ``Item`` is polymorphic, so ``select_related("item")`` returns the
-        # base ``Item`` class with the wrong ``url_path``. Fetch through
-        # the polymorphic manager and re-attach.
-        item_ids = [m.item_id for m in members]
-        items_map = {it.pk: it for it in Item.objects.filter(pk__in=item_ids)}
-        for m in members:
-            m.item = items_map.get(m.item_id)
-        return [
-            {
-                "id": m.absolute_url,
-                "type": "CollectionItem",
-                "withRegardTo": m.item.absolute_url,
-                "itemType": m.item.__class__.__name__,
-                "note": m.note or "",
-            }
-            for m in members
-            if m.item is not None
-        ]
+        return self.members.order_by("position", "id")
+
+    def ap_object_extra_fields(self) -> dict[str, Any]:
+        extras: dict[str, Any] = {"content": self.brief or ""}
+        if self.is_dynamic:
+            extras["query"] = self.query
+        return extras
+
+    def ap_member_entry(self, member: CollectionMember) -> dict[str, Any]:
+        entry: dict[str, Any] = {
+            "type": "ShelfItem",
+            "withRegardTo": member.item.absolute_url,
+        }
+        if member.note:
+            entry["commentText"] = member.note
+        return entry
+
+    @property
+    def ap_object(self) -> dict[str, Any]:
+        """Lightweight Shelf AP envelope embedded in the announcement Note.
+
+        Members are NOT included here — they live behind ``first``/``last``
+        which point at the paginated items endpoint. Receivers materialize
+        members by walking the page chain with signed GETs.
+        """
+        return self.ap_envelope()
+
+    # --- ActivityPub: inbound ------------------------------------------
+
+    @classmethod
+    def params_from_envelope(cls, obj: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "title": obj.get("name") or "",
+            "brief": obj.get("content") or "",
+        }
 
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
@@ -498,136 +466,47 @@ class Collection(List):
 
     @classmethod
     def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
-        """Inbound federation hook for Collection.
+        """Inbound federation hook for Collection (Shelf-shaped envelope).
 
-        Builds (or updates) the local mirror from the metadata embedded in
-        the announcement Note, then schedules a separate signed GET against
-        the Collection's ``id`` URL to materialize members. The Note never
-        carries the full member list — see ``Collection.ap_object`` and
-        ``Collection.full_ap_object`` for the two shapes.
+        Delegates to the shared ``List.update_by_ap_envelope`` to build /
+        update the local mirror, then enqueues a paginated member fetch.
 
         ``item`` is unused for Collection but kept in the signature so
         ``takahe/ap_handlers.py:_post_fetched`` can dispatch uniformly.
         """
-        existing = cls.get_by_post_id(post.id)
-        if existing and existing.owner.pk != post.author_id:
-            logger.warning(
-                f"Collection owner mismatch on inbound: {existing.owner.pk} != {post.author_id}"
-            )
-            return
-        # SSRF guard: the Collection's ``id`` URL becomes ``remote_id`` and is
-        # later signed-GET'd by ``fetch_remote_collection_members``. Validate
-        # it before persisting and require its host to match the announcing
-        # author's host so a peer cannot redirect our worker to arbitrary
-        # internal/blocked URLs by claiming any ``id``.
-        collection_id = obj.get("id")
-        if not is_valid_url(collection_id):
-            logger.warning(f"Collection inbound rejected: bad id URL {collection_id!r}")
-            return None
-        author_actor_uri = getattr(getattr(post, "author", None), "actor_uri", None)
-        if author_actor_uri:
-            if urlparse(collection_id).hostname != urlparse(author_actor_uri).hostname:
-                logger.warning(
-                    f"Collection inbound rejected: id host {collection_id!r} "
-                    f"does not match author host {author_actor_uri!r}"
-                )
-                return None
-        # ``parse_datetime`` tolerates ISO-8601 variants ("Z" suffix, missing
-        # colon in offset). Reject naive datetimes — comparing them against
-        # tz-aware ``edited_time`` raises under ``USE_TZ=True``.
-        edited = parse_datetime(obj.get("updated") or obj.get("published") or "")
-        published = parse_datetime(obj.get("published") or "")
-        if (
-            not edited
-            or not published
-            or timezone.is_naive(edited)
-            or timezone.is_naive(published)
-        ):
-            logger.warning(
-                f"Collection inbound rejected: bad datetime in {collection_id}"
-            )
-            return None
-        if existing and existing.edited_time >= edited:
-            return existing
-        visibility = Takahe.visibility_t2n(post.visibility)
-        fields = {
-            "title": obj.get("name") or "",
-            "brief": obj.get("content") or "",
-            "visibility": visibility,
-        }
-        if existing:
-            for k, v in fields.items():
-                setattr(existing, k, v)
-            existing.save(
-                update_fields=list(fields.keys()),
-                post_when_save=False,
-                index_when_save=False,
-            )
-            col = existing
-        else:
-            col = cls(
-                owner=owner,
-                local=False,
-                remote_id=collection_id,
-                created_time=published,
-                **fields,
-            )
-            col.save(post_when_save=False, index_when_save=False)
-            col.link_post_id(post.pk)
-        # ``edited_time`` is ``auto_now=True`` on ``List``; ``save()`` would
-        # stamp it with ``now()`` regardless of any value we assign. Bypass
-        # ``auto_now`` with a direct queryset update so future staleness
-        # checks compare against the remote's ``updated`` timestamp.
-        cls.objects.filter(pk=col.pk).update(edited_time=edited)
-        col.edited_time = edited
-        cls._enqueue_member_fetch(col)
-        return col
-
-    @classmethod
-    def _enqueue_member_fetch(cls, col: "Collection") -> None:
-        try:
-            django_rq.get_queue("fetch").enqueue(
-                "journal.jobs.collection_sync.fetch_remote_collection_members",
-                col.pk,
-            )
-        except Exception as e:
-            logger.warning(f"Failed to enqueue member fetch for {col.pk}: {e}")
+        return cls.update_by_ap_envelope(owner, obj, post)
 
     @classmethod
     def _sync_members_from_ap(
         cls, col: "Collection", item_objs: list[dict[str, Any]]
     ) -> int:
-        """Materialize ``orderedItems`` into ``CollectionMember`` rows.
+        """Apply a flat ``orderedItems`` list onto local ``CollectionMember`` rows.
 
-        Returns the number of items that could not be resolved locally (each
-        triggers an async catalog fetch). The caller is responsible for
-        retrying the upstream signed GET if it cares about eventual
-        completeness.
+        The page-walking job in ``journal.jobs.list_sync`` collects every page
+        before calling this once with the concatenated items. Per-page entry
+        cap (``AP_PAGE_SIZE``) is enforced upstream by the page paginator on
+        the sender and re-checked here defensively.
 
-        Inbound entries are capped at ``MAX_AP_COLLECTION_ITEMS`` (the same
-        limit the sender applies) so a malicious peer cannot drive
-        unbounded DB work or fetch enqueueing by returning a huge list.
-        Non-list / wrong-type entries are filtered out.
+        Returns the number of items that could not be resolved locally; each
+        triggers an async catalog fetch. The caller decides whether to
+        re-run on retry.
         """
         if not isinstance(item_objs, list):
             return 0
+        # Filter to the wire type and dict-shaped entries; bound size by a
+        # generous soft cap to prevent pathological memory use.
+        MAX_TOTAL_ITEMS = AP_PAGE_SIZE * 1000  # 100k items soft cap
         item_objs = [
             e
             for e in item_objs
-            if isinstance(e, dict) and e.get("type") == "CollectionItem"
-        ][:MAX_AP_COLLECTION_ITEMS]
+            if isinstance(e, dict) and e.get("type") == "ShelfItem"
+        ][:MAX_TOTAL_ITEMS]
         resolved: list[tuple[Item, dict[str, Any]]] = []
         pending = 0
         for entry in item_objs:
             url = entry.get("withRegardTo")
             if not url:
                 continue
-            # Local-only lookup. ``get_by_ap_object`` would do synchronous
-            # network I/O via ``SiteManager`` to fetch missing items; doing
-            # that for up to ``MAX_AP_COLLECTION_ITEMS`` entries in a
-            # background job risks long blocks. Defer fetches to the
-            # ``enqueue_fetch`` queue and let the resync job retry once
-            # items have been cached.
             looked_up = Item.get_by_remote_url(url)
             if looked_up:
                 resolved.append((looked_up, entry))
@@ -638,25 +517,17 @@ class Collection(List):
             except Exception as e:
                 logger.warning(f"Failed to enqueue fetch for {url}: {e}")
         with transaction.atomic():
-            # ``select_for_update`` on the parent serializes concurrent member
-            # syncs (inbound update + URL paste + retries) so two jobs do not
-            # race to insert duplicate ``(parent, item)`` rows. The unique
-            # constraint on ``CollectionMember`` is the belt under this
-            # suspender.
             cls.objects.select_for_update().filter(pk=col.pk).first()
             existing_members = {m.item_id: m for m in col.members.all()}
             kept: set[int] = set()
             to_update: list[CollectionMember] = []
             for pos, (it, entry) in enumerate(resolved, start=1):
                 if it.pk in kept:
-                    # Defensive: a peer could repeat the same item; skip.
                     continue
                 kept.add(it.pk)
-                note = entry.get("note") or None
+                note = entry.get("commentText") or entry.get("note") or None
                 m = existing_members.get(it.pk)
                 if m is None:
-                    # New rows go through ``create`` so PolymorphicModel can
-                    # populate ``polymorphic_ctype`` and run signals.
                     CollectionMember.objects.create(
                         parent=col,
                         item=it,
@@ -668,8 +539,6 @@ class Collection(List):
                     m.note = note
                     m.position = pos
                     to_update.append(m)
-            # ``note`` is a jsondata.CharField stored inside ``metadata``;
-            # writing the JSON column is what persists the note value.
             if to_update:
                 CollectionMember.objects.bulk_update(
                     to_update, ["metadata", "position"]

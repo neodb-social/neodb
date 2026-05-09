@@ -1,6 +1,7 @@
 from .collection import (
     add_to_collection,
     collection_add_featured,
+    collection_ap_items,
     collection_append_item,
     collection_edit,
     collection_edit_items,
@@ -60,6 +61,7 @@ from .review import (
     review_translate,
     user_review_list,
 )
+from .shelf_ap import shelf_ap_items, shelf_ap_retrieve
 from .search import search
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
@@ -73,6 +75,7 @@ __all__ = [
     "collection_edit_items",
     "collection_remove_featured",
     "collection_remove_item",
+    "collection_ap_items",
     "collection_retrieve",
     "collection_retrieve_redirect",
     "collection_share",
@@ -112,6 +115,8 @@ __all__ = [
     "profile_shelf_items",
     "user_calendar_data",
     "user_follow_list",
+    "shelf_ap_items",
+    "shelf_ap_retrieve",
     "ReviewFeed",
     "review_edit",
     "generate_upload_path",

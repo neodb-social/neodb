@@ -1,18 +1,30 @@
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+from urllib.parse import urlparse
 
 import django.dispatch
-from django.db import models
+import django_rq
+from django.db import models, transaction
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from loguru import logger
 
 from catalog.models import Item, ItemCategory
 from catalog.models.item import item_content_types
+from common.validators import is_valid_url
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Piece, VisibilityType
 
 list_add = django.dispatch.Signal()
 list_remove = django.dispatch.Signal()
+
+# Per-page item limit for the AP `OrderedCollectionPage` items endpoint.
+# Bounds the work a single inbound page-fetch can drive (DB I/O + queued
+# catalog fetches), matched on the outbound paginator side. There is no
+# upper bound on the *total* number of pages a list may span.
+AP_PAGE_SIZE = 100
 
 
 class List(Piece):
@@ -160,6 +172,220 @@ class List(Piece):
         if member:
             member.metadata = metadata
             member.save()
+
+    # ------------------------------------------------------------------
+    # ActivityPub federation surface (shared by Collection and Shelf)
+    # ------------------------------------------------------------------
+    #
+    # Wire shape:
+    #
+    #   /<list-url>                  GET application/activity+json
+    #     -> {type: "Shelf", ..., totalItems, first, last}
+    #
+    #   /<list-url>/items            GET application/activity+json
+    #     -> {type: "OrderedCollection", id, totalItems, first, last}
+    #
+    #   /<list-url>/items?page=N     GET application/activity+json
+    #     -> {type: "OrderedCollectionPage", id, partOf,
+    #         orderedItems: [...], next?, prev?}
+    #
+    # Each `orderedItems` entry has `type: "ShelfItem"` and at least
+    # `withRegardTo` (catalog item URL). Subclass-specific extra fields
+    # (e.g. `post`, `commentText`) are added in `ap_member_entry`.
+    #
+    # The metadata Shelf object is also embedded in the announcement
+    # Note Post (under `relatedWith`) so peers can build a local mirror
+    # without an immediate signed GET; pulling the items list still
+    # requires the dereferenceable endpoint.
+
+    AP_OBJECT_TYPE: str = "Shelf"
+
+    @property
+    def ap_items_url(self) -> str:
+        return f"{self.absolute_url}/items"
+
+    def ap_items_page_url(self, page: int) -> str:
+        return f"{self.ap_items_url}?page={page}"
+
+    def ap_total_items(self) -> int:
+        """Total members. Subclasses with virtual / dynamic membership
+        (e.g. Collection.is_dynamic) override this."""
+        return self.members.count()
+
+    def ap_member_queryset(self):
+        """Ordered queryset of concrete members for paginated serialization.
+        Subclasses with virtual membership (dynamic Collection) override."""
+        return self.members.order_by("position", "id")
+
+    def ap_object_extra_fields(self) -> dict[str, Any]:
+        """Subclass hook for envelope fields beyond the shared shape."""
+        return {}
+
+    def ap_member_entry(self, member: "ListMember") -> dict[str, Any]:
+        """Subclass hook to serialize one member into a `ShelfItem` entry.
+
+        Must include at minimum `type: "ShelfItem"` and `withRegardTo`."""
+        raise NotImplementedError
+
+    def ap_envelope(self) -> dict[str, Any]:
+        """Lightweight Shelf AP object (envelope only — no items inline).
+
+        Returned by both the announcement Note Post (embedded in
+        `relatedWith`) and the dereferenceable `<list-url>` endpoint
+        after visibility check. Items live behind `first`/`last`.
+        """
+        total = self.ap_total_items()
+        page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
+        envelope: dict[str, Any] = {
+            "id": self.absolute_url,
+            "type": self.AP_OBJECT_TYPE,
+            "name": self.display_title,
+            "mediaType": "text/markdown",
+            "published": self.created_time.isoformat(),
+            "updated": self.edited_time.isoformat(),
+            "attributedTo": self.owner.actor_uri,
+            "href": self.absolute_url,
+            "totalItems": total,
+            "first": self.ap_items_page_url(1),
+            "last": self.ap_items_page_url(page_count),
+        }
+        envelope.update(self.ap_object_extra_fields())
+        return envelope
+
+    def ap_items_envelope(self) -> dict[str, Any]:
+        total = self.ap_total_items()
+        page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
+        return {
+            "id": self.ap_items_url,
+            "type": "OrderedCollection",
+            "totalItems": total,
+            "first": self.ap_items_page_url(1),
+            "last": self.ap_items_page_url(page_count),
+        }
+
+    def ap_items_page(self, page: int) -> dict[str, Any]:
+        total = self.ap_total_items()
+        page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
+        if page < 1 or page > page_count:
+            ordered = []
+        else:
+            offset = (page - 1) * AP_PAGE_SIZE
+            qs = self.ap_member_queryset()
+            members = list(qs[offset : offset + AP_PAGE_SIZE])
+            # Item is polymorphic; select_related("item") loses subclass info,
+            # so re-fetch through the polymorphic manager and re-attach.
+            item_ids = [m.item_id for m in members if m.item_id]
+            if item_ids:
+                items_map = {it.pk: it for it in Item.objects.filter(pk__in=item_ids)}
+                for m in members:
+                    m.item = items_map.get(m.item_id) or m.item
+            ordered = [self.ap_member_entry(m) for m in members if m.item is not None]
+        page_obj: dict[str, Any] = {
+            "id": self.ap_items_page_url(page),
+            "type": "OrderedCollectionPage",
+            "partOf": self.ap_items_url,
+            "orderedItems": ordered,
+        }
+        if 1 < page <= page_count:
+            page_obj["prev"] = self.ap_items_page_url(page - 1)
+        if 1 <= page < page_count:
+            page_obj["next"] = self.ap_items_page_url(page + 1)
+        return page_obj
+
+    # --- Inbound side ---------------------------------------------------
+
+    @classmethod
+    def params_from_envelope(cls, obj: dict[str, Any]) -> dict[str, Any]:
+        """Subclass hook: translate an inbound Shelf envelope into a dict
+        of model-field values for ``__init__``/``setattr``."""
+        return {}
+
+    @classmethod
+    def fetch_remote_member_url(cls) -> str:
+        """Per-class import path for the page-walking job. Subclasses set this
+        if they want async member fetching; default disables it."""
+        return "journal.jobs.list_sync.fetch_remote_list_members"
+
+    @classmethod
+    def update_by_ap_envelope(
+        cls, owner, obj: dict[str, Any], post
+    ) -> "List | None":
+        """Inbound mirror builder. Validates the envelope, persists / updates
+        the local mirror keyed by `remote_id`, and enqueues a member fetch.
+
+        Returns the persisted instance or None on rejection.
+        """
+        existing = cls.get_by_post_id(post.id) if post else None
+        if existing and existing.owner.pk != post.author_id:
+            logger.warning(
+                f"{cls.__name__} owner mismatch on inbound: "
+                f"{existing.owner.pk} != {post.author_id}"
+            )
+            return None
+        # SSRF guard: the envelope `id` becomes the local `remote_id` and is
+        # later signed-GET'd by the page-walking sync. Validate before
+        # persisting and require its host to match the announcing author.
+        list_id = obj.get("id")
+        if not is_valid_url(list_id):
+            logger.warning(f"{cls.__name__} inbound rejected: bad id URL {list_id!r}")
+            return None
+        author_actor_uri = getattr(getattr(post, "author", None), "actor_uri", None)
+        if author_actor_uri:
+            if urlparse(list_id).hostname != urlparse(author_actor_uri).hostname:
+                logger.warning(
+                    f"{cls.__name__} inbound rejected: id host {list_id!r} "
+                    f"does not match author host {author_actor_uri!r}"
+                )
+                return None
+        edited = parse_datetime(obj.get("updated") or obj.get("published") or "")
+        published = parse_datetime(obj.get("published") or "")
+        if (
+            not edited
+            or not published
+            or timezone.is_naive(edited)
+            or timezone.is_naive(published)
+        ):
+            logger.warning(f"{cls.__name__} inbound rejected: bad datetime in {list_id}")
+            return None
+        if existing and existing.edited_time >= edited:
+            return existing
+        visibility = Takahe.visibility_t2n(post.visibility)
+        fields = cls.params_from_envelope(obj)
+        fields["visibility"] = visibility
+        if existing:
+            for k, v in fields.items():
+                setattr(existing, k, v)
+            existing.save(
+                update_fields=list(fields.keys()),
+                post_when_save=False,
+                index_when_save=False,
+            )
+            inst = existing
+        else:
+            # Subclass-specific kwargs flow through `fields`; require unique
+            # ones (Shelf needs shelf_type).
+            inst = cls(
+                owner=owner,
+                local=False,
+                remote_id=list_id,
+                created_time=published,
+                **fields,
+            )
+            inst.save(post_when_save=False, index_when_save=False)
+            inst.link_post_id(post.pk)
+        # `edited_time` is `auto_now=True`; bypass it with a queryset update
+        # so future staleness checks compare against the remote's `updated`.
+        cls.objects.filter(pk=inst.pk).update(edited_time=edited)
+        inst.edited_time = edited
+        try:
+            django_rq.get_queue("fetch").enqueue(
+                cls.fetch_remote_member_url(),
+                cls.__module__ + "." + cls.__name__,
+                inst.pk,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to enqueue {cls.__name__} member fetch for {inst.pk}: {e}")
+        return inst
 
 
 class ListMember(Piece):

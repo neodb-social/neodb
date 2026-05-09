@@ -1,27 +1,31 @@
 """Tests for Collection federation across servers.
 
-Covers the two-step model:
+Covers the two-step model after the AP wire-type rename to ``Shelf``:
 
 - ``Collection.ap_object`` (embedded in the announcement Note Post) carries
-  metadata only, no ``orderedItems``.
-- ``Collection.full_ap_object()`` (returned by the dereferenceable AP
-  endpoint after a signed GET) carries the ordered member list.
-- ``Collection.update_by_ap_object`` creates/updates the local mirror from
-  the lightweight Note payload and schedules a member-fetch job.
+  the lightweight Shelf envelope: ``first``/``last`` URLs pointing at the
+  paginated items endpoint, no ``orderedItems`` inline.
+- ``/collection/<uuid>/items`` (no ``page``) returns the AS-standard
+  ``OrderedCollection`` envelope.
+- ``/collection/<uuid>/items?page=N`` returns one
+  ``OrderedCollectionPage`` slice (``ShelfItem`` entries with
+  ``withRegardTo`` + optional ``commentText``).
+- ``Collection.update_by_ap_object`` (delegating to the shared
+  ``List.update_by_ap_envelope``) creates / updates the local mirror
+  from the lightweight Note payload and schedules a paginated
+  member-fetch job.
 - ``Collection._sync_members_from_ap`` upserts members atomically when
-  given an items list (called from the fetch job).
+  given a flattened items list (called from the page-walking job after
+  it follows ``first``→``next``).
 - URL paste resolution maps a remote Collection URL to the local mirror
-  while respecting visibility.
+  while respecting visibility, and now also handles remote Shelf URLs.
 - AP content-negotiation in ``collection_retrieve`` routes signed AP
   fetches to the dereferenceable endpoint.
 
 Gaps (not covered here, called out for future work):
-- ``takahe.auth.verify_http_signature`` rejection branches in detail
-  (covered only at the happy / generic-failure level here).
 - ``takahe.auth.sign_get`` outbound signing (needs httpx + key fixtures).
-- ``fetch_remote_collection_members`` job execution (needs httpx mock).
-- ``_post_fetched`` Collection-branch dispatch end-to-end.
-- list signal hooks bumping parent ``edited_time`` on member changes.
+- ``fetch_remote_list_members`` page-walker job execution end-to-end
+  (needs httpx mock).
 """
 
 import base64
@@ -51,10 +55,11 @@ def _make_remote_post(
     post.id = post_id
     post.pk = post_id  # MagicMock attribute access doesn't proxy id -> pk
     post.author_id = identity_pk
-    # ``Collection.update_by_ap_object`` matches the inbound ``id`` URL host
-    # against the announcing author's actor URL host, so this must be a real
-    # string (rather than the MagicMock proxy default) and share the host
-    # used by the synthetic ``remote.example`` URLs the tests pass in.
+    # ``List.update_by_ap_envelope`` matches the inbound ``id`` URL host
+    # against the announcing author's actor URL host, so this must be a
+    # real string (rather than the MagicMock proxy default) and share
+    # the host used by the synthetic ``remote.example`` URLs the tests
+    # pass in.
     post.author.actor_uri = actor_uri
     post.summary = None
     post.sensitive = False
@@ -64,23 +69,24 @@ def _make_remote_post(
 
 
 def _items(*books_with_notes):
-    return [
-        {
-            "type": "CollectionItem",
+    out = []
+    for book, note in books_with_notes:
+        entry = {
+            "type": "ShelfItem",
             "withRegardTo": book.absolute_url,
-            "itemType": "Edition",
-            "note": note,
         }
-        for book, note in books_with_notes
-    ]
+        if note:
+            entry["commentText"] = note
+        out.append(entry)
+    return out
 
 
-def _note_ap(remote_url: str, owner, **overrides) -> dict:
-    """A lightweight Collection AP object as it would arrive embedded in a
-    Note Post — no ``orderedItems``."""
+def _shelf_envelope(remote_url: str, owner, **overrides) -> dict:
+    """A lightweight Shelf AP object as it would arrive embedded in a
+    Note Post — no ``orderedItems``, only ``first``/``last`` links."""
     base = {
         "id": remote_url,
-        "type": "Collection",
+        "type": "Shelf",
         "name": "Remote",
         "content": "",
         "mediaType": "text/markdown",
@@ -89,6 +95,8 @@ def _note_ap(remote_url: str, owner, **overrides) -> dict:
         "attributedTo": owner.actor_uri,
         "href": remote_url,
         "totalItems": 0,
+        "first": f"{remote_url}/items?page=1",
+        "last": f"{remote_url}/items?page=1",
     }
     base.update(overrides)
     return base
@@ -103,30 +111,83 @@ class TestCollectionApShapes:
         self.book1 = Edition.objects.create(title="Book One")
         self.book2 = Edition.objects.create(title="Book Two")
 
-    def test_ap_object_is_lightweight(self):
+    def test_ap_object_is_lightweight_shelf_envelope(self):
         c = Collection.objects.create(
             owner=self.identity, title="Reading list", visibility=0
         )
         c.append_item(self.book1, note="first")
         c.append_item(self.book2, note="second")
         obj = c.ap_object
-        assert obj["type"] == "Collection"
+        assert obj["type"] == "Shelf"
+        assert obj["name"] == "Reading list"
         assert obj["totalItems"] == 2
         assert "orderedItems" not in obj
+        assert obj["first"].endswith("/items?page=1")
+        assert obj["last"].endswith("/items?page=1")
+        assert obj["id"] == c.absolute_url
 
-    def test_full_ap_object_has_ordered_items(self):
+    def test_items_envelope_no_page(self):
         c = Collection.objects.create(
-            owner=self.identity, title="Reading list", visibility=0
+            owner=self.identity, title="L", visibility=0
         )
-        c.append_item(self.book1, note="first")
-        c.append_item(self.book2, note="second")
-        full = c.full_ap_object()
-        assert full["totalItems"] == 2
-        items = full["orderedItems"]
+        c.append_item(self.book1, note="x")
+        env = c.ap_items_envelope()
+        assert env["type"] == "OrderedCollection"
+        assert env["totalItems"] == 1
+        assert env["id"] == c.absolute_url + "/items"
+        assert env["first"].endswith("/items?page=1")
+        assert env["last"].endswith("/items?page=1")
+
+    def test_items_page_shape(self):
+        c = Collection.objects.create(
+            owner=self.identity, title="L", visibility=0
+        )
+        c.append_item(self.book1, note="hello")
+        c.append_item(self.book2, note=None)
+        page = c.ap_items_page(1)
+        assert page["type"] == "OrderedCollectionPage"
+        assert page["partOf"] == c.absolute_url + "/items"
+        items = page["orderedItems"]
+        assert len(items) == 2
+        assert all(it["type"] == "ShelfItem" for it in items)
         assert items[0]["withRegardTo"] == self.book1.absolute_url
-        assert items[0]["note"] == "first"
-        assert items[1]["withRegardTo"] == self.book2.absolute_url
-        assert "position" not in items[0]
+        assert items[0]["commentText"] == "hello"
+        # `commentText` omitted (not empty-string) when no note set.
+        assert "commentText" not in items[1]
+        # Single page → no next/prev.
+        assert "next" not in page
+        assert "prev" not in page
+
+    def test_items_page_pagination_links_for_two_pages(self):
+        # Force a second page by stubbing the page size constant inside
+        # the shared envelope helpers — cheaper than creating 100+ items.
+        from journal.models import itemlist as itemlist_mod
+
+        c = Collection.objects.create(
+            owner=self.identity, title="L", visibility=0
+        )
+        c.append_item(self.book1, note="x")
+        c.append_item(self.book2, note="y")
+        with patch.object(itemlist_mod, "AP_PAGE_SIZE", 1):
+            env = c.ap_items_envelope()
+            assert env["totalItems"] == 2
+            assert env["last"].endswith("/items?page=2")
+            page1 = c.ap_items_page(1)
+            assert "next" in page1
+            assert page1["next"].endswith("/items?page=2")
+            assert "prev" not in page1
+            page2 = c.ap_items_page(2)
+            assert "prev" in page2
+            assert page2["prev"].endswith("/items?page=1")
+            assert "next" not in page2
+
+    def test_items_page_out_of_range_returns_empty(self):
+        c = Collection.objects.create(
+            owner=self.identity, title="L", visibility=0
+        )
+        c.append_item(self.book1, note="x")
+        page = c.ap_items_page(99)
+        assert page["orderedItems"] == []
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -135,12 +196,13 @@ class TestCollectionUpdateByApObject:
     def setup_data(self):
         self.user = User.register(email="colsync@test.com", username="colsync_user")
         self.identity = self.user.identity
-        # ``is_valid_url`` does DNS resolution; the synthetic ``remote.example``
-        # hosts in this fixture won't resolve in the CI sandbox. The test
-        # exercises the federation logic, not the SSRF gate, so the gate is
-        # short-circuited to True for every URL.
+        # ``is_valid_url`` does DNS resolution; the synthetic
+        # ``remote.example`` hosts in this fixture won't resolve in the
+        # CI sandbox. The tests exercise federation logic, not the SSRF
+        # gate, so the gate is short-circuited at the import site used by
+        # ``List.update_by_ap_envelope``.
         self._url_patch = patch(
-            "journal.models.collection.is_valid_url", return_value=True
+            "journal.models.itemlist.is_valid_url", return_value=True
         )
         self._url_patch.start()
         yield
@@ -148,35 +210,39 @@ class TestCollectionUpdateByApObject:
 
     def test_create_mirror_enqueues_member_fetch(self):
         remote_url = "https://remote.example/collection/abc123abc123abc123abc1"
-        ap_obj = _note_ap(remote_url, self.identity, name="Remote Picks")
+        ap_obj = _shelf_envelope(remote_url, self.identity, name="Remote Picks")
         post = _make_remote_post(self.identity.pk)
-        with patch("django_rq.get_queue") as gq:
+        with patch("journal.models.itemlist.django_rq.get_queue") as gq:
             result = Collection.update_by_ap_object(self.identity, None, ap_obj, post)
             assert result is not None
             assert result.local is False
             assert result.remote_id == remote_url
             assert result.title == "Remote Picks"
+            # The local catalog gate must NOT auto-create a CatalogCollection
+            # for remote mirrors (regression guard for sentry MEDIUM finding).
+            assert result.catalog_item_id is None
             # Member fetch is scheduled asynchronously; the Note carries no items.
             gq.return_value.enqueue.assert_called_once()
             args = gq.return_value.enqueue.call_args.args
-            assert args[0] == (
-                "journal.jobs.collection_sync.fetch_remote_collection_members"
-            )
-            assert args[1] == result.pk
+            assert args[0] == "journal.jobs.list_sync.fetch_remote_list_members"
+            # First arg is the dotted class path so the job can resolve
+            # both Collection and Shelf models from one entry point.
+            assert args[1] == "journal.models.collection.Collection"
+            assert args[2] == result.pk
         assert result.members.count() == 0
 
     def test_stale_payload_is_ignored(self):
         remote_url = "https://remote.example/collection/old"
-        ap_obj = _note_ap(remote_url, self.identity, name="Stable")
+        ap_obj = _shelf_envelope(remote_url, self.identity, name="Stable")
         post = _make_remote_post(self.identity.pk, post_id=91003)
-        with patch("django_rq.get_queue"):
+        with patch("journal.models.itemlist.django_rq.get_queue"):
             col = Collection.update_by_ap_object(self.identity, None, ap_obj, post)
         assert col is not None
         original_edited = col.edited_time
         stale = dict(ap_obj)
         stale["updated"] = "2025-01-01T00:00:00+00:00"
         stale["name"] = "Should not apply"
-        with patch("django_rq.get_queue"):
+        with patch("journal.models.itemlist.django_rq.get_queue"):
             result = Collection.update_by_ap_object(self.identity, None, stale, post)
         assert result is not None
         result.refresh_from_db()
@@ -232,16 +298,14 @@ class TestSyncMembersFromAp:
         unknown_item_url = "https://other.example/book/totally-new"
         items = [
             {
-                "type": "CollectionItem",
+                "type": "ShelfItem",
                 "withRegardTo": self.book1.absolute_url,
-                "itemType": "Edition",
-                "note": "known",
+                "commentText": "known",
             },
             {
-                "type": "CollectionItem",
+                "type": "ShelfItem",
                 "withRegardTo": unknown_item_url,
-                "itemType": "Edition",
-                "note": "unknown",
+                "commentText": "unknown",
             },
         ]
         with patch("journal.models.collection.enqueue_fetch") as enq:
@@ -264,7 +328,7 @@ class TestRemoteCollectionUrlPaste:
         # See TestCollectionUpdateByApObject for why we short-circuit the
         # SSRF gate inside the federation tests.
         self._url_patch = patch(
-            "journal.models.collection.is_valid_url", return_value=True
+            "journal.models.itemlist.is_valid_url", return_value=True
         )
         self._url_patch.start()
         yield
@@ -272,9 +336,9 @@ class TestRemoteCollectionUrlPaste:
 
     def test_resolve_url_returns_local_mirror(self):
         remote_url = "https://remote.example/collection/aaaaaaaaaaaaaaaaaaaaaa"
-        ap_obj = _note_ap(remote_url, self.identity, name="Remote")
+        ap_obj = _shelf_envelope(remote_url, self.identity, name="Remote")
         post = _make_remote_post(self.identity.pk, post_id=92001)
-        with patch("django_rq.get_queue"):
+        with patch("journal.models.itemlist.django_rq.get_queue"):
             Collection.update_by_ap_object(self.identity, None, ap_obj, post)
         col = Collection.objects.get(remote_id=remote_url)
         rf = RequestFactory().get("/search?q=" + remote_url)
@@ -288,10 +352,10 @@ class TestRemoteCollectionUrlPaste:
 
     def test_resolve_url_hides_invisible_remote_mirror(self):
         remote_url = "https://remote.example/collection/bbbbbbbbbbbbbbbbbbbbbb"
-        ap_obj = _note_ap(remote_url, self.identity, name="Hidden")
+        ap_obj = _shelf_envelope(remote_url, self.identity, name="Hidden")
         post = _make_remote_post(self.identity.pk, post_id=92002)
         post.visibility = 2  # Takahe Followers -> NeoDB visibility=1
-        with patch("django_rq.get_queue"):
+        with patch("journal.models.itemlist.django_rq.get_queue"):
             Collection.update_by_ap_object(self.identity, None, ap_obj, post)
         intruder = User.register(email="intruder@test.com", username="intruder")
         rf = RequestFactory().get("/search?q=" + remote_url)
@@ -341,10 +405,10 @@ class TestApContentNegotiation:
         # the HTML view. This lets first-time peers and SystemActor-signed
         # GETs (whose actor we may not have cached) dereference the
         # collection AP without first having to verify their identity.
-        from journal.views.collection import _collection_ap_view
+        from journal.views.collection import _list_ap_object_view
 
         rf = RequestFactory().get(self.collection.url)
-        response = _collection_ap_view(rf, self.collection.uuid)
+        response = _list_ap_object_view(rf, self.collection)
         assert response.status_code == 200
         assert response["Content-Type"].startswith("application/activity+json")
 
@@ -352,12 +416,44 @@ class TestApContentNegotiation:
         # Followers-only and private collections require a signed GET from
         # an authorized follower; an unsigned probe gets 404 (not 403) so
         # existence is not leaked.
-        from journal.views.collection import _collection_ap_view
+        from journal.views.collection import _list_ap_object_view
 
         c = Collection.objects.create(owner=self.identity, title="Hidden", visibility=1)
         rf = RequestFactory().get(c.url)
-        response = _collection_ap_view(rf, c.uuid)
+        response = _list_ap_object_view(rf, c)
         assert response.status_code == 404
+
+    def test_items_endpoint_unsigned_public_returns_envelope(self):
+        from journal.views.collection import _list_items_view
+
+        rf = RequestFactory().get(self.collection.url + "/items")
+        response = _list_items_view(rf, self.collection)
+        assert response.status_code == 200
+        import json
+
+        body = json.loads(response.content)
+        assert body["type"] == "OrderedCollection"
+        assert "first" in body and "last" in body
+
+    def test_items_endpoint_with_page_returns_page(self):
+        from journal.views.collection import _list_items_view
+
+        rf = RequestFactory().get(self.collection.url + "/items?page=1")
+        response = _list_items_view(rf, self.collection)
+        assert response.status_code == 200
+        import json
+
+        body = json.loads(response.content)
+        assert body["type"] == "OrderedCollectionPage"
+        assert body["partOf"].endswith("/items")
+        assert body["orderedItems"] == []
+
+    def test_items_endpoint_bad_page_returns_400(self):
+        from journal.views.collection import _list_items_view
+
+        rf = RequestFactory().get(self.collection.url + "/items?page=abc")
+        response = _list_items_view(rf, self.collection)
+        assert response.status_code == 400
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -378,6 +474,31 @@ class TestVisibilityByIdentity:
     def test_private_visible_to_owner(self):
         c = Collection.objects.create(owner=self.owner, title="X", visibility=2)
         assert c.is_visible_to_identity(self.owner) is True
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestIsVisibleToIdentityNone:
+    """Regression coverage for the ``is_visible_to`` direct user-pk
+    shortcut — owners must see their own content even when
+    ``user.identity`` is unpopulated (rare: identity deletion,
+    mid-signup)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="vis@test.com", username="vis_user")
+        self.collection = Collection.objects.create(
+            owner=self.user.identity, title="Mine", visibility=2
+        )
+
+    def test_owner_sees_own_private_when_identity_dropped(self):
+        # Simulate a User that lost its APIdentity link. The mixin must
+        # still recognize the user as the owner via the user-pk shortcut,
+        # not fall through to anonymous-viewer rules.
+        with patch.object(type(self.user), "identity", None):
+            assert self.collection.is_visible_to(self.user) is True
+
+    def test_anonymous_does_not_see_private(self):
+        assert self.collection.is_visible_to(None) is False
 
 
 def _make_signed_get(

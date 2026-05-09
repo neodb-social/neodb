@@ -596,6 +596,147 @@ class Shelf(List):
     def to_indexable_doc(self) -> dict[str, Any]:
         return {}
 
+    @property
+    def display_title(self) -> str:
+        # Stable label for AP `name`. Per-locale labels are rendered in the
+        # UI; the wire form uses the canonical English shelf-type word.
+        return f"{self.owner.handle} / {self.shelf_type}"
+
+    # ---- ActivityPub: stable per-shelf URL ----------------------------
+    #
+    # Shelves are not addressable by uuid; the dereferenceable AP URL is
+    # ``/users/<handle>/shelf/<shelf_type>``. ``url_path`` is left at the
+    # ``Piece`` default so other code that derives URLs from ``uuid``
+    # (which Shelf doesn't expose publicly) still works for migrations
+    # / admin / etc.
+
+    @property
+    def url(self) -> str:  # type: ignore[override]
+        # Uses ``APIdentity.url`` for consistent local vs remote handle
+        # formatting (``/users/alice/`` vs ``/users/@bob@example.org/``)
+        # so the resolver in ``shelf_ap.py`` can hand the same handle
+        # back to ``APIdentity.get_by_handle``.
+        base = self.owner.url.rstrip("/")
+        return f"{base}/shelf/{self.shelf_type}"
+
+    # ---- ActivityPub: outbound serialization --------------------------
+
+    def ap_object_extra_fields(self) -> dict[str, Any]:
+        return {"shelfType": self.shelf_type}
+
+    def ap_member_entry(self, member: ShelfMember) -> dict[str, Any]:
+        entry: dict[str, Any] = {
+            "type": "ShelfItem",
+            "withRegardTo": member.item.absolute_url,
+        }
+        # `post` lets a peer chain a single signed GET to ingest the
+        # associated Mark + Comment + Rating + Review through the
+        # existing _post_fetched flow, without first having to follow
+        # the user.
+        latest_post = member.latest_post
+        if latest_post is not None:
+            try:
+                entry["post"] = latest_post.absolute_object_uri()
+            except Exception:
+                pass
+        return entry
+
+    @property
+    def ap_object(self) -> dict[str, Any]:
+        return self.ap_envelope()
+
+    # ---- ActivityPub: inbound -----------------------------------------
+
+    @classmethod
+    def params_from_envelope(cls, obj: dict[str, Any]) -> dict[str, Any]:
+        # Receiver maps the wire `shelfType` back onto the model column.
+        shelf_type = obj.get("shelfType") or ""
+        valid = {choice.value for choice in ShelfType}
+        if shelf_type not in valid:
+            shelf_type = ShelfType.WISHLIST.value
+        return {"shelf_type": shelf_type}
+
+    @classmethod
+    def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
+        return cls.update_by_ap_envelope(owner, obj, post)
+
+    @classmethod
+    def _sync_members_from_ap(
+        cls, shelf: "Shelf", item_objs: list[dict[str, Any]]
+    ) -> int:
+        """Apply a flat ``orderedItems`` list onto local ``ShelfMember`` rows.
+
+        Mirrors ``Collection._sync_members_from_ap`` but for ShelfMember
+        (no ``commentText`` / per-list note column). Entries carrying a
+        ``post`` URL document the corresponding mark's Status post so a
+        receiver can later signed-GET it through the existing
+        ``_post_fetched`` flow to ingest Mark + Comment + Rating + Review;
+        that hop is left as a follow-up.
+        """
+        from common.validators import is_valid_url
+        from django.db import transaction
+
+        from catalog.models import Item
+        from catalog.search.utils import enqueue_fetch
+        from journal.models.itemlist import AP_PAGE_SIZE
+
+        if not isinstance(item_objs, list):
+            return 0
+        max_total = AP_PAGE_SIZE * 1000
+        item_objs = [
+            e
+            for e in item_objs
+            if isinstance(e, dict) and e.get("type") == "ShelfItem"
+        ][:max_total]
+        resolved: list[Item] = []
+        pending = 0
+        for entry in item_objs:
+            url = entry.get("withRegardTo")
+            if not url:
+                continue
+            looked_up = Item.get_by_remote_url(url)
+            if looked_up:
+                resolved.append(looked_up)
+                continue
+            pending += 1
+            try:
+                enqueue_fetch(url, is_refetch=False, user=None)
+            except Exception as e:
+                logger.warning(f"Failed to enqueue fetch for {url}: {e}")
+            # If the entry advertises a `post` URL, validate and (TODO)
+            # enqueue Takahe to fetch it so Mark/Comment/Rating are
+            # ingested. For now we just SSRF-gate it — peers send it but
+            # we don't act on it yet.
+            post_url = entry.get("post")
+            if post_url and not is_valid_url(post_url):
+                logger.warning(f"Shelf inbound: bad post URL {post_url!r}")
+        with transaction.atomic():
+            cls.objects.select_for_update().filter(pk=shelf.pk).first()
+            existing_members = {m.item_id: m for m in shelf.members.all()}
+            kept: set[int] = set()
+            for pos, it in enumerate(resolved, start=1):
+                if it.pk in kept:
+                    continue
+                kept.add(it.pk)
+                m = existing_members.get(it.pk)
+                if m is None:
+                    ShelfMember.objects.create(
+                        parent=shelf,
+                        item=it,
+                        owner=shelf.owner,
+                        position=pos,
+                        local=False,
+                    )
+                elif m.position != pos:
+                    m.position = pos
+                    m.save(update_fields=["position"])
+            stale_ids = [
+                m.pk for item_id, m in existing_members.items() if item_id not in kept
+            ]
+            if stale_ids:
+                ShelfMember.objects.filter(pk__in=stale_ids).delete()
+        return pending
+
 
 class ShelfLogEntry(models.Model):
     if TYPE_CHECKING:

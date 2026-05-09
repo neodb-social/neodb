@@ -172,6 +172,8 @@ class TestApObjectStructure:
         assert "updated" in obj
 
     def test_collection_ap_object(self):
+        # Wire-type renamed to ``Shelf`` (and items moved out of the
+        # envelope into the paginated items endpoint) — see PR #1491.
         collection = Collection.objects.create(
             owner=self.identity,
             title="My Collection",
@@ -179,7 +181,7 @@ class TestApObjectStructure:
             visibility=0,
         )
         obj = collection.ap_object
-        assert obj["type"] == "Collection"
+        assert obj["type"] == "Shelf"
         assert obj["name"] == "My Collection"
         assert obj["content"] == "A brief description"
         assert obj["mediaType"] == "text/markdown"
@@ -187,6 +189,9 @@ class TestApObjectStructure:
         assert obj["href"] == collection.absolute_url
         assert obj["attributedTo"] == self.identity.actor_uri
         assert "withRegardTo" not in obj
+        assert "orderedItems" not in obj
+        assert obj["first"].endswith("/items?page=1")
+        assert obj["last"].endswith("/items?page=1")
         assert "published" in obj
         assert "updated" in obj
 
@@ -199,9 +204,11 @@ class TestApObjectStructure:
         member, _ = collection.append_item(self.book, note="A member note")
         assert member is not None
         obj = member.ap_object
-        assert obj["type"] == "CollectionItem"
+        assert obj["type"] == "ShelfItem"
         assert obj["collection"] == collection.absolute_url
-        assert obj["note"] == "A member note"
+        # Wire field renamed from ``note`` to ``commentText`` to avoid
+        # collision with the AS ``Note`` type.
+        assert obj["commentText"] == "A member note"
         assert obj["id"] == member.absolute_url
         assert obj["href"] == member.absolute_url
         assert obj["attributedTo"] == self.identity.actor_uri
@@ -297,7 +304,8 @@ class TestGetApData:
         assert "relatedWith" in obj_data
         related = obj_data["relatedWith"]
         assert len(related) == 1
-        assert related[0]["type"] == "Collection"
+        # Wire-type renamed (see PR #1491).
+        assert related[0]["type"] == "Shelf"
         assert related[0]["name"] == "Test Collection"
 
 
@@ -410,7 +418,8 @@ class TestPostTypeData:
         assert post is not None
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 1
-        assert related[0]["type"] == "Collection"
+        # Wire-type renamed (see PR #1491).
+        assert related[0]["type"] == "Shelf"
         assert related[0]["name"] == "My Test Collection"
         assert related[0]["content"] == "Brief description"
 

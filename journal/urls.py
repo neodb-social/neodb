@@ -70,6 +70,11 @@ urlpatterns = [
         name="collection_retrieve",
     ),
     re_path(
+        r"^collection/(?P<collection_uuid>[A-Za-z0-9]{21,22})/items$",
+        collection_ap_items,
+        name="collection_ap_items",
+    ),
+    re_path(
         r"^collection/(?P<collection_uuid>[A-Za-z0-9]{21,22})/$",
         collection_retrieve_redirect,
         name="collection_retrieve_redirect",
@@ -108,6 +113,16 @@ urlpatterns = [
         "users/<str:user_name>/profile/<str:category>/<str:shelf_type>/items",
         profile_shelf_items,
         name="profile_shelf_items",
+    ),
+    path(
+        "users/<str:handle>/shelf/<str:shelf_type>",
+        shelf_ap_retrieve,
+        name="shelf_ap_retrieve",
+    ),
+    path(
+        "users/<str:handle>/shelf/<str:shelf_type>/items",
+        shelf_ap_items,
+        name="shelf_ap_items",
     ),
     path(
         "collection/<str:collection_uuid>/append_item",

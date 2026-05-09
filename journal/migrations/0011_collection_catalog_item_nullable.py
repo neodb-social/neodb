@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=models.deletion.PROTECT,
                 related_name="journal_item",
-                to="catalog.catalogcollection",
+                to="catalog.collection",
             ),
         ),
     ]

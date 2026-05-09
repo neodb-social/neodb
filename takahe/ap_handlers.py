@@ -15,6 +15,7 @@ from journal.models import (
     PieceInteraction,
     Rating,
     Review,
+    Shelf,
     ShelfMember,
 )
 from journal.search import JournalIndex
@@ -38,13 +39,28 @@ _supported_ap_catalog_item_types = [
     "PerformanceProduction",
 ]
 
+class _ShelfDispatcher:
+    """Inbound dispatcher for the shared ``"Shelf"`` AP wire type.
+
+    Both NeoDB Collection and NeoDB Shelf serialize as ``type: "Shelf"``.
+    Receiver routes by envelope shape: ``shelfType`` present → NeoDB
+    Shelf; absent → NeoDB Collection.
+    """
+
+    @classmethod
+    def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
+        if obj.get("shelfType"):
+            return Shelf.update_by_ap_object(owner, item, obj, post, crosspost)
+        return Collection.update_by_ap_object(owner, item, obj, post, crosspost)
+
+
 _supported_ap_journal_types = {
     "Status": ShelfMember,
     "Rating": Rating,
     "Comment": Comment,
     "Review": Review,
     "Note": Note,
-    "Collection": Collection,
+    "Shelf": _ShelfDispatcher,
 }
 
 
@@ -149,14 +165,16 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
         ap_objects = post_data or post.type_data.get("object", {})
         items = _parse_items(ap_objects.get("tag"))
         pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
-        # Collection posts carry their own ordered member list inside the
-        # Collection AP object and are mutually exclusive with the
-        # single-item-per-post pieces (Mark/Review/Note/...). Dispatch them
-        # before the single-item enforcement below.
-        collection_pieces = [p for p in pieces if p["type"] == "Collection"]
-        if collection_pieces:
-            for cp in collection_pieces:
-                Collection.update_by_ap_object(owner, None, cp, post)
+        # Shelf posts (used for both NeoDB Collection and NeoDB Shelf
+        # mirroring) carry only their lightweight envelope here — the
+        # ordered member list is fetched separately via the items
+        # endpoint. They are mutually exclusive with the single-item
+        # pieces (Mark/Review/Note/...) so dispatch them before the
+        # single-item enforcement below.
+        shelf_pieces = [p for p in pieces if p["type"] == "Shelf"]
+        if shelf_pieces:
+            for sp in shelf_pieces:
+                _ShelfDispatcher.update_by_ap_object(owner, None, sp, post)
             return
     if len(items) == 0:
         logger.warning(f"Post {post} has no items")
