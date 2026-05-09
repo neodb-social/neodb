@@ -254,6 +254,11 @@ def _get_scopes(server_version: str) -> str:
 
 
 def _force_recreate_app(server_version):
+    # Preserves prior `re.match(r".+(Sharkey|Firefish).+")` behavior:
+    # require at least one character on each side of the name so a bare
+    # version string like "Sharkey" does not trigger app recreation.
+    # Anchored single-`.` lookarounds replace the linearly-backtracking
+    # `.+` quantifiers (CodeQL py/polynomial-redos).
     return re.search(r".(Sharkey|Firefish).", server_version or "")
 
 

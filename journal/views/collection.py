@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.signing import b62_encode
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -96,7 +97,9 @@ def save_as_dynamic_collection(request: AuthedHttpRequest):
 
 def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
     uid = get_uuid_or_404(collection_uuid)
-    return redirect(f"/collection/{uid}", permanent=True)
+    # `uid` is a uuid.UUID; NeoDB URLs use the Base62-encoded form, so
+    # re-encode rather than rely on `str(uid)` (which is hyphenated).
+    return redirect(f"/collection/{b62_encode(uid.int).zfill(22)}", permanent=True)
 
 
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):

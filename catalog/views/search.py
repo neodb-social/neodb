@@ -110,12 +110,13 @@ def resolve_url_query(request, keywords):
         return None
     host = urlparse(keywords).hostname
     allowed_hosts = set(settings.SITE_DOMAINS)
+    # Don't require HTTPS here: pasting `http://oursite/path` should still
+    # redirect to the same path; the server / browser handles the scheme
+    # upgrade when SSL_ONLY is enforced upstream.
     if (
         host
         and host in allowed_hosts
-        and url_has_allowed_host_and_scheme(
-            keywords, allowed_hosts=allowed_hosts, require_https=settings.SSL_ONLY
-        )
+        and url_has_allowed_host_and_scheme(keywords, allowed_hosts=allowed_hosts)
     ):
         return redirect(keywords)
     # skip detecting redirection to avoid timeout
