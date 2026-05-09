@@ -30,6 +30,11 @@ class Review(Content):
     title = models.CharField(max_length=500, blank=False, null=False)
     body = models.TextField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["remote_id"], name="review_remote_id_idx"),
+        ]
+
     @property
     def display_title(self):
         return self.title

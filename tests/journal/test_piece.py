@@ -318,7 +318,11 @@ class TestDebris:
         self.book3.merge_to(self.book2)
         update_journal_for_merged_item(self.book3.uuid, delete_duplicated=True)
         cnt = Debris.objects.all().count()
-        assert cnt == 4  # Rating, Shelf, 2x TagMember
+        # Rating, Shelf, 2x TagMember, CollectionMember.
+        # CollectionMember now carries a UniqueConstraint(parent, item) so the
+        # second merge can no longer reuse the existing book2 row; the
+        # duplicate is debris-ed like the other unique-by-(owner,item) types.
+        assert cnt == 5
 
 
 @pytest.mark.django_db(databases="__all__")

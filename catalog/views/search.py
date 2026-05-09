@@ -20,7 +20,7 @@ from common.utils import (
     get_page_size_from_request,
     user_identity_required,
 )
-from journal.models import Tag
+from journal.models import Collection, Note, Review, Tag
 from journal.models.mark import Mark
 from journal.models.rating import Rating
 from users.views import query_identity
@@ -99,6 +99,34 @@ def fetch(request, url, site: AbstractSite | None, is_refetch: bool = False):
     )
 
 
+def _maybe_remote_piece(url: str, user):
+    """Return a locally-mirrored remote Piece (Collection, Review, Note) whose
+    AP id matches the pasted URL, if one exists *and* is visible to ``user``.
+
+    Visibility is applied here so a non-authorized viewer cannot use the
+    redirect to confirm the existence of a private or followers-only mirror,
+    and cannot trigger the resync side effect by paste-probing remote URLs.
+
+    For Collection we also enqueue ``resync_remote_collection`` so newly-fetched
+    catalog items show up on a follow-up view. TODO: trigger an analogous
+    refetch for Review / Note so out-of-sync mirrors can be refreshed by
+    URL paste.
+    """
+    for cls in (Collection, Review, Note):
+        piece = cls.objects.filter(remote_id=url, local=False).first()
+        if piece and piece.is_visible_to(user):
+            if isinstance(piece, Collection):
+                try:
+                    django_rq.get_queue("fetch").enqueue(
+                        "journal.jobs.collection_sync.fetch_remote_collection_members",
+                        piece.pk,
+                    )
+                except Exception:
+                    pass
+            return piece
+    return None
+
+
 def resolve_url_query(request, keywords):
     """If `keywords` looks like a URL, resolve it to a redirect or fetch
     response and return it; otherwise return None.
@@ -119,6 +147,9 @@ def resolve_url_query(request, keywords):
         and url_has_allowed_host_and_scheme(keywords, allowed_hosts=allowed_hosts)
     ):
         return redirect(keywords)
+    remote_piece = _maybe_remote_piece(keywords, request.user)
+    if remote_piece:
+        return redirect(remote_piece.url)
     # skip detecting redirection to avoid timeout
     site = SiteManager.get_site_by_url(
         keywords, detect_redirection=False, detect_fallback=False

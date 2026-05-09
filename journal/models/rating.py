@@ -50,6 +50,9 @@ def _calculate_distribution(grades: list[int], total: int) -> list[int]:
 class Rating(Content):
     class Meta:
         unique_together = [["owner", "item"]]
+        indexes = [
+            models.Index(fields=["remote_id"], name="rating_remote_id_idx"),
+        ]
 
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True

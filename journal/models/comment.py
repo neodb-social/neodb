@@ -20,6 +20,11 @@ from .shelf import ShelfManager, ShelfType
 class Comment(Content):
     text = models.TextField(blank=False, null=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["remote_id"], name="comment_remote_id_idx"),
+        ]
+
     @property
     def ap_object(self):
         d = {

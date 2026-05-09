@@ -3,13 +3,12 @@ from typing import Any
 
 from loguru import logger
 
-from catalog.common import SiteManager
 from catalog.models import Item
-from catalog.sites.fedi import FediverseInstance
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
 from common.utils import discord_send
 from journal.models import (
+    Collection,
     Comment,
     Note,
     Piece,
@@ -45,6 +44,7 @@ _supported_ap_journal_types = {
     "Comment": Comment,
     "Review": Review,
     "Note": Note,
+    "Collection": Collection,
 }
 
 
@@ -69,42 +69,6 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
         else:
             logger.warning(f"Unknown link type {obj['type']}")
     return pieces
-
-
-def _get_or_create_item(item_obj) -> Item | None:
-    typ = item_obj["type"]
-    url = item_obj["href"]
-    if FediverseInstance.is_local_item_url(url):
-        logger.debug(f"Matching local item {item_obj}")
-        item = Item.get_by_url(url, True)
-        if not item:
-            logger.warning(f"Item not found for {url}")
-        return item
-    logger.debug(f"Fetching item by ap from {item_obj}")
-    if typ in ["TVEpisode", "PodcastEpisode"]:
-        # TODO support episode item
-        # match and fetch parent item first
-        logger.debug(f"{typ}:{url} not supported yet")
-        return None
-    site = SiteManager.get_site_by_url(url)
-    if not site:
-        logger.warning(f"Site not found for {url}")
-        return None
-    if isinstance(site, FediverseInstance):
-        item = site.get_local_item_from_external_resources()
-        if item:
-            logger.debug(f"Found local item in {item_obj}")
-            return item
-    try:
-        site.get_resource_ready()
-    except Exception:
-        # occationally race condition happens and resource is fetched by another process,
-        # so we clear cache to retry matching the resource
-        site.clear_cache()
-    item = site.get_item()
-    if not item:
-        logger.error(f"Item not fetched for {url}")
-    return item
 
 
 def post_created(pk, post_data):
@@ -185,6 +149,15 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
         ap_objects = post_data or post.type_data.get("object", {})
         items = _parse_items(ap_objects.get("tag"))
         pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
+        # Collection posts carry their own ordered member list inside the
+        # Collection AP object and are mutually exclusive with the
+        # single-item-per-post pieces (Mark/Review/Note/...). Dispatch them
+        # before the single-item enforcement below.
+        collection_pieces = [p for p in pieces if p["type"] == "Collection"]
+        if collection_pieces:
+            for cp in collection_pieces:
+                Collection.update_by_ap_object(owner, None, cp, post)
+            return
     if len(items) == 0:
         logger.warning(f"Post {post} has no items")
         return
@@ -192,7 +165,7 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
         logger.warning(f"Post {post} has more than one item")
         return
     logger.info(f"Post {post} has items {items} and pieces {pieces}")
-    item = _get_or_create_item(items[0])
+    item = Item.get_by_ap_object(items[0])
     if not item:
         logger.warning(f"Post {post} has no local item matched or created")
         return

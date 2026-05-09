@@ -27,20 +27,34 @@ class UserOwnedObjectMixin:
         self: "Piece",
         viewing_user: "User | None",
     ) -> bool:
+        viewer = (
+            viewing_user.identity
+            if (viewing_user and viewing_user.is_authenticated)
+            else None
+        )
+        return self.is_visible_to_identity(viewer)
+
+    def is_visible_to_identity(
+        self: "Piece",
+        viewer: "APIdentity | None",
+    ) -> bool:
+        """Visibility check that takes an ``APIdentity`` directly.
+
+        Used by signed AP endpoints where the caller is identified by HTTP
+        signature rather than by a Django session — there is no ``User`` on
+        the request, only the remote ``APIdentity`` resolved from the keyId.
+        """
         owner = self.owner
         if not owner or not owner.is_active:
             return False
-        if owner.user == viewing_user:
+        if viewer is not None and viewer.pk == owner.pk:
             return True
-        if not viewing_user or not viewing_user.is_authenticated:
+        if viewer is None:
             return (
                 self.visibility == 0
                 and owner.anonymous_viewable
                 and not owner.restricted
             )
-        viewer = viewing_user.identity
-        if not viewer:
-            return False
         if self.visibility == 2:
             return False
         if viewer.is_blocking(owner) or owner.is_blocking(viewer):
@@ -49,8 +63,7 @@ class UserOwnedObjectMixin:
             return False
         if self.visibility == 1:
             return viewer.is_following(owner)
-        else:
-            return True
+        return True
 
     def is_editable_by(self: "Piece", viewing_user: "User"):
         return viewing_user.is_authenticated and (

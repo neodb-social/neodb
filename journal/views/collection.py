@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.signing import b62_encode
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -17,6 +17,8 @@ from common.utils import (
     get_page_size_from_request,
     get_uuid_or_404,
 )
+from common.validators import get_safe_referer_url
+from takahe.auth import _SigError, verify_http_signature
 from users.models import User
 
 from ..forms import *
@@ -102,7 +104,49 @@ def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
     return redirect(f"/collection/{b62_encode(uid.int).zfill(22)}", permanent=True)
 
 
+_AP_ACCEPT_TYPES = (
+    "application/activity+json",
+    "application/ld+json",
+)
+
+
+def _wants_activitypub(request) -> bool:
+    accept = request.headers.get("Accept", "")
+    return any(t in accept for t in _AP_ACCEPT_TYPES)
+
+
+def _collection_ap_view(request, collection_uuid):
+    """Dereferenceable AP endpoint.
+
+    Authentication is *optional* — a Signature header is verified if
+    present, otherwise the caller is treated as anonymous. The visibility
+    check (``is_visible_to_identity``) decides whether to disclose the
+    object. This lets public collections be fetched by any peer (including
+    those whose actor isn't yet cached locally) while followers-only and
+    private collections still require a signed GET from an authorized
+    follower / the owner.
+    """
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    viewer = None
+    if request.headers.get("Signature"):
+        try:
+            viewer = verify_http_signature(request)
+        except _SigError as e:
+            return HttpResponse(
+                f"Bad signature: {e}", status=401, content_type="text/plain"
+            )
+    if not collection.is_visible_to_identity(viewer):
+        # 404 rather than 403 to avoid leaking existence to unauthorized callers.
+        return JsonResponse({"error": "Not found"}, status=404)
+    return JsonResponse(
+        collection.full_ap_object(),
+        content_type="application/activity+json",
+    )
+
+
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
+    if _wants_activitypub(request):
+        return _collection_ap_view(request, collection_uuid)
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
@@ -326,8 +370,11 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
     member = None
     if item:
         member, new = collection.append_item(item, note=note)
+        # ``append_item`` fires the ``list_add`` signal, which the
+        # ``_collection_member_changed`` receiver maps to
+        # ``collection.save()`` (and federation re-post). No explicit save
+        # needed here.
         if new:
-            collection.save()
             msg = None
         else:
             member = None

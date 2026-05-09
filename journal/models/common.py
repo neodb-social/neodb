@@ -766,6 +766,11 @@ class Content(Piece):
 class Debris(Content):
     class_name = CharField(max_length=50)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["remote_id"], name="debris_remote_id_idx"),
+        ]
+
     @classmethod
     def create_from_piece(cls, c: Content):
         return cls.objects.create(

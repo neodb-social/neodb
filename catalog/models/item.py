@@ -666,6 +666,58 @@ class Item(PolymorphicModel):
         return item
 
     @classmethod
+    def get_by_ap_object(cls, ap_obj: dict) -> "Item | None":
+        """Resolve an inbound ActivityPub item descriptor to a local ``Item``.
+
+        Looks like ``{"type": "Edition", "href": "https://..."}``. Local URLs
+        are resolved directly; remote URLs are dispatched through
+        ``SiteManager`` to fetch and cache the catalog metadata. Returns
+        ``None`` for unsupported types (currently TVEpisode / PodcastEpisode)
+        or unmatchable URLs.
+        """
+        from catalog.common import SiteManager
+        from catalog.sites.fedi import FediverseInstance
+        from common.validators import is_valid_url
+
+        url = ap_obj.get("href")
+        if not url:
+            return None
+        typ = ap_obj.get("type") or ""
+        if FediverseInstance.is_local_item_url(url):
+            item = cls.get_by_url(url, True)
+            if not item:
+                logger.warning(f"Item not found for {url}")
+            return item
+        if typ in ("TVEpisode", "PodcastEpisode"):
+            # TODO: resolve parent first, then locate the episode.
+            logger.debug(f"{typ}:{url} not supported yet")
+            return None
+        # SSRF gate for the remote-fetch path. ``site.get_resource_ready`` will
+        # issue outbound HTTP; reject unsafe URLs (private/loopback, non-HTTPS,
+        # malformed) here so a malicious AP payload cannot use a Note's
+        # ``tag[].href`` or a Collection's ``orderedItems[].withRegardTo`` to
+        # probe internal infrastructure.
+        if not is_valid_url(url):
+            logger.warning(f"Item.get_by_ap_object: refusing unsafe URL {url!r}")
+            return None
+        site = SiteManager.get_site_by_url(url)
+        if not site:
+            logger.warning(f"Site not found for {url}")
+            return None
+        if isinstance(site, FediverseInstance):
+            existing = site.get_local_item_from_external_resources()
+            if existing:
+                return existing
+        try:
+            site.get_resource_ready()
+        except Exception:
+            site.clear_cache()
+        item = site.get_item()
+        if not item:
+            logger.error(f"Item not fetched for {url}")
+        return item
+
+    @classmethod
     def get_by_remote_url(cls, url: str) -> "Item | None":
         url_ = url.replace("/~neodb~/", "/")
         if url_.startswith(settings.SITE_INFO["site_url"]):

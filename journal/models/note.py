@@ -70,7 +70,10 @@ class Note(Content):
     }
 
     class Meta:
-        indexes = [models.Index(fields=["owner", "item", "created_time"])]
+        indexes = [
+            models.Index(fields=["owner", "item", "created_time"]),
+            models.Index(fields=["remote_id"], name="note_remote_id_idx"),
+        ]
 
     @property
     def html(self):

@@ -31,6 +31,7 @@ class List(Piece):
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(auto_now=True)
     metadata = models.JSONField(default=dict)
+    remote_id = models.CharField(max_length=200, null=True, default=None)
 
     class Meta:
         abstract = True
@@ -111,14 +112,18 @@ class List(Piece):
             member.delete()
 
     def update_member_order(self, ordered_member_ids):
+        changed = False
         for m in self.members.all():
             try:
                 i = ordered_member_ids.index(m.pk)
                 if m.position != i + 1:
                     m.position = i + 1
                     m.save(update_fields=["position"])
+                    changed = True
             except ValueError:
                 pass
+        if changed:
+            list_add.send(sender=self.__class__, instance=self, item=None, member=None)
 
     def move_up_item(self, item):
         members = self.ordered_members
@@ -131,6 +136,9 @@ class List(Piece):
                 member.position = p
                 other.save()
                 member.save()
+                list_add.send(
+                    sender=self.__class__, instance=self, item=item, member=member
+                )
 
     def move_down_item(self, item):
         members = self.ordered_members
@@ -143,6 +151,9 @@ class List(Piece):
                 member.position = p
                 other.save()
                 member.save()
+                list_add.send(
+                    sender=self.__class__, instance=self, item=item, member=member
+                )
 
     def update_item_metadata(self, item, metadata):
         member = self.get_member_for_item(item)

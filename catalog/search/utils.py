@@ -120,6 +120,15 @@ def get_fetch_lock(user, url):
 
 
 def enqueue_fetch(url, is_refetch, user=None):
+    # SSRF gate. ``_fetch_task`` will eventually issue HTTP to ``url`` via
+    # ``SiteManager``; reject malformed, non-HTTP(S), and private/loopback
+    # destinations here so they cannot be queued by inbound AP payloads,
+    # URL paste, or any other entry point.
+    from common.validators import is_valid_url
+
+    if not is_valid_url(url):
+        logger.warning(f"enqueue_fetch: refusing unsafe URL {url!r}")
+        return None
     job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
     in_progress = False
     try:
