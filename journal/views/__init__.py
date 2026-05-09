@@ -61,7 +61,7 @@ from .review import (
     user_review_list,
 )
 from .search import search
-from .tag import tag_suggestions, user_tag_edit, user_tag_list, user_tag_member_list
+from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
 
 __all__ = [
@@ -120,7 +120,6 @@ __all__ = [
     "review_translate",
     "user_review_list",
     "search",
-    "tag_suggestions",
     "user_tag_edit",
     "user_tag_list",
     "user_tag_member_list",

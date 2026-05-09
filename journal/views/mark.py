@@ -65,7 +65,10 @@ def mark(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     mark = Mark(request.user.identity, item)
     if request.method == "GET":
-        tags = request.user.identity.tag_manager.get_item_tags(item)
+        tag_manager = request.user.identity.tag_manager
+        tags = tag_manager.get_item_tags(item)
+        recent_tags = tag_manager.get_recent_titles()
+        popular_tags = tag_manager.get_cached_popular_titles()
         shelf_actions = ShelfManager.get_actions_for_category(item.category)
         shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
         shelf_type = request.GET.get("shelf_type", mark.shelf_type)
@@ -77,6 +80,8 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "mark": mark,
                 "shelf_type": shelf_type,
                 "tags": tags,
+                "recent_tags": recent_tags,
+                "popular_tags": popular_tags,
                 "shelf_actions": shelf_actions,
                 "shelf_statuses": shelf_statuses,
                 "date_today": timezone.localdate().isoformat(),

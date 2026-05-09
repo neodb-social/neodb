@@ -68,8 +68,7 @@
         </fieldset>
       </div>
       <div>
-        <div class="tag-input"
-             data-suggestions-url="{% url 'journal:tag_suggestions' %}">
+        <div class="tag-input">
           <input name="tags"
                  type="text"
                  placeholder="{% trans "add a tag and press Enter" %}"
@@ -164,6 +163,8 @@
   </div>
 </article>
 {{ tags|json_script:"mark-tags-data" }}
+{{ recent_tags|json_script:"mark-recent-tags" }}
+{{ popular_tags|json_script:"mark-popular-tags" }}
 </dialog>
 <script>
   function inputTags(configs) {
@@ -190,18 +191,9 @@
         input.parentNode.insertBefore(input_hidden, input);
         this.input_hidden = input_hidden
         this.tags_array = [];
-        this.suggestions_url = configs.suggestionsUrl || "";
-        this.suggestion_page_size = configs.suggestionPageSize || 30;
-        this.suggestion_debounce_time = configs.suggestionDebounceTime || 250;
         this.suggestions = Array.from(new Set((configs.suggestions || []).filter(Boolean)));
         this.filtered_suggestions = [];
         this.suggestion_index = -1;
-        this.suggestions_offset = 0;
-        this.suggestions_has_more = true;
-        this.suggestions_loading = false;
-        this.suggestions_query = "";
-        this.suggestions_request_id = 0;
-        this.suggestions_debounce_timer = null;
 
         let suggestions_menu = document.createElement('div');
         suggestions_menu.setAttribute('class', 'tag-input__suggestions hidden');
@@ -214,16 +206,6 @@
         input.setAttribute('aria-expanded', 'false');
         tagsContainer.appendChild(suggestions_menu);
         this.suggestions_menu = suggestions_menu;
-        suggestions_menu.addEventListener('scroll', function () {
-          if (
-            self.suggestions_url &&
-            self.suggestions_has_more &&
-            !self.suggestions_loading &&
-            suggestions_menu.scrollTop + suggestions_menu.clientHeight >= suggestions_menu.scrollHeight - 24
-          ) {
-            self.loadRemoteSuggestions(false);
-          }
-        });
 
         tagsContainer.addEventListener('click', function (ev) {
           if (!ev.target.closest('.tag-input__suggestions')) {
@@ -244,19 +226,17 @@
         });
 
         input.addEventListener("input", function () {
-          self.refreshSuggestions(true);
+          self.refreshSuggestions();
         });
 
         input.addEventListener("focusout", function () {
-
-          window.clearTimeout(self.suggestions_debounce_timer);
+          // Defer commit so a click on a suggestion can run first.
           window.setTimeout(function () {
             if (document.activeElement !== input) {
               self.commitInput();
               self.hideSuggestions();
             }
           }, 100);
-
         });
 
         input.addEventListener('keydown', function (ev) {
@@ -264,9 +244,6 @@
           if (ev.key === 'ArrowDown' && self.filtered_suggestions && self.filtered_suggestions.length) {
             self.suggestion_index = (self.suggestion_index + 1) % self.filtered_suggestions.length;
             self.updateActiveSuggestion();
-            if (self.suggestions_url && self.suggestion_index >= self.filtered_suggestions.length - 3) {
-              self.loadRemoteSuggestions(false);
-            }
             ev.preventDefault();
           }
           else if (ev.key === 'ArrowUp' && self.filtered_suggestions && self.filtered_suggestions.length) {
@@ -439,109 +416,12 @@
         });
       },
 
-      resetSuggestions: function () {
-        this.suggestions_request_id++;
-        this.suggestions_query = input.value.trim();
-        this.suggestions = [];
-        this.filtered_suggestions = [];
-        this.suggestions_offset = 0;
-        this.suggestions_has_more = true;
-        this.suggestions_loading = false;
-        this.suggestion_index = -1;
-        this.suggestions_menu.innerHTML = "";
-        this.hideSuggestions();
-      },
-
-      refreshSuggestions: function (debounced) {
+      refreshSuggestions: function () {
         if (!this.suggestions_menu || document.activeElement !== input) {
           return;
         }
-        if (this.suggestions_url) {
-          window.clearTimeout(this.suggestions_debounce_timer);
-          if (debounced) {
-            let self = this;
-            this.resetSuggestions();
-            this.suggestions_debounce_timer = window.setTimeout(function () {
-              self.loadRemoteSuggestions(false);
-            }, this.suggestion_debounce_time);
-          }
-          else {
-            this.loadRemoteSuggestions(true);
-          }
-        }
-        else {
-          this.filtered_suggestions = this.matchedSuggestions();
-          this.renderSuggestions();
-        }
-      },
-
-      loadRemoteSuggestions: function (reset) {
-        let self = this,
-          query = input.value.trim();
-
-        if (reset) {
-          this.suggestions_request_id++;
-          this.suggestions_query = query;
-          this.suggestions = [];
-          this.filtered_suggestions = [];
-          this.suggestions_offset = 0;
-          this.suggestions_has_more = true;
-          this.suggestions_loading = false;
-          this.suggestion_index = -1;
-          this.suggestions_menu.innerHTML = "";
-        }
-
-        if (this.suggestions_loading || !this.suggestions_has_more || document.activeElement !== input) {
-          if (!this.filtered_suggestions.length) {
-            this.hideSuggestions();
-          }
-          return;
-        }
-
-        this.suggestions_loading = true;
-        let request_id = this.suggestions_request_id,
-          url = new URL(this.suggestions_url, window.location.origin);
-        url.searchParams.set('limit', this.suggestion_page_size);
-        url.searchParams.set('offset', this.suggestions_offset);
-        if (query) {
-          url.searchParams.set('q', query);
-        }
-
-        fetch(url.toString(), { headers: { 'Accept': 'application/json' } })
-          .then(function (response) {
-            if (!response.ok) {
-              throw new Error('Unable to load tag suggestions');
-            }
-            return response.json();
-          })
-          .then(function (payload) {
-            if (request_id !== self.suggestions_request_id || query !== input.value.trim()) {
-              return;
-            }
-            let tags = Array.isArray(payload.tags) ? payload.tags : [],
-              seen = new Set(self.suggestions);
-            for (let i = 0; i < tags.length; i++) {
-              if (tags[i] && !seen.has(tags[i])) {
-                self.suggestions.push(tags[i]);
-                seen.add(tags[i]);
-              }
-            }
-            self.suggestions_offset = Number.isInteger(payload.next_offset) ? payload.next_offset : self.suggestions_offset + tags.length;
-            self.suggestions_has_more = Boolean(payload.has_more);
-            self.filtered_suggestions = self.matchedSuggestions();
-            self.renderSuggestions();
-          })
-          .catch(function () {
-            if (request_id === self.suggestions_request_id) {
-              self.suggestions_has_more = false;
-              self.renderSuggestions();
-            }
-          })
-          .finally(function () {
-            if (request_id === self.suggestions_request_id) {
-              self.suggestions_loading = false;
-            }
-          });
+        this.filtered_suggestions = this.matchedSuggestions();
+        this.renderSuggestions();
       },
 
       renderSuggestions: function () {
@@ -619,13 +499,22 @@
   }
   (function () {
     let current_tags = JSON.parse(document.getElementById('mark-tags-data').textContent),
-      tag_input = document.getElementsByClassName("tag-input")[0];
+      recent_tags = JSON.parse(document.getElementById('mark-recent-tags').textContent),
+      popular_tags = JSON.parse(document.getElementById('mark-popular-tags').textContent),
+      seen = new Set(),
+      suggestions = [];
+    for (let i = 0; i < recent_tags.length; i++) {
+      let t = recent_tags[i];
+      if (t && !seen.has(t)) { seen.add(t); suggestions.push(t); }
+    }
+    for (let i = 0; i < popular_tags.length; i++) {
+      let t = popular_tags[i];
+      if (t && !seen.has(t)) { seen.add(t); suggestions.push(t); }
+    }
     new inputTags({
-      container: tag_input,
+      container: document.getElementsByClassName("tag-input")[0],
       tags: current_tags,
-      suggestionsUrl: tag_input.dataset.suggestionsUrl,
-      suggestionPageSize: 30,
-      suggestionDebounceTime: 250,
+      suggestions: suggestions,
       allowDuplicateTags: false,
       duplicateTime: 300,
       onTagRemove: function (tag) { },

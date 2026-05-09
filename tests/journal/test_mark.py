@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 
 from catalog.models import Edition
@@ -10,70 +11,88 @@ from users.models import User
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_mark_editor_suggests_current_user_tags(client):
-    book = Edition.objects.create(title="Tagged Book")
-    other_book = Edition.objects.create(title="Other Tagged Book")
-    user = User.register(email="tag-suggest@example.com", username="tagsuggest")
-    other_user = User.register(email="other-tag@example.com", username="othertag")
+def test_tag_manager_recent_orders_by_last_used():
+    user = User.register(email="recent@example.com", username="recentuser")
+    other = User.register(email="other-recent@example.com", username="otherrecent")
+    book_a = Edition.objects.create(title="A")
+    book_b = Edition.objects.create(title="B")
+
+    TagManager.tag_item_for_owner(user.identity, book_a, ["alpha"])
+    time.sleep(0.01)
+    TagManager.tag_item_for_owner(user.identity, book_b, ["beta"])
+    TagManager.tag_item_for_owner(other.identity, book_a, ["other-only"])
+
+    titles = user.identity.tag_manager.get_recent_titles(limit=10)
+    assert titles == ["beta", "alpha"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_manager_popular_orders_by_count():
+    user = User.register(email="popular@example.com", username="popularuser")
+    other = User.register(email="other-pop@example.com", username="otherpop")
+    b1 = Edition.objects.create(title="b1")
+    b2 = Edition.objects.create(title="b2")
+    b3 = Edition.objects.create(title="b3")
+
+    TagManager.tag_item_for_owner(user.identity, b1, ["common", "rare"])
+    TagManager.tag_item_for_owner(user.identity, b2, ["common"])
+    TagManager.tag_item_for_owner(user.identity, b3, ["common"])
+    TagManager.tag_item_for_owner(other.identity, b1, ["other-only"])
+
+    titles = user.identity.tag_manager.get_popular_titles(limit=10)
+    assert titles == ["common", "rare"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_manager_popular_caches_for_24h():
+    user = User.register(email="cache@example.com", username="cacheuser")
+    book = Edition.objects.create(title="cached")
+    cache.delete(f"tag_pop:{user.identity.pk}")
+
+    TagManager.tag_item_for_owner(user.identity, book, ["seen"])
+    first = user.identity.tag_manager.get_cached_popular_titles()
+    assert first == ["seen"]
+
+    # New tag added after the cache is populated should NOT show up until TTL.
+    book2 = Edition.objects.create(title="cached2")
+    TagManager.tag_item_for_owner(user.identity, book2, ["unseen"])
+    second = user.identity.tag_manager.get_cached_popular_titles()
+    assert second == ["seen"]
+
+    cache.delete(f"tag_pop:{user.identity.pk}")
+    third = user.identity.tag_manager.get_cached_popular_titles()
+    assert set(third) == {"seen", "unseen"}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_editor_embeds_recent_and_popular_tags(client):
+    user = User.register(email="mark-tags@example.com", username="marktags")
+    other = User.register(email="other-mark@example.com", username="othermark")
+    book = Edition.objects.create(title="Marked Book")
+    other_book = Edition.objects.create(title="Other Marked Book")
 
     TagManager.tag_item_for_owner(user.identity, book, ["current"])
     TagManager.tag_item_for_owner(user.identity, other_book, ["future"])
-    TagManager.tag_item_for_owner(other_user.identity, book, ["other-only"])
+    TagManager.tag_item_for_owner(other.identity, book, ["other-only"])
+    cache.delete(f"tag_pop:{user.identity.pk}")
 
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")
     response = client.get(reverse("journal:mark", args=[book.uuid]))
 
     assert response.status_code == 200
     assert response.context["tags"] == ["current"]
-    assert "all_tags" not in response.context.flatten()
-    assert (
-        f'data-suggestions-url="{reverse("journal:tag_suggestions")}"'
-        in response.content.decode()
-    )
-    assert "mark-all-tags-data" not in response.content.decode()
+    assert "future" in response.context["recent_tags"]
+    assert "current" in response.context["recent_tags"]
+    assert set(response.context["popular_tags"]) == {"current", "future"}
     assert "other-only" not in response.content.decode()
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_tag_suggestions_return_current_user_tags(client):
-    book = Edition.objects.create(title="Tagged Book")
-    other_book = Edition.objects.create(title="Other Tagged Book")
-    user = User.register(email="tag-suggest-list@example.com", username="tagsuggest2")
-    other_user = User.register(email="other-tag-list@example.com", username="othertag2")
-
-    TagManager.tag_item_for_owner(user.identity, book, ["sci-fi", "science", "future"])
-    TagManager.tag_item_for_owner(other_user.identity, other_book, ["other-only"])
-
+def test_tag_suggestions_endpoint_is_gone(client):
+    user = User.register(email="gone@example.com", username="goneuser")
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    response = client.get(reverse("journal:tag_suggestions"), {"q": "sci"})
-
-    assert response.status_code == 200
-    payload = response.json()
-    assert set(payload["tags"]) == {"sci-fi", "science"}
-    assert payload["next_offset"] == 2
-    assert payload["has_more"] is False
-
-
-@pytest.mark.django_db(databases="__all__")
-def test_tag_suggestions_are_paginated(client):
-    book = Edition.objects.create(title="Tagged Book")
-    user = User.register(email="tag-page@example.com", username="tagpage")
-    tags = [f"tag-{i:02d}" for i in range(35)]
-
-    TagManager.tag_item_for_owner(user.identity, book, tags)
-
-    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    first_page = client.get(reverse("journal:tag_suggestions"), {"limit": 10}).json()
-    last_page = client.get(
-        reverse("journal:tag_suggestions"), {"limit": 10, "offset": 30}
-    ).json()
-
-    assert first_page["tags"] == tags[:10]
-    assert first_page["next_offset"] == 10
-    assert first_page["has_more"] is True
-    assert last_page["tags"] == tags[30:]
-    assert last_page["next_offset"] == 35
-    assert last_page["has_more"] is False
+    with pytest.raises(Exception):
+        reverse("journal:tag_suggestions")
 
 
 @pytest.mark.django_db(databases="__all__")

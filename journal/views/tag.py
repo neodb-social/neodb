@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import Case, IntegerField, Value, When
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -17,16 +16,6 @@ from ..models import *
 from .common import render_list, target_identity_required
 
 PAGE_SIZE = 10
-TAG_SUGGESTION_DEFAULT_LIMIT = 30
-TAG_SUGGESTION_MAX_LIMIT = 50
-
-
-def _bounded_int(value, default, lower, upper):
-    try:
-        parsed = int(value)
-    except (TypeError, ValueError):
-        return default
-    return max(lower, min(parsed, upper))
 
 
 @target_identity_required
@@ -41,48 +30,6 @@ def user_tag_list(request, user_name):
             "identity": target,
             "tags": tags,
         },
-    )
-
-
-@login_required
-@require_http_methods(["GET"])
-def tag_suggestions(request):
-    query = Tag.cleanup_title(request.GET.get("q", ""), replace=False)
-    limit = _bounded_int(
-        request.GET.get("limit"),
-        TAG_SUGGESTION_DEFAULT_LIMIT,
-        1,
-        TAG_SUGGESTION_MAX_LIMIT,
-    )
-    offset = _bounded_int(request.GET.get("offset"), 0, 0, 1_000_000)
-    tags = request.user.identity.tag_manager.get_tags()
-
-    if query:
-        tags = (
-            tags.filter(title__icontains=query)
-            .annotate(
-                match_rank=Case(
-                    When(title__iexact=query, then=Value(0)),
-                    When(title__istartswith=query, then=Value(1)),
-                    default=Value(2),
-                    output_field=IntegerField(),
-                )
-            )
-            .order_by("match_rank", "-total", "title")
-        )
-    else:
-        tags = tags.order_by("-total", "title")
-
-    titles = list(tags.values_list("title", flat=True)[offset : offset + limit + 1])
-    has_more = len(titles) > limit
-    titles = titles[:limit]
-    next_offset = offset + len(titles)
-    return JsonResponse(
-        {
-            "tags": titles,
-            "next_offset": next_offset,
-            "has_more": has_more,
-        }
     )
 
 

@@ -3,9 +3,10 @@ from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, Sequence
 
+from django.core.cache import cache
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import Count, F, Max
 from django.utils import timezone
 
 from catalog.models import Item
@@ -184,6 +185,34 @@ class TagManager:
         if pinned_only:
             tags = tags.filter(pinned=True)
         return tags
+
+    RECENT_TITLES_LIMIT = 100
+    POPULAR_TITLES_LIMIT = 1000
+    POPULAR_TITLES_CACHE_TTL = 60 * 60 * 24
+
+    def get_recent_titles(self, limit: int = RECENT_TITLES_LIMIT) -> list[str]:
+        rows = (
+            TagMember.objects.filter(owner=self.owner)
+            .values("parent__title")
+            .annotate(last_used=Max("created_time"))
+            .order_by("-last_used")[:limit]
+        )
+        return [r["parent__title"] for r in rows]
+
+    def get_popular_titles(self, limit: int = POPULAR_TITLES_LIMIT) -> list[str]:
+        return list(
+            self.get_tags()
+            .order_by("-total", "title")
+            .values_list("title", flat=True)[:limit]
+        )
+
+    def get_cached_popular_titles(self, limit: int = POPULAR_TITLES_LIMIT) -> list[str]:
+        key = f"tag_pop:{self.owner.pk}"
+        titles = cache.get(key)
+        if titles is None:
+            titles = self.get_popular_titles(limit)
+            cache.set(key, titles, self.POPULAR_TITLES_CACHE_TTL)
+        return titles
 
     @staticmethod
     def popular_tags(days: int = 30, local_only: bool = False):
