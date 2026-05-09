@@ -18,6 +18,7 @@ from .item import (
     IdType,
     Item,
     ItemCategory,
+    ItemCredit,
     ItemSchema,
     ItemType,
 )
@@ -292,6 +293,12 @@ class Performance(Item):
             self.productions.all()
             .order_by("metadata__opening_date", "title")
             .filter(is_deleted=False, merged_to_item=None)
+            .prefetch_related(
+                models.Prefetch(
+                    "credits",
+                    queryset=ItemCredit.objects.select_related("person"),
+                )
+            )
         )
 
     @property

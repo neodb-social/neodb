@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 
 from catalog.models import Item, ItemCategory
+from catalog.models.item import item_content_types
 from users.models import APIdentity
 
 from .common import Piece, VisibilityType
@@ -63,8 +64,19 @@ class List(Piece):
 
     def get_summary(self) -> dict[str, int]:
         summary = {k: 0 for k in ItemCategory.values}
-        for c in self.recent_items:
-            summary[c.category] += 1
+        ctype_to_category = {
+            ctype_id: getattr(cls, "category", None)
+            for cls, ctype_id in item_content_types().items()
+        }
+        rows = (
+            self.items.all()
+            .values("polymorphic_ctype_id")
+            .annotate(count=models.Count("id"))
+        )
+        for row in rows:
+            category = ctype_to_category.get(row["polymorphic_ctype_id"])
+            if category in summary:
+                summary[category] += row["count"]
         return summary
 
     def append_item(self, item, **params):

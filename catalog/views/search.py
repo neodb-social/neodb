@@ -184,15 +184,21 @@ def search(request):
     items, num_pages, __, by_cat, q = query_index(
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
-    Item.prefetch_parent_items(items)
+    # Include duplicates attached as `dupe_to`: the template renders them
+    # via a nested {% include '_list_item.html' %} loop, so they need the
+    # same prefetches/attachments to avoid N+1 in templates.
+    all_items = list(items)
+    for i in items:
+        all_items.extend(getattr(i, "dupe_to", []) or [])
+    Item.prefetch_parent_items(all_items)
     prefetch_related_objects(
-        items,
+        all_items,
         Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
     )
-    Rating.attach_to_items(items)
-    Tag.attach_to_items(items)
+    Rating.attach_to_items(all_items)
+    Tag.attach_to_items(all_items)
     if request.user.is_authenticated:
-        Mark.attach_to_items(request.user.identity, items, request.user)
+        Mark.attach_to_items(request.user.identity, all_items, request.user)
     return render(
         request,
         "search_results.html",
