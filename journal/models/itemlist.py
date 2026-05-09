@@ -314,13 +314,24 @@ class List(Piece):
         return "journal.jobs.list_sync.fetch_remote_list_members"
 
     @classmethod
+    def existing_for_envelope(cls, owner, obj: dict[str, Any], post):
+        """Subclass hook: locate an existing local row for an inbound
+        envelope. Default keys on the announcement post id (works for
+        Collection); subclasses with a stable natural key (Shelf's
+        ``(owner, shelf_type)``) override to also match by that key so a
+        re-announcement from the same actor doesn't try to insert a
+        duplicate row that would fail unique constraints.
+        """
+        return cls.get_by_post_id(post.id) if post else None
+
+    @classmethod
     def update_by_ap_envelope(cls, owner, obj: dict[str, Any], post) -> "List | None":
         """Inbound mirror builder. Validates the envelope, persists / updates
         the local mirror keyed by `remote_id`, and enqueues a member fetch.
 
         Returns the persisted instance or None on rejection.
         """
-        existing = cls.get_by_post_id(post.id) if post else None
+        existing = cls.existing_for_envelope(owner, obj, post)
         if existing and existing.owner.pk != post.author_id:
             logger.warning(
                 f"{cls.__name__} owner mismatch on inbound: "

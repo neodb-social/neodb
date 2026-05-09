@@ -298,6 +298,47 @@ class TestShelfSyncMembersFromAp:
         # Local item resolves immediately and gets a member.
         assert [m.item_id for m in s.members.all()] == [self.book1.pk]
 
+    def test_member_visibility_inherits_from_shelf(self):
+        # Followers-only shelf: synced members must NOT default to
+        # visibility=0 (public) — that would leak the member list to
+        # anyone who can list ShelfMember rows.
+        s = self._make_mirror()
+        s.visibility = 1
+        s.save(post_when_save=False, index_when_save=False)
+        Shelf._sync_members_from_ap(
+            s, [{"type": "ShelfItem", "withRegardTo": self.book1.absolute_url}]
+        )
+        m = s.members.get(item=self.book1)
+        assert m.visibility == 1
+
+    def test_member_moves_across_shelves(self):
+        # The same remote owner can move an item between their shelves
+        # (e.g. wishlist → complete) on the origin. ShelfMember has a
+        # unique constraint on (owner, item), so the second sync must
+        # *move* the existing member rather than insert a duplicate.
+        wishlist = self._make_mirror()  # uses ShelfType.WISHLIST
+        complete = Shelf(
+            owner=self.identity,
+            shelf_type=ShelfType.COMPLETE.value,
+            local=False,
+            remote_id="https://remote.example/users/bob/shelf/complete",
+            visibility=0,
+        )
+        complete.save(post_when_save=False, index_when_save=False)
+        Shelf._sync_members_from_ap(
+            wishlist,
+            [{"type": "ShelfItem", "withRegardTo": self.book1.absolute_url}],
+        )
+        assert wishlist.members.filter(item=self.book1).exists()
+        # Re-sync the same item onto a different shelf.
+        Shelf._sync_members_from_ap(
+            complete,
+            [{"type": "ShelfItem", "withRegardTo": self.book1.absolute_url}],
+        )
+        assert complete.members.filter(item=self.book1).exists()
+        # And it left wishlist.
+        assert not wishlist.members.filter(item=self.book1).exists()
+
     def test_reorder_stays_consistent(self):
         s = self._make_mirror()
         Shelf._sync_members_from_ap(

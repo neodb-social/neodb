@@ -117,8 +117,17 @@ def fetch_remote_list_members(class_path: str, pk: int, attempts: int = 0) -> No
         logger.warning(
             f"list_sync: hit MAX_PAGES walking {inst.remote_id}; partial sync"
         )
+    if failed_page:
+        # A page in the chain failed to fetch. ``_sync_members_from_ap``
+        # treats omitted entries as stale and would *delete* them, so a
+        # transient failure on page 1 would empty the mirror and a
+        # later-page failure would drop subsequent members. Retry without
+        # mutating local state; the next attempt either succeeds or we
+        # exhaust ``MAX_FETCH_ATTEMPTS`` and bail.
+        _maybe_retry(class_path, pk, attempts)
+        return
     pending = cls._sync_members_from_ap(inst, flat_items)
-    if pending or failed_page:
+    if pending:
         # Items pending catalog fetch — retry so the next pass picks them
         # up after the catalog cache primes.
         _maybe_retry(class_path, pk, attempts)

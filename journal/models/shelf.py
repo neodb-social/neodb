@@ -660,6 +660,26 @@ class Shelf(List):
         return {"shelf_type": shelf_type}
 
     @classmethod
+    def existing_for_envelope(cls, owner, obj, post):
+        # Shelves have a stable natural key — ``(owner, shelf_type)`` — and
+        # are auto-initialized for every local user the first time they
+        # mark an item. A re-announcement from the same actor must reuse
+        # that row, otherwise the unique constraint trips on insert.
+        # Prefer ``remote_id`` match (cross-server post-id changes), then
+        # fall back to natural key, then to the post-id link.
+        list_id = obj.get("id") if isinstance(obj, dict) else None
+        if list_id:
+            row = cls.objects.filter(owner=owner, remote_id=list_id).first()
+            if row is not None:
+                return row
+        shelf_type = obj.get("shelfType") if isinstance(obj, dict) else None
+        if shelf_type:
+            row = cls.objects.filter(owner=owner, shelf_type=shelf_type).first()
+            if row is not None:
+                return row
+        return super().existing_for_envelope(owner, obj, post)
+
+    @classmethod
     def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
         return cls.update_by_ap_envelope(owner, obj, post)
 
@@ -721,16 +741,36 @@ class Shelf(List):
                 kept.add(it.pk)
                 m = existing_members.get(it.pk)
                 if m is None:
-                    ShelfMember.objects.create(
-                        parent=shelf,
-                        item=it,
-                        owner=shelf.owner,
-                        position=pos,
-                        local=False,
-                    )
-                elif m.position != pos:
+                    # The same remote owner may already have a ShelfMember
+                    # for this item on a *different* shelf (e.g. they moved
+                    # an item from wishlist to complete on the origin
+                    # before our resync ran). ShelfMember has a unique
+                    # constraint on (owner, item), so move the existing
+                    # row instead of inserting a duplicate.
+                    cross = ShelfMember.objects.filter(
+                        owner=shelf.owner, item=it
+                    ).first()
+                    if cross is not None:
+                        cross.parent = shelf
+                        cross.position = pos
+                        # Inherit visibility from the parent so a
+                        # followers-only shelf doesn't leak its members
+                        # publicly.
+                        cross.visibility = shelf.visibility
+                        cross.save(update_fields=["parent", "position", "visibility"])
+                    else:
+                        ShelfMember.objects.create(
+                            parent=shelf,
+                            item=it,
+                            owner=shelf.owner,
+                            position=pos,
+                            local=False,
+                            visibility=shelf.visibility,
+                        )
+                elif m.position != pos or m.visibility != shelf.visibility:
                     m.position = pos
-                    m.save(update_fields=["position"])
+                    m.visibility = shelf.visibility
+                    m.save(update_fields=["position", "visibility"])
             stale_ids = [
                 m.pk for item_id, m in existing_members.items() if item_id not in kept
             ]

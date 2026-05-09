@@ -226,6 +226,29 @@ existing catalog fetch path.
 makes the field nullable). Remote mirrors don't get stub catalog
 entries.
 
+### Known limitation: followers-only inbound list sync
+
+The page-walking inbound sync signs every fetch as the local Takahe
+SystemActor (`takahe.auth.sign_get`). On the receiving (origin) side,
+`is_visible_to_identity` is given that signing actor and asks "is this
+actor a follower of the owner?" — for a SystemActor, the answer is
+always **no**, so the origin returns 404. This means
+**followers-only Shelf / Collection items endpoints cannot be synced
+between peers in this PR**. Only public lists round-trip correctly.
+
+Public lists work because `is_visible_to_identity(visibility=0)`
+returns True regardless of the signer (`anonymous_viewable` path).
+
+Fixing this requires either signing as a local follower of the remote
+owner (we'd need to pick one and use their key — Takahe stores keys
+in `takahe.Identity.private_key`) or relaxing the receiver-side check
+to accept "instance SystemActor of an instance with at least one
+follower" (Mastodon's per-instance trust model). Both are non-trivial
+auth-model changes; they're left out of this PR. The announcement
+Note still delivers the lightweight envelope to followers, so a
+follower's local mirror is created with `visibility` set; only the
+member list lags.
+
 ### Out of scope (deferred)
 
 - **`Tag` federation** — column provisioned (`Tag.remote_id` via the
