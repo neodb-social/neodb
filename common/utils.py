@@ -3,7 +3,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import django_rq
-from discord import SyncWebhook
+from discord import HTTPException, SyncWebhook
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
@@ -12,6 +12,7 @@ from django.db.models.fields.files import FieldFile
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from loguru import logger
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
@@ -272,4 +273,10 @@ def discord_send(channel, content, **args) -> bool:
 
 def _discord_send(dw, content, **args):
     webhook = SyncWebhook.from_url(dw)
-    webhook.send(content, **args)
+    try:
+        webhook.send(content, **args)
+    except (HTTPException, RuntimeError) as e:
+        # discord.py raises RuntimeError("Unreachable code in HTTP handling.")
+        # when its internal retry loop exhausts without a specific exception
+        # (transient network/HTTP failure). Notifications are best-effort.
+        logger.warning(f"discord webhook {webhook.id} send failed: {e}")
