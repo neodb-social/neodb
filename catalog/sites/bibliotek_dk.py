@@ -50,19 +50,6 @@ def get_bibliotekdk_token():
     return token
 
 
-class BibliotekDKImageDownloader(BasicImageDownloader):
-    def validate_response(self, response):
-        # Fix broken content type on bibliotek.dk
-        if response.headers.get("Content-Type") == "image/jpg":
-            response.headers["Content-Type"] = "image/jpeg"
-
-        # Fix broken content type on moreinfo.addi.dk
-        if response.headers.get("Content-Type") == "image/JPEG":
-            response.headers["Content-Type"] = "image/jpeg"
-
-        return super().validate_response(response)
-
-
 class BibliotekDKImageStore:
     @classmethod
     def save(cls, id_type, filename, content):
@@ -138,7 +125,7 @@ class BibliotekDK_Edition(BibliotekDKSite):
 
         img_path = None
         if img_url is not None:
-            raw_img, ext = BibliotekDKImageDownloader.download_image(
+            raw_img, ext = BasicImageDownloader.download_image(
                 img_url, cls.id_to_url(id_value)
             )
             if raw_img and ext:

@@ -16,6 +16,7 @@ from typing import Type, TypeVar
 import django_rq
 import requests
 from django.core.cache import cache
+from django.db import IntegrityError, transaction
 from loguru import logger
 
 from common.models import SiteConfig
@@ -425,12 +426,24 @@ class SiteManager:
                             )
                             # Don't leave a placeholder -- next run re-dedupes.
                             continue
-                        new_res = ExternalResource.objects.create(
-                            id_type=id_type,
-                            id_value=id_value,
-                            url=linked_site.url,
-                            item=sibling,
-                        )
+                        try:
+                            with transaction.atomic():
+                                new_res = ExternalResource.objects.create(
+                                    id_type=id_type,
+                                    id_value=id_value,
+                                    url=linked_site.url,
+                                    item=sibling,
+                                )
+                        except IntegrityError:
+                            # Another worker created a resource for the same
+                            # url or (id_type, id_value) between our checks
+                            # and the insert. Skip; the existing row already
+                            # represents this person.
+                            logger.warning(
+                                f"sibling-dedup race for "
+                                f"{id_type}:{id_value} url={linked_site.url}"
+                            )
+                            continue
                         new_res.update_content(content)
                         logger.info(
                             f"reused sibling person {sibling} for "

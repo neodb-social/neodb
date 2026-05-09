@@ -412,6 +412,14 @@ class CachedDownloader(BasicDownloader):
 
 
 class ImageDownloaderMixin:
+    # Non-standard MIME types that should be treated as standard image MIMEs.
+    # Many CDNs return these for valid JPEG bytes.
+    _MIME_ALIASES = {
+        "image/jpg": "image/jpeg",
+        "image/x-jpg": "image/jpeg",
+        "image/pjpeg": "image/jpeg",
+    }
+
     def __init__(self, url: str, referer=None):
         self.extention = None
         if referer is not None:
@@ -422,13 +430,17 @@ class ImageDownloaderMixin:
         if response and response.status_code == 200:
             try:
                 content_type = response.headers.get("content-type", "")
-                if content_type.startswith("image/svg+xml"):
+                mime = content_type.partition(";")[0].strip().lower()
+                mime = self._MIME_ALIASES.get(mime, mime)
+                if mime.startswith("image/svg+xml"):
                     self.extention = "svg"
                     return RESPONSE_OK
-                file_type = filetype.get_type(
-                    mime=content_type.partition(";")[0].strip()
-                )
+                file_type = filetype.get_type(mime=mime) if mime else None
                 if file_type is None:
+                    # Fall back to magic-byte sniffing -- some CDNs send empty
+                    # or non-standard Content-Type for valid images.
+                    file_type = filetype.guess(response.content)
+                if file_type is None or not (file_type.mime or "").startswith("image/"):
                     logger.error(
                         f"Unsupported image type: {content_type}",
                         extra={"url": response.url},

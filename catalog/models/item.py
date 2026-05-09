@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GinIndex
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
-from django.db import connection, models
+from django.db import IntegrityError, connection, models, transaction
 from django.db.models import Q, QuerySet, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -1488,7 +1488,26 @@ class ExternalResource(models.Model):
         elif resource_content.metadata.get("cover_image_path"):
             self.cover = resource_content.metadata.get("cover_image_path")
         self.scraped_time = timezone.now()
-        self.save()
+        try:
+            with transaction.atomic():
+                self.save()
+        except IntegrityError:
+            if not self._state.adding:
+                raise
+            # Another worker created an ExternalResource for the same url
+            # or (id_type, id_value) between get_resource() and now.
+            # Adopt its pk and persist our freshly-scraped content onto it.
+            existing = (
+                type(self).objects.filter(url=self.url).first()
+                or type(self)
+                .objects.filter(id_type=self.id_type, id_value=self.id_value)
+                .first()
+            )
+            if existing is None:
+                raise
+            self.pk = existing.pk
+            self._state.adding = False
+            self.save()
 
     @property
     def ready(self):

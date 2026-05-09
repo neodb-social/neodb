@@ -1,4 +1,7 @@
+from io import BytesIO
 from unittest.mock import MagicMock
+
+from PIL import Image
 
 from catalog.common.downloaders import (
     RESPONSE_INVALID_CONTENT,
@@ -6,11 +9,33 @@ from catalog.common.downloaders import (
     RESPONSE_OK,
     RESPONSE_QUOTA_EXCEEDED,
     BasicDownloader,
+    BasicImageDownloader,
     DownloadError,
     MockResponse,
     ScraperResponse,
     get_mock_file,
 )
+
+
+def _jpeg_bytes() -> bytes:
+    buf = BytesIO()
+    Image.new("RGB", (1, 1), color=(255, 0, 0)).save(buf, format="JPEG")
+    return buf.getvalue()
+
+
+def _png_bytes() -> bytes:
+    buf = BytesIO()
+    Image.new("RGB", (1, 1), color=(0, 255, 0)).save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def _img_response(content: bytes, content_type: str) -> MagicMock:
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.headers = {"content-type": content_type}
+    resp.content = content
+    resp.url = "https://example.com/x"
+    return resp
 
 
 class TestGetMockFile:
@@ -153,6 +178,63 @@ class TestScraperResponse:
         resp = ScraperResponse("https://example.com", b"<root><item>test</item></root>")
         tree = resp.xml()
         assert tree is not None
+
+
+class TestImageDownloaderMimeNormalization:
+    def test_image_jpg_alias_accepted(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(_img_response(_jpeg_bytes(), "image/jpg"))
+            == RESPONSE_OK
+        )
+        assert dl.extention == "jpg"
+
+    def test_image_jpeg_uppercase_accepted(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(_img_response(_jpeg_bytes(), "image/JPEG"))
+            == RESPONSE_OK
+        )
+        assert dl.extention == "jpg"
+
+    def test_image_pjpeg_alias_accepted(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(_img_response(_jpeg_bytes(), "image/pjpeg"))
+            == RESPONSE_OK
+        )
+        assert dl.extention == "jpg"
+
+    def test_empty_content_type_sniffs_jpeg_body(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert dl.validate_response(_img_response(_jpeg_bytes(), "")) == RESPONSE_OK
+        assert dl.extention == "jpg"
+
+    def test_empty_content_type_sniffs_png_body(self):
+        dl = BasicImageDownloader("https://example.com/x.png")
+        assert dl.validate_response(_img_response(_png_bytes(), "")) == RESPONSE_OK
+        assert dl.extention == "png"
+
+    def test_empty_content_type_with_html_rejected(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(_img_response(b"<html></html>", ""))
+            == RESPONSE_NETWORK_ERROR
+        )
+
+    def test_canonical_image_jpeg_still_works(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(_img_response(_jpeg_bytes(), "image/jpeg"))
+            == RESPONSE_OK
+        )
+        assert dl.extention == "jpg"
+
+    def test_svg_short_circuit(self):
+        dl = BasicImageDownloader("https://example.com/x.svg")
+        resp = _img_response(b"<svg></svg>", "image/svg+xml; charset=utf-8")
+        assert dl.validate_response(resp) == RESPONSE_OK
+        assert dl.extention == "svg"
 
 
 class TestMockResponse:
