@@ -27,12 +27,16 @@ class UserOwnedObjectMixin:
         self: "Piece",
         viewing_user: "User | None",
     ) -> bool:
-        viewer = (
-            viewing_user.identity
-            if (viewing_user and viewing_user.is_authenticated)
-            else None
-        )
-        return self.is_visible_to_identity(viewer)
+        if viewing_user is None or not viewing_user.is_authenticated:
+            return self.is_visible_to_identity(None)
+        # Direct user-pk shortcut: an authenticated user always sees their own
+        # content even when ``user.identity`` is unpopulated (rare: identity
+        # deletion, mid-signup). Falling through to ``is_visible_to_identity``
+        # with ``viewer = None`` would treat them as anonymous.
+        owner = self.owner
+        if owner and getattr(owner, "user_id", None) == viewing_user.pk:
+            return True
+        return self.is_visible_to_identity(viewing_user.identity)
 
     def is_visible_to_identity(
         self: "Piece",

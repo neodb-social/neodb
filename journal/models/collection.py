@@ -78,8 +78,15 @@ class Collection(List):
     post_when_save = True
     index_when_save = True
     MEMBER_CLASS = CollectionMember
+    # Nullable so remote (mirror) collections don't get a sentinel
+    # ``CatalogCollection`` row. ``Collection.save`` only auto-creates and
+    # syncs the catalog item when ``self.local``.
     catalog_item = models.OneToOneField(
-        CatalogCollection, on_delete=models.PROTECT, related_name="journal_item"
+        CatalogCollection,
+        on_delete=models.PROTECT,
+        related_name="journal_item",
+        null=True,
+        blank=True,
     )
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
@@ -334,16 +341,20 @@ class Collection(List):
             return super().get_summary()
 
     def save(self, *args, **kwargs):
-        if getattr(self, "catalog_item", None) is None:
-            self.catalog_item = CatalogCollection()
-        if (
-            self.catalog_item.title != self.title
-            or self.catalog_item.brief != self.brief
-        ):
-            self.catalog_item.title = self.title
-            self.catalog_item.brief = self.brief
-            self.catalog_item.cover = self.cover
-            self.catalog_item.save()
+        # Remote mirrors don't need a CatalogCollection — those rows would
+        # otherwise pollute the catalog with stub entries that have no
+        # corresponding local catalog detail page.
+        if self.local:
+            if getattr(self, "catalog_item", None) is None:
+                self.catalog_item = CatalogCollection()
+            if (
+                self.catalog_item.title != self.title
+                or self.catalog_item.brief != self.brief
+            ):
+                self.catalog_item.title = self.title
+                self.catalog_item.brief = self.brief
+                self.catalog_item.cover = self.cover
+                self.catalog_item.save()
         super().save(*args, **kwargs)
 
     def get_ap_data(self):
