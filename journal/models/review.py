@@ -67,13 +67,14 @@ class Review(Content):
 
     def get_ap_data(self):
         data = super().get_ap_data()
-        data["object"].update(
-            {
-                "name": self.title,
-                "content": self.html_content,
-                "source": {"content": self.body, "mediaType": "text/markdown"},
-            }
-        )
+        if settings.REVIEW_AS_ARTICLE:
+            data["object"].update(
+                {
+                    "name": self.title,
+                    "content": self.html_content,
+                    "source": {"content": self.body, "mediaType": "text/markdown"},
+                }
+            )
         return data
 
     @classmethod
@@ -129,11 +130,13 @@ class Review(Content):
             + f'<br><a href="{self.absolute_url}">{self.title}</a>'
         )
         content = f"{render_rating(self.rating_grade)}\n{self.get_crosspost_postfix()}"
-        return {
+        params: dict[str, Any] = {
             "prepend_content": prepend_content,
             "content": content,
-            "post_type": "Article",
         }
+        if settings.REVIEW_AS_ARTICLE:
+            params["post_type"] = "Article"
+        return params
 
     @cached_property
     def mark(self):
