@@ -14,6 +14,9 @@ concurrency:
 env:
   REGISTRY_IMAGE: neodb/neodb
 
+permissions:
+  contents: read
+
 jobs:
   prepare_release:
     name: Prepare and upload release information

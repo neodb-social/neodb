@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   deployment:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}

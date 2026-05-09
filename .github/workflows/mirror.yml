@@ -2,6 +2,9 @@ name: Mirror to Codeberg
 
 on: [push, delete]
 
+permissions:
+  contents: read
+
 jobs:
   to_codeberg:
     if: github.repository_owner == 'neodb-social'

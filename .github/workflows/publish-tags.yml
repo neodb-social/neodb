@@ -12,11 +12,16 @@ concurrency:
 env:
   REGISTRY_IMAGE: neodb/neodb
 
+permissions:
+  contents: read
+
 jobs:
   prepare_release:
     name: Prepare and upload release information
     if: github.repository_owner == 'neodb-social'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       buildver: ${{ steps.version.outputs.buildver }}
 
