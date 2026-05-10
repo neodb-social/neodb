@@ -2,44 +2,74 @@ from django.db import migrations, models
 
 
 def _dedupe_collection_members(apps, schema_editor):
-    """Remove duplicate ``(parent, item)`` ``CollectionMember`` rows so the
-    new ``unique_collection_member`` constraint can be added.
+    """Collapse duplicate ``(parent, item)`` ``CollectionMember`` rows so
+    the new ``unique_collection_member`` constraint can be added.
 
     Existing NeoDB deployments may have duplicate rows from past data
     paths that pre-dated the per-list dedup logic — most commonly when
     two catalog items were merged together and both ended up on the
     same collection. ``Collection.append_item`` short-circuits on the
     happy path, but the merge path bypassed it. Without this dedup the
-    ``AddConstraint`` step below would abort the migration on those
-    deployments.
+    ``AddConstraint`` step below would abort the migration.
 
-    Strategy: keep the lowest-pk row per ``(parent_id, item_id)`` and
-    delete the rest. Use the historical ORM (``apps.get_model``) so the
-    multi-table-inheritance PK (``piece_ptr_id``, not ``id``) and the
-    parent ``Piece`` row are handled correctly across PG / SQLite.
+    Strategy:
+    1. Aggregate-pre-filter: ``GROUP BY (parent_id, item_id) HAVING
+       COUNT(*) > 1`` runs in one DB pass and returns nothing on a clean
+       deployment, so the migration is essentially free in the common
+       case.
+    2. For each duplicate group, keep the lowest-pk row and merge the
+       per-row ``note`` (stored at ``metadata["note"]`` via
+       ``jsondata.CharField``) — concatenate distinct non-empty notes
+       in pk order separated by a blank line, so the user keeps the
+       text they wrote rather than silently losing it.
+    3. Delete the surviving duplicates. ``Piece`` parent rows cascade
+       via the multi-table-inheritance FK so no orphans remain.
     """
+    from django.db.models import Count
+
     CollectionMember = apps.get_model("journal", "CollectionMember")
     db_alias = schema_editor.connection.alias
-    seen: set[tuple[int, int]] = set()
-    duplicate_pks: list[int] = []
-    qs = (
+
+    dup_keys = list(
         CollectionMember.objects.using(db_alias)
-        .order_by("parent_id", "item_id", "pk")
-        .values_list("pk", "parent_id", "item_id")
+        .values("parent_id", "item_id")
+        .annotate(_c=Count("pk"))
+        .filter(_c__gt=1)
+        .values_list("parent_id", "item_id")
     )
-    for pk, parent_id, item_id in qs.iterator():
-        key = (parent_id, item_id)
-        if key in seen:
-            duplicate_pks.append(pk)
-        else:
-            seen.add(key)
-    if duplicate_pks:
-        # Bulk-delete the duplicate child rows. ``Piece`` parent rows
-        # are cascaded via the PolymorphicModel multi-table-inheritance
-        # FK, so this leaves no orphan piece rows.
-        for chunk_start in range(0, len(duplicate_pks), 1000):
-            chunk = duplicate_pks[chunk_start : chunk_start + 1000]
-            CollectionMember.objects.using(db_alias).filter(pk__in=chunk).delete()
+    if not dup_keys:
+        return
+
+    for parent_id, item_id in dup_keys:
+        rows = list(
+            CollectionMember.objects.using(db_alias)
+            .filter(parent_id=parent_id, item_id=item_id)
+            .order_by("pk")
+        )
+        if len(rows) <= 1:
+            continue
+        keeper = rows[0]
+        # Collect distinct non-empty notes in pk order. ``metadata`` is the
+        # underlying JSON column; the historical ORM doesn't expose the
+        # ``jsondata`` descriptor, so read the JSON dict directly.
+        seen_notes: list[str] = []
+        for row in rows:
+            meta = row.metadata if isinstance(row.metadata, dict) else {}
+            n = meta.get("note")
+            if isinstance(n, str) and n and n not in seen_notes:
+                seen_notes.append(n)
+        merged = "\n\n".join(seen_notes) if seen_notes else None
+        keeper_meta = dict(keeper.metadata) if isinstance(keeper.metadata, dict) else {}
+        if merged != keeper_meta.get("note"):
+            if merged is None:
+                keeper_meta.pop("note", None)
+            else:
+                keeper_meta["note"] = merged
+            keeper.metadata = keeper_meta
+            keeper.save(update_fields=["metadata"])
+        # Bulk-delete the surviving duplicates.
+        dup_pks = [r.pk for r in rows[1:]]
+        CollectionMember.objects.using(db_alias).filter(pk__in=dup_pks).delete()
 
 
 class Migration(migrations.Migration):
