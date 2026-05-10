@@ -86,8 +86,12 @@ def query_index(
             urls.append(res.url)
     # hide show if its season exists. Match via show_id so we never fire a
     # per-season FK lookup on TVShow (EGGPLANT-188).
-    items_by_pk = {i.pk: i for i in items}
-    seasons = [i for i in items if i.__class__ == TVSeason]
+    items_by_pk = {}
+    seasons = []
+    for i in items:
+        items_by_pk[i.pk] = i
+        if i.__class__ == TVSeason:
+            seasons.append(i)
     shows_attached: set[int] = set()
     for season in seasons:
         show = items_by_pk.get(season.show_id)
