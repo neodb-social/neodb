@@ -71,8 +71,7 @@
           {% include "markdown_editor.html" %}
         </article>
       </div>
-      <aside>
-      </aside>
+      {% include "_sidebar.html" with show_profile=1 collapse_profile=1 identity=request.user.identity %}
     </main>
     <script>
       (function() {
