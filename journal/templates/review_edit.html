@@ -31,7 +31,8 @@
                 </label>
                 <label for="id_leading_space">
                   {{ form.leading_space }}
-                  <a data-tooltip="{{ form.leading_space.help_text }}">{{ form.leading_space.label }}</a>
+                  {{ form.leading_space.label }}
+                  <a data-tooltip="{{ form.leading_space.help_text }}"><i class="fa-solid fa-circle-info"></i></a>
                 </label>
               </div>
             </div>

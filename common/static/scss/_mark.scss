@@ -179,3 +179,12 @@
   background: var(--pico-primary-focus, var(--pico-muted-border-color)) !important;
   color: var(--pico-form-element-color, var(--pico-contrast)) !important;
 }
+
+form {
+  .controls {
+    color-scheme: light;
+    color: #2c3e50;
+    background: #fff;
+    margin-bottom: var(--pico-spacing);
+  }
+}
