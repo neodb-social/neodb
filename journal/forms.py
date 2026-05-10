@@ -35,6 +35,43 @@ class ReviewForm(forms.ModelForm):
     )
 
 
+class ArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ["id", "title", "body", "summary", "sensitive", "visibility"]
+
+    title = forms.CharField(label=_("Title"), max_length=500)
+    body = forms.CharField(
+        label=_("Content (Markdown)"),
+        strip=False,
+        widget=forms.Textarea(attrs={"class": "easymde-editor"}),
+    )
+    summary = forms.CharField(
+        label=_("Content warning (optional)"),
+        required=False,
+        max_length=500,
+    )
+    sensitive = forms.BooleanField(
+        label=_("Mark as sensitive"), required=False, initial=False
+    )
+    tags = forms.CharField(
+        label=_("Tags (comma separated)"),
+        required=False,
+        max_length=2000,
+    )
+    share_to_mastodon = forms.BooleanField(
+        label=_("Crosspost to Mastodon"), initial=False, required=False
+    )
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    visibility = forms.TypedChoiceField(
+        label=_("Visibility"),
+        initial=0,
+        coerce=int,
+        choices=VisibilityType.choices,
+        widget=forms.RadioSelect,
+    )
+
+
 COLLABORATIVE_CHOICES = [
     (0, _("owner only")),
     (1, _("owner and their local mutuals")),

@@ -34,7 +34,15 @@ class JournalQueryParser(QueryParser):
     fields = ["status", "rating", "tag", "category", "type", "date", "sort"]
     skip_backtick = ["rating", "created", "item_id", "post_id", "piece_id", "owner_id"]
     status_values = {"wishlist", "progress", "complete", "dropped"}
-    type_values = {"shelfmember", "rating", "comment", "review", "collection", "note"}
+    type_values = {
+        "shelfmember",
+        "rating",
+        "comment",
+        "review",
+        "collection",
+        "note",
+        "article",
+    }
     sort_values = {"date": "created:desc", "rating": "rating:desc"}
     default_search_params = {
         "query_by": "content, item_title, tag",

@@ -1,3 +1,4 @@
+from .article import Article
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import (
@@ -31,6 +32,7 @@ from .utils import (
 )
 
 __all__ = [
+    "Article",
     "Collection",
     "CollectionMember",
     "Content",

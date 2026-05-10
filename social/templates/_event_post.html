@@ -81,6 +81,10 @@
              title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
           {% if piece and piece.classname == 'note' %}
             {% trans "wrote a note" %}
+          {% elif piece and piece.classname == 'article' %}
+            {% trans "wrote an article" %}
+          {% elif post.type == 'Article' and not piece %}
+            {% trans "wrote an article" %}
           {% endif %}
         </span>
         {% if post.in_reply_to_post_ %}
@@ -98,8 +102,13 @@
             </a>
           </span>
         {% endif %}
-        {% if item and piece.classname != 'note' %}
+        {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
+        {% endif %}
+        {% if piece and piece.classname == 'article' %}
+          <h4>
+            <a href="{{ piece.url }}">{{ piece.title }}</a>
+          </h4>
         {% endif %}
         <div>{{ post.summary|default:'' }}</div>
         <div style="display:flex;">

@@ -1,0 +1,110 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      {{ site_name }} -
+      {% if article %}
+        {% trans "Edit Article" %}
+      {% else %}
+        {% trans "Compose Article" %}
+      {% endif %}
+    </title>
+    {% include "common_libs.html" %}
+    <style type="text/css">
+      #id_visibility,
+      #id_visibility li {
+        padding-left: 0;
+        margin-bottom: 0;
+        display: inline-block !important;
+      }
+    </style>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div>
+        <article>
+          <form method="post" enctype="multipart/form-data" class="review-form">
+            {% csrf_token %}
+            {{ form.id }}
+            <div>{{ form.title.label }}</div>
+            {{ form.title }}
+            <div>{{ form.summary.label }}</div>
+            {{ form.summary }}
+            <div class="clearfix">
+              <span class="float-left">{{ form.body.label }}</span>
+            </div>
+            <div class="markdown-content">{{ form.body }}</div>
+            <div>{{ form.tags.label }}</div>
+            <input type="text"
+                   name="tags"
+                   id="id_tags"
+                   value="{{ form.tags.value|default:'' }}"
+                   placeholder="{% trans 'comma, separated, tags' %}">
+            <div>
+              <label for="id_sensitive">
+                {{ form.sensitive }}
+                {{ form.sensitive.label }}
+              </label>
+            </div>
+            <hr>
+            <div class="grid">
+              <div>{{ form.visibility }}</div>
+              <div>
+                <label for="id_share_to_mastodon">
+                  {{ form.share_to_mastodon }}
+                  {{ form.share_to_mastodon.label }}
+                </label>
+              </div>
+            </div>
+            <div>
+              <button type="button"
+                      id="add-image-btn"
+                      class="secondary"
+                      _="on click call addImageField()">
+                <i class="fa-regular fa-image"></i>
+                {% trans "Add image" %}
+              </button>
+            </div>
+            <div id="image-attachments"></div>
+            <input class="button float-right" type="submit" value="{% trans 'Save' %}">
+          </form>
+          {% include "markdown_editor.html" %}
+        </article>
+      </div>
+      <aside>
+      </aside>
+    </main>
+    <script>
+      let imageCount = 0;
+      function addImageField() {
+        if (imageCount >= 4) return;
+        const index = imageCount;
+        const wrap = document.getElementById('image-attachments');
+        const row = document.createElement('div');
+        row.className = 'image-attachment';
+        row.id = `image-attachment-${index}`;
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '0.5em';
+        row.innerHTML = `
+          <input type="file" name="image_${index}" accept="image/*">
+          <input type="text" name="image_alt_${index}" placeholder="{% trans 'Alt text' %}" style="flex:2; margin-bottom:0">
+          <button type="button" class="secondary small" onclick="document.getElementById('image-attachment-${index}').remove(); imageCount--;"><i class="fa-solid fa-times"></i></button>`;
+        wrap.appendChild(row);
+        imageCount++;
+        if (imageCount >= 4) document.getElementById('add-image-btn').disabled = true;
+      }
+      $(".spoiler").on('click', function() {
+        $(this).toggleClass('revealed');
+      });
+    </script>
+    {% include "_footer.html" %}
+  </body>
+</html>

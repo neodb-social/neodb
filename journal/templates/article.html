@@ -1,0 +1,131 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% load thumb %}
+{% load user_actions %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="CCBot" content="nofollow">
+    <meta property="og:title" content="{{ article.title }}">
+    <meta property="og:type" content="article">
+    <meta property="og:article:author"
+          content="{{ article.owner.display_name }}">
+    <meta property="og:url" content="{{ article.absolute_url }}">
+    <meta property="og:site_name"
+          content="{{ site_name }} {% trans 'Article' %}">
+    <meta name="fediverse:creator" content="@{{ article.owner.full_handle }}">
+    <meta rel="canonical" content="{{ article.absolute_url }}">
+    <meta name="lastmodified" content="{{ article.edited_time | date:'r' }}">
+    {% if not article.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
+    <title>{{ site_name }} {% trans 'Article' %} | {{ article.title }}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div>
+        <article>
+          <header>
+            <hgroup>
+              <h3>
+                <div class="action">
+                  {% if article.latest_post %}
+                    {% if request.user.is_authenticated %}
+                      {% include "action_pin_post.html" with post=article.latest_post %}
+                    {% endif %}
+                    {% include "action_like_post.html" with post=article.latest_post %}
+                    {% include "action_boost_post.html" with post=article.latest_post %}
+                  {% endif %}
+                </div>
+                <span id="article_{{ article.uuid }}_title">{{ article.title }}</span>
+              </h3>
+            </hgroup>
+            <div class="owner-info">
+              <div class="owner">
+                <span class="avatar">
+                  <img src="{{ article.owner.avatar }}"
+                       alt="{{ article.owner.display_name }}">
+                </span>
+              </div>
+              <div class="info">
+                <a href="{{ article.owner.url }}">{{ article.owner.display_name }}</a>
+                <span class="handler">@{{ article.owner.handle }}</span>
+                <br>
+                {% trans 'Article' %}
+                <span>{{ article.created_time|date }}</span>
+                {% if not article.local and article.remote_id %}
+                  <small>
+                    -
+                    <a href="{{ article.remote_id }}" rel="noopener" target="_blank">{% trans 'View on origin' %}</a>
+                  </small>
+                {% endif %}
+              </div>
+            </div>
+          </header>
+          {% if article.summary %}
+            <details>
+              <summary>{{ article.summary }}</summary>
+            </details>
+          {% endif %}
+          <div id="article_{{ article.uuid }}_content" class="markdown-content">
+            {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+              {{ article.html_content | safe }}
+            {% else %}
+              <p class="empty">
+                <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
+              </p>
+            {% endif %}
+          </div>
+          {% if article.normalized_tags %}
+            <p class="tags">
+              {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+            </p>
+          {% endif %}
+          <footer>
+            {% if request.user.is_authenticated %}
+              <span class="action">
+                <span>
+                  <a hx-get="{% url 'journal:piece_replies' article.uuid %}"
+                     hx-swap="outerHTML"
+                     hx-trigger="click once"
+                     hx-target="#replies_{{ article.latest_post.pk }}">
+                    <span class="metrics">{{ article.latest_post.stats.replies | default:'' }}</span>
+                    {% trans "Reply" %}
+                  </a>
+                </span>
+                {% if request.user.identity == article.owner %}
+                  <span>
+                    <a href="{% url 'journal:article_edit' article.uuid %}">{% trans 'Edit' %}</a>
+                  </span>
+                  <span>
+                    <a href="{% url 'journal:article_delete' article.uuid %}">{% trans 'Delete' %}</a>
+                  </span>
+                {% endif %}
+              </span>
+            {% endif %}
+            <span class="action inline">
+              {% if article.latest_post %}
+                {% include "action_open_post.html" with post=article.latest_post %}
+              {% endif %}
+              <span><a>{{ article.created_time|date }}</a></span>
+            </span>
+          </footer>
+        </article>
+        <section id="replies_{{ article.latest_post.pk }}">
+        </section>
+      </div>
+      <aside>
+      </aside>
+    </main>
+    <script>
+    $(".spoiler").on('click', function(){
+      $(this).toggleClass('revealed');
+    })
+    </script>
+    {% include "_footer.html" %}
+  </body>
+</html>

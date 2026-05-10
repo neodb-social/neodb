@@ -8,6 +8,7 @@ from common.sentry import count as sentry_count
 from common.sentry import url_domain
 from common.utils import discord_send
 from journal.models import (
+    Article,
     Collection,
     Comment,
     Note,
@@ -177,6 +178,13 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
             for sp in shelf_pieces:
                 _ShelfDispatcher.update_by_ap_object(owner, None, sp, post)
             return
+        # Standalone Article: post object itself is the AS Article (no
+        # ``relatedWith`` envelope). Reviews-as-Article continue to flow
+        # through the items+pieces path below because they always carry
+        # ``relatedWith=[Review]``.
+        if not pieces and post.type == "Article":
+            Article.update_by_ap_object(owner, None, ap_objects, post)
+            return
     if len(items) == 0:
         logger.warning(f"Post {post} has no items")
         return
@@ -203,8 +211,11 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
 
 def post_deleted(pk, local, post_data):
     for piece in Piece.objects.filter(posts__id=pk):
-        if piece.local and piece.__class__ != Note:
-            # no delete other than Note, for backward compatibility, should reconsider later
+        if piece.local and piece.__class__ not in (Note, Article):
+            # Marks/Reviews/Comments are NeoDB-managed; keep the piece even
+            # if the user nukes the timeline post (legacy behavior). Notes
+            # and standalone Articles cascade so a Mastodon-API delete
+            # cleans up the model row as well.
             return
         # delete piece if the deleted post is the most recent one for the piece
         if piece.latest_post_id == pk:

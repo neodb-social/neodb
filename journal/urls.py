@@ -54,6 +54,19 @@ urlpatterns = [
         save_as_dynamic_collection,
         name="save_as_dynamic_collection",
     ),
+    path("article/compose", article_edit, name="article_compose"),
+    path("article/edit/<str:article_uuid>", article_edit, name="article_edit"),
+    path("article/delete/<str:piece_uuid>", piece_delete, name="article_delete"),
+    re_path(
+        r"^article/(?P<article_uuid>[A-Za-z0-9]{21,22})$",
+        article_retrieve,
+        name="article_retrieve",
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/articles/$",
+        user_article_list,
+        name="user_article_list",
+    ),
     path("review/<str:review_uuid>", review_retrieve, name="review_retrieve"),
     path(
         "review/translate/<str:review_uuid>", review_translate, name="review_translate"
