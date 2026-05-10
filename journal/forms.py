@@ -16,11 +16,26 @@ class ReviewForm(forms.ModelForm):
             "item": forms.TextInput(attrs={"hidden": ""}),
         }
 
-    title = forms.CharField(label=_("Title"))
+    # Labels are pinned for screen-reader / form-error association; the
+    # visible UI surfaces them as ``placeholder`` + ``aria-label`` so
+    # ``review_edit.html`` doesn't need an explicit
+    # ``<div>{{ form.field.label }}</div>`` row above each input.
+    title = forms.CharField(
+        label=_("Title"),
+        widget=forms.TextInput(
+            attrs={"placeholder": _("Title"), "aria-label": _("Title")}
+        ),
+    )
     body = forms.CharField(
         label=_("Content (Markdown)"),
         strip=False,
-        widget=forms.Textarea(attrs={"class": "easymde-editor"}),
+        widget=forms.Textarea(
+            attrs={
+                "class": "easymde-editor",
+                "placeholder": _("Content (Markdown)"),
+                "aria-label": _("Content (Markdown)"),
+            }
+        ),
     )
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost to timeline"), initial=True, required=False

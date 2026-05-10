@@ -20,11 +20,7 @@
           <form method="post" class="review-form">
             {% csrf_token %}
             {{ form.item }}
-            <div>{{ form.title.label }}</div>
             {{ form.title }}
-            <div class="clearfix">
-              <span class="float-left">{{ form.body.label }}</span>
-            </div>
             <div class="markdown-content">{{ form.body }}</div>
             <hr>
             <div class="grid">
