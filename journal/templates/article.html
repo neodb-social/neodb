@@ -129,8 +129,7 @@
         <section id="replies_{{ article.latest_post.pk }}">
         </section>
       </div>
-      <aside>
-      </aside>
+      {% include "_sidebar.html" with show_profile=1 collapse_profile=1 identity=article.owner %}
     </main>
     <script>
     $(".spoiler").on('click', function(){
