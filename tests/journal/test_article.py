@@ -4,6 +4,8 @@ from datetime import timedelta
 from unittest.mock import MagicMock
 
 import pytest
+from django.template.loader import render_to_string
+from django.test import Client
 from django.utils import timezone
 
 from journal.models import Article
@@ -313,8 +315,6 @@ class TestArticleRetrieveView:
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
-        from django.test import Client
-
         self.user = User.register(email="art_view@test.com", username="art_view")
         self.identity = self.user.identity
         self.client = Client()
@@ -429,8 +429,6 @@ class TestArticleSearchRender:
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
-        from django.test import Client
-
         self.user = User.register(email="art_srch@test.com", username="art_srch")
         self.identity = self.user.identity
         self.client = Client()
@@ -454,8 +452,6 @@ class TestArticleSearchRender:
         """Direct template render: when ``articles`` is in context, they
         must surface even with an empty ``items`` list (the bug Codex
         flagged was the template only iterating items)."""
-        from django.template.loader import render_to_string
-
         article = Article.update_local_article(
             owner=self.identity,
             title="Direct Render",

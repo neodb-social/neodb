@@ -11,7 +11,7 @@ from takahe.utils import Takahe
 
 from ..forms import ArticleForm
 from ..models import Article
-from ..models.common import q_owned_piece_visible_to_user
+from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
 from ..models.renderers import sanitize_md_images
 
 _AP_ACCEPT_TYPES = (
@@ -118,8 +118,6 @@ def article_retrieve(request, article_uuid: str):
 
 @target_identity_required
 def user_article_list(request: AuthedHttpRequest, user_name):
-    from journal.models.common import prefetch_latest_posts
-
     target = request.target_identity
     articles = list(
         Article.objects.filter(owner=target)
