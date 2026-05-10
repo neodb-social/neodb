@@ -73,11 +73,15 @@
         <div>
           <fieldset style="margin-top:0.6em;margin-bottom:0">
             <label for="id_sensitive">
-              <input type="checkbox" name="sensitive" value="1" id="id_sensitive">
+              <input type="checkbox"
+                     name="sensitive"
+                     value="1"
+                     id="id_sensitive"
+                     _="on change set #post-subject-row.hidden to not me.checked then if not me.checked set #id_subject.value to '' end">
               {% trans "Mark as sensitive" %}
             </label>
           </fieldset>
-          <fieldset id="post-subject-row" style="display:none;margin-top:0">
+          <fieldset id="post-subject-row" style="margin-top:0" hidden>
             <input type="text"
                    name="subject"
                    placeholder="{% trans 'Content warning' %}"
@@ -201,19 +205,4 @@
       }
     }
   }
-
-  (function() {
-    var sens = document.getElementById('id_sensitive');
-    var row = document.getElementById('post-subject-row');
-    if (!sens || !row) return;
-    function sync() {
-      row.style.display = sens.checked ? '' : 'none';
-      if (!sens.checked) {
-        var s = document.getElementById('id_subject');
-        if (s) s.value = '';
-      }
-    }
-    sens.addEventListener('change', sync);
-    sync();
-  })();
 </script>
