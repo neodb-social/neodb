@@ -77,8 +77,9 @@ class ArticleForm(forms.ModelForm):
         label=_("Summary (optional)"),
         required=False,
         max_length=500,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
+                "rows": 3,
                 "placeholder": _("Summary (optional)"),
                 "aria-label": _("Summary (optional)"),
             }
