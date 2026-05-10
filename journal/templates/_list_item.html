@@ -102,8 +102,10 @@
                 <a href="{% url 'journal:review_retrieve' mark.review.uuid %}"
                    class="normal">{{ mark.review.title }}</a>
               </span>
-              -
-              <span>{{ mark.review.plain_content }}</span>
+              {% if mark.review.display_summary %}
+                -
+                <span style="font-style:italic; color:var(--pico-muted-color, #888)">{{ mark.review.display_summary }}</span>
+              {% endif %}
             </span>
             {% if mark.review.latest_post %}<div id="replies_{{ mark.review.latest_post.pk }}"></div>{% endif %}
           </section>

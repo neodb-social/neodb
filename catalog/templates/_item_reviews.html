@@ -31,8 +31,10 @@
         <span>
           <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
         </span>
-        -
-        {{ review.plain_content }}
+        {% if review.display_summary %}
+          -
+          <span style="font-style:italic; color:var(--pico-muted-color, #888)">{{ review.display_summary }}</span>
+        {% endif %}
       </div>
     </section>
   {% else %}
