@@ -33,20 +33,10 @@
           <form method="post" class="review-form">
             {% csrf_token %}
             {{ form.id }}
-            <div>{{ form.title.label }}</div>
             {{ form.title }}
-            <div>{{ form.summary.label }}</div>
             {{ form.summary }}
-            <div class="clearfix">
-              <span class="float-left">{{ form.body.label }}</span>
-            </div>
-            <div class="markdown-content">{{ form.body }}</div>
-            <div>{{ form.tags.label }}</div>
-            <input type="text"
-                   name="tags"
-                   id="id_tags"
-                   value="{{ form.tags.value|default:'' }}"
-                   placeholder="{% trans 'comma, separated, tags' %}">
+            {{ form.body }}
+            {{ form.tags }}
             <div>
               <label for="id_sensitive">
                 {{ form.sensitive }}

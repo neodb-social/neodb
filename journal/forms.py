@@ -40,24 +40,53 @@ class ArticleForm(forms.ModelForm):
         model = Article
         fields = ["id", "title", "body", "summary", "sensitive", "visibility"]
 
-    title = forms.CharField(label=_("Title"), max_length=500)
-    body = forms.CharField(
-        label=_("Content (Markdown)"),
-        strip=False,
-        widget=forms.Textarea(attrs={"class": "easymde-editor"}),
+    # Labels are pinned for accessibility (screen readers / HTML
+    # ``<label>``-by-association) but the visible UI surfaces them as
+    # placeholders + ``aria-label`` instead, so the template doesn't need
+    # an explicit ``<div>{{ form.field.label }}</div>`` row above each
+    # input.
+    title = forms.CharField(
+        label=_("Title"),
+        max_length=500,
+        widget=forms.TextInput(
+            attrs={"placeholder": _("Title"), "aria-label": _("Title")}
+        ),
     )
     summary = forms.CharField(
         label=_("Summary (optional)"),
         required=False,
         max_length=500,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": _("Summary (optional)"),
+                "aria-label": _("Summary (optional)"),
+            }
+        ),
     )
-    sensitive = forms.BooleanField(
-        label=_("Mark as sensitive"), required=False, initial=False
+    body = forms.CharField(
+        label=_("Content (Markdown)"),
+        strip=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "easymde-editor",
+                "placeholder": _("Content (Markdown)"),
+                "aria-label": _("Content (Markdown)"),
+            }
+        ),
     )
     tags = forms.CharField(
         label=_("Tags (comma separated)"),
         required=False,
         max_length=2000,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": _("Tags (comma separated)"),
+                "aria-label": _("Tags (comma separated)"),
+            }
+        ),
+    )
+    sensitive = forms.BooleanField(
+        label=_("Mark as sensitive"), required=False, initial=False
     )
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost to Mastodon"), initial=False, required=False
