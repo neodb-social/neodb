@@ -84,12 +84,18 @@ def query_index(
             items.append(i)
         for res in i.external_resources.all():
             urls.append(res.url)
-    # hide show if its season exists
+    # hide show if its season exists. Match via show_id so we never fire a
+    # per-season FK lookup on TVShow (EGGPLANT-188).
+    items_by_pk = {i.pk: i for i in items}
     seasons = [i for i in items if i.__class__ == TVSeason]
+    shows_attached: set[int] = set()
     for season in seasons:
-        if season.show in items:
-            setattr(season, "dupe_to", getattr(season, "dupe_to", []) + [season.show])
-            items.remove(season.show)
+        show = items_by_pk.get(season.show_id)
+        if show is not None and show.pk not in shows_attached:
+            setattr(season, "dupe_to", getattr(season, "dupe_to", []) + [show])
+            shows_attached.add(show.pk)
+    if shows_attached:
+        items = [i for i in items if i.pk not in shows_attached]
 
     if prepare_external:
         # store site url to avoid dups in external search
