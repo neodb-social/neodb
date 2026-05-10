@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -70,7 +70,14 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         else ArticleForm(request.POST)
     )
     if not form.is_valid():
-        raise BadRequest(_("Invalid parameter"))
+        # Re-render with the bound form so users see field-level errors
+        # instead of a generic 400 page.
+        return render(
+            request,
+            "article_edit.html",
+            {"form": form, "article": article},
+            status=400,
+        )
     body = sanitize_md_images(form.cleaned_data["body"])
     tags = _parse_tags(form.cleaned_data.get("tags", ""))
     sensitive = bool(form.cleaned_data.get("sensitive", False))

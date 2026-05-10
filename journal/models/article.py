@@ -1,9 +1,10 @@
 import re
-from datetime import datetime
 from typing import Any
 
 from django.db import models
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from django.utils.html import strip_tags
 from loguru import logger
 from markdownify import markdownify as md
 
@@ -14,7 +15,6 @@ from .common import Piece, VisibilityType
 from .renderers import render_md
 from .tag import Tag as TagModel
 
-_RE_HTML_TAG = re.compile(r"<[^>]*>")
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 
 _TAG_MAX_COUNT = 30
@@ -91,10 +91,11 @@ class Article(Piece):
 
     @property
     def plain_content(self) -> str:
-        html = self.html_content
-        return _RE_HTML_TAG.sub(
-            " ", _RE_SPOILER_TAG.sub("***", html.replace("\n", " "))
-        )
+        html = self.html_content.replace("\n", " ")
+        # Mask spoiler blocks first, then strip remaining HTML tags. Mirrors
+        # ``Review.plain_content`` but uses Django's ``strip_tags`` instead
+        # of a hand-rolled regex (more robust against pathological markup).
+        return strip_tags(_RE_SPOILER_TAG.sub("***", html))
 
     @property
     def brief_description(self) -> str:
@@ -206,10 +207,11 @@ class Article(Piece):
             )
             return None
         updated_iso = obj.get("updated") or published_iso
-        try:
-            edited = datetime.fromisoformat(updated_iso)
-            published = datetime.fromisoformat(published_iso)
-        except ValueError:
+        # ``parse_datetime`` handles the ``Z`` UTC suffix on every Python
+        # version we ship; ``datetime.fromisoformat`` only does so on 3.11+.
+        edited = parse_datetime(updated_iso)
+        published = parse_datetime(published_iso)
+        if edited is None or published is None:
             logger.warning(f"Article {obj.get('id')} has unparseable timestamps")
             return None
         d = cls.params_from_ap_object(post, obj, existing)
