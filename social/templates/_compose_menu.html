@@ -1,0 +1,19 @@
+{% load i18n %}
+<details class="dropdown" style="display:inline-block">
+  <summary class="action-compose"
+           aria-haspopup="listbox"
+           title="{% trans 'Compose' %}"
+           role="button">
+    <i class="fa-regular fa-pen-to-square"></i>
+  </summary>
+  <ul role="listbox" style="min-width:max-content" dir="rtl">
+    <li>
+      <a hx-get="{% url 'journal:post_compose' %}"
+         hx-target="body"
+         hx-swap="beforeend">{% trans 'New post' %}</a>
+    </li>
+    <li>
+      <a href="{% url 'journal:article_compose' %}">{% trans 'New article' %}</a>
+    </li>
+  </ul>
+</details>

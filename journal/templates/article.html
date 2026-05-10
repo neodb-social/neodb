@@ -66,20 +66,36 @@
               </div>
             </div>
           </header>
-          {% if article.summary %}
+          {% if article.sensitive or article.summary %}
             <details>
-              <summary>{{ article.summary }}</summary>
+              <summary>
+                {% if article.summary %}
+                  {{ article.summary }}
+                {% else %}
+                  {% trans "Show content" %}
+                {% endif %}
+              </summary>
+              <div id="article_{{ article.uuid }}_content" class="markdown-content">
+                {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+                  {{ article.html_content | safe }}
+                {% else %}
+                  <p class="empty">
+                    <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
+                  </p>
+                {% endif %}
+              </div>
             </details>
+          {% else %}
+            <div id="article_{{ article.uuid }}_content" class="markdown-content">
+              {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+                {{ article.html_content | safe }}
+              {% else %}
+                <p class="empty">
+                  <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
+                </p>
+              {% endif %}
+            </div>
           {% endif %}
-          <div id="article_{{ article.uuid }}_content" class="markdown-content">
-            {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
-              {{ article.html_content | safe }}
-            {% else %}
-              <p class="empty">
-                <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
-              </p>
-            {% endif %}
-          </div>
           {% if article.normalized_tags %}
             <p class="tags">
               {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}

@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
 from takahe.utils import Takahe
@@ -30,40 +29,6 @@ def _parse_tags(raw: str) -> list[str]:
     if not raw:
         return []
     return [t.strip() for t in raw.split(",") if t and t.strip()]
-
-
-def _upload_images(request: AuthedHttpRequest) -> tuple[list, list]:
-    """Upload up to 4 images from the request; return (post_attachments, dict_records)."""
-    post_attachments = []
-    records = []
-    for i in range(4):
-        image_file = request.FILES.get(f"image_{i}")
-        if not image_file or not image_file.name or not image_file.content_type:
-            continue
-        alt_text = request.POST.get(f"image_alt_{i}", "")
-        try:
-            atta = Takahe.upload_image(
-                request.user.identity.pk,
-                image_file.name,
-                image_file.read(),
-                image_file.content_type,
-                description=alt_text,
-            )
-        except Exception as e:
-            logger.error(f"Failed to upload image: {e}")
-            continue
-        post_attachments.append(atta)
-        records.append(
-            {
-                "id": atta.pk,
-                "type": (atta.mimetype or "unknown").split("/")[0],
-                "mimetype": atta.mimetype,
-                "url": atta.full_url().absolute,
-                "preview_url": atta.thumbnail_url().absolute,
-                "name": alt_text or "",
-            }
-        )
-    return post_attachments, records
 
 
 @login_required
@@ -100,26 +65,25 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
             },
         )
     form = (
-        ArticleForm(request.POST, request.FILES, instance=article)
+        ArticleForm(request.POST, instance=article)
         if article
-        else ArticleForm(request.POST, request.FILES)
+        else ArticleForm(request.POST)
     )
     if not form.is_valid():
         raise BadRequest(_("Invalid parameter"))
     body = sanitize_md_images(form.cleaned_data["body"])
     tags = _parse_tags(form.cleaned_data.get("tags", ""))
-    post_attachments, records = _upload_images(request)
+    sensitive = bool(form.cleaned_data.get("sensitive", False))
+    summary = form.cleaned_data.get("summary", "") if sensitive else ""
     article = Article.update_local_article(
         owner=request.user.identity,
         title=form.cleaned_data["title"],
         body=body,
-        summary=form.cleaned_data.get("summary", ""),
-        sensitive=bool(form.cleaned_data.get("sensitive", False)),
+        summary=summary,
+        sensitive=sensitive,
         visibility=form.cleaned_data["visibility"],
         language=request.user.language or "",
         tags=tags,
-        attachments=records if post_attachments else None,
-        post_attachments=post_attachments or None,
         article=article,
         share_to_mastodon=bool(form.cleaned_data.get("share_to_mastodon", False)),
     )

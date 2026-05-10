@@ -347,6 +347,130 @@ class TestArticleRetrieveView:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestArticleApIdRegression:
+    """Article.ap_object must NOT carry its own ``id``: Takahe deep-merges
+    ``type_data["object"]`` over the post's AP envelope, and any ``id``
+    here clobbers the canonical ``object_uri`` that ``Post.by_object_uri``
+    resolves remote interactions through."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="art_id@test.com", username="art_id")
+        self.identity = self.user.identity
+
+    def test_ap_object_has_no_id_field(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="No id",
+            body="body",
+            visibility=0,
+        )
+        obj = article.ap_object
+        assert "id" not in obj
+        assert obj["href"] == article.absolute_url
+
+    def test_post_type_data_does_not_override_id(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Wire id",
+            body="body",
+            visibility=0,
+        )
+        post = Takahe.get_post(article.latest_post_id)
+        assert post is not None
+        # The merged object surfaces article fields (name, source, etc)
+        # but the canonical id stays on the wrapping post.
+        assert post.type_data["object"].get("id") in (None, post.object_uri)
+        assert post.object_uri  # always set on local posts
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestArticleEditedTimeRegression:
+    """``edited_time`` must NOT be ``auto_now``: inbound federation copies
+    the upstream ``updated`` timestamp here and the staleness guard in
+    ``update_by_ap_object`` compares against it."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="art_et@test.com", username="art_et")
+        self.identity = self.user.identity
+
+    def test_inbound_edited_time_preserved(self):
+        post = MagicMock()
+        post.local = False
+        post.visibility = 0
+        post.id = 88810
+        post.author_id = self.identity.pk
+        post.language = "en"
+        post.attachments.all.return_value = []
+        upstream_published = (timezone.now() - timedelta(days=2)).isoformat()
+        upstream_updated = (timezone.now() - timedelta(days=1)).isoformat()
+        ap = {
+            "id": "https://remote.example/article/et",
+            "type": "Article",
+            "name": "Upstream",
+            "source": {"content": "body", "mediaType": "text/markdown"},
+            "published": upstream_published,
+            "updated": upstream_updated,
+            "attributedTo": self.identity.actor_uri,
+        }
+        article = Article.update_by_ap_object(self.identity, None, ap, post)
+        assert article is not None
+        # Refresh from DB so we see what was actually persisted, not
+        # the in-memory value that was set before save.
+        article.refresh_from_db()
+        assert article.edited_time.isoformat() == upstream_updated
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestArticleSearchRender:
+    """``type:article`` queries must surface article hits, even though
+    they have no ``item_id`` (which JournalSearchResult.items strips)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        from django.test import Client
+
+        self.user = User.register(email="art_srch@test.com", username="art_srch")
+        self.identity = self.user.identity
+        self.client = Client()
+        self.client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+
+    def test_article_search_view_does_not_crash(self):
+        """``type:article`` queries must reach the article-aware code
+        path in the view without 500-ing. The actual hit-list is
+        rendered by Typesense which is environment-flaky here; the
+        important regression to guard is the import + context wiring."""
+        Article.update_local_article(
+            owner=self.identity,
+            title="Findable",
+            body="searchable body",
+            visibility=0,
+        )
+        resp = self.client.get("/search?q=type:article")
+        assert resp.status_code == 200
+
+    def test_article_search_template_renders_pieces(self):
+        """Direct template render: when ``articles`` is in context, they
+        must surface even with an empty ``items`` list (the bug Codex
+        flagged was the template only iterating items)."""
+        from django.template.loader import render_to_string
+
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Direct Render",
+            body="body",
+            visibility=0,
+        )
+        html = render_to_string(
+            "search_journal.html",
+            {"items": [], "articles": [article], "request": None},
+        )
+        assert "Direct Render" in html
+        assert article.url in html
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestArticleDeleteCascade:
     """``post_deleted`` cascades to local Article rows when the timeline
     post is removed (e.g. via Mastodon API ``DELETE /api/v1/statuses/:id``)."""

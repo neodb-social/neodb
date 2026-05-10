@@ -54,7 +54,13 @@ class Article(Piece):
         choices=VisibilityType.choices, default=0, null=False
     )
     created_time = models.DateTimeField(default=timezone.now)
-    edited_time = models.DateTimeField(auto_now=True)
+    # NB: NOT ``auto_now=True``. Inbound federation copies the upstream
+    # ``updated`` timestamp here and the staleness guard in
+    # ``update_by_ap_object`` compares against it; ``auto_now`` would
+    # silently overwrite it on save and turn legitimate later Updates
+    # into "stale, ignored". ``update_local_article`` sets this
+    # explicitly for local edits.
+    edited_time = models.DateTimeField(default=timezone.now)
     metadata = models.JSONField(default=dict)
     remote_id = models.CharField(max_length=200, null=True, default=None)
 
@@ -100,8 +106,13 @@ class Article(Piece):
 
     @property
     def ap_object(self) -> dict:
+        # No ``id`` key on purpose: ``get_ap_data()`` is merged into the
+        # wrapping Takahe ``Post.type_data["object"]``, and any ``id`` here
+        # would clobber Takahe's canonical object URI. Remote likes/replies
+        # are keyed off that URI via ``Post.by_object_uri``, so leaving it
+        # alone is required for round-trip federation. ``href`` continues
+        # to point at NeoDB's browsing URL for humans following the link.
         d = {
-            "id": self.absolute_url,
             "type": "Article",
             "name": self.title,
             "content": self.html_content,
@@ -123,21 +134,16 @@ class Article(Piece):
         return {"object": self.ap_object}
 
     def to_post_params(self) -> dict[str, Any]:
-        params: dict[str, Any] = {
+        # Images embedded inline in the markdown body live in the rendered
+        # HTML ``content`` (uploaded via the EasyMDE upload-image flow);
+        # we don't surface them as separate AP ``attachment`` entries.
+        return {
             "post_type": "Article",
             "content": self.html_content,
             "summary": self.summary or None,
             "sensitive": self.sensitive,
             "language": self.language or "",
         }
-        # `_pending_attachments` is set by the view after Takahe.upload_image
-        # so freshly uploaded PostAttachments get linked to the post on
-        # create/edit. When absent, we omit the key so existing post
-        # attachments are preserved (mirrors Note.to_post_params).
-        pending = getattr(self, "_pending_attachments", None)
-        if pending:
-            params["attachments"] = list(pending)
-        return params
 
     def to_crosspost_params(self) -> dict[str, Any]:
         body = self.plain_content[:300]
@@ -246,8 +252,6 @@ class Article(Piece):
         visibility: int = 0,
         language: str = "",
         tags: list[str] | None = None,
-        attachments: list[dict] | None = None,
-        post_attachments: list | None = None,
         article: "Article | None" = None,
         share_to_mastodon: bool = False,
         application_id: int | None = None,
@@ -261,10 +265,7 @@ class Article(Piece):
         article.visibility = int(visibility)
         article.language = language or ""
         article.tags = _normalize_tags(tags or [])
-        if attachments is not None:
-            article.attachments = attachments
-        if post_attachments:
-            setattr(article, "_pending_attachments", post_attachments)
+        article.edited_time = timezone.now()
         article.crosspost_when_save = share_to_mastodon
         article.application_id_when_save = application_id
         article.save()

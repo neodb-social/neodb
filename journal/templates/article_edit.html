@@ -30,13 +30,11 @@
     <main>
       <div>
         <article>
-          <form method="post" enctype="multipart/form-data" class="review-form">
+          <form method="post" class="review-form">
             {% csrf_token %}
             {{ form.id }}
             <div>{{ form.title.label }}</div>
             {{ form.title }}
-            <div>{{ form.summary.label }}</div>
-            {{ form.summary }}
             <div class="clearfix">
               <span class="float-left">{{ form.body.label }}</span>
             </div>
@@ -53,6 +51,11 @@
                 {{ form.sensitive.label }}
               </label>
             </div>
+            <div id="article-summary-row"
+                 {% if not form.sensitive.value %}style="display:none"{% endif %}>
+              <div>{{ form.summary.label }}</div>
+              {{ form.summary }}
+            </div>
             <hr>
             <div class="grid">
               <div>{{ form.visibility }}</div>
@@ -63,16 +66,6 @@
                 </label>
               </div>
             </div>
-            <div>
-              <button type="button"
-                      id="add-image-btn"
-                      class="secondary"
-                      _="on click call addImageField()">
-                <i class="fa-regular fa-image"></i>
-                {% trans "Add image" %}
-              </button>
-            </div>
-            <div id="image-attachments"></div>
             <input class="button float-right" type="submit" value="{% trans 'Save' %}">
           </form>
           {% include "markdown_editor.html" %}
@@ -82,25 +75,20 @@
       </aside>
     </main>
     <script>
-      let imageCount = 0;
-      function addImageField() {
-        if (imageCount >= 4) return;
-        const index = imageCount;
-        const wrap = document.getElementById('image-attachments');
-        const row = document.createElement('div');
-        row.className = 'image-attachment';
-        row.id = `image-attachment-${index}`;
-        row.style.display = 'flex';
-        row.style.alignItems = 'center';
-        row.style.gap = '0.5em';
-        row.innerHTML = `
-          <input type="file" name="image_${index}" accept="image/*">
-          <input type="text" name="image_alt_${index}" placeholder="{% trans 'Alt text' %}" style="flex:2; margin-bottom:0">
-          <button type="button" class="secondary small" onclick="document.getElementById('image-attachment-${index}').remove(); imageCount--;"><i class="fa-solid fa-times"></i></button>`;
-        wrap.appendChild(row);
-        imageCount++;
-        if (imageCount >= 4) document.getElementById('add-image-btn').disabled = true;
-      }
+      (function() {
+        var sens = document.getElementById('id_sensitive');
+        var row = document.getElementById('article-summary-row');
+        if (!sens || !row) return;
+        function sync() {
+          row.style.display = sens.checked ? '' : 'none';
+          if (!sens.checked) {
+            var inp = document.getElementById('id_summary');
+            if (inp) inp.value = '';
+          }
+        }
+        sens.addEventListener('change', sync);
+        sync();
+      })();
       $(".spoiler").on('click', function() {
         $(this).toggleClass('revealed');
       });

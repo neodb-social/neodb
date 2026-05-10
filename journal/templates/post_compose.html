@@ -26,14 +26,6 @@
         {% csrf_token %}
         <div>
           <fieldset>
-            <input type="text"
-                   name="subject"
-                   placeholder="{% trans "Subject (optional)" %}"
-                   id="id_subject">
-          </fieldset>
-        </div>
-        <div>
-          <fieldset>
             <textarea name="content"
                       rows="5"
                       autofocus
@@ -77,6 +69,20 @@
               <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
             </fieldset>
           </div>
+        </div>
+        <div>
+          <fieldset style="margin-top:0.6em;margin-bottom:0">
+            <label for="id_sensitive">
+              <input type="checkbox" name="sensitive" value="1" id="id_sensitive">
+              {% trans "Mark as sensitive" %}
+            </label>
+          </fieldset>
+          <fieldset id="post-subject-row" style="display:none;margin-top:0">
+            <input type="text"
+                   name="subject"
+                   placeholder="{% trans 'Content warning' %}"
+                   id="id_subject">
+          </fieldset>
         </div>
         <div>
           <div>
@@ -205,4 +211,19 @@
       }
     }
   }
+
+  (function() {
+    var sens = document.getElementById('id_sensitive');
+    var row = document.getElementById('post-subject-row');
+    if (!sens || !row) return;
+    function sync() {
+      row.style.display = sens.checked ? '' : 'none';
+      if (!sens.checked) {
+        var s = document.getElementById('id_subject');
+        if (s) s.value = '';
+      }
+    }
+    sens.addEventListener('change', sync);
+    sync();
+  })();
 </script>

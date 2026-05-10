@@ -30,14 +30,7 @@
       <div class="grid__main">
         <h5>
           <span class="action">
-            <span>
-              <a title="{% trans "Compose" %}"
-                 hx-get="{% url 'journal:post_compose' %}"
-                 hx-target="body"
-                 hx-swap="beforeend">
-                <i class="fa-regular fa-pen-to-square"></i>
-              </a>
-            </span>
+            <span>{% include "_compose_menu.html" %}</span>
             <span>
               <a title="{% trans "Notifications" %}"
                  href="{% url 'social:notification' %}"

@@ -311,7 +311,10 @@ def post_compose(request: AuthedHttpRequest):
         )
 
     content = request.POST.get("content", "").strip()
-    subject = request.POST.get("subject", "").strip()
+    sensitive = request.POST.get("sensitive") in ("1", "on", "true", "True")
+    # Subject is the content warning; only meaningful when the user
+    # explicitly marked the post sensitive.
+    subject = request.POST.get("subject", "").strip() if sensitive else ""
     language = request.POST.get("language", request.user.language)
     visibility2 = Takahe.visibility_n2t(
         visibility, request.user.preference.post_public_mode
@@ -343,13 +346,12 @@ def post_compose(request: AuthedHttpRequest):
                 logger.error(f"Failed to upload image: {e}")
                 # Continue with the post even if image upload fails
 
-    # Use subject as summary and set sensitive if subject is not empty
     Takahe.post(
         request.user.identity.pk,
         content,
         visibility2,
-        summary=subject if subject else None,
-        sensitive=bool(subject),
+        summary=subject or None,
+        sensitive=sensitive,
         language=language or "",
         attachments=attachments if attachments else None,
     )

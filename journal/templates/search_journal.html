@@ -23,9 +23,26 @@
           {% for item in items %}
             {% include '_list_item.html' %}
           {% empty %}
-            <p class="empty">{% trans "No items matching your search query." %}</p>
+            {% if not articles %}
+              <p class="empty">{% trans "No items matching your search query." %}</p>
+            {% endif %}
           {% endfor %}
         </div>
+        {% if articles %}
+          <div class="article-result-list">
+            {% for article in articles %}
+              <p>
+                <span><a href="{{ article.url }}">{{ article.title }}</a></span>
+                <small>- {{ article.created_time|date }}</small>
+                {% if article.normalized_tags %}
+                  <span class="tags">
+                    {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+                  </span>
+                {% endif %}
+              </p>
+            {% endfor %}
+          </div>
+        {% endif %}
         {% include "_pagination.html" %}
       </div>
       {% block sidebar %}
