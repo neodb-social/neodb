@@ -14,33 +14,32 @@ def _dedupe_collection_members(apps, schema_editor):
     deployments.
 
     Strategy: keep the lowest-pk row per ``(parent_id, item_id)`` and
-    delete the rest via raw SQL — fast and avoids loading every member
-    through the ORM, which can be heavy on large collections.
+    delete the rest. Use the historical ORM (``apps.get_model``) so the
+    multi-table-inheritance PK (``piece_ptr_id``, not ``id``) and the
+    parent ``Piece`` row are handled correctly across PG / SQLite.
     """
     CollectionMember = apps.get_model("journal", "CollectionMember")
     db_alias = schema_editor.connection.alias
-    with schema_editor.connection.cursor() as cursor:
-        cursor.execute(
-            """
-            DELETE FROM journal_collectionmember
-            WHERE id IN (
-                SELECT id FROM (
-                    SELECT
-                        id,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY parent_id, item_id
-                            ORDER BY id
-                        ) AS rn
-                    FROM journal_collectionmember
-                ) ranked
-                WHERE rn > 1
-            )
-            """
-        )
-    # Touch CollectionMember to silence "unused import" warnings in
-    # test discovery; also lets us assert the dedup ran in the unit
-    # tests via ``apps.get_model`` reflection.
-    _ = CollectionMember.objects.using(db_alias).count()
+    seen: set[tuple[int, int]] = set()
+    duplicate_pks: list[int] = []
+    qs = (
+        CollectionMember.objects.using(db_alias)
+        .order_by("parent_id", "item_id", "pk")
+        .values_list("pk", "parent_id", "item_id")
+    )
+    for pk, parent_id, item_id in qs.iterator():
+        key = (parent_id, item_id)
+        if key in seen:
+            duplicate_pks.append(pk)
+        else:
+            seen.add(key)
+    if duplicate_pks:
+        # Bulk-delete the duplicate child rows. ``Piece`` parent rows
+        # are cascaded via the PolymorphicModel multi-table-inheritance
+        # FK, so this leaves no orphan piece rows.
+        for chunk_start in range(0, len(duplicate_pks), 1000):
+            chunk = duplicate_pks[chunk_start : chunk_start + 1000]
+            CollectionMember.objects.using(db_alias).filter(pk__in=chunk).delete()
 
 
 class Migration(migrations.Migration):
