@@ -10,6 +10,7 @@ from django.db.models import QuerySet
 from catalog.models import Item, item_categories
 from common.models import int_, uniq
 from common.search import Index, QueryParser, SearchResult
+from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity
@@ -17,9 +18,15 @@ from users.models.apidentity import APIdentity
 if TYPE_CHECKING:
     from journal.models import Piece
 
+# NB: ``journal.models.common`` and ``journal.models.collection`` import
+# ``JournalIndex`` from this module at top level, so any top-level
+# ``from journal.models import …`` here would deadlock. The handful of
+# inline ``from journal.models import …`` calls below are deliberate
+# circular-import workarounds, not laziness.
+
 
 def _get_item_ids(doc):
-    from journal.models import Collection
+    from journal.models import Collection  # circular; see header
 
     if doc.get("piece_class") != ["Collection"]:
         return doc["item_id"]
@@ -52,7 +59,7 @@ class JournalQueryParser(QueryParser):
     }
 
     def __init__(self, query: str, page: int = 1, page_size: int = 0):
-        from journal.models import Tag
+        from journal.models import Tag  # circular; see header
 
         super().__init__(query, page, page_size)
 
@@ -172,8 +179,6 @@ class JournalQueryParser(QueryParser):
         self.filter("owner_id", owner.pk)
 
     def filter_by_viewer(self, viewer: APIdentity | None):
-        from takahe.models import Identity as TakaheIdentity
-
         restricted_ids = list(
             TakaheIdentity.objects.filter(restriction__gt=0).values_list(
                 "pk", flat=True
@@ -238,7 +243,7 @@ class JournalSearchResult(SearchResult):
 
     @cached_property
     def pieces(self):
-        from journal.models import Piece
+        from journal.models import Piece  # circular; see header
 
         if not self:
             return Piece.objects.none()
