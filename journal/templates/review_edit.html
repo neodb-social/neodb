@@ -22,16 +22,18 @@
             {{ form.item }}
             {{ form.title }}
             <div class="markdown-content">{{ form.body }}</div>
-            <hr>
             <div class="grid">
+              <div>{{ form.visibility }}</div>
               <div>
-                <label for="leading_space" style="display: inline">
-                  <input type="checkbox" name="leading_space" value="1" id="leading_space">
-                  {% trans "When saving, replace leading spaces with full-width spaces" %}
+                <label for="id_share_to_mastodon">
+                  {{ form.share_to_mastodon }}
+                  {{ form.share_to_mastodon.label }}
+                </label>
+                <label for="id_leading_space">
+                  {{ form.leading_space }}
+                  <a data-tooltip="{{ form.leading_space.help_text }}">{{ form.leading_space.label }}</a>
                 </label>
               </div>
-              <div>{{ form.visibility }}</div>
-              <div>{{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}</div>
             </div>
             <input class="button float-right" type="submit" value="{% trans 'Save' %}">
             <div>

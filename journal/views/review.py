@@ -110,7 +110,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
                     dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
                 )
             body = form.instance.body
-            if request.POST.get("leading_space"):
+            if form.cleaned_data.get("leading_space"):
                 body = convert_leading_space_in_md(body)
             body = sanitize_md_images(body)
             review = Review.update_item_review(

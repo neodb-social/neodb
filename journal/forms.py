@@ -40,6 +40,12 @@ class ReviewForm(forms.ModelForm):
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost to timeline"), initial=True, required=False
     )
+    leading_space = forms.BooleanField(
+        label=_("Keep leading spaces"),
+        help_text=_("When saving, replace leading spaces with full-width spaces"),
+        required=False,
+        initial=False,
+    )
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(
         label=_("Visibility"),
