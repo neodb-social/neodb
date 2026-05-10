@@ -122,6 +122,67 @@ class TestArticleModel:
         # Post may still exist briefly but must be in a deleted state.
         assert post is None or post.state in ("deleted", "deleted_fanned_out")
 
+    def test_word_count_persisted_in_metadata(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Counted",
+            body="one two three four five",
+            visibility=0,
+        )
+        assert article.metadata.get("word_count") == 5
+        assert article.word_count == 5
+
+    def test_word_count_recomputed_on_edit(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="V1",
+            body="alpha beta",
+            visibility=0,
+        )
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="V2",
+            body="alpha beta gamma delta",
+            visibility=0,
+            article=article,
+        )
+        assert article.word_count == 4
+        assert article.metadata["word_count"] == 4
+
+    def test_word_count_falls_back_when_metadata_missing(self):
+        """Rows that predate the field (or have metadata cleared) compute
+        on demand rather than KeyError."""
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Live",
+            body="six seven eight nine",
+            visibility=0,
+        )
+        article.metadata = {}
+        article.save(update_fields=["metadata"], post_when_save=False)
+        article.refresh_from_db()
+        assert article.word_count == 4
+
+    def test_excerpt_truncates_long_body(self):
+        body = "word " * 200  # 1000 chars
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Long",
+            body=body,
+            visibility=0,
+        )
+        assert len(article.excerpt) <= 222
+        assert article.excerpt.endswith("…")
+
+    def test_excerpt_short_body_unchanged(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Short",
+            body="just a few words here",
+            visibility=0,
+        )
+        assert article.excerpt == "just a few words here"
+
     def test_article_to_indexable_doc(self):
         article = Article.update_local_article(
             owner=self.identity,

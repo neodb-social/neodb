@@ -102,6 +102,27 @@ class Article(Piece):
         return self.plain_content[:155]
 
     @property
+    def excerpt(self) -> str:
+        """Short snippet for the timeline teaser (first paragraph-ish)."""
+        text = self.plain_content.strip()
+        if len(text) <= 220:
+            return text
+        return text[:220].rstrip() + "…"
+
+    @property
+    def word_count(self) -> int:
+        """Whitespace-token count of the rendered plain text. Persisted in
+        ``metadata['word_count']`` at save time; falls back to live compute
+        for rows saved before this field existed (no migration required)."""
+        cached = (self.metadata or {}).get("word_count")
+        if isinstance(cached, int):
+            return cached
+        return len(self.plain_content.split())
+
+    def _compute_word_count(self) -> int:
+        return len(self.plain_content.split())
+
+    @property
     def normalized_tags(self) -> list[str]:
         return _normalize_tags(self.tags)
 
@@ -221,8 +242,12 @@ class Article(Piece):
             for k, v in d.items():
                 setattr(existing, k, v)
             existing.edited_time = edited
+            existing.metadata = {
+                **(existing.metadata or {}),
+                "word_count": existing._compute_word_count(),
+            }
             existing.save(
-                update_fields=list(d.keys()) + ["edited_time"],
+                update_fields=list(d.keys()) + ["edited_time", "metadata"],
                 post_when_save=False,
             )
             return existing
@@ -238,6 +263,7 @@ class Article(Piece):
             }
         )
         article = cls(**d)
+        article.metadata = {"word_count": article._compute_word_count()}
         article.previous_visibility = visibility
         article.save(link_post_id=post.id, post_when_save=False)
         return article
@@ -268,6 +294,10 @@ class Article(Piece):
         article.language = language or ""
         article.tags = _normalize_tags(tags or [])
         article.edited_time = timezone.now()
+        article.metadata = {
+            **(article.metadata or {}),
+            "word_count": article._compute_word_count(),
+        }
         article.crosspost_when_save = share_to_mastodon
         article.application_id_when_save = application_id
         article.save()

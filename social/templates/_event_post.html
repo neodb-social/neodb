@@ -105,11 +105,6 @@
         {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}
-        {% if piece and piece.classname == 'article' %}
-          <h4>
-            <a href="{{ piece.url }}">{{ piece.title }}</a>
-          </h4>
-        {% endif %}
         <div>{{ post.summary|default:'' }}</div>
         <div style="display:flex;">
           <div style="flex-grow:1"
@@ -142,6 +137,8 @@
                 <blockquote style="margin:0; padding-top:0; padding-bottom:0">
                   {{ post.safe_content_local|default:"" }}
                 </blockquote>
+              {% elif piece and piece.classname == 'article' %}
+                {% include "_article_teaser.html" with article=piece %}
               {% else %}
                 {{ post.safe_content_local|default:"" }}
               {% endif %}
