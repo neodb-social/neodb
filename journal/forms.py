@@ -47,7 +47,7 @@ class ArticleForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "easymde-editor"}),
     )
     summary = forms.CharField(
-        label=_("Content warning (optional)"),
+        label=_("Summary (optional)"),
         required=False,
         max_length=500,
     )

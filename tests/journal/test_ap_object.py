@@ -286,7 +286,11 @@ class TestGetApData:
             "content": "Body text",
             "mediaType": "text/markdown",
         }
-        assert "summary" not in obj_data
+        # ``summary`` carries the auto-text "a review of <item>" so
+        # Mastodon's converted-types renderer (title + summary + url)
+        # has something useful to display.
+        assert "summary" in obj_data
+        assert "a review of" in obj_data["summary"]
 
     @override_settings(REVIEW_AS_ARTICLE=False)
     def test_review_get_ap_data_legacy_note(self):
@@ -401,7 +405,10 @@ class TestPostTypeData:
             "content": "Review body",
             "mediaType": "text/markdown",
         }
-        assert "summary" not in post.type_data["object"]
+        # ``summary`` carries the auto-text "a review of <item>"; see the
+        # corresponding ``test_review_get_ap_data`` for rationale.
+        assert "summary" in post.type_data["object"]
+        assert "a review of" in post.type_data["object"]["summary"]
 
     @override_settings(REVIEW_AS_ARTICLE=False)
     def test_review_post_type_data_legacy_note(self):

@@ -5,6 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.html import strip_tags
+from django.utils.translation import gettext as _
 from loguru import logger
 from markdownify import markdownify as md
 
@@ -127,6 +128,22 @@ class Article(Piece):
         return _normalize_tags(self.tags)
 
     @property
+    def display_summary(self) -> str:
+        """Author-supplied ``summary`` plus auto sensitive marker. Used in
+        timeline teasers and emitted as the AS wire ``summary`` field. The
+        marker is the user-facing translation of "(may contain sensitive
+        content)" appended in parens; it appears regardless of whether
+        the user wrote a summary so receivers always see the cue."""
+        text = (self.summary or "").strip()
+        if self.sensitive:
+            marker = _("(may contain sensitive content)")
+            if text:
+                text = text + " " + marker
+            else:
+                text = marker
+        return text
+
+    @property
     def ap_object(self) -> dict:
         # No ``id`` key on purpose: ``get_ap_data()`` is merged into the
         # wrapping Takahe ``Post.type_data["object"]``, and any ``id`` here
@@ -146,6 +163,13 @@ class Article(Piece):
             "href": self.absolute_url,
             "tag": [{"type": "Hashtag", "name": f"#{t}"} for t in self.normalized_tags],
         }
+        # AS ``summary`` here carries the *raw* user-supplied text only.
+        # NDJSON export and inbound ``update_by_ap_object`` both round-trip
+        # through ``ap_object``, so storing the auto-marker here would
+        # double it on re-import. ``get_ap_data`` injects the decorated
+        # ``display_summary`` on the federation path so peers still see
+        # the sensitivity cue alongside the title + URL teaser that
+        # Mastodon synthesises for converted types.
         if self.summary:
             d["summary"] = self.summary
         return d
@@ -153,7 +177,11 @@ class Article(Piece):
     def get_ap_data(self) -> dict:
         # Standalone Article has no related Item or Piece; omit `relatedWith`
         # so it is not mistaken for a NeoDB-managed Review on receivers.
-        return {"object": self.ap_object}
+        obj = dict(self.ap_object)
+        text = self.display_summary
+        if text:
+            obj["summary"] = text
+        return {"object": obj}
 
     def to_post_params(self) -> dict[str, Any]:
         # Images embedded inline in the markdown body live in the rendered

@@ -554,6 +554,90 @@ class TestNdjsonExportImport:
             == 1
         )
 
+    def test_ndjson_article_round_trip(self):
+        """Standalone Articles round-trip through export and import."""
+        Article.update_local_article(
+            owner=self.user1.identity,
+            title="My Long Read",
+            body="**Bold** opening line.\n\nWith a second paragraph.",
+            summary="An essay",
+            sensitive=False,
+            visibility=0,
+            tags=["essays", "longform"],
+        )
+        Article.update_local_article(
+            owner=self.user1.identity,
+            title="Sensitive Take",
+            body="content body",
+            summary="careful",
+            sensitive=True,
+            visibility=1,
+            tags=["opinion"],
+        )
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        export_path = exporter.metadata["file"]
+
+        # Bundle should advertise both Article rows on the journal stream.
+        with zipfile.ZipFile(export_path, "r") as zf:
+            with TemporaryDirectory() as tmpdir:
+                zf.extractall(tmpdir)
+                journal_path = next(
+                    os.path.join(root, "journal.ndjson")
+                    for root, _dirs, files in os.walk(tmpdir)
+                    if "journal.ndjson" in files
+                )
+                with open(journal_path) as f:
+                    lines = f.readlines()
+        type_counts: dict[str, int] = {}
+        for line in lines[1:]:  # skip header
+            data = json.loads(line)
+            t = data.get("type")
+            if t:
+                type_counts[t] = type_counts.get(t, 0) + 1
+        assert type_counts.get("Article") == 2
+
+        # Import into user2 and verify both articles land with correct
+        # title/body/summary/sensitive/tags/visibility.
+        importer = NdjsonImporter.create(
+            user=self.user2, file=export_path, visibility=0
+        )
+        importer.run()
+        assert importer.metadata["failed"] == 0
+
+        a1 = Article.objects.get(owner=self.user2.identity, title="My Long Read")
+        assert "**Bold** opening line." in a1.body
+        assert a1.summary == "An essay"
+        assert a1.sensitive is False
+        assert sorted(a1.normalized_tags) == ["essays", "longform"]
+        assert a1.word_count == len(a1.plain_content.split())
+
+        a2 = Article.objects.get(owner=self.user2.identity, title="Sensitive Take")
+        assert a2.sensitive is True
+        assert a2.summary == "careful"
+        assert a2.normalized_tags == ["opinion"]
+
+    def test_ndjson_article_reimport_dedup(self):
+        """Re-importing the same Article bundle doesn't duplicate rows."""
+        Article.update_local_article(
+            owner=self.user1.identity,
+            title="Dedup Article",
+            body="body",
+            visibility=0,
+        )
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        export_path = exporter.metadata["file"]
+        NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
+        NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
+        assert (
+            Article.objects.filter(
+                owner=self.user2.identity, title="Dedup Article"
+            ).count()
+            == 1
+        )
+
     def test_ndjson_tagmember_catalog(self):
         """Items only referenced by tags (no shelf) appear in catalog.ndjson."""
         # Tag book1 without shelving it — item must end up in catalog via TagMember ref

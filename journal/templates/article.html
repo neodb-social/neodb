@@ -66,15 +66,14 @@
               </div>
             </div>
           </header>
-          {% if article.sensitive or article.summary %}
+          {% if article.display_summary %}
+            <p class="article-summary"
+               style="font-style:italic;
+                      color:var(--pico-muted-color, #888)">{{ article.display_summary }}</p>
+          {% endif %}
+          {% if article.sensitive %}
             <details>
-              <summary>
-                {% if article.summary %}
-                  {{ article.summary }}
-                {% else %}
-                  {% trans "Show content" %}
-                {% endif %}
-              </summary>
+              <summary>{% trans "Show content" %}</summary>
               <div id="article_{{ article.uuid }}_content" class="markdown-content">
                 {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
                   {{ article.html_content | safe }}

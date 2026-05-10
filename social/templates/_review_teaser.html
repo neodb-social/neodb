@@ -1,0 +1,18 @@
+{% load i18n %}
+<section class="review-teaser">
+  <h4 style="margin-bottom:0.2em">
+    <a href="{{ review.url }}">{{ review.title }}</a>
+  </h4>
+  {% if review.display_summary %}
+    <p style="font-style:italic;
+              color:var(--pico-muted-color, #888);
+              margin:0 0 0.4em 0">{{ review.display_summary }}</p>
+  {% endif %}
+  <p style="margin:0;
+            font-size:0.85em;
+            color:var(--pico-muted-color, #888)">
+    <small>
+      <a href="{{ review.url }}">{% trans 'Read more' %}</a>
+    </small>
+  </p>
+</section>

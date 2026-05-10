@@ -16,7 +16,7 @@ from users.models import APIdentity
 
 from .common import Content
 from .rating import Rating
-from .renderers import render_md, render_post_with_macro, render_rating
+from .renderers import has_spoiler, render_md, render_post_with_macro, render_rating
 from .shelf import ShelfManager
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
@@ -55,6 +55,19 @@ class Review(Content):
         )
 
     @property
+    def display_summary(self) -> str:
+        """Auto-summary used in timeline teasers and the AP wire ``summary``
+        field. Always reads "a review of <item>"; spoiler marker is
+        appended when the body uses ``>!...!<`` markup."""
+        item_title = (
+            self.item.display_title if hasattr(self.item, "display_title") else ""
+        )
+        text = _("a review of {title}").format(title=item_title)
+        if has_spoiler(self.body):
+            text += " " + _("(may contain spoilers)")
+        return text
+
+    @property
     def ap_object(self):
         return {
             "id": self.absolute_url,
@@ -78,6 +91,12 @@ class Review(Content):
                     "name": self.title,
                     "content": self.html_content,
                     "source": {"content": self.body, "mediaType": "text/markdown"},
+                    # Mastodon strips converted-type bodies down to
+                    # ``<h2>{name}</h2> {summary} {url}``; expose the
+                    # auto-summary so federation peers (and our own
+                    # timeline teaser) see "a review of <item>"
+                    # instead of just the title + URL.
+                    "summary": self.display_summary,
                 }
             )
         return data

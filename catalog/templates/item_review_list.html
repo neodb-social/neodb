@@ -45,7 +45,9 @@
                    title="@{{ review.owner.handle }}">{{ review.owner.display_name }}</a>
               </span>
             </div>
-            <div class="tldr">{{ review.plain_content }}</div>
+            <div class="tldr"
+                 style="font-style:italic;
+                        color:var(--pico-muted-color, #888)">{{ review.display_summary }}</div>
           </section>
         {% empty %}
           <div>{% trans 'nothing so far.' %}</div>

@@ -139,6 +139,8 @@
                 </blockquote>
               {% elif piece and piece.classname == 'article' %}
                 {% include "_article_teaser.html" with article=piece %}
+              {% elif piece and piece.classname == 'review' %}
+                {% include "_review_teaser.html" with review=piece %}
               {% else %}
                 {{ post.safe_content_local|default:"" }}
               {% endif %}

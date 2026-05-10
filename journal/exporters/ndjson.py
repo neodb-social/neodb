@@ -13,6 +13,7 @@ from loguru import logger
 from catalog.common import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import (
+    Article,
     Collection,
     Content,
     Note,
@@ -135,6 +136,26 @@ class NdjsonExporter(Task):
                         if note_attachments:
                             o["attachments"] = note_attachments
                     f.write(json.dumps(o, default=str) + "\n")
+
+            # Articles are item-less so they don't fall under
+            # Content.__subclasses__(). Mirror Review's body-image side-effect
+            # (downloads referenced inline images into the bundle) and
+            # serialize via the same {type, content, visibility, metadata}
+            # envelope the importer expects.
+            for art in Article.objects.filter(owner=user.identity):
+                total += 1
+                re.sub(
+                    r"(?<=!\[\]\()([^)]+)(?=\))",
+                    lambda x: _save_image(x[1]),
+                    art.body,
+                )
+                o = {
+                    "type": "Article",
+                    "content": art.ap_object,
+                    "visibility": art.visibility,
+                    "metadata": art.metadata,
+                }
+                f.write(json.dumps(o, default=str) + "\n")
 
             collections = Collection.objects.filter(owner=user.identity)
             for c in collections:

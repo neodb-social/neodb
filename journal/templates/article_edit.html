@@ -35,6 +35,8 @@
             {{ form.id }}
             <div>{{ form.title.label }}</div>
             {{ form.title }}
+            <div>{{ form.summary.label }}</div>
+            {{ form.summary }}
             <div class="clearfix">
               <span class="float-left">{{ form.body.label }}</span>
             </div>
@@ -50,11 +52,6 @@
                 {{ form.sensitive }}
                 {{ form.sensitive.label }}
               </label>
-            </div>
-            <div id="article-summary-row"
-                 {% if not form.sensitive.value %}style="display:none"{% endif %}>
-              <div>{{ form.summary.label }}</div>
-              {{ form.summary }}
             </div>
             <hr>
             <div class="grid">
@@ -74,20 +71,6 @@
       {% include "_sidebar.html" with show_profile=1 collapse_profile=1 identity=request.user.identity %}
     </main>
     <script>
-      (function() {
-        var sens = document.getElementById('id_sensitive');
-        var row = document.getElementById('article-summary-row');
-        if (!sens || !row) return;
-        function sync() {
-          row.style.display = sens.checked ? '' : 'none';
-          if (!sens.checked) {
-            var inp = document.getElementById('id_summary');
-            if (inp) inp.value = '';
-          }
-        }
-        sens.addEventListener('change', sync);
-        sync();
-      })();
       $(".spoiler").on('click', function() {
         $(this).toggleClass('revealed');
       });

@@ -11,6 +11,7 @@ from django.core.files.storage import default_storage
 from loguru import logger
 
 from journal.models import (
+    Article,
     Collection,
     Comment,
     Mark,
@@ -137,6 +138,67 @@ class NdjsonImporter(BaseImporter):
         """Import a post from NDJSON data."""
         # TODO
         return "skipped"
+
+    def import_article(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
+        """Import a standalone Article from NDJSON data."""
+        try:
+            owner = self.user.identity
+            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            metadata = data.get("metadata", {}) or {}
+            content_data = data.get("content", {}) or {}
+            published_dt = self.parse_datetime(content_data.get("published"))
+            title = (content_data.get("name") or "")[:500]
+            source = content_data.get("source") or {}
+            if source.get("mediaType") == "text/markdown" and source.get("content"):
+                body = source["content"]
+            else:
+                # Fall back to the rendered HTML if no markdown source — the
+                # exporter always sets source, but tolerate older bundles.
+                body = content_data.get("content", "") or ""
+            summary = content_data.get("summary") or ""
+            sensitive = bool(content_data.get("sensitive", False))
+            tags: list[str] = []
+            for t in content_data.get("tag", []) or []:
+                if isinstance(t, dict) and t.get("type") == "Hashtag":
+                    name = (t.get("name") or "").lstrip("#")
+                    if name:
+                        tags.append(name)
+            if Article.objects.filter(
+                owner=owner, title=title, created_time=published_dt
+            ).exists():
+                return "skipped"
+            article = Article.update_local_article(
+                owner=owner,
+                title=title,
+                body=body,
+                summary=summary,
+                sensitive=sensitive,
+                visibility=visibility,
+                tags=tags,
+            )
+            # ``update_local_article`` overwrites metadata['word_count'];
+            # merge any other keys (e.g. author-specific extras) the bundle
+            # carried back in.
+            extra = {k: v for k, v in metadata.items() if k != "word_count"}
+            if extra or published_dt:
+                if extra:
+                    article.metadata = {**article.metadata, **extra}
+                if published_dt:
+                    article.created_time = published_dt
+                update_fields = []
+                if extra:
+                    update_fields.append("metadata")
+                if published_dt:
+                    update_fields.append("created_time")
+                article.save(
+                    update_fields=update_fields,
+                    post_when_save=False,
+                    index_when_save=False,
+                )
+            return "imported"
+        except Exception:
+            logger.exception("Error importing article")
+            return "failed"
 
     def import_review(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a review from NDJSON data."""
@@ -389,6 +451,7 @@ class NdjsonImporter(BaseImporter):
             "Collection": self.import_collection,
             "ShelfLog": self.import_shelf_log,
             "Post": self.import_post,
+            "Article": self.import_article,
         }
         journal: dict[str, list[Dict[str, Any]]] = {k: [] for k in import_funcs.keys()}
         with open(file_path, "r") as jsonfile:

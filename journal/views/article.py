@@ -80,14 +80,12 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         )
     body = sanitize_md_images(form.cleaned_data["body"])
     tags = _parse_tags(form.cleaned_data.get("tags", ""))
-    sensitive = bool(form.cleaned_data.get("sensitive", False))
-    summary = form.cleaned_data.get("summary", "") if sensitive else ""
     article = Article.update_local_article(
         owner=request.user.identity,
         title=form.cleaned_data["title"],
         body=body,
-        summary=summary,
-        sensitive=sensitive,
+        summary=form.cleaned_data.get("summary", "") or "",
+        sensitive=bool(form.cleaned_data.get("sensitive", False)),
         visibility=form.cleaned_data["visibility"],
         language=request.user.language or "",
         tags=tags,

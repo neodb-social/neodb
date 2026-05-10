@@ -174,6 +174,70 @@ class TestArticleModel:
         assert len(article.excerpt) <= 222
         assert article.excerpt.endswith("…")
 
+    def test_display_summary_no_marker_when_not_sensitive(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Calm",
+            body="body",
+            summary="A quiet take.",
+            sensitive=False,
+            visibility=0,
+        )
+        assert article.display_summary == "A quiet take."
+
+    def test_display_summary_appends_marker_when_sensitive(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Spicy",
+            body="body",
+            summary="A hot take.",
+            sensitive=True,
+            visibility=0,
+        )
+        assert "A hot take." in article.display_summary
+        assert "(may contain sensitive content)" in article.display_summary
+
+    def test_display_summary_marker_only_when_no_summary(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="No summary",
+            body="body",
+            summary="",
+            sensitive=True,
+            visibility=0,
+        )
+        assert article.display_summary == "(may contain sensitive content)"
+
+    def test_ap_object_summary_is_raw_for_round_trip(self):
+        """``ap_object`` carries the raw author summary (no auto-marker)
+        so NDJSON / inbound-AP round trips don't accumulate the
+        sensitivity suffix on each cycle."""
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="t",
+            body="b",
+            summary="cap",
+            sensitive=True,
+            visibility=0,
+        )
+        assert article.ap_object["summary"] == "cap"
+
+    def test_get_ap_data_summary_uses_display_summary(self):
+        """The federation envelope (``get_ap_data``) carries the
+        decorated ``display_summary`` so receivers see the sensitivity
+        cue alongside the user's text."""
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="t",
+            body="b",
+            summary="cap",
+            sensitive=True,
+            visibility=0,
+        )
+        wire_summary = article.get_ap_data()["object"]["summary"]
+        assert "cap" in wire_summary
+        assert "(may contain sensitive content)" in wire_summary
+
     def test_excerpt_short_body_unchanged(self):
         article = Article.update_local_article(
             owner=self.identity,
