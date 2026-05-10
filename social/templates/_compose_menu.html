@@ -1,12 +1,10 @@
 {% load i18n %}
-<details class="dropdown" style="display:inline-block">
-  <summary class="action-compose"
-           aria-haspopup="listbox"
-           title="{% trans 'Compose' %}"
-           role="button">
+<details class="compose-menu"
+         _="on click from elsewhere if @open and not (the target is inside me) remove @open from me end">
+  <summary title="{% trans 'Compose' %}" aria-haspopup="menu">
     <i class="fa-regular fa-pen-to-square"></i>
   </summary>
-  <ul role="listbox" style="min-width:max-content" dir="rtl">
+  <ul role="menu">
     <li>
       <a hx-get="{% url 'journal:post_compose' %}"
          hx-target="body"
@@ -17,3 +15,53 @@
     </li>
   </ul>
 </details>
+<style>
+  details.compose-menu {
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+  }
+  details.compose-menu > summary {
+    list-style: none;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+  }
+  details.compose-menu > summary::-webkit-details-marker { display: none; }
+  details.compose-menu > summary::marker { content: ''; }
+  details.compose-menu > summary::after { display: none !important; }
+  details.compose-menu > ul {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 100;
+    min-width: max-content;
+    margin: 0.25em 0 0 0;
+    padding: 0.25em 0;
+    list-style: none;
+    background: var(--pico-card-background-color, #fff);
+    border: 1px solid var(--pico-card-border-color, rgba(0,0,0,.1));
+    border-radius: var(--pico-border-radius, 4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  }
+  details.compose-menu > ul > li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  details.compose-menu > ul > li > a {
+    display: block;
+    padding: 0.45em 1em;
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  details.compose-menu > ul > li > a:hover {
+    background: var(--pico-secondary-background, rgba(0,0,0,.04));
+  }
+</style>
