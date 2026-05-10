@@ -21,7 +21,7 @@
     <meta rel="canonical" content="{{ article.absolute_url }}">
     <meta name="lastmodified" content="{{ article.edited_time | date:'r' }}">
     {% if not article.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} {% trans 'Article' %} | {{ article.title }}</title>
+    <title>{{ site_name }} | {{ article.title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -44,6 +44,7 @@
                 <span id="article_{{ article.uuid }}_title">{{ article.title }}</span>
               </h3>
             </hgroup>
+            {% if article.display_summary %}<p class="piece-summary article-summary">{{ article.display_summary }}</p>{% endif %}
             <div class="owner-info">
               <div class="owner">
                 <span class="avatar">
@@ -55,7 +56,6 @@
                 <a href="{{ article.owner.url }}">{{ article.owner.display_name }}</a>
                 <span class="handler">@{{ article.owner.handle }}</span>
                 <br>
-                {% trans 'Article' %}
                 <span>{{ article.created_time|date }}</span>
                 {% if not article.local and article.remote_id %}
                   <small>
@@ -66,37 +66,32 @@
               </div>
             </div>
           </header>
-          {% if article.display_summary %}<p class="piece-summary article-summary">{{ article.display_summary }}</p>{% endif %}
           {% if article.sensitive %}
-            <details>
-              <summary>{% trans "Show content" %}</summary>
-              <div id="article_{{ article.uuid }}_content" class="markdown-content">
-                {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
-                  {{ article.html_content | safe }}
-                {% else %}
-                  <p class="empty">
-                    <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
-                  </p>
-                {% endif %}
-              </div>
-            </details>
-          {% else %}
-            <div id="article_{{ article.uuid }}_content" class="markdown-content">
-              {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
-                {{ article.html_content | safe }}
-              {% else %}
-                <p class="empty">
-                  <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
-                </p>
-              {% endif %}
-            </div>
+            <button id="article_{{ article.uuid }}_reveal"
+                    class="outline article-reveal"
+                    type="button"
+                    _="on click hide me then remove @hidden from #article_{{ article.uuid }}_content">
+              <i class="fa-regular fa-eye"></i>
+              {% trans "Show content" %}
+            </button>
           {% endif %}
-          {% if article.normalized_tags %}
-            <p class="tags">
-              {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
-            </p>
-          {% endif %}
+          <div id="article_{{ article.uuid }}_content"
+               class="markdown-content"
+               {% if article.sensitive %}hidden{% endif %}>
+            {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+              {{ article.html_content | safe }}
+            {% else %}
+              <p class="empty">
+                <span>{% trans "The author has set it to be viewable only by logged-in users." %}</span>
+              </p>
+            {% endif %}
+          </div>
           <footer>
+            {% if article.normalized_tags %}
+              <p class="tags">
+                {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+              </p>
+            {% endif %}
             {% if request.user.is_authenticated %}
               <span class="action">
                 <span>
