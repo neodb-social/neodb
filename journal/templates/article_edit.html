@@ -37,23 +37,24 @@
             {{ form.summary }}
             {{ form.body }}
             {{ form.tags }}
-            <div>
-              <label for="id_sensitive">
-                {{ form.sensitive }}
-                {{ form.sensitive.label }}
-              </label>
-            </div>
-            <hr>
-            <div class="grid">
+            <div class="grid controls">
               <div>{{ form.visibility }}</div>
               <div>
                 <label for="id_share_to_mastodon">
                   {{ form.share_to_mastodon }}
                   {{ form.share_to_mastodon.label }}
                 </label>
+                <label for="id_sensitive">
+                  {{ form.sensitive }}
+                  {{ form.sensitive.label }}
+                </label>
+                <label for="id_leading_space">
+                  {{ form.leading_space }}
+                  <a data-tooltip="{{ form.leading_space.help_text }}">{{ form.leading_space.label }}</a>
+                </label>
               </div>
             </div>
-            <input class="button float-right" type="submit" value="{% trans 'Save' %}">
+            <input class="button" type="submit" value="{% trans 'Save' %}">
           </form>
           {% include "markdown_editor.html" %}
         </article>
