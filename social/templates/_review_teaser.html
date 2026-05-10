@@ -4,8 +4,6 @@
     <a href="{{ review.url }}">{{ review.title }}</a>
   </h4>
   {% if review.display_summary %}
-    <p style="font-style:italic;
-              color:var(--pico-muted-color, #888);
-              margin:0 0 0.4em 0">{{ review.display_summary }}</p>
+    <p class="piece-summary" style="margin:0 0 0.4em 0">{{ review.display_summary }}</p>
   {% endif %}
 </section>

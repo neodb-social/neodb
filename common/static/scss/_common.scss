@@ -6,6 +6,15 @@
   -webkit-box-orient: vertical;
 }
 
+// Shared "secondary" line under a Review/Article title — used by
+// timeline teasers, item review previews, and collection list items.
+// Single source of truth for the italic + muted styling that previously
+// lived as inline styles on each template.
+.piece-summary {
+  font-style: italic;
+  color: var(--pico-muted-color, #888);
+}
+
 .tldr-2 {
   overflow: hidden;
   text-overflow: " ... [点击展开]";

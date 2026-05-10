@@ -66,11 +66,7 @@
               </div>
             </div>
           </header>
-          {% if article.display_summary %}
-            <p class="article-summary"
-               style="font-style:italic;
-                      color:var(--pico-muted-color, #888)">{{ article.display_summary }}</p>
-          {% endif %}
+          {% if article.display_summary %}<p class="piece-summary article-summary">{{ article.display_summary }}</p>{% endif %}
           {% if article.sensitive %}
             <details>
               <summary>{% trans "Show content" %}</summary>

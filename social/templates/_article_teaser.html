@@ -3,9 +3,7 @@
   <h4 style="margin-bottom:0.2em">
     <a href="{{ article.url }}">{{ article.title }}</a>
   </h4>
-  <p style="font-style:italic;
-            color:var(--pico-muted-color, #888);
-            margin:0 0 0.4em 0">
+  <p class="piece-summary" style="margin:0 0 0.4em 0">
     {% if article.display_summary %}
       {{ article.display_summary }}
     {% else %}
