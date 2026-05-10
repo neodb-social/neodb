@@ -92,16 +92,6 @@
           </div>
         </div>
         <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
-        {% if not reply_to %}
-          <div>
-            <small>
-              <a href="{% url 'journal:article_compose' %}">
-                <i class="fa-solid fa-pen-to-square"></i>
-                {% trans "Compose long-form article" %}
-              </a>
-            </small>
-          </div>
-        {% endif %}
         <div>
           <button type="button"
                   id="add-image-btn"
