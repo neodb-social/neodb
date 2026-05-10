@@ -57,11 +57,13 @@
     display: block;
     padding: 0.45em 1em;
     text-decoration: none;
-    color: inherit;
+    color: var(--pico-dropdown-color, var(--pico-color, inherit));
     white-space: nowrap;
     cursor: pointer;
   }
-  details.compose-menu > ul > li > a:hover {
-    background: var(--pico-secondary-background, rgba(0,0,0,.04));
+  details.compose-menu > ul > li > a:hover,
+  details.compose-menu > ul > li > a:focus {
+    background: var(--pico-dropdown-hover-background-color, rgba(0,0,0,.05));
+    color: var(--pico-dropdown-color, var(--pico-color, inherit));
   }
 </style>
