@@ -109,7 +109,13 @@ class IMDB(AbstractSite):
         src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
-        d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
+        try:
+            d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
+        except json.JSONDecodeError as e:
+            _logger.warning(
+                f"IMDB __NEXT_DATA__ JSON decode failed for {self.url}: {e}"
+            )
+            raise ParseError(self, "__NEXT_DATA__ JSON")
         title: str = d["titleText"]["text"]
         is_series: bool = d["titleType"]["isSeries"]
         is_episode: bool = d["titleType"]["isEpisode"]
@@ -197,7 +203,13 @@ class IMDB(AbstractSite):
                 if not episode:
                     site = SiteManager.get_site_by_url(e["url"])
                     if site:
-                        res = site.get_resource_ready()
+                        try:
+                            res = site.get_resource_ready()
+                        except ParseError as exc:
+                            _logger.warning(
+                                f"skip episode {e['url']} for season {season}: {exc}"
+                            )
+                            continue
                         if res and res.item and isinstance(res.item, TVEpisode):
                             episode = res.item
                             episode.set_parent_item(season)

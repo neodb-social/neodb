@@ -398,7 +398,11 @@ def verify_client(mast_app):
     if response.status_code != 200:
         logger.warning(f"Error {url} {response.status_code}")
         return False
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as e:
+        logger.warning(f"Error {url} non-JSON response: {e}")
+        return False
     return data.get("access_token") is not None
 
 
@@ -431,10 +435,13 @@ def obtain_token(site, code, request):
                 f"Error {url} {payload} {response.status_code} {response.content}"
             )
             return None, None
+        data = response.json()
+    except ValueError as e:
+        logger.warning(f"Error {url} non-JSON response: {e} {response.content!r}")
+        return None, None
     except Exception as e:
         logger.warning(f"Error {url} {e}")
         return None, None
-    data = response.json()
     return data.get("access_token"), data.get("refresh_token", "")
 
 
