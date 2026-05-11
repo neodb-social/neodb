@@ -105,10 +105,11 @@
         {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}
-        <div>{{ post.summary|default:'' }}</div>
+        {% if not piece or piece.classname != 'article' %}<div>{{ post.summary|default:'' }}</div>{% endif %}
         <div style="display:flex;">
           <div style="flex-grow:1"
-               {% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}>
+               {% if not piece or piece.classname != 'article' %}{% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}
+               {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}
                 {% if attachment.is_image %}
