@@ -67,13 +67,16 @@
             </div>
           </header>
           {% if article.sensitive %}
-            <button id="article_{{ article.uuid }}_reveal"
-                    class="outline article-reveal"
-                    type="button"
-                    _="on click hide me then remove @hidden from #article_{{ article.uuid }}_content">
-              <i class="fa-regular fa-eye"></i>
-              {% trans "Show content" %}
-            </button>
+            <p id="article_{{ article.uuid }}_reveal_wrap"
+               class="article-reveal-wrap"
+               style="text-align:center">
+              <button class="outline article-reveal"
+                      type="button"
+                      _="on click hide #article_{{ article.uuid }}_reveal_wrap then remove @hidden from #article_{{ article.uuid }}_content">
+                <i class="fa-regular fa-eye"></i>
+                {% trans "This article may contain sensitive content. Click to reveal." %}
+              </button>
+            </p>
           {% endif %}
           <div id="article_{{ article.uuid }}_content"
                class="markdown-content"
