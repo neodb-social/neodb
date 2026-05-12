@@ -12,6 +12,12 @@ class CatalogConfig(AppConfig):
         from journal import models as journal_models  # noqa
 
         # register cron jobs
-        from catalog.jobs import DiscoverGenerator, PodcastUpdater, CatalogStats  # noqa
+        from catalog.jobs import (  # noqa
+            BuildItemSimilarity,
+            BuildUserRecommendations,
+            CatalogStats,
+            DiscoverGenerator,
+            PodcastUpdater,
+        )
 
         init_catalog_audit_log()

@@ -206,6 +206,19 @@
                   {% trans 'Show your name on item page if you recently edited it' %}
                 </label>
               </fieldset>
+              {% if enable_recommendations %}
+                <fieldset>
+                  <label>
+                    <input type="checkbox"
+                           name="disable_recommendations"
+                           {% if request.user.preference.disable_recommendations %}checked{% endif %}>
+                    {% trans 'Do not show me item recommendations' %}
+                  </label>
+                  <small>
+                    {% blocktrans %}Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck "Include profile, marks and posts in discovery" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features.{% endblocktrans %}
+                  </small>
+                </fieldset>
+              {% endif %}
               <input type="submit" value="{% trans 'Save' %}">
             </form>
           </details>

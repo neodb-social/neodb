@@ -333,7 +333,9 @@
         {% endblock %}
       </div>
       <div id="item-more" class="middle">
-        <!-- test more content -->
+        <div hx-get="{% url 'catalog:similar' item.url_path item.uuid %}"
+             hx-trigger="intersect once"
+             hx-swap="outerHTML"></div>
       </div>
       <div style="clear: both;display: table;"></div>
     </main>

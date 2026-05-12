@@ -76,6 +76,9 @@ def preferences(request):
         preference.mastodon_append_tag = request.POST.get(
             "mastodon_append_tag", ""
         ).strip()
+        preference.disable_recommendations = bool(
+            request.POST.get("disable_recommendations")
+        )
         preference.save(
             update_fields=[
                 "default_visibility",
@@ -89,6 +92,7 @@ def preferences(request):
                 "show_last_edit",
                 "hidden_categories",
                 "disabled_search_sources",
+                "disable_recommendations",
             ]
         )
         lang = request.POST.get("language")
@@ -110,6 +114,7 @@ def preferences(request):
         {
             "enable_local_only": SiteConfig.system.enable_local_only,
             "search_sources": search_sources,
+            "enable_recommendations": SiteConfig.system.enable_recommendations,
         },
     )
 

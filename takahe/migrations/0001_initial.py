@@ -166,7 +166,7 @@ class Migration(migrations.Migration):
                     "discoverable",
                     models.BooleanField(
                         default=True,
-                        verbose_name="Include profile and posts in discovery",
+                        verbose_name="Include profile, marks and posts in discovery",
                     ),
                 ),
                 (

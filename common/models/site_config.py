@@ -52,6 +52,22 @@ class SiteConfig(models.Model):
         discover_show_popular_posts: bool = False
         discover_show_popular_tags: bool = False
 
+        # Recommendations (off by default; each surface gated independently)
+        enable_recommendations: bool = False
+        enable_reco_similar_items: bool = False
+        enable_reco_for_you: bool = False
+        enable_reco_from_circles: bool = False
+        reco_min_source_marks: int = 3
+        reco_min_target_marks: int = 2
+        reco_similarity_top_k: int = 50
+        reco_user_top_n: int = 100
+        reco_user_idf_dampen: bool = True
+        reco_user_mark_cap: int = 500
+        reco_user_active_days: int = 30
+        reco_per_user_seed_cap: int = 200
+        reco_lazy_ttl_days: int = 7
+        reco_circles_window_days: int = 30
+
         # Localization
         preferred_languages: list[str] = ["en", "zh"]
 

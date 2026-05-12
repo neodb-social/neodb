@@ -435,3 +435,56 @@ def get_performance(request, uuid: str, response: HttpResponse):
 )
 def get_performance_production(request, uuid: str, response: HttpResponse):
     return _get_item(PerformanceProduction, uuid, response)
+
+
+class RecommendationResult(Schema):
+    data: List[ItemSchema]
+    count: int
+
+
+def _reco_gated(user, kind: str) -> bool:
+    pref = getattr(user, "preference", None) if user and user.is_authenticated else None
+    return bool(pref and pref.show_recommendations(kind))
+
+
+@api.get(
+    "/catalog/item/{uuid}/similar",
+    response={200: RecommendationResult, 404: Result},
+    summary="Items similar to the given item",
+    tags=["recommendation"],
+)
+def similar_for_item(request, uuid: str, limit: int = 10):
+    from .recommendation import similar_items
+
+    if not _reco_gated(request.user, "similar_items"):
+        return Status(200, {"data": [], "count": 0})
+    item = Item.get_by_url(uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    target = item.merged_to_item or item
+    items = similar_items(target, request.user, limit=min(max(limit, 1), 50))
+    if request.user.is_authenticated:
+        Mark.attach_to_items(request.user.identity, items, request.user)
+    return Status(200, {"data": items, "count": len(items)})
+
+
+@api.get(
+    "/me/recommendations",
+    response={200: RecommendationResult, 401: Result},
+    summary="Personalised recommendations for the current user",
+    tags=["recommendation"],
+)
+def me_recommendations(request, limit: int = 30):
+    from .recommendation import blended_for_discover
+
+    if not request.user.is_authenticated:
+        return Status(401, {"message": "Login required"})
+    pref = getattr(request.user, "preference", None)
+    if not pref or not (
+        pref.show_recommendations("for_you")
+        or pref.show_recommendations("from_circles")
+    ):
+        return Status(200, {"data": [], "count": 0})
+    items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
+    Mark.attach_to_items(request.user.identity, items, request.user)
+    return Status(200, {"data": items, "count": len(items)})

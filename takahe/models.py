@@ -456,7 +456,7 @@ class Identity(models.Model):
     )
     discoverable = models.BooleanField(
         default=True,
-        verbose_name=_("Include profile and posts in discovery"),
+        verbose_name=_("Include profile, marks and posts in discovery"),
     )
     indexable = models.BooleanField(
         default=True, verbose_name=_("Include posts in search results")

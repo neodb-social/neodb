@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load thumb %}
+{% if items %}
+  <section id="item-similar">
+    <h5>{% trans "Similar items" %}</h5>
+    <ul class="cards">
+      {% for sim in items %}
+        <li class="card">
+          <a href="{{ sim.url }}" title="{{ sim.display_title }}">
+            <img src="{{ sim.cover|thumb:'normal' }}"
+                 alt="{{ sim.display_title }}"
+                 loading="lazy">
+            <div class="card-title">{{ sim.display_title }}</div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}

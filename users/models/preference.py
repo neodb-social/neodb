@@ -1,7 +1,11 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
+from common.models.site_config import SiteConfig
+
 from .user import User
+
+RECO_KINDS = ("similar_items", "for_you", "from_circles")
 
 
 def _default_book_cats():
@@ -40,6 +44,24 @@ class Preference(models.Model):
     mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
     mastodon_boost_enabled = models.BooleanField(null=True, default=False)
+    disable_recommendations = models.BooleanField(null=False, default=False)
 
     def __str__(self):
         return str(self.user)
+
+    def show_recommendations(self, kind: str) -> bool:
+        """Whether to show the given recommendation surface to this user.
+
+        Gate: site master switch AND surface sub-switch AND user opt-in.
+        """
+        if self.disable_recommendations:
+            return False
+        sys = SiteConfig.system
+        if not sys.enable_recommendations:
+            return False
+        sub = {
+            "similar_items": sys.enable_reco_similar_items,
+            "for_you": sys.enable_reco_for_you,
+            "from_circles": sys.enable_reco_from_circles,
+        }.get(kind, False)
+        return bool(sub)

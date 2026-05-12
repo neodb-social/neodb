@@ -45,6 +45,7 @@ from .podcast import (
     PodcastInSchema,
     PodcastSchema,
 )
+from .recommendation import ItemSimilarity, UserRecommendation
 from .tv import (
     TVEpisode,
     TVEpisodeSchema,
@@ -160,4 +161,6 @@ __all__ = [
     "ItemPeopleRelation",
     "CreditRole",
     "ItemCredit",
+    "ItemSimilarity",
+    "UserRecommendation",
 ]

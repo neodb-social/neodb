@@ -209,6 +209,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/similar$",
+        similar,
+        name="similar",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/wikidata/(?P<wikidata_id>\w+)/",
         wikipedia_pages,
         name="wikipedia_pages",

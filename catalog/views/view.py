@@ -503,6 +503,37 @@ def reviews(request, item_path, item_uuid):
     )
 
 
+def similar(request, item_path, item_uuid):
+    """HTMX partial: items similar to the given one.
+
+    Returns an empty fragment if the surface is disabled (site or user pref)
+    or there are no similar items. The block is hidden visually whenever the
+    fragment is empty.
+    """
+    from catalog.recommendation import similar_items
+
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    pref = (
+        getattr(request.user, "preference", None)
+        if request.user.is_authenticated
+        else None
+    )
+    items: list = []
+    if pref is None:
+        if (
+            SiteConfig.system.enable_recommendations
+            and SiteConfig.system.enable_reco_similar_items
+        ):
+            items = similar_items(item, request.user, limit=10)
+    elif pref.show_recommendations("similar_items"):
+        items = similar_items(item, request.user, limit=10)
+    return render(
+        request,
+        "_item_similar.html",
+        {"item": item, "items": items},
+    )
+
+
 def notes(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
@@ -597,6 +628,14 @@ def discover(request):
     else:
         popular_tags = None
 
+    reco_items = []
+    if request.user.is_authenticated:
+        from catalog.recommendation import blended_for_discover
+
+        reco_items = blended_for_discover(request.user, limit=30)
+        if len(reco_items) < 3:
+            reco_items = []
+
     updated = cache.get("trends_updated", timezone.now())
     return render(
         request,
@@ -609,6 +648,7 @@ def discover(request):
             "popular_tags": popular_tags,
             "layout": layout,
             "updated": updated,
+            "reco_items": reco_items,
         },
     )
 
