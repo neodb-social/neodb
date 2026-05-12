@@ -111,10 +111,8 @@ class IMDB(AbstractSite):
             raise ParseError(self, "__NEXT_DATA__ element")
         try:
             d = json.loads(src)["props"]["pageProps"]["aboveTheFoldData"]
-        except json.JSONDecodeError as e:
-            _logger.warning(
-                f"IMDB __NEXT_DATA__ JSON decode failed for {self.url}: {e}"
-            )
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            _logger.warning(f"IMDB __NEXT_DATA__ parse failed for {self.url}: {e}")
             raise ParseError(self, "__NEXT_DATA__ JSON")
         title: str = d["titleText"]["text"]
         is_series: bool = d["titleType"]["isSeries"]

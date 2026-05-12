@@ -430,17 +430,18 @@ def obtain_token(site, code, request):
         )
     try:
         response = post(url, data=payload, headers=headers, auth=auth)
-        if response.status_code != 200:
-            logger.warning(
-                f"Error {url} {payload} {response.status_code} {response.content}"
-            )
-            return None, None
+    except Exception as e:
+        logger.warning(f"Error {url} {e}")
+        return None, None
+    if response.status_code != 200:
+        logger.warning(
+            f"Error {url} {payload} {response.status_code} {response.content}"
+        )
+        return None, None
+    try:
         data = response.json()
     except ValueError as e:
         logger.warning(f"Error {url} non-JSON response: {e} {response.content!r}")
-        return None, None
-    except Exception as e:
-        logger.warning(f"Error {url} {e}")
         return None, None
     return data.get("access_token"), data.get("refresh_token", "")
 
