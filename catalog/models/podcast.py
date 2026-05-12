@@ -126,6 +126,24 @@ class Podcast(Item):
     def child_items(self):
         return self.episodes.filter(is_deleted=False, merged_to_item=None)
 
+    @property
+    def child_item_ids(self) -> list[int]:
+        # The default implementation evaluates ``child_items`` which forces a
+        # JOIN with catalog_item to filter on is_deleted / merged_to_item_id;
+        # for podcasts with many episodes this becomes a slow query
+        # (Sentry: EGGPLANT-1BH). Split into two simple index lookups so the
+        # FK scan and the PK-bounded filter happen independently.
+        raw_ids = list(self.episodes.values_list("id", flat=True))
+        if not raw_ids:
+            return []
+        return list(
+            Item.objects.filter(
+                id__in=raw_ids,
+                is_deleted=False,
+                merged_to_item__isnull=True,
+            ).values_list("id", flat=True)
+        )
+
     def is_deletable(self):
         # override is_deletable() and allow delete podcast with episodes
         return (
