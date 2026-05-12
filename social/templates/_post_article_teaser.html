@@ -1,0 +1,18 @@
+{% load i18n %}
+{# Title-card teaser for a Post whose type is "Article" but which has no local
+   Article Piece row (i.e. fetched from a non-NeoDB peer like write.as).
+   Reads from ``post.type_data.object`` which is populated for both local
+   Articles and inbound standalone Articles (see ``Post.by_ap``). Linking to
+   ``post.url`` lands the reader on the source for remote posts and on the
+   local Mastodon-flavor post view for local ones, matching how Article
+   timeline events work when a piece *is* present. #}
+{% with title=post.type_data.object.name|default:post.summary teaser=post.type_data.object.summary|default:post.content_plain_text %}
+  <section class="article-teaser">
+    <h4 style="margin-bottom:0.2em">
+      <a href="{{ post.url|default:post.object_uri }}">{{ title|default:_("Untitled article") }}</a>
+    </h4>
+    {% if teaser %}
+      <p class="piece-summary" style="margin:0 0 0.4em 0">{{ teaser|striptags|truncatewords:60 }}</p>
+    {% endif %}
+  </section>
+{% endwith %}

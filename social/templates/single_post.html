@@ -10,13 +10,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} {% trans "Post" %} | {{ owner.display_name }}</title>
-    <meta property="og:title" content="{{ post.summary | default:'Post' }}">
+    {# For Article posts, prefer the AP ``name`` / ``summary`` (both local
+       and inbound standalone Articles land in ``post.type_data.object``).
+       ``post.summary`` for non-NeoDB peers like write.as is the full HTML
+       excerpt, not a usable og:title. #}
+    {% if post.type == 'Article' %}
+      <meta property="og:title"
+            content="{{ post.type_data.object.name|default:post.summary|default:'Article' }}">
+    {% else %}
+      <meta property="og:title" content="{{ post.summary | default:'Post' }}">
+    {% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author" content="{{ owner.display_name }}">
     {% if post.item.has_cover %}<meta property="og:image" content="{{ post.item.cover|thumb:'normal' }}">{% endif %}
-    <meta property="og:description"
-          content="{{ post.summary|default:post.content_plain_text|slice:':300' }}" />
+    {% if post.type == 'Article' %}
+      <meta property="og:description"
+            content="{{ post.type_data.object.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
+    {% else %}
+      <meta property="og:description"
+            content="{{ post.summary|default:post.content_plain_text|slice:':300' }}" />
+    {% endif %}
     <meta name="fediverse:creator" content="@{{ owner.full_handle }}">
     <meta name="lastmodified" content="{{ post.updated | date:'r' }}" />
     {% if not owner.local or not owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}

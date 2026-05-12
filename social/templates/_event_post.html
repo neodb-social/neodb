@@ -105,10 +105,10 @@
         {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}
-        {% if not piece or piece.classname != 'article' %}<div>{{ post.summary|default:'' }}</div>{% endif %}
+        {% if post.type != 'Article' %}<div>{{ post.summary|default:'' }}</div>{% endif %}
         <div style="display:flex;">
           <div style="flex-grow:1"
-               {% if not piece or piece.classname != 'article' %}{% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}
+               {% if post.type != 'Article' %}{% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}
                {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}
@@ -142,6 +142,8 @@
                 {% include "_article_teaser.html" with article=piece %}
               {% elif piece and piece.classname == 'review' %}
                 {% include "_review_teaser.html" with review=piece %}
+              {% elif post.type == 'Article' %}
+                {% include "_post_article_teaser.html" with post=post %}
               {% else %}
                 {{ post.safe_content_local|default:"" }}
               {% endif %}

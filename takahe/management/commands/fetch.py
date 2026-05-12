@@ -38,9 +38,15 @@ class Command(SiteCommand):
             response.raise_for_status()
             content_type = response.headers.get("content-type", "")
             self.stdout.write(f"Content-Type: {content_type}")
-            if any(
-                content_type.endswith(json_type)
-                for json_type in ["json; charset=utf-8", "json"]
+            # RFC 7231: parameter values (charset, etc.) are case-insensitive.
+            # write.as serves ``application/activity+json; charset=UTF-8`` and
+            # the prior endswith("json; charset=utf-8") miss made the fetcher
+            # silently bail with "Content type is not JSON".
+            bare_media_type = content_type.split(";", 1)[0].strip().lower()
+            if bare_media_type in (
+                "application/json",
+                "application/activity+json",
+                "application/ld+json",
             ):
                 j = response.json()
                 typ = j.get("type", "").lower()

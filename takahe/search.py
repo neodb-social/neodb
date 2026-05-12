@@ -19,7 +19,15 @@ def _get_local_url_for_ap_identity(uri):
 def _get_local_url_for_ap_post(uri):
     from takahe.models import Post
 
-    p = Post.objects.filter(object_uri=uri).first()
+    # Match by ``object_uri`` first (the canonical AP id). Peers like
+    # write.as expose the AP id under ``/api/posts/<id>`` while the
+    # user-visible URL lives at ``/<author>/<slug>``; ``Post.url`` keeps
+    # the latter so the URL-paste flow still resolves to the local Post
+    # view.
+    p = (
+        Post.objects.filter(object_uri=uri).first()
+        or Post.objects.filter(url=uri).first()
+    )
     if p:
         ii = APIdentity.objects.filter(pk=p.author_id).first()
         if ii:
