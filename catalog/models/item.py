@@ -937,7 +937,7 @@ class Item(PolymorphicModel):
         item.sync_credits_from_metadata()
         return item
 
-    def _update_primary_lookup_id(self, override_resources=[]) -> bool:
+    def _update_primary_lookup_id(self, override_resources=None) -> bool:
         """
         Update primary_lookup_id from external resources
         """
@@ -996,7 +996,7 @@ class Item(PolymorphicModel):
                 changed = True
         return changed
 
-    def normalize_metadata(self, override_resources=[]) -> bool:
+    def normalize_metadata(self, override_resources=None) -> bool:
         r = self._update_primary_lookup_id(override_resources)
         r |= self._normalize_languages()
         r |= self._normalize_genres()

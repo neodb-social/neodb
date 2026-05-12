@@ -97,20 +97,25 @@ class DoubanImporter(Task):
 
     def load_sheets(self):
         """Load data into mark_data / review_data / entity_lookup"""
-        f = open(self.metadata["file"], "rb")
-        wb = openpyxl.load_workbook(f, read_only=True, data_only=True, keep_links=False)
-        for data, config in [
-            (self.mark_data, self.mark_sheet_config),
-            (self.review_data, self.review_sheet_config),
-        ]:
-            for name in config:
-                data[name] = []
-                if name in wb:
-                    logger.info(f"{self.user} parsing {name}")
-                    for row in wb[name].iter_rows(min_row=2, values_only=True):
-                        cells = [cell for cell in row]
-                        if len(cells) > 6 and cells[0]:
-                            data[name].append(cells)
+        with open(self.metadata["file"], "rb") as f:
+            wb = openpyxl.load_workbook(
+                f, read_only=True, data_only=True, keep_links=False
+            )
+            try:
+                for data, config in [
+                    (self.mark_data, self.mark_sheet_config),
+                    (self.review_data, self.review_sheet_config),
+                ]:
+                    for name in config:
+                        data[name] = []
+                        if name in wb:
+                            logger.info(f"{self.user} parsing {name}")
+                            for row in wb[name].iter_rows(min_row=2, values_only=True):
+                                cells = [cell for cell in row]
+                                if len(cells) > 6 and cells[0]:
+                                    data[name].append(cells)
+            finally:
+                wb.close()
         for sheet in self.mark_data.values():
             for cells in sheet:
                 # entity_lookup["title|rating"] = [(url, time), ...]

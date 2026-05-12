@@ -427,7 +427,7 @@ class Edition(Item):
             return True
         return False
 
-    def normalize_metadata(self, override_resources=[]):
+    def normalize_metadata(self, override_resources=None):
         r = super().normalize_metadata(override_resources)
         r |= self.merge_title()
         return r

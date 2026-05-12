@@ -41,7 +41,8 @@ class RSS(AbstractSite):
         if feed:
             return feed
         if get_mock_mode():
-            feed = pickle.load(open(_local_response_path + get_mock_file(url), "rb"))
+            with open(_local_response_path + get_mock_file(url), "rb") as f:
+                feed = pickle.load(f)
         else:
             req = urllib.request.Request(url)
             req.add_header("User-Agent", settings.NEODB_USER_AGENT)
@@ -58,10 +59,10 @@ class RSS(AbstractSite):
                 except Exception:
                     return None
             if settings.DOWNLOADER_SAVEDIR:
-                pickle.dump(
-                    feed,
-                    open(settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url), "wb"),
-                )
+                with open(
+                    settings.DOWNLOADER_SAVEDIR + "/" + get_mock_file(url), "wb"
+                ) as f:
+                    pickle.dump(feed, f)
         cache.set(cache_key, feed, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
         return feed
 
