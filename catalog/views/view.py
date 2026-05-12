@@ -36,6 +36,7 @@ from takahe.utils import Takahe
 
 from ..models import ExternalResource, IdType, Item, ItemCredit, Podcast, TVEpisode
 from ..models.people import ItemPeopleRelation, People, PeopleRole
+from ..recommendation import blended_for_discover, similar_items
 from ..sites import WikiData
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
@@ -510,8 +511,6 @@ def similar(request, item_path, item_uuid):
     or there are no similar items. The block is hidden visually whenever the
     fragment is empty.
     """
-    from catalog.recommendation import similar_items
-
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     pref = (
         getattr(request.user, "preference", None)
@@ -634,8 +633,6 @@ def discover(request):
 
     reco_items = []
     if request.user.is_authenticated:
-        from catalog.recommendation import blended_for_discover
-
         reco_items = blended_for_discover(request.user, limit=30)
         if len(reco_items) < 3:
             reco_items = []

@@ -42,6 +42,7 @@ from .models import (
     TVShow,
     TVShowSchema,
 )
+from .recommendation import blended_for_discover, similar_items
 from .search.utils import enqueue_fetch, get_fetch_lock, query_index
 
 PAGE_SIZE = 20
@@ -475,8 +476,6 @@ def _prepare_reco_items(request, items: list) -> None:
     tags=["recommendation"],
 )
 def similar_for_item(request, uuid: str, limit: int = 10):
-    from .recommendation import similar_items
-
     if not _reco_gated(request.user, "similar_items"):
         return Status(200, {"data": [], "count": 0})
     item = Item.get_by_url(uuid)
@@ -495,8 +494,6 @@ def similar_for_item(request, uuid: str, limit: int = 10):
     tags=["recommendation"],
 )
 def me_recommendations(request, limit: int = 30):
-    from .recommendation import blended_for_discover
-
     if not request.user.is_authenticated:
         return Status(401, {"message": "Login required"})
     pref = getattr(request.user, "preference", None)

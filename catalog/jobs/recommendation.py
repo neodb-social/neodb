@@ -13,9 +13,11 @@ from catalog.models import (
     ItemSimilarity,
     UserRecommendation,
 )
+from catalog.recommendation import compute_for_user
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import ShelfMember
 from takahe.models import Identity as TakaheIdentity
+from users.models import APIdentity
 
 PROGRESS_COMPLETE = ["progress", "complete"]
 
@@ -257,8 +259,6 @@ class BuildUserRecommendations(BaseJob):
         a NOT NULL violation in ``UserRecommendation.user_id`` and abort the
         whole nightly refresh.
         """
-        from users.models import APIdentity
-
         return dict(
             APIdentity.objects.filter(
                 pk__in=identity_ids, user_id__isnull=False
@@ -276,7 +276,6 @@ class BuildUserRecommendations(BaseJob):
         logger.info(
             f"Refreshing recommendations for {len(user_by_identity)} active users"
         )
-        from catalog.recommendation import compute_for_user
 
         # Per-user atomic replace: each user's refresh is independent, so a
         # transaction-per-user keeps each commit small and bounds rollback

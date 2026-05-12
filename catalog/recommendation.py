@@ -18,6 +18,7 @@ from loguru import logger
 
 from common.models import SiteConfig
 from journal.models import ShelfMember, q_piece_visible_to_user
+from takahe.models import Identity as TakaheIdentity
 
 from .models import Item, ItemSimilarity, UserRecommendation
 
@@ -211,8 +212,6 @@ def from_your_circles(
     identity = getattr(viewer, "identity", None)
     if identity is None:
         return []
-    from takahe.models import Identity as TakaheIdentity
-
     sys = SiteConfig.system
     since = timezone.now() - timedelta(days=sys.reco_circles_window_days)
     following = list(identity.following)
