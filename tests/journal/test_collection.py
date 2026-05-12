@@ -128,6 +128,7 @@ class TestCollectionListOperations:
         self.collection.append_item(self.book3)
 
         members = list(self.collection.ordered_members)
+        original_edited_times = {m.pk: m.edited_time for m in members}
         # Reverse the order
         new_order = [members[2].pk, members[1].pk, members[0].pk]
         self.collection.update_member_order(new_order)
@@ -136,6 +137,12 @@ class TestCollectionListOperations:
         assert reordered[0].item == self.book3
         assert reordered[1].item == self.book2
         assert reordered[2].item == self.book1
+        # bulk_update skips auto_now -- positions that moved must still bump
+        # edited_time so AP "updated" timestamps stay correct.
+        moved_pks = {members[0].pk, members[2].pk}
+        for m in reordered:
+            if m.pk in moved_pks:
+                assert m.edited_time > original_edited_times[m.pk]
 
     def test_update_member_order_partial(self):
         self.collection.append_item(self.book1)

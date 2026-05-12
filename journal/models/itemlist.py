@@ -126,14 +126,18 @@ class List(Piece):
     def update_member_order(self, ordered_member_ids):
         position_by_id = {pk: i + 1 for i, pk in enumerate(ordered_member_ids)}
         to_update = []
+        now = timezone.now()
         for m in self.members.all():
             new_pos = position_by_id.get(m.pk)
             if new_pos is not None and m.position != new_pos:
                 m.position = new_pos
+                m.edited_time = now
                 to_update.append(m)
         if to_update:
             with transaction.atomic():
-                self.MEMBER_CLASS.objects.bulk_update(to_update, ["position"])
+                self.MEMBER_CLASS.objects.bulk_update(
+                    to_update, ["position", "edited_time"]
+                )
             list_add.send(sender=self.__class__, instance=self, item=None, member=None)
 
     def move_up_item(self, item):
