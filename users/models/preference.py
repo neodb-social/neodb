@@ -44,7 +44,7 @@ class Preference(models.Model):
     mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
     mastodon_boost_enabled = models.BooleanField(null=True, default=False)
-    disable_recommendations = models.BooleanField(null=False, default=False)
+    disable_recommendations = models.BooleanField(null=True, default=False)
 
     def __str__(self):
         return str(self.user)

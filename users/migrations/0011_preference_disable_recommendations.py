@@ -10,6 +10,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="preference",
             name="disable_recommendations",
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(default=False, null=True),
         ),
     ]
