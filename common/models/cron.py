@@ -16,7 +16,14 @@ def run_job(job_id: str) -> None:
     module level (not as a classmethod) so RQ can resolve it by import path
     on the worker side.
     """
-    job_cls = JobManager.get(job_id)
+    try:
+        job_cls = JobManager.get(job_id)
+    except KeyError:
+        # Workers spawned without going through AppConfig.ready() (or where the
+        # app set is reduced) won't have the registry populated. The config
+        # module re-imports every jobs module.
+        __import__("boofilsic.cron_config", fromlist=["*"])
+        job_cls = JobManager.get(job_id)
     job_cls().run()
 
 
@@ -100,8 +107,11 @@ class JobManager:
                 "func": run_job,
                 "queue_name": j.queue_name,
                 "args": (job_id,),
-                "result_ttl": -1,
-                "failure_ttl": -1,
+                # Each tick creates a fresh job UUID under rq.cron (unlike the
+                # old fixed-job_id scheme that overwrote on re-enqueue), so
+                # finite TTLs are required to avoid unbounded Redis growth.
+                "result_ttl": 3600,
+                "failure_ttl": 604800,
             }
             timeout = j.get_job_timeout()
             if timeout is not None:

@@ -32,6 +32,9 @@ class Command(SiteCommand):
         )
 
     def handle(self, *args, **options):
+        # Ensure every BaseJob subclass is loaded into JobManager.registry
+        # regardless of which subcommand we run.
+        __import__(CRON_CONFIG_MODULE, fromlist=["*"])
         if options["run_once"]:
             for job_id in options["run_once"]:
                 JobManager.get(job_id)().run()
@@ -41,8 +44,6 @@ class Command(SiteCommand):
             self._start()
 
     def _list(self):
-        # Ensure all jobs are imported into the registry.
-        __import__(CRON_CONFIG_MODULE, fromlist=["*"])
         names = sorted(j.__name__ for j in JobManager.registry)
         logger.info(f"{len(names)} registered jobs: {' '.join(names)}")
         try:
