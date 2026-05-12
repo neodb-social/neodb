@@ -479,6 +479,160 @@ def test_collection_api_crud_and_items():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_collection_reorder_items():
+    user = User.register(email="reorder@example.com", username="reorderer")
+    book1 = Edition.objects.create(title="Reorder Book 1")
+    book2 = Edition.objects.create(title="Reorder Book 2")
+    book3 = Edition.objects.create(title="Reorder Book 3")
+    collection = Collection.objects.create(
+        owner=user.identity,
+        title="Reorder Collection",
+        brief="",
+        visibility=0,
+    )
+    collection.append_item(book1)
+    collection.append_item(book2)
+    collection.append_item(book3)
+
+    app = Takahe.get_or_create_app(
+        "Collection Reorder API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    response = client.post(
+        f"/api/me/collection/{collection.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": [book3.uuid, book1.uuid, book2.uuid]}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+
+    ordered = [m.item.uuid for m in collection.ordered_members]
+    assert ordered == [book3.uuid, book1.uuid, book2.uuid]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_collection_reorder_items_validation():
+    user = User.register(email="reorder2@example.com", username="reorderer2")
+    book1 = Edition.objects.create(title="Reorder2 Book 1")
+    book2 = Edition.objects.create(title="Reorder2 Book 2")
+    extra = Edition.objects.create(title="Reorder2 Book Extra")
+    collection = Collection.objects.create(
+        owner=user.identity,
+        title="Reorder2 Collection",
+        brief="",
+        visibility=0,
+    )
+    collection.append_item(book1)
+    collection.append_item(book2)
+
+    app = Takahe.get_or_create_app(
+        "Collection Reorder Validation Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    # Duplicate uuids in payload -> 400
+    response = client.post(
+        f"/api/me/collection/{collection.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": [book1.uuid, book1.uuid]}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 400
+
+    # Partial list missing book2 -> 400
+    response = client.post(
+        f"/api/me/collection/{collection.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": [book1.uuid]}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 400
+
+    # Unknown uuid in payload -> 400
+    response = client.post(
+        f"/api/me/collection/{collection.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": [book1.uuid, extra.uuid]}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 400
+
+    # Order remains untouched after rejected requests
+    ordered = [m.item.uuid for m in collection.ordered_members]
+    assert ordered == [book1.uuid, book2.uuid]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_collection_reorder_items_permissions():
+    owner = User.register(email="reorder_owner@example.com", username="reorderowner")
+    intruder = User.register(
+        email="reorder_intruder@example.com", username="reorderintruder"
+    )
+    book1 = Edition.objects.create(title="Reorder3 Book 1")
+    book2 = Edition.objects.create(title="Reorder3 Book 2")
+    collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Reorder3 Collection",
+        brief="",
+        visibility=0,
+    )
+    collection.append_item(book1)
+    collection.append_item(book2)
+
+    app = Takahe.get_or_create_app(
+        "Collection Reorder Permission Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=intruder.identity.pk,
+    )
+    intruder_token = Takahe.refresh_token(app, intruder.identity.pk, intruder.pk)
+    client = Client()
+
+    # Non-owner -> 403
+    response = client.post(
+        f"/api/me/collection/{collection.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": [book2.uuid, book1.uuid]}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {intruder_token}",
+    )
+    assert response.status_code == 403
+
+    # Missing collection -> 404
+    response = client.post(
+        "/api/me/collection/does-not-exist/reorder_items",
+        data=json.dumps({"item_uuids": []}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {intruder_token}",
+    )
+    assert response.status_code == 404
+
+    # Dynamic collection -> 403
+    dynamic = Collection.objects.create(
+        owner=intruder.identity,
+        title="Dynamic Reorder",
+        brief="",
+        visibility=0,
+        query="tag:any",
+    )
+    response = client.post(
+        f"/api/me/collection/{dynamic.uuid}/reorder_items",
+        data=json.dumps({"item_uuids": []}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {intruder_token}",
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_collection_trending_endpoint():
     cache.clear()
     owner = User.register(email="trend@example.com", username="trenduser")

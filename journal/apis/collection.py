@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 
 from django.core.cache import cache
+from django.core.signing import b62_encode
 from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.utils import timezone
@@ -55,6 +56,10 @@ class CollectionItemSchema(Schema):
 class CollectionItemInSchema(Schema):
     item_uuid: str
     note: str
+
+
+class CollectionItemReorderInSchema(Schema):
+    item_uuids: list[str]
 
 
 class FeaturedCollectionStatsSchema(Schema):
@@ -256,6 +261,49 @@ def collection_add_item(
     if not item:
         return Status(404, {"message": "Item not found"})
     c.append_item(item, note=collection_item.note)
+    return Status(200, {"message": "OK"})
+
+
+@api.post(
+    "/me/collection/{collection_uuid}/reorder_items",
+    response={200: Result, 400: Result, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def collection_reorder_items(
+    request, collection_uuid: str, payload: CollectionItemReorderInSchema
+):
+    """
+    Reorder items in a collection.
+
+    `item_uuids` must contain the uuid of every item currently in the
+    collection, in the desired order. Partial lists are rejected because
+    they would leave the collection with conflicting positions.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return Status(404, {"message": "Collection not found"})
+    if c.owner != request.user.identity:
+        return Status(403, {"message": "Not owner"})
+    if c.is_dynamic:
+        return Status(
+            403, {"message": "Item list of dynamic collection cannot be updated"}
+        )
+    item_uuids = payload.item_uuids
+    if len(item_uuids) != len(set(item_uuids)):
+        return Status(400, {"message": "Duplicate item_uuids"})
+    members_by_uuid = {
+        b62_encode(uid.int).zfill(22): pk
+        for pk, uid in c.members.values_list("pk", "item__uid")
+    }
+    if set(item_uuids) != set(members_by_uuid.keys()):
+        return Status(
+            400,
+            {
+                "message": "item_uuids must list every item in the collection exactly once"
+            },
+        )
+    ordered_member_ids = [members_by_uuid[u] for u in item_uuids]
+    c.update_member_order(ordered_member_ids)
     return Status(200, {"message": "OK"})
 
 

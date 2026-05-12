@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import django.dispatch
 import django_rq
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from loguru import logger
@@ -124,17 +124,16 @@ class List(Piece):
             member.delete()
 
     def update_member_order(self, ordered_member_ids):
-        changed = False
+        position_by_id = {pk: i + 1 for i, pk in enumerate(ordered_member_ids)}
+        to_update = []
         for m in self.members.all():
-            try:
-                i = ordered_member_ids.index(m.pk)
-                if m.position != i + 1:
-                    m.position = i + 1
-                    m.save(update_fields=["position"])
-                    changed = True
-            except ValueError:
-                pass
-        if changed:
+            new_pos = position_by_id.get(m.pk)
+            if new_pos is not None and m.position != new_pos:
+                m.position = new_pos
+                to_update.append(m)
+        if to_update:
+            with transaction.atomic():
+                self.MEMBER_CLASS.objects.bulk_update(to_update, ["position"])
             list_add.send(sender=self.__class__, instance=self, item=None, member=None)
 
     def move_up_item(self, item):
