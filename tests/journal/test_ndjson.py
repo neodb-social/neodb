@@ -724,3 +724,14 @@ class TestNdjsonExportImport:
             )
             # Traversal path is rejected: no cover stored, default still in place
             assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER
+
+            # A cover entry pointing at a directory inside temp_dir resolves
+            # cleanly but must not raise IsADirectoryError on open().
+            os.mkdir(os.path.join(tmp, "subdir"))
+            data["content"]["name"] = "Cover Directory Skipped"
+            data["cover"] = "subdir"
+            assert importer.import_collection(data) == "imported"
+            coll = Collection.objects.get(
+                owner=self.user2.identity, title="Cover Directory Skipped"
+            )
+            assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER

@@ -77,7 +77,7 @@ class NdjsonImporter(BaseImporter):
                 query=data.get("query"),
             )
             cover_src = self._resolve_temp_path(data.get("cover"))
-            if cover_src and os.path.exists(cover_src):
+            if cover_src and os.path.isfile(cover_src):
                 with open(cover_src, "rb") as f:
                     collection.cover.save(
                         os.path.basename(cover_src), File(f), save=True
@@ -289,7 +289,7 @@ class NdjsonImporter(BaseImporter):
                     file_rel = atta.get("file")
                     mimetype = atta.get("mimetype", "")
                     src = self._resolve_temp_path(file_rel)
-                    if not src or not os.path.exists(src):
+                    if not src or not os.path.isfile(src):
                         continue
                     ext = os.path.splitext(src)[1]
                     storage_name = f"journal/attachments/{uuid.uuid4()}{ext}"
