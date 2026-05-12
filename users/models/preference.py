@@ -52,16 +52,15 @@ class Preference(models.Model):
     def show_recommendations(self, kind: str) -> bool:
         """Whether to show the given recommendation surface to this user.
 
-        Gate: site master switch AND surface sub-switch AND user opt-in.
+        Gate: user opt-in AND (site master switch OR user is test-enabled).
+        ``kind`` is kept in the signature so callers can pass it through; the
+        anonymous-vs-authenticated routing in ``catalog.recommendation`` still
+        distinguishes which surfaces an anonymous viewer can see.
         """
         if self.disable_recommendations:
             return False
-        sys = SiteConfig.system
-        if not sys.enable_recommendations:
-            return False
-        sub = {
-            "similar_items": sys.enable_reco_similar_items,
-            "for_you": sys.enable_reco_for_you,
-            "from_circles": sys.enable_reco_from_circles,
-        }.get(kind, False)
-        return bool(sub)
+        if SiteConfig.system.enable_recommendations:
+            return True
+        # Internal testers (DEBUG mode or marker in their bio) can preview the
+        # feature even when the site master switch is still off.
+        return bool(getattr(self.user, "test_enabled", False))

@@ -34,29 +34,27 @@ class TestPreferenceGate:
     @pytest.fixture(autouse=True)
     def setup(self):
         self.user = User.register(email="g@test.com", username="g_user")
-        _set(
-            enable_recommendations=False,
-            enable_reco_similar_items=False,
-            enable_reco_for_you=False,
-            enable_reco_from_circles=False,
-        )
+        _set(enable_recommendations=False)
 
-    def test_off_when_master_off(self):
-        _set(enable_recommendations=False, enable_reco_similar_items=True)
+    def test_off_when_master_off_and_not_test_enabled(self, monkeypatch):
+        _set(enable_recommendations=False)
+        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: False))
         assert self.user.preference.show_recommendations("similar_items") is False
 
-    def test_off_when_kind_off(self):
-        _set(enable_recommendations=True, enable_reco_similar_items=False)
-        assert self.user.preference.show_recommendations("similar_items") is False
+    def test_on_when_test_enabled_even_if_master_off(self, monkeypatch):
+        _set(enable_recommendations=False)
+        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: True))
+        assert self.user.preference.show_recommendations("similar_items") is True
 
-    def test_off_when_user_opted_out(self):
-        _set(enable_recommendations=True, enable_reco_similar_items=True)
+    def test_off_when_user_opted_out_even_if_test_enabled(self, monkeypatch):
+        _set(enable_recommendations=True)
+        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: True))
         self.user.preference.disable_recommendations = True
         self.user.preference.save()
         assert self.user.preference.show_recommendations("similar_items") is False
 
-    def test_on_when_all_enabled(self):
-        _set(enable_recommendations=True, enable_reco_similar_items=True)
+    def test_on_when_master_on(self):
+        _set(enable_recommendations=True)
         self.user.preference.disable_recommendations = False
         self.user.preference.save()
         assert self.user.preference.show_recommendations("similar_items") is True
@@ -68,7 +66,6 @@ class TestSimilarityBuilder:
     def setup(self):
         _set(
             enable_recommendations=True,
-            enable_reco_similar_items=True,
             reco_min_source_marks=3,
             reco_min_target_marks=2,
             reco_similarity_top_k=10,
@@ -215,7 +212,6 @@ class TestUserRecommendations:
     def setup(self):
         _set(
             enable_recommendations=True,
-            enable_reco_for_you=True,
             reco_min_source_marks=2,
             reco_min_target_marks=2,
             reco_similarity_top_k=10,
@@ -297,14 +293,12 @@ class TestSimilarItemsHelper:
 class TestBlendedReturnsEmptyWhenDisabled:
     @pytest.fixture(autouse=True)
     def setup(self):
-        _set(
-            enable_recommendations=False,
-            enable_reco_for_you=False,
-            enable_reco_from_circles=False,
-        )
+        _set(enable_recommendations=False)
         self.user = User.register(email="bd@t.com", username="bd_user")
 
-    def test_empty_when_master_off(self):
+    def test_empty_when_master_off(self, monkeypatch):
+        # Ensure test_enabled is off so the master switch is the only gate.
+        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: False))
         out = blended_for_discover(self.user, limit=10)
         assert out == []
 

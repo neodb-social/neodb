@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-12 02:07-0400\n"
+"POT-Creation-Date: 2026-05-12 09:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1585,7 +1585,7 @@ msgid "This operation cannot be undone. Sure to merge?"
 msgstr ""
 
 #: catalog/templates/discover.html:28 common/views_manage.py:144
-#: common/views_manage.py:343 users/templates/users/preferences.html:34
+#: common/views_manage.py:344 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr ""
 
@@ -2022,15 +2022,15 @@ msgstr ""
 msgid "Unsupported URL"
 msgstr ""
 
-#: catalog/views/view.py:65 catalog/views/view.py:90
+#: catalog/views/view.py:66 catalog/views/view.py:91
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views/view.py:69 catalog/views/view.py:98
+#: catalog/views/view.py:70 catalog/views/view.py:99
 msgid "Item no longer exists"
 msgstr ""
 
-#: catalog/views/view.py:165
+#: catalog/views/view.py:166
 msgid "Invalid role"
 msgstr ""
 
@@ -3509,7 +3509,7 @@ msgstr ""
 msgid "Registration"
 msgstr ""
 
-#: common/templates/common/about.html:35 common/views_manage.py:358
+#: common/templates/common/about.html:35 common/views_manage.py:466
 msgid "Invite Only"
 msgstr ""
 
@@ -3517,7 +3517,7 @@ msgstr ""
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:40 common/views_manage.py:379
+#: common/templates/common/about.html:40 common/views_manage.py:487
 msgid "Preferred Languages"
 msgstr ""
 
@@ -3573,7 +3573,7 @@ msgstr ""
 msgid "Or type barcode / ISBN manually"
 msgstr ""
 
-#: common/templates/common/scan.html:60 common/views_manage.py:443
+#: common/templates/common/scan.html:60 common/views_manage.py:551
 msgid "Search"
 msgstr ""
 
@@ -3668,492 +3668,596 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: common/views_manage.py:143 common/views_manage.py:292
+#: common/views_manage.py:143 common/views_manage.py:293
 msgid "Branding"
 msgstr ""
 
 #: common/views_manage.py:145
+msgid "Recommendations"
+msgstr ""
+
+#: common/views_manage.py:146
 msgid "Access"
 msgstr ""
 
-#: common/views_manage.py:146 common/views_manage.py:438
+#: common/views_manage.py:147 common/views_manage.py:546
 msgid "Federation"
 msgstr ""
 
-#: common/views_manage.py:147
+#: common/views_manage.py:148
 msgid "API Keys"
 msgstr ""
 
-#: common/views_manage.py:148
+#: common/views_manage.py:149
 msgid "Downloader"
 msgstr ""
 
-#: common/views_manage.py:149 common/views_manage.py:300
+#: common/views_manage.py:150 common/views_manage.py:301
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr ""
 
-#: common/views_manage.py:199
+#: common/views_manage.py:200
 msgid "Invalid value."
 msgstr ""
 
-#: common/views_manage.py:203
+#: common/views_manage.py:204
 msgid "Invalid configuration. Please check your input."
 msgstr ""
 
-#: common/views_manage.py:208
+#: common/views_manage.py:209
 msgid "Settings have been saved."
 msgstr ""
 
-#: common/views_manage.py:228
+#: common/views_manage.py:229
 msgid "Site Name"
 msgstr ""
 
-#: common/views_manage.py:231
+#: common/views_manage.py:232
 msgid "Site Description"
 msgstr ""
 
-#: common/views_manage.py:232
+#: common/views_manage.py:233
 msgid "Short description shown in metadata and about page."
 msgstr ""
 
-#: common/views_manage.py:235
+#: common/views_manage.py:236
 msgid "Site Logo URL"
 msgstr ""
 
-#: common/views_manage.py:236
+#: common/views_manage.py:237
 msgid "URL path to the site logo image."
 msgstr ""
 
-#: common/views_manage.py:239
+#: common/views_manage.py:240
 msgid "Site Icon URL"
 msgstr ""
 
-#: common/views_manage.py:240
+#: common/views_manage.py:241
 msgid "URL path to the site icon/favicon."
 msgstr ""
 
-#: common/views_manage.py:243
+#: common/views_manage.py:244
 msgid "Default User Avatar URL"
 msgstr ""
 
-#: common/views_manage.py:244
+#: common/views_manage.py:245
 msgid "URL path to the default user avatar."
 msgstr ""
 
-#: common/views_manage.py:247
+#: common/views_manage.py:248
 msgid "Site Color Theme"
 msgstr ""
 
-#: common/views_manage.py:248
+#: common/views_manage.py:249
 msgid "PicoCSS color theme."
 msgstr ""
 
-#: common/views_manage.py:273
+#: common/views_manage.py:274
 msgid "Site Introduction"
 msgstr ""
 
-#: common/views_manage.py:274
+#: common/views_manage.py:275
 msgid "URL path for the intro/welcome sidebar page."
 msgstr ""
 
-#: common/views_manage.py:277
+#: common/views_manage.py:278
 msgid "Custom HTML Head"
 msgstr ""
 
-#: common/views_manage.py:278
+#: common/views_manage.py:279
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr ""
 
-#: common/views_manage.py:282
+#: common/views_manage.py:283
 msgid "Footer Links"
 msgstr ""
 
-#: common/views_manage.py:283
+#: common/views_manage.py:284
 msgid "Link title mapped to URL."
 msgstr ""
 
-#: common/views_manage.py:312
+#: common/views_manage.py:313
 msgid "Minimum Marks for Discover"
 msgstr ""
 
-#: common/views_manage.py:314
+#: common/views_manage.py:315
 msgid "Number of marks required for an item to appear in discover."
 msgstr ""
 
-#: common/views_manage.py:319
+#: common/views_manage.py:320
 msgid "Update Interval (minutes)"
 msgstr ""
 
-#: common/views_manage.py:320
+#: common/views_manage.py:321
 msgid "How often to refresh the popular items list."
 msgstr ""
 
-#: common/views_manage.py:324
+#: common/views_manage.py:325
 msgid "Filter by Preferred Languages"
 msgstr ""
 
-#: common/views_manage.py:325
+#: common/views_manage.py:326
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
-#: common/views_manage.py:328
+#: common/views_manage.py:329
 msgid "Show Local Only"
 msgstr ""
 
-#: common/views_manage.py:330
+#: common/views_manage.py:331
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
-#: common/views_manage.py:334
+#: common/views_manage.py:335
 msgid "Show Popular Posts"
 msgstr ""
 
-#: common/views_manage.py:335
+#: common/views_manage.py:336
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
-#: common/views_manage.py:338
+#: common/views_manage.py:339
 msgid "Show Popular Tags"
 msgstr ""
 
-#: common/views_manage.py:339
+#: common/views_manage.py:340
 msgid "Show popular public tags on the discover page."
 msgstr ""
 
-#: common/views_manage.py:360
-msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
+#: common/views_manage.py:359
+msgid "Enable Recommendations"
 msgstr ""
 
-#: common/views_manage.py:365
-msgid "Enable Local-Only Posting"
+#: common/views_manage.py:361
+msgid "Master switch. When off, all recommendation surfaces are hidden for regular users and the cron jobs are not scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' in their bio) still see the surfaces, for preview."
 msgstr ""
 
-#: common/views_manage.py:366
-msgid "Allow users to create posts visible only to local users."
-msgstr ""
-
-#: common/views_manage.py:369
-msgid "Mastodon Login Whitelist"
+#: common/views_manage.py:368
+msgid "Source Item Mark Threshold"
 msgstr ""
 
 #: common/views_manage.py:370
-msgid "One domain per line. Leave empty to allow any instance."
-msgstr ""
-
-#: common/views_manage.py:373
-msgid "Enable Bluesky Login"
+msgid "Minimum public marks an item needs before similarity rows are built for it."
 msgstr ""
 
 #: common/views_manage.py:376
-msgid "Enable Threads Login"
+msgid "Target Item Mark Threshold"
 msgstr ""
 
-#: common/views_manage.py:381
-msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
+#: common/views_manage.py:378
+msgid "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr ""
 
-#: common/views_manage.py:387
-msgid "Access Control"
+#: common/views_manage.py:384
+msgid "Top-K Similar Items per Source"
 msgstr ""
 
-#: common/views_manage.py:392
-msgid "Login Methods"
+#: common/views_manage.py:385
+msgid "Number of similar items stored per source item."
+msgstr ""
+
+#: common/views_manage.py:389
+msgid "Top-N Recommendations per User"
+msgstr ""
+
+#: common/views_manage.py:390
+msgid "Number of personalised rows stored per user."
+msgstr ""
+
+#: common/views_manage.py:394
+msgid "Dampen Heavy Shelvers"
 msgstr ""
 
 #: common/views_manage.py:396
-msgid "Localization"
+msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
 msgstr ""
 
-#: common/views_manage.py:406
-msgid "Disable Default Relay"
+#: common/views_manage.py:401
+msgid "Per-User Mark Cap (training)"
 msgstr ""
 
-#: common/views_manage.py:408
-msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
+#: common/views_manage.py:403
+msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
 msgstr ""
 
-#: common/views_manage.py:413
-msgid "Fanout Limit (days)"
+#: common/views_manage.py:409
+msgid "Active-User Window (days)"
 msgstr ""
 
-#: common/views_manage.py:414
-msgid "Posts older than this many days will not be fanned out."
+#: common/views_manage.py:411
+msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
 msgstr ""
 
-#: common/views_manage.py:418
-msgid "Remote Prune Horizon (days)"
+#: common/views_manage.py:417
+msgid "Per-User Seed Cap (serving)"
 msgstr ""
 
-#: common/views_manage.py:420
-msgid "Remote profiles inactive for this many days will be pruned."
+#: common/views_manage.py:419
+msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
 msgstr ""
 
 #: common/views_manage.py:425
-msgid "Search Sites"
+msgid "Lazy Refresh TTL (days)"
 msgstr ""
 
-#: common/views_manage.py:426
-msgid "External search sites to include, one per line."
-msgstr ""
-
-#: common/views_manage.py:429
-msgid "Federated Search Peers"
-msgstr ""
-
-#: common/views_manage.py:430
-msgid "NeoDB peer instances for federated search, one per line."
+#: common/views_manage.py:427
+msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
 msgstr ""
 
 #: common/views_manage.py:433
-msgid "Hidden Categories"
+msgid "Circles Window (days)"
 msgstr ""
 
-#: common/views_manage.py:434
-msgid "Category values to hide from the catalog, one per line."
+#: common/views_manage.py:435
+msgid "Look back N days when finding items recently marked by people the viewer follows."
 msgstr ""
 
-#: common/views_manage.py:455
-msgid "Spotify API Key"
+#: common/views_manage.py:442
+msgid "Master Switch"
 msgstr ""
 
-#: common/views_manage.py:456
-msgid "https://developer.spotify.com/"
+#: common/views_manage.py:445
+msgid "Similarity Builder"
 msgstr ""
 
-#: common/views_manage.py:459
-msgid "TMDB API Key"
+#: common/views_manage.py:452
+msgid "Personalisation"
 msgstr ""
 
-#: common/views_manage.py:460
-msgid "https://developer.themoviedb.org/"
-msgstr ""
-
-#: common/views_manage.py:463
-msgid "Google Books API Key"
-msgstr ""
-
-#: common/views_manage.py:464
-msgid "https://developers.google.com/books/"
-msgstr ""
-
-#: common/views_manage.py:467
-msgid "Discogs API Key"
-msgstr ""
-
-#: common/views_manage.py:469
-msgid "Personal access token from https://www.discogs.com/settings/developers"
+#: common/views_manage.py:468
+msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
 msgstr ""
 
 #: common/views_manage.py:473
-msgid "IGDB Client ID"
+msgid "Enable Local-Only Posting"
 msgstr ""
 
 #: common/views_manage.py:474
-msgid "https://api-docs.igdb.com/"
+msgid "Allow users to create posts visible only to local users."
 msgstr ""
 
 #: common/views_manage.py:477
-msgid "IGDB Client Secret"
+msgid "Mastodon Login Whitelist"
 msgstr ""
 
-#: common/views_manage.py:480 users/templates/users/steam_import.html:26
-msgid "Steam API Key"
+#: common/views_manage.py:478
+msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
-#: common/views_manage.py:482
-msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
+#: common/views_manage.py:481
+msgid "Enable Bluesky Login"
 msgstr ""
 
-#: common/views_manage.py:487
-msgid "DeepL API Key"
+#: common/views_manage.py:484
+msgid "Enable Threads Login"
 msgstr ""
 
-#: common/views_manage.py:488
-msgid "For translation features."
+#: common/views_manage.py:489
+msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr ""
 
-#: common/views_manage.py:491
-msgid "LibreTranslate API URL"
+#: common/views_manage.py:495
+msgid "Access Control"
 msgstr ""
 
-#: common/views_manage.py:494
-msgid "LibreTranslate API Key"
-msgstr ""
-
-#: common/views_manage.py:497
-msgid "Threads App ID"
-msgstr ""
-
-#: common/views_manage.py:498
-msgid "OAuth app ID for Threads login."
-msgstr ""
-
-#: common/views_manage.py:501
-msgid "Threads App Secret"
+#: common/views_manage.py:500
+msgid "Login Methods"
 msgstr ""
 
 #: common/views_manage.py:504
-msgid "Sentry DSN"
-msgstr ""
-
-#: common/views_manage.py:505
-msgid "Requires restart to take effect."
-msgstr ""
-
-#: common/views_manage.py:508
-msgid "Sentry Sample Rate"
-msgstr ""
-
-#: common/views_manage.py:509
-msgid "0.0 to 1.0. Requires restart to take effect."
+msgid "Localization"
 msgstr ""
 
 #: common/views_manage.py:514
-msgid "Discord Webhooks"
+msgid "Disable Default Relay"
 msgstr ""
 
 #: common/views_manage.py:516
-msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
+msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
+msgstr ""
+
+#: common/views_manage.py:521
+msgid "Fanout Limit (days)"
+msgstr ""
+
+#: common/views_manage.py:522
+msgid "Posts older than this many days will not be fanned out."
+msgstr ""
+
+#: common/views_manage.py:526
+msgid "Remote Prune Horizon (days)"
+msgstr ""
+
+#: common/views_manage.py:528
+msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:533
-msgid "Catalog APIs"
+msgid "Search Sites"
+msgstr ""
+
+#: common/views_manage.py:534
+msgid "External search sites to include, one per line."
+msgstr ""
+
+#: common/views_manage.py:537
+msgid "Federated Search Peers"
+msgstr ""
+
+#: common/views_manage.py:538
+msgid "NeoDB peer instances for federated search, one per line."
+msgstr ""
+
+#: common/views_manage.py:541
+msgid "Hidden Categories"
 msgstr ""
 
 #: common/views_manage.py:542
-msgid "Translation"
-msgstr ""
-
-#: common/views_manage.py:547
-msgid "Third-Party Login"
-msgstr ""
-
-#: common/views_manage.py:551
-msgid "Monitoring"
+msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
 #: common/views_manage.py:563
-msgid "Scraping Providers"
+msgid "Spotify API Key"
 msgstr ""
 
 #: common/views_manage.py:564
-msgid "Comma-separated list of providers to try in order."
+msgid "https://developer.spotify.com/"
 msgstr ""
 
 #: common/views_manage.py:567
-msgid "Proxy List"
+msgid "TMDB API Key"
 msgstr ""
 
 #: common/views_manage.py:568
-msgid "One per line, format: http://server?url=__URL__"
+msgid "https://developer.themoviedb.org/"
 msgstr ""
 
 #: common/views_manage.py:571
-msgid "Backup Proxy"
+msgid "Google Books API Key"
 msgstr ""
 
-#: common/views_manage.py:574
-msgid "Scrapfly API Key"
+#: common/views_manage.py:572
+msgid "https://developers.google.com/books/"
+msgstr ""
+
+#: common/views_manage.py:575
+msgid "Discogs API Key"
 msgstr ""
 
 #: common/views_manage.py:577
-msgid "Decodo Base64 Auth Token"
+msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:580
-msgid "ScraperAPI Key"
+#: common/views_manage.py:581
+msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:583
-msgid "ScrapingBee API Key"
+#: common/views_manage.py:582
+msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:586
-msgid "Custom Scraper URL"
+#: common/views_manage.py:585
+msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:587
-msgid "URL with __URL__ and __SELECTOR__ placeholders."
+#: common/views_manage.py:588 users/templates/users/steam_import.html:26
+msgid "Steam API Key"
 msgstr ""
 
 #: common/views_manage.py:590
-msgid "Request Timeout (seconds)"
+msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:594
-msgid "Cache Timeout (seconds)"
+#: common/views_manage.py:595
+msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:598
-msgid "Retries"
+#: common/views_manage.py:596
+msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:603
-msgid "Providers"
+#: common/views_manage.py:599
+msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:608
-msgid "Provider Keys"
+#: common/views_manage.py:602
+msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:615
-msgid "Timeouts"
+#: common/views_manage.py:605
+msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:627
-msgid "Alternative Domains"
+#: common/views_manage.py:606
+msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:628
-msgid "One domain per line."
+#: common/views_manage.py:609
+msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:631
-msgid "Mastodon Client Scope"
+#: common/views_manage.py:612
+msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:632
-msgid "OAuth scope when creating Mastodon apps."
+#: common/views_manage.py:613
+msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:635
-msgid "Disable Cron Jobs"
+#: common/views_manage.py:616
+msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:636
-msgid "Job names to disable, one per line. Use * to disable all."
+#: common/views_manage.py:617
+msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:639
-msgid "Index Aliases"
+#: common/views_manage.py:622
+msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:640
-msgid "Map index names to their aliases."
+#: common/views_manage.py:624
+msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
+msgstr ""
+
+#: common/views_manage.py:641
+msgid "Catalog APIs"
 msgstr ""
 
 #: common/views_manage.py:650
+msgid "Translation"
+msgstr ""
+
+#: common/views_manage.py:655
+msgid "Third-Party Login"
+msgstr ""
+
+#: common/views_manage.py:659
+msgid "Monitoring"
+msgstr ""
+
+#: common/views_manage.py:671
+msgid "Scraping Providers"
+msgstr ""
+
+#: common/views_manage.py:672
+msgid "Comma-separated list of providers to try in order."
+msgstr ""
+
+#: common/views_manage.py:675
+msgid "Proxy List"
+msgstr ""
+
+#: common/views_manage.py:676
+msgid "One per line, format: http://server?url=__URL__"
+msgstr ""
+
+#: common/views_manage.py:679
+msgid "Backup Proxy"
+msgstr ""
+
+#: common/views_manage.py:682
+msgid "Scrapfly API Key"
+msgstr ""
+
+#: common/views_manage.py:685
+msgid "Decodo Base64 Auth Token"
+msgstr ""
+
+#: common/views_manage.py:688
+msgid "ScraperAPI Key"
+msgstr ""
+
+#: common/views_manage.py:691
+msgid "ScrapingBee API Key"
+msgstr ""
+
+#: common/views_manage.py:694
+msgid "Custom Scraper URL"
+msgstr ""
+
+#: common/views_manage.py:695
+msgid "URL with __URL__ and __SELECTOR__ placeholders."
+msgstr ""
+
+#: common/views_manage.py:698
+msgid "Request Timeout (seconds)"
+msgstr ""
+
+#: common/views_manage.py:702
+msgid "Cache Timeout (seconds)"
+msgstr ""
+
+#: common/views_manage.py:706
+msgid "Retries"
+msgstr ""
+
+#: common/views_manage.py:711
+msgid "Providers"
+msgstr ""
+
+#: common/views_manage.py:716
+msgid "Provider Keys"
+msgstr ""
+
+#: common/views_manage.py:723
+msgid "Timeouts"
+msgstr ""
+
+#: common/views_manage.py:735
+msgid "Alternative Domains"
+msgstr ""
+
+#: common/views_manage.py:736
+msgid "One domain per line."
+msgstr ""
+
+#: common/views_manage.py:739
+msgid "Mastodon Client Scope"
+msgstr ""
+
+#: common/views_manage.py:740
+msgid "OAuth scope when creating Mastodon apps."
+msgstr ""
+
+#: common/views_manage.py:743
+msgid "Disable Cron Jobs"
+msgstr ""
+
+#: common/views_manage.py:744
+msgid "Job names to disable, one per line. Use * to disable all."
+msgstr ""
+
+#: common/views_manage.py:747
+msgid "Index Aliases"
+msgstr ""
+
+#: common/views_manage.py:748
+msgid "Map index names to their aliases."
+msgstr ""
+
+#: common/views_manage.py:758
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:652
+#: common/views_manage.py:760
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:658
+#: common/views_manage.py:766
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:660
+#: common/views_manage.py:768
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:667
+#: common/views_manage.py:775
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:670
+#: common/views_manage.py:778
 msgid "Operational"
 msgstr ""
 

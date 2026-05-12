@@ -359,20 +359,10 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "title": _("Enable Recommendations"),
             "help_text": _(
                 "Master switch. When off, all recommendation surfaces are "
-                "hidden and the cron jobs are not scheduled."
+                "hidden for regular users and the cron jobs are not "
+                "scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' "
+                "in their bio) still see the surfaces, for preview."
             ),
-        },
-        "enable_reco_similar_items": {
-            "title": _("Enable Similar Items"),
-            "help_text": _("Show a 'Similar items' block on item pages."),
-        },
-        "enable_reco_for_you": {
-            "title": _("Enable 'For You' Recommendations"),
-            "help_text": _("Show personalised recommendations on the discover page."),
-        },
-        "enable_reco_from_circles": {
-            "title": _("Enable 'From Your Circles' Recommendations"),
-            "help_text": _("Show items recently marked by people the viewer follows."),
         },
         "reco_min_source_marks": {
             "title": _("Source Item Mark Threshold"),
@@ -449,11 +439,8 @@ class RecommendationSettings(SiteConfigSettingsPage):
         },
     }
     layout = {
-        _("Surfaces"): [
+        _("Master Switch"): [
             "enable_recommendations",
-            "enable_reco_similar_items",
-            "enable_reco_for_you",
-            "enable_reco_from_circles",
         ],
         _("Similarity Builder"): [
             "reco_min_source_marks",
