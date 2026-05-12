@@ -334,12 +334,51 @@ class Collection(List):
         else:
             return super().get_summary()
 
-    @property
+    @cached_property
     def item_count_by_category(self) -> dict[str, int]:
         from catalog.models import ItemCategory
 
         summary = self.get_summary()
-        return {cat.value: int(summary.get(cat.value, 0)) for cat in ItemCategory}
+        return {cat.value: int(summary.get(cat.value) or 0) for cat in ItemCategory}
+
+    @classmethod
+    def attach_item_count_by_category(cls, collections: list["Collection"]) -> None:
+        """Pre-compute ``item_count_by_category`` for many static collections in one query.
+
+        Without this, serializing a list of Collections triggers one
+        per-collection ``get_summary()`` query (N+1). Dynamic collections
+        each issue a distinct search and are left to per-instance
+        ``cached_property`` resolution.
+        """
+        from catalog.models import ItemCategory
+        from catalog.models.item import item_content_types
+
+        if not collections:
+            return
+        static = [c for c in collections if not c.is_dynamic]
+        if not static:
+            return
+        ctype_to_category = {
+            ctype_id: getattr(cls_, "category", None)
+            for cls_, ctype_id in item_content_types().items()
+        }
+        all_cats = {cat.value for cat in ItemCategory}
+        counts_by_collection: dict[int, dict[str, int]] = {
+            c.pk: {cat.value: 0 for cat in ItemCategory} for c in static
+        }
+        rows = (
+            CollectionMember.objects.filter(parent_id__in=[c.pk for c in static])
+            .values("parent_id", "item__polymorphic_ctype_id")
+            .annotate(count=models.Count("id"))
+        )
+        for row in rows:
+            category = ctype_to_category.get(row["item__polymorphic_ctype_id"])
+            if category and category in all_cats:
+                counts_by_collection[row["parent_id"]][category] += row["count"]
+        for c in static:
+            # Seed ``cached_property`` storage so the descriptor returns
+            # the precomputed dict without re-running get_summary().
+            c.__dict__["item_count_by_category"] = counts_by_collection[c.pk]
 
     def save(self, *args, **kwargs):
         # Remote mirrors don't need a CatalogCollection — those rows would

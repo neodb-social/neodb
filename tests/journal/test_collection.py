@@ -200,6 +200,33 @@ class TestCollectionListOperations:
         assert set(counts.keys()) == {c.value for c in ItemCategory}
         assert all(v == 0 for v in counts.values())
 
+    def test_attach_item_count_by_category_batches_queries(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        self.collection.append_item(self.book1)
+        self.collection.append_item(self.movie)
+        other = Collection(
+            owner=self.user.identity,
+            title="Second Collection",
+            brief="",
+        )
+        other.save()
+        other.append_item(self.book2)
+
+        # Fresh instances mirror the API list path (no cached_property yet).
+        fresh = list(Collection.objects.filter(pk__in=[self.collection.pk, other.pk]))
+        with CaptureQueriesContext(connection) as ctx:
+            Collection.attach_item_count_by_category(fresh)
+            # Reading the property must hit the cache populated above, not DB.
+            counts_by_pk = {c.pk: c.item_count_by_category for c in fresh}
+        assert len(ctx.captured_queries) == 1, ctx.captured_queries
+
+        assert counts_by_pk[self.collection.pk]["book"] == 1
+        assert counts_by_pk[self.collection.pk]["movie"] == 1
+        assert counts_by_pk[other.pk]["book"] == 1
+        assert counts_by_pk[other.pk]["movie"] == 0
+
     def test_collection_member_note(self):
         member, _ = self.collection.append_item(self.book1, note="A note about this")
         assert member.note == "A note about this"

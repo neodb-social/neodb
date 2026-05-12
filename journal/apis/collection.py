@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import List
+from typing import Any, List
 
 from django.core.cache import cache
 from django.core.signing import b62_encode
-from django.db.models import Count
-from django.http import Http404, HttpResponse
+from django.db.models import Count, QuerySet
+from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from ninja import Field, Schema, Status
@@ -23,6 +23,30 @@ from common.api import (
 from journal.models.common import q_piece_visible_to_user
 
 from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
+
+
+class CollectionPageNumberPagination(PageNumberPagination):
+    """Pagination that batch-attaches ``item_count_by_category`` after slicing.
+
+    Plain ``PageNumberPagination`` would serialize each Collection one at a
+    time, each triggering its own ``get_summary()``; this hook fetches all
+    static collections' member→category counts in a single query.
+    """
+
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ):
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        if isinstance(val, tuple):
+            return val
+        data = val.get("data") if isinstance(val, dict) else None
+        if data:
+            Collection.attach_item_count_by_category(list(data))
+        return val
 
 
 class CollectionSchema(Schema):
@@ -76,7 +100,7 @@ class FeaturedCollectionStatsSchema(Schema):
     response={200: List[CollectionSchema], 401: Result, 403: Result},
     tags=["collection"],
 )
-@paginate(PageNumberPagination)
+@paginate(CollectionPageNumberPagination)
 def list_user_collections(request):
     """
     Get collections created by current user
@@ -339,7 +363,7 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
     tags=["collection"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
-@paginate(PageNumberPagination)
+@paginate(CollectionPageNumberPagination)
 def list_item_collections(request, item_uuid: str):
     """
     List collections containing the item
@@ -396,7 +420,9 @@ def list_featured_collections(request):
     """
     List featured collections for current user.
     """
-    return Collection.objects.filter(featured_by=request.user.identity)
+    collections = list(Collection.objects.filter(featured_by=request.user.identity))
+    Collection.attach_item_count_by_category(collections)
+    return collections
 
 
 @api.get(
@@ -484,4 +510,5 @@ def trending_collection(request):
         qs = qs.exclude(owner_id__in=restricted_owner_ids)
     collections = list(qs)
     prefetch_latest_posts(collections)
+    Collection.attach_item_count_by_category(collections)
     return collections
