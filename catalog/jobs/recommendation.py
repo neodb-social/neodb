@@ -15,13 +15,16 @@ from catalog.models import (
     item_categories,
     item_content_types,
 )
-from catalog.recommendation import compute_for_user
+from catalog.recommendation import (
+    SHELF_TYPES_AS_SEED,
+    compute_for_user,
+    excluded_target_ctype_ids,
+    production_to_performance_map,
+)
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import ShelfMember
 from takahe.models import Identity as TakaheIdentity
 from users.models import APIdentity
-
-PROGRESS_COMPLETE = ["progress", "complete"]
 
 
 def _non_discoverable_identity_ids() -> set[int]:
@@ -57,34 +60,92 @@ class BuildItemSimilarity(BaseJob):
             return timedelta(0)
         return timedelta(days=7)
 
-    def _active_item_ids(self, min_marks: int, excluded_owners: set[int]) -> set[int]:
+    def _active_item_ids(
+        self,
+        min_marks: int,
+        excluded_owners: set[int],
+        rewrite: dict[int, int],
+    ) -> set[int]:
+        """Items with at least ``min_marks`` distinct owners after rewrite.
+
+        Marks on Productions count toward their parent Performance. Without
+        rewrite this is a one-shot SQL aggregation; with rewrite we keep the
+        fast SQL path for non-Production items and stream the Production
+        subset (typically small) to dedup owners against the parent.
+        """
         qs = ShelfMember.objects.filter(
-            visibility=0, parent__shelf_type__in=PROGRESS_COMPLETE
+            visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
-        rows = (
-            qs.values("item_id")
+        if not rewrite:
+            return set(
+                qs.values("item_id")
+                .annotate(n=Count("id"))
+                .filter(n__gte=min_marks)
+                .values_list("item_id", flat=True)
+            )
+
+        rewrite_keys = set(rewrite)
+        rewrite_targets = set(rewrite.values())
+
+        counts: dict[int, int] = dict(
+            qs.exclude(item_id__in=rewrite_keys)
+            .values("item_id")
             .annotate(n=Count("id"))
-            .filter(n__gte=min_marks)
-            .values_list("item_id", flat=True)
+            .values_list("item_id", "n")
         )
-        return set(rows)
+
+        # Build per-Performance owner sets, seeded by direct Performance marks.
+        perf_owners: dict[int, set[int]] = {}
+        for owner_id, item_id in (
+            qs.filter(item_id__in=rewrite_targets)
+            .values_list("owner_id", "item_id")
+            .iterator(chunk_size=20_000)
+        ):
+            perf_owners.setdefault(item_id, set()).add(owner_id)
+        # Add Production marks rewritten to their Performance.
+        for owner_id, item_id in (
+            qs.filter(item_id__in=rewrite_keys)
+            .values_list("owner_id", "item_id")
+            .iterator(chunk_size=20_000)
+        ):
+            mapped = rewrite[item_id]
+            perf_owners.setdefault(mapped, set()).add(owner_id)
+        # Replace direct counts with the deduped Performance total.
+        for perf_id, owners in perf_owners.items():
+            counts[perf_id] = len(owners)
+        # Productions are intentionally absent from `counts` (excluded above).
+        return {iid for iid, c in counts.items() if c >= min_marks}
 
     def _user_item_pairs(
-        self, active_items: set[int], cap: int, excluded_owners: set[int]
+        self,
+        active_items: set[int],
+        cap: int,
+        excluded_owners: set[int],
+        rewrite: dict[int, int],
     ) -> dict[int, list[int]]:
         """Per-user lists of active item ids, each truncated to ``cap`` most recent.
 
         Streams ordered by (owner_id, -edited_time) so we can drop overflow per
         owner in-line without accumulating every mark in memory first. Critical
         at scale: a mega-shelver with 22k marks would otherwise allocate before
-        being truncated.
+        being truncated. Production marks are rewritten to Performance ids and
+        deduplicated per owner.
         """
+        # Production ids whose Performance is in active_items also need to be
+        # streamed (so they can rewrite into the active set).
+        prod_ids_to_include = (
+            {pid for pid, perf in rewrite.items() if perf in active_items}
+            if rewrite
+            else set()
+        )
+        item_filter = active_items | prod_ids_to_include
+
         qs = ShelfMember.objects.filter(
             visibility=0,
-            parent__shelf_type__in=PROGRESS_COMPLETE,
-            item_id__in=active_items,
+            parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+            item_id__in=item_filter,
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
@@ -94,14 +155,20 @@ class BuildItemSimilarity(BaseJob):
         out: dict[int, list[int]] = {}
         current_owner: int | None = None
         current_items: list[int] = []
+        current_seen: set[int] = set()
         for owner_id, item_id in rows:
             if owner_id != current_owner:
                 if current_owner is not None and len(current_items) >= 2:
                     out[current_owner] = current_items
                 current_owner = owner_id
                 current_items = []
+                current_seen = set()
+            mapped = rewrite.get(item_id, item_id) if rewrite else item_id
+            if mapped in current_seen:
+                continue
             if len(current_items) < cap:
-                current_items.append(item_id)
+                current_items.append(mapped)
+                current_seen.add(mapped)
         if current_owner is not None and len(current_items) >= 2:
             out[current_owner] = current_items
         return out
@@ -114,22 +181,38 @@ class BuildItemSimilarity(BaseJob):
         top_k = sys.reco_similarity_top_k
         dampen = sys.reco_user_idf_dampen
         excluded = _non_discoverable_identity_ids()
+        rewrite = production_to_performance_map()
+        excluded_target_ctypes = excluded_target_ctype_ids()
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
-            f"cap={cap} top_k={top_k} dampen={dampen} excluded_owners={len(excluded)}"
+            f"cap={cap} top_k={top_k} dampen={dampen} excluded_owners={len(excluded)} "
+            f"production_rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
         )
 
-        active = self._active_item_ids(min_source, excluded)
+        active = self._active_item_ids(min_source, excluded, rewrite)
         target_set = (
-            self._active_item_ids(min_target, excluded)
+            self._active_item_ids(min_target, excluded, rewrite)
             if min_target < min_source
             else active
         )
+        # Remove classes that should never be recommendation targets, even if
+        # they otherwise meet the threshold (Production marks have already been
+        # rewritten upstream, so PerformanceProductions never appear here).
+        if excluded_target_ctypes:
+            excluded_target_ids = set(
+                Item.objects.filter(
+                    pk__in=target_set,
+                    polymorphic_ctype_id__in=excluded_target_ctypes,
+                ).values_list("pk", flat=True)
+            )
+            target_set = target_set - excluded_target_ids
         logger.info(f"Active items: {len(active)} target candidates: {len(target_set)}")
 
         item_categories_map: dict[int, list[tuple[int, float]]] = {}
         if active:
-            user_items = self._user_item_pairs(active | target_set, cap, excluded)
+            user_items = self._user_item_pairs(
+                active | target_set, cap, excluded, rewrite
+            )
             logger.info(f"Users contributing: {len(user_items)}")
 
             # Co-occurrence scores live in a nested dict. With cap+IDF damping

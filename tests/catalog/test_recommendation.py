@@ -4,6 +4,9 @@ from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommenda
 from catalog.models import (
     Edition,
     ItemSimilarity,
+    Performance,
+    PerformanceProduction,
+    TVShow,
     UserRecommendation,
 )
 from catalog.recommendation import (
@@ -304,3 +307,115 @@ class TestBlendedReturnsEmptyWhenDisabled:
     def test_empty_when_master_off(self):
         out = blended_for_discover(self.user, limit=10)
         assert out == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestWishlistAsSeed:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_mark_cap=100,
+            reco_user_idf_dampen=False,
+        )
+        self.users = [
+            User.register(email=f"w{i}@test.com", username=f"w_user{i}")
+            for i in range(2)
+        ]
+        self.identities = [u.identity for u in self.users]
+        self.k = Edition.objects.create(title="K")
+        self.l = Edition.objects.create(title="L")
+        # Both users wishlist both books.
+        for ident in self.identities:
+            Mark(ident, self.k).update(ShelfType.WISHLIST, "", 0, [], 0)
+            Mark(ident, self.l).update(ShelfType.WISHLIST, "", 0, [], 0)
+
+    def test_wishlist_marks_train_similarity(self):
+        BuildItemSimilarity().run()
+        # K and L are co-wishlisted by 2 distinct users -> threshold met,
+        # similarity row should exist.
+        assert ItemSimilarity.objects.filter(source=self.k, target=self.l).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestProductionRewritesToPerformance:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_mark_cap=100,
+            reco_user_idf_dampen=False,
+        )
+        self.users = [
+            User.register(email=f"pp{i}@test.com", username=f"pp_user{i}")
+            for i in range(2)
+        ]
+        self.identities = [u.identity for u in self.users]
+        # Performance with two Productions; both users shelve one Production each.
+        self.show = Performance.objects.create(title="Hamilton")
+        self.prod_a = PerformanceProduction.objects.create(title="2015 Broadway")
+        self.prod_a.show = self.show
+        self.prod_a.save()
+        self.prod_b = PerformanceProduction.objects.create(title="2024 Tour")
+        self.prod_b.show = self.show
+        self.prod_b.save()
+        # Another Performance that one user shelved (Performance-direct).
+        self.peer = Performance.objects.create(title="Other Show")
+        _public_mark(self.identities[0], self.prod_a)
+        _public_mark(self.identities[1], self.prod_b)
+        # Both also mark the peer Performance so co-occurrence is non-trivial.
+        _public_mark(self.identities[0], self.peer)
+        _public_mark(self.identities[1], self.peer)
+
+    def test_production_marks_aggregate_to_performance(self):
+        BuildItemSimilarity().run()
+        # Hamilton (Performance) should appear as a source even though
+        # nobody marked it directly -- two distinct users shelved its
+        # Productions, meeting min_source_marks=2 after rewrite.
+        assert ItemSimilarity.objects.filter(source=self.show).exists()
+
+    def test_productions_are_not_recommended(self):
+        BuildItemSimilarity().run()
+        # PerformanceProduction must never appear as a target.
+        target_ids = set(
+            ItemSimilarity.objects.values_list("target_id", flat=True).distinct()
+        )
+        assert self.prod_a.pk not in target_ids
+        assert self.prod_b.pk not in target_ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestExcludedTargetClasses:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_mark_cap=100,
+            reco_user_idf_dampen=False,
+        )
+        self.users = [
+            User.register(email=f"ex{i}@test.com", username=f"ex_user{i}")
+            for i in range(2)
+        ]
+        self.identities = [u.identity for u in self.users]
+        self.show = TVShow.objects.create(title="A Show")
+        self.peer = Edition.objects.create(title="A Book")
+        for ident in self.identities:
+            _public_mark(ident, self.show)
+            _public_mark(ident, self.peer)
+
+    def test_tvshow_never_recommended(self):
+        BuildItemSimilarity().run()
+        target_ids = set(
+            ItemSimilarity.objects.values_list("target_id", flat=True).distinct()
+        )
+        assert self.show.pk not in target_ids

@@ -20,11 +20,73 @@ from common.models import SiteConfig
 from journal.models import ShelfMember, q_piece_visible_to_user
 from takahe.models import Identity as TakaheIdentity
 
-from .models import Item, ItemSimilarity, UserRecommendation
+from .models import (
+    Item,
+    ItemSimilarity,
+    PerformanceProduction,
+    PodcastEpisode,
+    TVEpisode,
+    TVShow,
+    UserRecommendation,
+    item_content_types,
+)
+
+# Item classes that should never appear as recommendation targets.
+# - TVShow: container; users typically mark TVSeasons
+# - TVEpisode: too granular vs the season
+# - PerformanceProduction: container under Performance
+# - PodcastEpisode: too granular vs the podcast
+EXCLUDED_RECO_TARGET_CLASSES: tuple[type[Item], ...] = (
+    TVShow,
+    TVEpisode,
+    PerformanceProduction,
+    PodcastEpisode,
+)
+
+
+def excluded_target_ctype_ids() -> set[int]:
+    """ContentType ids for classes that must not be recommendation targets."""
+    cts = item_content_types()
+    return {cts[cls] for cls in EXCLUDED_RECO_TARGET_CLASSES if cls in cts}
+
+
+def production_to_performance_map() -> dict[int, int]:
+    """item_id of PerformanceProduction -> item_id of parent Performance.
+
+    Marks on a Production are aggregated to its parent Performance so the
+    aggregated signal reflects what users actually engaged with (the show),
+    not a specific staging. Productions with no parent are not in the map.
+    """
+    return dict(
+        PerformanceProduction.objects.filter(show_id__isnull=False).values_list(
+            "pk", "show_id"
+        )
+    )
+
+
+_PROD_TO_PERF_CACHE_KEY = "reco:prod_to_perf"
+_PROD_TO_PERF_TTL = 3600
+
+
+def production_to_performance_cached() -> dict[int, int]:
+    cached = cache.get(_PROD_TO_PERF_CACHE_KEY)
+    if cached is not None:
+        return cached
+    m = production_to_performance_map()
+    cache.set(_PROD_TO_PERF_CACHE_KEY, m, timeout=_PROD_TO_PERF_TTL)
+    return m
+
 
 _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
 
-SHELF_TYPES_AS_SEED = ("progress", "complete")
+# Shelves that count as positive interest signal for recommendation training
+# and as seeds for personalised recommendations. Wishlist is an explicit
+# forward-looking taste signal; dropped is excluded (negative signal).
+SHELF_TYPES_AS_SEED = ("wishlist", "progress", "complete")
+
+# Shelves that mean the user has already engaged with an item, so we should
+# never recommend it back to them. Includes "dropped" so we don't re-surface
+# things they actively disliked.
 SHELF_TYPES_TO_EXCLUDE = ("wishlist", "progress", "complete", "dropped")
 
 # Surfaces that can be shown to anonymous viewers (the rest require a User).
@@ -57,7 +119,16 @@ def can_show_reco(user, kind: str) -> bool:
 
 
 def _live_items(qs):
-    return qs.filter(is_deleted=False, merged_to_item_id__isnull=True)
+    """Filter to items that are valid recommendation *targets*.
+
+    Drops soft-deleted/merged rows and the four classes that should never be
+    recommended (TVShow / TVEpisode / PerformanceProduction / PodcastEpisode).
+    """
+    excluded = excluded_target_ctype_ids()
+    qs = qs.filter(is_deleted=False, merged_to_item_id__isnull=True)
+    if excluded:
+        qs = qs.exclude(polymorphic_ctype_id__in=excluded)
+    return qs
 
 
 def _user_shelved_item_ids(identity_pk: int) -> set[int]:
@@ -107,17 +178,30 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     seed_cap = sys.reco_per_user_seed_cap
     top_n = sys.reco_user_top_n
 
-    seeds = list(
+    raw_seeds = list(
         ShelfMember.objects.filter(
             owner_id=identity_pk,
             visibility=0,
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
         )
         .order_by("-edited_time")
-        .values_list("item_id", flat=True)[:seed_cap]
+        .values_list("item_id", flat=True)[: seed_cap * 2]
     )
-    if not seeds:
+    if not raw_seeds:
         return []
+    # Rewrite Production marks to their parent Performance so the user's
+    # signal aggregates the same way it does in the similarity matrix.
+    rewrite = production_to_performance_cached()
+    seen: set[int] = set()
+    seeds: list[int] = []
+    for sid in raw_seeds:
+        mapped = rewrite.get(sid, sid)
+        if mapped in seen:
+            continue
+        seen.add(mapped)
+        seeds.append(mapped)
+        if len(seeds) >= seed_cap:
+            break
     shelved = _user_shelved_item_ids(identity_pk)
     seed_set = set(seeds)
 
@@ -254,6 +338,7 @@ def from_your_circles(
     if not eligible_followees:
         return []
     shelved = _user_shelved_item_ids(identity.pk)
+    excluded_ctypes = excluded_target_ctype_ids()
     qs = (
         ShelfMember.objects.filter(q_piece_visible_to_user(viewer))
         .filter(
@@ -263,6 +348,8 @@ def from_your_circles(
         )
         .exclude(item_id__in=shelved)
     )
+    if excluded_ctypes:
+        qs = qs.exclude(item__polymorphic_ctype_id__in=excluded_ctypes)
     rows = list(
         qs.values("item_id")
         .annotate(c=Count("owner_id", distinct=True))
