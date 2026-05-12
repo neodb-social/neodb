@@ -108,7 +108,9 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     if not top:
         return []
     target_ids = [t for t, _ in top]
-    cats = dict(Item.objects.filter(pk__in=target_ids).values_list("pk", "category"))
+    # category is a class attribute on each Item subclass, not a DB column,
+    # so resolve via the polymorphic queryset and read the attribute.
+    cats = {i.pk: str(i.category) for i in Item.objects.filter(pk__in=target_ids)}
     rows: list[UserRecommendation] = []
     for tgt, score in top:
         cat = cats.get(tgt)
@@ -120,7 +122,7 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
                 item_id=tgt,
                 score=score,
                 seed_item_ids=seeds_by_target.get(tgt, []),
-                category=str(cat),
+                category=cat,
             )
         )
     return rows

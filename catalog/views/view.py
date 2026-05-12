@@ -527,6 +527,10 @@ def similar(request, item_path, item_uuid):
             items = similar_items(item, request.user, limit=10)
     elif pref.show_recommendations("similar_items"):
         items = similar_items(item, request.user, limit=10)
+    if items:
+        Item.prefetch_parent_items(items)
+        Item.prefetch_edition_works(items)
+        prefetch_related_objects(items, "external_resources")
     return render(
         request,
         "_item_similar.html",
@@ -635,6 +639,10 @@ def discover(request):
         reco_items = blended_for_discover(request.user, limit=30)
         if len(reco_items) < 3:
             reco_items = []
+        else:
+            Item.prefetch_parent_items(reco_items)
+            Item.prefetch_edition_works(reco_items)
+            prefetch_related_objects(reco_items, "external_resources")
 
     updated = cache.get("trends_updated", timezone.now())
     return render(

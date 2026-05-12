@@ -70,8 +70,13 @@ class BuildItemSimilarity(BaseJob):
     def _user_item_pairs(
         self, active_items: set[int], cap: int, excluded_owners: set[int]
     ) -> dict[int, list[int]]:
-        """Per-user lists of active item ids, each truncated to ``cap`` most recent."""
-        pairs: dict[int, list[tuple[int, int]]] = defaultdict(list)
+        """Per-user lists of active item ids, each truncated to ``cap`` most recent.
+
+        Streams ordered by (owner_id, -edited_time) so we can drop overflow per
+        owner in-line without accumulating every mark in memory first. Critical
+        at scale: a mega-shelver with 22k marks would otherwise allocate before
+        being truncated.
+        """
         qs = ShelfMember.objects.filter(
             visibility=0,
             parent__shelf_type__in=PROGRESS_COMPLETE,
@@ -79,18 +84,22 @@ class BuildItemSimilarity(BaseJob):
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
-        rows = qs.values_list("owner_id", "item_id", "edited_time").iterator(
-            chunk_size=20_000
-        )
-        for owner_id, item_id, edited in rows:
-            ts = int(edited.timestamp()) if edited else 0
-            pairs[owner_id].append((ts, item_id))
+        qs = qs.order_by("owner_id", "-edited_time")
+        rows = qs.values_list("owner_id", "item_id").iterator(chunk_size=20_000)
+
         out: dict[int, list[int]] = {}
-        for owner_id, lst in pairs.items():
-            if len(lst) > cap:
-                lst.sort(reverse=True)
-                lst = lst[:cap]
-            out[owner_id] = [iid for _, iid in lst]
+        current_owner: int | None = None
+        current_items: list[int] = []
+        for owner_id, item_id in rows:
+            if owner_id != current_owner:
+                if current_owner is not None and len(current_items) >= 2:
+                    out[current_owner] = current_items
+                current_owner = owner_id
+                current_items = []
+            if len(current_items) < cap:
+                current_items.append(item_id)
+        if current_owner is not None and len(current_items) >= 2:
+            out[current_owner] = current_items
         return out
 
     def run(self) -> None:
@@ -107,9 +116,6 @@ class BuildItemSimilarity(BaseJob):
         )
 
         active = self._active_item_ids(min_source, excluded)
-        if not active:
-            logger.info("No active items meet threshold; aborting")
-            return
         target_set = (
             self._active_item_ids(min_target, excluded)
             if min_target < min_source
@@ -117,46 +123,55 @@ class BuildItemSimilarity(BaseJob):
         )
         logger.info(f"Active items: {len(active)} target candidates: {len(target_set)}")
 
-        user_items = self._user_item_pairs(active | target_set, cap, excluded)
-        logger.info(f"Users contributing: {len(user_items)}")
+        item_categories_map: dict[int, list[tuple[int, float]]] = {}
+        if active:
+            user_items = self._user_item_pairs(active | target_set, cap, excluded)
+            logger.info(f"Users contributing: {len(user_items)}")
 
-        scores: dict[int, dict[int, float]] = defaultdict(lambda: defaultdict(float))
-        for items in user_items.values():
-            n = len(items)
-            if n < 2:
-                continue
-            w = (1.0 / math.sqrt(n)) if dampen else 1.0
-            ws = w * w
-            for i in range(n):
-                a = items[i]
-                row = scores[a]
-                for j in range(i + 1, n):
-                    b = items[j]
-                    row[b] += ws
-                    scores[b][a] += ws
+            scores: dict[int, dict[int, float]] = defaultdict(
+                lambda: defaultdict(float)
+            )
+            for items in user_items.values():
+                n = len(items)
+                if n < 2:
+                    continue
+                w = (1.0 / math.sqrt(n)) if dampen else 1.0
+                ws = w * w
+                for i in range(n):
+                    a = items[i]
+                    row = scores[a]
+                    for j in range(i + 1, n):
+                        b = items[j]
+                        row[b] += ws
+                        scores[b][a] += ws
 
-        category_by_id = dict(
-            Item.objects.filter(pk__in=active).values_list("pk", "polymorphic_ctype_id")
-        )
+            # category resolved from polymorphic content type for both source
+            # and target candidates -- target-only items would otherwise miss.
+            category_by_id = dict(
+                Item.objects.filter(pk__in=active | target_set).values_list(
+                    "pk", "polymorphic_ctype_id"
+                )
+            )
 
-        rows_written = 0
-        item_categories_map = {}
-        for src in active:
-            row = scores.get(src)
-            if not row:
-                continue
-            src_ct = category_by_id.get(src)
-            same_cat = [
-                (b, s)
-                for b, s in row.items()
-                if b in target_set and category_by_id.get(b) == src_ct
-            ]
-            if not same_cat:
-                continue
-            top = nlargest(top_k, same_cat, key=lambda t: t[1])
-            item_categories_map[src] = top
+            for src in active:
+                row = scores.get(src)
+                if not row:
+                    continue
+                src_ct = category_by_id.get(src)
+                same_cat = [
+                    (b, s)
+                    for b, s in row.items()
+                    if b in target_set and category_by_id.get(b) == src_ct
+                ]
+                if not same_cat:
+                    continue
+                top = nlargest(top_k, same_cat, key=lambda t: t[1])
+                item_categories_map[src] = top
 
         logger.info(f"Sources with similar rows: {len(item_categories_map)}")
+        rows_written = 0
+        # Always replace stale rows -- threshold or data changes can leave
+        # otherwise-invalid similarity rows visible to serving helpers.
         with transaction.atomic():
             ItemSimilarity.objects.filter(
                 method=ItemSimilarity.METHOD_SHELF_COOC
@@ -206,10 +221,18 @@ class BuildUserRecommendations(BaseJob):
         )
 
     def _user_pk_by_identity(self, identity_ids: list[int]) -> dict[int, int]:
+        """Map identity_pk -> user_pk for local identities only.
+
+        Remote identities have ``user_id`` null; including them would cause
+        a NOT NULL violation in ``UserRecommendation.user_id`` and abort the
+        whole nightly refresh.
+        """
         from users.models import APIdentity
 
         return dict(
-            APIdentity.objects.filter(pk__in=identity_ids).values_list("pk", "user_id")
+            APIdentity.objects.filter(
+                pk__in=identity_ids, user_id__isnull=False
+            ).values_list("pk", "user_id")
         )
 
     def run(self) -> None:

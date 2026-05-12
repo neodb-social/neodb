@@ -447,6 +447,27 @@ def _reco_gated(user, kind: str) -> bool:
     return bool(pref and pref.show_recommendations(kind))
 
 
+def _prepare_reco_items(request, items: list) -> None:
+    """Hydrate items for ItemSchema serialization. Mirrors search_item.
+
+    Without this the schema dereferences parents, credits, external resources,
+    ratings, tags and mark state per row -- a 60-item response would issue
+    hundreds of queries.
+    """
+    if not items:
+        return
+    Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
+    prefetch_related_objects(
+        items,
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
+    Rating.attach_to_items(items)
+    Tag.attach_to_items(items)
+    if request.user.is_authenticated:
+        Mark.attach_to_items(request.user.identity, items, request.user)
+
+
 @api.get(
     "/catalog/item/{uuid}/similar",
     response={200: RecommendationResult, 404: Result},
@@ -463,8 +484,7 @@ def similar_for_item(request, uuid: str, limit: int = 10):
         return Status(404, {"message": "Item not found"})
     target = item.merged_to_item or item
     items = similar_items(target, request.user, limit=min(max(limit, 1), 50))
-    if request.user.is_authenticated:
-        Mark.attach_to_items(request.user.identity, items, request.user)
+    _prepare_reco_items(request, items)
     return Status(200, {"data": items, "count": len(items)})
 
 
@@ -486,5 +506,5 @@ def me_recommendations(request, limit: int = 30):
     ):
         return Status(200, {"data": [], "count": 0})
     items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
-    Mark.attach_to_items(request.user.identity, items, request.user)
+    _prepare_reco_items(request, items)
     return Status(200, {"data": items, "count": len(items)})
