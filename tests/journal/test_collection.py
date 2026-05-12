@@ -180,6 +180,26 @@ class TestCollectionListOperations:
         summary = self.collection.get_summary()
         assert all(v == 0 for v in summary.values())
 
+    def test_item_count_by_category(self):
+        from catalog.models import ItemCategory
+
+        self.collection.append_item(self.book1)
+        self.collection.append_item(self.book2)
+        self.collection.append_item(self.movie)
+
+        counts = self.collection.item_count_by_category
+        assert set(counts.keys()) == {c.value for c in ItemCategory}
+        assert counts["book"] == 2
+        assert counts["movie"] == 1
+        assert counts["tv"] == 0
+
+    def test_item_count_by_category_empty(self):
+        from catalog.models import ItemCategory
+
+        counts = self.collection.item_count_by_category
+        assert set(counts.keys()) == {c.value for c in ItemCategory}
+        assert all(v == 0 for v in counts.values())
+
     def test_collection_member_note(self):
         member, _ = self.collection.append_item(self.book1, note="A note about this")
         assert member.note == "A note about this"

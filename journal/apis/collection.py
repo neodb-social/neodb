@@ -39,6 +39,7 @@ class CollectionSchema(Schema):
     html_content: str
     is_dynamic: bool
     query: str | None = None
+    item_count_by_category: dict[str, int]
 
 
 class CollectionInSchema(Schema):

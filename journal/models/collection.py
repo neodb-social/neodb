@@ -334,6 +334,13 @@ class Collection(List):
         else:
             return super().get_summary()
 
+    @property
+    def item_count_by_category(self) -> dict[str, int]:
+        from catalog.models import ItemCategory
+
+        summary = self.get_summary()
+        return {cat.value: int(summary.get(cat.value, 0)) for cat in ItemCategory}
+
     def save(self, *args, **kwargs):
         # Remote mirrors don't need a CatalogCollection — those rows would
         # otherwise pollute the catalog with stub entries that have no

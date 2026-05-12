@@ -443,7 +443,10 @@ def test_collection_api_crud_and_items():
     response = Client().get(f"/api/collection/{collection_uuid}")
 
     assert response.status_code == 200
-    assert response.json()["uuid"] == collection_uuid
+    detail = response.json()
+    assert detail["uuid"] == collection_uuid
+    assert detail["item_count_by_category"]["book"] == 1
+    assert detail["item_count_by_category"]["movie"] == 0
 
     response = Client().get(f"/api/collection/{collection_uuid}/item/")
 
