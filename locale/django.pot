@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-12 00:51-0400\n"
+"POT-Creation-Date: 2026-05-12 02:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -598,7 +598,7 @@ msgstr ""
 msgid "year of publication"
 msgstr ""
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:176
+#: catalog/models/game.py:135 catalog/models/podcast.py:194
 msgid "date of publication"
 msgstr ""
 
@@ -1117,6 +1117,10 @@ msgstr ""
 msgid "write a review"
 msgstr ""
 
+#: catalog/templates/_item_similar.html:5
+msgid "Similar items"
+msgstr ""
+
 #: catalog/templates/_item_user_mark_history.html:20
 msgid "no history."
 msgstr ""
@@ -1550,7 +1554,7 @@ msgstr ""
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:209
+#: users/templates/users/preferences.html:222
 msgid "Save"
 msgstr ""
 
@@ -1585,47 +1589,51 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
-#: catalog/templates/discover.html:86
+#: catalog/templates/discover.html:58
+msgid "Recommended for you"
+msgstr ""
+
+#: catalog/templates/discover.html:111
 #: journal/templates/user_collection_list.html:18
 #: journal/templates/user_collection_list.html:32
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:235
+#: catalog/templates/discover.html:129 journal/templates/profile.html:235
 msgid "edit layout"
 msgstr ""
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:238
+#: catalog/templates/discover.html:132 journal/templates/profile.html:238
 msgid "save"
 msgstr ""
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:249
+#: catalog/templates/discover.html:143 journal/templates/profile.html:249
 msgid "cancel"
 msgstr ""
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:255
+#: catalog/templates/discover.html:149 journal/templates/profile.html:255
 msgid "show"
 msgstr ""
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:256
+#: catalog/templates/discover.html:150 journal/templates/profile.html:256
 msgid "hide"
 msgstr ""
 
-#: catalog/templates/discover.html:157 common/templates/_sidebar.html:14
+#: catalog/templates/discover.html:182 common/templates/_sidebar.html:14
 msgid "Unread Announcements"
 msgstr ""
 
-#: catalog/templates/discover.html:163 common/templates/_sidebar.html:20
+#: catalog/templates/discover.html:188 common/templates/_sidebar.html:20
 #: social/templates/notification.html:67
 msgid "mark all as read"
 msgstr ""
 
-#: catalog/templates/discover.html:173
+#: catalog/templates/discover.html:198
 #: common/templates/_sidebar_anonymous.html:55
 msgid "Popular Tags"
 msgstr ""
 
-#: catalog/templates/discover.html:180 catalog/templates/item_base.html:273
+#: catalog/templates/discover.html:205 catalog/templates/item_base.html:273
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28 common/templates/_sidebar.html:114
@@ -1642,7 +1650,7 @@ msgstr ""
 msgid "nothing so far."
 msgstr ""
 
-#: catalog/templates/discover.html:190 common/templates/_sidebar.html:237
+#: catalog/templates/discover.html:215 common/templates/_sidebar.html:237
 msgid "Recent Posts"
 msgstr ""
 
@@ -4250,7 +4258,7 @@ msgstr ""
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:373
+#: journal/models/collection.py:419
 msgid "created collection"
 msgstr ""
 
@@ -6025,7 +6033,7 @@ msgid "Manually approve new followers"
 msgstr ""
 
 #: takahe/models.py:459
-msgid "Include profile and posts in discovery"
+msgid "Include profile, marks and posts in discovery"
 msgstr ""
 
 #: takahe/models.py:462
@@ -6980,6 +6988,14 @@ msgstr ""
 msgid "Show your name on item page if you recently edited it"
 msgstr ""
 
+#: users/templates/users/preferences.html:215
+msgid "Do not show me item recommendations"
+msgstr ""
+
+#: users/templates/users/preferences.html:218
+msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
+msgstr ""
+
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
 msgstr ""
@@ -7306,99 +7322,99 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:202 users/views/data.py:231
+#: users/views/data.py:207 users/views/data.py:236
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:225
+#: users/views/data.py:230
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:243
+#: users/views/data.py:248
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:258 users/views/data.py:278
+#: users/views/data.py:263 users/views/data.py:283
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:292
+#: users/views/data.py:297
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:306
+#: users/views/data.py:311
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:315 users/views/data.py:339 users/views/data.py:363
-#: users/views/data.py:388 users/views/data.py:412 users/views/data.py:436
+#: users/views/data.py:320 users/views/data.py:344 users/views/data.py:368
+#: users/views/data.py:393 users/views/data.py:417 users/views/data.py:441
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:556
+#: users/views/data.py:561
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:578
+#: users/views/data.py:583
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:594
+#: users/views/data.py:599
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:599
+#: users/views/data.py:604
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:609 users/views/data.py:660
+#: users/views/data.py:614 users/views/data.py:665
 msgid "Looking up the account. Please try again in a few seconds."
-msgstr ""
-
-#: users/views/data.py:616
-#, python-brace-format
-msgid "Alias to {handle} removed."
 msgstr ""
 
 #: users/views/data.py:621
 #, python-brace-format
+msgid "Alias to {handle} removed."
+msgstr ""
+
+#: users/views/data.py:626
+#, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:647
+#: users/views/data.py:652
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:652
+#: users/views/data.py:657
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:665
+#: users/views/data.py:670
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:676
+#: users/views/data.py:681
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:682
+#: users/views/data.py:687
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:740
+#: users/views/data.py:745
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:756
+#: users/views/data.py:761
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:760
+#: users/views/data.py:765
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:769
+#: users/views/data.py:774
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

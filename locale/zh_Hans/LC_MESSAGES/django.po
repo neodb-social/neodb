@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-12 00:51-0400\n"
+"POT-Creation-Date: 2026-05-12 02:07-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -597,7 +597,7 @@ msgstr "开发者"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:176
+#: catalog/models/game.py:135 catalog/models/podcast.py:194
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -1116,6 +1116,10 @@ msgstr "作笔记或摘抄"
 msgid "write a review"
 msgstr "撰写评论"
 
+#: catalog/templates/_item_similar.html:5
+msgid "Similar items"
+msgstr "相似条目"
+
 #: catalog/templates/_item_user_mark_history.html:20
 msgid "no history."
 msgstr "暂无标记历史。"
@@ -1551,7 +1555,7 @@ msgstr "创建"
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:209
+#: users/templates/users/preferences.html:222
 msgid "Save"
 msgstr "保存"
 
@@ -1588,47 +1592,51 @@ msgstr "本操作不可撤销。确认合并吗？"
 msgid "Discover"
 msgstr "发现"
 
-#: catalog/templates/discover.html:86
+#: catalog/templates/discover.html:58
+msgid "Recommended for you"
+msgstr "为你推荐"
+
+#: catalog/templates/discover.html:111
 #: journal/templates/user_collection_list.html:18
 #: journal/templates/user_collection_list.html:32
 msgid "Collections"
 msgstr "收藏单"
 
-#: catalog/templates/discover.html:104 journal/templates/profile.html:235
+#: catalog/templates/discover.html:129 journal/templates/profile.html:235
 msgid "edit layout"
 msgstr "编辑布局"
 
-#: catalog/templates/discover.html:107 journal/templates/profile.html:238
+#: catalog/templates/discover.html:132 journal/templates/profile.html:238
 msgid "save"
 msgstr "保存"
 
-#: catalog/templates/discover.html:118 journal/templates/profile.html:249
+#: catalog/templates/discover.html:143 journal/templates/profile.html:249
 msgid "cancel"
 msgstr "取消"
 
-#: catalog/templates/discover.html:124 journal/templates/profile.html:255
+#: catalog/templates/discover.html:149 journal/templates/profile.html:255
 msgid "show"
 msgstr "显示"
 
-#: catalog/templates/discover.html:125 journal/templates/profile.html:256
+#: catalog/templates/discover.html:150 journal/templates/profile.html:256
 msgid "hide"
 msgstr "隐藏"
 
-#: catalog/templates/discover.html:157 common/templates/_sidebar.html:14
+#: catalog/templates/discover.html:182 common/templates/_sidebar.html:14
 msgid "Unread Announcements"
 msgstr "未读公告"
 
-#: catalog/templates/discover.html:163 common/templates/_sidebar.html:20
+#: catalog/templates/discover.html:188 common/templates/_sidebar.html:20
 #: social/templates/notification.html:67
 msgid "mark all as read"
 msgstr "全部标为已读"
 
-#: catalog/templates/discover.html:173
+#: catalog/templates/discover.html:198
 #: common/templates/_sidebar_anonymous.html:55
 msgid "Popular Tags"
 msgstr "热门标签"
 
-#: catalog/templates/discover.html:180 catalog/templates/item_base.html:273
+#: catalog/templates/discover.html:205 catalog/templates/item_base.html:273
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28 common/templates/_sidebar.html:114
@@ -1645,7 +1653,7 @@ msgstr "热门标签"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/discover.html:190 common/templates/_sidebar.html:237
+#: catalog/templates/discover.html:215 common/templates/_sidebar.html:237
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -4348,7 +4356,7 @@ msgstr "备注"
 msgid "search query for dynamic collection"
 msgstr "动态收藏单查询条件"
 
-#: journal/models/collection.py:373
+#: journal/models/collection.py:419
 msgid "created collection"
 msgstr "创建了收藏单"
 
@@ -6283,8 +6291,8 @@ msgid "Manually approve new followers"
 msgstr "手工审核关注者"
 
 #: takahe/models.py:459
-msgid "Include profile and posts in discovery"
-msgstr "允许个人资料和帖文包含在发现中"
+msgid "Include profile, marks and posts in discovery"
+msgstr "允许个人资料、标记和帖文包含在发现中"
 
 #: takahe/models.py:462
 msgid "Include posts in search results"
@@ -7238,6 +7246,14 @@ msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看
 msgid "Show your name on item page if you recently edited it"
 msgstr "显示你是某条目的最近编辑者"
 
+#: users/templates/users/preferences.html:215
+msgid "Do not show me item recommendations"
+msgstr "不向我展示条目推荐"
+
+#: users/templates/users/preferences.html:218
+msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
+msgstr "推荐仅基于公开标记在本服务器批量计算生成。你的私密标记与仅关注者可见的标记不会被用作任何人的推荐信号；本功能也不会与任何第三方共享你的数据。当你公开分享标记并保持个人资料可被发现时，你的标记会帮助本服务器与联邦宇宙中的其他人发现他们可能喜欢的内容——正是这种自愿的分享让本功能对每个人都有价值。如果你不希望参与贡献，请在账户页面取消勾选「允许个人资料、标记和帖文包含在发现中」；该设置会通过 ActivityPub 发布，其他服务器也会据此将你排除在他们的发现功能之外。"
+
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
 msgstr "点击可取消屏蔽"
@@ -7585,99 +7601,99 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:202 users/views/data.py:231
+#: users/views/data.py:207 users/views/data.py:236
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:225
+#: users/views/data.py:230
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:243
+#: users/views/data.py:248
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:258 users/views/data.py:278
+#: users/views/data.py:263 users/views/data.py:283
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:292
+#: users/views/data.py:297
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:306
+#: users/views/data.py:311
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:315 users/views/data.py:339 users/views/data.py:363
-#: users/views/data.py:388 users/views/data.py:412 users/views/data.py:436
+#: users/views/data.py:320 users/views/data.py:344 users/views/data.py:368
+#: users/views/data.py:393 users/views/data.py:417 users/views/data.py:441
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:556
+#: users/views/data.py:561
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:578
+#: users/views/data.py:583
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:594
+#: users/views/data.py:599
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:599
+#: users/views/data.py:604
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:609 users/views/data.py:660
+#: users/views/data.py:614 users/views/data.py:665
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:616
+#: users/views/data.py:621
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:621
+#: users/views/data.py:626
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:647
+#: users/views/data.py:652
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:652
+#: users/views/data.py:657
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:665
+#: users/views/data.py:670
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:676
+#: users/views/data.py:681
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:682
+#: users/views/data.py:687
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:740
+#: users/views/data.py:745
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:756
+#: users/views/data.py:761
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:760
+#: users/views/data.py:765
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:769
+#: users/views/data.py:774
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
