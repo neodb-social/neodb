@@ -36,7 +36,7 @@ from takahe.utils import Takahe
 
 from ..models import ExternalResource, IdType, Item, ItemCredit, Podcast, TVEpisode
 from ..models.people import ItemPeopleRelation, People, PeopleRole
-from ..recommendation import blended_for_discover, similar_items
+from ..recommendation import blended_for_discover, can_show_reco, similar_items
 from ..sites import WikiData
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
@@ -512,19 +512,8 @@ def similar(request, item_path, item_uuid):
     fragment is empty.
     """
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    pref = (
-        getattr(request.user, "preference", None)
-        if request.user.is_authenticated
-        else None
-    )
     items: list = []
-    if pref is None:
-        if (
-            SiteConfig.system.enable_recommendations
-            and SiteConfig.system.enable_reco_similar_items
-        ):
-            items = similar_items(item, request.user, limit=10)
-    elif pref.show_recommendations("similar_items"):
+    if can_show_reco(request.user, "similar_items"):
         items = similar_items(item, request.user, limit=10)
     if items:
         Item.prefetch_parent_items(items)

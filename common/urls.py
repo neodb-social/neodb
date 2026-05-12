@@ -9,6 +9,7 @@ from .views_manage import (
     DiscoverSettings,
     DownloaderSettings,
     FederationSettings,
+    RecommendationSettings,
     manage_root,
 )
 
@@ -41,6 +42,11 @@ urlpatterns = [
         "manage/discover/",
         DiscoverSettings.as_view(),
         name="manage_discover",
+    ),
+    path(
+        "manage/recommendations/",
+        RecommendationSettings.as_view(),
+        name="manage_recommendations",
     ),
     path(
         "manage/access/",

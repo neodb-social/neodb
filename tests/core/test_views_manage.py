@@ -9,11 +9,13 @@ from common.views_manage import (
     DiscoverSettings,
     DownloaderSettings,
     FederationSettings,
+    RecommendationSettings,
 )
 
 ALL_SETTINGS_PAGES = [
     BrandingSettings,
     DiscoverSettings,
+    RecommendationSettings,
     AccessSettings,
     FederationSettings,
     APIKeysSettings,

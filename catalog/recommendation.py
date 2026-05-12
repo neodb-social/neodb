@@ -27,6 +27,34 @@ _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
 SHELF_TYPES_AS_SEED = ("progress", "complete")
 SHELF_TYPES_TO_EXCLUDE = ("wishlist", "progress", "complete", "dropped")
 
+# Surfaces that can be shown to anonymous viewers (the rest require a User).
+ANON_VISIBLE_KINDS = frozenset({"similar_items"})
+
+
+def can_show_reco(user, kind: str) -> bool:
+    """Single visibility gate used by both HTML views and the Ninja API.
+
+    - Authenticated user with a Preference row: defer to
+      Preference.show_recommendations (site flags AND user opt-out).
+    - Authenticated user without a Preference row: conservatively False
+      (we can't read their opt-out, so don't show them anything).
+    - Anonymous viewer: only non-personalized surfaces, gated by site
+      flags only.
+    """
+    sys = SiteConfig.system
+    if user and getattr(user, "is_authenticated", False):
+        pref = getattr(user, "preference", None)
+        return bool(pref and pref.show_recommendations(kind))
+    if kind not in ANON_VISIBLE_KINDS:
+        return False
+    if not sys.enable_recommendations:
+        return False
+    return bool(
+        {
+            "similar_items": sys.enable_reco_similar_items,
+        }.get(kind, False)
+    )
+
 
 def _live_items(qs):
     return qs.filter(is_deleted=False, merged_to_item_id__isnull=True)

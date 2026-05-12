@@ -42,7 +42,7 @@ from .models import (
     TVShow,
     TVShowSchema,
 )
-from .recommendation import blended_for_discover, similar_items
+from .recommendation import blended_for_discover, can_show_reco, similar_items
 from .search.utils import enqueue_fetch, get_fetch_lock, query_index
 
 PAGE_SIZE = 20
@@ -443,11 +443,6 @@ class RecommendationResult(Schema):
     count: int
 
 
-def _reco_gated(user, kind: str) -> bool:
-    pref = getattr(user, "preference", None) if user and user.is_authenticated else None
-    return bool(pref and pref.show_recommendations(kind))
-
-
 def _prepare_reco_items(request, items: list) -> None:
     """Hydrate items for ItemSchema serialization. Mirrors search_item.
 
@@ -476,7 +471,7 @@ def _prepare_reco_items(request, items: list) -> None:
     tags=["recommendation"],
 )
 def similar_for_item(request, uuid: str, limit: int = 10):
-    if not _reco_gated(request.user, "similar_items"):
+    if not can_show_reco(request.user, "similar_items"):
         return Status(200, {"data": [], "count": 0})
     item = Item.get_by_url(uuid)
     if not item or item.is_deleted:
@@ -496,10 +491,9 @@ def similar_for_item(request, uuid: str, limit: int = 10):
 def me_recommendations(request, limit: int = 30):
     if not request.user.is_authenticated:
         return Status(401, {"message": "Login required"})
-    pref = getattr(request.user, "preference", None)
-    if not pref or not (
-        pref.show_recommendations("for_you")
-        or pref.show_recommendations("from_circles")
+    if not (
+        can_show_reco(request.user, "for_you")
+        or can_show_reco(request.user, "from_circles")
     ):
         return Status(200, {"data": [], "count": 0})
     items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))

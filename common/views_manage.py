@@ -142,6 +142,7 @@ class SiteConfigSettingsPage(FormView):
         context["nav_sections"] = [
             ("branding", _("Branding"), "common:manage_branding"),
             ("discover", _("Discover"), "common:manage_discover"),
+            ("recommendations", _("Recommendations"), "common:manage_recommendations"),
             ("access", _("Access"), "common:manage_access"),
             ("federation", _("Federation"), "common:manage_federation"),
             ("api_keys", _("API Keys"), "common:manage_api_keys"),
@@ -347,6 +348,126 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_show_local_only",
             "discover_show_popular_posts",
             "discover_show_popular_tags",
+        ],
+    }
+
+
+class RecommendationSettings(SiteConfigSettingsPage):
+    section = "recommendations"
+    options = {
+        "enable_recommendations": {
+            "title": _("Enable Recommendations"),
+            "help_text": _(
+                "Master switch. When off, all recommendation surfaces are "
+                "hidden and the cron jobs are not scheduled."
+            ),
+        },
+        "enable_reco_similar_items": {
+            "title": _("Enable Similar Items"),
+            "help_text": _("Show a 'Similar items' block on item pages."),
+        },
+        "enable_reco_for_you": {
+            "title": _("Enable 'For You' Recommendations"),
+            "help_text": _("Show personalised recommendations on the discover page."),
+        },
+        "enable_reco_from_circles": {
+            "title": _("Enable 'From Your Circles' Recommendations"),
+            "help_text": _("Show items recently marked by people the viewer follows."),
+        },
+        "reco_min_source_marks": {
+            "title": _("Source Item Mark Threshold"),
+            "help_text": _(
+                "Minimum public marks an item needs before similarity rows "
+                "are built for it."
+            ),
+            "min_value": 1,
+        },
+        "reco_min_target_marks": {
+            "title": _("Target Item Mark Threshold"),
+            "help_text": _(
+                "Minimum public marks an item needs to be eligible as a "
+                "recommendation target."
+            ),
+            "min_value": 1,
+        },
+        "reco_similarity_top_k": {
+            "title": _("Top-K Similar Items per Source"),
+            "help_text": _("Number of similar items stored per source item."),
+            "min_value": 1,
+        },
+        "reco_user_top_n": {
+            "title": _("Top-N Recommendations per User"),
+            "help_text": _("Number of personalised rows stored per user."),
+            "min_value": 1,
+        },
+        "reco_user_idf_dampen": {
+            "title": _("Dampen Heavy Shelvers"),
+            "help_text": _(
+                "Weight each user's contribution by 1/sqrt(n_marks) to "
+                "neutralise mega-shelvers in similarity scoring."
+            ),
+        },
+        "reco_user_mark_cap": {
+            "title": _("Per-User Mark Cap (training)"),
+            "help_text": _(
+                "Truncate each user's contribution to their N most recent "
+                "marks when building the similarity matrix."
+            ),
+            "min_value": 2,
+        },
+        "reco_user_active_days": {
+            "title": _("Active-User Window (days)"),
+            "help_text": _(
+                "Refresh personalised recommendations for users with at "
+                "least one public mark in the last N days."
+            ),
+            "min_value": 1,
+        },
+        "reco_per_user_seed_cap": {
+            "title": _("Per-User Seed Cap (serving)"),
+            "help_text": _(
+                "Number of recent marks used as seeds when scoring "
+                "personalised recommendations for one user."
+            ),
+            "min_value": 1,
+        },
+        "reco_lazy_ttl_days": {
+            "title": _("Lazy Refresh TTL (days)"),
+            "help_text": _(
+                "How long cached on-demand recommendations are valid before "
+                "the next request triggers a refresh."
+            ),
+            "min_value": 1,
+        },
+        "reco_circles_window_days": {
+            "title": _("Circles Window (days)"),
+            "help_text": _(
+                "Look back N days when finding items recently marked by "
+                "people the viewer follows."
+            ),
+            "min_value": 1,
+        },
+    }
+    layout = {
+        _("Surfaces"): [
+            "enable_recommendations",
+            "enable_reco_similar_items",
+            "enable_reco_for_you",
+            "enable_reco_from_circles",
+        ],
+        _("Similarity Builder"): [
+            "reco_min_source_marks",
+            "reco_min_target_marks",
+            "reco_similarity_top_k",
+            "reco_user_idf_dampen",
+            "reco_user_mark_cap",
+        ],
+        _("Personalisation"): [
+            "reco_user_top_n",
+            "reco_user_active_days",
+            "reco_per_user_seed_cap",
+            "reco_lazy_ttl_days",
+            "reco_circles_window_days",
         ],
     }
 

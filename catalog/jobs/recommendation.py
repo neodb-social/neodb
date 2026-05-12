@@ -12,6 +12,8 @@ from catalog.models import (
     Item,
     ItemSimilarity,
     UserRecommendation,
+    item_categories,
+    item_content_types,
 )
 from catalog.recommendation import compute_for_user
 from common.models import BaseJob, JobManager, SiteConfig
@@ -152,23 +154,36 @@ class BuildItemSimilarity(BaseJob):
                         row[b] += ws
                         scores[b][a] += ws
 
-            # category resolved from polymorphic content type for both source
-            # and target candidates -- target-only items would otherwise miss.
-            category_by_id = dict(
-                Item.objects.filter(pk__in=active | target_set).values_list(
-                    "pk", "polymorphic_ctype_id"
-                )
-            )
+            # Group via Item.category (string), not polymorphic_ctype_id.
+            # Several content types map to the same category (e.g. TVShow,
+            # TVSeason and TVEpisode all live under "tv"); using ctype_id
+            # would block cross-type recommendations within a category.
+            ctype_to_cat: dict[int, str] = {}
+            cts = item_content_types()
+            for cat_enum, classes in item_categories().items():
+                for cls in classes:
+                    ct_id = cts.get(cls)
+                    if ct_id is not None:
+                        ctype_to_cat[ct_id] = str(cat_enum)
+            category_by_id: dict[int, str] = {}
+            for pk, ct_id in Item.objects.filter(
+                pk__in=active | target_set
+            ).values_list("pk", "polymorphic_ctype_id"):
+                cat = ctype_to_cat.get(ct_id)
+                if cat:
+                    category_by_id[pk] = cat
 
             for src in active:
                 row = scores.get(src)
                 if not row:
                     continue
-                src_ct = category_by_id.get(src)
+                src_cat = category_by_id.get(src)
+                if not src_cat:
+                    continue
                 same_cat = [
                     (b, s)
                     for b, s in row.items()
-                    if b in target_set and category_by_id.get(b) == src_ct
+                    if b in target_set and category_by_id.get(b) == src_cat
                 ]
                 if not same_cat:
                     continue
