@@ -2,73 +2,52 @@ from datetime import timedelta
 
 import django_rq
 from loguru import logger
-from rq.job import Job
-from rq.registry import ScheduledJobRegistry
+from rq import cron as rq_cron
 
 from common.models.site_config import SiteConfig
 
+CRON_QUEUE = "cron"
+
+
+def run_job(job_id: str) -> None:
+    """Module-level entry point used by rq.cron / RQ workers.
+
+    Looks up the BaseJob subclass in the registry and runs it. Defined at the
+    module level (not as a classmethod) so RQ can resolve it by import path
+    on the worker side.
+    """
+    job_cls = JobManager.get(job_id)
+    job_cls().run()
+
 
 class BaseJob:
-    @classmethod
-    def cancel(cls):
-        job_id = cls.__name__
-        try:
-            job = Job.fetch(id=job_id, connection=django_rq.get_connection("cron"))
-            if job.get_status() in ["queued", "scheduled"]:
-                logger.info(f"Cancel queued job: {job_id}")
-                job.cancel()
-            registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
-            registry.remove(job)
-        except Exception:
-            pass
+    """Base class for periodic jobs scheduled via rq.cron.
+
+    Subclasses override ``get_interval()`` (returning a ``timedelta``) and
+    ``run()``. The scheduler lifecycle is owned by an external
+    ``rq.cron.CronScheduler`` process, not by the job itself.
+    """
+
+    queue_name: str = CRON_QUEUE
 
     @classmethod
     def get_interval(cls) -> timedelta:
-        """Return job interval. Override to read from SiteConfig."""
+        """Return job interval. Override to read from SiteConfig.
+
+        A non-positive interval disables the job.
+        """
         return timedelta(0)
 
     @classmethod
-    def schedule(cls, now=False):
-        job_id = cls.__name__
-        interval = cls.get_interval()
-        i = timedelta(seconds=0) if now else interval
-        disabled = (
-            getattr(SiteConfig, "system", None)
-            and SiteConfig.system.disable_cron_jobs
-            or []
-        )
-        if interval <= timedelta(0) or job_id in disabled:
-            logger.info(f"Skip disabled job {job_id}")
-            return
-        logger.info(f"Scheduling job {job_id} in {i}")
-        if now:
-            django_rq.get_queue("cron").enqueue(
-                cls._run,
-                job_id=job_id,
-                result_ttl=-1,
-                failure_ttl=-1,
-                job_timeout=int(interval.total_seconds()) - 5,
-            )
-        else:
-            django_rq.get_queue("cron").enqueue_in(
-                interval,
-                cls._run,
-                job_id=job_id,
-                result_ttl=-1,
-                failure_ttl=-1,
-                job_timeout=int(interval.total_seconds()) - 5,
-            )
+    def get_cron(cls) -> str | None:
+        """Return a cron expression. Overrides ``get_interval`` when set."""
+        return None
 
     @classmethod
-    def reschedule(cls, now: bool = False):
-        cls.cancel()
-        cls.schedule(now=now)
-
-    @classmethod
-    def _run(cls):
-        # SiteConfig is reloaded automatically by SiteConfigJob.perform()
-        cls.schedule()  # schedule next run
-        cls().run()
+    def get_job_timeout(cls) -> int | None:
+        """Default timeout slightly shorter than the interval to avoid overlap."""
+        seconds = int(cls.get_interval().total_seconds())
+        return seconds - 5 if seconds > 5 else None
 
     def run(self):
         pass
@@ -78,33 +57,68 @@ class JobManager:
     registry: set[type[BaseJob]] = set()
 
     @classmethod
-    def register(cls, target):
+    def register(cls, target: type[BaseJob]) -> type[BaseJob]:
         cls.registry.add(target)
         return target
 
     @classmethod
-    def get(cls, job_id) -> type[BaseJob]:
+    def get(cls, job_id: str) -> type[BaseJob]:
         for j in cls.registry:
             if j.__name__ == job_id:
                 return j
         raise KeyError(f"Job not found: {job_id}")
 
     @classmethod
-    def get_scheduled_job_ids(cls):
-        registry = ScheduledJobRegistry(queue=django_rq.get_queue("cron"))
-        return registry.get_job_ids()
+    def _disabled_set(cls) -> tuple[set[str], bool]:
+        disabled = (
+            getattr(SiteConfig, "system", None)
+            and SiteConfig.system.disable_cron_jobs
+            or []
+        )
+        return set(disabled), "*" in disabled
 
     @classmethod
-    def schedule_all(cls):
-        for j in cls.registry:
-            j.schedule()
+    def register_with_rq_cron(cls) -> int:
+        """Register every job in the registry with the rq.cron global registry.
+
+        Called from a cron config module loaded by ``CronScheduler``.
+        Returns the number of jobs registered.
+        """
+        disabled, wildcard = cls._disabled_set()
+        count = 0
+        for j in sorted(cls.registry, key=lambda c: c.__name__):
+            job_id = j.__name__
+            if wildcard or job_id in disabled:
+                logger.info(f"Skip disabled cron job: {job_id}")
+                continue
+            cron_expr = j.get_cron()
+            interval_seconds = int(j.get_interval().total_seconds())
+            if not cron_expr and interval_seconds <= 0:
+                logger.info(f"Skip cron job with no schedule: {job_id}")
+                continue
+            options: dict = {
+                "func": run_job,
+                "queue_name": j.queue_name,
+                "args": (job_id,),
+                "result_ttl": -1,
+                "failure_ttl": -1,
+            }
+            timeout = j.get_job_timeout()
+            if timeout is not None:
+                options["job_timeout"] = timeout
+            if cron_expr:
+                options["cron"] = cron_expr
+                logger.info(f"Registering cron job {job_id} with cron '{cron_expr}'")
+            else:
+                options["interval"] = interval_seconds
+                logger.info(f"Registering cron job {job_id} every {interval_seconds}s")
+            rq_cron.register(**options)
+            count += 1
+        return count
 
     @classmethod
-    def cancel_all(cls):
-        for j in cls.registry:
-            j.cancel()
-
-    @classmethod
-    def reschedule_all(cls):
-        cls.cancel_all()
-        cls.schedule_all()
+    def get_active_schedulers(cls):
+        """Return live ``CronScheduler`` snapshots from Redis (one per process)."""
+        return rq_cron.CronScheduler.all(
+            connection=django_rq.get_connection(CRON_QUEUE)
+        )

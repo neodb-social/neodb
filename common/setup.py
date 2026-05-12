@@ -3,7 +3,7 @@ from django.core.checks import Error, Warning
 from loguru import logger
 
 from catalog.search import CatalogIndex, PeopleIndex
-from common.models import JobManager, SiteConfig
+from common.models import SiteConfig
 from journal.search import JournalIndex
 from takahe.models import Config as TakaheConfig
 from takahe.models import Domain as TakaheDomain
@@ -125,15 +125,8 @@ class Setup:
             logger.info("Finished post-migration setup, skipped some for testing.")
             return
 
-        # Register cron jobs if not yet
-        if (
-            SiteConfig.system.disable_cron_jobs
-            and "*" in SiteConfig.system.disable_cron_jobs
-        ):
-            logger.info("Cron jobs are disabled.")
-            JobManager.cancel_all()
-        else:
-            JobManager.reschedule_all()
+        # Cron jobs are scheduled by the separate rq.cron service
+        # (neodb-manage cron --start); nothing to do here.
 
         # Subscribe to default relay if enabled
         self.sync_relay()

@@ -237,6 +237,14 @@ services:
       migration:
         condition: service_completed_successfully
 
+  neodb-cron:
+    <<: *neodb-service
+    command: neodb-manage cron --start
+    stop_signal: SIGINT
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
   takahe-web:
     <<: *neodb-service
     command: ${TAKAHE_VENV:-/takahe-venv}/bin/gunicorn --chdir /takahe takahe.wsgi -w ${TAKAHE_WEB_WORKER_NUM:-8} --max-requests 2000 --timeout 60 --preload -b 0.0.0.0:8000
@@ -299,6 +307,11 @@ services:
     <<: *dev-neodb-service
     # command: neodb-manage rqworker-pool --num-workers 4 import export mastodon fetch crawl ap cron
     command: neodb-manage rqworker --with-scheduler import export mastodon fetch crawl ap cron
+
+  dev-neodb-cron:
+    <<: *dev-neodb-service
+    command: neodb-manage cron --start
+    stop_signal: SIGINT
 
   dev-takahe-web:
     <<: *dev-neodb-service
