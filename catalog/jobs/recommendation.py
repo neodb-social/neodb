@@ -128,6 +128,11 @@ class BuildItemSimilarity(BaseJob):
             user_items = self._user_item_pairs(active | target_set, cap, excluded)
             logger.info(f"Users contributing: {len(user_items)}")
 
+            # Co-occurrence scores live in a nested dict. With cap+IDF damping
+            # the unique-pair count is bounded by the top-K output size; at
+            # ~13M output rows the peak in-memory cost is ~1-2 GB on a Python
+            # worker, tolerable for a weekly job. If catalog growth pushes
+            # this past worker memory, partition `active` and run per-chunk.
             scores: dict[int, dict[int, float]] = defaultdict(
                 lambda: defaultdict(float)
             )
@@ -169,32 +174,57 @@ class BuildItemSimilarity(BaseJob):
                 item_categories_map[src] = top
 
         logger.info(f"Sources with similar rows: {len(item_categories_map)}")
-        rows_written = 0
-        # Always replace stale rows -- threshold or data changes can leave
-        # otherwise-invalid similarity rows visible to serving helpers.
-        with transaction.atomic():
-            ItemSimilarity.objects.filter(
-                method=ItemSimilarity.METHOD_SHELF_COOC
-            ).delete()
-            batch: list[ItemSimilarity] = []
-            for src, top in item_categories_map.items():
-                for tgt, score in top:
-                    batch.append(
-                        ItemSimilarity(
-                            source_id=src,
-                            target_id=tgt,
-                            score=score,
-                            method=ItemSimilarity.METHOD_SHELF_COOC,
-                        )
-                    )
-                    if len(batch) >= 5000:
-                        ItemSimilarity.objects.bulk_create(batch, ignore_conflicts=True)
-                        rows_written += len(batch)
-                        batch = []
-            if batch:
-                ItemSimilarity.objects.bulk_create(batch, ignore_conflicts=True)
-                rows_written += len(batch)
+        rows_written = self._write_similarity_rows(item_categories_map)
         logger.info(f"Similarity build done: {rows_written} rows")
+
+    def _write_similarity_rows(
+        self, item_categories_map: dict[int, list[tuple[int, float]]]
+    ) -> int:
+        """Replace shelf-cooc rows per source in short atomic batches.
+
+        Per-source transactions keep each commit small (<= top_k rows), avoid
+        holding a long-lived DB transaction across the whole rebuild, and
+        present a consistent per-source view to concurrent readers during the
+        run. Sources no longer covered are cleaned up afterwards in chunks.
+        """
+        rows_written = 0
+        covered: set[int] = set()
+        for src, top in item_categories_map.items():
+            covered.add(src)
+            new_rows = [
+                ItemSimilarity(
+                    source_id=src,
+                    target_id=tgt,
+                    score=score,
+                    method=ItemSimilarity.METHOD_SHELF_COOC,
+                )
+                for tgt, score in top
+            ]
+            with transaction.atomic():
+                ItemSimilarity.objects.filter(
+                    source_id=src, method=ItemSimilarity.METHOD_SHELF_COOC
+                ).delete()
+                if new_rows:
+                    ItemSimilarity.objects.bulk_create(new_rows, ignore_conflicts=True)
+            rows_written += len(new_rows)
+        # Drop orphan rows for sources that no longer meet thresholds. Chunk to
+        # avoid a single very large DELETE on a populated table.
+        stale_ids = list(
+            ItemSimilarity.objects.filter(method=ItemSimilarity.METHOD_SHELF_COOC)
+            .exclude(source_id__in=covered)
+            .values_list("source_id", flat=True)
+            .distinct()
+        )
+        if stale_ids:
+            logger.info(f"Pruning {len(stale_ids)} stale similarity sources")
+            for i in range(0, len(stale_ids), 1000):
+                chunk = stale_ids[i : i + 1000]
+                with transaction.atomic():
+                    ItemSimilarity.objects.filter(
+                        method=ItemSimilarity.METHOD_SHELF_COOC,
+                        source_id__in=chunk,
+                    ).delete()
+        return rows_written
 
 
 @JobManager.register
@@ -248,17 +278,21 @@ class BuildUserRecommendations(BaseJob):
         )
         from catalog.recommendation import compute_for_user
 
-        with transaction.atomic():
-            UserRecommendation.objects.filter(
-                user_id__in=user_by_identity.values()
-            ).delete()
-            built = 0
-            for identity_pk, user_pk in user_by_identity.items():
+        # Per-user atomic replace: each user's refresh is independent, so a
+        # transaction-per-user keeps each commit small and bounds rollback
+        # blast radius if any single user's compute fails.
+        built = 0
+        for identity_pk, user_pk in user_by_identity.items():
+            try:
                 rows = compute_for_user(user_pk, identity_pk)
-                if not rows:
-                    continue
-                UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
-                built += len(rows)
+            except Exception as e:
+                logger.exception(f"compute_for_user failed for user {user_pk}: {e}")
+                continue
+            with transaction.atomic():
+                UserRecommendation.objects.filter(user_id=user_pk).delete()
+                if rows:
+                    UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+            built += len(rows)
         logger.info(
             f"User recommendations done: {built} rows across {len(user_by_identity)} users"
         )

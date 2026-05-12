@@ -10,6 +10,7 @@ from collections import defaultdict
 from datetime import timedelta
 from heapq import nlargest
 
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
@@ -19,6 +20,8 @@ from common.models import SiteConfig
 from journal.models import ShelfMember, q_piece_visible_to_user
 
 from .models import Item, ItemSimilarity, UserRecommendation
+
+_LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
 
 SHELF_TYPES_AS_SEED = ("progress", "complete")
 SHELF_TYPES_TO_EXCLUDE = ("wishlist", "progress", "complete", "dropped")
@@ -128,12 +131,25 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     return rows
 
 
-def _refresh_lazy(user_pk: int, identity_pk: int) -> None:
-    rows = compute_for_user(user_pk, identity_pk)
-    with transaction.atomic():
-        UserRecommendation.objects.filter(user_id=user_pk).delete()
-        if rows:
-            UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+def _refresh_lazy(user_pk: int, identity_pk: int) -> bool:
+    """Lazy on-demand recompute for one user.
+
+    Guarded by a cache-based lock so concurrent requests for the same user
+    don't dogpile compute + write. Returns True if this caller did the work,
+    False if another request already holds the lock (skip-and-serve-stale).
+    """
+    lock_key = f"reco:lazy_refresh:{user_pk}"
+    if not cache.add(lock_key, "1", timeout=_LAZY_LOCK_TTL):
+        return False
+    try:
+        rows = compute_for_user(user_pk, identity_pk)
+        with transaction.atomic():
+            UserRecommendation.objects.filter(user_id=user_pk).delete()
+            if rows:
+                UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+        return True
+    finally:
+        cache.delete(lock_key)
 
 
 def _cached_user_rows(user_pk: int, ttl_days: int) -> list[UserRecommendation]:
