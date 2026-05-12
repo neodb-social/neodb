@@ -4,6 +4,7 @@ import zipfile
 from tempfile import TemporaryDirectory
 
 import pytest
+from django.conf import settings
 from django.utils.dateparse import parse_datetime
 from loguru import logger
 
@@ -674,3 +675,52 @@ class TestNdjsonExportImport:
             assert importer._resolve_temp_path("/etc/passwd") is None
             assert importer._resolve_temp_path("") is None
             assert importer._resolve_temp_path(None) is None
+
+    def test_import_collection_cover_inside_temp_dir(self):
+        """import_collection accepts a cover that resolves inside temp_dir
+        and rejects one that escapes it."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        with TemporaryDirectory() as tmp:
+            importer.temp_dir = tmp
+            cover_path = os.path.join(tmp, "cover.jpg")
+            # Minimal valid JPEG (1x1 pixel) so cover.save accepts it
+            with open(cover_path, "wb") as f:
+                f.write(
+                    bytes.fromhex(
+                        "ffd8ffe000104a46494600010101006000600000ffdb004300080606070605"
+                        "08070707090908"
+                        + "0a"
+                        + "10"
+                        + "0b" * 5
+                        + "0c"
+                        + "13" * 4
+                        + "0e" * 6
+                        + "0f" * 8
+                        + "ffd9"
+                    )
+                )
+            data = {
+                "content": {
+                    "name": "Cover Import OK",
+                    "content": "",
+                    "published": "2024-01-01T00:00:00+00:00",
+                },
+                "visibility": 0,
+                "cover": "cover.jpg",
+                "items": [],
+            }
+            assert importer.import_collection(data) == "imported"
+            coll = Collection.objects.get(
+                owner=self.user2.identity, title="Cover Import OK"
+            )
+            # Cover populated from the on-disk file (not the model default)
+            assert coll.cover.name and coll.cover.name != settings.DEFAULT_ITEM_COVER
+
+            data["content"]["name"] = "Cover Traversal Rejected"
+            data["cover"] = "../../etc/passwd"
+            assert importer.import_collection(data) == "imported"
+            coll = Collection.objects.get(
+                owner=self.user2.identity, title="Cover Traversal Rejected"
+            )
+            # Traversal path is rejected: no cover stored, default still in place
+            assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER
