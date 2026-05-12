@@ -6,13 +6,11 @@
    ``post.url`` lands the reader on the source for remote posts and on the
    local Mastodon-flavor post view for local ones, matching how Article
    timeline events work when a piece *is* present. #}
-{% with title=post.type_data.object.name|default:post.summary teaser=post.type_data.object.summary|default:post.content_plain_text %}
+{% with title=post.type_data.object.name|default:post.summary|striptags teaser=post.type_data.object.summary|default:post.content_plain_text %}
   <section class="article-teaser">
-    <h4 style="margin-bottom:0.2em">
+    <h4>
       <a href="{{ post.url|default:post.object_uri }}">{{ title|default:_("Untitled article") }}</a>
     </h4>
-    {% if teaser %}
-      <p class="piece-summary" style="margin:0 0 0.4em 0">{{ teaser|striptags|truncatewords:60 }}</p>
-    {% endif %}
+    {% if teaser %}<p class="piece-summary">{{ teaser|striptags|truncatewords:60 }}</p>{% endif %}
   </section>
 {% endwith %}

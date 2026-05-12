@@ -1,9 +1,7 @@
 {% load i18n %}
 <section class="review-teaser">
-  <h4 style="margin-bottom:0.2em">
+  <h4>
     <a href="{{ review.url }}">{{ review.title }}</a>
   </h4>
-  {% if review.display_summary %}
-    <p class="piece-summary" style="margin:0 0 0.4em 0">{{ review.display_summary }}</p>
-  {% endif %}
+  {% if review.display_summary %}<p class="piece-summary">{{ review.display_summary }}</p>{% endif %}
 </section>

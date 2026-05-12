@@ -15,6 +15,20 @@
   color: var(--pico-muted-color, #888);
 }
 
+// Compact timeline-teaser layout shared by review / article / post-only
+// article cards. Replaces inline ``style="margin-bottom:0.2em"`` /
+// ``style="margin:0 0 0.4em 0"`` that used to live on each template.
+.review-teaser,
+.article-teaser {
+  h4 {
+    margin-bottom: 0.2em;
+  }
+
+  .piece-summary {
+    margin: 0 0 0.4em 0;
+  }
+}
+
 .tldr-2 {
   overflow: hidden;
   text-overflow: " ... [点击展开]";

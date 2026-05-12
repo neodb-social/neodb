@@ -1,9 +1,9 @@
 {% load i18n %}
 <section class="article-teaser">
-  <h4 style="margin-bottom:0.2em">
+  <h4>
     <a href="{{ article.url }}">{{ article.title }}</a>
   </h4>
-  <p class="piece-summary" style="margin:0 0 0.4em 0">
+  <p class="piece-summary">
     {% if article.display_summary %}
       {{ article.display_summary }}
     {% else %}

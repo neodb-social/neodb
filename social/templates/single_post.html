@@ -13,12 +13,15 @@
     {# For Article posts, prefer the AP ``name`` / ``summary`` (both local
        and inbound standalone Articles land in ``post.type_data.object``).
        ``post.summary`` for non-NeoDB peers like write.as is the full HTML
-       excerpt, not a usable og:title. #}
+       excerpt, not a usable og:title. ``striptags`` everywhere because
+       both ``post.summary`` and ``object.summary`` can carry inline HTML
+       from remote peers that has no business in social-share metadata. #}
     {% if post.type == 'Article' %}
       <meta property="og:title"
-            content="{{ post.type_data.object.name|default:post.summary|default:'Article' }}">
+            content="{{ post.type_data.object.name|default:post.summary|striptags|default:_("Article") }}">
     {% else %}
-      <meta property="og:title" content="{{ post.summary | default:'Post' }}">
+      <meta property="og:title"
+            content="{{ post.summary|striptags|default:_("Post") }}">
     {% endif %}
     <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:type" content="article">
@@ -29,7 +32,7 @@
             content="{{ post.type_data.object.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
     {% else %}
       <meta property="og:description"
-            content="{{ post.summary|default:post.content_plain_text|slice:':300' }}" />
+            content="{{ post.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
     {% endif %}
     <meta name="fediverse:creator" content="@{{ owner.full_handle }}">
     <meta name="lastmodified" content="{{ post.updated | date:'r' }}" />
