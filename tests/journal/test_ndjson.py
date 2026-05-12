@@ -658,3 +658,19 @@ class TestNdjsonExportImport:
         assert TagMember.objects.filter(
             owner=self.user2.identity, parent__title="tag-only"
         ).exists()
+
+    def test_resolve_temp_path_rejects_traversal(self):
+        """Paths referenced by user-supplied NDJSON must stay inside temp_dir."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        with TemporaryDirectory() as tmp:
+            importer.temp_dir = tmp
+            # Sentinel file inside temp_dir resolves fine
+            inside = os.path.join(tmp, "cover.jpg")
+            with open(inside, "wb") as f:
+                f.write(b"x")
+            assert importer._resolve_temp_path("cover.jpg") == os.path.realpath(inside)
+            # Traversal attempts resolve to None
+            assert importer._resolve_temp_path("../../etc/passwd") is None
+            assert importer._resolve_temp_path("/etc/passwd") is None
+            assert importer._resolve_temp_path("") is None
+            assert importer._resolve_temp_path(None) is None

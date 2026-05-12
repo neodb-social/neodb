@@ -38,6 +38,21 @@ class NdjsonImporter(BaseImporter):
         super().__init__(*args, **kwargs)
         self.items = {}
 
+    def _resolve_temp_path(self, rel_path: str | None) -> str | None:
+        """Resolve a path relative to self.temp_dir, rejecting traversal.
+
+        Returns the absolute path if it stays within self.temp_dir, else None.
+        rel_path comes from user-supplied JSON, so must be validated before use.
+        """
+        if not rel_path or not hasattr(self, "temp_dir"):
+            return None
+        base = os.path.realpath(self.temp_dir)
+        resolved = os.path.realpath(os.path.join(base, rel_path))
+        if resolved != base and not resolved.startswith(base + os.sep):
+            logger.warning(f"Rejected path outside import temp dir: {rel_path}")
+            return None
+        return resolved
+
     def import_collection(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a collection from NDJSON data."""
         try:
@@ -61,14 +76,12 @@ class NdjsonImporter(BaseImporter):
                 collaborative=data.get("collaborative", 0),
                 query=data.get("query"),
             )
-            cover_rel = data.get("cover")
-            if cover_rel and hasattr(self, "temp_dir"):
-                cover_src = os.path.join(self.temp_dir, cover_rel)
-                if os.path.exists(cover_src):
-                    with open(cover_src, "rb") as f:
-                        collection.cover.save(
-                            os.path.basename(cover_src), File(f), save=True
-                        )
+            cover_src = self._resolve_temp_path(data.get("cover"))
+            if cover_src and os.path.exists(cover_src):
+                with open(cover_src, "rb") as f:
+                    collection.cover.save(
+                        os.path.basename(cover_src), File(f), save=True
+                    )
             item_data = data.get("items", [])
             for item_entry in item_data:
                 item_url = item_entry.get("item")
@@ -275,10 +288,8 @@ class NdjsonImporter(BaseImporter):
                 for atta in attachments_data:
                     file_rel = atta.get("file")
                     mimetype = atta.get("mimetype", "")
-                    if not file_rel:
-                        continue
-                    src = os.path.join(self.temp_dir, file_rel)
-                    if not os.path.exists(src):
+                    src = self._resolve_temp_path(file_rel)
+                    if not src or not os.path.exists(src):
                         continue
                     ext = os.path.splitext(src)[1]
                     storage_name = f"journal/attachments/{uuid.uuid4()}{ext}"
