@@ -1118,7 +1118,7 @@ msgid "write a review"
 msgstr ""
 
 #: catalog/templates/_item_similar.html:5
-msgid "Similar items"
+msgid "similar items"
 msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:20

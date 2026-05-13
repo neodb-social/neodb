@@ -1117,7 +1117,7 @@ msgid "write a review"
 msgstr "撰写评论"
 
 #: catalog/templates/_item_similar.html:5
-msgid "Similar items"
+msgid "similar items"
 msgstr "相似条目"
 
 #: catalog/templates/_item_user_mark_history.html:20
@@ -1218,10 +1218,8 @@ msgid "External website"
 msgstr "外部网站"
 
 #: catalog/templates/_sidebar_edit.html:69
-#, fuzzy
-#| msgid "Fetch films and TV shows for this person from TMDB"
 msgid "Fetch films and TV shows for this person from this external source"
-msgstr "从 TMDB 获取此人的电影与电视剧作品"
+msgstr "从这个来源获取此人的电影与电视剧作品"
 
 #: catalog/templates/_sidebar_edit.html:70
 msgid "pull works"
@@ -1566,10 +1564,8 @@ msgid "Cancel"
 msgstr "取消"
 
 #: catalog/templates/catalog_edit.html:104
-#, fuzzy
-#| msgid "linked to a person page"
 msgid "open linked people page"
-msgstr "已关联人物页面"
+msgstr "打开已关联人物页面"
 
 #: catalog/templates/catalog_merge.html:22
 msgid "Are you sure to merge?"
@@ -2034,10 +2030,8 @@ msgid "Item no longer exists"
 msgstr "条目已不存在"
 
 #: catalog/views/view.py:166
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid role"
-msgstr "无效文件。"
+msgstr "无效职务或角色。"
 
 #: common/models/genre.py:19
 msgctxt "genre"
@@ -3632,20 +3626,16 @@ msgid "Camera unavailable. Use manual entry below."
 msgstr "摄像头不可用，请使用下方手动输入。"
 
 #: common/templates/manage/settings.html:9
-#, fuzzy
-#| msgid "Additional Settings"
 msgid "Site Settings"
-msgstr "更多设置"
+msgstr "站点设置"
 
 #: common/templates/manage/settings.html:109
 msgid "Takahe Admin"
-msgstr ""
+msgstr "Takahe管理"
 
 #: common/templates/manage/settings.html:112
-#, fuzzy
-#| msgid "Database"
 msgid "Database Admin"
-msgstr "数据库"
+msgstr "数据库管理"
 
 #: common/templatetags/duration.py:55
 msgid "just now"
@@ -3699,38 +3689,28 @@ msgid "Disabled"
 msgstr ""
 
 #: common/views_manage.py:143 common/views_manage.py:293
-#, fuzzy
-#| msgid "reading"
 msgid "Branding"
-msgstr "在读"
+msgstr ""
 
 #: common/views_manage.py:145
-#, fuzzy
-#| msgid "comments"
 msgid "Recommendations"
-msgstr "短评"
+msgstr ""
 
 #: common/views_manage.py:146
-#, fuzzy
-#| msgid "Accept"
 msgid "Access"
-msgstr "接受"
+msgstr ""
 
 #: common/views_manage.py:147 common/views_manage.py:546
-#, fuzzy
-#| msgid "duration"
 msgid "Federation"
-msgstr "时长"
+msgstr ""
 
 #: common/views_manage.py:148
 msgid "API Keys"
 msgstr ""
 
 #: common/views_manage.py:149
-#, fuzzy
-#| msgid "Download"
 msgid "Downloader"
-msgstr "下载"
+msgstr ""
 
 #: common/views_manage.py:150 common/views_manage.py:301
 #: users/templates/users/steam_import.html:113
@@ -3738,20 +3718,14 @@ msgid "Advanced"
 msgstr ""
 
 #: common/views_manage.py:200
-#, fuzzy
-#| msgid "Invalid user."
 msgid "Invalid value."
-msgstr "无效用户。"
+msgstr "无效值。"
 
 #: common/views_manage.py:204
-#, fuzzy
-#| msgid "Invalid verification code"
 msgid "Invalid configuration. Please check your input."
-msgstr "验证码无效或已过期"
+msgstr "配置无效"
 
 #: common/views_manage.py:209
-#, fuzzy
-#| msgid "Settings saved."
 msgid "Settings have been saved."
 msgstr "设置已保存"
 
@@ -3760,10 +3734,8 @@ msgid "Site Name"
 msgstr ""
 
 #: common/views_manage.py:232
-#, fuzzy
-#| msgid "Title and Description"
 msgid "Site Description"
-msgstr "标题和描述"
+msgstr "站点描述"
 
 #: common/views_manage.py:233
 msgid "Short description shown in metadata and about page."
@@ -3802,10 +3774,8 @@ msgid "PicoCSS color theme."
 msgstr ""
 
 #: common/views_manage.py:274
-#, fuzzy
-#| msgid "Production"
 msgid "Site Introduction"
-msgstr "上演"
+msgstr ""
 
 #: common/views_manage.py:275
 msgid "URL path for the intro/welcome sidebar page."
@@ -3844,40 +3814,32 @@ msgid "How often to refresh the popular items list."
 msgstr ""
 
 #: common/views_manage.py:325
-#, fuzzy
-#| msgid "Preferred Languages"
 msgid "Filter by Preferred Languages"
-msgstr "主要语言"
+msgstr ""
 
 #: common/views_manage.py:326
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
 #: common/views_manage.py:329
-#, fuzzy
-#| msgid "show all"
 msgid "Show Local Only"
-msgstr "显示全部"
+msgstr ""
 
 #: common/views_manage.py:331
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
 #: common/views_manage.py:335
-#, fuzzy
-#| msgid "Popular Tags"
 msgid "Show Popular Posts"
-msgstr "热门标签"
+msgstr ""
 
 #: common/views_manage.py:336
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
 #: common/views_manage.py:339
-#, fuzzy
-#| msgid "Popular Tags"
 msgid "Show Popular Tags"
-msgstr "热门标签"
+msgstr "显示热门标签"
 
 #: common/views_manage.py:340
 msgid "Show popular public tags on the discover page."
@@ -3976,16 +3938,12 @@ msgid "Master Switch"
 msgstr "总开关"
 
 #: common/views_manage.py:445
-#, fuzzy
-#| msgid "Similar items"
 msgid "Similarity Builder"
-msgstr "相似条目"
+msgstr ""
 
 #: common/views_manage.py:452
-#, fuzzy
-#| msgid "Person / Organization"
 msgid "Personalisation"
-msgstr "人物 / 团体"
+msgstr ""
 
 #: common/views_manage.py:468
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
@@ -4008,10 +3966,8 @@ msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
 #: common/views_manage.py:481
-#, fuzzy
-#| msgid "Bluesky Login ID"
 msgid "Enable Bluesky Login"
-msgstr "Bluesky 登录名"
+msgstr ""
 
 #: common/views_manage.py:484
 msgid "Enable Threads Login"
@@ -4026,10 +3982,8 @@ msgid "Access Control"
 msgstr ""
 
 #: common/views_manage.py:500
-#, fuzzy
-#| msgid "Import Method"
 msgid "Login Methods"
-msgstr "导入方式"
+msgstr ""
 
 #: common/views_manage.py:504
 msgid "Localization"
@@ -4060,10 +4014,8 @@ msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:533
-#, fuzzy
-#| msgid "Search filters"
 msgid "Search Sites"
-msgstr "筛选搜索结果"
+msgstr ""
 
 #: common/views_manage.py:534
 msgid "External search sites to include, one per line."
@@ -4078,20 +4030,16 @@ msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
 #: common/views_manage.py:541
-#, fuzzy
-#| msgid "Add tv series"
 msgid "Hidden Categories"
-msgstr "添加电视剧集"
+msgstr ""
 
 #: common/views_manage.py:542
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
 #: common/views_manage.py:563
-#, fuzzy
-#| msgid "Spotify Album"
 msgid "Spotify API Key"
-msgstr "Spotify专辑"
+msgstr ""
 
 #: common/views_manage.py:564
 msgid "https://developer.spotify.com/"
@@ -4106,20 +4054,16 @@ msgid "https://developer.themoviedb.org/"
 msgstr ""
 
 #: common/views_manage.py:571
-#, fuzzy
-#| msgid "Google Books"
 msgid "Google Books API Key"
-msgstr "谷歌图书"
+msgstr ""
 
 #: common/views_manage.py:572
 msgid "https://developers.google.com/books/"
 msgstr ""
 
 #: common/views_manage.py:575
-#, fuzzy
-#| msgid "Discogs"
 msgid "Discogs API Key"
-msgstr "Discogs"
+msgstr ""
 
 #: common/views_manage.py:577
 msgid "Personal access token from https://www.discogs.com/settings/developers"
@@ -4134,16 +4078,12 @@ msgid "https://api-docs.igdb.com/"
 msgstr ""
 
 #: common/views_manage.py:585
-#, fuzzy
-#| msgid "client secret"
 msgid "IGDB Client Secret"
-msgstr "实例应用Client Secret"
+msgstr ""
 
 #: common/views_manage.py:588 users/templates/users/steam_import.html:26
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Steam API Key"
-msgstr "Steam游戏"
+msgstr ""
 
 #: common/views_manage.py:590
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
@@ -4166,20 +4106,16 @@ msgid "LibreTranslate API Key"
 msgstr ""
 
 #: common/views_manage.py:605
-#, fuzzy
-#| msgid "Threads"
 msgid "Threads App ID"
-msgstr "Threads"
+msgstr ""
 
 #: common/views_manage.py:606
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
 #: common/views_manage.py:609
-#, fuzzy
-#| msgid "Threads.net"
 msgid "Threads App Secret"
-msgstr "Threads.net"
+msgstr ""
 
 #: common/views_manage.py:612
 msgid "Sentry DSN"
@@ -4206,16 +4142,12 @@ msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). 
 msgstr ""
 
 #: common/views_manage.py:641
-#, fuzzy
-#| msgid "Catalog Moderators"
 msgid "Catalog APIs"
-msgstr "条目管理员"
+msgstr ""
 
 #: common/views_manage.py:650
-#, fuzzy
-#| msgid "translator"
 msgid "Translation"
-msgstr "译者"
+msgstr ""
 
 #: common/views_manage.py:655
 msgid "Third-Party Login"
@@ -4278,10 +4210,8 @@ msgid "Cache Timeout (seconds)"
 msgstr ""
 
 #: common/views_manage.py:706
-#, fuzzy
-#| msgid "series"
 msgid "Retries"
-msgstr "丛书"
+msgstr ""
 
 #: common/views_manage.py:711
 msgid "Providers"
@@ -4300,10 +4230,8 @@ msgid "Alternative Domains"
 msgstr ""
 
 #: common/views_manage.py:736
-#, fuzzy
-#| msgid "site domain name"
 msgid "One domain per line."
-msgstr "站点域名"
+msgstr ""
 
 #: common/views_manage.py:739
 msgid "Mastodon Client Scope"
@@ -4338,10 +4266,8 @@ msgid "Delete import/export tasks and their files after this many days. Set to 0
 msgstr ""
 
 #: common/views_manage.py:766
-#, fuzzy
-#| msgid "Start Migration"
 msgid "Skip Migration Jobs"
-msgstr "开始迁移"
+msgstr ""
 
 #: common/views_manage.py:768
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
@@ -4352,10 +4278,8 @@ msgid "Domains"
 msgstr ""
 
 #: common/views_manage.py:778
-#, fuzzy
-#| msgid "optional"
 msgid "Operational"
-msgstr "可选"
+msgstr ""
 
 #: journal/forms.py:24 journal/forms.py:26 journal/forms.py:70
 #: journal/forms.py:73 journal/forms.py:140
@@ -4392,26 +4316,20 @@ msgid "Visibility"
 msgstr "可见性"
 
 #: journal/forms.py:77 journal/forms.py:83 journal/forms.py:84
-#, fuzzy
-#| msgid "Subject (optional)"
 msgid "Summary (optional)"
-msgstr "主题（选填）"
+msgstr "摘要（选填）"
 
 #: journal/forms.py:100 journal/forms.py:105 journal/forms.py:106
 msgid "Tags (comma separated)"
-msgstr ""
+msgstr "标签（逗号分隔）"
 
 #: journal/forms.py:111 journal/templates/post_compose.html:81
-#, fuzzy
-#| msgid "Mark as listening"
 msgid "Mark as sensitive"
-msgstr "标记为在听"
+msgstr "标记为敏感"
 
 #: journal/forms.py:114
-#, fuzzy
-#| msgid "Crosspost to timeline"
 msgid "Crosspost to Mastodon"
-msgstr "转发到时间轴"
+msgstr "转发到Mastodon"
 
 #: journal/forms.py:133
 msgid "owner only"
@@ -4449,10 +4367,8 @@ msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
 #: journal/models/article.py:139
-#, fuzzy
-#| msgid "may contain spoiler or triggering content"
 msgid "(may contain sensitive content)"
-msgstr "可能包含剧透或敏感内容"
+msgstr "（可能包含剧透或敏感内容）"
 
 #: journal/models/collection.py:33 journal/templates/add_to_collection.html:39
 #: journal/templates/collection_edit.html:64
@@ -4591,16 +4507,12 @@ msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
 #: journal/models/review.py:65
-#, fuzzy, python-brace-format
-#| msgid "a review of {item_title}"
 msgid "a review of {title}"
-msgstr "关于 {item_title} 的评论"
+msgstr "关于 {title} 的评论"
 
 #: journal/models/review.py:67
-#, fuzzy
-#| msgid "Item contains sub-items."
 msgid "(may contain spoilers)"
-msgstr "条目下已有子项。"
+msgstr "（可能包含剧透）"
 
 #: journal/models/shelf.py:28
 msgid "WISHLIST"
@@ -5213,14 +5125,12 @@ msgid "Article"
 msgstr "文章"
 
 #: journal/templates/article.html:63
-#, fuzzy
-#| msgid "View on Wikidata"
 msgid "View on origin"
-msgstr "查看维基数据"
+msgstr "查看原始内容"
 
 #: journal/templates/article.html:77
 msgid "This article may contain sensitive content. Click to reveal."
-msgstr ""
+msgstr "文章可能包含敏感内容，点击显示全文。"
 
 #: journal/templates/article.html:88 journal/templates/review.html:81
 msgid "The author has set it to be viewable only by logged-in users."
@@ -5232,16 +5142,12 @@ msgid "Reply"
 msgstr "回应"
 
 #: journal/templates/article_edit.html:13
-#, fuzzy
-#| msgid "Edit this item"
 msgid "Edit Article"
-msgstr "编辑这个条目"
+msgstr "编辑文章"
 
 #: journal/templates/article_edit.html:15 journal/templates/profile.html:142
-#, fuzzy
-#| msgid "Composer"
 msgid "Compose Article"
-msgstr "作曲"
+msgstr "撰写文章"
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
@@ -5359,49 +5265,6 @@ msgid "Markdown format references"
 msgstr "Markdown语法参考"
 
 #: journal/templates/markdown_editor.html:12
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "Title\n"
-#| "=====\n"
-#| "\n"
-#| "Subtitle\n"
-#| "--------\n"
-#| "\n"
-#| "  Paragraphs need to be separated by a blank line\n"
-#| "\n"
-#| "  Indentation at the beginning of the paragraph requires using a Unicode full-width space\n"
-#| "\n"
-#| "[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
-#| "**Bold**  *Italic* ==Highlight== ~~Strikethrough~~\n"
-#| "^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
-#| "\n"
-#| "Drag and drop an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
-#| "\n"
-#| "> Quote\n"
-#| ">> Multi-level quote\n"
-#| "\n"
-#| "Inline >! spoiler warning !< (also in short comments)\n"
-#| "\n"
-#| ">! Multi-line\n"
-#| ">! Spoiler\n"
-#| "\n"
-#| "---\n"
-#| "\n"
-#| "- Bullet\n"
-#| "- Points\n"
-#| "\n"
-#| "content in paragraph with footnote[^1] markup.\n"
-#| "[^1]: footnote explain\n"
-#| "\n"
-#| "```\n"
-#| "code\n"
-#| "```\n"
-#| "\n"
-#| "Table Header  | Second Header\n"
-#| "------------- | -------------\n"
-#| "Content Cell  | Content Cell\n"
-#| "Content Cell  | Content Cell\n"
 msgid ""
 "\n"
 "## Subtitle\n"
@@ -5494,10 +5357,8 @@ msgid "Note with empty content will be deleted, sure to continue?"
 msgstr "无内容的笔记会被删除，确定继续吗？"
 
 #: journal/templates/note.html:42
-#, fuzzy
-#| msgid "Are you sure to delete this post?"
 msgid "Are you sure to delete this note?"
-msgstr "确认删除这则帖文吗？"
+msgstr "确认删除这则笔记吗？"
 
 #: journal/templates/piece_delete.html:23
 msgid "Are you sure to delete this entire content?"
@@ -5522,10 +5383,8 @@ msgid "Content"
 msgstr "内容"
 
 #: journal/templates/post_compose.html:87
-#, fuzzy
-#| msgid "Content Warning (optional)"
 msgid "Content warning"
-msgstr "剧透或敏感内容提示（选填）"
+msgstr "剧透或敏感内容提示"
 
 #: journal/templates/post_compose.html:94
 msgid "Publish"
@@ -6115,23 +5974,18 @@ msgid "Invalid account data from Threads."
 msgstr "Threads返回了无效的账号数据。"
 
 #: social/templates/_article_teaser.html:10
-#, fuzzy, python-format
-#| msgid "%(count)d book"
-#| msgid_plural "%(count)d books"
 msgid "%(counter)s word"
 msgid_plural "%(counter)s words"
-msgstr[0] "%(count)d 本书"
-msgstr[1] "%(count)d 本书"
+msgstr[0] "%(counter)s 词"
+msgstr[1] "%(counter)s 词"
 
 #: social/templates/_compose_menu.html:11
-#, fuzzy
-#| msgid "New Post"
 msgid "New post"
 msgstr "新帖文"
 
 #: social/templates/_compose_menu.html:14
 msgid "New article"
-msgstr ""
+msgstr "新文章"
 
 #: social/templates/_event_post.html:20
 msgid "boosted"
@@ -6150,10 +6004,8 @@ msgid "wrote a note"
 msgstr "写了笔记"
 
 #: social/templates/_event_post.html:85 social/templates/_event_post.html:87
-#, fuzzy
-#| msgid "wrote a note"
 msgid "wrote an article"
-msgstr "写了笔记"
+msgstr "写了文章"
 
 #: social/templates/_event_post.html:92
 msgid "replying to"
@@ -7490,22 +7342,16 @@ msgid "You may download the list here."
 msgstr "此处可导出你在本站的关系列表。"
 
 #: users/templates/users/steam_import.html:10
-#, fuzzy
-#| msgid "Import from StoryGraph"
 msgid "Import from Steam"
-msgstr "从StoryGraph导入"
+msgstr "从Steam导入"
 
 #: users/templates/users/steam_import.html:20
-#, fuzzy
-#| msgid "Steam"
 msgid "Steam ID"
-msgstr "Steam"
+msgstr "Steam ID"
 
 #: users/templates/users/steam_import.html:28
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Your personal Steam API key"
-msgstr "Steam游戏"
+msgstr "你的个人 Steam API 密钥"
 
 #: users/templates/users/steam_import.html:33
 msgid "Get a free key at"
@@ -7544,10 +7390,8 @@ msgid "Status filter"
 msgstr "筛选状态"
 
 #: users/templates/users/steam_import.html:68
-#, fuzzy
-#| msgid "import marks with these estimated status"
 msgid "Import marks with these estimated status"
-msgstr "导入以下标记状态的游戏"
+msgstr ""
 
 #: users/templates/users/steam_import.html:74
 msgid "Launched in playing threshold"
@@ -7586,8 +7430,6 @@ msgid "Playing threshold"
 msgstr "近期玩过阈值"
 
 #: users/templates/users/steam_import.html:104
-#, fuzzy
-#| msgid "in days, launched in recent X days to be consided playing"
 msgid "in days, launched in recent X days to be considered playing"
 msgstr "以天计，最近X天内玩过视为在玩"
 
@@ -7596,8 +7438,6 @@ msgid "Finished threshold"
 msgstr "完成游戏的阈值"
 
 #: users/templates/users/steam_import.html:109
-#, fuzzy
-#| msgid "in hours, played for more than these hours to be consided finished"
 msgid "in hours, played for more than these hours to be considered finished"
 msgstr "以小时计，超过这些小时数视为玩过"
 
@@ -7606,8 +7446,6 @@ msgid "Ignored Games"
 msgstr "忽略游戏"
 
 #: users/templates/users/steam_import.html:117
-#, fuzzy
-#| msgid "input comma-separated Steam AppIDs"
 msgid "Comma-separated Steam AppIDs"
 msgstr "以逗号分隔的Steam AppID列表"
 
@@ -7616,8 +7454,6 @@ msgid "Allow reverse override of status (e.g. playing -> want to, or played -> p
 msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过->在玩）"
 
 #: users/templates/users/steam_import.html:139
-#, fuzzy
-#| msgid "To import from Steam, your account profile must be visible to public"
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
 msgstr "Steam资料必须公开可见才能导入"
 
@@ -7694,10 +7530,8 @@ msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
 #: users/views/account.py:190
-#, fuzzy
-#| msgid "Invalid OAuth state. Please try again."
 msgid "Username already taken. Please try again."
-msgstr "无效的OAuth认证状态，请重试"
+msgstr "用户名已被使用，请重试。"
 
 #: users/views/account.py:219
 msgid "Valid username required"

@@ -1,8 +1,16 @@
 {% load i18n %}
 {% load thumb %}
 {% if items %}
-  <section id="item-similar">
-    <h5>{% trans "Similar items" %}</h5>
+  <section class="entity-sort shelf" id="item-similar">
+    <span class="action">
+      <span>
+        <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+      </span>
+      <span>
+        <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+      </span>
+    </span>
+    <h5>{% trans "similar items" %}</h5>
     <ul class="cards">
       {% for sim in items %}
         <li class="card">
