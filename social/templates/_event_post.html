@@ -143,7 +143,7 @@
               {% elif piece and piece.classname == 'review' %}
                 {% include "_review_teaser.html" with review=piece %}
               {% elif post.type == 'Article' %}
-                {% include "_post_article_teaser.html" with post=post %}
+                {% include "_post_article_teaser.html" with post=post show_full=show_full %}
               {% else %}
                 {{ post.safe_content_local|default:"" }}
               {% endif %}
