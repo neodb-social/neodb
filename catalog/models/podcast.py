@@ -87,6 +87,12 @@ class Podcast(Item):
         verbose_name=_("website"), max_length=1000, null=True, blank=True
     )
 
+    # Polling tracking (used by PodcastUpdater); stored in Item.metadata
+    feed_last_fetched_at = jsondata.DateTimeField(null=True, blank=True, default=None)
+    feed_etag = jsondata.CharField(max_length=255, default="", blank=True)
+    feed_last_modified = jsondata.CharField(max_length=255, default="", blank=True)
+    feed_consecutive_failures = jsondata.IntegerField(default=0, blank=True)
+
     METADATA_COPY_LIST = [
         # "title",
         # "brief",
