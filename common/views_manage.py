@@ -13,6 +13,7 @@ from django.views.generic import FormView
 from django_jsonform.forms.fields import JSONFormField
 from loguru import logger
 
+from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
 from common.models import SiteConfig
 
 
@@ -354,6 +355,23 @@ class DiscoverSettings(SiteConfigSettingsPage):
 
 class RecommendationSettings(SiteConfigSettingsPage):
     section = "recommendations"
+
+    def form_valid(self, form):
+        was_enabled = bool(SiteConfig.system.enable_recommendations)
+        response = super().form_valid(form)
+        is_enabled = bool(SiteConfig.system.enable_recommendations)
+        if was_enabled != is_enabled:
+            try:
+                if is_enabled:
+                    BuildItemSimilarity.reschedule(now=True)
+                    BuildUserRecommendations.reschedule(now=True)
+                else:
+                    BuildItemSimilarity.cancel()
+                    BuildUserRecommendations.cancel()
+            except Exception as e:
+                logger.warning(f"Failed to (re)schedule recommendation jobs: {e}")
+        return response
+
     options = {
         "enable_recommendations": {
             "title": _("Enable Recommendations"),
