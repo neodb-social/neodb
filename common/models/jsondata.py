@@ -229,19 +229,22 @@ class DateField(JSONFieldMixin, fields.DateField):
 
 class DateTimeField(JSONFieldMixin, fields.DateTimeField):
     def to_json(self, value: datetime | date | str):
-        if value:
-            if not isinstance(value, (datetime, date)):
-                v = dateparse.parse_date(value)
-                if v is None:
-                    raise ValueError(
-                        f"DateTimeField: '{value}' has invalid datetime format"
-                    )
-                value = v
-            if isinstance(value, date):
-                value = datetime.combine(value, datetime.min.time())
-            if not timezone.is_aware(value):
-                value = timezone.make_aware(value)
-            return value.isoformat()
+        if not value:
+            return None
+        if isinstance(value, str):
+            # Try full datetime first to preserve time/offset; fall back to date-only.
+            v = dateparse.parse_datetime(value) or dateparse.parse_date(value)
+            if v is None:
+                raise ValueError(
+                    f"DateTimeField: '{value}' has invalid datetime format"
+                )
+            value = v
+        # datetime is a subclass of date, so check datetime first.
+        if not isinstance(value, datetime) and isinstance(value, date):
+            value = datetime.combine(value, datetime.min.time())
+        if not timezone.is_aware(value):
+            value = timezone.make_aware(value)
+        return value.isoformat()
 
     def from_json(self, value):
         if value:
