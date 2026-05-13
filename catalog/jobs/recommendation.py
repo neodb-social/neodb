@@ -1,12 +1,13 @@
 import math
 from collections import defaultdict
 from datetime import timedelta
-from heapq import nlargest
 
+import numpy as np
 from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
 from loguru import logger
+from scipy.sparse import csr_matrix
 
 from catalog.models import (
     Item,
@@ -215,32 +216,10 @@ class BuildItemSimilarity(BaseJob):
             )
             logger.info(f"Users contributing: {len(user_items)}")
 
-            # Co-occurrence scores live in a nested dict. With cap+IDF damping
-            # the unique-pair count is bounded by the top-K output size; at
-            # ~13M output rows the peak in-memory cost is ~1-2 GB on a Python
-            # worker, tolerable for a weekly job. If catalog growth pushes
-            # this past worker memory, partition `active` and run per-chunk.
-            scores: dict[int, dict[int, float]] = defaultdict(
-                lambda: defaultdict(float)
-            )
-            for items in user_items.values():
-                n = len(items)
-                if n < 2:
-                    continue
-                w = (1.0 / math.sqrt(n)) if dampen else 1.0
-                ws = w * w
-                for i in range(n):
-                    a = items[i]
-                    row = scores[a]
-                    for j in range(i + 1, n):
-                        b = items[j]
-                        row[b] += ws
-                        scores[b][a] += ws
-
-            # Group via Item.category (string), not polymorphic_ctype_id.
-            # Several content types map to the same category (e.g. TVShow,
-            # TVSeason and TVEpisode all live under "tv"); using ctype_id
-            # would block cross-type recommendations within a category.
+            # Resolve item -> category once. Several content types share the
+            # same category string (TVShow / TVSeason / TVEpisode -> "tv"), so
+            # we use the category label rather than polymorphic_ctype_id to
+            # avoid blocking cross-type pairs within a category.
             ctype_to_cat: dict[int, str] = {}
             cts = item_content_types()
             for cat_enum, classes in item_categories().items():
@@ -256,26 +235,134 @@ class BuildItemSimilarity(BaseJob):
                 if cat:
                     category_by_id[pk] = cat
 
-            for src in active:
-                row = scores.get(src)
-                if not row:
-                    continue
-                src_cat = category_by_id.get(src)
-                if not src_cat:
-                    continue
-                same_cat = [
-                    (b, s)
-                    for b, s in row.items()
-                    if b in target_set and category_by_id.get(b) == src_cat
-                ]
-                if not same_cat:
-                    continue
-                top = nlargest(top_k, same_cat, key=lambda t: t[1])
-                item_categories_map[src] = top
+            item_categories_map = self._topk_per_category(
+                user_items=user_items,
+                active=active,
+                target_set=target_set,
+                category_by_id=category_by_id,
+                top_k=top_k,
+                dampen=dampen,
+            )
 
         logger.info(f"Sources with similar rows: {len(item_categories_map)}")
         rows_written = self._write_similarity_rows(item_categories_map)
         logger.info(f"Similarity build done: {rows_written} rows")
+
+    def _topk_per_category(
+        self,
+        user_items: dict[int, list[int]],
+        active: set[int],
+        target_set: set[int],
+        category_by_id: dict[int, str],
+        top_k: int,
+        dampen: bool,
+    ) -> dict[int, list[tuple[int, float]]]:
+        """Per-category sparse co-occurrence: top-K targets per active source.
+
+        Builds one ``scipy.sparse`` user-item matrix per category and computes
+        ``M.T @ M`` for the item-item co-occurrence within that category. Each
+        user-item entry carries weight ``w_u = 1/sqrt(n_user_total)`` (or 1
+        when damping is off), so ``(M.T M)[a, b] = sum_u w_u^2 = sum 1/n_u``
+        over users who shelved both items -- matching the pre-existing
+        per-pair contribution. Working per category keeps peak memory bounded
+        by the densest single category instead of the whole catalog and lets
+        ``M.T M`` use C-level math instead of Python dict-of-dict. The win is
+        category-distribution-dependent: if one category dominates the mark
+        volume, the densest matrix can still approach the prior peak.
+        """
+        if top_k <= 0:
+            return {}
+        items_by_cat: dict[str, set[int]] = defaultdict(set)
+        for iid, cat in category_by_id.items():
+            items_by_cat[cat].add(iid)
+
+        # Bucket each user's truncated mark list by the categories it touches,
+        # so the per-category inner loop only walks users with at least one
+        # item in that category instead of every user every time. Users who
+        # specialise in 1-2 categories are the common case.
+        users_by_cat: dict[str, list[list[int]]] = defaultdict(list)
+        for items in user_items.values():
+            cats_in_user: set[str] = set()
+            for it in items:
+                cat = category_by_id.get(it)
+                if cat is not None:
+                    cats_in_user.add(cat)
+            for cat in cats_in_user:
+                users_by_cat[cat].append(items)
+
+        out: dict[int, list[tuple[int, float]]] = {}
+        for cat, cat_items in items_by_cat.items():
+            active_in_cat = active & cat_items
+            target_in_cat = target_set & cat_items
+            if not active_in_cat or not target_in_cat:
+                continue
+            item_list = sorted(cat_items)
+            col_of = {iid: idx for idx, iid in enumerate(item_list)}
+            n_items = len(item_list)
+
+            rows: list[int] = []
+            cols: list[int] = []
+            data: list[float] = []
+            user_idx = 0
+            for items in users_by_cat[cat]:
+                cat_user_items = [it for it in items if it in cat_items]
+                if len(cat_user_items) < 2:
+                    continue
+                # Damping uses the user's full truncated list size, not the
+                # per-category subset, so a heavy shelver is damped equally
+                # regardless of which category we're currently scoring.
+                n_total = len(items)
+                w = (1.0 / math.sqrt(n_total)) if dampen else 1.0
+                for it in cat_user_items:
+                    rows.append(user_idx)
+                    cols.append(col_of[it])
+                    data.append(w)
+                user_idx += 1
+            if user_idx == 0:
+                continue
+
+            m = csr_matrix(
+                (
+                    np.asarray(data, dtype=np.float32),
+                    (
+                        np.asarray(rows, dtype=np.int32),
+                        np.asarray(cols, dtype=np.int32),
+                    ),
+                ),
+                shape=(user_idx, n_items),
+            )
+            sim = (m.T @ m).tocsr()
+            sim.setdiag(0)
+            sim.eliminate_zeros()
+
+            target_mask = np.zeros(n_items, dtype=bool)
+            for iid in target_in_cat:
+                target_mask[col_of[iid]] = True
+            item_arr = np.asarray(item_list, dtype=np.int64)
+
+            for src_id in active_in_cat:
+                src_col = col_of[src_id]
+                row = sim.getrow(src_col)
+                if row.nnz == 0:
+                    continue
+                indices = row.indices
+                values = row.data
+                keep = target_mask[indices]
+                if not keep.any():
+                    continue
+                sel_idx = indices[keep]
+                sel_val = values[keep]
+                if sel_val.size > top_k:
+                    cut = np.argpartition(-sel_val, top_k)[:top_k]
+                    sel_idx = sel_idx[cut]
+                    sel_val = sel_val[cut]
+                order = np.argsort(-sel_val)
+                sel_idx = sel_idx[order]
+                sel_val = sel_val[order]
+                out[src_id] = [
+                    (int(item_arr[i]), float(s)) for i, s in zip(sel_idx, sel_val)
+                ]
+        return out
 
     def _write_similarity_rows(
         self, item_categories_map: dict[int, list[tuple[int, float]]]
