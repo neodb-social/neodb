@@ -2,7 +2,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 
-from django.db import close_old_connections
+from django.db import close_old_connections, connections
 from django.db.models import Max
 from django.utils import timezone
 from loguru import logger
@@ -42,12 +42,18 @@ def _is_due(podcast: Podcast, last_pub, now) -> bool:
 
 
 def _fetch_one(podcast: Podcast):
-    feed, etag, last_modified, status = RSS.fetch_feed_with_metadata(
-        podcast.feed_url,
-        podcast.feed_etag or "",
-        podcast.feed_last_modified or "",
-    )
-    return podcast, feed, etag, last_modified, status
+    try:
+        feed, etag, last_modified, status = RSS.fetch_feed_with_metadata(
+            podcast.feed_url,
+            podcast.feed_etag or "",
+            podcast.feed_last_modified or "",
+        )
+        return podcast, feed, etag, last_modified, status
+    finally:
+        # Worker threads do no DB I/O today, but Django connections are
+        # thread-local: if any future code path opens one in here, close
+        # it before the pool reuses the thread to avoid connection leaks.
+        connections.close_all()
 
 
 @JobManager.register
