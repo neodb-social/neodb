@@ -747,7 +747,7 @@ class Takahe:
         return (
             Post.objects.filter(pk__in=post_pks)
             .exclude(state__in=["deleted", "deleted_fanned_out"])
-            .prefetch_related("author", "attachments")
+            .prefetch_related("author", "attachments", "mentions")
             .select_related("application")
         )
 
@@ -1099,7 +1099,7 @@ class Takahe:
         )
         if local_only:
             qs = qs.filter(local=True)
-        return qs.prefetch_related("attachments", "author").select_related(
+        return qs.prefetch_related("attachments", "author", "mentions").select_related(
             "application"
         )
 
@@ -1120,7 +1120,7 @@ class Takahe:
             qs = qs.exclude(visibility=3)
         else:
             qs = qs.filter(visibility__in=[0, 1, 4])
-        return qs.prefetch_related("attachments", "author").select_related(
+        return qs.prefetch_related("attachments", "author", "mentions").select_related(
             "application"
         )
 
@@ -1163,7 +1163,7 @@ class Takahe:
         return (
             qs.annotate(boost_pk=Subquery(boost_pk_subq))
             .order_by("-boost_pk")
-            .prefetch_related("attachments", "author")
+            .prefetch_related("attachments", "author", "mentions")
             .select_related("application")
         )
 

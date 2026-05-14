@@ -102,6 +102,7 @@ def post_quotes(request: AuthedHttpRequest, post_id: int):
         .visible_to(viewer_identity, include_replies=True)
         .filter(quote_url=post.object_uri)
         .select_related("author")
+        .prefetch_related("mentions")
         .order_by("-published")[:20]
     )
     return render(request, "post_quotes.html", {"post": post, "quotes": quotes})

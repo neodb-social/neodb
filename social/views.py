@@ -122,7 +122,7 @@ def search_data(request):
         events = [
             SearchResultEvent(p)
             for p in r.posts.select_related("author")
-            .prefetch_related("attachments")
+            .prefetch_related("attachments", "mentions")
             .order_by("-id")
         ]
         _add_interaction_to_events(events, identity_id)

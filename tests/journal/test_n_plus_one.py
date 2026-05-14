@@ -1,7 +1,7 @@
 """Tests for N+1 query optimizations."""
 
 import pytest
-from django.db import connection
+from django.db import connection, connections
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 
@@ -404,6 +404,47 @@ class TestPrefetchPiecesForPosts:
 
     def test_prefetch_empty_list(self):
         prefetch_pieces_for_posts([])  # should not raise
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPostMentionsPrefetch:
+    """Profile post querysets must prefetch mentions to avoid an N+1 from
+    safe_content_local -> ContentRenderer -> post.mentions.all()."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="pmen@example.com", username="pmenuser")
+        self.book = Edition.objects.create(title="Mentions Prefetch Book")
+        self.movie = Movie.objects.create(title="Mentions Prefetch Movie")
+        Mark(self.user.identity, self.book).update(
+            ShelfType.WISHLIST, "want to read", visibility=0
+        )
+        Mark(self.user.identity, self.movie).update(
+            ShelfType.COMPLETE, "great film", 8, visibility=0
+        )
+
+    def _assert_no_mention_queries(self, posts):
+        # Post.mentions lives in the takahe database; capture that connection.
+        with CaptureQueriesContext(connections["takahe"]) as ctx:
+            for post in posts:
+                _ = post.safe_content_local
+        mention_queries = [
+            q for q in ctx.captured_queries if "activities_post_mentions" in q["sql"]
+        ]
+        assert mention_queries == []
+
+    def test_recent_posts_render_avoids_mentions_n_plus_one(self):
+        posts = list(Takahe.get_recent_posts(self.user.identity.pk)[:10])
+        assert len(posts) >= 2
+        self._assert_no_mention_queries(posts)
+
+    def test_get_posts_render_avoids_mentions_n_plus_one(self):
+        post_ids = list(
+            Takahe.get_recent_posts(self.user.identity.pk).values_list("pk", flat=True)
+        )
+        posts = list(Takahe.get_posts(post_ids))
+        assert len(posts) >= 2
+        self._assert_no_mention_queries(posts)
 
 
 @pytest.mark.django_db(databases="__all__")
