@@ -1,4 +1,5 @@
 from time import sleep
+from urllib.parse import urljoin
 
 import httpx
 
@@ -8,6 +9,71 @@ from takahe.models import Identity, InboxMessage, Post
 
 actor_types = ["person", "service", "application", "group", "organization"]
 post_types = ["note", "article", "post", "question", "event", "video", "audio", "image"]
+
+JSON_AP_TYPES = ("application/activity+json", "application/ld+json")
+
+
+def _split_link_entries(value: str) -> list[str]:
+    entries: list[str] = []
+    depth = 0
+    in_quote = False
+    start = i = 0
+    while i < len(value):
+        c = value[i]
+        if c == "\\" and i + 1 < len(value):
+            i += 2
+            continue
+        if c == '"':
+            in_quote = not in_quote
+        elif not in_quote:
+            if c == "<":
+                depth += 1
+            elif c == ">":
+                depth = max(0, depth - 1)
+            elif c == "," and depth == 0:
+                entries.append(value[start:i])
+                start = i + 1
+        i += 1
+    entries.append(value[start:])
+    return entries
+
+
+def find_ap_alternate_url(response: httpx.Response) -> str | None:
+    """Return an alternate ActivityPub URL advertised by ``response``.
+
+    Mirrors the helper in ``neodb-takahe/core/json.py`` so the standalone
+    fetch CLI can follow ``Link: rel="alternate"; type="application/activity+json"``
+    hints from hosts (like WordPress's ActivityPub plugin) that do not
+    content-negotiate the canonical permalink.
+    """
+    base = str(response.url)
+    try:
+        raw_links = list(response.headers.get_list("link"))
+    except AttributeError:
+        single = response.headers.get("link")
+        raw_links = [single] if single else []
+    for header_value in raw_links:
+        for entry in _split_link_entries(header_value):
+            entry = entry.strip()
+            if not entry.startswith("<"):
+                continue
+            try:
+                end = entry.index(">")
+            except ValueError:
+                continue
+            url = entry[1:end].strip()
+            params: dict[str, str] = {}
+            for piece in entry[end + 1 :].split(";"):
+                piece = piece.strip()
+                if "=" not in piece:
+                    continue
+                k, _, v = piece.partition("=")
+                params[k.strip().lower()] = v.strip().strip('"')
+            rels = params.get("rel", "").split()
+            link_type = params.get("type", "").split(";", 1)[0].strip().lower()
+            if "alternate" in rels and link_type in JSON_AP_TYPES:
+                return urljoin(base, url)
+    return None
 
 
 class Command(SiteCommand):
@@ -34,7 +100,9 @@ class Command(SiteCommand):
             headers = {
                 "Accept": "application/json,application/activity+json,application/ld+json"
             }
-            response = httpx.get(url, headers=headers, timeout=timeout)
+            response = httpx.get(
+                url, headers=headers, timeout=timeout, follow_redirects=True
+            )
             response.raise_for_status()
             content_type = response.headers.get("content-type", "")
             self.stdout.write(f"Content-Type: {content_type}")
@@ -43,11 +111,27 @@ class Command(SiteCommand):
             # the prior endswith("json; charset=utf-8") miss made the fetcher
             # silently bail with "Content type is not JSON".
             bare_media_type = content_type.split(";", 1)[0].strip().lower()
-            if bare_media_type in (
+            json_media_types = (
                 "application/json",
                 "application/activity+json",
                 "application/ld+json",
-            ):
+            )
+            # WordPress's ActivityPub plugin (and similar hosts) serve HTML
+            # on permalink URLs and advertise the AP object via
+            # ``Link: rel="alternate"; type="application/activity+json"``.
+            # Follow it once before giving up.
+            if bare_media_type not in json_media_types:
+                alt = find_ap_alternate_url(response)
+                if alt:
+                    self.stdout.write(f"Following AP alternate: {alt}")
+                    response = httpx.get(
+                        alt, headers=headers, timeout=timeout, follow_redirects=True
+                    )
+                    response.raise_for_status()
+                    content_type = response.headers.get("content-type", "")
+                    self.stdout.write(f"Content-Type: {content_type}")
+                    bare_media_type = content_type.split(";", 1)[0].strip().lower()
+            if bare_media_type in json_media_types:
                 j = response.json()
                 typ = j.get("type", "").lower()
                 uri = j.get("id", "")
