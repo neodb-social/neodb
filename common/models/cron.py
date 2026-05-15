@@ -14,7 +14,8 @@ def run_job(job_id: str) -> None:
 
     Looks up the BaseJob subclass in the registry and runs it. Defined at the
     module level (not as a classmethod) so RQ can resolve it by import path
-    on the worker side.
+    on the worker side. For singleton jobs, a Redis lock prevents a second
+    copy from starting while a previous run is still active.
     """
     try:
         job_cls = JobManager.get(job_id)
@@ -24,7 +25,25 @@ def run_job(job_id: str) -> None:
         # module re-imports every jobs module.
         __import__("boofilsic.cron_config", fromlist=["*"])
         job_cls = JobManager.get(job_id)
-    job_cls().run()
+
+    instance = job_cls()
+    if not job_cls.singleton:
+        instance.run()
+        return
+
+    conn = django_rq.get_connection(job_cls.queue_name)
+    lock_key = f"cron:lock:{job_id}"
+    # Lock TTL slightly outlives job_timeout so a crashed worker can't pin the
+    # lock past the next tick + a small buffer. Fallback to 1 hour for
+    # cron-string jobs where get_job_timeout() is None.
+    lock_ttl = (job_cls.get_job_timeout() or 3600) + 60
+    if not conn.set(lock_key, "1", nx=True, ex=lock_ttl):
+        logger.info(f"Skipping {job_id}: previous run still active")
+        return
+    try:
+        instance.run()
+    finally:
+        conn.delete(lock_key)
 
 
 class BaseJob:
@@ -36,6 +55,11 @@ class BaseJob:
     """
 
     queue_name: str = CRON_QUEUE
+
+    #: When True, ``run_job`` acquires a Redis lock keyed on the job name so a
+    #: long-running tick cannot collide with the scheduler's next enqueue.
+    #: Set to ``False`` on subclasses that are intentionally re-entrant.
+    singleton: bool = True
 
     @classmethod
     def get_interval(cls) -> timedelta:
