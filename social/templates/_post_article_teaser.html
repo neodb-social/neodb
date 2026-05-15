@@ -1,9 +1,9 @@
 {% load i18n %}
 {% with title=post.type_data.object.name|default:post.summary|striptags summary=post.type_data.object.summary %}
   <section class="article-teaser">
-    <h4>
+    <h6>
       <a href="{{ post.url|default:post.object_uri }}">{{ title|default:_("Untitled article") }}</a>
-    </h4>
+    </h6>
     {% if show_full %}
       {% if summary %}<p class="piece-summary">{{ summary|striptags }}</p>{% endif %}
       <div class="markdown-content">{{ post.safe_content_local }}</div>
