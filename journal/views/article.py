@@ -107,9 +107,8 @@ def _article_last_modified(request, article_uuid: str):
         return None
     # Owner-level toggles (``anonymous_viewable``, ``restricted``) don't
     # bump piece ``edited_time``, so the visibility check must run here —
-    # otherwise a privacy flip can leave anonymous clients with a cached
-    # 200 served via 304. Stash the loaded row for the view body to reuse
-    # so the non-304 path stays single-query.
+    # otherwise a privacy flip would leave anonymous clients with a
+    # cached 200 served via 304.
     try:
         uid = get_uuid_or_404(article_uuid)
     except Http404:
@@ -117,16 +116,13 @@ def _article_last_modified(request, article_uuid: str):
     article = Article.objects.filter(uid=uid).select_related("owner").first()
     if not article or not article.is_visible_to(request.user):
         return None
-    request._cg_article = article
     return article.edited_time
 
 
 @require_http_methods(["GET", "HEAD"])
 @conditional_get_for_anonymous(_article_last_modified)
 def article_retrieve(request, article_uuid: str):
-    article = getattr(request, "_cg_article", None) or get_object_or_404(
-        Article, uid=get_uuid_or_404(article_uuid)
-    )
+    article = get_object_or_404(Article, uid=get_uuid_or_404(article_uuid))
     if request.method == "HEAD":
         return HttpResponse()
     if _wants_activitypub(request):

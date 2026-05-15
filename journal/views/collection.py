@@ -237,10 +237,6 @@ def _collection_last_modified(request, collection_uuid):
     # flip doesn't leave anonymous clients with a cached 200.
     if not collection.is_visible_to(request.user):
         return None
-    # Stash for ``collection_retrieve`` to reuse — avoids a second copy of
-    # the same polymorphic JOIN that ``test_no_per_member_collection_*``
-    # guards against.
-    request._cg_collection = collection
     return collection.edited_time
 
 
@@ -249,9 +245,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     if _wants_activitypub(request):
         collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         return _list_ap_object_view(request, collection)
-    collection = getattr(request, "_cg_collection", None) or get_object_or_404(
-        Collection, uid=get_uuid_or_404(collection_uuid)
-    )
+    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     page_number = int_(request.GET.get("page"), 1)

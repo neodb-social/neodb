@@ -38,14 +38,13 @@ def _review_last_modified(request, review_uuid):
     piece = Review.get_by_url(review_uuid)
     if piece is None or not piece.is_visible_to(request.user):
         return None
-    request._cg_review = piece
     return piece.edited_time
 
 
 @require_http_methods(["GET", "HEAD"])
 @conditional_get_for_anonymous(_review_last_modified)
 def review_retrieve(request, review_uuid):
-    piece = getattr(request, "_cg_review", None) or Review.get_by_url(review_uuid)
+    piece = Review.get_by_url(review_uuid)
     if piece is None:
         raise Http404(_("Content not found"))
     if not piece.is_visible_to(request.user):

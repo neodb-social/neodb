@@ -393,8 +393,6 @@ def _post_last_modified(request, handle: str, post_pk: int):
         return None
     if _can_view_post(post, owner, viewer=None) != 1:
         return None
-    request._cg_post = post
-    request._cg_owner = owner
     return post.updated
 
 
@@ -403,15 +401,11 @@ def _post_last_modified(request, handle: str, post_pk: int):
 def post_view(request, handle: str, post_pk: int):
     if request.headers.get("Accept", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
-    post: Post = getattr(request, "_cg_post", None) or get_object_or_404(
-        Post, pk=post_pk
-    )
+    post: Post = get_object_or_404(Post, pk=post_pk)
     if post.state in ["deleted", "deleted_fanned_out"]:
         raise Http404("Post not available")
     viewer = request.user.identity if request.user.is_authenticated else None
-    owner = getattr(request, "_cg_owner", None) or APIdentity.by_takahe_identity(
-        post.author
-    )
+    owner = APIdentity.by_takahe_identity(post.author)
     if not owner:
         if not post.local:  # identity for remote post hasn't been sync to APIdentity
             return redirect(post.url)

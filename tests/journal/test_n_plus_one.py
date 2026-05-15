@@ -1363,5 +1363,9 @@ class TestCollectionMemberParent:
             and "journal_piece" in q["sql"]
             and '"journal_collection"."piece_ptr_id" =' in q["sql"]
         ]
-        # One top-level collection fetch is expected; members should not add more.
-        assert len(parent_queries) <= 1
+        # Two top-level collection fetches are expected for anonymous
+        # requests: the conditional-GET ``Last-Modified`` callback probes
+        # the collection (and its visibility), and the view body fetches
+        # it again. Members must not add per-member parent dereferences
+        # on top of that — that's what this test guards.
+        assert len(parent_queries) <= 2
