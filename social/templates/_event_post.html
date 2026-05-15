@@ -81,9 +81,9 @@
              title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
           {% if piece and piece.classname == 'note' %}
             {% trans "wrote a note" %}
-          {% elif piece and piece.classname == 'article' %}
-            {% trans "wrote an article" %}
-          {% elif post.type == 'Article' and not piece %}
+          {% elif piece and piece.classname == 'review' %}
+            {% trans "wrote a review" %}
+          {% elif post.type == 'Article' %}
             {% trans "wrote an article" %}
           {% endif %}
         </span>
