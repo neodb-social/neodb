@@ -657,14 +657,13 @@ def discover_popular_posts(request):
         popular_posts = Takahe.get_public_posts(
             SiteConfig.system.discover_show_local_only
         )
-        # Limit to no more than 3 posts per author
-        popular_posts = popular_posts.annotate(
-            author_row=Window(
-                expression=RowNumber(),
-                partition_by="author_id",
-                order_by="-published",
-            )
-        ).filter(author_row__lte=3)
+    popular_posts = popular_posts.annotate(
+        author_row=Window(
+            expression=RowNumber(),
+            partition_by="author_id",
+            order_by="-published",
+        )
+    ).filter(author_row__lte=2)
     posts = list(
         popular_posts.not_blocked_by(request.user.identity.takahe_identity)[:20]
     )
