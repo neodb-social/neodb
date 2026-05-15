@@ -18,10 +18,10 @@ class Task(TypedModel):
     DefaultMetadata = {}
 
     class States(models.IntegerChoices):
-        pending = 0, _("Pending")
-        started = 1, _("Started")
-        complete = 2, _("Complete")
-        failed = 3, _("Failed")
+        pending = 0, _("Pending")  # ty: ignore[invalid-assignment]
+        started = 1, _("Started")  # ty: ignore[invalid-assignment]
+        complete = 2, _("Complete")  # ty: ignore[invalid-assignment]
+        failed = 3, _("Failed")  # ty: ignore[invalid-assignment]
 
     user = models.ForeignKey(User, models.CASCADE, null=False)
     # type = models.CharField(max_length=20, null=False)
