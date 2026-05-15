@@ -378,6 +378,7 @@ def _post_last_modified(request, handle: str, post_pk: int):
     post = (
         Post.objects.filter(pk=post_pk)
         .exclude(state__in=["deleted", "deleted_fanned_out"])
+        .select_related("author")
         .first()
     )
     if not post:
@@ -400,7 +401,7 @@ def _post_last_modified(request, handle: str, post_pk: int):
 @require_http_methods(["GET", "HEAD"])
 @conditional_get_for_anonymous(_post_last_modified)
 def post_view(request, handle: str, post_pk: int):
-    if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
+    if request.headers.get("Accept", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
     post: Post = getattr(request, "_cg_post", None) or get_object_or_404(
         Post, pk=post_pk

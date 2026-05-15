@@ -277,6 +277,43 @@ class TestConditionalGetGating:
         resp = self.client.get(bad_url, HTTP_IF_MODIFIED_SINCE=last_mod)
         assert resp.status_code != 304
 
+    def test_article_ap_accept_skips_conditional_path(self):
+        # AP requests on the article URL should redirect to the canonical
+        # Post object_uri, not 304-bypass via the article's mtime.
+        article = Article.update_local_article(
+            owner=self.user.identity,
+            title="Alt",
+            body="b",
+            visibility=0,
+        )
+        first = self.client.get(article.url)
+        assert first.status_code == 200
+        last_mod = first["Last-Modified"]
+        resp = self.client.get(
+            article.url,
+            HTTP_ACCEPT="application/activity+json",
+            HTTP_IF_MODIFIED_SINCE=last_mod,
+        )
+        # Must NOT be 304; the AP-Accept path runs the view and redirects.
+        assert resp.status_code != 304
+
+    def test_post_view_rejects_json_accept(self):
+        # Regression for the ``HTTP_ACCEPT`` vs ``Accept`` header-name bug —
+        # ``request.headers`` keys are normalized; ``HTTP_ACCEPT`` always
+        # returned None and silently let JSON requests through.
+        book = Edition.objects.create(title="Hdr Book")
+        review = Review.update_item_review(
+            book, self.user.identity, "T", "b", visibility=0
+        )
+        post = review.latest_post
+        assert post is not None
+        resp = self.client.get(
+            f"/@gate/posts/{post.pk}/",
+            HTTP_ACCEPT="application/activity+json",
+        )
+        # The view's JSON-Accept guard should fire (400 BadRequest).
+        assert resp.status_code == 400
+
     def test_dynamic_collection_does_not_304(self):
         col = Collection(
             owner=self.user.identity,

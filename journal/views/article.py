@@ -100,6 +100,11 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
 
 
 def _article_last_modified(request, article_uuid: str):
+    # AP requests redirect to a different URI (the canonical Takahē post);
+    # a 304 here would let a stale HTML-cached client bypass that redirect.
+    # The view body handles the AP branch.
+    if _wants_activitypub(request):
+        return None
     # Owner-level toggles (``anonymous_viewable``, ``restricted``) don't
     # bump piece ``edited_time``, so the visibility check must run here —
     # otherwise a privacy flip can leave anonymous clients with a cached
