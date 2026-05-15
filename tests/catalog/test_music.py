@@ -303,3 +303,100 @@ class TestYouTubeMusic:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert str(site.resource.item.release_date) == "1983-01-01"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRateYourMusic:
+    def test_parse(self):
+        t_id_type = IdType.RateYourMusic_Release
+        t_id_value = "release/album/radiohead/ok-computer"
+        t_url = "https://rateyourmusic.com/release/album/radiohead/ok-computer/"
+        t_url_no_slash = "https://rateyourmusic.com/release/album/radiohead/ok-computer"
+        t_url_with_www = (
+            "https://www.rateyourmusic.com/release/album/radiohead/ok-computer/"
+        )
+        site = SiteManager.get_site_cls_by_id_type(t_id_type)
+        assert site is not None
+        assert site.validate_url(t_url)
+        assert site.validate_url(t_url_no_slash)
+        assert site.validate_url(t_url_with_www)
+        s = SiteManager.get_site_by_url(t_url)
+        assert s is not None
+        assert s.url == t_url
+        assert s.id_value == t_id_value
+        # www variant normalizes to canonical URL
+        s2 = SiteManager.get_site_by_url(t_url_with_www)
+        assert s2 is not None
+        assert s2.url == t_url
+        assert s2.id_value == t_id_value
+        # Non-album release types are accepted by URL pattern
+        ep_url = "https://rateyourmusic.com/release/ep/some-artist/some-ep/"
+        assert site.validate_url(ep_url)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = "https://rateyourmusic.com/release/album/radiohead/ok-computer/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert not site.ready
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        meta = site.resource.metadata
+        assert meta["title"] == "OK Computer"
+        assert meta["artist"] == ["Radiohead"]
+        assert meta["album_type"] == "Album"
+        assert meta["release_date"] == "1997-06-16"
+        # Primary + secondary genres preserved in order
+        assert meta["genre"][:2] == ["Alternative Rock", "Art Rock"]
+        assert "Post-Britpop" in meta["genre"]
+        assert "Space Rock Revival" in meta["genre"]
+        # Tracks: 12 songs, ~53:21 total
+        track_lines = meta["track_list"].splitlines()
+        assert len(track_lines) == 12
+        assert track_lines[0] == "1. Airbag (4:44)"
+        assert track_lines[-1] == "12. The Tourist (5:24)"
+        assert meta["duration"] == 3201000
+        # Primary label parsed out of og:description
+        assert meta["company"] == ["Parlophone"]
+        assert meta["cover_image_url"].startswith("https://cdn.sonemic.net/")
+        # Brief excludes the "Featured performers:" credit dump
+        assert "Featured pe" not in meta["brief"]
+        assert meta["localized_title"][0]["text"] == "OK Computer"
+        # Streaming-platform IDs harvested from data-links blob
+        lookup = site.resource.other_lookup_ids or {}
+        assert lookup.get(IdType.Spotify_Album) == "7dxKtc08dYeRVHt3p9CZJn"
+        assert lookup.get(IdType.AppleMusic) == "1097861387"
+        # No bandcamp on this release (major-label, not self-published)
+        assert IdType.Bandcamp not in lookup
+        # Item creation
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Album)
+        assert str(site.resource.item.release_date) == "1997-06-16"
+
+    @use_local_response
+    def test_scrape_bandcamp_release(self):
+        # King Gizzard self-publishes on Bandcamp; data-links has bandcamp
+        # (with a `url` field) and youtube, but no spotify.
+        t_url = (
+            "https://rateyourmusic.com/release/album/"
+            "king-gizzard-and-the-lizard-wizard/12-bar-bruise/"
+        )
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        meta = site.resource.metadata
+        assert meta["title"] == "12 Bar Bruise"
+        assert meta["artist"] == ["King Gizzard & The Lizard Wizard"]
+        lookup = site.resource.other_lookup_ids or {}
+        # Bandcamp url field, not RYM's internal numeric id
+        assert (
+            lookup.get(IdType.Bandcamp)
+            == "kinggizzard.bandcamp.com/album/12-bar-bruise"
+        )
+        # Apple Music: RYM marks the de-locale entry as default
+        assert lookup.get(IdType.AppleMusic) == "1649045961"
+        # Spotify absent for this release in RYM's data-links
+        assert IdType.Spotify_Album not in lookup

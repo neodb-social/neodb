@@ -44,6 +44,7 @@ class SiteName(models.TextChoices):
     MobyGames = "mobygames", _("MobyGames")
     StoryGraph = "storygraph", _("StoryGraph")
     YouTubeMusic = "yt_music", _("YouTube Music")
+    RateYourMusic = "rateyourmusic", _("RateYourMusic")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -109,6 +110,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     OpenLibrary_Work = "openlibrary_work", _("Open Library Work")
     MobyGames = "mobygames", _("MobyGames")
     StoryGraph = "storygraph", _("StoryGraph")
+    RateYourMusic_Release = "rateyourmusic_release", _("RateYourMusic Release")
 
 
 IdealIdTypes = [

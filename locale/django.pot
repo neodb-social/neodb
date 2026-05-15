@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-12 09:33-0400\n"
+"POT-Creation-Date: 2026-05-13 21:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,12 +68,12 @@ msgid "Primary ID Value"
 msgstr ""
 
 #: catalog/models/book.py:138 catalog/models/book.py:157
-#: catalog/models/common.py:205 catalog/models/common.py:223
+#: catalog/models/common.py:207 catalog/models/common.py:225
 msgid "locale"
 msgstr ""
 
 #: catalog/models/book.py:141 catalog/models/book.py:160
-#: catalog/models/common.py:208 catalog/models/common.py:228
+#: catalog/models/common.py:210 catalog/models/common.py:230
 msgid "text content"
 msgstr ""
 
@@ -173,11 +173,11 @@ msgstr ""
 msgid "Douban"
 msgstr ""
 
-#: catalog/models/common.py:17 catalog/models/common.py:65
+#: catalog/models/common.py:17 catalog/models/common.py:66
 msgid "Goodreads"
 msgstr ""
 
-#: catalog/models/common.py:18 catalog/models/common.py:67
+#: catalog/models/common.py:18 catalog/models/common.py:68
 msgid "Google Books"
 msgstr ""
 
@@ -185,16 +185,16 @@ msgstr ""
 msgid "BooksTW"
 msgstr ""
 
-#: catalog/models/common.py:20 catalog/models/common.py:76
-#: catalog/models/common.py:78
+#: catalog/models/common.py:20 catalog/models/common.py:77
+#: catalog/models/common.py:79
 msgid "Bibliotek.dk"
 msgstr ""
 
-#: catalog/models/common.py:21 catalog/models/common.py:77
+#: catalog/models/common.py:21 catalog/models/common.py:78
 msgid "eReolen.dk"
 msgstr ""
 
-#: catalog/models/common.py:22 catalog/models/common.py:60
+#: catalog/models/common.py:22 catalog/models/common.py:61
 #: catalog/templates/movie.html:51 catalog/templates/people.html:37
 #: catalog/templates/tvseason.html:68 catalog/templates/tvshow.html:63
 msgid "IMDb"
@@ -204,7 +204,7 @@ msgstr ""
 msgid "TMDB"
 msgstr ""
 
-#: catalog/models/common.py:24 catalog/models/common.py:79
+#: catalog/models/common.py:24 catalog/models/common.py:80
 msgid "Bandcamp"
 msgstr ""
 
@@ -220,11 +220,11 @@ msgstr ""
 msgid "Steam"
 msgstr ""
 
-#: catalog/models/common.py:28 catalog/models/common.py:98
+#: catalog/models/common.py:28 catalog/models/common.py:99
 msgid "itch.io"
 msgstr ""
 
-#: catalog/models/common.py:29 catalog/models/common.py:99
+#: catalog/models/common.py:29 catalog/models/common.py:100
 msgid "Bangumi"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 msgid "BGG"
 msgstr ""
 
-#: catalog/models/common.py:31 catalog/models/common.py:100
+#: catalog/models/common.py:31 catalog/models/common.py:101
 msgid "Apple Podcast"
 msgstr ""
 
@@ -244,35 +244,35 @@ msgstr ""
 msgid "Discogs"
 msgstr ""
 
-#: catalog/models/common.py:34 catalog/models/common.py:101
+#: catalog/models/common.py:34 catalog/models/common.py:102
 msgid "Apple Music"
 msgstr ""
 
-#: catalog/models/common.py:35 catalog/models/common.py:103
+#: catalog/models/common.py:35 catalog/models/common.py:104
 msgid "Fediverse"
 msgstr ""
 
-#: catalog/models/common.py:36 catalog/models/common.py:104
+#: catalog/models/common.py:36 catalog/models/common.py:105
 msgid "Qidian"
 msgstr ""
 
-#: catalog/models/common.py:37 catalog/models/common.py:105
+#: catalog/models/common.py:37 catalog/models/common.py:106
 msgid "Ypshuo"
 msgstr ""
 
-#: catalog/models/common.py:38 catalog/models/common.py:106
+#: catalog/models/common.py:38 catalog/models/common.py:107
 msgid "Archive of Our Own"
 msgstr ""
 
-#: catalog/models/common.py:39 catalog/models/common.py:107
+#: catalog/models/common.py:39 catalog/models/common.py:108
 msgid "JinJiang"
 msgstr ""
 
-#: catalog/models/common.py:40 catalog/models/common.py:50
+#: catalog/models/common.py:40 catalog/models/common.py:51
 msgid "WikiData"
 msgstr ""
 
-#: catalog/models/common.py:41 catalog/models/common.py:108
+#: catalog/models/common.py:41 catalog/models/common.py:109
 msgid "Open Library"
 msgstr ""
 
@@ -284,267 +284,275 @@ msgstr ""
 msgid "WorldCat"
 msgstr ""
 
-#: catalog/models/common.py:44 catalog/models/common.py:110
+#: catalog/models/common.py:44 catalog/models/common.py:111
 msgid "MobyGames"
 msgstr ""
 
-#: catalog/models/common.py:45 catalog/models/common.py:111
+#: catalog/models/common.py:45 catalog/models/common.py:112
 msgid "StoryGraph"
 msgstr ""
 
-#: catalog/models/common.py:46 catalog/models/common.py:102
+#: catalog/models/common.py:46 catalog/models/common.py:103
 msgid "YouTube Music"
 msgstr ""
 
-#: catalog/models/common.py:51
+#: catalog/models/common.py:47
+msgid "RateYourMusic"
+msgstr ""
+
+#: catalog/models/common.py:52
 msgid "ISBN10"
 msgstr ""
 
-#: catalog/models/common.py:52 catalog/templates/edition.html:19
+#: catalog/models/common.py:53 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr ""
 
-#: catalog/models/common.py:53
+#: catalog/models/common.py:54
 msgid "ASIN"
 msgstr ""
 
-#: catalog/models/common.py:54
+#: catalog/models/common.py:55
 msgid "ISSN"
 msgstr ""
 
-#: catalog/models/common.py:55
+#: catalog/models/common.py:56
 msgid "CUBN"
 msgstr ""
 
-#: catalog/models/common.py:56
+#: catalog/models/common.py:57
 msgid "ISRC"
 msgstr ""
 
-#: catalog/models/common.py:57
+#: catalog/models/common.py:58
 msgid "GTIN UPC EAN"
 msgstr ""
 
-#: catalog/models/common.py:58
+#: catalog/models/common.py:59
 msgid "OCLC Number"
 msgstr ""
 
-#: catalog/models/common.py:59
+#: catalog/models/common.py:60
 msgid "RSS Feed URL"
 msgstr ""
 
-#: catalog/models/common.py:61
+#: catalog/models/common.py:62
 msgid "TMDB TV Series"
 msgstr ""
 
-#: catalog/models/common.py:62
+#: catalog/models/common.py:63
 msgid "TMDB TV Season"
 msgstr ""
 
-#: catalog/models/common.py:63
+#: catalog/models/common.py:64
 msgid "TMDB TV Episode"
 msgstr ""
 
-#: catalog/models/common.py:64
+#: catalog/models/common.py:65
 msgid "TMDB Movie"
 msgstr ""
 
-#: catalog/models/common.py:66
+#: catalog/models/common.py:67
 msgid "Goodreads Work"
 msgstr ""
 
-#: catalog/models/common.py:68
+#: catalog/models/common.py:69
 msgid "Douban Book"
 msgstr ""
 
-#: catalog/models/common.py:69
+#: catalog/models/common.py:70
 msgid "Douban Book Work"
 msgstr ""
 
-#: catalog/models/common.py:70
+#: catalog/models/common.py:71
 msgid "Douban Movie"
 msgstr ""
 
-#: catalog/models/common.py:71
+#: catalog/models/common.py:72
 msgid "Douban Music"
 msgstr ""
 
-#: catalog/models/common.py:72
+#: catalog/models/common.py:73
 msgid "Douban Game"
 msgstr ""
 
-#: catalog/models/common.py:73
+#: catalog/models/common.py:74
 msgid "Douban Drama"
 msgstr ""
 
-#: catalog/models/common.py:74
+#: catalog/models/common.py:75
 msgid "Douban Drama Version"
 msgstr ""
 
-#: catalog/models/common.py:75
+#: catalog/models/common.py:76
 msgid "BooksTW Book"
 msgstr ""
 
-#: catalog/models/common.py:80
+#: catalog/models/common.py:81
 msgid "Spotify Album"
 msgstr ""
 
-#: catalog/models/common.py:81
+#: catalog/models/common.py:82
 msgid "Spotify Podcast"
 msgstr ""
 
-#: catalog/models/common.py:82
+#: catalog/models/common.py:83
 msgid "Discogs Release"
 msgstr ""
 
-#: catalog/models/common.py:83
+#: catalog/models/common.py:84
 msgid "Discogs Master"
 msgstr ""
 
-#: catalog/models/common.py:86
+#: catalog/models/common.py:87
 msgid "MusicBrainz Release Group"
 msgstr ""
 
-#: catalog/models/common.py:88
+#: catalog/models/common.py:89
 msgid "MusicBrainz Release"
 msgstr ""
 
-#: catalog/models/common.py:89
+#: catalog/models/common.py:90
 msgid "Douban Personage"
 msgstr ""
 
-#: catalog/models/common.py:90
+#: catalog/models/common.py:91
 msgid "Goodreads Author"
 msgstr ""
 
-#: catalog/models/common.py:91
+#: catalog/models/common.py:92
 msgid "Spotify Artist"
 msgstr ""
 
-#: catalog/models/common.py:92
+#: catalog/models/common.py:93
 msgid "TMDB Person"
 msgstr ""
 
-#: catalog/models/common.py:93
+#: catalog/models/common.py:94
 msgid "Open Library Author"
 msgstr ""
 
-#: catalog/models/common.py:94
+#: catalog/models/common.py:95
 msgid "IGDB Company"
 msgstr ""
 
-#: catalog/models/common.py:95
+#: catalog/models/common.py:96
 msgid "IGDB Game"
 msgstr ""
 
-#: catalog/models/common.py:96
+#: catalog/models/common.py:97
 msgid "BGG Boardgame"
 msgstr ""
 
-#: catalog/models/common.py:97
+#: catalog/models/common.py:98
 msgid "Steam Game"
 msgstr ""
 
-#: catalog/models/common.py:109
+#: catalog/models/common.py:110
 msgid "Open Library Work"
 msgstr ""
 
-#: catalog/models/common.py:132
-msgid "Edition"
-msgstr ""
-
-#: catalog/models/common.py:133 catalog/templates/_sidebar_edit.html:237
-msgid "Work"
+#: catalog/models/common.py:113
+msgid "RateYourMusic Release"
 msgstr ""
 
 #: catalog/models/common.py:134
-msgid "TV Series"
+msgid "Edition"
 msgstr ""
 
-#: catalog/models/common.py:135 catalog/templates/_sidebar_edit.html:158
-msgid "TV Season"
+#: catalog/models/common.py:135 catalog/templates/_sidebar_edit.html:237
+msgid "Work"
 msgstr ""
 
 #: catalog/models/common.py:136
+msgid "TV Series"
+msgstr ""
+
+#: catalog/models/common.py:137 catalog/templates/_sidebar_edit.html:158
+msgid "TV Season"
+msgstr ""
+
+#: catalog/models/common.py:138
 msgid "TV Episode"
 msgstr ""
 
-#: catalog/models/common.py:137 catalog/models/common.py:153
-#: catalog/models/common.py:167 catalog/templates/_sidebar_edit.html:151
+#: catalog/models/common.py:139 catalog/models/common.py:155
+#: catalog/models/common.py:169 catalog/templates/_sidebar_edit.html:151
 #: journal/templates/_sidebar_user_mark_list.html:35
 msgid "Movie"
 msgstr ""
 
-#: catalog/models/common.py:138
+#: catalog/models/common.py:140
 msgid "Album"
 msgstr ""
 
-#: catalog/models/common.py:139 catalog/models/common.py:156
-#: catalog/models/common.py:170 common/templates/_header.html:41
+#: catalog/models/common.py:141 catalog/models/common.py:158
+#: catalog/models/common.py:172 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:48
 msgid "Game"
 msgstr ""
 
-#: catalog/models/common.py:140
+#: catalog/models/common.py:142
 msgid "Podcast Program"
 msgstr ""
 
-#: catalog/models/common.py:141
+#: catalog/models/common.py:143
 msgid "Podcast Episode"
 msgstr ""
 
-#: catalog/models/common.py:142 catalog/models/common.py:158
-#: catalog/models/common.py:172 common/templates/_header.html:45
+#: catalog/models/common.py:144 catalog/models/common.py:160
+#: catalog/models/common.py:174 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:52
 msgid "Performance"
 msgstr ""
 
-#: catalog/models/common.py:143
+#: catalog/models/common.py:145
 msgid "Production"
 msgstr ""
 
-#: catalog/models/common.py:144
+#: catalog/models/common.py:146
 msgid "Exhibition"
 msgstr ""
 
-#: catalog/models/common.py:145 catalog/models/common.py:162
+#: catalog/models/common.py:147 catalog/models/common.py:164
 #: journal/templates/collection.html:23 journal/templates/collection.html:29
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr ""
 
-#: catalog/models/common.py:148 catalog/models/common.py:161
+#: catalog/models/common.py:150 catalog/models/common.py:163
 msgid "Person / Organization"
 msgstr ""
 
-#: catalog/models/common.py:152 catalog/models/common.py:166
+#: catalog/models/common.py:154 catalog/models/common.py:168
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:32
 msgid "Book"
 msgstr ""
 
-#: catalog/models/common.py:154 catalog/models/common.py:168
+#: catalog/models/common.py:156 catalog/models/common.py:170
 #: journal/templates/_sidebar_user_mark_list.html:38
 msgid "TV"
 msgstr ""
 
-#: catalog/models/common.py:155 catalog/models/common.py:169
+#: catalog/models/common.py:157 catalog/models/common.py:171
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:45
 msgid "Music"
 msgstr ""
 
-#: catalog/models/common.py:157 catalog/models/common.py:171
+#: catalog/models/common.py:159 catalog/models/common.py:173
 #: catalog/templates/_sidebar_edit.html:170 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:42
 msgid "Podcast"
 msgstr ""
 
-#: catalog/models/common.py:253 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:255 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr ""
 
-#: catalog/models/common.py:270 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:272 catalog/templates/_language_list.html:5
 #: users/models/user.py:128
 msgid "language"
 msgstr ""
@@ -1117,7 +1125,7 @@ msgstr ""
 msgid "write a review"
 msgstr ""
 
-#: catalog/templates/_item_similar.html:5
+#: catalog/templates/_item_similar.html:13
 msgid "similar items"
 msgstr ""
 
@@ -1584,8 +1592,8 @@ msgstr ""
 msgid "This operation cannot be undone. Sure to merge?"
 msgstr ""
 
-#: catalog/templates/discover.html:28 common/views_manage.py:144
-#: common/views_manage.py:344 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:28 common/views_manage.py:145
+#: common/views_manage.py:345 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr ""
 
@@ -3509,7 +3517,7 @@ msgstr ""
 msgid "Registration"
 msgstr ""
 
-#: common/templates/common/about.html:35 common/views_manage.py:466
+#: common/templates/common/about.html:35 common/views_manage.py:484
 msgid "Invite Only"
 msgstr ""
 
@@ -3517,7 +3525,7 @@ msgstr ""
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:40 common/views_manage.py:487
+#: common/templates/common/about.html:40 common/views_manage.py:505
 msgid "Preferred Languages"
 msgstr ""
 
@@ -3573,7 +3581,7 @@ msgstr ""
 msgid "Or type barcode / ISBN manually"
 msgstr ""
 
-#: common/templates/common/scan.html:60 common/views_manage.py:551
+#: common/templates/common/scan.html:60 common/views_manage.py:569
 msgid "Search"
 msgstr ""
 
@@ -3660,604 +3668,604 @@ msgstr ""
 msgid "Login required"
 msgstr ""
 
-#: common/views_manage.py:49
+#: common/views_manage.py:50
 msgid "Enabled"
 msgstr ""
 
-#: common/views_manage.py:49
+#: common/views_manage.py:50
 msgid "Disabled"
 msgstr ""
 
-#: common/views_manage.py:143 common/views_manage.py:293
+#: common/views_manage.py:144 common/views_manage.py:294
 msgid "Branding"
 msgstr ""
 
-#: common/views_manage.py:145
+#: common/views_manage.py:146
 msgid "Recommendations"
 msgstr ""
 
-#: common/views_manage.py:146
+#: common/views_manage.py:147
 msgid "Access"
 msgstr ""
 
-#: common/views_manage.py:147 common/views_manage.py:546
+#: common/views_manage.py:148 common/views_manage.py:564
 msgid "Federation"
 msgstr ""
 
-#: common/views_manage.py:148
+#: common/views_manage.py:149
 msgid "API Keys"
 msgstr ""
 
-#: common/views_manage.py:149
+#: common/views_manage.py:150
 msgid "Downloader"
 msgstr ""
 
-#: common/views_manage.py:150 common/views_manage.py:301
+#: common/views_manage.py:151 common/views_manage.py:302
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr ""
 
-#: common/views_manage.py:200
+#: common/views_manage.py:201
 msgid "Invalid value."
 msgstr ""
 
-#: common/views_manage.py:204
+#: common/views_manage.py:205
 msgid "Invalid configuration. Please check your input."
 msgstr ""
 
-#: common/views_manage.py:209
+#: common/views_manage.py:210
 msgid "Settings have been saved."
 msgstr ""
 
-#: common/views_manage.py:229
+#: common/views_manage.py:230
 msgid "Site Name"
 msgstr ""
 
-#: common/views_manage.py:232
+#: common/views_manage.py:233
 msgid "Site Description"
 msgstr ""
 
-#: common/views_manage.py:233
+#: common/views_manage.py:234
 msgid "Short description shown in metadata and about page."
 msgstr ""
 
-#: common/views_manage.py:236
+#: common/views_manage.py:237
 msgid "Site Logo URL"
 msgstr ""
 
-#: common/views_manage.py:237
+#: common/views_manage.py:238
 msgid "URL path to the site logo image."
 msgstr ""
 
-#: common/views_manage.py:240
+#: common/views_manage.py:241
 msgid "Site Icon URL"
 msgstr ""
 
-#: common/views_manage.py:241
+#: common/views_manage.py:242
 msgid "URL path to the site icon/favicon."
 msgstr ""
 
-#: common/views_manage.py:244
+#: common/views_manage.py:245
 msgid "Default User Avatar URL"
 msgstr ""
 
-#: common/views_manage.py:245
+#: common/views_manage.py:246
 msgid "URL path to the default user avatar."
 msgstr ""
 
-#: common/views_manage.py:248
+#: common/views_manage.py:249
 msgid "Site Color Theme"
 msgstr ""
 
-#: common/views_manage.py:249
+#: common/views_manage.py:250
 msgid "PicoCSS color theme."
 msgstr ""
 
-#: common/views_manage.py:274
+#: common/views_manage.py:275
 msgid "Site Introduction"
 msgstr ""
 
-#: common/views_manage.py:275
+#: common/views_manage.py:276
 msgid "URL path for the intro/welcome sidebar page."
 msgstr ""
 
-#: common/views_manage.py:278
+#: common/views_manage.py:279
 msgid "Custom HTML Head"
 msgstr ""
 
-#: common/views_manage.py:279
+#: common/views_manage.py:280
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr ""
 
-#: common/views_manage.py:283
+#: common/views_manage.py:284
 msgid "Footer Links"
 msgstr ""
 
-#: common/views_manage.py:284
+#: common/views_manage.py:285
 msgid "Link title mapped to URL."
 msgstr ""
 
-#: common/views_manage.py:313
+#: common/views_manage.py:314
 msgid "Minimum Marks for Discover"
 msgstr ""
 
-#: common/views_manage.py:315
+#: common/views_manage.py:316
 msgid "Number of marks required for an item to appear in discover."
 msgstr ""
 
-#: common/views_manage.py:320
+#: common/views_manage.py:321
 msgid "Update Interval (minutes)"
 msgstr ""
 
-#: common/views_manage.py:321
+#: common/views_manage.py:322
 msgid "How often to refresh the popular items list."
 msgstr ""
 
-#: common/views_manage.py:325
+#: common/views_manage.py:326
 msgid "Filter by Preferred Languages"
 msgstr ""
 
-#: common/views_manage.py:326
+#: common/views_manage.py:327
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
-#: common/views_manage.py:329
+#: common/views_manage.py:330
 msgid "Show Local Only"
 msgstr ""
 
-#: common/views_manage.py:331
+#: common/views_manage.py:332
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
-#: common/views_manage.py:335
+#: common/views_manage.py:336
 msgid "Show Popular Posts"
 msgstr ""
 
-#: common/views_manage.py:336
+#: common/views_manage.py:337
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
-#: common/views_manage.py:339
+#: common/views_manage.py:340
 msgid "Show Popular Tags"
 msgstr ""
 
-#: common/views_manage.py:340
+#: common/views_manage.py:341
 msgid "Show popular public tags on the discover page."
 msgstr ""
 
-#: common/views_manage.py:359
+#: common/views_manage.py:377
 msgid "Enable Recommendations"
 msgstr ""
 
-#: common/views_manage.py:361
+#: common/views_manage.py:379
 msgid "Master switch. When off, all recommendation surfaces are hidden for regular users and the cron jobs are not scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' in their bio) still see the surfaces, for preview."
 msgstr ""
 
-#: common/views_manage.py:368
+#: common/views_manage.py:386
 msgid "Source Item Mark Threshold"
 msgstr ""
 
-#: common/views_manage.py:370
+#: common/views_manage.py:388
 msgid "Minimum public marks an item needs before similarity rows are built for it."
 msgstr ""
 
-#: common/views_manage.py:376
+#: common/views_manage.py:394
 msgid "Target Item Mark Threshold"
 msgstr ""
 
-#: common/views_manage.py:378
+#: common/views_manage.py:396
 msgid "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr ""
 
-#: common/views_manage.py:384
+#: common/views_manage.py:402
 msgid "Top-K Similar Items per Source"
 msgstr ""
 
-#: common/views_manage.py:385
+#: common/views_manage.py:403
 msgid "Number of similar items stored per source item."
 msgstr ""
 
-#: common/views_manage.py:389
+#: common/views_manage.py:407
 msgid "Top-N Recommendations per User"
 msgstr ""
 
-#: common/views_manage.py:390
+#: common/views_manage.py:408
 msgid "Number of personalised rows stored per user."
 msgstr ""
 
-#: common/views_manage.py:394
+#: common/views_manage.py:412
 msgid "Dampen Heavy Shelvers"
 msgstr ""
 
-#: common/views_manage.py:396
+#: common/views_manage.py:414
 msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
 msgstr ""
 
-#: common/views_manage.py:401
+#: common/views_manage.py:419
 msgid "Per-User Mark Cap (training)"
 msgstr ""
 
-#: common/views_manage.py:403
+#: common/views_manage.py:421
 msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
 msgstr ""
 
-#: common/views_manage.py:409
+#: common/views_manage.py:427
 msgid "Active-User Window (days)"
 msgstr ""
 
-#: common/views_manage.py:411
+#: common/views_manage.py:429
 msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
 msgstr ""
 
-#: common/views_manage.py:417
+#: common/views_manage.py:435
 msgid "Per-User Seed Cap (serving)"
 msgstr ""
 
-#: common/views_manage.py:419
+#: common/views_manage.py:437
 msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
 msgstr ""
 
-#: common/views_manage.py:425
+#: common/views_manage.py:443
 msgid "Lazy Refresh TTL (days)"
 msgstr ""
 
-#: common/views_manage.py:427
+#: common/views_manage.py:445
 msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
 msgstr ""
 
-#: common/views_manage.py:433
+#: common/views_manage.py:451
 msgid "Circles Window (days)"
 msgstr ""
 
-#: common/views_manage.py:435
+#: common/views_manage.py:453
 msgid "Look back N days when finding items recently marked by people the viewer follows."
 msgstr ""
 
-#: common/views_manage.py:442
+#: common/views_manage.py:460
 msgid "Master Switch"
 msgstr ""
 
-#: common/views_manage.py:445
+#: common/views_manage.py:463
 msgid "Similarity Builder"
 msgstr ""
 
-#: common/views_manage.py:452
+#: common/views_manage.py:470
 msgid "Personalisation"
 msgstr ""
 
-#: common/views_manage.py:468
+#: common/views_manage.py:486
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
 msgstr ""
 
-#: common/views_manage.py:473
+#: common/views_manage.py:491
 msgid "Enable Local-Only Posting"
 msgstr ""
 
-#: common/views_manage.py:474
+#: common/views_manage.py:492
 msgid "Allow users to create posts visible only to local users."
 msgstr ""
 
-#: common/views_manage.py:477
+#: common/views_manage.py:495
 msgid "Mastodon Login Whitelist"
 msgstr ""
 
-#: common/views_manage.py:478
+#: common/views_manage.py:496
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
-#: common/views_manage.py:481
+#: common/views_manage.py:499
 msgid "Enable Bluesky Login"
 msgstr ""
 
-#: common/views_manage.py:484
+#: common/views_manage.py:502
 msgid "Enable Threads Login"
 msgstr ""
 
-#: common/views_manage.py:489
+#: common/views_manage.py:507
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr ""
 
-#: common/views_manage.py:495
+#: common/views_manage.py:513
 msgid "Access Control"
 msgstr ""
 
-#: common/views_manage.py:500
+#: common/views_manage.py:518
 msgid "Login Methods"
 msgstr ""
 
-#: common/views_manage.py:504
+#: common/views_manage.py:522
 msgid "Localization"
 msgstr ""
 
-#: common/views_manage.py:514
+#: common/views_manage.py:532
 msgid "Disable Default Relay"
 msgstr ""
 
-#: common/views_manage.py:516
+#: common/views_manage.py:534
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
 msgstr ""
 
-#: common/views_manage.py:521
+#: common/views_manage.py:539
 msgid "Fanout Limit (days)"
 msgstr ""
 
-#: common/views_manage.py:522
+#: common/views_manage.py:540
 msgid "Posts older than this many days will not be fanned out."
 msgstr ""
 
-#: common/views_manage.py:526
+#: common/views_manage.py:544
 msgid "Remote Prune Horizon (days)"
 msgstr ""
 
-#: common/views_manage.py:528
+#: common/views_manage.py:546
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
-#: common/views_manage.py:533
+#: common/views_manage.py:551
 msgid "Search Sites"
 msgstr ""
 
-#: common/views_manage.py:534
+#: common/views_manage.py:552
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:537
+#: common/views_manage.py:555
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:538
+#: common/views_manage.py:556
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:541
+#: common/views_manage.py:559
 msgid "Hidden Categories"
 msgstr ""
 
-#: common/views_manage.py:542
+#: common/views_manage.py:560
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:563
+#: common/views_manage.py:581
 msgid "Spotify API Key"
 msgstr ""
 
-#: common/views_manage.py:564
+#: common/views_manage.py:582
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:567
+#: common/views_manage.py:585
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:568
+#: common/views_manage.py:586
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:571
+#: common/views_manage.py:589
 msgid "Google Books API Key"
 msgstr ""
 
-#: common/views_manage.py:572
+#: common/views_manage.py:590
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:575
+#: common/views_manage.py:593
 msgid "Discogs API Key"
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:595
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:581
+#: common/views_manage.py:599
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:582
+#: common/views_manage.py:600
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:585
+#: common/views_manage.py:603
 msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:588 users/templates/users/steam_import.html:26
+#: common/views_manage.py:606 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr ""
 
-#: common/views_manage.py:590
+#: common/views_manage.py:608
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:595
+#: common/views_manage.py:613
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:596
+#: common/views_manage.py:614
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:599
+#: common/views_manage.py:617
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:602
+#: common/views_manage.py:620
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:605
+#: common/views_manage.py:623
 msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:606
+#: common/views_manage.py:624
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:609
+#: common/views_manage.py:627
 msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:612
+#: common/views_manage.py:630
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:613
+#: common/views_manage.py:631
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:616
+#: common/views_manage.py:634
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:617
+#: common/views_manage.py:635
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:622
+#: common/views_manage.py:640
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:624
+#: common/views_manage.py:642
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr ""
 
-#: common/views_manage.py:641
+#: common/views_manage.py:659
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:650
+#: common/views_manage.py:668
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:655
+#: common/views_manage.py:673
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:659
+#: common/views_manage.py:677
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:671
+#: common/views_manage.py:689
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:672
+#: common/views_manage.py:690
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:675
+#: common/views_manage.py:693
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:676
+#: common/views_manage.py:694
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:679
+#: common/views_manage.py:697
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:682
+#: common/views_manage.py:700
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:685
+#: common/views_manage.py:703
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:688
+#: common/views_manage.py:706
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:691
+#: common/views_manage.py:709
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:694
+#: common/views_manage.py:712
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:695
+#: common/views_manage.py:713
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:698
+#: common/views_manage.py:716
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:702
+#: common/views_manage.py:720
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:706
+#: common/views_manage.py:724
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:711
+#: common/views_manage.py:729
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:716
+#: common/views_manage.py:734
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:723
+#: common/views_manage.py:741
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:735
+#: common/views_manage.py:753
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:736
+#: common/views_manage.py:754
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:739
+#: common/views_manage.py:757
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:740
+#: common/views_manage.py:758
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:743
+#: common/views_manage.py:761
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:744
+#: common/views_manage.py:762
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:747
+#: common/views_manage.py:765
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:748
+#: common/views_manage.py:766
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:758
+#: common/views_manage.py:776
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:760
+#: common/views_manage.py:778
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:766
+#: common/views_manage.py:784
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:768
+#: common/views_manage.py:786
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:775
+#: common/views_manage.py:793
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:778
+#: common/views_manage.py:796
 msgid "Operational"
 msgstr ""
 
@@ -4934,39 +4942,39 @@ msgstr ""
 msgid "set as target"
 msgstr ""
 
-#: journal/templates/_list_item.html:15
+#: journal/templates/_list_item.html:14
 msgid "Move to top"
 msgstr ""
 
-#: journal/templates/_list_item.html:20
+#: journal/templates/_list_item.html:19
 msgid "Move to bottom"
 msgstr ""
 
-#: journal/templates/_list_item.html:25
+#: journal/templates/_list_item.html:24
 msgid "Remove from collection"
 msgstr ""
 
-#: journal/templates/_list_item.html:35
+#: journal/templates/_list_item.html:34
 msgid "add mark"
 msgstr ""
 
-#: journal/templates/_list_item.html:43
+#: journal/templates/_list_item.html:42
 msgid "update mark"
 msgstr ""
 
-#: journal/templates/_list_item.html:61
+#: journal/templates/_list_item.html:60
 #: journal/templates/collection_update_item_note_ok.html:3
 msgid "Update note"
 msgstr ""
 
-#: journal/templates/_list_item.html:101 journal/templates/review.html:22
+#: journal/templates/_list_item.html:100 journal/templates/review.html:22
 #: journal/templates/review.html:28 journal/templates/review.html:71
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
 msgstr ""
 
-#: journal/templates/_list_item.html:134
+#: journal/templates/_list_item.html:133
 #, python-format
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr ""
@@ -5101,7 +5109,7 @@ msgstr ""
 msgid "Create a new collection"
 msgstr ""
 
-#: journal/templates/article.html:19 social/templates/single_post.html:21
+#: journal/templates/article.html:19 social/templates/single_post.html:15
 msgid "Article"
 msgstr ""
 
@@ -5931,7 +5939,7 @@ msgstr ""
 msgid "replying to"
 msgstr ""
 
-#: social/templates/_post_article_teaser.html:12
+#: social/templates/_post_article_teaser.html:5
 msgid "Untitled article"
 msgstr ""
 
@@ -6120,7 +6128,7 @@ msgstr ""
 msgid "Poll ending at %(end_time)s"
 msgstr ""
 
-#: social/templates/single_post.html:12 social/templates/single_post.html:24
+#: social/templates/single_post.html:12 social/templates/single_post.html:18
 msgid "Post"
 msgstr ""
 

@@ -25,6 +25,7 @@ from .mobygames import MobyGames
 from .musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
 from .openlibrary import OpenLibrary, OpenLibrary_Work
 from .qidian import Qidian
+from .rateyourmusic import RateYourMusic
 from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
@@ -64,6 +65,7 @@ __all__ = [
     "Itch",
     "JJWXC",
     "Qidian",
+    "RateYourMusic",
     "RSS",
     "Spotify",
     "Steam",

@@ -25,6 +25,7 @@ The following external sites are supported for importing catalog items.
 | MusicBrainz | Music (Album) | |
 | OpenLibrary | Book (Edition, Work) | |
 | Qidian 起点 | Book (Edition) | |
+| RateYourMusic | Music (Album) | |
 | RSS feed | Podcast | Yes — upload OPML |
 | Spotify | Music (Album) | |
 | Steam | Game | |
