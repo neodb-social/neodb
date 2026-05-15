@@ -77,14 +77,6 @@ class RateYourMusic(AbstractSite):
     def id_to_url(cls, id_value: str) -> str:
         return f"https://rateyourmusic.com/{id_value}/"
 
-    @classmethod
-    def url_to_id(cls, url: str) -> str | None:
-        m = next(
-            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
-            None,
-        )
-        return m.group(1) if m else None
-
     def scrape(self) -> ResourceContent:
         assert self.url
         h = RateYourMusicDownloader(self.url).download().html()
@@ -230,10 +222,17 @@ class RateYourMusic(AbstractSite):
     def _parse_release_date(raw: str | None) -> str | None:
         if not raw:
             return None
-        # Strip the "1997" link suffix the page sometimes leaves behind.
         cleaned = re.sub(r"\s+", " ", raw).strip()
         try:
-            dt = dateparser.parse(cleaned)
+            # Partial dates (year only / month + year) default to the first
+            # day/month rather than today's date.
+            dt = dateparser.parse(
+                cleaned,
+                settings={
+                    "PREFER_DAY_OF_MONTH": "first",
+                    "PREFER_MONTH_OF_YEAR": "first",
+                },
+            )
         except Exception:
             dt = None
         return dt.strftime("%Y-%m-%d") if dt else None
@@ -306,8 +305,10 @@ class RateYourMusic(AbstractSite):
             data = json.loads(html_lib.unescape(raw))
         except (json.JSONDecodeError, TypeError):
             return {}
+        if not isinstance(data, dict):
+            return {}
         out: dict[str, str] = {}
-        for platform, entries in (data or {}).items():
+        for platform, entries in data.items():
             if not isinstance(entries, dict) or not entries:
                 continue
             chosen_key: str | None = None
