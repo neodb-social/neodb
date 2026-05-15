@@ -18,6 +18,7 @@ from users.models import APIdentity
 
 from ..forms import *
 from ..models import *
+from .common import conditional_get_for_anonymous
 
 
 def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> int:
@@ -366,15 +367,50 @@ def post_compose(request: AuthedHttpRequest):
     return HttpResponseRedirect(referer)
 
 
+def _post_last_modified(request, handle: str, post_pk: int):
+    # Full visibility + handle gating runs here so a 304 can never bypass
+    # checks the view would otherwise enforce: handle mismatch
+    # (``/@wrong/posts/<id>/``), owner-level privacy toggles
+    # (``anonymous_viewable``, ``restricted``, ``deleted``), and
+    # post-level visibility. Each of those can change without bumping
+    # ``Post.updated``. Anything not 100% safe to 304 returns ``None`` so
+    # the view body produces the real 404/403/redirect.
+    post = (
+        Post.objects.filter(pk=post_pk)
+        .exclude(state__in=["deleted", "deleted_fanned_out"])
+        .first()
+    )
+    if not post:
+        return None
+    owner = APIdentity.by_takahe_identity(post.author)
+    if not owner:
+        return None
+    h = handle.split("@", 2)
+    username = h[0]
+    domain = h[1] if len(h) > 1 else settings.SITE_DOMAIN
+    if owner.username != username or owner.domain_name != domain:
+        return None
+    if _can_view_post(post, owner, viewer=None) != 1:
+        return None
+    request._cg_post = post
+    request._cg_owner = owner
+    return post.updated
+
+
 @require_http_methods(["GET", "HEAD"])
+@conditional_get_for_anonymous(_post_last_modified)
 def post_view(request, handle: str, post_pk: int):
     if request.headers.get("HTTP_ACCEPT", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
-    post: Post = get_object_or_404(Post, pk=post_pk)
+    post: Post = getattr(request, "_cg_post", None) or get_object_or_404(
+        Post, pk=post_pk
+    )
     if post.state in ["deleted", "deleted_fanned_out"]:
         raise Http404("Post not available")
     viewer = request.user.identity if request.user.is_authenticated else None
-    owner = APIdentity.by_takahe_identity(post.author)
+    owner = getattr(request, "_cg_owner", None) or APIdentity.by_takahe_identity(
+        post.author
+    )
     if not owner:
         if not post.local:  # identity for remote post hasn't been sync to APIdentity
             return redirect(post.url)

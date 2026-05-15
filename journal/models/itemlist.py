@@ -175,6 +175,12 @@ class List(Piece):
         if member:
             member.metadata = metadata
             member.save()
+            # Treat a member metadata edit as a change to the list itself
+            # so subscribers (federation re-post, conditional-GET mtime)
+            # see the new state.
+            list_add.send(
+                sender=self.__class__, instance=self, item=item, member=member
+            )
 
     # ------------------------------------------------------------------
     # ActivityPub federation surface (shared by Collection and Shelf)

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.signing import b62_encode
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -22,8 +22,13 @@ from users.models import User
 
 from ..forms import *
 from ..models import *
+from ..models.itemlist import list_add
 from ..models.renderers import sanitize_md_images
-from .common import render_relogin, target_identity_required
+from .common import (
+    conditional_get_for_anonymous,
+    render_relogin,
+    target_identity_required,
+)
 
 
 @login_required
@@ -209,11 +214,44 @@ def collection_ap_items(request, collection_uuid):
     return _list_items_view(request, collection)
 
 
+def _collection_last_modified(request, collection_uuid):
+    # AP responses go through their own caching/signing path; skip the
+    # conditional-GET short-circuit here so AP fetchers always run the
+    # canonical envelope code.
+    if _wants_activitypub(request):
+        return None
+    try:
+        uid = get_uuid_or_404(collection_uuid)
+    except Http404:
+        return None
+    collection = Collection.objects.filter(uid=uid).select_related("owner").first()
+    if not collection:
+        return None
+    # Dynamic collections render from a fresh query each time; their
+    # member set can drift without ``edited_time`` moving, so a 304 is
+    # not safe.
+    if collection.is_dynamic:
+        return None
+    # Owner-level privacy (``anonymous_viewable``, ``restricted``) is not
+    # reflected in ``edited_time``; check visibility before 304 so a
+    # flip doesn't leave anonymous clients with a cached 200.
+    if not collection.is_visible_to(request.user):
+        return None
+    # Stash for ``collection_retrieve`` to reuse — avoids a second copy of
+    # the same polymorphic JOIN that ``test_no_per_member_collection_*``
+    # guards against.
+    request._cg_collection = collection
+    return collection.edited_time
+
+
+@conditional_get_for_anonymous(_collection_last_modified)
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     if _wants_activitypub(request):
         collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
         return _list_ap_object_view(request, collection)
-    collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    collection = getattr(request, "_cg_collection", None) or get_object_or_404(
+        Collection, uid=get_uuid_or_404(collection_uuid)
+    )
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     page_number = int_(request.GET.get("page"), 1)
@@ -514,6 +552,10 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     if request.method == "POST" and member:
         member.note = note
         member.save()
+        # Re-emit list_add so the Collection receiver bumps edited_time
+        # and federates the updated member-state — the receiver gates on
+        # is_dynamic itself.
+        list_add.send(sender=Collection, instance=collection, item=item, member=member)
         return render(
             request,
             "collection_update_item_note_ok.html",

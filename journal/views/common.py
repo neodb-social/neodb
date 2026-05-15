@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from functools import wraps
 
 import filetype
 from django.conf import settings
@@ -12,9 +13,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.cache import patch_cache_control, patch_vary_headers
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import last_modified, require_http_methods
 
 from catalog.models import Item, ItemCategory, PeopleType
 from common.models.misc import int_
@@ -69,6 +71,50 @@ def upload_image(request: AuthedHttpRequest) -> JsonResponse:
 
 
 PAGE_SIZE = 10
+
+
+def conditional_get_for_anonymous(get_timestamp):
+    """Apply HTTP conditional-GET (``Last-Modified``) for anonymous viewers.
+
+    ``get_timestamp(request, *args, **kwargs) -> datetime | None`` is called
+    before the view; returning ``None`` skips the conditional path entirely
+    (so the view runs as usual). The callback is responsible for any
+    visibility / identity gates that aren't already reflected in the
+    returned timestamp — anything the callback can't safely answer should
+    return ``None`` so the view body runs and renders the real
+    403/404/redirect.
+
+    Authenticated requests always bypass: their response varies on viewer
+    identity, which a single ``Last-Modified`` value cannot represent
+    safely.
+
+    Sets ``Cache-Control: private, max-age=0, must-revalidate`` and adds
+    ``Cookie``/``Accept`` to ``Vary`` on **both** 200 and 304 responses,
+    so shared caches don't serve an anonymous body to a logged-in user
+    and browsers always revalidate (yielding 304 when unchanged).
+    """
+
+    def _lm(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return None
+        return get_timestamp(request, *args, **kwargs)
+
+    def decorator(view):
+        conditional = last_modified(_lm)(view)
+
+        @wraps(view)
+        def wrapped(request, *args, **kwargs):
+            # The inner ``conditional`` may short-circuit to 304 without
+            # running ``view``; patch headers on whatever response comes
+            # back so 304s carry Cache-Control/Vary too.
+            response = conditional(request, *args, **kwargs)
+            patch_cache_control(response, private=True, max_age=0, must_revalidate=True)
+            patch_vary_headers(response, ("Cookie", "Accept"))
+            return response
+
+        return wrapped
+
+    return decorator
 
 
 def render_relogin(request):

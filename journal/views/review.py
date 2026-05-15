@@ -27,13 +27,25 @@ from ..models.renderers import (
     render_md,
     sanitize_md_images,
 )
-from .common import render_list
+from .common import conditional_get_for_anonymous, render_list
+
+
+def _review_last_modified(request, review_uuid):
+    # Visibility must be checked here: owner-level privacy toggles
+    # (``anonymous_viewable``, ``restricted``) don't bump
+    # ``Review.edited_time`` and would otherwise leave cached 200s
+    # reachable via 304 after a flip.
+    piece = Review.get_by_url(review_uuid)
+    if piece is None or not piece.is_visible_to(request.user):
+        return None
+    request._cg_review = piece
+    return piece.edited_time
 
 
 @require_http_methods(["GET", "HEAD"])
+@conditional_get_for_anonymous(_review_last_modified)
 def review_retrieve(request, review_uuid):
-    # piece = get_object_or_404(Review, uid=get_uuid_or_404(review_uuid))
-    piece = Review.get_by_url(review_uuid)
+    piece = getattr(request, "_cg_review", None) or Review.get_by_url(review_uuid)
     if piece is None:
         raise Http404(_("Content not found"))
     if not piece.is_visible_to(request.user):

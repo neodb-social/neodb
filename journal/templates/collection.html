@@ -25,6 +25,11 @@
           content="@{{ collection.owner.full_handle }}">
     <meta rel="canonical" content="{{ collection.absolute_url }}">
     <meta name="lastmodified" content="{{ collection.edited_time | date:'r' }}" />
+    {% if collection.latest_post %}
+      <link rel="alternate"
+            type="application/activity+json"
+            href="{{ collection.latest_post.absolute_object_uri }}">
+    {% endif %}
     {% if not collection.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} {% trans 'Collection' %} | {{ collection.title }}</title>
     {% include "common_libs.html" %}
