@@ -433,6 +433,9 @@ def rym_preview(request):
             request, messages.ERROR, _("No RateYourMusic import to preview.")
         )
         return redirect(reverse("users:data"))
+    if task.metadata.get("phase") == "done":
+        # import already applied; preview/matched-CSV are no longer relevant
+        return redirect(reverse("users:data") + "#rym")
     path = task.metadata["matched_file"]
     if not os.path.exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
