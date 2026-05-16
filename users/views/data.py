@@ -30,10 +30,12 @@ from journal.importers import (
     LetterboxdImporter,
     NdjsonImporter,
     OPMLImporter,
+    RymImporter,
     SteamImporter,
     StoryGraphImporter,
     TraktImporter,
 )
+from journal.importers.rym import update_row_in_matched_file
 from journal.models import ShelfType
 from journal.models.common import VisibilityType
 from takahe.models import InboxMessage
@@ -153,6 +155,7 @@ def data(request):
             "ndjson_export_task": NdjsonExporter.latest_task(request.user),
             "letterboxd_task": LetterboxdImporter.latest_task(request.user),
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
+            "rym_task": RymImporter.latest_task(request.user),
             "storygraph_task": StoryGraphImporter.latest_task(request.user),
             "steam_task": SteamImporter.latest_task(request.user),
             "trakt_task": TraktImporter.latest_task(request.user),
@@ -187,9 +190,23 @@ def user_task_status(request, task_type: str):
             task_cls = SteamImporter
         case "journal.traktimporter":
             task_cls = TraktImporter
+        case "journal.rymimporter":
+            task_cls = RymImporter
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
+    if (
+        task_cls is RymImporter
+        and task
+        and task.state == Task.States.complete
+        and task.metadata.get("phase") == "preview"
+    ):
+        target = reverse("users:rym_preview")
+        if request.headers.get("HX-Request"):
+            resp = HttpResponse(status=204)
+            resp["HX-Redirect"] = target
+            return resp
+        return redirect(target)
     return render(request, "users/user_task_status.html", {"task": task})
 
 
@@ -334,6 +351,207 @@ def import_goodreads(request):
     )
     task.enqueue()
     return redirect(reverse("users:user_task_status", args=(task.type,)))
+
+
+def _rym_active_task(user):
+    task = RymImporter.latest_task(user)
+    if not task:
+        return None
+    if task.metadata.get("phase") not in ("matching", "preview", "importing", "done"):
+        return None
+    return task
+
+
+@login_required
+def import_rym_upload(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not RymImporter.validate_file(request.FILES.get("file")):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.csv", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    # detect 'link' column for round-trip
+    had_link = False
+    with open(f, encoding="utf-8-sig", newline="") as fp:
+        reader = csv.reader(fp)
+        try:
+            headers = next(reader)
+            had_link = "link" in [h.strip() for h in headers]
+        except StopIteration:
+            pass
+    uploaded_name = getattr(request.FILES["file"], "name", "rym_export.csv")
+    if had_link:
+        # already matched; copy to matched_file and skip phase 1
+        import shutil
+
+        stem, _ext = os.path.splitext(os.path.basename(f))
+        matched = os.path.join(os.path.dirname(f), f"{stem}-matched.csv")
+        shutil.copyfile(f, matched)
+        task = RymImporter.create(
+            request.user,
+            phase="preview",
+            file=f,
+            matched_file=matched,
+            filename_hint=uploaded_name,
+            had_link_column=True,
+        )
+        task.state = Task.States.complete
+        task.message = _("Loaded from uploaded matched file.")
+        task.save(update_fields=["state", "message"])
+        return _hx_or_full_redirect(request, reverse("users:rym_preview"))
+    task = RymImporter.create(
+        request.user,
+        phase="matching",
+        file=f,
+        filename_hint=uploaded_name,
+    )
+    task.enqueue()
+    return _hx_or_full_redirect(request, reverse("users:data") + "#rym")
+
+
+def _hx_or_full_redirect(request, target: str) -> HttpResponse:
+    """Redirect properly whether the request was sent by HTMX or normal browser."""
+    if request.headers.get("HX-Request"):
+        resp = HttpResponse(status=204)
+        resp["HX-Redirect"] = target
+        return resp
+    return redirect(target)
+
+
+@login_required
+def rym_preview(request):
+    task = _rym_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(
+            request, messages.ERROR, _("No RateYourMusic import to preview.")
+        )
+        return redirect(reverse("users:data"))
+    path = task.metadata["matched_file"]
+    if not os.path.exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    page = max(1, int(request.GET.get("page", 1)))
+    page_size = 100
+    with open(path, encoding="utf-8-sig", newline="") as fp:
+        reader = csv.DictReader(fp)
+        all_rows = list(reader)
+    total = len(all_rows)
+    start = (page - 1) * page_size
+    end = start + page_size
+    rows = [
+        _rym_row_for_template(start + i, raw)
+        for i, raw in enumerate(all_rows[start:end])
+    ]
+    return render(
+        request,
+        "users/rym_import.html",
+        {
+            "task": task,
+            "rows": rows,
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "has_prev": page > 1,
+            "has_next": end < total,
+            "shelf_choices": ShelfType.choices,
+        },
+    )
+
+
+def _rym_row_for_template(index: int, raw: dict) -> dict:
+    first = (raw.get("First Name localized") or raw.get("First Name") or "").strip()
+    last = (raw.get("Last Name localized") or raw.get("Last Name") or "").strip()
+    artist_display = f"{first} {last}".strip()
+    review_title = (raw.get("Review Title") or "").strip()
+    review_body = (raw.get("Review") or "").strip()
+    source = review_title or review_body
+    excerpt = (source[:14] + "…") if len(source) > 15 else source
+    return {
+        "index": index,
+        "title": raw.get("Title", ""),
+        "year": raw.get("Release_Date", ""),
+        "artist_display": artist_display,
+        "link": raw.get("link", ""),
+        "match_source": raw.get("match_source", ""),
+        "shelf": raw.get("shelf", ""),
+        "collect_date": raw.get("collect_date", ""),
+        "rating": raw.get("Rating", ""),
+        "review_excerpt": excerpt,
+    }
+
+
+@login_required
+@require_http_methods(["POST"])
+def rym_save_row(request, i: int):
+    task = _rym_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        raise BadRequest("no matched file")
+    if task.metadata.get("phase") not in ("preview",):
+        raise BadRequest("cannot edit in current phase")
+    updates = {
+        "link": (request.POST.get("link") or "").strip(),
+        "shelf": (request.POST.get("shelf") or "").strip(),
+        "collect_date": (request.POST.get("collect_date") or "").strip(),
+    }
+    row = update_row_in_matched_file(task.metadata["matched_file"], i, updates)
+    if row is None:
+        raise BadRequest("row index out of range")
+    return render(
+        request,
+        "users/_rym_row.html",
+        {
+            "row": _rym_row_for_template(i, row),
+            "shelf_choices": ShelfType.choices,
+            "task": task,
+        },
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def rym_confirm(request):
+    task = _rym_active_task(request.user)
+    if not task or task.metadata.get("phase") != "preview":
+        return redirect(reverse("users:data"))
+    task.metadata["visibility"] = int(request.POST.get("visibility", 0))
+    task.metadata["phase"] = "importing"
+    task.metadata["processed"] = 0
+    task.metadata["imported"] = 0
+    task.metadata["skipped"] = 0
+    task.metadata["failed"] = 0
+    task.metadata["failed_urls"] = []
+    task.state = Task.States.pending
+    task.message = _("Starting import...")
+    task.save(update_fields=["metadata", "state", "message"])
+    task.enqueue()
+    return redirect(reverse("users:data") + "#rym")
+
+
+@login_required
+def rym_download(request):
+    task = _rym_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(request, messages.ERROR, _("No matched file available."))
+        return redirect(reverse("users:data"))
+    path = task.metadata["matched_file"]
+    if not os.path.exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    response = HttpResponse()
+    response["X-Accel-Redirect"] = settings.MEDIA_URL + path[len(settings.MEDIA_ROOT) :]
+    response["Content-Type"] = "text/csv"
+    hint = task.metadata.get("filename_hint") or "rym_export.csv"
+    stem, _ext = os.path.splitext(hint)
+    filename = f"{stem}-matched.csv"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 @login_required

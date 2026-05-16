@@ -1,0 +1,56 @@
+{% load i18n %}
+{% url 'users:rym_save_row' row.index as save_url %}
+<tr id="rym-row-{{ row.index }}">
+  <td>
+    <div>
+      <strong>{{ row.title }}</strong>
+    </div>
+    <small>
+      {{ row.artist_display }}
+      {% if row.year %}({{ row.year }}){% endif %}
+    </small>
+  </td>
+  <td>
+    <input type="text"
+           name="link"
+           value="{{ row.link }}"
+           placeholder="https://… or /album/…"
+           style="width:100%"
+           hx-post="{{ save_url }}"
+           hx-trigger="change"
+           hx-include="closest tr"
+           hx-target="closest tr"
+           hx-swap="outerHTML">
+    {% if not row.link %}
+      <div>
+        <a href="/catalog/create/Album?title={{ row.title|urlencode }}"
+           target="_blank"
+           rel="noopener">{% trans 'Create new album' %}</a>
+        <small>{% trans 'then paste the link above; leave blank to skip this row.' %}</small>
+      </div>
+    {% endif %}
+  </td>
+  <td>
+    <select name="shelf"
+            hx-post="{{ save_url }}"
+            hx-trigger="change"
+            hx-include="closest tr"
+            hx-target="closest tr"
+            hx-swap="outerHTML">
+      <option value="" {% if not row.shelf %}selected{% endif %}>{% trans '(skip)' %}</option>
+      {% for value, label in shelf_choices %}
+        <option value="{{ value }}" {% if row.shelf == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </td>
+  <td>
+    <input type="date"
+           name="collect_date"
+           value="{{ row.collect_date }}"
+           hx-post="{{ save_url }}"
+           hx-trigger="change"
+           hx-include="closest tr"
+           hx-target="closest tr"
+           hx-swap="outerHTML">
+  </td>
+</tr>

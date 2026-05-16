@@ -16,6 +16,11 @@ urlpatterns = [
         "task/<str:task_type>/download", user_task_download, name="user_task_download"
     ),
     path("data/import/goodreads", import_goodreads, name="import_goodreads"),
+    path("data/import/rym", import_rym_upload, name="import_rym_upload"),
+    path("data/import/rym/preview", rym_preview, name="rym_preview"),
+    path("data/import/rym/row/<int:i>", rym_save_row, name="rym_save_row"),
+    path("data/import/rym/confirm", rym_confirm, name="rym_confirm"),
+    path("data/import/rym/download", rym_download, name="rym_download"),
     path("data/import/storygraph", import_storygraph, name="import_storygraph"),
     path("data/import/douban", import_douban, name="import_douban"),
     path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),

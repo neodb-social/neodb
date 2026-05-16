@@ -227,85 +227,6 @@ class MusicBrainzReleaseGroup(AbstractSite):
             return "0" + upc
         return upc
 
-    # @classmethod
-    # async def search_task(
-    #     cls, q: str, page: int, category: str, page_size: int
-    # ) -> list[ExternalSearchResultItem]:
-    #     """Search MusicBrainz for release-groups"""
-    #     if category not in ["music", "all"]:
-    #         return []
-
-    #     results = []
-    #     api_url = "https://musicbrainz.org/ws/2/release-group"
-    #     params = {
-    #         "query": q,
-    #         "fmt": "json",
-    #         "limit": page_size,
-    #         "offset": page * page_size,
-    #     }
-
-    #     headers = {
-    #         "User-Agent": getattr(settings, "NEODB_USER_AGENT", "NeoDBApp/1.0"),
-    #         "Accept": "application/json",
-    #     }
-
-    #     async with httpx.AsyncClient() as client:
-    #         try:
-    #             response = await client.get(
-    #                 api_url, params=params, headers=headers, timeout=10
-    #             )
-    #             response.raise_for_status()
-    #             data = response.json()
-
-    #             if "release-groups" in data:
-    #                 for rg in data["release-groups"]:
-    #                     title = rg.get("title", "")
-    #                     rg_id = rg.get("id", "")
-
-    #                     if not title or not rg_id:
-    #                         continue
-
-    #                     # Build subtitle with artist and date
-    #                     subtitle_parts = []
-    #                     if "artist-credit" in rg:
-    #                         artist_names = []
-    #                         for credit in rg["artist-credit"]:
-    #                             if isinstance(credit, dict) and "artist" in credit:
-    #                                 artist_names.append(credit["artist"]["name"])
-    #                             elif isinstance(credit, str):
-    #                                 artist_names.append(credit)
-    #                         if artist_names:
-    #                             subtitle_parts.append(" / ".join(artist_names))
-
-    #                     if "first-release-date" in rg and rg["first-release-date"]:
-    #                         subtitle_parts.append(
-    #                             rg["first-release-date"][:4]
-    #                         )  # Just year
-
-    #                     subtitle = " · ".join(subtitle_parts)
-    #                     url = cls.id_to_url(rg_id)
-
-    #                     results.append(
-    #                         ExternalSearchResultItem(
-    #                             ItemCategory.Music,
-    #                             SiteName.MusicBrainz,
-    #                             url,
-    #                             title,
-    #                             subtitle,
-    #                             "",
-    #                             "",  # No cover in search results
-    #                         )
-    #                     )
-
-    #         except httpx.TimeoutException:
-    #             logger.warning("MusicBrainz search timeout", extra={"query": q})
-    #         except Exception as e:
-    #             logger.error(
-    #                 "MusicBrainz search error", extra={"query": q, "exception": e}
-    #             )
-
-    #     return results
-
 
 @SiteManager.register
 class MusicBrainzRelease(AbstractSite):
@@ -575,4 +496,90 @@ class MusicBrainzRelease(AbstractSite):
                     extra={"query": q, "exception": e},
                 )
 
+        return results
+
+    @staticmethod
+    def _escape_lucene(s: str) -> str:
+        """Escape Lucene query-syntax special characters."""
+        for ch in r'\+-&|!(){}[]^"~*?:/':
+            s = s.replace(ch, "\\" + ch)
+        return s
+
+    @classmethod
+    def build_field_query(cls, album: str, artist: str, year: str | None = None) -> str:
+        """Build a Lucene field-scoped query for MusicBrainz release search."""
+        parts = []
+        if album:
+            parts.append(f'release:"{cls._escape_lucene(album)}"')
+        if artist:
+            parts.append(f'artist:"{cls._escape_lucene(artist)}"')
+        if year and str(year).isdigit():
+            parts.append(f"date:{year}")
+        return " AND ".join(parts)
+
+    @classmethod
+    async def search_by_fields(
+        cls,
+        album: str,
+        artist: str,
+        year: str | None = None,
+        limit: int = 5,
+    ) -> list[ExternalSearchResultItem]:
+        """Search MusicBrainz releases by separate (album, artist, year) fields."""
+        q = cls.build_field_query(album, artist, year)
+        if not q:
+            return []
+        results: list[ExternalSearchResultItem] = []
+        params = {"query": q, "fmt": "json", "limit": limit}
+        headers = {
+            "User-Agent": getattr(settings, "NEODB_USER_AGENT", "NeoDBApp/1.0"),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(
+                    "https://musicbrainz.org/ws/2/release",
+                    params=params,
+                    headers=headers,
+                    timeout=10,
+                )
+                response.raise_for_status()
+                data = response.json()
+            except httpx.TimeoutException:
+                logger.warning("MusicBrainz field search timeout", extra={"query": q})
+                return results
+            except Exception as e:
+                logger.error(
+                    "MusicBrainz field search error",
+                    extra={"query": q, "exception": e},
+                )
+                return results
+            for release in data.get("releases", []) or []:
+                title = release.get("title", "")
+                rid = release.get("id", "")
+                if not title or not rid:
+                    continue
+                subtitle_parts = []
+                names = []
+                for credit in release.get("artist-credit", []) or []:
+                    if isinstance(credit, dict) and "artist" in credit:
+                        names.append(credit["artist"].get("name", ""))
+                    elif isinstance(credit, str):
+                        names.append(credit)
+                names = [n for n in names if n]
+                if names:
+                    subtitle_parts.append(" / ".join(names))
+                if release.get("date"):
+                    subtitle_parts.append(release["date"][:4])
+                results.append(
+                    ExternalSearchResultItem(
+                        ItemCategory.Music,
+                        SiteName.MusicBrainz,
+                        cls.id_to_url(rid),
+                        title,
+                        " · ".join(subtitle_parts),
+                        "",
+                        "",
+                    )
+                )
         return results

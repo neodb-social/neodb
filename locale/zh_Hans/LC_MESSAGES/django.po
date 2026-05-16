@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-13 21:14-0400\n"
+"POT-Creation-Date: 2026-05-15 21:53-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -514,7 +514,7 @@ msgid "Exhibition"
 msgstr "展览"
 
 #: catalog/models/common.py:147 catalog/models/common.py:164
-#: journal/templates/collection.html:23 journal/templates/collection.html:29
+#: journal/templates/collection.html:23 journal/templates/collection.html:34
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
@@ -605,7 +605,7 @@ msgstr "开发者"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:194
+#: catalog/models/game.py:135 catalog/models/podcast.py:200
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -987,7 +987,7 @@ msgstr "集数"
 msgid "show time"
 msgstr "上映时间"
 
-#: catalog/models/tv.py:220
+#: catalog/models/tv.py:220 users/templates/users/rym_import.html:60
 msgid "Date"
 msgstr "日期"
 
@@ -1052,7 +1052,7 @@ msgstr "不再提示"
 #: catalog/templates/_item_comments.html:58
 #: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
-#: journal/templates/review.html:49
+#: journal/templates/review.html:54
 msgid "translate"
 msgstr "翻译"
 
@@ -1153,10 +1153,10 @@ msgid "my notes"
 msgstr "我的笔记"
 
 #: catalog/templates/_item_user_pieces.html:86
-#: catalog/templates/catalog_edit.html:12 journal/templates/article.html:111
-#: journal/templates/collection.html:138
+#: catalog/templates/catalog_edit.html:12 journal/templates/article.html:116
+#: journal/templates/collection.html:143
 #: journal/templates/collection_edit.html:10
-#: journal/templates/collection_edit.html:26 journal/templates/review.html:99
+#: journal/templates/collection_edit.html:26 journal/templates/review.html:104
 #: journal/templates/tag_edit.html:16
 msgid "Edit"
 msgstr "编辑"
@@ -1328,10 +1328,10 @@ msgstr "合并到另一条目"
 
 #: catalog/templates/_sidebar_edit.html:224
 #: catalog/templates/_sidebar_edit.html:228
-#: catalog/templates/catalog_delete.html:12 journal/templates/article.html:114
-#: journal/templates/collection.html:146 journal/templates/mark.html:157
+#: catalog/templates/catalog_delete.html:12 journal/templates/article.html:119
+#: journal/templates/collection.html:151 journal/templates/mark.html:157
 #: journal/templates/note.html:45 journal/templates/piece_delete.html:10
-#: journal/templates/piece_delete.html:34 journal/templates/review.html:102
+#: journal/templates/piece_delete.html:34 journal/templates/review.html:107
 #: users/templates/users/account.html:258
 msgid "Delete"
 msgstr "删除"
@@ -1949,31 +1949,31 @@ msgstr "条目不可被删除。"
 
 #: catalog/views/edit.py:214 catalog/views/edit.py:268
 #: catalog/views/edit.py:386 catalog/views/edit.py:475
-#: catalog/views/edit.py:507 journal/views/article.py:41
-#: journal/views/article.py:116 journal/views/collection.py:218
-#: journal/views/collection.py:278 journal/views/collection.py:297
-#: journal/views/collection.py:321 journal/views/collection.py:394
-#: journal/views/collection.py:430 journal/views/collection.py:468
-#: journal/views/collection.py:480 journal/views/collection.py:505
-#: journal/views/collection.py:508 journal/views/collection.py:545
-#: journal/views/common.py:200 journal/views/mark.py:241
-#: journal/views/post.py:54 journal/views/post.py:75 journal/views/post.py:98
-#: journal/views/post.py:117 journal/views/post.py:179
-#: journal/views/post.py:258 journal/views/post.py:273
-#: journal/views/post.py:427 journal/views/review.py:40
-#: journal/views/review.py:53 journal/views/review.py:78
+#: catalog/views/edit.py:507 journal/views/article.py:42
+#: journal/views/article.py:138 journal/views/collection.py:250
+#: journal/views/collection.py:310 journal/views/collection.py:329
+#: journal/views/collection.py:353 journal/views/collection.py:426
+#: journal/views/collection.py:462 journal/views/collection.py:500
+#: journal/views/collection.py:512 journal/views/collection.py:537
+#: journal/views/collection.py:540 journal/views/collection.py:581
+#: journal/views/common.py:246 journal/views/mark.py:241
+#: journal/views/post.py:55 journal/views/post.py:76 journal/views/post.py:99
+#: journal/views/post.py:119 journal/views/post.py:181
+#: journal/views/post.py:260 journal/views/post.py:275
+#: journal/views/post.py:459 journal/views/review.py:51
+#: journal/views/review.py:64 journal/views/review.py:89
 msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views/edit.py:271 catalog/views/edit.py:274
-#: journal/views/collection.py:68 journal/views/collection.py:93
-#: journal/views/collection.py:485 journal/views/collection.py:575
-#: journal/views/common.py:129 journal/views/mark.py:167
-#: journal/views/post.py:129 journal/views/post.py:131
-#: journal/views/post.py:175 journal/views/post.py:197
-#: journal/views/post.py:199 journal/views/post.py:217
-#: journal/views/post.py:230 journal/views/review.py:126
-#: journal/views/review.py:129 users/views/actions.py:171
+#: journal/views/collection.py:73 journal/views/collection.py:98
+#: journal/views/collection.py:517 journal/views/collection.py:611
+#: journal/views/common.py:175 journal/views/mark.py:167
+#: journal/views/post.py:131 journal/views/post.py:133
+#: journal/views/post.py:177 journal/views/post.py:199
+#: journal/views/post.py:201 journal/views/post.py:219
+#: journal/views/post.py:232 journal/views/review.py:137
+#: journal/views/review.py:140 users/views/actions.py:171
 msgid "Invalid parameter"
 msgstr "无效参数"
 
@@ -3394,7 +3394,7 @@ msgstr "搜索你的评论或条目，可加过滤条件如 category:tv status:c
 msgid "name of a person or company"
 msgstr "人物或公司名称"
 
-#: common/templates/_header.html:173
+#: common/templates/_header.html:173 users/templates/users/_rym_row.html:23
 msgid "Open"
 msgstr "打开"
 
@@ -3684,7 +3684,7 @@ msgid "Access denied"
 msgstr "访问被拒绝"
 
 #: common/utils.py:103 common/utils.py:105 journal/views/profile.py:428
-#: journal/views/review.py:169
+#: journal/views/review.py:180
 msgid "Login required"
 msgstr "登录后访问"
 
@@ -4316,9 +4316,10 @@ msgstr "保存时将行首空格替换为全角"
 #: journal/forms.py:51 journal/forms.py:124 journal/forms.py:149
 #: journal/forms.py:188 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
-#: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:204 users/templates/users/data.html:255
-#: users/templates/users/data.html:317 users/templates/users/data.html:376
+#: users/templates/users/data.html:98 users/templates/users/data.html:180
+#: users/templates/users/data.html:233 users/templates/users/data.html:284
+#: users/templates/users/data.html:346 users/templates/users/data.html:405
+#: users/templates/users/rym_import.html:79
 #: users/templates/users/steam_import.html:125
 msgid "Visibility"
 msgstr "可见性"
@@ -4347,11 +4348,11 @@ msgstr "仅创建者"
 msgid "owner and their local mutuals"
 msgstr "创建者和他们的本地互关"
 
-#: journal/forms.py:156 journal/templates/collection.html:149
+#: journal/forms.py:156 journal/templates/collection.html:154
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/forms.py:180 users/templates/users/data.html:531
+#: journal/forms.py:180 users/templates/users/data.html:560
 msgid "Status"
 msgstr "状态"
 
@@ -4364,7 +4365,7 @@ msgid "Rating"
 msgstr "评分"
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/storygraph.py:203
+#: journal/importers/rym.py:390 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr "关于 {item_title} 的评论"
@@ -4373,6 +4374,30 @@ msgstr "关于 {item_title} 的评论"
 #, python-brace-format
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
+
+#: journal/importers/rym.py:138
+#, python-brace-format
+msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
+msgstr "匹配中：{done}/{total} — 本地 {local}，外部 {ext}，未匹配 {none}"
+
+#: journal/importers/rym.py:148
+#, python-brace-format
+msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
+msgstr "导入中：已导入 {imported}，跳过 {skipped}，失败 {failed}"
+
+#: journal/importers/rym.py:193
+#, python-brace-format
+msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
+msgstr "匹配完成：本地 {local}，外部 {ext}，未匹配 {none}"
+
+#: journal/importers/rym.py:302
+msgid "Matched file missing; cannot import."
+msgstr "匹配文件丢失，无法导入。"
+
+#: journal/importers/rym.py:326
+#, python-brace-format
+msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
+msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
 #: journal/models/article.py:139
 msgid "(may contain sensitive content)"
@@ -4399,10 +4424,11 @@ msgstr "创建了收藏单"
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:55
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:264 users/templates/users/data.html:325
-#: users/templates/users/data.html:385
+#: users/templates/users/data.html:189 users/templates/users/data.html:242
+#: users/templates/users/data.html:293 users/templates/users/data.html:354
+#: users/templates/users/data.html:414
 #: users/templates/users/preferences.html:56
+#: users/templates/users/rym_import.html:82
 #: users/templates/users/steam_import.html:128
 msgid "Public"
 msgstr "公开"
@@ -4411,10 +4437,11 @@ msgstr "公开"
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:62
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
-#: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:221 users/templates/users/data.html:272
-#: users/templates/users/data.html:333 users/templates/users/data.html:393
+#: users/templates/users/data.html:115 users/templates/users/data.html:197
+#: users/templates/users/data.html:250 users/templates/users/data.html:301
+#: users/templates/users/data.html:362 users/templates/users/data.html:422
 #: users/templates/users/preferences.html:63
+#: users/templates/users/rym_import.html:86
 #: users/templates/users/steam_import.html:132
 msgid "Followers Only"
 msgstr "仅关注者"
@@ -4423,10 +4450,11 @@ msgstr "仅关注者"
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:69
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
-#: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:229 users/templates/users/data.html:280
-#: users/templates/users/data.html:341 users/templates/users/data.html:401
+#: users/templates/users/data.html:123 users/templates/users/data.html:205
+#: users/templates/users/data.html:258 users/templates/users/data.html:309
+#: users/templates/users/data.html:370 users/templates/users/data.html:430
 #: users/templates/users/preferences.html:70
+#: users/templates/users/rym_import.html:90
 #: users/templates/users/steam_import.html:136
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
@@ -4447,7 +4475,7 @@ msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
-#: journal/models/note.py:34
+#: journal/models/note.py:34 users/templates/users/rym_import.html:71
 msgid "Page"
 msgstr "页码"
 
@@ -4988,7 +5016,7 @@ msgid "Update note"
 msgstr "修改备注"
 
 #: journal/templates/_list_item.html:100 journal/templates/review.html:22
-#: journal/templates/review.html:28 journal/templates/review.html:71
+#: journal/templates/review.html:33 journal/templates/review.html:76
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -5133,20 +5161,20 @@ msgstr "创建新收藏单"
 msgid "Article"
 msgstr "文章"
 
-#: journal/templates/article.html:63
+#: journal/templates/article.html:68
 msgid "View on origin"
 msgstr "查看原始内容"
 
-#: journal/templates/article.html:77
+#: journal/templates/article.html:82
 msgid "This article may contain sensitive content. Click to reveal."
 msgstr "文章可能包含敏感内容，点击显示全文。"
 
-#: journal/templates/article.html:88 journal/templates/review.html:81
+#: journal/templates/article.html:93 journal/templates/review.html:86
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr "作者已设置仅限已登录用户查看。"
 
-#: journal/templates/article.html:106 journal/templates/collection.html:133
-#: journal/templates/review.html:94
+#: journal/templates/article.html:111 journal/templates/collection.html:138
+#: journal/templates/review.html:99
 msgid "Reply"
 msgstr "回应"
 
@@ -5206,18 +5234,18 @@ msgstr "十一月"
 msgid "DEC"
 msgstr "十二月"
 
-#: journal/templates/collection.html:53
+#: journal/templates/collection.html:58
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
 msgstr "分享"
 
-#: journal/templates/collection.html:142
+#: journal/templates/collection.html:147
 msgid "Query"
 msgstr ""
 
-#: journal/templates/collection.html:157
+#: journal/templates/collection.html:162
 msgid "Created date"
 msgstr "创建日期"
 
@@ -5440,7 +5468,7 @@ msgstr "年度小结"
 msgid "Articles"
 msgstr "文章"
 
-#: journal/templates/profile.html:153 journal/views/collection.py:364
+#: journal/templates/profile.html:153 journal/views/collection.py:396
 #: journal/views/profile.py:327
 msgid "collection"
 msgstr "收藏单"
@@ -5597,46 +5625,46 @@ msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 个条目"
 msgstr[1] "%(count)d 个条目"
 
-#: journal/views/collection.py:50 journal/views/collection.py:87
+#: journal/views/collection.py:55 journal/views/collection.py:92
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr "{0} 的收藏单"
 
-#: journal/views/collection.py:369
+#: journal/views/collection.py:401
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: journal/views/collection.py:372
+#: journal/views/collection.py:404
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:432 journal/views/collection.py:470
-#: journal/views/collection.py:482 journal/views/collection.py:510
+#: journal/views/collection.py:464 journal/views/collection.py:502
+#: journal/views/collection.py:514 journal/views/collection.py:542
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:447
+#: journal/views/collection.py:479
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:449
+#: journal/views/collection.py:481
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:495
+#: journal/views/collection.py:527
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:82 journal/views/mark.py:131
+#: journal/views/common.py:128 journal/views/mark.py:131
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:84
+#: journal/views/common.py:130
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:91
+#: journal/views/common.py:137
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -5649,8 +5677,8 @@ msgid "Invalid input"
 msgstr "无效输入"
 
 #: journal/views/mark.py:189 journal/views/mark.py:239
-#: journal/views/note.py:100 journal/views/review.py:38
-#: journal/views/review.py:51
+#: journal/views/note.py:100 journal/views/review.py:49
+#: journal/views/review.py:62
 msgid "Content not found"
 msgstr "内容未找到"
 
@@ -5674,45 +5702,45 @@ msgstr "进度类型（选填）"
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
-#: journal/views/post.py:115
+#: journal/views/post.py:117
 msgid "Post not found"
 msgstr "帖文未找到"
 
-#: journal/views/post.py:201
+#: journal/views/post.py:203
 msgid "Visibility too high for quoting this post"
 msgstr "引用这则帖文时使用的可见性无效"
 
-#: journal/views/post.py:323
+#: journal/views/post.py:325
 msgid "Content cannot be empty."
 msgstr "内容不可为空。"
 
-#: journal/views/post.py:419
+#: journal/views/post.py:451
 msgid "Invalid choices"
 msgstr "无效选择"
 
-#: journal/views/post.py:422
+#: journal/views/post.py:454
 msgid "Invalid post"
 msgstr "无效帖文"
 
-#: journal/views/review.py:151
+#: journal/views/review.py:162
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/review.py:157 journal/views/review.py:171
+#: journal/views/review.py:168 journal/views/review.py:182
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr "{0} 的评论"
 
-#: journal/views/review.py:159 journal/views/review.py:167
+#: journal/views/review.py:170 journal/views/review.py:178
 msgid "Link invalid"
 msgstr "链接无效"
 
-#: journal/views/review.py:180
+#: journal/views/review.py:191
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/review.py:184
+#: journal/views/review.py:195
 msgid "may contain spoiler or triggering content"
 msgstr "可能包含剧透或敏感内容"
 
@@ -6013,7 +6041,11 @@ msgstr "标记"
 msgid "wrote a note"
 msgstr "写了笔记"
 
-#: social/templates/_event_post.html:85 social/templates/_event_post.html:87
+#: social/templates/_event_post.html:85
+msgid "wrote a review"
+msgstr "写了评论"
+
+#: social/templates/_event_post.html:87
 msgid "wrote an article"
 msgstr "写了文章"
 
@@ -6386,6 +6418,18 @@ msgstr "自定义样式代码"
 msgid "Settings for current device saved"
 msgstr "当前设备设置已保存"
 
+#: users/templates/users/_rym_row.html:27
+msgid "Create new album"
+msgstr "新建专辑"
+
+#: users/templates/users/_rym_row.html:28
+msgid "then paste the link above; leave blank to skip this row."
+msgstr "然后将链接粘贴到上方；留空则跳过该行。"
+
+#: users/templates/users/_rym_row.html:39
+msgid "(skip)"
+msgstr "(跳过)"
+
 #: users/templates/users/account.html:11
 msgid "Account Information"
 msgstr "账号信息"
@@ -6674,9 +6718,9 @@ msgid "CSV file"
 msgstr "CSV 文件"
 
 #: users/templates/users/account.html:440 users/templates/users/data.html:74
-#: users/templates/users/data.html:126 users/templates/users/data.html:179
-#: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:346 users/templates/users/data.html:406
+#: users/templates/users/data.html:126 users/templates/users/data.html:208
+#: users/templates/users/data.html:261 users/templates/users/data.html:312
+#: users/templates/users/data.html:375 users/templates/users/data.html:435
 #: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr "导入"
@@ -6792,7 +6836,7 @@ msgstr "导入豆瓣标记和评论"
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:304
+#: users/templates/users/data.html:34 users/templates/users/data.html:333
 msgid "Import Method"
 msgstr "导入方式"
 
@@ -6824,140 +6868,164 @@ msgstr ""
 msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
 msgstr ""
 
-#: users/templates/users/data.html:93 users/templates/users/data.html:143
+#: users/templates/users/data.html:93 users/templates/users/data.html:172
 msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr "将导入想读、在读、已读和放弃的书籍及其评论。"
 
 #: users/templates/users/data.html:133
+msgid "Import from RateYourMusic"
+msgstr "从RateYourMusic导入"
+
+#: users/templates/users/data.html:139
+msgid "On RateYourMusic, go to your profile and use the <b>Export your data</b> option to download your library as a CSV file."
+msgstr "在 RateYourMusic 个人资料页面，使用 <b>Export your data</b> 选项将你的收藏导出为 CSV 文件。"
+
+#: users/templates/users/data.html:141 users/templates/users/data.html:170
+msgid "Upload the downloaded CSV file below."
+msgstr "在下方上传下载到的 CSV 文件。"
+
+#: users/templates/users/data.html:143
+msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
+msgstr "专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
+
+#: users/templates/users/data.html:146
+msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
+msgstr "你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配项。"
+
+#: users/templates/users/data.html:150
+msgid "Upload and match"
+msgstr "上传并匹配"
+
+#: users/templates/users/data.html:153
+msgid "Review pending RateYourMusic matches"
+msgstr "审阅待处理的 RateYourMusic 匹配"
+
+#: users/templates/users/data.html:162
 msgid "Import from StoryGraph"
 msgstr "从StoryGraph导入"
 
-#: users/templates/users/data.html:139
+#: users/templates/users/data.html:168
 msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
 msgstr ""
 
-#: users/templates/users/data.html:141
-msgid "Upload the downloaded CSV file below."
-msgstr ""
-
-#: users/templates/users/data.html:146
+#: users/templates/users/data.html:175
 msgid "Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import."
 msgstr ""
 
-#: users/templates/users/data.html:186
+#: users/templates/users/data.html:215
 msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
 
-#: users/templates/users/data.html:192
+#: users/templates/users/data.html:221
 msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
 msgstr ""
 
-#: users/templates/users/data.html:195
+#: users/templates/users/data.html:224
 msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
 msgstr ""
 
-#: users/templates/users/data.html:198
+#: users/templates/users/data.html:227
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:233 users/templates/users/data.html:284
+#: users/templates/users/data.html:262 users/templates/users/data.html:313
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
-#: users/templates/users/data.html:240
+#: users/templates/users/data.html:269
 msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
-#: users/templates/users/data.html:246
+#: users/templates/users/data.html:275
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
 msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链接出现。"
 
-#: users/templates/users/data.html:249
+#: users/templates/users/data.html:278
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr "上传下载的<code>.zip</code>文件，无需解压。"
 
-#: users/templates/users/data.html:251
+#: users/templates/users/data.html:280
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr "将导入评分、已看的电影/剧集和想看列表。"
 
-#: users/templates/users/data.html:291
+#: users/templates/users/data.html:320
 #: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr "导入Steam游戏库和愿望清单"
 
-#: users/templates/users/data.html:294
+#: users/templates/users/data.html:323
 msgid "Login with Steam"
 msgstr ""
 
-#: users/templates/users/data.html:300
+#: users/templates/users/data.html:329
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:311
+#: users/templates/users/data.html:340
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:315
+#: users/templates/users/data.html:344
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:344
+#: users/templates/users/data.html:373
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:354
+#: users/templates/users/data.html:383
 msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
-#: users/templates/users/data.html:360
+#: users/templates/users/data.html:389
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
 
-#: users/templates/users/data.html:362
+#: users/templates/users/data.html:391
 msgid "Existing data may be overwritten."
 msgstr "现有数据可能会被覆盖。"
 
-#: users/templates/users/data.html:372
+#: users/templates/users/data.html:401
 msgid "Detected format"
 msgstr "检测到格式"
 
-#: users/templates/users/data.html:433
+#: users/templates/users/data.html:462
 msgid "Detecting format..."
 msgstr "检测格式中"
 
-#: users/templates/users/data.html:459
+#: users/templates/users/data.html:488
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: users/templates/users/data.html:484
+#: users/templates/users/data.html:513
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:508
+#: users/templates/users/data.html:537
 msgid "Export NeoDB Archive"
 msgstr "导出NeoDB备份"
 
-#: users/templates/users/data.html:512
+#: users/templates/users/data.html:541
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
-#: users/templates/users/data.html:519
+#: users/templates/users/data.html:548
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:527
+#: users/templates/users/data.html:556
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr "导出标记、短评和评论 （豆坟xlsx格式）"
 
-#: users/templates/users/data.html:530
+#: users/templates/users/data.html:559
 msgid "Last export"
 msgstr "最近导出"
 
-#: users/templates/users/data.html:535
+#: users/templates/users/data.html:564
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:544
+#: users/templates/users/data.html:573
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
@@ -7351,6 +7419,51 @@ msgstr "导出"
 msgid "You may download the list here."
 msgstr "此处可导出你在本站的关系列表。"
 
+#: users/templates/users/rym_import.html:9
+#: users/templates/users/rym_import.html:37
+msgid "Review RateYourMusic Matches"
+msgstr "审阅 RateYourMusic 匹配结果"
+
+#: users/templates/users/rym_import.html:39
+#, python-format
+msgid ""
+"\n"
+"              Matched %(local)s locally, %(external)s externally, %(unmatched)s unmatched out of %(total)s rows.\n"
+"            "
+msgstr ""
+
+#: users/templates/users/rym_import.html:45
+msgid "Download matched CSV"
+msgstr "下载已匹配的 CSV"
+
+#: users/templates/users/rym_import.html:57
+msgid "Title / Artist"
+msgstr "标题 / 艺术家"
+
+#: users/templates/users/rym_import.html:58
+msgid "Matched Link"
+msgstr "匹配链接"
+
+#: users/templates/users/rym_import.html:59
+msgid "Shelf"
+msgstr "标记"
+
+#: users/templates/users/rym_import.html:69
+msgid "Prev"
+msgstr "上一页"
+
+#: users/templates/users/rym_import.html:73
+msgid "Next"
+msgstr "下一页"
+
+#: users/templates/users/rym_import.html:93
+msgid "Confirm Import"
+msgstr "确认导入"
+
+#: users/templates/users/rym_import.html:94
+msgid "Back"
+msgstr "返回"
+
 #: users/templates/users/steam_import.html:10
 msgid "Import from Steam"
 msgstr "从Steam导入"
@@ -7555,99 +7668,120 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:207 users/views/data.py:236
+#: users/views/data.py:224 users/views/data.py:253
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:230
+#: users/views/data.py:247
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:248
+#: users/views/data.py:265
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:263 users/views/data.py:283
+#: users/views/data.py:280 users/views/data.py:300
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:297
+#: users/views/data.py:314
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:311
+#: users/views/data.py:328
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:320 users/views/data.py:344 users/views/data.py:368
-#: users/views/data.py:393 users/views/data.py:417 users/views/data.py:441
+#: users/views/data.py:337 users/views/data.py:370 users/views/data.py:553
+#: users/views/data.py:577 users/views/data.py:602 users/views/data.py:626
+#: users/views/data.py:650
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:561
+#: users/views/data.py:406
+msgid "Loaded from uploaded matched file."
+msgstr "已从上传的匹配文件中加载。"
+
+#: users/views/data.py:424
+msgid "No RateYourMusic import to preview."
+msgstr "暂无可预览的 RateYourMusic 导入任务。"
+
+#: users/views/data.py:429 users/views/data.py:536
+msgid "Matched file missing."
+msgstr "匹配文件丢失。"
+
+#: users/views/data.py:522
+msgid "Starting import..."
+msgstr "开始导入..."
+
+#: users/views/data.py:532
+msgid "No matched file available."
+msgstr "没有可用的匹配文件。"
+
+#: users/views/data.py:770
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:583
+#: users/views/data.py:792
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:599
+#: users/views/data.py:808
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:604
+#: users/views/data.py:813
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:614 users/views/data.py:665
+#: users/views/data.py:823 users/views/data.py:874
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:621
+#: users/views/data.py:830
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:626
+#: users/views/data.py:835
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:652
+#: users/views/data.py:861
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:657
+#: users/views/data.py:866
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:670
+#: users/views/data.py:879
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:681
+#: users/views/data.py:890
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:687
+#: users/views/data.py:896
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:745
+#: users/views/data.py:954
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:761
+#: users/views/data.py:970
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:765
+#: users/views/data.py:974
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:774
+#: users/views/data.py:983
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

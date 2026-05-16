@@ -8,15 +8,10 @@ from loguru import logger
 from common.models import BaseJob, JobManager, SiteConfig
 from users.models import Task
 
+_TASK_FILE_KEYS = ("file", "matched_file")
 
-def delete_task_file(task: Task) -> bool:
-    """Delete the file associated with a task, if it exists.
 
-    Returns True if a file was deleted, False otherwise.
-    """
-    file_path = task.metadata.get("file") if task.metadata else None
-    if not file_path:
-        return False
+def _delete_path(file_path: str) -> bool:
     try:
         if os.path.isfile(file_path):
             os.remove(file_path)
@@ -38,6 +33,24 @@ def delete_task_file(task: Task) -> bool:
     except OSError as e:
         logger.warning(f"Failed to delete {file_path}: {e}")
     return False
+
+
+def delete_task_file(task: Task) -> bool:
+    """Delete the file(s) associated with a task, if any exist.
+
+    Some importers (e.g. RYM) keep a derived ``matched_file`` alongside the
+    original upload — both belong to the task and must be pruned together.
+
+    Returns True if at least one file was deleted, False otherwise.
+    """
+    if not task.metadata:
+        return False
+    deleted = False
+    for key in _TASK_FILE_KEYS:
+        path = task.metadata.get(key)
+        if path and _delete_path(path):
+            deleted = True
+    return deleted
 
 
 def prune_tasks(days: int = 28) -> tuple[int, int]:

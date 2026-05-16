@@ -180,6 +180,78 @@ class Spotify(AbstractSite):
                 logger.error("Spotify search error", extra={"query": q, "exception": e})
         return results
 
+    @classmethod
+    def build_field_query(cls, album: str, artist: str, year: str | None = None) -> str:
+        """Build a Spotify field-scoped query string from separate fields.
+
+        Reference: https://developer.spotify.com/documentation/web-api/reference/search
+        """
+        parts = []
+        if album:
+            parts.append(f'album:"{album}"')
+        if artist:
+            parts.append(f'artist:"{artist}"')
+        if year and str(year).isdigit():
+            parts.append(f"year:{year}")
+        return " ".join(parts)
+
+    @classmethod
+    async def search_by_fields(
+        cls,
+        album: str,
+        artist: str,
+        year: str | None = None,
+        limit: int = 5,
+    ) -> list[ExternalSearchResultItem]:
+        """Search Spotify albums by separate (album, artist, year) fields.
+
+        Unlike :meth:`search_task` which interpolates ``q`` straight into the
+        URL, this method passes the query via httpx params so spaces and quotes
+        in the field-scoped syntax are URL-encoded correctly.
+        """
+        if not SiteConfig.system.spotify_api_key:
+            return []
+        q = cls.build_field_query(album, artist, year)
+        if not q:
+            return []
+        results: list[ExternalSearchResultItem] = []
+        params = {"q": q, "type": "album", "limit": limit}
+        async with httpx.AsyncClient() as client:
+            try:
+                headers = {"Authorization": f"Bearer {get_spotify_token()}"}
+                response = await client.get(
+                    "https://api.spotify.com/v1/search",
+                    params=params,
+                    headers=headers,
+                    timeout=5,
+                )
+                j = response.json()
+                for a in (j.get("albums") or {}).get("items", []):
+                    title = a["name"]
+                    subtitle = a.get("release_date", "")
+                    for ar in a.get("artists", []):
+                        subtitle += " " + ar.get("name", "")
+                    url = a["external_urls"]["spotify"]
+                    cover = a["images"][0]["url"] if a.get("images") else ""
+                    results.append(
+                        ExternalSearchResultItem(
+                            ItemCategory.Music,
+                            SiteName.Spotify,
+                            url,
+                            title,
+                            subtitle,
+                            "",
+                            cover,
+                        )
+                    )
+            except httpx.ReadTimeout:
+                logger.warning("Spotify field search timeout", extra={"query": q})
+            except Exception as e:
+                logger.error(
+                    "Spotify field search error", extra={"query": q, "exception": e}
+                )
+        return results
+
 
 @SiteManager.register
 class Spotify_Artist(AbstractSite):

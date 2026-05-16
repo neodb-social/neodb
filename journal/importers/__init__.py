@@ -4,6 +4,7 @@ from .goodreads import GoodreadsImporter
 from .letterboxd import LetterboxdImporter
 from .ndjson import NdjsonImporter
 from .opml import OPMLImporter
+from .rym import RymImporter
 from .steam import SteamImporter
 from .storygraph import StoryGraphImporter
 from .trakt import TraktImporter
@@ -15,6 +16,7 @@ __all__ = [
     "OPMLImporter",
     "DoubanImporter",
     "GoodreadsImporter",
+    "RymImporter",
     "SteamImporter",
     "StoryGraphImporter",
     "TraktImporter",
