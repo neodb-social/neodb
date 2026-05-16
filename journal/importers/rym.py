@@ -200,7 +200,6 @@ class RymImporter(Task):
                 for row in rows:
                     self._match_row(row)
                     writer.writerow(row)
-                    self.progress(processed=1)
         finally:
             self._match_loop.close()
             self._match_loop = None
@@ -235,25 +234,26 @@ class RymImporter(Task):
         # already populated link (round-trip)
         if (row.get("link") or "").strip():
             row.setdefault("match_source", "preset")
+            self.progress(processed=1)
             return
 
         item = self._local_match(title, artist, year)
         if item:
             row["link"] = item.url
             row["match_source"] = "local"
-            self.progress(matched_local=1)
+            self.progress(processed=1, matched_local=1)
             return
 
         ext_url = self._external_match(title, artist, year)
         if ext_url:
             row["link"] = ext_url[0]
             row["match_source"] = ext_url[1]
-            self.progress(matched_external=1)
+            self.progress(processed=1, matched_external=1)
             return
 
         row["link"] = ""
         row["match_source"] = "none"
-        self.progress(unmatched=1)
+        self.progress(processed=1, unmatched=1)
 
     def _local_match(self, title: str, artist: str, year: str | None) -> Item | None:
         if not title:
