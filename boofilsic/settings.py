@@ -715,6 +715,7 @@ if _SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
     from sentry_sdk.integrations.loguru import LoguruIntegration
+    from sentry_sdk.integrations.rq import RqIntegration
 
     ignore_logger("podcastparser")
 
@@ -727,6 +728,7 @@ if _SENTRY_DSN:
         integrations=[
             DjangoIntegration(),
             LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),
+            RqIntegration(),
         ],
         release=NEODB_VERSION,
         send_default_pii=True,

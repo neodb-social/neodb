@@ -5,6 +5,7 @@ from loguru import logger
 from rq import cron as rq_cron
 
 from common.models.site_config import SiteConfig
+from common.sentry import cron_monitor
 
 CRON_QUEUE = "cron"
 
@@ -15,7 +16,8 @@ def run_job(job_id: str) -> None:
     Looks up the BaseJob subclass in the registry and runs it. Defined at the
     module level (not as a classmethod) so RQ can resolve it by import path
     on the worker side. For singleton jobs, a Redis lock prevents a second
-    copy from starting while a previous run is still active.
+    copy from starting while a previous run is still active. When Sentry is
+    configured, each run reports a check-in to Sentry Crons.
     """
     try:
         job_cls = JobManager.get(job_id)
@@ -26,24 +28,28 @@ def run_job(job_id: str) -> None:
         __import__("boofilsic.cron_config", fromlist=["*"])
         job_cls = JobManager.get(job_id)
 
-    instance = job_cls()
-    if not job_cls.singleton:
-        instance.run()
-        return
+    with cron_monitor(
+        monitor_slug=f"neodb-{job_id.lower()}",
+        monitor_config=job_cls.get_monitor_config(),
+    ):
+        instance = job_cls()
+        if not job_cls.singleton:
+            instance.run()
+            return
 
-    conn = django_rq.get_connection(job_cls.queue_name)
-    lock_key = f"cron:lock:{job_id}"
-    # Lock TTL slightly outlives job_timeout so a crashed worker can't pin the
-    # lock past the next tick + a small buffer. Fallback to 1 hour for
-    # cron-string jobs where get_job_timeout() is None.
-    lock_ttl = (job_cls.get_job_timeout() or 3600) + 60
-    if not conn.set(lock_key, "1", nx=True, ex=lock_ttl):
-        logger.info(f"Skipping {job_id}: previous run still active")
-        return
-    try:
-        instance.run()
-    finally:
-        conn.delete(lock_key)
+        conn = django_rq.get_connection(job_cls.queue_name)
+        lock_key = f"cron:lock:{job_id}"
+        # Lock TTL slightly outlives job_timeout so a crashed worker can't pin
+        # the lock past the next tick + a small buffer. Fallback to 1 hour for
+        # cron-string jobs where get_job_timeout() is None.
+        lock_ttl = (job_cls.get_job_timeout() or 3600) + 60
+        if not conn.set(lock_key, "1", nx=True, ex=lock_ttl):
+            logger.info(f"Skipping {job_id}: previous run still active")
+            return
+        try:
+            instance.run()
+        finally:
+            conn.delete(lock_key)
 
 
 class BaseJob:
@@ -79,6 +85,32 @@ class BaseJob:
         """Default timeout slightly shorter than the interval to avoid overlap."""
         seconds = int(cls.get_interval().total_seconds())
         return seconds - 5 if seconds > 5 else None
+
+    @classmethod
+    def get_monitor_config(cls) -> dict | None:
+        """Sentry Crons monitor_config describing this job's schedule.
+
+        Returns ``None`` for jobs without a usable schedule so Sentry just
+        records check-ins without late/missed alerting.
+        """
+        config: dict = {}
+        cron_expr = cls.get_cron()
+        interval_seconds = int(cls.get_interval().total_seconds())
+        if cron_expr:
+            config["schedule"] = {"type": "crontab", "value": cron_expr}
+        elif interval_seconds > 0:
+            minutes = max(1, interval_seconds // 60)
+            config["schedule"] = {
+                "type": "interval",
+                "value": minutes,
+                "unit": "minute",
+            }
+        else:
+            return None
+        timeout = cls.get_job_timeout()
+        if timeout:
+            config["max_runtime"] = max(1, timeout // 60)
+        return config
 
     def run(self):
         pass

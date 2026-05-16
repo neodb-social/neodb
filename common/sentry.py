@@ -1,5 +1,6 @@
+import contextlib
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, ContextManager
 from urllib.parse import urlparse
 
 MetricAttributes = Mapping[str, str | int | float | bool | None]
@@ -42,3 +43,29 @@ def count(
         metrics_count(key, value, attributes=_clean_attributes(attributes))
     except Exception:
         return
+
+
+def cron_monitor(
+    monitor_slug: str,
+    monitor_config: dict | None = None,
+) -> ContextManager[None]:
+    """Return a Sentry crons ``monitor`` context manager when Sentry is
+    initialized, otherwise a no-op context. Used to wrap scheduled jobs so
+    Sentry receives in-progress / ok / error check-ins per run.
+    """
+    try:
+        import sentry_sdk
+        from sentry_sdk.crons import monitor as sentry_monitor
+    except ImportError:
+        return contextlib.nullcontext()
+
+    is_initialized = getattr(sentry_sdk, "is_initialized", None)
+    if not callable(is_initialized) or not is_initialized():
+        return contextlib.nullcontext()
+
+    # monitor_config is a TypedDict at Sentry's typing layer but we accept any
+    # plain dict here; runtime is identical.
+    return sentry_monitor(
+        monitor_slug=monitor_slug,
+        monitor_config=monitor_config,  # ty: ignore[invalid-argument-type]
+    )
