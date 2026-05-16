@@ -206,7 +206,7 @@ class FediverseInstance(AbstractSite):
                     extra={"url": api_url, "query": q, "exception": e},
                 )
                 reason = "timeout" if isinstance(e, httpx.TimeoutException) else "error"
-                record_search_failure(f"fediverse:{host}", reason)
+                record_search_failure("fediverse", reason)
                 return []
             if "data" in r:
                 for item in r["data"]:
