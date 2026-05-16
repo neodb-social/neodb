@@ -203,12 +203,7 @@ def user_task_status(request, task_type: str):
     ):
         # Matching or importing just finished — swap the whole RYM section
         # so the cancel button is replaced by the Review/Download/upload UI.
-        if request.headers.get("HX-Request"):
-            resp = render(request, "users/_rym_section.html", {"rym_task": task})
-            resp["HX-Retarget"] = "#rym"
-            resp["HX-Reswap"] = "innerHTML"
-            return resp
-        return redirect(reverse("users:data") + "#rym")
+        return render(request, "users/_rym_section.html", {"rym_task": task})
     return render(request, "users/user_task_status.html", {"task": task})
 
 
@@ -432,13 +427,14 @@ def rym_cancel(request):
         task.state = Task.States.failed
         task.message = _("Cancelled.")
         task.save(update_fields=["metadata", "state", "message"])
-        # Best-effort: drop the job if still queued. A job already running
-        # in the worker will finish on its own; the cancelled phase keeps
-        # the UI from surfacing it either way.
-        try:
-            django_rq.get_queue(task.TaskQueue).remove(task.job_id)
-        except Exception as e:
-            logger.warning(f"RYM cancel: failed to remove job: {e}")
+        # Best-effort: drop the job if still queued. A running worker
+        # picks up phase=cancelled on its next progress save and bails;
+        # the not-yet-enqueued case (had_link round-trip) is skipped.
+        if task.pk:
+            try:
+                django_rq.get_queue(task.TaskQueue).remove(task.job_id)
+            except Exception as e:
+                logger.warning(f"RYM cancel: failed to remove job: {e}")
     if request.headers.get("HX-Request"):
         return render(request, "users/_rym_section.html", {"rym_task": None})
     return redirect(reverse("users:data") + "#rym")

@@ -30,6 +30,18 @@ OWNERSHIP_TO_SHELF = {
 }
 MATCHED_EXTRA_COLUMNS = ["link", "match_source", "shelf", "collect_date", "notes"]
 
+
+class RymCancelled(Exception):
+    """Raised by the worker when the view has flipped phase to 'cancelled'.
+
+    Why: ``rym_cancel`` writes ``phase=cancelled`` directly to the DB. Without
+    re-reading, the worker's next ``self.save(update_fields=["metadata", ...])``
+    would clobber that flag with its in-memory copy of metadata. Worker code
+    calls ``_raise_if_cancelled`` immediately before every save so cancellation
+    takes effect and the loop exits cleanly.
+    """
+
+
 _BBCODE_PATTERNS = [
     (re.compile(r"\[b\](.*?)\[/b\]", re.DOTALL | re.IGNORECASE), r"**\1**"),
     (re.compile(r"\[i\](.*?)\[/i\]", re.DOTALL | re.IGNORECASE), r"*\1*"),
@@ -135,6 +147,17 @@ class RymImporter(Task):
 
     PROGRESS_SAVE_EVERY = 25  # flush task row at most every N processed rows
 
+    def _raise_if_cancelled(self) -> None:
+        """Honour user-initiated cancellation written by the view."""
+        fresh = (
+            type(self)
+            .objects.filter(pk=self.pk)
+            .values_list("metadata", flat=True)
+            .first()
+        )
+        if fresh and fresh.get("phase") == "cancelled":
+            raise RymCancelled()
+
     def progress(self, *, force: bool = False, **delta) -> None:
         for k, v in delta.items():
             self.metadata[k] = self.metadata.get(k, 0) + v
@@ -161,6 +184,7 @@ class RymImporter(Task):
             )
         # Avoid hammering the DB with one save per CSV row.
         if force or done % self.PROGRESS_SAVE_EVERY == 0 or done == total:
+            self._raise_if_cancelled()
             self.save(update_fields=["metadata", "message"])
 
     def run(self) -> None:
@@ -188,6 +212,7 @@ class RymImporter(Task):
                 rows.append({k.strip(): v for k, v in raw_row.items()})
         self.metadata["total"] = len(rows)
         self.metadata["matched_file"] = out_path
+        self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
 
         # One asyncio loop reused for all external lookups in this phase —
@@ -212,6 +237,7 @@ class RymImporter(Task):
             ext=self.metadata.get("matched_external", 0),
             none=self.metadata.get("unmatched", 0),
         )
+        self._raise_if_cancelled()
         self.save(update_fields=["metadata", "message"])
 
     def _match_row(self, row: dict) -> None:
@@ -328,18 +354,22 @@ class RymImporter(Task):
             rows = [{k.strip(): v for k, v in r.items()} for r in reader]
         self.metadata["total"] = len(rows)
         self.metadata["processed"] = 0
+        self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
         visibility = int(self.metadata.get("visibility", 0))
         owner = self.user.identity
         for row in rows:
             try:
                 self._import_row(row, owner, visibility)
+            except RymCancelled:
+                raise
             except Exception as e:
                 logger.exception(f"RYM row import failed: {e}")
                 self.progress(processed=1, failed=1)
                 url = (row.get("link") or "").strip()
                 if url:
                     self.metadata["failed_urls"].append(url)
+                    self._raise_if_cancelled()
                     self.save(update_fields=["metadata"])
 
         self.metadata["phase"] = "done"
@@ -350,6 +380,7 @@ class RymImporter(Task):
             skipped=self.metadata.get("skipped", 0),
             failed=self.metadata.get("failed", 0),
         )
+        self._raise_if_cancelled()
         self.save(update_fields=["metadata", "message"])
 
     def _import_row(self, row: dict, owner, visibility: int) -> None:
@@ -377,6 +408,7 @@ class RymImporter(Task):
         if not item:
             self.progress(processed=1, failed=1)
             self.metadata["failed_urls"].append(link)
+            self._raise_if_cancelled()
             self.save(update_fields=["metadata"])
             return
 

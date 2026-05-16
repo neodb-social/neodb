@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 15:48-0400\n"
+"POT-Creation-Date: 2026-05-16 16:34-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -4365,7 +4365,7 @@ msgid "Rating"
 msgstr "评分"
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:411 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr "关于 {item_title} 的评论"
@@ -4375,26 +4375,26 @@ msgstr "关于 {item_title} 的评论"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
-#: journal/importers/rym.py:146
+#: journal/importers/rym.py:168
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr "匹配中：{done}/{total} — 本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:156
+#: journal/importers/rym.py:178
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入中：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/importers/rym.py:210
+#: journal/importers/rym.py:233
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr "匹配完成：本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:323
+#: journal/importers/rym.py:348
 msgid "Matched file missing; cannot import."
 msgstr "匹配文件丢失，无法导入。"
 
-#: journal/importers/rym.py:347
+#: journal/importers/rym.py:376
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
@@ -6431,44 +6431,44 @@ msgid "(skip)"
 msgstr "(跳过)"
 
 #: users/templates/users/_rym_section.html:5
-#: users/templates/users/_rym_section.html:24
+#: users/templates/users/_rym_section.html:21
 msgid "Import from RateYourMusic"
 msgstr "从RateYourMusic导入"
 
-#: users/templates/users/_rym_section.html:11
+#: users/templates/users/_rym_section.html:9
 msgid "Review pending matches"
 msgstr "审阅待处理的匹配"
 
-#: users/templates/users/_rym_section.html:17
-msgid "Cancel the RateYourMusic import? Matching progress will be discarded."
-msgstr "取消 RateYourMusic 导入？匹配进度将被丢弃。"
+#: users/templates/users/_rym_section.html:15
+msgid "Cancel the RateYourMusic import? Progress will be discarded."
+msgstr "取消 RateYourMusic 导入？进度将被丢弃。"
 
-#: users/templates/users/_rym_section.html:19
+#: users/templates/users/_rym_section.html:16
 msgid "Cancel import"
 msgstr "取消导入"
 
-#: users/templates/users/_rym_section.html:32
+#: users/templates/users/_rym_section.html:29
 msgid "On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file."
 msgstr "在 RateYourMusic 个人资料页面，使用 <b>Export your music catalog</b> 选项将你的收藏导出为 CSV 文件。"
 
-#: users/templates/users/_rym_section.html:34
+#: users/templates/users/_rym_section.html:31
 #: users/templates/users/data.html:141
 msgid "Upload the downloaded CSV file below."
 msgstr "在下方上传下载到的 CSV 文件。"
 
-#: users/templates/users/_rym_section.html:36
+#: users/templates/users/_rym_section.html:33
 msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
 msgstr "专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
 
-#: users/templates/users/_rym_section.html:39
+#: users/templates/users/_rym_section.html:36
 msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
 msgstr "你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配项。"
 
-#: users/templates/users/_rym_section.html:43
+#: users/templates/users/_rym_section.html:40
 msgid "Upload and match"
 msgstr "上传并匹配"
 
-#: users/templates/users/_rym_section.html:49
+#: users/templates/users/_rym_section.html:46
 msgid "Download previous matches"
 msgstr "下载先前的匹配"
 
@@ -7682,124 +7682,124 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:230 users/views/data.py:259
+#: users/views/data.py:221 users/views/data.py:250
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:253
+#: users/views/data.py:244
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:271
+#: users/views/data.py:262
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:286 users/views/data.py:306
+#: users/views/data.py:277 users/views/data.py:297
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:320
+#: users/views/data.py:311
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:334
+#: users/views/data.py:325
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:343 users/views/data.py:376 users/views/data.py:598
-#: users/views/data.py:622 users/views/data.py:647 users/views/data.py:671
-#: users/views/data.py:695
+#: users/views/data.py:334 users/views/data.py:367 users/views/data.py:583
+#: users/views/data.py:607 users/views/data.py:632 users/views/data.py:656
+#: users/views/data.py:680
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:412
+#: users/views/data.py:403
 msgid "Loaded from uploaded matched file."
 msgstr "已从上传的匹配文件中加载。"
 
-#: users/views/data.py:444
+#: users/views/data.py:428
 msgid "Cancelled."
 msgstr "已取消。"
 
-#: users/views/data.py:463
+#: users/views/data.py:448
 msgid "No RateYourMusic import to preview."
 msgstr "暂无可预览的 RateYourMusic 导入任务。"
 
-#: users/views/data.py:471 users/views/data.py:581
+#: users/views/data.py:456 users/views/data.py:566
 msgid "Matched file missing."
 msgstr "匹配文件丢失。"
 
-#: users/views/data.py:567
+#: users/views/data.py:552
 msgid "Starting import..."
 msgstr "开始导入..."
 
-#: users/views/data.py:577
+#: users/views/data.py:562
 msgid "No matched file available."
 msgstr "没有可用的匹配文件。"
 
-#: users/views/data.py:815
+#: users/views/data.py:800
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:837
+#: users/views/data.py:822
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:853
+#: users/views/data.py:838
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:858
+#: users/views/data.py:843
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:868 users/views/data.py:919
+#: users/views/data.py:853 users/views/data.py:904
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:875
+#: users/views/data.py:860
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:880
+#: users/views/data.py:865
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:906
+#: users/views/data.py:891
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:911
+#: users/views/data.py:896
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:924
+#: users/views/data.py:909
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:935
+#: users/views/data.py:920
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:941
+#: users/views/data.py:926
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:999
+#: users/views/data.py:984
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:1015
+#: users/views/data.py:1000
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:1019
+#: users/views/data.py:1004
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:1028
+#: users/views/data.py:1013
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

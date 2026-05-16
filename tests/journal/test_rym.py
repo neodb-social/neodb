@@ -5,6 +5,7 @@ import pytest
 
 from catalog.models import Album
 from journal.importers.rym import (
+    RymCancelled,
     RymImporter,
     _bbcode_to_md,
     _row_artist,
@@ -241,6 +242,27 @@ class TestMatchedFileGeneration:
         assert task.metadata["phase"] == "preview"
         assert task.metadata["total"] == 4
         assert task.metadata["processed"] == 4
+
+    def test_cancellation_aborts_and_preserves_phase(self, monkeypatch):
+        """View flips phase=cancelled in DB mid-loop; worker must bail and not
+        clobber that flag with its in-memory metadata."""
+        task = self._make_task()
+
+        def cancel_then_match(self_, *a, **k):
+            # Simulate the rym_cancel view writing directly to the DB while
+            # the worker holds a stale in-memory copy of metadata.
+            RymImporter.objects.filter(pk=task.pk).update(
+                metadata={**task.metadata, "phase": "cancelled"}
+            )
+            return None  # no local match, proceeds to external lookup
+
+        monkeypatch.setattr(RymImporter, "_local_match", cancel_then_match)
+        monkeypatch.setattr(RymImporter, "_external_match", lambda *a, **k: None)
+        # The worker should see the cancellation on its next save and abort.
+        with pytest.raises(RymCancelled):
+            task._run_matching()
+        task.refresh_from_db()
+        assert task.metadata["phase"] == "cancelled"
 
 
 @pytest.mark.django_db(databases="__all__")
