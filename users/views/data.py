@@ -195,18 +195,24 @@ def user_task_status(request, task_type: str):
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
-    if (
-        task_cls is RymImporter
-        and task
-        and task.state == Task.States.complete
-        and task.metadata.get("phase") == "preview"
-    ):
-        target = reverse("users:rym_preview")
-        if request.headers.get("HX-Request"):
-            resp = HttpResponse(status=204)
-            resp["HX-Redirect"] = target
-            return resp
-        return redirect(target)
+    if task_cls is RymImporter and task and task.state == Task.States.complete:
+        phase = task.metadata.get("phase")
+        if phase == "preview":
+            target = reverse("users:rym_preview")
+            if request.headers.get("HX-Request"):
+                resp = HttpResponse(status=204)
+                resp["HX-Redirect"] = target
+                return resp
+            return redirect(target)
+        if phase == "done":
+            # Importing just finished — swap the whole RYM section so the
+            # cancel button is replaced by the upload form + download link.
+            if request.headers.get("HX-Request"):
+                resp = render(request, "users/_rym_section.html", {"rym_task": task})
+                resp["HX-Retarget"] = "#rym"
+                resp["HX-Reswap"] = "innerHTML"
+                return resp
+            return redirect(reverse("users:data") + "#rym")
     return render(request, "users/user_task_status.html", {"task": task})
 
 
@@ -413,7 +419,10 @@ def import_rym_upload(request):
         filename_hint=uploaded_name,
     )
     task.enqueue()
-    return _hx_or_full_redirect(request, reverse("users:data") + "#rym")
+    if request.headers.get("HX-Request"):
+        # Replace the section in place so the page doesn't reload during upload.
+        return render(request, "users/_rym_section.html", {"rym_task": task})
+    return redirect(reverse("users:data") + "#rym")
 
 
 def _hx_or_full_redirect(request, target: str) -> HttpResponse:
@@ -423,6 +432,27 @@ def _hx_or_full_redirect(request, target: str) -> HttpResponse:
         resp["HX-Redirect"] = target
         return resp
     return redirect(target)
+
+
+@login_required
+@require_http_methods(["POST"])
+def rym_cancel(request):
+    task = RymImporter.latest_task(request.user)
+    if task and task.metadata.get("phase") in ("matching", "preview", "importing"):
+        task.metadata["phase"] = "cancelled"
+        task.state = Task.States.failed
+        task.message = _("Cancelled.")
+        task.save(update_fields=["metadata", "state", "message"])
+        # Best-effort: drop the job if still queued. A job already running
+        # in the worker will finish on its own; the cancelled phase keeps
+        # the UI from surfacing it either way.
+        try:
+            django_rq.get_queue(task.TaskQueue).remove(task.job_id)
+        except Exception as e:
+            logger.warning(f"RYM cancel: failed to remove job: {e}")
+    if request.headers.get("HX-Request"):
+        return render(request, "users/_rym_section.html", {"rym_task": None})
+    return redirect(reverse("users:data") + "#rym")
 
 
 @login_required

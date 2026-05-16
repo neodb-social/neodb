@@ -1,0 +1,57 @@
+{% load i18n %}
+{% with phase=rym_task.metadata.phase %}
+  {% if rym_task and phase and phase != 'done' and phase != 'cancelled' %}
+    <details open>
+      <summary>{% trans 'Import from RateYourMusic' %}</summary>
+      {% include "users/user_task_status.html" with task=rym_task %}
+      {% if phase == 'preview' %}
+        <p>
+          <a href="{% url 'users:rym_preview' %}"
+             role="button"
+             class="secondary outline">{% trans 'Review pending matches' %}</a>
+        </p>
+      {% endif %}
+      <form hx-post="{% url 'users:rym_cancel' %}"
+            hx-target="#rym"
+            hx-swap="innerHTML"
+            hx-confirm="{% trans 'Cancel the RateYourMusic import? Matching progress will be discarded.' %}">
+        {% csrf_token %}
+        <button type="submit" class="secondary outline">{% trans 'Cancel import' %}</button>
+      </form>
+    </details>
+  {% else %}
+    <details {% if rym_task and phase == 'done' %}open{% endif %}>
+      <summary>{% trans 'Import from RateYourMusic' %}</summary>
+      <form hx-post="{% url 'users:import_rym_upload' %}"
+            hx-target="#rym"
+            hx-swap="innerHTML"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        <ul>
+          <li>
+            {% blocktrans %}On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file.{% endblocktrans %}
+          </li>
+          <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+          <li>
+            {% blocktrans %}Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
+          </li>
+          <li>
+            {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
+          </li>
+        </ul>
+        <input type="file" name="file" required accept=".csv">
+        <input type="submit" value="{% trans 'Upload and match' %}" />
+      </form>
+      {% if rym_task and phase == 'done' and rym_task.metadata.matched_file %}
+        <p>
+          <a href="{% url 'users:rym_download' %}"
+             role="button"
+             class="secondary outline">{% trans 'Download previous matches' %}</a>
+        </p>
+      {% endif %}
+      {% if rym_task and phase == 'done' %}
+        {% include "users/user_task_status.html" with task=rym_task %}
+      {% endif %}
+    </details>
+  {% endif %}
+{% endwith %}
