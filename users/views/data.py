@@ -195,24 +195,20 @@ def user_task_status(request, task_type: str):
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
-    if task_cls is RymImporter and task and task.state == Task.States.complete:
-        phase = task.metadata.get("phase")
-        if phase == "preview":
-            target = reverse("users:rym_preview")
-            if request.headers.get("HX-Request"):
-                resp = HttpResponse(status=204)
-                resp["HX-Redirect"] = target
-                return resp
-            return redirect(target)
-        if phase == "done":
-            # Importing just finished — swap the whole RYM section so the
-            # cancel button is replaced by the upload form + download link.
-            if request.headers.get("HX-Request"):
-                resp = render(request, "users/_rym_section.html", {"rym_task": task})
-                resp["HX-Retarget"] = "#rym"
-                resp["HX-Reswap"] = "innerHTML"
-                return resp
-            return redirect(reverse("users:data") + "#rym")
+    if (
+        task_cls is RymImporter
+        and task
+        and task.state == Task.States.complete
+        and task.metadata.get("phase") in ("preview", "done")
+    ):
+        # Matching or importing just finished — swap the whole RYM section
+        # so the cancel button is replaced by the Review/Download/upload UI.
+        if request.headers.get("HX-Request"):
+            resp = render(request, "users/_rym_section.html", {"rym_task": task})
+            resp["HX-Retarget"] = "#rym"
+            resp["HX-Reswap"] = "innerHTML"
+            return resp
+        return redirect(reverse("users:data") + "#rym")
     return render(request, "users/user_task_status.html", {"task": task})
 
 
@@ -411,7 +407,9 @@ def import_rym_upload(request):
         task.state = Task.States.complete
         task.message = _("Loaded from uploaded matched file.")
         task.save(update_fields=["state", "message"])
-        return _hx_or_full_redirect(request, reverse("users:rym_preview"))
+        if request.headers.get("HX-Request"):
+            return render(request, "users/_rym_section.html", {"rym_task": task})
+        return redirect(reverse("users:data") + "#rym")
     task = RymImporter.create(
         request.user,
         phase="matching",
@@ -423,15 +421,6 @@ def import_rym_upload(request):
         # Replace the section in place so the page doesn't reload during upload.
         return render(request, "users/_rym_section.html", {"rym_task": task})
     return redirect(reverse("users:data") + "#rym")
-
-
-def _hx_or_full_redirect(request, target: str) -> HttpResponse:
-    """Redirect properly whether the request was sent by HTMX or normal browser."""
-    if request.headers.get("HX-Request"):
-        resp = HttpResponse(status=204)
-        resp["HX-Redirect"] = target
-        return resp
-    return redirect(target)
 
 
 @login_required
