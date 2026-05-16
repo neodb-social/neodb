@@ -294,7 +294,7 @@
               {% csrf_token %}
               <ul>
                 <li>
-                  {% blocktrans %}On RateYourMusic, go to your profile and use the <b>Export your data</b> option to download your library as a CSV file.{% endblocktrans %}
+                  {% blocktrans %}On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file.{% endblocktrans %}
                 </li>
                 <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
                 <li>
@@ -308,7 +308,16 @@
               <input type="submit" value="{% trans 'Upload and match' %}" />
               {% if rym_task and rym_task.metadata.phase == 'preview' %}
                 <p>
-                  <a href="{% url 'users:rym_preview' %}">{% trans 'Review pending RateYourMusic matches' %}</a>
+                  <a href="{% url 'users:rym_preview' %}"
+                     role="button"
+                     class="secondary outline">{% trans 'Review pending matches' %}</a>
+                </p>
+              {% endif %}
+              {% if rym_task and rym_task.metadata.phase == 'done' and rym_task.metadata.matched_file %}
+                <p>
+                  <a href="{% url 'users:rym_download' %}"
+                     role="button"
+                     class="secondary outline">{% trans 'Download previous matches' %}</a>
                 </p>
               {% endif %}
               {% include "users/user_task_status.html" with task=rym_task %}

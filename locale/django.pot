@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-15 21:53-0400\n"
+"POT-Creation-Date: 2026-05-16 08:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3395,7 +3395,7 @@ msgstr ""
 msgid "name of a person or company"
 msgstr ""
 
-#: common/templates/_header.html:173 users/templates/users/_rym_row.html:23
+#: common/templates/_header.html:173
 msgid "Open"
 msgstr ""
 
@@ -4296,10 +4296,10 @@ msgstr ""
 #: journal/forms.py:51 journal/forms.py:124 journal/forms.py:149
 #: journal/forms.py:188 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
-#: users/templates/users/data.html:98 users/templates/users/data.html:180
-#: users/templates/users/data.html:233 users/templates/users/data.html:284
-#: users/templates/users/data.html:346 users/templates/users/data.html:405
-#: users/templates/users/rym_import.html:79
+#: users/templates/users/data.html:98 users/templates/users/data.html:151
+#: users/templates/users/data.html:204 users/templates/users/data.html:255
+#: users/templates/users/data.html:355 users/templates/users/data.html:414
+#: users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:125
 msgid "Visibility"
 msgstr ""
@@ -4332,7 +4332,7 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:180 users/templates/users/data.html:560
+#: journal/forms.py:180 users/templates/users/data.html:569
 msgid "Status"
 msgstr ""
 
@@ -4345,7 +4345,7 @@ msgid "Rating"
 msgstr ""
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:390 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:411 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr ""
@@ -4355,26 +4355,26 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/importers/rym.py:138
+#: journal/importers/rym.py:146
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:148
+#: journal/importers/rym.py:156
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/importers/rym.py:193
+#: journal/importers/rym.py:210
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:302
+#: journal/importers/rym.py:323
 msgid "Matched file missing; cannot import."
 msgstr ""
 
-#: journal/importers/rym.py:326
+#: journal/importers/rym.py:347
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
@@ -4404,11 +4404,11 @@ msgstr ""
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:55
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:189 users/templates/users/data.html:242
-#: users/templates/users/data.html:293 users/templates/users/data.html:354
-#: users/templates/users/data.html:414
+#: users/templates/users/data.html:160 users/templates/users/data.html:213
+#: users/templates/users/data.html:264 users/templates/users/data.html:363
+#: users/templates/users/data.html:423
 #: users/templates/users/preferences.html:56
-#: users/templates/users/rym_import.html:82
+#: users/templates/users/rym_import.html:84
 #: users/templates/users/steam_import.html:128
 msgid "Public"
 msgstr ""
@@ -4417,11 +4417,11 @@ msgstr ""
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:62
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
-#: users/templates/users/data.html:115 users/templates/users/data.html:197
-#: users/templates/users/data.html:250 users/templates/users/data.html:301
-#: users/templates/users/data.html:362 users/templates/users/data.html:422
+#: users/templates/users/data.html:115 users/templates/users/data.html:168
+#: users/templates/users/data.html:221 users/templates/users/data.html:272
+#: users/templates/users/data.html:371 users/templates/users/data.html:431
 #: users/templates/users/preferences.html:63
-#: users/templates/users/rym_import.html:86
+#: users/templates/users/rym_import.html:88
 #: users/templates/users/steam_import.html:132
 msgid "Followers Only"
 msgstr ""
@@ -4430,11 +4430,11 @@ msgstr ""
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:69
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
-#: users/templates/users/data.html:123 users/templates/users/data.html:205
-#: users/templates/users/data.html:258 users/templates/users/data.html:309
-#: users/templates/users/data.html:370 users/templates/users/data.html:430
+#: users/templates/users/data.html:123 users/templates/users/data.html:176
+#: users/templates/users/data.html:229 users/templates/users/data.html:280
+#: users/templates/users/data.html:379 users/templates/users/data.html:439
 #: users/templates/users/preferences.html:70
-#: users/templates/users/rym_import.html:90
+#: users/templates/users/rym_import.html:92
 #: users/templates/users/steam_import.html:136
 msgid "Mentioned Only"
 msgstr ""
@@ -4455,7 +4455,7 @@ msgstr ""
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
-#: journal/models/note.py:34 users/templates/users/rym_import.html:71
+#: journal/models/note.py:34 users/templates/users/rym_import.html:73
 msgid "Page"
 msgstr ""
 
@@ -6600,9 +6600,9 @@ msgid "CSV file"
 msgstr ""
 
 #: users/templates/users/account.html:440 users/templates/users/data.html:74
-#: users/templates/users/data.html:126 users/templates/users/data.html:208
-#: users/templates/users/data.html:261 users/templates/users/data.html:312
-#: users/templates/users/data.html:375 users/templates/users/data.html:435
+#: users/templates/users/data.html:126 users/templates/users/data.html:179
+#: users/templates/users/data.html:232 users/templates/users/data.html:283
+#: users/templates/users/data.html:384 users/templates/users/data.html:444
 #: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr ""
@@ -6718,7 +6718,7 @@ msgstr ""
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:333
+#: users/templates/users/data.html:34 users/templates/users/data.html:342
 msgid "Import Method"
 msgstr ""
 
@@ -6750,164 +6750,168 @@ msgstr ""
 msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
 msgstr ""
 
-#: users/templates/users/data.html:93 users/templates/users/data.html:172
+#: users/templates/users/data.html:93 users/templates/users/data.html:143
 msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr ""
 
 #: users/templates/users/data.html:133
-msgid "Import from RateYourMusic"
-msgstr ""
-
-#: users/templates/users/data.html:139
-msgid "On RateYourMusic, go to your profile and use the <b>Export your data</b> option to download your library as a CSV file."
-msgstr ""
-
-#: users/templates/users/data.html:141 users/templates/users/data.html:170
-msgid "Upload the downloaded CSV file below."
-msgstr ""
-
-#: users/templates/users/data.html:143
-msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
-msgstr ""
-
-#: users/templates/users/data.html:146
-msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
-msgstr ""
-
-#: users/templates/users/data.html:150
-msgid "Upload and match"
-msgstr ""
-
-#: users/templates/users/data.html:153
-msgid "Review pending RateYourMusic matches"
-msgstr ""
-
-#: users/templates/users/data.html:162
 msgid "Import from StoryGraph"
 msgstr ""
 
-#: users/templates/users/data.html:168
+#: users/templates/users/data.html:139
 msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
 msgstr ""
 
-#: users/templates/users/data.html:175
+#: users/templates/users/data.html:141 users/templates/users/data.html:299
+msgid "Upload the downloaded CSV file below."
+msgstr ""
+
+#: users/templates/users/data.html:146
 msgid "Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import."
 msgstr ""
 
-#: users/templates/users/data.html:215
+#: users/templates/users/data.html:186
 msgid "Import from Letterboxd"
 msgstr ""
 
-#: users/templates/users/data.html:221
+#: users/templates/users/data.html:192
 msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
 msgstr ""
 
-#: users/templates/users/data.html:224
+#: users/templates/users/data.html:195
 msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
 msgstr ""
 
-#: users/templates/users/data.html:227
+#: users/templates/users/data.html:198
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:262 users/templates/users/data.html:313
+#: users/templates/users/data.html:233 users/templates/users/data.html:284
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
 
-#: users/templates/users/data.html:269
+#: users/templates/users/data.html:240
 msgid "Import from Trakt"
 msgstr ""
 
-#: users/templates/users/data.html:275
+#: users/templates/users/data.html:246
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
 msgstr ""
 
-#: users/templates/users/data.html:278
+#: users/templates/users/data.html:249
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr ""
 
-#: users/templates/users/data.html:280
+#: users/templates/users/data.html:251
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr ""
 
+#: users/templates/users/data.html:291
+msgid "Import from RateYourMusic"
+msgstr ""
+
+#: users/templates/users/data.html:297
+msgid "On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file."
+msgstr ""
+
+#: users/templates/users/data.html:301
+msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
+msgstr ""
+
+#: users/templates/users/data.html:304
+msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
+msgstr ""
+
+#: users/templates/users/data.html:308
+msgid "Upload and match"
+msgstr ""
+
+#: users/templates/users/data.html:313
+msgid "Review pending matches"
+msgstr ""
+
 #: users/templates/users/data.html:320
+msgid "Download previous matches"
+msgstr ""
+
+#: users/templates/users/data.html:329
 #: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr ""
 
-#: users/templates/users/data.html:323
+#: users/templates/users/data.html:332
 msgid "Login with Steam"
 msgstr ""
 
-#: users/templates/users/data.html:329
+#: users/templates/users/data.html:338
 msgid "Import Podcast Subscriptions"
 msgstr ""
 
-#: users/templates/users/data.html:340
+#: users/templates/users/data.html:349
 msgid "Mark as listening"
 msgstr ""
 
-#: users/templates/users/data.html:344
+#: users/templates/users/data.html:353
 msgid "Import as a new collection"
 msgstr ""
 
-#: users/templates/users/data.html:373
+#: users/templates/users/data.html:382
 msgid "Select OPML file"
 msgstr ""
 
-#: users/templates/users/data.html:383
+#: users/templates/users/data.html:392
 msgid "Import NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:389
+#: users/templates/users/data.html:398
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr ""
 
-#: users/templates/users/data.html:391
+#: users/templates/users/data.html:400
 msgid "Existing data may be overwritten."
 msgstr ""
 
-#: users/templates/users/data.html:401
+#: users/templates/users/data.html:410
 msgid "Detected format"
 msgstr ""
 
-#: users/templates/users/data.html:462
+#: users/templates/users/data.html:471
 msgid "Detecting format..."
 msgstr ""
 
-#: users/templates/users/data.html:488
+#: users/templates/users/data.html:497
 msgid "Unknown format"
 msgstr ""
 
-#: users/templates/users/data.html:513
+#: users/templates/users/data.html:522
 msgid "Error detecting format"
 msgstr ""
 
-#: users/templates/users/data.html:537
+#: users/templates/users/data.html:546
 msgid "Export NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:541
+#: users/templates/users/data.html:550
 msgid "Export marks, reviews and notes in CSV"
 msgstr ""
 
-#: users/templates/users/data.html:548
+#: users/templates/users/data.html:557
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:556
+#: users/templates/users/data.html:565
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr ""
 
-#: users/templates/users/data.html:559
+#: users/templates/users/data.html:568
 msgid "Last export"
 msgstr ""
 
-#: users/templates/users/data.html:564
+#: users/templates/users/data.html:573
 msgid "Download"
 msgstr ""
 
-#: users/templates/users/data.html:573
+#: users/templates/users/data.html:582
 msgid "View Annual Summary"
 msgstr ""
 
@@ -7330,19 +7334,19 @@ msgstr ""
 msgid "Shelf"
 msgstr ""
 
-#: users/templates/users/rym_import.html:69
+#: users/templates/users/rym_import.html:71
 msgid "Prev"
 msgstr ""
 
-#: users/templates/users/rym_import.html:73
+#: users/templates/users/rym_import.html:75
 msgid "Next"
 msgstr ""
 
-#: users/templates/users/rym_import.html:93
+#: users/templates/users/rym_import.html:95
 msgid "Confirm Import"
 msgstr ""
 
-#: users/templates/users/rym_import.html:94
+#: users/templates/users/rym_import.html:96
 msgid "Back"
 msgstr ""
 
@@ -7571,9 +7575,9 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:337 users/views/data.py:370 users/views/data.py:553
-#: users/views/data.py:577 users/views/data.py:602 users/views/data.py:626
-#: users/views/data.py:650
+#: users/views/data.py:337 users/views/data.py:370 users/views/data.py:568
+#: users/views/data.py:592 users/views/data.py:617 users/views/data.py:641
+#: users/views/data.py:665
 msgid "Invalid file."
 msgstr ""
 
@@ -7581,86 +7585,86 @@ msgstr ""
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:424
+#: users/views/data.py:433
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:429 users/views/data.py:536
+#: users/views/data.py:441 users/views/data.py:551
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:522
+#: users/views/data.py:537
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:532
+#: users/views/data.py:547
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:770
+#: users/views/data.py:785
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:792
+#: users/views/data.py:807
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:808
+#: users/views/data.py:823
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:813
+#: users/views/data.py:828
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:823 users/views/data.py:874
+#: users/views/data.py:838 users/views/data.py:889
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:830
+#: users/views/data.py:845
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:835
+#: users/views/data.py:850
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:861
+#: users/views/data.py:876
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:866
+#: users/views/data.py:881
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:879
+#: users/views/data.py:894
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:890
+#: users/views/data.py:905
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:896
+#: users/views/data.py:911
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:954
+#: users/views/data.py:969
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:970
+#: users/views/data.py:985
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:974
+#: users/views/data.py:989
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:983
+#: users/views/data.py:998
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""
