@@ -14,7 +14,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
-from catalog.search import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
@@ -490,11 +490,13 @@ class MusicBrainzRelease(AbstractSite):
 
             except httpx.TimeoutException:
                 logger.warning("MusicBrainz release search timeout", extra={"query": q})
+                record_search_failure(SiteName.MusicBrainz.value, "timeout")
             except Exception as e:
                 logger.error(
                     "MusicBrainz release search error",
                     extra={"query": q, "exception": e},
                 )
+                record_search_failure(SiteName.MusicBrainz.value, "error")
 
         return results
 
@@ -547,12 +549,14 @@ class MusicBrainzRelease(AbstractSite):
                 data = response.json()
             except httpx.TimeoutException:
                 logger.warning("MusicBrainz field search timeout", extra={"query": q})
+                record_search_failure(SiteName.MusicBrainz.value, "timeout")
                 return results
             except Exception as e:
                 logger.error(
                     "MusicBrainz field search error",
                     extra={"query": q, "exception": e},
                 )
+                record_search_failure(SiteName.MusicBrainz.value, "error")
                 return results
             for release in data.get("releases", []) or []:
                 title = release.get("title", "")

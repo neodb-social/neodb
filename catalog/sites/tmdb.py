@@ -20,6 +20,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
+from catalog.search import record_search_failure
 from common.models import SiteConfig
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
@@ -290,8 +291,10 @@ class TMDB_Movie(AbstractSite):
                     logger.warning(f"TMDB search '{q}' no results found.")
             except httpx.ReadTimeout:
                 logger.warning("TMDb search timeout", extra={"query": q})
+                record_search_failure(SiteName.TMDB.value, "timeout")
             except Exception as e:
                 logger.error("TMDb search error", extra={"query": q, "exception": e})
+                record_search_failure(SiteName.TMDB.value, "error")
         return results[offset : offset + page_size]
 
 

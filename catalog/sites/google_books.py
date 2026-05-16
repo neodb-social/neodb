@@ -171,8 +171,10 @@ class GoogleBooks(AbstractSite):
                         )
             except httpx.ReadTimeout:
                 logger.warning("GoogleBooks search timeout", extra={"query": q})
+                record_search_failure(SiteName.GoogleBooks.value, "timeout")
             except Exception as e:
                 logger.error(
                     "GoogleBooks search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(SiteName.GoogleBooks.value, "error")
         return results

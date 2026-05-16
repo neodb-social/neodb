@@ -14,6 +14,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
+from catalog.search import record_search_failure
 from common.models import SiteConfig
 from common.models.lang import detect_language
 
@@ -176,8 +177,10 @@ class Spotify(AbstractSite):
                     logger.warning(f"Spotify search '{q}' no results found.")
             except httpx.ReadTimeout:
                 logger.warning("Spotify search timeout", extra={"query": q})
+                record_search_failure(SiteName.Spotify.value, "timeout")
             except Exception as e:
                 logger.error("Spotify search error", extra={"query": q, "exception": e})
+                record_search_failure(SiteName.Spotify.value, "error")
         return results
 
     @classmethod
@@ -246,10 +249,12 @@ class Spotify(AbstractSite):
                     )
             except httpx.ReadTimeout:
                 logger.warning("Spotify field search timeout", extra={"query": q})
+                record_search_failure(SiteName.Spotify.value, "timeout")
             except Exception as e:
                 logger.error(
                     "Spotify field search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(SiteName.Spotify.value, "error")
         return results
 
 

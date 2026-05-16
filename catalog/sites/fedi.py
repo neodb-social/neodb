@@ -31,7 +31,7 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
-from catalog.search import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
 
 
@@ -205,6 +205,8 @@ class FediverseInstance(AbstractSite):
                     f"Fediverse search {host} error",
                     extra={"url": api_url, "query": q, "exception": e},
                 )
+                reason = "timeout" if isinstance(e, httpx.TimeoutException) else "error"
+                record_search_failure(f"fediverse:{host}", reason)
                 return []
             if "data" in r:
                 for item in r["data"]:

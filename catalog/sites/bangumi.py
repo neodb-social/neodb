@@ -20,7 +20,7 @@ from catalog.models import (
 )
 from catalog.models.game import GameReleaseType
 from catalog.models.utils import detect_isbn_asin
-from catalog.search import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
@@ -177,8 +177,10 @@ class Bangumi(AbstractSite):
                         )
             except httpx.ReadTimeout:
                 logger.warning("Bangumi search timeout", extra={"query": q})
+                record_search_failure(cls.SITE_NAME.value, "timeout")
             except Exception as e:
                 logger.error("Bangumi search error", extra={"query": q, "exception": e})
+                record_search_failure(cls.SITE_NAME.value, "error")
         return results
 
     def scrape(self):

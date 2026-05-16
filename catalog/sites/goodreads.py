@@ -20,7 +20,7 @@ from catalog.models import (
     Work,
 )
 from catalog.models.utils import binding_to_format, detect_isbn_asin
-from catalog.search import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import detect_language
 from journal.models.renderers import html_to_text
 
@@ -227,10 +227,12 @@ class Goodreads(AbstractSite):
                         )
             except httpx.ReadTimeout:
                 logger.warning("Goodreads search timeout", extra={"query": q})
+                record_search_failure(SiteName.Goodreads.value, "timeout")
             except Exception as e:
                 logger.error(
                     "Goodreads search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(SiteName.Goodreads.value, "error")
         return results[offset : offset + page_size]
 
 

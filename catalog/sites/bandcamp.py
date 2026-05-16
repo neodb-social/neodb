@@ -160,8 +160,10 @@ class Bandcamp(AbstractSite):
                     )
             except httpx.ReadTimeout:
                 logger.warning("Bandcamp search timeout", extra={"query": q})
+                record_search_failure(SiteName.Bandcamp.value, "timeout")
             except Exception as e:
                 logger.error(
                     "Bandcamp search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(SiteName.Bandcamp.value, "error")
         return results[offset : offset + page_size]

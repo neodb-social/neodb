@@ -17,7 +17,7 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
-from catalog.search import ExternalSearchResultItem
+from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
 
 _cache_key = "igdb_access_token"
@@ -209,6 +209,8 @@ class IGDB(AbstractSite):
                     rs = json.loads(response.content)
             except httpx.HTTPError as e:
                 logger.error(f"IGDB API: {e}", extra={"exception": e})
+                reason = "timeout" if isinstance(e, httpx.TimeoutException) else "error"
+                record_search_failure(SiteName.IGDB.value, reason)
         result = []
         for r in rs:
             subtitle = ""

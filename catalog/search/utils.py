@@ -161,6 +161,13 @@ def _record_fetch_failure(url: str) -> None:
     )
 
 
+def record_search_failure(site: str, reason: str) -> None:
+    sentry_count(
+        "catalog.search.failure",
+        attributes={"site": site, "reason": reason},
+    )
+
+
 def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
     user = User.objects.get(pk=user_pk) if user_pk else None
     with set_actor(user):

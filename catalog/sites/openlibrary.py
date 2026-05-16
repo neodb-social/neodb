@@ -230,10 +230,12 @@ class OpenLibrary(AbstractSite):
 
             except httpx.ReadTimeout:
                 logger.warning("OpenLibrary search timeout", extra={"query": q})
+                record_search_failure(cls.SITE_NAME.value, "timeout")
             except Exception as e:
                 logger.error(
                     "OpenLibrary search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(cls.SITE_NAME.value, "error")
 
         return results
 

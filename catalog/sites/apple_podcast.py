@@ -68,8 +68,10 @@ class ApplePodcast(AbstractSite):
                         )
             except httpx.ReadTimeout:
                 logger.warning("ApplePodcast search timeout", extra={"query": q})
+                record_search_failure(cls.SITE_NAME.value, "timeout")
             except Exception as e:
                 logger.error(
                     "ApplePodcast search error", extra={"query": q, "exception": e}
                 )
+                record_search_failure(cls.SITE_NAME.value, "error")
         return results
