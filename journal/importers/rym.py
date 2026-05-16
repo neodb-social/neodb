@@ -1,6 +1,7 @@
 import asyncio
 import csv
 import datetime
+import fcntl
 import os
 import re
 import tempfile
@@ -62,8 +63,14 @@ def _row_artist(row: dict) -> str:
     return f"{(row.get('First Name') or '').strip()} {(row.get('Last Name') or '').strip()}".strip()
 
 
-def _run_async(coro):
-    """Run an async coroutine from sync code, isolated from any running loop."""
+def _run_async(coro, loop: asyncio.AbstractEventLoop | None = None):
+    """Run an async coroutine synchronously.
+
+    When *loop* is provided it's reused (cheaper for tight match loops);
+    otherwise a one-shot loop is created and closed for the call.
+    """
+    if loop is not None:
+        return loop.run_until_complete(coro)
     loop = asyncio.new_event_loop()
     try:
         return loop.run_until_complete(coro)
@@ -126,7 +133,9 @@ class RymImporter(Task):
         except Exception:
             return False
 
-    def progress(self, **delta) -> None:
+    PROGRESS_SAVE_EVERY = 25  # flush task row at most every N processed rows
+
+    def progress(self, *, force: bool = False, **delta) -> None:
         for k, v in delta.items():
             self.metadata[k] = self.metadata.get(k, 0) + v
         phase = self.metadata.get("phase", "")
@@ -150,7 +159,9 @@ class RymImporter(Task):
                 skipped=self.metadata.get("skipped", 0),
                 failed=self.metadata.get("failed", 0),
             )
-        self.save(update_fields=["metadata", "message"])
+        # Avoid hammering the DB with one save per CSV row.
+        if force or done % self.PROGRESS_SAVE_EVERY == 0 or done == total:
+            self.save(update_fields=["metadata", "message"])
 
     def run(self) -> None:
         phase = self.metadata.get("phase", "matching")
@@ -179,13 +190,20 @@ class RymImporter(Task):
         self.metadata["matched_file"] = out_path
         self.save(update_fields=["metadata"])
 
-        with open(out_path, "w", encoding="utf-8", newline="") as fout:
-            writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
-            writer.writeheader()
-            for row in rows:
-                self._match_row(row)
-                writer.writerow(row)
-                self.progress(processed=1)
+        # One asyncio loop reused for all external lookups in this phase —
+        # avoids the cost of creating/closing a loop per row.
+        self._match_loop = asyncio.new_event_loop()
+        try:
+            with open(out_path, "w", encoding="utf-8", newline="") as fout:
+                writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
+                writer.writeheader()
+                for row in rows:
+                    self._match_row(row)
+                    writer.writerow(row)
+                    self.progress(processed=1)
+        finally:
+            self._match_loop.close()
+            self._match_loop = None
 
         self.metadata["phase"] = "preview"
         self.message = _(
@@ -275,10 +293,13 @@ class RymImporter(Task):
     ) -> tuple[str, str] | None:
         if not title:
             return None
+        loop = getattr(self, "_match_loop", None)
         # MusicBrainz guideline: max 1 request/sec per IP
         time.sleep(1.05)
         try:
-            mb = _run_async(MusicBrainzRelease.search_by_fields(title, artist, year))
+            mb = _run_async(
+                MusicBrainzRelease.search_by_fields(title, artist, year), loop
+            )
         except Exception as e:
             logger.warning(f"RYM MusicBrainz search failed: {e}")
             mb = []
@@ -286,7 +307,7 @@ class RymImporter(Task):
             return mb[0].source_url, "musicbrainz"
         if SiteConfig.system.spotify_api_key:
             try:
-                sp = _run_async(Spotify.search_by_fields(title, artist, year))
+                sp = _run_async(Spotify.search_by_fields(title, artist, year), loop)
             except Exception as e:
                 logger.warning(f"RYM Spotify search failed: {e}")
                 sp = []
@@ -438,8 +459,19 @@ def int_or_zero(v) -> int:
 def update_row_in_matched_file(path: str, index: int, updates: dict) -> dict | None:
     """Apply ``updates`` to the ``index``-th data row of ``path`` (atomic rewrite).
 
+    Wraps the read-modify-write in an exclusive ``fcntl.flock`` on a sibling
+    ``<path>.lock`` so concurrent HTMX saves from the same user can't clobber
+    each other.
+
     Returns the updated row, or None if the index is out of range.
     """
+    lock_path = path + ".lock"
+    with open(lock_path, "a+") as lock_fp:
+        fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
+        return _update_row_locked(path, index, updates)
+
+
+def _update_row_locked(path: str, index: int, updates: dict) -> dict | None:
     with open(path, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         fieldnames = list(reader.fieldnames or [])

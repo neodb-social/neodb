@@ -437,7 +437,10 @@ def rym_preview(request):
     if not os.path.exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
-    page = max(1, int(request.GET.get("page", 1)))
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except (TypeError, ValueError):
+        page = 1
     page_size = 100
     with open(path, encoding="utf-8-sig", newline="") as fp:
         reader = csv.DictReader(fp)
