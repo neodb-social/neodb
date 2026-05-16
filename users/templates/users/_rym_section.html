@@ -4,21 +4,16 @@
     <details open>
       <summary>{% trans 'Import from RateYourMusic' %}</summary>
       {% include "users/user_task_status.html" with task=rym_task %}
-      <div class="grid">
+      <div role="group">
         {% if phase == 'preview' %}
-          <a href="{% url 'users:rym_preview' %}"
-             role="button"
-             class="secondary"
-             style="text-align:center">{% trans 'Review pending matches' %}</a>
+          <a href="{% url 'users:rym_preview' %}" role="button" class="secondary">{% trans 'Review pending matches' %}</a>
         {% endif %}
-        <form hx-post="{% url 'users:rym_cancel' %}"
-              hx-target="#rym"
-              hx-swap="innerHTML"
-              hx-confirm="{% trans 'Cancel the RateYourMusic import? Matching progress will be discarded.' %}"
-              style="margin:0">
-          {% csrf_token %}
-          <button type="submit" class="secondary outline" style="width:100%">{% trans 'Cancel import' %}</button>
-        </form>
+        <button type="button"
+                hx-post="{% url 'users:rym_cancel' %}"
+                hx-target="#rym"
+                hx-swap="innerHTML"
+                hx-confirm="{% trans 'Cancel the RateYourMusic import? Matching progress will be discarded.' %}"
+                class="secondary outline">{% trans 'Cancel import' %}</button>
       </div>
     </details>
   {% else %}
