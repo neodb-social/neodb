@@ -25,6 +25,7 @@ RYM_HEADER_PREFIX = "RYM Album,"
 OWNERSHIP_TO_SHELF = {
     "o": ShelfType.COMPLETE,
     "w": ShelfType.WISHLIST,
+    "u": ShelfType.DROPPED,  # RYM "used to own"
 }
 MATCHED_EXTRA_COLUMNS = ["link", "match_source", "shelf", "collect_date", "notes"]
 
@@ -201,15 +202,12 @@ class RymImporter(Task):
         artist = _row_artist(row)
         year = (row.get("Release_Date") or "").strip() or None
 
-        # default shelf from RYM Ownership
+        # default shelf from RYM Ownership; anything not in OWNERSHIP_TO_SHELF
+        # (e.g. RYM 'n' = never owned) falls back to COMPLETE so no row defaults
+        # to skip — the user can still flip individual rows in the preview UI.
         ownership = (row.get("Ownership") or "").strip().lower()
-        shelf = OWNERSHIP_TO_SHELF.get(ownership)
-        if shelf is None:
-            if (int_or_zero(row.get("Rating")) > 0) or (
-                row.get("Review") or ""
-            ).strip():
-                shelf = ShelfType.COMPLETE
-        row.setdefault("shelf", shelf.value if shelf else "")
+        shelf = OWNERSHIP_TO_SHELF.get(ownership, ShelfType.COMPLETE)
+        row.setdefault("shelf", shelf.value)
 
         # default collect date
         if not row.get("collect_date"):

@@ -207,9 +207,8 @@ class TestMatchedFileGeneration:
         assert rows[1]["shelf"] == ShelfType.COMPLETE.value
         # Ownership=w -> WISHLIST
         assert rows[2]["shelf"] == ShelfType.WISHLIST.value
-        # Ownership=u with rating 0 and no review -> shelf left empty (skip);
-        # user can override per-row in the preview UI.
-        assert rows[3]["shelf"] == ""
+        # Ownership=u -> DROPPED (RYM "used to own")
+        assert rows[3]["shelf"] == ShelfType.DROPPED.value
 
     def test_collect_date_default_one_week_ago(self, monkeypatch):
         self._stub_matchers(monkeypatch)
