@@ -5,11 +5,11 @@
       <summary>{% trans 'Import from RateYourMusic' %}</summary>
       {% include "users/user_task_status.html" with task=rym_task %}
       {% if phase == 'preview' %}
-        <p>
-          <a href="{% url 'users:rym_preview' %}"
-             role="button"
-             class="secondary outline">{% trans 'Review pending matches' %}</a>
-        </p>
+        <a href="{% url 'users:rym_preview' %}"
+           role="button"
+           class="secondary"
+           style="display:block;
+                  width:100%">{% trans 'Review pending matches' %}</a>
       {% endif %}
       <form hx-post="{% url 'users:rym_cancel' %}"
             hx-target="#rym"
