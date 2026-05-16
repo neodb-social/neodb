@@ -36,6 +36,7 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
   - import list or archives from some 3rd party sites:
     - Goodreads reading list
     - Letterboxd watch list
+    - RateYourMusic album collection (CSV export)
     - Douban archive (via [Doufen](https://doufen.org/))
 
 
