@@ -33,10 +33,12 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
   - create and share list of items
   - tracking progress of a list (e.g. personal reading challenges)
   - Import and export full user data archive
-  - import list or archives from some 3rd party sites:
-    - Goodreads reading list
-    - Letterboxd watch list
+  - import list or archives from some 3rd party sites (see [supported sites](sites.md) for details):
+    - Goodreads reading list (CSV export)
+    - StoryGraph reading list (CSV export)
+    - Letterboxd watch list (ZIP export)
     - RateYourMusic album collection (CSV export)
+    - Podcast subscriptions (OPML)
     - Douban archive (via [Doufen](https://doufen.org/))
 
 
