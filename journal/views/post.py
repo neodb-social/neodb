@@ -382,7 +382,7 @@ def post_edit(request: AuthedHttpRequest, post_id: int):
         raise Http404(_("Post not found"))
     if post.author_id != request.user.identity.pk:
         raise PermissionDenied(_("Insufficient permission"))
-    if post.piece is not None or post.item is not None:
+    if post.piece is not None:
         raise PermissionDenied(_("This post cannot be edited here"))
 
     if request.method == "GET":

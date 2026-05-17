@@ -8,7 +8,7 @@
       <ul role="menu">
         {% if post.author_id == request.user.identity.pk %}
           <li>{% include "action_pin_post.html" with menu_label=1 %}</li>
-          {% if not piece and not item %}
+          {% if not piece %}
             <li>{% include "action_edit_post.html" with menu_label=1 %}</li>
           {% endif %}
           {% if not post.piece %}
