@@ -122,16 +122,25 @@ def _maybe_remote_piece(url: str, user):
                 # inline-only refactor, so the job can't re-dereference
                 # ``remote_id`` for these fields.
                 items_url, inline_items = _list_sync_args_from_post(piece)
-                try:
-                    django_rq.get_queue("fetch").enqueue(
-                        "journal.jobs.list_sync.fetch_remote_list_members",
-                        f"{type(piece).__module__}.{type(piece).__name__}",
-                        piece.pk,
-                        items_url,
-                        inline_items,
-                    )
-                except Exception:
-                    pass
+                # When the cache yields nothing (announcement Post
+                # deleted, or malformed ``type_data``), skip the
+                # enqueue rather than scheduling a no-op job: the job
+                # has no path to recover the items URL without
+                # re-dereferencing ``remote_id``, which is HTML for
+                # peers on the new code. The user still receives the
+                # existing mirror; a refresh will arrive with the next
+                # pushed Update activity from the origin.
+                if items_url or inline_items is not None:
+                    try:
+                        django_rq.get_queue("fetch").enqueue(
+                            "journal.jobs.list_sync.fetch_remote_list_members",
+                            f"{type(piece).__module__}.{type(piece).__name__}",
+                            piece.pk,
+                            items_url,
+                            inline_items,
+                        )
+                    except Exception:
+                        pass
             return piece
     return None
 
