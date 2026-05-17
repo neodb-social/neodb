@@ -128,6 +128,8 @@ env = environ.FileAwareEnv(
     # IGDB - https://api-docs.igdb.com/
     IGDB_API_CLIENT_ID=(str, "TESTONLY"),
     IGDB_API_CLIENT_SECRET=(str, ""),
+    # BoardGameGeek - bearer token from https://boardgamegeek.com/using_the_xml_api#toc9
+    BGG_API_TOKEN=(str, ""),
     # DeepL
     DEEPL_API_KEY=(str, ""),
     # LibreTranslate
@@ -308,6 +310,7 @@ STEAM_API_KEY = env("STEAM_API_KEY")
 DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
+BGG_API_TOKEN = env("BGG_API_TOKEN")
 DEEPL_API_KEY = env("DEEPL_API_KEY")
 LT_API_URL = env("LT_API_URL").rstrip("/")
 LT_API_KEY = env("LT_API_KEY")

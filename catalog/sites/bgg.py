@@ -9,6 +9,7 @@ import html
 from catalog.common import *
 from catalog.models import *
 from catalog.models.game import GameReleaseType
+from common.models import SiteConfig
 from common.models.lang import detect_language
 
 
@@ -29,7 +30,13 @@ class BoardGameGeek(AbstractSite):
 
     def scrape(self):
         api_url = f"https://boardgamegeek.com/xmlapi2/thing?stats=1&type=boardgame,boardgameexpansion&id={self.id_value}"
-        content = BasicDownloader(api_url).download().xml()
+        token = SiteConfig.system.bgg_api_token
+        headers = (
+            {**BasicDownloader.headers, "Authorization": f"Bearer {token}"}
+            if token
+            else None
+        )
+        content = BasicDownloader(api_url, headers=headers).download().xml()
         items = list(content.xpath("/items/item"))
         if not len(items):
             raise ParseError(scraper=self, field="id")

@@ -85,6 +85,7 @@ class SiteConfig(models.Model):
         discogs_api_key: str = "TESTONLY"
         igdb_client_id: str = "TESTONLY"
         igdb_client_secret: str = ""
+        bgg_api_token: str = ""
 
         # API Keys - Services
         steam_api_key: str = ""
@@ -192,6 +193,7 @@ class SiteConfig(models.Model):
             "discogs_api_key": getattr(settings, "DISCOGS_API_KEY", "TESTONLY"),
             "igdb_client_id": getattr(settings, "IGDB_CLIENT_ID", "TESTONLY"),
             "igdb_client_secret": getattr(settings, "IGDB_CLIENT_SECRET", ""),
+            "bgg_api_token": getattr(settings, "BGG_API_TOKEN", ""),
             # API Keys - Services
             "steam_api_key": getattr(settings, "STEAM_API_KEY", ""),
             "deepl_api_key": getattr(settings, "DEEPL_API_KEY", ""),
