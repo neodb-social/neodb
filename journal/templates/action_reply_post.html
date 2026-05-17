@@ -1,6 +1,6 @@
 {% load i18n %}
 <span {% if href or not request.user.is_authenticated %}hx-disable{% endif %}>
-  <a title="{% trans "reply" %}"
+  <a title="{% trans "Reply" %}"
      hx-get="{% url 'journal:post_replies' post.pk %}"
      hx-swap="outerHTML"
      hx-trigger="click once"

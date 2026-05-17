@@ -4,9 +4,14 @@
   {% pinned_post post as pinned %}
   <span hx-target="this" hx-swap="outerHTML">
     <a hx-post="{% url 'journal:post_pin' post.pk %}"
+       {% if menu_label %}hx-vals='{"menu_label": "1"}'{% endif %}
        {% if pinned %}class="activated"{% else %}hx-confirm="{% trans 'Would you like to pin this to your profile?' %}"{% endif %}
-       title="{% trans "pin" %}">
-      <i class="fa-solid fa-thumbtack"></i>
+       title="{% trans "Pin" %}">
+      {% if menu_label %}
+        {% trans "Pin" %}
+      {% else %}
+        <i class="fa-solid fa-thumbtack"></i>
+      {% endif %}
     </a>
   </span>
 {% endif %}

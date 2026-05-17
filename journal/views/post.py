@@ -231,7 +231,10 @@ def post_pin(request: AuthedHttpRequest, post_id: int):
     if not post or post.author_id != request.user.identity.pk:
         raise BadRequest(_("Invalid parameter"))
     Takahe.pin_post(post_id, request.user.identity.pk)
-    return render(request, "action_pin_post.html", {"post": post})
+    menu_label = request.POST.get("menu_label") == "1"
+    return render(
+        request, "action_pin_post.html", {"post": post, "menu_label": menu_label}
+    )
 
 
 @require_http_methods(["POST"])
@@ -356,6 +359,64 @@ def post_compose(request: AuthedHttpRequest):
         sensitive=sensitive,
         language=language or "",
         attachments=attachments if attachments else None,
+    )
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def post_edit(request: AuthedHttpRequest, post_id: int):
+    """
+    Show edit form for a free-form post (not linked to any item/piece) and
+    handle the submission.
+    """
+    post = Takahe.get_post(post_id)
+    if not post or post.state in ["deleted", "deleted_fanned_out"]:
+        raise Http404(_("Post not found"))
+    if post.author_id != request.user.identity.pk:
+        raise PermissionDenied(_("Insufficient permission"))
+    if post.piece is not None or post.item is not None:
+        raise PermissionDenied(_("This post cannot be edited here"))
+
+    if request.method == "GET":
+        return render(
+            request,
+            "post_compose.html",
+            {
+                "edit_post": post,
+                "content": post.content_plain_text,
+                "subject": post.summary or "",
+                "sensitive": post.sensitive,
+                "visibility": Takahe.visibility_t2n(post.visibility),
+                "languages": LOCALE_CHOICES,
+                "user_language": post.language or request.user.language,
+            },
+        )
+
+    content = request.POST.get("content", "").strip()
+    sensitive = request.POST.get("sensitive") in ("1", "on", "true", "True")
+    subject = request.POST.get("subject", "").strip() if sensitive else ""
+    language = request.POST.get("language", request.user.language)
+    if not content:
+        raise BadRequest(_("Content cannot be empty."))
+    if language == "x":
+        language = ""
+
+    Takahe.post(
+        request.user.identity.pk,
+        content,
+        post.visibility,
+        summary=subject or None,
+        sensitive=sensitive,
+        language=language or "",
+        post_pk=post.pk,
     )
     referer = request.META.get("HTTP_REFERER") or ""
     if not url_has_allowed_host_and_scheme(

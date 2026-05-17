@@ -165,3 +165,68 @@ section.activity.post>section.replies {
 	padding: 0.5em 0.75em;
 	font-size: 0.9em;
 }
+
+.post-action-menu {
+	>details.dropdown {
+		display: inline-block;
+		margin: 0;
+		padding: 0;
+		border: none;
+
+		>summary {
+			list-style: none;
+			cursor: pointer;
+			background: transparent;
+			border: none;
+			padding: 0;
+			margin: 0;
+			color: var(--pico-muted-color);
+			opacity: 0.5;
+
+			&:hover,
+			&[open] {
+				opacity: 1;
+			}
+
+			&::-webkit-details-marker {
+				display: none;
+			}
+
+			&::marker {
+				content: '';
+			}
+
+			&::after {
+				display: none !important;
+			}
+		}
+
+		>ul {
+			min-width: 8em;
+			padding: 0.25em 0;
+
+			>li {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+
+				>span>a {
+					display: block;
+					padding: 0.5em 1em;
+					margin: 0;
+					text-decoration: none;
+					color: var(--pico-dropdown-color, var(--pico-color, inherit));
+					opacity: 1;
+					white-space: nowrap;
+					cursor: pointer;
+
+					&:hover,
+					&:focus {
+						background: var(--pico-dropdown-hover-background-color, rgba(0, 0, 0, .05));
+						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+}

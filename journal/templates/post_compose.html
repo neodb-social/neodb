@@ -12,7 +12,9 @@
             class="close"
             _="on click trigger close_dialog" />
       <strong>
-        {% if reply_to_name %}
+        {% if edit_post %}
+          {% trans "Edit" %}
+        {% elif reply_to_name %}
           {% blocktrans %} Note to {{ reply_to_name }} {% endblocktrans %}
         {% else %}
           {% trans "Compose" %}
@@ -21,7 +23,7 @@
     </header>
     <div>
       <form method="post"
-            action="{% url 'journal:post_compose' %}"
+            action="{% if edit_post %}{% url 'journal:post_edit' edit_post.pk %}{% else %}{% url 'journal:post_compose' %}{% endif %}"
             enctype="multipart/form-data">
         {% csrf_token %}
         <div>
@@ -31,7 +33,7 @@
                       autofocus
                       required
                       placeholder="{% if reply_to %}@{{ reply_to }}{% else %}{% trans "Content" %}{% endif %}"
-                      id="id_content"></textarea>
+                      id="id_content">{{ content|default:"" }}</textarea>
           </fieldset>
         </div>
         <div class="grid">
@@ -44,30 +46,32 @@
             </select>
           </div>
           <div>
-            <fieldset style="margin-top:0.6em">
-              <input type="radio"
-                     name="visibility"
-                     value="0"
-                     required
-                     {% if visibility == 0 %}checked{% endif %}
-                     id="id_visibility_0"
-                     checked>
-              <label for="id_visibility_0">{% trans "Public" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="1"
-                     required
-                     {% if visibility == 1 %}checked{% endif %}
-                     id="id_visibility_1">
-              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     required
-                     {% if visibility == 2 %}checked{% endif %}
-                     id="id_visibility_2">
-              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
-            </fieldset>
+            {% if not edit_post %}
+              <fieldset style="margin-top:0.6em">
+                <input type="radio"
+                       name="visibility"
+                       value="0"
+                       required
+                       {% if visibility == 0 %}checked{% endif %}
+                       id="id_visibility_0"
+                       checked>
+                <label for="id_visibility_0">{% trans "Public" %}</label>
+                <input type="radio"
+                       name="visibility"
+                       value="1"
+                       required
+                       {% if visibility == 1 %}checked{% endif %}
+                       id="id_visibility_1">
+                <label for="id_visibility_1">{% trans "Followers Only" %}</label>
+                <input type="radio"
+                       name="visibility"
+                       value="2"
+                       required
+                       {% if visibility == 2 %}checked{% endif %}
+                       id="id_visibility_2">
+                <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
+              </fieldset>
+            {% endif %}
           </div>
         </div>
         <div>
@@ -77,37 +81,44 @@
                      name="sensitive"
                      value="1"
                      id="id_sensitive"
+                     {% if sensitive %}checked{% endif %}
                      _="on change set #post-subject-row.hidden to not me.checked then if not me.checked set #id_subject.value to '' end">
               {% trans "Mark as sensitive" %}
             </label>
           </fieldset>
-          <fieldset id="post-subject-row" style="margin-top:0" hidden>
+          <fieldset id="post-subject-row"
+                    style="margin-top:0"
+                    {% if not sensitive %}hidden{% endif %}>
             <input type="text"
                    name="subject"
                    placeholder="{% trans 'Content warning' %}"
+                   value="{{ subject|default:'' }}"
                    id="id_subject">
           </fieldset>
         </div>
         <div>
           <div>
             <fieldset>
-              <input type="submit" value="{% trans "Publish" %}">
+              <input type="submit"
+                     value="{% if edit_post %}{% trans "Save" %}{% else %}{% trans "Publish" %}{% endif %}">
             </fieldset>
           </div>
         </div>
-        <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
-        <div>
-          <button type="button"
-                  id="add-image-btn"
-                  class="secondary"
-                  _="on click call addImageField()"
-                  {% if image_count >= 4 %}disabled{% endif %}>
-            <i class="fa-regular fa-image"></i> {% trans "Add image" %}
-          </button>
-        </div>
-        <div id="image-attachments">
-          <!-- Image attachment fields will be added here dynamically -->
-        </div>
+        {% if not edit_post %}
+          <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
+          <div>
+            <button type="button"
+                    id="add-image-btn"
+                    class="secondary"
+                    _="on click call addImageField()"
+                    {% if image_count >= 4 %}disabled{% endif %}>
+              <i class="fa-regular fa-image"></i> {% trans "Add image" %}
+            </button>
+          </div>
+          <div id="image-attachments">
+            <!-- Image attachment fields will be added here dynamically -->
+          </div>
+        {% endif %}
       </form>
     </div>
   </article>

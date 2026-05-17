@@ -6,7 +6,9 @@
      hx-trigger="click"
      {% if post.piece %} hx-confirm="‼️ {% trans "Are you sure to delete this post and the mark or note related with it?" %}" {% elif parent_post %} hx-confirm="{% trans "Are you sure to delete this reply?" %}" {% else %} hx-confirm="{% trans "Are you sure to delete this post?" %}" {% endif %}
      hx-target="#replies_{{ parent_post.pk }}">
-    {% if post.piece %}
+    {% if menu_label %}
+      {% trans "Delete" %}
+    {% elif post.piece %}
       <!--i class="fa-regular fa-trash-can"></i -->
     {% else %}
       <i class="fa-regular fa-trash-can"></i>

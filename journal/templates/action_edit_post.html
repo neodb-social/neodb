@@ -1,0 +1,13 @@
+{% load i18n %}
+<span>
+  <a hx-get="{% url 'journal:post_edit' post.pk %}"
+     hx-target="body"
+     hx-swap="beforeend"
+     title="{% trans 'Edit' %}">
+    {% if menu_label %}
+      {% trans "Edit" %}
+    {% else %}
+      <i class="fa-regular fa-pen-to-square"></i>
+    {% endif %}
+  </a>
+</span>

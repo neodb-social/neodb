@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 16:34-0400\n"
+"POT-Creation-Date: 2026-05-17 15:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1051,9 +1051,7 @@ msgid "hide this tooltip"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:46
-#: journal/templates/action_translate_post.html:3
-#: journal/templates/review.html:54
+#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:71
 msgid "translate"
 msgstr ""
 
@@ -1154,11 +1152,13 @@ msgid "my notes"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:86
-#: catalog/templates/catalog_edit.html:12 journal/templates/article.html:116
-#: journal/templates/collection.html:143
+#: catalog/templates/catalog_edit.html:12
+#: journal/templates/action_edit_post.html:6
+#: journal/templates/action_edit_post.html:8 journal/templates/article.html:173
+#: journal/templates/collection.html:166
 #: journal/templates/collection_edit.html:10
-#: journal/templates/collection_edit.html:26 journal/templates/review.html:104
-#: journal/templates/tag_edit.html:16
+#: journal/templates/collection_edit.html:26
+#: journal/templates/post_compose.html:16 journal/templates/tag_edit.html:16
 msgid "Edit"
 msgstr ""
 
@@ -1329,10 +1329,12 @@ msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:224
 #: catalog/templates/_sidebar_edit.html:228
-#: catalog/templates/catalog_delete.html:12 journal/templates/article.html:119
-#: journal/templates/collection.html:151 journal/templates/mark.html:157
-#: journal/templates/note.html:45 journal/templates/piece_delete.html:10
-#: journal/templates/piece_delete.html:34 journal/templates/review.html:107
+#: catalog/templates/catalog_delete.html:12
+#: journal/templates/action_delete_post.html:10
+#: journal/templates/article.html:176 journal/templates/collection.html:174
+#: journal/templates/mark.html:157 journal/templates/note.html:45
+#: journal/templates/piece_delete.html:10
+#: journal/templates/piece_delete.html:34
 #: users/templates/users/account.html:258
 msgid "Delete"
 msgstr ""
@@ -1559,6 +1561,7 @@ msgstr ""
 #: journal/templates/article_edit.html:57
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:39
+#: journal/templates/post_compose.html:103
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
@@ -1649,7 +1652,7 @@ msgstr ""
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
 #: journal/templates/profile_items.html:34
 #: journal/templates/profile_posts.html:23
-#: journal/templates/user_article_list.html:48
+#: journal/templates/user_article_list.html:52
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_follow_list_items.html:65
 #: journal/templates/user_item_list_base.html:27
@@ -1960,9 +1963,10 @@ msgstr ""
 #: journal/views/common.py:246 journal/views/mark.py:241
 #: journal/views/post.py:55 journal/views/post.py:76 journal/views/post.py:99
 #: journal/views/post.py:119 journal/views/post.py:181
-#: journal/views/post.py:260 journal/views/post.py:275
-#: journal/views/post.py:459 journal/views/review.py:51
-#: journal/views/review.py:64 journal/views/review.py:89
+#: journal/views/post.py:263 journal/views/post.py:278
+#: journal/views/post.py:384 journal/views/post.py:535
+#: journal/views/review.py:51 journal/views/review.py:64
+#: journal/views/review.py:89
 msgid "Insufficient permission"
 msgstr ""
 
@@ -3464,7 +3468,7 @@ msgstr ""
 msgid "show all"
 msgstr ""
 
-#: common/templates/_sidebar.html:239 journal/templates/post_compose.html:18
+#: common/templates/_sidebar.html:239 journal/templates/post_compose.html:20
 #: journal/templates/profile.html:37 social/templates/_compose_menu.html:4
 msgid "Compose"
 msgstr ""
@@ -3641,7 +3645,7 @@ msgstr ""
 msgid "following you"
 msgstr ""
 
-#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:99
+#: common/templatetags/mastodon.py:52 social/templates/_event_post.html:95
 msgid "you"
 msgstr ""
 
@@ -4312,7 +4316,7 @@ msgstr ""
 msgid "Tags (comma separated)"
 msgstr ""
 
-#: journal/forms.py:111 journal/templates/post_compose.html:81
+#: journal/forms.py:111 journal/templates/post_compose.html:86
 msgid "Mark as sensitive"
 msgstr ""
 
@@ -4328,7 +4332,7 @@ msgstr ""
 msgid "owner and their local mutuals"
 msgstr ""
 
-#: journal/forms.py:156 journal/templates/collection.html:154
+#: journal/forms.py:156 journal/templates/collection.html:177
 msgid "Collaborative editing"
 msgstr ""
 
@@ -4345,7 +4349,7 @@ msgid "Rating"
 msgstr ""
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:443 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr ""
@@ -4355,31 +4359,31 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/importers/rym.py:168
+#: journal/importers/rym.py:169
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:178
+#: journal/importers/rym.py:179
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/importers/rym.py:233
+#: journal/importers/rym.py:234
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:348
+#: journal/importers/rym.py:349
 msgid "Matched file missing; cannot import."
 msgstr ""
 
-#: journal/importers/rym.py:376
+#: journal/importers/rym.py:377
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/models/article.py:139
+#: journal/models/article.py:148
 msgid "(may contain sensitive content)"
 msgstr ""
 
@@ -4395,13 +4399,13 @@ msgstr ""
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:419
-msgid "created collection"
+#: journal/models/collection.py:419 journal/templates/collection.html:80
+msgid "created a collection"
 msgstr ""
 
 #: journal/models/common.py:45 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:88 journal/templates/post_compose.html:55
+#: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
 #: users/templates/users/data.html:160 users/templates/users/data.html:213
@@ -4415,7 +4419,7 @@ msgstr ""
 
 #: journal/models/common.py:46 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:95 journal/templates/post_compose.html:62
+#: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
 #: users/templates/users/data.html:221 users/templates/users/data.html:272
@@ -4428,7 +4432,7 @@ msgstr ""
 
 #: journal/models/common.py:47 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
-#: journal/templates/post_compose.html:69
+#: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
 #: users/templates/users/data.html:229 users/templates/users/data.html:280
@@ -4522,12 +4526,12 @@ msgstr ""
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr ""
 
-#: journal/models/review.py:65
+#: journal/models/review.py:66
 #, python-brace-format
 msgid "a review of {title}"
 msgstr ""
 
-#: journal/models/review.py:67
+#: journal/models/review.py:68
 msgid "(may contain spoilers)"
 msgstr ""
 
@@ -4995,8 +4999,7 @@ msgstr ""
 msgid "Update note"
 msgstr ""
 
-#: journal/templates/_list_item.html:100 journal/templates/review.html:22
-#: journal/templates/review.html:33 journal/templates/review.html:76
+#: journal/templates/_list_item.html:100 journal/templates/article.html:110
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -5063,8 +5066,8 @@ msgstr ""
 msgid "Boost this post?"
 msgstr ""
 
-#: journal/templates/action_boost_post.html:10
-msgid "boost"
+#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:664
+msgid "Boost"
 msgstr ""
 
 #: journal/templates/action_delete_post.html:7
@@ -5080,7 +5083,8 @@ msgid "Are you sure to delete this post?"
 msgstr ""
 
 #: journal/templates/action_flag_post.html:3
-msgid "flag"
+#: journal/templates/action_flag_post.html:10
+msgid "Flag"
 msgstr ""
 
 #: journal/templates/action_flag_post.html:6
@@ -5088,11 +5092,11 @@ msgid "Reason to flag this post."
 msgstr ""
 
 #: journal/templates/action_like_post.html:10
-msgid "liked"
+msgid "Liked"
 msgstr ""
 
 #: journal/templates/action_like_post.html:16
-msgid "like"
+msgid "Like"
 msgstr ""
 
 #: journal/templates/action_open_post.html:7
@@ -5107,25 +5111,35 @@ msgstr ""
 msgid "Local Public"
 msgstr ""
 
-#: journal/templates/action_pin_post.html:7
+#: journal/templates/action_pin_post.html:8
 msgid "Would you like to pin this to your profile?"
 msgstr ""
 
-#: journal/templates/action_pin_post.html:8
-msgid "pin"
+#: journal/templates/action_pin_post.html:9
+#: journal/templates/action_pin_post.html:11 journal/templates/tag_edit.html:32
+msgid "Pin"
 msgstr ""
 
 #: journal/templates/action_post_timestamp.html:4
-msgid "view post"
+msgid "View post"
 msgstr ""
 
 #: journal/templates/action_quote_post.html:3
-msgid "quote"
+#: journal/templates/article.html:168 journal/templates/collection.html:161
+msgid "Quote"
 msgstr ""
 
 #: journal/templates/action_reply_piece.html:3
-#: journal/templates/action_reply_post.html:3
 msgid "reply"
+msgstr ""
+
+#: journal/templates/action_reply_post.html:3
+#: journal/templates/article.html:161 journal/templates/collection.html:154
+msgid "Reply"
+msgstr ""
+
+#: journal/templates/action_translate_post.html:3
+msgid "Translate"
 msgstr ""
 
 #: journal/templates/add_to_collection.html:16
@@ -5137,25 +5151,20 @@ msgstr ""
 msgid "Create a new collection"
 msgstr ""
 
-#: journal/templates/article.html:19 social/templates/single_post.html:15
-msgid "Article"
+#: journal/templates/article.html:91 social/templates/_event_post.html:81
+msgid "wrote a review"
 msgstr ""
 
-#: journal/templates/article.html:68
-msgid "View on origin"
+#: journal/templates/article.html:93 social/templates/_event_post.html:83
+msgid "wrote an article"
 msgstr ""
 
-#: journal/templates/article.html:82
+#: journal/templates/article.html:123
 msgid "This article may contain sensitive content. Click to reveal."
 msgstr ""
 
-#: journal/templates/article.html:93 journal/templates/review.html:86
+#: journal/templates/article.html:134
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr ""
-
-#: journal/templates/article.html:111 journal/templates/collection.html:138
-#: journal/templates/review.html:99
-msgid "Reply"
 msgstr ""
 
 #: journal/templates/article_edit.html:13
@@ -5214,19 +5223,15 @@ msgstr ""
 msgid "DEC"
 msgstr ""
 
-#: journal/templates/collection.html:58
+#: journal/templates/collection.html:68
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
 msgstr ""
 
-#: journal/templates/collection.html:147
+#: journal/templates/collection.html:170
 msgid "Query"
-msgstr ""
-
-#: journal/templates/collection.html:162
-msgid "Created date"
 msgstr ""
 
 #: journal/templates/collection_edit.html:33
@@ -5345,41 +5350,41 @@ msgstr ""
 msgid "Deletion cannot be undone, are you sure to continue?"
 msgstr ""
 
-#: journal/templates/post_compose.html:16
+#: journal/templates/post_compose.html:18
 #, python-format
 msgid " Note to %(reply_to_name)s "
 msgstr ""
 
-#: journal/templates/post_compose.html:33
+#: journal/templates/post_compose.html:35
 msgid "Content"
 msgstr ""
 
-#: journal/templates/post_compose.html:87
+#: journal/templates/post_compose.html:94
 msgid "Content warning"
 msgstr ""
 
-#: journal/templates/post_compose.html:94
+#: journal/templates/post_compose.html:103
 msgid "Publish"
 msgstr ""
 
-#: journal/templates/post_compose.html:105
+#: journal/templates/post_compose.html:115
 msgid "Add image"
 msgstr ""
 
-#: journal/templates/post_compose.html:138
+#: journal/templates/post_compose.html:149
 msgid "Select image"
 msgstr ""
 
-#: journal/templates/post_compose.html:149
-#: journal/templates/post_compose.html:159
+#: journal/templates/post_compose.html:160
+#: journal/templates/post_compose.html:170
 msgid "No file selected"
 msgstr ""
 
-#: journal/templates/post_compose.html:167
+#: journal/templates/post_compose.html:178
 msgid "Alt text"
 msgstr ""
 
-#: journal/templates/post_compose.html:175
+#: journal/templates/post_compose.html:186
 #: users/templates/users/migrate_in.html:59
 msgid "Remove"
 msgstr ""
@@ -5399,7 +5404,7 @@ msgstr ""
 
 #: journal/templates/profile.html:138
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:21
+#: journal/templates/user_article_list.html:32
 msgid "Articles"
 msgstr ""
 
@@ -5438,10 +5443,6 @@ msgstr ""
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
-msgstr ""
-
-#: journal/templates/tag_edit.html:32
-msgid "Pin"
 msgstr ""
 
 #: journal/templates/tag_edit.html:49
@@ -5637,7 +5638,7 @@ msgstr ""
 msgid "Invalid form data"
 msgstr ""
 
-#: journal/views/post.py:117
+#: journal/views/post.py:117 journal/views/post.py:382
 msgid "Post not found"
 msgstr ""
 
@@ -5645,15 +5646,19 @@ msgstr ""
 msgid "Visibility too high for quoting this post"
 msgstr ""
 
-#: journal/views/post.py:325
+#: journal/views/post.py:328 journal/views/post.py:408
 msgid "Content cannot be empty."
 msgstr ""
 
-#: journal/views/post.py:451
+#: journal/views/post.py:386
+msgid "This post cannot be edited here"
+msgstr ""
+
+#: journal/views/post.py:527
 msgid "Invalid choices"
 msgstr ""
 
-#: journal/views/post.py:454
+#: journal/views/post.py:530
 msgid "Invalid post"
 msgstr ""
 
@@ -5796,10 +5801,6 @@ msgstr ""
 
 #: mastodon/models/mastodon.py:552
 msgid "max toot len"
-msgstr ""
-
-#: mastodon/models/mastodon.py:664
-msgid "Boost"
 msgstr ""
 
 #: mastodon/models/mastodon.py:665
@@ -5955,23 +5956,19 @@ msgstr ""
 msgid "mark"
 msgstr ""
 
-#: social/templates/_event_post.html:83
+#: social/templates/_event_post.html:79
 msgid "wrote a note"
 msgstr ""
 
-#: social/templates/_event_post.html:85
-msgid "wrote a review"
-msgstr ""
-
-#: social/templates/_event_post.html:87
-msgid "wrote an article"
-msgstr ""
-
-#: social/templates/_event_post.html:92
+#: social/templates/_event_post.html:88
 msgid "replying to"
 msgstr ""
 
-#: social/templates/_post_article_teaser.html:5
+#: social/templates/_post_action_menu.html:5
+msgid "More"
+msgstr ""
+
+#: social/templates/_remote_article_teaser.html:5
 msgid "Untitled article"
 msgstr ""
 
@@ -6162,6 +6159,10 @@ msgstr ""
 
 #: social/templates/single_post.html:12 social/templates/single_post.html:18
 msgid "Post"
+msgstr ""
+
+#: social/templates/single_post.html:15
+msgid "Article"
 msgstr ""
 
 #: takahe/models.py:451

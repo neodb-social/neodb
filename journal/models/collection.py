@@ -416,7 +416,7 @@ class Collection(List):
         data = self.get_ap_data()
         # if existing_post and existing_post.type_data == data:
         #     return existing_post
-        action = _("created collection")
+        action = _("created a collection")
         item_link = self.absolute_url
         prepend_content = f'{action} <a href="{item_link}">{self.title}</a><br>'
         content = self.plain_content

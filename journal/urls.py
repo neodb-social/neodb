@@ -37,6 +37,7 @@ urlpatterns = [
     path("post/<int:post_id>/flag", post_flag, name="post_flag"),
     path("post/<int:post_id>/replies", post_replies, name="post_replies"),
     path("post/<int:post_id>/delete", post_delete, name="post_delete"),
+    path("post/<int:post_id>/edit", post_edit, name="post_edit"),
     path("post/<int:post_id>/reply", post_reply, name="post_reply"),
     path("post/<int:post_id>/quote", post_quote, name="post_quote"),
     path("post/<int:post_id>/quotes", post_quotes, name="post_quotes"),

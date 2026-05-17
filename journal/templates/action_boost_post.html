@@ -7,7 +7,7 @@
   <a hx-post="{% url 'journal:post_boost' post.pk %}"
      hx-include="[name='post_url']"
      {% if boosted %}class="activated"{% else %}hx-confirm="{% trans 'Boost this post?' %}"{% endif %}
-     title="{% trans "boost" %}">
+     title="{% trans "Boost" %}">
     <input type="hidden" name="post_url" value="{{ post.object_uri }}">
     <i class="fa-solid fa-retweet"></i>
     {% if post.stats.boosts > 1 %}<span class="metrics">{{ post.stats.boosts }}</span>{% endif %}

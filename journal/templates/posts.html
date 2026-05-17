@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load i18n %}
 {% for post in posts %}
-  {% include "_event_post.html" %}
+  {% include "_event_post.html" with piece=post.piece %}
 {% empty %}
   <div class="empty">{% trans "nothing so far." %}</div>
 {% endfor %}
