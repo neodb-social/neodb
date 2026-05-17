@@ -1,0 +1,4 @@
+{% load i18n %}
+{% blocktrans with piece_url=event.piece.url piece_title=event.piece.title %}
+boosted your article <a href="{{ piece_url }}">{{ piece_title }}</a>
+{% endblocktrans %}

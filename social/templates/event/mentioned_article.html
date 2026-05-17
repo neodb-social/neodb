@@ -1,0 +1,5 @@
+{% load i18n %}
+{% blocktrans with piece_url=event.piece.url piece_title=event.piece.title %}
+replied to your article <a href="{{ piece_url }}">{{ piece_title }}</a>
+{% endblocktrans %}
+{% include "_event_post.html" with post=event.reply %}
