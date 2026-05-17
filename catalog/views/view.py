@@ -629,6 +629,12 @@ def discover(request):
             Item.prefetch_parent_items(reco_items)
             Item.prefetch_edition_works(reco_items)
             prefetch_related_objects(reco_items, "external_resources")
+            cat_order: dict[str, int] = {}
+            for it in reco_items:
+                cat = str(it.category)
+                if cat not in cat_order:
+                    cat_order[cat] = len(cat_order)
+            reco_items.sort(key=lambda i: cat_order[str(i.category)])
 
     updated = cache.get("trends_updated", timezone.now())
     return render(
