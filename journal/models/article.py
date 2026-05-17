@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.html import strip_tags
@@ -126,6 +127,14 @@ class Article(Piece):
     @property
     def normalized_tags(self) -> list[str]:
         return _normalize_tags(self.tags)
+
+    @property
+    def edit_url(self) -> str:
+        return reverse("journal:article_edit", args=[self.uuid])
+
+    @property
+    def delete_url(self) -> str:
+        return reverse("journal:article_delete", args=[self.uuid])
 
     @property
     def display_summary(self) -> str:

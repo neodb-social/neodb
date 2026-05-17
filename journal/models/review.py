@@ -6,6 +6,7 @@ from typing import Any
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
@@ -161,6 +162,14 @@ class Review(Content):
         if settings.REVIEW_AS_ARTICLE:
             params["post_type"] = "Article"
         return params
+
+    @property
+    def edit_url(self) -> str:
+        return reverse("journal:review_edit", args=[self.item.uuid, self.uuid])
+
+    @property
+    def delete_url(self) -> str:
+        return reverse("journal:review_delete", args=[self.uuid])
 
     @cached_property
     def mark(self):

@@ -393,6 +393,11 @@ def _post_last_modified(request, handle: str, post_pk: int):
         return None
     if _can_view_post(post, owner, viewer=None) != 1:
         return None
+    # Article/Review/Collection posts redirect to the canonical piece URL;
+    # never let a 304 short-circuit that 302.
+    piece = post.piece
+    if piece is not None and piece.classname in ("article", "review", "collection"):
+        return None
     return post.updated
 
 
@@ -422,6 +427,16 @@ def post_view(request, handle: str, post_pk: int):
         return HttpResponse()
     match _can_view_post(post, owner, viewer):
         case 1:
+            # Article/Review/Collection posts have a richer canonical view
+            # at ``/article/<uuid>`` / ``/review/<uuid>`` / ``/collection/<uuid>``;
+            # redirect HTML browsers there instead of the bare single_post shell.
+            piece = post.piece
+            if piece is not None and piece.classname in (
+                "article",
+                "review",
+                "collection",
+            ):
+                return redirect(piece.url)
             quotes_count = (
                 Post.objects.filter(quote_url=post.object_uri)
                 .exclude(state__in=["deleted", "deleted_fanned_out"])

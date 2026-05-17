@@ -3,6 +3,7 @@
 {% load mastodon %}
 {% load thumb %}
 {% load user_actions %}
+{% load duration %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="content-page">
@@ -10,16 +11,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="CCBot" content="nofollow">
-    <meta property="og:title" content="{{ article.title }}">
+    {% if article.classname == "review" %}
+      <meta property="og:title"
+            content="{{ article.title }} ({{ article.item.display_title }})">
+    {% else %}
+      <meta property="og:title" content="{{ article.title }}">
+    {% endif %}
     <meta property="og:type" content="article">
     <meta property="og:article:author"
           content="{{ article.owner.display_name }}">
     <meta property="og:url" content="{{ article.absolute_url }}">
-    <meta property="og:site_name"
-          content="{{ site_name }} {% trans 'Article' %}">
+    <meta property="og:site_name" content="{{ site_name }}">
     <meta name="fediverse:creator" content="@{{ article.owner.full_handle }}">
     <meta rel="canonical" content="{{ article.absolute_url }}">
     <meta name="lastmodified" content="{{ article.edited_time | date:'r' }}">
+    {% if article.classname == "review" %}
+      <meta property="og:image" content="{{ article.item.cover|thumb:'normal' }}">
+      <script type="application/ld+json">{{ article.to_schema_org_json | safe }}</script>
+    {% endif %}
     {% if article.latest_post %}
       <link rel="alternate"
             type="application/activity+json"
@@ -28,50 +37,82 @@
     {% if not article.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} | {{ article.title }}</title>
     {% include "common_libs.html" %}
+    <style>
+      main>div>.replies {
+        padding-top: 2em
+      }
+    </style>
   </head>
   <body>
     {% include "_header.html" %}
     <main>
       <div>
+        {% if article.latest_post %}
+          <div style="display:flex;">
+            <div>
+              <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+                <a href="{{ article.latest_post.author.url }}">
+                  <img src="{{ article.latest_post.author.local_icon_url }}"
+                       alt="@{{ article.latest_post.author.handle }}">
+                </a>
+              </div>
+            </div>
+            <div style="flex-grow:1;">
+              <span class="action">
+                {% include "action_post_timestamp.html" with post=article.latest_post %}
+                {% if request.user.is_authenticated and article.latest_post.author_id == request.user.identity.pk %}
+                  {% include "action_pin_post.html" with post=article.latest_post %}
+                  {% include "action_delete_post.html" with post=article.latest_post %}
+                {% endif %}
+                {% include "action_like_post.html" with post=article.latest_post %}
+                {% include "action_boost_post.html" with post=article.latest_post %}
+                {% if article.classname == "review" and translate_enabled and request.user.is_authenticated %}
+                  <span>
+                    <a title="{% trans "translate" %}"
+                       hx-post="{% url 'journal:review_translate' article.uuid %}"
+                       hx-trigger="click once"
+                       hx-target="#review_{{ article.uuid }}_content">
+                      <i class="fa-solid fa-language"></i>
+                    </a>
+                  </span>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                  {% include "action_flag_post.html" with post=article.latest_post %}
+                {% endif %}
+                {% include "action_open_post.html" with post=article.latest_post %}
+              </span>
+              <span class="post_author">
+                <a href="{{ article.latest_post.author.url }}"
+                   class="nickname"
+                   title="@{{ article.latest_post.author.handle }}">{{ article.latest_post.author.name|default:article.latest_post.author.username }}</a>
+                <span class="handler">@{{ article.owner.handle }}</span>
+                <br>
+                {% if article.classname == "review" %}
+                  {% trans "wrote a review" %}
+                {% else %}
+                  {% trans "wrote an article" %}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        {% endif %}
         <article>
           <header>
             <hgroup>
               <h3>
-                <div class="action">
-                  {% if article.latest_post %}
-                    {% if request.user.is_authenticated %}
-                      {% include "action_pin_post.html" with post=article.latest_post %}
-                    {% endif %}
-                    {% include "action_like_post.html" with post=article.latest_post %}
-                    {% include "action_boost_post.html" with post=article.latest_post %}
-                  {% endif %}
-                </div>
-                <span id="article_{{ article.uuid }}_title">{{ article.title }}</span>
+                <span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span>
               </h3>
             </hgroup>
-            {% if article.display_summary %}<p class="piece-summary article-summary">{{ article.display_summary }}</p>{% endif %}
-            <div class="owner-info">
-              <div class="owner">
-                <span class="avatar">
-                  <img src="{{ article.owner.avatar }}"
-                       alt="{{ article.owner.display_name }}">
-                </span>
-              </div>
-              <div class="info">
-                <a href="{{ article.owner.url }}">{{ article.owner.display_name }}</a>
-                <span class="handler">@{{ article.owner.handle }}</span>
-                <br>
-                <span>{{ article.created_time|date }}</span>
-                {% if not article.local and article.remote_id %}
-                  <small>
-                    -
-                    <a href="{{ article.remote_id }}" rel="noopener" target="_blank">{% trans 'View on origin' %}</a>
-                  </small>
-                {% endif %}
-              </div>
-            </div>
+            <p class="piece-summary article-summary">
+              {% if article.classname == "article" %}
+                {{ article.display_summary|default:'' }}
+              {% else %}
+                <a href="{{ article.item.url }}">{{ article.item.display_title }}</a> - {% trans 'Review' %}
+                {% if article.rating_grade %}{{ article.rating_grade | rating_star }}{% endif %}
+              {% endif %}
+            </p>
           </header>
-          {% if article.sensitive %}
+          {% if article.classname == "article" and article.sensitive %}
             <p id="article_{{ article.uuid }}_reveal_wrap"
                class="article-reveal-wrap"
                style="text-align:center">
@@ -83,9 +124,9 @@
               </button>
             </p>
           {% endif %}
-          <div id="article_{{ article.uuid }}_content"
+          <div id="{{ article.classname }}_{{ article.uuid }}_content"
                class="markdown-content"
-               {% if article.sensitive %}hidden{% endif %}>
+               {% if article.classname == "article" and article.sensitive %}hidden{% endif %}>
             {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
               {{ article.html_content | safe }}
             {% else %}
@@ -95,28 +136,44 @@
             {% endif %}
           </div>
           <footer>
-            {% if article.normalized_tags %}
-              <p class="tags">
-                {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+            {% if article.classname == "article" and article.normalized_tags %}
+              <p class="tag-list">
+                {% for tag in article.normalized_tags %}
+                  <span class="tag">
+                    {% if request.user.is_authenticated and request.user.identity == article.owner %}
+                      <a href="{% url 'common:search' %}?c=journal&amp;q=tag:&quot;{{ tag }}&quot;">{{ tag }}</a>
+                    {% else %}
+                      <a>{{ tag }}</a>
+                    {% endif %}
+                  </span>
+                {% endfor %}
               </p>
             {% endif %}
             {% if request.user.is_authenticated %}
               <span class="action">
-                <span>
-                  <a hx-get="{% url 'journal:piece_replies' article.uuid %}"
-                     hx-swap="outerHTML"
-                     hx-trigger="click once"
-                     hx-target="#replies_{{ article.latest_post.pk }}">
-                    <span class="metrics">{{ article.latest_post.stats.replies | default:'' }}</span>
-                    {% trans "Reply" %}
-                  </a>
-                </span>
-                {% if request.user.identity == article.owner %}
+                {% if article.latest_post %}
                   <span>
-                    <a href="{% url 'journal:article_edit' article.uuid %}">{% trans 'Edit' %}</a>
+                    <a hx-get="{% url 'journal:piece_replies' article.uuid %}"
+                       hx-swap="outerHTML"
+                       hx-trigger="click once"
+                       hx-target="#replies_{{ article.latest_post.pk }}">
+                      <span class="metrics">{{ article.latest_post.stats.replies | default:'' }}</span>
+                      {% trans "Reply" %}
+                    </a>
                   </span>
                   <span>
-                    <a href="{% url 'journal:article_delete' article.uuid %}">{% trans 'Delete' %}</a>
+                    <a hx-get="{% url 'journal:post_quote' article.latest_post.pk %}"
+                       hx-swap="outerHTML"
+                       hx-trigger="click once"
+                       hx-target="#quote_{{ article.latest_post.pk }}">{% trans "Quote" %}</a>
+                  </span>
+                {% endif %}
+                {% if request.user.identity == article.owner %}
+                  <span>
+                    <a href="{{ article.edit_url }}">{% trans 'Edit' %}</a>
+                  </span>
+                  <span>
+                    <a href="{{ article.delete_url }}">{% trans 'Delete' %}</a>
                   </span>
                 {% endif %}
               </span>
@@ -129,10 +186,18 @@
             </span>
           </footer>
         </article>
+        <section id="quote_{{ article.latest_post.pk }}">
+        </section>
         <section id="replies_{{ article.latest_post.pk }}">
         </section>
       </div>
-      {% include "_sidebar.html" with show_profile=1 identity=article.owner %}
+      <aside>
+        {% if article.classname == "review" %}
+          {% include "_sidebar_item.html" with item=article.item %}
+        {% else %}
+          {% include "_sidebar.html" with show_profile=1 identity=article.owner %}
+        {% endif %}
+      </aside>
     </main>
     <script>
     $(".spoiler").on('click', function(){

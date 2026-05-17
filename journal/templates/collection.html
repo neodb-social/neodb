@@ -38,44 +38,59 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
+        {% if collection.latest_post %}
+          <div style="display:flex;">
+            <div>
+              <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+                <a href="{{ collection.latest_post.author.url }}">
+                  <img src="{{ collection.latest_post.author.local_icon_url }}"
+                       alt="@{{ collection.latest_post.author.handle }}">
+                </a>
+              </div>
+            </div>
+            <div style="flex-grow:1;">
+              <span class="action">
+                {% include "action_post_timestamp.html" with post=collection.latest_post %}
+                {% if request.user.is_authenticated and collection.latest_post.author_id == request.user.identity.pk %}
+                  <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
+                  {% include "action_pin_post.html" with post=collection.latest_post %}
+                  {% include "action_delete_post.html" with post=collection.latest_post %}
+                {% endif %}
+                {# Reply / Quote are surfaced as text links in the footer. #}
+                {% include "action_like_post.html" with post=collection.latest_post %}
+                {% include "action_boost_post.html" with post=collection.latest_post %}
+                {% if request.user.is_authenticated %}
+                  <span>
+                    <a href="#"
+                       hx-get="{% url 'journal:collection_share' collection.uuid %}"
+                       hx-target="body"
+                       hx-swap="beforeend"
+                       title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
+                  </span>
+                  {% include "action_flag_post.html" with post=collection.latest_post %}
+                {% endif %}
+                {% include "action_open_post.html" with post=collection.latest_post %}
+              </span>
+              <span class="post_author">
+                <a href="{{ collection.latest_post.author.url }}"
+                   class="nickname"
+                   title="@{{ collection.latest_post.author.handle }}">{{ collection.latest_post.author.name|default:collection.latest_post.author.username }}</a>
+                <span class="handler">@{{ collection.owner.handle }}</span>
+                <br>
+                {% trans "created a collection" %}
+              </span>
+            </div>
+          </div>
+        {% endif %}
         <section>
           <hgroup>
             <h3>
-              <div class="action">
-                {% if request.user.is_authenticated %}
-                  <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
-                  {% include "action_pin_post.html" with post=collection.latest_post %}
-                {% endif %}
-                {% if collection.latest_post %}
-                  {% include "action_like_post.html" with post=collection.latest_post %}
-                  {% include "action_boost_post.html" with post=collection.latest_post %}
-                  {% if request.user.is_authenticated %}
-                    <span>
-                      <a href="#"
-                         hx-get="{% url 'journal:collection_share' collection.uuid %}"
-                         hx-target="body"
-                         hx-swap="beforeend"
-                         title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
-                    </span>
-                  {% endif %}
-                {% endif %}
-              </div>
               {{ collection.title }}
               {% if collection.visibility > 0 %}<small><i class="fa-solid fa-lock"></i></small>{% endif %}
             </h3>
           </hgroup>
           <div class="owner-info">
-            <div class="owner">
-              <span class="avatar">
-                <img src="{{ collection.owner.avatar }}"
-                     alt="{{ collection.owner.display_name }}">
-              </span>
-            </div>
             <div class="info">
-              <p>
-                <a href="{{ collection.owner.url }}">{{ collection.owner.display_name }}</a>
-                <span class="handler">@{{ collection.owner.handle }}</span>
-              </p>
               <p>
                 {% for cat, count in collection.get_summary.items %}
                   {% if count %}
@@ -128,15 +143,23 @@
         <section>
           {% if request.user.is_authenticated %}
             <span class="action">
-              <span>
-                <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
-                   hx-swap="outerHTML"
-                   hx-trigger="click once"
-                   hx-target="#replies_{{ collection.latest_post.pk }}">
-                  <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
-                  {% trans "Reply" %}
-                </a>
-              </span>
+              {% if collection.latest_post %}
+                <span>
+                  <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
+                     hx-swap="outerHTML"
+                     hx-trigger="click once"
+                     hx-target="#replies_{{ collection.latest_post.pk }}">
+                    <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
+                    {% trans "Reply" %}
+                  </a>
+                </span>
+                <span>
+                  <a hx-get="{% url 'journal:post_quote' collection.latest_post.pk %}"
+                     hx-swap="outerHTML"
+                     hx-trigger="click once"
+                     hx-target="#quote_{{ collection.latest_post.pk }}">{% trans "Quote" %}</a>
+                </span>
+              {% endif %}
               {% if request.user.identity == collection.owner %}
                 <span>
                   <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
@@ -158,8 +181,10 @@
             {% if collection.latest_post %}
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
-            <span><a>{% trans "Created date" %}: {{ collection.created_time|date }}</a></span>
+            <span><a>{{ collection.created_time|date }}</a></span>
           </span>
+        </section>
+        <section id="quote_{{ collection.latest_post.pk }}">
         </section>
         <section id="replies_{{ collection.latest_post.pk }}">
         </section>

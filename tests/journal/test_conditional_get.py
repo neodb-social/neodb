@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.http import http_date
 
 from catalog.models import Edition
-from journal.models import Article, Collection, Review
+from journal.models import Article, Collection, Note, Review
 from users.models import User
 
 
@@ -125,16 +125,17 @@ class TestPostConditionalGet:
     @pytest.fixture(autouse=True)
     def setup_data(self):
         self.user = User.register(email="post_cg@test.com", username="post_cg")
-        # Use a Review (which post_when_save=True) to materialize a takahē Post.
+        # Use a Note (which post_when_save=True) to materialize a takahē Post.
+        # Article/Review posts now 302 to their canonical piece URL, bypassing
+        # the conditional-GET path — Note posts still render via single_post.
         self.book = Edition.objects.create(title="Post CG Book")
-        self.review = Review.update_item_review(
-            self.book,
-            self.user.identity,
-            "Post Title",
-            "post body",
+        self.note = Note.objects.create(
+            item=self.book,
+            owner=self.user.identity,
+            content="post body",
             visibility=0,
         )
-        self.post = self.review.latest_post
+        self.post = self.note.latest_post
         self.client = Client()
 
     def test_repeat_returns_304(self):
@@ -145,6 +146,71 @@ class TestPostConditionalGet:
         assert first.status_code == 200
         resp = self.client.get(url, HTTP_IF_MODIFIED_SINCE=first["Last-Modified"])
         assert resp.status_code == 304
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPiecePostRedirect:
+    """HTML requests to ``/@handle/posts/<pk>/`` for an Article or Review
+    post 302 to the canonical piece URL (``/article/<uuid>`` / ``/review/<uuid>``).
+    Conditional-GET must not serve a 304 in front of that redirect."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="post_rd@test.com", username="post_rd")
+        self.client = Client()
+
+    def test_review_post_redirects_to_review_url(self):
+        book = Edition.objects.create(title="Redirect Book")
+        review = Review.update_item_review(
+            book, self.user.identity, "T", "b", visibility=0
+        )
+        post = review.latest_post
+        assert post is not None
+        url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
+        resp = self.client.get(url)
+        assert resp.status_code == 302
+        assert resp["Location"] == review.url
+
+    def test_article_post_redirects_to_article_url(self):
+        article = Article.update_local_article(
+            owner=self.user.identity, title="T", body="b", visibility=0
+        )
+        post = article.latest_post
+        assert post is not None
+        url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
+        resp = self.client.get(url)
+        assert resp.status_code == 302
+        assert resp["Location"] == article.url
+
+    def test_collection_post_redirects_to_collection_url(self):
+        collection = Collection(
+            owner=self.user.identity,
+            title="Redirect Coll",
+            brief="brief",
+            visibility=0,
+        )
+        collection.save()
+        post = collection.latest_post
+        assert post is not None
+        url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
+        resp = self.client.get(url)
+        assert resp.status_code == 302
+        assert resp["Location"] == collection.url
+
+    def test_review_post_never_serves_304(self):
+        book = Edition.objects.create(title="No-304 Book")
+        review = Review.update_item_review(
+            book, self.user.identity, "T", "b", visibility=0
+        )
+        post = review.latest_post
+        assert post is not None
+        url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
+        # Pretend the client already has a recent copy — a naive 304 short-circuit
+        # would mask the 302 we want to serve.
+        future = _hdate(timezone.now() + timedelta(days=1))
+        resp = self.client.get(url, HTTP_IF_MODIFIED_SINCE=future)
+        assert resp.status_code == 302
+        assert resp["Location"] == review.url
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -262,11 +328,13 @@ class TestConditionalGetGating:
         assert resp.status_code != 304
 
     def test_post_wrong_handle_does_not_304(self):
+        # Note (not Review): article/review posts now 302 to the canonical
+        # piece URL, bypassing the conditional-GET path entirely.
         book = Edition.objects.create(title="Post Gate Book")
-        review = Review.update_item_review(
-            book, self.user.identity, "Title", "body", visibility=0
+        note = Note.objects.create(
+            item=book, owner=self.user.identity, content="body", visibility=0
         )
-        post = review.latest_post
+        post = note.latest_post
         assert post is not None
         good_url = f"/@gate/posts/{post.pk}/"
         first = self.client.get(good_url)

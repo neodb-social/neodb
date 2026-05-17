@@ -1,13 +1,13 @@
 {% load i18n %}
-<section class="article-teaser">
+<section class="{{ article.classname }}-teaser">
   <h6>
     <a href="{{ article.url }}">{{ article.title }}</a>
   </h6>
-  <p class="piece-summary">
-    {% if article.display_summary %}
-      {{ article.display_summary }}
-    {% else %}
+  {% if article.display_summary %}
+    <p class="piece-summary">{{ article.display_summary }}</p>
+  {% elif article.classname == "article" %}
+    <p class="piece-summary">
       {% blocktrans count counter=article.word_count %}{{ counter }} word{% plural %}{{ counter }} words{% endblocktrans %}
-    {% endif %}
-  </p>
+    </p>
+  {% endif %}
 </section>

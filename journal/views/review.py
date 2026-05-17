@@ -51,7 +51,7 @@ def review_retrieve(request, review_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "HEAD":
         return HttpResponse()
-    return render(request, "review.html", {"review": piece})
+    return render(request, "article.html", {"article": piece})
 
 
 @require_http_methods(["POST"])
