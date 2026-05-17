@@ -30,12 +30,9 @@ class BoardGameGeek(AbstractSite):
 
     def scrape(self):
         api_url = f"https://boardgamegeek.com/xmlapi2/thing?stats=1&type=boardgame,boardgameexpansion&id={self.id_value}"
-        token = SiteConfig.system.bgg_api_token
-        headers = (
-            {**BasicDownloader.headers, "Authorization": f"Bearer {token}"}
-            if token
-            else None
-        )
+        headers = None
+        if token := SiteConfig.system.bgg_api_token:
+            headers = {**BasicDownloader.headers, "Authorization": f"Bearer {token}"}
         content = BasicDownloader(api_url, headers=headers).download().xml()
         items = list(content.xpath("/items/item"))
         if not len(items):
