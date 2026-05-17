@@ -77,7 +77,7 @@ def _signed_get_json(url: str) -> dict[str, Any] | None:
 def fetch_remote_list_members(
     class_path: str,
     pk: int,
-    items_url: str | None = None,
+    items_url: str | int | None = None,
     inline_items: list[dict[str, Any]] | None = None,
     attempts: int = 0,
 ) -> None:
@@ -100,6 +100,13 @@ def fetch_remote_list_members(
     backward compatibility with jobs queued under the previous
     signature.
     """
+    # Backward compat: the previous signature was
+    # ``(class_path, pk, attempts)``. A job queued before deployment
+    # arrives with ``attempts`` (int) bound to ``items_url``; recover
+    # the retry counter and clear the spurious URL before proceeding.
+    if isinstance(items_url, int):
+        attempts = items_url
+        items_url = None
     cls = _resolve_class(class_path)
     inst = cls.objects.filter(pk=pk, local=False).first()
     if not inst:
@@ -142,8 +149,12 @@ def fetch_remote_list_members(
         # exhaust ``MAX_FETCH_ATTEMPTS`` and bail.
         _maybe_retry(class_path, pk, items_url, inline_items, attempts)
         return
-    if not flat_items and not items_url:
-        # Nothing to do — neither inline items nor a paginated URL.
+    if inline_items is None and not items_url:
+        # No data at all — caller passed neither a paginated URL nor an
+        # inline ``orderedItems`` array. Distinct from
+        # ``orderedItems: []`` (explicit empty membership), which must
+        # still flow through ``_sync_members_from_ap`` so the local
+        # mirror gets cleared.
         return
     pending = cls._sync_members_from_ap(inst, flat_items)
     if pending:

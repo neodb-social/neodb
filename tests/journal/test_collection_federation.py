@@ -223,6 +223,11 @@ class TestCollectionUpdateByApObject:
             # both Collection and Shelf models from one entry point.
             assert args[1] == "journal.models.collection.Collection"
             assert args[2] == result.pk
+            # ``items_url`` is forwarded from the envelope so the job
+            # doesn't have to re-dereference ``remote_id``.
+            assert args[3] == ap_obj["first"]
+            # No inline ``orderedItems`` in this envelope.
+            assert args[4] is None
         assert result.members.count() == 0
 
     def test_stale_payload_is_ignored(self):
@@ -703,3 +708,74 @@ class TestItemGetByApObject:
         from catalog.models import Item
 
         assert Item.get_by_ap_object({"type": "Edition"}) is None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestFetchRemoteListMembersJob:
+    """Exercise the two backward-compat / edge-case branches in
+    ``journal.jobs.list_sync.fetch_remote_list_members`` directly:
+
+    - Jobs queued under the previous signature
+      ``(class_path, pk, attempts)`` must not crash — the integer in
+      slot 3 is the retry counter, not an items URL.
+    - An envelope that explicitly inlines an empty ``orderedItems``
+      list (``[]``, no pagination) must still flow through
+      ``_sync_members_from_ap`` so a peer can clear the mirror.
+    - When the caller passes neither inline items nor a URL, the job
+      is a no-op (avoids accidental member purges).
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="jobedge@test.com", username="jobedge_user")
+        self.identity = self.user.identity
+        self.collection = Collection.objects.create(
+            owner=self.identity,
+            title="JobEdge",
+            visibility=0,
+            local=False,
+            remote_id="https://remote.example/collection/jobedge",
+        )
+
+    def test_legacy_int_in_items_url_slot_recovers_attempts(self):
+        from journal.jobs.list_sync import fetch_remote_list_members
+
+        with patch.object(Collection, "_sync_members_from_ap") as sync:
+            # Old enqueue shape: (class_path, pk, attempts). The ``1``
+            # in the items_url slot is a retry counter; it must not be
+            # parsed as a URL or fed to the SSRF gate.
+            fetch_remote_list_members(
+                "journal.models.collection.Collection",
+                self.collection.pk,
+                1,
+            )
+            sync.assert_not_called()
+
+    def test_empty_inline_items_clears_mirror(self):
+        from journal.jobs.list_sync import fetch_remote_list_members
+
+        with patch.object(Collection, "_sync_members_from_ap") as sync:
+            sync.return_value = []
+            fetch_remote_list_members(
+                "journal.models.collection.Collection",
+                self.collection.pk,
+                None,
+                [],
+            )
+            sync.assert_called_once()
+            # The envelope explicitly carries an empty list — the job
+            # must hand that through, not short-circuit on "no data".
+            args, _ = sync.call_args
+            assert args[1] == []
+
+    def test_no_data_is_noop(self):
+        from journal.jobs.list_sync import fetch_remote_list_members
+
+        with patch.object(Collection, "_sync_members_from_ap") as sync:
+            fetch_remote_list_members(
+                "journal.models.collection.Collection",
+                self.collection.pk,
+                None,
+                None,
+            )
+            sync.assert_not_called()
