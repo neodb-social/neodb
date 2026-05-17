@@ -204,6 +204,8 @@ section.activity.post>section.replies {
 		>ul {
 			min-width: 8em;
 			padding: 0.25em 0;
+			right: 0;
+			left: auto;
 
 			>li {
 				margin: 0;
