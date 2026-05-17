@@ -108,17 +108,6 @@ def collection_retrieve_redirect(request: AuthedHttpRequest, collection_uuid):
     return redirect(f"/collection/{b62_encode(uid.int).zfill(22)}", permanent=True)
 
 
-_AP_ACCEPT_TYPES = (
-    "application/activity+json",
-    "application/ld+json",
-)
-
-
-def _wants_activitypub(request) -> bool:
-    accept = request.headers.get("Accept", "")
-    return any(t in accept for t in _AP_ACCEPT_TYPES)
-
-
 def _resolve_signed_viewer(request):
     """Return ``(viewer | None, error_response | None)``.
 
@@ -215,11 +204,6 @@ def collection_ap_items(request, collection_uuid):
 
 
 def _collection_last_modified(request, collection_uuid):
-    # AP responses go through their own caching/signing path; skip the
-    # conditional-GET short-circuit here so AP fetchers always run the
-    # canonical envelope code.
-    if _wants_activitypub(request):
-        return None
     try:
         uid = get_uuid_or_404(collection_uuid)
     except Http404:
@@ -242,9 +226,11 @@ def _collection_last_modified(request, collection_uuid):
 
 @conditional_get_for_anonymous(_collection_last_modified)
 def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
-    if _wants_activitypub(request):
-        collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
-        return _list_ap_object_view(request, collection)
+    # AP clients consume the Shelf envelope inline from the announcement
+    # Post's ``relatedWith[0]`` (which carries the items endpoint URL in
+    # its ``first``/``last`` fields); the canonical ``/collection/<uuid>/``
+    # only needs to render HTML for humans. Mirrors ``article_retrieve``
+    # / ``review_retrieve``.
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))

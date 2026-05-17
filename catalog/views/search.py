@@ -116,16 +116,43 @@ def _maybe_remote_piece(url: str, user):
         piece = cls.objects.filter(remote_id=url, local=False).first()
         if piece and piece.is_visible_to(user):
             if isinstance(piece, (Collection, Shelf)):
+                # Recover the items endpoint URL (and any inline
+                # ``orderedItems``) from the cached announcement Post's
+                # envelope — Collection's AP id is HTML-only post the
+                # inline-only refactor, so the job can't re-dereference
+                # ``remote_id`` for these fields.
+                items_url, inline_items = _list_sync_args_from_post(piece)
                 try:
                     django_rq.get_queue("fetch").enqueue(
                         "journal.jobs.list_sync.fetch_remote_list_members",
                         f"{type(piece).__module__}.{type(piece).__name__}",
                         piece.pk,
+                        items_url,
+                        inline_items,
                     )
                 except Exception:
                     pass
             return piece
     return None
+
+
+def _list_sync_args_from_post(piece):
+    """Pull ``items_url`` and ``inline_items`` out of the cached
+    announcement Post's stored envelope so URL-paste refreshes can
+    re-enqueue ``fetch_remote_list_members`` without re-fetching the
+    Shelf envelope. Returns ``(None, None)`` if no Post is linked or
+    the structure isn't what we wrote on inbound."""
+    post = piece.latest_post
+    if not post or not isinstance(post.type_data, dict):
+        return None, None
+    related = (post.type_data.get("object") or {}).get("relatedWith") or []
+    if not related or not isinstance(related[0], dict):
+        return None, None
+    envelope = related[0]
+    items_url = envelope.get("first") or envelope.get("items")
+    inline_items_raw = envelope.get("orderedItems")
+    inline_items = inline_items_raw if isinstance(inline_items_raw, list) else None
+    return items_url, inline_items
 
 
 def resolve_url_query(request, keywords):

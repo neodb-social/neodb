@@ -10,7 +10,6 @@ Verifies that:
 from unittest.mock import MagicMock
 
 import pytest
-from django.test import override_settings
 
 from catalog.models import Edition
 from journal.models import (
@@ -292,19 +291,6 @@ class TestGetApData:
         assert "summary" in obj_data
         assert "a review of" in obj_data["summary"]
 
-    @override_settings(REVIEW_AS_ARTICLE=False)
-    def test_review_get_ap_data_legacy_note(self):
-        review = Review.update_item_review(
-            self.book, self.identity, "My Title", "Body text", visibility=0
-        )
-        assert review is not None
-        obj_data = review.get_ap_data()["object"]
-        # relatedWith still carries Review for NeoDB-to-NeoDB compat
-        assert obj_data["relatedWith"][0]["type"] == "Review"
-        # Article fields must NOT be injected when the flag is off
-        assert "name" not in obj_data
-        assert "source" not in obj_data
-
     def test_note_get_ap_data(self):
         note = Note.objects.create(
             item=self.book,
@@ -409,23 +395,6 @@ class TestPostTypeData:
         # corresponding ``test_review_get_ap_data`` for rationale.
         assert "summary" in post.type_data["object"]
         assert "a review of" in post.type_data["object"]["summary"]
-
-    @override_settings(REVIEW_AS_ARTICLE=False)
-    def test_review_post_type_data_legacy_note(self):
-        review = Review.update_item_review(
-            self.book, self.identity, "Legacy Review", "Legacy body", visibility=0
-        )
-        assert review is not None
-        post_id = review.latest_post_id
-        assert post_id is not None
-        post = Takahe.get_post(post_id)
-        assert post is not None
-        # Flag off: post type stays Note, no Article fields injected
-        assert post.type == "Note"
-        assert "name" not in post.type_data["object"]
-        assert "source" not in post.type_data["object"]
-        # relatedWith still present for NeoDB-to-NeoDB compat
-        assert post.type_data["object"]["relatedWith"][0]["type"] == "Review"
 
     def test_note_post_type_data_without_progress(self):
         note = Note.objects.create(

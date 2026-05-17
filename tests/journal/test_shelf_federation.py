@@ -122,11 +122,14 @@ class TestShelfApEnvelope:
             position=1,
         )
         # Stub ``latest_post`` so the entry serializer surfaces ``post``.
+        # ``entry["post"]`` must be the AP ``id`` (long ``@user@domain``
+        # form), not the short ``url`` form, so peers chasing the link
+        # resolve in a single fetch.
         fake_post = MagicMock()
-        fake_post.absolute_object_uri.return_value = "https://site/@x/123"
+        fake_post.object_uri = "https://site/@x@site/posts/123/"
         with patch.object(type(m), "latest_post", fake_post):
             entry = wishlist.ap_member_entry(m)
-        assert entry["post"] == "https://site/@x/123"
+        assert entry["post"] == "https://site/@x@site/posts/123/"
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -19,8 +19,10 @@ Covers the two-step model after the AP wire-type rename to ``Shelf``:
   it follows ``first``→``next``).
 - URL paste resolution maps a remote Collection URL to the local mirror
   while respecting visibility, and now also handles remote Shelf URLs.
-- AP content-negotiation in ``collection_retrieve`` routes signed AP
-  fetches to the dereferenceable endpoint.
+- ``collection_retrieve`` is HTML-only: AP peers consume the Shelf
+  envelope inline from the announcement Post's ``relatedWith[0]`` (the
+  pattern Review uses); the ``_list_ap_object_view`` helper is still
+  exercised here because ``shelf_ap_retrieve`` calls it.
 
 Gaps (not covered here, called out for future work):
 - ``takahe.auth.sign_get`` outbound signing (needs httpx + key fixtures).
@@ -369,7 +371,14 @@ class TestRemoteCollectionUrlPaste:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestApContentNegotiation:
+class TestApEndpointHelpers:
+    """``collection_retrieve`` is HTML-only; peers consume the Shelf
+    envelope inline from the announcement Post's ``relatedWith[0]``. The
+    ``_list_ap_object_view`` / ``_list_items_view`` helpers are still
+    exercised by ``shelf_ap`` routes and by the items-page sub-URL, so
+    their behaviour is asserted directly with a ``RequestFactory``-built
+    request."""
+
     @pytest.fixture(autouse=True)
     def setup_data(self):
         self.user = User.register(email="cn@test.com", username="cn_user")
@@ -377,20 +386,6 @@ class TestApContentNegotiation:
         self.collection = Collection.objects.create(
             owner=self.identity, title="Public", visibility=0
         )
-
-    def test_html_view_when_no_ap_accept(self):
-        from journal.views.collection import _wants_activitypub
-
-        rf = RequestFactory().get(self.collection.url)
-        assert _wants_activitypub(rf) is False
-
-    def test_ap_view_when_ap_accept(self):
-        from journal.views.collection import _wants_activitypub
-
-        rf = RequestFactory().get(
-            self.collection.url, HTTP_ACCEPT="application/activity+json"
-        )
-        assert _wants_activitypub(rf) is True
 
     def test_ap_view_unsigned_public_returns_200(self):
         # Public collections are returned to anonymous callers — same as

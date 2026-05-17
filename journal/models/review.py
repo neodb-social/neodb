@@ -86,20 +86,19 @@ class Review(Content):
 
     def get_ap_data(self):
         data = super().get_ap_data()
-        if settings.REVIEW_AS_ARTICLE:
-            data["object"].update(
-                {
-                    "name": self.title,
-                    "content": self.html_content,
-                    "source": {"content": self.body, "mediaType": "text/markdown"},
-                    # Mastodon strips converted-type bodies down to
-                    # ``<h2>{name}</h2> {summary} {url}``; expose the
-                    # auto-summary so federation peers (and our own
-                    # timeline teaser) see "a review of <item>"
-                    # instead of just the title + URL.
-                    "summary": self.display_summary,
-                }
-            )
+        data["object"].update(
+            {
+                "name": self.title,
+                "content": self.html_content,
+                "source": {"content": self.body, "mediaType": "text/markdown"},
+                # Mastodon strips converted-type bodies down to
+                # ``<h2>{name}</h2> {summary} {url}``; expose the
+                # auto-summary so federation peers (and our own
+                # timeline teaser) see "a review of <item>"
+                # instead of just the title + URL.
+                "summary": self.display_summary,
+            }
+        )
         return data
 
     @classmethod
@@ -158,9 +157,8 @@ class Review(Content):
         params: dict[str, Any] = {
             "prepend_content": prepend_content,
             "content": content,
+            "post_type": "Article",
         }
-        if settings.REVIEW_AS_ARTICLE:
-            params["post_type"] = "Article"
         return params
 
     @property

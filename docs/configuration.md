@@ -326,7 +326,6 @@ The following settings can still be set in `.env` for backward compatibility, bu
  - `NEODB_FANOUT_LIMIT_DAYS`
  - `TAKAHE_REMOTE_PRUNE_HORIZON`
  - `NEODB_HIDDEN_CATEGORIES`
- - `NEODB_REVIEW_AS_ARTICLE` (default `True`; set `False` to federate Reviews as `Note` for backward compatibility)
 
 ### External item sources
  - `SPOTIFY_API_KEY`

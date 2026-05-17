@@ -639,7 +639,11 @@ class Shelf(List):
         latest_post = member.latest_post
         if latest_post is not None:
             try:
-                entry["post"] = latest_post.absolute_object_uri()
+                # ``object_uri`` (long ``@user@domain`` form) is the
+                # canonical AP id. Peers chasing this link land on the
+                # right resource in one fetch instead of double-backing
+                # on a short→long handle mismatch.
+                entry["post"] = latest_post.object_uri
             except Exception:
                 pass
         return entry

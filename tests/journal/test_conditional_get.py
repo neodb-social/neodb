@@ -111,14 +111,6 @@ class TestCollectionConditionalGet:
         )
         assert resp.status_code == 304
 
-    def test_ap_request_skips_conditional_path(self):
-        # AP requests should always run the canonical envelope code, never 304.
-        first = self.client.get(
-            self.collection.url, HTTP_ACCEPT="application/activity+json"
-        )
-        # AP path doesn't set Last-Modified.
-        assert "Last-Modified" not in first
-
 
 @pytest.mark.django_db(databases="__all__")
 class TestPostConditionalGet:
@@ -345,26 +337,6 @@ class TestConditionalGetGating:
         resp = self.client.get(bad_url, HTTP_IF_MODIFIED_SINCE=last_mod)
         assert resp.status_code != 304
 
-    def test_article_ap_accept_skips_conditional_path(self):
-        # AP requests on the article URL should redirect to the canonical
-        # Post object_uri, not 304-bypass via the article's mtime.
-        article = Article.update_local_article(
-            owner=self.user.identity,
-            title="Alt",
-            body="b",
-            visibility=0,
-        )
-        first = self.client.get(article.url)
-        assert first.status_code == 200
-        last_mod = first["Last-Modified"]
-        resp = self.client.get(
-            article.url,
-            HTTP_ACCEPT="application/activity+json",
-            HTTP_IF_MODIFIED_SINCE=last_mod,
-        )
-        # Must NOT be 304; the AP-Accept path runs the view and redirects.
-        assert resp.status_code != 304
-
     def test_post_view_rejects_json_accept(self):
         # Regression for the ``HTTP_ACCEPT`` vs ``Accept`` header-name bug —
         # ``request.headers`` keys are normalized; ``HTTP_ACCEPT`` always
@@ -432,7 +404,7 @@ class TestAlternateLinkInHead:
         resp = self.client.get(article.url)
         post = article.latest_post
         assert post is not None
-        ap = post.absolute_object_uri()
+        ap = post.object_uri
         body = resp.content.decode()
         assert 'rel="alternate"' in body
         assert 'type="application/activity+json"' in body

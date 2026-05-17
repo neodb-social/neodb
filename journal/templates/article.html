@@ -32,7 +32,7 @@
     {% if article.latest_post %}
       <link rel="alternate"
             type="application/activity+json"
-            href="{{ article.latest_post.absolute_object_uri }}">
+            href="{{ article.latest_post.object_uri }}">
     {% endif %}
     {% if not article.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} | {{ article.title }}</title>

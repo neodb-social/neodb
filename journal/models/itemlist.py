@@ -404,11 +404,23 @@ class List(Piece):
         # so future staleness checks compare against the remote's `updated`.
         cls.objects.filter(pk=inst.pk).update(edited_time=edited)
         inst.edited_time = edited
+        # Forward both the items endpoint URL and any inline
+        # ``orderedItems`` from the inbound envelope so the job doesn't
+        # need to re-dereference ``remote_id`` — Collection's canonical
+        # URL is HTML-only, mirroring Review's "inline only" consumption
+        # pattern. Peers that inline the items list (no ``first``/
+        # ``items`` URL) still federate correctly because the job
+        # consumes ``inline_items`` directly.
+        items_url = obj.get("first") or obj.get("items")
+        inline_items_raw = obj.get("orderedItems")
+        inline_items = inline_items_raw if isinstance(inline_items_raw, list) else None
         try:
             django_rq.get_queue("fetch").enqueue(
                 cls.fetch_remote_member_url(),
                 cls.__module__ + "." + cls.__name__,
                 inst.pk,
+                items_url,
+                inline_items,
             )
         except Exception as e:
             logger.warning(

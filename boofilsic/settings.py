@@ -151,10 +151,6 @@ env = environ.FileAwareEnv(
     SKIP_MIGRATIONS=(list, []),
     TAKAHE_REMOTE_PRUNE_HORIZON=(int, 92),
     NEODB_HIDDEN_CATEGORIES=(list, []),
-    # Federate Review as ActivityPub Article (with title/HTML/markdown source)
-    # rather than Note. Set to False to roll back to legacy Note federation if
-    # interoperability issues arise with peer servers.
-    NEODB_REVIEW_AS_ARTICLE=(bool, True),
 )
 
 # ====== End of user configuration variables ======
@@ -236,8 +232,6 @@ THREADS_APP_SECRET = env("THREADS_APP_SECRET")
 
 ENABLE_LOGIN_BLUESKY = env("NEODB_ENABLE_LOGIN_BLUESKY")
 ENABLE_LOGIN_THREADS = env("NEODB_ENABLE_LOGIN_THREADS")
-
-REVIEW_AS_ARTICLE: bool = env("NEODB_REVIEW_AS_ARTICLE")
 
 SITE_DOMAIN: str = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {

@@ -435,8 +435,9 @@ class TestArticleInboundParsing:
 
 @pytest.mark.django_db(databases="__all__")
 class TestArticleRetrieveView:
-    """``/article/<uuid>`` serves HTML; AP requests redirect to the Takahe
-    Post URL (which is the canonical AP wire object)."""
+    """``/article/<uuid>`` serves HTML to every Accept header; AP clients
+    reach the canonical Takahe Post via the ``<link rel="alternate">`` in
+    the rendered HTML head, mirroring ``review_retrieve``."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
@@ -456,19 +457,26 @@ class TestArticleRetrieveView:
         assert b"Hello View" in resp.content
         assert b"<strong>bold</strong>" in resp.content
 
-    def test_ap_request_redirects_to_post(self):
+    def test_ap_request_serves_html_with_alternate_link(self):
         article = Article.update_local_article(
             owner=self.identity,
-            title="AP Redirect",
+            title="AP Alt",
             body="Body",
             visibility=0,
         )
         resp = self.client.get(article.url, HTTP_ACCEPT="application/activity+json")
-        assert resp.status_code in (301, 302)
+        assert resp.status_code == 200
         post = article.latest_post
         assert post is not None
-        # The redirect target is the Takahe Post's canonical AP URL.
-        assert resp["Location"] == post.absolute_object_uri()
+        body = resp.content.decode()
+        # The HTML head's ``<link rel="alternate" type="application/activity+json">``
+        # points at the Takahe Post's AP ``id`` (long ``@user@domain`` form)
+        # so AP clients dereference the canonical wire object on the second
+        # fetch — Mastodon's ``FetchResourceService.process_html`` follows
+        # this link when content negotiation returns HTML.
+        assert 'rel="alternate"' in body
+        assert 'type="application/activity+json"' in body
+        assert post.object_uri in body
 
 
 @pytest.mark.django_db(databases="__all__")

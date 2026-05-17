@@ -34,15 +34,33 @@ NeoDB's ActivityPub implementation is based on [Takahē](https://jointakahe.org)
 
 ### Activity
 
-NeoDB add additional fields to `Note` activity:
+NeoDB adds additional fields to `Note` activity (and to `Article` for reviews — see below):
 
-  - `relatedWith` is a list of NeoDB specific activities which are associated with this `Note`. For each activity, `id` and `href` are both unique links to that activity, `withRegardTo` links to the catalog item, `attributedTo` links to the user, `type` is one of:
+  - `relatedWith` is a list of NeoDB-specific activities associated with this Post. For each entry, `id` and `href` are both unique links to that activity, `withRegardTo` links to the catalog item, `attributedTo` links to the user, `type` is one of:
     - `Status`, its `status` can be one of: `complete`, `progress`, `wishlist` and `dropped`
     - `Rating`, its `value` is rating grade (int, 1-10), `worst` is always 1, `best` is always 10
     - `Comment`, its `content` is comment text
-    - `Review`, its `name` is review title, `content` is its body, `mediaType` is always `text/markdown` for now
+    - `Review`, its `name` is review title, `content` is its body, `mediaType` is always `text/markdown` for now (see [Review](#review))
     - `Note`, its `content` is note text
+    - `Shelf`, the lightweight envelope of a NeoDB Collection or Shelf — items are paginated behind `first`/`last` (see [Collection / Shelf](#collection--shelf))
   - `tag` is used to store list of NeoDB catalog items, which are related with this activity. `type` of NeoDB catalog item can be one of `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Game`, `Podcast`, `PodcastEpisode`, `Performance`, `PerformanceProduction`; href will be the link to that item.
+
+#### Review
+
+A Review rides in a Post of `type: Article`. The outer object carries `name`, `content` (HTML), `source` (`{content, mediaType: text/markdown}`), and `summary` for general AP clients; the full `Review` activity sits in `relatedWith[0]` with raw markdown body and `withRegardTo` for NeoDB peers.
+
+#### Collection / Shelf
+
+NeoDB Collections (user-curated lists) and Shelves (per-status item lists: Wishlist / Progress / Complete / Dropped) federate as a `Shelf` envelope in `relatedWith[0]` of an announcement Note. The envelope omits `orderedItems`; instead it carries:
+
+- `totalItems`, plus `first` / `last` URLs to the paginated items endpoint (e.g. `…/collection/<uuid>/items?page=1`)
+- `content` (Collection only): description in markdown
+- `shelfType` (Shelf only): `wishlist` / `progress` / `complete` / `dropped`
+- `query` (dynamic Collection only): the NeoDB search query
+
+Peers parse the envelope inline and walk `first` → `next` at the items endpoint with signed GETs. Each `OrderedCollectionPage` returns `orderedItems` of `type: ShelfItem` with `withRegardTo`, optional `commentText` (Collection), and optional `post` URL (Shelf — lets peers chain one signed GET to ingest the associated Mark/Rating/Comment/Review).
+
+The envelope `id` is the human-facing NeoDB URL (HTML for Collection, AP for Shelf) — peers should not assume it dereferences as AP. Only the items endpoint must remain AP-dereferenceable.
 
 Example:
 ```json

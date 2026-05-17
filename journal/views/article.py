@@ -15,16 +15,6 @@ from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
 from ..models.renderers import convert_leading_space_in_md, sanitize_md_images
 from .common import conditional_get_for_anonymous
 
-_AP_ACCEPT_TYPES = (
-    "application/activity+json",
-    "application/ld+json",
-)
-
-
-def _wants_activitypub(request) -> bool:
-    accept = request.headers.get("Accept", "")
-    return any(t in accept for t in _AP_ACCEPT_TYPES)
-
 
 def _parse_tags(raw: str) -> list[str]:
     if not raw:
@@ -100,11 +90,6 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
 
 
 def _article_last_modified(request, article_uuid: str):
-    # AP requests redirect to a different URI (the canonical Takahē post);
-    # a 304 here would let a stale HTML-cached client bypass that redirect.
-    # The view body handles the AP branch.
-    if _wants_activitypub(request):
-        return None
     # Owner-level toggles (``anonymous_viewable``, ``restricted``) don't
     # bump piece ``edited_time``, so the visibility check must run here —
     # otherwise a privacy flip would leave anonymous clients with a
@@ -123,19 +108,15 @@ def _article_last_modified(request, article_uuid: str):
 @conditional_get_for_anonymous(_article_last_modified)
 def article_retrieve(request, article_uuid: str):
     article = get_object_or_404(Article, uid=get_uuid_or_404(article_uuid))
-    if request.method == "HEAD":
-        return HttpResponse()
-    if _wants_activitypub(request):
-        # The Takahe Post is the canonical AP wire object — it owns
-        # signing, caching, and visibility gating. Defer to it instead of
-        # serving a duplicate AP envelope here. (For remote articles the
-        # Takahe view in turn redirects to the origin's `object_uri`.)
-        post = article.latest_post
-        if not post:
-            raise Http404("No post for article")
-        return redirect(post.absolute_object_uri())
     if not article.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    if request.method == "HEAD":
+        return HttpResponse()
+    # AP clients reach the canonical Takahe Post via the
+    # ``<link rel="alternate" type="application/activity+json">`` in
+    # the rendered HTML head (see ``article.html``). The href there
+    # points at ``latest_post.object_uri`` (the AP ``id``), so
+    # Mastodon's HTML-fallback resolver lands on the right resource.
     return render(request, "article.html", {"article": article})
 
 
