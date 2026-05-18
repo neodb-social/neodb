@@ -342,12 +342,53 @@ class TestRemoteCollectionUrlPaste:
         col = Collection.objects.get(remote_id=remote_url)
         rf = RequestFactory().get("/search?q=" + remote_url)
         rf.user = self.user
-        with patch("django_rq.get_queue") as gq:
+        # ``_list_sync_args_from_post`` reads from a real Takahē Post's
+        # cached ``type_data``; the test fixture's ``MagicMock`` post
+        # isn't persisted, so stub the helper to return the envelope
+        # the announcement Post would actually carry.
+        items_url = ap_obj["first"]
+        with (
+            patch("django_rq.get_queue") as gq,
+            patch(
+                "catalog.views.search._list_sync_args_from_post",
+                return_value=(items_url, None),
+            ),
+        ):
             response = resolve_url_query(rf, remote_url)
         assert response is not None
         assert response.status_code in (302, 301)
         assert col.url in response["Location"]
         gq.return_value.enqueue.assert_called()
+        args = gq.return_value.enqueue.call_args.args
+        assert args[3] == items_url
+        assert args[4] is None
+
+    def test_resolve_url_skips_enqueue_when_cache_empty(self):
+        # ``_list_sync_args_from_post`` returns ``(None, None)`` when
+        # the announcement Post is missing or malformed. Skip the
+        # enqueue rather than scheduling a no-op job — the user still
+        # gets the existing mirror, and a refresh arrives with the
+        # next pushed Update activity from the origin.
+        remote_url = "https://remote.example/collection/cccccccccccccccccccccc"
+        ap_obj = _shelf_envelope(remote_url, self.identity, name="NoCache")
+        post = _make_remote_post(self.identity.pk, post_id=92003)
+        with patch("journal.models.itemlist.django_rq.get_queue"):
+            Collection.update_by_ap_object(self.identity, None, ap_obj, post)
+        col = Collection.objects.get(remote_id=remote_url)
+        rf = RequestFactory().get("/search?q=" + remote_url)
+        rf.user = self.user
+        with (
+            patch("django_rq.get_queue") as gq,
+            patch(
+                "catalog.views.search._list_sync_args_from_post",
+                return_value=(None, None),
+            ),
+        ):
+            response = resolve_url_query(rf, remote_url)
+        assert response is not None
+        assert response.status_code in (302, 301)
+        assert col.url in response["Location"]
+        assert not gq.return_value.enqueue.called
 
     def test_resolve_url_hides_invisible_remote_mirror(self):
         remote_url = "https://remote.example/collection/bbbbbbbbbbbbbbbbbbbbbb"
