@@ -20,6 +20,7 @@ from common.utils import (
     get_page_size_from_request,
     user_identity_required,
 )
+from journal.jobs.list_sync import extract_items_url
 from journal.models import Collection, Note, Review, Shelf, Tag
 from journal.models.mark import Mark
 from journal.models.rating import Rating
@@ -158,7 +159,7 @@ def _list_sync_args_from_post(piece):
     if not related or not isinstance(related[0], dict):
         return None, None
     envelope = related[0]
-    items_url = envelope.get("first") or envelope.get("items")
+    items_url = extract_items_url(envelope)
     inline_items_raw = envelope.get("orderedItems")
     inline_items = inline_items_raw if isinstance(inline_items_raw, list) else None
     return items_url, inline_items

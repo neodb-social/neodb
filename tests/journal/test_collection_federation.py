@@ -820,3 +820,23 @@ class TestFetchRemoteListMembersJob:
                 None,
             )
             sync.assert_not_called()
+
+    def test_extract_items_url_handles_embedded_object(self):
+        # AS2 lets ``first`` / ``items`` be either a URL string or an
+        # embedded ``OrderedCollection(Page)`` object. The job's page
+        # walker calls ``next_url in visited`` (set membership) and
+        # would blow up on a dict; ``extract_items_url`` normalizes to
+        # the embedded object's ``id`` when present.
+        from journal.jobs.list_sync import extract_items_url
+
+        assert extract_items_url({"first": "https://x/page?1"}) == "https://x/page?1"
+        assert extract_items_url({"items": "https://x/items"}) == "https://x/items"
+        embedded = {
+            "first": {"type": "OrderedCollectionPage", "id": "https://x/page?1"}
+        }
+        assert extract_items_url(embedded) == "https://x/page?1"
+        # No ``id`` on the embedded object → give up rather than crash.
+        assert extract_items_url({"first": {"type": "OrderedCollectionPage"}}) is None
+        assert extract_items_url({}) is None
+        # Bogus types: integer, list, etc. → None.
+        assert extract_items_url({"first": 42}) is None

@@ -12,6 +12,7 @@ from loguru import logger
 from catalog.models import Item, ItemCategory
 from catalog.models.item import item_content_types
 from common.validators import is_valid_url
+from journal.jobs.list_sync import extract_items_url
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -410,8 +411,10 @@ class List(Piece):
         # URL is HTML-only, mirroring Review's "inline only" consumption
         # pattern. Peers that inline the items list (no ``first``/
         # ``items`` URL) still federate correctly because the job
-        # consumes ``inline_items`` directly.
-        items_url = obj.get("first") or obj.get("items")
+        # consumes ``inline_items`` directly. ``extract_items_url``
+        # tolerates AS2 peers that send an embedded
+        # ``OrderedCollection(Page)`` object instead of a URL string.
+        items_url = extract_items_url(obj)
         inline_items_raw = obj.get("orderedItems")
         inline_items = inline_items_raw if isinstance(inline_items_raw, list) else None
         try:

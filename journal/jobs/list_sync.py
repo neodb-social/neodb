@@ -48,6 +48,22 @@ def _resolve_class(class_path: str):
     return getattr(module, class_name)
 
 
+def extract_items_url(envelope: dict[str, Any]) -> str | None:
+    """Normalize an envelope's ``first`` / ``items`` to a URL string or
+    ``None``. ActivityStreams 2.0 permits these fields to be either a
+    URL string *or* an embedded ``OrderedCollection(Page)`` object;
+    fall back to the embedded object's ``id`` when we hit the latter so
+    downstream callers always work with a hashable URL. Anything we
+    can't reduce to a string yields ``None``."""
+    val = envelope.get("first") or envelope.get("items")
+    if isinstance(val, str):
+        return val
+    if isinstance(val, dict):
+        inner = val.get("id")
+        return inner if isinstance(inner, str) else None
+    return None
+
+
 def _signed_get_json(url: str) -> dict[str, Any] | None:
     """SSRF-gated signed GET that returns the parsed JSON body or None.
 
