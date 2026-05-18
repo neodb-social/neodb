@@ -49,7 +49,7 @@ class Takahe:
         name = ""
         domain = Domain.objects.filter(domain=d).first()
         if domain and domain.nodeinfo:
-            name = domain.nodeinfo.get("metadata", {}).get("nodeName") or ""
+            name = (domain.nodeinfo.get("metadata") or {}).get("nodeName") or ""
         cache.set(cache_key, name, 600)
         if name:
             return name
