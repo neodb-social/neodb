@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
+from django.utils.html import escape
+from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from loguru import logger
@@ -25,6 +27,7 @@ from .itemlist import AP_PAGE_SIZE, List, ListMember, list_add, list_remove
 from .renderers import render_md, render_text
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
+_COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
 
 
 class CollectionMember(ListMember):
@@ -477,6 +480,11 @@ class Collection(List):
                     return existing
             except Exception:
                 pass
+        if cover_size is not None and cover_size > _COVER_MAX_BYTES:
+            logger.warning(
+                f"collection cover too large to attach ({cover_size} bytes): {self.cover}"
+            )
+            return existing or None
         try:
             with self.cover.open("rb") as f:
                 content = f.read()
@@ -507,18 +515,24 @@ class Collection(List):
         data = self.get_ap_data()
         # if existing_post and existing_post.type_data == data:
         #     return existing_post
-        item_link = self.absolute_url
-        site_name = settings.SITE_INFO["site_name"]
-        prepend_content = f'<a href="{item_link}"><b>{self.title}</b> - {site_name} Collection</a><br>'
+        item_link = escape(self.absolute_url)
+        site_name = escape(settings.SITE_INFO["site_name"])
+        title = escape(self.title)
+        prepend_content = (
+            f'<a href="{item_link}"><b>{title}</b> - {site_name} Collection</a><br>'
+        )
         # ``content`` is sanitized through linebreaks_filter + FediverseHtmlParser
         # (escapes raw HTML); ``append_content`` is inserted verbatim. We keep the
         # short summary in ``content`` so prepend_content lands inside the first
         # <p>, and ship the rendered-markdown description via ``append_content``.
-        brief = self.brief or ""
-        if len(brief) > 360:
-            brief = brief[:357] + "..."
         content = self._format_summary()
-        append_content = f"\n{render_md(brief)}" if brief else ""
+        if self.brief:
+            # Render markdown first, then truncate the HTML so we don't slice a
+            # link/bold marker mid-syntax.
+            brief_html = Truncator(render_md(self.brief)).chars(360, html=True)
+            append_content = f"\n{brief_html}"
+        else:
+            append_content = ""
         if not content:
             content = " "
         attachments = self._build_cover_attachments(existing_post)
