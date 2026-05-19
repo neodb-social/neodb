@@ -1,3 +1,4 @@
+import mimetypes
 import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
@@ -7,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from loguru import logger
 
 from catalog.models import CatalogCollection, Item
@@ -405,6 +407,95 @@ class Collection(List):
             }
         }
 
+    def _format_summary(self) -> str:
+        summary = self.get_summary() or {}
+        parts: list[str] = []
+        for category, count in summary.items():
+            if not count:
+                continue
+            match category:
+                case "book":
+                    parts.append(
+                        ngettext("%(count)d book", "%(count)d books", count)
+                        % {"count": count}
+                    )
+                case "movie":
+                    parts.append(
+                        ngettext("%(count)d movie", "%(count)d movies", count)
+                        % {"count": count}
+                    )
+                case "tv":
+                    parts.append(
+                        ngettext("%(count)d tv show", "%(count)d tv shows", count)
+                        % {"count": count}
+                    )
+                case "music":
+                    parts.append(
+                        ngettext("%(count)d album", "%(count)d albums", count)
+                        % {"count": count}
+                    )
+                case "game":
+                    parts.append(
+                        ngettext("%(count)d game", "%(count)d games", count)
+                        % {"count": count}
+                    )
+                case "podcast":
+                    parts.append(
+                        ngettext("%(count)d podcast", "%(count)d podcasts", count)
+                        % {"count": count}
+                    )
+                case "performance":
+                    parts.append(
+                        ngettext(
+                            "%(count)d performance",
+                            "%(count)d performances",
+                            count,
+                        )
+                        % {"count": count}
+                    )
+                case _:
+                    parts.append(
+                        ngettext("%(count)d item", "%(count)d items", count)
+                        % {"count": count}
+                    )
+        return ", ".join(parts)
+
+    def _build_cover_attachments(self, existing_post) -> list | None:
+        has_cover = bool(self.cover) and str(self.cover) != settings.DEFAULT_ITEM_COVER
+        existing = list(existing_post.attachments.all()) if existing_post else []
+        if not has_cover:
+            # clear stale attachments on existing posts; leave new posts as-is
+            return [] if existing else None
+        try:
+            cover_size = self.cover.size
+        except Exception:
+            cover_size = None
+        if existing and cover_size is not None:
+            current = existing[0]
+            try:
+                if current.file and current.file.size == cover_size:
+                    return existing
+            except Exception:
+                pass
+        try:
+            with self.cover.open("rb") as f:
+                content = f.read()
+        except Exception as e:
+            logger.error(f"error reading collection cover {self.cover}: {e}")
+            return existing or None
+        filename = (self.cover.name or "").rsplit("/", 1)[-1] or "cover"
+        mimetype, _enc = mimetypes.guess_type(filename)
+        if not mimetype:
+            mimetype = "image/jpeg"
+        try:
+            attachment = Takahe.upload_image(
+                self.owner.pk, filename, content, mimetype, self.title
+            )
+        except Exception as e:
+            logger.error(f"error uploading collection cover {self.cover}: {e}")
+            return existing or None
+        return [attachment]
+
     def sync_to_timeline(self, update_mode: int = 0):
         existing_post = self.latest_post
         owner: APIdentity = self.owner
@@ -416,23 +507,33 @@ class Collection(List):
         data = self.get_ap_data()
         # if existing_post and existing_post.type_data == data:
         #     return existing_post
-        action = _("created a collection")
         item_link = self.absolute_url
-        prepend_content = f'{action} <a href="{item_link}">{self.title}</a><br>'
-        content = self.plain_content
-        if len(content) > 360:
-            content = content[:357] + "..."
+        site_name = settings.SITE_INFO["site_name"]
+        prepend_content = f'<a href="{item_link}"><b>{self.title}</b> - {site_name} Collection</a><br>'
+        # ``content`` is sanitized through linebreaks_filter + FediverseHtmlParser
+        # (escapes raw HTML); ``append_content`` is inserted verbatim. We keep the
+        # short summary in ``content`` so prepend_content lands inside the first
+        # <p>, and ship the rendered-markdown description via ``append_content``.
+        brief = self.brief or ""
+        if len(brief) > 360:
+            brief = brief[:357] + "..."
+        content = self._format_summary()
+        append_content = f"\n{render_md(brief)}" if brief else ""
+        if not content:
+            content = " "
+        attachments = self._build_cover_attachments(existing_post)
         post = Takahe.post(
             self.owner.pk,
             content,
             v,
             prepend_content,
-            "",
+            append_content,
             None,
             False,
             data,
             existing_post.pk if existing_post else None,
             self.created_time,
+            attachments=attachments,
             language=owner.user.macrolanguage,
             application_id=self.application_id_when_save,
         )
