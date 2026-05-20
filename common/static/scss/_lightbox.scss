@@ -11,7 +11,8 @@
   -webkit-backdrop-filter: var(--pico-modal-overlay-backdrop-filter);
 }
 
-.lightbox:target {
+.lightbox:target,
+.lightbox.open {
   display: block;
 }
 

@@ -109,12 +109,16 @@
             <div class="attachments">
               {% for attachment in post.attachments.all %}
                 {% if attachment.is_image %}
-                  <a href="#img_{{ post.pk }}_{{ loop.index }}">
+                  <a href="#img_{{ post.pk }}_{{ loop.index }}"
+                     _="on click halt the event then add .open to #img_{{ post.pk }}_{{ loop.index }}">
                     <img src="{{ attachment.thumbnail_url.relative }}"
                          alt="image attachment"
                          class="preview">
                   </a>
-                  <a href="#" class="lightbox" id="img_{{ post.pk }}_{{ loop.index }}">
+                  <a href="#"
+                     class="lightbox"
+                     id="img_{{ post.pk }}_{{ loop.index }}"
+                     _="on click halt the event then remove .open from me">
                     <span style="background-image: url('{{ attachment.full_url.relative }}')"></span>
                   </a>
                 {% elif attachment.is_video %}
