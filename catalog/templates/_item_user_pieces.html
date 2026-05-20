@@ -101,15 +101,15 @@
         <div class="attachments">
           {% for attachment in note.attachments %}
             {% if attachment.type == 'image' %}
-              <a href="#img_{{ note.uuid }}_{{ loop.index }}"
-                 _="on click halt the event then add .open to #img_{{ note.uuid }}_{{ loop.index }}">
+              <a href="#img_{{ note.uuid }}_{{ forloop.counter }}"
+                 _="on click halt the event then add .open to the next .lightbox">
                 <img src="{{ attachment.preview_url }}"
                      alt="image attachment"
                      class="preview">
               </a>
               <a href="#"
                  class="lightbox"
-                 id="img_{{ note.uuid }}_{{ loop.index }}"
+                 id="img_{{ note.uuid }}_{{ forloop.counter }}"
                  _="on click halt the event then remove .open from me">
                 <span style="background-image: url('{{ attachment.url }}')"></span>
               </a>
