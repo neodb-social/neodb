@@ -151,11 +151,11 @@ def _allowed_quote_visibilities(
 
 @require_http_methods(["GET", "POST"])
 def post_quote(request: AuthedHttpRequest, post_id: int):
-    # Anonymous GET is allowed so the auto-loading panel in single_post can
-    # render the existing-quotes list for logged-out viewers (mirrors how
+    # Anonymous GET is allowed so the click-to-load panel renders the
+    # existing-quotes list for logged-out viewers (mirrors how
     # ``post_replies`` exposes the replies panel anonymously).
     post = Takahe.get_post(post_id)
-    if not post:
+    if not post or post.state in ["deleted", "deleted_fanned_out"]:
         raise BadRequest(_("Invalid parameter"))
     viewer = request.user.identity if request.user.is_authenticated else None
     owner = APIdentity.by_takahe_identity(post.author)
