@@ -602,6 +602,13 @@ class APIKeysSettings(SiteConfigSettingsPage):
         "igdb_client_secret": {
             "title": _("IGDB Client Secret"),
         },
+        "bgg_api_token": {
+            "title": _("BoardGameGeek API Token"),
+            "help_text": _(
+                "Bearer token from https://boardgamegeek.com/applications "
+                "(see https://boardgamegeek.com/using_the_xml_api#toc9)."
+            ),
+        },
         "steam_api_key": {
             "title": _("Steam API Key"),
             "help_text": _(
@@ -663,6 +670,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
             "discogs_api_key",
             "igdb_client_id",
             "igdb_client_secret",
+            "bgg_api_token",
             "steam_api_key",
         ],
         _("Translation"): [
