@@ -8,7 +8,6 @@ from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils.html import escape
-from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from loguru import logger
@@ -509,7 +508,16 @@ class Collection(List):
         owner: APIdentity = self.owner
         user = owner.user
         v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
-        if existing_post and (update_mode == 1 or v != existing_post.visibility):
+        # ``Piece.latest_post`` already filters out deleted posts, but keep
+        # the explicit guard so we never call ``Takahe.post(post_pk=...)``
+        # on a corpse — that would route through ``edit_local`` and silently
+        # resurrect a post the user (or a stator failure) removed.
+        if existing_post and existing_post.state in (
+            "deleted",
+            "deleted_fanned_out",
+        ):
+            existing_post = None
+        elif existing_post and (update_mode == 1 or v != existing_post.visibility):
             Takahe.delete_posts([existing_post.pk])
             existing_post = None
         data = self.get_ap_data()
@@ -522,26 +530,17 @@ class Collection(List):
             f'<a href="{item_link}"><b>{title}</b> - {site_name} Collection</a><br>'
         )
         # ``content`` is sanitized through linebreaks_filter + FediverseHtmlParser
-        # (escapes raw HTML); ``append_content`` is inserted verbatim. We keep the
-        # short summary in ``content`` so prepend_content lands inside the first
-        # <p>, and ship the rendered-markdown description via ``append_content``.
-        content = self._format_summary()
-        if self.brief:
-            # Render markdown first, then truncate the HTML so we don't slice a
-            # link/bold marker mid-syntax.
-            brief_html = Truncator(render_md(self.brief)).chars(360, html=True)
-            append_content = f"\n{brief_html}"
-        else:
-            append_content = ""
-        if not content:
-            content = " "
+        # (escapes raw HTML); we keep the short item-count summary in ``content``
+        # so prepend_content lands inside the first <p>. The collection brief is
+        # intentionally not included — the canonical page already shows it.
+        content = self._format_summary() or " "
         attachments = self._build_cover_attachments(existing_post)
         post = Takahe.post(
             self.owner.pk,
             content,
             v,
             prepend_content,
-            append_content,
+            "",
             None,
             False,
             data,

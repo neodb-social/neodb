@@ -13,7 +13,7 @@ from ..forms import ArticleForm
 from ..models import Article
 from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
 from ..models.renderers import convert_leading_space_in_md, sanitize_md_images
-from .common import conditional_get_for_anonymous
+from .common import conditional_get_for_anonymous, post_quotes_count
 
 
 def _parse_tags(raw: str) -> list[str]:
@@ -117,7 +117,11 @@ def article_retrieve(request, article_uuid: str):
     # the rendered HTML head (see ``article.html``). The href there
     # points at ``latest_post.object_uri`` (the AP ``id``), so
     # Mastodon's HTML-fallback resolver lands on the right resource.
-    return render(request, "article.html", {"article": article})
+    return render(
+        request,
+        "article.html",
+        {"article": article, "quotes_count": post_quotes_count(article.latest_post)},
+    )
 
 
 @target_identity_required

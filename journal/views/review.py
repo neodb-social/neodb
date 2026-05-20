@@ -27,7 +27,7 @@ from ..models.renderers import (
     render_md,
     sanitize_md_images,
 )
-from .common import conditional_get_for_anonymous, render_list
+from .common import conditional_get_for_anonymous, post_quotes_count, render_list
 
 
 def _review_last_modified(request, review_uuid):
@@ -51,7 +51,11 @@ def review_retrieve(request, review_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "HEAD":
         return HttpResponse()
-    return render(request, "article.html", {"article": piece})
+    return render(
+        request,
+        "article.html",
+        {"article": piece, "quotes_count": post_quotes_count(piece.latest_post)},
+    )
 
 
 @require_http_methods(["POST"])

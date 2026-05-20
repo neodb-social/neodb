@@ -48,17 +48,18 @@ def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> 
     return -1
 
 
-@login_required
 def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
+    # Anonymous viewers can still load the replies panel (list only — the
+    # compose form in ``replies.html`` is gated on ``request.user.is_authenticated``
+    # via the included templates), mirroring ``post_quote``'s anonymous GET.
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
-    replies = piece.get_replies(request.user.identity)
+    viewer = request.user.identity if request.user.is_authenticated else None
+    replies = piece.get_replies(viewer)
     reply_prepend = ""
-    if piece.latest_post:
-        reply_prepend = piece.latest_post.reply_prepend(
-            request.user.identity.takahe_identity
-        )
+    if piece.latest_post and viewer:
+        reply_prepend = piece.latest_post.reply_prepend(viewer.takahe_identity)
     return render(
         request,
         "replies.html",
@@ -86,27 +87,6 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
             "show_header": request.GET.get("header") == "1",
         },
     )
-
-
-@require_http_methods(["GET"])
-def post_quotes(request: AuthedHttpRequest, post_id: int):
-    post: Post = get_object_or_404(Post, pk=post_id)
-    if post.state in ["deleted", "deleted_fanned_out"]:
-        raise Http404("Post not available")
-    viewer = request.user.identity if request.user.is_authenticated else None
-    owner = APIdentity.by_takahe_identity(post.author)
-    if not owner or _can_view_post(post, owner, viewer) < 0:
-        raise PermissionDenied(_("Insufficient permission"))
-    viewer_identity = viewer.takahe_identity if viewer else None
-    quotes = (
-        Post.objects.not_hidden()
-        .visible_to(viewer_identity, include_replies=True)
-        .filter(quote_url=post.object_uri)
-        .select_related("author")
-        .prefetch_related("mentions")
-        .order_by("-published")[:20]
-    )
-    return render(request, "post_quotes.html", {"post": post, "quotes": quotes})
 
 
 @require_http_methods(["POST"])
@@ -170,44 +150,65 @@ def _allowed_quote_visibilities(
 
 
 @require_http_methods(["GET", "POST"])
-@login_required
 def post_quote(request: AuthedHttpRequest, post_id: int):
+    # Anonymous GET is allowed so the auto-loading panel in single_post can
+    # render the existing-quotes list for logged-out viewers (mirrors how
+    # ``post_replies`` exposes the replies panel anonymously).
     post = Takahe.get_post(post_id)
     if not post:
         raise BadRequest(_("Invalid parameter"))
-    viewer = request.user.identity
+    viewer = request.user.identity if request.user.is_authenticated else None
     owner = APIdentity.by_takahe_identity(post.author)
     if not owner or _can_view_post(post, owner, viewer) < 0:
         raise PermissionDenied(_("Insufficient permission"))
-    allowed = _allowed_quote_visibilities(post.visibility)
-    public_mode = request.user.preference.post_public_mode
-    default_visibility = public_mode if public_mode in allowed else allowed[0]
-    if request.method == "GET":
-        return render(
-            request,
-            "quote_form.html",
-            {
-                "post": post,
-                "allowed_visibilities": allowed,
-                "default_visibility": default_visibility,
-            },
-        )
-    content = request.POST.get("content", "").strip()
-    try:
-        visibility = Takahe.Visibilities(int(request.POST.get("visibility", -1)))
-    except ValueError:
-        raise BadRequest(_("Invalid parameter"))
-    if not content:
-        raise BadRequest(_("Invalid parameter"))
-    if visibility not in allowed:
-        raise BadRequest(_("Visibility too high for quoting this post"))
-    Takahe.post(
-        request.user.identity.pk,
-        content,
-        visibility,
-        quote_url=post.object_uri,
+    allowed: list = []
+    default_visibility = 0
+    submitted = False
+    if request.user.is_authenticated:
+        allowed = _allowed_quote_visibilities(post.visibility)
+        public_mode = request.user.preference.post_public_mode
+        default_visibility = public_mode if public_mode in allowed else allowed[0]
+        if request.method == "POST":
+            content = request.POST.get("content", "").strip()
+            try:
+                visibility = Takahe.Visibilities(
+                    int(request.POST.get("visibility", -1))
+                )
+            except ValueError:
+                raise BadRequest(_("Invalid parameter"))
+            if not content:
+                raise BadRequest(_("Invalid parameter"))
+            if visibility not in allowed:
+                raise BadRequest(_("Visibility too high for quoting this post"))
+            Takahe.post(
+                request.user.identity.pk,
+                content,
+                visibility,
+                quote_url=post.object_uri,
+            )
+            submitted = True
+    elif request.method == "POST":
+        raise PermissionDenied(_("Insufficient permission"))
+    viewer_takahe = viewer.takahe_identity if viewer else None
+    quotes = (
+        Post.objects.not_hidden()
+        .visible_to(viewer_takahe, include_replies=True)
+        .filter(quote_url=post.object_uri)
+        .select_related("author")
+        .prefetch_related("mentions")
+        .order_by("-published")[:20]
     )
-    return render(request, "quote_form.html", {"post": post, "submitted": True})
+    return render(
+        request,
+        "post_quotes.html",
+        {
+            "post": post,
+            "allowed_visibilities": allowed,
+            "default_visibility": default_visibility,
+            "quotes": quotes,
+            "submitted": submitted,
+        },
+    )
 
 
 @require_http_methods(["POST"])

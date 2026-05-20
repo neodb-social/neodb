@@ -73,6 +73,25 @@ def upload_image(request: AuthedHttpRequest) -> JsonResponse:
 PAGE_SIZE = 10
 
 
+def post_quotes_count(post) -> int:
+    """Count active quote-posts for ``post``.
+
+    Mirrors the count exposed in ``single_post.html`` so article / review /
+    collection footers can render a metrics chip next to the Quote link
+    (parity with ``post.stats.replies``; Takahe does not store a ``quotes``
+    stat).
+    """
+    if post is None:
+        return 0
+    from takahe.models import Post
+
+    return (
+        Post.objects.filter(quote_url=post.object_uri)
+        .exclude(state__in=["deleted", "deleted_fanned_out"])
+        .count()
+    )
+
+
 def conditional_get_for_anonymous(get_timestamp):
     """Apply HTTP conditional-GET (``Last-Modified``) for anonymous viewers.
 

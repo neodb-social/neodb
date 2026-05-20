@@ -172,12 +172,6 @@
       </div>
     </div>
     <div id="quote_{{ post.pk }}"></div>
-    {% if show_all_actions %}
-      <div id="quotes_{{ post.pk }}"
-           hx-get="{% url 'journal:post_quotes' post.pk %}"
-           hx-swap="outerHTML"
-           hx-trigger="revealed"></div>
-    {% endif %}
     <div id="replies_{{ post.pk }}"
          {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
          "

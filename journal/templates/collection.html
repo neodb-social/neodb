@@ -18,7 +18,7 @@
     <meta property="og:article:author"
           content="{{ collection.owner.display_name }}">
     <meta property="og:url" content="{{ collection.absolute_url }}">
-    <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
+    {% if collection.cover_image_url %}<meta property="og:image" content="{{ collection.cover_image_url }}">{% endif %}
     <meta property="og:site_name"
           content="{{ site_name }} {% trans 'Collection' %}">
     <meta name="fediverse:creator"
@@ -53,10 +53,7 @@
                 {% include "action_post_timestamp.html" with post=collection.latest_post %}
                 {% if request.user.is_authenticated and collection.latest_post.author_id == request.user.identity.pk %}
                   <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
-                  {% include "action_pin_post.html" with post=collection.latest_post %}
-                  {% include "action_delete_post.html" with post=collection.latest_post %}
                 {% endif %}
-                {# Reply / Quote are surfaced as text links in the footer. #}
                 {% include "action_like_post.html" with post=collection.latest_post %}
                 {% include "action_boost_post.html" with post=collection.latest_post %}
                 {% if request.user.is_authenticated %}
@@ -67,8 +64,8 @@
                        hx-swap="beforeend"
                        title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
                   </span>
-                  {% include "action_flag_post.html" with post=collection.latest_post %}
                 {% endif %}
+                {% include "_post_action_menu.html" with post=collection.latest_post piece=collection %}
                 {% include "action_open_post.html" with post=collection.latest_post %}
               </span>
               <span class="post_author">
@@ -141,53 +138,57 @@
           {% include "collection_items.html" %}
         </section>
         <section>
-          {% if request.user.is_authenticated %}
-            <span class="action">
-              {% if collection.latest_post %}
+          <span class="action">
+            {% if collection.latest_post %}
+              <span>
+                <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
+                   hx-swap="outerHTML"
+                   hx-trigger="click once"
+                   hx-target="#replies_{{ collection.latest_post.pk }}">
+                  <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
+                  {% trans "Reply" %}
+                </a>
+              </span>
+              <span>
+                <a hx-get="{% url 'journal:post_quote' collection.latest_post.pk %}"
+                   hx-swap="outerHTML"
+                   hx-trigger="click once"
+                   hx-target="#quote_{{ collection.latest_post.pk }}">
+                  <span class="metrics">{{ quotes_count|default:'' }}</span>
+                  {% trans "Quote" %}
+                </a>
+              </span>
+            {% endif %}
+            {% if request.user.is_authenticated and request.user.identity == collection.owner %}
+              {% if collection.is_dynamic %}
                 <span>
-                  <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
-                     hx-swap="outerHTML"
-                     hx-trigger="click once"
-                     hx-target="#replies_{{ collection.latest_post.pk }}">
-                    <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
-                    {% trans "Reply" %}
-                  </a>
-                </span>
-                <span>
-                  <a hx-get="{% url 'journal:post_quote' collection.latest_post.pk %}"
-                     hx-swap="outerHTML"
-                     hx-trigger="click once"
-                     hx-target="#quote_{{ collection.latest_post.pk }}">{% trans "Quote" %}</a>
+                  <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Query" %}</a>
                 </span>
               {% endif %}
-              {% if request.user.identity == collection.owner %}
-                <span>
-                  <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
-                </span>
-                {% if collection.is_dynamic %}
-                  <span>
-                    <a href="{% url 'common:search' %}?c=journal&amp;q={{ collection.query|urlencode }}">{% trans "Query" %}</a>
-                  </span>
-                {% endif %}
-                <span>
-                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
-                </span>
-              {% elif editable %}
-                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Collaborative editing' %}</a>
-              {% endif %}
-            </span>
-          {% endif %}
+              <span>
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
+              </span>
+              <span>
+                <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
+              </span>
+            {% endif %}
+          </span>
           <span class="action inline">
             {% if collection.latest_post %}
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
             <span><a>{{ collection.created_time|date }}</a></span>
+            {% if editable and request.user.identity != collection.owner %}
+              <span>
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Collaborative editing' %}</a>
+              </span>
+            {% endif %}
           </span>
         </section>
-        <section id="quote_{{ collection.latest_post.pk }}">
-        </section>
-        <section id="replies_{{ collection.latest_post.pk }}">
-        </section>
+        {% if collection.latest_post %}
+          <div id="quote_{{ collection.latest_post.pk }}" hidden></div>
+          <div id="replies_{{ collection.latest_post.pk }}" hidden></div>
+        {% endif %}
       </div>
       {% include "_sidebar.html" with identity=collection.owner show_profile=1 %}
     </main>

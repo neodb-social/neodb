@@ -26,6 +26,7 @@ from ..models.itemlist import list_add
 from ..models.renderers import sanitize_md_images
 from .common import (
     conditional_get_for_anonymous,
+    post_quotes_count,
     render_relogin,
     target_identity_required,
 )
@@ -284,6 +285,7 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
             "available_as_featured": available_as_featured,
             "featured_since": featured_since,
             "editable": collection.is_editable_by(request.user),
+            "quotes_count": post_quotes_count(collection.latest_post),
         },
     )
 

@@ -299,8 +299,15 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @cached_property
     def latest_post(self) -> "Post | None":
+        # ``Takahe.get_posts`` filters out posts in ``deleted`` /
+        # ``deleted_fanned_out`` state — share that filter for the
+        # single-row case so a manually-deleted announcement doesn't
+        # leave behind a stale ``<link rel="alternate" type="ap+json">``
+        # in ``article.html`` / ``collection.html`` that Mastodon would
+        # 404 on with "Post unavailable". Matches the prefetch path in
+        # ``prefetch_latest_posts``.
         pk = self.latest_post_id
-        return Takahe.get_post(pk) if pk else None
+        return Takahe.get_posts([pk]).first() if pk else None
 
     @cached_property
     def all_post_ids(self):

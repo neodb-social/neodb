@@ -40,7 +40,6 @@ urlpatterns = [
     path("post/<int:post_id>/edit", post_edit, name="post_edit"),
     path("post/<int:post_id>/reply", post_reply, name="post_reply"),
     path("post/<int:post_id>/quote", post_quote, name="post_quote"),
-    path("post/<int:post_id>/quotes", post_quotes, name="post_quotes"),
     path("post/<int:post_id>/boost", post_boost, name="post_boost"),
     path("post/<int:post_id>/pin", post_pin, name="post_pin"),
     path("post/<int:post_id>/like", post_like, name="post_like"),

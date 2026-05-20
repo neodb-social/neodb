@@ -1,5 +1,5 @@
 {% load i18n %}
-<span {% if not request.user.is_authenticated %}hx-disable{% endif %}>
+<span>
   <a title="{% trans "Quote" %}"
      hx-get="{% url 'journal:post_quote' post.pk %}"
      hx-swap="outerHTML"

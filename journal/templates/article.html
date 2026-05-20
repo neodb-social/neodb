@@ -60,10 +60,6 @@
             <div style="flex-grow:1;">
               <span class="action">
                 {% include "action_post_timestamp.html" with post=article.latest_post %}
-                {% if request.user.is_authenticated and article.latest_post.author_id == request.user.identity.pk %}
-                  {% include "action_pin_post.html" with post=article.latest_post %}
-                  {% include "action_delete_post.html" with post=article.latest_post %}
-                {% endif %}
                 {% include "action_like_post.html" with post=article.latest_post %}
                 {% include "action_boost_post.html" with post=article.latest_post %}
                 {% if article.classname == "review" and translate_enabled and request.user.is_authenticated %}
@@ -76,9 +72,7 @@
                     </a>
                   </span>
                 {% endif %}
-                {% if request.user.is_authenticated %}
-                  {% include "action_flag_post.html" with post=article.latest_post %}
-                {% endif %}
+                {% include "_post_action_menu.html" with post=article.latest_post piece=article %}
                 {% include "action_open_post.html" with post=article.latest_post %}
               </span>
               <span class="post_author">
@@ -149,35 +143,36 @@
                 {% endfor %}
               </p>
             {% endif %}
-            {% if request.user.is_authenticated %}
-              <span class="action">
-                {% if article.latest_post %}
-                  <span>
-                    <a hx-get="{% url 'journal:piece_replies' article.uuid %}"
-                       hx-swap="outerHTML"
-                       hx-trigger="click once"
-                       hx-target="#replies_{{ article.latest_post.pk }}">
-                      <span class="metrics">{{ article.latest_post.stats.replies | default:'' }}</span>
-                      {% trans "Reply" %}
-                    </a>
-                  </span>
-                  <span>
-                    <a hx-get="{% url 'journal:post_quote' article.latest_post.pk %}"
-                       hx-swap="outerHTML"
-                       hx-trigger="click once"
-                       hx-target="#quote_{{ article.latest_post.pk }}">{% trans "Quote" %}</a>
-                  </span>
-                {% endif %}
-                {% if request.user.identity == article.owner %}
-                  <span>
-                    <a href="{{ article.edit_url }}">{% trans 'Edit' %}</a>
-                  </span>
-                  <span>
-                    <a href="{{ article.delete_url }}">{% trans 'Delete' %}</a>
-                  </span>
-                {% endif %}
-              </span>
-            {% endif %}
+            <span class="action">
+              {% if article.latest_post %}
+                <span>
+                  <a hx-get="{% url 'journal:piece_replies' article.uuid %}"
+                     hx-swap="outerHTML"
+                     hx-trigger="click once"
+                     hx-target="#replies_{{ article.latest_post.pk }}">
+                    <span class="metrics">{{ article.latest_post.stats.replies | default:'' }}</span>
+                    {% trans "Reply" %}
+                  </a>
+                </span>
+                <span>
+                  <a hx-get="{% url 'journal:post_quote' article.latest_post.pk %}"
+                     hx-swap="outerHTML"
+                     hx-trigger="click once"
+                     hx-target="#quote_{{ article.latest_post.pk }}">
+                    <span class="metrics">{{ quotes_count|default:'' }}</span>
+                    {% trans "Quote" %}
+                  </a>
+                </span>
+              {% endif %}
+              {% if request.user.is_authenticated and request.user.identity == article.owner %}
+                <span>
+                  <a href="{{ article.edit_url }}">{% trans 'Edit' %}</a>
+                </span>
+                <span>
+                  <a href="{{ article.delete_url }}">{% trans 'Delete' %}</a>
+                </span>
+              {% endif %}
+            </span>
             <span class="action inline">
               {% if article.latest_post %}
                 {% include "action_open_post.html" with post=article.latest_post %}
@@ -186,10 +181,10 @@
             </span>
           </footer>
         </article>
-        <section id="quote_{{ article.latest_post.pk }}">
-        </section>
-        <section id="replies_{{ article.latest_post.pk }}">
-        </section>
+        {% if article.latest_post %}
+          <div id="quote_{{ article.latest_post.pk }}" hidden></div>
+          <div id="replies_{{ article.latest_post.pk }}" hidden></div>
+        {% endif %}
       </div>
       <aside>
         {% if article.classname == "review" %}
