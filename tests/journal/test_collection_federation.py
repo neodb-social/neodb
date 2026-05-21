@@ -32,6 +32,7 @@ Gaps (not covered here, called out for future work):
 
 import base64
 import time
+from datetime import timedelta
 from email.utils import formatdate
 from unittest.mock import MagicMock, patch
 
@@ -39,10 +40,12 @@ import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.test import RequestFactory
+from django.utils import timezone
 
 from catalog.models import Edition
 from catalog.views.search import resolve_url_query
 from journal.models import Collection
+from takahe.models import Post
 from users.models import User
 
 
@@ -840,3 +843,79 @@ class TestFetchRemoteListMembersJob:
         assert extract_items_url({}) is None
         # Bogus types: integer, list, etc. → None.
         assert extract_items_url({"first": 42}) is None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionVisibilityFlipPostSort:
+    """When a Collection's ``created_time`` is older than
+    ``fanout_limit_days`` (Takahe's silent-add threshold), every
+    regenerated post is stamped with a snowflake id derived from
+    ``created_time.timestamp()``. Repeated visibility flips therefore
+    produce post ids in the same millisecond bucket — only the 19
+    snowflake random bits differ. Ordering by ``-post_id`` could then
+    hand back a *deleted* prior post; ``Takahe.get_posts`` filters out
+    that state, and ``latest_post`` collapsed to None even though a
+    live post existed.
+
+    The fix orders by ``Post.created`` (auto_now_add, DB insert time —
+    genuinely monotonic regardless of how ``published`` is stamped) and
+    sweeps any historical lingering live posts on the next recreate."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="flipsort@test.com", username="flipsort_user")
+        self.identity = self.user.identity
+
+    def _alive_post_ids(self, collection: Collection) -> list[int]:
+        return sorted(
+            Post.objects.filter(pk__in=collection.all_post_ids)
+            .exclude(state__in=["deleted", "deleted_fanned_out"])
+            .values_list("pk", flat=True)
+        )
+
+    def test_visibility_flips_keep_latest_post_resolvable(self):
+        # Force ``created_time`` past Takahe's silent-add threshold so the
+        # snowflake-from-published path is exercised. Passing
+        # ``created_time`` directly to ``objects.create`` ensures the
+        # initial post is also created in the same old-time snowflake
+        # bucket (matching real-world collections that have aged past
+        # ``fanout_limit_days``).
+        old_time = timezone.now() - timedelta(days=400)
+        c = Collection.objects.create(
+            owner=self.identity,
+            title="Flip me",
+            visibility=0,
+            created_time=old_time,
+        )
+        c.refresh_from_db()
+        first_post_id = c.latest_post_id
+        assert first_post_id is not None
+        # created_time should NOT mutate across flips — that's the whole
+        # point of switching to Post.created for sort order.
+        original_created_time = c.created_time
+
+        # Flip visibility several times. Each flip deletes the existing
+        # post and creates a new one.
+        seen_post_ids: list[int] = [first_post_id]
+        for new_visibility in (1, 0, 2, 0, 1):
+            c.visibility = new_visibility
+            c.save()
+            c.refresh_from_db()
+            # ``latest_post`` must always resolve to a live post.
+            assert c.latest_post is not None, (
+                f"latest_post collapsed to None after flipping to {new_visibility}; "
+                f"all_post_ids={c.all_post_ids}"
+            )
+            assert c.latest_post.state not in ("deleted", "deleted_fanned_out")
+            seen_post_ids.append(c.latest_post_id)
+
+        # Only one post should be alive at the end; prior ones must be
+        # marked deleted.
+        alive = self._alive_post_ids(c)
+        assert alive == [c.latest_post_id], (
+            f"expected exactly one live post, got {alive}"
+        )
+
+        # ``created_time`` is preserved (this is the simpler-fix
+        # contract; we used to bump it).
+        assert c.created_time == original_created_time

@@ -279,33 +279,25 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     def link_post_id(self, post_id: int):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)
-        try:
-            del self.latest_post_id
-            del self.latest_post
-        except AttributeError:
-            pass
+        # ``latest_post_id`` / ``latest_post`` / ``all_post_ids`` are
+        # ``cached_property``s over ``post_relations``; their stored values
+        # are now stale. Drop them so the next access re-queries.
+        for attr in ("latest_post_id", "latest_post", "all_post_ids"):
+            self.__dict__.pop(attr, None)
 
     def clear_post_ids(self):
         PiecePost.objects.filter(piece=self).delete()
 
     @cached_property
     def latest_post_id(self):
-        # post id is ordered by their created time
         return (
-            self.post_relations.order_by("-post_id")
+            self.post_relations.order_by("-pk")
             .values_list("post_id", flat=True)
             .first()
         )
 
     @cached_property
     def latest_post(self) -> "Post | None":
-        # ``Takahe.get_posts`` filters out posts in ``deleted`` /
-        # ``deleted_fanned_out`` state — share that filter for the
-        # single-row case so a manually-deleted announcement doesn't
-        # leave behind a stale ``<link rel="alternate" type="ap+json">``
-        # in ``article.html`` / ``collection.html`` that Mastodon would
-        # 404 on with "Post unavailable". Matches the prefetch path in
-        # ``prefetch_latest_posts``.
         pk = self.latest_post_id
         return Takahe.get_posts([pk]).first() if pk else None
 
@@ -645,23 +637,25 @@ def prefetch_latest_posts(pieces: Sequence["Piece"]) -> None:
 
     Avoids N+1 queries when templates access piece.latest_post, which would
     otherwise trigger one PiecePost query and one Post query per piece.
+
+    Latest is picked by ``PiecePost.pk`` (monotonic per insertion),
+    matching ``Piece.latest_post_id``'s logic.
     """
     if not pieces:
         return
     piece_ids = [p.pk for p in pieces]
-    # Batch-fetch latest post ID per piece (highest post_id = most recent)
+    # For each piece pick the PiecePost row with the largest pk
+    # (=most-recently inserted link), then grab its post_id.
     piece_to_latest: dict[int, int] = dict(
         PiecePost.objects.filter(piece_id__in=piece_ids)
-        .values("piece_id")
-        .annotate(latest_id=models.Max("post_id"))
-        .values_list("piece_id", "latest_id")
+        .order_by("piece_id", "-pk")
+        .distinct("piece_id")
+        .values_list("piece_id", "post_id")
     )
-    # Batch-fetch Post objects with authors
     all_post_ids = list(piece_to_latest.values())
     posts_by_id = (
         {p.pk: p for p in Takahe.get_posts(all_post_ids)} if all_post_ids else {}
     )
-    # Inject into pieces to prevent lazy loading
     for piece in pieces:
         post_id = piece_to_latest.get(piece.pk)
         piece.__dict__["latest_post_id"] = post_id
