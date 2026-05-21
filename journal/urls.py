@@ -204,6 +204,11 @@ urlpatterns = [
         name="user_liked_collection_list",
     ),
     re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/posts/$",
+        user_post_list,
+        name="user_post_list",
+    ),
+    re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/tags/$",
         user_tag_list,
         name="user_tag_list",

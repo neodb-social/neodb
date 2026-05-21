@@ -242,6 +242,53 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     )
 
 
+_USER_POST_LIST_PAGE_SIZE = 20
+_USER_POST_LIST_DAYS = 90
+
+
+@require_http_methods(["GET", "HEAD"])
+@target_identity_required
+def user_post_list(request: AuthedHttpRequest, user_name):
+    target = request.target_identity
+    if request.method == "HEAD":
+        return HttpResponse()
+    viewer = request.identity
+    is_self = viewer is not None and viewer == target
+    is_following = viewer is not None and viewer.is_following(target)
+    show_empty = (not is_self) and (not is_following) and target.locked
+    if is_self or is_following:
+        days = None
+    else:
+        days = _USER_POST_LIST_DAYS
+    posts: list = []
+    if not show_empty:
+        viewer_pk = viewer.pk if viewer else None
+        last_pk = int_(request.GET.get("last", 0))
+        if target.is_group:
+            qs = Takahe.get_boosted_posts(target.pk, viewer_pk=viewer_pk, days=days)
+            if last_pk:
+                qs = qs.filter(boost_pk__lt=last_pk)
+            posts = list(qs[:_USER_POST_LIST_PAGE_SIZE])
+        else:
+            qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=days)
+            if last_pk:
+                qs = qs.filter(pk__lt=last_pk)
+            posts = list(qs.order_by("-pk")[:_USER_POST_LIST_PAGE_SIZE])
+        prefetch_pieces_for_posts(posts)
+    context = {
+        "posts": posts,
+        "user_name": user_name,
+        "identity": target,
+        "is_group": target.is_group,
+        "show_empty": show_empty,
+        "limited_window_days": days,
+        "me": is_self,
+    }
+    if request.headers.get("HX-Request"):
+        return render(request, "user_post_list_items.html", context)
+    return render(request, "user_post_list.html", context)
+
+
 @require_http_methods(["GET", "HEAD"])
 @target_identity_required
 def user_calendar_data(request, user_name):

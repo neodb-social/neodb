@@ -234,12 +234,8 @@
         <details class="auto-collapse" open>
           <summary>
             {% trans 'Recent Posts' %}
-            {% if me %}
-              <small><a title="{% trans "Compose" %}"
-   hx-get="{% url 'journal:post_compose' %}"
-   hx-target="body"
-   hx-swap="beforeend"><i class="fa-regular fa-pen-to-square"></i></a></small>
-            {% endif %}
+            <small><a href="{% url 'journal:user_post_list' identity.handle %}"
+   title="{% trans 'show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
           <div style="font-size:80%">{% include "posts.html" with posts=recent_posts %}</div>
         </details>

@@ -54,6 +54,7 @@ from .profile import (
     profile_shelf_items,
     user_calendar_data,
     user_follow_list,
+    user_post_list,
 )
 from .review import (
     ReviewFeed,
@@ -119,6 +120,7 @@ __all__ = [
     "profile_shelf_items",
     "user_calendar_data",
     "user_follow_list",
+    "user_post_list",
     "shelf_ap_items",
     "shelf_ap_retrieve",
     "ReviewFeed",
