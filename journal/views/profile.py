@@ -253,6 +253,19 @@ def user_post_list(request: AuthedHttpRequest, user_name):
     if request.method == "HEAD":
         return HttpResponse()
     viewer = request.identity
+    if viewer is None and target.is_group:
+        # Mirror profile() — groups aren't anonymous-viewable even when the
+        # underlying identity has anonymous_viewable=True.
+        if request.headers.get("HX-Request"):
+            return HttpResponse()
+        return render(
+            request,
+            "users/home_anonymous.html",
+            {
+                "identity": target,
+                "redir": f"/account/login?next={quote_plus(request.get_full_path())}",
+            },
+        )
     is_self = viewer is not None and viewer == target
     is_following = viewer is not None and viewer.is_following(target)
     show_empty = (not is_self) and (not is_following) and target.locked
@@ -279,9 +292,7 @@ def user_post_list(request: AuthedHttpRequest, user_name):
         "posts": posts,
         "user_name": user_name,
         "identity": target,
-        "is_group": target.is_group,
         "show_empty": show_empty,
-        "limited_window_days": days,
         "me": is_self,
     }
     if request.headers.get("HX-Request"):

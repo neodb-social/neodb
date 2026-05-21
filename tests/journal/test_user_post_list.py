@@ -21,6 +21,12 @@ def _set_locked(identity, locked: bool):
         del identity.__dict__["takahe_identity"]
 
 
+def _set_group(identity):
+    TakaheIdentity.objects.filter(pk=identity.pk).update(actor_type="group")
+    if "takahe_identity" in identity.__dict__:
+        del identity.__dict__["takahe_identity"]
+
+
 def _user_post_list_url(handle):
     return reverse("journal:user_post_list", kwargs={"user_name": handle})
 
@@ -51,7 +57,6 @@ def test_user_post_list_anonymous_window_limited(alice_with_posts):
     posts = response.context["posts"]
     assert posts, "anonymous viewer should see recent posts"
     assert all(p.pk != old_pk for p in posts), "200-day-old post must be filtered out"
-    assert response.context["limited_window_days"] == 90
     assert response.context["show_empty"] is False
 
 
@@ -67,6 +72,29 @@ def test_user_post_list_anonymous_empty_when_locked(alice_with_posts):
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
+def test_user_post_list_anonymous_group_redirects_to_login(alice_with_posts):
+    alice, _ = alice_with_posts
+    _set_group(alice.identity)
+    client = Client()
+    response = client.get(_user_post_list_url(alice.identity.handle))
+    assert response.status_code == 200
+    # home_anonymous.html is the gate page used by profile() for the same case.
+    assert response.templates[0].name == "users/home_anonymous.html"
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_user_post_list_anonymous_group_htmx_returns_empty(alice_with_posts):
+    alice, _ = alice_with_posts
+    _set_group(alice.identity)
+    client = Client()
+    response = client.get(
+        _user_post_list_url(alice.identity.handle), HTTP_HX_REQUEST="true"
+    )
+    assert response.status_code == 200
+    assert response.content == b""
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_user_post_list_non_follower_window_limited(alice_with_posts):
     alice, old_pk = alice_with_posts
     bob = User.register(email="bob_posts@example.com", username="bobposts")
@@ -77,7 +105,6 @@ def test_user_post_list_non_follower_window_limited(alice_with_posts):
     posts = response.context["posts"]
     assert posts
     assert all(p.pk != old_pk for p in posts)
-    assert response.context["limited_window_days"] == 90
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
@@ -104,7 +131,6 @@ def test_user_post_list_follower_sees_all(alice_with_posts):
     response = client.get(_user_post_list_url(alice.identity.handle))
     assert response.status_code == 200
     assert response.context["show_empty"] is False
-    assert response.context["limited_window_days"] is None
     post_pks = {p.pk for p in response.context["posts"]}
     assert old_pk in post_pks
 
@@ -118,6 +144,5 @@ def test_user_post_list_self_sees_all(alice_with_posts):
     response = client.get(_user_post_list_url(alice.identity.handle))
     assert response.status_code == 200
     assert response.context["show_empty"] is False
-    assert response.context["limited_window_days"] is None
     post_pks = {p.pk for p in response.context["posts"]}
     assert old_pk in post_pks
