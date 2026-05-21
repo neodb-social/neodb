@@ -277,16 +277,20 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         pp = PiecePost.objects.filter(post_id=post_id).first()
         return pp.piece if pp else None
 
-    def link_post_id(self, post_id: int):
-        PiecePost.objects.get_or_create(piece=self, post_id=post_id)
+    def _invalidate_post_caches(self) -> None:
         # ``latest_post_id`` / ``latest_post`` / ``all_post_ids`` are
-        # ``cached_property``s over ``post_relations``; their stored values
-        # are now stale. Drop them so the next access re-queries.
+        # ``cached_property``s over ``post_relations``; call this after
+        # mutating PiecePost rows so the next access re-queries.
         for attr in ("latest_post_id", "latest_post", "all_post_ids"):
             self.__dict__.pop(attr, None)
 
+    def link_post_id(self, post_id: int):
+        PiecePost.objects.get_or_create(piece=self, post_id=post_id)
+        self._invalidate_post_caches()
+
     def clear_post_ids(self):
         PiecePost.objects.filter(piece=self).delete()
+        self._invalidate_post_caches()
 
     @cached_property
     def latest_post_id(self):

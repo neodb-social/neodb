@@ -857,9 +857,9 @@ class TestCollectionVisibilityFlipPostSort:
     that state, and ``latest_post`` collapsed to None even though a
     live post existed.
 
-    The fix orders by ``Post.created`` (auto_now_add, DB insert time —
-    genuinely monotonic regardless of how ``published`` is stamped) and
-    sweeps any historical lingering live posts on the next recreate."""
+    The fix orders by ``PiecePost.pk`` (BigAutoField in the neodb DB,
+    monotonic per insertion — independent of how ``published`` is
+    stamped on the Takahe Post)."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
