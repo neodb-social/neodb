@@ -523,17 +523,9 @@ class Collection(List):
         data = self.get_ap_data()
         # if existing_post and existing_post.type_data == data:
         #     return existing_post
-        item_link = escape(self.absolute_url)
-        site_name = escape(settings.SITE_INFO["site_name"])
         title = escape(self.title)
-        prepend_content = (
-            f'<a href="{item_link}"><b>{title}</b> - {site_name} Collection</a><br>'
-        )
-        # ``content`` is sanitized through linebreaks_filter + FediverseHtmlParser
-        # (escapes raw HTML); we keep the short item-count summary in ``content``
-        # so prepend_content lands inside the first <p>. The collection brief is
-        # intentionally not included — the canonical page already shows it.
-        content = self._format_summary() or " "
+        prepend_content = f"<b>{title}</b><br><br>"
+        content = (self._format_summary() or "") + "\n\n" + self.absolute_url
         attachments = self._build_cover_attachments(existing_post)
         post = Takahe.post(
             self.owner.pk,
