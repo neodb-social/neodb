@@ -247,7 +247,7 @@ class FediverseHtmlParser(HTMLParser):
         """
         from .models import Emoji
 
-        emoji = Emoji.get_by_domain(shortcode, self.emoji_domain)
+        emoji = Emoji.get_by_domain(shortcode, self.emoji_domain)  # ty: ignore[missing-argument]
         if emoji and emoji.is_usable:
             self.emojis.add(shortcode)
             return emoji.as_html()
