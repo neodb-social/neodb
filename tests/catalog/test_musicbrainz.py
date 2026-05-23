@@ -6,6 +6,7 @@ from catalog.sites.musicbrainz import (
     MusicBrainzArtist,
     MusicBrainzRelease,
     MusicBrainzReleaseGroup,
+    _extract_first_isrc,
 )
 
 
@@ -112,6 +113,9 @@ class TestMusicBrainzReleaseGroup:
             for r in related
         )
 
+        # ISRC is harvested from the first track's recording.isrcs.
+        assert site.resource.other_lookup_ids.get(IdType.ISRC) == "GBAYE9700001"
+
     def test_extract_track_info(self):
         """Test track information extraction"""
         t_url = (
@@ -183,6 +187,24 @@ class TestMusicBrainzReleaseGroup:
         # Test non-12-digit codes
         assert site._upc_to_gtin_13("1234") == "1234"
         assert site._upc_to_gtin_13("0724385522918") == "0724385522918"
+
+    def test_release_group_accepts_ean13_barcode(self):
+        """Release-group used to only accept 12-digit UPC; 13-digit EAN now
+        flows through unchanged."""
+        site = MusicBrainzReleaseGroup(id_value="00000000-0000-0000-0000-000000000000")
+        pd = site._parse_release_group_data(
+            {
+                "title": "Test Album",
+                "artist-credit": [{"artist": {"name": "Test Artist"}}],
+                "releases": [
+                    {"id": "release-id", "barcode": "0724385522918"},
+                ],
+            }
+        )
+        # No network for release details was attempted (release_id present but
+        # _get_release_details would 404 in tests — wrapped in try/except, so
+        # we only care that GTIN was lifted from the release-level barcode).
+        assert pd.lookup_ids[IdType.GTIN] == "0724385522918"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -283,6 +305,8 @@ class TestMusicBrainzRelease:
             and r.get("id_value") == "a74b1b7f-71a5-4011-9441-d0b5e4122711"
             for r in related
         )
+
+        assert site.resource.other_lookup_ids.get(IdType.ISRC) == "GBAYE9700001"
 
     def test_barcode_handling(self):
         """Test barcode to GTIN conversion in release data"""
@@ -412,6 +436,25 @@ class TestMusicBrainzIntegration:
         """Test that both classes use Album as default model"""
         assert MusicBrainzReleaseGroup.DEFAULT_MODEL == Album
         assert MusicBrainzRelease.DEFAULT_MODEL == Album
+
+    def test_extract_first_isrc(self):
+        """_extract_first_isrc returns the first non-empty ISRC across media."""
+        data = {
+            "media": [
+                {"tracks": [{"recording": {}}]},
+                {
+                    "tracks": [
+                        {"recording": {"isrcs": []}},
+                        {"recording": {"isrcs": ["GBAYE9700001", "USRC17600002"]}},
+                    ]
+                },
+            ]
+        }
+        assert _extract_first_isrc(data) == "GBAYE9700001"
+
+    def test_extract_first_isrc_returns_none_when_absent(self):
+        assert _extract_first_isrc({}) is None
+        assert _extract_first_isrc({"media": [{"tracks": []}]}) is None
 
 
 @pytest.mark.django_db(databases="__all__")

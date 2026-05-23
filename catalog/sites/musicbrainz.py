@@ -61,6 +61,23 @@ def _extract_artist_credits(
     return artist_names, related
 
 
+def _extract_first_isrc(release_data: Dict[str, Any]) -> str | None:
+    """Return the first ISRC found across the release's recordings.
+
+    Albums don't have ISRCs in the strict sense (the code identifies a track),
+    but the rest of the codebase (Spotify, Douban) stores a single album-level
+    ISRC as a soft lookup key. Picking the first track's first ISRC matches
+    that convention.
+    """
+    for medium in release_data.get("media") or []:
+        for track in medium.get("tracks") or []:
+            recording = track.get("recording") or {}
+            for isrc in recording.get("isrcs") or []:
+                if isrc:
+                    return isrc
+    return None
+
+
 @SiteManager.register
 class MusicBrainzReleaseGroup(AbstractSite):
     SITE_NAME = SiteName.MusicBrainz
@@ -134,6 +151,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
         duration = None
         company = []
         cover_image_url = None
+        isrc = None
 
         if "releases" in data and data["releases"]:
             # Get the first release for additional details
@@ -149,6 +167,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
                     duration = track_info["duration"]
                     company = self._extract_label_info(release_data)
                     cover_image_url = self._get_cover_art_url(release_id)
+                    isrc = _extract_first_isrc(release_data)
             except Exception as e:
                 logger.warning(f"Failed to get detailed release info: {e}")
 
@@ -174,26 +193,26 @@ class MusicBrainzReleaseGroup(AbstractSite):
 
         pd = ResourceContent(metadata=metadata)
 
-        # Add lookup IDs for any ISRCs or other identifiers found
-        if "releases" in data:
-            for release in data["releases"]:
-                # Could add barcode/EAN as GTIN if available
-                if "barcode" in release and release["barcode"]:
-                    try:
-                        # Convert barcode to GTIN-13 if it's 12 digits (UPC)
-                        barcode = release["barcode"]
-                        if len(barcode) == 12 and barcode.isdigit():
-                            gtin = self._upc_to_gtin_13(barcode)
-                            if gtin:
-                                pd.lookup_ids[IdType.GTIN] = gtin
-                    except Exception:
-                        pass
+        # GTIN from the first release that carries a usable barcode. Accept
+        # both 12-digit UPC (left-padded to GTIN-13) and 13-digit EAN.
+        for release in data.get("releases") or []:
+            barcode = (release.get("barcode") or "").strip()
+            if not barcode or not barcode.isdigit():
+                continue
+            if len(barcode) == 12:
+                pd.lookup_ids[IdType.GTIN] = self._upc_to_gtin_13(barcode)
+                break
+            if len(barcode) == 13:
+                pd.lookup_ids[IdType.GTIN] = barcode
+                break
+        if isrc:
+            pd.lookup_ids[IdType.ISRC] = isrc
 
         return pd
 
     def _get_release_details(self, release_id: str) -> Dict[str, Any]:
         """Get detailed release information including tracks"""
-        api_url = f"https://musicbrainz.org/ws/2/release/{release_id}?fmt=json&inc=recordings+labels+media"
+        api_url = f"https://musicbrainz.org/ws/2/release/{release_id}?fmt=json&inc=recordings+labels+media+isrcs"
         headers = self.get_api_headers()
         downloader = BasicDownloader(api_url, headers=headers)
         return downloader.download().json()
@@ -290,7 +309,7 @@ class MusicBrainzRelease(AbstractSite):
         if not self.id_value:
             raise ParseError(self, "No MusicBrainz release ID found")
 
-        api_url = f"https://musicbrainz.org/ws/2/release/{self.id_value}?fmt=json&inc=artists+recordings+labels+media+release-groups+tags+genres"
+        api_url = f"https://musicbrainz.org/ws/2/release/{self.id_value}?fmt=json&inc=artists+recordings+labels+media+release-groups+tags+genres+isrcs"
         headers = self.get_api_headers()
 
         try:
@@ -373,17 +392,16 @@ class MusicBrainzRelease(AbstractSite):
         pd = ResourceContent(metadata=metadata)
 
         # Add lookup IDs for barcode/GTIN if available
-        if "barcode" in data and data["barcode"]:
-            try:
-                barcode = data["barcode"]
-                if len(barcode) == 12 and barcode.isdigit():
-                    gtin = self._upc_to_gtin_13(barcode)
-                    if gtin:
-                        pd.lookup_ids[IdType.GTIN] = gtin
-                elif len(barcode) == 13 and barcode.isdigit():
-                    pd.lookup_ids[IdType.GTIN] = barcode
-            except Exception:
-                pass
+        barcode = (data.get("barcode") or "").strip()
+        if barcode and barcode.isdigit():
+            if len(barcode) == 12:
+                pd.lookup_ids[IdType.GTIN] = self._upc_to_gtin_13(barcode)
+            elif len(barcode) == 13:
+                pd.lookup_ids[IdType.GTIN] = barcode
+
+        isrc = _extract_first_isrc(data)
+        if isrc:
+            pd.lookup_ids[IdType.ISRC] = isrc
 
         return pd
 
