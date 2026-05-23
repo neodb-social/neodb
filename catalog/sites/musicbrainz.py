@@ -778,7 +778,7 @@ class MusicBrainzArtist(AbstractSite):
             "offset": page * page_size,
         }
         headers = {
-            "User-Agent": getattr(settings, "NEODB_USER_AGENT", "NeoDBApp/1.0"),
+            "User-Agent": settings.NEODB_USER_AGENT,
             "Accept": "application/json",
         }
         async with httpx.AsyncClient() as client:

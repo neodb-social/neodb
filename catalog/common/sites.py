@@ -334,8 +334,15 @@ class SiteManager:
             or not SiteConfig.system.search_sites
         ):
             return [s for s in sites if hasattr(s, "search_task")]
-        ss = {s.SITE_NAME.value: s for s in sites if hasattr(s, "search_task")}
-        return [ss[s] for s in SiteConfig.system.search_sites if s in ss]
+        # Multiple site classes may share the same SITE_NAME (e.g. the three
+        # MusicBrainz sites all use SiteName.MusicBrainz). Group by name and
+        # return every searchable site whose SITE_NAME the operator selected.
+        configured = set(SiteConfig.system.search_sites)
+        return [
+            s
+            for s in sites
+            if hasattr(s, "search_task") and s.SITE_NAME.value in configured
+        ]
 
     @staticmethod
     def _find_sibling_person(linked_resource, parent_item):
