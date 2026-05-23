@@ -6,6 +6,7 @@ Using the MusicBrainz API to fetch album/release-group information.
 """
 
 import logging
+import re
 from typing import Any, Dict, List
 
 import httpx
@@ -18,6 +19,46 @@ from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
+
+
+_ARTIST_URL_FMT = "https://musicbrainz.org/artist/{}"
+# MusicBrainz artist types that are organizations rather than individuals.
+_ORG_ARTIST_TYPES = {"Group", "Orchestra", "Choir"}
+
+
+def _extract_artist_credits(
+    data: Dict[str, Any],
+) -> tuple[list[str], list[Dict[str, Any]]]:
+    """Read MusicBrainz ``artist-credit`` into display names and People links.
+
+    Returns ``(artist_names, related_resources)``. ``related_resources`` is the
+    list of ``{model: "People", id_type, id_value, url, title}`` entries the
+    auto-fetch pipeline turns into ``MusicBrainzArtist`` resources.
+    """
+    artist_names: list[str] = []
+    related: list[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for credit in data.get("artist-credit") or []:
+        if isinstance(credit, dict) and "artist" in credit:
+            artist = credit["artist"] or {}
+            name = artist.get("name") or ""
+            if name:
+                artist_names.append(name)
+            mbid = artist.get("id")
+            if mbid and mbid not in seen:
+                seen.add(mbid)
+                related.append(
+                    {
+                        "model": "People",
+                        "id_type": IdType.MusicBrainz_Artist,
+                        "id_value": mbid,
+                        "url": _ARTIST_URL_FMT.format(mbid),
+                        "title": name,
+                    }
+                )
+        elif isinstance(credit, str):
+            artist_names.append(credit)
+    return artist_names, related
 
 
 @SiteManager.register
@@ -70,13 +111,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
         localized_title = [{"lang": lang, "text": title}]
 
         # Extract artists
-        artists = []
-        if "artist-credit" in data:
-            for credit in data["artist-credit"]:
-                if isinstance(credit, dict) and "artist" in credit:
-                    artists.append(credit["artist"]["name"])
-                elif isinstance(credit, str):
-                    artists.append(credit)
+        artists, related_artists = _extract_artist_credits(data)
 
         # Extract release date from first release if available
         release_date = None
@@ -134,6 +169,8 @@ class MusicBrainzReleaseGroup(AbstractSite):
             metadata["company"] = company
         if cover_image_url:
             metadata["cover_image_url"] = cover_image_url
+        if related_artists:
+            metadata["related_resources"] = related_artists
 
         pd = ResourceContent(metadata=metadata)
 
@@ -278,13 +315,7 @@ class MusicBrainzRelease(AbstractSite):
         localized_title = [{"lang": lang, "text": title}]
 
         # Extract artists
-        artists = []
-        if "artist-credit" in data:
-            for credit in data["artist-credit"]:
-                if isinstance(credit, dict) and "artist" in credit:
-                    artists.append(credit["artist"]["name"])
-                elif isinstance(credit, str):
-                    artists.append(credit)
+        artists, related_artists = _extract_artist_credits(data)
 
         # Extract release date
         release_date = data.get("date")
@@ -336,6 +367,8 @@ class MusicBrainzRelease(AbstractSite):
             metadata["company"] = company
         if cover_image_url:
             metadata["cover_image_url"] = cover_image_url
+        if related_artists:
+            metadata["related_resources"] = related_artists
 
         pd = ResourceContent(metadata=metadata)
 
@@ -581,6 +614,213 @@ class MusicBrainzRelease(AbstractSite):
                         SiteName.MusicBrainz,
                         cls.id_to_url(rid),
                         title,
+                        " · ".join(subtitle_parts),
+                        "",
+                        "",
+                    )
+                )
+        return results
+
+
+@SiteManager.register
+class MusicBrainzArtist(AbstractSite):
+    SITE_NAME = SiteName.MusicBrainz
+    ID_TYPE = IdType.MusicBrainz_Artist
+    URL_PATTERNS = [
+        r"^\w+://musicbrainz\.org/artist/([a-f0-9\-]{36}).*",
+    ]
+    WIKI_PROPERTY_ID = "P434"  # MusicBrainz artist ID
+    DEFAULT_MODEL = People
+
+    @classmethod
+    def id_to_url(cls, id_value):
+        return f"https://musicbrainz.org/artist/{id_value}"
+
+    def get_api_headers(self):
+        return {
+            "User-Agent": settings.NEODB_USER_AGENT,
+            "Accept": "application/json",
+        }
+
+    def scrape(self):
+        if not self.id_value:
+            raise ParseError(self, "No MusicBrainz artist ID found")
+
+        api_url = (
+            f"https://musicbrainz.org/ws/2/artist/{self.id_value}"
+            "?fmt=json&inc=aliases+url-rels+genres+tags"
+        )
+        try:
+            downloader = BasicDownloader(api_url, headers=self.get_api_headers())
+            data = downloader.download().json()
+        except Exception as e:
+            logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
+            raise ParseError(
+                self, f"Failed to fetch data from MusicBrainz API: {e}"
+            ) from e
+
+        return self._parse_artist_data(data)
+
+    def _parse_artist_data(self, data: Dict[str, Any]) -> ResourceContent:
+        name = (data.get("name") or "").strip()
+        if not name:
+            raise ParseError(self, "No name found in MusicBrainz artist data")
+
+        # localized_name: start with the primary name, then merge in display
+        # aliases that explicitly target another locale. Sort names and
+        # MusicBrainz alias variants like "Search hint" / "Legal name" / "Sort
+        # name" are deliberately excluded -- they pollute display_name lookups
+        # and would let People.link_matching_credits link unrelated credits.
+        localized_name: list[Dict[str, str]] = []
+        seen_names: set[tuple[str, str]] = set()
+
+        def _add_name(text: str, lang: str | None) -> None:
+            text = (text or "").strip()
+            if not text:
+                return
+            lang = (lang or "").strip() or detect_language(text)
+            key = (lang, text)
+            if key in seen_names:
+                return
+            seen_names.add(key)
+            localized_name.append({"lang": lang, "text": text})
+
+        _add_name(name, None)
+        for alias in data.get("aliases") or []:
+            if not isinstance(alias, dict):
+                continue
+            alias_type = (alias.get("type") or "").strip()
+            # Only accept display-name aliases. MB's "Artist name" type (and
+            # entries without a type) are display variants; everything else
+            # (Sort name, Search hint, Legal name) is metadata-only.
+            if alias_type and alias_type != "Artist name":
+                continue
+            locale = (alias.get("locale") or "").strip()
+            # Require an explicit locale so we never invent a language tag for
+            # an alias whose intended scope MB did not specify.
+            if not locale:
+                continue
+            _add_name(alias.get("name") or "", locale)
+
+        # Bio: MusicBrainz exposes only the disambiguation blurb on the artist
+        # endpoint; richer bios live in linked Wikipedia entries which we don't
+        # crawl here.
+        localized_bio: list[Dict[str, str]] = []
+        disambiguation = (data.get("disambiguation") or "").strip()
+        if disambiguation:
+            localized_bio.append(
+                {"lang": detect_language(disambiguation), "text": disambiguation}
+            )
+
+        # type maps onto PeopleType: Group/Orchestra/Choir => organization,
+        # Person/Character/Other/missing => person.
+        mb_type = (data.get("type") or "").strip()
+        people_type = (
+            PeopleType.ORGANIZATION.value
+            if mb_type in _ORG_ARTIST_TYPES
+            else PeopleType.PERSON.value
+        )
+
+        life_span = data.get("life-span") or {}
+        birth_date = (life_span.get("begin") or "").strip() or None
+        death_date = (life_span.get("end") or "").strip() or None
+
+        official_site = None
+        wikidata_qid = None
+        for rel in data.get("relations") or []:
+            if not isinstance(rel, dict):
+                continue
+            url_obj = rel.get("url") or {}
+            resource = url_obj.get("resource") or ""
+            rel_type = rel.get("type") or ""
+            if rel_type == "official homepage" and not official_site:
+                official_site = resource
+            elif rel_type == "wikidata" and not wikidata_qid:
+                # Wikidata relations look like https://www.wikidata.org/wiki/Q123.
+                # Anchor on the canonical /wiki/ path and force ASCII digits so
+                # we don't pick up an unrelated "/Q\d+" earlier in the URL or
+                # match non-ASCII numerics that Python's \d would accept.
+                m = re.search(
+                    r"^https?://(?:www\.)?wikidata\.org/(?:wiki|entity)/(Q[0-9]+)",
+                    resource or "",
+                )
+                if m:
+                    wikidata_qid = m.group(1)
+
+        metadata: Dict[str, Any] = {
+            "title": name,
+            "localized_name": localized_name,
+            "localized_bio": localized_bio,
+            "people_type": people_type,
+            "birth_date": birth_date,
+            "death_date": death_date,
+            "official_site": official_site,
+            "cover_image_url": None,
+        }
+
+        pd = ResourceContent(metadata=metadata)
+        if wikidata_qid:
+            pd.lookup_ids[IdType.WikiData] = wikidata_qid
+        return pd
+
+    @classmethod
+    async def search_task(
+        cls, q: str, page: int, category: str, page_size: int
+    ) -> list[ExternalSearchResultItem]:
+        if category not in ["people", "all"]:
+            return []
+
+        results: list[ExternalSearchResultItem] = []
+        params = {
+            "query": q,
+            "fmt": "json",
+            "limit": page_size,
+            "offset": page * page_size,
+        }
+        headers = {
+            "User-Agent": getattr(settings, "NEODB_USER_AGENT", "NeoDBApp/1.0"),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(
+                    "https://musicbrainz.org/ws/2/artist",
+                    params=params,
+                    headers=headers,
+                    timeout=10,
+                )
+                response.raise_for_status()
+                data = response.json()
+            except httpx.TimeoutException:
+                logger.warning("MusicBrainz artist search timeout", extra={"query": q})
+                record_search_failure(SiteName.MusicBrainz.value, "timeout")
+                return results
+            except Exception as e:
+                logger.error(
+                    "MusicBrainz artist search error",
+                    extra={"query": q, "exception": e},
+                )
+                record_search_failure(SiteName.MusicBrainz.value, "error")
+                return results
+
+            for artist in data.get("artists", []) or []:
+                name = artist.get("name") or ""
+                mbid = artist.get("id") or ""
+                if not name or not mbid:
+                    continue
+                subtitle_parts = []
+                if artist.get("disambiguation"):
+                    subtitle_parts.append(artist["disambiguation"])
+                if artist.get("type"):
+                    subtitle_parts.append(artist["type"])
+                if artist.get("country"):
+                    subtitle_parts.append(artist["country"])
+                results.append(
+                    ExternalSearchResultItem(
+                        ItemCategory.People,
+                        SiteName.MusicBrainz,
+                        cls.id_to_url(mbid),
+                        name,
                         " · ".join(subtitle_parts),
                         "",
                         "",

@@ -87,6 +87,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
         _("MusicBrainz Release Group"),
     )
     MusicBrainz_Release = "musicbrainz_release", _("MusicBrainz Release")
+    MusicBrainz_Artist = "musicbrainz_artist", _("MusicBrainz Artist")
     DoubanPersonage = "douban_personage", _("Douban Personage")
     Goodreads_Author = "goodreads_author", _("Goodreads Author")
     Spotify_Artist = "spotify_artist", _("Spotify Artist")

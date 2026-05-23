@@ -526,6 +526,8 @@ class Command(SiteCommand):
         IdType.OpenLibrary,
         IdType.OpenLibrary_Work,
         IdType.IGDB,
+        IdType.MusicBrainz_ReleaseGroup,
+        IdType.MusicBrainz_Release,
     }
 
     def backfill_people(

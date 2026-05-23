@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-20 09:20-0400\n"
+"POT-Creation-Date: 2026-05-23 13:12-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -17,44 +17,44 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
-#: boofilsic/settings.py:469 common/models/lang.py:223
+#: boofilsic/settings.py:472 common/models/lang.py:223
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:470 common/models/lang.py:70
+#: boofilsic/settings.py:473 common/models/lang.py:70
 msgid "Danish"
 msgstr "丹麦语"
 
-#: boofilsic/settings.py:471 common/models/lang.py:71
+#: boofilsic/settings.py:474 common/models/lang.py:71
 msgid "German"
 msgstr "德语"
 
-#: boofilsic/settings.py:472 common/models/lang.py:176
+#: boofilsic/settings.py:475 common/models/lang.py:176
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: boofilsic/settings.py:473 common/models/lang.py:80
+#: boofilsic/settings.py:476 common/models/lang.py:80
 msgid "French"
 msgstr "法语"
 
-#: boofilsic/settings.py:474 common/models/lang.py:105
+#: boofilsic/settings.py:477 common/models/lang.py:105
 msgid "Italian"
 msgstr "意大利语"
 
-#: boofilsic/settings.py:475 common/models/lang.py:159
+#: boofilsic/settings.py:478 common/models/lang.py:159
 #: common/models/lang.py:298
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: boofilsic/settings.py:476
+#: boofilsic/settings.py:479
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: boofilsic/settings.py:477 common/models/lang.py:309
+#: boofilsic/settings.py:480 common/models/lang.py:309
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:478 common/models/lang.py:310
+#: boofilsic/settings.py:481 common/models/lang.py:310
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -67,12 +67,12 @@ msgid "Primary ID Value"
 msgstr "主要标识数据"
 
 #: catalog/models/book.py:138 catalog/models/book.py:157
-#: catalog/models/common.py:207 catalog/models/common.py:225
+#: catalog/models/common.py:208 catalog/models/common.py:226
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:141 catalog/models/book.py:160
-#: catalog/models/common.py:210 catalog/models/common.py:230
+#: catalog/models/common.py:211 catalog/models/common.py:231
 msgid "text content"
 msgstr "文本内容"
 
@@ -219,11 +219,11 @@ msgstr "IGDB"
 msgid "Steam"
 msgstr "Steam"
 
-#: catalog/models/common.py:28 catalog/models/common.py:99
+#: catalog/models/common.py:28 catalog/models/common.py:100
 msgid "itch.io"
 msgstr ""
 
-#: catalog/models/common.py:29 catalog/models/common.py:100
+#: catalog/models/common.py:29 catalog/models/common.py:101
 msgid "Bangumi"
 msgstr "Bangumi"
 
@@ -231,7 +231,7 @@ msgstr "Bangumi"
 msgid "BGG"
 msgstr "BGG"
 
-#: catalog/models/common.py:31 catalog/models/common.py:101
+#: catalog/models/common.py:31 catalog/models/common.py:102
 msgid "Apple Podcast"
 msgstr "苹果播客"
 
@@ -243,27 +243,27 @@ msgstr "RSS"
 msgid "Discogs"
 msgstr "Discogs"
 
-#: catalog/models/common.py:34 catalog/models/common.py:102
+#: catalog/models/common.py:34 catalog/models/common.py:103
 msgid "Apple Music"
 msgstr "苹果音乐"
 
-#: catalog/models/common.py:35 catalog/models/common.py:104
+#: catalog/models/common.py:35 catalog/models/common.py:105
 msgid "Fediverse"
 msgstr "联邦宇宙"
 
-#: catalog/models/common.py:36 catalog/models/common.py:105
+#: catalog/models/common.py:36 catalog/models/common.py:106
 msgid "Qidian"
 msgstr "起点"
 
-#: catalog/models/common.py:37 catalog/models/common.py:106
+#: catalog/models/common.py:37 catalog/models/common.py:107
 msgid "Ypshuo"
 msgstr "阅评说"
 
-#: catalog/models/common.py:38 catalog/models/common.py:107
+#: catalog/models/common.py:38 catalog/models/common.py:108
 msgid "Archive of Our Own"
 msgstr "AO3"
 
-#: catalog/models/common.py:39 catalog/models/common.py:108
+#: catalog/models/common.py:39 catalog/models/common.py:109
 msgid "JinJiang"
 msgstr "晋江文学"
 
@@ -271,7 +271,7 @@ msgstr "晋江文学"
 msgid "WikiData"
 msgstr "维基数据"
 
-#: catalog/models/common.py:41 catalog/models/common.py:109
+#: catalog/models/common.py:41 catalog/models/common.py:110
 msgid "Open Library"
 msgstr "开放图书馆"
 
@@ -283,15 +283,15 @@ msgstr "MusicBrainz"
 msgid "WorldCat"
 msgstr "WorldCat"
 
-#: catalog/models/common.py:44 catalog/models/common.py:111
+#: catalog/models/common.py:44 catalog/models/common.py:112
 msgid "MobyGames"
 msgstr "MobyGames"
 
-#: catalog/models/common.py:45 catalog/models/common.py:112
+#: catalog/models/common.py:45 catalog/models/common.py:113
 msgid "StoryGraph"
 msgstr ""
 
-#: catalog/models/common.py:46 catalog/models/common.py:103
+#: catalog/models/common.py:46 catalog/models/common.py:104
 msgid "YouTube Music"
 msgstr "YouTube Music"
 
@@ -412,146 +412,150 @@ msgid "MusicBrainz Release"
 msgstr "MusicBrainz发行"
 
 #: catalog/models/common.py:90
+msgid "MusicBrainz Artist"
+msgstr "MusicBrainz艺术家"
+
+#: catalog/models/common.py:91
 msgid "Douban Personage"
 msgstr "豆瓣人物"
 
-#: catalog/models/common.py:91
+#: catalog/models/common.py:92
 msgid "Goodreads Author"
 msgstr "Goodreads作者"
 
-#: catalog/models/common.py:92
+#: catalog/models/common.py:93
 msgid "Spotify Artist"
 msgstr "Spotify艺术家"
 
-#: catalog/models/common.py:93
+#: catalog/models/common.py:94
 msgid "TMDB Person"
 msgstr "TMDB人物"
 
-#: catalog/models/common.py:94
+#: catalog/models/common.py:95
 msgid "Open Library Author"
 msgstr "开放图书馆作者"
 
-#: catalog/models/common.py:95
+#: catalog/models/common.py:96
 msgid "IGDB Company"
 msgstr "IGDB公司"
 
-#: catalog/models/common.py:96
+#: catalog/models/common.py:97
 msgid "IGDB Game"
 msgstr "IGDB游戏"
 
-#: catalog/models/common.py:97
+#: catalog/models/common.py:98
 msgid "BGG Boardgame"
 msgstr "BGG桌游"
 
-#: catalog/models/common.py:98
+#: catalog/models/common.py:99
 msgid "Steam Game"
 msgstr "Steam游戏"
 
-#: catalog/models/common.py:110
+#: catalog/models/common.py:111
 msgid "Open Library Work"
 msgstr "开放图书馆著作"
 
-#: catalog/models/common.py:113
+#: catalog/models/common.py:114
 msgid "RateYourMusic Release"
 msgstr "RateYourMusic发行"
 
-#: catalog/models/common.py:134
+#: catalog/models/common.py:135
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:135 catalog/templates/_sidebar_edit.html:237
+#: catalog/models/common.py:136 catalog/templates/_sidebar_edit.html:237
 msgid "Work"
 msgstr "作品"
 
-#: catalog/models/common.py:136
+#: catalog/models/common.py:137
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:137 catalog/templates/_sidebar_edit.html:158
+#: catalog/models/common.py:138 catalog/templates/_sidebar_edit.html:158
 msgid "TV Season"
 msgstr "电视分季"
 
-#: catalog/models/common.py:138
+#: catalog/models/common.py:139
 msgid "TV Episode"
 msgstr "电视单集"
 
-#: catalog/models/common.py:139 catalog/models/common.py:155
-#: catalog/models/common.py:169 catalog/templates/_sidebar_edit.html:151
+#: catalog/models/common.py:140 catalog/models/common.py:156
+#: catalog/models/common.py:170 catalog/templates/_sidebar_edit.html:151
 #: journal/templates/_sidebar_user_mark_list.html:35
 msgid "Movie"
 msgstr "电影"
 
-#: catalog/models/common.py:140
+#: catalog/models/common.py:141
 msgid "Album"
 msgstr "专辑"
 
-#: catalog/models/common.py:141 catalog/models/common.py:158
-#: catalog/models/common.py:172 common/templates/_header.html:41
+#: catalog/models/common.py:142 catalog/models/common.py:159
+#: catalog/models/common.py:173 common/templates/_header.html:41
 #: journal/templates/_sidebar_user_mark_list.html:48
 msgid "Game"
 msgstr "游戏"
 
-#: catalog/models/common.py:142
+#: catalog/models/common.py:143
 msgid "Podcast Program"
 msgstr "播客节目"
 
-#: catalog/models/common.py:143
+#: catalog/models/common.py:144
 msgid "Podcast Episode"
 msgstr "播客单集"
 
-#: catalog/models/common.py:144 catalog/models/common.py:160
-#: catalog/models/common.py:174 common/templates/_header.html:45
+#: catalog/models/common.py:145 catalog/models/common.py:161
+#: catalog/models/common.py:175 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:52
 msgid "Performance"
 msgstr "演出"
 
-#: catalog/models/common.py:145
+#: catalog/models/common.py:146
 msgid "Production"
 msgstr "上演"
 
-#: catalog/models/common.py:146
+#: catalog/models/common.py:147
 msgid "Exhibition"
 msgstr "展览"
 
-#: catalog/models/common.py:147 catalog/models/common.py:164
+#: catalog/models/common.py:148 catalog/models/common.py:165
 #: journal/templates/collection.html:23 journal/templates/collection.html:34
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr "收藏单"
 
-#: catalog/models/common.py:150 catalog/models/common.py:163
+#: catalog/models/common.py:151 catalog/models/common.py:164
 msgid "Person / Organization"
 msgstr "人物 / 团体"
 
-#: catalog/models/common.py:154 catalog/models/common.py:168
+#: catalog/models/common.py:155 catalog/models/common.py:169
 #: common/templates/_header.html:25
 #: journal/templates/_sidebar_user_mark_list.html:32
 msgid "Book"
 msgstr "图书"
 
-#: catalog/models/common.py:156 catalog/models/common.py:170
+#: catalog/models/common.py:157 catalog/models/common.py:171
 #: journal/templates/_sidebar_user_mark_list.html:38
 msgid "TV"
 msgstr "剧集"
 
-#: catalog/models/common.py:157 catalog/models/common.py:171
+#: catalog/models/common.py:158 catalog/models/common.py:172
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:45
 msgid "Music"
 msgstr "音乐"
 
-#: catalog/models/common.py:159 catalog/models/common.py:173
+#: catalog/models/common.py:160 catalog/models/common.py:174
 #: catalog/templates/_sidebar_edit.html:170 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:42
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:255 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:256 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr "类型"
 
-#: catalog/models/common.py:272 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:273 catalog/templates/_language_list.html:5
 #: users/models/user.py:128
 msgid "language"
 msgstr "语言"
@@ -707,7 +711,7 @@ msgstr "工作室"
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:149 catalog/models/people.py:471
+#: catalog/models/item.py:149 catalog/models/people.py:472
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr "角色"
@@ -732,7 +736,7 @@ msgstr "标题"
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:253 catalog/models/people.py:479
+#: catalog/models/item.py:253 catalog/models/people.py:480
 msgid "metadata"
 msgstr "元数据"
 
@@ -943,11 +947,11 @@ msgstr "出生日期"
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:473
+#: catalog/models/people.py:474
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:477
+#: catalog/models/people.py:478
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -1925,7 +1929,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:187 journal/views/profile.py:528
+#: journal/templates/profile.html:187 journal/views/profile.py:540
 msgid "People"
 msgstr "人物"
 
@@ -3340,7 +3344,7 @@ msgid "Journal"
 msgstr "记录"
 
 #: common/templates/_header.html:52 journal/templates/user_post_list.html:10
-#: journal/templates/user_post_list.html:18
+#: journal/templates/user_post_list.html:23
 msgid "Posts"
 msgstr "帖文"
 
@@ -3682,11 +3686,11 @@ msgid "User no longer exists"
 msgstr "用户不存在了"
 
 #: common/utils.py:95 common/utils.py:97 common/utils.py:100
-#: common/utils.py:136 common/utils.py:140 journal/views/profile.py:433
+#: common/utils.py:136 common/utils.py:140 journal/views/profile.py:445
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:103 common/utils.py:105 journal/views/profile.py:474
+#: common/utils.py:103 common/utils.py:105 journal/views/profile.py:486
 #: journal/views/review.py:184
 msgid "Login required"
 msgstr "登录后访问"
@@ -4092,203 +4096,211 @@ msgstr ""
 msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:606 users/templates/users/steam_import.html:26
-msgid "Steam API Key"
+#: common/views_manage.py:606
+msgid "BoardGameGeek API Token"
 msgstr ""
 
 #: common/views_manage.py:608
+msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
+msgstr ""
+
+#: common/views_manage.py:613 users/templates/users/steam_import.html:26
+msgid "Steam API Key"
+msgstr ""
+
+#: common/views_manage.py:615
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:613
+#: common/views_manage.py:620
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:614
+#: common/views_manage.py:621
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:617
+#: common/views_manage.py:624
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:620
+#: common/views_manage.py:627
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:623
+#: common/views_manage.py:630
 msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:624
+#: common/views_manage.py:631
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:627
+#: common/views_manage.py:634
 msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:630
+#: common/views_manage.py:637
 msgid "Sentry DSN"
 msgstr ""
 
-#: common/views_manage.py:631
+#: common/views_manage.py:638
 msgid "Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:634
+#: common/views_manage.py:641
 msgid "Sentry Sample Rate"
 msgstr ""
 
-#: common/views_manage.py:635
+#: common/views_manage.py:642
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr ""
 
-#: common/views_manage.py:640
+#: common/views_manage.py:647
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:642
+#: common/views_manage.py:649
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr ""
 
-#: common/views_manage.py:659
+#: common/views_manage.py:666
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:668
+#: common/views_manage.py:676
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:673
+#: common/views_manage.py:681
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:677
+#: common/views_manage.py:685
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:689
+#: common/views_manage.py:697
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:690
+#: common/views_manage.py:698
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:693
+#: common/views_manage.py:701
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:694
+#: common/views_manage.py:702
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:697
+#: common/views_manage.py:705
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:700
+#: common/views_manage.py:708
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:703
+#: common/views_manage.py:711
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:706
+#: common/views_manage.py:714
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:709
+#: common/views_manage.py:717
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:712
+#: common/views_manage.py:720
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:713
+#: common/views_manage.py:721
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:716
+#: common/views_manage.py:724
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:720
+#: common/views_manage.py:728
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:724
+#: common/views_manage.py:732
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:729
+#: common/views_manage.py:737
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:734
+#: common/views_manage.py:742
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:741
+#: common/views_manage.py:749
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:753
+#: common/views_manage.py:761
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:754
+#: common/views_manage.py:762
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:757
+#: common/views_manage.py:765
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:758
+#: common/views_manage.py:766
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:761
+#: common/views_manage.py:769
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:762
+#: common/views_manage.py:770
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:765
+#: common/views_manage.py:773
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:766
+#: common/views_manage.py:774
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:776
+#: common/views_manage.py:784
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:778
+#: common/views_manage.py:786
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:784
+#: common/views_manage.py:792
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:786
+#: common/views_manage.py:794
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:793
+#: common/views_manage.py:801
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:796
+#: common/views_manage.py:804
 msgid "Operational"
 msgstr ""
 
@@ -4514,19 +4526,19 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:489
+#: journal/models/common.py:485
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:516
+#: journal/models/common.py:512
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:550
+#: journal/models/common.py:546
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:557
+#: journal/models/common.py:553
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5542,15 +5554,15 @@ msgid "Articles"
 msgstr "文章"
 
 #: journal/templates/profile.html:153 journal/views/collection.py:384
-#: journal/views/profile.py:373
+#: journal/views/profile.py:385
 msgid "collection"
 msgstr "收藏单"
 
-#: journal/templates/profile.html:170 journal/views/profile.py:414
+#: journal/templates/profile.html:170 journal/views/profile.py:426
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:204 journal/views/profile.py:530
+#: journal/templates/profile.html:204 journal/views/profile.py:542
 msgid "Organizations"
 msgstr "团体"
 
@@ -5591,17 +5603,17 @@ msgstr ""
 msgid "Liked Collections"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:441
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:453
 #: users/templates/users/account.html:447
 msgid "Following"
 msgstr "正在关注"
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:445
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:457
 #: users/templates/users/account.html:456
 msgid "Followers"
 msgstr "关注者"
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:449
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:461
 msgid "Mutuals"
 msgstr ""
 

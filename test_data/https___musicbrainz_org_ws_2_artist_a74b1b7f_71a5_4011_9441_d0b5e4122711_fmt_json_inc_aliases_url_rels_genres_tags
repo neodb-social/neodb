@@ -1,0 +1,108 @@
+{
+  "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+  "name": "Radiohead",
+  "sort-name": "Radiohead",
+  "disambiguation": "British rock band from Abingdon",
+  "type": "Group",
+  "type-id": "e431f5f6-b5d2-343d-8b36-72607fffb74b",
+  "gender": null,
+  "country": "GB",
+  "area": {
+    "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+    "name": "United Kingdom",
+    "sort-name": "United Kingdom",
+    "iso-3166-1-codes": ["GB"]
+  },
+  "begin-area": {
+    "id": "4a02f3a3-12b1-4f9b-9f48-7c12c8e29cbe",
+    "name": "Abingdon",
+    "sort-name": "Abingdon"
+  },
+  "end-area": null,
+  "life-span": {
+    "begin": "1985",
+    "end": null,
+    "ended": false
+  },
+  "isnis": ["0000000114710726"],
+  "ipis": [],
+  "aliases": [
+    {
+      "name": "Radiohead",
+      "sort-name": "Radiohead",
+      "locale": "en",
+      "type": "Artist name",
+      "primary": true,
+      "begin": null,
+      "end": null,
+      "ended": false
+    },
+    {
+      "name": "レディオヘッド",
+      "sort-name": "レディオヘッド",
+      "locale": "ja",
+      "type": "Artist name",
+      "primary": true,
+      "begin": null,
+      "end": null,
+      "ended": false
+    },
+    {
+      "name": "On a Friday",
+      "sort-name": "On a Friday",
+      "locale": null,
+      "type": "Artist name",
+      "primary": false,
+      "begin": null,
+      "end": "1991",
+      "ended": true
+    }
+  ],
+  "tags": [
+    {"name": "alternative rock", "count": 37},
+    {"name": "art rock", "count": 25},
+    {"name": "experimental rock", "count": 12}
+  ],
+  "genres": [
+    {"id": "ceeaa283-5d7b-4202-8d1d-e25d116b2a18", "name": "alternative rock", "count": 37, "disambiguation": ""},
+    {"id": "b7ef058e-6d83-4ca4-8123-9724bff4648b", "name": "art rock", "count": 25, "disambiguation": ""}
+  ],
+  "relations": [
+    {
+      "type": "official homepage",
+      "type-id": "fe33d22f-c3b0-4d68-bd53-a856badf2b15",
+      "direction": "forward",
+      "url": {
+        "id": "97c8c5e3-c98e-4f1f-8b46-ab2afdcb6c5b",
+        "resource": "https://www.radiohead.com/"
+      },
+      "begin": null,
+      "end": null,
+      "ended": false
+    },
+    {
+      "type": "wikidata",
+      "type-id": "689870a4-a1e4-4912-b17f-7b2664215698",
+      "direction": "forward",
+      "url": {
+        "id": "73bb0e1e-1f47-43f1-99fd-d62bd7d04a17",
+        "resource": "https://www.wikidata.org/wiki/Q7444"
+      },
+      "begin": null,
+      "end": null,
+      "ended": false
+    },
+    {
+      "type": "wikipedia",
+      "type-id": "29651736-fa6d-48e4-aadc-a557c6add1cb",
+      "direction": "forward",
+      "url": {
+        "id": "8a44b1cf-2a7c-449d-94dd-69bdb95df3ec",
+        "resource": "https://en.wikipedia.org/wiki/Radiohead"
+      },
+      "begin": null,
+      "end": null,
+      "ended": false
+    }
+  ]
+}

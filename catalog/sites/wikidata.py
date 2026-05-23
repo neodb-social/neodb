@@ -203,6 +203,7 @@ class WikidataProperties:
     P1902 = "P1902"  # Spotify artist ID
     P9650 = "P9650"  # IGDB company ID
     P12836 = "P12836"  # Douban personage ID
+    P434 = "P434"  # MusicBrainz artist ID
 
     IdTypeMapping = {
         "P345": IdType.IMDB,
@@ -237,6 +238,7 @@ class WikidataProperties:
         "P1902": IdType.Spotify_Artist,
         "P9650": IdType.IGDB_Company,
         "P12836": IdType.DoubanPersonage,
+        "P434": IdType.MusicBrainz_Artist,
     }
 
 

@@ -1,8 +1,12 @@
 import pytest
 
 from catalog.common import *
-from catalog.models import Album, IdType, SiteName
-from catalog.sites.musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
+from catalog.models import Album, IdType, People, PeopleType, SiteName
+from catalog.sites.musicbrainz import (
+    MusicBrainzArtist,
+    MusicBrainzRelease,
+    MusicBrainzReleaseGroup,
+)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -97,6 +101,16 @@ class TestMusicBrainzReleaseGroup:
         # Test item creation
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
+
+        # Related artist link is emitted so the auto-fetch pipeline can pull
+        # the MusicBrainz artist resource for Radiohead.
+        related = metadata.get("related_resources") or []
+        assert any(
+            r.get("model") == "People"
+            and r.get("id_type") == IdType.MusicBrainz_Artist
+            and r.get("id_value") == "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+            for r in related
+        )
 
     def test_extract_track_info(self):
         """Test track information extraction"""
@@ -262,6 +276,14 @@ class TestMusicBrainzRelease:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
 
+        related = metadata.get("related_resources") or []
+        assert any(
+            r.get("model") == "People"
+            and r.get("id_type") == IdType.MusicBrainz_Artist
+            and r.get("id_value") == "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+            for r in related
+        )
+
     def test_barcode_handling(self):
         """Test barcode to GTIN conversion in release data"""
         site = MusicBrainzRelease()
@@ -390,3 +412,132 @@ class TestMusicBrainzIntegration:
         """Test that both classes use Album as default model"""
         assert MusicBrainzReleaseGroup.DEFAULT_MODEL == Album
         assert MusicBrainzRelease.DEFAULT_MODEL == Album
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMusicBrainzArtist:
+    ARTIST_ID = "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ARTIST_URL = f"https://musicbrainz.org/artist/{ARTIST_ID}"
+
+    def test_parse_artist_url(self):
+        site = SiteManager.get_site_cls_by_id_type(IdType.MusicBrainz_Artist)
+        assert site is MusicBrainzArtist
+        assert site.validate_url(self.ARTIST_URL)
+
+        site = SiteManager.get_site_by_url(self.ARTIST_URL)
+        assert isinstance(site, MusicBrainzArtist)
+        assert site.url == self.ARTIST_URL
+        assert site.id_value == self.ARTIST_ID
+
+    def test_id_to_url(self):
+        assert MusicBrainzArtist.id_to_url(self.ARTIST_ID) == self.ARTIST_URL
+
+    def test_invalid_url_patterns(self):
+        invalid_urls = [
+            "https://musicbrainz.org/artist/invalid-id",
+            "https://musicbrainz.org/artist/",
+            f"https://musicbrainz.org/release/{self.ARTIST_ID}",
+            f"https://example.com/artist/{self.ARTIST_ID}",
+        ]
+        for url in invalid_urls:
+            site = SiteManager.get_site_by_url(
+                url, detect_redirection=False, detect_fallback=False
+            )
+            if site is not None:
+                assert not isinstance(site, MusicBrainzArtist)
+
+    def test_parse_artist_data_group(self):
+        site = MusicBrainzArtist(id_value=self.ARTIST_ID)
+        data = {
+            "id": self.ARTIST_ID,
+            "name": "Radiohead",
+            "sort-name": "Radiohead",
+            "type": "Group",
+            "disambiguation": "British rock band from Abingdon",
+            "life-span": {"begin": "1985", "end": None, "ended": False},
+            "aliases": [
+                {"name": "Radiohead", "locale": "en", "type": "Artist name"},
+                {"name": "レディオヘッド", "locale": "ja", "type": "Artist name"},
+                # Non-display alias types and locale-less aliases must be
+                # ignored to keep localized_name a display-only field.
+                {"name": "Radiohead, The", "locale": "en", "type": "Sort name"},
+                {"name": "On a Friday", "locale": None, "type": "Artist name"},
+            ],
+            "relations": [
+                {
+                    "type": "official homepage",
+                    "url": {"resource": "https://www.radiohead.com/"},
+                },
+                {
+                    "type": "wikidata",
+                    "url": {"resource": "https://www.wikidata.org/wiki/Q7444"},
+                },
+            ],
+        }
+        pd = site._parse_artist_data(data)
+        meta = pd.metadata
+        assert meta["title"] == "Radiohead"
+        assert meta["people_type"] == PeopleType.ORGANIZATION.value
+        assert meta["birth_date"] == "1985"
+        assert meta["death_date"] is None
+        assert meta["official_site"] == "https://www.radiohead.com/"
+        names = {(n["lang"], n["text"]) for n in meta["localized_name"]}
+        assert ("en", "Radiohead") in names
+        assert ("ja", "レディオヘッド") in names
+        # Sort-name and locale-less aliases are dropped.
+        assert all(text != "Radiohead, The" for _, text in names)
+        assert all(text != "On a Friday" for _, text in names)
+        assert pd.lookup_ids.get(IdType.WikiData) == "Q7444"
+
+    def test_qid_extraction_only_from_wikidata_host(self):
+        site = MusicBrainzArtist(id_value=self.ARTIST_ID)
+        pd = site._parse_artist_data(
+            {
+                "id": self.ARTIST_ID,
+                "name": "Radiohead",
+                "relations": [
+                    # First, a non-wikidata URL that happens to contain "/Q1".
+                    {
+                        "type": "wikidata",
+                        "url": {
+                            "resource": "https://example.org/Q1/redirect?to=wikidata"
+                        },
+                    },
+                ],
+            }
+        )
+        assert IdType.WikiData not in pd.lookup_ids
+
+    def test_parse_artist_data_person(self):
+        site = MusicBrainzArtist(id_value="00000000-0000-0000-0000-000000000001")
+        pd = site._parse_artist_data(
+            {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "name": "Thom Yorke",
+                "type": "Person",
+                "life-span": {"begin": "1968-10-07"},
+            }
+        )
+        assert pd.metadata["people_type"] == PeopleType.PERSON.value
+        assert pd.metadata["birth_date"] == "1968-10-07"
+
+    def test_missing_name_raises(self):
+        site = MusicBrainzArtist(id_value=self.ARTIST_ID)
+        with pytest.raises(ParseError):
+            site._parse_artist_data({"id": self.ARTIST_ID, "name": ""})
+
+    @use_local_response
+    def test_scrape_artist(self):
+        site = SiteManager.get_site_by_url(self.ARTIST_URL)
+        assert isinstance(site, MusicBrainzArtist)
+        assert not site.ready
+
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, People)
+        assert site.resource.item.is_organization
+        assert site.resource.item.display_name == "Radiohead"
+        # Wikidata QID is picked up from MusicBrainz url-rels.
+        assert site.resource.other_lookup_ids.get(IdType.WikiData) == "Q7444"

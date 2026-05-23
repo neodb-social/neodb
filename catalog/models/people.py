@@ -407,6 +407,7 @@ class People(Item):
             IdType.DoubanPersonage,
             IdType.Goodreads_Author,
             IdType.Spotify_Artist,
+            IdType.MusicBrainz_Artist,
             IdType.OpenLibrary_Author,
             IdType.IGDB_Company,
         ]
