@@ -143,21 +143,3 @@ class RedisRateLimiter:
                 )
             return
         await asyncio.sleep(wait)
-
-
-# MusicBrainz publishes a 50 req/s/IP cap. Run at 40 to leave headroom for
-# clock skew, edge-of-window bursts, and unrelated tooling sharing our egress.
-_MB_RATE = 40.0
-
-_musicbrainz_limiter: RedisRateLimiter | None = None
-
-
-def musicbrainz_limiter() -> RedisRateLimiter:
-    """Singleton limiter for musicbrainz.org calls."""
-    global _musicbrainz_limiter
-    if _musicbrainz_limiter is None:
-        _musicbrainz_limiter = RedisRateLimiter(
-            key="ratelimit:musicbrainz.org",
-            rate=_MB_RATE,
-        )
-    return _musicbrainz_limiter

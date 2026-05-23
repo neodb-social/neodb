@@ -14,7 +14,7 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
-from catalog.common.rate_limit import musicbrainz_limiter
+from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
@@ -22,11 +22,29 @@ from common.models.lang import detect_language
 _logger = logging.getLogger(__name__)
 
 
+# MusicBrainz' documented guideline is 1 req/s/IP for the public API. The
+# 50 req/s/IP cap only applies to negotiated high-volume clients; every other
+# well-behaved client sharing our egress IP assumes the 1 req/s ceiling, so
+# use that as our default.
+_musicbrainz_limiter: RedisRateLimiter | None = None
+
+
+def musicbrainz_limiter() -> RedisRateLimiter:
+    """Singleton limiter for musicbrainz.org calls."""
+    global _musicbrainz_limiter
+    if _musicbrainz_limiter is None:
+        _musicbrainz_limiter = RedisRateLimiter(
+            key="ratelimit:musicbrainz.org",
+            rate=1.0,
+        )
+    return _musicbrainz_limiter
+
+
 class MusicBrainzDownloader(BasicDownloader):
     """BasicDownloader that throttles every call through the shared Redis
-    token bucket so all NeoDB processes together honor MusicBrainz' 50 req/s
-    per-IP cap. Use for any musicbrainz.org request; coverartarchive.org is
-    a different host and stays on plain BasicDownloader.
+    cursor so all NeoDB processes together honor MusicBrainz' 1 req/s/IP
+    guideline. Use for any musicbrainz.org request; coverartarchive.org is a
+    different host and stays on plain BasicDownloader.
     """
 
     def download(self):

@@ -8,7 +8,8 @@ import uuid
 
 import pytest
 
-from catalog.common.rate_limit import RedisRateLimiter, musicbrainz_limiter
+from catalog.common.rate_limit import RedisRateLimiter
+from catalog.sites.musicbrainz import musicbrainz_limiter
 
 
 def _fresh_limiter(rate: float) -> RedisRateLimiter:
@@ -77,5 +78,5 @@ def test_musicbrainz_limiter_is_singleton() -> None:
     b = musicbrainz_limiter()
     assert a is b
     assert a.key == "ratelimit:musicbrainz.org"
-    # Stays comfortably under MB's published 50 req/s/IP cap.
-    assert 1.0 / a.interval <= 40.0
+    # MusicBrainz' documented 1 req/s/IP ceiling.
+    assert 1.0 / a.interval <= 1.0
