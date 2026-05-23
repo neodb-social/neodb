@@ -2,7 +2,7 @@ import pytest
 
 from catalog.common.downloaders import use_local_response
 from catalog.common.sites import SiteManager
-from catalog.models import Edition
+from catalog.models import Edition, Movie
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -16,6 +16,47 @@ class TestArrayField:
         assert o.other_title == ["a", "b"]
         o.other_title = None
         assert o.other_title == []
+
+    def test_tolerant_array_form_field_empty_string(self):
+        """Regression for EGGPLANT-1CM: empty/blank string POSTed for an
+        ArrayField widget must not raise JSONDecodeError."""
+        from common.models.jsondata import ArrayField, TolerantArrayFormField
+
+        field = Movie._meta.get_field("genre")
+        assert isinstance(field, ArrayField)
+        f = field.formfield()
+        assert isinstance(f, TolerantArrayFormField)
+        assert f.to_python("") == []
+        assert f.to_python("   ") == []
+        assert f.to_python("not json") == []
+        assert f.to_python("[]") == []
+        assert f.to_python('["drama"]') == ["drama"]
+
+    def test_edit_form_accepts_blank_array_fields(self):
+        """Regression for EGGPLANT-1CM: posting an edit with blank array
+        fields must not crash form validation."""
+        from catalog.forms import CatalogForms
+
+        movie = Movie.objects.create(title="Test Movie")
+        form_cls = CatalogForms["Movie"]
+        post_data = {
+            "id": movie.pk,
+            "localized_title": '[{"lang":"en","text":"Test Movie"}]',
+            "localized_description": '[{"lang":"en","text":""}]',
+            "genre": "",
+            "language": "",
+            "area": "",
+            "director": "",
+            "playwright": "",
+            "actor": "",
+            "producer": "",
+            "primary_lookup_id_type": "",
+            "primary_lookup_id_value": "",
+        }
+        form = form_cls(post_data, instance=movie)
+        # Must not raise JSONDecodeError; validity itself is not the point.
+        form.is_valid()
+        assert form.cleaned_data.get("genre", None) in ([], None)
 
 
 @pytest.mark.django_db(databases="__all__")

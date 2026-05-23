@@ -1,5 +1,6 @@
 # pyright: reportIncompatibleMethodOverride=false
 import copy
+import json
 from base64 import b64encode
 from datetime import date, datetime
 from functools import partialmethod
@@ -11,6 +12,7 @@ from django.core.exceptions import FieldError
 from django.db.models import DEFERRED, fields
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
+from django_jsonform.forms.fields import ArrayFormField as DJANGO_ArrayFormField
 from django_jsonform.forms.fields import JSONFormField as DJANGO_JSONFormField
 
 # from django.db.models import JSONField as DJANGO_JSONField
@@ -309,10 +311,28 @@ class URLField(JSONFieldMixin, fields.URLField):
     pass
 
 
+class TolerantArrayFormField(DJANGO_ArrayFormField):
+    # Empty / non-JSON submissions arrive when the JS widget didn't serialize
+    # a value. Upstream calls json.loads() unconditionally and raises
+    # JSONDecodeError, surfacing as a 500 on the edit endpoint.
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value.strip() or "[]")
+            except json.JSONDecodeError:
+                return []
+        return super().to_python(value)
+
+
 class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
     # def __init__(self, *args, **kwargs):
     #     kwargs["help_text"] = _("comma separated list of values")
     #     super().__init__(*args, **kwargs)
+
+    def formfield(self, **kwargs):
+        kwargs.setdefault("form_class", TolerantArrayFormField)
+        return super().formfield(**kwargs)
 
     def from_json(self: "fields.Field", value):
         if value:
