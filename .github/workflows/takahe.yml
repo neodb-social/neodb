@@ -33,7 +33,7 @@ jobs:
       - name: Run pre-commit
         working-directory: neodb-takahe
         run: |
-          uvx --with pre_commit pre-commit run -a --show-diff-on-failure
+          git ls-files -z | xargs -0 uvx --with pre_commit pre-commit run --show-diff-on-failure --files
 
   test:
     runs-on: ubuntu-latest
