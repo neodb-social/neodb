@@ -107,13 +107,23 @@ class RedisRateLimiter:
             result = result.decode()
         return float(result)
 
+    def _local_fallback_sleep(self) -> None:
+        """Sleep one full interval so a single process still self-paces when
+        Redis is unreachable. No cross-process coordination here -- N workers
+        will independently each fire 1/interval req/s, so the aggregate rate
+        degrades to N×rate. That's worse than the cross-process throttle but
+        a lot better than letting everyone burst freely."""
+        time.sleep(self.interval)
+
     def acquire(self, timeout: float = 15.0) -> None:
         """Block until the reserved slot, capped at ``timeout`` seconds."""
         if get_mock_mode():
             return
         target = self._reserve(timeout)
         if target is None:
-            # Redis offline -- fail open.
+            # Redis offline -- fall back to a local sleep so we still pace
+            # within this process, even though we lose cross-process coord.
+            self._local_fallback_sleep()
             return
         wait = target - time.time()
         if wait <= 0:
@@ -133,6 +143,7 @@ class RedisRateLimiter:
             return
         target = self._reserve(timeout)
         if target is None:
+            await asyncio.sleep(self.interval)
             return
         wait = target - time.time()
         if wait <= 0:

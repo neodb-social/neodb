@@ -63,14 +63,17 @@ def test_async_acquire_advances_by_interval() -> None:
     assert 0.05 <= gap < 0.3, f"second async acquire waited {gap:.3f}s"
 
 
-def test_redis_offline_falls_open(monkeypatch: pytest.MonkeyPatch) -> None:
-    """If Redis is unreachable, acquire returns immediately."""
-    rl = _fresh_limiter(rate=10.0)
+def test_redis_offline_uses_local_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    """If Redis is unreachable, fall back to a local sleep so a single
+    process still paces itself at `interval`."""
+    rl = _fresh_limiter(rate=10.0)  # interval = 0.1s
     # `None` is the signal _reserve uses to mean "Redis offline."
     monkeypatch.setattr(rl, "_reserve", lambda timeout: None)
     t0 = time.monotonic()
     rl.acquire(timeout=5.0)
-    assert time.monotonic() - t0 < 0.05
+    elapsed = time.monotonic() - t0
+    # Should sleep ~one interval, not 0 (open) and not the full timeout.
+    assert 0.05 <= elapsed < 0.3, f"local fallback slept {elapsed:.3f}s"
 
 
 def test_musicbrainz_limiter_is_singleton() -> None:
