@@ -404,10 +404,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         user = User.objects.get(pk=user_pk)
         toot_id = metadata.get("mastodon_id")
         if toot_id and user.mastodon:
-            try:
-                user.mastodon.delete_post(toot_id)
-            except Exception as e:
-                logger.warning(f"Delete {user.mastodon} post {toot_id} error {e}")
+            user.mastodon.delete_post(toot_id)
         post_id = metadata.get("bluesky_id")
         if post_id and user.bluesky:
             try:
