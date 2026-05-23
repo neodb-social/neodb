@@ -319,8 +319,8 @@ class RymImporter(Task):
         if not title:
             return None
         loop = getattr(self, "_match_loop", None)
-        # MusicBrainz' 50 req/s cap is enforced cross-process by the Redis
-        # token bucket inside MusicBrainzRelease.search_by_fields.
+        # MusicBrainz' 1 req/s public-API guideline is enforced cross-process
+        # by the Redis slot cursor inside MusicBrainzRelease.search_by_fields.
         try:
             mb = _run_async(
                 MusicBrainzRelease.search_by_fields(title, artist, year), loop

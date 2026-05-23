@@ -725,7 +725,7 @@ class MusicBrainzArtist(AbstractSite):
 
         api_url = (
             f"https://musicbrainz.org/ws/2/artist/{self.id_value}"
-            "?fmt=json&inc=aliases+url-rels+genres+tags"
+            "?fmt=json&inc=aliases+url-rels"
         )
         try:
             # Artist scrapes mostly arrive via the album related-resources
@@ -826,8 +826,8 @@ class MusicBrainzArtist(AbstractSite):
                 # Anchor on the canonical /wiki/ path and force ASCII digits so
                 # we don't pick up an unrelated "/Q\d+" earlier in the URL or
                 # match non-ASCII numerics that Python's \d would accept.
-                m = re.search(
-                    r"^https?://(?:www\.)?wikidata\.org/(?:wiki|entity)/(Q[0-9]+)",
+                m = re.match(
+                    r"https?://(?:www\.)?wikidata\.org/(?:wiki|entity)/(Q[0-9]+)",
                     resource or "",
                 )
                 if m:
