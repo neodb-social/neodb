@@ -1,0 +1,56 @@
+<nav>
+    <h3>Account</h3>
+    <a href="{% url "logout" %}">
+        <i class="fa-solid fa-right-from-bracket" title="Logout"></i>
+        <span>Logout</span>
+    </a>
+
+    <hr />
+
+    {% for ident in identities %}
+        {% if ident == identity %}
+            {% include "identity/_identity_banner.html" %}
+            <h3>Settings</h3>
+            <a href="{% url "settings_profile" handle=identity.handle %}" {% if section == "profile" %}class="selected"{% endif %} title="Profile">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="{% url "settings_posting" handle=identity.handle %}" {% if section == "posting" %}class="selected"{% endif %} title="Posting">
+                <i class="fa-solid fa-message"></i>
+                <span>Posting</span>
+            </a>
+            <a href="{% url "settings_import_export" handle=identity.handle %}" {% if section == "importexport" %}class="selected"{% endif %} title="Interface">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Import/Export</span>
+            </a>
+            <a href="{% url "settings_migrate_in" handle=identity.handle %}" {% if section == "migrate_in" %}class="selected"{% endif %} title="Interface">
+                <i class="fa-solid fa-door-open"></i>
+                <span>Migrate Inbound</span>
+            </a>
+            <a href="{% url "settings_migrate_out" handle=identity.handle %}" {% if section == "migrate_out" %}class="selected"{% endif %} title="Interface">
+                <i class="fa-solid fa-door-open"></i>
+                <span>Migrate Outbound</span>
+            </a>
+            <a href="{% url "settings_tokens" handle=identity.handle %}" {% if section == "tokens" %}class="selected"{% endif %} title="Authorized Apps">
+                <i class="fa-solid fa-window-restore"></i>
+                <span>Authorized Apps</span>
+            </a>
+            <hr>
+            <h3>Tools</h3>
+            <a href="{% url "settings_follows" handle=identity.handle %}" {% if section == "follows" %}class="selected"{% endif %} title="Follows">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <span>Follows</span>
+            </a>
+            <a href="{% url "compose" handle=identity.handle %}" {% if section == "compose" %}class="selected"{% endif %} title="Compose">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Compose</span>
+            </a>
+        {% else %}
+            {% include "identity/_identity_banner.html" with identity=ident %}
+            <a href="{% url "settings_profile" handle=ident.handle %}">
+                <i class="fa-solid fa-angles-down"></i>
+                <span>Settings</span>
+            </a>
+        {% endif %}
+    {% endfor %}
+</nav>

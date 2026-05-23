@@ -1,0 +1,49 @@
+{% extends "admin/base_main.html" %}
+{% load activity_tags %}
+
+{% block subtitle %}Federation{% endblock %}
+
+{% block settings_content %}
+    <form action="." class="search">
+        <input type="search" name="query" value="{{ query }}" placeholder="Search by domain">
+        <button><i class="fa-solid fa-search"></i></button>
+    </form>
+    <div class="view-options">
+        <a href="{% url "admin_federation_blocklist" %}?page={{ page_obj.number }}" class="button">Import Blocklist</a>
+    </div>
+    <table class="items">
+        {% for domain in page_obj %}
+            <tr>
+                <td class="icon">
+                    <a href="{{ domain.urls.edit_federation }}?page={{ page_obj.number }}" class="overlay"></a>
+                    <i class="fa-solid fa-globe"></i>
+                </td>
+                <td class="name">
+                    <a href="{{ domain.urls.edit_federation }}?page={{ page_obj.number }}" class="overlay"></a>
+                    {{ domain.domain }}
+                    <small>{{ domain.software }}</small>
+                </td>
+                <td>
+                    {% if domain.blocked %}
+                        <span class="bad">Blocked</span>
+                    {% endif %}
+                </td>
+                <td class="stat">
+                    {{ domain.num_users }}
+                    <small>identit{{ domain.num_users|pluralize:"y,ies" }}</small>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="empty">
+                <td>
+                    {% if query %}
+                        There are no domains matching your query.
+                    {% else %}
+                        There are no federation links yet.
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% include "admin/_pagination.html" with nouns="domain,domains" %}
+{% endblock %}

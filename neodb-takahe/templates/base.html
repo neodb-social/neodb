@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}{% endblock %} - {{ config.site_name }}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% load static %}
+        <link rel="stylesheet" href="{% static "css/style.css" %}" type="text/css" media="screen" />
+        <link rel="stylesheet" href="{% static "fonts/raleway/raleway.css" %}" type="text/css" />
+        <link rel="stylesheet" href="{% static "fonts/font_awesome/all.min.css" %}" type="text/css" />
+        <link rel="shortcut icon" href="{{ config.site_icon }}">
+        <script src="{% static "js/hyperscript.min.js" %}"></script>
+        <script src="{% static "js/htmx.min.js" %}"></script>
+        <script src="{% static "js/takahe.min.js" %}"></script>
+        <style>
+            body, body.light-theme {
+                --color-highlight: {{ config.highlight_color }};
+                --color-text-link: {{ config.highlight_color }};
+            }
+        </style>
+        {% if config.custom_css %}<style>{{ config.custom_css|safe }}</style>{% endif %}
+        {% block opengraph %}
+            {% include "_opengraph.html" with opengraph_local=opengraph_defaults %}
+        {% endblock %}
+        {% block extra_head %}{% endblock %}
+        {% block custom_head %}{% if config.custom_head %}{{ config.custom_head|safe }}{% endif %}{% endblock %}
+    </head>
+    <body class="{% if config.light_theme %}theme-light {% endif %}{% block body_class %}{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <a id="skip-to-main" class="screenreader-text" href="#main-content">Skip to Content</a>
+        <a id="skip-to-nav" class="screenreader-text" href="#side-navigation">Skip to Navigation</a>
+        <main>
+            {% block body_main %}
+                <header>
+                    <menu>
+                        <a class="logo" href="/">
+                            <img src="{{ config.site_icon }}" width="32">
+                            {{ config.site_name }}
+                        </a>
+                    </menu>
+                </header>
+
+                {% block announcements %}
+                    {% include "_announcements.html" %}
+                {% endblock %}
+
+                {% include "activities/_image_viewer.html" %}
+
+                {% block content %}
+                {% endblock %}
+            {% endblock %}
+        </main>
+
+        {% block footer %}
+            {% include "_footer.html" %}
+        {% endblock %}
+
+    </body>
+</html>

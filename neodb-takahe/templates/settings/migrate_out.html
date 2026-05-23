@@ -1,0 +1,43 @@
+{% extends "settings/base.html" %}
+
+{% block subtitle %}Migrate Outbound{% endblock %}
+
+{% block settings_content %}
+{% if moved %}
+<form action="?cancel=1" method="POST" onsubmit="return confirm('Are you sure to cancel?')">
+<section>
+    <h2 class="above">Current Aliases</h2>
+    <table>
+        {% for alias in aliases %}
+            <tr><td>{{ alias.handle }}</td></tr>
+            <input type="hidden" name="alias" value="{{ alias.handle }}">
+        {% empty %}
+            <tr><td class="empty">You have no aliases.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+    {% csrf_token %}
+    <div class="buttons">
+        <button>Cancel Migration</button>
+    </div>
+</form>
+{% else %}
+    <form action="." method="POST" onsubmit="return confirm('Are you sure to migrate?')">
+        {% csrf_token %}
+
+        <fieldset>
+            <legend>Migrate outbound to</legend>
+            <p>
+                To migrate to another account, first add <code>@{{ identity.username }}@{{ identity.domain_id }}</code> as an alias there,
+                and then type target account here to start the migration.
+            </p>
+            {% include "forms/_field.html" with field=form.alias %}
+        </fieldset>
+
+        <div class="buttons">
+            <button>Start Migration</button>
+        </div>
+
+    </form>
+{% endif %}
+{% endblock %}

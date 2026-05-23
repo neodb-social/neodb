@@ -1,0 +1,46 @@
+{% extends "admin/base_main.html" %}
+
+{% block subtitle %}{{ hashtag.hashtag }}{% endblock %}
+
+{% block settings_content %}
+    <form action="." method="POST">
+        {% csrf_token %}
+        <fieldset>
+            <legend>hashtag Details</legend>
+            {% include "forms/_field.html" with field=form.hashtag %}
+            {% include "forms/_field.html" with field=form.name_override %}
+        </fieldset>
+        <fieldset>
+            <legend>Access Control</legend>
+            {% include "forms/_field.html" with field=form.public %}
+        </fieldset>
+        <fieldset>
+            <legend>Stats</legend>
+            <div class="field stats">
+                {% for stat_month, stat_value in hashtag.usage_months.items|slice:":5" %}
+                    {% if forloop.first %}
+                        <table>
+                            <tr>
+                                <th>Month</th>
+                                <th>Usage</th>
+                            </tr>
+                    {% endif %}
+                    <tr>
+                        <th>{{ stat_month|date:"M Y" }}</th>
+                        <td>{{ stat_value }}</td>
+                    </tr>
+                    {% if forloop.last %}
+                        </table>
+                    {% endif %}
+                {% empty %}
+                    <p class="help">Hashtag is either not used or stats have not been computed yet.</p>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <div class="buttons">
+            <a href="{{ hashtag.urls.admin }}?page={{ page }}" class="button secondary left">Back</a>
+            <a href="{{ hashtag.urls.timeline }}" class="button secondary">View Posts</a>
+            <button>Save</button>
+        </div>
+    </form>
+{% endblock %}

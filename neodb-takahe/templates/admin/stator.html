@@ -1,0 +1,25 @@
+{% extends "admin/base_main.html" %}
+
+{% block subtitle %}Stator{% endblock %}
+
+{% block settings_content %}
+    {% for model, stats in model_stats.items %}
+        <fieldset>
+            <legend>{{ model }}</legend>
+            <table class="metadata">
+                <tr>
+                    <th>Pending</th>
+                    <td>{{ stats.most_recent_queued }}</td>
+                </tr>
+                <tr>
+                    <th>Processed today</th>
+                    <td>{{ stats.most_recent_handled.1 }}</td>
+                </tr>
+                <tr>
+                    <th>This month</th>
+                    <td>{{ stats.most_recent_handled.2 }}</td>
+                </tr>
+            </table>
+        </fieldset>
+    {% endfor %}
+{% endblock %}

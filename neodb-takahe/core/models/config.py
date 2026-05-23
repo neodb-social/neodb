@@ -1,0 +1,297 @@
+from functools import partial
+from typing import ClassVar
+
+import pydantic
+from django.core.files import File
+from django.db import models
+from django.utils.functional import lazy
+from typing_extensions import TypeAliasType
+
+from core.types import typeinfo
+from core.uploads import upload_namer
+from core.uris import StaticAbsoluteUrl
+from takahe import __version__
+
+# Type used to indicate a setting is an image
+UploadedImage = TypeAliasType("UploadedImage", str)
+
+
+class ConfigResolver:
+    def __init__(self, *configs):
+        self._configs = list(configs)
+
+    def add(self, config):
+        if config:
+            self._configs.append(config)
+
+    def __getattr__(self, name):
+        for config in reversed(self._configs):
+            value = getattr(config, name, None)
+            if value not in (None, ""):
+                return value
+        return None
+
+
+class Config(models.Model):
+    """
+    A configuration setting for either the server or a specific user or identity.
+
+    The possible options and their defaults are defined at the bottom of the file.
+    """
+
+    key = models.CharField(max_length=500)
+
+    user = models.ForeignKey(
+        "users.user",
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    identity = models.ForeignKey(
+        "users.identity",
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    domain = models.ForeignKey(
+        "users.domain",
+        blank=True,
+        null=True,
+        related_name="configs",
+        on_delete=models.CASCADE,
+    )
+
+    json = models.JSONField(blank=True, null=True)
+    image = models.ImageField(
+        blank=True,
+        null=True,
+        upload_to=partial(upload_namer, "config"),
+    )
+
+    class Meta:
+        unique_together = [
+            ("key", "user", "identity", "domain"),
+        ]
+
+    system: ClassVar["Config.ConfigOptions"]  # type: ignore
+
+    @classmethod
+    def lazy_system_value(cls, key: str):
+        """
+        Lazily load a System.Config value
+        """
+        if key not in cls.SystemOptions.model_fields:
+            raise KeyError(f"Undefined SystemOption for {key}")
+        return lazy(lambda: getattr(Config.system, key))
+
+    @classmethod
+    def load_values(cls, options_class, filters):
+        """
+        Loads config options and returns an object with them
+        """
+        values = {}
+        for config in cls.objects.filter(**filters):
+            values[config.key] = config.image.url if config.image else config.json
+            if values[config.key] is None:
+                del values[config.key]
+        values["version"] = __version__
+        return options_class(**values)
+
+    @classmethod
+    def load_system(cls):
+        """
+        Loads the system config options object
+        """
+        return cls.load_values(
+            cls.SystemOptions,
+            {"identity__isnull": True, "user__isnull": True, "domain__isnull": True},
+        )
+
+    @classmethod
+    def load_user(cls, user):
+        """
+        Loads a user config options object
+        """
+        return cls.load_values(
+            cls.UserOptions,
+            {"identity__isnull": True, "user": user, "domain__isnull": True},
+        )
+
+    @classmethod
+    def load_identity(cls, identity):
+        """
+        Loads an identity config options object
+        """
+        return cls.load_values(
+            cls.IdentityOptions,
+            {"identity": identity, "user__isnull": True, "domain__isnull": True},
+        )
+
+    @classmethod
+    def load_domain(cls, domain):
+        """
+        Loads an domain config options object
+        """
+        return cls.load_values(
+            cls.DomainOptions,
+            {"domain": domain, "user__isnull": True, "identity__isnull": True},
+        )
+
+    @classmethod
+    def set_value(cls, key, value, options_class, filters):
+        config_field = options_class.model_fields[key]
+        config_type, optional, annotations = typeinfo(config_field.annotation)
+        if isinstance(value, File):
+            if config_type is not UploadedImage:
+                raise ValueError(f"Cannot save file to {key} of type: {type(value)}")
+            cls.objects.update_or_create(
+                key=key,
+                defaults={"json": None, "image": value},
+                **filters,
+            )
+        elif value is None:
+            cls.objects.filter(key=key, **filters).delete()
+        else:
+            if not isinstance(value, config_type):
+                raise ValueError(f"Invalid type for {key}: {type(value)}")
+            if value == config_field.default:
+                cls.objects.filter(key=key, **filters).delete()
+            else:
+                cls.objects.update_or_create(
+                    key=key,
+                    defaults={"json": value},
+                    **filters,
+                )
+
+    @classmethod
+    def set_system(cls, key, value):
+        cls.set_value(
+            key,
+            value,
+            cls.SystemOptions,
+            {"identity__isnull": True, "user__isnull": True, "domain__isnull": True},
+        )
+
+    @classmethod
+    def set_user(cls, user, key, value):
+        cls.set_value(
+            key,
+            value,
+            cls.UserOptions,
+            {"identity__isnull": True, "user": user, "domain__isnull": True},
+        )
+
+    @classmethod
+    def set_identity(cls, identity, key, value):
+        cls.set_value(
+            key,
+            value,
+            cls.IdentityOptions,
+            {"identity": identity, "user__isnull": True, "domain__isnull": True},
+        )
+
+    @classmethod
+    def set_domain(cls, domain, key, value):
+        cls.set_value(
+            key,
+            value,
+            cls.DomainOptions,
+            {"domain": domain, "user__isnull": True, "identity__isnull": True},
+        )
+
+    class SystemOptions(pydantic.BaseModel):
+        system_name: str = "Incarnator"
+        system_link: str = "https://github.com/avaraline/incarnator"
+        version: str = __version__
+
+        system_actor_public_key: str = ""
+        system_actor_private_key: str = ""
+
+        site_name: str = "Incarnator"
+        highlight_color: str = "#449c8c"
+        site_about: str = "<h2>Welcome!</h2>\n\nThis is a community running Incarnator."
+        site_frontpage_posts: bool = True
+        site_icon: UploadedImage = StaticAbsoluteUrl("img/icon-128.png").relative  # type: ignore
+        site_banner: UploadedImage = StaticAbsoluteUrl(
+            "img/fjords-banner-600.jpg"
+        ).relative  # type: ignore
+
+        policy_terms: str = ""
+        policy_privacy: str = ""
+        policy_rules: str = ""
+        policy_issues: str = ""
+        policy_legal: str = ""
+
+        signup_allowed: bool = True
+        signup_text: str = ""
+        signup_max_users: int = 0
+        signup_email_admins: bool = True
+        content_warning_text: str = "Content Warning"
+
+        post_length: int = 500
+        max_media_attachments: int = 4
+        post_minimum_interval: int = 3  # seconds
+        identity_min_length: int = 2
+        identity_max_per_user: int = 5
+        identity_max_age: int = 24 * 60 * 60
+        public_timeline: bool = True
+
+        hashtag_unreviewed_are_public: bool = True
+        hashtag_stats_max_age: int = 60 * 60
+
+        emoji_unreviewed_are_public: bool = True
+
+        cache_timeout_page_default: int = 60
+        cache_timeout_page_timeline: int = 60 * 3
+        cache_timeout_page_post: int = 60 * 2
+        cache_timeout_identity_feed: int = 60 * 5
+        cache_timeout_trends: int = 60 * 60
+
+        restricted_usernames: str = "\n".join(
+            [
+                "admin",
+                "admins",
+                "administrator",
+                "administrators",
+                "system",
+                "root",
+                "announce",
+                "announcement",
+                "announcements",
+            ]
+        )
+
+        custom_head: str | None = None
+
+    class DomainOptions(pydantic.BaseModel):
+        site_name: str = ""
+        highlight_color: str = ""
+        site_about: str = ""
+        site_frontpage_posts: bool | None = None
+        site_icon: UploadedImage | None = None
+        site_banner: UploadedImage | None = None
+        hide_login: bool = False
+        custom_css: str = ""
+        single_user: str = ""
+
+    class UserOptions(pydantic.BaseModel):
+        light_theme: bool = False
+
+    class IdentityOptions(pydantic.BaseModel):
+        toot_mode: bool = False
+        default_post_visibility: int = 0  # Post.Visibilities.public
+        visible_follows: bool = True
+        search_enabled: bool = True
+        visible_reaction_counts: bool = True
+        expand_content_warnings: bool = False
+        boosts_on_profile: bool = True
+        preferred_posting_language: str = ""
+        notification_policy_not_following: str = "accept"
+        notification_policy_not_followers: str = "accept"
+        notification_policy_new_accounts: str = "accept"
+        notification_policy_private_mentions: str = "accept"
+        notification_policy_limited_accounts: str = "accept"

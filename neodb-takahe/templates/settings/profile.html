@@ -1,0 +1,35 @@
+{% extends "settings/base.html" %}
+
+{% block subtitle %}Profile{% endblock %}
+
+{% block settings_content %}
+    <form action="." method="POST" enctype="multipart/form-data"
+          _="on submit metadata.collectMetadataFields()">
+        {% csrf_token %}
+
+        <fieldset>
+            <legend>Details</legend>
+            {% include "forms/_field.html" with field=form.name %}
+            {% include "forms/_field.html" with field=form.summary %}
+            {% include "forms/_json_name_value_list.html" with field=form.metadata %}
+        </fieldset>
+
+        <fieldset>
+            <legend>Appearance</legend>
+            {% include "forms/_field.html" with field=form.icon %}
+            {% include "forms/_field.html" with field=form.image %}
+            {% include "forms/_field.html" with field=form.boosts_on_profile %}
+        </fieldset>
+
+        <fieldset>
+            <legend>Privacy</legend>
+            {% include "forms/_field.html" with field=form.discoverable %}
+            {% include "forms/_field.html" with field=form.indexable %}
+            {% include "forms/_field.html" with field=form.visible_follows %}
+            {% include "forms/_field.html" with field=form.search_enabled %}
+        </fieldset>
+        <div class="buttons">
+            <button>Save</button>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,81 @@
+version: "3.4"
+
+# DO NOT USE THIS IN PRODUCTION - it is for development only due to insecure
+# settings and the use of "runserver" versus "gunicorn".
+# See https://docs.jointakahe.org/en/latest/installation/ for more
+
+x-takahe-common:
+  &takahe-common
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+
+    image: takahe:latest
+    environment:
+      TAKAHE_DATABASE_SERVER: "postgres://postgres:insecure_password@db/takahe"
+      TAKAHE_DEBUG: "true"
+      TAKAHE_SECRET_KEY: "insecure_secret"
+      TAKAHE_CSRF_HOSTS: '["http://127.0.0.1:8000", "https://127.0.0.1:8000"]'
+      TAKAHE_USE_PROXY_HEADERS: "true"
+      TAKAHE_EMAIL_BACKEND: "console://console"
+      TAKAHE_MAIN_DOMAIN: "example.com"
+      TAKAHE_ENVIRONMENT: "development"
+      GUNICORN_EXTRA_CMD_ARGS: "--reload"
+    networks:
+      - external_network
+      - internal_network
+    restart: on-failure
+    depends_on:
+      - db
+    volumes:
+      - ..:/takahe/
+
+services:
+  db:
+    image: docker.io/postgres:15-alpine
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - internal_network
+    restart: always
+    environment:
+      POSTGRES_DB: takahe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: insecure_password
+    ports:
+      - "5433:5432"
+
+  web:
+    <<: *takahe-common
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "localhost", "8000"]
+      interval: 20s
+      timeout: 60s
+      start_period: 15s
+    ports:
+      - "8000:8000"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  stator:
+    <<: *takahe-common
+    command: ["/takahe/manage.py", "runstator"]
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  setup:
+    <<: *takahe-common
+    restart: "no"
+    command: >
+      bash -c "/takahe/manage.py migrate && /takahe/manage.py collectstatic --noinput"
+
+networks:
+  internal_network:
+  external_network:
+
+volumes:
+  dbdata:

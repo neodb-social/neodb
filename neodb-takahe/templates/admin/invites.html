@@ -1,0 +1,55 @@
+{% extends "admin/base_main.html" %}
+{% load activity_tags %}
+
+{% block subtitle %}Invites{% endblock %}
+
+{% block settings_content %}
+    <div class="view-options">
+        <span class="spacer"></span>
+        <a href="{% url "admin_invite_create" %}" class="button">Create New</a>
+    </div>
+    <table class="items">
+        {% for invite in page_obj %}
+            <tr>
+                <td class="icon">
+                    <a href="{{ invite.urls.admin_view }}?page={{ page_obj.number }}" class="overlay"></a>
+                    <i class="fa-solid fa-envelope"></i>
+                </td>
+                <td class="name">
+                    <a href="{{ invite.urls.admin_view }}?page={{ page_obj.number }}" class="overlay"></a>
+                    {{ invite.token }}
+                    <small>
+                        {% if invite.note %}
+                            {{ invite.note }}
+                        {% endif %}
+                    </small>
+                </td>
+                <td class="stat">
+                    {% if invite.expires %}
+                        {% if invite.valid %}
+                            {{ invite.expires|timeuntil }}
+                            <small>until expiry</small>
+                        {% else %}
+                            <span class="bad">Expired</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="stat">
+                    {% if invite.uses %}
+                        {{ invite.uses }}
+                    {% else %}
+                        Infinite
+                    {% endif %}
+                    <small>use{{ invite.uses|pluralize }} left</small>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="empty">
+                <td>
+                    There are no invites yet.
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% include "admin/_pagination.html" with nouns="invite,invites" %}
+{% endblock %}

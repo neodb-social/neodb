@@ -1,0 +1,26 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Compose{% endblock %}
+
+{% block settings_content %}
+    <form action="." method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset>
+            <legend>Compose</legend>
+            <p><i>For more advanced posting options, like editing and multiple image uploads, please use an app.</i></p>
+            {{ form.id }}
+            {% include "forms/_field.html" with field=form.text %}
+            {% include "forms/_field.html" with field=form.visibility %}
+            {% include "forms/_field.html" with field=form.content_warning %}
+        </fieldset>
+        <fieldset>
+            <legend>Image</legend>
+            {% include "forms/_field.html" with field=form.image %}
+            {% include "forms/_field.html" with field=form.image_caption %}
+        </fieldset>
+        <div class="buttons">
+            <span id="character-counter">{{ config.post_length }}</span>
+            <button id="post-button">{% if post %}Save Edits{% else %}Post{% endif %}</button>
+        </div>
+    </form>
+{% endblock %}

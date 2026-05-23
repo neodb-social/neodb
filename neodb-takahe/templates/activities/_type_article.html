@@ -1,0 +1,25 @@
+{% load activity_tags %}
+
+{% if post.type_data and post.type_data.object %}
+  {% if post.type_data.object.name and not post.in_reply_to %}
+    <h4 class="article-title">
+      <a href="{{ post.url|default:post.object_uri }}">{{ post.type_data.object.name }}</a>
+    </h4>
+  {% endif %}
+{% endif %}
+
+<div class="article-body">
+  {{ sanitized_content }}
+</div>
+
+{% if post.type_data and post.type_data.object %}
+  {% with tags=post.type_data.object.tag %}
+    {% if tags %}
+      <div class="article-tags">
+        {% for t in tags %}
+          {% if t.type == 'Hashtag' and t.name %}<span class="tag">{{ t.name }}</span>{% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+{% endif %}

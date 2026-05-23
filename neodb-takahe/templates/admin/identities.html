@@ -1,0 +1,74 @@
+{% extends "admin/base_main.html" %}
+{% load activity_tags %}
+
+{% block subtitle %}Identities{% endblock %}
+
+{% block settings_content %}
+    <form action="." class="search">
+        <input type="search" name="query" value="{{ query }}" placeholder="Search by name/username">
+        {% if local_only %}
+            <input type="hidden" name="local_only" value="true">
+        {% endif %}
+        <button><i class="fa-solid fa-search"></i></button>
+    </form>
+    <div class="view-options">
+        {% if local_only %}
+            <a href=".?{% urlparams local_only=False %}" class="selected"><i class="fa-solid fa-check"></i> Local Only</a>
+        {% else %}
+            <a href=".?{% urlparams local_only=True %}"><i class="fa-solid fa-xmark"></i> Local Only</a>
+        {% endif %}
+    </div>
+    <table class="items">
+        {% for identity in page_obj %}
+            <tr>
+                <td class="icon">
+                    <a href="{{ identity.urls.admin_edit }}?page={{ page_obj.number }}" class="overlay"></a>
+                    <img
+                        src="{{ identity.local_icon_url.relative }}"
+                        class="icon"
+                        alt="Avatar for {{ identity.name_or_handle }}"
+                        loading="lazy"
+                        data-handle="{{ identity.name_or_handle }}"
+                        _="on error set my.src to generate_avatar(@data-handle)"
+                    >
+                </td>
+                <td class="name">
+                    <a href="{{ identity.urls.admin_edit }}?page={{ page_obj.number }}" class="overlay"></a>
+                    {{ identity.html_name_or_handle }}
+                    {% if identity.actor_type != 'person' %}<small>{{ identity.actor_type }}</small>{% endif %}
+                    <small>@{{ identity.handle }}</small>
+                </td>
+                <td>
+                    {% if identity.restriction == 1 %}
+                        <span class="bad">Limited</span>
+                    {% elif identity.restriction == 2 %}
+                        <span class="bad">Blocked</span>
+                    {% endif %}
+                </td>
+                <td class="stat">
+                    {% if identity.local %}
+                        Local
+                        <small>{{ identity.followers_count }} follower{{ identity.followers_count|pluralize }}</small>
+                    {% else %}
+                        Remote
+                        <small>{{ identity.followers_count }} local follower{{ identity.followers_count|pluralize }}</small>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="{{ identity.urls.admin_edit }}" title="View"><i class="fa-solid fa-eye"></i></a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="empty">
+                <td>
+                    {% if query %}
+                        No identities match your query.
+                    {% else %}
+                        There are no identities yet.
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% include "admin/_pagination.html" with nouns="identity,identities" %}
+{% endblock %}

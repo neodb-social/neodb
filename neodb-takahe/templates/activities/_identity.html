@@ -1,0 +1,13 @@
+{% load activity_tags %}
+<div class="post user" data-takahe-id="{{ identity.id }}">
+
+    <div class="post-banner">
+        {% include "identity/_identity_banner.html" with identity=identity %}
+        {% if created %}
+            <time>
+                {{ event.created | timedeltashort }}
+            </time>
+        {% endif %}
+    </div>
+
+</div>

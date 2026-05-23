@@ -1,0 +1,42 @@
+{% extends "admin/base_main.html" %}
+
+{% block title %}Add Domain - Admin{% endblock %}
+
+{% block settings_content %}
+    <form action="." method="POST">
+        <h1>Add A Domain</h1>
+        <p>
+            Use this form to add a domain that your users can create identities
+            on.
+        </p>
+        <p>
+            Multiple domains per server are supported, but note that when
+            identities are created they are <b>fixed to their chosen domain</b>,
+            and you will <b>not be able to delete a domain with identities on it</b>.
+        </p>
+        <p>
+            For more information about domain setup, including what service
+            domains are, see <a href="https://docs.jointakahe.org/en/latest/domains/">our documentation on domains</a>.
+        </p>
+        {% csrf_token %}
+        <fieldset>
+            <legend>Domain Details</legend>
+            {% include "forms/_field.html" with field=form.domain %}
+            {% include "forms/_field.html" with field=form.service_domain %}
+        </fieldset>
+        <fieldset>
+            <legend>Access Control</legend>
+            {% include "forms/_field.html" with field=form.public %}
+            {% include "forms/_field.html" with field=form.default %}
+            {% include "forms/_field.html" with field=form.users %}
+        </fieldset>
+        <fieldset>
+            <legend>Admin Notes</legend>
+            {% include "forms/_field.html" with field=form.notes %}
+        </fieldset>
+        <div class="buttons">
+            <a href="{% url "admin_domains" %}" class="button secondary left">Back</a>
+            <button>Create</button>
+        </div>
+    </form>
+{% endblock %}

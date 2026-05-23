@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Post by {{ post.author.html_name_or_handle }}{% endblock %}
+
+{% block opengraph %}
+    {% include "_opengraph.html" with opengraph_local=post.to_opengraph_dict %}
+    <meta name="fediverse:creator" content="@{{ post.author.handle }}" />
+{% endblock %}
+
+{% block extra_head %}
+    {% if not identity.indexable %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <section class="invisible">
+        {% for ancestor in ancestors reversed %}
+            {% include "activities/_post.html" with post=ancestor reply=True link_original=False %}
+        {% endfor %}
+        {% include "activities/_post.html" %}
+        {% for descendant in descendants %}
+            {% include "activities/_post.html" with post=descendant reply=True link_original=False %}
+        {% endfor %}
+    </section>
+{% endblock %}

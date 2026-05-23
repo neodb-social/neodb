@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load activity_tags %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <section class="icon-menu">
+        <h1 class="above">Identities</h1>
+        {% for identity in identities %}
+            <a class="option" href="{{ identity.urls.view }}">
+                <img src="{{ identity.local_icon_url.relative }}">
+                <span class="handle">
+                    {{ identity.html_name_or_handle }}
+                    <small>@{{ identity.handle }}</small>
+                </span>
+                <button class="right secondary" _="on click go to url {{ identity.urls.view }} then halt">View</button>
+                <button class="right secondary" _="on click go to url {{ identity.urls.settings }} then halt">Settings</button>
+            </a>
+        {% empty %}
+            <p class="option empty">You have no identities.</p>
+        {% endfor %}
+        <a href="{% url "identity_create" %}" class="option new">
+            <i class="fa-solid fa-plus"></i> Create a new identity
+        </a>
+    </section>
+    <section>
+        <h1 class="above">Apps</h1>
+        <p>
+            To see your timelines, compose and edit messages, and follow people,
+            you will need to use a Mastodon-compatible app. Our favourites
+            are listed below, but there's lots more options out there!
+        </p>
+        <div class="flex-icons">
+            <a href="https://elk.zone/">
+                <img src="{% static "img/apps/elk.svg" %}" alt="Elk logo">
+                <h2>Elk</h2>
+                <i>Web/Mobile (Free)</i>
+            </a>
+            <a href="https://tusky.app/">
+                <img src="{% static "img/apps/tusky.png" %}" alt="Tusky logo">
+                <h2>Tusky</h2>
+                <i>Android (Free)</i>
+            </a>
+            <a href="https://tapbots.com/ivory/">
+                <img src="{% static "img/apps/ivory.webp" %}" alt="Ivory logo">
+                <h2>Ivory</h2>
+                <i>iOS (Paid)</i>
+            </a>
+            <a href="https://nicolasconstant.github.io/sengi/">
+                <img src="{% static "img/apps/sengi.png" %}" alt="Sengi logo">
+                <h2>Sengi</h2>
+                <i>Desktop Web/Apps (Free)</i>
+            </a>
+            <a href="https://fedilab.app/">
+                <img src="{% static "img/apps/fedilab.png" %}" alt="Fedilab logo">
+                <h2>Fedilab</h2>
+                <i>Android (Paid)</i>
+            </a>
+            <a href="https://apps.apple.com/us/app/toot-for-mastodon/id1229021451">
+                <img src="{% static "img/apps/toot.png" %}" alt="Toot! logo">
+                <h2>Toot!</h2>
+                <i>iOS (Paid)</i>
+            </a>
+        </div>
+    </section>
+{% endblock %}

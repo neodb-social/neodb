@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load activity_tags %}
+
+{% block title %}{{ identity }}{% endblock %}
+
+{% block opengraph %}
+    {% include "_opengraph.html" with opengraph_local=identity.to_opengraph_dict %}
+    <meta name="fediverse:creator" content="@{{ identity.handle }}" />
+{% endblock %}
+
+{% block extra_head %}
+    {% if not identity.indexable %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+    {% if identity.local %}
+        <link rel="alternate" type="application/rss+xml" title="RSS feed for {{ identity.name }}" href="rss/" />
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <section class="identity">
+        {% if identity.local_image_url %}
+            <img src="{{ identity.local_image_url.relative }}" class="banner">
+        {% endif %}
+
+        <span
+            _="on click halt the event then call imageviewer.show(me)"
+        >
+            <img src="{{ identity.local_icon_url.relative }}" class="icon"
+                 data-original-url="{{ identity.local_icon_url.relative }}"
+                 alt="Profile image for {{ identity.name }}"
+            >
+        </span>
+
+        <div class="inline follow">
+            <div class="actions" role="menubar">
+                {% if request.user in identity.users.all %}
+                    <a href="{% url "settings_profile" handle=identity.handle %}" class="button" title="Edit Profile">
+                        <i class="fa-solid fa-user-edit"></i> Settings
+                    </a>
+                {% endif %}
+                {% if request.user.admin or request.user.moderator %}
+                    <a href="{% url "admin_identity_edit" id=identity.id %}" class="button danger" title="View in Admin">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> Admin
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <h1>{{ identity.html_name_or_handle }}</h1>
+        {% if identity.actor_type != 'person' %}<small>{{ identity.actor_type }}</small>{% endif %}
+        <small>
+            @{{ identity.handle }}
+            <a title="Copy handle"
+               class="copy"
+               tabindex="0"
+               _="on click or keyup[key is 'Enter']
+                  writeText('@{{ identity.handle }}') into the navigator's clipboard
+                  then add .copied
+                  wait 2s
+                  then remove .copied">
+                <i class="fa-solid fa-copy"></i>
+            </a>
+        </small>
+        {% if identity.summary %}
+            <div class="bio">
+                {{ identity.safe_summary }}
+            </div>
+        {% endif %}
+    </section>
+
+    {% if identity.metadata %}
+        <section class="identity-metadata">
+                {% for entry in identity.safe_metadata %}
+                    <div class="metadata-pair">
+                        <span class="metadata-name">{{ entry.name }}</span>
+                        <span class="metadata-value">{{ entry.value }}</span>
+                    </div>
+                {% endfor %}
+        </section>
+    {% endif %}
+
+    {% if not identity.local %}
+        <section class="system-note">
+            {% if identity.outdated and not identity.name %}
+                The system is still fetching this profile. Refresh to see updates.
+            {% else %}
+                This is a member of another server.
+                <a href="{{ identity.profile_uri|default:identity.actor_uri }}">See their original profile ➔</a>
+            {% endif %}
+        </section>
+    {% else %}
+
+        {% include "identity/_tabs.html" %}
+
+        {% block subcontent %}
+
+            <div class="page-content">
+                {% for post in pinned_posts %}
+                    <div class="pinned-post-banner">
+                        Pinned post
+                    </div>
+                    {% include "activities/_post.html" %}
+                {% endfor %}
+                {% for event in page_obj %}
+                    {% if event.type == "post" %}
+                        {% include "activities/_post.html" with post=event.subject_post %}
+                    {% elif event.type == "boost" %}
+                        <div class="boost-banner">
+                            <a href="{{ event.subject_identity.urls.view }}">
+                                {{ event.subject_identity.html_name_or_handle }}
+                            </a> boosted
+                            <time>
+                                {{ event.subject_post_interaction.published | timedeltashort }} ago
+                            </time>
+                        </div>
+                        {% include "activities/_post.html" with post=event.subject_post %}
+                    {% endif %}
+                {% empty %}
+                    <span class="empty">
+                        {% if identity.local %}
+                            No posts yet.
+                        {% else %}
+                            No posts have been received by this server yet.
+
+                            {% if identity.profile_uri %}
+                                You may find historical posts at
+                                <a href="{{ identity.profile_uri }}">their original profile ➔</a>
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                {% endfor %}
+
+                <div class="pagination">
+                    {% if page_obj.has_previous and not request.htmx %}
+                        <a class="button" href=".?page={{ page_obj.previous_page_number }}">Previous Page</a>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <a class="button" href=".?page={{ page_obj.next_page_number }}" hx-boost="true" hx-select=".page-content" hx-target=".pagination" hx-swap="outerHTML">Next Page</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% endblock %}
+    {% endif %}
+{% endblock %}

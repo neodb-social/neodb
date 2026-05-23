@@ -1,0 +1,16 @@
+{% for announcement in announcements %}
+    <div class="announcement">
+        <div>{{ announcement.html }}</div>
+        <a hx-post="{{ announcement.urls.dismiss }}" hx-target="closest .announcement" hx-swap="delete" class="dismiss" title="Dismiss announcement"><i class="fa-solid fa-xmark"></i></a>
+    </div>
+{% endfor %}
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                <div>{{ message }}</div>
+                <a class="dismiss" title="Dismiss" _="on click remove closest <div/>"><i class="fa-solid fa-xmark"></i></a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

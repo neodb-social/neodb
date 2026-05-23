@@ -1,0 +1,9 @@
+<footer>
+    {% if config.site_about %}<a href="{% url "about" %}">About</a>{% endif %}
+    {% if config.policy_rules %}<a href="{% url "policy_rules" %}">Server&nbsp;Rules</a>{% endif %}
+    {% if config.policy_terms %}<a href="{% url "policy_terms" %}">Terms&nbsp;of&nbsp;Service</a>{% endif %}
+    {% if config.policy_privacy %}<a href="{% url "policy_privacy" %}">Privacy&nbsp;Policy</a>{% endif %}
+    {% if config.policy_issues %}<a href="{% url "policy_issues" %}">Report a Problem</a>{% endif %}
+    {% if config.policy_legal %}<a href="{% url "policy_legal" %}">Legal&nbsp;Notice</a>{% endif %}
+    <a href="/">{{ config.site_name }}</a>
+</footer>

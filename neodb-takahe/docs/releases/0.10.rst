@@ -1,0 +1,98 @@
+0.10
+====
+
+*0.10.0 Released: 2023/11/12*
+
+*0.10.1 Released: 2023/11/13*
+
+This release is a polish release that mostly focuses on performance, stability
+and federation compatibility.
+
+This release's major changes:
+
+* Stator, the background task system, has been significantly reworked to require
+  smaller indexes, spend less time scheduling, and has had most of its async
+  nature removed, as this both reduces deadlocks and improves performance in
+  most situations (the context switching was costing more than the gains from
+  talking to other servers asynchronously).
+
+Minor changes also include:
+
+* Followers-only mode now works correctly inbound and outbound (though outbound
+  may need the other server to refresh the profile first).
+
+* Profile pages are no longer shown for remote identities; instead, users are
+  linked or redirected directly to the remote profile page.
+
+* Inbound migration has been implemented, but is disabled by default as outbound
+  migration is not yet complete, and we don't want to release a system that
+  captures users with no outward path. If you *really* want to enable it, set
+  ``TAKAHE_ALLOW_USER_MIGRATION=true`` in your environment.
+
+* Federation compatibility has been improved with several other servers.
+
+* Blocked domains now receive absolutely zero fetches from Takahē; previously,
+  they were still pinged occasionally to see if they were online.
+
+* SMTP servers that don't require authentication are now supported.
+
+* Python 3.11 is now the minimum version required; this will not affect you at
+  all if you run Takahē via our docker image, as is recommended.
+
+An automatic remote post pruning system, to shrink the database of old data
+that was no longer needed, was in the development version but has been switched
+to a set of manual commands as of 0.10.1 - you can read more below or in
+:doc:`/tuning`.
+
+If you'd like to help with code, design, or other areas, see
+:doc:`/contributing` to see how to get in touch.
+
+You can download images from `Docker Hub <https://hub.docker.com/r/jointakahe/takahe>`_,
+or use the image name ``jointakahe/takahe:0.10``.
+
+
+0.10.1
+------
+
+*Released: 2023/11/13*
+
+This is a bugfix and small feature addition release:
+
+* The ``runstator`` command now logs its output to the terminal again
+
+* Two new commands, ``pruneposts`` and ``pruneidentities`` are added, to enable
+  pruning (deletion of old content) of Posts and Identities respectively.
+  You can read more about them in :doc:`/tuning`.
+
+* Stator's default concurrency levels have been significantly reduced as it's
+  now way more efficient at using individual database connections, but as a
+  result it places way more load on them. You can read more about tuning this
+  in :doc:`/tuning`.
+
+
+Upgrade Notes
+-------------
+
+Migrations
+~~~~~~~~~~
+
+There are new database migrations; they are backwards-compatible, but contain
+very significant index changes to all of the main tables that may cause the
+PostgreSQL deadlock detector to trigger if you attempt to apply them while your
+site is live.
+
+We recommend:
+
+* Temporarily stopping all instances of the webserver and Stator
+* Applying the migration (should be less than a few minutes on most installs)
+* Restarting the instances of webserver and Stator
+
+Stator
+~~~~~~
+
+Stator's new internal architecture allocates a worker thread and a database
+connection up to its concurrency value; this means it is a _lot_ more efficient
+for a given "concurrency" number than the old system and also uses a lot more
+database connections. We recommend you reduce your configuration values for
+these by 5-10x; if you didn't set them manually, then don't worry, we've
+reduced the default values by a similar amount.
