@@ -45,10 +45,25 @@ class MusicBrainzDownloader(BasicDownloader):
     cursor so all NeoDB processes together honor MusicBrainz' 1 req/s/IP
     guideline. Use for any musicbrainz.org request; coverartarchive.org is a
     different host and stays on plain BasicDownloader.
+
+    ``rate_limit_timeout`` lets batch callers (background fan-out jobs, RYM
+    import) wait minutes rather than fall open like an interactive page load
+    would after 15 s. Distinct from BasicDownloader's HTTP ``timeout``.
     """
 
+    def __init__(
+        self,
+        url: str,
+        headers: dict | None = None,
+        timeout: float | None = None,
+        *,
+        rate_limit_timeout: float = 15.0,
+    ):
+        super().__init__(url, headers=headers, timeout=timeout)
+        self._rate_limit_timeout = rate_limit_timeout
+
     def download(self):
-        musicbrainz_limiter().acquire()
+        musicbrainz_limiter().acquire(timeout=self._rate_limit_timeout)
         return super().download()
 
 
@@ -622,7 +637,10 @@ class MusicBrainzRelease(AbstractSite):
         }
         async with httpx.AsyncClient() as client:
             try:
-                await musicbrainz_limiter().acquire_async()
+                # search_by_fields is called from RYM import, which can issue
+                # thousands of these in a row. Wait minutes for our slot
+                # rather than falling open and bursting MB.
+                await musicbrainz_limiter().acquire_async(timeout=300.0)
                 response = await client.get(
                     "https://musicbrainz.org/ws/2/release",
                     params=params,
@@ -702,7 +720,16 @@ class MusicBrainzArtist(AbstractSite):
             "?fmt=json&inc=aliases+url-rels+genres+tags"
         )
         try:
-            downloader = MusicBrainzDownloader(api_url, headers=self.get_api_headers())
+            # Artist scrapes mostly arrive via the album related-resources
+            # fan-out queued from `fetch_related_resources_task`, which is a
+            # batch path: a 1000-album RYM import can stack hundreds of these
+            # behind the 1 req/s cursor. A generous timeout keeps them on the
+            # throttle instead of falling open and bursting MB.
+            downloader = MusicBrainzDownloader(
+                api_url,
+                headers=self.get_api_headers(),
+                rate_limit_timeout=300.0,
+            )
             data = downloader.download().json()
         except Exception as e:
             logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
