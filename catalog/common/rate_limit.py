@@ -138,10 +138,16 @@ class RedisRateLimiter:
         time.sleep(wait)
 
     async def acquire_async(self, timeout: float = 15.0) -> None:
-        """Async variant of :meth:`acquire`."""
+        """Async variant of :meth:`acquire`.
+
+        Redis-py's client is blocking, so run the script call on a worker
+        thread; otherwise an `asyncio.gather` fan-out (e.g. the external
+        search dispatcher) would stall every concurrent coroutine on each
+        reservation, even sub-millisecond ones.
+        """
         if get_mock_mode():
             return
-        target = self._reserve(timeout)
+        target = await asyncio.to_thread(self._reserve, timeout)
         if target is None:
             await asyncio.sleep(self.interval)
             return
