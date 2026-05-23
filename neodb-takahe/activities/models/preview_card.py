@@ -126,26 +126,28 @@ class PreviewCardStates(StateGraph):
         if parsed.scheme not in ("http", "https"):
             return cls.fetch_failed
 
+        max_bytes = 2 * 1024 * 1024
         try:
             with make_safe_client() as client:
-                response = client.get(instance.url)
+                with client.stream("GET", instance.url) as response:
+                    if response.status_code >= 400:
+                        return cls.fetch_failed
+                    content_type = response.headers.get("content-type", "")
+                    if "text/html" not in content_type:
+                        return cls.fetch_failed
+                    body = bytearray()
+                    for chunk in response.iter_bytes(chunk_size=8192):
+                        remaining = max_bytes - len(body)
+                        if remaining <= 0:
+                            break
+                        body.extend(chunk[:remaining])
+                        if len(body) >= max_bytes:
+                            break
         except Exception:
             return cls.fetch_failed
 
-        content_type = response.headers.get("content-type", "")
-        if "text/html" not in content_type:
-            return cls.fetch_failed
-
-        # Read at most 2 MB
         try:
-            body = response.content
-            if len(body) > 2 * 1024 * 1024:
-                body = body[: 2 * 1024 * 1024]
-        except Exception:
-            return cls.fetch_failed
-
-        try:
-            html_text = body.decode("utf-8", errors="replace")
+            html_text = bytes(body).decode("utf-8", errors="replace")
         except Exception:
             return cls.fetch_failed
 

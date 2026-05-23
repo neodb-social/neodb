@@ -1455,6 +1455,8 @@ class Post(StatorModel):
         Gets the post by URI - either looking up locally, or fetching
         from the other end if it's not here.
         """
+        if not object_uri:
+            raise cls.DoesNotExist("No object_uri provided")
         try:
             return cls.objects.get(object_uri=object_uri)
         except cls.DoesNotExist:
@@ -1798,7 +1800,13 @@ class Post(StatorModel):
 
     ### Mastodon API ###
 
-    def to_mastodon_json(self, interactions=None, bookmarks=None, identity=None):
+    def to_mastodon_json(
+        self,
+        interactions=None,
+        bookmarks=None,
+        identity=None,
+        include_quoted_status: bool = True,
+    ):
         reply_parent = None
         domain = identity.domain.uri_domain if identity else settings.MAIN_DOMAIN
         if self.in_reply_to:
@@ -1876,7 +1884,7 @@ class Post(StatorModel):
             if self.application
             else None,
         }
-        if self.quote_url:
+        if self.quote_url and include_quoted_status:
             quoted_post = (
                 Post.objects.filter(object_uri=self.quote_url)
                 .select_related("author")
@@ -1885,7 +1893,9 @@ class Post(StatorModel):
             if quoted_post:
                 value["quote"] = {
                     "state": "accepted",
-                    "quoted_status": quoted_post.to_mastodon_json(identity=identity),
+                    "quoted_status": quoted_post.to_mastodon_json(
+                        identity=identity, include_quoted_status=False
+                    ),
                 }
                 value["quote_id"] = str(quoted_post.pk)
                 value["quoted_status_id"] = str(quoted_post.pk)

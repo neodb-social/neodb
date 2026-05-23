@@ -66,7 +66,7 @@ def update_credentials(
             if attr_name:
                 # Empty value means delete this item
                 if not attr_value:
-                    break
+                    continue
                 identity.metadata.append({"name": attr_name, "value": attr_value})
     if avatar:
         service.set_icon(avatar)

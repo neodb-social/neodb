@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 Q(interactions__identity__local=True)
                 | Q(visibility=Post.Visibilities.mentioned)
             )
-            .order_by("?")[:number]
+            .order_by("created")[:number]
         )
         post_ids_and_uris = dict(posts.values_list("object_uri", "id"))
         print(f"  found {len(post_ids_and_uris)}")
