@@ -404,10 +404,16 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         user = User.objects.get(pk=user_pk)
         toot_id = metadata.get("mastodon_id")
         if toot_id and user.mastodon:
-            user.mastodon.delete_post(toot_id)
+            try:
+                user.mastodon.delete_post(toot_id)
+            except Exception as e:
+                logger.warning(f"Delete {user.mastodon} post {toot_id} error {e}")
         post_id = metadata.get("bluesky_id")
         if post_id and user.bluesky:
-            user.bluesky.delete_post(post_id)
+            try:
+                user.bluesky.delete_post(post_id)
+            except Exception as e:
+                logger.warning(f"Delete {user.bluesky} post {post_id} error {e}")
 
     def delete_crossposts(self):
         if hasattr(self, "metadata") and self.metadata:
