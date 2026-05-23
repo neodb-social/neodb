@@ -79,7 +79,7 @@ def get_media(
     if attachment.post:
         if attachment.post.author != request.identity:
             raise ApiError(401, "Not the author of this attachment")
-    elif attachment.author and attachment.author != request.identity:
+    elif attachment.author != request.identity:
         raise ApiError(401, "Not the author of this attachment")
     return schemas.MediaAttachment.from_post_attachment(attachment)
 

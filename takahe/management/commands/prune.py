@@ -97,7 +97,7 @@ class Command(SiteCommand):
                     )
                 )
             )
-            .order_by("?")[:number]
+            .order_by("created")[:number]
         )
         post_ids = list(posts.values_list("pk", flat=True))
         if verbose:

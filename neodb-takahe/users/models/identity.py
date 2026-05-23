@@ -564,6 +564,8 @@ class Identity(StatorModel):
 
     @classmethod
     def by_actor_uri(cls, uri, create=False, transient=False) -> "Identity":
+        if not uri:
+            raise cls.DoesNotExist("No actor_uri provided")
         try:
             return cls.objects.get(actor_uri=uri)
         except cls.DoesNotExist:

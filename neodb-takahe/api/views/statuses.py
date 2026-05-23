@@ -110,6 +110,23 @@ def _clamp_quote_visibility(requested: int, quoted: int) -> int:
     return V.mentioned
 
 
+def _resolve_owned_attachments(
+    request: HttpRequest, media_ids: list[str]
+) -> list[PostAttachment]:
+    """
+    Resolve a list of attachment IDs to PostAttachment rows owned by the
+    caller. Raises 404 for unknown IDs and 403 for any attachment whose
+    author is not the requesting identity (including null-author rows).
+    """
+    attachments: list[PostAttachment] = []
+    for media_id in media_ids:
+        attachment = get_object_or_404(PostAttachment, pk=media_id)
+        if attachment.author_id != request.identity.pk:
+            raise ApiError(403, "Not the owner of this attachment")
+        attachments.append(attachment)
+    return attachments
+
+
 def _extract_quote_from_trailing_url(
     text: str, identity: "Identity | None" = None
 ) -> tuple["Post | None", str]:
@@ -143,7 +160,7 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
     if not details.status and not details.media_ids:
         raise ApiError(400, "Status is empty")
     # Grab attachments
-    attachments = [get_object_or_404(PostAttachment, pk=id) for id in details.media_ids]
+    attachments = _resolve_owned_attachments(request, details.media_ids)
     # Create the Post
     visibility_map = {
         "public": Post.Visibilities.public,
@@ -220,7 +237,7 @@ def edit_status(request, id: str, details: EditStatusSchema) -> schemas.Status:
         # in NeoDB.
         raise ApiError(422, "This post must be edited in NeoDB")
     # Grab attachments
-    attachments = [get_object_or_404(PostAttachment, pk=id) for id in details.media_ids]
+    attachments = _resolve_owned_attachments(request, details.media_ids)
     # Update all details, as the client must provide them all
     post.edit_local(
         content=details.status,

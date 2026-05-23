@@ -36,30 +36,41 @@ class BaseProxyView(View):
                 },
             )
         else:
+            max_bytes = settings.SETUP.MEDIA_MAX_IMAGE_FILESIZE_MB * 1024 * 1024
             try:
                 with make_safe_client(
                     timeout=settings.SETUP.REMOTE_TIMEOUT,
                 ) as client:
-                    remote_response = client.get(remote_url)
+                    with client.stream("GET", remote_url) as remote_response:
+                        if remote_response.status_code >= 400:
+                            return HttpResponse(status=502)
+                        # Only serve content whose Content-Type is on the image
+                        # allowlist.  A malicious remote server could set
+                        # text/html and turn the proxy into an XSS vector on
+                        # the local domain.
+                        content_type = remote_response.headers.get(
+                            "Content-Type", "application/octet-stream"
+                        )
+                        if not content_type.startswith("image/"):
+                            content_type = "application/octet-stream"
+                        cache_control = remote_response.headers.get(
+                            "Cache-Control", "public, max-age=3600"
+                        )
+                        body = bytearray()
+                        for chunk in remote_response.iter_bytes(chunk_size=65536):
+                            remaining = max_bytes - len(body)
+                            if remaining <= 0:
+                                return HttpResponse(status=502)
+                            body.extend(chunk[:remaining])
+                            if len(chunk) > remaining:
+                                return HttpResponse(status=502)
             except (httpx.RequestError, SSRFAttemptError):
                 return HttpResponse(status=502)
-            if remote_response.status_code >= 400:
-                return HttpResponse(status=502)
-            # Only serve content whose Content-Type is on the image
-            # allowlist.  A malicious remote server could set text/html and
-            # turn the proxy into an XSS vector on the local domain.
-            content_type = remote_response.headers.get(
-                "Content-Type", "application/octet-stream"
-            )
-            if not content_type.startswith("image/"):
-                content_type = "application/octet-stream"
             return HttpResponse(
-                remote_response.content,
+                bytes(body),
                 headers={
                     "Content-Type": content_type,
-                    "Cache-Control": remote_response.headers.get(
-                        "Cache-Control", "public, max-age=3600"
-                    ),
+                    "Cache-Control": cache_control,
                 },
             )
 
