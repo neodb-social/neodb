@@ -7,6 +7,7 @@ Using the MusicBrainz API to fetch album/release-group information.
 
 import logging
 import re
+import threading
 from typing import Any, Dict, List
 
 import httpx
@@ -27,16 +28,23 @@ _logger = logging.getLogger(__name__)
 # well-behaved client sharing our egress IP assumes the 1 req/s ceiling, so
 # use that as our default.
 _musicbrainz_limiter: RedisRateLimiter | None = None
+_musicbrainz_limiter_lock = threading.Lock()
 
 
 def musicbrainz_limiter() -> RedisRateLimiter:
     """Singleton limiter for musicbrainz.org calls."""
     global _musicbrainz_limiter
+    # Double-checked locking so the hot path is a single None comparison and
+    # concurrent first-callers can't end up with two RedisRateLimiter
+    # instances (the underlying throttle would still work because the cursor
+    # lives in Redis, but `is`-identity callers would see two objects).
     if _musicbrainz_limiter is None:
-        _musicbrainz_limiter = RedisRateLimiter(
-            key="ratelimit:musicbrainz.org",
-            rate=1.0,
-        )
+        with _musicbrainz_limiter_lock:
+            if _musicbrainz_limiter is None:
+                _musicbrainz_limiter = RedisRateLimiter(
+                    key="ratelimit:musicbrainz.org",
+                    rate=1.0,
+                )
     return _musicbrainz_limiter
 
 
