@@ -14,11 +14,24 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
+from catalog.common.rate_limit import musicbrainz_limiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
+
+
+class MusicBrainzDownloader(BasicDownloader):
+    """BasicDownloader that throttles every call through the shared Redis
+    token bucket so all NeoDB processes together honor MusicBrainz' 50 req/s
+    per-IP cap. Use for any musicbrainz.org request; coverartarchive.org is
+    a different host and stays on plain BasicDownloader.
+    """
+
+    def download(self):
+        musicbrainz_limiter().acquire()
+        return super().download()
 
 
 _ARTIST_URL_FMT = "https://musicbrainz.org/artist/{}"
@@ -107,7 +120,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
         headers = self.get_api_headers()
 
         try:
-            downloader = BasicDownloader(api_url, headers=headers)
+            downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
         except Exception as e:
             logger.error(f"Failed to fetch MusicBrainz data: {e}")
@@ -214,7 +227,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
         """Get detailed release information including tracks"""
         api_url = f"https://musicbrainz.org/ws/2/release/{release_id}?fmt=json&inc=recordings+labels+media+isrcs"
         headers = self.get_api_headers()
-        downloader = BasicDownloader(api_url, headers=headers)
+        downloader = MusicBrainzDownloader(api_url, headers=headers)
         return downloader.download().json()
 
     def _extract_track_info(self, release_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -313,7 +326,7 @@ class MusicBrainzRelease(AbstractSite):
         headers = self.get_api_headers()
 
         try:
-            downloader = BasicDownloader(api_url, headers=headers)
+            downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
         except Exception as e:
             logger.error(f"Failed to fetch MusicBrainz release data: {e}")
@@ -495,6 +508,7 @@ class MusicBrainzRelease(AbstractSite):
 
         async with httpx.AsyncClient() as client:
             try:
+                await musicbrainz_limiter().acquire_async()
                 response = await client.get(
                     api_url, params=params, headers=headers, timeout=10
                 )
@@ -590,6 +604,7 @@ class MusicBrainzRelease(AbstractSite):
         }
         async with httpx.AsyncClient() as client:
             try:
+                await musicbrainz_limiter().acquire_async()
                 response = await client.get(
                     "https://musicbrainz.org/ws/2/release",
                     params=params,
@@ -669,7 +684,7 @@ class MusicBrainzArtist(AbstractSite):
             "?fmt=json&inc=aliases+url-rels+genres+tags"
         )
         try:
-            downloader = BasicDownloader(api_url, headers=self.get_api_headers())
+            downloader = MusicBrainzDownloader(api_url, headers=self.get_api_headers())
             data = downloader.download().json()
         except Exception as e:
             logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
@@ -801,6 +816,7 @@ class MusicBrainzArtist(AbstractSite):
         }
         async with httpx.AsyncClient() as client:
             try:
+                await musicbrainz_limiter().acquire_async()
                 response = await client.get(
                     "https://musicbrainz.org/ws/2/artist",
                     params=params,

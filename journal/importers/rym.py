@@ -5,7 +5,6 @@ import fcntl
 import os
 import re
 import tempfile
-import time
 
 from django.conf import settings
 from django.utils import timezone
@@ -320,8 +319,8 @@ class RymImporter(Task):
         if not title:
             return None
         loop = getattr(self, "_match_loop", None)
-        # MusicBrainz guideline: max 1 request/sec per IP
-        time.sleep(1.05)
+        # MusicBrainz' 50 req/s cap is enforced cross-process by the Redis
+        # token bucket inside MusicBrainzRelease.search_by_fields.
         try:
             mb = _run_async(
                 MusicBrainzRelease.search_by_fields(title, artist, year), loop
