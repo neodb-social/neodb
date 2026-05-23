@@ -28,13 +28,11 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v5
-        with:
-          submodules: 'true'
 
       - name: Check git version
         id: version
         run: |
-          echo "buildver=${{ github.ref_name }}-$(cd neodb-takahe; git rev-parse --short HEAD)-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+          echo "buildver=${{ github.ref_name }}-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
 
       - uses: svenstaro/upload-release-action@v2
         with:
