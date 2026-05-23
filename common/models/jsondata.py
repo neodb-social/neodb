@@ -317,12 +317,12 @@ class TolerantArrayFormField(DJANGO_ArrayFormField):
     # JSONDecodeError, surfacing as a 500 on the edit endpoint.
 
     def to_python(self, value):
-        if isinstance(value, str):
-            try:
-                value = json.loads(value.strip() or "[]")
-            except json.JSONDecodeError:
-                return []
-        return super().to_python(value)
+        if isinstance(value, str) and not value.strip():
+            return []
+        try:
+            return super().to_python(value)
+        except (json.JSONDecodeError, TypeError):
+            return []
 
 
 class ArrayField(JSONFieldMixin, DJANGO_ArrayField):

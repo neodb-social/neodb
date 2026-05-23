@@ -29,6 +29,7 @@ class TestArrayField:
         assert f.to_python("") == []
         assert f.to_python("   ") == []
         assert f.to_python("not json") == []
+        assert f.to_python(None) == []
         assert f.to_python("[]") == []
         assert f.to_python('["drama"]') == ["drama"]
 
