@@ -221,7 +221,7 @@ msgstr "Steam"
 
 #: catalog/models/common.py:28 catalog/models/common.py:100
 msgid "itch.io"
-msgstr ""
+msgstr "itch.io"
 
 #: catalog/models/common.py:29 catalog/models/common.py:101
 msgid "Bangumi"
@@ -289,7 +289,7 @@ msgstr "MobyGames"
 
 #: catalog/models/common.py:45 catalog/models/common.py:113
 msgid "StoryGraph"
-msgstr ""
+msgstr "StoryGraph"
 
 #: catalog/models/common.py:46 catalog/models/common.py:104
 msgid "YouTube Music"
@@ -949,11 +949,11 @@ msgstr "死亡日期"
 
 #: catalog/models/people.py:474
 msgid "character"
-msgstr ""
+msgstr "角色"
 
 #: catalog/models/people.py:478
 msgid "Character name for actor roles"
-msgstr ""
+msgstr "演员饰演的角色名称"
 
 #: catalog/models/performance.py:136
 msgid "optional"
@@ -1097,7 +1097,7 @@ msgstr "点击编辑角色名"
 
 #: catalog/templates/_item_credits_list.html:145
 msgid "Remove this credit?"
-msgstr ""
+msgstr "移除此演职员？"
 
 #: catalog/templates/_item_credits_list.html:146
 msgid "remove"
@@ -3697,40 +3697,40 @@ msgstr "登录后访问"
 
 #: common/views_manage.py:50
 msgid "Enabled"
-msgstr ""
+msgstr "已启用"
 
 #: common/views_manage.py:50
 msgid "Disabled"
-msgstr ""
+msgstr "已禁用"
 
 #: common/views_manage.py:144 common/views_manage.py:294
 msgid "Branding"
-msgstr ""
+msgstr "品牌"
 
 #: common/views_manage.py:146
 msgid "Recommendations"
-msgstr ""
+msgstr "推荐"
 
 #: common/views_manage.py:147
 msgid "Access"
-msgstr ""
+msgstr "访问"
 
 #: common/views_manage.py:148 common/views_manage.py:564
 msgid "Federation"
-msgstr ""
+msgstr "联邦"
 
 #: common/views_manage.py:149
 msgid "API Keys"
-msgstr ""
+msgstr "API 密钥"
 
 #: common/views_manage.py:150
 msgid "Downloader"
-msgstr ""
+msgstr "下载器"
 
 #: common/views_manage.py:151 common/views_manage.py:302
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
-msgstr ""
+msgstr "高级"
 
 #: common/views_manage.py:201
 msgid "Invalid value."
@@ -3746,7 +3746,7 @@ msgstr "设置已保存"
 
 #: common/views_manage.py:230
 msgid "Site Name"
-msgstr ""
+msgstr "站点名称"
 
 #: common/views_manage.py:233
 msgid "Site Description"
@@ -3754,103 +3754,103 @@ msgstr "站点描述"
 
 #: common/views_manage.py:234
 msgid "Short description shown in metadata and about page."
-msgstr ""
+msgstr "在元数据和关于页面中显示的简短描述。"
 
 #: common/views_manage.py:237
 msgid "Site Logo URL"
-msgstr ""
+msgstr "站点 Logo URL"
 
 #: common/views_manage.py:238
 msgid "URL path to the site logo image."
-msgstr ""
+msgstr "站点 Logo 图片的 URL 路径。"
 
 #: common/views_manage.py:241
 msgid "Site Icon URL"
-msgstr ""
+msgstr "站点图标 URL"
 
 #: common/views_manage.py:242
 msgid "URL path to the site icon/favicon."
-msgstr ""
+msgstr "站点图标/favicon 的 URL 路径。"
 
 #: common/views_manage.py:245
 msgid "Default User Avatar URL"
-msgstr ""
+msgstr "默认用户头像 URL"
 
 #: common/views_manage.py:246
 msgid "URL path to the default user avatar."
-msgstr ""
+msgstr "默认用户头像的 URL 路径。"
 
 #: common/views_manage.py:249
 msgid "Site Color Theme"
-msgstr ""
+msgstr "站点配色主题"
 
 #: common/views_manage.py:250
 msgid "PicoCSS color theme."
-msgstr ""
+msgstr "PicoCSS 配色主题。"
 
 #: common/views_manage.py:275
 msgid "Site Introduction"
-msgstr ""
+msgstr "站点介绍"
 
 #: common/views_manage.py:276
 msgid "URL path for the intro/welcome sidebar page."
-msgstr ""
+msgstr "介绍/欢迎侧边栏页面的 URL 路径。"
 
 #: common/views_manage.py:279
 msgid "Custom HTML Head"
-msgstr ""
+msgstr "自定义 HTML Head"
 
 #: common/views_manage.py:280
 msgid "Extra HTML injected into the <head> of all pages."
-msgstr ""
+msgstr "注入所有页面 <head> 的额外 HTML。"
 
 #: common/views_manage.py:284
 msgid "Footer Links"
-msgstr ""
+msgstr "页脚链接"
 
 #: common/views_manage.py:285
 msgid "Link title mapped to URL."
-msgstr ""
+msgstr "链接标题到 URL 的映射。"
 
 #: common/views_manage.py:314
 msgid "Minimum Marks for Discover"
-msgstr ""
+msgstr "进入发现页的最少标记数"
 
 #: common/views_manage.py:316
 msgid "Number of marks required for an item to appear in discover."
-msgstr ""
+msgstr "条目出现在发现页所需的最少标记数。"
 
 #: common/views_manage.py:321
 msgid "Update Interval (minutes)"
-msgstr ""
+msgstr "更新间隔（分钟）"
 
 #: common/views_manage.py:322
 msgid "How often to refresh the popular items list."
-msgstr ""
+msgstr "刷新热门条目列表的频率。"
 
 #: common/views_manage.py:326
 msgid "Filter by Preferred Languages"
-msgstr ""
+msgstr "按偏好语言过滤"
 
 #: common/views_manage.py:327
 msgid "Only show items with titles in the preferred languages."
-msgstr ""
+msgstr "仅显示标题为偏好语言的条目。"
 
 #: common/views_manage.py:330
 msgid "Show Local Only"
-msgstr ""
+msgstr "仅显示本站内容"
 
 #: common/views_manage.py:332
 msgid "Only show items marked by local users, not the entire network."
-msgstr ""
+msgstr "仅显示本站用户标记的条目，而非整个联邦网络。"
 
 #: common/views_manage.py:336
 msgid "Show Popular Posts"
-msgstr ""
+msgstr "显示热门帖文"
 
 #: common/views_manage.py:337
 msgid "Show popular public posts instead of recent ones."
-msgstr ""
+msgstr "显示热门公开帖文，而非最近的帖文。"
 
 #: common/views_manage.py:340
 msgid "Show Popular Tags"
@@ -3858,7 +3858,7 @@ msgstr "显示热门标签"
 
 #: common/views_manage.py:341
 msgid "Show popular public tags on the discover page."
-msgstr ""
+msgstr "在发现页显示热门公开标签。"
 
 #: common/views_manage.py:377
 msgid "Enable Recommendations"
@@ -3870,83 +3870,83 @@ msgstr "推荐功能总开关。关闭时，常规用户不会看到推荐界面
 
 #: common/views_manage.py:386
 msgid "Source Item Mark Threshold"
-msgstr ""
+msgstr "源条目标记阈值"
 
 #: common/views_manage.py:388
 msgid "Minimum public marks an item needs before similarity rows are built for it."
-msgstr ""
+msgstr "为某条目构建相似条目所需的最少公开标记数。"
 
 #: common/views_manage.py:394
 msgid "Target Item Mark Threshold"
-msgstr ""
+msgstr "目标条目标记阈值"
 
 #: common/views_manage.py:396
 msgid "Minimum public marks an item needs to be eligible as a recommendation target."
-msgstr ""
+msgstr "条目作为推荐目标所需的最少公开标记数。"
 
 #: common/views_manage.py:402
 msgid "Top-K Similar Items per Source"
-msgstr ""
+msgstr "每个源条目的最相似条目数 (Top-K)"
 
 #: common/views_manage.py:403
 msgid "Number of similar items stored per source item."
-msgstr ""
+msgstr "每个源条目保存的相似条目数量。"
 
 #: common/views_manage.py:407
 msgid "Top-N Recommendations per User"
-msgstr ""
+msgstr "每位用户的推荐条目数 (Top-N)"
 
 #: common/views_manage.py:408
 msgid "Number of personalised rows stored per user."
-msgstr ""
+msgstr "每位用户保存的个性化推荐数量。"
 
 #: common/views_manage.py:412
 msgid "Dampen Heavy Shelvers"
-msgstr ""
+msgstr "抑制高频标记用户"
 
 #: common/views_manage.py:414
 msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
-msgstr ""
+msgstr "对每位用户的贡献按 1/sqrt(n_marks) 加权，以削弱超大量标记用户对相似度评分的影响。"
 
 #: common/views_manage.py:419
 msgid "Per-User Mark Cap (training)"
-msgstr ""
+msgstr "每用户标记上限（训练）"
 
 #: common/views_manage.py:421
 msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
-msgstr ""
+msgstr "构建相似度矩阵时，仅截取每位用户最近的 N 条标记。"
 
 #: common/views_manage.py:427
 msgid "Active-User Window (days)"
-msgstr ""
+msgstr "活跃用户窗口（天）"
 
 #: common/views_manage.py:429
 msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
-msgstr ""
+msgstr "为最近 N 天内至少有一条公开标记的用户刷新个性化推荐。"
 
 #: common/views_manage.py:435
 msgid "Per-User Seed Cap (serving)"
-msgstr ""
+msgstr "每用户种子标记上限（投递）"
 
 #: common/views_manage.py:437
 msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
-msgstr ""
+msgstr "为单个用户计算个性化推荐时，用作种子的最近标记数量。"
 
 #: common/views_manage.py:443
 msgid "Lazy Refresh TTL (days)"
-msgstr ""
+msgstr "懒刷新 TTL（天）"
 
 #: common/views_manage.py:445
 msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
-msgstr ""
+msgstr "按需推荐缓存的有效期，过期后下一次请求会触发刷新。"
 
 #: common/views_manage.py:451
 msgid "Circles Window (days)"
-msgstr ""
+msgstr "好友圈窗口（天）"
 
 #: common/views_manage.py:453
 msgid "Look back N days when finding items recently marked by people the viewer follows."
-msgstr ""
+msgstr "回溯 N 天，查找浏览者关注的用户最近标记过的条目。"
 
 #: common/views_manage.py:460
 msgid "Master Switch"
@@ -3954,355 +3954,355 @@ msgstr "总开关"
 
 #: common/views_manage.py:463
 msgid "Similarity Builder"
-msgstr ""
+msgstr "相似度构建器"
 
 #: common/views_manage.py:470
 msgid "Personalisation"
-msgstr ""
+msgstr "个性化"
 
 #: common/views_manage.py:486
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
-msgstr ""
+msgstr "注册需要邀请令牌。可使用 neodb-manage invite --create 生成邀请令牌。"
 
 #: common/views_manage.py:491
 msgid "Enable Local-Only Posting"
-msgstr ""
+msgstr "启用仅本站可见帖文"
 
 #: common/views_manage.py:492
 msgid "Allow users to create posts visible only to local users."
-msgstr ""
+msgstr "允许用户创建仅本站用户可见的帖文。"
 
 #: common/views_manage.py:495
 msgid "Mastodon Login Whitelist"
-msgstr ""
+msgstr "Mastodon 登录白名单"
 
 #: common/views_manage.py:496
 msgid "One domain per line. Leave empty to allow any instance."
-msgstr ""
+msgstr "每行一个域名。留空则允许任意实例。"
 
 #: common/views_manage.py:499
 msgid "Enable Bluesky Login"
-msgstr ""
+msgstr "启用 Bluesky 登录"
 
 #: common/views_manage.py:502
 msgid "Enable Threads Login"
-msgstr ""
+msgstr "启用 Threads 登录"
 
 #: common/views_manage.py:507
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
-msgstr ""
+msgstr "语言代码，每行一个（如 en、zh、ja）。第一个为默认语言。"
 
 #: common/views_manage.py:513
 msgid "Access Control"
-msgstr ""
+msgstr "访问控制"
 
 #: common/views_manage.py:518
 msgid "Login Methods"
-msgstr ""
+msgstr "登录方式"
 
 #: common/views_manage.py:522
 msgid "Localization"
-msgstr ""
+msgstr "本地化"
 
 #: common/views_manage.py:532
 msgid "Disable Default Relay"
-msgstr ""
+msgstr "禁用默认中继"
 
 #: common/views_manage.py:534
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
-msgstr ""
+msgstr "禁用 relay.neodb.net 联邦中继（用于跨实例共享公开评分）。"
 
 #: common/views_manage.py:539
 msgid "Fanout Limit (days)"
-msgstr ""
+msgstr "扩散范围（天）"
 
 #: common/views_manage.py:540
 msgid "Posts older than this many days will not be fanned out."
-msgstr ""
+msgstr "超过此天数的帖文将不再扩散投递。"
 
 #: common/views_manage.py:544
 msgid "Remote Prune Horizon (days)"
-msgstr ""
+msgstr "远端清理期限（天）"
 
 #: common/views_manage.py:546
 msgid "Remote profiles inactive for this many days will be pruned."
-msgstr ""
+msgstr "不活跃超过此天数的远端用户资料将被清理。"
 
 #: common/views_manage.py:551
 msgid "Search Sites"
-msgstr ""
+msgstr "搜索站点"
 
 #: common/views_manage.py:552
 msgid "External search sites to include, one per line."
-msgstr ""
+msgstr "要包含的外部搜索站点，每行一个。"
 
 #: common/views_manage.py:555
 msgid "Federated Search Peers"
-msgstr ""
+msgstr "联邦搜索节点"
 
 #: common/views_manage.py:556
 msgid "NeoDB peer instances for federated search, one per line."
-msgstr ""
+msgstr "用于联邦搜索的 NeoDB 节点实例，每行一个。"
 
 #: common/views_manage.py:559
 msgid "Hidden Categories"
-msgstr ""
+msgstr "隐藏的分类"
 
 #: common/views_manage.py:560
 msgid "Category values to hide from the catalog, one per line."
-msgstr ""
+msgstr "在目录中隐藏的分类值，每行一个。"
 
 #: common/views_manage.py:581
 msgid "Spotify API Key"
-msgstr ""
+msgstr "Spotify API 密钥"
 
 #: common/views_manage.py:582
 msgid "https://developer.spotify.com/"
-msgstr ""
+msgstr "https://developer.spotify.com/"
 
 #: common/views_manage.py:585
 msgid "TMDB API Key"
-msgstr ""
+msgstr "TMDB API 密钥"
 
 #: common/views_manage.py:586
 msgid "https://developer.themoviedb.org/"
-msgstr ""
+msgstr "https://developer.themoviedb.org/"
 
 #: common/views_manage.py:589
 msgid "Google Books API Key"
-msgstr ""
+msgstr "Google Books API 密钥"
 
 #: common/views_manage.py:590
 msgid "https://developers.google.com/books/"
-msgstr ""
+msgstr "https://developers.google.com/books/"
 
 #: common/views_manage.py:593
 msgid "Discogs API Key"
-msgstr ""
+msgstr "Discogs API 密钥"
 
 #: common/views_manage.py:595
 msgid "Personal access token from https://www.discogs.com/settings/developers"
-msgstr ""
+msgstr "来自 https://www.discogs.com/settings/developers 的个人访问令牌"
 
 #: common/views_manage.py:599
 msgid "IGDB Client ID"
-msgstr ""
+msgstr "IGDB 客户端 ID"
 
 #: common/views_manage.py:600
 msgid "https://api-docs.igdb.com/"
-msgstr ""
+msgstr "https://api-docs.igdb.com/"
 
 #: common/views_manage.py:603
 msgid "IGDB Client Secret"
-msgstr ""
+msgstr "IGDB 客户端密钥"
 
 #: common/views_manage.py:606
 msgid "BoardGameGeek API Token"
-msgstr ""
+msgstr "BoardGameGeek API 令牌"
 
 #: common/views_manage.py:608
 msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
-msgstr ""
+msgstr "来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://boardgamegeek.com/using_the_xml_api#toc9）。"
 
 #: common/views_manage.py:613 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
-msgstr ""
+msgstr "Steam API 密钥"
 
 #: common/views_manage.py:615
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
-msgstr ""
+msgstr "https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自己的密钥。"
 
 #: common/views_manage.py:620
 msgid "DeepL API Key"
-msgstr ""
+msgstr "DeepL API 密钥"
 
 #: common/views_manage.py:621
 msgid "For translation features."
-msgstr ""
+msgstr "用于翻译功能。"
 
 #: common/views_manage.py:624
 msgid "LibreTranslate API URL"
-msgstr ""
+msgstr "LibreTranslate API URL"
 
 #: common/views_manage.py:627
 msgid "LibreTranslate API Key"
-msgstr ""
+msgstr "LibreTranslate API 密钥"
 
 #: common/views_manage.py:630
 msgid "Threads App ID"
-msgstr ""
+msgstr "Threads 应用 ID"
 
 #: common/views_manage.py:631
 msgid "OAuth app ID for Threads login."
-msgstr ""
+msgstr "用于 Threads 登录的 OAuth 应用 ID。"
 
 #: common/views_manage.py:634
 msgid "Threads App Secret"
-msgstr ""
+msgstr "Threads 应用密钥"
 
 #: common/views_manage.py:637
 msgid "Sentry DSN"
-msgstr ""
+msgstr "Sentry DSN"
 
 #: common/views_manage.py:638
 msgid "Requires restart to take effect."
-msgstr ""
+msgstr "需要重启才能生效。"
 
 #: common/views_manage.py:641
 msgid "Sentry Sample Rate"
-msgstr ""
+msgstr "Sentry 采样率"
 
 #: common/views_manage.py:642
 msgid "0.0 to 1.0. Requires restart to take effect."
-msgstr ""
+msgstr "0.0 到 1.0。需要重启才能生效。"
 
 #: common/views_manage.py:647
 msgid "Discord Webhooks"
-msgstr ""
+msgstr "Discord Webhook"
 
 #: common/views_manage.py:649
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
-msgstr ""
+msgstr "按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
 
 #: common/views_manage.py:666
 msgid "Catalog APIs"
-msgstr ""
+msgstr "目录 API"
 
 #: common/views_manage.py:676
 msgid "Translation"
-msgstr ""
+msgstr "翻译"
 
 #: common/views_manage.py:681
 msgid "Third-Party Login"
-msgstr ""
+msgstr "第三方登录"
 
 #: common/views_manage.py:685
 msgid "Monitoring"
-msgstr ""
+msgstr "监控"
 
 #: common/views_manage.py:697
 msgid "Scraping Providers"
-msgstr ""
+msgstr "抓取服务"
 
 #: common/views_manage.py:698
 msgid "Comma-separated list of providers to try in order."
-msgstr ""
+msgstr "按顺序尝试的服务列表，以逗号分隔。"
 
 #: common/views_manage.py:701
 msgid "Proxy List"
-msgstr ""
+msgstr "代理列表"
 
 #: common/views_manage.py:702
 msgid "One per line, format: http://server?url=__URL__"
-msgstr ""
+msgstr "每行一个，格式：http://server?url=__URL__"
 
 #: common/views_manage.py:705
 msgid "Backup Proxy"
-msgstr ""
+msgstr "备用代理"
 
 #: common/views_manage.py:708
 msgid "Scrapfly API Key"
-msgstr ""
+msgstr "Scrapfly API 密钥"
 
 #: common/views_manage.py:711
 msgid "Decodo Base64 Auth Token"
-msgstr ""
+msgstr "Decodo Base64 鉴权令牌"
 
 #: common/views_manage.py:714
 msgid "ScraperAPI Key"
-msgstr ""
+msgstr "ScraperAPI 密钥"
 
 #: common/views_manage.py:717
 msgid "ScrapingBee API Key"
-msgstr ""
+msgstr "ScrapingBee API 密钥"
 
 #: common/views_manage.py:720
 msgid "Custom Scraper URL"
-msgstr ""
+msgstr "自定义抓取器 URL"
 
 #: common/views_manage.py:721
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
-msgstr ""
+msgstr "包含 __URL__ 和 __SELECTOR__ 占位符的 URL。"
 
 #: common/views_manage.py:724
 msgid "Request Timeout (seconds)"
-msgstr ""
+msgstr "请求超时（秒）"
 
 #: common/views_manage.py:728
 msgid "Cache Timeout (seconds)"
-msgstr ""
+msgstr "缓存超时（秒）"
 
 #: common/views_manage.py:732
 msgid "Retries"
-msgstr ""
+msgstr "重试次数"
 
 #: common/views_manage.py:737
 msgid "Providers"
-msgstr ""
+msgstr "服务"
 
 #: common/views_manage.py:742
 msgid "Provider Keys"
-msgstr ""
+msgstr "服务密钥"
 
 #: common/views_manage.py:749
 msgid "Timeouts"
-msgstr ""
+msgstr "超时设置"
 
 #: common/views_manage.py:761
 msgid "Alternative Domains"
-msgstr ""
+msgstr "备用域名"
 
 #: common/views_manage.py:762
 msgid "One domain per line."
-msgstr ""
+msgstr "每行一个域名。"
 
 #: common/views_manage.py:765
 msgid "Mastodon Client Scope"
-msgstr ""
+msgstr "Mastodon 客户端授权范围"
 
 #: common/views_manage.py:766
 msgid "OAuth scope when creating Mastodon apps."
-msgstr ""
+msgstr "创建 Mastodon 应用时使用的 OAuth 授权范围。"
 
 #: common/views_manage.py:769
 msgid "Disable Cron Jobs"
-msgstr ""
+msgstr "禁用定时任务"
 
 #: common/views_manage.py:770
 msgid "Job names to disable, one per line. Use * to disable all."
-msgstr ""
+msgstr "要禁用的任务名，每行一个。使用 * 禁用所有任务。"
 
 #: common/views_manage.py:773
 msgid "Index Aliases"
-msgstr ""
+msgstr "索引别名"
 
 #: common/views_manage.py:774
 msgid "Map index names to their aliases."
-msgstr ""
+msgstr "索引名称到别名的映射。"
 
 #: common/views_manage.py:784
 msgid "Task Cleanup (days)"
-msgstr ""
+msgstr "任务清理（天）"
 
 #: common/views_manage.py:786
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
-msgstr ""
+msgstr "在此天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
 
 #: common/views_manage.py:792
 msgid "Skip Migration Jobs"
-msgstr ""
+msgstr "跳过迁移任务"
 
 #: common/views_manage.py:794
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
-msgstr ""
+msgstr "要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被跳过的任务会记录警告并通知 Discord system 频道。"
 
 #: common/views_manage.py:801
 msgid "Domains"
-msgstr ""
+msgstr "域名"
 
 #: common/views_manage.py:804
 msgid "Operational"
-msgstr ""
+msgstr "运维"
 
 #: journal/forms.py:24 journal/forms.py:26 journal/forms.py:70
 #: journal/forms.py:73 journal/forms.py:140
@@ -4322,7 +4322,7 @@ msgstr "转发到时间轴"
 
 #: journal/forms.py:44 journal/forms.py:117
 msgid "Keep leading spaces"
-msgstr ""
+msgstr "保留行首空格"
 
 #: journal/forms.py:45 journal/forms.py:118
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -5319,7 +5319,7 @@ msgstr "创建了收藏单"
 
 #: journal/templates/collection.html:166
 msgid "Query"
-msgstr ""
+msgstr "查询"
 
 #: journal/templates/collection_edit.html:33
 msgid "Title and Description"
@@ -5485,7 +5485,7 @@ msgstr "删除不可撤销。确认继续吗？"
 #: journal/templates/post_compose.html:18
 #, python-format
 msgid " Note to %(reply_to_name)s "
-msgstr ""
+msgstr " 给 %(reply_to_name)s 的笔记 "
 
 #: journal/templates/post_compose.html:20 journal/templates/profile.html:37
 #: social/templates/_compose_menu.html:4
@@ -5596,7 +5596,7 @@ msgstr "删除这个标签"
 
 #: journal/templates/user_article_list.html:26
 msgid "Compose new article"
-msgstr ""
+msgstr "撰写新文章"
 
 #: journal/templates/user_collection_list.html:16
 #: journal/templates/user_collection_list.html:30
@@ -5615,7 +5615,7 @@ msgstr "关注者"
 
 #: journal/templates/user_follow_list.html:32 journal/views/profile.py:461
 msgid "Mutuals"
-msgstr ""
+msgstr "互相关注"
 
 #: journal/templates/user_tag_list.html:21
 msgid "All Tags"
@@ -6064,7 +6064,7 @@ msgstr "回应"
 
 #: social/templates/_post_action_menu.html:5
 msgid "More"
-msgstr ""
+msgstr "更多"
 
 #: social/templates/_remote_article_teaser.html:5
 msgid "Untitled article"
@@ -6075,16 +6075,13 @@ msgid "boosted your post"
 msgstr "转播了你的帖文"
 
 #: social/templates/event/boosted_article.html:2
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+#, python-format
 msgid ""
 "\n"
 "boosted your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"转播了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"转播了你的文章 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -6153,16 +6150,13 @@ msgid "liked your post"
 msgstr "赞了你的帖文"
 
 #: social/templates/event/liked_article.html:2
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "liked your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+#, python-format
 msgid ""
 "\n"
 "liked your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"赞了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"赞了你的文章 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -6223,16 +6217,13 @@ msgid "mentioned you"
 msgstr "提到了你"
 
 #: social/templates/event/mentioned_article.html:2
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "replied to your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+#, python-format
 msgid ""
 "\n"
 "replied to your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"回应了你的收藏单 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"回应了你的文章 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
@@ -6957,11 +6948,11 @@ msgstr "从Goodreads导入"
 
 #: users/templates/users/data.html:87
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
-msgstr ""
+msgstr "在 Goodreads，点击 <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> 将书库下载为 CSV 文件。"
 
 #: users/templates/users/data.html:90
 msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
-msgstr ""
+msgstr "在下方上传下载的 <code>goodreads_library_export.csv</code> 文件。"
 
 #: users/templates/users/data.html:93 users/templates/users/data.html:143
 msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
@@ -6973,11 +6964,11 @@ msgstr "从StoryGraph导入"
 
 #: users/templates/users/data.html:139
 msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
-msgstr ""
+msgstr "在 StoryGraph，点击 <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 将书库下载为 CSV 文件。"
 
 #: users/templates/users/data.html:146
 msgid "Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import."
-msgstr ""
+msgstr "书籍首先通过 ISBN 匹配，然后通过 Google Books 按标题和作者匹配。<b>StoryGraph 导出的元数据有限</b>（许多书籍缺少 ISBN），部分条目可能匹配失败或匹配错误——请在导入后查看失败条目列表。"
 
 #: users/templates/users/data.html:186
 msgid "Import from Letterboxd"
@@ -6985,15 +6976,15 @@ msgstr "导入Letterboxd标记"
 
 #: users/templates/users/data.html:192
 msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
-msgstr ""
+msgstr "在 letterboxd.com 网站，点击 <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">Settings 中的 DATA</a>；或在其 App 中，进入 Settings 后点击 Advanced Settings，再点击 EXPORT YOUR DATA"
 
 #: users/templates/users/data.html:195
 msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
-msgstr ""
+msgstr "下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</code> 的文件，请勿解压"
 
 #: users/templates/users/data.html:198
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
-msgstr ""
+msgstr "zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 
 #: users/templates/users/data.html:233 users/templates/users/data.html:284
 msgid "Only forward changes(none->to-watch->watched) will be imported."
@@ -7022,7 +7013,7 @@ msgstr "导入Steam游戏库和愿望清单"
 
 #: users/templates/users/data.html:295
 msgid "Login with Steam"
-msgstr ""
+msgstr "使用 Steam 登录"
 
 #: users/templates/users/data.html:301
 msgid "Import Podcast Subscriptions"
@@ -7383,11 +7374,11 @@ msgstr "原始主页"
 
 #: users/templates/users/profile_actions.html:53
 msgid "admin"
-msgstr ""
+msgstr "管理员"
 
 #: users/templates/users/profile_actions.html:59
 msgid "staff"
-msgstr ""
+msgstr "工作人员"
 
 #: users/templates/users/profile_actions.html:66
 msgid "compose a message"
@@ -7498,6 +7489,9 @@ msgid ""
 "              Matched %(local)s locally, %(external)s externally, %(unmatched)s unmatched out of %(total)s rows.\n"
 "            "
 msgstr ""
+"\n"
+"              共 %(total)s 行，本地匹配 %(local)s 条，外部匹配 %(external)s 条，%(unmatched)s 条未匹配。\n"
+"            "
 
 #: users/templates/users/rym_import.html:45
 msgid "Download matched CSV"
@@ -7545,11 +7539,11 @@ msgstr "你的个人 Steam API 密钥"
 
 #: users/templates/users/steam_import.html:33
 msgid "Get a free key at"
-msgstr ""
+msgstr "在此处获取免费密钥："
 
 #: users/templates/users/steam_import.html:37
 msgid "You can revoke or regenerate the key after the import is complete."
-msgstr ""
+msgstr "导入完成后可以撤销或重新生成密钥。"
 
 #: users/templates/users/steam_import.html:42
 msgid "Import Sources"
@@ -7581,7 +7575,7 @@ msgstr "筛选状态"
 
 #: users/templates/users/steam_import.html:68
 msgid "Import marks with these estimated status"
-msgstr ""
+msgstr "导入这些预估状态的标记"
 
 #: users/templates/users/steam_import.html:74
 msgid "Launched in playing threshold"
@@ -7863,7 +7857,7 @@ msgstr "通行密钥注册失败"
 
 #: users/views/webauthn.py:122
 msgid "Credential already registered"
-msgstr ""
+msgstr "凭据已注册"
 
 #: users/views/webauthn.py:159 users/views/webauthn.py:166
 #: users/views/webauthn.py:175
