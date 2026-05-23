@@ -549,7 +549,11 @@ class MusicBrainzRelease(AbstractSite):
 
         async with httpx.AsyncClient() as client:
             try:
-                await musicbrainz_limiter().acquire_async()
+                # Deliberately not rate-limited: search_task runs inside the
+                # interactive external-search dispatcher (asyncio.gather over
+                # every searchable site). Blocking a user's search to wait
+                # for a slot would freeze the whole result page; we'd rather
+                # let MB return 503 here and skip MB results for this query.
                 response = await client.get(
                     api_url, params=params, headers=headers, timeout=10
                 )
@@ -869,7 +873,10 @@ class MusicBrainzArtist(AbstractSite):
         }
         async with httpx.AsyncClient() as client:
             try:
-                await musicbrainz_limiter().acquire_async()
+                # Deliberately not rate-limited: search_task is dispatched
+                # from the interactive external-search page; blocking on a
+                # slot would stall the whole result render for every user
+                # who searches. Accept the occasional MB 503 instead.
                 response = await client.get(
                     "https://musicbrainz.org/ws/2/artist",
                     params=params,
