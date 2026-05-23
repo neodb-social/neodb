@@ -129,7 +129,9 @@ class PreviewCardStates(StateGraph):
         max_bytes = 2 * 1024 * 1024
         try:
             with make_safe_client() as client:
-                with client.stream("GET", instance.url) as response:
+                with client.stream(
+                    "GET", instance.url, follow_redirects=True
+                ) as response:
                     if response.status_code >= 400:
                         return cls.fetch_failed
                     content_type = response.headers.get("content-type", "")
@@ -147,7 +149,7 @@ class PreviewCardStates(StateGraph):
             return cls.fetch_failed
 
         try:
-            html_text = bytes(body).decode("utf-8", errors="replace")
+            html_text = body.decode("utf-8", errors="replace")
         except Exception:
             return cls.fetch_failed
 
