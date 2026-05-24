@@ -28,6 +28,7 @@ from catalog.models import (
     item_categories,
     item_content_types,
 )
+from common.sentry import count as sentry_count
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
@@ -477,6 +478,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
         r = None
+        attrs = {"platform": "bluesky", "mode": "post"}
         try:
             r = bluesky.post(**params)
         except (exceptions.UnauthorizedError, exceptions.BadRequestError) as e:
@@ -499,6 +501,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             logger.warning(f"Post to {bluesky} error {e}")
         if r:
             self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
+            sentry_count("crosspost.success", attributes=attrs)
+        else:
+            sentry_count("crosspost.failure", attributes=attrs)
         return True
 
     def sync_to_threads(self, params, update_mode):
@@ -508,14 +513,19 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         # return
         if params["visibility"] != 0 or not threads:
             return False
+        attrs = {"platform": "threads", "mode": "post"}
         try:
             r = threads.post(**params)
         except RequestAborted:
             logger.warning(f"{self} post to {threads} failed")
             messages.error(threads.user, _("A recent post was not posted to Threads."))
+            sentry_count("crosspost.failure", attributes=attrs)
             return False
         if r:
             self.metadata.update({"threads_" + k: v for k, v in r.items()})
+            sentry_count("crosspost.success", attributes=attrs)
+        else:
+            sentry_count("crosspost.failure", attributes=attrs)
         return True
 
     def sync_to_mastodon(self, params, update_mode):
@@ -541,6 +551,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         mastodon = self.owner.user.mastodon
         if not mastodon:
             return False
+        attrs = {"platform": "mastodon", "mode": "post"}
         try:
             r = mastodon.post(**params)
         except PermissionDenied:
@@ -549,14 +560,17 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 _("A recent post was not posted to Mastodon, please re-authorize."),
                 meta={"url": mastodon.get_reauthorize_url()},
             )
+            sentry_count("crosspost.failure", attributes=attrs)
             return False
         except RequestAborted:
             logger.warning(f"{self} post to {mastodon} failed")
             messages.error(
                 mastodon.user, _("A recent post was not posted to Mastodon.")
             )
+            sentry_count("crosspost.failure", attributes=attrs)
             return False
         self.metadata.update({"mastodon_" + k: v for k, v in r.items()})
+        sentry_count("crosspost.success", attributes=attrs)
         return True
 
     def get_ap_data(self):

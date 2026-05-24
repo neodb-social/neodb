@@ -23,6 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 
 from common.models import SiteConfig, jsondata
+from common.sentry import count as sentry_count
 from takahe.utils import Takahe
 
 from .common import SocialAccount
@@ -95,6 +96,9 @@ def get_api_domain(domain):
 # low level api below
 
 
+_BOOST_METRIC_ATTRS = {"platform": "mastodon", "mode": "boost"}
+
+
 def boost_toot(domain, token, toot_url):
     headers = {
         "User-Agent": USER_AGENT,
@@ -113,6 +117,7 @@ def boost_toot(domain, token, toot_url):
             logger.warning(
                 f"Error search {toot_url} on {domain} {response.status_code}"
             )
+            sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
             return None
         j = response.json()
         if "statuses" in j and len(j["statuses"]) > 0:
@@ -123,10 +128,13 @@ def boost_toot(domain, token, toot_url):
                 logger.warning(
                     f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
                 )
+                sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
                 return None
             if s["reblogged"]:
                 logger.warning(f"Already boosted {toot_url}")
                 # TODO unboost and boost again?
+                # treat already-boosted as success (idempotent)
+                sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
                 return None
             url = (
                 "https://"
@@ -141,10 +149,15 @@ def boost_toot(domain, token, toot_url):
                 logger.warning(
                     f"Error search {toot_url} on {domain} {response.status_code}"
                 )
+                sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
                 return None
+            sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
             return response.json()
+        sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
+        return None
     except Exception:
         logger.warning(f"Error search {toot_url} on {domain}")
+        sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
         return None
 
 
