@@ -348,6 +348,79 @@ class TestFetchLinkedResourcesSibling:
         assert tmdb_res.ready
         assert tmdb_res.metadata.get("localized_name")
 
+    def test_sibling_dedup_links_credits_under_expanded_names(self):
+        """When sibling-dedup attaches a new resource that brings additional
+        localized names (e.g. a Chinese translation), credits on the requester
+        item whose names match those new entries must also get linked. The
+        sibling's own metadata is merged from the new resource so the
+        subsequent link sees the expanded name set.
+
+        Test settings restrict TMDB scraping to a single language, so we
+        stub TMDB_Person.scrape with a multi-lingual ResourceContent to
+        exercise the cross-language linking path explicitly."""
+        from catalog.common import ResourceContent
+        from catalog.sites.tmdb import TMDB_Person
+
+        movie, resource, existing_person = self._movie_with_credit_and_person(
+            {
+                "id_type": IdType.DoubanPersonage,
+                "id_value": "27228768",
+                "url": "https://www.douban.com/personage/27228768/",
+            }
+        )
+        # Pre-merge, the sibling's localized_name only has the English entry,
+        # so this credit cannot be matched by name alone.
+        cn_credit = ItemCredit.objects.create(
+            item=movie,
+            role=CreditRole.Actor,
+            name="布莱恩·克兰斯顿",
+            order=1,
+        )
+
+        def _stub_scrape(self):
+            return ResourceContent(
+                metadata={
+                    "localized_name": [
+                        {"lang": "en", "text": "Bryan Cranston"},
+                        {"lang": "zh-cn", "text": "布莱恩·克兰斯顿"},
+                    ],
+                    "localized_bio": [],
+                    "title": "Bryan Cranston",
+                }
+            )
+
+        orig_scrape = TMDB_Person.scrape
+        setattr(TMDB_Person, "scrape", _stub_scrape)
+        try:
+            SiteManager.fetch_linked_resources(
+                resource,
+                [
+                    {
+                        "model": "People",
+                        "id_type": IdType.TMDB_Person,
+                        "id_value": "17419",
+                        "url": "https://www.themoviedb.org/person/17419",
+                        "title": "Bryan Cranston",
+                    }
+                ],
+                ExternalResource.LinkType.CHILD,
+            )
+        finally:
+            setattr(TMDB_Person, "scrape", orig_scrape)
+
+        # The Chinese-language credit on the requester item is now linked to
+        # the sibling, because merging new_res into the sibling brought in
+        # the "布莱恩·克兰斯顿" localized_name entry.
+        cn_credit.refresh_from_db()
+        assert cn_credit.person == existing_person
+        existing_person.refresh_from_db()
+        texts = {
+            n.get("text")
+            for n in (existing_person.localized_name or [])
+            if isinstance(n, dict)
+        }
+        assert "布莱恩·克兰斯顿" in texts
+
     @use_local_response
     def test_reuses_sibling_for_url_only_link(self):
         """Douban author/musician links come through as URL-only entries that

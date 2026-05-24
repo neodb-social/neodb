@@ -523,10 +523,15 @@ class SiteManager:
                             f"reused sibling person {sibling} for "
                             f"{id_type}:{id_value} on {resource.item}"
                         )
-                        # update_content may have expanded the sibling's
-                        # localized_name; link any newly matching unlinked
-                        # credits on the requester item before moving on,
-                        # since this path skips the fan-out below.
+                        # update_content only writes new_res.metadata; the
+                        # sibling's own localized_name (and bio, etc.) stay
+                        # stale. Merge from new_res so any names brought in
+                        # by this source land on the sibling -- mirroring
+                        # the get_item() path's behavior when an existing
+                        # item is matched. Without this merge, credits on
+                        # the requester item whose names match a new
+                        # localized_name would be missed below.
+                        sibling.merge_data_from_external_resource(new_res)
                         cls._link_requester_credits(resource.item, sibling)
                         continue
             if linked_site:
