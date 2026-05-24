@@ -385,22 +385,30 @@ class SiteManager:
             return 0
         # Re-check person__isnull in the UPDATE WHERE clause so a concurrent
         # worker that linked the same row to a different person between our
-        # SELECT and our UPDATE is not silently overwritten. After the UPDATE,
-        # only the rows we actually own (person == self) drive the
-        # ItemPeopleRelation creation loop.
-        ItemCredit.objects.filter(pk__in=ids, person__isnull=True).update(person=person)
-        newly_linked = ItemCredit.objects.filter(
-            pk__in=ids, person=person
-        ).select_related("item")
-        linked_count = 0
-        for credit in newly_linked:
-            linked_count += 1
-            role = People._credit_role_to_people_role(credit.role)
+        # SELECT and our UPDATE is not silently overwritten. The returned
+        # count reflects only rows we actually changed; a concurrent worker
+        # that linked the same row to a different person is excluded.
+        linked_count = ItemCredit.objects.filter(
+            pk__in=ids, person__isnull=True
+        ).update(person=person)
+        # Create ItemPeopleRelation once per distinct role across all credits
+        # now linking person to requester_item (including ones a concurrent
+        # worker may have linked).
+        roles = (
+            ItemCredit.objects.filter(pk__in=ids, person=person)
+            .values_list("role", flat=True)
+            .distinct()
+        )
+        for credit_role in roles:
+            role = People._credit_role_to_people_role(credit_role)
             if role:
                 ItemPeopleRelation.objects.get_or_create(
-                    item=credit.item, people=person, role=role
+                    item=requester_item, people=person, role=role
                 )
-        logger.info(f"Linked {linked_count} credits on {requester_item} to {person}")
+        if linked_count:
+            logger.info(
+                f"Linked {linked_count} credits on {requester_item} to {person}"
+            )
         return linked_count
 
     @staticmethod
@@ -515,6 +523,11 @@ class SiteManager:
                             f"reused sibling person {sibling} for "
                             f"{id_type}:{id_value} on {resource.item}"
                         )
+                        # update_content may have expanded the sibling's
+                        # localized_name; link any newly matching unlinked
+                        # credits on the requester item before moving on,
+                        # since this path skips the fan-out below.
+                        cls._link_requester_credits(resource.item, sibling)
                         continue
             if linked_site:
                 try:
