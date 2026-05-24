@@ -175,6 +175,10 @@ class RSS(AbstractSite):
             guid = episode.get("guid")
             if guid and guid in existing:
                 continue
+            enclosures = episode.get("enclosures") or []
+            media_url = enclosures[0].get("url") if enclosures else None
+            if not media_url:
+                continue
             _, created = PodcastEpisode.objects.get_or_create(
                 program=podcast,
                 guid=guid,
@@ -183,11 +187,7 @@ class RSS(AbstractSite):
                     "brief": bleach.clean(episode.get("description") or "", strip=True),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
-                    "media_url": (
-                        episode.get("enclosures")[0].get("url")
-                        if episode.get("enclosures")
-                        else None
-                    ),
+                    "media_url": media_url,
                     "pub_date": (
                         make_aware(datetime.fromtimestamp(episode["published"]))
                         if episode.get("published") is not None

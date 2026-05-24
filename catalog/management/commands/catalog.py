@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.utils import timezone
 from loguru import logger
 from tqdm import tqdm
@@ -24,6 +24,7 @@ from catalog.models import (
     Item,
     People,
     Podcast,
+    PodcastEpisode,
     TVSeason,
     TVShow,
 )
@@ -37,6 +38,9 @@ _CONFIRM = "confirm deleting collection? [Y/N] "
 _HELP_TEXT = """
 integrity:        check and fix integrity for merged and deleted items
 purge:            purge deleted items
+prune-podcast-no-audio:
+                  hard-delete PodcastEpisode rows with no media_url that
+                  have no user journal activity (use --yes to commit)
 migrate:          run migration
 search:           search docs in index
 extsearch:        search external sites
@@ -65,6 +69,7 @@ class Command(SiteCommand):
             choices=[
                 "integrity",
                 "purge",
+                "prune-podcast-no-audio",
                 "migrate",
                 "search",
                 "extsearch",
@@ -704,6 +709,46 @@ class Command(SiteCommand):
                 self.stdout.write(f"Cleaning up {cls}...")
                 cls.objects.filter(is_deleted=True).delete()
 
+    def prune_podcast_no_audio(self, dry_run: bool, limit: int | None = None):
+        """Hard-delete PodcastEpisode rows that have no media_url, unless the
+        user has any journal activity (shelf/rating/comment/note/review/tag/
+        list membership) referencing the episode.
+        """
+        from journal.models import journal_exists_for_item
+
+        qs = (
+            PodcastEpisode.objects.filter(is_deleted=False, merged_to_item__isnull=True)
+            .filter(Q(media_url__isnull=True) | Q(media_url=""))
+            .order_by("pk")
+        )
+        if limit:
+            qs = qs[:limit]
+        total = qs.count()
+        if not total:
+            self.stdout.write(self.style.SUCCESS("No audio-less episodes found."))
+            return
+
+        deleted = 0
+        kept = 0
+        for ep in tqdm(qs.iterator(), total=total, desc="prune-podcast-no-audio"):
+            if journal_exists_for_item(ep):
+                kept += 1
+                continue
+            if dry_run:
+                deleted += 1
+                continue
+            ep.delete(soft=False)
+            deleted += 1
+        verb = "would delete" if dry_run else "deleted"
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{verb} {deleted}, kept {kept} (with journal activity), "
+                f"scanned {total}"
+            )
+        )
+        if dry_run:
+            self.stdout.write("Re-run with --yes to apply.")
+
     def integrity(self):
         qs = Item.objects.all()
         total = qs.count()
@@ -862,6 +907,9 @@ class Command(SiteCommand):
 
             case "purge":
                 self.purge()
+
+            case "prune-podcast-no-audio":
+                self.prune_podcast_no_audio(dry_run=not yes, limit=limit)
 
             case "extsearch":
                 self.external_search(query, category)
