@@ -13,6 +13,7 @@ from loguru import logger
 
 from catalog.models import *
 from common.models.lang import translate
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
 from ..forms import MarkForm
@@ -33,6 +34,7 @@ def wish(request: AuthedHttpRequest, item_uuid):
         mark.update(
             ShelfType.WISHLIST, application_id=getattr(request, "application_id", None)
         )
+    record_activity("mark", "web")
     if request.GET.get("back"):
         referer = request.META.get("HTTP_REFERER") or ""
         if not url_has_allowed_host_and_scheme(
@@ -56,6 +58,7 @@ def follow(request: AuthedHttpRequest, item_uuid):
         mark.update(
             ShelfType.PROGRESS, application_id=getattr(request, "application_id", None)
         )
+    record_activity("mark", "web")
     return HttpResponseRedirect(item.url)
 
 
@@ -133,6 +136,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                             "secondary_msg": err,
                         },
                     )
+                record_activity("mark", "web")
                 referer = request.META.get("HTTP_REFERER") or ""
                 if not url_has_allowed_host_and_scheme(
                     referer,

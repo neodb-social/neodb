@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.models import int_
+from common.sentry import record_activity
 from common.utils import (
     AuthedHttpRequest,
     PageLinksGenerator,
@@ -592,6 +593,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
                 form.instance.owner = request.user.identity
             form.instance.brief = sanitize_md_images(form.instance.brief)
             form.save()
+            record_activity("collection", "web")
             return redirect(
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])
             )

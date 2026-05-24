@@ -42,3 +42,11 @@ def count(
         metrics_count(key, value, attributes=_clean_attributes(attributes))
     except Exception:
         return
+
+
+def record_activity(action: str, source: str) -> None:
+    """Emit a `user.activity` counter for a user-initiated content action.
+
+    ``source`` is ``"api"`` or ``"web"``; importers should not call this.
+    """
+    count("user.activity", attributes={"action": action, "source": source})

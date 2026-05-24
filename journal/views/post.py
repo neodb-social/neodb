@@ -10,6 +10,7 @@ from loguru import logger
 
 from common.models.lang import LOCALE_CHOICES, translate
 from common.models.misc import int_
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from journal.models.renderers import bleach_post_content
 from takahe.models import Post
@@ -117,6 +118,7 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
         if mentions_to_prepend and not content.startswith(mentions_to_prepend):
             content = mentions_to_prepend + content
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
+    record_activity("post", "web")
     replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
     reply_prepend = ""
     if post:
@@ -186,6 +188,7 @@ def post_quote(request: AuthedHttpRequest, post_id: int):
                 visibility,
                 quote_url=post.object_uri,
             )
+            record_activity("post", "web")
             submitted = True
     elif request.method == "POST":
         raise PermissionDenied(_("Insufficient permission"))
@@ -361,6 +364,7 @@ def post_compose(request: AuthedHttpRequest):
         language=language or "",
         attachments=attachments if attachments else None,
     )
+    record_activity("post", "web")
     referer = request.META.get("HTTP_REFERER") or ""
     if not url_has_allowed_host_and_scheme(
         referer,
@@ -419,6 +423,7 @@ def post_edit(request: AuthedHttpRequest, post_id: int):
         language=language or "",
         post_pk=post.pk,
     )
+    record_activity("post", "web")
     referer = request.META.get("HTTP_REFERER") or ""
     if not url_has_allowed_host_and_scheme(
         referer,

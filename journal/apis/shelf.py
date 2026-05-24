@@ -16,6 +16,7 @@ from catalog.models import (
     ItemSchema,
 )
 from common.api import PageNumberPagination, Result, api
+from common.sentry import record_activity
 from common.utils import get_uuid_or_404
 from journal.models.common import (
     max_visiblity_to_user,
@@ -280,6 +281,7 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
         share_to_mastodon=mark.post_to_fediverse,
         application_id=getattr(request, "application_id", None),
     )
+    record_activity("mark", "api")
     return Status(200, {"message": "OK"})
 
 

@@ -20,6 +20,7 @@ from common.api import (
     Result,
     api,
 )
+from common.sentry import record_activity
 from journal.models.common import q_piece_visible_to_user
 
 from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
@@ -189,6 +190,7 @@ def create_collection(request, c_in: CollectionInSchema):
     )
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    record_activity("collection", "api")
     return c
 
 
@@ -216,6 +218,7 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.query = q
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    record_activity("collection", "api")
     return c
 
 

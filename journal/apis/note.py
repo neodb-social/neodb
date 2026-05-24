@@ -7,6 +7,7 @@ from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
 from common.api import NOT_FOUND, OK, PageNumberPagination, Result, api
+from common.sentry import record_activity
 
 from ..models import Note
 
@@ -75,6 +76,7 @@ def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
     note.crosspost_when_save = n_in.post_to_fediverse
     note.application_id_when_save = getattr(request, "application_id", None)
     note.save()
+    record_activity("note", "api")
     return note
 
 
@@ -99,6 +101,7 @@ def update_note(request, note_uuid: str, n_in: NoteInSchema):
     note.crosspost_when_save = n_in.post_to_fediverse
     note.application_id_when_save = getattr(request, "application_id", None)
     note.save()
+    record_activity("note", "api")
     return note
 
 

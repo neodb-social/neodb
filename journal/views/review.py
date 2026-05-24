@@ -15,6 +15,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import *
 from common.models.lang import translate
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
@@ -139,6 +140,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             )
             if not review:
                 raise BadRequest(_("Invalid parameter"))
+            record_activity("review", "web")
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
             raise BadRequest(_("Invalid parameter"))

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
 from takahe.utils import Takahe
 
@@ -86,6 +87,7 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         article=article,
         share_to_mastodon=bool(form.cleaned_data.get("share_to_mastodon", False)),
     )
+    record_activity("article", "web")
     return redirect(reverse("journal:article_retrieve", args=[article.uuid]))
 
 

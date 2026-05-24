@@ -7,6 +7,7 @@ from ninja.pagination import paginate
 
 from catalog.models import AvailableItemCategory, Item, ItemSchema
 from common.api import OptionalOAuthAccessTokenAuth, PageNumberPagination, Result, api
+from common.sentry import record_activity
 
 from ..models import (
     Review,
@@ -98,6 +99,7 @@ def review_item(request, item_uuid: str, review: ReviewInSchema):
         share_to_mastodon=review.post_to_fediverse,
         application_id=getattr(request, "application_id", None),
     )
+    record_activity("review", "api")
     return Status(200, {"message": "OK"})
 
 

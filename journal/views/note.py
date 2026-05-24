@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.forms import NeoModelForm
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
 from ..models import Note
@@ -111,6 +112,7 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
         raise BadRequest(_("Invalid form data"))
     form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
     note = form.save()
+    record_activity("note", "web")
     referer = request.META.get("HTTP_REFERER") or ""
     if not url_has_allowed_host_and_scheme(
         referer,
