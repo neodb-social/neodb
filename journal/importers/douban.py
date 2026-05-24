@@ -272,13 +272,21 @@ class DoubanImporter(Task):
 
     def get_item_by_url(self, url):
         item = None
-        if not url:
+        if not url or not isinstance(url, str) or not url.strip():
             logger.warning("URL empty")
             return None
+        url = url.strip()
         try:
             site = SiteManager.get_site_by_url(url)
-            if not site:
-                raise ValueError(f"URL unrecognized {url}")
+        except Exception as e:
+            logger.warning(f"URL unrecognized: {url}", extra={"exception": e})
+            self.metadata["failed_urls"].append(str(url))
+            return None
+        if not site:
+            logger.warning(f"URL unrecognized: {url}")
+            self.metadata["failed_urls"].append(str(url))
+            return None
+        try:
             item = site.get_item()
             if not item:
                 logger.info(f"fetching {url}")
