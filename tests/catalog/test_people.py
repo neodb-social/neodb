@@ -634,47 +634,7 @@ class TestPopulateCredits:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestLinkCredits:
-    def test_link_matching_credits(self):
-        book = Edition.objects.create(title="Hyperion")
-        credit = ItemCredit.objects.create(
-            item=book, role=CreditRole.Author, name="Dan Simmons", order=0
-        )
-        person = People.objects.create(
-            metadata=_DAN_SIMMONS_METADATA,
-            people_type=PeopleType.PERSON,
-        )
-        person.link_matching_credits()
-        credit.refresh_from_db()
-        assert credit.person == person
-
-    def test_link_creates_people_relation(self):
-        book = Edition.objects.create(title="Hyperion")
-        ItemCredit.objects.create(
-            item=book, role=CreditRole.Author, name="Dan Simmons", order=0
-        )
-        person = People.objects.create(
-            metadata=_DAN_SIMMONS_METADATA,
-            people_type=PeopleType.PERSON,
-        )
-        person.link_matching_credits()
-        assert ItemPeopleRelation.objects.filter(
-            item=book, people=person, role=PeopleRole.AUTHOR
-        ).exists()
-
-    def test_no_link_when_name_differs(self):
-        book = Edition.objects.create(title="Hyperion")
-        credit = ItemCredit.objects.create(
-            item=book, role=CreditRole.Author, name="Daniel Simmons", order=0
-        )
-        person = People.objects.create(
-            metadata=_DAN_SIMMONS_METADATA,
-            people_type=PeopleType.PERSON,
-        )
-        person.link_matching_credits()
-        credit.refresh_from_db()
-        assert credit.person is None
-
+class TestLinkCreditsBulk:
     def test_link_credits_bulk(self):
         """link_credits migration function links all unlinked credits."""
         from catalog.common.migrations import link_credits_20260412
@@ -1333,8 +1293,10 @@ class TestCreditRoleMapping:
 
 @pytest.mark.django_db(databases="__all__")
 class TestLinkCreditsMultiLingual:
+    """The requester-scoped link helper must match against any text in the
+    People's localized_name list, not just the primary entry."""
+
     def test_link_by_alternate_name(self):
-        """Credits should link when matching any localized_name entry."""
         book = Edition.objects.create(title="Book")
         credit = ItemCredit.objects.create(
             item=book, role=CreditRole.Author, name="Hayao Miyazaki", order=0
@@ -1343,7 +1305,7 @@ class TestLinkCreditsMultiLingual:
             metadata=_HAYAO_MIYAZAKI_METADATA,
             people_type=PeopleType.PERSON,
         )
-        person.link_matching_credits()
+        SiteManager._link_requester_credits(book, person)
         credit.refresh_from_db()
         assert credit.person == person
 
@@ -1356,7 +1318,7 @@ class TestLinkCreditsMultiLingual:
             metadata=_HAYAO_MIYAZAKI_METADATA,
             people_type=PeopleType.PERSON,
         )
-        person.link_matching_credits()
+        SiteManager._link_requester_credits(book, person)
         credit.refresh_from_db()
         assert credit.person == person
 
@@ -1727,13 +1689,12 @@ class TestFetchWorksForPersonTask:
         }
         assert all(not c[1] for c in calls)
 
-    def test_does_not_enqueue_global_credit_link(self, monkeypatch):
-        """The per-work fetch jobs each trigger their own related_resources
-        fan-out, which links credits to this person via
-        SiteManager._link_requester_credits. So fetch_works_for_person_task
-        no longer needs to enqueue a final global link_matching_credits
-        sweep -- and must not, because a global sweep can falsely glue
-        distinct people sharing a name."""
+    def test_does_not_enqueue_post_fetch_sweep(self, monkeypatch):
+        """Per-work fetch jobs each trigger their own related_resources
+        fan-out, which links credits via SiteManager._link_requester_credits.
+        fetch_works_for_person_task must NOT enqueue a separate post-fetch
+        global sweep -- such a sweep used to falsely glue distinct people
+        sharing a name."""
         import sys
 
         from catalog.jobs.people_works import fetch_works_for_person_task
@@ -1752,17 +1713,11 @@ class TestFetchWorksForPersonTask:
         )
 
         user = User.register(email="worker5@example.com", username="worker5")
-        immediate_links = []
         queued = []
         monkeypatch.setattr(
             people_works_module,
             "enqueue_fetch",
             lambda url, is_refetch=False, user=None: f"fetch-{url.rsplit('/', 1)[-1]}",
-        )
-        monkeypatch.setattr(
-            People,
-            "link_matching_credits",
-            lambda self: immediate_links.append(self.pk),
         )
 
         class _FakeQueue:
@@ -1783,8 +1738,6 @@ class TestFetchWorksForPersonTask:
 
         fetch_works_for_person_task(person.uuid, user.pk)
 
-        # No synchronous global sweep, and no post-fetch sweep is enqueued.
-        assert immediate_links == []
         assert queued == []
 
     def test_enqueues_douban_personage_urls(self, monkeypatch):

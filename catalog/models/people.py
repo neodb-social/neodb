@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Self
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from ninja import Field, Schema
 
 from common.models import get_current_locales, jsondata, uniq
@@ -257,39 +256,6 @@ class People(Item):
             for role, ids in role_item_ids.items()
             if any(i in items_by_id for i in ids)
         ]
-
-    def link_matching_credits(self):
-        """Globally link unlinked ItemCredits whose name matches this person.
-
-        This is a manual / data-migration utility. It is intentionally not
-        wired into the runtime fan-out or work-fetch paths because a global
-        name sweep can falsely glue genuinely distinct people who share a
-        localized_name. The runtime link happens at fan-out completion in
-        ``SiteManager._link_requester_credits`` (catalog/common/sites.py),
-        scoped to a single requester item.
-        """
-        from .item import ItemCredit
-
-        names = {n["text"] for n in (self.localized_name or []) if n.get("text")}
-        if not names:
-            return
-        unlinked = ItemCredit.objects.filter(name__in=names, person__isnull=True)
-        newly_linked_ids = list(unlinked.values_list("pk", flat=True))
-        if not newly_linked_ids:
-            return
-        count = ItemCredit.objects.filter(pk__in=newly_linked_ids).update(person=self)
-        logger.info(f"Linked {count} credits to {self.display_name}")
-        # Create ItemPeopleRelation only for the newly linked credits
-        for credit in (
-            ItemCredit.objects.filter(pk__in=newly_linked_ids)
-            .select_related("item")
-            .all()
-        ):
-            role = self._credit_role_to_people_role(credit.role)
-            if role:
-                ItemPeopleRelation.objects.get_or_create(
-                    item=credit.item, people=self, role=role
-                )
 
     @staticmethod
     def _credit_role_to_people_role(credit_role: str) -> str | None:

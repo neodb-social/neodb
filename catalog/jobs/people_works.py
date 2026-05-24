@@ -72,16 +72,6 @@ def enqueue_people_works(person: People, user: User, resource: ExternalResource)
     )
 
 
-def link_people_works_task(person_uuid, user_id):
-    """No-op. Retained for backward compat with any in-flight rq jobs.
-
-    Credit linking now happens per-work at fan-out completion in
-    ``SiteManager._link_requester_credits``, so a final global sweep
-    after the per-work fetches resolve is no longer needed.
-    """
-    return
-
-
 def fetch_works_for_person_task(
     person_uuid, user_id, source_id_type=None, source_id_value=None
 ):

@@ -760,7 +760,8 @@ class MusicBrainzArtist(AbstractSite):
         # aliases that explicitly target another locale. Sort names and
         # MusicBrainz alias variants like "Search hint" / "Legal name" / "Sort
         # name" are deliberately excluded -- they pollute display_name lookups
-        # and would let People.link_matching_credits link unrelated credits.
+        # and would let SiteManager._link_requester_credits attach unrelated
+        # credits whose name happens to equal a non-display alias.
         localized_name: list[Dict[str, str]] = []
         seen_names: set[tuple[str, str]] = set()
 
