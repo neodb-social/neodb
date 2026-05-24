@@ -25,7 +25,7 @@ def _hostname_is_public(hostname: str) -> bool:
         return cached
     try:
         results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
-    except (socket.gaierror, socket.timeout, OSError):
+    except socket.gaierror, socket.timeout, OSError:
         # Don't cache transient resolver failures so they recover quickly.
         return False
     if not results:

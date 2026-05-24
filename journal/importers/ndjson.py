@@ -507,7 +507,7 @@ class NdjsonImporter(BaseImporter):
                 for line in jsonfile:
                     try:
                         i = json.loads(line)
-                    except (json.JSONDecodeError, Exception):
+                    except json.JSONDecodeError, Exception:
                         logger.exception("Error processing catalog item")
                         continue
                     u = i.get("id")
@@ -530,7 +530,7 @@ class NdjsonImporter(BaseImporter):
                     header = json.loads(first_line)
                     if header.get("server"):
                         return header
-        except (json.JSONDecodeError, IOError):
+        except json.JSONDecodeError, IOError:
             logger.exception("Error parsing header")
         return {}
 

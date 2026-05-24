@@ -38,6 +38,7 @@ from .mixins import UserOwnedObjectMixin
 if TYPE_CHECKING:
     from takahe.models import Post
 
+    from .itemlist import ListMember
     from .like import Like
 
 
@@ -780,7 +781,7 @@ class Debris(Content):
         ]
 
     @classmethod
-    def create_from_piece(cls, c: Content):
+    def create_from_piece(cls, c: "Content | ListMember"):
         return cls.objects.create(
             class_name=c.__class__.__name__,
             owner=c.owner,

@@ -33,9 +33,6 @@ class ResourceContent:
     cover_image: bytes | None = None
     cover_image_extention: str | None = None
 
-    def dict(self):
-        return {"metadata": self.metadata, "lookup_ids": self.lookup_ids}
-
     def to_json(self) -> str:
         return json.dumps({"metadata": self.metadata, "lookup_ids": self.lookup_ids})
 

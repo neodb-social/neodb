@@ -251,7 +251,7 @@ class SiteConfig(models.Model):
             obj = cls.objects.filter(pk=1).first()
             if obj and obj.data:
                 env_values.update({k: v for k, v in obj.data.items() if v is not None})
-        except (ProgrammingError, DatabaseError):
+        except ProgrammingError, DatabaseError:
             logger.debug("SiteConfig table not available, using env defaults")
         return cls.SystemOptions(**env_values)
 

@@ -271,7 +271,7 @@ def localize_number(i: int) -> str:
     return str(i)
 
 
-def _get_base_language_list() -> dict[str, str]:
+def _get_base_language_list() -> dict[str, Any]:
     langs = {}
     for k in SITE_PREFERRED_LANGUAGES + TOP_USED_LANGUAGES:
         if k not in langs:
@@ -339,7 +339,7 @@ def get_preferred_locales() -> list[str]:
 SITE_PREFERRED_LOCALES = get_preferred_locales()
 
 
-def _get_locale_choices() -> list[tuple[str, str]]:
+def _get_locale_choices() -> list[tuple[str, Any]]:
     choices = []
     for k, v in _BASE_LANGUAGE_LIST.items():
         if k in _LOCALE_SUBTAGS_PRIO:
@@ -372,9 +372,9 @@ def _get_language_choices() -> list[tuple[str, str]]:
     return choices
 
 
-LOCALE_CHOICES: list[tuple[str, str]] = _get_locale_choices()
-SCRIPT_CHOICES: list[tuple[str, str]] = _get_script_choices()
-LANGUAGE_CHOICES: list[tuple[str, str]] = _get_language_choices()
+LOCALE_CHOICES: list[tuple[str, Any]] = _get_locale_choices()
+SCRIPT_CHOICES: list[tuple[str, Any]] = _get_script_choices()
+LANGUAGE_CHOICES: list[tuple[str, Any]] = _get_language_choices()
 LANGUAGE_CODES = {k: v for k, v in LANGUAGE_CHOICES}
 SCRIPT_CODES = {k: v for k, v in SCRIPT_CHOICES}
 LOCALE_CODES = {k: v for k, v in LOCALE_CHOICES}

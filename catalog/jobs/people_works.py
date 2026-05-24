@@ -46,7 +46,7 @@ def get_people_works_resource(
     if resource_id:
         try:
             return resources.filter(pk=resource_id).first()
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
     return resources.first()
 

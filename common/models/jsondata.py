@@ -321,7 +321,7 @@ class TolerantArrayFormField(DJANGO_ArrayFormField):
             return []
         try:
             return super().to_python(value)
-        except (json.JSONDecodeError, TypeError):
+        except json.JSONDecodeError, TypeError:
             return []
 
 

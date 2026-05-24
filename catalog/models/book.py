@@ -77,7 +77,7 @@ def _coerce_legacy_string_list(value) -> list[str]:
         if s.startswith("[") and s.endswith("]"):
             try:
                 parsed = ast.literal_eval(s)
-            except (ValueError, SyntaxError):
+            except ValueError, SyntaxError:
                 parsed = None
             if isinstance(parsed, list):
                 return _coerce_legacy_string_list(parsed)

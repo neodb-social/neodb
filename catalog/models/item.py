@@ -1559,7 +1559,7 @@ def item_content_types() -> dict[type[Item], int]:
     return _CONTENT_TYPE_LIST
 
 
-_CATEGORY_LIST = None
+_CATEGORY_LIST: dict[ItemCategory, list[type[Item]]] | None = None
 
 
 def item_categories() -> dict[ItemCategory, list[type[Item]]]:
@@ -1568,6 +1568,8 @@ def item_categories() -> dict[ItemCategory, list[type[Item]]]:
         _CATEGORY_LIST = {}
         for cls in Item.__subclasses__():
             c = getattr(cls, "category", None)
+            if c is None:
+                continue
             if c not in _CATEGORY_LIST:
                 _CATEGORY_LIST[c] = [cls]
             else:

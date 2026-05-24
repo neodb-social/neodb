@@ -636,7 +636,7 @@ class Identity(models.Model):
                     )
                     if template:
                         return template  # type: ignore
-            except (httpx.RequestError, etree.ParseError):
+            except httpx.RequestError, etree.ParseError:
                 pass
 
         return f"https://{domain}/.well-known/webfinger?resource={{uri}}"

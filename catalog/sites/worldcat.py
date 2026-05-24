@@ -172,7 +172,7 @@ class WorldCat(AbstractSite):
         if num_pages:
             try:
                 pages = int(num_pages)
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
 
         # Detect language (prioritize edition data)

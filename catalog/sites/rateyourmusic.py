@@ -258,7 +258,7 @@ class RateYourMusic(AbstractSite):
             ).strip()
             try:
                 total += int(duration_secs[0]) if duration_secs else 0
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 pass
             prefix = f"{num}. " if num else ""
             suffix = f" ({duration_txt})" if duration_txt else ""
@@ -303,7 +303,7 @@ class RateYourMusic(AbstractSite):
         raw = raw_list[0]
         try:
             data = json.loads(html_lib.unescape(raw))
-        except (json.JSONDecodeError, TypeError):
+        except json.JSONDecodeError, TypeError:
             return {}
         if not isinstance(data, dict):
             return {}

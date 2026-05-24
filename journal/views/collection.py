@@ -186,7 +186,7 @@ def _list_items_view(request, instance):
     else:
         try:
             page = int(raw_page)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return HttpResponse("Bad page", status=400, content_type="text/plain")
         body = instance.ap_items_page(page)
     return JsonResponse(body, content_type="application/activity+json")

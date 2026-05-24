@@ -82,7 +82,8 @@ def update_journal_for_merged_item(
                             f"skip piece {p.pk} when merging {cls.__name__}: {legacy_item_uuid} -> {new_item.uuid}"
                         )
     for p in delete_q:
-        Debris.create_from_piece(p)
+        if isinstance(p, (Content, ListMember)):
+            Debris.create_from_piece(p)
         p.delete()
 
 

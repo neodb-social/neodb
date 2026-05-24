@@ -2,7 +2,7 @@ import io
 import ipaddress
 import socket
 
-import blurhash
+from blurhash_rs import blurhash_encode
 import httpx
 from django.conf import settings
 from django.core.files import File
@@ -115,7 +115,7 @@ def blurhash_image(file) -> str:
     """
     Returns the blurhash for an image
     """
-    return blurhash.encode(file, 4, 4)
+    return blurhash_encode(file, x_components=4, y_components=4)
 
 
 def get_remote_file(

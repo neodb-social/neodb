@@ -41,7 +41,7 @@ class MobyGames(AbstractSite):
         if ld_src:
             try:
                 ld_json = json.loads(ld_src[0])
-            except (json.JSONDecodeError, ValueError):
+            except json.JSONDecodeError, ValueError:
                 pass
 
         h1_list = self.query_list(content, "//h1/text()")

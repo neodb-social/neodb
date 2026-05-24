@@ -85,7 +85,7 @@ def passkey_register_verify(request):
 
     try:
         body = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return HttpResponseBadRequest("Invalid JSON")
 
     try:
@@ -150,7 +150,7 @@ def passkey_login_verify(request):
 
     try:
         body = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return HttpResponseBadRequest("Invalid JSON")
 
     raw_id_b64 = body.get("rawId") or body.get("id")
@@ -212,7 +212,7 @@ def passkey_delete(request):
     try:
         body = json.loads(request.body)
         pk = int(body.get("id", 0))
-    except (json.JSONDecodeError, ValueError, TypeError):
+    except json.JSONDecodeError, ValueError, TypeError:
         return HttpResponseBadRequest("Invalid request")
 
     deleted_count, _details = WebAuthnCredential.objects.filter(
@@ -231,7 +231,7 @@ def passkey_rename(request):
         body = json.loads(request.body)
         pk = int(body.get("id", 0))
         name = body.get("name", "").strip()
-    except (json.JSONDecodeError, ValueError, TypeError):
+    except json.JSONDecodeError, ValueError, TypeError:
         return HttpResponseBadRequest("Invalid request")
 
     if not name:

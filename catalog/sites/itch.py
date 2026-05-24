@@ -59,7 +59,7 @@ class Itch(AbstractSite):
             val = content.xpath(xpath)
             if val:
                 return val[0].strip()
-        except (etree.XPathError, AttributeError, TypeError, IndexError):
+        except etree.XPathError, AttributeError, TypeError, IndexError:
             pass
         return None
 
@@ -152,7 +152,7 @@ class Itch(AbstractSite):
         for a in anchors:
             try:
                 text = a.text_content() or ""
-            except (AttributeError, TypeError):
+            except AttributeError, TypeError:
                 continue
             norm = cls._normalize_embed_button_text(text)
             if "itchio" in norm and ("download" in norm or "play" in norm):
@@ -376,7 +376,7 @@ class Itch(AbstractSite):
                 self._preloaded_html_text = html_text
                 try:
                     self._preloaded_content = lxml_html.fromstring(html_text)
-                except (etree.ParserError, ValueError):
+                except etree.ParserError, ValueError:
                     self._preloaded_content = None
         return super().get_resource_ready(
             auto_save=auto_save,
@@ -451,7 +451,7 @@ class Itch(AbstractSite):
                     description = (
                         description + "\n\n" + body_text if description else body_text
                     )
-            except (etree.XPathError, TypeError):
+            except etree.XPathError, TypeError:
                 pass
         if description:
             description = description.replace("\r\n", "\n").replace("\r", "\n")

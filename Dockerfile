@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.13-slim AS build
+FROM python:3.14-slim AS build
 ARG dev
 ARG buildver="dev-unknown"
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -32,7 +32,7 @@ ENV VIRTUAL_ENV=/takahe-venv
 RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 # runtime stage
-FROM python:3.13-slim AS runtime
+FROM python:3.14-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

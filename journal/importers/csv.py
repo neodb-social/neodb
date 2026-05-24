@@ -45,7 +45,7 @@ class CsvImporter(BaseImporter):
             if "rating" in row and row["rating"]:
                 try:
                     rating_grade = int(float(row["rating"]))
-                except (ValueError, TypeError):
+                except ValueError, TypeError:
                     pass
 
             comment_text = row.get("comment", "")

@@ -483,7 +483,7 @@ def _escape_quotes(s: str) -> str:
 def int_or_zero(v) -> int:
     try:
         return int(v or 0)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return 0
 
 

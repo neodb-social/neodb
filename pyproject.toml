@@ -3,9 +3,9 @@ name = "neodb"
 version = "0.13"
 description = "🧩 self-hosted server tracking what you read/watch/listen/play, powering a global distributed community federating via ActivityPub."
 readme = "README.md"
-requires-python = ">=3.13.0, <3.15"
+requires-python = ">=3.14, <3.15"
 dependencies = [
-    "blurhash-python>=1.2.2",
+    "blurhash-rs>=1.1.0",
     "cachetools>=5.5.0",
     "dateparser>=1.2.0",
     "django>=5.2,<5.3",
@@ -35,15 +35,15 @@ dependencies = [
     "langdetect>=1.0.9",
     "listparser>=0.20",
     "loguru>=0.7.2",
-    "lxml>=6.0.4",
+    "lxml>=6.1.1",
     "markdownify>=0.13.1",
     "mistune>=3.0.2",
     "openpyxl>=3.1.5",
     "podcastparser>=0.6.10",
-    "psycopg2-binary",
+    "psycopg[binary]>=3.3.4",
     "requests>=2.32.3",
     "sentry-sdk>=2.44.0",
-    "setproctitle>=1.3.3",
+    "setproctitle>=1.3.7",
     "tqdm>=4.66.6",
     "typesense>=0.21.0",
     "urlman>=2.0.2",
@@ -56,11 +56,11 @@ dependencies = [
     "django-storages>=1.14.5",
     "certifi==2026.2.25",
     "deepl>=1.22.0",
-    "nh3>=0.2.21",
+    "nh3>=0.3.5",
     "django-simple-captcha>=0.6.2",
     "webauthn>=2.0.0,<3",
-    "numpy>=2.1.0",
-    "scipy>=1.14.0",
+    "numpy>=2.4.6",
+    "scipy>=1.17.1",
 ]
 
 [dependency-groups]

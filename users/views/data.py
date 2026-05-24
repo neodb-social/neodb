@@ -457,7 +457,7 @@ def rym_preview(request):
         return redirect(reverse("users:data"))
     try:
         page = max(1, int(request.GET.get("page", 1)))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         page = 1
     page_size = 100
     with open(path, encoding="utf-8-sig", newline="") as fp:
@@ -996,7 +996,7 @@ def import_social_graph(request):
                 show_boosts = row.get("Show boosts", "true").strip().lower()
                 entry["boosts"] = show_boosts != "false"
             entries.append(entry)
-    except (TypeError, ValueError, KeyError):
+    except TypeError, ValueError, KeyError:
         messages.error(request, _("The uploaded file is not a valid CSV."))
         return redirect(reverse("users:info"))
 

@@ -107,7 +107,7 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
     content = request.POST.get("content", "").strip()
     try:
         visibility = Takahe.Visibilities(int(request.POST.get("visibility", "")))
-    except (ValueError, KeyError):
+    except ValueError, KeyError:
         raise BadRequest(_("Invalid parameter"))
     if not content:
         raise BadRequest(_("Invalid parameter"))
