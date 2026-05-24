@@ -514,13 +514,14 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if params["visibility"] != 0 or not threads:
             return False
         attrs = {"platform": "threads", "mode": "post"}
+        r = None
         try:
             r = threads.post(**params)
         except RequestAborted:
             logger.warning(f"{self} post to {threads} failed")
             messages.error(threads.user, _("A recent post was not posted to Threads."))
-            sentry_count("crosspost.failure", attributes=attrs)
-            return False
+        except Exception as e:
+            logger.warning(f"Post to {threads} error {e}")
         if r:
             self.metadata.update({"threads_" + k: v for k, v in r.items()})
             sentry_count("crosspost.success", attributes=attrs)
