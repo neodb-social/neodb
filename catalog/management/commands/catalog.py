@@ -629,6 +629,15 @@ class Command(SiteCommand):
                             and existing_item.merged_to_item is None
                         ):
                             stats["links_already_present"] += 1
+                            # Re-encounter case: the People row already exists,
+                            # but the requester item's credit may still be
+                            # unlinked (e.g. the requester was scraped before
+                            # this People was created). Link by (item, name)
+                            # without going through the network.
+                            if resource.item is not None:
+                                SiteManager._link_requester_credits(
+                                    resource.item, existing_item
+                                )
                             continue
                 elif not link.get("url"):
                     # No id_type/id_value AND no url -- unroutable, skip.

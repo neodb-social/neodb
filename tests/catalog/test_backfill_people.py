@@ -182,6 +182,53 @@ class TestBackfillPeople:
         assert captured.get("links") == url_only
         assert captured.get("link_type") == ExternalResource.LinkType.CHILD
 
+    def test_links_already_present_still_links_requester_credit(self):
+        """Re-encounter case for the backfill path: when the People row for
+        a related_resources link already exists (so backfill counts it as
+        ``links_already_present`` and does not call fetch_linked_resources
+        for it), the requester item's unlinked credit must still be linked.
+        Closes the gap that the previous global link_matching_credits sweep
+        masked."""
+        # Pre-create the People + ExternalResource so backfill sees an
+        # existing link and takes the "already present" branch.
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ExternalResource.objects.create(
+            item=person,
+            id_type=IdType.TMDB_Person,
+            id_value="17419",
+            url="https://www.themoviedb.org/person/17419",
+            scraped_time=timezone.now(),
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+        )
+        people_links = [
+            {
+                "model": "People",
+                "id_type": IdType.TMDB_Person,
+                "id_value": "17419",
+                "url": "https://www.themoviedb.org/person/17419",
+            }
+        ]
+        movie, resource = self._movie_with_tmdb_resource(people_links)
+        # Credit is currently unlinked.
+        credit = movie.credits.get(role=CreditRole.Director)
+        assert credit.person is None
+
+        call_command(
+            "catalog",
+            "backfill-people",
+            "--source",
+            IdType.TMDB_Movie,
+            stdout=StringIO(),
+        )
+        credit.refresh_from_db()
+        assert credit.person == person
+        assert ItemPeopleRelation.objects.filter(
+            item=movie, people=person, role=PeopleRole.DIRECTOR
+        ).exists()
+
     def test_scraped_resource_without_people_is_not_rescraped(self):
         """A resource that has already been scraped and genuinely has no
         People links must not trigger a rescrape on every run."""
@@ -440,3 +487,160 @@ class TestFetchLinkedResourcesSibling:
             setattr(TMDB_Person, "scrape", orig_scrape)
         # Scrape was attempted (proving the shortcut was bypassed).
         assert calls["scrape"] == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLinkRequesterCredits:
+    """Covers SiteManager._link_requester_credits, the per-fan-out link
+    that replaced the unscoped global link_matching_credits sweep."""
+
+    def _movie_with_director_credit(self, director_name="Bryan Cranston"):
+        movie = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Stub Movie"}],
+                "director": [director_name],
+            },
+        )
+        resource = ExternalResource.objects.create(
+            item=movie,
+            id_type=IdType.TMDB_Movie,
+            id_value="33333",
+            url="https://www.themoviedb.org/movie/33333",
+        )
+        credit = ItemCredit.objects.create(
+            item=movie,
+            role=CreditRole.Director,
+            name=director_name,
+            order=0,
+        )
+        return movie, resource, credit
+
+    @use_local_response
+    def test_fan_out_links_requester_credit_to_new_people(self):
+        """Happy path: an unlinked credit on the requester item gets linked
+        to a freshly-fetched People with a matching localized_name."""
+        movie, resource, credit = self._movie_with_director_credit()
+        link = {
+            "model": "People",
+            "id_type": IdType.TMDB_Person,
+            "id_value": "17419",
+            "url": "https://www.themoviedb.org/person/17419",
+            "title": "Bryan Cranston",
+        }
+        SiteManager.fetch_linked_resources(
+            resource, [link], ExternalResource.LinkType.CHILD
+        )
+        person_resource = ExternalResource.objects.get(
+            id_type=IdType.TMDB_Person, id_value="17419"
+        )
+        credit.refresh_from_db()
+        assert credit.person == person_resource.item
+        assert ItemPeopleRelation.objects.filter(
+            item=movie, people=person_resource.item, role=PeopleRole.DIRECTOR
+        ).exists()
+
+    @use_local_response
+    def test_fan_out_does_not_link_unrelated_items_same_name(self):
+        """Critical: a credit on a DIFFERENT item with the same name must
+        NOT be auto-linked. This was the same-name collision bug under the
+        old global link_matching_credits sweep."""
+        movie_a, resource_a, credit_a = self._movie_with_director_credit()
+        # Unrelated movie with an unlinked credit of the same name.
+        movie_b = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Other Movie"}],
+                "director": ["Bryan Cranston"],
+            },
+        )
+        credit_b = ItemCredit.objects.create(
+            item=movie_b,
+            role=CreditRole.Director,
+            name="Bryan Cranston",
+            order=0,
+        )
+        link = {
+            "model": "People",
+            "id_type": IdType.TMDB_Person,
+            "id_value": "17419",
+            "url": "https://www.themoviedb.org/person/17419",
+            "title": "Bryan Cranston",
+        }
+        SiteManager.fetch_linked_resources(
+            resource_a, [link], ExternalResource.LinkType.CHILD
+        )
+        credit_a.refresh_from_db()
+        credit_b.refresh_from_db()
+        assert credit_a.person is not None
+        # The unrelated item's same-name credit is left alone.
+        assert credit_b.person is None
+
+    @use_local_response
+    def test_fan_out_links_requester_credit_to_existing_people(self):
+        """Re-encounter: People already exists from a prior fan-out (with
+        its own ExternalResource). A new requester item that mentions the
+        same People must still have its unlinked credit linked."""
+        existing_person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+            people_type=PeopleType.PERSON,
+        )
+        ExternalResource.objects.create(
+            item=existing_person,
+            id_type=IdType.TMDB_Person,
+            id_value="17419",
+            url="https://www.themoviedb.org/person/17419",
+            scraped_time=timezone.now(),
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+        )
+        movie, resource, credit = self._movie_with_director_credit()
+        link = {
+            "model": "People",
+            "id_type": IdType.TMDB_Person,
+            "id_value": "17419",
+            "url": "https://www.themoviedb.org/person/17419",
+            "title": "Bryan Cranston",
+        }
+        SiteManager.fetch_linked_resources(
+            resource, [link], ExternalResource.LinkType.CHILD
+        )
+        credit.refresh_from_db()
+        assert credit.person == existing_person
+        # No duplicate People row created.
+        assert People.objects.count() == 1
+
+    def test_helper_unit_skips_deleted_requester(self):
+        movie, resource, credit = self._movie_with_director_credit()
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+            people_type=PeopleType.PERSON,
+        )
+        movie.is_deleted = True
+        movie.save(update_fields=["is_deleted"])
+        n = SiteManager._link_requester_credits(movie, person)
+        assert n == 0
+        credit.refresh_from_db()
+        assert credit.person is None
+
+    def test_helper_unit_skips_empty_localized_name(self):
+        movie, resource, credit = self._movie_with_director_credit()
+        person = People.objects.create(
+            metadata={"localized_name": []},
+            people_type=PeopleType.PERSON,
+        )
+        n = SiteManager._link_requester_credits(movie, person)
+        assert n == 0
+        credit.refresh_from_db()
+        assert credit.person is None
+
+    def test_helper_unit_is_idempotent(self):
+        movie, resource, credit = self._movie_with_director_credit()
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Bryan Cranston"}]},
+            people_type=PeopleType.PERSON,
+        )
+        first = SiteManager._link_requester_credits(movie, person)
+        second = SiteManager._link_requester_credits(movie, person)
+        assert first == 1
+        # Second call links nothing because the credit is already linked.
+        assert second == 0
+        credit.refresh_from_db()
+        assert credit.person == person

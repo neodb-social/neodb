@@ -1727,13 +1727,16 @@ class TestFetchWorksForPersonTask:
         }
         assert all(not c[1] for c in calls)
 
-    def test_enqueues_credit_link_after_fetch_jobs(self, monkeypatch):
+    def test_does_not_enqueue_global_credit_link(self, monkeypatch):
+        """The per-work fetch jobs each trigger their own related_resources
+        fan-out, which links credits to this person via
+        SiteManager._link_requester_credits. So fetch_works_for_person_task
+        no longer needs to enqueue a final global link_matching_credits
+        sweep -- and must not, because a global sweep can falsely glue
+        distinct people sharing a name."""
         import sys
 
-        from catalog.jobs.people_works import (
-            fetch_works_for_person_task,
-            link_people_works_task,
-        )
+        from catalog.jobs.people_works import fetch_works_for_person_task
         from catalog.sites.tmdb import TMDB_Person
 
         people_works_module = sys.modules["catalog.jobs.people_works"]
@@ -1780,13 +1783,9 @@ class TestFetchWorksForPersonTask:
 
         fetch_works_for_person_task(person.uuid, user.pk)
 
+        # No synchronous global sweep, and no post-fetch sweep is enqueued.
         assert immediate_links == []
-        assert len(queued) == 1
-        fn, args, kwargs = queued[0]
-        assert fn is link_people_works_task
-        assert args == (person.uuid, user.pk)
-        assert kwargs["depends_on"].dependencies == ["fetch-11", "fetch-22"]
-        assert kwargs["depends_on"].allow_failure is True
+        assert queued == []
 
     def test_enqueues_douban_personage_urls(self, monkeypatch):
         import sys

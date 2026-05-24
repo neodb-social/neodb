@@ -345,6 +345,65 @@ class SiteManager:
         ]
 
     @staticmethod
+    def _link_requester_credits(requester_item, person) -> int:
+        """Link unlinked ItemCredit rows on the requester item to a People
+        that was just fetched as a CHILD of the requester.
+
+        Match is by exact name equality between ItemCredit.name and any
+        text in the People's localized_name. Scope is the single requester
+        item, so same-name collisions across the database are impossible.
+
+        Credit jsondata canonicalization (rewriting the name string to
+        person.url) is intentionally NOT done here. On the next legitimate
+        sync_credits_from_metadata call (user edit, item refetch, merge),
+        the existing linked_by_name cache at item.py:1086 picks up the
+        link via the now-set credit.person FK and canonicalizes the
+        jsondata then. Keeping the immediate fan-out a side-effect-only
+        operation preserves the "backfill does not mutate item metadata"
+        contract that tests/catalog/test_backfill_people.py:88 enforces.
+
+        Returns the number of newly linked credits.
+        """
+        from ..models import ItemCredit, ItemPeopleRelation, People
+
+        if requester_item is None or person is None or not isinstance(person, People):
+            return 0
+        if requester_item.is_deleted or requester_item.merged_to_item_id:
+            return 0
+        names = {
+            n["text"]
+            for n in (person.localized_name or [])
+            if isinstance(n, dict) and n.get("text")
+        }
+        if not names:
+            return 0
+        unlinked = ItemCredit.objects.filter(
+            item=requester_item, name__in=names, person__isnull=True
+        )
+        ids = list(unlinked.values_list("pk", flat=True))
+        if not ids:
+            return 0
+        # Re-check person__isnull in the UPDATE WHERE clause so a concurrent
+        # worker that linked the same row to a different person between our
+        # SELECT and our UPDATE is not silently overwritten. After the UPDATE,
+        # only the rows we actually own (person == self) drive the
+        # ItemPeopleRelation creation loop.
+        ItemCredit.objects.filter(pk__in=ids, person__isnull=True).update(person=person)
+        newly_linked = ItemCredit.objects.filter(
+            pk__in=ids, person=person
+        ).select_related("item")
+        linked_count = 0
+        for credit in newly_linked:
+            linked_count += 1
+            role = People._credit_role_to_people_role(credit.role)
+            if role:
+                ItemPeopleRelation.objects.get_or_create(
+                    item=credit.item, people=person, role=role
+                )
+        logger.info(f"Linked {linked_count} credits on {requester_item} to {person}")
+        return linked_count
+
+    @staticmethod
     def _find_sibling_person(linked_resource, parent_item):
         """Return an existing People already credited on parent_item whose
         localized_name contains the link's display name, provided the
@@ -499,6 +558,18 @@ class SiteManager:
                                 and fetched.item
                             ):
                                 fetched.item.save()
+                            # For People CHILDren, link the requester item's
+                            # matching unlinked credit by (item, name). This
+                            # uses the explicit requester->requested chain
+                            # the worker already has in scope, instead of
+                            # the previous global name sweep which could
+                            # falsely glue distinct people sharing a name.
+                            if (
+                                linked_resource.get("model") == "People"
+                                and resource.item is not None
+                                and fetched.item is not None
+                            ):
+                                cls._link_requester_credits(resource.item, fetched.item)
                         case ExternalResource.LinkType.PREMATCHED:
                             processed |= resource.process_fetched_resource(
                                 fetched, ExternalResource.LinkType.PREMATCHED

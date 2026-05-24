@@ -259,7 +259,15 @@ class People(Item):
         ]
 
     def link_matching_credits(self):
-        """Find unlinked ItemCredits whose name matches this person and link them."""
+        """Globally link unlinked ItemCredits whose name matches this person.
+
+        This is a manual / data-migration utility. It is intentionally not
+        wired into the runtime fan-out or work-fetch paths because a global
+        name sweep can falsely glue genuinely distinct people who share a
+        localized_name. The runtime link happens at fan-out completion in
+        ``SiteManager._link_requester_credits`` (catalog/common/sites.py),
+        scoped to a single requester item.
+        """
         from .item import ItemCredit
 
         names = {n["text"] for n in (self.localized_name or []) if n.get("text")}
@@ -319,7 +327,9 @@ class People(Item):
         if people_type and people_type in PeopleType.values:
             item.people_type = people_type
             item.save(update_fields=["people_type"])
-        item.link_matching_credits()
+        # Credit linking is performed at fan-out completion in
+        # SiteManager._link_requester_credits, scoped to the requester item.
+        # Avoid an unscoped global name sweep here.
         return item
 
     def is_deletable(self):
