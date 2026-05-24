@@ -27,7 +27,7 @@
     {% if not hide_brief %}
       {% if item.display_description %}
         {{ item.display_description | linebreaksbr }}
-      {% elif item.parent_item.display_description %}
+      {% elif item.parent_item and item.parent_item.display_description %}
         {{ item.parent_item.display_description | linebreaksbr }}
       {% endif %}
     {% endif %}
