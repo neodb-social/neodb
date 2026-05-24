@@ -224,6 +224,7 @@ def render_list(
     items = [m.item for m in members]
     if items:
         Item.prefetch_parent_items(items)
+        Item.prefetch_credits(items)
         Rating.attach_to_items(items)
         marks = Mark.get_marks_by_items(target, items, request.user)
         for m in members:
