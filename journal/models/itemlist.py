@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import django.dispatch
 import django_rq
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from loguru import logger
@@ -107,12 +107,23 @@ class List(Piece):
         p = {"parent": self}
         p.update(params)
         lm = ml.last()
-        member = self.MEMBER_CLASS.objects.create(
-            owner=self.owner,
-            position=lm.position + 1 if lm else 1,
-            item=item,
-            **p,
-        )
+        try:
+            with transaction.atomic():
+                member = self.MEMBER_CLASS.objects.create(
+                    owner=self.owner,
+                    position=lm.position + 1 if lm else 1,
+                    item=item,
+                    **p,
+                )
+        except IntegrityError:
+            # Concurrent append for the same (list, item) lost the race on
+            # the parent+item unique constraint (TagMember / CollectionMember)
+            # or owner+item (ShelfMember). The append is idempotent for the
+            # caller, so re-fetch and return the row the winner inserted.
+            existing = self.get_member_for_item(item)
+            if existing is None:
+                raise
+            return existing, False
         list_add.send(sender=self.__class__, instance=self, item=item, member=member)
         return member, True
 

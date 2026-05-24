@@ -156,11 +156,11 @@ class TagManager:
             [m.parent.title for m in TagMember.objects.filter(owner=owner, item=item)]
         )
         for title in titles - current_titles:
-            tag = Tag.objects.filter(owner=owner, title=title).first()
-            if not tag:
-                tag = Tag.objects.create(
-                    owner=owner, title=title, visibility=default_visibility
-                )
+            tag, _ = Tag.objects.get_or_create(
+                owner=owner,
+                title=title,
+                defaults={"visibility": default_visibility},
+            )
             tag.append_item(item, visibility=default_visibility)
         for title in current_titles - titles:
             tag = Tag.objects.filter(owner=owner, title=title).first()

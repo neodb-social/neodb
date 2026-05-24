@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 import pytest
 
 from catalog.models import Edition
-from journal.models import Tag
+from journal.models import Tag, TagManager
+from journal.models.tag import TagMember
 from users.models import User
 
 
@@ -23,3 +26,48 @@ def test_attach_to_items_sets_public_tags():
 
     assert tagged.tags == ["sci fi"]
     assert untagged.tags == []
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_append_item_recovers_from_duplicate_race():
+    """A concurrent insert that wins the parent+item unique race must not
+    surface to the caller — append_item is idempotent (Sentry NEODB-SOCIAL-3JG)."""
+    owner = User.register(email="race@example.com", username="raceowner")
+    book = Edition.objects.create(title="Raced Book")
+    tag = Tag.objects.create(owner=owner.identity, title="raced", visibility=0)
+
+    winner, created = tag.append_item(book)
+    assert created
+    assert winner is not None
+
+    # Simulate the race: only the *pre-check* `get_member_for_item` sees
+    # None (as a losing transaction would before the winner committed) —
+    # the post-IntegrityError recovery call must still see the row.
+    real_get = Tag.get_member_for_item
+    call_count = {"n": 0}
+
+    def stubbed(self_inst, item):
+        call_count["n"] += 1
+        if call_count["n"] == 1:
+            return None
+        return real_get(self_inst, item)
+
+    with patch.object(Tag, "get_member_for_item", autospec=True, side_effect=stubbed):
+        recovered, created_again = tag.append_item(book)
+    assert created_again is False
+    assert recovered.pk == winner.pk
+    assert TagMember.objects.filter(parent=tag, item=book).count() == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_item_for_owner_is_idempotent():
+    """Repeated tag_item_for_owner calls must not raise on the Tag
+    (owner, title) or TagMember (parent, item) unique constraints."""
+    owner = User.register(email="idem@example.com", username="idemowner")
+    book = Edition.objects.create(title="Idempotent Book")
+
+    TagManager.tag_item_for_owner(owner.identity, book, ["alpha", "beta"])
+    TagManager.tag_item_for_owner(owner.identity, book, ["alpha", "beta"])
+
+    assert Tag.objects.filter(owner=owner.identity).count() == 2
+    assert TagMember.objects.filter(owner=owner.identity, item=book).count() == 2
