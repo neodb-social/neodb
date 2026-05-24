@@ -25,7 +25,11 @@
   </div>
   <div>
     {% if not hide_brief %}
-      {{ item.display_description | default:item.parent_item.display_description | linebreaksbr }}
+      {% if item.display_description %}
+        {{ item.display_description | linebreaksbr }}
+      {% elif item.parent_item.display_description %}
+        {{ item.parent_item.display_description | linebreaksbr }}
+      {% endif %}
     {% endif %}
   </div>
 {% endblock full %}
