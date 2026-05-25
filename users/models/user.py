@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar
 
@@ -12,7 +13,7 @@ from django.core.files.base import ContentFile
 from django.db import IntegrityError, models, transaction
 from django.db.models.functions import Lower
 from django.urls import reverse
-from django.utils import translation
+from django.utils import timezone, translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -287,7 +288,8 @@ class User(AbstractUser):
 
     def sync_accounts(self, skip_graph=False, sleep_hours=0):
         """Try refresh account data from 3p server"""
-        for account in self.social_accounts.all():
+        accounts = list(self.social_accounts.all())
+        for account in accounts:
             account.sync(skip_graph=skip_graph, sleep_hours=sleep_hours)
         if not self.preference.mastodon_skip_userinfo:
             self.sync_identity()
@@ -295,20 +297,39 @@ class User(AbstractUser):
             return
         if not self.preference.mastodon_skip_relationship:
             c = 0
-            for account in self.social_accounts.all():
+            for account in accounts:
                 c += account.sync_graph()
             if c:
                 logger.debug(f"{self} graph updated with {c} new relationship.")
 
     @staticmethod
-    def sync_accounts_task(user_id):
-        user = User.objects.get(pk=user_id)
-        logger.info(f"{user} accounts sync start")
-        user.sync_accounts()
+    def sync_accounts_task(
+        user_id: int,
+        sleep_hours: int = 0,
+        inactive_days: int | None = None,
+    ):
+        user = (
+            User.objects.select_related("preference", "identity")
+            .prefetch_related("social_accounts")
+            .get(pk=user_id)
+        )
+        skip_graph = False
+        if inactive_days is not None:
+            inactive_threshold = timezone.now() - timedelta(days=inactive_days)
+            if not user.last_login or user.last_login < inactive_threshold:
+                last_usage = user.last_usage
+                if not last_usage or last_usage < inactive_threshold:
+                    skip_graph = True
+        logger.info(f"{user} accounts sync start (skip_graph={skip_graph})")
+        user.sync_accounts(skip_graph=skip_graph, sleep_hours=sleep_hours)
         logger.info(f"{user} accounts sync end")
 
     def sync_accounts_later(self):
-        django_rq.get_queue("mastodon").enqueue(User.sync_accounts_task, self.pk)
+        django_rq.get_queue("mastodon").enqueue(
+            User.sync_accounts_task,
+            self.pk,
+            job_id=f"sync-user-{self.pk}",
+        )
 
     @cached_property
     def unread_announcements(self):
