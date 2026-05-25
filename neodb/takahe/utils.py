@@ -267,6 +267,44 @@ class Takahe:
         ).exists()
 
     @staticmethod
+    def get_existing_following_ids(source_pk: int, target_pks) -> set[int]:
+        if not target_pks:
+            return set()
+        return set(
+            Follow.objects.filter(
+                source_id=source_pk,
+                target_id__in=target_pks,
+                state="accepted",
+            ).values_list("target_id", flat=True)
+        )
+
+    @staticmethod
+    def get_existing_blocking_ids(source_pk: int, target_pks) -> set[int]:
+        if not target_pks:
+            return set()
+        return set(
+            Block.objects.filter(
+                source_id=source_pk,
+                target_id__in=target_pks,
+                state__in=["new", "sent", "awaiting_expiry"],
+                mute=False,
+            ).values_list("target_id", flat=True)
+        )
+
+    @staticmethod
+    def get_existing_muting_ids(source_pk: int, target_pks) -> set[int]:
+        if not target_pks:
+            return set()
+        return set(
+            Block.objects.filter(
+                source_id=source_pk,
+                target_id__in=target_pks,
+                state__in=["new", "sent", "awaiting_expiry"],
+                mute=True,
+            ).values_list("target_id", flat=True)
+        )
+
+    @staticmethod
     def get_following_ids(identity_pk: int):
         targets = Follow.objects.filter(
             source_id=identity_pk, state="accepted"

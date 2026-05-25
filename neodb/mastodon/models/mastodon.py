@@ -910,25 +910,26 @@ class MastodonAccount(SocialAccount):
             )
 
         me = self.user.identity.pk
-        for target_identity in get_identity_ids(self.following):
-            if not Takahe.get_is_following(me, target_identity):
-                Takahe.follow(me, target_identity, True)
-                c += 1
 
-        for target_identity in get_identity_ids(self.blocks):
-            if not Takahe.get_is_blocking(me, target_identity):
-                Takahe.block(me, target_identity)
-                c += 1
+        follow_targets = get_identity_ids(self.following)
+        already_following = Takahe.get_existing_following_ids(me, follow_targets)
+        for target_identity in follow_targets - already_following:
+            Takahe.follow(me, target_identity, True)
+            c += 1
 
-        for target_identity in get_identity_ids_in_domains(self.domain_blocks):
-            if not Takahe.get_is_blocking(me, target_identity):
-                Takahe.block(me, target_identity)
-                c += 1
+        block_targets = get_identity_ids(self.blocks) | get_identity_ids_in_domains(
+            self.domain_blocks
+        )
+        already_blocking = Takahe.get_existing_blocking_ids(me, block_targets)
+        for target_identity in block_targets - already_blocking:
+            Takahe.block(me, target_identity)
+            c += 1
 
-        for target_identity in get_identity_ids(self.mutes):
-            if not Takahe.get_is_muting(me, target_identity):
-                Takahe.mute(me, target_identity)
-                c += 1
+        mute_targets = get_identity_ids(self.mutes)
+        already_muting = Takahe.get_existing_muting_ids(me, mute_targets)
+        for target_identity in mute_targets - already_muting:
+            Takahe.mute(me, target_identity)
+            c += 1
 
         return c
 
