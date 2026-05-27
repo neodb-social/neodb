@@ -335,7 +335,7 @@ class BlueskyAccount(SocialAccount):
                 BlueskyAccount.objects.filter(
                     domain=Bluesky._DOMAIN, uid__in=accts
                 ).values_list("user__identity", flat=True)
-            )
+            ) - {None}
 
         me = self.user.identity.pk
 

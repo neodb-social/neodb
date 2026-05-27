@@ -900,14 +900,14 @@ class MastodonAccount(SocialAccount):
                 MastodonAccount.objects.filter(handle__in=accts).values_list(
                     "user__identity", flat=True
                 )
-            )
+            ) - {None}
 
         def get_identity_ids_in_domains(domains: list):
             return set(
                 MastodonAccount.objects.filter(domain__in=domains).values_list(
                     "user__identity", flat=True
                 )
-            )
+            ) - {None}
 
         me = self.user.identity.pk
 

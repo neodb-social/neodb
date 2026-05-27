@@ -53,7 +53,6 @@ class MastodonUserSync(BaseJob):
                 user_id,
                 sleep_hours=self.interval_hours,
                 inactive_days=30,
-                job_id=f"sync-user-{user_id}",
             )
             dispatched += 1
         sentry_count(

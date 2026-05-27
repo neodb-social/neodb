@@ -150,10 +150,23 @@ class SocialAccount(TypedModel):
     def _account_circuit_open(self) -> bool:
         return bool(cache.get(self._account_circuit_key()))
 
+    @staticmethod
+    def _bump_failure_counter(key: str, window: int) -> int:
+        # `cache.add` initialises the key (and TTL) atomically only when missing;
+        # `cache.incr` then bumps the counter without resetting the TTL, so the
+        # window stays fixed instead of sliding with every failure.
+        if cache.add(key, 1, timeout=window):
+            return 1
+        try:
+            return int(cache.incr(key))
+        except ValueError:
+            cache.set(key, 1, timeout=window)
+            return 1
+
     def _record_domain_failure(self) -> None:
-        key = self._domain_fail_key()
-        fails = (cache.get(key) or 0) + 1
-        cache.set(key, fails, timeout=_DOMAIN_FAILURE_WINDOW)
+        fails = self._bump_failure_counter(
+            self._domain_fail_key(), _DOMAIN_FAILURE_WINDOW
+        )
         if fails >= _DOMAIN_FAILURE_THRESHOLD:
             cache.set(self._domain_circuit_key(), 1, timeout=_DOMAIN_OPEN_COOLDOWN)
 
@@ -161,9 +174,9 @@ class SocialAccount(TypedModel):
         cache.delete_many([self._domain_fail_key(), self._domain_circuit_key()])
 
     def _record_account_failure(self) -> None:
-        key = self._account_fail_key()
-        fails = (cache.get(key) or 0) + 1
-        cache.set(key, fails, timeout=_ACCOUNT_FAILURE_WINDOW)
+        fails = self._bump_failure_counter(
+            self._account_fail_key(), _ACCOUNT_FAILURE_WINDOW
+        )
         if fails >= _ACCOUNT_FAILURE_THRESHOLD:
             cache.set(self._account_circuit_key(), 1, timeout=_ACCOUNT_OPEN_COOLDOWN)
 
