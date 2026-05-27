@@ -210,6 +210,10 @@ class SocialAccount(TypedModel):
             self._record_domain_failure()
             self._emit_sync_result("fail_alive")
             return False
+        # check_alive succeeded: the domain is reachable regardless of whether
+        # this account's refresh ends up succeeding, so clear domain-level fail
+        # state independently to avoid blocking healthy accounts on the domain.
+        self._record_domain_success()
         if not self.refresh():
             logger.warning(f"{self} refresh failed")
             self._record_account_failure()
@@ -218,7 +222,6 @@ class SocialAccount(TypedModel):
         if not skip_graph:
             self.refresh_graph()
         logger.debug(f"{self} refreshed")
-        self._record_domain_success()
         self._record_account_success()
         self._emit_sync_result("ok")
         return True
