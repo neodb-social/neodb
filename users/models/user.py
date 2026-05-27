@@ -325,11 +325,7 @@ class User(AbstractUser):
         logger.info(f"{user} accounts sync end")
 
     def sync_accounts_later(self):
-        django_rq.get_queue("mastodon").enqueue(
-            User.sync_accounts_task,
-            self.pk,
-            job_id=f"sync-user-{self.pk}",
-        )
+        django_rq.get_queue("mastodon").enqueue(User.sync_accounts_task, self.pk)
 
     @cached_property
     def unread_announcements(self):
