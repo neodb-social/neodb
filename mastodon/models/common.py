@@ -1,11 +1,27 @@
 from datetime import timedelta
 
+from django.core.cache import cache
 from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from typedmodels.models import TypedModel
+
+from common.sentry import count as sentry_count
+
+# Domain-level circuit breaker — covers webfinger / check_alive failures
+# (i.e. the instance itself is unreachable).
+_DOMAIN_FAILURE_WINDOW = 3600  # 1h sliding window for failure counts
+_DOMAIN_FAILURE_THRESHOLD = 5  # failures in the window before tripping
+_DOMAIN_OPEN_COOLDOWN = 1800  # how long the breaker stays open
+
+# Per-account circuit breaker — covers refresh failures (revoked tokens,
+# deleted accounts) that are specific to one (uid, domain) pair on a server
+# that is otherwise reachable.
+_ACCOUNT_FAILURE_WINDOW = 7 * 86400  # 7d sliding window
+_ACCOUNT_FAILURE_THRESHOLD = 3  # failures in the window before tripping
+_ACCOUNT_OPEN_COOLDOWN = 86400  # 24h cooldown once tripped
 
 
 class Platform(models.TextChoices):
@@ -104,11 +120,85 @@ class SocialAccount(TypedModel):
     def refresh_graph(self, save=True) -> bool:
         return False
 
+    def _sync_metric_attrs(self, result: str) -> dict:
+        return {
+            "platform": self.platform.value,
+            "domain": self.domain,
+            "result": result,
+        }
+
+    def _emit_sync_result(self, result: str) -> None:
+        sentry_count(
+            "mastodon.usersync.account", attributes=self._sync_metric_attrs(result)
+        )
+
+    def _domain_circuit_key(self) -> str:
+        return f"sync_open:{self.platform.value}:{self.domain}"
+
+    def _domain_fail_key(self) -> str:
+        return f"sync_fail:{self.platform.value}:{self.domain}"
+
+    def _account_circuit_key(self) -> str:
+        return f"sync_open_acct:{self.pk}"
+
+    def _account_fail_key(self) -> str:
+        return f"sync_fail_acct:{self.pk}"
+
+    def _domain_circuit_open(self) -> bool:
+        return bool(cache.get(self._domain_circuit_key()))
+
+    def _account_circuit_open(self) -> bool:
+        return bool(cache.get(self._account_circuit_key()))
+
+    @staticmethod
+    def _bump_failure_counter(key: str, window: int) -> int:
+        # `cache.add` initialises the key (and TTL) atomically only when missing;
+        # `cache.incr` then bumps the counter without resetting the TTL, so the
+        # window stays fixed instead of sliding with every failure.
+        if cache.add(key, 1, timeout=window):
+            return 1
+        try:
+            return int(cache.incr(key))
+        except ValueError:
+            cache.set(key, 1, timeout=window)
+            return 1
+
+    def _record_domain_failure(self) -> None:
+        fails = self._bump_failure_counter(
+            self._domain_fail_key(), _DOMAIN_FAILURE_WINDOW
+        )
+        if fails >= _DOMAIN_FAILURE_THRESHOLD:
+            cache.set(self._domain_circuit_key(), 1, timeout=_DOMAIN_OPEN_COOLDOWN)
+
+    def _record_domain_success(self) -> None:
+        cache.delete_many([self._domain_fail_key(), self._domain_circuit_key()])
+
+    def _record_account_failure(self) -> None:
+        fails = self._bump_failure_counter(
+            self._account_fail_key(), _ACCOUNT_FAILURE_WINDOW
+        )
+        if fails >= _ACCOUNT_FAILURE_THRESHOLD:
+            cache.set(self._account_circuit_key(), 1, timeout=_ACCOUNT_OPEN_COOLDOWN)
+
+    def _record_account_success(self) -> None:
+        cache.delete_many([self._account_fail_key(), self._account_circuit_key()])
+
     def sync(self, skip_graph=False, sleep_hours=0) -> bool:
         if self.last_refresh and self.last_refresh > timezone.now() - timedelta(
             hours=sleep_hours
         ):
             logger.debug(f"{self} skip refreshing as it's done recently")
+            self._emit_sync_result("skip_ttl")
+            return False
+        if self._domain_circuit_open():
+            logger.debug(
+                f"{self} skip refreshing, domain circuit open for {self.domain}"
+            )
+            self._emit_sync_result("skip_circuit_domain")
+            return False
+        if self._account_circuit_open():
+            logger.debug(f"{self} skip refreshing, account circuit open")
+            self._emit_sync_result("skip_circuit_account")
             return False
         if not self.check_alive():
             d = (
@@ -117,13 +207,23 @@ class SocialAccount(TypedModel):
                 else "unknown"
             )
             logger.warning(f"{self} unreachable for {d} days")
+            self._record_domain_failure()
+            self._emit_sync_result("fail_alive")
             return False
+        # check_alive succeeded: the domain is reachable regardless of whether
+        # this account's refresh ends up succeeding, so clear domain-level fail
+        # state independently to avoid blocking healthy accounts on the domain.
+        self._record_domain_success()
         if not self.refresh():
             logger.warning(f"{self} refresh failed")
+            self._record_account_failure()
+            self._emit_sync_result("fail_refresh")
             return False
         if not skip_graph:
             self.refresh_graph()
         logger.debug(f"{self} refreshed")
+        self._record_account_success()
+        self._emit_sync_result("ok")
         return True
 
     def sync_graph(self) -> int:
