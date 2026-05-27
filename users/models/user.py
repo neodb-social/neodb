@@ -308,11 +308,15 @@ class User(AbstractUser):
         sleep_hours: int = 0,
         inactive_days: int | None = None,
     ):
-        user = (
-            User.objects.select_related("preference", "identity")
-            .prefetch_related("social_accounts")
-            .get(pk=user_id)
-        )
+        try:
+            user = (
+                User.objects.select_related("preference", "identity")
+                .prefetch_related("social_accounts")
+                .get(pk=user_id)
+            )
+        except User.DoesNotExist:
+            logger.info(f"User {user_id} not found, skipping sync")
+            return
         skip_graph = False
         if inactive_days is not None:
             inactive_threshold = timezone.now() - timedelta(days=inactive_days)
