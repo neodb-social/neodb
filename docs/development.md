@@ -3,7 +3,7 @@ Development
 
 Overview
 --------
-NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in `neodb_takahe` folder of this repo as submodule). They communicate with each other mainly thru database and task queue, [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+NeoDB is a Django project, and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in the `neodb-takahe` folder of this repo). They communicate with each other mainly thru database and task queue, [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
 
 
 Prerequisite
@@ -14,11 +14,10 @@ Prerequisite
 
 Prepare the code
 ----------------
-When checking out NeoDB source code, make sure submodules are also checked out:
+Check out the NeoDB source code:
 ```
 git clone https://github.com/neodb-social/neodb.git
 cd neodb
-git submodule update --init
 ```
 
 Install [uv](https://docs.astral.sh/uv/) package manager, packages and pre-commit hooks:
@@ -84,12 +83,10 @@ Restart background tasks (unlike web servers, background tasks don't auto reload
 docker-compose --profile dev restart dev-neodb-worker dev-takahe-stator
 ```
 
-When updating code, always update submodules:
+When updating code:
 ```
 git pull
-git submodule update --init
 ```
-With newer git 2.15+, you may use `git pull --recurse-submodules` or `git config --global submodule.recurse true` to make it automatic.
 
 
 To save some typing, consider adding some aliases to `~/.profile`:
@@ -176,7 +173,7 @@ Main Django apps for NeoDB:
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` present timeline and notification for local users
- - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in `neodb_takahe` as submodule), see [federation.md](internals/federation.md) for customization of ActivityPub protocol
+ - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in the `neodb-takahe` folder of this repo), see [federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 
