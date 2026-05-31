@@ -1,8 +1,10 @@
 import re
 from functools import cached_property
+from json import JSONDecodeError
 from time import sleep
 from typing import Iterable, List, Self, cast
 
+import httpx
 from django.conf import settings
 from loguru import logger
 from requests import RequestException
@@ -18,6 +20,19 @@ from typesense.types.document import MultiSearchCommonParameters, SearchResponse
 from typesense.types.multi_search import MultiSearchRequestSchema
 
 from common.models.site_config import SiteConfig
+
+# Exceptions that any Typesense network operation may raise.
+# typesense 2.x uses httpx for transport and, after exhausting node retries,
+# re-raises the underlying httpx error (httpx.HTTPError and subclasses such as
+# ConnectError and TimeoutException) -- which is neither a TypesenseClientError
+# nor a requests.RequestException. JSONDecodeError can escape when the server
+# returns a non-JSON body on a 2xx response. RequestException is kept defensively.
+TYPESENSE_ERRORS = (
+    RequestException,
+    TypesenseClientError,
+    httpx.HTTPError,
+    JSONDecodeError,
+)
 
 
 def _backtick(s: str | int) -> str:
@@ -308,7 +323,7 @@ class Index:
             return 0
         try:
             rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
-        except (RequestException, TypesenseClientError) as e:
+        except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return 0
         c = 0
@@ -328,7 +343,7 @@ class Index:
             return False
         try:
             rs = self.write_collection.documents.import_(docs)
-        except (RequestException, TypesenseClientError) as e:
+        except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return
         for r in rs:
@@ -346,7 +361,7 @@ class Index:
         )
         try:
             r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
-        except (RequestException, TypesenseClientError) as e:
+        except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return 0
         return (r or {}).get("num_deleted", 0)
@@ -359,11 +374,21 @@ class Index:
             self.write_collection.documents.update(
                 partial_doc, {"filter_by": doc_filter}
             )
-        except (RequestException, TypesenseClientError) as e:
+        except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
 
-    def get_doc(self, doc_id: int | str):
-        return self.read_collection.documents[str(doc_id)].retrieve()
+    def get_doc(self, doc_id: int | str) -> dict | None:
+        try:
+            return self.read_collection.documents[str(doc_id)].retrieve()
+        except ObjectNotFound:
+            # a missing document is an expected result, not a failure
+            raise
+        except TYPESENSE_ERRORS as e:
+            logger.error(f"Typesense: error {e}")
+            return None
+
+    def _error_result(self, error: str) -> SearchResult:
+        return self.search_result_class(self, {"error": error, "code": -1})  # type:ignore
 
     def search(
         self,
@@ -381,10 +406,14 @@ class Index:
                     {"collection": self.read_collection.name},
                 ),
             )
-        except (RequestException, TypesenseClientError) as e:
+        except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
-            return self.search_result_class(self, {"error": str(e), "code": -1})  # type:ignore
-        sr = self.search_result_class(self, r["results"][0])
+            return self._error_result(str(e))
+        results = r.get("results") if isinstance(r, dict) else None
+        if not results:
+            logger.error(f"Typesense: search {self.name} invalid response {r}")
+            return self._error_result("invalid response")
+        sr = self.search_result_class(self, results[0])
         if sr.error:
             logger.error(f"Typesense: search error {sr.error}")
         elif settings.DEBUG:

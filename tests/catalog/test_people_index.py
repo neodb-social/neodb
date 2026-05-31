@@ -177,5 +177,6 @@ class TestCatalogExcludesPeople:
 
     def test_people_indexed_in_people_collection(self):
         doc = PeopleIndex.instance().get_doc(self.person.pk)
+        assert doc is not None
         assert doc["people_type"] == "person"
         assert "Some Person" in doc["name"]
