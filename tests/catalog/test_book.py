@@ -539,6 +539,22 @@ class TestQidian:
         assert isinstance(site.resource.item, Edition)
         assert site.resource.item.author[0] == "爱潜水的乌贼"
 
+    @use_local_response
+    def test_scrape_without_description(self):
+        # A page whose description paragraph is missing must not produce a
+        # localized_description entry with text=None, which would fail
+        # EditionSchema validation (NEODB-SOCIAL-7KK).
+        t_url = "https://book.qidian.com/info/1035420986/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready is True
+        assert site.resource is not None
+        assert site.resource.metadata["localized_description"] == []
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        assert site.resource.item.localized_description == []
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestStoryGraph:

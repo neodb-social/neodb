@@ -42,7 +42,9 @@ class Qidian(AbstractSite):
                 "localized_title": [{"lang": "zh-cn", "text": title}],
                 "author": authors,
                 "format": Edition.BookFormat.WEB,
-                "localized_description": [{"lang": "zh-cn", "text": brief}],
+                "localized_description": (
+                    [{"lang": "zh-cn", "text": brief}] if brief else []
+                ),
                 "cover_image_url": img_url,
             }
         )
