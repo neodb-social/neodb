@@ -60,12 +60,9 @@ class Bandcamp(AbstractSite):
     def scrape(self):
         assert self.url
         content = BasicDownloader2(self.url).download().html()
-        try:
-            title = self.query_str(content, "//h2[@class='trackTitle']/text()")
-            artist = [
-                self.query_str(content, "//div[@id='name-section']/h3/span/a/text()")
-            ]
-        except IndexError:
+        title = self.query_str(content, "//h2[@class='trackTitle']/text()")
+        artist = [self.query_str(content, "//div[@id='name-section']/h3/span/a/text()")]
+        if not title or not artist[0]:
             raise ValueError("given url contains no valid info")
 
         genre = []  # TODO: parse tags

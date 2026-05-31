@@ -165,6 +165,34 @@ class TestBandcamp:
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == []
 
+    def test_scrape_rejects_page_without_title(self, monkeypatch):
+        # Regression for NEODB-SOCIAL-4H7: query_str now returns "" instead
+        # of raising IndexError on a missing element, so the scraper must
+        # reject pages lacking title/artist explicitly rather than silently
+        # saving empty metadata.
+        from lxml import html as lxml_html
+
+        from catalog.sites import bandcamp
+
+        class _FakeResponse:
+            def html(self):
+                return lxml_html.fromstring("<html><body></body></html>")
+
+        class _FakeDownloader:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def download(self):
+                return _FakeResponse()
+
+        monkeypatch.setattr(bandcamp, "BasicDownloader2", _FakeDownloader)
+        site = SiteManager.get_site_by_url(
+            "https://intlanthem.bandcamp.com/album/in-these-times"
+        )
+        assert site is not None
+        with pytest.raises(ValueError, match="no valid info"):
+            site.scrape()
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestDiscogsRelease:
