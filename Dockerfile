@@ -19,16 +19,13 @@ RUN echo "${buildver}" > /etc/neodb_version \
  && echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py \
  && echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
 
+# Single venv shared by both the neodb app (/neodb) and the takahe app (/takahe),
+# built from the unified pyproject.toml / uv.lock at the repository root.
 WORKDIR /neodb
 RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
 RUN find misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
 RUN rm -rf misc/wheels-cache
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
-
-WORKDIR /takahe
-RUN uv venv /takahe-venv
-ENV VIRTUAL_ENV=/takahe-venv
 RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 # runtime stage
@@ -51,7 +48,6 @@ COPY --from=build /etc/neodb_version /etc/neodb_version
 COPY --from=build /neodb /neodb
 COPY --from=build /takahe /takahe
 COPY --from=build /neodb-venv /neodb-venv
-COPY --from=build /takahe-venv /takahe-venv
 
 WORKDIR /neodb
 RUN /neodb-venv/bin/django-admin compilemessages \
@@ -59,7 +55,7 @@ RUN /neodb-venv/bin/django-admin compilemessages \
  && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /takahe
-RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /takahe-venv/bin/python3 manage.py collectstatic --noinput
+RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /neodb
 COPY misc/bin/* /bin/

@@ -23,7 +23,7 @@ dependencies = [
     "django-redis",
     "django-rq>=3.1",
     "django-sass-processor>=1.4.1",
-    "django-storages[boto3]>=1.14.2",
+    "django-storages[boto3,google]>=1.14.5",
     "django-tz-detect>=0.5.0",
     "django-user-messages>=1.1.0",
     "dnspython>=2.7.0",
@@ -53,7 +53,6 @@ dependencies = [
     "atproto>=0.0.55",
     "discord-py>=2.4.0",
     "libsass>=0.23.0",
-    "django-storages>=1.14.5",
     "certifi==2026.2.25",
     "deepl>=1.22.0",
     "nh3>=0.3.5",
@@ -61,6 +60,27 @@ dependencies = [
     "webauthn>=2.0.0,<3",
     "numpy>=2.4.6",
     "scipy>=1.17.1",
+    # neodb-takahe (Fediverse / Mastodon API) dependencies, sharing this venv
+    # cryptography upper bound is dictated by atproto (currently <47); takahe only
+    # uses long-stable hazmat APIs, so the atproto-compatible range is fine.
+    "cryptography>=46",
+    "dj-database-url>=2.1.0",
+    "django-cache-url>=3.4.5",
+    "django-debug-toolbar>=4.3.0",
+    "django-htmx>=1.17.3",
+    "markdown-it-py>=3.0.0",
+    "pillow>=12.2.0",
+    "pycountry>=23.12.11",
+    "pydantic-settings>=2.2.1",
+    "pydantic[email]>=2.7.1",
+    "pyld>=3.0.0",
+    "pymemcache>=4.0.0",
+    "python-dateutil>=2.9.0.post0",
+    "pywebpush>=2.0.0",
+    "redis>=5.0.4",
+    "rq>=2.1.0",
+    "uvicorn>=0.29.0",
+    "whitenoise>=6.6.0",
 ]
 
 [dependency-groups]
@@ -75,7 +95,17 @@ dev = [
     "coverage>=7.13.5",
     "mkdocs-material>=9.5.42,<10",
     "pytest-xdist>=3.8.0",
+    # neodb-takahe test deps
+    "mock>=5.1.0",
+    "pytest-asyncio>=0.23.6",
+    "pytest-dotenv>=0.5.2",
+    "pytest-httpx>=0.30.0",
 ]
+
+[tool.uv.sources]
+# Forked to add thread-safety to module-level LRUCache (NEODB-SOCIAL-4P0,
+# EGGPLANT-7K). Tracks upstream master @ 1889cab + neodb-social/pyld@neodb-on-master-1889cab.
+pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "a4834df24c8163b15cee3a27a55a2af5d3fbbd75" }
 
 [tool.ty.src]
 exclude = ["neodb-takahe", "data-svc"]

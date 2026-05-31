@@ -137,7 +137,7 @@ The `dev` profile is different from `production`:
 
 Note:
 
-- Python virtual environments inside docker image, which are `/neodb-venv` and `/takahe-venv`, will be used by default. They can be changed to different locations with `TAKAHE_VENV` and `NEODB_VENV` if needed, usually in a case of development code using a package not in docker venv.
+- A single Python virtual environment inside the docker image, `/neodb-venv`, is shared by both the neodb and takahe apps and used by default (its dependencies come from the unified `pyproject.toml`/`uv.lock` at the repo root). It can be changed to a different location with `NEODB_VENV` and `TAKAHE_VENV` if needed, usually in a case of development code using a package not in docker venv.
 - Some packages inside python virtual environments are platform dependent, so mount venv built by macOS host into the Linux container will likely not work.
 - Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
 - Database/redis/typesense used in the container cluster are not accessible from host directly, which is by design. Querying them can be done by one of the following:

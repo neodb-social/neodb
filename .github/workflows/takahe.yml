@@ -4,10 +4,14 @@ on:
   push:
     paths:
       - 'neodb-takahe/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/takahe.yml'
   pull_request:
     paths:
       - 'neodb-takahe/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/takahe.yml'
 
 permissions:
@@ -64,16 +68,18 @@ jobs:
         with:
           enable-cache: true
       - name: Install Dependencies
-        working-directory: neodb-takahe
         env:
           UV_PYTHON: ${{ matrix.python-version }}
         run: |
           sudo apt-get install -y libwebp-dev libjpeg-dev
-          uv sync --isolated -p ${{ matrix.python-version }}
+          uv sync -p ${{ matrix.python-version }}
       - name: Run pytest
+        # neodb-takahe has no pyproject.toml; uv resolves the unified project
+        # at the repo root and runs takahe's tests from its own directory,
+        # picking up neodb-takahe/pytest.ini.
         working-directory: neodb-takahe
         env:
           UV_PYTHON: ${{ matrix.python-version }}
           TAKAHE_DATABASE_SERVER: postgres://takahe:takahe@127.0.0.1:5432/takahe
         run: |
-          uv run --isolated python -m pytest
+          uv run --project .. python -m pytest
