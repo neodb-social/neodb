@@ -1,7 +1,8 @@
 import pytest
+from lxml import html
 
 from catalog.common.downloaders import use_local_response
-from catalog.common.sites import SiteManager
+from catalog.common.sites import AbstractSite, SiteManager
 from catalog.models import Edition, Movie
 
 
@@ -94,3 +95,20 @@ class TestCatalogItem:
         assert edition1.pages == 194
         assert sorted(edition1.language) == ["cn"]
         assert edition1.has_cover()
+
+
+class TestQueryStr:
+    def test_match_returns_stripped_value(self):
+        content = html.fromstring(
+            '<html><body><span class="year">  2024  </span></body></html>'
+        )
+        assert AbstractSite.query_str(content, '//span[@class="year"]/text()') == "2024"
+
+    def test_missing_element_returns_empty_string(self):
+        # Regression for NEODB-SOCIAL-4H7: an empty xpath result must not
+        # raise IndexError so callers' `if not src:` guards can fire.
+        content = html.fromstring("<html><body></body></html>")
+        assert (
+            AbstractSite.query_str(content, '//script[@id="__NEXT_DATA__"]/text()')
+            == ""
+        )

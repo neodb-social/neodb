@@ -133,7 +133,8 @@ class AbstractSite:
 
     @staticmethod
     def query_str(content, query: str) -> str:
-        return content.xpath(query)[0].strip()
+        r = content.xpath(query)
+        return r[0].strip() if r else ""
 
     @staticmethod
     def query_list(content, query: str) -> list:
