@@ -189,7 +189,7 @@ class WorldCat(AbstractSite):
         lang = (
             normalize_language(in_language)
             if in_language
-            else detect_language(title + " " + description)
+            else detect_language((title or "") + " " + (description or ""))
         )
 
         # Try to get cover image from Open Graph or other meta tags

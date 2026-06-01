@@ -115,7 +115,9 @@ class BooksTW(AbstractSite):
             "title": title,
             "subtitle": subtitle,
             "localized_title": [{"lang": "zh-tw", "text": title}],
-            "localized_subtitle": [{"lang": "zh-tw", "text": subtitle}],
+            "localized_subtitle": (
+                [{"lang": "zh-tw", "text": subtitle}] if subtitle else []
+            ),
             "localized_description": [{"lang": "zh-tw", "text": brief}],
             "orig_title": orig_title,
             "author": authors,

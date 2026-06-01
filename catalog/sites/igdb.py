@@ -100,6 +100,8 @@ class IGDB(AbstractSite):
         if not r:
             raise ParseError(self, "no data")
         r = r[0]
+        if not r.get("name"):
+            raise ParseError(self, "no name")
         brief = r["summary"] if "summary" in r else ""
         brief += "\n\n" + r["storyline"] if "storyline" in r else ""
         developer = None

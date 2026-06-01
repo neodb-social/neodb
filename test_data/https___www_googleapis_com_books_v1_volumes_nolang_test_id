@@ -1,0 +1,16 @@
+{
+  "kind": "books#volume",
+  "id": "nolang_test_id",
+  "volumeInfo": {
+    "title": "A Book Without Language",
+    "authors": ["Test Author"],
+    "publishedDate": "2020",
+    "description": "A description used only to detect a fallback language.",
+    "industryIdentifiers": [
+      {"type": "ISBN_13", "identifier": "9780000000001"}
+    ],
+    "imageLinks": {
+      "thumbnail": "https://books.google.com/nolang_test_id_cover.jpg"
+    }
+  }
+}

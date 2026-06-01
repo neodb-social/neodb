@@ -236,7 +236,9 @@ class DoubanBook(AbstractSite):
             "title": title,
             "subtitle": subtitle,
             "localized_title": [{"lang": lang, "text": title}],
-            "localized_subtitle": [{"lang": lang, "text": subtitle}],
+            "localized_subtitle": (
+                [{"lang": lang, "text": subtitle}] if subtitle else []
+            ),
             "localized_description": [{"lang": lang, "text": brief}] if brief else [],
             "orig_title": orig_title,
             "author": authors,

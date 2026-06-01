@@ -315,6 +315,25 @@ class TestGoogleBooks:
         ]
         assert site.resource.item.display_title == "1984 Nineteen Eighty-Four"
 
+    @use_local_response
+    def test_scrape_without_language(self):
+        # A volume that omits the `language` tag must not crash: the localized
+        # label `lang` falls back to detection instead of an empty list, which
+        # would fail LocalizedLabelSchema (lang must be a string).
+        t_url = "https://books.google.com/books?id=nolang_test_id"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready is True
+        assert site.resource is not None
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        lt = site.resource.item.localized_title
+        assert len(lt) == 1
+        assert lt[0]["text"] == "A Book Without Language"
+        assert isinstance(lt[0]["lang"], str) and lt[0]["lang"]
+        assert site.resource.item.display_title == "A Book Without Language"
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestBooksTW:

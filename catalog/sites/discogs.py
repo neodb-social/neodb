@@ -28,6 +28,8 @@ class DiscogsRelease(AbstractSite):
     def scrape(self):
         release = get_discogs_data("releases", self.id_value)
         title = release.get("title")
+        if not title:
+            raise ParseError(self, "title")
         artist = [artist.get("name") for artist in release.get("artists")]
         genre = release.get("genres", [])
         track_list = [track.get("title") for track in release.get("tracklist")]
@@ -89,6 +91,8 @@ class DiscogsMaster(AbstractSite):
     def scrape(self):
         master_release = get_discogs_data("masters", self.id_value)
         title = master_release.get("title")
+        if not title:
+            raise ParseError(self, "title")
         artist = [artist.get("name") for artist in master_release.get("artists")]
         genre = master_release.get("genres", [])
         track_list = [track.get("title") for track in master_release.get("tracklist")]

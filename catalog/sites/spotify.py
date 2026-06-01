@@ -48,6 +48,8 @@ class Spotify(AbstractSite):
         txt: str = content.xpath("//script[@type='application/ld+json']/text()")[0]
         schema_data = json.loads(txt)
         title = schema_data["name"]
+        if not title:
+            raise ParseError(self, "title")
         localized_title = [{"lang": detect_language(title), "text": title}]
         localized_desc = []
         release_date = schema_data.get("datePublished", None)
@@ -82,6 +84,8 @@ class Spotify(AbstractSite):
             artist.append(artist_dict["name"])
 
         title = res_data["name"]
+        if not title:
+            raise ParseError(self, "title")
 
         genre = res_data.get("genres", [])
 

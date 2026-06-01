@@ -8,7 +8,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import isbn_10_to_13
 from catalog.search import *
-from common.models import SiteConfig
+from common.models import SiteConfig, detect_language
 
 
 @SiteManager.register
@@ -86,12 +86,19 @@ class GoogleBooks(AbstractSite):
         isbn = isbn13 if isbn13 is not None else isbn_10_to_13(isbn10)
 
         raw_img, ext = BasicImageDownloader.download_image(img_url, None, headers={})
+        # `language` is "" when the volume omits a language tag; the localized
+        # label `lang` must be a non-empty string, so fall back to detection.
+        label_lang = (
+            language
+            if isinstance(language, str) and language
+            else detect_language(title)
+        )
         data = {
             "title": title,
-            "localized_title": [{"lang": language, "text": title}],
+            "localized_title": [{"lang": label_lang, "text": title}],
             "subtitle": subtitle,
             "localized_subtitle": (
-                [{"lang": language, "text": subtitle}] if subtitle else []
+                [{"lang": label_lang, "text": subtitle}] if subtitle else []
             ),
             "orig_title": None,
             "author": authors,
@@ -105,7 +112,7 @@ class GoogleBooks(AbstractSite):
             "isbn": isbn,
             # "brief": brief,
             "localized_description": (
-                [{"lang": language, "text": brief}] if brief else []
+                [{"lang": label_lang, "text": brief}] if brief else []
             ),
             "contents": None,
             "other_info": other,
