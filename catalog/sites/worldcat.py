@@ -185,12 +185,12 @@ class WorldCat(AbstractSite):
         if isinstance(in_language, dict):
             in_language = in_language.get("name", "")
 
-        # Fallback to detection if not provided
+        # Fall back to detection when the language is missing, not a string
+        # (e.g. a JSON-LD list of languages), or unrecognized -- otherwise
+        # normalize_language() can return None and fail LocalizedLabelSchema.
         lang = (
-            normalize_language(in_language)
-            if in_language
-            else detect_language((title or "") + " " + (description or ""))
-        )
+            normalize_language(in_language) if isinstance(in_language, str) else None
+        ) or detect_language((title or "") + " " + (description or ""))
 
         # Try to get cover image from Open Graph or other meta tags
         cover_image_url = None

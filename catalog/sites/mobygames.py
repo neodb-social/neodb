@@ -56,7 +56,11 @@ class MobyGames(AbstractSite):
         if isinstance(alt_names, str):
             alt_names = [alt_names]
         for alt in alt_names:
-            if alt and not any(e["text"] == alt for e in localized_title):
+            if (
+                isinstance(alt, str)
+                and alt
+                and not any(e["text"] == alt for e in localized_title)
+            ):
                 localized_title.append({"lang": detect_language(alt), "text": alt})
 
         # Description from the in-page description block (preferred) or meta tag
