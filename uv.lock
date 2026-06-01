@@ -1845,7 +1845,7 @@ requires-dist = [
     { name = "pycountry", specifier = ">=23.12.11" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.7.1" },
     { name = "pydantic-settings", specifier = ">=2.2.1" },
-    { name = "pyld", git = "https://github.com/neodb-social/pyld.git?rev=a4834df24c8163b15cee3a27a55a2af5d3fbbd75" },
+    { name = "pyld", git = "https://github.com/neodb-social/pyld.git?rev=e1de216d9fba39cf5f01223e862a010e05d33223" },
     { name = "pymemcache", specifier = ">=4.0.0" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "pywebpush", specifier = ">=2.0.0" },
@@ -2312,7 +2312,7 @@ wheels = [
 [[package]]
 name = "pyld"
 version = "3.1.0.dev0"
-source = { git = "https://github.com/neodb-social/pyld.git?rev=a4834df24c8163b15cee3a27a55a2af5d3fbbd75#a4834df24c8163b15cee3a27a55a2af5d3fbbd75" }
+source = { git = "https://github.com/neodb-social/pyld.git?rev=e1de216d9fba39cf5f01223e862a010e05d33223#e1de216d9fba39cf5f01223e862a010e05d33223" }
 dependencies = [
     { name = "cachetools" },
     { name = "frozendict" },
