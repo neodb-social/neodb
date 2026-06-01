@@ -338,20 +338,24 @@ class Index:
                 c += 1
         return c
 
-    def insert_docs(self, docs: List[dict]):
+    def insert_docs(self, docs: List[dict]) -> int:
         if not docs:
-            return False
+            return 0
         try:
             rs = self.write_collection.documents.import_(docs)
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
-            return
+            return 0
+        c = 0
         for r in rs:
             e = r.get("error", None)
             if e:
                 logger.error(f"Typesense: {self.name} import error {e}")
                 if settings.DEBUG:
                     logger.error(f"Typesense: {r}")
+            else:
+                c += 1
+        return c
 
     def delete_docs(self, field: str, values: Iterable[int | str] | int | str) -> int:
         v: str = (
@@ -410,7 +414,11 @@ class Index:
             logger.error(f"Typesense: error {e}")
             return self._error_result(str(e))
         results = r.get("results") if isinstance(r, dict) else None
-        if not results:
+        if (
+            not isinstance(results, list)
+            or not results
+            or not isinstance(results[0], dict)
+        ):
             logger.error(f"Typesense: search {self.name} invalid response {r}")
             return self._error_result("invalid response")
         sr = self.search_result_class(self, results[0])
