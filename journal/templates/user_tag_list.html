@@ -18,12 +18,12 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <h5>{% trans 'All Tags' %}</h5>
+        <h5>{% trans 'Tag List' %}</h5>
         <div class="tag-list">
           {% for v in tags %}
             <span style="margin-right:2em; white-space: nowrap;">
               <span>
-                <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}">
+                <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}{% if category %}?category={{ category.value }}{% endif %}">
                   {% if v.pinned %}
                     <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
                   {% endif %}
@@ -40,7 +40,7 @@
           {% endfor %}
         </div>
       </div>
-      {% include "_sidebar.html" with show_profile=1 %}
+      {% include "_sidebar.html" with show_profile=1 sidebar_template="_sidebar_user_tag_filter.html" %}
     </main>
     {% include "_footer.html" %}
   </body>

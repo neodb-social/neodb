@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-23 13:12-0400\n"
+"POT-Creation-Date: 2026-06-02 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -628,7 +628,7 @@ msgid "platform"
 msgstr ""
 
 #: catalog/models/game.py:159 catalog/models/movie.py:160
-#: catalog/models/people.py:157 catalog/models/performance.py:259
+#: catalog/models/people.py:156 catalog/models/performance.py:259
 #: catalog/models/performance.py:471 catalog/models/podcast.py:87
 #: catalog/models/tv.py:235 catalog/models/tv.py:478
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
@@ -712,12 +712,12 @@ msgstr ""
 msgid "troupe"
 msgstr ""
 
-#: catalog/models/item.py:149 catalog/models/people.py:472
+#: catalog/models/item.py:149 catalog/models/people.py:448
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr ""
 
-#: catalog/models/item.py:150 catalog/models/people.py:134
+#: catalog/models/item.py:150 catalog/models/people.py:133
 #: catalog/models/performance.py:115 catalog/models/performance.py:130
 #: users/models/webauthn.py:14
 msgid "name"
@@ -737,7 +737,7 @@ msgstr ""
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:253 catalog/models/people.py:480
+#: catalog/models/item.py:253 catalog/models/people.py:456
 msgid "metadata"
 msgstr ""
 
@@ -832,127 +832,127 @@ msgstr ""
 msgid "number of discs"
 msgstr ""
 
-#: catalog/models/people.py:31
+#: catalog/models/people.py:30
 msgid "Person"
 msgstr ""
 
-#: catalog/models/people.py:32
+#: catalog/models/people.py:31
 msgid "Organization"
 msgstr ""
 
-#: catalog/models/people.py:37
+#: catalog/models/people.py:36
 msgid "Author"
 msgstr ""
 
-#: catalog/models/people.py:38
+#: catalog/models/people.py:37
 msgid "Translator"
 msgstr ""
 
-#: catalog/models/people.py:39
+#: catalog/models/people.py:38
 msgid "Performer"
 msgstr ""
 
-#: catalog/models/people.py:40
+#: catalog/models/people.py:39
 msgid "Actor"
 msgstr ""
 
-#: catalog/models/people.py:41
+#: catalog/models/people.py:40
 msgid "Director"
 msgstr ""
 
-#: catalog/models/people.py:42
+#: catalog/models/people.py:41
 msgid "Composer"
 msgstr ""
 
-#: catalog/models/people.py:43
+#: catalog/models/people.py:42
 msgid "Artist"
 msgstr ""
 
-#: catalog/models/people.py:44
+#: catalog/models/people.py:43
 msgid "Voice Actor"
 msgstr ""
 
-#: catalog/models/people.py:45
+#: catalog/models/people.py:44
 msgid "Host"
 msgstr ""
 
-#: catalog/models/people.py:46
+#: catalog/models/people.py:45
 msgid "Playwright"
 msgstr ""
 
-#: catalog/models/people.py:47
+#: catalog/models/people.py:46
 msgid "Designer"
 msgstr ""
 
-#: catalog/models/people.py:48
+#: catalog/models/people.py:47
 msgid "Choreographer"
 msgstr ""
 
-#: catalog/models/people.py:49
+#: catalog/models/people.py:48
 msgid "Original Creator"
 msgstr ""
 
-#: catalog/models/people.py:50
+#: catalog/models/people.py:49
 msgid "Producer"
 msgstr ""
 
-#: catalog/models/people.py:53
+#: catalog/models/people.py:52
 msgid "Publisher"
 msgstr ""
 
-#: catalog/models/people.py:54
+#: catalog/models/people.py:53
 msgid "Distributor"
 msgstr ""
 
-#: catalog/models/people.py:55
+#: catalog/models/people.py:54
 msgid "Production Company"
 msgstr ""
 
-#: catalog/models/people.py:56
+#: catalog/models/people.py:55
 msgid "Record Label"
 msgstr ""
 
-#: catalog/models/people.py:57 common/templates/_footer.html:9
+#: catalog/models/people.py:56 common/templates/_footer.html:9
 msgid "Developer"
 msgstr ""
 
-#: catalog/models/people.py:58
+#: catalog/models/people.py:57
 msgid "Studio"
 msgstr ""
 
-#: catalog/models/people.py:59
+#: catalog/models/people.py:58
 msgid "Publishing House"
 msgstr ""
 
-#: catalog/models/people.py:60
+#: catalog/models/people.py:59
 msgid "Troupe"
 msgstr ""
 
-#: catalog/models/people.py:61
+#: catalog/models/people.py:60
 msgid "Crew"
 msgstr ""
 
-#: catalog/models/people.py:130
+#: catalog/models/people.py:129
 msgid "type"
 msgstr ""
 
-#: catalog/models/people.py:142
+#: catalog/models/people.py:141
 msgid "bio"
 msgstr ""
 
-#: catalog/models/people.py:151
+#: catalog/models/people.py:150
 msgid "date of birth"
 msgstr ""
 
-#: catalog/models/people.py:154
+#: catalog/models/people.py:153
 msgid "date of death"
 msgstr ""
 
-#: catalog/models/people.py:474
+#: catalog/models/people.py:450
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:478
+#: catalog/models/people.py:454
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -1960,32 +1960,32 @@ msgstr ""
 
 #: catalog/views/edit.py:214 catalog/views/edit.py:268
 #: catalog/views/edit.py:386 catalog/views/edit.py:475
-#: catalog/views/edit.py:507 journal/views/article.py:32
-#: journal/views/article.py:112 journal/views/collection.py:237
-#: journal/views/collection.py:298 journal/views/collection.py:317
-#: journal/views/collection.py:341 journal/views/collection.py:414
-#: journal/views/collection.py:450 journal/views/collection.py:488
-#: journal/views/collection.py:500 journal/views/collection.py:525
-#: journal/views/collection.py:528 journal/views/collection.py:569
-#: journal/views/common.py:265 journal/views/mark.py:241
-#: journal/views/post.py:57 journal/views/post.py:77 journal/views/post.py:99
-#: journal/views/post.py:163 journal/views/post.py:191
-#: journal/views/post.py:264 journal/views/post.py:279
-#: journal/views/post.py:385 journal/views/post.py:536
-#: journal/views/review.py:51 journal/views/review.py:68
-#: journal/views/review.py:93
+#: catalog/views/edit.py:507 journal/views/article.py:33
+#: journal/views/article.py:114 journal/views/collection.py:238
+#: journal/views/collection.py:299 journal/views/collection.py:318
+#: journal/views/collection.py:342 journal/views/collection.py:415
+#: journal/views/collection.py:451 journal/views/collection.py:489
+#: journal/views/collection.py:501 journal/views/collection.py:526
+#: journal/views/collection.py:529 journal/views/collection.py:570
+#: journal/views/common.py:268 journal/views/mark.py:245
+#: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
+#: journal/views/post.py:165 journal/views/post.py:194
+#: journal/views/post.py:267 journal/views/post.py:282
+#: journal/views/post.py:389 journal/views/post.py:541
+#: journal/views/review.py:52 journal/views/review.py:69
+#: journal/views/review.py:94
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:271 catalog/views/edit.py:274
-#: journal/views/collection.py:74 journal/views/collection.py:99
-#: journal/views/collection.py:505 journal/views/collection.py:599
-#: journal/views/common.py:194 journal/views/mark.py:167
-#: journal/views/post.py:111 journal/views/post.py:113
-#: journal/views/post.py:159 journal/views/post.py:178
-#: journal/views/post.py:180 journal/views/post.py:220
-#: journal/views/post.py:233 journal/views/review.py:141
-#: journal/views/review.py:144 users/views/actions.py:171
+#: journal/views/collection.py:75 journal/views/collection.py:100
+#: journal/views/collection.py:506 journal/views/collection.py:601
+#: journal/views/common.py:196 journal/views/mark.py:171
+#: journal/views/post.py:112 journal/views/post.py:114
+#: journal/views/post.py:161 journal/views/post.py:180
+#: journal/views/post.py:182 journal/views/post.py:223
+#: journal/views/post.py:236 journal/views/review.py:142
+#: journal/views/review.py:146 users/views/actions.py:171
 msgid "Invalid parameter"
 msgstr ""
 
@@ -3671,7 +3671,7 @@ msgid "Access denied"
 msgstr ""
 
 #: common/utils.py:103 common/utils.py:105 journal/views/profile.py:486
-#: journal/views/review.py:184
+#: journal/views/review.py:186
 msgid "Login required"
 msgstr ""
 
@@ -4296,7 +4296,7 @@ msgid "Content (Markdown)"
 msgstr ""
 
 #: journal/forms.py:41 journal/forms.py:195 journal/templates/comment.html:62
-#: journal/templates/mark.html:115 journal/views/note.py:28
+#: journal/templates/mark.html:115 journal/views/note.py:29
 msgid "Crosspost to timeline"
 msgstr ""
 
@@ -4360,7 +4360,7 @@ msgid "Rating"
 msgstr ""
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:443 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr ""
@@ -4370,26 +4370,26 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/importers/rym.py:169
+#: journal/importers/rym.py:168
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:179
+#: journal/importers/rym.py:178
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/importers/rym.py:234
+#: journal/importers/rym.py:233
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:349
+#: journal/importers/rym.py:348
 msgid "Matched file missing; cannot import."
 msgstr ""
 
-#: journal/importers/rym.py:377
+#: journal/importers/rym.py:376
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
@@ -4466,7 +4466,7 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/common.py:45 journal/templates/action_open_post.html:15
+#: journal/models/common.py:47 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4480,7 +4480,7 @@ msgstr[1] ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:46 journal/templates/action_open_post.html:9
+#: journal/models/common.py:48 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4493,7 +4493,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:47 journal/templates/collection_share.html:57
+#: journal/models/common.py:49 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4506,19 +4506,19 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:485
+#: journal/models/common.py:491
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:512
+#: journal/models/common.py:523
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:546
+#: journal/models/common.py:562
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:553
+#: journal/models/common.py:570
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -5125,11 +5125,15 @@ msgstr ""
 msgid "rating"
 msgstr ""
 
+#: journal/templates/_sidebar_user_tag_filter.html:21
+msgid "All Categories"
+msgstr ""
+
 #: journal/templates/action_boost_post.html:9
 msgid "Boost this post?"
 msgstr ""
 
-#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:664
+#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:677
 msgid "Boost"
 msgstr ""
 
@@ -5488,7 +5492,7 @@ msgstr ""
 msgid "Articles"
 msgstr ""
 
-#: journal/templates/profile.html:153 journal/views/collection.py:384
+#: journal/templates/profile.html:153 journal/views/collection.py:385
 #: journal/views/profile.py:385
 msgid "collection"
 msgstr ""
@@ -5553,7 +5557,7 @@ msgid "Mutuals"
 msgstr ""
 
 #: journal/templates/user_tag_list.html:21
-msgid "All Tags"
+msgid "Tag List"
 msgstr ""
 
 #: journal/templates/wrapped.html:41
@@ -5577,38 +5581,38 @@ msgstr ""
 msgid "#%(year)s_report"
 msgstr ""
 
-#: journal/views/collection.py:56 journal/views/collection.py:93
+#: journal/views/collection.py:57 journal/views/collection.py:94
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr ""
 
-#: journal/views/collection.py:389
+#: journal/views/collection.py:390
 msgid "shared my collection"
 msgstr ""
 
-#: journal/views/collection.py:392
+#: journal/views/collection.py:393
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:452 journal/views/collection.py:490
-#: journal/views/collection.py:502 journal/views/collection.py:530
+#: journal/views/collection.py:453 journal/views/collection.py:491
+#: journal/views/collection.py:503 journal/views/collection.py:531
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:467
+#: journal/views/collection.py:468
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:469
+#: journal/views/collection.py:470
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:515
+#: journal/views/collection.py:516
 msgid "Saved."
 msgstr ""
 
-#: journal/views/common.py:147 journal/views/mark.py:131
+#: journal/views/common.py:147 journal/views/mark.py:134
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
@@ -5620,103 +5624,103 @@ msgstr ""
 msgid "List not found."
 msgstr ""
 
-#: journal/views/mark.py:122
+#: journal/views/mark.py:125
 msgid "Content too long for your Fediverse instance."
 msgstr ""
 
-#: journal/views/mark.py:149
+#: journal/views/mark.py:153
 msgid "Invalid input"
 msgstr ""
 
-#: journal/views/mark.py:189 journal/views/mark.py:239
-#: journal/views/note.py:100 journal/views/review.py:49
-#: journal/views/review.py:66
+#: journal/views/mark.py:193 journal/views/mark.py:243
+#: journal/views/note.py:101 journal/views/review.py:50
+#: journal/views/review.py:67
 msgid "Content not found"
 msgstr ""
 
-#: journal/views/note.py:46
+#: journal/views/note.py:47
 msgid "Progress (optional)"
 msgstr ""
 
-#: journal/views/note.py:48
+#: journal/views/note.py:49
 msgid "Note Content"
 msgstr ""
 
-#: journal/views/note.py:50
+#: journal/views/note.py:51
 msgid "Content Warning (optional)"
 msgstr ""
 
-#: journal/views/note.py:68
+#: journal/views/note.py:69
 msgid "Progress Type (optional)"
 msgstr ""
 
-#: journal/views/note.py:111
+#: journal/views/note.py:112
 msgid "Invalid form data"
 msgstr ""
 
-#: journal/views/post.py:97 journal/views/post.py:383
+#: journal/views/post.py:98 journal/views/post.py:387
 msgid "Post not found"
 msgstr ""
 
-#: journal/views/post.py:182
+#: journal/views/post.py:184
 msgid "Visibility too high for quoting this post"
 msgstr ""
 
-#: journal/views/post.py:329 journal/views/post.py:409
+#: journal/views/post.py:332 journal/views/post.py:413
 msgid "Content cannot be empty."
 msgstr ""
 
-#: journal/views/post.py:387
+#: journal/views/post.py:391
 msgid "This post cannot be edited here"
 msgstr ""
 
-#: journal/views/post.py:528
+#: journal/views/post.py:533
 msgid "Invalid choices"
 msgstr ""
 
-#: journal/views/post.py:531
+#: journal/views/post.py:536
 msgid "Invalid post"
 msgstr ""
 
-#: journal/views/review.py:166
+#: journal/views/review.py:168
 msgid "User not local"
 msgstr ""
 
-#: journal/views/review.py:172 journal/views/review.py:186
+#: journal/views/review.py:174 journal/views/review.py:188
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr ""
 
-#: journal/views/review.py:174 journal/views/review.py:182
+#: journal/views/review.py:176 journal/views/review.py:184
 msgid "Link invalid"
 msgstr ""
 
-#: journal/views/review.py:195
+#: journal/views/review.py:197
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr ""
 
-#: journal/views/review.py:199
+#: journal/views/review.py:201
 msgid "may contain spoiler or triggering content"
 msgstr ""
 
-#: journal/views/tag.py:42 journal/views/tag.py:56
+#: journal/views/tag.py:47 journal/views/tag.py:61
 msgid "Invalid tag"
 msgstr ""
 
-#: journal/views/tag.py:45
+#: journal/views/tag.py:50
 msgid "Tag not found"
 msgstr ""
 
-#: journal/views/tag.py:67
+#: journal/views/tag.py:72
 msgid "Tag deleted."
 msgstr ""
 
-#: journal/views/tag.py:77
+#: journal/views/tag.py:82
 msgid "Duplicated tag."
 msgstr ""
 
-#: journal/views/tag.py:91
+#: journal/views/tag.py:96
 msgid "Tag updated."
 msgstr ""
 
@@ -5783,43 +5787,43 @@ msgid ""
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
 
-#: mastodon/models/mastodon.py:541
+#: mastodon/models/mastodon.py:554
 msgid "site domain name"
 msgstr ""
 
-#: mastodon/models/mastodon.py:542
+#: mastodon/models/mastodon.py:555
 msgid "domain for api call"
 msgstr ""
 
-#: mastodon/models/mastodon.py:543
+#: mastodon/models/mastodon.py:556
 msgid "type and verion"
 msgstr ""
 
-#: mastodon/models/mastodon.py:544
+#: mastodon/models/mastodon.py:557
 msgid "in-site app id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:545
+#: mastodon/models/mastodon.py:558
 msgid "client id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:546
+#: mastodon/models/mastodon.py:559
 msgid "client secret"
 msgstr ""
 
-#: mastodon/models/mastodon.py:547
+#: mastodon/models/mastodon.py:560
 msgid "vapid key"
 msgstr ""
 
-#: mastodon/models/mastodon.py:549
+#: mastodon/models/mastodon.py:562
 msgid "0: unicode moon; 1: custom emoji"
 msgstr ""
 
-#: mastodon/models/mastodon.py:552
+#: mastodon/models/mastodon.py:565
 msgid "max toot len"
 msgstr ""
 
-#: mastodon/models/mastodon.py:665
+#: mastodon/models/mastodon.py:678
 msgid "New Post"
 msgstr ""
 

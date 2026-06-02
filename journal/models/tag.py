@@ -6,10 +6,15 @@ from typing import TYPE_CHECKING, Sequence
 from django.core.cache import cache
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count, F, Max
+from django.db.models import Count, F, Max, Q
 from django.utils import timezone
 
-from catalog.models import Item
+from catalog.models import (
+    Item,
+    ItemCategory,
+    item_categories,
+    item_content_types,
+)
 from users.models import APIdentity
 
 from .itemlist import List, ListMember
@@ -177,9 +182,25 @@ class TagManager:
     def __init__(self, owner):
         self.owner = owner
 
-    def get_tags(self, public_only=False, pinned_only=False):
+    def get_tags(
+        self,
+        public_only=False,
+        pinned_only=False,
+        category: ItemCategory | None = None,
+    ):
         tags = self.owner.tag_set.all()
-        tags = tags.annotate(total=Count("members")).order_by("-total")
+        if category:
+            ct = item_content_types()
+            contenttype_ids = [ct[cls] for cls in item_categories()[category]]
+            tags = tags.annotate(
+                total=Count(
+                    "members",
+                    filter=Q(members__item__polymorphic_ctype__in=contenttype_ids),
+                )
+            ).filter(total__gt=0)
+        else:
+            tags = tags.annotate(total=Count("members"))
+        tags = tags.order_by("-total")
         if public_only:
             tags = tags.filter(visibility=0)
         if pinned_only:

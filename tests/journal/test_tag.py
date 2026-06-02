@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from catalog.models import Edition
+from catalog.models import Edition, ItemCategory, Movie
 from journal.models import Tag, TagManager
 from journal.models.tag import TagMember
 from users.models import User
@@ -57,6 +57,32 @@ def test_append_item_recovers_from_duplicate_race():
     assert created_again is False
     assert recovered.pk == winner.pk
     assert TagMember.objects.filter(parent=tag, item=book).count() == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_get_tags_filtered_by_category():
+    """get_tags(category=...) narrows tags to those with members in the
+    category, and counts only members of that category."""
+    owner = User.register(email="cat@example.com", username="catowner")
+    book = Edition.objects.create(title="A Book")
+    movie = Movie.objects.create(title="A Movie")
+
+    shared = Tag.objects.create(owner=owner.identity, title="shared", visibility=0)
+    book_only = Tag.objects.create(owner=owner.identity, title="bookonly", visibility=0)
+    shared.append_item(book)
+    shared.append_item(movie)
+    book_only.append_item(book)
+
+    mgr = owner.identity.tag_manager
+
+    all_tags = {t.title: t.total for t in mgr.get_tags()}
+    assert all_tags == {"shared": 2, "bookonly": 1}
+
+    book_tags = {t.title: t.total for t in mgr.get_tags(category=ItemCategory.Book)}
+    assert book_tags == {"shared": 1, "bookonly": 1}
+
+    movie_tags = {t.title: t.total for t in mgr.get_tags(category=ItemCategory.Movie)}
+    assert movie_tags == {"shared": 1}
 
 
 @pytest.mark.django_db(databases="__all__")

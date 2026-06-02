@@ -21,7 +21,11 @@ PAGE_SIZE = 10
 @target_identity_required
 def user_tag_list(request, user_name):
     target: APIdentity = request.target_identity
-    tags = target.tag_manager.get_tags(public_only=target.user != request.user)
+    category = request.GET.get("category") or ""
+    item_category = ItemCategory(category) if category in ItemCategory.values else None
+    tags = target.tag_manager.get_tags(
+        public_only=target.user != request.user, category=item_category
+    )
     return render(
         request,
         "user_tag_list.html",
@@ -29,6 +33,7 @@ def user_tag_list(request, user_name):
             "user": target.user,
             "identity": target,
             "tags": tags,
+            "category": item_category,
         },
     )
 
@@ -98,4 +103,12 @@ def user_tag_edit(request):
 
 
 def user_tag_member_list(request, user_name, tag_title):
-    return render_list(request, user_name, "tagmember", tag_title=tag_title)
+    category = request.GET.get("category") or ""
+    item_category = ItemCategory(category) if category in ItemCategory.values else None
+    return render_list(
+        request,
+        user_name,
+        "tagmember",
+        item_category=item_category,
+        tag_title=tag_title,
+    )

@@ -1,0 +1,31 @@
+{% load duration %}
+{% load i18n %}
+<section class="filter">
+  <script>
+		function filter() {
+      var params = new URLSearchParams(window.location.search);
+      var c = $('#category')[0].value;
+      if (c) {
+        params.set('category', c)
+      } else {
+        params.delete('category')
+      }
+      params.delete('page')
+      var qs = params.toString();
+      location = window.location.pathname + (qs ? '?' + qs : '')
+		}
+  </script>
+  <form method="get" action="">
+    <fieldset role="search" style="width: 100%;">
+      <select name="category" id="category" onchange="filter()">
+        <option value="" {% if not category %}selected{% endif %}>{% trans "All Categories" %}</option>
+        {% visible_categories as cats %}
+        {% for c in cats %}
+          {% if c.value != 'people' and c.value != 'collection' %}
+            <option value="{{ c.value }}" {% if category == c %}selected{% endif %}>{{ c.label }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </fieldset>
+  </form>
+</section>

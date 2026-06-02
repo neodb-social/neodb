@@ -1,9 +1,10 @@
 import pytest
 import requests
 from django.test import Client
+from django.urls import reverse
 
-from catalog.models import Edition
-from journal.models import Collection, Mark, Review, ShelfType
+from catalog.models import Edition, Movie
+from journal.models import Collection, Mark, Review, ShelfType, Tag
 from users.models import User
 
 
@@ -62,3 +63,34 @@ def test_post_review_collection_and_profile_pages(live_server):
     )
     response = requests.get(f"{live_server.url}{collection2.url}", timeout=5)
     assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_pages_category_filter():
+    user = User.register(email="tagpage@example.com", username="tagpageuser")
+    book = Edition.objects.create(title="Tag Page Book")
+    movie = Movie.objects.create(title="Tag Page Movie")
+    tag = Tag.objects.create(owner=user.identity, title="mixed", visibility=0)
+    tag.append_item(book)
+    tag.append_item(movie)
+
+    client = Client()
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    handle = user.identity.handle
+
+    list_url = reverse("journal:user_tag_list", args=[handle])
+    assert client.get(list_url).status_code == 200
+    assert client.get(list_url, {"category": "book"}).status_code == 200
+    # an invalid category is ignored, not an error
+    assert client.get(list_url, {"category": "bogus"}).status_code == 200
+
+    member_url = reverse("journal:user_tag_member_list", args=[handle, "mixed"])
+    response = client.get(member_url)
+    assert response.status_code == 200
+    assert b"Tag Page Book" in response.content
+    assert b"Tag Page Movie" in response.content
+
+    response = client.get(member_url, {"category": "book"})
+    assert response.status_code == 200
+    assert b"Tag Page Book" in response.content
+    assert b"Tag Page Movie" not in response.content

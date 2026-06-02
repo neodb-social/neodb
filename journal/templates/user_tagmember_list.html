@@ -29,3 +29,6 @@
   {{ tag.title }}
   <br>
 {% endblock %}
+{% block sidebar %}
+  {% include "_sidebar.html" with show_profile=1 sidebar_template="_sidebar_user_tag_filter.html" %}
+{% endblock %}

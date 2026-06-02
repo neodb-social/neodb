@@ -188,6 +188,8 @@ def render_list(
         if tag.visibility != 0 and target != viewer:
             return render_list_not_found(request)
         queryset = TagMember.objects.filter(parent=tag)
+        if item_category:
+            queryset = queryset.filter(q_item_in_category(item_category))
     elif type == "review" and item_category:
         queryset = Review.objects.filter(q_item_in_category(item_category))
     else:

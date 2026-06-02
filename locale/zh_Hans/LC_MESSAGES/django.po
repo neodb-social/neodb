@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-23 13:12-0400\n"
+"POT-Creation-Date: 2026-06-02 11:33+0200\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -627,7 +627,7 @@ msgid "platform"
 msgstr "平台"
 
 #: catalog/models/game.py:159 catalog/models/movie.py:160
-#: catalog/models/people.py:157 catalog/models/performance.py:259
+#: catalog/models/people.py:156 catalog/models/performance.py:259
 #: catalog/models/performance.py:471 catalog/models/podcast.py:87
 #: catalog/models/tv.py:235 catalog/models/tv.py:478
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
@@ -711,12 +711,12 @@ msgstr "工作室"
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:149 catalog/models/people.py:472
+#: catalog/models/item.py:149 catalog/models/people.py:448
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:150 catalog/models/people.py:134
+#: catalog/models/item.py:150 catalog/models/people.py:133
 #: catalog/models/performance.py:115 catalog/models/performance.py:130
 #: users/models/webauthn.py:14
 msgid "name"
@@ -736,7 +736,7 @@ msgstr "标题"
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:253 catalog/models/people.py:480
+#: catalog/models/item.py:253 catalog/models/people.py:456
 msgid "metadata"
 msgstr "元数据"
 
@@ -831,127 +831,127 @@ msgstr "介质类型"
 msgid "number of discs"
 msgstr "碟片数"
 
-#: catalog/models/people.py:31
+#: catalog/models/people.py:30
 msgid "Person"
 msgstr "人物"
 
-#: catalog/models/people.py:32
+#: catalog/models/people.py:31
 msgid "Organization"
 msgstr "团体"
 
-#: catalog/models/people.py:37
+#: catalog/models/people.py:36
 msgid "Author"
 msgstr "作者"
 
-#: catalog/models/people.py:38
+#: catalog/models/people.py:37
 msgid "Translator"
 msgstr "译者"
 
-#: catalog/models/people.py:39
+#: catalog/models/people.py:38
 msgid "Performer"
 msgstr "表演者"
 
-#: catalog/models/people.py:40
+#: catalog/models/people.py:39
 msgid "Actor"
 msgstr "演员"
 
-#: catalog/models/people.py:41
+#: catalog/models/people.py:40
 msgid "Director"
 msgstr "导演"
 
-#: catalog/models/people.py:42
+#: catalog/models/people.py:41
 msgid "Composer"
 msgstr "作曲"
 
-#: catalog/models/people.py:43
+#: catalog/models/people.py:42
 msgid "Artist"
 msgstr "艺术家"
 
-#: catalog/models/people.py:44
+#: catalog/models/people.py:43
 msgid "Voice Actor"
 msgstr "声优"
 
-#: catalog/models/people.py:45
+#: catalog/models/people.py:44
 msgid "Host"
 msgstr "主持人"
 
-#: catalog/models/people.py:46
+#: catalog/models/people.py:45
 msgid "Playwright"
 msgstr "编剧"
 
-#: catalog/models/people.py:47
+#: catalog/models/people.py:46
 msgid "Designer"
 msgstr "设计师"
 
-#: catalog/models/people.py:48
+#: catalog/models/people.py:47
 msgid "Choreographer"
 msgstr "编舞"
 
-#: catalog/models/people.py:49
+#: catalog/models/people.py:48
 msgid "Original Creator"
 msgstr "原作者"
 
-#: catalog/models/people.py:50
+#: catalog/models/people.py:49
 msgid "Producer"
 msgstr "制片人"
 
-#: catalog/models/people.py:53
+#: catalog/models/people.py:52
 msgid "Publisher"
 msgstr "出版商"
 
-#: catalog/models/people.py:54
+#: catalog/models/people.py:53
 msgid "Distributor"
 msgstr "发行商"
 
-#: catalog/models/people.py:55
+#: catalog/models/people.py:54
 msgid "Production Company"
 msgstr "制作公司"
 
-#: catalog/models/people.py:56
+#: catalog/models/people.py:55
 msgid "Record Label"
 msgstr "唱片公司"
 
-#: catalog/models/people.py:57 common/templates/_footer.html:9
+#: catalog/models/people.py:56 common/templates/_footer.html:9
 msgid "Developer"
 msgstr "开发者"
 
-#: catalog/models/people.py:58
+#: catalog/models/people.py:57
 msgid "Studio"
 msgstr "工作室"
 
-#: catalog/models/people.py:59
+#: catalog/models/people.py:58
 msgid "Publishing House"
 msgstr "出版社"
 
-#: catalog/models/people.py:60
+#: catalog/models/people.py:59
 msgid "Troupe"
 msgstr "剧团"
 
-#: catalog/models/people.py:61
+#: catalog/models/people.py:60
 msgid "Crew"
 msgstr "制作人员"
 
-#: catalog/models/people.py:130
+#: catalog/models/people.py:129
 msgid "type"
 msgstr "类型"
 
-#: catalog/models/people.py:142
+#: catalog/models/people.py:141
 msgid "bio"
 msgstr "简介"
 
-#: catalog/models/people.py:151
+#: catalog/models/people.py:150
 msgid "date of birth"
 msgstr "出生日期"
 
-#: catalog/models/people.py:154
+#: catalog/models/people.py:153
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:474
+#: catalog/models/people.py:450
 msgid "character"
 msgstr "角色"
 
-#: catalog/models/people.py:478
+#: catalog/models/people.py:454
 msgid "Character name for actor roles"
 msgstr "演员饰演的角色名称"
 
@@ -1959,32 +1959,32 @@ msgstr "条目不可被删除。"
 
 #: catalog/views/edit.py:214 catalog/views/edit.py:268
 #: catalog/views/edit.py:386 catalog/views/edit.py:475
-#: catalog/views/edit.py:507 journal/views/article.py:32
-#: journal/views/article.py:112 journal/views/collection.py:237
-#: journal/views/collection.py:298 journal/views/collection.py:317
-#: journal/views/collection.py:341 journal/views/collection.py:414
-#: journal/views/collection.py:450 journal/views/collection.py:488
-#: journal/views/collection.py:500 journal/views/collection.py:525
-#: journal/views/collection.py:528 journal/views/collection.py:569
-#: journal/views/common.py:265 journal/views/mark.py:241
-#: journal/views/post.py:57 journal/views/post.py:77 journal/views/post.py:99
-#: journal/views/post.py:163 journal/views/post.py:191
-#: journal/views/post.py:264 journal/views/post.py:279
-#: journal/views/post.py:385 journal/views/post.py:536
-#: journal/views/review.py:51 journal/views/review.py:68
-#: journal/views/review.py:93
+#: catalog/views/edit.py:507 journal/views/article.py:33
+#: journal/views/article.py:114 journal/views/collection.py:238
+#: journal/views/collection.py:299 journal/views/collection.py:318
+#: journal/views/collection.py:342 journal/views/collection.py:415
+#: journal/views/collection.py:451 journal/views/collection.py:489
+#: journal/views/collection.py:501 journal/views/collection.py:526
+#: journal/views/collection.py:529 journal/views/collection.py:570
+#: journal/views/common.py:268 journal/views/mark.py:245
+#: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
+#: journal/views/post.py:165 journal/views/post.py:194
+#: journal/views/post.py:267 journal/views/post.py:282
+#: journal/views/post.py:389 journal/views/post.py:541
+#: journal/views/review.py:52 journal/views/review.py:69
+#: journal/views/review.py:94
 msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views/edit.py:271 catalog/views/edit.py:274
-#: journal/views/collection.py:74 journal/views/collection.py:99
-#: journal/views/collection.py:505 journal/views/collection.py:599
-#: journal/views/common.py:194 journal/views/mark.py:167
-#: journal/views/post.py:111 journal/views/post.py:113
-#: journal/views/post.py:159 journal/views/post.py:178
-#: journal/views/post.py:180 journal/views/post.py:220
-#: journal/views/post.py:233 journal/views/review.py:141
-#: journal/views/review.py:144 users/views/actions.py:171
+#: journal/views/collection.py:75 journal/views/collection.py:100
+#: journal/views/collection.py:506 journal/views/collection.py:601
+#: journal/views/common.py:196 journal/views/mark.py:171
+#: journal/views/post.py:112 journal/views/post.py:114
+#: journal/views/post.py:161 journal/views/post.py:180
+#: journal/views/post.py:182 journal/views/post.py:223
+#: journal/views/post.py:236 journal/views/review.py:142
+#: journal/views/review.py:146 users/views/actions.py:171
 msgid "Invalid parameter"
 msgstr "无效参数"
 
@@ -3691,7 +3691,7 @@ msgid "Access denied"
 msgstr "访问被拒绝"
 
 #: common/utils.py:103 common/utils.py:105 journal/views/profile.py:486
-#: journal/views/review.py:184
+#: journal/views/review.py:186
 msgid "Login required"
 msgstr "登录后访问"
 
@@ -4316,7 +4316,7 @@ msgid "Content (Markdown)"
 msgstr "内容 （Markdown格式）"
 
 #: journal/forms.py:41 journal/forms.py:195 journal/templates/comment.html:62
-#: journal/templates/mark.html:115 journal/views/note.py:28
+#: journal/templates/mark.html:115 journal/views/note.py:29
 msgid "Crosspost to timeline"
 msgstr "转发到时间轴"
 
@@ -4380,7 +4380,7 @@ msgid "Rating"
 msgstr "评分"
 
 #: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:443 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr "关于 {item_title} 的评论"
@@ -4390,26 +4390,26 @@ msgstr "关于 {item_title} 的评论"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
-#: journal/importers/rym.py:169
+#: journal/importers/rym.py:168
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr "匹配中：{done}/{total} — 本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:179
+#: journal/importers/rym.py:178
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入中：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/importers/rym.py:234
+#: journal/importers/rym.py:233
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr "匹配完成：本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:349
+#: journal/importers/rym.py:348
 msgid "Matched file missing; cannot import."
 msgstr "匹配文件丢失，无法导入。"
 
-#: journal/importers/rym.py:377
+#: journal/importers/rym.py:376
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
@@ -4486,7 +4486,7 @@ msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 个条目"
 msgstr[1] "%(count)d 个条目"
 
-#: journal/models/common.py:45 journal/templates/action_open_post.html:15
+#: journal/models/common.py:47 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4500,7 +4500,7 @@ msgstr[1] "%(count)d 个条目"
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:46 journal/templates/action_open_post.html:9
+#: journal/models/common.py:48 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4513,7 +4513,7 @@ msgstr "公开"
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:47 journal/templates/collection_share.html:57
+#: journal/models/common.py:49 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4526,19 +4526,19 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:485
+#: journal/models/common.py:491
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:512
+#: journal/models/common.py:523
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:546
+#: journal/models/common.py:562
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:553
+#: journal/models/common.py:570
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5145,11 +5145,15 @@ msgstr "排序"
 msgid "rating"
 msgstr "评分"
 
+#: journal/templates/_sidebar_user_tag_filter.html:21
+msgid "All Categories"
+msgstr "全部分类"
+
 #: journal/templates/action_boost_post.html:9
 msgid "Boost this post?"
 msgstr "转播这则帖文吗？"
 
-#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:664
+#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:677
 msgid "Boost"
 msgstr "转播"
 
@@ -5553,7 +5557,7 @@ msgstr "年度小结"
 msgid "Articles"
 msgstr "文章"
 
-#: journal/templates/profile.html:153 journal/views/collection.py:384
+#: journal/templates/profile.html:153 journal/views/collection.py:385
 #: journal/views/profile.py:385
 msgid "collection"
 msgstr "收藏单"
@@ -5618,8 +5622,8 @@ msgid "Mutuals"
 msgstr "互相关注"
 
 #: journal/templates/user_tag_list.html:21
-msgid "All Tags"
-msgstr "全部标签"
+msgid "Tag List"
+msgstr "标签列表"
 
 #: journal/templates/wrapped.html:41
 msgid "another style"
@@ -5642,38 +5646,38 @@ msgstr "分享年度小结"
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
 
-#: journal/views/collection.py:56 journal/views/collection.py:93
+#: journal/views/collection.py:57 journal/views/collection.py:94
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr "{0} 的收藏单"
 
-#: journal/views/collection.py:389
+#: journal/views/collection.py:390
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: journal/views/collection.py:392
+#: journal/views/collection.py:393
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:452 journal/views/collection.py:490
-#: journal/views/collection.py:502 journal/views/collection.py:530
+#: journal/views/collection.py:453 journal/views/collection.py:491
+#: journal/views/collection.py:503 journal/views/collection.py:531
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:467
+#: journal/views/collection.py:468
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:469
+#: journal/views/collection.py:470
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:515
+#: journal/views/collection.py:516
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:147 journal/views/mark.py:131
+#: journal/views/common.py:147 journal/views/mark.py:134
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
@@ -5685,103 +5689,103 @@ msgstr "正在重定向到你的联邦实例以重新认证。"
 msgid "List not found."
 msgstr "列表未找到。"
 
-#: journal/views/mark.py:122
+#: journal/views/mark.py:125
 msgid "Content too long for your Fediverse instance."
 msgstr "内容过长，超出了你的联邦实例的限制。"
 
-#: journal/views/mark.py:149
+#: journal/views/mark.py:153
 msgid "Invalid input"
 msgstr "无效输入"
 
-#: journal/views/mark.py:189 journal/views/mark.py:239
-#: journal/views/note.py:100 journal/views/review.py:49
-#: journal/views/review.py:66
+#: journal/views/mark.py:193 journal/views/mark.py:243
+#: journal/views/note.py:101 journal/views/review.py:50
+#: journal/views/review.py:67
 msgid "Content not found"
 msgstr "内容未找到"
 
-#: journal/views/note.py:46
+#: journal/views/note.py:47
 msgid "Progress (optional)"
 msgstr "进度（选填）"
 
-#: journal/views/note.py:48
+#: journal/views/note.py:49
 msgid "Note Content"
 msgstr "笔记内容"
 
-#: journal/views/note.py:50
+#: journal/views/note.py:51
 msgid "Content Warning (optional)"
 msgstr "剧透或敏感内容提示（选填）"
 
-#: journal/views/note.py:68
+#: journal/views/note.py:69
 msgid "Progress Type (optional)"
 msgstr "进度类型（选填）"
 
-#: journal/views/note.py:111
+#: journal/views/note.py:112
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 
-#: journal/views/post.py:97 journal/views/post.py:383
+#: journal/views/post.py:98 journal/views/post.py:387
 msgid "Post not found"
 msgstr "帖文未找到"
 
-#: journal/views/post.py:182
+#: journal/views/post.py:184
 msgid "Visibility too high for quoting this post"
 msgstr "引用这则帖文时使用的可见性无效"
 
-#: journal/views/post.py:329 journal/views/post.py:409
+#: journal/views/post.py:332 journal/views/post.py:413
 msgid "Content cannot be empty."
 msgstr "内容不可为空。"
 
-#: journal/views/post.py:387
+#: journal/views/post.py:391
 msgid "This post cannot be edited here"
 msgstr "此帖子无法在此处编辑"
 
-#: journal/views/post.py:528
+#: journal/views/post.py:533
 msgid "Invalid choices"
 msgstr "无效选择"
 
-#: journal/views/post.py:531
+#: journal/views/post.py:536
 msgid "Invalid post"
 msgstr "无效帖文"
 
-#: journal/views/review.py:166
+#: journal/views/review.py:168
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/review.py:172 journal/views/review.py:186
+#: journal/views/review.py:174 journal/views/review.py:188
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr "{0} 的评论"
 
-#: journal/views/review.py:174 journal/views/review.py:182
+#: journal/views/review.py:176 journal/views/review.py:184
 msgid "Link invalid"
 msgstr "链接无效"
 
-#: journal/views/review.py:195
+#: journal/views/review.py:197
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/review.py:199
+#: journal/views/review.py:201
 msgid "may contain spoiler or triggering content"
 msgstr "可能包含剧透或敏感内容"
 
-#: journal/views/tag.py:42 journal/views/tag.py:56
+#: journal/views/tag.py:47 journal/views/tag.py:61
 msgid "Invalid tag"
 msgstr "无效标签"
 
-#: journal/views/tag.py:45
+#: journal/views/tag.py:50
 msgid "Tag not found"
 msgstr "标签不存在"
 
-#: journal/views/tag.py:67
+#: journal/views/tag.py:72
 msgid "Tag deleted."
 msgstr "标签已删除"
 
-#: journal/views/tag.py:77
+#: journal/views/tag.py:82
 msgid "Duplicated tag."
 msgstr "重复标签"
 
-#: journal/views/tag.py:91
+#: journal/views/tag.py:96
 msgid "Tag updated."
 msgstr "标签已更新"
 
@@ -5865,43 +5869,43 @@ msgstr ""
 "\n"
 "如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
 
-#: mastodon/models/mastodon.py:541
+#: mastodon/models/mastodon.py:554
 msgid "site domain name"
 msgstr "站点域名"
 
-#: mastodon/models/mastodon.py:542
+#: mastodon/models/mastodon.py:555
 msgid "domain for api call"
 msgstr "站点API域名"
 
-#: mastodon/models/mastodon.py:543
+#: mastodon/models/mastodon.py:556
 msgid "type and verion"
 msgstr "站点类型和版本"
 
-#: mastodon/models/mastodon.py:544
+#: mastodon/models/mastodon.py:557
 msgid "in-site app id"
 msgstr "实例应用id"
 
-#: mastodon/models/mastodon.py:545
+#: mastodon/models/mastodon.py:558
 msgid "client id"
 msgstr "实例应用Client ID"
 
-#: mastodon/models/mastodon.py:546
+#: mastodon/models/mastodon.py:559
 msgid "client secret"
 msgstr "实例应用Client Secret"
 
-#: mastodon/models/mastodon.py:547
+#: mastodon/models/mastodon.py:560
 msgid "vapid key"
 msgstr "实例应用VAPID Key"
 
-#: mastodon/models/mastodon.py:549
+#: mastodon/models/mastodon.py:562
 msgid "0: unicode moon; 1: custom emoji"
 msgstr "0: 月亮表情; 1: 定制表情"
 
-#: mastodon/models/mastodon.py:552
+#: mastodon/models/mastodon.py:565
 msgid "max toot len"
 msgstr "帖文长度限制"
 
-#: mastodon/models/mastodon.py:665
+#: mastodon/models/mastodon.py:678
 msgid "New Post"
 msgstr "新帖文"
 
