@@ -191,7 +191,9 @@ class TagManager:
         tags = self.owner.tag_set.all()
         if category:
             ct = item_content_types()
-            contenttype_ids = [ct[cls] for cls in item_categories()[category]]
+            contenttype_ids = [
+                ct[cls] for cls in item_categories().get(category, []) if cls in ct
+            ]
             tags = tags.annotate(
                 total=Count(
                     "members",
