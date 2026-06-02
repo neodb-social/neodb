@@ -302,7 +302,7 @@ def genre_choices_for(category) -> list[tuple[str, Any]]:
     Slugs absent from GENRE_CATALOG fall back to themselves as the label, so a
     deployment may introduce site-specific genres via config.
     """
-    key = str(category) if category else None
+    key = str(category).lower() if category else None
     slugs = get_genre_categories().get(key) if key else None
     if not slugs:
         return GENRE_CHOICES
