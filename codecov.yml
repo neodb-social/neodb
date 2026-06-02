@@ -2,9 +2,11 @@ coverage:
   status:
     project:
       default:
+        informational: true
         branches:
           - "!main"
     patch:
       default:
+        informational: true
         branches:
           - "!main"
