@@ -203,7 +203,7 @@ class TVShow(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.TV)
     showtime = jsondata.JSONField(
         _("show time"),
         null=True,
@@ -445,7 +445,7 @@ class TVSeason(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.TV)
     showtime = jsondata.JSONField(
         _("show time"),
         null=True,

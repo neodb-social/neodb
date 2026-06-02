@@ -128,7 +128,7 @@ class Movie(Item):
         default=list,
         schema=LIST_OF_STR_SCHEMA,
     )
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.Movie)
     showtime = jsondata.JSONField(
         _("release date"),
         null=True,

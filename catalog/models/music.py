@@ -90,7 +90,7 @@ class Album(Item):
         default=list,
         schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.Music)
     company = jsondata.JSONField(
         verbose_name=_("publisher"),
         null=False,

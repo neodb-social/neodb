@@ -6,6 +6,7 @@ from .views_manage import (
     AdvancedSettings,
     APIKeysSettings,
     BrandingSettings,
+    CatalogSettings,
     DiscoverSettings,
     DownloaderSettings,
     FederationSettings,
@@ -57,6 +58,11 @@ urlpatterns = [
         "manage/federation/",
         FederationSettings.as_view(),
         name="manage_federation",
+    ),
+    path(
+        "manage/catalog/",
+        CatalogSettings.as_view(),
+        name="manage_catalog",
     ),
     path(
         "manage/api-keys/",

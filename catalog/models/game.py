@@ -147,7 +147,7 @@ class Game(Item):
         choices=GameReleaseType.choices,
     )
 
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.Game)
 
     platform = jsondata.ArrayField(
         verbose_name=_("platform"),

@@ -2,10 +2,13 @@ import pytest
 from django.utils import translation
 
 from common.models.genre import (
+    DEFAULT_GENRE_CATEGORIES,
     GENRE_CATALOG,
     GENRE_CHOICES,
     GENRE_CODES,
     _build_genre_aliases,
+    genre_choices_for,
+    get_genre_categories,
     normalize_genre,
     normalize_genres,
 )
@@ -514,6 +517,73 @@ class TestGenreNormalizationInModel:
         changed = performance._normalize_genres()
         assert changed is True
         assert performance.genre == ["huaju", "musical"]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestGenreChoicesPerCategory:
+    """Per-category genre dropdown lists and their admin override."""
+
+    def _codes(self, category):
+        return [code for code, _label in genre_choices_for(category)]
+
+    def test_none_returns_full_catalog(self):
+        codes = self._codes(None)
+        assert set(codes) == set(GENRE_CATALOG)
+
+    def test_music_is_music_only(self):
+        codes = self._codes("music")
+        assert "rock" in codes and "jazz" in codes
+        # Screen/game/performance-only genres must not leak into Music
+        for foreign in ("war", "western", "rpg", "opera", "tv-movie"):
+            assert foreign not in codes
+
+    def test_movie_is_screen_list(self):
+        codes = self._codes("movie")
+        assert "action" in codes and "documentary" in codes
+        # Music/game-only genres must not appear for Movie
+        for foreign in ("rock", "k-pop", "rpg", "mmo"):
+            assert foreign not in codes
+
+    def test_movie_and_tv_share_one_list(self):
+        from catalog.models import ItemCategory
+
+        assert genre_choices_for(ItemCategory.Movie) == genre_choices_for(
+            ItemCategory.TV
+        )
+
+    def test_accepts_itemcategory_enum(self):
+        from catalog.models import ItemCategory
+
+        assert genre_choices_for(ItemCategory.Music) == genre_choices_for("music")
+
+    def test_labels_resolved_from_catalog(self):
+        labels = dict(genre_choices_for("music"))
+        assert str(labels["jazz"]) == str(GENRE_CATALOG["jazz"])
+
+    def test_admin_override_replaces_list(self, monkeypatch):
+        from common.models import SiteConfig
+
+        opts = SiteConfig.SystemOptions(genres_music=["jazz", "rock"])
+        monkeypatch.setattr(SiteConfig, "system", opts, raising=False)
+        assert self._codes("music") == ["jazz", "rock"]
+
+    def test_empty_override_falls_back_to_default(self, monkeypatch):
+        from common.models import SiteConfig
+
+        opts = SiteConfig.SystemOptions(genres_music=[])
+        monkeypatch.setattr(SiteConfig, "system", opts, raising=False)
+        assert self._codes("music") == list(DEFAULT_GENRE_CATEGORIES["music"])
+
+    def test_get_genre_categories_covers_all_genre_models(self):
+        cats = get_genre_categories()
+        assert set(cats) == {
+            "movie",
+            "tv",
+            "music",
+            "game",
+            "podcast",
+            "performance",
+        }
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -146,6 +146,7 @@ class SiteConfigSettingsPage(FormView):
             ("recommendations", _("Recommendations"), "common:manage_recommendations"),
             ("access", _("Access"), "common:manage_access"),
             ("federation", _("Federation"), "common:manage_federation"),
+            ("catalog", _("Catalog"), "common:manage_catalog"),
             ("api_keys", _("API Keys"), "common:manage_api_keys"),
             ("downloader", _("Downloader"), "common:manage_downloader"),
             ("advanced", _("Advanced"), "common:manage_advanced"),
@@ -807,6 +808,64 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "index_aliases",
             "task_cleanup_days",
             "skip_migrations",
+        ],
+    }
+
+
+class CatalogSettings(SiteConfigSettingsPage):
+    section = "catalog"
+    options = {
+        "genres_movie": {
+            "title": _("Movie Genres"),
+            "help_text": _(
+                "Genre codes offered in the Movie edit dropdown, one per line. "
+                "Leave empty to use the built-in default."
+            ),
+        },
+        "genres_tv": {
+            "title": _("TV Genres"),
+            "help_text": _(
+                "Genre codes offered in the TV edit dropdown, one per line. "
+                "Leave empty to use the built-in default."
+            ),
+        },
+        "genres_music": {
+            "title": _("Music Genres"),
+            "help_text": _(
+                "Genre codes offered in the Music edit dropdown, one per line. "
+                "Leave empty to use the built-in default."
+            ),
+        },
+        "genres_game": {
+            "title": _("Game Genres"),
+            "help_text": _(
+                "Genre codes offered in the Game edit dropdown, one per line. "
+                "Leave empty to use the built-in default."
+            ),
+        },
+        "genres_podcast": {
+            "title": _("Podcast Genres"),
+            "help_text": _(
+                "Genre codes offered in the Podcast edit dropdown, one per line. "
+                "Leave empty to use the built-in default."
+            ),
+        },
+        "genres_performance": {
+            "title": _("Performance Genres"),
+            "help_text": _(
+                "Genre codes offered in the Performance edit dropdown, one per "
+                "line. Leave empty to use the built-in default."
+            ),
+        },
+    }
+    layout = {
+        _("Genres by Category"): [
+            "genres_movie",
+            "genres_tv",
+            "genres_music",
+            "genres_game",
+            "genres_podcast",
+            "genres_performance",
         ],
     }
 

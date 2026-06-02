@@ -8,6 +8,8 @@ scraper sources, and alias-based matching.
 Pattern follows common/models/lang.py for language support.
 """
 
+from typing import Any
+
 from django.conf import settings
 from django.utils import translation
 from django.utils.translation import pgettext_lazy
@@ -118,6 +120,193 @@ GENRE_CATALOG = {
 
 GENRE_CHOICES = list(GENRE_CATALOG.items())
 GENRE_CODES = dict(GENRE_CATALOG)
+
+
+# Genres offered in the edit dropdown for each item category. Slugs reference
+# GENRE_CATALOG above. Lists may overlap. Admins can override each category's
+# list in the admin UI (Catalog settings); see get_genre_categories().
+
+_SCREEN_GENRES = [  # shared by Movie and TV
+    "action",
+    "adventure",
+    "comedy",
+    "drama",
+    "fantasy",
+    "horror",
+    "mystery",
+    "romance",
+    "sci-fi",
+    "thriller",
+    "animation",
+    "documentary",
+    "family",
+    "history",
+    "biographical",
+    "war",
+    "western",
+    "crime",
+    "sports",
+    "music",
+    "film-noir",
+    "musical",
+    "reality",
+    "talk-show",
+    "news",
+    "game-show",
+    "martial-arts",
+    "period-drama",
+    "superhero",
+    "disaster",
+    "erotic",
+    "short-film",
+    "lgbtq",
+    "tv-movie",
+]
+
+_MUSIC_GENRES = [
+    "rock",
+    "pop",
+    "hip-hop",
+    "electronic",
+    "jazz",
+    "classical",
+    "blues",
+    "country",
+    "folk",
+    "r-and-b",
+    "metal",
+    "punk",
+    "soul",
+    "reggae",
+    "latin",
+    "world-music",
+    "ambient",
+    "new-age",
+    "indie",
+    "alternative",
+    "dance",
+    "funk",
+    "gospel",
+    "soundtrack",
+    "k-pop",
+    "easy-listening",
+]
+
+_GAME_GENRES = [
+    "action",
+    "adventure",
+    "fantasy",
+    "sci-fi",
+    "horror",
+    "mystery",
+    "thriller",
+    "comedy",
+    "drama",
+    "sports",
+    "family",
+    "music",
+    "rpg",
+    "strategy",
+    "simulation",
+    "racing",
+    "puzzle",
+    "platformer",
+    "shooter",
+    "fighting",
+    "survival",
+    "sandbox",
+    "roguelike",
+    "visual-novel",
+    "card-game",
+    "board-game",
+    "arcade",
+    "mmo",
+    "moba",
+    "pinball",
+    "point-and-click",
+    "casual",
+]
+
+_PERFORMANCE_GENRES = [
+    "drama",
+    "comedy",
+    "romance",
+    "history",
+    "music",
+    "musical",
+    "dance",
+    "opera",
+    "ballet",
+    "play",
+    "huaju",
+    "xiqu",
+]
+
+_PODCAST_GENRES = [
+    "comedy",
+    "drama",
+    "documentary",
+    "news",
+    "history",
+    "music",
+    "sports",
+    "true-crime",
+    "self-help",
+    "business",
+    "technology",
+    "education",
+    "religion",
+    "leisure",
+    "health",
+]
+
+# Maps an item category (ItemCategory value) to its genre slug list.
+# Movie and TV deliberately share one combined screen list.
+DEFAULT_GENRE_CATEGORIES: dict[str, list[str]] = {
+    "movie": _SCREEN_GENRES,
+    "tv": _SCREEN_GENRES,
+    "music": _MUSIC_GENRES,
+    "game": _GAME_GENRES,
+    "performance": _PERFORMANCE_GENRES,
+    "podcast": _PODCAST_GENRES,
+}
+
+
+def get_genre_categories() -> dict[str, list[str]]:
+    """Per-category genre slug lists.
+
+    Defaults are defined in DEFAULT_GENRE_CATEGORIES above and can be overridden
+    per category through the admin UI (SiteConfig.SystemOptions.genres_<category>).
+    A category whose configured list is empty falls back to its in-code default.
+    """
+    # Imported lazily: site_config depends on this module, not vice versa.
+    from common.models.site_config import SiteConfig
+
+    result = {cat: list(slugs) for cat, slugs in DEFAULT_GENRE_CATEGORIES.items()}
+    try:
+        SiteConfig.ensure_loaded()
+        opts = SiteConfig.system
+    except Exception:
+        return result
+    for cat in result:
+        configured = getattr(opts, f"genres_{cat}", None)
+        if configured:
+            result[cat] = list(configured)
+    return result
+
+
+def genre_choices_for(category) -> list[tuple[str, Any]]:
+    """Return (slug, label) pairs for a category's genre dropdown.
+
+    Falls back to the full GENRE_CHOICES when the category is unknown or None.
+    Slugs absent from GENRE_CATALOG fall back to themselves as the label, so a
+    deployment may introduce site-specific genres via config.
+    """
+    key = str(category) if category else None
+    slugs = get_genre_categories().get(key) if key else None
+    if not slugs:
+        return GENRE_CHOICES
+    return [(s, GENRE_CATALOG.get(s, s)) for s in slugs]
 
 
 # Explicit mappings from scraped strings to canonical codes.

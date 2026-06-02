@@ -177,7 +177,7 @@ class Performance(Item):
     orig_title = jsondata.CharField(
         verbose_name=_("original name"), blank=True, max_length=500
     )
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.Performance)
     language = LanguageListField()
     director = jsondata.JSONField(
         verbose_name=_("director"),

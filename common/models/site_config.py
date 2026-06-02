@@ -6,6 +6,8 @@ from django.db import models, transaction
 from django.db.utils import DatabaseError, ProgrammingError
 from loguru import logger
 
+from common.models.genre import DEFAULT_GENRE_CATEGORIES
+
 
 class SiteConfig(models.Model):
     """
@@ -77,6 +79,15 @@ class SiteConfig(models.Model):
         search_sites: list[str] = []
         search_peers: list[str] = []
         hidden_categories: list[str] = []
+
+        # Catalog genres: slugs offered in each category's edit dropdown.
+        # Empty list falls back to the in-code default (DEFAULT_GENRE_CATEGORIES).
+        genres_movie: list[str] = DEFAULT_GENRE_CATEGORIES["movie"]
+        genres_tv: list[str] = DEFAULT_GENRE_CATEGORIES["tv"]
+        genres_music: list[str] = DEFAULT_GENRE_CATEGORIES["music"]
+        genres_game: list[str] = DEFAULT_GENRE_CATEGORIES["game"]
+        genres_podcast: list[str] = DEFAULT_GENRE_CATEGORIES["podcast"]
+        genres_performance: list[str] = DEFAULT_GENRE_CATEGORIES["performance"]
 
         # API Keys - Catalog
         spotify_api_key: str = ""
@@ -186,6 +197,11 @@ class SiteConfig(models.Model):
             "search_sites": list(getattr(settings, "SEARCH_SITES", [])),
             "search_peers": list(getattr(settings, "SEARCH_PEERS", [])),
             "hidden_categories": list(getattr(settings, "HIDDEN_CATEGORIES", [])),
+            # Catalog genres (in-code defaults; no env var)
+            **{
+                f"genres_{cat}": list(slugs)
+                for cat, slugs in DEFAULT_GENRE_CATEGORIES.items()
+            },
             # API Keys - Catalog
             "spotify_api_key": getattr(settings, "SPOTIFY_CREDENTIAL", ""),
             "tmdb_api_key": getattr(settings, "TMDB_API3_KEY", "TESTONLY"),

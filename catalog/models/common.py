@@ -3,10 +3,10 @@ from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
 from common.models import (
-    GENRE_CHOICES,
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
     SCRIPT_CHOICES,
+    genre_choices_for,
     jsondata,
 )
 
@@ -196,7 +196,6 @@ LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(
     LANGUAGE_CHOICES, const=True
 )
 SCRIPT_CHOICES_JSONFORM = get_locale_choices_for_jsonform(SCRIPT_CHOICES, const=True)
-GENRE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(GENRE_CHOICES, const=True)
 
 LOCALIZED_LABEL_SCHEMA = {
     "type": "list",
@@ -251,20 +250,32 @@ LIST_OF_ONE_PLUS_STR_SCHEMA = {
 }
 
 
-def GenreListField():
+def GenreListField(category=None):
+    """ArrayField whose dropdown offers only the genres relevant to `category`.
+
+    `category` is an ItemCategory (or its value); None offers the full catalog.
+    The schema is a callable so the dropdown reflects the live per-category
+    config from the admin UI (see common.models.genre.genre_choices_for) without
+    a restart -- django_jsonform resolves callable schemas at render time.
+    """
+
+    def schema():
+        choices = get_locale_choices_for_jsonform(
+            genre_choices_for(category), const=True
+        )
+        return {
+            "type": "array",
+            "items": {"oneOf": choices + [{"title": "Other", "type": "string"}]},
+            "uniqueItems": True,
+        }
+
     return jsondata.ArrayField(
         verbose_name=_("genre"),
         base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
-        schema={
-            "type": "array",
-            "items": {
-                "oneOf": GENRE_CHOICES_JSONFORM + [{"title": "Other", "type": "string"}]
-            },
-            "uniqueItems": True,
-        },
+        schema=schema,
     )
 
 

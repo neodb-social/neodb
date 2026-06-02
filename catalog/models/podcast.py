@@ -70,7 +70,7 @@ class Podcast(Item):
     # apple_podcast = PrimaryLookupIdDescriptor(IdType.ApplePodcast)
     # ximalaya = LookupIdDescriptor(IdType.Ximalaya)
     # xiaoyuzhou = LookupIdDescriptor(IdType.Xiaoyuzhou)
-    genre = GenreListField()
+    genre = GenreListField(ItemCategory.Podcast)
 
     language = LanguageListField()
 

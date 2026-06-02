@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-02 11:33+0200\n"
+"POT-Creation-Date: 2026-06-02 17:56+0800\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -67,12 +67,12 @@ msgid "Primary ID Value"
 msgstr "主要标识数据"
 
 #: catalog/models/book.py:138 catalog/models/book.py:157
-#: catalog/models/common.py:208 catalog/models/common.py:226
+#: catalog/models/common.py:207 catalog/models/common.py:225
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:141 catalog/models/book.py:160
-#: catalog/models/common.py:211 catalog/models/common.py:231
+#: catalog/models/common.py:210 catalog/models/common.py:230
 msgid "text content"
 msgstr "文本内容"
 
@@ -551,11 +551,11 @@ msgstr "音乐"
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:256 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:273 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr "类型"
 
-#: catalog/models/common.py:273 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:284 catalog/templates/_language_list.html:5
 #: users/models/user.py:128
 msgid "language"
 msgstr "语言"
@@ -1600,7 +1600,7 @@ msgid "This operation cannot be undone. Sure to merge?"
 msgstr "本操作不可撤销。确认合并吗？"
 
 #: catalog/templates/discover.html:28 common/views_manage.py:145
-#: common/views_manage.py:345 users/templates/users/preferences.html:34
+#: common/views_manage.py:346 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr "发现"
 
@@ -2052,467 +2052,467 @@ msgstr "条目已不存在"
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
-#: common/models/genre.py:19
+#: common/models/genre.py:21
 msgctxt "genre"
 msgid "Action"
 msgstr "动作"
 
-#: common/models/genre.py:20
+#: common/models/genre.py:22
 msgctxt "genre"
 msgid "Adventure"
 msgstr "冒险"
 
-#: common/models/genre.py:21
+#: common/models/genre.py:23
 msgctxt "genre"
 msgid "Comedy"
 msgstr "喜剧"
 
-#: common/models/genre.py:22
+#: common/models/genre.py:24
 msgctxt "genre"
 msgid "Drama"
 msgstr "剧情"
 
-#: common/models/genre.py:23
+#: common/models/genre.py:25
 msgctxt "genre"
 msgid "Fantasy"
 msgstr "奇幻"
 
-#: common/models/genre.py:24
+#: common/models/genre.py:26
 msgctxt "genre"
 msgid "Horror"
 msgstr "恐怖"
 
-#: common/models/genre.py:25
+#: common/models/genre.py:27
 msgctxt "genre"
 msgid "Mystery"
 msgstr "悬疑"
 
-#: common/models/genre.py:26
+#: common/models/genre.py:28
 msgctxt "genre"
 msgid "Romance"
 msgstr "爱情"
 
-#: common/models/genre.py:27
+#: common/models/genre.py:29
 msgctxt "genre"
 msgid "Sci-Fi"
 msgstr "科幻"
 
-#: common/models/genre.py:28
+#: common/models/genre.py:30
 msgctxt "genre"
 msgid "Thriller"
 msgstr "惊悚"
 
-#: common/models/genre.py:29
+#: common/models/genre.py:31
 msgctxt "genre"
 msgid "Animation"
 msgstr "动画"
 
-#: common/models/genre.py:30
+#: common/models/genre.py:32
 msgctxt "genre"
 msgid "Documentary"
 msgstr "纪录片"
 
-#: common/models/genre.py:31
+#: common/models/genre.py:33
 msgctxt "genre"
 msgid "Family"
 msgstr "家庭"
 
-#: common/models/genre.py:32
+#: common/models/genre.py:34
 msgctxt "genre"
 msgid "History"
 msgstr "历史"
 
-#: common/models/genre.py:33
+#: common/models/genre.py:35
 msgctxt "genre"
 msgid "Biographical"
 msgstr "传记"
 
-#: common/models/genre.py:34
+#: common/models/genre.py:36
 msgctxt "genre"
 msgid "War"
 msgstr "战争"
 
-#: common/models/genre.py:35
+#: common/models/genre.py:37
 msgctxt "genre"
 msgid "Western"
 msgstr "西部"
 
-#: common/models/genre.py:36
+#: common/models/genre.py:38
 msgctxt "genre"
 msgid "Crime"
 msgstr "犯罪"
 
-#: common/models/genre.py:37
+#: common/models/genre.py:39
 msgctxt "genre"
 msgid "Sports"
 msgstr "运动"
 
-#: common/models/genre.py:38
+#: common/models/genre.py:40
 msgctxt "genre"
 msgid "Music"
 msgstr "音乐"
 
-#: common/models/genre.py:40
+#: common/models/genre.py:42
 msgctxt "genre"
 msgid "Film Noir"
 msgstr "黑色电影"
 
-#: common/models/genre.py:41
+#: common/models/genre.py:43
 msgctxt "genre"
 msgid "Musical"
 msgstr "音乐剧"
 
-#: common/models/genre.py:42
+#: common/models/genre.py:44
 msgctxt "genre"
 msgid "Reality"
 msgstr "真人秀"
 
-#: common/models/genre.py:43
+#: common/models/genre.py:45
 msgctxt "genre"
 msgid "Talk Show"
 msgstr "脱口秀"
 
-#: common/models/genre.py:44
+#: common/models/genre.py:46
 msgctxt "genre"
 msgid "News"
 msgstr "新闻"
 
-#: common/models/genre.py:45
+#: common/models/genre.py:47
 msgctxt "genre"
 msgid "Game Show"
 msgstr "游戏竞赛"
 
-#: common/models/genre.py:46
+#: common/models/genre.py:48
 msgctxt "genre"
 msgid "Martial Arts"
 msgstr "武侠"
 
-#: common/models/genre.py:47
+#: common/models/genre.py:49
 msgctxt "genre"
 msgid "Period Drama"
 msgstr "古装"
 
-#: common/models/genre.py:48
+#: common/models/genre.py:50
 msgctxt "genre"
 msgid "Superhero"
 msgstr "超级英雄"
 
-#: common/models/genre.py:49
+#: common/models/genre.py:51
 msgctxt "genre"
 msgid "Disaster"
 msgstr "灾难"
 
-#: common/models/genre.py:50
+#: common/models/genre.py:52
 msgctxt "genre"
 msgid "Erotic"
 msgstr "情色"
 
-#: common/models/genre.py:51
+#: common/models/genre.py:53
 msgctxt "genre"
 msgid "Short Film"
 msgstr "短片"
 
-#: common/models/genre.py:52
+#: common/models/genre.py:54
 msgctxt "genre"
 msgid "LGBTQ"
 msgstr "LGBTQ"
 
-#: common/models/genre.py:53
+#: common/models/genre.py:55
 msgctxt "genre"
 msgid "TV Movie"
 msgstr "电视电影"
 
-#: common/models/genre.py:55
+#: common/models/genre.py:57
 msgctxt "genre"
 msgid "Rock"
 msgstr "摇滚"
 
-#: common/models/genre.py:56
+#: common/models/genre.py:58
 msgctxt "genre"
 msgid "Pop"
 msgstr "流行"
 
-#: common/models/genre.py:57
+#: common/models/genre.py:59
 msgctxt "genre"
 msgid "Hip Hop"
 msgstr "嘻哈"
 
-#: common/models/genre.py:58
+#: common/models/genre.py:60
 msgctxt "genre"
 msgid "Electronic"
 msgstr "电子"
 
-#: common/models/genre.py:59
+#: common/models/genre.py:61
 msgctxt "genre"
 msgid "Jazz"
 msgstr "爵士"
 
-#: common/models/genre.py:60
+#: common/models/genre.py:62
 msgctxt "genre"
 msgid "Classical"
 msgstr "古典"
 
-#: common/models/genre.py:61
+#: common/models/genre.py:63
 msgctxt "genre"
 msgid "Blues"
 msgstr "蓝调"
 
-#: common/models/genre.py:62
+#: common/models/genre.py:64
 msgctxt "genre"
 msgid "Country"
 msgstr "乡村"
 
-#: common/models/genre.py:63
+#: common/models/genre.py:65
 msgctxt "genre"
 msgid "Folk"
 msgstr "民谣"
 
-#: common/models/genre.py:64
+#: common/models/genre.py:66
 msgctxt "genre"
 msgid "R&B"
 msgstr "节奏布鲁斯"
 
-#: common/models/genre.py:65
+#: common/models/genre.py:67
 msgctxt "genre"
 msgid "Metal"
 msgstr "金属"
 
-#: common/models/genre.py:66
+#: common/models/genre.py:68
 msgctxt "genre"
 msgid "Punk"
 msgstr "朋克"
 
-#: common/models/genre.py:67
+#: common/models/genre.py:69
 msgctxt "genre"
 msgid "Soul"
 msgstr "灵魂乐"
 
-#: common/models/genre.py:68
+#: common/models/genre.py:70
 msgctxt "genre"
 msgid "Reggae"
 msgstr "雷鬼"
 
-#: common/models/genre.py:69
+#: common/models/genre.py:71
 msgctxt "genre"
 msgid "Latin"
 msgstr "拉丁"
 
-#: common/models/genre.py:70
+#: common/models/genre.py:72
 msgctxt "genre"
 msgid "World Music"
 msgstr "世界音乐"
 
-#: common/models/genre.py:71
+#: common/models/genre.py:73
 msgctxt "genre"
 msgid "Ambient"
 msgstr "氛围"
 
-#: common/models/genre.py:72
+#: common/models/genre.py:74
 msgctxt "genre"
 msgid "New Age"
 msgstr "新世纪"
 
-#: common/models/genre.py:73
+#: common/models/genre.py:75
 msgctxt "genre"
 msgid "Indie"
 msgstr "独立"
 
-#: common/models/genre.py:74
+#: common/models/genre.py:76
 msgctxt "genre"
 msgid "Alternative"
 msgstr "另类"
 
-#: common/models/genre.py:75
+#: common/models/genre.py:77
 msgctxt "genre"
 msgid "Dance"
 msgstr "舞曲"
 
-#: common/models/genre.py:76
+#: common/models/genre.py:78
 msgctxt "genre"
 msgid "Funk"
 msgstr "放克"
 
-#: common/models/genre.py:77
+#: common/models/genre.py:79
 msgctxt "genre"
 msgid "Gospel"
 msgstr "福音"
 
-#: common/models/genre.py:78
+#: common/models/genre.py:80
 msgctxt "genre"
 msgid "Soundtrack"
 msgstr "原声"
 
-#: common/models/genre.py:79
+#: common/models/genre.py:81
 msgctxt "genre"
 msgid "K-Pop"
 msgstr "韩流"
 
-#: common/models/genre.py:80
+#: common/models/genre.py:82
 msgctxt "genre"
 msgid "Easy Listening"
 msgstr "轻音乐"
 
-#: common/models/genre.py:82
+#: common/models/genre.py:84
 msgctxt "genre"
 msgid "RPG"
 msgstr "角色扮演"
 
-#: common/models/genre.py:83
+#: common/models/genre.py:85
 msgctxt "genre"
 msgid "Strategy"
 msgstr "策略"
 
-#: common/models/genre.py:84
+#: common/models/genre.py:86
 msgctxt "genre"
 msgid "Simulation"
 msgstr "模拟"
 
-#: common/models/genre.py:85
+#: common/models/genre.py:87
 msgctxt "genre"
 msgid "Racing"
 msgstr "竞速"
 
-#: common/models/genre.py:86
+#: common/models/genre.py:88
 msgctxt "genre"
 msgid "Puzzle"
 msgstr "益智"
 
-#: common/models/genre.py:87
+#: common/models/genre.py:89
 msgctxt "genre"
 msgid "Platformer"
 msgstr "平台跳跃"
 
-#: common/models/genre.py:88
+#: common/models/genre.py:90
 msgctxt "genre"
 msgid "Shooter"
 msgstr "射击"
 
-#: common/models/genre.py:89
+#: common/models/genre.py:91
 msgctxt "genre"
 msgid "Fighting"
 msgstr "格斗"
 
-#: common/models/genre.py:90
+#: common/models/genre.py:92
 msgctxt "genre"
 msgid "Survival"
 msgstr "生存"
 
-#: common/models/genre.py:91
+#: common/models/genre.py:93
 msgctxt "genre"
 msgid "Sandbox"
 msgstr "沙盒"
 
-#: common/models/genre.py:92
+#: common/models/genre.py:94
 msgctxt "genre"
 msgid "Roguelike"
 msgstr "Rogue 类"
 
-#: common/models/genre.py:93
+#: common/models/genre.py:95
 msgctxt "genre"
 msgid "Visual Novel"
 msgstr "视觉小说"
 
-#: common/models/genre.py:94
+#: common/models/genre.py:96
 msgctxt "genre"
 msgid "Card Game"
 msgstr "卡牌"
 
-#: common/models/genre.py:95
+#: common/models/genre.py:97
 msgctxt "genre"
 msgid "Board Game"
 msgstr "桌游"
 
-#: common/models/genre.py:96
+#: common/models/genre.py:98
 msgctxt "genre"
 msgid "Arcade"
 msgstr "街机"
 
-#: common/models/genre.py:97
+#: common/models/genre.py:99
 msgctxt "genre"
 msgid "MMO"
 msgstr "大型多人在线"
 
-#: common/models/genre.py:98
+#: common/models/genre.py:100
 msgctxt "genre"
 msgid "MOBA"
 msgstr "多人在线竞技"
 
-#: common/models/genre.py:99
+#: common/models/genre.py:101
 msgctxt "genre"
 msgid "Pinball"
 msgstr "弹球"
 
-#: common/models/genre.py:100
+#: common/models/genre.py:102
 msgctxt "genre"
 msgid "Point-and-Click"
 msgstr "点击冒险"
 
-#: common/models/genre.py:101
+#: common/models/genre.py:103
 msgctxt "genre"
 msgid "Casual"
 msgstr "休闲"
 
-#: common/models/genre.py:103
+#: common/models/genre.py:105
 msgctxt "genre"
 msgid "Opera"
 msgstr "歌剧"
 
-#: common/models/genre.py:104
+#: common/models/genre.py:106
 msgctxt "genre"
 msgid "Ballet"
 msgstr "芭蕾"
 
-#: common/models/genre.py:105
+#: common/models/genre.py:107
 msgctxt "genre"
 msgid "Play"
 msgstr "戏剧"
 
-#: common/models/genre.py:106
+#: common/models/genre.py:108
 msgctxt "genre"
 msgid "Huaju"
 msgstr "话剧"
 
-#: common/models/genre.py:107
+#: common/models/genre.py:109
 msgctxt "genre"
 msgid "Xiqu"
 msgstr "戏曲"
 
-#: common/models/genre.py:109
+#: common/models/genre.py:111
 msgctxt "genre"
 msgid "True Crime"
 msgstr "真实犯罪"
 
-#: common/models/genre.py:110
+#: common/models/genre.py:112
 msgctxt "genre"
 msgid "Self-Help"
 msgstr "自我提升"
 
-#: common/models/genre.py:111
+#: common/models/genre.py:113
 msgctxt "genre"
 msgid "Business"
 msgstr "商业"
 
-#: common/models/genre.py:112
+#: common/models/genre.py:114
 msgctxt "genre"
 msgid "Technology"
 msgstr "科技"
 
-#: common/models/genre.py:113
+#: common/models/genre.py:115
 msgctxt "genre"
 msgid "Education"
 msgstr "教育"
 
-#: common/models/genre.py:114
+#: common/models/genre.py:116
 msgctxt "genre"
 msgid "Religion"
 msgstr "宗教"
 
-#: common/models/genre.py:115
+#: common/models/genre.py:117
 msgctxt "genre"
 msgid "Leisure"
 msgstr "生活休闲"
 
-#: common/models/genre.py:116
+#: common/models/genre.py:118
 msgctxt "genre"
 msgid "Health"
 msgstr "健康"
@@ -3544,7 +3544,7 @@ msgstr "源代码"
 msgid "Registration"
 msgstr "注册"
 
-#: common/templates/common/about.html:35 common/views_manage.py:484
+#: common/templates/common/about.html:35 common/views_manage.py:485
 msgid "Invite Only"
 msgstr "仅限邀请"
 
@@ -3552,7 +3552,7 @@ msgstr "仅限邀请"
 msgid "Open Registration"
 msgstr "开放注册"
 
-#: common/templates/common/about.html:40 common/views_manage.py:505
+#: common/templates/common/about.html:40 common/views_manage.py:506
 msgid "Preferred Languages"
 msgstr "主要语言"
 
@@ -3608,7 +3608,7 @@ msgstr "正在请求摄像头权限…"
 msgid "Or type barcode / ISBN manually"
 msgstr "或手动输入条形码 / ISBN"
 
-#: common/templates/common/scan.html:60 common/views_manage.py:569
+#: common/templates/common/scan.html:60 common/views_manage.py:570
 msgid "Search"
 msgstr "搜索"
 
@@ -3703,7 +3703,7 @@ msgstr "已启用"
 msgid "Disabled"
 msgstr "已禁用"
 
-#: common/views_manage.py:144 common/views_manage.py:294
+#: common/views_manage.py:144 common/views_manage.py:295
 msgid "Branding"
 msgstr "品牌"
 
@@ -3715,594 +3715,650 @@ msgstr "推荐"
 msgid "Access"
 msgstr "访问"
 
-#: common/views_manage.py:148 common/views_manage.py:564
+#: common/views_manage.py:148 common/views_manage.py:565
 msgid "Federation"
 msgstr "联邦"
 
 #: common/views_manage.py:149
+msgid "Catalog"
+msgstr "目录"
+
+#: common/views_manage.py:150
 msgid "API Keys"
 msgstr "API 密钥"
 
-#: common/views_manage.py:150
+#: common/views_manage.py:151
 msgid "Downloader"
 msgstr "下载器"
 
-#: common/views_manage.py:151 common/views_manage.py:302
+#: common/views_manage.py:152 common/views_manage.py:303
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr "高级"
 
-#: common/views_manage.py:201
+#: common/views_manage.py:202
 msgid "Invalid value."
 msgstr "无效值。"
 
-#: common/views_manage.py:205
+#: common/views_manage.py:206
 msgid "Invalid configuration. Please check your input."
 msgstr "配置无效"
 
-#: common/views_manage.py:210
+#: common/views_manage.py:211
 msgid "Settings have been saved."
 msgstr "设置已保存"
 
-#: common/views_manage.py:230
+#: common/views_manage.py:231
 msgid "Site Name"
 msgstr "站点名称"
 
-#: common/views_manage.py:233
+#: common/views_manage.py:234
 msgid "Site Description"
 msgstr "站点描述"
 
-#: common/views_manage.py:234
+#: common/views_manage.py:235
 msgid "Short description shown in metadata and about page."
 msgstr "在元数据和关于页面中显示的简短描述。"
 
-#: common/views_manage.py:237
+#: common/views_manage.py:238
 msgid "Site Logo URL"
 msgstr "站点 Logo URL"
 
-#: common/views_manage.py:238
+#: common/views_manage.py:239
 msgid "URL path to the site logo image."
 msgstr "站点 Logo 图片的 URL 路径。"
 
-#: common/views_manage.py:241
+#: common/views_manage.py:242
 msgid "Site Icon URL"
 msgstr "站点图标 URL"
 
-#: common/views_manage.py:242
+#: common/views_manage.py:243
 msgid "URL path to the site icon/favicon."
 msgstr "站点图标/favicon 的 URL 路径。"
 
-#: common/views_manage.py:245
+#: common/views_manage.py:246
 msgid "Default User Avatar URL"
 msgstr "默认用户头像 URL"
 
-#: common/views_manage.py:246
+#: common/views_manage.py:247
 msgid "URL path to the default user avatar."
 msgstr "默认用户头像的 URL 路径。"
 
-#: common/views_manage.py:249
+#: common/views_manage.py:250
 msgid "Site Color Theme"
 msgstr "站点配色主题"
 
-#: common/views_manage.py:250
+#: common/views_manage.py:251
 msgid "PicoCSS color theme."
 msgstr "PicoCSS 配色主题。"
 
-#: common/views_manage.py:275
+#: common/views_manage.py:276
 msgid "Site Introduction"
 msgstr "站点介绍"
 
-#: common/views_manage.py:276
+#: common/views_manage.py:277
 msgid "URL path for the intro/welcome sidebar page."
 msgstr "介绍/欢迎侧边栏页面的 URL 路径。"
 
-#: common/views_manage.py:279
+#: common/views_manage.py:280
 msgid "Custom HTML Head"
 msgstr "自定义 HTML Head"
 
-#: common/views_manage.py:280
+#: common/views_manage.py:281
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr "注入所有页面 <head> 的额外 HTML。"
 
-#: common/views_manage.py:284
+#: common/views_manage.py:285
 msgid "Footer Links"
 msgstr "页脚链接"
 
-#: common/views_manage.py:285
+#: common/views_manage.py:286
 msgid "Link title mapped to URL."
 msgstr "链接标题到 URL 的映射。"
 
-#: common/views_manage.py:314
+#: common/views_manage.py:315
 msgid "Minimum Marks for Discover"
 msgstr "进入发现页的最少标记数"
 
-#: common/views_manage.py:316
+#: common/views_manage.py:317
 msgid "Number of marks required for an item to appear in discover."
 msgstr "条目出现在发现页所需的最少标记数。"
 
-#: common/views_manage.py:321
+#: common/views_manage.py:322
 msgid "Update Interval (minutes)"
 msgstr "更新间隔（分钟）"
 
-#: common/views_manage.py:322
+#: common/views_manage.py:323
 msgid "How often to refresh the popular items list."
 msgstr "刷新热门条目列表的频率。"
 
-#: common/views_manage.py:326
+#: common/views_manage.py:327
 msgid "Filter by Preferred Languages"
 msgstr "按偏好语言过滤"
 
-#: common/views_manage.py:327
+#: common/views_manage.py:328
 msgid "Only show items with titles in the preferred languages."
 msgstr "仅显示标题为偏好语言的条目。"
 
-#: common/views_manage.py:330
+#: common/views_manage.py:331
 msgid "Show Local Only"
 msgstr "仅显示本站内容"
 
-#: common/views_manage.py:332
+#: common/views_manage.py:333
 msgid "Only show items marked by local users, not the entire network."
 msgstr "仅显示本站用户标记的条目，而非整个联邦网络。"
 
-#: common/views_manage.py:336
+#: common/views_manage.py:337
 msgid "Show Popular Posts"
 msgstr "显示热门帖文"
 
-#: common/views_manage.py:337
+#: common/views_manage.py:338
 msgid "Show popular public posts instead of recent ones."
 msgstr "显示热门公开帖文，而非最近的帖文。"
 
-#: common/views_manage.py:340
+#: common/views_manage.py:341
 msgid "Show Popular Tags"
 msgstr "显示热门标签"
 
-#: common/views_manage.py:341
+#: common/views_manage.py:342
 msgid "Show popular public tags on the discover page."
 msgstr "在发现页显示热门公开标签。"
 
-#: common/views_manage.py:377
+#: common/views_manage.py:378
 msgid "Enable Recommendations"
 msgstr "启用推荐"
 
-#: common/views_manage.py:379
+#: common/views_manage.py:380
 msgid "Master switch. When off, all recommendation surfaces are hidden for regular users and the cron jobs are not scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' in their bio) still see the surfaces, for preview."
 msgstr "推荐功能总开关。关闭时，常规用户不会看到推荐界面，相关定时任务也不会被调度。处于测试模式的账户（DEBUG 模式或 bio 中包含「!bazinga」）仍可看到推荐界面以便预览。"
 
-#: common/views_manage.py:386
+#: common/views_manage.py:387
 msgid "Source Item Mark Threshold"
 msgstr "源条目标记阈值"
 
-#: common/views_manage.py:388
+#: common/views_manage.py:389
 msgid "Minimum public marks an item needs before similarity rows are built for it."
 msgstr "为某条目构建相似条目所需的最少公开标记数。"
 
-#: common/views_manage.py:394
+#: common/views_manage.py:395
 msgid "Target Item Mark Threshold"
 msgstr "目标条目标记阈值"
 
-#: common/views_manage.py:396
+#: common/views_manage.py:397
 msgid "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr "条目作为推荐目标所需的最少公开标记数。"
 
-#: common/views_manage.py:402
+#: common/views_manage.py:403
 msgid "Top-K Similar Items per Source"
 msgstr "每个源条目的最相似条目数 (Top-K)"
 
-#: common/views_manage.py:403
+#: common/views_manage.py:404
 msgid "Number of similar items stored per source item."
 msgstr "每个源条目保存的相似条目数量。"
 
-#: common/views_manage.py:407
+#: common/views_manage.py:408
 msgid "Top-N Recommendations per User"
 msgstr "每位用户的推荐条目数 (Top-N)"
 
-#: common/views_manage.py:408
+#: common/views_manage.py:409
 msgid "Number of personalised rows stored per user."
 msgstr "每位用户保存的个性化推荐数量。"
 
-#: common/views_manage.py:412
+#: common/views_manage.py:413
 msgid "Dampen Heavy Shelvers"
 msgstr "抑制高频标记用户"
 
-#: common/views_manage.py:414
+#: common/views_manage.py:415
 msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
 msgstr "对每位用户的贡献按 1/sqrt(n_marks) 加权，以削弱超大量标记用户对相似度评分的影响。"
 
-#: common/views_manage.py:419
+#: common/views_manage.py:420
 msgid "Per-User Mark Cap (training)"
 msgstr "每用户标记上限（训练）"
 
-#: common/views_manage.py:421
+#: common/views_manage.py:422
 msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
 msgstr "构建相似度矩阵时，仅截取每位用户最近的 N 条标记。"
 
-#: common/views_manage.py:427
+#: common/views_manage.py:428
 msgid "Active-User Window (days)"
 msgstr "活跃用户窗口（天）"
 
-#: common/views_manage.py:429
+#: common/views_manage.py:430
 msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
 msgstr "为最近 N 天内至少有一条公开标记的用户刷新个性化推荐。"
 
-#: common/views_manage.py:435
+#: common/views_manage.py:436
 msgid "Per-User Seed Cap (serving)"
 msgstr "每用户种子标记上限（投递）"
 
-#: common/views_manage.py:437
+#: common/views_manage.py:438
 msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
 msgstr "为单个用户计算个性化推荐时，用作种子的最近标记数量。"
 
-#: common/views_manage.py:443
+#: common/views_manage.py:444
 msgid "Lazy Refresh TTL (days)"
 msgstr "懒刷新 TTL（天）"
 
-#: common/views_manage.py:445
+#: common/views_manage.py:446
 msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
 msgstr "按需推荐缓存的有效期，过期后下一次请求会触发刷新。"
 
-#: common/views_manage.py:451
+#: common/views_manage.py:452
 msgid "Circles Window (days)"
 msgstr "好友圈窗口（天）"
 
-#: common/views_manage.py:453
+#: common/views_manage.py:454
 msgid "Look back N days when finding items recently marked by people the viewer follows."
 msgstr "回溯 N 天，查找浏览者关注的用户最近标记过的条目。"
 
-#: common/views_manage.py:460
+#: common/views_manage.py:461
 msgid "Master Switch"
 msgstr "总开关"
 
-#: common/views_manage.py:463
+#: common/views_manage.py:464
 msgid "Similarity Builder"
 msgstr "相似度构建器"
 
-#: common/views_manage.py:470
+#: common/views_manage.py:471
 msgid "Personalisation"
 msgstr "个性化"
 
-#: common/views_manage.py:486
+#: common/views_manage.py:487
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
 msgstr "注册需要邀请令牌。可使用 neodb-manage invite --create 生成邀请令牌。"
 
-#: common/views_manage.py:491
+#: common/views_manage.py:492
 msgid "Enable Local-Only Posting"
 msgstr "启用仅本站可见帖文"
 
-#: common/views_manage.py:492
+#: common/views_manage.py:493
 msgid "Allow users to create posts visible only to local users."
 msgstr "允许用户创建仅本站用户可见的帖文。"
 
-#: common/views_manage.py:495
+#: common/views_manage.py:496
 msgid "Mastodon Login Whitelist"
 msgstr "Mastodon 登录白名单"
 
-#: common/views_manage.py:496
+#: common/views_manage.py:497
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr "每行一个域名。留空则允许任意实例。"
 
-#: common/views_manage.py:499
+#: common/views_manage.py:500
 msgid "Enable Bluesky Login"
 msgstr "启用 Bluesky 登录"
 
-#: common/views_manage.py:502
+#: common/views_manage.py:503
 msgid "Enable Threads Login"
 msgstr "启用 Threads 登录"
 
-#: common/views_manage.py:507
+#: common/views_manage.py:508
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr "语言代码，每行一个（如 en、zh、ja）。第一个为默认语言。"
 
-#: common/views_manage.py:513
+#: common/views_manage.py:514
 msgid "Access Control"
 msgstr "访问控制"
 
-#: common/views_manage.py:518
+#: common/views_manage.py:519
 msgid "Login Methods"
 msgstr "登录方式"
 
-#: common/views_manage.py:522
+#: common/views_manage.py:523
 msgid "Localization"
 msgstr "本地化"
 
-#: common/views_manage.py:532
+#: common/views_manage.py:533
 msgid "Disable Default Relay"
 msgstr "禁用默认中继"
 
-#: common/views_manage.py:534
+#: common/views_manage.py:535
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
 msgstr "禁用 relay.neodb.net 联邦中继（用于跨实例共享公开评分）。"
 
-#: common/views_manage.py:539
+#: common/views_manage.py:540
 msgid "Fanout Limit (days)"
 msgstr "扩散范围（天）"
 
-#: common/views_manage.py:540
+#: common/views_manage.py:541
 msgid "Posts older than this many days will not be fanned out."
 msgstr "超过此天数的帖文将不再扩散投递。"
 
-#: common/views_manage.py:544
+#: common/views_manage.py:545
 msgid "Remote Prune Horizon (days)"
 msgstr "远端清理期限（天）"
 
-#: common/views_manage.py:546
+#: common/views_manage.py:547
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr "不活跃超过此天数的远端用户资料将被清理。"
 
-#: common/views_manage.py:551
+#: common/views_manage.py:552
 msgid "Search Sites"
 msgstr "搜索站点"
 
-#: common/views_manage.py:552
+#: common/views_manage.py:553
 msgid "External search sites to include, one per line."
 msgstr "要包含的外部搜索站点，每行一个。"
 
-#: common/views_manage.py:555
+#: common/views_manage.py:556
 msgid "Federated Search Peers"
 msgstr "联邦搜索节点"
 
-#: common/views_manage.py:556
+#: common/views_manage.py:557
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr "用于联邦搜索的 NeoDB 节点实例，每行一个。"
 
-#: common/views_manage.py:559
+#: common/views_manage.py:560
 msgid "Hidden Categories"
 msgstr "隐藏的分类"
 
-#: common/views_manage.py:560
+#: common/views_manage.py:561
 msgid "Category values to hide from the catalog, one per line."
 msgstr "在目录中隐藏的分类值，每行一个。"
 
-#: common/views_manage.py:581
+#: common/views_manage.py:582
 msgid "Spotify API Key"
 msgstr "Spotify API 密钥"
 
-#: common/views_manage.py:582
+#: common/views_manage.py:583
 msgid "https://developer.spotify.com/"
 msgstr "https://developer.spotify.com/"
 
-#: common/views_manage.py:585
+#: common/views_manage.py:586
 msgid "TMDB API Key"
 msgstr "TMDB API 密钥"
 
-#: common/views_manage.py:586
+#: common/views_manage.py:587
 msgid "https://developer.themoviedb.org/"
 msgstr "https://developer.themoviedb.org/"
 
-#: common/views_manage.py:589
+#: common/views_manage.py:590
 msgid "Google Books API Key"
 msgstr "Google Books API 密钥"
 
-#: common/views_manage.py:590
+#: common/views_manage.py:591
 msgid "https://developers.google.com/books/"
 msgstr "https://developers.google.com/books/"
 
-#: common/views_manage.py:593
+#: common/views_manage.py:594
 msgid "Discogs API Key"
 msgstr "Discogs API 密钥"
 
-#: common/views_manage.py:595
+#: common/views_manage.py:596
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr "来自 https://www.discogs.com/settings/developers 的个人访问令牌"
 
-#: common/views_manage.py:599
+#: common/views_manage.py:600
 msgid "IGDB Client ID"
 msgstr "IGDB 客户端 ID"
 
-#: common/views_manage.py:600
+#: common/views_manage.py:601
 msgid "https://api-docs.igdb.com/"
 msgstr "https://api-docs.igdb.com/"
 
-#: common/views_manage.py:603
+#: common/views_manage.py:604
 msgid "IGDB Client Secret"
 msgstr "IGDB 客户端密钥"
 
-#: common/views_manage.py:606
+#: common/views_manage.py:607
 msgid "BoardGameGeek API Token"
 msgstr "BoardGameGeek API 令牌"
 
-#: common/views_manage.py:608
+#: common/views_manage.py:609
 msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
 msgstr "来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://boardgamegeek.com/using_the_xml_api#toc9）。"
 
-#: common/views_manage.py:613 users/templates/users/steam_import.html:26
+#: common/views_manage.py:614 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Steam API 密钥"
 
-#: common/views_manage.py:615
+#: common/views_manage.py:616
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr "https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自己的密钥。"
 
-#: common/views_manage.py:620
+#: common/views_manage.py:621
 msgid "DeepL API Key"
 msgstr "DeepL API 密钥"
 
-#: common/views_manage.py:621
+#: common/views_manage.py:622
 msgid "For translation features."
 msgstr "用于翻译功能。"
 
-#: common/views_manage.py:624
+#: common/views_manage.py:625
 msgid "LibreTranslate API URL"
 msgstr "LibreTranslate API URL"
 
-#: common/views_manage.py:627
+#: common/views_manage.py:628
 msgid "LibreTranslate API Key"
 msgstr "LibreTranslate API 密钥"
 
-#: common/views_manage.py:630
+#: common/views_manage.py:631
 msgid "Threads App ID"
 msgstr "Threads 应用 ID"
 
-#: common/views_manage.py:631
+#: common/views_manage.py:632
 msgid "OAuth app ID for Threads login."
 msgstr "用于 Threads 登录的 OAuth 应用 ID。"
 
-#: common/views_manage.py:634
+#: common/views_manage.py:635
 msgid "Threads App Secret"
 msgstr "Threads 应用密钥"
 
-#: common/views_manage.py:637
+#: common/views_manage.py:638
 msgid "Sentry DSN"
 msgstr "Sentry DSN"
 
-#: common/views_manage.py:638
+#: common/views_manage.py:639
 msgid "Requires restart to take effect."
 msgstr "需要重启才能生效。"
 
-#: common/views_manage.py:641
+#: common/views_manage.py:642
 msgid "Sentry Sample Rate"
 msgstr "Sentry 采样率"
 
-#: common/views_manage.py:642
+#: common/views_manage.py:643
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr "0.0 到 1.0。需要重启才能生效。"
 
-#: common/views_manage.py:647
+#: common/views_manage.py:648
 msgid "Discord Webhooks"
 msgstr "Discord Webhook"
 
-#: common/views_manage.py:649
+#: common/views_manage.py:650
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr "按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
 
-#: common/views_manage.py:666
+#: common/views_manage.py:667
 msgid "Catalog APIs"
 msgstr "目录 API"
 
-#: common/views_manage.py:676
+#: common/views_manage.py:677
 msgid "Translation"
 msgstr "翻译"
 
-#: common/views_manage.py:681
+#: common/views_manage.py:682
 msgid "Third-Party Login"
 msgstr "第三方登录"
 
-#: common/views_manage.py:685
+#: common/views_manage.py:686
 msgid "Monitoring"
 msgstr "监控"
 
-#: common/views_manage.py:697
+#: common/views_manage.py:698
 msgid "Scraping Providers"
 msgstr "抓取服务"
 
-#: common/views_manage.py:698
+#: common/views_manage.py:699
 msgid "Comma-separated list of providers to try in order."
 msgstr "按顺序尝试的服务列表，以逗号分隔。"
 
-#: common/views_manage.py:701
+#: common/views_manage.py:702
 msgid "Proxy List"
 msgstr "代理列表"
 
-#: common/views_manage.py:702
+#: common/views_manage.py:703
 msgid "One per line, format: http://server?url=__URL__"
 msgstr "每行一个，格式：http://server?url=__URL__"
 
-#: common/views_manage.py:705
+#: common/views_manage.py:706
 msgid "Backup Proxy"
 msgstr "备用代理"
 
-#: common/views_manage.py:708
+#: common/views_manage.py:709
 msgid "Scrapfly API Key"
 msgstr "Scrapfly API 密钥"
 
-#: common/views_manage.py:711
+#: common/views_manage.py:712
 msgid "Decodo Base64 Auth Token"
 msgstr "Decodo Base64 鉴权令牌"
 
-#: common/views_manage.py:714
+#: common/views_manage.py:715
 msgid "ScraperAPI Key"
 msgstr "ScraperAPI 密钥"
 
-#: common/views_manage.py:717
+#: common/views_manage.py:718
 msgid "ScrapingBee API Key"
 msgstr "ScrapingBee API 密钥"
 
-#: common/views_manage.py:720
+#: common/views_manage.py:721
 msgid "Custom Scraper URL"
 msgstr "自定义抓取器 URL"
 
-#: common/views_manage.py:721
+#: common/views_manage.py:722
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr "包含 __URL__ 和 __SELECTOR__ 占位符的 URL。"
 
-#: common/views_manage.py:724
+#: common/views_manage.py:725
 msgid "Request Timeout (seconds)"
 msgstr "请求超时（秒）"
 
-#: common/views_manage.py:728
+#: common/views_manage.py:729
 msgid "Cache Timeout (seconds)"
 msgstr "缓存超时（秒）"
 
-#: common/views_manage.py:732
+#: common/views_manage.py:733
 msgid "Retries"
 msgstr "重试次数"
 
-#: common/views_manage.py:737
+#: common/views_manage.py:738
 msgid "Providers"
 msgstr "服务"
 
-#: common/views_manage.py:742
+#: common/views_manage.py:743
 msgid "Provider Keys"
 msgstr "服务密钥"
 
-#: common/views_manage.py:749
+#: common/views_manage.py:750
 msgid "Timeouts"
 msgstr "超时设置"
 
-#: common/views_manage.py:761
+#: common/views_manage.py:762
 msgid "Alternative Domains"
 msgstr "备用域名"
 
-#: common/views_manage.py:762
+#: common/views_manage.py:763
 msgid "One domain per line."
 msgstr "每行一个域名。"
 
-#: common/views_manage.py:765
+#: common/views_manage.py:766
 msgid "Mastodon Client Scope"
 msgstr "Mastodon 客户端授权范围"
 
-#: common/views_manage.py:766
+#: common/views_manage.py:767
 msgid "OAuth scope when creating Mastodon apps."
 msgstr "创建 Mastodon 应用时使用的 OAuth 授权范围。"
 
-#: common/views_manage.py:769
+#: common/views_manage.py:770
 msgid "Disable Cron Jobs"
 msgstr "禁用定时任务"
 
-#: common/views_manage.py:770
+#: common/views_manage.py:771
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr "要禁用的任务名，每行一个。使用 * 禁用所有任务。"
 
-#: common/views_manage.py:773
+#: common/views_manage.py:774
 msgid "Index Aliases"
 msgstr "索引别名"
 
-#: common/views_manage.py:774
+#: common/views_manage.py:775
 msgid "Map index names to their aliases."
 msgstr "索引名称到别名的映射。"
 
-#: common/views_manage.py:784
+#: common/views_manage.py:785
 msgid "Task Cleanup (days)"
 msgstr "任务清理（天）"
 
-#: common/views_manage.py:786
+#: common/views_manage.py:787
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr "在此天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
 
-#: common/views_manage.py:792
+#: common/views_manage.py:793
 msgid "Skip Migration Jobs"
 msgstr "跳过迁移任务"
 
-#: common/views_manage.py:794
+#: common/views_manage.py:795
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr "要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被跳过的任务会记录警告并通知 Discord system 频道。"
 
-#: common/views_manage.py:801
+#: common/views_manage.py:802
 msgid "Domains"
 msgstr "域名"
 
-#: common/views_manage.py:804
+#: common/views_manage.py:805
 msgid "Operational"
 msgstr "运维"
+
+#: common/views_manage.py:819
+msgid "Movie Genres"
+msgstr "电影类型"
+
+#: common/views_manage.py:821
+msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "电影编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:826
+msgid "TV Genres"
+msgstr "剧集类型"
+
+#: common/views_manage.py:828
+msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "剧集编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:833
+msgid "Music Genres"
+msgstr "音乐类型"
+
+#: common/views_manage.py:835
+msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "音乐编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:840
+msgid "Game Genres"
+msgstr "游戏类型"
+
+#: common/views_manage.py:842
+msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "游戏编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:847
+msgid "Podcast Genres"
+msgstr "播客类型"
+
+#: common/views_manage.py:849
+msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "播客编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:854
+msgid "Performance Genres"
+msgstr "演出类型"
+
+#: common/views_manage.py:856
+msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
+msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
+
+#: common/views_manage.py:862
+msgid "Genres by Category"
+msgstr "按分类设置类型"
 
 #: journal/forms.py:24 journal/forms.py:26 journal/forms.py:70
 #: journal/forms.py:73 journal/forms.py:140

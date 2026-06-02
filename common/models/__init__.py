@@ -2,6 +2,8 @@ from .cron import BaseJob, JobManager
 from .genre import (
     GENRE_CHOICES,
     GENRE_CODES,
+    genre_choices_for,
+    get_genre_categories,
     normalize_genre,
     normalize_genres,
 )
@@ -31,7 +33,9 @@ __all__ = [
     "SITE_PREFERRED_LOCALES",
     "SiteConfig",
     "detect_language",
+    "genre_choices_for",
     "get_current_locales",
+    "get_genre_categories",
     "normalize_genre",
     "normalize_genres",
     "uniq",
