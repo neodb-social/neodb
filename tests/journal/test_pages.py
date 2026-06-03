@@ -84,6 +84,18 @@ def test_tag_pages_category_filter():
     # an invalid category is ignored, not an error
     assert client.get(list_url, {"category": "bogus"}).status_code == 200
 
+    # The category dropdown must render real option values/labels even on a
+    # repeat request, when visible_categories is served from the session cache
+    # as plain strings (regression: dropdown rendered blank/empty options).
+    response = client.get(list_url)
+    assert response.status_code == 200
+    content = response.content.decode()
+    select_html = content.split('id="category"', 1)[1].split("</select>", 1)[0]
+    assert 'value="book"' in select_html
+    assert "Book" in select_html
+    assert 'value="people"' not in select_html
+    assert 'value="collection"' not in select_html
+
     member_url = reverse("journal:user_tag_member_list", args=[handle, "mixed"])
     response = client.get(member_url)
     assert response.status_code == 200

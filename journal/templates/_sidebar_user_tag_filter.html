@@ -20,11 +20,28 @@
       <select name="category" id="category" onchange="filter()">
         <option value="" {% if not category %}selected{% endif %}>{% trans "All Categories" %}</option>
         {% visible_categories as cats %}
-        {% for c in cats %}
-          {% if c.value != 'people' and c.value != 'collection' %}
-            <option value="{{ c.value }}" {% if category == c %}selected{% endif %}>{{ c.label }}</option>
-          {% endif %}
-        {% endfor %}
+        {% if 'book' in cats %}
+          <option value="book" {% if category == 'book' %}selected{% endif %}>{% trans "Book" %}</option>
+        {% endif %}
+        {% if 'movie' in cats %}
+          <option value="movie" {% if category == 'movie' %}selected{% endif %}>{% trans "Movie" %}</option>
+        {% endif %}
+        {% if 'tv' in cats %}
+          <option value="tv" {% if category == 'tv' %}selected{% endif %}>{% trans "TV" %}</option>
+        {% endif %}
+        {% if 'podcast' in cats %}
+          <option value="podcast" {% if category == 'podcast' %}selected{% endif %}>{% trans "Podcast" %}</option>
+        {% endif %}
+        {% if 'music' in cats %}
+          <option value="music" {% if category == 'music' %}selected{% endif %}>{% trans "Music" %}</option>
+        {% endif %}
+        {% if 'game' in cats %}
+          <option value="game" {% if category == 'game' %}selected{% endif %}>{% trans "Game" %}</option>
+        {% endif %}
+        {% if 'performance' in cats %}
+          <option value="performance"
+                  {% if category == 'performance' %}selected{% endif %}>{% trans "Performance" %}</option>
+        {% endif %}
       </select>
     </fieldset>
   </form>
