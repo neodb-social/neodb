@@ -464,15 +464,16 @@ class ShelfMember(ListMember):
             "status": str(self.shelf_type),
             "createdAt": format_datetime(self.created_time),
         }
-        if self.sibling_comment and self.sibling_comment.text:
-            record["comment"] = self.sibling_comment.text
+        # comment_text/rating_grade use the manager's subquery annotations
+        # when present, avoiding extra queries per record build
+        comment = self.comment_text
+        if comment:
+            record["comment"] = comment
         # PDS records are world-readable; never include private tags
         tags = self.owner.tag_manager.get_item_tags(self.item, public_only=True)
         if tags:
             record["tags"] = tags
-        rating = build_rating(
-            self.sibling_rating.grade if self.sibling_rating else None
-        )
+        rating = build_rating(self.rating_grade)
         if rating:
             record["rating"] = rating
         return [(MARK_NSID, record)]
