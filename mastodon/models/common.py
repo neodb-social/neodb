@@ -128,3 +128,7 @@ class SocialAccount(TypedModel):
 
     def sync_graph(self) -> int:
         return 0
+
+    def on_disconnect(self) -> None:
+        """platform-specific cleanup when the account is unlinked from a user"""
+        pass

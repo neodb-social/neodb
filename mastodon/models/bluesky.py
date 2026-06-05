@@ -1,3 +1,6 @@
+import base64
+import hashlib
+import json
 import re
 import typing
 from functools import cached_property
@@ -7,6 +10,8 @@ from atproto_client import models
 from atproto_client.exceptions import AtProtocolError
 from atproto_identity.did.resolver import DidResolver
 from atproto_identity.handle.resolver import HandleResolver
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
 from django.utils import timezone
 from loguru import logger
@@ -19,6 +24,9 @@ from .common import SocialAccount
 if typing.TYPE_CHECKING:
     from catalog.models import Item
     from journal.models.common import Content
+
+
+PROFILE_NSID = "net.neodb.profile"
 
 
 class Bluesky:
@@ -181,7 +189,79 @@ class BlueskyAccount(SocialAccount):
                     "handle",
                 ]
             )
+        self.sync_profile_record()
         return True
+
+    @staticmethod
+    def _jcs(data: dict) -> bytes:
+        # JCS (RFC 8785) canonicalization; sorted compact JSON is equivalent
+        # for objects whose values are all strings, as is the case here
+        return json.dumps(
+            data, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        ).encode()
+
+    def _build_profile_record(self) -> dict[str, typing.Any]:
+        from journal.models.atproto import format_datetime
+
+        identity = self.user.identity
+        takahe_identity = identity.takahe_identity
+        record: dict[str, typing.Any] = {
+            "$type": PROFILE_NSID,
+            "did": self.uid,
+            "actor": identity.actor_uri,
+            "url": settings.SITE_INFO["site_url"] + identity.url,
+            "handle": identity.full_handle,
+            "createdAt": format_datetime(self.created),
+        }
+        if takahe_identity.private_key and takahe_identity.public_key_id:
+            # sign the statement with the actor's federation key so the link
+            # verifies in both directions: the record living in the DID's
+            # repo proves the DID side, the signature proves the actor side.
+            # modeled on FEP-c390 / W3C Data Integrity (eddsa-jcs-2022
+            # procedure with an RSA suite, as AP federation keys are RSA)
+            key = serialization.load_pem_private_key(
+                takahe_identity.private_key.encode(), password=None
+            )
+            if isinstance(key, rsa.RSAPrivateKey):
+                proof: dict[str, typing.Any] = {
+                    "type": "DataIntegrityProof",
+                    "cryptosuite": "rsa-pkcs1-sha256-jcs",
+                    "created": record["createdAt"],
+                    "verificationMethod": takahe_identity.public_key_id,
+                    "proofPurpose": "assertionMethod",
+                }
+                data = (
+                    hashlib.sha256(self._jcs(proof)).digest()
+                    + hashlib.sha256(self._jcs(record)).digest()
+                )
+                signature = key.sign(data, padding.PKCS1v15(), hashes.SHA256())
+                proof["proofValue"] = base64.b64encode(signature).decode()
+                record["proof"] = proof
+        return record
+
+    def sync_profile_record(self) -> None:
+        """Reconcile the net.neodb.profile record linking this DID to the
+        owner's NeoDB identity.
+
+        Written only while the identity is publicly discoverable -- PDS
+        records are world-readable -- and deleted otherwise (both idempotent).
+        """
+        identity = self.user.identity if self.user else None
+        if not identity:
+            return
+        try:
+            if identity.discoverable:
+                self.put_record(PROFILE_NSID, "self", self._build_profile_record())
+            else:
+                self.delete_record(PROFILE_NSID, "self")
+        except Exception as e:
+            logger.warning(f"{self} profile record sync error {e}")
+
+    def on_disconnect(self) -> None:
+        try:
+            self.delete_record(PROFILE_NSID, "self")
+        except Exception as e:
+            logger.warning(f"{self} profile record cleanup error {e}")
 
     def _paginate_dids(
         self,

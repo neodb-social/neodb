@@ -11,10 +11,11 @@ The lexicon is project-owned under the `net.neodb.*` namespace (reverse of
 
 ## Record types
 
-| Collection (NSID)  | Written from         | Purpose                                   |
-| ------------------ | -------------------- | ----------------------------------------- |
-| `net.neodb.mark`   | a shelf entry        | status (+ optional rating/comment/tags)   |
-| `net.neodb.review` | a review             | long-form review (+ optional rating)      |
+| Collection (NSID)   | Written from         | Purpose                                   |
+| ------------------- | -------------------- | ----------------------------------------- |
+| `net.neodb.mark`    | a shelf entry        | status (+ optional rating/comment/tags)   |
+| `net.neodb.review`  | a review             | long-form review (+ optional rating)      |
+| `net.neodb.profile` | the linked account   | verifiable link to the NeoDB identity     |
 
 ### Subject
 
@@ -58,6 +59,27 @@ A rating is a `net.neodb.defs#rating` object, `{ "value": 1..10, "max": 10 }`,
 embedded inline in a mark or review. There is deliberately no standalone
 rating record: the value would only duplicate what the mark and review
 already carry.
+
+### Profile
+
+`net.neodb.profile` (record key `self`) links the ATProto account to the
+owner's NeoDB identity (DID, AP actor id, profile URL, handle), so records
+are attributable and the link is verifiable in both directions. It is
+modeled on [FEP-c390] identity proofs with the direction mirrored: the
+record living in the DID's repo proves the DID side (only the DID holder
+can write there), while a [W3C Data Integrity] style `proof` signed with
+the identity's RSA federation key (published in the ActivityPub actor
+document at `proof.verificationMethod`) proves the NeoDB side. The
+cryptosuite `rsa-pkcs1-sha256-jcs` follows the `eddsa-jcs-2022` procedure
+with RSA; the signed document includes the `did` so a record cannot be
+replayed in another repo. See the lexicon for the exact verification steps.
+
+It is only written while the identity is **publicly discoverable**, deleted
+otherwise, and synced on the account refresh path (login and periodic sync)
+rather than on crossposting; disconnecting the account removes it.
+
+[FEP-c390]: https://codeberg.org/fediverse/fep/src/branch/main/fep/c390/fep-c390.md
+[W3C Data Integrity]: https://www.w3.org/TR/vc-data-integrity/
 
 ## Record keys and statelessness
 

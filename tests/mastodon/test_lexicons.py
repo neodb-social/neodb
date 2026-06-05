@@ -17,6 +17,7 @@ def test_load_lexicons_lists_valid_documents():
     nsids = [nsid for nsid, doc in mod.load_lexicons()]
     assert "net.neodb.defs" in nsids
     assert "net.neodb.mark" in nsids
+    assert "net.neodb.profile" in nsids
     assert "net.neodb.review" in nsids
 
 

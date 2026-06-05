@@ -102,6 +102,9 @@ def disconnect_identity(request, account):
                 _("You cannot disconnect last login identity."),
             )
         account.delete()
+    # platform-specific cleanup (e.g. remove the net.neodb.profile record
+    # from the PDS); best-effort, runs outside the transaction
+    account.on_disconnect()
     messages.add_message(
         request,
         messages.INFO,

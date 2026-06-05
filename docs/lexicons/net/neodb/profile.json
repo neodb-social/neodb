@@ -1,0 +1,82 @@
+{
+  "lexicon": 1,
+  "id": "net.neodb.profile",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Link from this ATProto account to the owner's NeoDB identity, modeled on FEP-c390 identity proofs with the direction mirrored: the record living in the DID's repo proves the DID side (only the DID holder can write here), while the proof, signed with the ActivityPub actor's federation key, proves the NeoDB side. Verifiers must check that 'did' equals the repo's DID and that the proof's verificationMethod belongs to 'actor'.",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["did", "actor", "url", "handle", "createdAt"],
+        "properties": {
+          "did": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of this repo; bound into the signed statement so the record cannot be replayed in another repo."
+          },
+          "actor": {
+            "type": "string",
+            "format": "uri",
+            "description": "ActivityPub actor id of the owner's NeoDB identity."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Profile page on the originating NeoDB instance."
+          },
+          "handle": {
+            "type": "string",
+            "description": "Fediverse handle of the identity, user@instance."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When the ATProto account was linked to the NeoDB identity."
+          },
+          "proof": {
+            "type": "ref",
+            "ref": "net.neodb.profile#proof"
+          }
+        }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "description": "W3C Data Integrity style proof (cf. FEP-c390 / FEP-8b32). Cryptosuite rsa-pkcs1-sha256-jcs follows the eddsa-jcs-2022 procedure with RSA, since ActivityPub federation keys are RSA: the signature is RSASSA-PKCS1-v1_5 with SHA-256 over sha256(JCS(proof minus proofValue)) || sha256(JCS(record minus proof)), JCS canonicalization per RFC 8785, proofValue base64-encoded. verificationMethod is the actor's public key as published in its ActivityPub actor document.",
+      "required": [
+        "type",
+        "cryptosuite",
+        "created",
+        "verificationMethod",
+        "proofPurpose",
+        "proofValue"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "knownValues": ["DataIntegrityProof"]
+        },
+        "cryptosuite": {
+          "type": "string",
+          "knownValues": ["rsa-pkcs1-sha256-jcs"]
+        },
+        "created": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "verificationMethod": {
+          "type": "string",
+          "format": "uri"
+        },
+        "proofPurpose": {
+          "type": "string",
+          "knownValues": ["assertionMethod"]
+        },
+        "proofValue": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
