@@ -36,7 +36,7 @@ LEXICON_COLLECTION = "com.atproto.lexicon.schema"
 def load_lexicons(lexicon_dir: Path = LEXICON_DIR) -> list[tuple[str, dict[str, Any]]]:
     docs = []
     for path in sorted(lexicon_dir.glob("**/*.json")):
-        doc = json.loads(path.read_text())
+        doc = json.loads(path.read_text(encoding="utf-8"))
         nsid = doc.get("id")
         if doc.get("lexicon") != 1 or not nsid:
             raise ValueError(f"{path}: not a valid lexicon document")

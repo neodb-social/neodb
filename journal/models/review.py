@@ -163,7 +163,12 @@ class Review(Content):
             "body": self.body,
             "createdAt": format_datetime(self.created_time),
         }
-        if self.edited_time and self.edited_time != self.created_time:
+        # created_time is set at instantiation but edited_time (auto_now) at DB
+        # write, so they always differ by a sliver; only a real gap is an edit
+        if (
+            self.edited_time
+            and (self.edited_time - self.created_time).total_seconds() > 1
+        ):
             record["updatedAt"] = format_datetime(self.edited_time)
         rating = build_rating(self.rating_grade)
         if rating:

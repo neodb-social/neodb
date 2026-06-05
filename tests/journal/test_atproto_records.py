@@ -1,3 +1,4 @@
+from datetime import timedelta
 from types import SimpleNamespace
 
 import pytest
@@ -46,6 +47,25 @@ def test_review_atproto_record():
     assert record["subject"]["title"] == "Dune"
     assert record["createdAt"].endswith("Z")
     assert review.atproto_collections() == {REVIEW_NSID}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_updated_at_only_for_real_edits():
+    user = User.register(email="upd@example.com", username="upduser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    _, record = review.to_atproto_records()[0]
+    # creation jitter between created_time and edited_time is not an edit
+    assert "updatedAt" not in record
+
+    Review.objects.filter(pk=review.pk).update(
+        edited_time=review.created_time + timedelta(minutes=5)
+    )
+    review.refresh_from_db()
+    _, record = review.to_atproto_records()[0]
+    assert record["updatedAt"].endswith("Z")
 
 
 @pytest.mark.django_db(databases="__all__")
