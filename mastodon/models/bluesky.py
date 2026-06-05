@@ -177,21 +177,55 @@ class BlueskyAccount(SocialAccount):
                 update_fields=[
                     "access_data",
                     "account_data",
-                    "last_reachable",
+                    "last_refresh",
+                    "handle",
                 ]
             )
         return True
 
+    def _paginate_dids(
+        self,
+        fetch: "typing.Callable[[str | None], typing.Any]",
+        attr: str,
+        max_pages: int = 200,
+    ) -> list[str]:
+        """Accumulate DIDs across every page of a cursored graph listing.
+
+        ``fetch(cursor)`` returns a response exposing ``.cursor`` and a list
+        attribute named ``attr``. ``max_pages`` (100 entries per page) bounds
+        the loop against a non-terminating cursor; truncation is logged rather
+        than failing silently.
+        """
+        dids: list[str] = []
+        cursor: str | None = None
+        for _ in range(max_pages):
+            r = fetch(cursor)
+            dids += [p.did for p in getattr(r, attr)]
+            cursor = r.cursor
+            if not cursor:
+                break
+        else:
+            logger.warning(
+                f"{self} graph listing '{attr}' truncated at {len(dids)} entries"
+            )
+        return dids
+
     def refresh_graph(self, save=True) -> bool:
         try:
-            r = self._client.get_followers(self.uid)
-            self.followers = [p.did for p in r.followers]
-            r = self._client.get_follows(self.uid)
-            self.following = [p.did for p in r.follows]
-            r = self._client.app.bsky.graph.get_mutes(
-                models.AppBskyGraphGetMutes.Params(cursor=None, limit=None)
+            self.following = self._paginate_dids(
+                lambda c: self._client.get_follows(self.uid, cursor=c, limit=100),
+                "follows",
             )
-            self.mutes = [p.did for p in r.mutes]
+            self.followers = self._paginate_dids(
+                lambda c: self._client.get_followers(self.uid, cursor=c, limit=100),
+                "followers",
+            )
+            self.mutes = self._paginate_dids(
+                lambda c: self._client.app.bsky.graph.get_mutes(
+                    models.AppBskyGraphGetMutes.Params(cursor=c, limit=100)
+                ),
+                "mutes",
+            )
         except AtProtocolError as e:
             logger.warning(f"{self} refresh_graph error: {e}")
             return False
@@ -296,6 +330,33 @@ class BlueskyAccount(SocialAccount):
 
     def delete_post(self, post_uri):
         self._client.delete_post(post_uri)
+
+    def put_record(
+        self, collection: str, rkey: str, record: dict[str, typing.Any]
+    ) -> dict[str, str]:
+        """Create or overwrite a record in the user's repo.
+
+        Idempotent: the same ``rkey`` updates the existing record in place,
+        so editing a NeoDB piece overwrites its record rather than duplicating
+        it. ``record`` must contain a ``$type`` field.
+        """
+        r = self._client.com.atproto.repo.put_record(
+            models.ComAtprotoRepoPutRecord.Data(
+                repo=self.uid,
+                collection=collection,
+                rkey=rkey,
+                record=record,
+            )
+        )
+        return {"uri": r.uri, "cid": r.cid}
+
+    def delete_record(self, collection: str, rkey: str) -> None:
+        """Delete a record by key. Idempotent: no error if it does not exist."""
+        self._client.com.atproto.repo.delete_record(
+            models.ComAtprotoRepoDeleteRecord.Data(
+                repo=self.uid, collection=collection, rkey=rkey
+            )
+        )
 
 
 class EmbedObj:
