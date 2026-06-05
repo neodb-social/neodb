@@ -1,4 +1,4 @@
-# NeoDB ATProto Lexicon
+# NeoDB ATProto Implementation
 
 NeoDB can publish a user's marks and reviews (with ratings embedded) to their
 ATProto Personal Data Server (PDS) as structured records, in addition to
@@ -96,47 +96,13 @@ deleted, its records are removed by the async crosspost-deletion job.
 
 ## Publishing the lexicon
 
-Publishing the schemas is **not required** for writes to work: a PDS accepts
-records in collections it does not know without validating them. The JSON
-files in this repository are the authoritative spec for now.
+Schema is being published as a `com.atproto.lexicon.schema` record in `@neodb.net`,
+with a DNS TXT record at `_lexicon.neodb.net` pointing its DID.
 
-To make `net.neodb.*` resolvable -- so tools, appviews and other developers can
-discover and validate the schemas -- ATProto lexicon resolution needs:
-
-1. a project-controlled ATProto account (the official `@neodb.net` account);
-2. each schema JSON published as a `com.atproto.lexicon.schema` record in that
-   account's repo, with the record key set to the NSID (e.g. `net.neodb.mark`);
-3. a DNS TXT record at `_lexicon.neodb.net` pointing to the account's DID
-   (`did=did:plc:...`).
-
-Step 2 is automated: the `publish lexicons` GitHub Actions workflow runs on
-every push to `main` of `neodb-social/neodb` that touches `docs/lexicons/`,
-publishing via the standalone script [`docs/lexicons/publish.py`](../lexicons/publish.py)
-(no Django or database required). Publishing is an explicit opt-in: the
-workflow skips the publish step until the `ATPROTO_APP_PASSWORD` repository
-secret (an app password for the `@neodb.net` account) is configured. The
-script also verifies step 3 and prints the exact TXT record to add when
-missing.
-
-To run it manually:
+To publish manually:
 
 ```
 ATPROTO_APP_PASSWORD=... uv run docs/lexicons/publish.py --handle neodb.net
 ```
 
-### Updating a published lexicon
-
-Publishing reruns automatically on merge to `main` whenever the schema files
-change; `put_record` overwrites the records in place (same rkey), so
-resolution always serves the latest files from this repository.
-
-Schema evolution must be **backwards-compatible**: adding new optional fields
-is fine; never remove or rename fields, change a field's type, make an
-optional field required, or tighten constraints. Records already written to
-user repos are not rewritten when the lexicon changes -- they refresh to the
-current shape on the owner's next sync of that piece (stable rkey, put
-overwrites) -- so old-shape records remain readable in the meantime and must
-stay valid. A change that cannot be made compatibly needs a new NSID (e.g.
-`net.neodb.mark2`) rather than a breaking edit. Note that once the lexicon is
-published and resolvable, PDS hosts may start validating new writes against
-it, so the published schemas must always match what the code writes.
+Or automatically on merge to `main` whenever the schema files change.
