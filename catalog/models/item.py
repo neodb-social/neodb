@@ -1551,11 +1551,14 @@ _CONTENT_TYPE_LIST = None
 def item_content_types() -> dict[type[Item], int]:
     global _CONTENT_TYPE_LIST
     if _CONTENT_TYPE_LIST is None:
-        _CONTENT_TYPE_LIST = {}
+        # populate a local dict first: assigning the global before it is
+        # fully filled lets concurrent threads see a partial mapping
+        d: dict[type[Item], int] = {}
         for cls in Item.__subclasses__():
-            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(
+            d[cls] = ContentType.objects.get(
                 app_label="catalog", model=cls.__name__.lower()
             ).id
+        _CONTENT_TYPE_LIST = d
     return _CONTENT_TYPE_LIST
 
 
@@ -1565,13 +1568,15 @@ _CATEGORY_LIST: dict[ItemCategory, list[type[Item]]] | None = None
 def item_categories() -> dict[ItemCategory, list[type[Item]]]:
     global _CATEGORY_LIST
     if _CATEGORY_LIST is None:
-        _CATEGORY_LIST = {}
+        # same as above: never expose a partially-populated mapping
+        d: dict[ItemCategory, list[type[Item]]] = {}
         for cls in Item.__subclasses__():
             c = getattr(cls, "category", None)
             if c is None:
                 continue
-            if c not in _CATEGORY_LIST:
-                _CATEGORY_LIST[c] = [cls]
+            if c not in d:
+                d[c] = [cls]
             else:
-                _CATEGORY_LIST[c].append(cls)
+                d[c].append(cls)
+        _CATEGORY_LIST = d
     return _CATEGORY_LIST

@@ -1,4 +1,4 @@
-name: publish lexicons
+name: Publish Lexicons
 
 on:
   push:

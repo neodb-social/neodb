@@ -169,11 +169,11 @@ Applications
 Main Django apps for NeoDB:
 
  - `users` manages user in typical Django fashion
- - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto}(https://atproto.com) for user login and data sync
+ - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto}(https://atproto.com) for user login and data sync. see [internals/atproto.md](internals/federation.md) for customization of ATProto
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` present timeline and notification for local users
- - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in the `neodb-takahe` folder of this repo), see [federation.md](internals/federation.md) for customization of ActivityPub protocol
+ - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in the `neodb-takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 
