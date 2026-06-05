@@ -354,7 +354,12 @@ class User(AbstractUser):
             if account and not new_user.is_superuser:
                 _check_auto_promote_superuser(new_user, account)
             new_user.identity.shelf_manager
-            return new_user
+        if account:
+            # the account was authenticated before the user existed, so
+            # sync it again now that it is linked (e.g. to publish the
+            # net.neodb.profile record on the user's PDS)
+            new_user.sync_accounts_later()
+        return new_user
 
     def reconnect_account(self, account: SocialAccount):
         with transaction.atomic():

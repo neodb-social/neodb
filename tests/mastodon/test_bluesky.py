@@ -114,3 +114,21 @@ def test_profile_record_removed_when_not_discoverable(monkeypatch):
     account.sync_profile_record()
 
     assert (PROFILE_NSID, "self") in deletes
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_register_with_account_schedules_sync(monkeypatch):
+    called = []
+    monkeypatch.setattr(
+        User, "sync_accounts_later", lambda self: called.append(self.pk)
+    )
+    account = BlueskyAccount.objects.create(
+        domain="-", uid="did:plc:reg", handle="reg.example"
+    )
+    user = User.register(username="reguser", account=account)
+
+    # the account is linked and a sync is scheduled so the profile
+    # record gets published now that the user exists
+    account.refresh_from_db()
+    assert account.user == user
+    assert called == [user.pk]
