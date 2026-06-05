@@ -14,6 +14,13 @@ from common.models import jsondata
 from takahe.utils import Takahe
 from users.models import APIdentity
 
+from .atproto import (
+    MARK_NSID,
+    AtprotoRecord,
+    build_rating,
+    build_subject,
+    format_datetime,
+)
 from .common import q_item_in_category
 from .itemlist import List, ListMember
 from .renderers import render_post_with_macro, render_rating, render_spoiler_text
@@ -446,6 +453,29 @@ class ShelfMember(ListMember):
             "summary": spoiler,
             "sensitive": spoiler is not None,
         }
+
+    def atproto_collections(self) -> set[str]:
+        return {MARK_NSID}
+
+    def to_atproto_records(self) -> list[AtprotoRecord]:
+        record: dict[str, Any] = {
+            "$type": MARK_NSID,
+            "subject": build_subject(self.item),
+            "status": str(self.shelf_type),
+            "createdAt": format_datetime(self.created_time),
+        }
+        if self.sibling_comment and self.sibling_comment.text:
+            record["comment"] = self.sibling_comment.text
+        # PDS records are world-readable; never include private tags
+        tags = self.owner.tag_manager.get_item_tags(self.item, public_only=True)
+        if tags:
+            record["tags"] = tags
+        rating = build_rating(
+            self.sibling_rating.grade if self.sibling_rating else None
+        )
+        if rating:
+            record["rating"] = rating
+        return [(MARK_NSID, record)]
 
     def get_ap_data(self):
         data = super().get_ap_data()

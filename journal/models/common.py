@@ -39,6 +39,7 @@ from .mixins import UserOwnedObjectMixin
 if TYPE_CHECKING:
     from takahe.models import Post
 
+    from .atproto import AtprotoRecord
     from .itemlist import ListMember
     from .like import Like
 
@@ -339,6 +340,36 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         """
         return {}
 
+    def atproto_collections(self) -> set[str]:
+        """ATProto collections (NSIDs) this piece manages on the owner's PDS.
+
+        Every collection listed here is reconciled on sync: its record is
+        written when present in :meth:`to_atproto_records`, or deleted
+        otherwise. The default manages nothing.
+        """
+        return set()
+
+    def atproto_rkey(self) -> str:
+        """Record key for this piece's PDS records: the piece's own uuid.
+
+        Derivable from the piece itself (no stored state), stable across
+        edits and across item merges (unlike a subject-derived key), and
+        distinct pieces -- e.g. future multiple reviews of one work -- map
+        to distinct records.
+        """
+        return self.uuid
+
+    def to_atproto_records(self) -> "list[AtprotoRecord]":
+        """Structured ``net.neodb.*`` records that should currently exist on
+        the owner's PDS, as ``(collection, record)`` pairs.
+
+        The record key comes from :meth:`atproto_rkey`, so records are
+        reconstructable and never need to be tracked in the database; updates
+        overwrite in place. Subclasses with a portable representation (review,
+        mark) override this; the default publishes nothing.
+        """
+        return []
+
     @classmethod
     def update_by_ap_object(
         cls,
@@ -402,7 +433,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return p
 
     @classmethod
-    def _delete_crossposts(cls, user_pk, metadata: dict):
+    def _delete_crossposts(cls, user_pk, metadata: dict, record_refs=None):
         user = User.objects.get(pk=user_pk)
         toot_id = metadata.get("mastodon_id")
         if toot_id and user.mastodon:
@@ -413,11 +444,37 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 user.bluesky.delete_post(post_id)
             except Exception as e:
                 logger.warning(f"Delete {user.bluesky} post {post_id} error {e}")
+        if record_refs and user.bluesky:
+            for collection, rkey in record_refs:
+                try:
+                    user.bluesky.delete_record(collection, rkey)
+                except Exception as e:
+                    logger.warning(
+                        f"Delete {user.bluesky} record {collection}/{rkey} error {e}"
+                    )
 
     def delete_crossposts(self):
-        if hasattr(self, "metadata") and self.metadata:
+        metadata = (
+            self.metadata.copy() if hasattr(self, "metadata") and self.metadata else {}
+        )
+        # record keys are derived here while the piece still exists so the
+        # async job can clean up the PDS without stored state.
+        # not gated on metadata: records may exist even when no skeet was
+        # ever posted (e.g. the feed post failed but put_record succeeded)
+        record_refs = (
+            [
+                [collection, self.atproto_rkey()]
+                for collection in self.atproto_collections()
+            ]
+            if self.owner.user_id and self.owner.user.bluesky
+            else []
+        )
+        if metadata or record_refs:
             django_rq.get_queue("mastodon").enqueue(
-                self._delete_crossposts, self.owner.user_id, self.metadata
+                self._delete_crossposts,
+                self.owner.user_id,
+                metadata,
+                record_refs,
             )
 
     def get_crosspost_params(self):
@@ -469,7 +526,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         # skip non-public post as Bluesky does not support it
         # update_mode 0 will act like 1 as bsky.app does not support edit
         bluesky = self.owner.user.bluesky
-        if params["visibility"] != 0 or not bluesky:
+        if not bluesky:
+            return False
+        if params["visibility"] != 0:
+            # piece is no longer public: drop any records previously written
+            # to the PDS, since PDS records are world-readable
+            self._sync_records_to_bluesky(bluesky, drop=True)
             return False
         if update_mode in [0, 1]:
             post_id = self.metadata.get("bluesky_id")
@@ -505,7 +567,39 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             sentry_count("crosspost.success", attributes=attrs)
         else:
             sentry_count("crosspost.failure", attributes=attrs)
+        self._sync_records_to_bluesky(bluesky)
         return True
+
+    def _sync_records_to_bluesky(self, bluesky, drop: bool = False):
+        """Reconcile this piece's net.neodb.* records on the owner's PDS.
+
+        For every collection the piece manages, the record is written (keyed
+        by :meth:`atproto_rkey`, so put_record overwrites in place on edit)
+        when present, or deleted otherwise -- including the case where the
+        piece is no longer public (``drop``). No state is stored: records are
+        reconstructable from the piece, and put/delete are both idempotent.
+        """
+        collections = self.atproto_collections()
+        if not collections:
+            return
+        rkey = self.atproto_rkey()
+        try:
+            present = (
+                {} if drop else {c: record for c, record in self.to_atproto_records()}
+            )
+        except Exception as e:
+            logger.warning(f"{self} build atproto records error {e}")
+            return
+        for collection in collections:
+            try:
+                if collection in present:
+                    bluesky.put_record(collection, rkey, present[collection])
+                else:
+                    bluesky.delete_record(collection, rkey)
+            except Exception as e:
+                logger.warning(
+                    f"{self} sync record {collection} to {bluesky} error {e}"
+                )
 
     def sync_to_threads(self, params, update_mode):
         # skip non-public post as Threads does not support it

@@ -15,6 +15,13 @@ from catalog.models import Item
 from takahe.utils import Takahe
 from users.models import APIdentity
 
+from .atproto import (
+    REVIEW_NSID,
+    AtprotoRecord,
+    build_rating,
+    build_subject,
+    format_datetime,
+)
 from .common import Content
 from .rating import Rating
 from .renderers import has_spoiler, render_md, render_post_with_macro, render_rating
@@ -144,6 +151,24 @@ class Review(Content):
         )
         params = {"content": content, "obj": self, "rating": self.rating_grade}
         return params
+
+    def atproto_collections(self) -> set[str]:
+        return {REVIEW_NSID}
+
+    def to_atproto_records(self) -> list[AtprotoRecord]:
+        record: dict[str, Any] = {
+            "$type": REVIEW_NSID,
+            "subject": build_subject(self.item),
+            "title": self.title,
+            "body": self.body,
+            "createdAt": format_datetime(self.created_time),
+        }
+        if self.edited_time and self.edited_time != self.created_time:
+            record["updatedAt"] = format_datetime(self.edited_time)
+        rating = build_rating(self.rating_grade)
+        if rating:
+            record["rating"] = rating
+        return [(REVIEW_NSID, record)]
 
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
