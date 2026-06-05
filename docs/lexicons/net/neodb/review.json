@@ -1,0 +1,43 @@
+{
+  "lexicon": 1,
+  "id": "net.neodb.review",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A long-form review of a catalog work, authored on a NeoDB instance.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["subject", "title", "body", "createdAt"],
+        "properties": {
+          "subject": {
+            "type": "ref",
+            "ref": "net.neodb.defs#subject"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 2000,
+            "maxGraphemes": 500
+          },
+          "body": {
+            "type": "string",
+            "description": "Review body in Markdown."
+          },
+          "rating": {
+            "type": "ref",
+            "ref": "net.neodb.defs#rating",
+            "description": "Optional rating accompanying the review."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

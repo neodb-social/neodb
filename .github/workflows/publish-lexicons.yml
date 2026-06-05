@@ -1,0 +1,29 @@
+name: publish lexicons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/lexicons/**"
+      - ".github/workflows/publish-lexicons.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'neodb-social/neodb'
+    env:
+      ATPROTO_APP_PASSWORD: ${{ secrets.ATPROTO_APP_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Publish lexicons to ATProto
+        # skipped until the ATPROTO_APP_PASSWORD secret is configured,
+        # i.e. publishing the schema is an explicit opt-in
+        if: env.ATPROTO_APP_PASSWORD != ''
+        run: uv run docs/lexicons/publish.py --handle neodb.net

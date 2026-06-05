@@ -1,0 +1,47 @@
+{
+  "lexicon": 1,
+  "id": "net.neodb.mark",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A shelf entry recording a user's status toward a catalog work, with optional rating, comment and tags.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["subject", "status", "createdAt"],
+        "properties": {
+          "subject": {
+            "type": "ref",
+            "ref": "net.neodb.defs#subject"
+          },
+          "status": {
+            "type": "string",
+            "description": "Shelf the work is on.",
+            "enum": ["wishlist", "progress", "complete", "dropped"]
+          },
+          "rating": {
+            "type": "ref",
+            "ref": "net.neodb.defs#rating"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "Short comment in plain text."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 640,
+              "maxGraphemes": 64
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

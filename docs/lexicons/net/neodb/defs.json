@@ -1,0 +1,92 @@
+{
+  "lexicon": 1,
+  "id": "net.neodb.defs",
+  "defs": {
+    "subject": {
+      "type": "object",
+      "description": "Inline reference to a catalog work. NeoDB items are not ATProto records, so a work is referenced by URL (its NeoDB permalink and source site URLs) rather than a strongRef.",
+      "required": ["uri", "category", "type", "title"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "Permalink to the work on the originating NeoDB instance."
+        },
+        "category": {
+          "type": "string",
+          "description": "Broad media category of the work. Open set; future NeoDB versions may add values.",
+          "knownValues": [
+            "book",
+            "movie",
+            "tv",
+            "music",
+            "game",
+            "podcast",
+            "performance",
+            "people"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "description": "Specific NeoDB item class (mirrors the NeoDB API schema), distinguishing entities that share a category, e.g. TVShow / TVSeason / TVEpisode, Podcast / PodcastEpisode, Performance / PerformanceProduction, Edition, Movie, Album, Game."
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 2000,
+          "maxGraphemes": 1000,
+          "description": "Display title of the work."
+        },
+        "cover": {
+          "type": "string",
+          "format": "uri",
+          "description": "Absolute URL of the work's cover image, when present."
+        },
+        "sources": {
+          "type": "array",
+          "description": "URLs of the external source records the work was matched from (IMDB, TMDB, Douban, Goodreads, etc.), referenced by URL rather than raw id.",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Standardized identifiers of the work. Only standard, site-independent identifier types are included (e.g. isbn, imdb, wikidata, asin, gtin, isrc); site-specific ids are conveyed as URLs in sources instead.",
+          "items": {
+            "type": "ref",
+            "ref": "net.neodb.defs#identifier"
+          }
+        }
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Identifier namespace, e.g. isbn, imdb, wikidata."
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "rating": {
+      "type": "object",
+      "description": "A numeric rating on a 1..max scale.",
+      "required": ["value", "max"],
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}
