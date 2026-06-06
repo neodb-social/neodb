@@ -1,7 +1,7 @@
 import re
 from datetime import timedelta
 from functools import cached_property, reduce
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, cast
 
 import django_rq
 from django_redis import get_redis_connection
@@ -21,13 +21,13 @@ _PENDING_INDEX_JOB_ID = "pending_catalog_index_flush"
 
 def _update_catalog_index_task():
     conn = get_redis_connection("default")
-    item_ids = conn.spop(_PENDING_INDEX_KEY, 1000)
+    item_ids = cast(list[bytes], conn.spop(_PENDING_INDEX_KEY, 1000))
     updated = 0
     index = CatalogIndex.instance()
     while item_ids:
         index.replace_items([int(i) for i in item_ids])
         updated += len(item_ids)
-        item_ids = conn.spop(_PENDING_INDEX_KEY, 1000)
+        item_ids = cast(list[bytes], conn.spop(_PENDING_INDEX_KEY, 1000))
     logger.info(f"Catalog index updated for {updated} items")
 
 

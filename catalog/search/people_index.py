@@ -1,6 +1,6 @@
 from datetime import timedelta
 from functools import cached_property
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, cast
 
 import django_rq
 from django.db.models import Count
@@ -21,13 +21,13 @@ _PENDING_PEOPLE_INDEX_JOB_ID = "pending_people_index_flush"
 
 def _update_people_index_task():
     conn = get_redis_connection("default")
-    item_ids = conn.spop(_PENDING_PEOPLE_INDEX_KEY, 1000)
+    item_ids = cast(list[bytes], conn.spop(_PENDING_PEOPLE_INDEX_KEY, 1000))
     updated = 0
     index = PeopleIndex.instance()
     while item_ids:
         index.replace_people([int(i) for i in item_ids])
         updated += len(item_ids)
-        item_ids = conn.spop(_PENDING_PEOPLE_INDEX_KEY, 1000)
+        item_ids = cast(list[bytes], conn.spop(_PENDING_PEOPLE_INDEX_KEY, 1000))
     logger.info(f"People index updated for {updated} items")
 
 
