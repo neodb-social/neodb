@@ -169,7 +169,7 @@ Applications
 Main Django apps for NeoDB:
 
  - `users` manages user in typical Django fashion
- - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto}(https://atproto.com) for user login and data sync. see [internals/atproto.md](internals/federation.md) for customization of ATProto
+ - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto](https://atproto.com) for user login and data sync. see [ATProto](internals/atproto.md) for details of ATProto implementation
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` present timeline and notification for local users
