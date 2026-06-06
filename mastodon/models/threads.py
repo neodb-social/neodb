@@ -1,8 +1,9 @@
 import functools
+import re
 import secrets
 import typing
 from datetime import timedelta
-from urllib.parse import quote
+from urllib.parse import urlencode
 
 import requests
 from django.conf import settings
@@ -37,14 +38,35 @@ post = functools.partial(
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 delete = functools.partial(
-    requests.post,
+    requests.delete,
     timeout=settings.THREADS_TIMEOUT,
     headers={"User-Agent": settings.NEODB_USER_AGENT},
 )
 
+# Threads text posts allow up to 500 characters,
+# leave some buffer as emoji may count as more than one
+THREADS_MAX_TEXT_LENGTH = 480
+
+
+def _truncate_for_threads(text: str, obj: "Item | Content | None") -> str:
+    if len(text) <= THREADS_MAX_TEXT_LENGTH:
+        return text
+    link = obj.absolute_url if obj else ""
+    if not link:
+        # some content (e.g. note) embeds the item link in a trailing footer
+        urls = re.findall(r"https?://\S+", text)
+        link = urls[-1] if urls else ""
+    suffix = "……\n" + link if link else "……"
+    head = text[: max(THREADS_MAX_TEXT_LENGTH - len(suffix), 0)]
+    if link and link in head:
+        # link survives truncation, no need to re-append it
+        suffix = "……"
+        head = text[: THREADS_MAX_TEXT_LENGTH - len(suffix)]
+    return head.rstrip() + suffix
+
 
 class Threads:
-    SCOPE = "threads_basic,threads_content_publish"
+    SCOPE = "threads_basic,threads_content_publish,threads_manage_replies"
     DOMAIN = "threads.net"
 
     @staticmethod
@@ -52,8 +74,16 @@ class Threads:
         redirect_url = request.build_absolute_uri(reverse("mastodon:threads_oauth"))
         state = secrets.token_urlsafe(32)
         request.session["oauth_state"] = state
-        url = f"https://threads.net/oauth/authorize?client_id={SiteConfig.system.threads_app_id}&redirect_uri={redirect_url}&scope={Threads.SCOPE}&response_type=code&state={state}"
-        return url
+        query = urlencode(
+            {
+                "client_id": SiteConfig.system.threads_app_id,
+                "redirect_uri": redirect_url,
+                "scope": Threads.SCOPE,
+                "response_type": "code",
+                "state": state,
+            }
+        )
+        return f"https://threads.net/oauth/authorize?{query}"
 
     @staticmethod
     def obtain_token(
@@ -137,19 +167,28 @@ class Threads:
 
     @staticmethod
     def post_single(token: str, user_id: str, text: str, reply_to_id=None):
-        url = f"https://graph.threads.net/v1.0/{user_id}/threads?media_type=TEXT&access_token={token}&text={quote(text)}"
-        # TODO waiting for Meta to confirm it's bug or permission issue
-        # if reply_to_id:
-        #     url += "&reply_to_id=" + reply_to_id
-        response = post(url)
+        url = f"https://graph.threads.net/v1.0/{user_id}/threads"
+        params = {"media_type": "TEXT", "text": text, "access_token": token}
+        if reply_to_id:
+            # replying requires threads_manage_replies permission
+            params["reply_to_id"] = reply_to_id
+        response = post(url, params=params)
+        if response.status_code != 200 and reply_to_id:
+            # token may predate threads_manage_replies scope,
+            # retry as a top-level post instead of a reply
+            logger.debug(f"Error {url} {response.status_code} {response.content}")
+            del params["reply_to_id"]
+            response = post(url, params=params)
         if response.status_code != 200:
             logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None
         media_container_id = (response.json() or {}).get("id")
         if not media_container_id:
             return None
-        url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish?creation_id={media_container_id}&access_token={token}"
-        response = post(url)
+        url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish"
+        response = post(
+            url, params={"creation_id": media_container_id, "access_token": token}
+        )
         if response.status_code != 200:
             logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None
@@ -160,7 +199,7 @@ class Threads:
     def get_single(token: str, media_id: str) -> dict | None:
         # url = f"https://graph.threads.net/v1.0/{media_id}?fields=id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post&access_token={token}"
         url = f"https://graph.threads.net/v1.0/{media_id}?fields=id,permalink,is_quote_post&access_token={token}"
-        response = post(url)
+        response = get(url)
         if response.status_code != 200:
             return None
         return response.json()
@@ -221,7 +260,9 @@ class ThreadsAccount(SocialAccount):
             return True
         token, expire = Threads.refresh_token(self.access_token)
         if not token or not expire:
-            return False
+            # long-lived tokens less than 24 hours old cannot be refreshed,
+            # so treat an unexpired token as alive and retry refreshing later
+            return self.token_expires_at is not None
         self.access_token = token
         self.last_reachable = timezone.now()
         self.token_expires_at = self.last_reachable + timedelta(seconds=expire)
@@ -266,6 +307,7 @@ class ThreadsAccount(SocialAccount):
             .replace("##obj_link_if_plain##", obj.absolute_url + "\n" if obj else "")
             .replace("##obj##", obj.display_title if obj else "")
         )
+        text = _truncate_for_threads(text, obj)
         media_id = Threads.post_single(self.access_token, self.uid, text, reply_to_id)
         if not media_id:
             raise RequestAborted()

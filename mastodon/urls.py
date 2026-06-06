@@ -20,6 +20,7 @@ urlpatterns = [
     path("threads/disconnect", threads_disconnect, name="threads_disconnect"),
     path("threads/uninstall", threads_uninstall, name="threads_uninstall"),
     path("threads/delete", threads_delete, name="threads_delete"),
+    path("threads/delete/status", threads_delete_status, name="threads_delete_status"),
     # Bluesky
     path("bluesky/login", bluesky_login, name="bluesky_login"),
     path("bluesky/reconnect", bluesky_reconnect, name="bluesky_reconnect"),
