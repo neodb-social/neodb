@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import re
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -78,8 +79,11 @@ def _parse_signed_request(signed_request: str) -> dict | None:
     except ValueError, TypeError:
         return None
     secret = SiteConfig.system.threads_app_secret
+    if not secret:
+        logger.warning("Threads app secret not configured")
+        return None
     expected_sig = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest()
-    if not secret or not hmac.compare_digest(sig, expected_sig):
+    if not hmac.compare_digest(sig, expected_sig):
         logger.warning("Threads signed_request signature mismatch")
         return None
     return data if isinstance(data, dict) else None
@@ -131,7 +135,8 @@ def threads_delete(request: HttpRequest):
 @require_http_methods(["GET"])
 def threads_delete_status(request: HttpRequest):
     """status page for Threads data deletion requests"""
-    code = request.GET.get("code", "")
+    # confirmation codes are generated as "threads_<numeric uid>"
+    code = re.sub(r"[^A-Za-z0-9_-]", "", request.GET.get("code", ""))
     return render(
         request,
         "common/error.html",

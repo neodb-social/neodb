@@ -57,12 +57,17 @@ def _truncate_for_threads(text: str, obj: "Item | Content | None") -> str:
         urls = re.findall(r"https?://\S+", text)
         link = urls[-1] if urls else ""
     suffix = "……\n" + link if link else "……"
-    head = text[: max(THREADS_MAX_TEXT_LENGTH - len(suffix), 0)]
-    if link and link in head:
+    cut = max(THREADS_MAX_TEXT_LENGTH - len(suffix), 0)
+    if link and link in text[:cut]:
         # link survives truncation, no need to re-append it
         suffix = "……"
-        head = text[: THREADS_MAX_TEXT_LENGTH - len(suffix)]
-    return head.rstrip() + suffix
+        cut = THREADS_MAX_TEXT_LENGTH - len(suffix)
+    elif link:
+        # if the truncation point falls inside the link, cut right before it
+        idx = text.rfind(link, 0, cut + len(link) - 1)
+        if idx != -1:
+            cut = idx
+    return text[:cut].rstrip() + suffix
 
 
 class Threads:
@@ -172,13 +177,17 @@ class Threads:
         if reply_to_id:
             # replying requires threads_manage_replies permission
             params["reply_to_id"] = reply_to_id
-        response = post(url, params=params)
-        if response.status_code != 200 and reply_to_id:
-            # token may predate threads_manage_replies scope,
-            # retry as a top-level post instead of a reply
-            logger.debug(f"Error {url} {response.status_code} {response.content}")
-            del params["reply_to_id"]
+        try:
             response = post(url, params=params)
+            if response.status_code != 200 and reply_to_id:
+                # token may predate threads_manage_replies scope,
+                # retry as a top-level post instead of a reply
+                logger.debug(f"Error {url} {response.status_code} {response.content}")
+                del params["reply_to_id"]
+                response = post(url, params=params)
+        except Exception as e:
+            logger.warning(f"Error {url} {e}")
+            return None
         if response.status_code != 200:
             logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None
@@ -186,9 +195,13 @@ class Threads:
         if not media_container_id:
             return None
         url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish"
-        response = post(
-            url, params={"creation_id": media_container_id, "access_token": token}
-        )
+        try:
+            response = post(
+                url, params={"creation_id": media_container_id, "access_token": token}
+            )
+        except Exception as e:
+            logger.warning(f"Error {url} {e}")
+            return None
         if response.status_code != 200:
             logger.debug(f"Error {url} {response.status_code} {response.content}")
             return None

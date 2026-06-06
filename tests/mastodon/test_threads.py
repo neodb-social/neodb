@@ -93,6 +93,17 @@ class TestTruncateForThreads:
         assert len(result) <= THREADS_MAX_TEXT_LENGTH
         assert result.endswith("……")
 
+    def test_truncation_does_not_cut_link_midway(self):
+        # place the link so it straddles the truncation point
+        item = _fake_item()
+        cut = THREADS_MAX_TEXT_LENGTH - len("……\n" + item.absolute_url)
+        text = "x" * (cut - 10) + item.absolute_url + "y" * 200
+        result = _truncate_for_threads(text, item)
+        assert len(result) <= THREADS_MAX_TEXT_LENGTH
+        assert result.endswith(item.absolute_url)
+        # no broken partial URL left at the truncation point
+        assert result.count("http") == 1
+
 
 class TestGenerateAuthUrl:
     def test_auth_url_params_encoded(self, monkeypatch):
@@ -151,6 +162,13 @@ class TestPostSingle:
         assert "reply_to_id" in calls[0][1]
         assert "reply_to_id" not in calls[1][1]
         assert calls[2][0].endswith("/42/threads_publish")
+
+    def test_post_network_error_returns_none(self, monkeypatch):
+        def fake_post(url, params=None, **kwargs):
+            raise OSError("connection failed")
+
+        monkeypatch.setattr("mastodon.models.threads.post", fake_post)
+        assert Threads.post_single("tok", "42", "hello") is None
 
 
 class TestCheckAlive:
