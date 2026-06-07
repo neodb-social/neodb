@@ -13,6 +13,7 @@ from atproto_identity.handle.resolver import HandleResolver
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from loguru import logger
 
@@ -99,6 +100,9 @@ class BlueskyAccount(SocialAccount):
     display_name = jsondata.CharField(json_field_name="account_data", default="")
     description = jsondata.CharField(json_field_name="account_data", default="")
     avatar = jsondata.CharField(json_field_name="account_data", default="")
+
+    def get_reauthorize_url(self) -> str:
+        return reverse("users:login") + "?method=atproto"
 
     def on_session_change(self, event, session) -> None:
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):

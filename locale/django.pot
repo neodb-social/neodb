@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 02:20+0200\n"
+"POT-Creation-Date: 2026-06-06 11:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1347,7 +1347,7 @@ msgstr ""
 #: journal/templates/mark.html:157 journal/templates/note.html:45
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
-#: users/templates/users/account.html:258
+#: users/templates/users/account.html:263
 msgid "Delete"
 msgstr ""
 
@@ -3331,7 +3331,7 @@ msgstr ""
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
 
-#: common/templates/_header.html:17 common/templates/_header.html:158
+#: common/templates/_header.html:17 common/templates/_header.html:162
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr ""
 
@@ -3369,64 +3369,71 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: common/templates/_header.html:111 common/templates/common/scan.html:9
+#: common/templates/_header.html:112 common/templates/common/scan.html:9
 #: common/templates/common/scan.html:42
 msgid "Scan Barcode"
 msgstr ""
 
-#: common/templates/_header.html:115 social/templates/notification.html:12
+#: common/templates/_header.html:116 social/templates/notification.html:12
 #: social/templates/notification.html:53
 msgid "Notification"
 msgstr ""
 
-#: common/templates/_header.html:119
+#: common/templates/_header.html:120 users/templates/users/account.html:228
+#: users/templates/users/crossposts.html:9
+#: users/templates/users/crossposts.html:18
+msgid "Failed Crossposts"
+msgstr ""
+
+#: common/templates/_header.html:123
 msgid "Data"
 msgstr ""
 
-#: common/templates/_header.html:122 common/templates/_header.html:140
+#: common/templates/_header.html:126 common/templates/_header.html:144
 #: users/templates/users/preferences.html:12
 #: users/templates/users/preferences.html:23
 #: users/templates/users/preferences_anonymous.html:13
 msgid "Preferences"
 msgstr ""
 
-#: common/templates/_header.html:125
+#: common/templates/_header.html:129
 msgid "Account"
 msgstr ""
 
-#: common/templates/_header.html:129
+#: common/templates/_header.html:133
 msgid "Manage"
 msgstr ""
 
-#: common/templates/_header.html:133
+#: common/templates/_header.html:137
 msgid "Logout"
 msgstr ""
 
-#: common/templates/_header.html:137
+#: common/templates/_header.html:141
 msgid "Sign up or Login"
 msgstr ""
 
-#: common/templates/_header.html:154
+#: common/templates/_header.html:158
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
 
-#: common/templates/_header.html:156
+#: common/templates/_header.html:160
 msgid "name of a person or company"
 msgstr ""
 
-#: common/templates/_header.html:173
+#: common/templates/_header.html:177
 msgid "Open"
 msgstr ""
 
-#: common/templates/_header.html:188
+#: common/templates/_header.html:192
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr ""
 
-#: common/templates/_header.html:189
+#: common/templates/_header.html:193
 msgid "Set up"
 msgstr ""
 
-#: common/templates/_header.html:191
+#: common/templates/_header.html:195
+#: users/templates/users/_crosspost_row.html:52
 msgid "Dismiss"
 msgstr ""
 
@@ -3579,7 +3586,7 @@ msgstr ""
 msgid "Catalog Moderators"
 msgstr ""
 
-#: common/templates/common/error.html:12
+#: common/templates/common/error.html:12 journal/models/crosspost.py:13
 msgid "Error"
 msgstr ""
 
@@ -4410,7 +4417,8 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:180 users/templates/users/data.html:532
+#: journal/forms.py:180 users/templates/users/crossposts.html:29
+#: users/templates/users/data.html:532
 msgid "Status"
 msgstr ""
 
@@ -4529,7 +4537,7 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/common.py:48 journal/templates/action_open_post.html:15
+#: journal/models/common.py:49 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4543,7 +4551,7 @@ msgstr[1] ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:49 journal/templates/action_open_post.html:9
+#: journal/models/common.py:50 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4556,7 +4564,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:50 journal/templates/collection_share.html:57
+#: journal/models/common.py:51 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4569,20 +4577,36 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:553
+#: journal/models/common.py:582
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:617
+#: journal/models/common.py:650
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:656
+#: journal/models/common.py:683
+msgid "A recent post was not boosted on Mastodon."
+msgstr ""
+
+#: journal/models/common.py:702
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:664
+#: journal/models/common.py:713
 msgid "A recent post was not posted to Mastodon."
+msgstr ""
+
+#: journal/models/crosspost.py:14
+msgid "Authorization expired"
+msgstr ""
+
+#: journal/models/crosspost.py:17 users/models/task.py:24
+msgid "Failed"
+msgstr ""
+
+#: journal/models/crosspost.py:18 users/templates/users/_crosspost_row.html:33
+msgid "Retrying"
 msgstr ""
 
 #: journal/models/note.py:34 users/templates/users/rym_import.html:73
@@ -5495,6 +5519,7 @@ msgid "Compose"
 msgstr ""
 
 #: journal/templates/post_compose.html:35
+#: users/templates/users/crossposts.html:27
 msgid "Content"
 msgstr ""
 
@@ -5606,12 +5631,12 @@ msgid "Liked Collections"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:453
-#: users/templates/users/account.html:447
+#: users/templates/users/account.html:452
 msgid "Following"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:457
-#: users/templates/users/account.html:456
+#: users/templates/users/account.html:461
 msgid "Followers"
 msgstr ""
 
@@ -5894,8 +5919,8 @@ msgstr ""
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:42
 #: mastodon/views/mastodon.py:50 mastodon/views/mastodon.py:57
 #: mastodon/views/mastodon.py:67 mastodon/views/mastodon.py:74
-#: mastodon/views/threads.py:51 mastodon/views/threads.py:59
-#: mastodon/views/threads.py:65 users/views/account.py:156
+#: mastodon/views/threads.py:52 mastodon/views/threads.py:60
+#: mastodon/views/threads.py:66 users/views/account.py:156
 msgid "Authentication failed"
 msgstr ""
 
@@ -5988,7 +6013,7 @@ msgstr ""
 msgid "Invalid response from Fediverse instance."
 msgstr ""
 
-#: mastodon/views/mastodon.py:51 mastodon/views/threads.py:60
+#: mastodon/views/mastodon.py:51 mastodon/views/threads.py:61
 msgid "Invalid OAuth state. Please try again."
 msgstr ""
 
@@ -6008,15 +6033,15 @@ msgstr ""
 msgid "Invalid account data from Fediverse instance."
 msgstr ""
 
-#: mastodon/views/threads.py:65
+#: mastodon/views/threads.py:66
 msgid "Invalid account data from Threads."
 msgstr ""
 
-#: mastodon/views/threads.py:139
+#: mastodon/views/threads.py:144
 msgid "Data deletion completed"
 msgstr ""
 
-#: mastodon/views/threads.py:141
+#: mastodon/views/threads.py:146
 #, python-brace-format
 msgid "Data linked to your Threads account has been deleted. Confirmation code: {code}"
 msgstr ""
@@ -6318,10 +6343,6 @@ msgstr ""
 msgid "Complete"
 msgstr ""
 
-#: users/models/task.py:24
-msgid "Failed"
-msgstr ""
-
 #: users/models/user.py:68
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
@@ -6364,6 +6385,18 @@ msgstr ""
 
 #: users/models/webauthn.py:20
 msgid "last used"
+msgstr ""
+
+#: users/templates/users/_crosspost_row.html:5
+msgid "Crossposted successfully."
+msgstr ""
+
+#: users/templates/users/_crosspost_row.html:39
+msgid "Re-authorize"
+msgstr ""
+
+#: users/templates/users/_crosspost_row.html:48
+msgid "Retry"
 msgstr ""
 
 #: users/templates/users/_pref_device.html:4
@@ -6507,7 +6540,7 @@ msgstr ""
 
 #: users/templates/users/account.html:86 users/templates/users/account.html:148
 #: users/templates/users/account.html:186
-#: users/templates/users/account.html:312
+#: users/templates/users/account.html:317
 msgid "Last updated"
 msgstr ""
 
@@ -6601,161 +6634,161 @@ msgstr ""
 msgid "Disconnect with ATProto identity"
 msgstr ""
 
-#: users/templates/users/account.html:228
+#: users/templates/users/account.html:233
 msgid "Passkeys"
 msgstr ""
 
-#: users/templates/users/account.html:230 users/templates/users/welcome.html:32
+#: users/templates/users/account.html:235 users/templates/users/welcome.html:32
 msgid "Name this passkey:"
 msgstr ""
 
-#: users/templates/users/account.html:231 users/templates/users/login.html:60
+#: users/templates/users/account.html:236 users/templates/users/login.html:60
 #: users/templates/users/welcome.html:33 users/views/webauthn.py:105
 msgid "Passkey"
 msgstr ""
 
-#: users/templates/users/account.html:237
+#: users/templates/users/account.html:242
 #: users/templates/users/authorized_app_create.html:24
 msgid "Name"
 msgstr ""
 
-#: users/templates/users/account.html:238
-#: users/templates/users/account.html:389
+#: users/templates/users/account.html:243
+#: users/templates/users/account.html:394
 msgid "Created"
 msgstr ""
 
-#: users/templates/users/account.html:239
+#: users/templates/users/account.html:244
 msgid "Last Used"
 msgstr ""
 
-#: users/templates/users/account.html:265
+#: users/templates/users/account.html:270
 msgid "No passkeys registered."
 msgstr ""
 
-#: users/templates/users/account.html:270
+#: users/templates/users/account.html:275
 msgid "Add Passkey"
 msgstr ""
 
-#: users/templates/users/account.html:278
+#: users/templates/users/account.html:283
 msgid "Sync and import social account"
 msgstr ""
 
-#: users/templates/users/account.html:288
+#: users/templates/users/account.html:293
 msgid "Sync display name, bio and avatar"
 msgstr ""
 
-#: users/templates/users/account.html:296
+#: users/templates/users/account.html:301
 msgid "Sync follow, mute and block"
 msgstr ""
 
-#: users/templates/users/account.html:299
+#: users/templates/users/account.html:304
 msgid "Save sync settings"
 msgstr ""
 
-#: users/templates/users/account.html:301
+#: users/templates/users/account.html:306
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
 
-#: users/templates/users/account.html:308
+#: users/templates/users/account.html:313
 msgid "Click button below to start sync now."
 msgstr ""
 
-#: users/templates/users/account.html:309
+#: users/templates/users/account.html:314
 msgid "Sync now"
 msgstr ""
 
-#: users/templates/users/account.html:321
+#: users/templates/users/account.html:326
 msgid "Users you are following"
 msgstr ""
 
-#: users/templates/users/account.html:330
+#: users/templates/users/account.html:335
 msgid "Users who follow you"
 msgstr ""
 
-#: users/templates/users/account.html:339
+#: users/templates/users/account.html:344
 msgid "Users who request to follow you"
 msgstr ""
 
-#: users/templates/users/account.html:348
+#: users/templates/users/account.html:353
 msgid "Users you are muting"
 msgstr ""
 
-#: users/templates/users/account.html:357
+#: users/templates/users/account.html:362
 msgid "Users you are blocking"
 msgstr ""
 
-#: users/templates/users/account.html:366
-#: users/templates/users/account.html:375
+#: users/templates/users/account.html:371
+#: users/templates/users/account.html:380
 msgid "Log out everywhere"
 msgstr ""
 
-#: users/templates/users/account.html:369
+#: users/templates/users/account.html:374
 msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
 msgstr ""
 
-#: users/templates/users/account.html:372
+#: users/templates/users/account.html:377
 msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
 msgstr ""
 
-#: users/templates/users/account.html:382
+#: users/templates/users/account.html:387
 msgid "Authorized Apps"
 msgstr ""
 
-#: users/templates/users/account.html:387
+#: users/templates/users/account.html:392
 msgid "Application"
 msgstr ""
 
-#: users/templates/users/account.html:388
+#: users/templates/users/account.html:393
 msgid "Scopes"
 msgstr ""
 
-#: users/templates/users/account.html:402
+#: users/templates/users/account.html:407
 msgid "Revoke access for this application?"
 msgstr ""
 
-#: users/templates/users/account.html:405
+#: users/templates/users/account.html:410
 msgid "Revoke"
 msgstr ""
 
-#: users/templates/users/account.html:413
+#: users/templates/users/account.html:418
 msgid "No authorized applications."
 msgstr ""
 
-#: users/templates/users/account.html:416
+#: users/templates/users/account.html:421
 #: users/templates/users/authorized_app_create.html:9
 #: users/templates/users/authorized_app_create.html:19
 msgid "Create Personal Token"
 msgstr ""
 
-#: users/templates/users/account.html:422
+#: users/templates/users/account.html:427
 msgid "Import/Export Social Graph"
 msgstr ""
 
-#: users/templates/users/account.html:423
+#: users/templates/users/account.html:428
 msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr ""
 
-#: users/templates/users/account.html:429
+#: users/templates/users/account.html:434
 msgid "Import type"
 msgstr ""
 
-#: users/templates/users/account.html:431
+#: users/templates/users/account.html:436
 msgid "Following list"
 msgstr ""
 
-#: users/templates/users/account.html:432
+#: users/templates/users/account.html:437
 msgid "Block list"
 msgstr ""
 
-#: users/templates/users/account.html:433
+#: users/templates/users/account.html:438
 msgid "Mute list"
 msgstr ""
 
-#: users/templates/users/account.html:437
+#: users/templates/users/account.html:442
 msgid "CSV file"
 msgstr ""
 
-#: users/templates/users/account.html:440 users/templates/users/data.html:74
+#: users/templates/users/account.html:445 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
 #: users/templates/users/data.html:232 users/templates/users/data.html:283
 #: users/templates/users/data.html:347 users/templates/users/data.html:407
@@ -6763,66 +6796,66 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: users/templates/users/account.html:451
-#: users/templates/users/account.html:460
-#: users/templates/users/account.html:469
-#: users/templates/users/account.html:478
+#: users/templates/users/account.html:456
+#: users/templates/users/account.html:465
+#: users/templates/users/account.html:474
+#: users/templates/users/account.html:483
 msgid "Download CSV"
 msgstr ""
 
-#: users/templates/users/account.html:465
+#: users/templates/users/account.html:470
 msgid "Blocks"
 msgstr ""
 
-#: users/templates/users/account.html:474
+#: users/templates/users/account.html:479
 msgid "Mutes"
 msgstr ""
 
-#: users/templates/users/account.html:488
+#: users/templates/users/account.html:493
 msgid "Migrate Account"
 msgstr ""
 
-#: users/templates/users/account.html:492
+#: users/templates/users/account.html:497
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr ""
 
-#: users/templates/users/account.html:495
+#: users/templates/users/account.html:500
 msgid "Migrate another account here"
 msgstr ""
 
-#: users/templates/users/account.html:498
+#: users/templates/users/account.html:503
 msgid "Migrate to another account"
 msgstr ""
 
-#: users/templates/users/account.html:505
+#: users/templates/users/account.html:510
 msgid "Delete Account"
 msgstr ""
 
-#: users/templates/users/account.html:508
+#: users/templates/users/account.html:513
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
 
-#: users/templates/users/account.html:511
+#: users/templates/users/account.html:516
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
 
-#: users/templates/users/account.html:521
+#: users/templates/users/account.html:526
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:524
+#: users/templates/users/account.html:529
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:528
+#: users/templates/users/account.html:533
 msgid "Permanently Delete"
 msgstr ""
 
-#: users/templates/users/account.html:569
+#: users/templates/users/account.html:574
 msgid "Delete this passkey?"
 msgstr ""
 
-#: users/templates/users/account.html:589
+#: users/templates/users/account.html:594
 msgid "Rename passkey:"
 msgstr ""
 
@@ -6860,6 +6893,22 @@ msgstr ""
 
 #: users/templates/users/authorized_app_created.html:25
 msgid "Token"
+msgstr ""
+
+#: users/templates/users/crossposts.html:20
+msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
+msgstr ""
+
+#: users/templates/users/crossposts.html:26
+msgid "Time"
+msgstr ""
+
+#: users/templates/users/crossposts.html:28
+msgid "Platform"
+msgstr ""
+
+#: users/templates/users/crossposts.html:40
+msgid "No failed crossposts."
 msgstr ""
 
 #: users/templates/users/data.html:11
@@ -7699,100 +7748,112 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:334 users/views/data.py:367 users/views/data.py:583
-#: users/views/data.py:607 users/views/data.py:632 users/views/data.py:656
-#: users/views/data.py:680
+#: users/views/data.py:368
+msgid "Account no longer linked."
+msgstr ""
+
+#: users/views/data.py:371
+msgid "Content is no longer public."
+msgstr ""
+
+#: users/views/data.py:398
+msgid "Retry did not complete, please try again."
+msgstr ""
+
+#: users/views/data.py:408 users/views/data.py:441 users/views/data.py:657
+#: users/views/data.py:681 users/views/data.py:706 users/views/data.py:730
+#: users/views/data.py:754
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:403
+#: users/views/data.py:477
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:428
+#: users/views/data.py:502
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:448
+#: users/views/data.py:522
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:456 users/views/data.py:566
+#: users/views/data.py:530 users/views/data.py:640
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:552
+#: users/views/data.py:626
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:562
+#: users/views/data.py:636
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:800
+#: users/views/data.py:874
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:822
+#: users/views/data.py:896
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:838
+#: users/views/data.py:912
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:843
+#: users/views/data.py:917
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:853 users/views/data.py:904
+#: users/views/data.py:927 users/views/data.py:978
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:860
+#: users/views/data.py:934
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:865
+#: users/views/data.py:939
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:891
+#: users/views/data.py:965
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:896
+#: users/views/data.py:970
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:909
+#: users/views/data.py:983
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:920
+#: users/views/data.py:994
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:926
+#: users/views/data.py:1000
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:984
+#: users/views/data.py:1058
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1000
+#: users/views/data.py:1074
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1004
+#: users/views/data.py:1078
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1013
+#: users/views/data.py:1087
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

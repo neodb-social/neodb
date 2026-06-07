@@ -223,6 +223,11 @@
             </article>
           {% endif %}
         {% endif %}
+        {% if request.user.social_accounts.all %}
+          <article>
+            <a href="{% url 'users:crossposts' %}">{% trans 'Pending' %}</a>
+          </article>
+        {% endif %}
         <article>
           <details>
             <summary>{% trans "Passkeys" %}</summary>

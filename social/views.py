@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models.misc import int_
-from journal.models import Piece, ShelfType
+from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import prefetch_pieces_for_posts
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Post, PostInteraction, TimelineEvent
@@ -261,10 +261,21 @@ def events(request):
 def unread_notifications_status(request):
     if not request.user.is_authenticated:
         has_unread = False
+        has_crosspost_failure = False
     else:
         has_unread = (
             Takahe.get_events(request.user.identity.pk, _all_notification_types)
             .filter(seen=False)
             .exists()
         )
-    return render(request, "notification_status.html", {"has_unread": has_unread})
+        has_crosspost_failure = CrosspostRetry.objects.filter(
+            user=request.user
+        ).exists()
+    return render(
+        request,
+        "notification_status.html",
+        {
+            "has_unread": has_unread,
+            "has_crosspost_failure": has_crosspost_failure,
+        },
+    )

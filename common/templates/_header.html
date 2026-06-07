@@ -105,6 +105,7 @@
                    title="{% if request.user.is_authenticated %}{{ request.user.username }}{% else %}{% endif %}"
                    src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{{ user_icon }}{% endif %}" />
             </span>
+            <span class="pending-dot"></span>
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             <li>
@@ -114,6 +115,9 @@
               <li>
                 <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
                 <span class="notification-dot"></span>
+              </li>
+              <li id="pending-menu" style="display:none">
+                <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans 'Pending' %}</a>
               </li>
               <li>
                 <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
@@ -176,34 +180,6 @@ _search_cat_change();
       </li>
     {% endfor %}
   </ul>
-{% endif %}
-{% if request.user.is_authenticated and not has_passkeys %}
-  <div id="passkey-nudge"
-       style="display:none;
-              text-align:center;
-              padding:0.5em 1em"
-       role="alert">
-    <small>
-      <i class="fa-solid fa-key"></i>
-      {% trans "Secure your account with a passkey for quick sign-in." %}
-      <a href="{% url 'users:info' %}">{% trans "Set up" %}</a>
-      &middot;
-      <a href="#" id="passkey-nudge-dismiss">{% trans "Dismiss" %}</a>
-    </small>
-  </div>
-  <script>
-    (function() {
-      if (!window.PublicKeyCredential || sessionStorage.getItem('passkey_nudge_dismissed')) return;
-      var el = document.getElementById('passkey-nudge');
-      if (el) el.style.display = '';
-      var dismiss = document.getElementById('passkey-nudge-dismiss');
-      if (dismiss) dismiss.addEventListener('click', function(e) {
-        e.preventDefault();
-        sessionStorage.setItem('passkey_nudge_dismissed', '1');
-        el.style.display = 'none';
-      });
-    })();
-  </script>
 {% endif %}
 <form id="logout" action="{% url 'users:logout' %}" method="post">
   {% csrf_token %}

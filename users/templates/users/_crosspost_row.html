@@ -1,0 +1,56 @@
+{% load i18n %}
+{% if done %}
+  <tr>
+    <td colspan="5">
+      <i class="fa-solid fa-check"></i> {% trans 'Crossposted successfully.' %}
+    </td>
+  </tr>
+{% else %}
+  <tr id="crosspost-row-{{ retry.pk }}"
+      hx-target="this"
+      hx-swap="outerHTML"
+      {% if retry.state == 1 %} hx-get="{% url 'users:crosspost_status' retry.pk %}" hx-trigger="every 5s" {% endif %}>
+    <td>{{ retry.created_time|date }}</td>
+    <td>
+      {% if retry.piece_url %}
+        <a href="{{ retry.piece_url }}">{{ retry.piece_title }}</a>
+      {% else %}
+        {{ retry.piece_title }}
+      {% endif %}
+    </td>
+    <td>
+      {% if retry.platform == 'mastodon' %}
+        <i class="fa-brands fa-mastodon"></i>
+      {% elif retry.platform == 'threads' %}
+        <i class="fa-brands fa-threads"></i>
+      {% elif retry.platform == 'bluesky' %}
+        <i class="fa-brands fa-bluesky"></i>
+      {% endif %}
+      {{ retry.platform|title }}
+    </td>
+    <td>
+      {% if retry.state == 1 %}
+        <i class="fa-solid fa-spinner fa-spin"></i> {% trans 'Retrying' %}
+      {% else %}
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ retry.get_error_type_display }}
+        {% if retry.message %}<small>{{ retry.message }}</small>{% endif %}
+        {% if retry.error_type == 1 and retry.reauth_url %}
+          <a href="{{ retry.reauth_url }}">{% trans 'Re-authorize' %}</a>
+        {% endif %}
+      {% endif %}
+    </td>
+    <td>
+      {% if retry.state != 1 %}
+        <button class="outline"
+                hx-post="{% url 'users:crosspost_retry' retry.pk %}"
+                hx-target="#crosspost-row-{{ retry.pk }}"
+                hx-swap="outerHTML">{% trans 'Retry' %}</button>
+        <button class="outline secondary"
+                hx-post="{% url 'users:crosspost_dismiss' retry.pk %}"
+                hx-target="#crosspost-row-{{ retry.pk }}"
+                hx-swap="outerHTML">{% trans 'Dismiss' %}</button>
+      {% endif %}
+    </td>
+  </tr>
+{% endif %}

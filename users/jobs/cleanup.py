@@ -6,6 +6,7 @@ from django.utils import timezone
 from loguru import logger
 
 from common.models import BaseJob, JobManager, SiteConfig
+from journal.models import CrosspostRetry
 from users.models import Task
 
 _TASK_FILE_KEYS = ("file", "matched_file")
@@ -70,6 +71,15 @@ def prune_tasks(days: int = 28) -> tuple[int, int]:
     return tasks_deleted, files_deleted
 
 
+def prune_crosspost_retries(days: int = 28) -> int:
+    """Delete crosspost retry records older than the given number of days."""
+    if days <= 0:
+        return 0
+    cutoff = timezone.now() - timedelta(days=days)
+    deleted, _ = CrosspostRetry.objects.filter(created_time__lt=cutoff).delete()
+    return deleted
+
+
 @JobManager.register
 class TaskCleanup(BaseJob):
     @classmethod
@@ -83,6 +93,8 @@ class TaskCleanup(BaseJob):
             return
         logger.info(f"Task cleanup job started (older than {days} days).")
         tasks_deleted, files_deleted = prune_tasks(days=days)
+        retries_deleted = prune_crosspost_retries(days=days)
         logger.info(
-            f"Task cleanup finished: {tasks_deleted} tasks deleted, {files_deleted} files deleted."
+            f"Task cleanup finished: {tasks_deleted} tasks deleted, {files_deleted} files deleted, "
+            f"{retries_deleted} crosspost retry records deleted."
         )

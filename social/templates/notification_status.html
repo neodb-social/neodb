@@ -1,25 +1,36 @@
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dots = document.querySelectorAll('.notification-dot');
-        dots.forEach(dot => {
-            if ({{ has_unread|yesno:"true,false" }}) {
-                dot.classList.add('has-unread');
-            } else {
-                dot.classList.remove('has-unread');
+    (function() {
+        const hasCrosspostFailure = {{ has_crosspost_failure|yesno:"true,false" }};
+        const needsPasskey = {{ has_passkeys|yesno:"false,true" }} &&
+            !!window.PublicKeyCredential &&
+            !sessionStorage.getItem('passkey_nudge_dismissed');
+        const hasPending = hasCrosspostFailure || needsPasskey;
+        function updateStatus() {
+            const dots = document.querySelectorAll('.notification-dot');
+            dots.forEach(dot => {
+                if ({{ has_unread|yesno:"true,false" }}) {
+                    dot.classList.add('has-unread');
+                } else {
+                    dot.classList.remove('has-unread');
+                }
+            });
+            const pendingDots = document.querySelectorAll('.pending-dot');
+            pendingDots.forEach(dot => {
+                if (hasPending) {
+                    dot.classList.add('has-issue');
+                } else {
+                    dot.classList.remove('has-issue');
+                }
+            });
+            const menuEntry = document.getElementById('pending-menu');
+            if (menuEntry) {
+                menuEntry.style.display = hasPending ? '' : 'none';
             }
-        });
-    });
-    // Also trigger immediately if DOM already loaded
-    if (document.readyState === 'loading') {
-        // DOM hasn't loaded yet
-    } else {
-        const dots = document.querySelectorAll('.notification-dot');
-        dots.forEach(dot => {
-            if ({{ has_unread|yesno:"true,false" }}) {
-                dot.classList.add('has-unread');
-            } else {
-                dot.classList.remove('has-unread');
-            }
-        });
-    }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateStatus);
+        } else {
+            updateStatus();
+        }
+    })();
 </script>

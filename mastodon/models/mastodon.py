@@ -99,7 +99,7 @@ def get_api_domain(domain):
 _BOOST_METRIC_ATTRS = {"platform": "mastodon", "mode": "boost"}
 
 
-def boost_toot(domain, token, toot_url):
+def boost_toot(domain, token, toot_url) -> bool:
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {token}",
@@ -118,7 +118,7 @@ def boost_toot(domain, token, toot_url):
                 f"Error search {toot_url} on {domain} {response.status_code}"
             )
             sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-            return None
+            return False
         j = response.json()
         if "statuses" in j and len(j["statuses"]) > 0:
             s = j["statuses"][0]
@@ -129,13 +129,13 @@ def boost_toot(domain, token, toot_url):
                     f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
                 )
                 sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-                return None
+                return False
             if s["reblogged"]:
                 logger.warning(f"Already boosted {toot_url}")
                 # TODO unboost and boost again?
                 # treat already-boosted as success (idempotent)
                 sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
-                return None
+                return True
             url = (
                 "https://"
                 + domain
@@ -150,15 +150,15 @@ def boost_toot(domain, token, toot_url):
                     f"Error search {toot_url} on {domain} {response.status_code}"
                 )
                 sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-                return None
+                return False
             sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
-            return response.json()
+            return True
         sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-        return None
+        return False
     except Exception:
         logger.warning(f"Error search {toot_url} on {domain}")
         sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-        return None
+        return False
 
 
 def delete_toot(api_domain, access_token, toot_id):
@@ -909,8 +909,8 @@ class MastodonAccount(SocialAccount):
 
         return c
 
-    def boost(self, post_url: str):
-        boost_toot(self._api_domain, self.access_token, post_url)
+    def boost(self, post_url: str) -> bool:
+        return boost_toot(self._api_domain, self.access_token, post_url)
 
     def boost_later(self, post_url: str):
         django_rq.get_queue("fetch").enqueue(

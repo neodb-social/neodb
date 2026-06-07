@@ -44,6 +44,22 @@ urlpatterns = [
     path("data/export/marks", export_marks, name="export_marks"),
     path("data/export/csv", export_csv, name="export_csv"),
     path("data/export/ndjson", export_ndjson, name="export_ndjson"),
+    path("crossposts", crossposts, name="crossposts"),
+    path(
+        "crossposts/<int:retry_id>/retry",
+        crosspost_retry,
+        name="crosspost_retry",
+    ),
+    path(
+        "crossposts/<int:retry_id>/dismiss",
+        crosspost_dismiss,
+        name="crosspost_dismiss",
+    ),
+    path(
+        "crossposts/<int:retry_id>/status",
+        crosspost_status,
+        name="crosspost_status",
+    ),
     path("data/sync_mastodon", sync_mastodon, name="sync_mastodon"),
     path(
         "data/sync_mastodon_preference",

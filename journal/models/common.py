@@ -34,6 +34,7 @@ from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
 
 from ..search import JournalIndex
+from .crosspost import CrosspostRetry
 from .mixins import UserOwnedObjectMixin
 
 if TYPE_CHECKING:
@@ -485,13 +486,35 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         d.update(self.to_crosspost_params())
         return d
 
-    def sync_to_social_accounts(self, update_mode: int = 0):
-        """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
-        django_rq.get_queue("mastodon").enqueue(
-            self._sync_to_social_accounts, update_mode
+    def _record_crosspost_retry(
+        self, platform: str, error_type: int, message: str
+    ) -> None:
+        CrosspostRetry.objects.update_or_create(
+            piece=self,
+            platform=platform,
+            defaults={
+                "user": self.owner.user,
+                "error_type": error_type,
+                "message": message[:500],
+                "state": CrosspostRetry.State.failed,
+            },
         )
 
-    def _sync_to_social_accounts(self, update_mode: int):
+    def _clear_crosspost_retry(self, platform: str) -> None:
+        CrosspostRetry.objects.filter(piece=self, platform=platform).delete()
+
+    def sync_to_social_accounts(
+        self, update_mode: int = 0, platforms: list[str] | None = None
+    ):
+        """update_mode: 0 update if exists otherwise create; 1: delete if exists and create; 2: only create"""
+        # keep the legacy payload shape when not filtering by platform, so
+        # queued jobs stay compatible with workers across deploys
+        args = (update_mode,) if platforms is None else (update_mode, platforms)
+        django_rq.get_queue("mastodon").enqueue(self._sync_to_social_accounts, *args)
+
+    def _sync_to_social_accounts(
+        self, update_mode: int, platforms: list[str] | None = None
+    ):
         def params_for_platform(params, platform):
             p = params.copy()
             for k in ["update_id", "reply_to_id"]:
@@ -513,9 +536,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             self.metadata["mastodon_url"] = legacy_mastodon_url
 
         params = self.get_crosspost_params()
-        self.sync_to_mastodon(params_for_platform(params, "mastodon"), update_mode)
-        self.sync_to_threads(params_for_platform(params, "threads"), update_mode)
-        self.sync_to_bluesky(params_for_platform(params, "bluesky"), update_mode)
+        if platforms is None or "mastodon" in platforms:
+            self.sync_to_mastodon(params_for_platform(params, "mastodon"), update_mode)
+        if platforms is None or "threads" in platforms:
+            self.sync_to_threads(params_for_platform(params, "threads"), update_mode)
+        if platforms is None or "bluesky" in platforms:
+            self.sync_to_bluesky(params_for_platform(params, "bluesky"), update_mode)
         if self.metadata != metadata:
             # do not trigger sync or index again
             self.save(
@@ -541,32 +567,36 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
         r = None
+        error_type = CrosspostRetry.ErrorType.other
+        error_message = ""
         attrs = {"platform": "bluesky", "mode": "post"}
         try:
             r = bluesky.post(**params)
         except (exceptions.UnauthorizedError, exceptions.BadRequestError) as e:
+            error_message = str(e)
             if isinstance(e, exceptions.UnauthorizedError) or "ExpiredToken" in str(e):
                 # re-authorize if ATProto token is expired
+                error_type = CrosspostRetry.ErrorType.auth
                 messages.error(
                     bluesky.user,
                     _(
                         "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
                     ),
-                    meta={
-                        "url": settings.SITE_INFO["site_url"]
-                        + "/account/login?method=atproto"
-                    },
+                    meta={"url": bluesky.get_reauthorize_url()},
                 )
                 logger.warning(f"{self} post to {bluesky} failed with auth issue: {e}")
             else:
                 logger.warning(f"{self} post to {bluesky} failed: {e}")
         except Exception as e:
+            error_message = str(e)
             logger.warning(f"Post to {bluesky} error {e}")
         if r:
             self.metadata.update({"bluesky_" + k: v for k, v in r.items()})
             sentry_count("crosspost.success", attributes=attrs)
+            self._clear_crosspost_retry("bluesky")
         else:
             sentry_count("crosspost.failure", attributes=attrs)
+            self._record_crosspost_retry("bluesky", error_type, error_message)
         self._sync_records_to_bluesky(bluesky)
         return True
 
@@ -610,18 +640,24 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return False
         attrs = {"platform": "threads", "mode": "post"}
         r = None
+        error_message = ""
         try:
             r = threads.post(**params)
         except RequestAborted:
             logger.warning(f"{self} post to {threads} failed")
             messages.error(threads.user, _("A recent post was not posted to Threads."))
         except Exception as e:
+            error_message = str(e)
             logger.warning(f"Post to {threads} error {e}")
         if r:
             self.metadata.update({"threads_" + k: v for k, v in r.items()})
             sentry_count("crosspost.success", attributes=attrs)
+            self._clear_crosspost_retry("threads")
         else:
             sentry_count("crosspost.failure", attributes=attrs)
+            self._record_crosspost_retry(
+                "threads", CrosspostRetry.ErrorType.other, error_message
+            )
         return True
 
     def sync_to_mastodon(self, params, update_mode):
@@ -638,7 +674,15 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 params.pop("update_id", None)
             return self.crosspost_to_mastodon(params)
         elif self.latest_post:
-            mastodon.boost(self.latest_post.url)
+            if mastodon.boost(self.latest_post.url):
+                self._clear_crosspost_retry("mastodon")
+            else:
+                messages.error(
+                    mastodon.user, _("A recent post was not boosted on Mastodon.")
+                )
+                self._record_crosspost_retry(
+                    "mastodon", CrosspostRetry.ErrorType.other, ""
+                )
         else:
             logger.warning("No post found for piece")
         return True
@@ -657,6 +701,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 meta={"url": mastodon.get_reauthorize_url()},
             )
             sentry_count("crosspost.failure", attributes=attrs)
+            self._record_crosspost_retry("mastodon", CrosspostRetry.ErrorType.auth, "")
             return False
         except RequestAborted:
             logger.warning(f"{self} post to {mastodon} failed")
@@ -664,9 +709,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 mastodon.user, _("A recent post was not posted to Mastodon.")
             )
             sentry_count("crosspost.failure", attributes=attrs)
+            self._record_crosspost_retry("mastodon", CrosspostRetry.ErrorType.other, "")
             return False
         self.metadata.update({"mastodon_" + k: v for k, v in r.items()})
         sentry_count("crosspost.success", attributes=attrs)
+        self._clear_crosspost_retry("mastodon")
         return True
 
     def get_ap_data(self):

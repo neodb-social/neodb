@@ -14,6 +14,7 @@ from .common import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
+from .crosspost import CrosspostRetry
 from .like import Like
 from .mark import Mark
 from .mixins import UserOwnedObjectMixin
@@ -38,6 +39,7 @@ __all__ = [
     "Content",
     "FeaturedCollection",
     "Comment",
+    "CrosspostRetry",
     "Piece",
     "PieceInteraction",
     "PiecePost",

@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.db.models import Min
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
@@ -18,7 +18,7 @@ from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from catalog.common import SiteManager
-from catalog.models import SiteName
+from catalog.models import Item, SiteName
 from catalog.sites import FediverseInstance
 from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
@@ -36,7 +36,7 @@ from journal.importers import (
     TraktImporter,
 )
 from journal.importers.rym import update_row_in_matched_file
-from journal.models import ShelfType
+from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import VisibilityType
 from takahe.models import InboxMessage
 from takahe.utils import Takahe
@@ -324,6 +324,92 @@ def sync_mastodon_preference(request):
         request.user.preference.save()
         messages.add_message(request, messages.INFO, _("Settings saved."))
     return redirect(reverse("users:info"))
+
+
+# retries stuck in "retrying" longer than this are flipped back to failed
+_CROSSPOST_RETRY_TIMEOUT = datetime.timedelta(minutes=10)
+
+
+def _crosspost_reauth_url(user, platform: str) -> str | None:
+    if platform == "mastodon" and user.mastodon:
+        return user.mastodon.get_reauthorize_url()
+    if platform == "bluesky" and user.bluesky:
+        return user.bluesky.get_reauthorize_url()
+    return None
+
+
+def _render_crosspost_row(request, retry: CrosspostRetry):
+    retry.reauth_url = _crosspost_reauth_url(request.user, retry.platform)
+    return render(request, "users/_crosspost_row.html", {"retry": retry})
+
+
+@login_required
+def crossposts(request):
+    retries = list(
+        CrosspostRetry.objects.filter(user=request.user).order_by("-created_time")[:50]
+    )
+    # batch-resolve polymorphic pieces and their items to avoid per-row queries
+    pieces = {
+        p.pk: p for p in Piece.objects.filter(pk__in={r.piece_id for r in retries})
+    }
+    item_ids = {
+        item_id for p in pieces.values() if (item_id := getattr(p, "item_id", None))
+    }
+    items = {i.pk: i for i in Item.objects.filter(pk__in=item_ids)}
+    for retry in retries:
+        piece = pieces.get(retry.piece_id)
+        if piece:
+            retry.piece = piece
+            item_id = getattr(piece, "item_id", None)
+            if item_id in items:
+                setattr(piece, "item", items[item_id])
+        retry.reauth_url = _crosspost_reauth_url(request.user, retry.platform)
+    return render(request, "users/crossposts.html", {"retries": retries})
+
+
+@login_required
+@require_http_methods(["POST"])
+def crosspost_retry(request, retry_id: int):
+    retry = get_object_or_404(CrosspostRetry, pk=retry_id, user=request.user)
+    if retry.state != CrosspostRetry.State.retrying:
+        piece = retry.piece
+        # pre-flight checks: the sync methods return early in these cases
+        # without recording success or failure, which would leave the row
+        # stuck in "retrying"
+        if not getattr(request.user, retry.platform, None):
+            retry.message = _("Account no longer linked.")
+            retry.save(update_fields=["message", "edited_time"])
+        elif retry.platform in ("threads", "bluesky") and piece.visibility != 0:
+            retry.message = _("Content is no longer public.")
+            retry.save(update_fields=["message", "edited_time"])
+        else:
+            retry.state = CrosspostRetry.State.retrying
+            retry.save(update_fields=["state", "edited_time"])
+            piece.sync_to_social_accounts(0, [retry.platform])
+    return _render_crosspost_row(request, retry)
+
+
+@login_required
+@require_http_methods(["POST"])
+def crosspost_dismiss(request, retry_id: int):
+    CrosspostRetry.objects.filter(pk=retry_id, user=request.user).delete()
+    return HttpResponse()
+
+
+@login_required
+def crosspost_status(request, retry_id: int):
+    retry = CrosspostRetry.objects.filter(pk=retry_id, user=request.user).first()
+    if not retry:
+        # row deleted by a successful retry
+        return render(request, "users/_crosspost_row.html", {"done": True})
+    if (
+        retry.state == CrosspostRetry.State.retrying
+        and timezone.now() - retry.edited_time > _CROSSPOST_RETRY_TIMEOUT
+    ):
+        retry.state = CrosspostRetry.State.failed
+        retry.message = _("Retry did not complete, please try again.")
+        retry.save(update_fields=["state", "message", "edited_time"])
+    return _render_crosspost_row(request, retry)
 
 
 @login_required

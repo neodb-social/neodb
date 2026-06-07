@@ -68,6 +68,29 @@ body {
         right: 0.5em;
       }
 
+      .nav-dropdown summary {
+        position: relative;
+      }
+
+      .pending-dot {
+        position: absolute;
+        width: 0.5em;
+        height: 0.5em;
+        background-color: var(--pico-del-color) !important;
+        border-radius: 50%;
+        display: none;
+        top: 0.25em;
+        right: 0.25em;
+
+        &.has-issue {
+          display: block;
+        }
+      }
+
+      #pending-menu a {
+        color: var(--pico-del-color);
+      }
+
       font-weight: bold;
 
       .nav-search,
