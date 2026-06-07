@@ -685,6 +685,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 )
         else:
             logger.warning("No post found for piece")
+            self._record_crosspost_retry(
+                "mastodon",
+                CrosspostRetry.ErrorType.other,
+                str(_("Original post no longer exists.")),
+            )
         return True
 
     def crosspost_to_mastodon(self, params):

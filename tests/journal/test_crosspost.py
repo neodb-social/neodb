@@ -2,11 +2,11 @@ from datetime import timedelta
 from types import SimpleNamespace
 
 import pytest
+from atproto_client.request import exceptions as atproto_exceptions
 from django.core.exceptions import PermissionDenied, RequestAborted
 from django.urls import reverse
 from django.utils import timezone
 
-from atproto_client.request import exceptions as atproto_exceptions
 from catalog.models import Edition
 from journal.models import Comment, CrosspostRetry, Piece
 from mastodon.models import BlueskyAccount, MastodonAccount, ThreadsAccount
@@ -75,9 +75,7 @@ class TestCrosspostRetryRecording:
 
     def test_success_clears_failure(self, user, comment, monkeypatch):
         _link_mastodon(user)
-        CrosspostRetry.objects.create(
-            user=user, piece=comment, platform="mastodon"
-        )
+        CrosspostRetry.objects.create(user=user, piece=comment, platform="mastodon")
 
         def ok(self, **kwargs):
             return {"id": "123", "url": "https://mast.social/@cpuser/123"}
@@ -117,6 +115,14 @@ class TestCrosspostRetryRecording:
         monkeypatch.setattr(MastodonAccount, "boost", lambda self, url: True)
         comment._sync_to_social_accounts(0)
         assert not CrosspostRetry.objects.filter(piece=comment).exists()
+
+    def test_boost_without_post_recorded(self, user, comment):
+        _link_mastodon(user, repost_mode=0)
+        # comment has no fediverse post linked, so there is nothing to boost
+        comment._sync_to_social_accounts(0)
+        failure = CrosspostRetry.objects.get(piece=comment, platform="mastodon")
+        assert failure.error_type == CrosspostRetry.ErrorType.other
+        assert failure.message
 
     def test_bluesky_auth_failure_recorded(self, user, comment, monkeypatch):
         _link_bluesky(user)
@@ -176,7 +182,7 @@ class TestCrosspostViews:
     def test_retry(self, user, comment, client, monkeypatch):
         _link_mastodon(user)
         failure = CrosspostRetry.objects.create(
-            user=user, piece=comment, platform="mastodon"
+            user=user, piece=comment, platform="mastodon", message="old error"
         )
         calls = []
         monkeypatch.setattr(
@@ -191,6 +197,7 @@ class TestCrosspostViews:
         assert response.status_code == 200
         failure.refresh_from_db()
         assert failure.state == CrosspostRetry.State.retrying
+        assert failure.message == ""
         assert calls == [(0, ["mastodon"])]
 
         # second retry while already retrying must not enqueue again
@@ -304,15 +311,11 @@ class TestCrosspostViews:
 
 @pytest.mark.django_db(databases="__all__")
 def test_prune_crosspost_retries(user, comment):
-    old = CrosspostRetry.objects.create(
-        user=user, piece=comment, platform="mastodon"
-    )
+    old = CrosspostRetry.objects.create(user=user, piece=comment, platform="mastodon")
     CrosspostRetry.objects.filter(pk=old.pk).update(
         created_time=timezone.now() - timedelta(days=30)
     )
-    recent = CrosspostRetry.objects.create(
-        user=user, piece=comment, platform="threads"
-    )
+    recent = CrosspostRetry.objects.create(user=user, piece=comment, platform="threads")
     assert prune_crosspost_retries(days=28) == 1
     assert not CrosspostRetry.objects.filter(pk=old.pk).exists()
     assert CrosspostRetry.objects.filter(pk=recent.pk).exists()

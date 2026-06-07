@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 11:30+0200\n"
+"POT-Creation-Date: 2026-06-07 02:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3379,10 +3379,10 @@ msgstr ""
 msgid "Notification"
 msgstr ""
 
-#: common/templates/_header.html:120 users/templates/users/account.html:228
+#: common/templates/_header.html:120 users/models/task.py:21
+#: users/templates/users/account.html:228
 #: users/templates/users/crossposts.html:9
-#: users/templates/users/crossposts.html:18
-msgid "Failed Crossposts"
+msgid "Pending"
 msgstr ""
 
 #: common/templates/_header.html:123
@@ -3422,19 +3422,6 @@ msgstr ""
 
 #: common/templates/_header.html:177
 msgid "Open"
-msgstr ""
-
-#: common/templates/_header.html:192
-msgid "Secure your account with a passkey for quick sign-in."
-msgstr ""
-
-#: common/templates/_header.html:193
-msgid "Set up"
-msgstr ""
-
-#: common/templates/_header.html:195
-#: users/templates/users/_crosspost_row.html:52
-msgid "Dismiss"
 msgstr ""
 
 #: common/templates/_sidebar.html:54
@@ -4417,7 +4404,7 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:180 users/templates/users/crossposts.html:29
+#: journal/forms.py:180 users/templates/users/crossposts.html:51
 #: users/templates/users/data.html:532
 msgid "Status"
 msgstr ""
@@ -4577,23 +4564,27 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:582
+#: journal/models/common.py:583
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:650
+#: journal/models/common.py:648
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:683
+#: journal/models/common.py:681
 msgid "A recent post was not boosted on Mastodon."
 msgstr ""
 
-#: journal/models/common.py:702
+#: journal/models/common.py:691
+msgid "Original post no longer exists."
+msgstr ""
+
+#: journal/models/common.py:705
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:713
+#: journal/models/common.py:714
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -5519,7 +5510,7 @@ msgid "Compose"
 msgstr ""
 
 #: journal/templates/post_compose.html:35
-#: users/templates/users/crossposts.html:27
+#: users/templates/users/crossposts.html:49
 msgid "Content"
 msgstr ""
 
@@ -6331,10 +6322,6 @@ msgstr ""
 msgid "Header picture"
 msgstr ""
 
-#: users/models/task.py:21
-msgid "Pending"
-msgstr ""
-
 #: users/models/task.py:22
 msgid "Started"
 msgstr ""
@@ -6397,6 +6384,11 @@ msgstr ""
 
 #: users/templates/users/_crosspost_row.html:48
 msgid "Retry"
+msgstr ""
+
+#: users/templates/users/_crosspost_row.html:52
+#: users/templates/users/crossposts.html:22
+msgid "Dismiss"
 msgstr ""
 
 #: users/templates/users/_pref_device.html:4
@@ -6895,19 +6887,31 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
+#: users/templates/users/crossposts.html:19
+msgid "Secure your account with a passkey for quick sign-in."
+msgstr ""
+
 #: users/templates/users/crossposts.html:20
-msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
-msgstr ""
-
-#: users/templates/users/crossposts.html:26
-msgid "Time"
-msgstr ""
-
-#: users/templates/users/crossposts.html:28
-msgid "Platform"
+msgid "Set up"
 msgstr ""
 
 #: users/templates/users/crossposts.html:40
+msgid "Failed Crossposts"
+msgstr ""
+
+#: users/templates/users/crossposts.html:42
+msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
+msgstr ""
+
+#: users/templates/users/crossposts.html:48
+msgid "Time"
+msgstr ""
+
+#: users/templates/users/crossposts.html:50
+msgid "Platform"
+msgstr ""
+
+#: users/templates/users/crossposts.html:62
 msgid "No failed crossposts."
 msgstr ""
 
@@ -7748,112 +7752,112 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:368
+#: users/views/data.py:380
 msgid "Account no longer linked."
 msgstr ""
 
-#: users/views/data.py:371
+#: users/views/data.py:383
 msgid "Content is no longer public."
 msgstr ""
 
-#: users/views/data.py:398
+#: users/views/data.py:411
 msgid "Retry did not complete, please try again."
 msgstr ""
 
-#: users/views/data.py:408 users/views/data.py:441 users/views/data.py:657
-#: users/views/data.py:681 users/views/data.py:706 users/views/data.py:730
-#: users/views/data.py:754
+#: users/views/data.py:421 users/views/data.py:454 users/views/data.py:670
+#: users/views/data.py:694 users/views/data.py:719 users/views/data.py:743
+#: users/views/data.py:767
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:477
+#: users/views/data.py:490
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:502
+#: users/views/data.py:515
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:522
+#: users/views/data.py:535
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:530 users/views/data.py:640
+#: users/views/data.py:543 users/views/data.py:653
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:626
+#: users/views/data.py:639
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:636
+#: users/views/data.py:649
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:874
+#: users/views/data.py:887
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:896
+#: users/views/data.py:909
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:912
+#: users/views/data.py:925
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:917
+#: users/views/data.py:930
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:927 users/views/data.py:978
+#: users/views/data.py:940 users/views/data.py:991
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:934
+#: users/views/data.py:947
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:939
+#: users/views/data.py:952
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:965
+#: users/views/data.py:978
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:970
+#: users/views/data.py:983
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:983
+#: users/views/data.py:996
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:994
+#: users/views/data.py:1007
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:1000
+#: users/views/data.py:1013
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:1058
+#: users/views/data.py:1071
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1074
+#: users/views/data.py:1087
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1078
+#: users/views/data.py:1091
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1087
+#: users/views/data.py:1100
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

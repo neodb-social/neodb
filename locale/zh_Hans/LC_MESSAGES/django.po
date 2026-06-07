@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 11:30+0200\n"
+"POT-Creation-Date: 2026-06-07 02:13+0200\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -3378,11 +3378,11 @@ msgstr "扫描条形码"
 msgid "Notification"
 msgstr "通知"
 
-#: common/templates/_header.html:120 users/templates/users/account.html:228
+#: common/templates/_header.html:120 users/models/task.py:21
+#: users/templates/users/account.html:228
 #: users/templates/users/crossposts.html:9
-#: users/templates/users/crossposts.html:18
-msgid "Failed Crossposts"
-msgstr "转发失败记录"
+msgid "Pending"
+msgstr "等待"
 
 #: common/templates/_header.html:123
 msgid "Data"
@@ -3422,19 +3422,6 @@ msgstr "人物或公司名称"
 #: common/templates/_header.html:177
 msgid "Open"
 msgstr "打开"
-
-#: common/templates/_header.html:192
-msgid "Secure your account with a passkey for quick sign-in."
-msgstr "设置通行密钥，快速安全地登录。"
-
-#: common/templates/_header.html:193
-msgid "Set up"
-msgstr "去设置"
-
-#: common/templates/_header.html:195
-#: users/templates/users/_crosspost_row.html:52
-msgid "Dismiss"
-msgstr "忽略"
 
 #: common/templates/_sidebar.html:54
 #: users/templates/users/profile_actions.html:36
@@ -4437,7 +4424,7 @@ msgstr "创建者和他们的本地互关"
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/forms.py:180 users/templates/users/crossposts.html:29
+#: journal/forms.py:180 users/templates/users/crossposts.html:51
 #: users/templates/users/data.html:532
 msgid "Status"
 msgstr "状态"
@@ -4597,23 +4584,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:582
+#: journal/models/common.py:583
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:650
+#: journal/models/common.py:648
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:683
+#: journal/models/common.py:681
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:702
+#: journal/models/common.py:691
+msgid "Original post no longer exists."
+msgstr "原帖文已不存在。"
+
+#: journal/models/common.py:705
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:713
+#: journal/models/common.py:714
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5584,7 +5575,7 @@ msgid "Compose"
 msgstr "撰写"
 
 #: journal/templates/post_compose.html:35
-#: users/templates/users/crossposts.html:27
+#: users/templates/users/crossposts.html:49
 msgid "Content"
 msgstr "内容"
 
@@ -6455,10 +6446,6 @@ msgstr "头像"
 msgid "Header picture"
 msgstr "背景图片"
 
-#: users/models/task.py:21
-msgid "Pending"
-msgstr "等待"
-
 #: users/models/task.py:22
 msgid "Started"
 msgstr "已开始"
@@ -6522,6 +6509,11 @@ msgstr "重新授权"
 #: users/templates/users/_crosspost_row.html:48
 msgid "Retry"
 msgstr "重试"
+
+#: users/templates/users/_crosspost_row.html:52
+#: users/templates/users/crossposts.html:22
+msgid "Dismiss"
+msgstr "忽略"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -7019,19 +7011,31 @@ msgstr "你的个人访问令牌已创建。请立即复制，之后将无法再
 msgid "Token"
 msgstr "令牌"
 
+#: users/templates/users/crossposts.html:19
+msgid "Secure your account with a passkey for quick sign-in."
+msgstr "设置通行密钥，快速安全地登录。"
+
 #: users/templates/users/crossposts.html:20
+msgid "Set up"
+msgstr "去设置"
+
+#: users/templates/users/crossposts.html:40
+msgid "Failed Crossposts"
+msgstr "转发失败记录"
+
+#: users/templates/users/crossposts.html:42
 msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
 msgstr "这些帖文未能转发到你关联的社交账户。如有需要，请重新授权账户后再重试。极少数情况下，重试可能产生重复帖文。"
 
-#: users/templates/users/crossposts.html:26
+#: users/templates/users/crossposts.html:48
 msgid "Time"
 msgstr "时间"
 
-#: users/templates/users/crossposts.html:28
+#: users/templates/users/crossposts.html:50
 msgid "Platform"
 msgstr "平台"
 
-#: users/templates/users/crossposts.html:40
+#: users/templates/users/crossposts.html:62
 msgid "No failed crossposts."
 msgstr "没有失败的转发。"
 
@@ -7878,112 +7882,112 @@ msgstr "正在同步。"
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:368
+#: users/views/data.py:380
 msgid "Account no longer linked."
 msgstr "账户已不再关联。"
 
-#: users/views/data.py:371
+#: users/views/data.py:383
 msgid "Content is no longer public."
 msgstr "内容已不再公开。"
 
-#: users/views/data.py:398
+#: users/views/data.py:411
 msgid "Retry did not complete, please try again."
 msgstr "重试未完成，请再试一次。"
 
-#: users/views/data.py:408 users/views/data.py:441 users/views/data.py:657
-#: users/views/data.py:681 users/views/data.py:706 users/views/data.py:730
-#: users/views/data.py:754
+#: users/views/data.py:421 users/views/data.py:454 users/views/data.py:670
+#: users/views/data.py:694 users/views/data.py:719 users/views/data.py:743
+#: users/views/data.py:767
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:477
+#: users/views/data.py:490
 msgid "Loaded from uploaded matched file."
 msgstr "已从上传的匹配文件中加载。"
 
-#: users/views/data.py:502
+#: users/views/data.py:515
 msgid "Cancelled."
 msgstr "已取消。"
 
-#: users/views/data.py:522
+#: users/views/data.py:535
 msgid "No RateYourMusic import to preview."
 msgstr "暂无可预览的 RateYourMusic 导入任务。"
 
-#: users/views/data.py:530 users/views/data.py:640
+#: users/views/data.py:543 users/views/data.py:653
 msgid "Matched file missing."
 msgstr "匹配文件丢失。"
 
-#: users/views/data.py:626
+#: users/views/data.py:639
 msgid "Starting import..."
 msgstr "开始导入..."
 
-#: users/views/data.py:636
+#: users/views/data.py:649
 msgid "No matched file available."
 msgstr "没有可用的匹配文件。"
 
-#: users/views/data.py:874
+#: users/views/data.py:887
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:896
+#: users/views/data.py:909
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:912
+#: users/views/data.py:925
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:917
+#: users/views/data.py:930
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:927 users/views/data.py:978
+#: users/views/data.py:940 users/views/data.py:991
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:934
+#: users/views/data.py:947
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:939
+#: users/views/data.py:952
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:965
+#: users/views/data.py:978
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:970
+#: users/views/data.py:983
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:983
+#: users/views/data.py:996
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:994
+#: users/views/data.py:1007
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:1000
+#: users/views/data.py:1013
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:1058
+#: users/views/data.py:1071
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:1074
+#: users/views/data.py:1087
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:1078
+#: users/views/data.py:1091
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:1087
+#: users/views/data.py:1100
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

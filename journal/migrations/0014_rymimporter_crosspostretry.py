@@ -6,41 +6,77 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0013_alter_article_edited_time'),
-        ('users', '0012_task_rym_type'),
+        ("journal", "0013_alter_article_edited_time"),
+        ("users", "0012_task_rym_type"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RymImporter',
-            fields=[
-            ],
+            name="RymImporter",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('users.task',),
+            bases=("users.task",),
         ),
         migrations.CreateModel(
-            name='CrosspostRetry',
+            name="CrosspostRetry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('platform', models.CharField(max_length=20)),
-                ('error_type', models.IntegerField(choices=[(0, 'Error'), (1, 'Authorization expired')], default=0)),
-                ('message', models.TextField(default='')),
-                ('state', models.IntegerField(choices=[(0, 'Failed'), (1, 'Retrying')], default=0)),
-                ('created_time', models.DateTimeField(auto_now_add=True)),
-                ('edited_time', models.DateTimeField(auto_now=True)),
-                ('piece', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.piece')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("platform", models.CharField(max_length=20)),
+                (
+                    "error_type",
+                    models.IntegerField(
+                        choices=[(0, "Error"), (1, "Authorization expired")], default=0
+                    ),
+                ),
+                ("message", models.TextField(default="")),
+                (
+                    "state",
+                    models.IntegerField(
+                        choices=[(0, "Failed"), (1, "Retrying")], default=0
+                    ),
+                ),
+                ("created_time", models.DateTimeField(auto_now_add=True)),
+                ("edited_time", models.DateTimeField(auto_now=True)),
+                (
+                    "piece",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="journal.piece"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'indexes': [models.Index(fields=['user', '-created_time'], name='journal_cro_user_id_eb5d2a_idx')],
-                'constraints': [models.UniqueConstraint(fields=('piece', 'platform'), name='unique_crosspost_retry')],
+                "indexes": [
+                    models.Index(
+                        fields=["user", "-created_time"],
+                        name="journal_cro_user_id_eb5d2a_idx",
+                    )
+                ],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("piece", "platform"), name="unique_crosspost_retry"
+                    )
+                ],
             },
         ),
     ]

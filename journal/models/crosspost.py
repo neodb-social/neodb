@@ -27,9 +27,7 @@ class CrosspostRetry(models.Model):
     piece = models.ForeignKey("journal.Piece", on_delete=models.CASCADE)
     # "mastodon" / "threads" / "bluesky", same literals as piece.metadata keys
     platform = models.CharField(max_length=20)
-    error_type = models.IntegerField(
-        choices=ErrorType.choices, default=ErrorType.other
-    )
+    error_type = models.IntegerField(choices=ErrorType.choices, default=ErrorType.other)
     message = models.TextField(default="")
     state = models.IntegerField(choices=State.choices, default=State.failed)
     created_time = models.DateTimeField(auto_now_add=True)

@@ -384,7 +384,8 @@ def crosspost_retry(request, retry_id: int):
             retry.save(update_fields=["message", "edited_time"])
         else:
             retry.state = CrosspostRetry.State.retrying
-            retry.save(update_fields=["state", "edited_time"])
+            retry.message = ""
+            retry.save(update_fields=["state", "message", "edited_time"])
             piece.sync_to_social_accounts(0, [retry.platform])
     return _render_crosspost_row(request, retry)
 
