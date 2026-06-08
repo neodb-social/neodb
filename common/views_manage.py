@@ -46,9 +46,7 @@ class SiteConfigSettingsPage(FormView):
             if annotation is bool:
                 form_field = partial(
                     forms.BooleanField,
-                    widget=forms.Select(
-                        choices=[(True, _("Enabled")), (False, _("Disabled"))]
-                    ),
+                    widget=forms.Select(choices=[(True, _("Yes")), (False, _("No"))]),
                 )
             elif annotation is str:
                 choices = details.get("choices")

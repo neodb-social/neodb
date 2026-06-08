@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 02:13+0200\n"
+"POT-Creation-Date: 2026-06-08 18:34-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1552,12 +1552,12 @@ msgid "Item has been marked by users."
 msgstr "条目已被用户标记过。"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92
+#: catalog/templates/catalog_merge.html:92 common/views_manage.py:50
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:49
-#: catalog/templates/catalog_merge.html:93
+#: catalog/templates/catalog_merge.html:93 common/views_manage.py:50
 msgid "No"
 msgstr "否"
 
@@ -3695,14 +3695,6 @@ msgstr "访问被拒绝"
 #: journal/views/review.py:186
 msgid "Login required"
 msgstr "登录后访问"
-
-#: common/views_manage.py:50
-msgid "Enabled"
-msgstr "已启用"
-
-#: common/views_manage.py:50
-msgid "Disabled"
-msgstr "已禁用"
 
 #: common/views_manage.py:144 common/views_manage.py:295
 msgid "Branding"

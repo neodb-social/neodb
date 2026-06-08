@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 02:13+0200\n"
+"POT-Creation-Date: 2026-06-08 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1553,12 +1553,12 @@ msgid "Item has been marked by users."
 msgstr ""
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92
+#: catalog/templates/catalog_merge.html:92 common/views_manage.py:50
 msgid "Yes"
 msgstr ""
 
 #: catalog/templates/catalog_delete.html:49
-#: catalog/templates/catalog_merge.html:93
+#: catalog/templates/catalog_merge.html:93 common/views_manage.py:50
 msgid "No"
 msgstr ""
 
@@ -3674,14 +3674,6 @@ msgstr ""
 #: common/utils.py:103 common/utils.py:105 journal/views/profile.py:486
 #: journal/views/review.py:186
 msgid "Login required"
-msgstr ""
-
-#: common/views_manage.py:50
-msgid "Enabled"
-msgstr ""
-
-#: common/views_manage.py:50
-msgid "Disabled"
 msgstr ""
 
 #: common/views_manage.py:144 common/views_manage.py:295
