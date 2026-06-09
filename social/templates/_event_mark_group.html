@@ -20,23 +20,27 @@
            title="@{{ group.author.handle }}">{{ group.author.name|default:group.author.username }}</a>
         {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
       </span>
-      <div class="mark-group-covers"
-           style="display:flex;
-                  overflow-x:auto;
-                  gap:0.5em;
-                  padding:0.4em 0">
-        {% for item in group.items %}
-          <a href="{{ item.url }}"
-             title="{{ item.display_title }}"
-             style="flex:0 0 auto">
-            <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
-                 alt="{% trans 'cover' %}"
-                 loading="lazy"
-                 style="height:120px;
-                        width:auto;
-                        border-radius:4px">
-          </a>
-        {% endfor %}
+      <div class="shelf">
+        <span class="action">
+          <span>
+            <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+          </span>
+          <span>
+            <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+          </span>
+        </span>
+        <ul class="cards mark-group-covers">
+          {% for item in group.items %}
+            <li class="card">
+              <a href="{{ item.url }}" title="{{ item.display_title }}">
+                <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
+                     alt="{{ item.display_title }}"
+                     loading="lazy">
+                <div>{{ item.display_title }}</div>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </div>
