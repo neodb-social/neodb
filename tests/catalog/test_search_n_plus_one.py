@@ -33,15 +33,22 @@ class TestSearchTVShowDedupNoNPlusOne:
             for i in range(1, 4)
         ]
 
-    def _patched_query_index(self, items_in_index):
+    def _patched_query_index(self, items_in_index, tags_by_pk=None):
         """Run ``query_index`` while the search index is mocked to return
         ``items_in_index``. Returns ``(items, captured_queries)``.
+
+        ``tags_by_pk`` optionally seeds the indexed ``tag`` field per item pk,
+        mirroring what Typesense returns for ``include_fields``.
         """
         # Build a CatalogSearchResult from a synthetic response so the real
         # ``CatalogSearchResult.items`` cached_property runs (which is what
         # exercises Item.get_by_ids polymorphic load).
+        tags_by_pk = tags_by_pk or {}
         response = {
-            "hits": [{"document": {"id": str(it.pk)}} for it in items_in_index],
+            "hits": [
+                {"document": {"id": str(it.pk), "tag": tags_by_pk.get(it.pk, [])}}
+                for it in items_in_index
+            ],
             "found": len(items_in_index),
             "page": 1,
             "request_params": {"per_page": 20, "q": "Sample"},
@@ -94,6 +101,36 @@ class TestSearchTVShowDedupNoNPlusOne:
             f"query_index fired {len(offending)} per-season catalog_tvshow "
             f"FK lookup(s); expected 0. First offending SQL: "
             f"{offending[0]['sql'] if offending else 'n/a'}"
+        )
+
+    def test_dupe_to_items_carry_indexed_tags_without_tagmember_query(self):
+        """NEODB-SOCIAL-7KW: dropping ``Tag.attach_to_items`` from the search
+        view must not reintroduce a per-``dupe_to`` tag query. ``dupe_to`` items
+        are members of ``CatalogSearchResult.items`` (the deduped result reuses
+        those same instances), so they already carry the indexed ``tag`` list.
+        """
+        tags = {self.seasons[0].pk: ["sci-fi"], self.show.pk: ["drama"]}
+        items, queries = self._patched_query_index(
+            [self.seasons[0], self.show], tags_by_pk=tags
+        )
+
+        # Primary item (season) and the show deduped onto its dupe_to both
+        # carry their indexed tags.
+        assert items[0].pk == self.seasons[0].pk
+        assert items[0].tags == ["sci-fi"]
+        dupes = getattr(items[0], "dupe_to", [])
+        assert [d.pk for d in dupes] == [self.show.pk]
+        # Reading the dupe's tags (as the template would) must not hit the DB.
+        with CaptureQueriesContext(connection) as ctx:
+            dupe_tags = dupes[0].tags
+        assert dupe_tags == ["drama"]
+        assert ctx.captured_queries == []
+
+        # And nothing in the whole query_index path aggregated journal_tagmember.
+        offending = [q for q in queries if "journal_tagmember" in q["sql"]]
+        assert offending == [], (
+            "query_index fired a journal_tagmember aggregation; dupe_to tags "
+            f"should come from the index. First: {offending[0]['sql'] if offending else 'n/a'}"
         )
 
 
