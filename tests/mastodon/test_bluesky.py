@@ -132,3 +132,47 @@ def test_register_with_account_schedules_sync(monkeypatch):
     account.refresh_from_db()
     assert account.user == user
     assert called == [user.pk]
+
+
+def _stub_client(captured):
+    """A minimal atproto client capturing the created feed post record."""
+
+    def _create(repo, record):
+        captured["repo"] = repo
+        captured["record"] = record
+        return SimpleNamespace(cid="cid1", uri="at://did:plc:poster/post/1")
+
+    return SimpleNamespace(
+        get_current_time_iso=lambda: "2026-06-09T00:00:00.000Z",
+        app=SimpleNamespace(
+            bsky=SimpleNamespace(
+                feed=SimpleNamespace(post=SimpleNamespace(create=_create))
+            )
+        ),
+    )
+
+
+def test_post_attaches_fediverse_origin_url():
+    account = BlueskyAccount(uid="did:plc:poster")
+    captured: dict = {}
+    account._client = _stub_client(captured)  # populate the cached_property
+
+    r = account.post("hello", fediverse_uri="https://nd.test/@u/posts/1/")
+
+    assert r == {"cid": "cid1", "id": "at://did:plc:poster/post/1"}
+    assert captured["repo"] == "did:plc:poster"
+    dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
+    # off-lexicon Bridgy-style field pointing at the originating fediverse post
+    assert dumped["neodbOriginalUrl"] == "https://nd.test/@u/posts/1/"
+    assert dumped["text"] == "hello"
+
+
+def test_post_without_fediverse_uri_has_no_origin_field():
+    account = BlueskyAccount(uid="did:plc:poster")
+    captured: dict = {}
+    account._client = _stub_client(captured)
+
+    account.post("hello")
+
+    dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
+    assert "neodbOriginalUrl" not in dumped

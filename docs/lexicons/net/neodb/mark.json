@@ -39,6 +39,11 @@
           "createdAt": {
             "type": "string",
             "format": "datetime"
+          },
+          "fediverseUri": {
+            "type": "string",
+            "format": "uri",
+            "description": "Fediverse (ActivityPub) object URI of the corresponding post on the originating NeoDB instance."
           }
         }
       }

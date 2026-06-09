@@ -18,6 +18,7 @@ from users.models import APIdentity
 from .atproto import (
     REVIEW_NSID,
     AtprotoRecord,
+    build_fediverse_uri,
     build_rating,
     build_subject,
     format_datetime,
@@ -173,6 +174,9 @@ class Review(Content):
         rating = build_rating(self.rating_grade)
         if rating:
             record["rating"] = rating
+        fediverse_uri = build_fediverse_uri(self)
+        if fediverse_uri:
+            record["fediverseUri"] = fediverse_uri
         return [(REVIEW_NSID, record)]
 
     def to_post_params(self):

@@ -570,6 +570,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         error_type = CrosspostRetry.ErrorType.other
         error_message = ""
         attrs = {"platform": "bluesky", "mode": "post"}
+        # back-reference the originating fediverse post on the skeet, mirroring
+        # the fediverseUri carried by the net.neodb.* records (same source)
+        fediverse_uri = self.latest_post.object_uri if self.latest_post else None
+        if fediverse_uri:
+            params["fediverse_uri"] = fediverse_uri
         try:
             r = bluesky.post(**params)
         except (exceptions.UnauthorizedError, exceptions.BadRequestError) as e:

@@ -17,6 +17,7 @@ from users.models import APIdentity
 from .atproto import (
     MARK_NSID,
     AtprotoRecord,
+    build_fediverse_uri,
     build_rating,
     build_subject,
     format_datetime,
@@ -476,6 +477,9 @@ class ShelfMember(ListMember):
         rating = build_rating(self.rating_grade)
         if rating:
             record["rating"] = rating
+        fediverse_uri = build_fediverse_uri(self)
+        if fediverse_uri:
+            record["fediverseUri"] = fediverse_uri
         return [(MARK_NSID, record)]
 
     def get_ap_data(self):

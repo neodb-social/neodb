@@ -201,6 +201,51 @@ def test_mark_record_excludes_private_tags():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_review_record_includes_fediverse_uri_when_post_linked():
+    user = User.register(email="fed@example.com", username="feduser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    # simulate a linked timeline post (populates the latest_post cache)
+    review.__dict__["latest_post"] = SimpleNamespace(
+        object_uri="https://nd.test/@feduser/posts/1/"
+    )
+
+    _, record = review.to_atproto_records()[0]
+
+    # back-reference to the originating fediverse post
+    assert record["fediverseUri"] == "https://nd.test/@feduser/posts/1/"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_record_includes_fediverse_uri_when_post_linked():
+    user = User.register(email="fedmark@example.com", username="fedmarkuser")
+    book = Edition.objects.create(title="Dune")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "done", 8, visibility=0)
+    sm = ShelfMember.objects.get(owner=user.identity, item=book)
+    sm.__dict__["latest_post"] = SimpleNamespace(
+        object_uri="https://nd.test/@fedmarkuser/posts/2/"
+    )
+
+    _, record = sm.to_atproto_records()[0]
+
+    assert record["fediverseUri"] == "https://nd.test/@fedmarkuser/posts/2/"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_record_omits_fediverse_uri_without_post():
+    user = User.register(email="nofed@example.com", username="nofeduser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    # with no linked timeline post the field is simply omitted
+    review.__dict__["latest_post"] = None  # force the no-post case
+    _, record = review.to_atproto_records()[0]
+    assert "fediverseUri" not in record
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_delete_enqueues_record_cleanup_without_metadata(monkeypatch):
     user = User.register(email="del@example.com", username="deluser")
     book = Edition.objects.create(title="Dune")

@@ -353,6 +353,7 @@ class BlueskyAccount(SocialAccount):
         obj: "Item | Content | EmbedObj | None" = None,
         rating=None,
         images=[],
+        fediverse_uri: str | None = None,
         **kwargs,
     ):
         from journal.models.renderers import render_rating
@@ -408,7 +409,22 @@ class BlueskyAccount(SocialAccount):
             )
         else:
             embed = None
-        post = self._client.send_post(richtext, reply_to=reply_to, embed=embed)
+        # Build the record by hand (rather than client.send_post) so we can
+        # attach an off-lexicon neodbOriginalUrl pointing at the originating
+        # fediverse post -- the same convention Bridgy Fed uses with
+        # bridgyOriginalUrl. ModelBase is configured extra='allow', so the
+        # field round-trips verbatim; defaults mirror send_post.
+        record = models.AppBskyFeedPost.Record(
+            created_at=self._client.get_current_time_iso(),
+            text=richtext.build_text(),
+            facets=richtext.build_facets(),
+            reply=reply_to,
+            embed=embed,
+            langs=["en"],
+        )
+        if fediverse_uri:
+            setattr(record, "neodbOriginalUrl", fediverse_uri)
+        post = self._client.app.bsky.feed.post.create(self.uid, record)
         # return AT uri as id since it's used as so.
         return {"cid": post.cid, "id": post.uri}
 

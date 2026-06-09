@@ -19,6 +19,8 @@ from catalog.models import IdealIdTypes
 if TYPE_CHECKING:
     from catalog.models import Item
 
+    from .common import Piece
+
 NAMESPACE = "net.neodb"
 REVIEW_NSID = f"{NAMESPACE}.review"
 MARK_NSID = f"{NAMESPACE}.mark"
@@ -88,3 +90,14 @@ def build_rating(grade: int | None) -> dict[str, Any] | None:
     if not grade:
         return None
     return {"value": grade, "max": RATING_MAX}
+
+
+def build_fediverse_uri(piece: "Piece") -> str | None:
+    """ActivityPub object URI of the post this record mirrors, or ``None``.
+
+    Lets consumers of a ``net.neodb.*`` record follow it back to the original
+    fediverse post. The value is the linked timeline Note's ``object_uri``;
+    it is absent when the piece has no linked post (e.g. never crossposted).
+    """
+    post = piece.latest_post
+    return post.object_uri if post else None
