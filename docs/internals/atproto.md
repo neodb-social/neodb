@@ -108,6 +108,11 @@ database. On every sync the relevant piece is reconciled against the PDS:
 `Piece.to_atproto_records()` returns the records that should exist now;
 `Piece._sync_records_to_bluesky()` performs the reconciliation.
 
+## Fediverse back-reference
+
+Bluesky skeet (`app.bsky.feed.post`) carries an off-lexicon `neodbOriginalUrl`
+field pointing back to the ActivityPub post URL.
+
 ## When records are published
 
 Records are reconciled on the same path as Bluesky crossposting

@@ -411,12 +411,7 @@ class BlueskyAccount(SocialAccount):
             embed = None
         # Build the record by hand (rather than client.send_post) so we can
         # attach an off-lexicon neodbOriginalUrl pointing at the originating
-        # fediverse post -- the same convention Bridgy Fed uses with
-        # bridgyOriginalUrl. ModelBase is configured extra='allow', so the
-        # field round-trips verbatim; defaults mirror send_post.
-        # tag the skeet with the user's language (NeoDB is multilingual) so
-        # Bluesky doesn't mislabel non-English crossposts as English; omit it
-        # to let Bluesky auto-detect when no language preference is set
+        # fediverse post
         langs = (
             [self.user.macrolanguage] if self.user and self.user.macrolanguage else None
         )

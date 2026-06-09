@@ -162,7 +162,6 @@ def test_post_attaches_fediverse_origin_url():
     assert r == {"cid": "cid1", "id": "at://did:plc:poster/post/1"}
     assert captured["repo"] == "did:plc:poster"
     dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
-    # off-lexicon Bridgy-style field pointing at the originating fediverse post
     assert dumped["neodbOriginalUrl"] == "https://nd.test/@u/posts/1/"
     assert dumped["text"] == "hello"
 
