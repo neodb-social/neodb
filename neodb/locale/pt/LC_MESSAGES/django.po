@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-01-13 22:19-0500\n"
-"PO-Revision-Date: 2026-03-07 20:09+0000\n"
-"Last-Translator: AlecAlectoris <alektoris@duck.com>\n"
+"PO-Revision-Date: 2026-06-09 21:56+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
 "pt/>\n"
 "Language: pt\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: boofilsic/settings.py:414 common/models/lang.py:216
 msgid "English"
@@ -644,7 +644,6 @@ msgstr "ano"
 #: catalog/movie/models.py:145 catalog/music/models.py:63
 #: catalog/templates/movie.html:20 catalog/templates/tvseason.html:52
 #: catalog/templates/tvshow.html:47
-#, fuzzy
 msgid "length"
 msgstr "duração"
 
@@ -877,7 +876,7 @@ msgstr "Item contém sub-itens."
 #: catalog/templates/catalog_merge.html:45
 #: catalog/templates/catalog_merge.html:73
 msgid "Item has been merged to another item."
-msgstr ""
+msgstr "O elemento foi mesclado com outro elemento."
 
 #: catalog/templates/_sidebar_edit.html:36
 #: catalog/templates/catalog_delete.html:38
@@ -888,7 +887,7 @@ msgstr "O item foi marcado por utilizadores."
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
-msgstr ""
+msgstr "Os elementos seguintes foram mesclados neste elemento"
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
@@ -952,11 +951,9 @@ msgid "switch category"
 msgstr "trocar categoria"
 
 #: catalog/templates/_sidebar_edit.html:118
-#, fuzzy
 msgid "Switching may remove some metadata. Sure to proceed?"
 msgstr ""
-"A troca poderá remover alguns metadados. Tem a certeza de que pretende "
-"avançar?"
+"A troca pode remover alguns metadados. Tem certeza que deseja prosseguir?"
 
 #: catalog/templates/_sidebar_edit.html:121
 msgid "TV Show"
@@ -964,7 +961,7 @@ msgstr "Programa de TV"
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
-msgstr ""
+msgstr "Ligação para o elemento pai"
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
@@ -990,16 +987,16 @@ msgstr "remover temporadas não marcadas"
 #: catalog/templates/_sidebar_edit.html:189
 #: catalog/templates/catalog_merge.html:11
 msgid "Merge"
-msgstr ""
+msgstr "Mesclar"
 
 #: catalog/templates/_sidebar_edit.html:195
 msgid "URL of target item, or empty if undo merge"
-msgstr ""
+msgstr "URL do elemento de destino, ou vazio, se a mesclagem for desfeita"
 
 #: catalog/templates/_sidebar_edit.html:201
 #: catalog/templates/_sidebar_edit.html:262
 msgid "merge to another item"
-msgstr ""
+msgstr "mesclar a outro elemento"
 
 #: catalog/templates/_sidebar_edit.html:206
 #: catalog/templates/_sidebar_edit.html:210
@@ -1020,19 +1017,19 @@ msgstr "Esta edição pertence à seguinte obra"
 
 #: catalog/templates/_sidebar_edit.html:226
 msgid "Sure to unlink?"
-msgstr ""
+msgstr "Tem certeza que deseja desvincular?"
 
 #: catalog/templates/_sidebar_edit.html:232
 msgid "Unlink from work"
-msgstr ""
+msgstr "Desvincular do trabalho"
 
 #: catalog/templates/_sidebar_edit.html:238
 msgid "Link"
-msgstr ""
+msgstr "Ligação"
 
 #: catalog/templates/_sidebar_edit.html:249
 msgid "Link to another edition from same work"
-msgstr ""
+msgstr "Ligação para outra edição do mesmo trabalho"
 
 #: catalog/templates/_sidebar_edit.html:256
 msgid "Suggest Edits"
@@ -1044,7 +1041,7 @@ msgstr "ação proposta"
 
 #: catalog/templates/_sidebar_edit.html:263
 msgid "link to another item"
-msgstr ""
+msgstr "ligação para outro elemento"
 
 #: catalog/templates/_sidebar_edit.html:264
 msgid "change item category"
@@ -1065,6 +1062,8 @@ msgstr "outro"
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr ""
+"Para propor uma fusão ou associação, por favor, inclua o URL do elemento em "
+"questão"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
@@ -1174,19 +1173,19 @@ msgstr "Cancelar"
 
 #: catalog/templates/catalog_merge.html:21
 msgid "Are you sure to merge?"
-msgstr ""
+msgstr "Tem certeza que deseja mesclar?"
 
 #: catalog/templates/catalog_merge.html:23
 msgid "Are you sure to cancel merge?"
-msgstr ""
+msgstr "Tem certeza que deseja cancelar a mesclagem?"
 
 #: catalog/templates/catalog_merge.html:26
 msgid "Are you sure to link?"
-msgstr ""
+msgstr "Tem certeza que deseja vincular?"
 
 #: catalog/templates/catalog_merge.html:85
 msgid "This operation cannot be undone. Sure to merge?"
-msgstr ""
+msgstr "Esta operação não pode ser desfeita. Tem certeza que deseja mesclar?"
 
 #: catalog/templates/discover.html:18 users/templates/users/preferences.html:33
 msgid "Discover"
@@ -1330,7 +1329,6 @@ msgstr "comentários"
 #: catalog/templates/item_mark_list.html:21
 #: catalog/templates/item_mark_list.html:24
 #: catalog/templates/item_review_list.html:20
-#, fuzzy
 msgid "marks"
 msgstr "marcações"
 
@@ -1338,9 +1336,8 @@ msgstr "marcações"
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
-#, fuzzy
 msgid "marks from who you follow"
-msgstr "marcações das pessoas que segue"
+msgstr "marcações de quem você segue"
 
 #: catalog/templates/item_base.html:279
 #: catalog/templates/item_mark_list.html:27
@@ -1351,7 +1348,6 @@ msgstr "críticas"
 #: catalog/templates/item_mark_list.html:12
 #: journal/templates/user_mark_list.html:4
 #: journal/templates/user_mark_list.html:7
-#, fuzzy
 msgid "Marks"
 msgstr "Marcações"
 
@@ -1505,7 +1501,7 @@ msgstr "Edições"
 
 #: catalog/tv/models.py:173 catalog/tv/models.py:336
 msgid "show time"
-msgstr ""
+msgstr "mostrar horário"
 
 #: catalog/tv/models.py:185
 msgid "Date"
@@ -1577,19 +1573,19 @@ msgstr "A atualizar episódios"
 
 #: catalog/views_edit.py:286
 msgid "Cannot be merged to an item already deleted or merged"
-msgstr ""
+msgstr "Não pode ser mesclado com um elemento já apagado ou mesclado"
 
 #: catalog/views_edit.py:289
 msgid "Cannot merge items in different categories"
-msgstr ""
+msgstr "Não é possível mesclar elementos em categorias diferentes"
 
 #: catalog/views_edit.py:328
 msgid "Cannot be linked to an item already deleted or merged"
-msgstr ""
+msgstr "Não pode ser vinculado a um elemento já apagado ou mesclado"
 
 #: catalog/views_edit.py:330
 msgid "Cannot link items other than editions"
-msgstr ""
+msgstr "Não é possível vincular elementos que não sejam edições"
 
 #: common/models/lang.py:40
 msgid "Afar"
@@ -2501,6 +2497,8 @@ msgstr "Registar-se ou iniciar sessão"
 #: common/templates/_header.html:131
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
+"título ou conteúdo  categoria:tv  estado:completo  avaliação:8..10  "
+"data:2021-09-11..2022-02"
 
 #: common/templates/_header.html:145
 msgid "Open"
@@ -2766,7 +2764,7 @@ msgstr "Faixa"
 
 #: journal/models/note.py:38
 msgid "Cycle"
-msgstr ""
+msgstr "Ciclo"
 
 #: journal/models/note.py:39
 msgid "Timestamp"
@@ -2804,7 +2802,7 @@ msgstr "Faixa {value}"
 #: journal/models/note.py:64
 #, python-brace-format
 msgid "Cycle {value}"
-msgstr ""
+msgstr "Ciclo {value}"
 
 #: journal/models/renderers.py:104
 #, python-brace-format
@@ -3532,9 +3530,8 @@ msgstr ""
 "iniciada."
 
 #: journal/templates/review_edit.html:33
-#, fuzzy
 msgid "When saving, replace leading spaces with full-width spaces"
-msgstr "Ao guardar, substituir espaços principais com espaços de largura total"
+msgstr "Ao gravar, substituir espaços iniciais por espaços de largura total"
 
 #: journal/templates/review_edit.html:42
 msgid "change review date"
@@ -3731,7 +3728,7 @@ msgstr "Link inválido"
 #: journal/views/review.py:135
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
-msgstr ""
+msgstr "{review_title} - uma análise de {item_title}"
 
 #: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
@@ -3839,7 +3836,7 @@ msgstr "nome do domínio do site"
 
 #: mastodon/models/mastodon.py:521
 msgid "domain for api call"
-msgstr ""
+msgstr "domínio para a chamada de API"
 
 #: mastodon/models/mastodon.py:522
 msgid "type and verion"
@@ -3855,19 +3852,19 @@ msgstr "id do cliente"
 
 #: mastodon/models/mastodon.py:525
 msgid "client secret"
-msgstr ""
+msgstr "segredo do cliente"
 
 #: mastodon/models/mastodon.py:526
 msgid "vapid key"
-msgstr ""
+msgstr "chave vapid"
 
 #: mastodon/models/mastodon.py:528
 msgid "0: unicode moon; 1: custom emoji"
-msgstr ""
+msgstr "0: lua unicode; 1: emoji personalizado"
 
 #: mastodon/models/mastodon.py:531
 msgid "max toot len"
-msgstr ""
+msgstr "Tamanho máximo da postagem"
 
 #: mastodon/models/mastodon.py:643
 msgid "Boost"
@@ -4197,7 +4194,7 @@ msgstr "Notificações"
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr ""
+msgstr "impulsionado"
 
 #: social/templates/feed_events.html:41
 msgid "play"
@@ -4546,10 +4543,12 @@ msgstr "Método de importação"
 #: users/templates/users/data.html:30
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
 msgstr ""
+"Mesclar: atualize apenas quando o estado mudar de lista de desejos para em "
+"andamento ou de em andamento para completo."
 
 #: users/templates/users/data.html:34
 msgid "Overwrite: update all imported status."
-msgstr ""
+msgstr "Substituir: atualiza todos os estado importados."
 
 #: users/templates/users/data.html:67
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
@@ -4604,6 +4603,8 @@ msgstr "Importar do Letterboxd"
 #: users/templates/users/data.html:169
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
+"Apenas as alterações progressivas (nenhum -> para assistir -> assistido) "
+"serão importadas."
 
 #: users/templates/users/data.html:177
 msgid "Failed links, likely due to Letterboxd error, you may have to mark them manually"
@@ -4849,6 +4850,8 @@ msgstr ""
 #: users/templates/users/preferences.html:177
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
+"Esta opção limita apenas as visitas à web; para limitar a visibilidade "
+"fediverso, escolha somente seguidores ou somente mencionados ao postar"
 
 #: users/templates/users/preferences.html:185
 msgid "Show your name on item page if you recently edited it"
