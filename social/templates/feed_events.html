@@ -8,7 +8,11 @@
 {% load user_actions %}
 {% load duration %}
 {% for event in events %}
-  {% include "_event_post.html" with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item %}
+  {% if event.is_group %}
+    {% include "_event_mark_group.html" with group=event %}
+  {% else %}
+    {% include "_event_post.html" with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item %}
+  {% endif %}
   {% if forloop.last %}
     <div class="htmx-indicator"
          style="margin-left: 60px"

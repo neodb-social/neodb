@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load duration %}
+<section class="activity post mark-group">
+  <div style="display:flex;">
+    <div>
+      <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+        <a href="{{ group.author.url }}">
+          <img src="{{ group.author.local_icon_url }}"
+               alt="@{{ group.author.handle }}">
+        </a>
+      </div>
+    </div>
+    <div style="flex-grow:1;">
+      <span class="action">
+        <span class="post_timestamp">{{ group.published|naturaldelta }}</span>
+      </span>
+      <span class="post_author">
+        <a href="{{ group.author.url }}"
+           class="nickname"
+           title="@{{ group.author.handle }}">{{ group.author.name|default:group.author.username }}</a>
+        {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
+      </span>
+      <div class="mark-group-covers"
+           style="display:flex;
+                  overflow-x:auto;
+                  gap:0.5em;
+                  padding:0.4em 0">
+        {% for item in group.items %}
+          <a href="{{ item.url }}"
+             title="{{ item.display_title }}"
+             style="flex:0 0 auto">
+            <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
+                 alt="{% trans 'cover' %}"
+                 loading="lazy"
+                 style="height:120px;
+                        width:auto;
+                        border-radius:4px">
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

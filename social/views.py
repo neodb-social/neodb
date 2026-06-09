@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -10,6 +12,7 @@ from common.models.misc import int_
 from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import prefetch_pieces_for_posts
 from journal.search import JournalIndex, JournalQueryParser
+from social.feed_grouping import FeedEvent, group_feed_events
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -174,10 +177,13 @@ def data(request):
     )
     _add_interaction_to_events(events, identity_id)
     prefetch_pieces_for_posts([e.subject_post for e in events if e.subject_post_id])
+    # events are TimelineEvent rows; the type checker can't see Django's implicit
+    # id/_id attributes that FeedEvent declares, so assert the shape at this boundary.
+    grouped = group_feed_events(cast(list[FeedEvent], events))
     return render(
         request,
         "feed_events.html",
-        {"feed_type": typ, "events": events},
+        {"feed_type": typ, "events": grouped},
     )
 
 

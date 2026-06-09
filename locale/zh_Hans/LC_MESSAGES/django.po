@@ -6126,6 +6126,13 @@ msgstr "新帖文"
 msgid "New article"
 msgstr "新文章"
 
+#: social/templates/_event_mark_group.html:21
+#, python-format
+msgid "marked %(counter)s item"
+msgid_plural "marked %(counter)s items"
+msgstr[0] "标记了 %(counter)s 个条目"
+msgstr[1] "标记了 %(counter)s 个条目"
+
 #: social/templates/_event_post.html:20
 msgid "boosted"
 msgstr "转播了"
