@@ -53,7 +53,7 @@ class Email:
             action = "login" if account and account.user else "register"
         s = {"e": email, "a": action}
         # v = TimestampSigner().sign_object(s)
-        code = b62_encode(secrets.randbelow(pow(62, 5) - pow(62, 4)) + pow(62, 4))
+        code = b62_encode(secrets.randbelow(pow(62, 8) - pow(62, 7)) + pow(62, 7))
         cache.set(f"login_{code}", s, timeout=_code_ttl)
         footer = _(
             "\n\nIf you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."

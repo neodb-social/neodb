@@ -31,13 +31,13 @@
         <form action="{% url 'mastodon:email_verify' %}" method="post">
           <div class="otp">
             <input name="code"
-                   maxlength="5"
+                   maxlength="8"
                    value=""
                    autocomplete="one-time-code"
                    autocapitalize="none"
                    autocorrect="off"
                    required
-                   pattern="^[a-zA-Z0-9]{5}$" />
+                   pattern="^[a-zA-Z0-9]{8}$" />
             {% if error %}
               <small>{{ error }}</small>
             {% elif email %}

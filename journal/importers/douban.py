@@ -13,6 +13,7 @@ from catalog.common.downloaders import *
 from catalog.models import *
 from catalog.sites import DoubanBook, DoubanDrama, DoubanGame, DoubanMovie, DoubanMusic
 from catalog.sites.douban import DoubanDownloader
+from common.validators import is_valid_url
 from journal.models import *
 from journal.views.common import generate_upload_path
 from users.models import Task
@@ -22,6 +23,9 @@ _tz_sh = pytz.timezone("Asia/Shanghai")
 
 def _fetch_remote_image(url, identity_id):
     try:
+        if not is_valid_url(url):
+            logger.warning(f"skip fetching non-public image url {url}")
+            return url
         logger.info(f"fetching remote image {url}")
         imgdl = ProxiedImageDownloader(url)
         raw_img = imgdl.download().content
@@ -326,6 +330,9 @@ class DoubanImporter(Task):
         url = self.guess_entity_url(entity_title, rating, time)
         if url is None:
             logger.info(f"{prefix} fetching review {review_url}")
+            if not isinstance(review_url, str) or not is_valid_url(review_url):
+                logger.warning(f"{prefix} invalid review url {review_url}")
+                return
             try:
                 h = DoubanDownloader(review_url).download().html()
                 urls = h.xpath("//header[@class='main-hd']/a/@href")

@@ -1,4 +1,5 @@
 import functools
+import json
 import uuid
 from typing import TYPE_CHECKING
 
@@ -20,6 +21,30 @@ from .models import int_
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User
+
+
+# Characters that could let JSON serialized into an HTML <script> block break
+# out of the element (`<`, `>`, `&`) or terminate a JS string (U+2028/U+2029).
+# Mirrors the escaping Django applies in django.utils.html.json_script.
+_JSON_SCRIPT_ESCAPES = {
+    0x3C: "\\u003C",
+    0x3E: "\\u003E",
+    0x26: "\\u0026",
+    0x2028: "\\u2028",
+    0x2029: "\\u2029",
+}
+
+
+def json_ld_dumps(data: object) -> str:
+    """Serialize `data` to JSON safe to embed inside an HTML <script> block.
+
+    Plain json.dumps does not escape `<`/`>`, so a value containing
+    `</script>` would close the element and allow HTML/JS injection when the
+    result is emitted with `|safe`. This escapes the dangerous characters.
+    """
+    return json.dumps(data, ensure_ascii=False, indent=2).translate(
+        _JSON_SCRIPT_ESCAPES
+    )
 
 
 class S3Storage(S3Boto3Storage):

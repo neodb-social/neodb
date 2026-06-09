@@ -24,6 +24,7 @@ from loguru import logger
 
 from common.models import SiteConfig, jsondata
 from common.sentry import count as sentry_count
+from common.validators import is_valid_url
 from takahe.utils import Takahe
 
 from .common import SocialAccount
@@ -277,6 +278,8 @@ def _force_recreate_app(server_version):
 
 def create_app(domain_name, server_version):
     url = "https://" + domain_name + API_CREATE_APP
+    if not is_valid_url(url):
+        raise ValueError(f"Invalid instance domain {domain_name}")
     payload = {
         "client_name": settings.SITE_INFO["site_name"],
         "scopes": _get_scopes(server_version),
@@ -358,6 +361,9 @@ def get_related_acct_list(site, token, api):
 
 def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     url = f"https://{login_domain}/api/v1/instance"
+    if not is_valid_url(url):
+        logger.warning(f"Blocked instance probe to non-public domain {login_domain}")
+        raise Exception(f"Invalid instance domain {login_domain}")
     try:
         response = get(url, headers={"User-Agent": USER_AGENT})
     except Exception as e:
@@ -380,11 +386,15 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     api_domain = domain
     if domain != login_domain:
         url = f"https://{domain}/api/v1/instance"
-        try:
-            response = get(url, headers={"User-Agent": USER_AGENT})
-            j = response.json()
-        except Exception:
+        if not is_valid_url(url):
+            logger.warning(f"Blocked instance probe to non-public domain {domain}")
             api_domain = login_domain
+        else:
+            try:
+                response = get(url, headers={"User-Agent": USER_AGENT})
+                j = response.json()
+            except Exception:
+                api_domain = login_domain
     logger.info(
         f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
     )

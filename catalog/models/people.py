@@ -1,4 +1,3 @@
-import json
 from collections import OrderedDict
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Self
@@ -8,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from ninja import Field, Schema
 
 from common.models import get_current_locales, jsondata, uniq
+from common.utils import json_ld_dumps
 
 if TYPE_CHECKING:
     from django_stubs_ext import StrOrPromise
@@ -423,8 +423,7 @@ class People(Item):
         return data
 
     def to_schema_org_json(self):
-        data = self.to_schema_org()
-        return json.dumps(data, ensure_ascii=False, indent=2)
+        return json_ld_dumps(self.to_schema_org())
 
     @property
     def ap_object_ref(self) -> dict[str, Any]:

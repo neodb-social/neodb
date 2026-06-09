@@ -1,6 +1,5 @@
 import datetime
 import os
-import random
 import re
 import secrets
 import ssl
@@ -201,7 +200,7 @@ class Invite(models.Model):
     def create_random(cls, uses=None, expires=None, note=None):
         return cls.objects.create(
             token="".join(
-                random.choice("abcdefghkmnpqrstuvwxyz23456789") for i in range(20)
+                secrets.choice("abcdefghkmnpqrstuvwxyz23456789") for i in range(20)
             ),
             uses=uses,
             expires=expires,

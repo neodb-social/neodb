@@ -463,6 +463,12 @@ class ImageDownloaderMixin:
 
     @classmethod
     def download_image(cls, image_url, page_url, headers=None):
+        if image_url and not get_mock_mode() and not is_valid_url(image_url):
+            logger.warning(
+                "Blocked image download from non-public URL",
+                extra={"url": image_url},
+            )
+            return None, None
         imgdl: BasicDownloader = cls(image_url, page_url)  # type:ignore
         if headers is not None:
             imgdl.headers = headers

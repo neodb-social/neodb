@@ -1,4 +1,3 @@
-import json
 import re
 import uuid
 from enum import Enum
@@ -23,7 +22,7 @@ from polymorphic.models import PolymorphicModel
 from common.models import get_current_locales, jsondata, uniq
 from common.models.genre import normalize_genres
 from common.models.lang import normalize_languages
-from common.utils import get_file_absolute_url
+from common.utils import get_file_absolute_url, json_ld_dumps
 
 from .common import (
     LOCALIZED_DESCRIPTION_SCHEMA,
@@ -1264,8 +1263,7 @@ class Item(PolymorphicModel):
         return data
 
     def to_schema_org_json(self):
-        data = self.to_schema_org()
-        return json.dumps(data, ensure_ascii=False, indent=2)
+        return json_ld_dumps(self.to_schema_org())
 
 
 class ItemLookupId(models.Model):

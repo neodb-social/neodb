@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-08 18:34-0400\n"
+"POT-Creation-Date: 2026-06-09 17:45-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -58,11 +58,11 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:29 catalog/models/item.py:244
+#: catalog/forms.py:29 catalog/models/item.py:243
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:34 catalog/models/item.py:247
+#: catalog/forms.py:34 catalog/models/item.py:246
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
@@ -115,11 +115,11 @@ msgid "other title"
 msgstr "其它标题"
 
 #: catalog/models/book.py:272 catalog/models/book.py:561
-#: catalog/models/item.py:113
+#: catalog/models/item.py:112
 msgid "author"
 msgstr "作者"
 
-#: catalog/models/book.py:279 catalog/models/item.py:114
+#: catalog/models/book.py:279 catalog/models/item.py:113
 msgid "translator"
 msgstr "译者"
 
@@ -128,7 +128,7 @@ msgid "book format"
 msgstr "格式"
 
 #: catalog/models/book.py:293 catalog/models/game.py:123
-#: catalog/models/item.py:128 catalog/models/music.py:95
+#: catalog/models/item.py:127 catalog/models/music.py:95
 msgid "publisher"
 msgstr "出版发行"
 
@@ -599,16 +599,16 @@ msgstr "重制"
 msgid "Special Edition"
 msgstr "特别版"
 
-#: catalog/models/game.py:99 catalog/models/item.py:120
+#: catalog/models/game.py:99 catalog/models/item.py:119
 msgid "designer"
 msgstr "设计者"
 
-#: catalog/models/game.py:107 catalog/models/item.py:119
+#: catalog/models/game.py:107 catalog/models/item.py:118
 #: catalog/models/music.py:87
 msgid "artist"
 msgstr "艺术家"
 
-#: catalog/models/game.py:115 catalog/models/item.py:129
+#: catalog/models/game.py:115 catalog/models/item.py:128
 msgid "developer"
 msgstr "开发者"
 
@@ -634,7 +634,7 @@ msgid "platform"
 msgstr "平台"
 
 #: catalog/models/game.py:159 catalog/models/movie.py:160
-#: catalog/models/people.py:156 catalog/models/performance.py:259
+#: catalog/models/people.py:158 catalog/models/performance.py:259
 #: catalog/models/performance.py:471 catalog/models/podcast.py:87
 #: catalog/models/tv.py:235 catalog/models/tv.py:478
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
@@ -645,133 +645,133 @@ msgstr "平台"
 msgid "website"
 msgstr "网站"
 
-#: catalog/models/item.py:115 catalog/models/movie.py:104
+#: catalog/models/item.py:114 catalog/models/movie.py:104
 #: catalog/models/performance.py:183 catalog/models/performance.py:395
 #: catalog/models/tv.py:179 catalog/models/tv.py:421
 msgid "director"
 msgstr "导演"
 
-#: catalog/models/item.py:116 catalog/models/movie.py:111
+#: catalog/models/item.py:115 catalog/models/movie.py:111
 #: catalog/models/performance.py:190 catalog/models/performance.py:402
 #: catalog/models/tv.py:186 catalog/models/tv.py:428
 msgid "playwright"
 msgstr "编剧"
 
-#: catalog/models/item.py:117 catalog/models/movie.py:118
+#: catalog/models/item.py:116 catalog/models/movie.py:118
 #: catalog/models/performance.py:218 catalog/models/performance.py:430
 #: catalog/models/tv.py:193 catalog/models/tv.py:435
 msgid "actor"
 msgstr "演员"
 
-#: catalog/models/item.py:118 catalog/models/movie.py:125
+#: catalog/models/item.py:117 catalog/models/movie.py:125
 #: catalog/models/tv.py:200 catalog/models/tv.py:442
 msgid "producer"
 msgstr "制片人"
 
-#: catalog/models/item.py:121 catalog/models/performance.py:204
+#: catalog/models/item.py:120 catalog/models/performance.py:204
 #: catalog/models/performance.py:416
 msgid "composer"
 msgstr "作曲"
 
-#: catalog/models/item.py:122 catalog/models/performance.py:211
+#: catalog/models/item.py:121 catalog/models/performance.py:211
 #: catalog/models/performance.py:423
 msgid "choreographer"
 msgstr "编舞"
 
-#: catalog/models/item.py:123 catalog/models/performance.py:225
+#: catalog/models/item.py:122 catalog/models/performance.py:225
 #: catalog/models/performance.py:437
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/item.py:124 catalog/models/podcast.py:78
+#: catalog/models/item.py:123 catalog/models/podcast.py:78
 msgid "host"
 msgstr "主播"
 
-#: catalog/models/item.py:125 catalog/models/performance.py:197
+#: catalog/models/item.py:124 catalog/models/performance.py:197
 #: catalog/models/performance.py:409
 msgid "original creator"
 msgstr "原始创作者"
 
-#: catalog/models/item.py:126 catalog/models/performance.py:239
+#: catalog/models/item.py:125 catalog/models/performance.py:239
 #: catalog/models/performance.py:451
 msgid "crew"
 msgstr "工作人员"
 
-#: catalog/models/item.py:130
+#: catalog/models/item.py:129
 msgid "production company"
 msgstr "制作公司"
 
-#: catalog/models/item.py:131
+#: catalog/models/item.py:130
 msgid "record label"
 msgstr "唱片公司"
 
-#: catalog/models/item.py:132
+#: catalog/models/item.py:131
 msgid "distributor"
 msgstr "发行商"
 
-#: catalog/models/item.py:133
+#: catalog/models/item.py:132
 msgid "studio"
 msgstr "工作室"
 
-#: catalog/models/item.py:134 catalog/models/performance.py:232
+#: catalog/models/item.py:133 catalog/models/performance.py:232
 #: catalog/models/performance.py:444
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:149 catalog/models/people.py:448
+#: catalog/models/item.py:148 catalog/models/people.py:449
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:150 catalog/models/people.py:133
+#: catalog/models/item.py:149 catalog/models/people.py:135
 #: catalog/models/performance.py:115 catalog/models/performance.py:130
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/item.py:152 catalog/templates/_item_credits_list.html:138
+#: catalog/models/item.py:151 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:241 catalog/models/item.py:273
+#: catalog/models/item.py:240 catalog/models/item.py:272
 #: journal/models/collection.py:89
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:242 catalog/models/item.py:281
+#: catalog/models/item.py:241 catalog/models/item.py:280
 #: journal/models/collection.py:90
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:253 catalog/models/people.py:456
+#: catalog/models/item.py:252 catalog/models/people.py:457
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:255 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:254 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1276
+#: catalog/models/item.py:1274
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1278
+#: catalog/models/item.py:1276
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1280
+#: catalog/models/item.py:1278
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1296
+#: catalog/models/item.py:1294
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1302
+#: catalog/models/item.py:1300
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1305
+#: catalog/models/item.py:1303
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -838,127 +838,127 @@ msgstr "介质类型"
 msgid "number of discs"
 msgstr "碟片数"
 
-#: catalog/models/people.py:30
+#: catalog/models/people.py:32
 msgid "Person"
 msgstr "人物"
 
-#: catalog/models/people.py:31
+#: catalog/models/people.py:33
 msgid "Organization"
 msgstr "团体"
 
-#: catalog/models/people.py:36
+#: catalog/models/people.py:38
 msgid "Author"
 msgstr "作者"
 
-#: catalog/models/people.py:37
+#: catalog/models/people.py:39
 msgid "Translator"
 msgstr "译者"
 
-#: catalog/models/people.py:38
+#: catalog/models/people.py:40
 msgid "Performer"
 msgstr "表演者"
 
-#: catalog/models/people.py:39
+#: catalog/models/people.py:41
 msgid "Actor"
 msgstr "演员"
 
-#: catalog/models/people.py:40
+#: catalog/models/people.py:42
 msgid "Director"
 msgstr "导演"
 
-#: catalog/models/people.py:41
+#: catalog/models/people.py:43
 msgid "Composer"
 msgstr "作曲"
 
-#: catalog/models/people.py:42
+#: catalog/models/people.py:44
 msgid "Artist"
 msgstr "艺术家"
 
-#: catalog/models/people.py:43
+#: catalog/models/people.py:45
 msgid "Voice Actor"
 msgstr "声优"
 
-#: catalog/models/people.py:44
+#: catalog/models/people.py:46
 msgid "Host"
 msgstr "主持人"
 
-#: catalog/models/people.py:45
+#: catalog/models/people.py:47
 msgid "Playwright"
 msgstr "编剧"
 
-#: catalog/models/people.py:46
+#: catalog/models/people.py:48
 msgid "Designer"
 msgstr "设计师"
 
-#: catalog/models/people.py:47
+#: catalog/models/people.py:49
 msgid "Choreographer"
 msgstr "编舞"
 
-#: catalog/models/people.py:48
+#: catalog/models/people.py:50
 msgid "Original Creator"
 msgstr "原作者"
 
-#: catalog/models/people.py:49
+#: catalog/models/people.py:51
 msgid "Producer"
 msgstr "制片人"
 
-#: catalog/models/people.py:52
+#: catalog/models/people.py:54
 msgid "Publisher"
 msgstr "出版商"
 
-#: catalog/models/people.py:53
+#: catalog/models/people.py:55
 msgid "Distributor"
 msgstr "发行商"
 
-#: catalog/models/people.py:54
+#: catalog/models/people.py:56
 msgid "Production Company"
 msgstr "制作公司"
 
-#: catalog/models/people.py:55
+#: catalog/models/people.py:57
 msgid "Record Label"
 msgstr "唱片公司"
 
-#: catalog/models/people.py:56 common/templates/_footer.html:9
+#: catalog/models/people.py:58 common/templates/_footer.html:9
 msgid "Developer"
 msgstr "开发者"
 
-#: catalog/models/people.py:57
+#: catalog/models/people.py:59
 msgid "Studio"
 msgstr "工作室"
 
-#: catalog/models/people.py:58
+#: catalog/models/people.py:60
 msgid "Publishing House"
 msgstr "出版社"
 
-#: catalog/models/people.py:59
+#: catalog/models/people.py:61
 msgid "Troupe"
 msgstr "剧团"
 
-#: catalog/models/people.py:60
+#: catalog/models/people.py:62
 msgid "Crew"
 msgstr "制作人员"
 
-#: catalog/models/people.py:129
+#: catalog/models/people.py:131
 msgid "type"
 msgstr "类型"
 
-#: catalog/models/people.py:141
+#: catalog/models/people.py:143
 msgid "bio"
 msgstr "简介"
 
-#: catalog/models/people.py:150
+#: catalog/models/people.py:152
 msgid "date of birth"
 msgstr "出生日期"
 
-#: catalog/models/people.py:153
+#: catalog/models/people.py:155
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:450
+#: catalog/models/people.py:451
 msgid "character"
 msgstr "角色"
 
-#: catalog/models/people.py:454
+#: catalog/models/people.py:455
 msgid "Character name for actor roles"
 msgstr "演员饰演的角色名称"
 
@@ -1081,7 +1081,7 @@ msgstr "显示更多"
 #: journal/templates/profile_posts.html:21
 #: journal/templates/user_follow_list_items.html:63
 #: journal/templates/user_post_list_items.html:24
-#: social/templates/events.html:43 social/templates/feed_events.html:24
+#: social/templates/events.html:43 social/templates/feed_events.html:28
 msgid "nothing more."
 msgstr "没有更多内容了。"
 
@@ -1209,7 +1209,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:313 catalog/views/edit.py:360
 #: catalog/views/edit.py:384 catalog/views/edit.py:399
 #: catalog/views/edit.py:437 catalog/views/edit.py:447
-#: catalog/views/edit.py:473 catalog/views/search.py:369
+#: catalog/views/edit.py:473 catalog/views/search.py:370
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1552,12 +1552,12 @@ msgid "Item has been marked by users."
 msgstr "条目已被用户标记过。"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:92 common/views_manage.py:49
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:49
-#: catalog/templates/catalog_merge.html:93 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:93 common/views_manage.py:49
 msgid "No"
 msgstr "否"
 
@@ -1606,8 +1606,8 @@ msgstr "确定关联吗？"
 msgid "This operation cannot be undone. Sure to merge?"
 msgstr "本操作不可撤销。确认合并吗？"
 
-#: catalog/templates/discover.html:28 common/views_manage.py:145
-#: common/views_manage.py:346 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:28 common/views_manage.py:143
+#: common/views_manage.py:344 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr "发现"
 
@@ -1805,11 +1805,11 @@ msgid "episode Length"
 msgstr "单集时长"
 
 #: catalog/templates/people.html:13 common/templates/_sidebar.html:68
-#: journal/models/shelf.py:324
+#: journal/models/shelf.py:325
 msgid "following"
 msgstr "正在关注"
 
-#: catalog/templates/people.html:15 journal/models/shelf.py:322
+#: catalog/templates/people.html:15 journal/models/shelf.py:323
 #: social/templates/notification.html:60
 msgid "follow"
 msgstr "关注"
@@ -2039,11 +2039,11 @@ msgstr "无法关联到非图书类的条目"
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:358
+#: catalog/views/search.py:359
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:361
+#: catalog/views/search.py:362
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -3545,7 +3545,7 @@ msgstr "源代码"
 msgid "Registration"
 msgstr "注册"
 
-#: common/templates/common/about.html:35 common/views_manage.py:485
+#: common/templates/common/about.html:35 common/views_manage.py:483
 msgid "Invite Only"
 msgstr "仅限邀请"
 
@@ -3553,7 +3553,7 @@ msgstr "仅限邀请"
 msgid "Open Registration"
 msgstr "开放注册"
 
-#: common/templates/common/about.html:40 common/views_manage.py:506
+#: common/templates/common/about.html:40 common/views_manage.py:504
 msgid "Preferred Languages"
 msgstr "主要语言"
 
@@ -3609,7 +3609,7 @@ msgstr "正在请求摄像头权限…"
 msgid "Or type barcode / ISBN manually"
 msgstr "或手动输入条形码 / ISBN"
 
-#: common/templates/common/scan.html:60 common/views_manage.py:570
+#: common/templates/common/scan.html:60 common/views_manage.py:568
 msgid "Search"
 msgstr "搜索"
 
@@ -3677,679 +3677,679 @@ msgstr "你"
 msgid "unavailable"
 msgstr "不可用"
 
-#: common/utils.py:84 common/utils.py:125 users/views/actions.py:37
+#: common/utils.py:109 common/utils.py:150 users/views/actions.py:37
 #: users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
 
-#: common/utils.py:88 common/utils.py:129 users/views/actions.py:126
+#: common/utils.py:113 common/utils.py:154 users/views/actions.py:126
 msgid "User no longer exists"
 msgstr "用户不存在了"
 
-#: common/utils.py:95 common/utils.py:97 common/utils.py:100
-#: common/utils.py:136 common/utils.py:140 journal/views/profile.py:445
+#: common/utils.py:120 common/utils.py:122 common/utils.py:125
+#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:445
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:103 common/utils.py:105 journal/views/profile.py:486
+#: common/utils.py:128 common/utils.py:130 journal/views/profile.py:486
 #: journal/views/review.py:186
 msgid "Login required"
 msgstr "登录后访问"
 
-#: common/views_manage.py:144 common/views_manage.py:295
+#: common/views_manage.py:142 common/views_manage.py:293
 msgid "Branding"
 msgstr "品牌"
 
-#: common/views_manage.py:146
+#: common/views_manage.py:144
 msgid "Recommendations"
 msgstr "推荐"
 
-#: common/views_manage.py:147
+#: common/views_manage.py:145
 msgid "Access"
 msgstr "访问"
 
-#: common/views_manage.py:148 common/views_manage.py:565
+#: common/views_manage.py:146 common/views_manage.py:563
 msgid "Federation"
 msgstr "联邦"
 
-#: common/views_manage.py:149
+#: common/views_manage.py:147
 msgid "Catalog"
 msgstr "目录"
 
-#: common/views_manage.py:150
+#: common/views_manage.py:148
 msgid "API Keys"
 msgstr "API 密钥"
 
-#: common/views_manage.py:151
+#: common/views_manage.py:149
 msgid "Downloader"
 msgstr "下载器"
 
-#: common/views_manage.py:152 common/views_manage.py:303
+#: common/views_manage.py:150 common/views_manage.py:301
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr "高级"
 
-#: common/views_manage.py:202
+#: common/views_manage.py:200
 msgid "Invalid value."
 msgstr "无效值。"
 
-#: common/views_manage.py:206
+#: common/views_manage.py:204
 msgid "Invalid configuration. Please check your input."
 msgstr "配置无效"
 
-#: common/views_manage.py:211
+#: common/views_manage.py:209
 msgid "Settings have been saved."
 msgstr "设置已保存"
 
-#: common/views_manage.py:231
+#: common/views_manage.py:229
 msgid "Site Name"
 msgstr "站点名称"
 
-#: common/views_manage.py:234
+#: common/views_manage.py:232
 msgid "Site Description"
 msgstr "站点描述"
 
-#: common/views_manage.py:235
+#: common/views_manage.py:233
 msgid "Short description shown in metadata and about page."
 msgstr "在元数据和关于页面中显示的简短描述。"
 
-#: common/views_manage.py:238
+#: common/views_manage.py:236
 msgid "Site Logo URL"
 msgstr "站点 Logo URL"
 
-#: common/views_manage.py:239
+#: common/views_manage.py:237
 msgid "URL path to the site logo image."
 msgstr "站点 Logo 图片的 URL 路径。"
 
-#: common/views_manage.py:242
+#: common/views_manage.py:240
 msgid "Site Icon URL"
 msgstr "站点图标 URL"
 
-#: common/views_manage.py:243
+#: common/views_manage.py:241
 msgid "URL path to the site icon/favicon."
 msgstr "站点图标/favicon 的 URL 路径。"
 
-#: common/views_manage.py:246
+#: common/views_manage.py:244
 msgid "Default User Avatar URL"
 msgstr "默认用户头像 URL"
 
-#: common/views_manage.py:247
+#: common/views_manage.py:245
 msgid "URL path to the default user avatar."
 msgstr "默认用户头像的 URL 路径。"
 
-#: common/views_manage.py:250
+#: common/views_manage.py:248
 msgid "Site Color Theme"
 msgstr "站点配色主题"
 
-#: common/views_manage.py:251
+#: common/views_manage.py:249
 msgid "PicoCSS color theme."
 msgstr "PicoCSS 配色主题。"
 
-#: common/views_manage.py:276
+#: common/views_manage.py:274
 msgid "Site Introduction"
 msgstr "站点介绍"
 
-#: common/views_manage.py:277
+#: common/views_manage.py:275
 msgid "URL path for the intro/welcome sidebar page."
 msgstr "介绍/欢迎侧边栏页面的 URL 路径。"
 
-#: common/views_manage.py:280
+#: common/views_manage.py:278
 msgid "Custom HTML Head"
 msgstr "自定义 HTML Head"
 
-#: common/views_manage.py:281
+#: common/views_manage.py:279
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr "注入所有页面 <head> 的额外 HTML。"
 
-#: common/views_manage.py:285
+#: common/views_manage.py:283
 msgid "Footer Links"
 msgstr "页脚链接"
 
-#: common/views_manage.py:286
+#: common/views_manage.py:284
 msgid "Link title mapped to URL."
 msgstr "链接标题到 URL 的映射。"
 
-#: common/views_manage.py:315
+#: common/views_manage.py:313
 msgid "Minimum Marks for Discover"
 msgstr "进入发现页的最少标记数"
 
-#: common/views_manage.py:317
+#: common/views_manage.py:315
 msgid "Number of marks required for an item to appear in discover."
 msgstr "条目出现在发现页所需的最少标记数。"
 
-#: common/views_manage.py:322
+#: common/views_manage.py:320
 msgid "Update Interval (minutes)"
 msgstr "更新间隔（分钟）"
 
-#: common/views_manage.py:323
+#: common/views_manage.py:321
 msgid "How often to refresh the popular items list."
 msgstr "刷新热门条目列表的频率。"
 
-#: common/views_manage.py:327
+#: common/views_manage.py:325
 msgid "Filter by Preferred Languages"
 msgstr "按偏好语言过滤"
 
-#: common/views_manage.py:328
+#: common/views_manage.py:326
 msgid "Only show items with titles in the preferred languages."
 msgstr "仅显示标题为偏好语言的条目。"
 
-#: common/views_manage.py:331
+#: common/views_manage.py:329
 msgid "Show Local Only"
 msgstr "仅显示本站内容"
 
-#: common/views_manage.py:333
+#: common/views_manage.py:331
 msgid "Only show items marked by local users, not the entire network."
 msgstr "仅显示本站用户标记的条目，而非整个联邦网络。"
 
-#: common/views_manage.py:337
+#: common/views_manage.py:335
 msgid "Show Popular Posts"
 msgstr "显示热门帖文"
 
-#: common/views_manage.py:338
+#: common/views_manage.py:336
 msgid "Show popular public posts instead of recent ones."
 msgstr "显示热门公开帖文，而非最近的帖文。"
 
-#: common/views_manage.py:341
+#: common/views_manage.py:339
 msgid "Show Popular Tags"
 msgstr "显示热门标签"
 
-#: common/views_manage.py:342
+#: common/views_manage.py:340
 msgid "Show popular public tags on the discover page."
 msgstr "在发现页显示热门公开标签。"
 
-#: common/views_manage.py:378
+#: common/views_manage.py:376
 msgid "Enable Recommendations"
 msgstr "启用推荐"
 
-#: common/views_manage.py:380
+#: common/views_manage.py:378
 msgid "Master switch. When off, all recommendation surfaces are hidden for regular users and the cron jobs are not scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' in their bio) still see the surfaces, for preview."
 msgstr "推荐功能总开关。关闭时，常规用户不会看到推荐界面，相关定时任务也不会被调度。处于测试模式的账户（DEBUG 模式或 bio 中包含「!bazinga」）仍可看到推荐界面以便预览。"
 
-#: common/views_manage.py:387
+#: common/views_manage.py:385
 msgid "Source Item Mark Threshold"
 msgstr "源条目标记阈值"
 
-#: common/views_manage.py:389
+#: common/views_manage.py:387
 msgid "Minimum public marks an item needs before similarity rows are built for it."
 msgstr "为某条目构建相似条目所需的最少公开标记数。"
 
-#: common/views_manage.py:395
+#: common/views_manage.py:393
 msgid "Target Item Mark Threshold"
 msgstr "目标条目标记阈值"
 
-#: common/views_manage.py:397
+#: common/views_manage.py:395
 msgid "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr "条目作为推荐目标所需的最少公开标记数。"
 
-#: common/views_manage.py:403
+#: common/views_manage.py:401
 msgid "Top-K Similar Items per Source"
 msgstr "每个源条目的最相似条目数 (Top-K)"
 
-#: common/views_manage.py:404
+#: common/views_manage.py:402
 msgid "Number of similar items stored per source item."
 msgstr "每个源条目保存的相似条目数量。"
 
-#: common/views_manage.py:408
+#: common/views_manage.py:406
 msgid "Top-N Recommendations per User"
 msgstr "每位用户的推荐条目数 (Top-N)"
 
-#: common/views_manage.py:409
+#: common/views_manage.py:407
 msgid "Number of personalised rows stored per user."
 msgstr "每位用户保存的个性化推荐数量。"
 
-#: common/views_manage.py:413
+#: common/views_manage.py:411
 msgid "Dampen Heavy Shelvers"
 msgstr "抑制高频标记用户"
 
-#: common/views_manage.py:415
+#: common/views_manage.py:413
 msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
 msgstr "对每位用户的贡献按 1/sqrt(n_marks) 加权，以削弱超大量标记用户对相似度评分的影响。"
 
-#: common/views_manage.py:420
+#: common/views_manage.py:418
 msgid "Per-User Mark Cap (training)"
 msgstr "每用户标记上限（训练）"
 
-#: common/views_manage.py:422
+#: common/views_manage.py:420
 msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
 msgstr "构建相似度矩阵时，仅截取每位用户最近的 N 条标记。"
 
-#: common/views_manage.py:428
+#: common/views_manage.py:426
 msgid "Active-User Window (days)"
 msgstr "活跃用户窗口（天）"
 
-#: common/views_manage.py:430
+#: common/views_manage.py:428
 msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
 msgstr "为最近 N 天内至少有一条公开标记的用户刷新个性化推荐。"
 
-#: common/views_manage.py:436
+#: common/views_manage.py:434
 msgid "Per-User Seed Cap (serving)"
 msgstr "每用户种子标记上限（投递）"
 
-#: common/views_manage.py:438
+#: common/views_manage.py:436
 msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
 msgstr "为单个用户计算个性化推荐时，用作种子的最近标记数量。"
 
-#: common/views_manage.py:444
+#: common/views_manage.py:442
 msgid "Lazy Refresh TTL (days)"
 msgstr "懒刷新 TTL（天）"
 
-#: common/views_manage.py:446
+#: common/views_manage.py:444
 msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
 msgstr "按需推荐缓存的有效期，过期后下一次请求会触发刷新。"
 
-#: common/views_manage.py:452
+#: common/views_manage.py:450
 msgid "Circles Window (days)"
 msgstr "好友圈窗口（天）"
 
-#: common/views_manage.py:454
+#: common/views_manage.py:452
 msgid "Look back N days when finding items recently marked by people the viewer follows."
 msgstr "回溯 N 天，查找浏览者关注的用户最近标记过的条目。"
 
-#: common/views_manage.py:461
+#: common/views_manage.py:459
 msgid "Master Switch"
 msgstr "总开关"
 
-#: common/views_manage.py:464
+#: common/views_manage.py:462
 msgid "Similarity Builder"
 msgstr "相似度构建器"
 
-#: common/views_manage.py:471
+#: common/views_manage.py:469
 msgid "Personalisation"
 msgstr "个性化"
 
-#: common/views_manage.py:487
+#: common/views_manage.py:485
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
 msgstr "注册需要邀请令牌。可使用 neodb-manage invite --create 生成邀请令牌。"
 
-#: common/views_manage.py:492
+#: common/views_manage.py:490
 msgid "Enable Local-Only Posting"
 msgstr "启用仅本站可见帖文"
 
-#: common/views_manage.py:493
+#: common/views_manage.py:491
 msgid "Allow users to create posts visible only to local users."
 msgstr "允许用户创建仅本站用户可见的帖文。"
 
-#: common/views_manage.py:496
+#: common/views_manage.py:494
 msgid "Mastodon Login Whitelist"
 msgstr "Mastodon 登录白名单"
 
-#: common/views_manage.py:497
+#: common/views_manage.py:495
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr "每行一个域名。留空则允许任意实例。"
 
-#: common/views_manage.py:500
+#: common/views_manage.py:498
 msgid "Enable Bluesky Login"
 msgstr "启用 Bluesky 登录"
 
-#: common/views_manage.py:503
+#: common/views_manage.py:501
 msgid "Enable Threads Login"
 msgstr "启用 Threads 登录"
 
-#: common/views_manage.py:508
+#: common/views_manage.py:506
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr "语言代码，每行一个（如 en、zh、ja）。第一个为默认语言。"
 
-#: common/views_manage.py:514
+#: common/views_manage.py:512
 msgid "Access Control"
 msgstr "访问控制"
 
-#: common/views_manage.py:519
+#: common/views_manage.py:517
 msgid "Login Methods"
 msgstr "登录方式"
 
-#: common/views_manage.py:523
+#: common/views_manage.py:521
 msgid "Localization"
 msgstr "本地化"
 
-#: common/views_manage.py:533
+#: common/views_manage.py:531
 msgid "Disable Default Relay"
 msgstr "禁用默认中继"
 
-#: common/views_manage.py:535
+#: common/views_manage.py:533
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
 msgstr "禁用 relay.neodb.net 联邦中继（用于跨实例共享公开评分）。"
 
-#: common/views_manage.py:540
+#: common/views_manage.py:538
 msgid "Fanout Limit (days)"
 msgstr "扩散范围（天）"
 
-#: common/views_manage.py:541
+#: common/views_manage.py:539
 msgid "Posts older than this many days will not be fanned out."
 msgstr "超过此天数的帖文将不再扩散投递。"
 
-#: common/views_manage.py:545
+#: common/views_manage.py:543
 msgid "Remote Prune Horizon (days)"
 msgstr "远端清理期限（天）"
 
-#: common/views_manage.py:547
+#: common/views_manage.py:545
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr "不活跃超过此天数的远端用户资料将被清理。"
 
-#: common/views_manage.py:552
+#: common/views_manage.py:550
 msgid "Search Sites"
 msgstr "搜索站点"
 
-#: common/views_manage.py:553
+#: common/views_manage.py:551
 msgid "External search sites to include, one per line."
 msgstr "要包含的外部搜索站点，每行一个。"
 
-#: common/views_manage.py:556
+#: common/views_manage.py:554
 msgid "Federated Search Peers"
 msgstr "联邦搜索节点"
 
-#: common/views_manage.py:557
+#: common/views_manage.py:555
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr "用于联邦搜索的 NeoDB 节点实例，每行一个。"
 
-#: common/views_manage.py:560
+#: common/views_manage.py:558
 msgid "Hidden Categories"
 msgstr "隐藏的分类"
 
-#: common/views_manage.py:561
+#: common/views_manage.py:559
 msgid "Category values to hide from the catalog, one per line."
 msgstr "在目录中隐藏的分类值，每行一个。"
 
-#: common/views_manage.py:582
+#: common/views_manage.py:580
 msgid "Spotify API Key"
 msgstr "Spotify API 密钥"
 
-#: common/views_manage.py:583
+#: common/views_manage.py:581
 msgid "https://developer.spotify.com/"
 msgstr "https://developer.spotify.com/"
 
-#: common/views_manage.py:586
+#: common/views_manage.py:584
 msgid "TMDB API Key"
 msgstr "TMDB API 密钥"
 
-#: common/views_manage.py:587
+#: common/views_manage.py:585
 msgid "https://developer.themoviedb.org/"
 msgstr "https://developer.themoviedb.org/"
 
-#: common/views_manage.py:590
+#: common/views_manage.py:588
 msgid "Google Books API Key"
 msgstr "Google Books API 密钥"
 
-#: common/views_manage.py:591
+#: common/views_manage.py:589
 msgid "https://developers.google.com/books/"
 msgstr "https://developers.google.com/books/"
 
-#: common/views_manage.py:594
+#: common/views_manage.py:592
 msgid "Discogs API Key"
 msgstr "Discogs API 密钥"
 
-#: common/views_manage.py:596
+#: common/views_manage.py:594
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr "来自 https://www.discogs.com/settings/developers 的个人访问令牌"
 
-#: common/views_manage.py:600
+#: common/views_manage.py:598
 msgid "IGDB Client ID"
 msgstr "IGDB 客户端 ID"
 
-#: common/views_manage.py:601
+#: common/views_manage.py:599
 msgid "https://api-docs.igdb.com/"
 msgstr "https://api-docs.igdb.com/"
 
-#: common/views_manage.py:604
+#: common/views_manage.py:602
 msgid "IGDB Client Secret"
 msgstr "IGDB 客户端密钥"
 
-#: common/views_manage.py:607
+#: common/views_manage.py:605
 msgid "BoardGameGeek API Token"
 msgstr "BoardGameGeek API 令牌"
 
-#: common/views_manage.py:609
+#: common/views_manage.py:607
 msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
 msgstr "来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://boardgamegeek.com/using_the_xml_api#toc9）。"
 
-#: common/views_manage.py:614 users/templates/users/steam_import.html:26
+#: common/views_manage.py:612 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Steam API 密钥"
 
-#: common/views_manage.py:616
+#: common/views_manage.py:614
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr "https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自己的密钥。"
 
-#: common/views_manage.py:621
+#: common/views_manage.py:619
 msgid "DeepL API Key"
 msgstr "DeepL API 密钥"
 
-#: common/views_manage.py:622
+#: common/views_manage.py:620
 msgid "For translation features."
 msgstr "用于翻译功能。"
 
-#: common/views_manage.py:625
+#: common/views_manage.py:623
 msgid "LibreTranslate API URL"
 msgstr "LibreTranslate API URL"
 
-#: common/views_manage.py:628
+#: common/views_manage.py:626
 msgid "LibreTranslate API Key"
 msgstr "LibreTranslate API 密钥"
 
-#: common/views_manage.py:631
+#: common/views_manage.py:629
 msgid "Threads App ID"
 msgstr "Threads 应用 ID"
 
-#: common/views_manage.py:632
+#: common/views_manage.py:630
 msgid "OAuth app ID for Threads login."
 msgstr "用于 Threads 登录的 OAuth 应用 ID。"
 
-#: common/views_manage.py:635
+#: common/views_manage.py:633
 msgid "Threads App Secret"
 msgstr "Threads 应用密钥"
 
-#: common/views_manage.py:638
+#: common/views_manage.py:636
 msgid "Sentry DSN"
 msgstr "Sentry DSN"
 
-#: common/views_manage.py:639
+#: common/views_manage.py:637
 msgid "Requires restart to take effect."
 msgstr "需要重启才能生效。"
 
-#: common/views_manage.py:642
+#: common/views_manage.py:640
 msgid "Sentry Sample Rate"
 msgstr "Sentry 采样率"
 
-#: common/views_manage.py:643
+#: common/views_manage.py:641
 msgid "0.0 to 1.0. Requires restart to take effect."
 msgstr "0.0 到 1.0。需要重启才能生效。"
 
-#: common/views_manage.py:648
+#: common/views_manage.py:646
 msgid "Discord Webhooks"
 msgstr "Discord Webhook"
 
-#: common/views_manage.py:650
+#: common/views_manage.py:648
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr "按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
 
-#: common/views_manage.py:667
+#: common/views_manage.py:665
 msgid "Catalog APIs"
 msgstr "目录 API"
 
-#: common/views_manage.py:677
+#: common/views_manage.py:675
 msgid "Translation"
 msgstr "翻译"
 
-#: common/views_manage.py:682
+#: common/views_manage.py:680
 msgid "Third-Party Login"
 msgstr "第三方登录"
 
-#: common/views_manage.py:686
+#: common/views_manage.py:684
 msgid "Monitoring"
 msgstr "监控"
 
-#: common/views_manage.py:698
+#: common/views_manage.py:696
 msgid "Scraping Providers"
 msgstr "抓取服务"
 
-#: common/views_manage.py:699
+#: common/views_manage.py:697
 msgid "Comma-separated list of providers to try in order."
 msgstr "按顺序尝试的服务列表，以逗号分隔。"
 
-#: common/views_manage.py:702
+#: common/views_manage.py:700
 msgid "Proxy List"
 msgstr "代理列表"
 
-#: common/views_manage.py:703
+#: common/views_manage.py:701
 msgid "One per line, format: http://server?url=__URL__"
 msgstr "每行一个，格式：http://server?url=__URL__"
 
-#: common/views_manage.py:706
+#: common/views_manage.py:704
 msgid "Backup Proxy"
 msgstr "备用代理"
 
-#: common/views_manage.py:709
+#: common/views_manage.py:707
 msgid "Scrapfly API Key"
 msgstr "Scrapfly API 密钥"
 
-#: common/views_manage.py:712
+#: common/views_manage.py:710
 msgid "Decodo Base64 Auth Token"
 msgstr "Decodo Base64 鉴权令牌"
 
-#: common/views_manage.py:715
+#: common/views_manage.py:713
 msgid "ScraperAPI Key"
 msgstr "ScraperAPI 密钥"
 
-#: common/views_manage.py:718
+#: common/views_manage.py:716
 msgid "ScrapingBee API Key"
 msgstr "ScrapingBee API 密钥"
 
-#: common/views_manage.py:721
+#: common/views_manage.py:719
 msgid "Custom Scraper URL"
 msgstr "自定义抓取器 URL"
 
-#: common/views_manage.py:722
+#: common/views_manage.py:720
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr "包含 __URL__ 和 __SELECTOR__ 占位符的 URL。"
 
-#: common/views_manage.py:725
+#: common/views_manage.py:723
 msgid "Request Timeout (seconds)"
 msgstr "请求超时（秒）"
 
-#: common/views_manage.py:729
+#: common/views_manage.py:727
 msgid "Cache Timeout (seconds)"
 msgstr "缓存超时（秒）"
 
-#: common/views_manage.py:733
+#: common/views_manage.py:731
 msgid "Retries"
 msgstr "重试次数"
 
-#: common/views_manage.py:738
+#: common/views_manage.py:736
 msgid "Providers"
 msgstr "服务"
 
-#: common/views_manage.py:743
+#: common/views_manage.py:741
 msgid "Provider Keys"
 msgstr "服务密钥"
 
-#: common/views_manage.py:750
+#: common/views_manage.py:748
 msgid "Timeouts"
 msgstr "超时设置"
 
-#: common/views_manage.py:762
+#: common/views_manage.py:760
 msgid "Alternative Domains"
 msgstr "备用域名"
 
-#: common/views_manage.py:763
+#: common/views_manage.py:761
 msgid "One domain per line."
 msgstr "每行一个域名。"
 
-#: common/views_manage.py:766
+#: common/views_manage.py:764
 msgid "Mastodon Client Scope"
 msgstr "Mastodon 客户端授权范围"
 
-#: common/views_manage.py:767
+#: common/views_manage.py:765
 msgid "OAuth scope when creating Mastodon apps."
 msgstr "创建 Mastodon 应用时使用的 OAuth 授权范围。"
 
-#: common/views_manage.py:770
+#: common/views_manage.py:768
 msgid "Disable Cron Jobs"
 msgstr "禁用定时任务"
 
-#: common/views_manage.py:771
+#: common/views_manage.py:769
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr "要禁用的任务名，每行一个。使用 * 禁用所有任务。"
 
-#: common/views_manage.py:774
+#: common/views_manage.py:772
 msgid "Index Aliases"
 msgstr "索引别名"
 
-#: common/views_manage.py:775
+#: common/views_manage.py:773
 msgid "Map index names to their aliases."
 msgstr "索引名称到别名的映射。"
 
-#: common/views_manage.py:785
+#: common/views_manage.py:783
 msgid "Task Cleanup (days)"
 msgstr "任务清理（天）"
 
-#: common/views_manage.py:787
+#: common/views_manage.py:785
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr "在此天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
 
-#: common/views_manage.py:793
+#: common/views_manage.py:791
 msgid "Skip Migration Jobs"
 msgstr "跳过迁移任务"
 
-#: common/views_manage.py:795
+#: common/views_manage.py:793
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr "要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被跳过的任务会记录警告并通知 Discord system 频道。"
 
-#: common/views_manage.py:802
+#: common/views_manage.py:800
 msgid "Domains"
 msgstr "域名"
 
-#: common/views_manage.py:805
+#: common/views_manage.py:803
 msgid "Operational"
 msgstr "运维"
 
-#: common/views_manage.py:819
+#: common/views_manage.py:817
 msgid "Movie Genres"
 msgstr "电影类型"
 
-#: common/views_manage.py:821
+#: common/views_manage.py:819
 msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "电影编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:826
+#: common/views_manage.py:824
 msgid "TV Genres"
 msgstr "剧集类型"
 
-#: common/views_manage.py:828
+#: common/views_manage.py:826
 msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "剧集编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:833
+#: common/views_manage.py:831
 msgid "Music Genres"
 msgstr "音乐类型"
 
-#: common/views_manage.py:835
+#: common/views_manage.py:833
 msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "音乐编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:840
+#: common/views_manage.py:838
 msgid "Game Genres"
 msgstr "游戏类型"
 
-#: common/views_manage.py:842
+#: common/views_manage.py:840
 msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "游戏编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:847
+#: common/views_manage.py:845
 msgid "Podcast Genres"
 msgstr "播客类型"
 
-#: common/views_manage.py:849
+#: common/views_manage.py:847
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "播客编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:854
+#: common/views_manage.py:852
 msgid "Performance Genres"
 msgstr "演出类型"
 
-#: common/views_manage.py:856
+#: common/views_manage.py:854
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:862
+#: common/views_manage.py:860
 msgid "Genres by Category"
 msgstr "按分类设置类型"
 
@@ -4576,27 +4576,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:583
+#: journal/models/common.py:588
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:648
+#: journal/models/common.py:653
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:681
+#: journal/models/common.py:686
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:691
+#: journal/models/common.py:696
 msgid "Original post no longer exists."
 msgstr "原帖文已不存在。"
 
-#: journal/models/common.py:705
+#: journal/models/common.py:710
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:714
+#: journal/models/common.py:719
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -4679,439 +4679,439 @@ msgstr "{value}周目"
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
-#: journal/models/review.py:73
+#: journal/models/review.py:74
 #, python-brace-format
 msgid "a review of {title}"
 msgstr "关于 {title} 的评论"
 
-#: journal/models/review.py:75
+#: journal/models/review.py:76
 msgid "(may contain spoilers)"
 msgstr "（可能包含剧透）"
 
-#: journal/models/shelf.py:35
+#: journal/models/shelf.py:36
 msgid "WISHLIST"
 msgstr "WISHLIST"
 
-#: journal/models/shelf.py:36
+#: journal/models/shelf.py:37
 msgid "PROGRESS"
 msgstr "PROGRESS"
 
-#: journal/models/shelf.py:37
+#: journal/models/shelf.py:38
 msgid "COMPLETE"
 msgstr "COMPLETE"
 
-#: journal/models/shelf.py:38
+#: journal/models/shelf.py:39
 msgid "DROPPED"
 msgstr "DROPPED"
 
-#: journal/models/shelf.py:47
+#: journal/models/shelf.py:48
 msgid "books to read"
 msgstr "想读的书"
 
-#: journal/models/shelf.py:48
+#: journal/models/shelf.py:49
 msgid "want to read"
 msgstr "想读"
 
-#: journal/models/shelf.py:49
+#: journal/models/shelf.py:50
 #, python-brace-format
 msgid "wants to read {item}"
 msgstr "想读 {item}"
 
-#: journal/models/shelf.py:50
+#: journal/models/shelf.py:51
 msgid "to read"
 msgstr "想读"
 
-#: journal/models/shelf.py:55
+#: journal/models/shelf.py:56
 msgid "books reading"
 msgstr "正在读的书"
 
-#: journal/models/shelf.py:56
+#: journal/models/shelf.py:57
 msgid "start reading"
 msgstr "在读"
 
-#: journal/models/shelf.py:57
+#: journal/models/shelf.py:58
 #, python-brace-format
 msgid "started reading {item}"
 msgstr "在读 {item}"
 
-#: journal/models/shelf.py:58
+#: journal/models/shelf.py:59
 msgid "reading"
 msgstr "在读"
 
-#: journal/models/shelf.py:63
+#: journal/models/shelf.py:64
 msgid "books completed"
 msgstr "读过的书"
 
-#: journal/models/shelf.py:64
+#: journal/models/shelf.py:65
 msgid "finish reading"
 msgstr "读过"
 
-#: journal/models/shelf.py:65
+#: journal/models/shelf.py:66
 #, python-brace-format
 msgid "finished reading {item}"
 msgstr "读过 {item}"
 
-#: journal/models/shelf.py:66
+#: journal/models/shelf.py:67
 msgid "read"
 msgstr "已读"
 
-#: journal/models/shelf.py:71
+#: journal/models/shelf.py:72
 msgid "books dropped"
 msgstr "不再读的书"
 
-#: journal/models/shelf.py:72
+#: journal/models/shelf.py:73
 msgid "stop reading"
 msgstr "不读了"
 
-#: journal/models/shelf.py:73
+#: journal/models/shelf.py:74
 #, python-brace-format
 msgid "stopped reading {item}"
 msgstr "不再读 {item}"
 
-#: journal/models/shelf.py:74
+#: journal/models/shelf.py:75
 msgid "stopped reading"
 msgstr "不读了"
 
-#: journal/models/shelf.py:79
+#: journal/models/shelf.py:80
 msgid "books reviewed"
 msgstr "评论过的书"
-
-#: journal/models/shelf.py:80 journal/models/shelf.py:120
-#: journal/models/shelf.py:160 journal/models/shelf.py:200
-#: journal/models/shelf.py:240 journal/models/shelf.py:280
-#: journal/models/shelf.py:314
-msgid "review"
-msgstr "评论"
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 #: journal/models/shelf.py:161 journal/models/shelf.py:201
 #: journal/models/shelf.py:241 journal/models/shelf.py:281
 #: journal/models/shelf.py:315
+msgid "review"
+msgstr "评论"
+
+#: journal/models/shelf.py:82 journal/models/shelf.py:122
+#: journal/models/shelf.py:162 journal/models/shelf.py:202
+#: journal/models/shelf.py:242 journal/models/shelf.py:282
+#: journal/models/shelf.py:316
 #, python-brace-format
 msgid "wrote a review of {item}"
 msgstr "写了关于 {item} 的评论"
 
-#: journal/models/shelf.py:87
+#: journal/models/shelf.py:88
 msgid "movies to watch"
 msgstr "想看的电影"
 
-#: journal/models/shelf.py:88 journal/models/shelf.py:128
+#: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "want to watch"
 msgstr "想看"
 
-#: journal/models/shelf.py:89 journal/models/shelf.py:129
+#: journal/models/shelf.py:90 journal/models/shelf.py:130
 #, python-brace-format
 msgid "wants to watch {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:90 journal/models/shelf.py:130
+#: journal/models/shelf.py:91 journal/models/shelf.py:131
 msgid "to watch"
 msgstr "想看"
 
-#: journal/models/shelf.py:95
+#: journal/models/shelf.py:96
 msgid "movies watching"
 msgstr "正在看的电影"
 
-#: journal/models/shelf.py:96 journal/models/shelf.py:136
+#: journal/models/shelf.py:97 journal/models/shelf.py:137
 msgid "start watching"
 msgstr "在看"
 
-#: journal/models/shelf.py:97 journal/models/shelf.py:137
+#: journal/models/shelf.py:98 journal/models/shelf.py:138
 #, python-brace-format
 msgid "started watching {item}"
 msgstr "在看 {item}"
 
-#: journal/models/shelf.py:98 journal/models/shelf.py:138
+#: journal/models/shelf.py:99 journal/models/shelf.py:139
 msgid "watching"
 msgstr "在看"
 
-#: journal/models/shelf.py:103
+#: journal/models/shelf.py:104
 msgid "movies watched"
 msgstr "看过的电影"
 
-#: journal/models/shelf.py:104 journal/models/shelf.py:144
+#: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "finish watching"
 msgstr "看过"
 
-#: journal/models/shelf.py:105 journal/models/shelf.py:145
+#: journal/models/shelf.py:106 journal/models/shelf.py:146
 #, python-brace-format
 msgid "finished watching {item}"
 msgstr "看过 {item}"
 
-#: journal/models/shelf.py:106 journal/models/shelf.py:146
+#: journal/models/shelf.py:107 journal/models/shelf.py:147
 msgid "watched"
 msgstr "看过"
 
-#: journal/models/shelf.py:111
+#: journal/models/shelf.py:112
 msgid "movies dropped"
 msgstr "不再看的电影"
 
-#: journal/models/shelf.py:112 journal/models/shelf.py:152
+#: journal/models/shelf.py:113 journal/models/shelf.py:153
 msgid "stop watching"
 msgstr "不看了"
 
-#: journal/models/shelf.py:113 journal/models/shelf.py:153
+#: journal/models/shelf.py:114 journal/models/shelf.py:154
 #, python-brace-format
 msgid "stopped watching {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:114 journal/models/shelf.py:154
+#: journal/models/shelf.py:115 journal/models/shelf.py:155
 msgid "stopped watching"
 msgstr "不看了"
 
-#: journal/models/shelf.py:119
+#: journal/models/shelf.py:120
 msgid "movies reviewed"
 msgstr "评论过的电影"
 
-#: journal/models/shelf.py:127
+#: journal/models/shelf.py:128
 msgid "TV shows to watch"
 msgstr "想看的剧集"
 
-#: journal/models/shelf.py:135
+#: journal/models/shelf.py:136
 msgid "TV shows watching"
 msgstr "正在看的剧集"
 
-#: journal/models/shelf.py:143
+#: journal/models/shelf.py:144
 msgid "TV shows watched"
 msgstr "看过的剧集"
 
-#: journal/models/shelf.py:151
+#: journal/models/shelf.py:152
 msgid "TV shows dropped"
 msgstr "不再看的剧集"
 
-#: journal/models/shelf.py:159
+#: journal/models/shelf.py:160
 msgid "TV shows reviewed"
 msgstr "评论过的剧集"
 
-#: journal/models/shelf.py:167
+#: journal/models/shelf.py:168
 msgid "albums to listen"
 msgstr "想听的专辑"
 
-#: journal/models/shelf.py:168 journal/models/shelf.py:248
+#: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "want to listen"
 msgstr "想听"
 
-#: journal/models/shelf.py:169 journal/models/shelf.py:249
+#: journal/models/shelf.py:170 journal/models/shelf.py:250
 #, python-brace-format
 msgid "wants to listen {item}"
 msgstr "想听 {item}"
 
-#: journal/models/shelf.py:170 journal/models/shelf.py:250
+#: journal/models/shelf.py:171 journal/models/shelf.py:251
 msgid "to listen"
 msgstr "想听"
 
-#: journal/models/shelf.py:175
+#: journal/models/shelf.py:176
 msgid "albums listening"
 msgstr "正在听的专辑"
 
-#: journal/models/shelf.py:176 journal/models/shelf.py:256
+#: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "start listening"
 msgstr "在听"
 
-#: journal/models/shelf.py:177 journal/models/shelf.py:257
+#: journal/models/shelf.py:178 journal/models/shelf.py:258
 #, python-brace-format
 msgid "started listening {item}"
 msgstr "在听 {item}"
 
-#: journal/models/shelf.py:178 journal/models/shelf.py:258
+#: journal/models/shelf.py:179 journal/models/shelf.py:259
 msgid "listening"
 msgstr "在听"
 
-#: journal/models/shelf.py:183
+#: journal/models/shelf.py:184
 msgid "albums listened"
 msgstr "听过的专辑"
 
-#: journal/models/shelf.py:184 journal/models/shelf.py:264
+#: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "finish listening"
 msgstr "听过"
 
-#: journal/models/shelf.py:185 journal/models/shelf.py:265
+#: journal/models/shelf.py:186 journal/models/shelf.py:266
 #, python-brace-format
 msgid "finished listening {item}"
 msgstr "听过 {item}"
 
-#: journal/models/shelf.py:186 journal/models/shelf.py:266
+#: journal/models/shelf.py:187 journal/models/shelf.py:267
 msgid "listened"
 msgstr "听过"
 
-#: journal/models/shelf.py:191
+#: journal/models/shelf.py:192
 msgid "albums dropped"
 msgstr "不再听的专辑"
 
-#: journal/models/shelf.py:192 journal/models/shelf.py:272
+#: journal/models/shelf.py:193 journal/models/shelf.py:273
 msgid "stop listening"
 msgstr "不听了"
 
-#: journal/models/shelf.py:193 journal/models/shelf.py:273
+#: journal/models/shelf.py:194 journal/models/shelf.py:274
 #, python-brace-format
 msgid "stopped listening {item}"
 msgstr "不听了 {item}"
 
-#: journal/models/shelf.py:194 journal/models/shelf.py:274
+#: journal/models/shelf.py:195 journal/models/shelf.py:275
 msgid "stopped listening"
 msgstr "不听了"
 
-#: journal/models/shelf.py:199
+#: journal/models/shelf.py:200
 msgid "albums reviewed"
 msgstr "评论过的专辑"
 
-#: journal/models/shelf.py:207
+#: journal/models/shelf.py:208
 msgid "games to play"
 msgstr "想玩的游戏"
 
-#: journal/models/shelf.py:208
+#: journal/models/shelf.py:209
 msgid "want to play"
 msgstr "想玩"
 
-#: journal/models/shelf.py:209
+#: journal/models/shelf.py:210
 #, python-brace-format
 msgid "wants to play {item}"
 msgstr "想玩 {item}"
 
-#: journal/models/shelf.py:210
+#: journal/models/shelf.py:211
 msgid "to play"
 msgstr "想玩"
 
-#: journal/models/shelf.py:215
+#: journal/models/shelf.py:216
 msgid "games playing"
 msgstr "正在玩的游戏"
 
-#: journal/models/shelf.py:216
+#: journal/models/shelf.py:217
 msgid "start playing"
 msgstr "在玩"
 
-#: journal/models/shelf.py:217
+#: journal/models/shelf.py:218
 #, python-brace-format
 msgid "started playing {item}"
 msgstr "在玩 {item}"
 
-#: journal/models/shelf.py:218
+#: journal/models/shelf.py:219
 msgid "playing"
 msgstr "在玩"
 
-#: journal/models/shelf.py:223
+#: journal/models/shelf.py:224
 msgid "games played"
 msgstr "玩过的游戏"
 
-#: journal/models/shelf.py:224
+#: journal/models/shelf.py:225
 msgid "finish playing"
 msgstr "玩过"
 
-#: journal/models/shelf.py:225
+#: journal/models/shelf.py:226
 #, python-brace-format
 msgid "finished playing {item}"
 msgstr "玩过 {item}"
 
-#: journal/models/shelf.py:226
+#: journal/models/shelf.py:227
 msgid "played"
 msgstr "玩过"
 
-#: journal/models/shelf.py:231
+#: journal/models/shelf.py:232
 msgid "games dropped"
 msgstr "不再玩的游戏"
 
-#: journal/models/shelf.py:232
+#: journal/models/shelf.py:233
 msgid "stop playing"
 msgstr "不玩了"
 
-#: journal/models/shelf.py:233
+#: journal/models/shelf.py:234
 #, python-brace-format
 msgid "stopped playing {item}"
 msgstr "不再玩 {item}"
 
-#: journal/models/shelf.py:234
+#: journal/models/shelf.py:235
 msgid "stopped playing"
 msgstr "不玩了"
 
-#: journal/models/shelf.py:239
+#: journal/models/shelf.py:240
 msgid "games reviewed"
 msgstr "评论过的游戏"
 
-#: journal/models/shelf.py:247
+#: journal/models/shelf.py:248
 msgid "podcasts to listen"
 msgstr "想听的播客"
 
-#: journal/models/shelf.py:255
+#: journal/models/shelf.py:256
 msgid "podcasts listening"
 msgstr "正在听的播客"
 
-#: journal/models/shelf.py:263
+#: journal/models/shelf.py:264
 msgid "podcasts listened"
 msgstr "听过的播客"
 
-#: journal/models/shelf.py:271
+#: journal/models/shelf.py:272
 msgid "podcasts dropped"
 msgstr "不再听的播客"
 
-#: journal/models/shelf.py:279
+#: journal/models/shelf.py:280
 msgid "podcasts reviewed"
 msgstr "评论过的播客"
 
-#: journal/models/shelf.py:287
+#: journal/models/shelf.py:288
 msgid "performances to see"
 msgstr "想看的演出"
 
-#: journal/models/shelf.py:288
+#: journal/models/shelf.py:289
 msgid "want to see"
 msgstr "想看"
 
-#: journal/models/shelf.py:289
+#: journal/models/shelf.py:290
 #, python-brace-format
 msgid "wants to see {item}"
 msgstr "想看 {item}"
 
-#: journal/models/shelf.py:290
+#: journal/models/shelf.py:291
 msgid "to see"
 msgstr "想看"
 
-#: journal/models/shelf.py:297
+#: journal/models/shelf.py:298
 msgid "performances saw"
 msgstr "看过的演出"
 
-#: journal/models/shelf.py:298
+#: journal/models/shelf.py:299
 msgid "finish seeing"
 msgstr "看过"
 
-#: journal/models/shelf.py:299
+#: journal/models/shelf.py:300
 #, python-brace-format
 msgid "finished seeing {item}"
 msgstr "看过 {item}"
 
-#: journal/models/shelf.py:300
+#: journal/models/shelf.py:301
 msgid "seen"
 msgstr "看过"
 
-#: journal/models/shelf.py:305
+#: journal/models/shelf.py:306
 msgid "performances dropped"
 msgstr "不再看的演出"
 
-#: journal/models/shelf.py:306
+#: journal/models/shelf.py:307
 msgid "stop seeing"
 msgstr "不看了"
 
-#: journal/models/shelf.py:307
+#: journal/models/shelf.py:308
 #, python-brace-format
 msgid "stopped seeing {item}"
 msgstr "不再看 {item}"
 
-#: journal/models/shelf.py:308
+#: journal/models/shelf.py:309
 msgid "stopped seeing"
 msgstr "不看了"
 
-#: journal/models/shelf.py:313
+#: journal/models/shelf.py:314
 msgid "performances reviewed"
 msgstr "评论过的演出"
 
-#: journal/models/shelf.py:321
+#: journal/models/shelf.py:322
 msgid "people following"
 msgstr "关注的人"
 
-#: journal/models/shelf.py:323
+#: journal/models/shelf.py:324
 #, python-brace-format
 msgid "started following {item}"
 msgstr "关注了{item}"
 
-#: journal/models/shelf.py:850
+#: journal/models/shelf.py:854
 msgid "removed mark"
 msgstr "移除标记"
 
@@ -5223,7 +5223,7 @@ msgstr "全部分类"
 msgid "Boost this post?"
 msgstr "转播这则帖文吗？"
 
-#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:677
+#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:687
 msgid "Boost"
 msgstr "转播"
 
@@ -5940,43 +5940,43 @@ msgstr ""
 "\n"
 "如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
 
-#: mastodon/models/mastodon.py:554
+#: mastodon/models/mastodon.py:564
 msgid "site domain name"
 msgstr "站点域名"
 
-#: mastodon/models/mastodon.py:555
+#: mastodon/models/mastodon.py:565
 msgid "domain for api call"
 msgstr "站点API域名"
 
-#: mastodon/models/mastodon.py:556
+#: mastodon/models/mastodon.py:566
 msgid "type and verion"
 msgstr "站点类型和版本"
 
-#: mastodon/models/mastodon.py:557
+#: mastodon/models/mastodon.py:567
 msgid "in-site app id"
 msgstr "实例应用id"
 
-#: mastodon/models/mastodon.py:558
+#: mastodon/models/mastodon.py:568
 msgid "client id"
 msgstr "实例应用Client ID"
 
-#: mastodon/models/mastodon.py:559
+#: mastodon/models/mastodon.py:569
 msgid "client secret"
 msgstr "实例应用Client Secret"
 
-#: mastodon/models/mastodon.py:560
+#: mastodon/models/mastodon.py:570
 msgid "vapid key"
 msgstr "实例应用VAPID Key"
 
-#: mastodon/models/mastodon.py:562
+#: mastodon/models/mastodon.py:572
 msgid "0: unicode moon; 1: custom emoji"
 msgstr "0: 月亮表情; 1: 定制表情"
 
-#: mastodon/models/mastodon.py:565
+#: mastodon/models/mastodon.py:575
 msgid "max toot len"
 msgstr "帖文长度限制"
 
-#: mastodon/models/mastodon.py:678
+#: mastodon/models/mastodon.py:688
 msgid "New Post"
 msgstr "新帖文"
 
@@ -6046,23 +6046,27 @@ msgstr "无法取消唯一的登录用身份。"
 msgid "Login information about {handle} has been removed."
 msgstr "{handle} 的登录信息已移除。"
 
-#: mastodon/views/email.py:32
+#: mastodon/views/email.py:44
 msgid "Invalid captcha"
 msgstr "无效验证码"
 
-#: mastodon/views/email.py:37
+#: mastodon/views/email.py:49
 msgid "Invalid email address"
 msgstr "无效的电子邮件地址"
 
-#: mastodon/views/email.py:43
+#: mastodon/views/email.py:55
 msgid "Verification"
 msgstr "验证"
 
-#: mastodon/views/email.py:45 users/templates/users/verify.html:20
+#: mastodon/views/email.py:57 users/templates/users/verify.html:20
 msgid "Verification email is being sent, please check your inbox."
 msgstr "验证邮件已发送，请查阅收件箱。"
 
-#: mastodon/views/email.py:63 mastodon/views/email.py:72
+#: mastodon/views/email.py:75
+msgid "Too many attempts, please try again later."
+msgstr "尝试次数过多，请稍后再试。"
+
+#: mastodon/views/email.py:89
 msgid "Invalid verification code"
 msgstr "验证码无效或已过期"
 
@@ -6126,7 +6130,7 @@ msgstr "新帖文"
 msgid "New article"
 msgstr "新文章"
 
-#: social/templates/_event_mark_group.html:21
+#: social/templates/_event_mark_group.html:27
 #, python-format
 msgid "marked %(counter)s item"
 msgid_plural "marked %(counter)s items"
@@ -6383,11 +6387,11 @@ msgstr "通知"
 msgid "what they read/watch/..."
 msgstr "仅书影音"
 
-#: social/templates/feed_events.html:26
+#: social/templates/feed_events.html:30
 msgid "no matching activities."
 msgstr "没有符合条件的动态。"
 
-#: social/templates/feed_events.html:29
+#: social/templates/feed_events.html:33
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
@@ -6417,31 +6421,31 @@ msgstr "帖文"
 msgid "Article"
 msgstr "文章"
 
-#: takahe/models.py:451
+#: takahe/models.py:450
 msgid "Display Name"
 msgstr "昵称"
 
-#: takahe/models.py:453
+#: takahe/models.py:452
 msgid "Bio"
 msgstr "简介"
 
-#: takahe/models.py:455
+#: takahe/models.py:454
 msgid "Manually approve new followers"
 msgstr "手工审核关注者"
 
-#: takahe/models.py:459
+#: takahe/models.py:458
 msgid "Include profile, marks and posts in discovery"
 msgstr "允许个人资料、标记和帖文包含在发现中"
 
-#: takahe/models.py:462
+#: takahe/models.py:461
 msgid "Include posts in search results"
 msgstr "允许个人帖文包含在搜索结果中"
 
-#: takahe/models.py:480
+#: takahe/models.py:479
 msgid "Profile picture"
 msgstr "头像"
 
-#: takahe/models.py:487
+#: takahe/models.py:486
 msgid "Header picture"
 msgstr "背景图片"
 

@@ -1,4 +1,3 @@
-import json
 import re
 from datetime import datetime
 from functools import cached_property
@@ -12,6 +11,7 @@ from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
 from catalog.models import Item
+from common.utils import json_ld_dumps
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -284,5 +284,4 @@ class Review(Content):
         return data
 
     def to_schema_org_json(self):
-        data = self.to_schema_org()
-        return json.dumps(data, ensure_ascii=False, indent=2)
+        return json_ld_dumps(self.to_schema_org())
