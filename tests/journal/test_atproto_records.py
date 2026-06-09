@@ -246,6 +246,18 @@ def test_record_omits_fediverse_uri_without_post():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_mark_record_omits_fediverse_uri_without_post():
+    user = User.register(email="nofedmark@example.com", username="nofedmarkuser")
+    book = Edition.objects.create(title="Dune")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "c", 5, visibility=0)
+    sm = ShelfMember.objects.get(owner=user.identity, item=book)
+
+    sm.__dict__["latest_post"] = None  # force the no-post case
+    _, record = sm.to_atproto_records()[0]
+    assert "fediverseUri" not in record
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_delete_enqueues_record_cleanup_without_metadata(monkeypatch):
     user = User.register(email="del@example.com", username="deluser")
     book = Edition.objects.create(title="Dune")

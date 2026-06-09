@@ -176,3 +176,20 @@ def test_post_without_fediverse_uri_has_no_origin_field():
 
     dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
     assert "neodbOriginalUrl" not in dumped
+    # no user/language set -> langs omitted so Bluesky can auto-detect
+    assert "langs" not in dumped
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_post_tags_user_macrolanguage():
+    user = User.register(email="lang@example.com", username="languser")
+    user.language = "zh-Hans"  # macrolanguage -> "zh"
+    account = BlueskyAccount(uid="did:plc:poster")
+    account.user = user
+    captured: dict = {}
+    account._client = _stub_client(captured)
+
+    account.post("你好")
+
+    dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
+    assert dumped["langs"] == ["zh"]
