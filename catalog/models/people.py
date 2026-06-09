@@ -10,6 +10,8 @@ from ninja import Field, Schema
 from common.models import get_current_locales, jsondata, uniq
 
 if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
+
     from .item import ExternalResource
 
 from .common import (
@@ -232,7 +234,7 @@ class People(Item):
         return uniq([t["text"] for t in self.localized_name if t["text"] != name])
 
     @cached_property
-    def related_items_by_role(self) -> list[tuple[str, str, list]]:
+    def related_items_by_role(self) -> "list[tuple[str, StrOrPromise, list]]":
         """Return related items grouped by role, as (role_value, role_label, items) tuples."""
         from .item import Item
 

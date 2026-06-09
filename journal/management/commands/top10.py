@@ -36,7 +36,7 @@ class Command(SiteCommand):
         mapping = item_content_types()
         for typ in types:
             cids = [mapping[t] for t in typ]
-            title = f"{year}年标记最多的{t(typ[0].category.label)}"
+            title = f"{year}年标记最多的{t(str(typ[0].category.label))}"
             print(title)
             top10 = list(
                 ShelfMember.objects.filter(
