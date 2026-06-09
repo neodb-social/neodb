@@ -12,7 +12,13 @@
     </div>
     <div style="flex-grow:1;">
       <span class="action">
-        <span class="post_timestamp">{{ group.published|naturaldelta }}</span>
+        <span class="post_timestamp timestamp">{{ group.published|naturaldelta }}</span>
+        <span>
+          <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
+        </span>
+        <span>
+          <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
+        </span>
       </span>
       <span class="post_author">
         <a href="{{ group.author.url }}"
@@ -21,14 +27,6 @@
         {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
       </span>
       <div class="shelf">
-        <span class="action">
-          <span>
-            <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-          </span>
-          <span>
-            <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-          </span>
-        </span>
         <ul class="cards mark-group-covers">
           {% for item in group.items %}
             <li class="card">
