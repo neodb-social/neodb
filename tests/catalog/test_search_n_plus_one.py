@@ -7,7 +7,7 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from catalog.models import TVSeason, TVShow
+from catalog.models import Edition, TVSeason, TVShow
 from catalog.search.index import CatalogIndex, CatalogSearchResult
 from catalog.search.utils import query_index
 
@@ -95,3 +95,45 @@ class TestSearchTVShowDedupNoNPlusOne:
             f"FK lookup(s); expected 0. First offending SQL: "
             f"{offending[0]['sql'] if offending else 'n/a'}"
         )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSearchReusesIndexedTags:
+    """NEODB-SOCIAL-7KW: ``CatalogSearchResult.items`` attaches the public tags
+    stored in the search index onto each item, so search no longer re-aggregates
+    ``journal_tagmember`` (a slow query for heavily-tagged items) per request.
+    """
+
+    def _result(self, document):
+        response = {
+            "hits": [{"document": document}],
+            "found": 1,
+            "page": 1,
+            "request_params": {"per_page": 20, "q": "x"},
+        }
+        mock_index = MagicMock(spec=CatalogIndex)
+        return CatalogSearchResult(mock_index, cast(Any, response))
+
+    def test_indexed_tags_attached_without_tagmember_query(self):
+        book = Edition.objects.create(title="Indexed Tags Book")
+        result = self._result({"id": str(book.pk), "tag": ["fiction", "scifi"]})
+        with CaptureQueriesContext(connection) as ctx:
+            items = result.items
+            tags = items[0].tags
+        assert [i.pk for i in items] == [book.pk]
+        assert tags == ["fiction", "scifi"]
+        offending = [q for q in ctx.captured_queries if "journal_tagmember" in q["sql"]]
+        assert offending == [], (
+            "search hydration fired a journal_tagmember aggregation; tags should "
+            f"come from the index. First offending SQL: {offending[0]['sql'] if offending else 'n/a'}"
+        )
+
+    def test_missing_tag_field_defaults_to_empty(self):
+        book = Edition.objects.create(title="No Tags Book")
+        result = self._result({"id": str(book.pk)})
+        with CaptureQueriesContext(connection) as ctx:
+            items = result.items
+            tags = items[0].tags
+        assert tags == []
+        offending = [q for q in ctx.captured_queries if "journal_tagmember" in q["sql"]]
+        assert offending == []

@@ -275,7 +275,8 @@ def search(request):
         Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
     )
     Rating.attach_to_items(all_items)
-    Tag.attach_to_items(all_items)
+    # Public tags come from the search index (attached in CatalogSearchResult.items),
+    # so we skip the per-request journal_tagmember aggregation here (NEODB-SOCIAL-7KW).
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, all_items, request.user)
     return render(

@@ -210,7 +210,15 @@ def people_works(request, item_path, item_uuid, role):
     if works_items:
         prefetch_related_objects(
             works_items,
-            "external_resources",
+            # Card partials only read url/site_name/site_label (derived from
+            # id_type/id_value), so skip the large metadata/other_lookup_ids
+            # JSON columns that made this prefetch a slow query (EGGPLANT-1DX).
+            Prefetch(
+                "external_resources",
+                queryset=ExternalResource.objects.only(
+                    "id", "item_id", "id_type", "id_value", "url"
+                ),
+            ),
             Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
         )
         Item.prefetch_parent_items(works_items)

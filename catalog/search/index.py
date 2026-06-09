@@ -54,7 +54,7 @@ class CatalogQueryParser(QueryParser):
         "query_by": "title, people, company, lookup_id, extra_title",
         "sort_by": "_text_match(bucket_size:20):desc,mark_count:desc",
         "per_page": 20,
-        "include_fields": "id, item_id",
+        "include_fields": "id, item_id, tag",
         "highlight_fields": "",
         "facet_by": "item_class",
     }
@@ -133,8 +133,21 @@ class CatalogSearchResult(SearchResult):
 
         if not self:
             return []
-        ids = [int(hit["document"]["id"]) for hit in self.response["hits"]]
-        return Item.get_final_items(Item.get_by_ids(ids))
+        hits = self.response["hits"]
+        ids = [int(hit["document"]["id"]) for hit in hits]
+        # Public tags are maintained in the index (Item.to_indexable_doc), so
+        # reuse them here instead of re-aggregating journal_tagmember per request
+        # (NEODB-SOCIAL-7KW). Keyed by the indexed item pk; merged items whose
+        # final pk differs keep the per-item ``Item.tags`` fallback.
+        tags_by_id = {
+            int(hit["document"]["id"]): (hit["document"].get("tag") or [])
+            for hit in hits
+        }
+        items = Item.get_final_items(Item.get_by_ids(ids))
+        for item in items:
+            if item.pk in tags_by_id:
+                item.tags = tags_by_id[item.pk]
+        return items
 
     def __iter__(self):
         return iter(self.items)
