@@ -392,7 +392,7 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
         else:
             try:
                 response = get(url, headers={"User-Agent": USER_AGENT})
-                j = response.json()
+                response.json()
             except Exception:
                 api_domain = login_domain
     logger.info(

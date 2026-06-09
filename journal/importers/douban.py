@@ -23,7 +23,7 @@ _tz_sh = pytz.timezone("Asia/Shanghai")
 
 def _fetch_remote_image(url, identity_id):
     try:
-        if not is_valid_url(url):
+        if not isinstance(url, str) or not is_valid_url(url):
             logger.warning(f"skip fetching non-public image url {url}")
             return url
         logger.info(f"fetching remote image {url}")
