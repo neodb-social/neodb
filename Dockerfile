@@ -62,7 +62,7 @@ COPY misc/bin/* /bin/
 
 # Kept these path for backwards compatibility
 COPY misc/bin/nginx-start /neodb/misc/bin/
-COPY misc/nginx.conf.d /neodb/misc/
+COPY misc/nginx.conf.d/* /neodb/misc/nginx.conf.d/
 
 USER app:app
 

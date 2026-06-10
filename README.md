@@ -96,6 +96,9 @@ Please see [installation guide](https://neodb.net/install/).
 - To contribute to NeoDB documentation, please submit a PR to the [docs/](docs/) directory.
 - Contributors may use any tools they prefer, but must review all code/text and be sufficiently confident that the contribution is of high enough quality before submitting a PR. Once done so, please confirm that in PR description.
 
+## License
+NeoDB is licensed under [AGPL-3.0](LICENSE). Part of the code was originally from [Takahe](https://jointakahe.org/) which is MIT-licensed, and we've been working its authors to contribute back relevant functionalities.
+If you prefer a ActivityPub micro-blogging server without culture review features in more permissive license, please check their [code](https://github.com/jointakahe/takahe) and [fork](https://github.com/avaraline/incarnator).
 
 ## Sponsor
 If you like this project, please consider donating to [NeoDB.social on ko-fi](https://ko-fi.com/neodb), or [Takahē](https://www.patreon.com/takahe) and [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.
