@@ -23,31 +23,13 @@ tox.ini
 # Local sqlite3 db
 *.sqlite3
 
-# deployed media and static files
-/media
-/static
-/scripts/
-
-# generated css
-/common/static/css/boofilsic.min.css
-/common/static/css/boofilsic.css
-/common/static/scss/neodb.css
-
-# debug log file
-/log
-log
-
-# conf folders
-/conf
-/neodb
-/playground
-
-# typesense folder
-/typesense-data
-
-# test coverage
-/.coverage
-
+/neodb/.coverage
+/neodb/media
+/neodb/static
+/neodb/common/static/css/boofilsic.min.css
+/neodb/common/static/css/boofilsic.css
+/neodb/common/static/scss/neodb.css
+/neodb/playground
 
 # translations
 *.mo

@@ -1,7 +1,7 @@
 import importlib.util
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[2] / "docs" / "lexicons" / "publish.py"
+SCRIPT = Path(__file__).resolve().parents[3] / "docs" / "lexicons" / "publish.py"
 
 
 def _load_script():

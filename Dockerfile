@@ -11,9 +11,10 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
 
-COPY . /neodb
-# TODO: use --exclude once it's supported in stable syntax
-RUN mv /neodb/neodb-takahe /takahe
+COPY neodb /neodb
+COPY takahe /takahe
+COPY misc /misc
+COPY pyproject.toml uv.lock /neodb/
 
 RUN echo "${buildver}" > /etc/neodb_version \
  && echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py \
@@ -24,9 +25,8 @@ RUN echo "${buildver}" > /etc/neodb_version \
 WORKDIR /neodb
 RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
-RUN find misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
-RUN rm -rf misc/wheels-cache
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
+RUN find /misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-install-project $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
 
 # runtime stage
 FROM python:3.14-slim AS runtime
@@ -59,6 +59,10 @@ RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_
 
 WORKDIR /neodb
 COPY misc/bin/* /bin/
+
+# Kept these path for backwards compatibility
+COPY misc/bin/nginx-start /neodb/misc/bin/
+COPY misc/nginx.conf.d /neodb/misc/
 
 USER app:app
 

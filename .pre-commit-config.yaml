@@ -1,4 +1,4 @@
-exclude: ^(test_data|neodb-takahe)/
+exclude: ^(neodb/test_data|takahe)/
 default_language_version:
   python: python3.14
 repos:

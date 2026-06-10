@@ -1,6 +1,6 @@
 [project]
 name = "neodb"
-version = "0.13"
+version = "0.15"
 description = "🧩 self-hosted server tracking what you read/watch/listen/play, powering a global distributed community federating via ActivityPub."
 readme = "README.md"
 requires-python = ">=3.14, <3.15"
@@ -60,7 +60,7 @@ dependencies = [
     "webauthn>=2.0.0,<3",
     "numpy>=2.4.6",
     "scipy>=1.17.1",
-    # neodb-takahe (Fediverse / Mastodon API) dependencies, sharing this venv
+    # takahe (Fediverse / Mastodon API) dependencies, sharing this venv
     # cryptography upper bound is dictated by atproto (currently <47); takahe only
     # uses long-stable hazmat APIs, so the atproto-compatible range is fine.
     "cryptography>=46",
@@ -95,7 +95,7 @@ dev = [
     "coverage>=7.13.5",
     "mkdocs-material>=9.5.42,<10",
     "pytest-xdist>=3.8.0",
-    # neodb-takahe test deps
+    # takahe test deps
     "mock>=5.1.0",
     "pytest-asyncio>=0.23.6",
     "pytest-dotenv>=0.5.2",
@@ -109,8 +109,11 @@ dev = [
 # @ a7d380ff + neodb-social/pyld@neodb-on-master-a7d380f.
 pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "e1de216d9fba39cf5f01223e862a010e05d33223" }
 
+[tool.ty.environment]
+root = ["./neodb"]
+
 [tool.ty.src]
-exclude = ["neodb-takahe", "data-svc"]
+exclude = ["takahe", "data-svc"]
 
 [tool.ty.rules]
 unused-ignore-comment = "ignore"
@@ -123,10 +126,11 @@ indent = 2
 profile = "black"
 
 [tool.mypy]
+mypy_path = "neodb"
 exclude = [
-    '^neodb-takahe/',
+    '^takahe/',
     '^data-svc/',
-    '^legacy/',
+    '^neodb/legacy/',
     '^media/',
     '^playground/',
     '.*migrations.*',
@@ -137,8 +141,9 @@ plugins = ["mypy_django_plugin.main"]
 django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
+src = ["neodb", "takahe"]
 exclude = [
-    "neodb-takahe/*",
+    # "takahe/*",
     "data-svc/*",
     "media",
     ".venv",
@@ -146,17 +151,7 @@ exclude = [
     "playground",
 ]
 lint.ignore = ["F403", "F405"]
-lint.extend-select = ["I"]
+# lint.extend-select = ["I"]
 
 [tool.setuptools]
 py-modules = []
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "tests.settings"
-python_files = ["tests/*.py"]
-testpaths = ["tests" ]
-# addopts = "--disable-warnings"
-
-[tool.coverage.run]
-omit = ["tests/*"]
-branch = true

@@ -47,7 +47,7 @@ def _split_link_entries(value: str) -> list[str]:
 def find_ap_alternate_url(response: httpx.Response) -> str | None:
     """Return an alternate ActivityPub URL advertised by ``response``.
 
-    Mirrors the helper in ``neodb-takahe/core/json.py``: looks at both the
+    Mirrors the helper in ``takahe/core/json.py``: looks at both the
     HTTP ``Link`` header (``rel="alternate"; type="application/activity+json"``)
     and -- when the body is HTML -- the equivalent ``<link>`` tag in the
     document head. WordPress's ActivityPub plugin (and similar hosts) do
