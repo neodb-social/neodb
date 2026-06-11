@@ -13,6 +13,7 @@ from markdownify import markdownify as md
 from takahe.utils import Takahe
 from users.models import APIdentity
 
+from .atproto import DOCUMENT_NSID, build_document
 from .common import Piece, VisibilityType
 from .renderers import render_md
 from .tag import Tag as TagModel
@@ -210,6 +211,21 @@ class Article(Piece):
             body += "..."
         content = f"{self.title}\n\n{body}\n\n{self.absolute_url}"
         return {"content": content, "spoiler_text": self.summary or None}
+
+    def atproto_document_collections(self) -> set[str]:
+        return {DOCUMENT_NSID}
+
+    def to_atproto_document(self) -> dict[str, Any]:
+        # display_summary carries the sensitive-content marker when set, so
+        # external previews keep the cue; fall back to the body excerpt
+        return build_document(
+            self,
+            title=self.title,
+            body=self.body,
+            text=self.plain_content,
+            description=self.display_summary or self.excerpt,
+            tags=self.normalized_tags,
+        )
 
     def to_indexable_doc(self) -> dict[str, Any]:
         return {

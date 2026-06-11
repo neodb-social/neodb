@@ -2,12 +2,23 @@ from datetime import timedelta
 from types import SimpleNamespace
 
 import pytest
+from django.conf import settings
 
 from catalog.models import Edition, ExternalResource, TVSeason, TVShow
-from journal.models import Mark, Rating, Review, ShelfMember, ShelfType, Tag
-from journal.models.atproto import MARK_NSID, REVIEW_NSID, build_subject
+from journal.models import Article, Mark, Rating, Review, ShelfMember, ShelfType, Tag
+from journal.models.atproto import (
+    DOCUMENT_NSID,
+    MARK_NSID,
+    MARKPUB_MARKDOWN_NSID,
+    MARKPUB_TEXT_NSID,
+    REVIEW_NSID,
+    build_document_rkey,
+    build_subject,
+)
 from mastodon.models import BlueskyAccount
 from users.models import User
+
+_TID_ALPHABET = "234567abcdefghijklmnopqrstuvwxyz"
 
 
 class FakeBluesky:
@@ -280,3 +291,165 @@ def test_delete_enqueues_record_cleanup_without_metadata(monkeypatch):
     _func, _user_id, metadata, record_refs = calls[0]
     assert metadata == {}
     assert record_refs == [[MARK_NSID, sm.uuid]]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_atproto_document():
+    user = User.register(email="doc@example.com", username="docuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(
+        book, user.identity, "Loved it", "A **great** read."
+    )
+    assert review is not None
+
+    doc = review.to_atproto_document()
+
+    assert doc["$type"] == DOCUMENT_NSID
+    # loose document: site + path reconstructs the canonical NeoDB URL
+    assert doc["site"] == settings.SITE_INFO["site_url"].rstrip("/")
+    assert doc["site"] + doc["path"] == review.absolute_url
+    assert doc["title"] == "Loved it"
+    assert doc["publishedAt"].endswith("Z")
+    assert "updatedAt" not in doc  # creation jitter is not an edit
+    # full markdown in the open content union, plaintext alongside
+    assert doc["content"]["$type"] == MARKPUB_MARKDOWN_NSID
+    assert doc["content"]["text"]["$type"] == MARKPUB_TEXT_NSID
+    assert doc["content"]["text"]["markdown"] == "A **great** read."
+    assert " ".join(doc["textContent"].split()) == "A great read."
+    # spoiler-safe auto-summary, not a body excerpt
+    assert doc["description"] == review.display_summary
+    assert review.atproto_document_collections() == {DOCUMENT_NSID}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_atproto_document():
+    user = User.register(email="artdoc@example.com", username="artdocuser")
+    article = Article.update_local_article(
+        user.identity,
+        "My Essay",
+        "Some **bold** thoughts.",
+        tags=["essay", "life"],
+    )
+
+    doc = article.to_atproto_document()
+
+    assert doc["$type"] == DOCUMENT_NSID
+    assert doc["site"] + doc["path"] == article.absolute_url
+    assert doc["title"] == "My Essay"
+    assert doc["content"]["text"]["markdown"] == "Some **bold** thoughts."
+    assert doc["tags"] == ["essay", "life"]
+    # no author summary: description falls back to the body excerpt
+    assert doc["description"] == article.excerpt
+    assert article.atproto_document_collections() == {DOCUMENT_NSID}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_document_description_prefers_summary():
+    user = User.register(email="artsum@example.com", username="artsumuser")
+    article = Article.update_local_article(
+        user.identity, "T", "body", summary="hand-written teaser"
+    )
+
+    doc = article.to_atproto_document()
+
+    assert doc["description"] == "hand-written teaser"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_rkey_is_valid_tid():
+    user = User.register(email="tid@example.com", username="tiduser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    article = Article.update_local_article(user.identity, "T", "body")
+
+    for piece in (review, article):
+        rkey = build_document_rkey(piece)
+        # the site.standard.document lexicon requires tid record keys
+        assert len(rkey) == 13
+        assert all(c in _TID_ALPHABET for c in rkey)
+        assert rkey[0] in "234567abcdefghij"  # top bit of a TID is 0
+        assert build_document_rkey(piece) == rkey  # deterministic
+    assert build_document_rkey(review) != build_document_rkey(article)
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_sync_writes_document_and_freezes_rkey():
+    user = User.register(email="freeze@example.com", username="freezeuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    fake = FakeBluesky()
+    review._sync_records_to_bluesky(fake)
+
+    rkey = build_document_rkey(review)
+    assert (DOCUMENT_NSID, rkey) in fake.puts
+    # both the structured review record and the document are written
+    assert (REVIEW_NSID, review.uuid) in fake.puts
+    # the key is frozen so a later created_time edit cannot orphan the record
+    assert review.metadata["atproto_document_rkey"] == rkey
+    review.created_time = review.created_time - timedelta(days=30)
+    assert review.atproto_document_rkey() == rkey
+    review._sync_records_to_bluesky(fake)
+    assert len([k for k in fake.puts if k[0] == DOCUMENT_NSID]) == 1
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_sync_drop_deletes_document():
+    user = User.register(email="dropdoc@example.com", username="dropdocuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    fake = FakeBluesky()
+    review._sync_records_to_bluesky(fake)
+    rkey = review.metadata["atproto_document_rkey"]
+
+    review._sync_records_to_bluesky(fake, drop=True)
+
+    assert (DOCUMENT_NSID, rkey) in fake.deletes
+    assert (REVIEW_NSID, review.uuid) in fake.deletes
+    assert "atproto_document_rkey" not in review.metadata
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_includes_bsky_post_ref():
+    user = User.register(email="ref@example.com", username="refuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    doc = review.to_atproto_document()
+    assert "bskyPostRef" not in doc  # no skeet was posted
+
+    review.metadata.update(
+        {"bluesky_id": "at://did:plc:fake/app.bsky.feed.post/3k", "bluesky_cid": "c1"}
+    )
+    doc = review.to_atproto_document()
+    assert doc["bskyPostRef"] == {
+        "uri": "at://did:plc:fake/app.bsky.feed.post/3k",
+        "cid": "c1",
+    }
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_delete_enqueues_document_cleanup(monkeypatch):
+    user = User.register(email="deldoc@example.com", username="deldocuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="deldoc.example"
+    )
+
+    calls = []
+    monkeypatch.setattr(
+        "journal.models.common.django_rq.get_queue",
+        lambda name: SimpleNamespace(enqueue=lambda *a, **kw: calls.append(a)),
+    )
+    review.delete_crossposts()
+
+    assert len(calls) == 1
+    _func, _user_id, _metadata, record_refs = calls[0]
+    assert [REVIEW_NSID, review.uuid] in record_refs
+    assert [DOCUMENT_NSID, build_document_rkey(review)] in record_refs

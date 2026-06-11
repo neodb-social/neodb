@@ -16,8 +16,10 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .atproto import (
+    DOCUMENT_NSID,
     REVIEW_NSID,
     AtprotoRecord,
+    build_document,
     build_fediverse_uri,
     build_rating,
     build_subject,
@@ -178,6 +180,21 @@ class Review(Content):
         if fediverse_uri:
             record["fediverseUri"] = fediverse_uri
         return [(REVIEW_NSID, record)]
+
+    def atproto_document_collections(self) -> set[str]:
+        return {DOCUMENT_NSID}
+
+    def to_atproto_document(self) -> dict[str, Any]:
+        # description is the spoiler-safe auto-summary ("a review of X"),
+        # not a body excerpt, so external previews cannot leak spoilers;
+        # the item subject and rating stay on the net.neodb.review record
+        return build_document(
+            self,
+            title=self.title,
+            body=self.body,
+            text=self.plain_content,
+            description=self.display_summary,
+        )
 
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"

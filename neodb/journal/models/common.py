@@ -34,6 +34,7 @@ from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
 
 from ..search import JournalIndex
+from .atproto import build_document_rkey
 from .crosspost import CrosspostRetry
 from .mixins import UserOwnedObjectMixin
 
@@ -155,6 +156,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         likes: models.QuerySet["Like"]
         metadata: models.JSONField[Any, Any]
         post_relations: models.QuerySet["PiecePost"]
+        created_time: models.DateTimeField[Any, Any]
+        edited_time: models.DateTimeField[Any, Any]
     url_path = "p"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     local = models.BooleanField(default=True)
@@ -371,6 +374,37 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         """
         return []
 
+    def atproto_document_collections(self) -> set[str]:
+        """Long-form document collections this piece manages on the PDS.
+
+        Long-form subclasses (review, article) return ``site.standard.document``
+        so standard.site-aware ATProto apps can read them. Unlike
+        :meth:`atproto_collections` these records are keyed by
+        :meth:`atproto_document_rkey` (a TID, as the lexicon requires).
+        The default manages nothing.
+        """
+        return set()
+
+    def atproto_document_rkey(self) -> str:
+        """Record key for this piece's ``site.standard.document``.
+
+        The TID frozen in ``metadata`` by the first successful sync, falling
+        back to the deterministic derivation when never synced -- so the key
+        survives a ``created_time`` edit once the record exists, yet needs no
+        stored state before then.
+        """
+        metadata = getattr(self, "metadata", None) or {}
+        return metadata.get("atproto_document_rkey") or build_document_rkey(self)
+
+    def to_atproto_document(self) -> "dict[str, Any] | None":
+        """``site.standard.document`` record that should currently exist on
+        the owner's PDS, or ``None``.
+
+        Long-form subclasses (review, article) override this; the default
+        publishes nothing.
+        """
+        return None
+
     @classmethod
     def update_by_ap_object(
         cls,
@@ -466,6 +500,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             [
                 [collection, self.atproto_rkey()]
                 for collection in self.atproto_collections()
+            ]
+            + [
+                [collection, self.atproto_document_rkey()]
+                for collection in self.atproto_document_collections()
             ]
             if self.owner.user_id and self.owner.user.bluesky
             else []
@@ -606,34 +644,74 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return True
 
     def _sync_records_to_bluesky(self, bluesky, drop: bool = False):
-        """Reconcile this piece's net.neodb.* records on the owner's PDS.
+        """Reconcile this piece's ATProto records on the owner's PDS.
 
         For every collection the piece manages, the record is written (keyed
         by :meth:`atproto_rkey`, so put_record overwrites in place on edit)
         when present, or deleted otherwise -- including the case where the
         piece is no longer public (``drop``). No state is stored: records are
         reconstructable from the piece, and put/delete are both idempotent.
+
+        Long-form pieces also manage a ``site.standard.document`` record,
+        reconciled the same way but keyed by :meth:`atproto_document_rkey`
+        (a TID); see :meth:`_sync_document_to_bluesky`.
         """
         collections = self.atproto_collections()
+        if collections:
+            rkey = self.atproto_rkey()
+            try:
+                present = (
+                    {}
+                    if drop
+                    else {c: record for c, record in self.to_atproto_records()}
+                )
+            except Exception as e:
+                logger.warning(f"{self} build atproto records error {e}")
+                present = None
+            if present is not None:
+                for collection in collections:
+                    try:
+                        if collection in present:
+                            bluesky.put_record(collection, rkey, present[collection])
+                        else:
+                            bluesky.delete_record(collection, rkey)
+                    except Exception as e:
+                        logger.warning(
+                            f"{self} sync record {collection} to {bluesky} error {e}"
+                        )
+        self._sync_document_to_bluesky(bluesky, drop)
+
+    def _sync_document_to_bluesky(self, bluesky, drop: bool = False):
+        """Reconcile this piece's ``site.standard.document`` on the owner's PDS.
+
+        Written when the piece is public and :meth:`to_atproto_document`
+        yields a record, deleted otherwise. On first write the TID record
+        key is frozen in ``metadata["atproto_document_rkey"]`` (persisted by
+        the caller's metadata save) so a later ``created_time`` edit cannot
+        orphan the record.
+        """
+        collections = self.atproto_document_collections()
         if not collections:
             return
-        rkey = self.atproto_rkey()
-        try:
-            present = (
-                {} if drop else {c: record for c, record in self.to_atproto_records()}
-            )
-        except Exception as e:
-            logger.warning(f"{self} build atproto records error {e}")
-            return
+        document = None
+        if not drop:
+            try:
+                document = self.to_atproto_document()
+            except Exception as e:
+                logger.warning(f"{self} build atproto document error {e}")
+                return
+        rkey = self.atproto_document_rkey()
         for collection in collections:
             try:
-                if collection in present:
-                    bluesky.put_record(collection, rkey, present[collection])
+                if document:
+                    bluesky.put_record(collection, rkey, document)
+                    self.metadata.setdefault("atproto_document_rkey", rkey)
                 else:
                     bluesky.delete_record(collection, rkey)
+                    self.metadata.pop("atproto_document_rkey", None)
             except Exception as e:
                 logger.warning(
-                    f"{self} sync record {collection} to {bluesky} error {e}"
+                    f"{self} sync document {collection} to {bluesky} error {e}"
                 )
 
     def sync_to_threads(self, params, update_mode):
