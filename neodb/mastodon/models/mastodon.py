@@ -590,6 +590,8 @@ class MastodonApplication(models.Model):
             j = response.json()
             max_chars = (
                 j.get("configuration", {}).get("statuses", {}).get("max_characters")
+                if isinstance(j, dict)
+                else None
             )
             if max_chars:
                 self.max_status_len = max_chars
@@ -598,9 +600,9 @@ class MastodonApplication(models.Model):
         if response.status_code == 200:
             j = response.json()
             shortcodes = {
-                e.get("shortcode")
+                e["shortcode"]
                 for e in (j if isinstance(j, list) else [])
-                if isinstance(e, dict)
+                if isinstance(e, dict) and isinstance(e.get("shortcode"), str)
             }
             required = {
                 settings.STAR_SOLID.strip(":"),

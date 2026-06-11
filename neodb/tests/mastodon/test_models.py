@@ -173,10 +173,16 @@ class TestDetectConfigurations:
         response.json.return_value = json_data
         return response
 
-    def _detect(self, app: MastodonApplication, emoji_response: Mock) -> None:
-        instance_response = self._response(
-            200, {"configuration": {"statuses": {"max_characters": 1000}}}
-        )
+    def _detect(
+        self,
+        app: MastodonApplication,
+        emoji_response: Mock,
+        instance_response: Mock | None = None,
+    ) -> None:
+        if instance_response is None:
+            instance_response = self._response(
+                200, {"configuration": {"statuses": {"max_characters": 1000}}}
+            )
 
         def fake_get(url, **kwargs):
             if url.endswith("/api/v1/instance"):
@@ -216,3 +222,16 @@ class TestDetectConfigurations:
         app = MastodonApplication(domain_name="social.example")
         self._detect(app, self._response(200, []))
         assert app.max_status_len == 1000
+
+    def test_malformed_instance_payload_keeps_max_status_len(self):
+        app = MastodonApplication(domain_name="social.example")
+        self._detect(
+            app, self._response(200, []), instance_response=self._response(200, [])
+        )
+        assert app.max_status_len == 500
+
+    def test_emoji_entries_without_string_shortcode_ignored(self):
+        app = MastodonApplication(domain_name="social.example", star_mode=1)
+        emojis = [{"shortcode": None}, {"url": "x"}, "junk"]
+        self._detect(app, self._response(200, emojis))
+        assert app.star_mode == 0
