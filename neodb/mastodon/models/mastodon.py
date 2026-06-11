@@ -582,7 +582,7 @@ class MastodonApplication(models.Model):
     def __str__(self):
         return self.domain_name
 
-    def detect_configurations(self):
+    def detect_configurations(self) -> None:
         api_domain = self.api_domain or self.domain_name
         url = f"https://{api_domain}/api/v1/instance"
         response = get(url, headers={"User-Agent": settings.NEODB_USER_AGENT})
@@ -597,8 +597,19 @@ class MastodonApplication(models.Model):
         response = get(url, headers={"User-Agent": settings.NEODB_USER_AGENT})
         if response.status_code == 200:
             j = response.json()
-            if next(filter(lambda e: e["shortcode"] == "star_half", j), None):
-                self.star_mode = 1
+            shortcodes = {
+                e.get("shortcode")
+                for e in (j if isinstance(j, list) else [])
+                if isinstance(e, dict)
+            }
+            required = {
+                settings.STAR_SOLID.strip(":"),
+                settings.STAR_HALF.strip(":"),
+                settings.STAR_EMPTY.strip(":"),
+            }
+            # use custom emoji only if every star used by render_rating exists,
+            # and reset to unicode if any was removed since last check
+            self.star_mode = 1 if required <= shortcodes else 0
 
     def verify(self):
         return verify_client(self)

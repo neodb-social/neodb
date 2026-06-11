@@ -1,7 +1,9 @@
+from unittest.mock import Mock, patch
+
 import pytest
 from django.conf import settings
 
-from mastodon.models import MastodonAccount, Platform
+from mastodon.models import MastodonAccount, MastodonApplication, Platform
 from mastodon.models.mastodon import (
     TootVisibilityEnum,
     _force_recreate_app,
@@ -156,3 +158,61 @@ class TestMastodonAccount:
         # MastodonAccount.check_alive() uses network, but sync skips via sleep_hours logic
         result = self.account.sync(skip_graph=True, sleep_hours=24)
         assert result is False
+
+
+class TestDetectConfigurations:
+    STAR_CODES = [
+        settings.STAR_SOLID.strip(":"),
+        settings.STAR_HALF.strip(":"),
+        settings.STAR_EMPTY.strip(":"),
+    ]
+
+    def _response(self, status_code: int, json_data) -> Mock:
+        response = Mock()
+        response.status_code = status_code
+        response.json.return_value = json_data
+        return response
+
+    def _detect(self, app: MastodonApplication, emoji_response: Mock) -> None:
+        instance_response = self._response(
+            200, {"configuration": {"statuses": {"max_characters": 1000}}}
+        )
+
+        def fake_get(url, **kwargs):
+            if url.endswith("/api/v1/instance"):
+                return instance_response
+            return emoji_response
+
+        with patch("mastodon.models.mastodon.get", side_effect=fake_get):
+            app.detect_configurations()
+
+    def test_all_star_emojis_enable_custom_mode(self):
+        app = MastodonApplication(domain_name="social.example")
+        emojis = [{"shortcode": c} for c in self.STAR_CODES]
+        self._detect(app, self._response(200, emojis))
+        assert app.star_mode == 1
+
+    def test_star_half_alone_keeps_unicode_mode(self):
+        app = MastodonApplication(domain_name="social.example")
+        self._detect(app, self._response(200, [{"shortcode": "star_half"}]))
+        assert app.star_mode == 0
+
+    def test_missing_emojis_reset_stale_custom_mode(self):
+        app = MastodonApplication(domain_name="social.example", star_mode=1)
+        self._detect(app, self._response(200, [{"shortcode": "stardewvalley"}]))
+        assert app.star_mode == 0
+
+    def test_unreachable_emoji_endpoint_keeps_existing_mode(self):
+        app = MastodonApplication(domain_name="social.example", star_mode=1)
+        self._detect(app, self._response(503, None))
+        assert app.star_mode == 1
+
+    def test_malformed_emoji_payload_resets_to_unicode(self):
+        app = MastodonApplication(domain_name="social.example", star_mode=1)
+        self._detect(app, self._response(200, {"error": "unexpected"}))
+        assert app.star_mode == 0
+
+    def test_max_status_len_updated_from_instance(self):
+        app = MastodonApplication(domain_name="social.example")
+        self._detect(app, self._response(200, []))
+        assert app.max_status_len == 1000
