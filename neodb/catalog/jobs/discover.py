@@ -12,6 +12,7 @@ from catalog.models import *
 from catalog.sites.fedi import FediverseInstance
 from common.models import SITE_PREFERRED_LOCALES, BaseJob, JobManager, SiteConfig
 from journal.models import (
+    Article,
     Collection,
     Comment,
     Review,
@@ -244,8 +245,14 @@ class DiscoverGenerator(BaseJob):
                 .exclude(owner_id__in=excluding_identities)
                 .order_by("-created_time")
             )
+            articles = (
+                Article.objects.filter(visibility=0)
+                .exclude(owner_id__in=excluding_identities)
+                .order_by("-created_time")
+            )
             if local:
                 reviews = reviews.filter(local=True)
+                articles = articles.filter(local=True)
             post_ids = (
                 set(
                     self._top_post_ids(
@@ -264,6 +271,7 @@ class DiscoverGenerator(BaseJob):
                 )
                 | set(self._top_post_ids(self.get_popular_posts(1, 0, local), 3))
                 | set(reviews.values_list("posts", flat=True)[:5])
+                | set(articles.values_list("posts", flat=True)[:5])
             )
         else:
             post_ids = []
