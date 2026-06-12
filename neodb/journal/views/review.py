@@ -166,6 +166,8 @@ class ReviewFeed(Feed):
         o = APIdentity.get_by_handle(kwargs["username"])
         if not o.local:
             raise ObjectDoesNotExist(_("User not local"))
+        if not o.user or not o.user.is_active:
+            raise ObjectDoesNotExist(_("User not found"))
         activate_language_for_user(o.user)
         return o
 

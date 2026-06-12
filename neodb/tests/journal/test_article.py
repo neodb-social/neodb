@@ -710,3 +710,16 @@ class TestArticleFeed:
         assert resp.status_code == 200
         body = resp.content.decode()
         assert "Touchy Subject (may contain sensitive content)" in body
+
+    def test_feed_404_when_user_deactivated(self):
+        Article.update_local_article(
+            owner=self.identity,
+            title="Gone Soon",
+            body="body",
+            visibility=0,
+        )
+        self.user.is_active = False
+        self.user.save(update_fields=["is_active"])
+        assert self.client.get(self.feed_url).status_code == 404
+        # ReviewFeed shares the same guard
+        assert self.client.get(f"{self.identity.url}feed/reviews/").status_code == 404

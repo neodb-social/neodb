@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-11 21:09-0400\n"
+"POT-Creation-Date: 2026-06-11 21:36-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -3677,7 +3677,8 @@ msgstr "你"
 msgid "unavailable"
 msgstr "不可用"
 
-#: common/utils.py:109 common/utils.py:150 users/views/actions.py:37
+#: common/utils.py:109 common/utils.py:150 journal/views/article.py:150
+#: journal/views/review.py:170 users/views/actions.py:37
 #: users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
@@ -3691,8 +3692,8 @@ msgstr "用户不存在了"
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:166
-#: journal/views/profile.py:486 journal/views/review.py:186
+#: common/utils.py:128 common/utils.py:130 journal/views/article.py:168
+#: journal/views/profile.py:486 journal/views/review.py:188
 msgid "Login required"
 msgstr "登录后访问"
 
@@ -4464,7 +4465,7 @@ msgstr "匹配文件丢失，无法导入。"
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/models/article.py:148 journal/views/article.py:180
+#: journal/models/article.py:148 journal/views/article.py:182
 msgid "(may contain sensitive content)"
 msgstr "（可能包含剧透或敏感内容）"
 
@@ -5721,13 +5722,13 @@ msgstr "#我的#%(year)s书影音"
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/article.py:154 journal/views/article.py:168
+#: journal/views/article.py:156 journal/views/article.py:170
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr "{0} 的文章"
 
-#: journal/views/article.py:156 journal/views/article.py:164
-#: journal/views/review.py:176 journal/views/review.py:184
+#: journal/views/article.py:158 journal/views/article.py:166
+#: journal/views/review.py:178 journal/views/review.py:186
 msgid "Link invalid"
 msgstr "链接无效"
 
@@ -5832,17 +5833,17 @@ msgstr "无效选择"
 msgid "Invalid post"
 msgstr "无效帖文"
 
-#: journal/views/review.py:174 journal/views/review.py:188
+#: journal/views/review.py:176 journal/views/review.py:190
 #, python-brace-format
 msgid "Reviews by {0}"
 msgstr "{0} 的评论"
 
-#: journal/views/review.py:197
+#: journal/views/review.py:199
 #, python-brace-format
 msgid "{review_title} - a review of {item_title}"
 msgstr "{review_title} - 关于 {item_title} 的评论"
 
-#: journal/views/review.py:201
+#: journal/views/review.py:203
 msgid "may contain spoiler or triggering content"
 msgstr "可能包含剧透或敏感内容"
 
