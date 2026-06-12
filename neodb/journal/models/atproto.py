@@ -40,6 +40,10 @@ MARKPUB_TEXT_NSID = "at.markpub.text"
 
 RATING_MAX = 10
 
+# the lexicon caps these fields in graphemes; enforcing the caps on
+# code-point length is strictly conservative (a grapheme is one or more
+# code points), so records stay within spec without a grapheme library --
+# at worst a pathological description is cut inside an emoji cluster
 DOCUMENT_DESCRIPTION_MAX_GRAPHEMES = 3000
 DOCUMENT_TAG_MAX_GRAPHEMES = 128
 
