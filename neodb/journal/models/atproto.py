@@ -141,8 +141,14 @@ def build_document_rkey(piece: "Piece") -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=dt_timezone.utc)
     micros = (dt.astimezone(dt_timezone.utc) - _EPOCH) // timedelta(microseconds=1)
+    pk = piece.pk or 0
+    # mix the pk's high bits into the (sub-millisecond) timestamp and its low
+    # bits into the clock id, so pieces sharing one creation time (date-only
+    # backdated imports land on the exact same microsecond) can never derive
+    # the same key; clamp pre-1970 times to zero instead of mask-wrapping
+    micros = max(0, micros) + (pk >> _TID_CLOCKID_BITS)
     micros &= (1 << _TID_TIMESTAMP_BITS) - 1
-    clockid = (piece.pk or 0) % (1 << _TID_CLOCKID_BITS)
+    clockid = pk % (1 << _TID_CLOCKID_BITS)
     n = (micros << _TID_CLOCKID_BITS) | clockid
     chars = []
     for _ in range(_TID_LENGTH):

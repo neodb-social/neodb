@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from types import SimpleNamespace
 
 import pytest
@@ -373,6 +374,24 @@ def test_document_rkey_is_valid_tid():
     assert build_document_rkey(review) != build_document_rkey(article)
 
 
+def test_document_rkey_unique_for_equal_created_time():
+    # date-only backdated imports land many pieces on the same microsecond;
+    # keys must still be unique per piece, even for pks 1024 apart (sharing
+    # the low clock-id bits) and for pre-1970 times (clamped, not wrapped)
+    for dt in (
+        datetime(2020, 5, 1, tzinfo=dt_timezone.utc),
+        datetime(1932, 1, 1, tzinfo=dt_timezone.utc),
+    ):
+        keys = [
+            build_document_rkey(Review(pk=pk, created_time=dt))
+            for pk in (1, 2, 1025, 2049, 1024 * 1024 + 1)
+        ]
+        assert len(set(keys)) == len(keys)
+        for rkey in keys:
+            assert len(rkey) == 13
+            assert all(c in _TID_ALPHABET for c in rkey)
+
+
 @pytest.mark.django_db(databases="__all__")
 def test_sync_writes_document_and_freezes_rkey():
     user = User.register(email="freeze@example.com", username="freezeuser")
@@ -453,3 +472,65 @@ def test_delete_enqueues_document_cleanup(monkeypatch):
     _func, _user_id, _metadata, record_refs = calls[0]
     assert [REVIEW_NSID, review.uuid] in record_refs
     assert [DOCUMENT_NSID, build_document_rkey(review)] in record_refs
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_sync_and_drop_document():
+    user = User.register(email="artsync@example.com", username="artsyncuser")
+    article = Article.update_local_article(user.identity, "T", "body")
+
+    fake = FakeBluesky()
+    article._sync_records_to_bluesky(fake)
+
+    rkey = article.metadata["atproto_document_rkey"]
+    assert (DOCUMENT_NSID, rkey) in fake.puts
+
+    article._sync_records_to_bluesky(fake, drop=True)
+
+    assert (DOCUMENT_NSID, rkey) in fake.deletes
+    assert "atproto_document_rkey" not in article.metadata
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_failed_repost_drops_stale_bsky_post_ref(monkeypatch):
+    user = User.register(email="stale@example.com", username="staleuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="stale.example"
+    )
+    # a previous sync posted a skeet
+    Review.objects.filter(pk=review.pk).update(
+        metadata={
+            "bluesky_id": "at://did:plc:fake/app.bsky.feed.post/3old",
+            "bluesky_cid": "oldcid",
+        }
+    )
+    review.refresh_from_db()
+
+    fake = FakeBluesky()
+    deleted_posts = []
+    monkeypatch.setattr(
+        BlueskyAccount, "delete_post", lambda self, uri: deleted_posts.append(uri)
+    )
+
+    def fail_post(self, **kwargs):
+        raise RuntimeError("pds down")
+
+    monkeypatch.setattr(BlueskyAccount, "post", fail_post)
+    monkeypatch.setattr(BlueskyAccount, "put_record", fake.put_record)
+    monkeypatch.setattr(BlueskyAccount, "delete_record", fake.delete_record)
+
+    review._sync_to_social_accounts(0)
+
+    # the old skeet was deleted and reposting failed: the document must not
+    # carry a bskyPostRef pointing at the deleted post
+    assert deleted_posts == ["at://did:plc:fake/app.bsky.feed.post/3old"]
+    doc = next(rec for (c, _), rec in fake.puts.items() if c == DOCUMENT_NSID)
+    assert "bskyPostRef" not in doc
+    # changes made during sync (dropped ids, frozen rkey) are persisted
+    review.refresh_from_db()
+    assert "bluesky_id" not in review.metadata
+    assert "bluesky_cid" not in review.metadata
+    assert review.metadata["atproto_document_rkey"] == build_document_rkey(review)

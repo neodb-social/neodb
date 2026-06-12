@@ -602,6 +602,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             if post_id:
                 try:
                     bluesky.delete_post(post_id)
+                    # the skeet is gone; drop the ids now so a failed repost
+                    # below cannot leave a stale bskyPostRef on the document
+                    self.metadata.pop("bluesky_id", None)
+                    self.metadata.pop("bluesky_cid", None)
                 except Exception as e:
                     logger.warning(f"Delete {bluesky} post {post_id} error {e}")
         r = None
