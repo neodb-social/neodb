@@ -13,6 +13,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {{ identity.display_name }} - {% trans "Articles" %}</title>
     {% include "common_libs.html" %}
+    {% if identity.local and identity.anonymous_viewable %}
+      <link rel="alternate"
+            type="application/rss+xml"
+            title="{{ site_name }} - @{{ identity.handle }} - Articles"
+            href="{{ identity.url }}feed/articles/">
+    {% endif %}
   </head>
   <body>
     {% include "_header.html" %}

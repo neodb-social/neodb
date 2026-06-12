@@ -1,4 +1,4 @@
-from .article import article_edit, article_retrieve, user_article_list
+from .article import ArticleFeed, article_edit, article_retrieve, user_article_list
 from .collection import (
     add_to_collection,
     collection_add_featured,
@@ -69,6 +69,7 @@ from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import WrappedShareView, WrappedView
 
 __all__ = [
+    "ArticleFeed",
     "article_edit",
     "article_retrieve",
     "user_article_list",

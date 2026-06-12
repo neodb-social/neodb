@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.contrib.syndication.views import Feed
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -9,6 +11,8 @@ from django.views.decorators.http import require_http_methods
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
 from takahe.utils import Takahe
+from users.middlewares import activate_language_for_user
+from users.models.apidentity import APIdentity
 
 from ..forms import ArticleForm
 from ..models import Article
@@ -124,6 +128,76 @@ def article_retrieve(request, article_uuid: str):
         "article.html",
         {"article": article, "quotes_count": post_quotes_count(article.latest_post)},
     )
+
+
+MAX_FEED_ITEMS = 10
+
+
+class ArticleFeed(Feed):
+    def __call__(self, request, *args, **kwargs):
+        # redirect to the canonical handle if a linked handle is used
+        try:
+            linked_id = APIdentity.get_by_linked_handle(kwargs["username"])
+            return redirect(linked_id.url + "feed/articles/", permanent=True)
+        except ObjectDoesNotExist:
+            return super().__call__(request, *args, **kwargs)
+
+    def get_object(self, request, *args, **kwargs):
+        o = APIdentity.get_by_handle(kwargs["username"])
+        if not o.local:
+            raise ObjectDoesNotExist(_("User not local"))
+        activate_language_for_user(o.user)
+        return o
+
+    def title(self, owner):
+        return (
+            _("Articles by {0}").format(owner.display_name)
+            if owner
+            else _("Link invalid")
+        )
+
+    def link(self, owner: APIdentity):
+        return owner.url if owner else settings.SITE_INFO["site_url"]
+
+    def description(self, owner: APIdentity):
+        if not owner:
+            return _("Link invalid")
+        elif not owner.anonymous_viewable:
+            return _("Login required")
+        else:
+            return _("Articles by {0}").format(owner.display_name)
+
+    def items(self, owner: APIdentity):
+        if owner is None or not owner.anonymous_viewable:
+            return []
+        return Article.objects.filter(owner=owner, visibility=0).order_by(
+            "-created_time"
+        )[:MAX_FEED_ITEMS]
+
+    def item_title(self, item: Article):
+        s = item.title
+        if item.sensitive:
+            s += " " + _("(may contain sensitive content)")
+        return s
+
+    def item_description(self, item: Article):
+        return item.html_content
+
+    # item_link is only needed if NewsItem has no get_absolute_url method.
+    def item_link(self, item: Article):
+        return str(item.absolute_url)
+
+    def item_categories(self, item: Article):
+        return item.normalized_tags
+
+    def item_pubdate(self, item: Article):
+        return item.created_time
+
+    def item_updateddate(self, item: Article):
+        return item.edited_time
+
+    def item_comments(self, item: Article):
+        return item.absolute_url
 
 
 @target_identity_required

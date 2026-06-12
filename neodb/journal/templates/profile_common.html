@@ -10,6 +10,10 @@
         type="application/rss+xml"
         title="{{ site_name }} - @{{ identity.handle }} - Reviews"
         href="{{ identity.url }}feed/reviews/">
+  <link rel="alternate"
+        type="application/rss+xml"
+        title="{{ site_name }} - @{{ identity.handle }} - Articles"
+        href="{{ identity.url }}feed/articles/">
 {% else %}
   <meta name="robots" content="noindex">
 {% endif %}

@@ -622,3 +622,91 @@ class TestArticleDeleteCascade:
         # Simulate the post-delete signal (as fired after Mastodon-API delete).
         post_deleted(post_id, True, None)
         assert not Article.objects.filter(pk=article_pk).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestArticleFeed:
+    """``/users/<handle>/feed/articles/`` serves an RSS feed of the user's
+    public articles, mirroring ``ReviewFeed``."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="art_feed@test.com", username="art_feed")
+        self.identity = self.user.identity
+        self.client = Client()
+        self.feed_url = f"{self.identity.url}feed/articles/"
+
+    def test_feed_renders_public_articles(self):
+        older = Article.update_local_article(
+            owner=self.identity,
+            title="Older Public",
+            body="**bold** body",
+            tags=["alpha"],
+            visibility=0,
+        )
+        newer = Article.update_local_article(
+            owner=self.identity,
+            title="Newer Public",
+            body="newer body",
+            visibility=0,
+        )
+        newer.created_time = older.created_time + timedelta(hours=1)
+        newer.save(update_fields=["created_time"], post_when_save=False)
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        assert resp.headers["Content-Type"].startswith("application/rss+xml")
+        body = resp.content.decode()
+        assert "Older Public" in body
+        assert "Newer Public" in body
+        # markdown body rendered to HTML (escaped inside the description CDATA-less RSS)
+        assert "&lt;strong&gt;bold&lt;/strong&gt;" in body
+        # newest first
+        assert body.index("Newer Public") < body.index("Older Public")
+        # tags emitted as categories
+        assert "<category>alpha</category>" in body
+
+    def test_feed_excludes_non_public_articles(self):
+        Article.update_local_article(
+            owner=self.identity,
+            title="Followers Only",
+            body="hidden",
+            visibility=1,
+        )
+        Article.update_local_article(
+            owner=self.identity,
+            title="Self Only",
+            body="hidden",
+            visibility=2,
+        )
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        body = resp.content.decode()
+        assert "Followers Only" not in body
+        assert "Self Only" not in body
+
+    def test_feed_empty_when_not_anonymous_viewable(self):
+        Article.update_local_article(
+            owner=self.identity,
+            title="Public But Hidden Profile",
+            body="body",
+            visibility=0,
+        )
+        self.identity.anonymous_viewable = False
+        self.identity.save(update_fields=["anonymous_viewable"])
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        body = resp.content.decode()
+        assert "Public But Hidden Profile" not in body
+
+    def test_feed_marks_sensitive_articles(self):
+        Article.update_local_article(
+            owner=self.identity,
+            title="Touchy Subject",
+            body="body",
+            sensitive=True,
+            visibility=0,
+        )
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        body = resp.content.decode()
+        assert "Touchy Subject (may contain sensitive content)" in body
