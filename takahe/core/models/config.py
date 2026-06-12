@@ -193,6 +193,11 @@ class Config(models.Model):
             cls.IdentityOptions,
             {"identity": identity, "user__isnull": True, "domain__isnull": True},
         )
+        # Drop any cached Identity.config_identity so a later read in the same
+        # request reflects the new value (e.g. update_credentials serializes the
+        # response right after changing default_post_visibility, and the request
+        # middleware has already populated the cached property).
+        identity.__dict__.pop("config_identity", None)
 
     @classmethod
     def set_domain(cls, domain, key, value):

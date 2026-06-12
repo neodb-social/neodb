@@ -46,7 +46,7 @@
   </div>
 {% endblock %}
 {% block content %}
-  {% for role_value, role_label, items in item.related_items_by_role %}
+  {% for role_value, role_label, total_count, items in item.related_items_by_role %}
     <section class="entity-sort shelf">
       <span class="action">
         <span>
@@ -63,11 +63,11 @@
   <h5>
     {{ role_label }}
     <small>
-      (<a href="{% url 'catalog:people_works' item.url_path item.uuid role_value %}">{{ items|length }}</a>)
+      (<a href="{% url 'catalog:people_works' item.url_path item.uuid role_value %}">{{ total_count }}</a>)
     </small>
   </h5>
   <ul class="cards">
-    {% for work in items|slice:":10" %}
+    {% for work in items %}
       <li class="card">
         <a href="{{ work.url }}" title="{{ work.display_title }}">
           <img src="{{ work.cover|thumb:'normal' }}"

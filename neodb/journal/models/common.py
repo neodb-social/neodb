@@ -14,7 +14,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied, RequestAborted
 from django.core.signing import b62_decode, b62_encode
 from django.db import models
-from django.db.models import CharField, Q
+from django.db.models import CharField, Prefetch, Q, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -23,6 +23,7 @@ from user_messages import api as messages
 
 from catalog.models import (
     AvailableItemCategory,
+    ExternalResource,
     Item,
     ItemCategory,
     item_categories,
@@ -964,6 +965,31 @@ def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
             post.__dict__["item"] = item
         else:
             post.__dict__["item"] = None
+    # Batch-prefetch item-card related data so feed templates (item card,
+    # rating, tags, credits, external resources) don't fire per-item queries
+    # while rendering feed_events.html. Mirrors the list-view prefetch in
+    # journal.views.common.
+    items = list(items_by_id.values())
+    if items:
+        from journal.models import Rating, Tag
+
+        Item.prefetch_parent_items(items)
+        Item.prefetch_credits(items)
+        Rating.attach_to_items(items)
+        Tag.attach_to_items(items)
+        prefetch_related_objects(
+            items,
+            # Feed cards render with allow_embed=1, so Album.get_embed_link reads
+            # res.metadata (Bandcamp/YouTube ids). Keep metadata in the deferred
+            # set to avoid a per-resource deferred load; only the large
+            # other_lookup_ids column is skipped.
+            Prefetch(
+                "external_resources",
+                queryset=ExternalResource.objects.only(
+                    "id", "item_id", "id_type", "id_value", "url", "metadata"
+                ),
+            ),
+        )
 
 
 class PieceInteraction(models.Model):

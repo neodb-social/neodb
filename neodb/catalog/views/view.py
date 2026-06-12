@@ -526,7 +526,18 @@ def similar(request, item_path, item_uuid):
     if items:
         Item.prefetch_parent_items(items)
         Item.prefetch_edition_works(items)
-        prefetch_related_objects(items, "external_resources")
+        # Card partials only read url/site_name/site_label (derived from
+        # id_type/id_value), so skip the large metadata/other_lookup_ids JSON
+        # columns that made this prefetch a slow query (EGGPLANT-1DX).
+        prefetch_related_objects(
+            items,
+            Prefetch(
+                "external_resources",
+                queryset=ExternalResource.objects.only(
+                    "id", "item_id", "id_type", "id_value", "url"
+                ),
+            ),
+        )
     return render(
         request,
         "_item_similar.html",

@@ -427,22 +427,31 @@ class SiteManager:
         link_id_type = linked_resource.get("id_type")
         if not link_id_type:
             return None
-        from django.db.models import Q
-
         from ..models import People
 
-        candidates = list(
-            People.objects.filter(
-                Q(credited_items__item=parent_item)
-                | Q(item_relations__item=parent_item),
-                is_deleted=False,
-                merged_to_item__isnull=True,
-                metadata__localized_name__contains=[{"text": name}],
-            ).distinct()[:2]
+        # People already attached to parent_item (via credit or relation) whose
+        # localized_name contains the link's display name. The credit/relation
+        # condition is split into two index-driven queries instead of a single
+        # OR across both join tables: the OR plan degraded into a slow scan over
+        # catalog_people with DISTINCT (EGGPLANT-1CV, ~1.4s), whereas each branch
+        # drives from the itemcredit/itempeoplerelation (item) index over the
+        # handful of people attached to one item.
+        base = People.objects.filter(
+            is_deleted=False,
+            merged_to_item__isnull=True,
+            metadata__localized_name__contains=[{"text": name}],
         )
-        if len(candidates) != 1:
+        candidate_ids: set[int] = set()
+        for branch in (
+            base.filter(credited_items__item=parent_item),
+            base.filter(item_relations__item=parent_item),
+        ):
+            candidate_ids.update(branch.values_list("pk", flat=True).distinct()[:2])
+            if len(candidate_ids) > 1:
+                break
+        if len(candidate_ids) != 1:
             return None
-        c = candidates[0]
+        c = People.objects.get(pk=next(iter(candidate_ids)))
         if c.external_resources.filter(id_type=link_id_type).exists():
             return None
         return c

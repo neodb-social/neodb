@@ -1264,7 +1264,7 @@ class Identity(StatorModel):
             "statuses_count": stats.get("statuses_count", 0),
             "followers_count": stats.get("followers_count", 0),
             "following_count": stats.get("following_count", 0),
-            "hide_collections": not Config.load_identity(self).visible_follows,
+            "hide_collections": not self.config_identity.visible_follows,
         }
         if source:
             privacy_map = {
@@ -1291,7 +1291,7 @@ class Identity(StatorModel):
                     else []
                 ),
                 "privacy": privacy_map[
-                    Config.load_identity(self).default_post_visibility
+                    self.config_identity.default_post_visibility
                 ],
                 "sensitive": False,
                 "language": "unk",

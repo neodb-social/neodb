@@ -233,30 +233,58 @@ class People(Item):
         name = self.display_name
         return uniq([t["text"] for t in self.localized_name if t["text"] != name])
 
+    #: Number of related items rendered per role on the people page; the rest
+    #: are reachable via the "people_works" link.
+    RELATED_ITEMS_DISPLAY_LIMIT = 10
+
     @cached_property
-    def related_items_by_role(self) -> "list[tuple[str, StrOrPromise, list]]":
-        """Return related items grouped by role, as (role_value, role_label, items) tuples."""
+    def related_items_by_role(
+        self,
+    ) -> "list[tuple[str, StrOrPromise, int, list]]":
+        """Related items grouped by role as (role, role_label, count, items).
+
+        ``count`` is the total live items in that role; ``items`` holds only the
+        first ``RELATED_ITEMS_DISPLAY_LIMIT`` of them, downcast to their concrete
+        subclass for rendering. The total count is derived from ids without
+        polymorphic downcasting, so a prolific person no longer fetches and
+        resolves hundreds of full item rows per page render (EGGPLANT-1DP).
+        """
         from .item import Item
 
+        limit = self.RELATED_ITEMS_DISPLAY_LIMIT
         relations = self.item_relations.order_by("role").values_list("role", "item_id")
         role_item_ids: OrderedDict[str, list[int]] = OrderedDict()
         for role, item_id in relations:
             role_item_ids.setdefault(role, []).append(item_id)
         all_ids = [i for ids in role_item_ids.values() for i in ids]
-        items_by_id = {
-            item.pk: item
-            for item in Item.objects.filter(
+        if not all_ids:
+            return []
+        # Cheap id-only pass (values_list skips polymorphic downcast) to drop
+        # deleted/merged items before deciding what to count and render.
+        live_ids = set(
+            Item.objects.filter(
                 pk__in=all_ids, is_deleted=False, merged_to_item__isnull=True
-            )
+            ).values_list("pk", flat=True)
+        )
+        role_live_ids: OrderedDict[str, list[int]] = OrderedDict()
+        display_ids: list[int] = []
+        for role, ids in role_item_ids.items():
+            live = [i for i in ids if i in live_ids]
+            if live:
+                role_live_ids[role] = live
+                display_ids.extend(live[:limit])
+        # Downcast only the items actually shown.
+        items_by_id = {
+            item.pk: item for item in Item.objects.filter(pk__in=display_ids)
         }
         return [
             (
                 role,
                 PeopleRole(role).label,
-                [items_by_id[i] for i in ids if i in items_by_id],
+                len(live),
+                [items_by_id[i] for i in live[:limit] if i in items_by_id],
             )
-            for role, ids in role_item_ids.items()
-            if any(i in items_by_id for i in ids)
+            for role, live in role_live_ids.items()
         ]
 
     @staticmethod

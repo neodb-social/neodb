@@ -82,6 +82,73 @@ class TestTimelineDataNPlusOne:
             + "; ".join(q["sql"][:120] for q in individual_mentions)
         )
 
+    def test_no_per_item_card_data_queries(self):
+        """Item-card data must be batch-prefetched in prefetch_pieces_for_posts,
+        not queried once per feed item while rendering feed_events.html
+        (NEODB-SOCIAL-4QY, NEODB-SOCIAL-7MQ).
+
+        external_resources and credits are read only by the item-card partials,
+        so a single-item lookup (``"item_id" = ...`` rather than the batched
+        ``"item_id" IN (...)``) on those tables is an unambiguous N+1 signal.
+        """
+        from catalog.models import ExternalResource, IdType
+
+        for i, book in enumerate(self.books):
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.GoogleBooks,
+                id_value=f"npo-{i}",
+                url=f"https://books.google.com/books?id=npo-{i}",
+            )
+        with CaptureQueriesContext(connections["default"]) as ctx:
+            response = self.client.get("/timeline/data")
+        assert response.status_code == 200
+
+        per_item_signals = {
+            "catalog_externalresource": '"catalog_externalresource"."item_id" =',
+            "catalog_itemcredit": '"catalog_itemcredit"."item_id" =',
+        }
+        for table, needle in per_item_signals.items():
+            offenders = [q for q in ctx.captured_queries if needle in q["sql"]]
+            assert len(offenders) == 0, (
+                f"Expected 0 per-item {table} queries, got {len(offenders)}: "
+                + "; ".join(q["sql"][:120] for q in offenders)
+            )
+
+    def test_no_deferred_external_resource_metadata_load(self):
+        """Album feed cards render with allow_embed=1, so Album.get_embed_link
+        reads ExternalResource.metadata. The feed prefetch must keep metadata in
+        the loaded column set; otherwise each Bandcamp resource triggers a
+        deferred ``WHERE "catalog_externalresource"."id" = ...`` load per card.
+        """
+        from catalog.models import Album, ExternalResource, IdType
+
+        album = Album.objects.create(title="TL Album")
+        ExternalResource.objects.create(
+            item=album,
+            id_type=IdType.Bandcamp,
+            id_value="bc-1",
+            url="https://artist.bandcamp.com/album/tl",
+            metadata={"bandcamp_album_id": "123456"},
+        )
+        Mark(self.user.identity, album).update(
+            ShelfType.COMPLETE, "great album", 9, visibility=0
+        )
+        with CaptureQueriesContext(connections["default"]) as ctx:
+            response = self.client.get("/timeline/data")
+        assert response.status_code == 200
+        # A deferred metadata load fetches a single resource by primary key.
+        deferred = [
+            q
+            for q in ctx.captured_queries
+            if 'FROM "catalog_externalresource"' in q["sql"]
+            and '"catalog_externalresource"."id" =' in q["sql"]
+        ]
+        assert len(deferred) == 0, (
+            f"Expected 0 deferred ExternalResource loads, got {len(deferred)}: "
+            + "; ".join(q["sql"][:120] for q in deferred)
+        )
+
     def test_query_count_stable_with_more_items(self):
         """Adding more items should not proportionally increase query count.
 
