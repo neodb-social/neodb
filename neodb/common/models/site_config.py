@@ -345,5 +345,11 @@ class SiteConfig(models.Model):
 
         # Derived values used in many places via settings.SITE_DOMAINS
         settings.SITE_DOMAINS = [settings.SITE_DOMAIN] + opts.alternative_domains
-        if settings.SSL_ONLY:
-            settings.ALLOWED_HOSTS = settings.SITE_DOMAINS + ["127.0.0.1"]
+        if not settings.DEBUG:
+            # keep host validation in sync with runtime alternative domains,
+            # matching the ALLOWED_HOSTS recipe in boofilsic.settings
+            settings.ALLOWED_HOSTS = (
+                settings.SITE_DOMAINS
+                + ["127.0.0.1", "localhost"]
+                + (["testserver"] if settings.TESTING else [])
+            )

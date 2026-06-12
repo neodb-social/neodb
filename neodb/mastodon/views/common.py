@@ -15,7 +15,10 @@ from users.views.account import auth_login, logout_takahe
 def client_ip(request: HttpRequest) -> str:
     xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
     if xff:
-        return xff.split(",")[0].strip()
+        # the bundled nginx appends the peer address to any client-supplied
+        # X-Forwarded-For, so only the last entry is trustworthy; the first
+        # entry could be forged to rotate rate-limit keys
+        return xff.split(",")[-1].strip()
     return request.META.get("REMOTE_ADDR", "")
 
 

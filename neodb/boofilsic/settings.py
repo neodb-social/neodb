@@ -540,6 +540,8 @@ SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
 # USE_X_FORWARDED_HOST enabled, accepting any host would let a spoofed
 # Host/X-Forwarded-Host header poison absolute URLs built from the request
 ALLOWED_HOSTS = ["*"] if DEBUG else SITE_DOMAINS + ["127.0.0.1", "localhost"]
+if TESTING and "*" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
 
 STATIC_URL = "/s/"
 STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))

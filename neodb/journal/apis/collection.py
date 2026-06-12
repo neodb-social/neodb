@@ -512,9 +512,12 @@ def trending_collection(request):
     )
     from journal.models.common import prefetch_latest_posts
 
-    # re-check visibility: the cached id list may include collections whose
-    # owners made them non-public after the discover job cached them
-    qs = Collection.objects.filter(pk__in=collection_ids, visibility=0)
+    # re-check visibility with anonymous-viewer semantics: the endpoint is
+    # public and cached, and the id list may include collections whose owners
+    # made them non-public after the discover job cached them
+    qs = Collection.objects.filter(
+        pk__in=collection_ids, visibility=0, owner__anonymous_viewable=True
+    )
     if restricted_owner_ids:
         qs = qs.exclude(owner_id__in=restricted_owner_ids)
     collections = list(qs)

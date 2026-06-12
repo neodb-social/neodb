@@ -566,10 +566,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return p
 
         activate_language_for_user(self.owner.user)
-        # the piece was pickled at enqueue time; reload metadata so the save
-        # below does not overwrite changes written to the DB since then
+        # the piece was pickled at enqueue time; reload it so the crosspost
+        # uses current content/visibility and the metadata save below does
+        # not overwrite changes written to the DB since then
         try:
-            self.refresh_from_db(fields=["metadata"])
+            self.refresh_from_db()
         except self.DoesNotExist:
             return
         metadata = self.metadata.copy()
