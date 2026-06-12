@@ -23,6 +23,7 @@ from .atproto import (
     build_fediverse_uri,
     build_rating,
     build_subject,
+    build_updated_at,
     format_datetime,
 )
 from .common import Content
@@ -166,13 +167,9 @@ class Review(Content):
             "body": self.body,
             "createdAt": format_datetime(self.created_time),
         }
-        # created_time is set at instantiation but edited_time (auto_now) at DB
-        # write, so they always differ by a sliver; only a real gap is an edit
-        if (
-            self.edited_time
-            and (self.edited_time - self.created_time).total_seconds() > 1
-        ):
-            record["updatedAt"] = format_datetime(self.edited_time)
+        updated_at = build_updated_at(self)
+        if updated_at:
+            record["updatedAt"] = updated_at
         rating = build_rating(self.rating_grade)
         if rating:
             record["rating"] = rating

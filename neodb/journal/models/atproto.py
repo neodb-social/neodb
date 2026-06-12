@@ -59,15 +59,35 @@ _EPOCH = datetime(1970, 1, 1, tzinfo=dt_timezone.utc)
 AtprotoRecord = tuple[str, dict[str, Any]]
 
 
-def format_datetime(dt: datetime) -> str:
-    """Render a datetime as an RFC3339 / ATProto timestamp (UTC, ``Z``)."""
+def _as_utc(dt: datetime) -> datetime:
+    """Normalize to timezone-aware UTC; naive values are assumed UTC.
+
+    Pieces travel through the RQ queue as pickled in-memory instances, so a
+    federated timestamp parsed without an offset can leave one datetime field
+    naive next to an aware one; normalize before comparing or rendering.
+    """
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=dt_timezone.utc)
-    return (
-        dt.astimezone(dt_timezone.utc)
-        .isoformat(timespec="milliseconds")
-        .replace("+00:00", "Z")
-    )
+    return dt.astimezone(dt_timezone.utc)
+
+
+def format_datetime(dt: datetime) -> str:
+    """Render a datetime as an RFC3339 / ATProto timestamp (UTC, ``Z``)."""
+    return _as_utc(dt).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def build_updated_at(piece: "Piece") -> str | None:
+    """``updatedAt`` timestamp when the piece was really edited, else None.
+
+    created_time is set at instantiation but edited_time at a later DB
+    write, so they always differ by a sliver; only a real gap is an edit.
+    """
+    if not piece.edited_time:
+        return None
+    edited = _as_utc(piece.edited_time)
+    if (edited - _as_utc(piece.created_time)).total_seconds() > 1:
+        return format_datetime(edited)
+    return None
 
 
 def build_subject(item: "Item") -> dict[str, Any]:
@@ -141,10 +161,7 @@ def build_document_rkey(piece: "Piece") -> str:
     ``Piece.atproto_document_rkey``) to keep later backdating from orphaning
     the PDS record.
     """
-    dt = piece.created_time
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=dt_timezone.utc)
-    micros = (dt.astimezone(dt_timezone.utc) - _EPOCH) // timedelta(microseconds=1)
+    micros = (_as_utc(piece.created_time) - _EPOCH) // timedelta(microseconds=1)
     pk = piece.pk or 0
     # mix the pk's high bits into the (sub-millisecond) timestamp and its low
     # bits into the clock id, so pieces sharing one creation time (date-only
@@ -191,13 +208,9 @@ def build_document(
             "text": {"$type": MARKPUB_TEXT_NSID, "markdown": body},
         },
     }
-    # created_time is set at instantiation but edited_time at a later DB
-    # write, so they always differ by a sliver; only a real gap is an edit
-    if (
-        piece.edited_time
-        and (piece.edited_time - piece.created_time).total_seconds() > 1
-    ):
-        record["updatedAt"] = format_datetime(piece.edited_time)
+    updated_at = build_updated_at(piece)
+    if updated_at:
+        record["updatedAt"] = updated_at
     if description:
         record["description"] = description[:DOCUMENT_DESCRIPTION_MAX_GRAPHEMES]
     if tags:

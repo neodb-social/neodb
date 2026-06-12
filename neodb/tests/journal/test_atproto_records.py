@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 from django.conf import settings
+from django.utils import timezone
 
 from catalog.models import Edition, ExternalResource, TVSeason, TVShow
 from journal.models import Article, Mark, Rating, Review, ShelfMember, ShelfType, Tag
@@ -472,6 +473,37 @@ def test_delete_enqueues_document_cleanup(monkeypatch):
     _func, _user_id, _metadata, record_refs = calls[0]
     assert [REVIEW_NSID, review.uuid] in record_refs
     assert [DOCUMENT_NSID, build_document_rkey(review)] in record_refs
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_handles_mixed_naive_aware_datetimes():
+    user = User.register(email="tz@example.com", username="tzuser")
+    article = Article.update_local_article(user.identity, "T", "body")
+    # pieces travel through the RQ queue as pickled in-memory instances, so
+    # a federated timestamp parsed without an offset can leave created_time
+    # naive while edited_time (timezone.now) is aware
+    article.created_time = article.created_time.replace(tzinfo=None)
+    article.edited_time = timezone.now() + timedelta(minutes=5)
+
+    doc = article.to_atproto_document()
+
+    assert doc["publishedAt"].endswith("Z")
+    assert doc["updatedAt"].endswith("Z")
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_record_handles_mixed_naive_aware_datetimes():
+    user = User.register(email="tzrev@example.com", username="tzrevuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    review.created_time = review.created_time.replace(tzinfo=None)
+    review.edited_time = timezone.now() + timedelta(minutes=5)
+
+    _, record = review.to_atproto_records()[0]
+
+    assert record["createdAt"].endswith("Z")
+    assert record["updatedAt"].endswith("Z")
 
 
 @pytest.mark.django_db(databases="__all__")
