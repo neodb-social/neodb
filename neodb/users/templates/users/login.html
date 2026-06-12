@@ -275,11 +275,15 @@
     $(()=>{
       var selected_domain = '{{selected_domain}}';
       var selected_method = '{{selected_method}}';
+      var selected_username = '{{selected_username}}';
       var method = localStorage.login_method;
       if (!!selected_method) {
         method = selected_method;
-        $('#domain').val(localStorage.mastodon_domain);
+        $('#domain').val(selected_domain || localStorage.mastodon_domain);
         $('#email').val(localStorage.email);
+        if (!!selected_username) {
+          $('#login-bluesky input[name=username]').val(selected_username);
+        }
       } else if (!!selected_domain) {
         method = "mastodon";
         $('#domain').val(selected_domain);

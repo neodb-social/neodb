@@ -29,6 +29,23 @@ class TestLoginMethodSelection:
         assert response.status_code == 200
         assert response.context["selected_method"] == ""
 
+    def test_username_prefilled(self, client):
+        response = client.get(
+            reverse("users:login"),
+            {"method": "bluesky", "username": "alice.bsky.social"},
+        )
+        assert response.status_code == 200
+        assert response.context["selected_username"] == "alice.bsky.social"
+        assert b"var selected_username = 'alice.bsky.social'" in response.content
+
+    def test_invalid_username_ignored(self, client):
+        response = client.get(
+            reverse("users:login"),
+            {"method": "bluesky", "username": "x'</script>@example.com"},
+        )
+        assert response.status_code == 200
+        assert response.context["selected_username"] == ""
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestReauthorizeUrl:
@@ -38,7 +55,7 @@ class TestReauthorizeUrl:
             handle="reauth.bsky.social", user=user, domain="bsky.social", uid="1"
         )
         assert account.get_reauthorize_url() == reverse("users:login") + (
-            "?method=bluesky"
+            "?method=bluesky&username=reauth.bsky.social"
         )
 
     def test_mastodon_points_to_oauth_flow(self):

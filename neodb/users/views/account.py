@@ -1,3 +1,4 @@
+import re
 import secrets
 from urllib.parse import quote
 
@@ -42,6 +43,10 @@ def login(request):
         selected_method = "bluesky"
     if selected_method not in ("passkey", "email", "mastodon", "threads", "bluesky"):
         selected_method = ""
+    # ATProto handle to prefill the Bluesky form, e.g. from a reauth link
+    selected_username = request.GET.get("username", default="")
+    if not re.fullmatch(r"[A-Za-z0-9.\-]+", selected_username):
+        selected_username = ""
     sites = Mastodon.get_sites()
     next_url = sanitize_next_url(request.GET.get("next"))
     if next_url:
@@ -62,6 +67,7 @@ def login(request):
             "scope": quote(SiteConfig.system.mastodon_client_scope),
             "selected_domain": selected_domain,
             "selected_method": selected_method,
+            "selected_username": selected_username,
             "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
             "enable_threads": SiteConfig.system.enable_login_threads,

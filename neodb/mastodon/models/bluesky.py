@@ -4,6 +4,7 @@ import json
 import re
 import typing
 from functools import cached_property
+from urllib.parse import quote
 
 from atproto import Client, SessionEvent, client_utils
 from atproto_client import models
@@ -102,7 +103,10 @@ class BlueskyAccount(SocialAccount):
     avatar = jsondata.CharField(json_field_name="account_data", default="")
 
     def get_reauthorize_url(self) -> str:
-        return reverse("users:login") + "?method=bluesky"
+        url = reverse("users:login") + "?method=bluesky"
+        if self.handle:
+            url += "&username=" + quote(self.handle)
+        return url
 
     def on_session_change(self, event, session) -> None:
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):
