@@ -163,6 +163,26 @@ class TestMusicBrainzReleaseGroup:
         assert track_info["track_list"] == "1-1. Track 1\n2-1. Track 2"
         assert track_info["duration"] == 380000
 
+    def test_extract_track_info_null_length(self):
+        """MB returns "length": null for tracks of unknown length; the key is
+        present but the value is None, which int() can't take (EGGPLANT-1E4)."""
+        site = MusicBrainzReleaseGroup()
+        release_data = {
+            "media": [
+                {
+                    "position": 1,
+                    "tracks": [
+                        {"position": 1, "title": "Known", "length": 284000},
+                        {"position": 2, "title": "Unknown", "length": None},
+                        {"position": 3, "title": "Missing"},
+                    ],
+                }
+            ]
+        }
+        track_info = site._extract_track_info(release_data)
+        assert track_info["track_list"] == "1. Known\n2. Unknown\n3. Missing"
+        assert track_info["duration"] == 284000
+
     def test_extract_label_info(self):
         """Test label information extraction"""
         site = MusicBrainzReleaseGroup()
@@ -380,6 +400,25 @@ class TestMusicBrainzRelease:
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1. First Track\n2. Second Track"
         assert track_info["duration"] == 390000
+
+    def test_track_extraction_null_length(self):
+        """A release whose tracks carry "length": null must not crash on
+        int(None) while summing duration (EGGPLANT-1E4)."""
+        site = MusicBrainzRelease()
+        release_data = {
+            "media": [
+                {
+                    "position": 1,
+                    "tracks": [
+                        {"position": 1, "title": "First Track", "length": 210000},
+                        {"position": 2, "title": "Second Track", "length": None},
+                    ],
+                }
+            ]
+        }
+        track_info = site._extract_track_info(release_data)
+        assert track_info["track_list"] == "1. First Track\n2. Second Track"
+        assert track_info["duration"] == 210000
 
 
 @pytest.mark.django_db(databases="__all__")

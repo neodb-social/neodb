@@ -292,9 +292,13 @@ class MusicBrainzReleaseGroup(AbstractSite):
 
                         track_list.append(track_entry)
 
-                        # Add duration if available (in milliseconds)
-                        if "length" in track:
-                            total_duration += int(track["length"])
+                        # Add duration if available (in milliseconds). MB
+                        # returns "length": null for tracks of unknown
+                        # length, so the key can be present with a None value;
+                        # guard the value rather than just key presence.
+                        length = track.get("length")
+                        if length is not None:
+                            total_duration += int(length)
 
         return {
             "track_list": "\n".join(track_list) if track_list else None,
@@ -480,9 +484,13 @@ class MusicBrainzRelease(AbstractSite):
 
                         track_list.append(track_entry)
 
-                        # Add duration if available (in milliseconds)
-                        if "length" in track:
-                            total_duration += int(track["length"])
+                        # Add duration if available (in milliseconds). MB
+                        # returns "length": null for tracks of unknown
+                        # length, so the key can be present with a None value;
+                        # guard the value rather than just key presence.
+                        length = track.get("length")
+                        if length is not None:
+                            total_duration += int(length)
 
         return {
             "track_list": "\n".join(track_list) if track_list else None,
