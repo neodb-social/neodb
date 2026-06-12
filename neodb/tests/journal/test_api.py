@@ -1339,3 +1339,74 @@ def test_posts_endpoint_optional_auth():
             HTTP_AUTHORIZATION="Bearer invalidtoken",
         )
         assert response.status_code == 401
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_collection_trending_excludes_non_public():
+    cache.clear()
+    owner = User.register(email="trend2@example.com", username="trenduser2")
+    public_collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Public Trending",
+        brief="",
+        visibility=0,
+    )
+    private_collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Private Trending",
+        brief="",
+        visibility=2,
+    )
+    # simulate a stale discover-job cache that still lists a collection
+    # whose owner made it non-public afterwards
+    cache.set(
+        "featured_collections",
+        [public_collection.pk, private_collection.pk],
+        timeout=None,
+    )
+
+    response = Client().get("/api/trending/collection/")
+
+    assert response.status_code == 200
+    uuids = [c["uuid"] for c in response.json()]
+    assert public_collection.uuid in uuids
+    assert private_collection.uuid not in uuids
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_featured_collection_hidden_after_owner_restricts():
+    owner = User.register(email="fcowner@example.com", username="fcowner")
+    viewer = User.register(email="fcviewer@example.com", username="fcviewer")
+    collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Was Public",
+        brief="",
+        visibility=0,
+    )
+    FeaturedCollection.objects.create(owner=viewer.identity, target=collection)
+
+    app = Takahe.get_or_create_app(
+        "Featured Visibility Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    token = Takahe.refresh_token(app, viewer.identity.pk, viewer.pk)
+    client = Client()
+
+    response = client.get(
+        "/api/me/collection/featured/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    assert [c["uuid"] for c in response.json()] == [collection.uuid]
+
+    collection.visibility = 2
+    collection.save(update_fields=["visibility"])
+
+    response = client.get(
+        "/api/me/collection/featured/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    assert response.json() == []

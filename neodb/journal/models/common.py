@@ -435,6 +435,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 # incoming ap object is older than what we have, no update needed
                 return p
             d["edited_time"] = edited
+            d["visibility"] = visibility
             for k, v in d.items():
                 setattr(p, k, v)
             if crosspost is not None:
@@ -565,6 +566,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return p
 
         activate_language_for_user(self.owner.user)
+        # the piece was pickled at enqueue time; reload metadata so the save
+        # below does not overwrite changes written to the DB since then
+        try:
+            self.refresh_from_db(fields=["metadata"])
+        except self.DoesNotExist:
+            return
         metadata = self.metadata.copy()
 
         # backward compatible with previous way of storing mastodon id

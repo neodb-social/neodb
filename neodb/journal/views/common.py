@@ -203,6 +203,7 @@ def render_list(
         ).order_by(F("rating_grade").desc(nulls_last=True), "id")
     else:
         queryset = queryset.order_by("-created_time")
+    queryset = queryset.filter(q_owned_piece_visible_to_user(request.user, target))
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
     if start_date:
         start_year = start_date.year
@@ -210,7 +211,6 @@ def render_list(
         years = reversed(range(start_year, current_year + 1))
     else:
         years = []
-    queryset = queryset.filter(q_owned_piece_visible_to_user(request.user, target))
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)

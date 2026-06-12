@@ -423,7 +423,11 @@ def list_featured_collections(request):
     """
     List featured collections for current user.
     """
-    collections = list(Collection.objects.filter(featured_by=request.user.identity))
+    collections = list(
+        Collection.objects.filter(featured_by=request.user.identity).filter(
+            q_piece_visible_to_user(request.user)
+        )
+    )
     Collection.attach_item_count_by_category(collections)
     return collections
 
@@ -508,7 +512,9 @@ def trending_collection(request):
     )
     from journal.models.common import prefetch_latest_posts
 
-    qs = Collection.objects.filter(pk__in=collection_ids)
+    # re-check visibility: the cached id list may include collections whose
+    # owners made them non-public after the discover job cached them
+    qs = Collection.objects.filter(pk__in=collection_ids, visibility=0)
     if restricted_owner_ids:
         qs = qs.exclude(owner_id__in=restricted_owner_ids)
     collections = list(qs)
