@@ -220,6 +220,12 @@ class Review(Content):
     def delete_url(self) -> str:
         return reverse("journal:review_delete", args=[self.uuid])
 
+    @property
+    def cover(self):
+        """Reviewed item's cover, surfaced for link-preview embeds: the
+        Bluesky external card reads ``obj.cover`` for its thumbnail."""
+        return self.item.cover
+
     @cached_property
     def mark(self):
         from .mark import Mark

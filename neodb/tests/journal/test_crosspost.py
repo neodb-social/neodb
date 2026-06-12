@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
-from journal.models import Comment, CrosspostRetry, Piece
+from journal.models import Comment, CrosspostRetry, Piece, Review
 from mastodon.models import BlueskyAccount, MastodonAccount, ThreadsAccount
 from users.jobs.cleanup import prune_crosspost_retries
 from users.models import User
@@ -307,6 +307,17 @@ class TestCrosspostViews:
         session.save()
         response = client.get(url)
         assert b"passkey-nudge" not in response.content
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_crosspost_obj_exposes_item_cover(user):
+    book = Edition.objects.create(title="Test Book")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    params = review.to_crosspost_params()
+    # the Bluesky embed card reads obj.cover for its thumbnail
+    assert params["obj"] is review
+    assert review.cover == book.cover
 
 
 @pytest.mark.django_db(databases="__all__")
