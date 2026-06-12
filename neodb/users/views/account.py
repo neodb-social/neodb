@@ -35,6 +35,13 @@ from ..models import User
 @require_http_methods(["GET"])
 def login(request):
     selected_domain = request.GET.get("domain", default="")
+    # "atproto" kept as an alias for "bluesky": reauth URLs using it are
+    # persisted in old notification messages
+    selected_method = request.GET.get("method", default="")
+    if selected_method == "atproto":
+        selected_method = "bluesky"
+    if selected_method not in ("passkey", "email", "mastodon", "threads", "bluesky"):
+        selected_method = ""
     sites = Mastodon.get_sites()
     next_url = sanitize_next_url(request.GET.get("next"))
     if next_url:
@@ -54,6 +61,7 @@ def login(request):
             "sites": sites,
             "scope": quote(SiteConfig.system.mastodon_client_scope),
             "selected_domain": selected_domain,
+            "selected_method": selected_method,
             "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
             "enable_threads": SiteConfig.system.enable_login_threads,

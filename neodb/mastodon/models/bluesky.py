@@ -102,7 +102,7 @@ class BlueskyAccount(SocialAccount):
     avatar = jsondata.CharField(json_field_name="account_data", default="")
 
     def get_reauthorize_url(self) -> str:
-        return reverse("users:login") + "?method=atproto"
+        return reverse("users:login") + "?method=bluesky"
 
     def on_session_change(self, event, session) -> None:
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):

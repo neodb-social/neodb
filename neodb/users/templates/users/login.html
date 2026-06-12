@@ -274,8 +274,13 @@
     }
     $(()=>{
       var selected_domain = '{{selected_domain}}';
+      var selected_method = '{{selected_method}}';
       var method = localStorage.login_method;
-      if (!!selected_domain) {
+      if (!!selected_method) {
+        method = selected_method;
+        $('#domain').val(localStorage.mastodon_domain);
+        $('#email').val(localStorage.email);
+      } else if (!!selected_domain) {
         method = "mastodon";
         $('#domain').val(selected_domain);
       } else if (!!method) {
