@@ -1,0 +1,45 @@
+{% load i18n %}
+<section id="verify-status">
+  {% if my_claim.state == "pending" %}
+    <div hx-get="{% url 'catalog:verify_creator_status' item.url_path item.uuid %}"
+         hx-trigger="load delay:2s"
+         hx-swap="outerHTML"
+         hx-target="#verify-status">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+      {% trans "Verification in progress, this may take a moment." %}
+    </div>
+  {% elif my_claim.state == "verified" %}
+    <p>
+      <i class="fa-solid fa-circle-check"></i>
+      {% trans "You are a verified creator of this item." %}
+      {% if my_claim.matched and my_claim.matched != "manual" %}
+        <small>({% trans "matched" %}: <code>{{ my_claim.matched }}</code>)</small>
+      {% endif %}
+    </p>
+    <form method="post"
+          action="{% url 'catalog:unverify_creator' item.url_path item.uuid %}"
+          onsubmit="return confirm('{% trans "Sure to remove your creator verification? Anyone will be able to edit this item again." %}');">
+      {% csrf_token %}
+      <input type="hidden" name="claim_id" value="{{ my_claim.pk }}">
+      <input class="contrast outline"
+             type="submit"
+             value="{% trans 'Remove my verification' %}">
+    </form>
+  {% elif my_claim.state == "failed" %}
+    <p>
+      <i class="fa-solid fa-circle-xmark"></i>
+      {% trans "Verification failed" %}: {{ my_claim.failure_display }}
+    </p>
+    <form method="post"
+          action="{% url 'catalog:verify_creator_start' item.url_path item.uuid %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans 'Try again' %}">
+    </form>
+  {% else %}
+    <form method="post"
+          action="{% url 'catalog:verify_creator_start' item.url_path item.uuid %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans 'Start verification' %}">
+    </form>
+  {% endif %}
+</section>

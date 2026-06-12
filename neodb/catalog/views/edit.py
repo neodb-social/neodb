@@ -77,6 +77,8 @@ def create(request, item_model):
             parent = get_object_or_404(
                 Item, uid=get_uuid_or_404(request.GET.get("parent", ""))
             )
+            if not parent.is_editable_by(request.user):
+                raise PermissionDenied(_("Editing this item is restricted."))
             if parent.child_class != form.instance.__class__.__name__:
                 raise BadRequest(
                     f"Invalid parent type: {form.instance.__class__} -> {parent.__class__}"
@@ -133,7 +135,7 @@ def history(request, item_path, item_uuid):
 @login_required
 def edit(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
 
     form_cls = CatalogForms[item.__class__.__name__]
@@ -183,7 +185,7 @@ def edit(request, item_path, item_uuid):
 @login_required
 def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Item in use."))
@@ -221,7 +223,7 @@ def undelete(request, item_path, item_uuid):
 @login_required
 def recast(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     cls = request.POST.get("class")
     # TODO move some of the logic to model
@@ -287,11 +289,11 @@ def unlink(request):
 @login_required
 def assign_parent(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     parent_item = Item.get_by_url(request.POST.get("parent_item_url"))
     if parent_item:
-        if parent_item.is_protected and not request.user.is_staff:
+        if not parent_item.is_editable_by(request.user):
             raise PermissionDenied(_("Editing this item is restricted."))
         if parent_item.is_deleted or parent_item.merged_to_item_id:
             raise BadRequest("Can't assign parent to a deleted or redirected item")
@@ -309,7 +311,7 @@ def assign_parent(request, item_path, item_uuid):
 @login_required
 def remove_unused_seasons(request, item_path, item_uuid):
     item = get_object_or_404(TVShow, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     sl = list(item.seasons.all())
     for s in sl:
@@ -356,7 +358,7 @@ def fetch_episodes_for_season_task(item_uuid, user_id):
 @login_required
 def fetch_people_works(request, item_path, item_uuid):
     item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     resource = people_works.get_people_works_resource(
         item, request.POST.get("resource_id")
@@ -380,7 +382,7 @@ def fetch_people_works(request, item_path, item_uuid):
 @login_required
 def merge(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
@@ -395,7 +397,7 @@ def merge(request, item_path, item_uuid):
         new_item = Item.get_by_url(request.POST.get("target_item_url"))
         if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
             raise BadRequest(_("Cannot be merged to an item already deleted or merged"))
-        if new_item.is_protected and not request.user.is_staff:
+        if not new_item.is_editable_by(request.user):
             raise PermissionDenied(_("Editing this item is restricted."))
         if new_item.class_name != item.class_name:
             raise BadRequest(
@@ -433,7 +435,7 @@ def merge(request, item_path, item_uuid):
 @login_required
 def link_edition(request, item_path, item_uuid):
     item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     new_item = Edition.get_by_url(request.POST.get("target_item_url"))
     if (
@@ -443,7 +445,7 @@ def link_edition(request, item_path, item_uuid):
         or item == new_item
     ):
         raise BadRequest(_("Cannot be linked to an item already deleted or merged"))
-    if new_item.is_protected and not request.user.is_staff:
+    if not new_item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     if item.class_name != "edition" or new_item.class_name != "edition":
         raise BadRequest(_("Cannot link items other than editions"))
@@ -469,7 +471,7 @@ def link_edition(request, item_path, item_uuid):
 @login_required
 def unlink_works(request, item_path, item_uuid):
     item = get_object_or_404(Edition, uid=get_uuid_or_404(item_uuid))
-    if item.is_protected and not request.user.is_staff:
+    if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
@@ -532,6 +534,8 @@ def item_credits(request, item_path, item_uuid):
 def add_credit(request, item_path, item_uuid):
     """Add a credit to an item. Accepts name or People URL."""
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item.is_editable_by(request.user):
+        raise PermissionDenied(_("Editing this item is restricted."))
     role = request.POST.get("role", "")
     name_input = request.POST.get("name", "").strip()
     if not role or not name_input:
@@ -584,6 +588,8 @@ def add_credit(request, item_path, item_uuid):
 def remove_credit(request, item_path, item_uuid, credit_id):
     """Remove a credit from an item."""
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item.is_editable_by(request.user):
+        raise PermissionDenied(_("Editing this item is restricted."))
     credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
     credit.delete()
     credits = item.credits.select_related("person").all()
@@ -603,6 +609,8 @@ def remove_credit(request, item_path, item_uuid, credit_id):
 def update_credit(request, item_path, item_uuid, credit_id):
     """Update a credit's character name."""
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item.is_editable_by(request.user):
+        raise PermissionDenied(_("Editing this item is restricted."))
     credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
     character_name = request.POST.get("character_name", "").strip()
     credit.character_name = character_name

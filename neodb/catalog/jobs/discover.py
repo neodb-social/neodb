@@ -144,6 +144,30 @@ class DiscoverGenerator(BaseJob):
                     items.append(season.show)
         return items
 
+    def get_original_episodes(self, max_items: int = 20) -> list:
+        """Recent episodes of podcasts with a verified creator."""
+        verified_item_ids = VerifiedCreator.objects.filter(
+            state=VerifiedCreator.State.VERIFIED
+        ).values_list("item_id", flat=True)
+        episodes = list(
+            PodcastEpisode.objects.filter(
+                program_id__in=verified_item_ids,
+                is_deleted=False,
+                merged_to_item__isnull=True,
+                program__is_deleted=False,
+                program__merged_to_item__isnull=True,
+            )
+            .select_related("program")
+            .order_by("-pub_date")[:max_items]
+        )
+        for e in episodes:
+            e.tags
+            e.rating
+            e.rating_count
+            e.rating_distribution
+        prefetch_related_objects(episodes, "external_resources")
+        return episodes
+
     def run(self):
         logger.info("Discover data update start.")
         local = SiteConfig.system.discover_show_local_only
@@ -222,6 +246,22 @@ class DiscoverGenerator(BaseJob):
                         ],
                     }
                 )
+
+        original_episodes = self.get_original_episodes()
+        cache.set("original_episodes", original_episodes, timeout=None)
+        if original_episodes:
+            podcast_index = next(
+                (
+                    idx
+                    for idx, g in enumerate(gallery_list)
+                    if g["name"] == "trending_podcast"
+                ),
+                len(gallery_list) - 1,
+            )
+            gallery_list.insert(
+                podcast_index + 1,
+                {"name": "original_episodes", "category": ItemCategory.Podcast},
+            )
 
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
 

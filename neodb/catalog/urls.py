@@ -153,6 +153,46 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/verify$",
+        verify_creator,
+        name="verify_creator",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/verify/start$",
+        verify_creator_start,
+        name="verify_creator_start",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/verify/status$",
+        verify_creator_status,
+        name="verify_creator_status",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/verify/manual$",
+        verify_creator_manual,
+        name="verify_creator_manual",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/verify/remove$",
+        unverify_creator,
+        name="unverify_creator",
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/verified_works$",
+        user_verified_works,
+        name="user_verified_works",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/merge$",
         merge,
         name="merge",

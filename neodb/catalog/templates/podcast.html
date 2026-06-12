@@ -15,6 +15,16 @@
 {% block details %}
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
   <div>{% include '_credits.html' with credits=item.role_credits.host role_label='host' max=5 %}</div>
+  {% if item.verified_creator_list %}
+    <div>
+      {% trans 'verified creator' %}:
+      {% for claim in item.verified_creator_list %}
+        <a href="{{ claim.owner.url }}" title="@{{ claim.owner.full_handle }}">{{ claim.owner.display_name }}</a>
+        <i class="fa-solid fa-circle-check"></i>
+        {% if not forloop.last %},{% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
   <div>
     {% if item.official_site %}
       {% trans 'website' %}: {{ item.official_site|urlizetrunc:24 }}

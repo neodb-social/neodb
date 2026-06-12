@@ -9,6 +9,11 @@ from .common import (
     ItemCategory,
     SiteName,
 )
+from .creator import (
+    VerifiedCreator,
+    creator_identity_candidates,
+    match_creator_identity,
+)
 from .game import Game, GameInSchema, GameSchema
 from .item import (
     CreditRole,
@@ -163,4 +168,7 @@ __all__ = [
     "ItemCredit",
     "ItemSimilarity",
     "UserRecommendation",
+    "VerifiedCreator",
+    "creator_identity_candidates",
+    "match_creator_identity",
 ]

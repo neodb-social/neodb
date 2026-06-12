@@ -1,0 +1,88 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% load thumb %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Creator verification' %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="container">
+      <h2>{% trans 'Creator verification' %}</h2>
+      <article class="item-card">{% include "_item_card.html" with item=item %}</article>
+      <section>
+        <p>
+          {% trans "If you are a creator of this podcast, you may verify the ownership, so that only you (and other verified creators) can edit its metadata on this site." %}
+        </p>
+        <p>
+          {% trans "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier can be removed from the description once verified." %}
+        </p>
+        <ul>
+          {% for candidate in candidates %}<li><code>{{ candidate }}</code></li>{% endfor %}
+        </ul>
+      </section>
+      {% include "_verify_status.html" %}
+      {% if verified_creators %}
+        <section>
+          <h4>{% trans 'Verified creators' %}</h4>
+          <ul>
+            {% for claim in verified_creators %}
+              <li>
+                <a href="{{ claim.owner.url }}">{{ claim.owner.display_name }}</a>
+                <small>@{{ claim.owner.full_handle }}</small>
+                {% if request.user.is_superuser and claim.owner != request.user.identity %}
+                  <form method="post"
+                        style="display:inline"
+                        action="{% url 'catalog:unverify_creator' item.url_path item.uuid %}"
+                        onsubmit="return confirm('{% trans "Sure to remove this creator verification?" %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="claim_id" value="{{ claim.pk }}">
+                    <input class="contrast outline"
+                           type="submit"
+                           value="{% trans 'remove' %}">
+                  </form>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+      {% if request.user.is_superuser %}
+        <details>
+          <summary>{% trans 'Manually verify a creator' %}</summary>
+          <form method="post"
+                action="{% url 'catalog:verify_creator_manual' item.url_path item.uuid %}">
+            {% csrf_token %}
+            <input type="text"
+                   name="handle"
+                   required
+                   placeholder="{% trans 'user handle, e.g. @user or @user@instance' %}">
+            <input class="contrast" type="submit" value="{% trans 'verify' %}">
+          </form>
+        </details>
+      {% endif %}
+      <details>
+        <summary>{% trans 'Send feedback' %}</summary>
+        <form method="post"
+              action="{% url 'catalog:suggest' item.url_path item.uuid %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="creator_verification">
+          <textarea name="detail"
+                    required
+                    placeholder="{% trans "Questions or issues with creator verification? Let the site moderators know." %}"></textarea>
+          <input type="submit" value="{% trans 'submit' %}">
+        </form>
+      </details>
+      <p>
+        <a href="{{ item.url }}">{% trans 'back to item' %}</a>
+      </p>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

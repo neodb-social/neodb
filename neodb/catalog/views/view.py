@@ -147,6 +147,7 @@ def retrieve(request, item_path, item_uuid):
         item.class_name + ".html",
         {
             "item": item,
+            "item_editable": item.is_editable_by(request.user),
             "focus_item": focus_item,
             "mark": mark,
             "review": review,
@@ -598,6 +599,9 @@ def wikipedia_pages(request, item_path, item_uuid, wikidata_id):
 def discover(request):
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
+
+    if not (request.user.is_authenticated and request.user.test_enabled):
+        gallery_list = [g for g in gallery_list if g["name"] != "original_episodes"]
 
     # rotate every 6 minutes
     rot = timezone.now().minute // 6

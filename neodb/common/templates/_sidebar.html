@@ -47,6 +47,14 @@
             </div>
           </summary>
           <span class="action">
+            {% if identity.has_verified_works %}
+              <span>
+                <a href="{% url 'catalog:user_verified_works' identity.handle %}"
+                   title="{% trans "verified creator" %}">
+                  <i class="fa-solid fa-user-check"></i>
+                </a>
+              </span>
+            {% endif %}
             {% if identity.user == request.user %}
               {% if identity.locked %}
                 <span>

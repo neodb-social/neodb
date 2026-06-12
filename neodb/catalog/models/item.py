@@ -37,12 +37,14 @@ from .common import (
 from .utils import item_cover_path, resource_cover_path
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AnonymousUser
     from django_stubs_ext import StrOrPromise
 
     from journal.models import Collection, Mark
     from users.models import User
 
     from ..common import ResourceContent
+    from .creator import VerifiedCreator
     from .people import ItemPeopleRelation, PeopleRole
 
 
@@ -230,6 +232,7 @@ class Item(PolymorphicModel):
         mark: "Mark"
         people_relations: QuerySet["ItemPeopleRelation"]
         credits: QuerySet["ItemCredit"]
+        verified_creators: QuerySet["VerifiedCreator"]
     schema = ItemSchema
     category: ItemCategory  # subclass must specify this
     type: ItemType  # subclass must specify this
@@ -483,6 +486,13 @@ class Item(PolymorphicModel):
                 credit.item = to_item
                 credit.save()
                 updated = True
+        # Reparent creator verifications to the target item
+        for claim in self.verified_creators.all():
+            if to_item.verified_creators.filter(owner_id=claim.owner_id).exists():
+                claim.delete()
+            else:
+                claim.item = to_item
+                claim.save(update_fields=["item"])
         to_item.log_action({"!merged_from": [str(self), str(to_item)]})
         if updated:
             to_item.save()
@@ -1173,6 +1183,34 @@ class Item(PolymorphicModel):
 
     def is_editable(self):
         return not self.is_deleted and self.merged_to_item is None
+
+    @cached_property
+    def verified_creator_list(self) -> "list[VerifiedCreator]":
+        from .creator import VerifiedCreator
+
+        return list(
+            self.verified_creators.filter(
+                state=VerifiedCreator.State.VERIFIED
+            ).select_related("owner")
+        )
+
+    def is_editable_by(self, user: "User | AnonymousUser | None") -> bool:
+        """Whether the user may change metadata of this item.
+
+        Staff lock (is_protected) trumps creator verification.
+        """
+        if not user or not user.is_authenticated:
+            return False
+        if user.is_staff:
+            return True
+        if self.is_protected:
+            return False
+        creators = self.verified_creator_list
+        if creators:
+            identity = getattr(user, "identity", None)
+            if not identity or not any(c.owner_id == identity.pk for c in creators):
+                return False
+        return True
 
     def get_people_by_role(self, role: "PeopleRole"):
         from .people import People

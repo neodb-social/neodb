@@ -361,11 +361,6 @@ def refetch(request):
     if not site:
         raise BadRequest(_("Unsupported URL"))
     resource = ExternalResource.objects.filter(url=url).first()
-    if (
-        resource
-        and resource.item
-        and resource.item.is_protected
-        and not request.user.is_staff
-    ):
+    if resource and resource.item and not resource.item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     return fetch(request, url, site, True)

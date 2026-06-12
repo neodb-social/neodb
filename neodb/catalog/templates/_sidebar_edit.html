@@ -14,11 +14,22 @@
     <span>
       <a title="{% trans "back to item" %}" href="{{ item.url }}"><i class="fa-solid fa-file-lines"></i></a>
     </span>
+    {% if item.class_name == "podcast" %}
+      <span>
+        <a title="{% trans "Creator verification" %}"
+           href="{% url 'catalog:verify_creator' item.url_path item.uuid %}"><i class="fa-solid fa-user-check"></i></a>
+      </span>
+    {% endif %}
   </div>
   <h5>{% trans "Edit Options" %}</h5>
   {% if item.is_protected %}
     <p>
       <i class="fa-solid fa-circle-exclamation"></i> {% trans "Editing this item is restricted." %}
+    </p>
+  {% endif %}
+  {% if item.verified_creator_list %}
+    <p>
+      <i class="fa-solid fa-user-check"></i> {% trans "This item is maintained by its verified creators." %}
     </p>
   {% endif %}
   {% if item.is_deleted %}

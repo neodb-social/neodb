@@ -274,6 +274,17 @@ def trending_performance(request):
     return _get_trending("trending_performance")
 
 
+@api.get(
+    "/trending/podcast/original/",
+    response={200: list[PodcastEpisodeSchema]},
+    summary="Recent episodes of podcasts with a verified creator",
+    auth=None,
+    tags=["trending"],
+)
+def trending_original_episodes(request):
+    return _get_trending("original_episodes")
+
+
 def _get_item(cls, uuid, response):
     item = Item.get_by_url(uuid)
     if not item:

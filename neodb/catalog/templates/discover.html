@@ -82,14 +82,26 @@
                   <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
                 </span>
               </span>
-              <h5>{{ gallery.category.label }}</h5>
+              <h5>
+                {% if gallery.name == "original_episodes" %}
+                  {% trans 'original episodes' %}
+                {% else %}
+                  {{ gallery.category.label }}
+                {% endif %}
+              </h5>
               <ul class="cards">
                 {% for item in gallery.items %}
                   <li class="card">
                     <a href="{{ item.url }}" title="{{ item.display_title }}">
-                      <img src="{{ item.cover|thumb:'normal' }}"
-                           alt="{{ item.display_title }}"
-                           loading="lazy">
+                      {% if gallery.name == "original_episodes" %}
+                        <img src="{{ item.cover_image_url }}"
+                             alt="{{ item.display_title }}"
+                             loading="lazy">
+                      {% else %}
+                        <img src="{{ item.cover|thumb:'normal' }}"
+                             alt="{{ item.display_title }}"
+                             loading="lazy">
+                      {% endif %}
                       <div class="card-title">{{ item.display_title }}</div>
                     </a>
                   </li>

@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
 from django.db import models
@@ -12,6 +12,9 @@ from takahe.utils import Takahe
 from .preference import Preference
 from .user import User
 
+if TYPE_CHECKING:
+    from catalog.models import VerifiedCreator
+
 
 class APIdentity(models.Model):
     """
@@ -20,6 +23,8 @@ class APIdentity(models.Model):
     This model is used as 1:1 mapping to Takahe Identity Model
     """
 
+    if TYPE_CHECKING:
+        verified_works: "models.QuerySet[VerifiedCreator]"
     user: User
     user_id: int
     user = models.OneToOneField(
@@ -163,6 +168,12 @@ class APIdentity(models.Model):
     def restricted(self):
         """a restricted identity can only be viewed and interacted with by themself their followers"""
         return self.takahe_identity.restriction == 2
+
+    @property
+    def has_verified_works(self) -> bool:
+        from catalog.models import VerifiedCreator
+
+        return self.verified_works.filter(state=VerifiedCreator.State.VERIFIED).exists()
 
     @property
     def following(self):
