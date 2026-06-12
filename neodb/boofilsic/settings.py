@@ -536,7 +536,10 @@ WEBAUTHN_ORIGIN = SITE_INFO["site_url"]
 
 ALTERNATIVE_DOMAINS = [d.lower() for d in env("NEODB_ALTERNATIVE_DOMAINS", default=[])]
 SITE_DOMAINS = [SITE_DOMAIN] + ALTERNATIVE_DOMAINS
-ALLOWED_HOSTS = SITE_DOMAINS + ["127.0.0.1"] if SSL_ONLY else ["*"]
+# restrict Host header to known domains in production; with
+# USE_X_FORWARDED_HOST enabled, accepting any host would let a spoofed
+# Host/X-Forwarded-Host header poison absolute URLs built from the request
+ALLOWED_HOSTS = ["*"] if DEBUG else SITE_DOMAINS + ["127.0.0.1", "localhost"]
 
 STATIC_URL = "/s/"
 STATIC_ROOT = env("NEODB_STATIC_ROOT", default=os.path.join(BASE_DIR, "static/"))

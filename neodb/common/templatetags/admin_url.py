@@ -12,4 +12,4 @@ def admin_url():
         url = "/" + url
     if not url.endswith("/"):
         url += "/"
-    return format_html(url)
+    return format_html("{}", url)

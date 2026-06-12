@@ -78,7 +78,9 @@ class Takahe:
         if not u.username:
             logger.warning(f"User {u} has no username")
             return None
-        with transaction.atomic(using="takahe"):
+        # APIdentity / user writes go to the default db while takahe models
+        # go to the takahe db; wrap both so neither side commits alone
+        with transaction.atomic(using="default"), transaction.atomic(using="takahe"):
             user = User.objects.filter(pk=u.pk).first()
             handler = "@" + u.username
             if not user:

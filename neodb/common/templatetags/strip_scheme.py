@@ -8,10 +8,7 @@ register = template.Library()
 @stringfilter
 def strip_scheme(value):
     """Strip the `https://.../` part of urls"""
-    if value.startswith("https://"):
-        value = value.lstrip("https://")
-    elif value.startswith("http://"):
-        value = value.lstrip("http://")
+    value = value.removeprefix("https://").removeprefix("http://")
 
     if value.endswith("/"):
         value = value[0:-1]

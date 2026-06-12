@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.dateparse import parse_datetime
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
@@ -253,7 +254,10 @@ def events(request):
     es = Takahe.get_events(request.user.identity.pk, types)
     last = request.GET.get("last")
     if last:
-        es = es.filter(created__lt=last)
+        # ignore malformed cursor values rather than 500 on the ORM cast
+        last_dt = parse_datetime(last)
+        if last_dt:
+            es = es.filter(created__lt=last_dt)
     nes = [NotificationEvent(e) for e in es[:PAGE_SIZE]]
     return render(
         request,
