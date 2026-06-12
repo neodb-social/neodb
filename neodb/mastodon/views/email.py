@@ -10,18 +10,11 @@ from common.views import render_error
 
 from ..forms import EmailLoginForm
 from ..models import Email
-from .common import process_verified_account
+from .common import client_ip, process_verified_account
 
 # Cap failed verification-code submissions per client IP to defeat brute force.
 _MAX_VERIFY_FAILS = 10
 _VERIFY_FAIL_TTL = 60 * 60
-
-
-def _client_ip(request: HttpRequest) -> str:
-    xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
-    if xff:
-        return xff.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "")
 
 
 @require_http_methods(["GET"])
@@ -66,7 +59,7 @@ def email_login(request: HttpRequest):
 def email_verify(request: HttpRequest):
     if request.method == "GET":
         return render(request, "users/verify.html")
-    fail_key = f"email_verify_fails_{_client_ip(request)}"
+    fail_key = f"email_verify_fails_{client_ip(request)}"
     if (cache.get(fail_key) or 0) >= _MAX_VERIFY_FAILS:
         return render(
             request,

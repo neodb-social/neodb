@@ -78,7 +78,7 @@ class Threads:
     def generate_auth_url(request: HttpRequest):
         redirect_url = request.build_absolute_uri(reverse("mastodon:threads_oauth"))
         state = secrets.token_urlsafe(32)
-        request.session["oauth_state"] = state
+        request.session["threads_oauth_state"] = state
         query = urlencode(
             {
                 "client_id": SiteConfig.system.threads_app_id,

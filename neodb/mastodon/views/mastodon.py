@@ -42,7 +42,7 @@ def mastodon_oauth(request):
             _("Authentication failed"),
             _("Invalid response from Fediverse instance."),
         )
-    expected_state = request.session.pop("oauth_state", None)
+    expected_state = request.session.pop("mastodon_oauth_state", None)
     actual_state = request.GET.get("state")
     if not expected_state or expected_state != actual_state:
         return render_error(

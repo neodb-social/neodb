@@ -115,7 +115,7 @@ class TestGenerateAuthUrl:
         assert "threads_manage_replies" in url
         assert "redirect_uri=http%3A%2F%2Ftestserver%2Faccount%2Fthreads%2Foauth" in url
         assert "response_type=code" in url
-        assert f"state={request.session['oauth_state']}" in url
+        assert f"state={request.session['threads_oauth_state']}" in url
 
 
 class TestPostSingle:

@@ -12,6 +12,13 @@ from users.models import User
 from users.views.account import auth_login, logout_takahe
 
 
+def client_ip(request: HttpRequest) -> str:
+    xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "")
+
+
 def process_verified_account(request: HttpRequest, account: SocialAccount):
     if request.user.is_authenticated:
         # add/update linked identity
@@ -95,7 +102,10 @@ def disconnect_identity(request, account):
             request, _("Disconnect identity failed"), _("Invalid user.")
         )
     with transaction.atomic():
-        if request.user.social_accounts.all().count() <= 1:
+        # lock the user's accounts so two concurrent disconnects cannot both
+        # pass the last-identity guard and leave the user with no login
+        accounts = list(request.user.social_accounts.select_for_update())
+        if len(accounts) <= 1:
             return render_error(
                 request,
                 _("Disconnect identity failed"),

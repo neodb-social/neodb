@@ -544,7 +544,7 @@ def get_mastodon_login_url(app, login_domain, request):
     url = request.build_absolute_uri(reverse("mastodon:oauth"))
     scope = _get_scopes(app.server_version)
     state = secrets.token_urlsafe(32)
-    request.session["oauth_state"] = state
+    request.session["mastodon_oauth_state"] = state
     return (
         "https://"
         + login_domain
