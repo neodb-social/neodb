@@ -48,8 +48,6 @@ COPY --from=build /etc/neodb_version /etc/neodb_version
 COPY --from=build /neodb /neodb
 COPY --from=build /takahe /takahe
 COPY --from=build /neodb-venv /neodb-venv
-# /neodb/locale is a symlink to ../locale (kept at repo root for Weblate)
-COPY locale /locale
 
 WORKDIR /neodb
 RUN /neodb-venv/bin/django-admin compilemessages \
