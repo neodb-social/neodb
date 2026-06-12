@@ -79,7 +79,10 @@ class Takahe:
             logger.warning(f"User {u} has no username")
             return None
         # APIdentity / user writes go to the default db while takahe models
-        # go to the takahe db; wrap both so neither side commits alone
+        # go to the takahe db; wrap both so neither side commits alone.
+        # not a true two-phase commit: the takahe block commits first, so a
+        # failed default-db commit can leave takahe rows behind, but those
+        # writes are get-or-create style and a retry reconciles them
         with transaction.atomic(using="default"), transaction.atomic(using="takahe"):
             user = User.objects.filter(pk=u.pk).first()
             handler = "@" + u.username

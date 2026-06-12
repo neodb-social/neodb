@@ -520,7 +520,9 @@ def trending_collection(request):
     )
     if restricted_owner_ids:
         qs = qs.exclude(owner_id__in=restricted_owner_ids)
-    collections = list(qs)
+    # pk__in does not preserve list order; reapply the rotation
+    by_pk = {c.pk: c for c in qs}
+    collections = [by_pk[pk] for pk in collection_ids if pk in by_pk]
     prefetch_latest_posts(collections)
     Collection.attach_item_count_by_category(collections)
     return collections
