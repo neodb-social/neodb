@@ -102,7 +102,11 @@ class Article(Piece):
 
     @property
     def brief_description(self) -> str:
-        return self.plain_content[:155]
+        """Short teaser used in link-preview cards (e.g. the Bluesky embed):
+        the author summary (with sensitive marker, so a sensitive article
+        previews as its marker rather than its body) when present, else the
+        body's leading plain text."""
+        return (self.display_summary or self.plain_content)[:155]
 
     @property
     def excerpt(self) -> str:
@@ -206,11 +210,15 @@ class Article(Piece):
         }
 
     def to_crosspost_params(self) -> dict[str, Any]:
+        # ##obj## renders as a title link on Bluesky (which also gets an
+        # external embed card for the article) and as plain title text on
+        # Mastodon/Threads, where ##obj_link_if_plain## then carries the URL;
+        # an inline URL would be lost to Bluesky's grapheme-limit truncation
         body = self.plain_content[:300]
         if len(self.plain_content) > 300:
             body += "..."
-        content = f"{self.title}\n\n{body}\n\n{self.absolute_url}"
-        return {"content": content, "spoiler_text": self.summary or None}
+        content = f"##obj##\n\n{body}\n##obj_link_if_plain##"
+        return {"content": content, "obj": self, "spoiler_text": self.summary or None}
 
     def atproto_document_collections(self) -> set[str]:
         return {DOCUMENT_NSID}

@@ -36,6 +36,49 @@ class TestArticleModel:
         assert article.normalized_tags == ["alpha", "beta"]
         assert article.url.startswith("/article/")
 
+    def test_article_crosspost_params_link_via_obj_macros(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Hello",
+            body="word " * 100,  # long enough to trigger Bluesky truncation
+            visibility=0,
+        )
+        params = article.to_crosspost_params()
+        # the link must ride on the obj macros (link facet + embed card on
+        # Bluesky, plain URL on Mastodon/Threads), never inline in content
+        # where Bluesky's grapheme-limit truncation could cut it off
+        assert params["obj"] is article
+        assert params["content"].startswith("##obj##\n")
+        assert params["content"].rstrip().endswith("##obj_link_if_plain##")
+        assert article.absolute_url not in params["content"]
+
+    def test_article_brief_description_prefers_summary(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Hello",
+            body="body text",
+            summary="hand-written teaser",
+            visibility=0,
+        )
+        # preview cards (e.g. Bluesky embed) show the author summary
+        assert article.brief_description == "hand-written teaser"
+
+        plain = Article.update_local_article(
+            owner=self.identity, title="T2", body="body text", visibility=0
+        )
+        assert plain.brief_description.strip() == "body text"
+
+        sensitive = Article.update_local_article(
+            owner=self.identity,
+            title="T3",
+            body="secret body",
+            sensitive=True,
+            visibility=0,
+        )
+        # marker only: a sensitive article must not leak its body in previews
+        assert "secret body" not in sensitive.brief_description
+        assert sensitive.brief_description  # the marker itself
+
     def test_article_ap_object_uses_markdown_source(self):
         article = Article.update_local_article(
             owner=self.identity,
