@@ -483,15 +483,23 @@ class Item(PolymorphicModel):
                 credit.item = to_item
                 credit.save()
                 updated = True
-        to_item.log_action({"!merged_from": [str(self.merged_to_item), str(to_item)]})
+        to_item.log_action({"!merged_from": [str(self), str(to_item)]})
         if updated:
             to_item.save()
 
     @property
     def final_item(self) -> Self:
-        if self.merged_to_item:
-            return self.merged_to_item.final_item
-        return self
+        # iterative with a bound so a long or circular merge chain in the DB
+        # cannot exhaust the stack in request hot paths
+        item = self
+        depth = 0
+        while item.merged_to_item is not None:
+            if depth >= 20:
+                logger.error(f"merge chain too deep or circular for {self}")
+                break
+            item = item.merged_to_item
+            depth += 1
+        return item
 
     def recast_to(self, model: "type[Item]") -> "Item":
         logger.warning(f"recast item {self} to {model}")
@@ -1358,7 +1366,10 @@ class ExternalResource(models.Model):
             return None
         items = model.objects.filter(is_deleted=False, merged_to_item__isnull=True)
         resources = ExternalResource.objects.filter(
-            item_id__isnull=False, item__polymorphic_ctype_id=ct
+            item_id__isnull=False,
+            item__polymorphic_ctype_id=ct,
+            item__is_deleted=False,
+            item__merged_to_item__isnull=True,
         )
 
         item = items.filter(
