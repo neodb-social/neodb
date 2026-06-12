@@ -262,9 +262,9 @@ class People(Item):
         # Cheap id-only pass (values_list skips polymorphic downcast) to drop
         # deleted/merged items before deciding what to count and render.
         live_ids = set(
-            Item.objects.filter(
-                pk__in=all_ids, is_deleted=False, merged_to_item__isnull=True
-            ).values_list("pk", flat=True)
+            Item.objects.non_polymorphic()
+            .filter(pk__in=all_ids, is_deleted=False, merged_to_item__isnull=True)
+            .values_list("pk", flat=True)
         )
         role_live_ids: OrderedDict[str, list[int]] = OrderedDict()
         display_ids: list[int] = []

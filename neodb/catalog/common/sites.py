@@ -441,17 +441,21 @@ class SiteManager:
             merged_to_item__isnull=True,
             metadata__localized_name__contains=[{"text": name}],
         )
-        candidate_ids: set[int] = set()
+        candidates = []
+        candidate_pks: set[int] = set()
         for branch in (
-            base.filter(credited_items__item=parent_item),
-            base.filter(item_relations__item=parent_item),
+            base.filter(credited_items__item=parent_item).distinct(),
+            base.filter(item_relations__item=parent_item).distinct(),
         ):
-            candidate_ids.update(branch.values_list("pk", flat=True).distinct()[:2])
-            if len(candidate_ids) > 1:
+            for person in branch[:2]:
+                if person.pk not in candidate_pks:
+                    candidate_pks.add(person.pk)
+                    candidates.append(person)
+            if len(candidates) > 1:
                 break
-        if len(candidate_ids) != 1:
+        if len(candidates) != 1:
             return None
-        c = People.objects.get(pk=next(iter(candidate_ids)))
+        c = candidates[0]
         if c.external_resources.filter(id_type=link_id_type).exists():
             return None
         return c
