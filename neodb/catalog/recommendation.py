@@ -28,6 +28,7 @@ from .models import (
     TVEpisode,
     TVShow,
     UserRecommendation,
+    Work,
     item_content_types,
 )
 
@@ -133,6 +134,23 @@ def _user_shelved_item_ids(identity_pk: int) -> set[int]:
     )
 
 
+def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
+    """Edition ids sharing a Work with any Edition in ``item_ids``.
+
+    Non-edition ids don't match the Work.editions through table, so the whole
+    shelved set can be passed in. Single query via a work-id subquery.
+    """
+    if not item_ids:
+        return set()
+    through = Work.editions.through
+    work_ids = through.objects.filter(edition_id__in=item_ids).values("work_id")
+    return set(
+        through.objects.filter(work_id__in=work_ids).values_list(
+            "edition_id", flat=True
+        )
+    )
+
+
 def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     """Return up to ``limit`` items similar to ``item``.
 
@@ -195,7 +213,10 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         seeds.append(mapped)
         if len(seeds) >= seed_cap:
             break
+    # Exclude shelved items plus their sibling editions (same Work). Precompute
+    # only; a sibling marked later may dupe until the next refresh.
     shelved = _user_shelved_item_ids(identity_pk)
+    excluded = shelved | _sibling_edition_ids(shelved)
     seed_set = set(seeds)
 
     scores: dict[int, float] = defaultdict(float)
@@ -204,7 +225,7 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         "source_id", "target_id", "score"
     )
     for src, tgt, score in sim_rows:
-        if tgt in shelved or tgt in seed_set:
+        if tgt in excluded or tgt in seed_set:
             continue
         scores[tgt] += score
         if len(seeds_by_target[tgt]) < 3:

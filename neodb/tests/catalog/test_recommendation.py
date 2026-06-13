@@ -8,6 +8,7 @@ from catalog.models import (
     PerformanceProduction,
     TVShow,
     UserRecommendation,
+    Work,
 )
 from catalog.recommendation import (
     blended_for_discover,
@@ -413,3 +414,69 @@ class TestExcludedTargetClasses:
             ItemSimilarity.objects.values_list("target_id", flat=True).distinct()
         )
         assert self.show.pk not in target_ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSiblingEditionExclusion:
+    """Precompute drops sibling editions of shelved items; request path allows dupes."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_user_mark_cap=100,
+            reco_user_active_days=30,
+            reco_user_idf_dampen=False,
+            reco_lazy_ttl_days=7,
+        )
+        self.strangers = [
+            User.register(email=f"sib{i}@t.com", username=f"sib{i}").identity
+            for i in range(2)
+        ]
+        self.src = Edition.objects.create(title="Src")
+        # A Work with two sibling editions.
+        self.work = Work.objects.create(title="The Work")
+        self.e1 = Edition.objects.create(title="Edition One")
+        self.e2 = Edition.objects.create(title="Edition Two")
+        self.work.editions.add(self.e1, self.e2)
+        # A standalone target with no siblings, as a control.
+        self.other = Edition.objects.create(title="Other")
+        # Strangers co-shelve src with e2 and with other -> similarity built so
+        # both e2 and other are valid recommendation targets for src.
+        for ident in self.strangers:
+            _public_mark(ident, self.src)
+            _public_mark(ident, self.e2)
+            _public_mark(ident, self.other)
+        BuildItemSimilarity().run()
+
+    def test_compute_for_user_excludes_sibling_edition(self):
+        target = User.register(email="sibt@t.com", username="sibt")
+        # Seed with src so similarity surfaces e2 and other, and mark e1.
+        _public_mark(target.identity, self.src)
+        _public_mark(target.identity, self.e1)
+        ids = {r.item_id for r in compute_for_user(target.pk, target.identity.pk)}
+        assert self.e2.pk not in ids  # sibling of marked e1 -> excluded
+        assert self.other.pk in ids  # unrelated target still recommended
+
+    def test_batch_job_excludes_sibling_edition(self):
+        target = User.register(email="sibb@t.com", username="sibb")
+        _public_mark(target.identity, self.src)
+        _public_mark(target.identity, self.e1)
+        BuildUserRecommendations().run()
+        rows = UserRecommendation.objects.filter(user=target)
+        item_ids = {r.item_id for r in rows}
+        assert self.e2.pk not in item_ids  # sibling excluded by the precompute
+        assert self.other.pk in item_ids
+
+    def test_request_path_allows_sibling_dupe(self):
+        # similar_items is request-time and deliberately does NOT do sibling
+        # suppression; marking e1 still lets its sibling e2 surface as a dupe.
+        watcher = User.register(email="sibw@t.com", username="sibw")
+        _public_mark(watcher.identity, self.e1)
+        ids = {i.pk for i in similar_items(self.src, viewer=watcher, limit=10)}
+        assert self.e2.pk in ids
