@@ -4,7 +4,7 @@
 ## Tips
 
  - `docker compose ps` to see if any service is down, (btw it's normal that `migration` is in `Exit 0` state)
- - `docker compose run shell` to run a shell into the cluster; or `docker compose run root` for root shell, and `apt` is available if an extra package is needed
+ - `docker compose run shell` to open a shell in the cluster; or `docker compose run root` for a root shell, where `apt` is available if extra packages are needed
  - see `Debug in Docker` in [development doc](development.md) for debugging tips
 
 

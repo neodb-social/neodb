@@ -28,7 +28,7 @@ uv sync
 pre-commit install
 ```
 
-To develop Takahe, install requirements(-dev) and pre-commit hooks for `takahe` project as well, preferably using a different virtual environment.
+To develop Takahē, install requirements(-dev) and pre-commit hooks for `takahe` project as well, preferably using a different virtual environment.
 
 Note: the virtual environments and packages installed in this step are mostly for type checking; the actual virtual environments and packages for development runtime are from the NeoDB docker image, and they can be configured differently, more on this later in this document.
 
@@ -174,7 +174,7 @@ Main Django apps for NeoDB:
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` presents timeline and notifications for local users
- - `takahe` communicates with Takahe (a separate Django server, run side by side with this server, code in the `takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
+ - `takahe` communicates with Takahē (a separate Django server, run side by side with this server, code in the `takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 

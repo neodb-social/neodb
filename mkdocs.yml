@@ -17,6 +17,7 @@ nav:
   - api.md
   - origin.md
 theme:
+  favicon: assets/favicon.png
   logo: assets/logo.svg
   name: material
   font:
