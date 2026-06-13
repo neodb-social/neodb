@@ -21,7 +21,9 @@ def verify_creator_task(claim_id: int, user_id: int) -> None:
     claim = VerifiedCreator.objects.filter(pk=claim_id).first()
     user = User.objects.filter(pk=user_id).first()
     if not claim or not user:
-        logger.warning(f"verify_creator_task: missing claim {claim_id} / user {user_id}")
+        logger.warning(
+            f"verify_creator_task: missing claim {claim_id} / user {user_id}"
+        )
         return
     item = claim.item
     feed_url = getattr(item, "feed_url", None)

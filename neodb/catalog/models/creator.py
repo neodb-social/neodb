@@ -25,9 +25,7 @@ class VerifiedCreator(models.Model):
     class FailureReason(models.TextChoices):
         NO_FEED = "no_feed", _("no feed url available for this item")
         FETCH_FAILED = "fetch_failed", _("unable to fetch or parse the feed")
-        NO_MATCH = "no_match", _(
-            "no matching identity found in the feed description"
-        )
+        NO_MATCH = "no_match", _("no matching identity found in the feed description")
 
     if TYPE_CHECKING:
         item_id: int

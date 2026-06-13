@@ -376,7 +376,9 @@ class TestEditPermissions:
         monkeypatch.setattr(
             SiteManager,
             "get_site_by_url",
-            staticmethod(lambda u, detect_redirection=True, detect_fallback=True: RSS(u)),
+            staticmethod(
+                lambda u, detect_redirection=True, detect_fallback=True: RSS(u)
+            ),
         )
         response = _client(bob).post("/refetch", {"url": url})
         assert response.status_code == 403
@@ -393,9 +395,7 @@ class TestMergeTransfer:
         _verified(source, bob.identity)
         _verified(target, bob.identity)  # duplicate owner on target
         source.merge_to(target)
-        owners = set(
-            target.verified_creators.values_list("owner_id", flat=True)
-        )
+        owners = set(target.verified_creators.values_list("owner_id", flat=True))
         assert owners == {alice.identity.pk, bob.identity.pk}
         assert not source.verified_creators.exists()
 

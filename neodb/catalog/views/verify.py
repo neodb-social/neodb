@@ -29,9 +29,7 @@ def _verify_page_url(item: Item) -> str:
 def _verify_context(request, item: Item) -> dict:
     return {
         "item": item,
-        "my_claim": item.verified_creators.filter(
-            owner=request.user.identity
-        ).first(),
+        "my_claim": item.verified_creators.filter(owner=request.user.identity).first(),
         "verified_creators": item.verified_creator_list,
         "candidates": creator_identity_candidates(request.user),
     }

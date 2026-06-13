@@ -24,7 +24,11 @@
           {% trans "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier can be removed from the description once verified." %}
         </p>
         <ul>
-          {% for candidate in candidates %}<li><code>{{ candidate }}</code></li>{% endfor %}
+          {% for candidate in candidates %}
+            <li>
+              <code>{{ candidate }}</code>
+            </li>
+          {% endfor %}
         </ul>
       </section>
       {% include "_verify_status.html" %}
@@ -43,9 +47,7 @@
                         onsubmit="return confirm('{% trans "Sure to remove this creator verification?" %}');">
                     {% csrf_token %}
                     <input type="hidden" name="claim_id" value="{{ claim.pk }}">
-                    <input class="contrast outline"
-                           type="submit"
-                           value="{% trans 'remove' %}">
+                    <input class="contrast outline" type="submit" value="{% trans 'remove' %}">
                   </form>
                 {% endif %}
               </li>
