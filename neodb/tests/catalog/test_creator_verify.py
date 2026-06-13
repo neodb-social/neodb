@@ -217,6 +217,20 @@ class TestVerifyTask:
         assert claim.state == VerifiedCreator.State.FAILED
         assert claim.failure_reason == VerifiedCreator.FailureReason.NO_FEED
 
+    def test_failed_no_feed_with_rss_type_but_no_value(self):
+        # feed_url must be None (not "http://None") for RSS type without value
+        user = User.register(email="a@example.com", username="alice")
+        podcast = Podcast.objects.create(
+            localized_title=[{"lang": "en", "text": "no feed"}],
+            primary_lookup_id_type=IdType.RSS,
+        )
+        assert podcast.feed_url is None
+        claim = self._claim(user, podcast)
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.FAILED
+        assert claim.failure_reason == VerifiedCreator.FailureReason.NO_FEED
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestVerifyViews:

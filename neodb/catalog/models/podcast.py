@@ -123,7 +123,7 @@ class Podcast(Item):
     def feed_url(self):
         if (
             self.primary_lookup_id_type != IdType.RSS
-            and self.primary_lookup_id_value is None
+            or not self.primary_lookup_id_value
         ):
             return None
         return f"http://{self.primary_lookup_id_value}"
