@@ -105,7 +105,7 @@ Add a new site
  - add some tests to `catalog/<folder>/tests.py` according to site type
     + add `DOWNLOADER_SAVEDIR = '/tmp'` to `settings.py` can save all response to /tmp
     + run `neodb-manage cat <url>` for debugging or saving response file to `/tmp`. Detailed code of `cat` is in `catalog/management/commands/cat.py`
-    + move captured response file to `test_data/`, except large/image files. Or, if necessary, replace it with a minimal version (e.g. 1x1 pixel / 1s audio)
+    + move the captured response file to `test_data/`, except large/image files. Or, if necessary, replace it with a minimal version (e.g., a 1x1 pixel image or 1s audio clip)
     + add `@use_local_response` decorator to test methods that should pick up these responses (if `BasicDownloader` or `ProxiedDownloader` is used)
  - run all the tests and make sure they pass
     - Command: `neodb-manage python3 manage.py test [--keepdb]`.
