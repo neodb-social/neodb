@@ -67,6 +67,21 @@ class TestMatcher:
             is None
         )
 
+    def test_left_boundary_no_overmatch(self):
+        assert (
+            match_creator_identity(
+                ["contact @x@alice@example.org here"], ["@alice@example.org"]
+            )
+            is None
+        )
+        assert (
+            match_creator_identity(
+                ["https://evil.example/https://example.org/@alice"],
+                ["https://example.org/@alice"],
+            )
+            is None
+        )
+
     def test_boundary_at_end_and_punctuation(self):
         assert match_creator_identity(["by @alice@example.org"], ["@alice@example.org"])
         assert match_creator_identity(

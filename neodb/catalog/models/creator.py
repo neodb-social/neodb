@@ -84,16 +84,20 @@ def match_creator_identity(
 ) -> str | None:
     """Return the first candidate identifier found in any description.
 
-    Matching is case-insensitive and boundary-guarded so that e.g.
-    "@a@b.com" does not match inside "@a@b.com.evil".
+    Matching is case-insensitive and boundary-guarded on both sides, so that
+    e.g. "@a@b.com" matches neither inside "@a@b.com.evil" nor inside
+    "@x@a@b.com".
     """
     texts = [d.lower() for d in descriptions if d]
     for candidate in candidates:
         c = candidate.strip().lower()
         if not c:
             continue
-        boundary = r"(?![\w\-./])" if "://" in c else r"(?![\w\-.])"
-        pattern = re.escape(c) + boundary
+        if "://" in c:
+            left, right = r"(?<![\w\-./])", r"(?![\w\-./])"
+        else:
+            left, right = r"(?<![\w\-.@])", r"(?![\w\-.])"
+        pattern = left + re.escape(c) + right
         if any(re.search(pattern, t) for t in texts):
             return candidate
     return None

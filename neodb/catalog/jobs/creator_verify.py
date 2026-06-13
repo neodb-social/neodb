@@ -30,7 +30,13 @@ def verify_creator_task(claim_id: int, user_id: int) -> None:
         claim.failure_reason = VerifiedCreator.FailureReason.NO_FEED
         claim.save()
         return
-    feed, _etag, _last_modified, status = RSS.fetch_feed_with_metadata(feed_url)
+    try:
+        feed, _etag, _last_modified, status = RSS.fetch_feed_with_metadata(feed_url)
+    except Exception:
+        # fetch_feed_with_metadata handles network errors itself; this keeps
+        # any unexpected error from leaving the claim pending forever
+        logger.exception(f"verify_creator_task: error fetching {feed_url}")
+        feed, status = None, 0
     if status != 200 or feed is None:
         claim.state = VerifiedCreator.State.FAILED
         claim.failure_reason = VerifiedCreator.FailureReason.FETCH_FAILED
