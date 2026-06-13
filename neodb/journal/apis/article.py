@@ -97,11 +97,12 @@ def get_user_article(request, article_uuid: str):
     """
     Get an article owned by current user by its uuid
     """
-    a = Article.get_by_url(article_uuid)
+    # Owner-scoped lookup (returns 404, not 403, for someone else's article) so
+    # the endpoint cannot be used to probe the existence of other users'
+    # private articles, and to match update_article/delete_article.
+    a = Article.get_by_url_and_owner(article_uuid, request.user.identity.pk)
     if not a:
-        return Status(404, {"message": "Article not found"})
-    if a.owner != request.user.identity:
-        return Status(403, {"message": "Not owner"})
+        return NOT_FOUND
     return a
 
 

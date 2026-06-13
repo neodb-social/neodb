@@ -1002,12 +1002,13 @@ def test_article_api_visibility():
     response = Client().get(f"/api/article/{article.uuid}")
     assert response.status_code == 403
 
-    # another user cannot reach it via the owner-scoped endpoint
+    # another user cannot reach it via the owner-scoped endpoint; it returns
+    # 404 (not 403) so the endpoint can't be used to probe article existence
     response = Client().get(
         f"/api/me/article/{article.uuid}",
         HTTP_AUTHORIZATION=f"Bearer {viewer_token}",
     )
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(databases="__all__")
