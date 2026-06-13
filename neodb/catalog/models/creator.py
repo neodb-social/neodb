@@ -65,9 +65,9 @@ def creator_identity_candidates(user: "User") -> list[str]:
     """Identifiers that prove ownership when found in a feed description."""
     identity = user.identity
     candidates = [f"@{identity.full_handle}"]
-    actor_uri = identity.actor_uri
-    if actor_uri:
-        candidates.append(actor_uri)
+    for uri in (identity.actor_uri, identity.profile_uri):
+        if uri and uri not in candidates:
+            candidates.append(uri)
     if user.mastodon:
         candidates.append(f"@{user.mastodon.handle}")
         if user.mastodon.url:

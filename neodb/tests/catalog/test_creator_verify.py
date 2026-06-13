@@ -128,6 +128,10 @@ class TestCandidates:
         user = User.register(email="a@example.com", username="alice")
         candidates = creator_identity_candidates(user)
         assert f"@{user.identity.full_handle}" in candidates
+        if user.identity.actor_uri:
+            assert user.identity.actor_uri in candidates
+        if user.identity.profile_uri:
+            assert user.identity.profile_uri in candidates
 
     def test_linked_accounts(self, monkeypatch):
         user = User.register(email="a@example.com", username="alice")
