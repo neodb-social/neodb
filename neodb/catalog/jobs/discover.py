@@ -250,17 +250,9 @@ class DiscoverGenerator(BaseJob):
         original_episodes = self.get_original_episodes()
         cache.set("original_episodes", original_episodes, timeout=None)
         if original_episodes:
-            podcast_index = next(
-                (
-                    idx
-                    for idx, g in enumerate(gallery_list)
-                    if g["name"] == "trending_podcast"
-                ),
-                len(gallery_list) - 1,
-            )
+            # show right after the recommendations shelf (first in the gallery loop)
             gallery_list.insert(
-                podcast_index + 1,
-                {"name": "original_episodes", "category": ItemCategory.Podcast},
+                0, {"name": "original_episodes", "category": ItemCategory.Podcast}
             )
 
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
