@@ -79,6 +79,8 @@ def create(request, item_model):
             )
             if not parent.is_editable_by(request.user):
                 raise PermissionDenied(_("Editing this item is restricted."))
+            if parent.is_deleted or parent.merged_to_item_id:
+                raise BadRequest("Can't assign a deleted or redirected parent item")
             if parent.child_class != form.instance.__class__.__name__:
                 raise BadRequest(
                     f"Invalid parent type: {form.instance.__class__} -> {parent.__class__}"

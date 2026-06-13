@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -15,6 +16,8 @@ from users.models import APIdentity
 
 from ..jobs.creator_verify import enqueue_creator_verification
 from ..models import Item, VerifiedCreator, creator_identity_candidates
+
+VERIFY_COOLDOWN_SECONDS = 60
 
 
 def _get_verifiable_item(item_uuid) -> Item:
@@ -72,19 +75,31 @@ def verify_creator_start(request, item_path, item_uuid):
             request, messages.ERROR, _("No feed url available for this item.")
         )
         return redirect(_verify_page_url(item))
-    claim, _created = VerifiedCreator.objects.get_or_create(
+    claim, created = VerifiedCreator.objects.get_or_create(
         item=item, owner=request.user.identity
     )
     if claim.state == VerifiedCreator.State.VERIFIED:
         messages.add_message(
             request, messages.INFO, _("You are already a verified creator.")
         )
-    else:
-        claim.state = VerifiedCreator.State.PENDING
-        claim.matched = ""
-        claim.failure_reason = ""
-        claim.save()
-        enqueue_creator_verification(claim, request.user)
+        return redirect(_verify_page_url(item))
+    if claim.state == VerifiedCreator.State.PENDING and not created:
+        messages.add_message(
+            request, messages.INFO, _("Verification is already in progress.")
+        )
+        return redirect(_verify_page_url(item))
+    # short cooldown so repeated submissions can't flood the job queue
+    lock_key = f"_verify_creator_lock:{item.pk}:{request.user.identity.pk}"
+    if not cache.add(lock_key, 1, timeout=VERIFY_COOLDOWN_SECONDS):
+        messages.add_message(
+            request, messages.WARNING, _("Please wait a moment before trying again.")
+        )
+        return redirect(_verify_page_url(item))
+    claim.state = VerifiedCreator.State.PENDING
+    claim.matched = ""
+    claim.failure_reason = ""
+    claim.save()
+    enqueue_creator_verification(claim, request.user)
     return redirect(_verify_page_url(item))
 
 
@@ -143,7 +158,12 @@ def user_verified_works(request, user_name):
         .values_list("item_id", flat=True)
     )
     # query via polymorphic manager so subclass templates resolve correctly
-    items_by_id = {i.pk: i for i in Item.objects.filter(pk__in=item_ids)}
+    items_by_id = {
+        i.pk: i
+        for i in Item.objects.filter(
+            pk__in=item_ids, is_deleted=False, merged_to_item__isnull=True
+        )
+    }
     items = [items_by_id[i] for i in item_ids if i in items_by_id]
     return render(
         request,

@@ -104,6 +104,20 @@ class TestMatcher:
             ["by @alice@example.org, weekly"], ["@alice@example.org"]
         )
 
+    def test_trailing_sentence_punctuation_matches(self):
+        # a handle/url ending a sentence (followed by ".") must still match
+        assert match_creator_identity(
+            ["Follow me at @alice@example.org."], ["@alice@example.org"]
+        )
+        assert match_creator_identity(
+            ["see https://example.org/@alice."], ["https://example.org/@alice"]
+        )
+        # but a "." that continues the token still blocks the match
+        assert (
+            match_creator_identity(["@alice@example.org.evil"], ["@alice@example.org"])
+            is None
+        )
+
     def test_actor_url_match(self):
         assert match_creator_identity(
             ['<a href="https://example.org/@alice">me</a>'],
@@ -293,6 +307,23 @@ class TestVerifyViews:
         assert "verified creator" in response.content.decode()
         # poll concluded: client is told to reload the page
         assert response.headers.get("HX-Refresh") == "true"
+
+    def test_start_twice_while_pending_enqueues_once(self, monkeypatch):
+        # re-submitting while a verification is still pending must not enqueue
+        # a duplicate job
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        calls = []
+        monkeypatch.setattr(
+            "catalog.views.verify.enqueue_creator_verification",
+            lambda claim, u: calls.append(claim.pk),
+        )
+        client = _client(user)
+        assert client.post(f"/podcast/{podcast.uuid}/verify/start").status_code == 302
+        assert client.post(f"/podcast/{podcast.uuid}/verify/start").status_code == 302
+        assert len(calls) == 1
+        claim = VerifiedCreator.objects.get(item=podcast, owner=user.identity)
+        assert claim.state == VerifiedCreator.State.PENDING
 
     def test_manual_verify_superuser_only(self):
         user = User.register(email="a@example.com", username="alice")
