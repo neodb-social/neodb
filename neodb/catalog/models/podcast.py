@@ -126,7 +126,9 @@ class Podcast(Item):
             or not self.primary_lookup_id_value
         ):
             return None
-        return f"http://{self.primary_lookup_id_value}"
+        # https to match RSS.id_to_url; fetch_feed_with_metadata falls back to
+        # http for feeds that are not served over https
+        return f"https://{self.primary_lookup_id_value}"
 
     @property
     def child_items(self):
