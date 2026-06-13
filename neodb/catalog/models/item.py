@@ -486,13 +486,11 @@ class Item(PolymorphicModel):
                 credit.item = to_item
                 credit.save()
                 updated = True
-        # Reparent creator verifications to the target item
+        # Creator verifications do not transfer on merge: they prove ownership
+        # of the source feed, not the target. Creators re-verify the target.
         for claim in self.verified_creators.all():
-            if to_item.verified_creators.filter(owner_id=claim.owner_id).exists():
-                claim.delete()
-            else:
-                claim.item = to_item
-                claim.save(update_fields=["item"])
+            self.log_action({"!creator_unverified": ["merged", str(claim.owner)]})
+            claim.delete()
         to_item.log_action({"!merged_from": [str(self), str(to_item)]})
         if updated:
             to_item.save()
@@ -1197,7 +1195,8 @@ class Item(PolymorphicModel):
     def is_editable_by(self, user: "User | AnonymousUser | None") -> bool:
         """Whether the user may change metadata of this item.
 
-        Staff lock (is_protected) trumps creator verification.
+        Staff lock (is_protected) trumps creator verification. Child items
+        (e.g. podcast episodes) inherit the parent's creator lock.
         """
         if not user or not user.is_authenticated:
             return False
@@ -1205,7 +1204,10 @@ class Item(PolymorphicModel):
             return True
         if self.is_protected:
             return False
-        creators = self.verified_creator_list
+        creators = list(self.verified_creator_list)
+        parent = self.parent_item
+        if parent:
+            creators += parent.verified_creator_list
         if creators:
             identity = getattr(user, "identity", None)
             if not identity or not any(c.owner_id == identity.pk for c in creators):

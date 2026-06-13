@@ -28,7 +28,6 @@ from users.views import query_identity
 
 from ..common.sites import AbstractSite, SiteManager
 from ..models import (
-    ExternalResource,
     Item,
     ItemCategory,
     ItemCredit,
@@ -360,7 +359,9 @@ def refetch(request):
     site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
         raise BadRequest(_("Unsupported URL"))
-    resource = ExternalResource.objects.filter(url=url).first()
+    # get_resource() also matches by canonical (id_type, id_value), so a
+    # scheme/format variant of the url cannot bypass the permission check
+    resource = site.get_resource()
     if resource and resource.item and not resource.item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
     return fetch(request, url, site, True)

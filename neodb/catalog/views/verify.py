@@ -52,7 +52,14 @@ def verify_creator(request, item_path, item_uuid):
 @user_identity_required
 def verify_creator_status(request, item_path, item_uuid):
     item = _get_verifiable_item(item_uuid)
-    return render(request, "_verify_status.html", _verify_context(request, item))
+    context = _verify_context(request, item)
+    response = render(request, "_verify_status.html", context)
+    claim = context["my_claim"]
+    if claim and claim.state != VerifiedCreator.State.PENDING:
+        # reload the page when polling concludes, so the verified creators
+        # list and edit lock indicators reflect the new state
+        response["HX-Refresh"] = "true"
+    return response
 
 
 @require_http_methods(["POST"])

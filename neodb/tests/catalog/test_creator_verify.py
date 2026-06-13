@@ -82,6 +82,22 @@ class TestMatcher:
             is None
         )
 
+    def test_no_match_inside_other_urls(self):
+        assert (
+            match_creator_identity(
+                ["https://evil.example/@alice@example.org/profile"],
+                ["@alice@example.org"],
+            )
+            is None
+        )
+        assert (
+            match_creator_identity(
+                ["https://evil.example/redirect?u=https://example.org/@alice"],
+                ["https://example.org/@alice"],
+            )
+            is None
+        )
+
     def test_boundary_at_end_and_punctuation(self):
         assert match_creator_identity(["by @alice@example.org"], ["@alice@example.org"])
         assert match_creator_identity(
@@ -250,6 +266,8 @@ class TestVerifyViews:
         response = client.get(f"/podcast/{podcast.uuid}/verify/status")
         assert response.status_code == 200
         assert "verified creator" in response.content.decode()
+        # poll concluded: client is told to reload the page
+        assert response.headers.get("HX-Refresh") == "true"
 
     def test_manual_verify_superuser_only(self):
         user = User.register(email="a@example.com", username="alice")
@@ -333,6 +351,22 @@ class TestEditPermissions:
         )
         assert response.status_code == 403
 
+    def test_episode_edit_inherits_parent_lock(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        podcast = _podcast()
+        episode = PodcastEpisode.objects.create(
+            program=podcast,
+            guid="guid-lock-1",
+            title="ep",
+            pub_date=timezone.now(),
+            media_url="https://example.com/1.mp3",
+        )
+        _verified(podcast, alice.identity)
+        url = f"/podcast/episode/{episode.uuid}/edit"
+        assert _client(bob).get(url).status_code == 403
+        assert _client(alice).get(url).status_code == 200
+
     def test_credit_edit_blocked_for_non_creator(self):
         alice = User.register(email="a@example.com", username="alice")
         bob = User.register(email="b@example.com", username="bob")
@@ -382,21 +416,29 @@ class TestEditPermissions:
         )
         response = _client(bob).post("/refetch", {"url": url})
         assert response.status_code == 403
+        # scheme variant of the stored url resolves to the same resource and
+        # must not bypass the check
+        response = _client(bob).post(
+            "/refetch", {"url": url.replace("https://", "http://")}
+        )
+        assert response.status_code == 403
 
 
 @pytest.mark.django_db(databases="__all__")
 class TestMergeTransfer:
-    def test_claims_move_on_merge(self):
+    def test_claims_removed_on_merge(self):
+        # claims prove ownership of the source feed, not the target, so they
+        # must not transfer: otherwise verifying a throwaway feed and merging
+        # it into an unrelated item would grant creator control over it
         alice = User.register(email="a@example.com", username="alice")
         bob = User.register(email="b@example.com", username="bob")
         source = _podcast("Source", "source.example.com/feed.rss")
         target = _podcast("Target", "target.example.com/feed.rss")
         _verified(source, alice.identity)
-        _verified(source, bob.identity)
-        _verified(target, bob.identity)  # duplicate owner on target
+        _verified(target, bob.identity)
         source.merge_to(target)
         owners = set(target.verified_creators.values_list("owner_id", flat=True))
-        assert owners == {alice.identity.pk, bob.identity.pk}
+        assert owners == {bob.identity.pk}
         assert not source.verified_creators.exists()
 
 

@@ -84,7 +84,8 @@ def match_creator_identity(
 
     Matching is case-insensitive and boundary-guarded on both sides, so that
     e.g. "@a@b.com" matches neither inside "@a@b.com.evil" nor inside
-    "@x@a@b.com".
+    "@x@a@b.com"; url delimiters on the left keep identifiers embedded in
+    other urls (paths, query strings) from matching.
     """
     texts = [d.lower() for d in descriptions if d]
     for candidate in candidates:
@@ -92,9 +93,9 @@ def match_creator_identity(
         if not c:
             continue
         if "://" in c:
-            left, right = r"(?<![\w\-./])", r"(?![\w\-./])"
+            left, right = r"(?<![\w\-./?#&=])", r"(?![\w\-./])"
         else:
-            left, right = r"(?<![\w\-.@])", r"(?![\w\-.])"
+            left, right = r"(?<![\w\-.@/?#&=])", r"(?![\w\-.])"
         pattern = left + re.escape(c) + right
         if any(re.search(pattern, t) for t in texts):
             return candidate
