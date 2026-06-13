@@ -74,6 +74,7 @@
               btn.removeAttribute('aria-busy');
               btn.disabled = true;
               btn.textContent = '{% trans "Passkey created" %}';
+              location = document.getElementById('accept-btn').dataset.redirectUrl;
             },
             function(err) {
               btn.removeAttribute('aria-busy');
