@@ -5,8 +5,13 @@ on:
     paths-ignore:
       - 'README.md'
       - 'docs/**'
+      - 'mkdocs.yml'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 permissions:
   contents: read
