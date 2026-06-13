@@ -6,7 +6,11 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from common.utils import get_uuid_or_404, target_identity_required
+from common.utils import (
+    get_uuid_or_404,
+    target_identity_required,
+    user_identity_required,
+)
 from users.models import APIdentity
 
 from ..jobs.creator_verify import enqueue_creator_verification
@@ -37,6 +41,7 @@ def _verify_context(request, item: Item) -> dict:
 
 @require_http_methods(["GET"])
 @login_required
+@user_identity_required
 def verify_creator(request, item_path, item_uuid):
     item = _get_verifiable_item(item_uuid)
     return render(request, "catalog_verify.html", _verify_context(request, item))
@@ -44,6 +49,7 @@ def verify_creator(request, item_path, item_uuid):
 
 @require_http_methods(["GET"])
 @login_required
+@user_identity_required
 def verify_creator_status(request, item_path, item_uuid):
     item = _get_verifiable_item(item_uuid)
     return render(request, "_verify_status.html", _verify_context(request, item))
@@ -51,6 +57,7 @@ def verify_creator_status(request, item_path, item_uuid):
 
 @require_http_methods(["POST"])
 @login_required
+@user_identity_required
 def verify_creator_start(request, item_path, item_uuid):
     item = _get_verifiable_item(item_uuid)
     if not getattr(item, "feed_url", None):
@@ -76,6 +83,7 @@ def verify_creator_start(request, item_path, item_uuid):
 
 @require_http_methods(["POST"])
 @login_required
+@user_identity_required
 def verify_creator_manual(request, item_path, item_uuid):
     if not request.user.is_superuser:
         raise PermissionDenied(_("Insufficient permission"))
@@ -104,6 +112,7 @@ def verify_creator_manual(request, item_path, item_uuid):
 
 @require_http_methods(["POST"])
 @login_required
+@user_identity_required
 def unverify_creator(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     claim = get_object_or_404(
