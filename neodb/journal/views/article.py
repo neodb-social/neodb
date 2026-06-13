@@ -17,7 +17,7 @@ from users.models.apidentity import APIdentity
 from ..forms import ArticleForm
 from ..models import Article
 from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
-from ..models.renderers import convert_leading_space_in_md, sanitize_md_images
+from ..models.renderers import convert_leading_space_in_md
 from .common import conditional_get_for_anonymous, post_quotes_count
 
 
@@ -77,7 +77,8 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
     body = form.cleaned_data["body"]
     if form.cleaned_data.get("leading_space"):
         body = convert_leading_space_in_md(body)
-    body = sanitize_md_images(body)
+    # Image-src sanitization now lives in Article.update_local_article so all
+    # local-author entry points share it; no need to sanitize here.
     tags = _parse_tags(form.cleaned_data.get("tags", ""))
     article = Article.update_local_article(
         owner=request.user.identity,

@@ -7,7 +7,15 @@ from django.test import Client, override_settings
 from django.utils import timezone
 
 from catalog.models import Edition, Game, Movie
-from journal.models import Collection, FeaturedCollection, Mark, Note, Review, Tag
+from journal.models import (
+    Article,
+    Collection,
+    FeaturedCollection,
+    Mark,
+    Note,
+    Review,
+    Tag,
+)
 from journal.models.shelf import ShelfType
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -858,6 +866,195 @@ def test_review_api_crud_and_public_fetch():
         HTTP_AUTHORIZATION=f"Bearer {token}",
     )
     assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_api_crud_and_public_fetch():
+    user = User.register(email="articleuser@example.com", username="articleuser")
+
+    app = Takahe.get_or_create_app(
+        "Article API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    response = client.post(
+        "/api/me/article/",
+        data=json.dumps(
+            {
+                "title": "Article Title",
+                "body": "Article **body** in markdown",
+                "summary": "A short summary",
+                "visibility": 0,
+                "tags": ["Foo", "bar"],
+                "post_to_fediverse": False,
+            }
+        ),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    created = response.json()
+    article_uuid = created["uuid"]
+    assert created["title"] == "Article Title"
+    assert created["body"] == "Article **body** in markdown"
+    assert created["summary"] == "A short summary"
+    assert created["tags"] == ["Foo", "bar"]
+    assert "<strong>body</strong>" in created["html_content"]
+
+    response = client.get(
+        "/api/me/article/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 1
+    assert payload["data"][0]["uuid"] == article_uuid
+
+    response = client.get(
+        f"/api/me/article/{article_uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+
+    response = client.put(
+        f"/api/me/article/{article_uuid}",
+        data=json.dumps(
+            {
+                "title": "Article Title Updated",
+                "body": "Updated body",
+                "visibility": 0,
+            }
+        ),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["title"] == "Article Title Updated"
+
+    response = Client().get(f"/api/article/{article_uuid}")
+
+    assert response.status_code == 200
+    assert response.json()["url"].endswith(article_uuid)
+
+    response = client.delete(
+        f"/api/me/article/{article_uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    response = client.get(
+        f"/api/me/article/{article_uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_api_visibility():
+    owner = User.register(email="articleowner@example.com", username="articleowner")
+    viewer = User.register(email="articleviewer@example.com", username="articleviewer")
+
+    article = Article.update_local_article(
+        owner=owner.identity,
+        title="Private Article",
+        body="secret",
+        visibility=2,
+    )
+
+    owner_app = Takahe.get_or_create_app(
+        "Article Owner App",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=owner.identity.pk,
+    )
+    owner_token = Takahe.refresh_token(owner_app, owner.identity.pk, owner.pk)
+    viewer_app = Takahe.get_or_create_app(
+        "Article Viewer App",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    viewer_token = Takahe.refresh_token(viewer_app, viewer.identity.pk, viewer.pk)
+
+    # owner can fetch their own private article via the public endpoint
+    response = Client().get(
+        f"/api/article/{article.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {owner_token}",
+    )
+    assert response.status_code == 200
+
+    # another user cannot fetch a private article
+    response = Client().get(
+        f"/api/article/{article.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {viewer_token}",
+    )
+    assert response.status_code == 403
+
+    # anonymous cannot fetch a private article
+    response = Client().get(f"/api/article/{article.uuid}")
+    assert response.status_code == 403
+
+    # another user cannot reach it via the owner-scoped endpoint
+    response = Client().get(
+        f"/api/me/article/{article.uuid}",
+        HTTP_AUTHORIZATION=f"Bearer {viewer_token}",
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_api_sanitizes_body_and_validates_length():
+    user = User.register(email="articlesan@example.com", username="articlesan")
+    app = Takahe.get_or_create_app(
+        "Article Sanitize API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    # a markdown image with a relative (invalid) src is sanitized on the API
+    # path, just like the web compose form
+    response = client.post(
+        "/api/me/article/",
+        data=json.dumps(
+            {
+                "title": "Sanitized",
+                "body": "see ![pic](secret.png) here",
+                "visibility": 0,
+            }
+        ),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    body = response.json()["body"]
+    assert "![pic](secret.png)" not in body
+    assert "==[invalid image: secret.png]==" in body
+
+    # an over-long title is rejected with a clean 422, not an uncaught DB 500
+    response = client.post(
+        "/api/me/article/",
+        data=json.dumps(
+            {
+                "title": "x" * 501,
+                "body": "ok",
+                "visibility": 0,
+            }
+        ),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 422
 
 
 @pytest.mark.django_db(databases="__all__")

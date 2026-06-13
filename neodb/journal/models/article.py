@@ -15,7 +15,7 @@ from users.models import APIdentity
 
 from .atproto import DOCUMENT_NSID, build_document
 from .common import Piece, VisibilityType
-from .renderers import render_md
+from .renderers import render_md, sanitize_md_images
 from .tag import Tag as TagModel
 
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
@@ -348,7 +348,11 @@ class Article(Piece):
         if article is None:
             article = cls(owner=owner)
         article.title = title
-        article.body = body
+        # Validate/normalize markdown image srcs here (not in each caller) so
+        # every local-author entry point — web compose form and the REST API —
+        # is sanitized by default. Idempotent: already-normalized srcs are
+        # unchanged. Inbound federation uses update_by_ap_object, not this path.
+        article.body = sanitize_md_images(body)
         article.summary = summary or ""
         article.sensitive = bool(sensitive)
         article.visibility = int(visibility)
