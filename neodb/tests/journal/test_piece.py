@@ -214,6 +214,18 @@ class TestMark:
         mark = Mark(self.user1.identity, self.book1)
         assert mark.review is None
 
+    def test_delete_review_without_existing(self):
+        # Deleting a review that was never created must be a no-op, not an
+        # attempt to insert a Review with a null title (NEODB-SOCIAL-7MX).
+        result = Review.update_item_review(self.book1, self.user1.identity, None, None)
+        assert result is None
+        mark = Mark(self.user1.identity, self.book1)
+        assert mark.review is None
+        assert (
+            Review.objects.filter(owner=self.user1.identity, item=self.book1).count()
+            == 0
+        )
+
     def test_tag(self):
         TagManager.tag_item_for_owner(
             self.user1.identity, self.book1, [" Sci-Fi ", " fic "]

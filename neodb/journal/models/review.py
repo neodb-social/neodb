@@ -248,10 +248,14 @@ class Review(Content):
         application_id: int | None = None,
     ):
         review = Review.objects.filter(owner=owner, item=item).first()
-        if review is not None:
-            if title is None:
+        if title is None:
+            # title=None signals deletion: drop the existing review if any,
+            # otherwise no-op (e.g. deleting an item that was never reviewed,
+            # or a concurrent/repeated delete). Never fall through to create
+            # a new Review with a null title.
+            if review is not None:
                 review.delete()
-                return
+            return
         defaults = {
             "title": title,
             "body": body,
