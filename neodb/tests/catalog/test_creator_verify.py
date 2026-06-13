@@ -325,6 +325,29 @@ class TestVerifyViews:
         claim = VerifiedCreator.objects.get(item=podcast, owner=user.identity)
         assert claim.state == VerifiedCreator.State.PENDING
 
+    def test_blocked_start_does_not_orphan_claim(self, monkeypatch):
+        # if the cooldown lock blocks a submission, no PENDING claim should be
+        # left behind with no job (which would wedge future retries)
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        calls = []
+        monkeypatch.setattr(
+            "catalog.views.verify.enqueue_creator_verification",
+            lambda claim, u: calls.append(claim.pk),
+        )
+        client = _client(user)
+        # first start acquires the cooldown lock and enqueues
+        client.post(f"/podcast/{podcast.uuid}/verify/start")
+        claim = VerifiedCreator.objects.get(item=podcast, owner=user.identity)
+        # simulate the user removing the claim while the lock is still held
+        claim.delete()
+        # a resubmit within the cooldown is blocked and must NOT create a claim
+        client.post(f"/podcast/{podcast.uuid}/verify/start")
+        assert not VerifiedCreator.objects.filter(
+            item=podcast, owner=user.identity
+        ).exists()
+        assert len(calls) == 1
+
     def test_manual_verify_superuser_only(self):
         user = User.register(email="a@example.com", username="alice")
         admin = User.register(email="root@example.com", username="root")

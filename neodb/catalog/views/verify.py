@@ -75,26 +75,30 @@ def verify_creator_start(request, item_path, item_uuid):
             request, messages.ERROR, _("No feed url available for this item.")
         )
         return redirect(_verify_page_url(item))
-    claim, created = VerifiedCreator.objects.get_or_create(
+    existing = VerifiedCreator.objects.filter(
         item=item, owner=request.user.identity
-    )
-    if claim.state == VerifiedCreator.State.VERIFIED:
+    ).first()
+    if existing and existing.state == VerifiedCreator.State.VERIFIED:
         messages.add_message(
             request, messages.INFO, _("You are already a verified creator.")
         )
         return redirect(_verify_page_url(item))
-    if claim.state == VerifiedCreator.State.PENDING and not created:
+    if existing and existing.state == VerifiedCreator.State.PENDING:
         messages.add_message(
             request, messages.INFO, _("Verification is already in progress.")
         )
         return redirect(_verify_page_url(item))
-    # short cooldown so repeated submissions can't flood the job queue
+    # acquire a short cooldown lock before creating/mutating the claim, so a
+    # blocked submission can't leave an orphaned PENDING claim with no job
     lock_key = f"_verify_creator_lock:{item.pk}:{request.user.identity.pk}"
     if not cache.add(lock_key, 1, timeout=VERIFY_COOLDOWN_SECONDS):
         messages.add_message(
             request, messages.WARNING, _("Please wait a moment before trying again.")
         )
         return redirect(_verify_page_url(item))
+    claim, _created = VerifiedCreator.objects.get_or_create(
+        item=item, owner=request.user.identity
+    )
     claim.state = VerifiedCreator.State.PENDING
     claim.matched = ""
     claim.failure_reason = ""
