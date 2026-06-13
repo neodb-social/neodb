@@ -93,7 +93,13 @@ class FediverseHtmlParser(HTMLParser):
         """
         self.mention_matches: dict[str, str] = {}
         self.mention_aliases: dict[str, str] = {}
-        for mention in mentions or []:
+        # Sort for deterministic resolution: the bare (un-domained) username key
+        # is shared by identities that have the same username on different
+        # domains, and the last writer wins. `mentions` is otherwise unordered.
+        for mention in sorted(
+            mentions or [],
+            key=lambda m: ((m.username or "").lower(), (m.domain_id or "").lower()),
+        ):
             if self.uri_domain:
                 url = mention.absolute_profile_uri()
             elif not mention.local:

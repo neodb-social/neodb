@@ -155,6 +155,23 @@ def test_parser_same_name_mentions(remote_identity, remote_identity2):
 
 
 @pytest.mark.django_db
+def test_parser_bare_mention_deterministic(remote_identity, remote_identity2):
+    """
+    A bare @username shared by identities on different domains must resolve
+    deterministically, regardless of the order mentions are supplied in (#1616).
+    """
+
+    def render(mentions):
+        return FediverseHtmlParser("<p>Hey @test</p>", mentions=mentions).html
+
+    forward = render([remote_identity, remote_identity2])
+    backward = render([remote_identity2, remote_identity])
+    assert forward == backward
+    assert 'href="https://remote2.test/@test/"' in forward
+    assert 'href="https://remote.test/@test/"' not in forward
+
+
+@pytest.mark.django_db
 def test_parser_emoji_img():
     """
     Validates that <img> tags with :shortcode: alt text are handled as emoji
