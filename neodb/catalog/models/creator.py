@@ -73,7 +73,11 @@ def creator_identity_candidates(user: "User") -> list[str]:
         if user.mastodon.url:
             candidates.append(user.mastodon.url)
     if user.bluesky and user.bluesky.handle:
+        # a bluesky handle is itself a domain, so accept both the @handle
+        # form and its url form (e.g. https://name.bsky.social)
         candidates.append(f"@{user.bluesky.handle}")
+        if user.bluesky.url:
+            candidates.append(user.bluesky.url)
     return candidates
 
 

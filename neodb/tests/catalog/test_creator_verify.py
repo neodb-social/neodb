@@ -144,12 +144,19 @@ class TestCandidates:
             raising=False,
         )
         monkeypatch.setattr(
-            user, "bluesky", SimpleNamespace(handle="alice.bsky.example"), raising=False
+            user,
+            "bluesky",
+            SimpleNamespace(
+                handle="alice.bsky.example", url="https://alice.bsky.example"
+            ),
+            raising=False,
         )
         candidates = creator_identity_candidates(user)
         assert "@alice@mast.example" in candidates
         assert "https://mast.example/@alice" in candidates
         assert "@alice.bsky.example" in candidates
+        # a bluesky handle is a domain, so its url form is accepted too
+        assert "https://alice.bsky.example" in candidates
 
 
 @pytest.mark.django_db(databases="__all__")
