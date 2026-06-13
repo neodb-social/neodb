@@ -77,11 +77,10 @@ jobs:
         NEODB_SEARCH_URL: typesense://testuser:testpass@127.0.0.1:8108/cat
       run: |
         uv run --project .. python manage.py compilemessages -l zh_Hans
-        uv run --project .. python -m coverage run -m pytest
-        uv run --project .. python -m coverage report -m
-        uv run --project .. python -m coverage xml -o coverage.xml
+        uv run --project .. python -m pytest -n auto --cov=. --cov-report=term-missing --cov-report=xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         files: neodb/coverage.xml
+        flags: neodb
         token: ${{ secrets.CODECOV_TOKEN }}

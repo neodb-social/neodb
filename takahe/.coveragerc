@@ -1,0 +1,8 @@
+[run]
+omit =
+    tests/*
+    */tests/*
+    */migrations/*
+    .venv/*
+    */.venv/*
+branch = True
