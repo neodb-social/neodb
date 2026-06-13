@@ -9,7 +9,7 @@ from django.db.models import (
 )
 
 from activities.models import Post
-from users.models import Follow, Identity
+from users.models import Follow, FollowStates, Identity
 
 
 class Command(BaseCommand):
@@ -28,14 +28,17 @@ class Command(BaseCommand):
             .annotate(latest=Max("created"))
             .values("latest")[:1]
         )
+        # Match the follow-list endpoints: accepted inbound, active outbound.
         followers = (
-            Follow.objects.filter(target_id=OuterRef("id"))
+            Follow.objects.filter(target_id=OuterRef("id"), state=FollowStates.accepted)
             .values("target_id")
             .annotate(num=Count("id"))
             .values("num")[:1]
         )
         following = (
-            Follow.objects.filter(source_id=OuterRef("id"))
+            Follow.objects.filter(
+                source_id=OuterRef("id"), state__in=FollowStates.group_active()
+            )
             .values("source_id")
             .annotate(num=Count("id"))
             .values("num")[:1]

@@ -436,18 +436,25 @@ class Identity(StatorModel):
     def calculate_stats(self, save=True):
         if not self.local:
             return
+        from users.models import FollowStates
+
         try:
             latest = self.posts.latest("created").created.date().isoformat()
         except (ObjectDoesNotExist, AttributeError):
             latest = None
+        # Match the follow-list endpoints: accepted inbound, active outbound.
         self.stats = {
             "last_status_at": latest,
             "statuses_count": self.posts.count(),
-            "followers_count": self.inbound_follows.count(),
-            "following_count": self.outbound_follows.count(),
+            "followers_count": self.inbound_follows.filter(
+                state=FollowStates.accepted
+            ).count(),
+            "following_count": self.outbound_follows.filter(
+                state__in=FollowStates.group_active()
+            ).count(),
         }
         if save:
-            self.save()
+            self.save(update_fields=["stats"])
 
     def add_alias(self, actor_uri: str):
         if not self.aliases or actor_uri not in self.aliases:

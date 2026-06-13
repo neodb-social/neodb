@@ -241,11 +241,15 @@ class Follow(StatorModel):
             raise ValueError("You cannot initiate follows from a remote Identity")
         try:
             follow = Follow.objects.get(source=source, target=target)
-            if not follow.active:
+            reactivated = not follow.active
+            if reactivated:
                 follow.state = FollowStates.unrequested
             follow.boosts = boosts
             follow.notify = notify
             follow.save()
+            if reactivated:
+                # Reusing the row skips the post_save creation signal.
+                source.calculate_stats()
         except Follow.DoesNotExist:
             with transaction.atomic():
                 follow = Follow.objects.create(
@@ -269,6 +273,18 @@ class Follow(StatorModel):
     @property
     def accepted(self):
         return self.state in FollowStates.group_accepted()
+
+    ### State machine ###
+
+    def transition_perform(self, state):
+        """
+        Refresh follow-count stats on state changes. Transitions use
+        queryset.update(), which skips the post_save signal that otherwise
+        keeps Identity.stats fresh. (calculate_stats is a no-op for remotes.)
+        """
+        super().transition_perform(state)
+        self.source.calculate_stats()
+        self.target.calculate_stats()
 
     ### ActivityPub (outbound) ###
 
