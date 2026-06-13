@@ -5,6 +5,12 @@
 /neodb.env
 /compose.override.yml
 /typings
+/neodb/.coverage
+/neodb/media
+/neodb/static
+/neodb/common/static/scss/neodb.css
+/neodb/playground
+/takahe/media
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -19,17 +25,6 @@ __pycache__/
 
 # flake8
 tox.ini
-
-# Local sqlite3 db
-*.sqlite3
-
-/neodb/.coverage
-/neodb/media
-/neodb/static
-/neodb/common/static/css/boofilsic.min.css
-/neodb/common/static/css/boofilsic.css
-/neodb/common/static/scss/neodb.css
-/neodb/playground
 
 # translations
 *.mo

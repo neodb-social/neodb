@@ -128,9 +128,9 @@ x-shared:
       - ${NEODB_DATA:-../data}/takahe-media:/www/media
       - ${NEODB_DATA:-../data}/takahe-cache:/www/cache
       - ${NEODB_DATA:-../data}/nginx-log:/var/log/nginx
-      - ${NEODB_SRC:-./neodb}:/neodb
-      - ./misc:/neodb/misc
-      - ${TAKAHE_SRC:-./takahe}:/takahe
+      - ${SRC:-.}/neodb:/neodb
+      - ${SRC:-.}/misc:/neodb/misc
+      - ${SRC:-.}/takahe:/takahe
     profiles:
       - dev
 

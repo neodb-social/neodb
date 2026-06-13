@@ -126,7 +126,7 @@ Development in Docker Compose
 -----------------------------
 The `dev` profile is different from `production`:
 
-- code in `NEODB_SRC` (default: ./neodb) and `TAKAHE_SRC` (default: ./takahe) will be mounted and used in the container instead of code in the image
+- code in `SRC` (default: .) will be mounted and used in the container instead of code in the image (neodb at `SRC/neodb`, takahe at `SRC/takahe`)
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
 - /static/ and /s/ url are not map to pre-generated/collected static file path,  `NEODB_DEBUG=True` is required locate static files from source code
 - one `rqworker` container will be started, instead of two
