@@ -5,7 +5,7 @@ For small and medium NeoDB instances, it's recommended to deploy as a container 
 
 ## Install docker compose
 
-Follow [official instructions](https://docs.docker.com/compose/install/) to install Docker Compose if not yet.
+Follow [official instructions](https://docs.docker.com/compose/install/) to install Docker Compose if you haven't already.
 
 Please verify its version is 2.x or higher before next step:
 
@@ -48,7 +48,7 @@ See [neodb.env.example](https://raw.githubusercontent.com/neodb-social/neodb/mai
 
 ## Start container
 
-in the folder with `compose.yml` and `.env`, execute as the user you just created:
+in the folder with `compose.yml` and `.env`, run:
 ```
 docker compose --profile production pull
 docker compose --profile production up -d
@@ -60,7 +60,7 @@ docker compose ps
 docker compose --profile production logs -f
 ```
 
-In a few seconds, the site should be up at 127.0.0.1:8000 , you may check it with:
+In a few seconds, the site should be up at 127.0.0.1:8000. You may check it with:
 ```
 curl http://localhost:8000/nodeinfo/2.0/
 ```
@@ -73,7 +73,7 @@ JSON response will be returned if the server is up and running:
 
 ## Make the site available publicly
 
-Next step is to expose `http://127.0.0.1:8000` to external network as `https://yourdomain.tld` (NeoDB requires `https`). There are many ways to do it, you may use nginx or caddy as a reverse proxy server with an SSL cert configured, or configure a tunnel provider like cloudflared to do the same. Once done, you may check it with:
+The next step is to expose `http://127.0.0.1:8000` to external network as `https://yourdomain.tld` (NeoDB requires `https`). There are many ways to do it, you may use nginx or caddy as a reverse proxy server with an SSL cert configured, or configure a tunnel provider like cloudflared to do the same. Once done, you may check it with:
 
 ```
 curl https://yourdomain.tld/nodeinfo/2.0/

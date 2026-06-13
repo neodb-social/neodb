@@ -1,12 +1,12 @@
 # Features
 
-NeoDB has [various features](features.md), and you may image it as a mix of Mastodon, Goodreads, Letterboxd, RateYourMusic, Podchaser, and more.
+NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodreads, Letterboxd, RateYourMusic, Podchaser, and more.
 
 ## Public catalog
 
-  - a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
+  - a shared catalog of books/movies/TV shows/music albums/games/podcasts/performances
   - search or create catalog items in each category
-  - one click create item with links to 3rd party sites:
+  - create an item in one click, with links to 3rd-party sites:
     - Goodreads
     - IMDB
     - The Movie Database
@@ -31,7 +31,7 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
   - write notes for an item with progress (e.g. reading notes at page 42)
   - create tags for an item, either privately or publicly
   - create and share list of items
-  - tracking progress of a list (e.g. personal reading challenges)
+  - track progress of a list (e.g. personal reading challenges)
   - Import and export full user data archive
   - import list or archives from some 3rd party sites (see [supported sites](sites.md) for details):
     - Goodreads reading list (CSV export)
@@ -44,12 +44,12 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
 
 ## Social
 
-  - publish and reply post in text and image
+  - publish and reply to posts in text and image
   - view home feed with friends' activities
     - every activity can be set as viewable to self/follower-only/public
     - eligible items, e.g. podcasts and albums, are playable in feed
   - login with other Fediverse identity and import social graph
-    - supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
+    - supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/Friendica/Takahē
   - login with Bluesky / ATProto identity and import social graph
   - login with threads.net (requires app verification by Meta)
   - share collections and reviews to Fediverse/Bluesky/Threads
@@ -61,8 +61,8 @@ NeoDB has [various features](features.md), and you may image it as a mix of Mast
 
 
 ## API
-  - Mastodon compatible API
-    - most mastodon compatible apps are compatible with NeoDB
+  - Mastodon-compatible API
+    - most Mastodon-compatible apps work with NeoDB
   - NeoDB API to manage reviews and collections
 
 ## Languages

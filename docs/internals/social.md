@@ -1,7 +1,7 @@
 Social
 ======
 
-Data Modal
+Data Model
 ----------
 ```mermaid
 classDiagram
@@ -29,8 +29,8 @@ class Item {
 Activities
 ----------
 Activity data may be used for:
- 1. time line view of user and her friends
- 2. chronological view of user's action about an item
+ 1. timeline view of a user and their friends
+ 2. chronological view of a user's actions on an item
  3. ActivityStreams `OrderedCollection` for ActivityPub
 
 However, 2 is currently implemented separately via `ShelfLogManager` in `journal` app, because users may want to change these records manually.

@@ -30,7 +30,7 @@ NeoDB instances can be identified from user agent string (`NeoDB/x.x (+https://e
 
 ## ActivityPub
 
-NeoDB's ActivityPub implementation is based on [Takahē](https://jointakahe.org), with some change to enable interchange of additional information between NeoDB instances.
+NeoDB's ActivityPub implementation is based on [Takahē](https://jointakahe.org), with some changes to enable interchange of additional information between NeoDB instances.
 
 ### Activity
 
@@ -146,4 +146,4 @@ Owner of each instance may choose to turn this off in their admin settings.
 
 ## ATProto
 
-NeoDB is not a PDS itself currently, but can interact with PDS to import user's social graph, and send status updates. So technically NeoDB does not do full federation in ATProto, but NeoDB will handle some side effect from federation, e.g. when user logging in via ATProto handle, NeoDB will resolve user's DID and store it, and will attempt further operation with the DID, and update user's handle if that's changed, and use the corresponding PDS for that handle; user may still have to login NeoDB again with their Bluesky app password, since the change of PDS may invalidates previous app password.
+NeoDB is not a PDS itself currently, but can interact with PDS to import user's social graph, and send status updates. So technically NeoDB does not do full federation in ATProto, but NeoDB will handle some side effects from federation, e.g. when a user logs in via an ATProto handle, NeoDB will resolve user's DID and store it, and will attempt further operation with the DID, and update user's handle if that's changed, and use the corresponding PDS for that handle; user may still have to login NeoDB again with their Bluesky app password, since the change of PDS may invalidate the previous app password.

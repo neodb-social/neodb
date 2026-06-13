@@ -3,8 +3,8 @@ Catalog
 
 Data Models
 -----------
-all types of catalog items inherits from `Item` which stores as multi-table django model.
-one `Item` may have multiple `ExternalResource`s, each represents one page on an external site
+All types of catalog items inherit from `Item`, which is stored as a multi-table Django model.
+One `Item` may have multiple `ExternalResource`s, each representing one page on an external site
 
 ```mermaid
 classDiagram
@@ -99,13 +99,13 @@ Add a new site
     * `DEFAULT_MODEL` (unless specified in `scrape()` return val)
     * a classmethod `id_to_url()`
     * a method `scrape()` returns a `ResourceContent` object
-        * `BasicDownloader` or `ProxiedDownloader` can used to download website content or API data. e.g. `content = BasicDownloader(url).download().html()`
+        * `BasicDownloader` or `ProxiedDownloader` can be used to download website content or API data. e.g. `content = BasicDownloader(url).download().html()`
     * check out existing files in `catalog/sites/` for more examples
  - add an import in `catalog/sites/__init__.py`
  - add some tests to `catalog/<folder>/tests.py` according to site type
     + add `DOWNLOADER_SAVEDIR = '/tmp'` to `settings.py` can save all response to /tmp
     + run `neodb-manage cat <url>` for debugging or saving response file to `/tmp`. Detailed code of `cat` is in `catalog/management/commands/cat.py`
-    + move captured response file to `test_data/`, except large/images files. Or if have to, replace it with a smallest version (e.g. 1x1 pixel / 1s audio)
+    + move captured response file to `test_data/`, except large/image files. Or if have to, replace it with a smallest version (e.g. 1x1 pixel / 1s audio)
     + add `@use_local_response` decorator to test methods that should pick up these responses (if `BasicDownloader` or `ProxiedDownloader` is used)
  - run all the tests and make sure they pass
     - Command: `neodb-manage python3 manage.py test [--keepdb]`.

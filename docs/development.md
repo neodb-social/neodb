@@ -3,7 +3,7 @@ Development
 
 Overview
 --------
-NeoDB is a Django project (code in the `neodb` folder of this repo), and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in the `takahe` folder of this repo). They communicate with each other mainly thru database and task queue, [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+NeoDB is a Django project (code in the `neodb` folder of this repo), and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in the `takahe` folder of this repo). They communicate with each other mainly through database and task queue; [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
 
 
 Prerequisite
@@ -30,12 +30,12 @@ pre-commit install
 
 To develop Takahe, install requirements(-dev) and pre-commit hooks for `takahe` project as well, preferably using a different virtual environment.
 
-Note: the virtual environments and packages installed in this step are mostly for type check, the actual virtual environments and packages for development runtime are from NeoDB docker image, and they can be configured differently, more on this later in this document.
+Note: the virtual environments and packages installed in this step are mostly for type checking; the actual virtual environments and packages for development runtime are from the NeoDB docker image, and they can be configured differently, more on this later in this document.
 
 
 Start local instance for development
 ------------------------------------
-Follow [install guide](install.md) to create `.env` in the root folder of NeoDB code, including at least these configuration:
+Follow [install guide](install.md) to create `.env` in the root folder of NeoDB code, including at least the following configuration:
 ```
 NEODB_SITE_NAME="My Test"
 NEODB_SITE_DOMAIN=mydomain.dev
@@ -66,7 +66,7 @@ Watch the logs:
 docker compose --profile dev logs -f
 ```
 
-Now the local development instance is ready to serve at `http://localhost:8000`, but to develop or test anything related with ActivityPub, reverse proxying it from externally reachable https://`NEODB_SITE_DOMAIN`/ is required; https is optional theoretically but in reality required for various compatibility reasons.
+Now the local development instance is ready to serve at `http://localhost:8000`, but to develop or test anything related to ActivityPub, reverse proxying it from externally reachable https://`NEODB_SITE_DOMAIN`/ is required; https is optional theoretically but in reality required for various compatibility reasons.
 
 Note: `dev` profile is for development only, and quite different from `production`, so always use `--profile dev` instead of `--profile production`, more on those differences later in this document.
 
@@ -128,7 +128,7 @@ The `dev` profile is different from `production`:
 
 - code in `SRC` (default: .) will be mounted and used in the container instead of code in the image (neodb at `SRC/neodb`, takahe at `SRC/takahe`)
 - `runserver` with autoreload will be used instead of `gunicorn` for both neodb and takahe web server
-- /static/ and /s/ url are not map to pre-generated/collected static file path,  `NEODB_DEBUG=True` is required locate static files from source code
+- /static/ and /s/ urls are not mapped to the pre-generated/collected static file path; `NEODB_DEBUG=True` is required to locate static files from source code
 - one `rqworker` container will be started, instead of two
 - use `dev-shell` and `dev-root` to invoke shells, instead of `shell` and `root`
 - there's no automatic `migration` container, but it can be triggered manually via `docker compose run dev-shell neodb-init`
@@ -169,12 +169,12 @@ Applications
 ------------
 Main Django apps for NeoDB:
 
- - `users` manages user in typical Django fashion
+ - `users` manages users in typical Django fashion
  - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto](https://atproto.com) for user login and data sync. see [ATProto](internals/atproto.md) for details of ATProto implementation
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
- - `social` present timeline and notification for local users
- - `takahe` communicate with Takahe (a separate Django server, run side by side with this server, code in the `takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
+ - `social` presents timeline and notifications for local users
+ - `takahe` communicates with Takahe (a separate Django server, run side by side with this server, code in the `takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 
@@ -182,4 +182,4 @@ Miscellaneous notes
 -------------------
 If models in `neodb/takahe/models.py` are changed, instead of adding incremental migrations, just regenerate `neodb/takahe/migrations/0001_initial.py` instead, because these migrations will never be applied except for constructing a test database.
 
-A `libsass` wheel is stored in the repo to speed up docker image building process in Github Action.
+A `libsass` wheel is stored in the repo to speed up the docker image building process in Github Actions.

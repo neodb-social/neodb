@@ -1,6 +1,6 @@
 # Apps
 
-NeoDB web version works in desktop and mobile, and provides the most complete features and experience, meanwhile some third-party apps are also available below, they are not affliated with NeoDB unless otherwise specified.
+The NeoDB web version works on desktop and mobile, and provides the most complete features and experience. Some third-party apps are also available below; they are not affiliated with NeoDB unless otherwise specified.
 
 ## Apps for NeoDB
 
@@ -21,4 +21,4 @@ These apps are not affiliated with NeoDB, but they are being developed with the 
 
 [Mastodon compatible mobile and native apps](https://joinmastodon.org/apps) can be used to log in and utilize the micro-blogging features in NeoDB server.
 
-In addition to micro-blogging, Mastodon compatible can also be used to take note on book you are currently reading. Just head to bookmark section in your app, your currently reading books are listed there as bookmarked posts, replying any of them will make a note for that book.
+In addition to micro-blogging, Mastodon-compatible apps can also be used to take notes on the book you are currently reading. Just head to the bookmark section in your app; your currently-reading books are listed there as bookmarked posts, and replying to any of them will create a note for that book.

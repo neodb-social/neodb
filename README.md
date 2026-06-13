@@ -1,4 +1,3 @@
-![Tests](https://img.shields.io/github/actions/workflow/status/neodb-social/neodb/tests.yml?style=for-the-badge&color=56AA54&label=tests)
 [![codecov](https://img.shields.io/codecov/c/github/neodb-social/neodb?style=for-the-badge&color=56AA54&label=coverage)](https://codecov.io/gh/neodb-social/neodb)
 [![Translation](https://img.shields.io/weblate/progress/neodb?style=for-the-badge)](https://hosted.weblate.org/projects/neodb/neodb/)
 [![GitHub Release](https://img.shields.io/github/v/release/neodb-social/neodb?style=for-the-badge&color=3791E0&logoColor=fff)](https://github.com/neodb-social/neodb/releases)
@@ -9,11 +8,11 @@
 # 🧩 NeoDB
 _mark the things you love._
 
-[NeoDB](https://neodb.net) (fka boofilsic) is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse.
+[NeoDB](https://neodb.net) (fka boofilsic) is an open source project and free service to help users manage, share and discover collections, reviews and ratings for cultural products (e.g. books, movies, music, podcasts, games and performances) in the Fediverse and Atmosphere.
 
-[NeoDB.social](https://neodb.social) is a free instance hosted by NeoDB developers, there are more [servers](https://neodb.net/servers/) and [apps](https://neodb.net/apps/) available.
+[NeoDB.social](https://neodb.social) is a free instance hosted by NeoDB developers; more [servers](https://neodb.net/servers/) and [apps](https://neodb.net/apps/) are available.
 
-Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky.app/profile/neodb.net) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations. Your support is essential to keep the services free and open-sourced.
+Follow us on [Fediverse](https://mastodon.online/@neodb), [Atmosphere](https://bsky.app/profile/neodb.net) or join our [Discord community](https://discord.gg/QBHkrV8bxK) to share your ideas/questions/creations. Your support is essential to keep the services free and open source.
 
 [![Mastodon](https://img.shields.io/mastodon/follow/106919732872456302?style=for-the-badge&logo=mastodon&logoColor=fff&label=%40neodb%40mastodon.social&color=6D75D2)](https://mastodon.social/@neodb)
 [![Discord](https://img.shields.io/discord/1041738638364528710?label=Discord&logo=discord&logoColor=fff&color=6D75D2&style=for-the-badge)](https://discord.gg/QBHkrV8bxK)
@@ -21,9 +20,9 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
 
 
 ## Features
-- manage a shared catalog of books/movies/tv shows/music album/games/podcasts/performances
+- manage a shared catalog of books/movies/TV shows/music albums/games/podcasts/performances
   + search or create catalog items in each category
-  + one click create item with links to [many 3rd party sites](docs/sites.md):
+  + create an item in one click, with links to [many 3rd-party sites](docs/sites.md):
     * Goodreads
     * IMDB
     * The Movie Database
@@ -43,13 +42,13 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * WorldCat
     * Musicbrainz
     * any RSS link to a podcast
-  + Search from some of sites above
+  + Search from some of the sites above
 - logged in users can manage their collections:
   + mark an item as wishlist/in progress/complete/dropped
   + rate and write notes and reviews for an item
   + create tags for an item, either privately or publicly
   + create and share a collection of items
-  + tracking progress of a list (e.g. personal reading challenges)
+  + track progress of a list (e.g. personal reading challenges)
   + import and export full user data archive
   + import list or archives from some 3rd party sites:
     * Goodreads reading list
@@ -63,10 +62,10 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
     * eligible items, e.g. podcasts and albums, are playable in feed
   + micro-blogging: post status/photos and interact with them
   + login with other Fediverse identity and import social graph
-    * supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/friendica/Takahē
+    * supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/Friendica/Takahē
   + login with Bluesky / ATProto identity and import social graph
   + login with threads.net (requires app verification by Meta)
-  + share collections and reviews to Fediverse/Bluesky/Threads
+  + share collections and reviews to Fediverse/Atmosphere/Threads
 - ActivityPub support
   + NeoDB users can follow and interact with users on other ActivityPub services like Mastodon and Pleroma
   + NeoDB instances communicate with each other via an extended version of ActivityPub
@@ -75,8 +74,8 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Bluesky](https://bsky
 - ATProto support
   + NeoDB is not a PDS, but may publish posts to user feed
 - comprehensive API support
-  + Restful API with OpenAPI specification, see `/developer/` of your instance
-  + Mastodon-compatible API are available, most of Mastodon apps works out of box
+  + RESTful API with OpenAPI specification, see `/developer/` of your instance
+  + Mastodon-compatible API is available; most Mastodon apps work out of the box
 - other
   + i18n: da, de, en, es, fr, it, pt and zh are partially or fully available; contribution for more languages welcomed
 
@@ -94,11 +93,13 @@ Please see [installation guide](https://neodb.net/install/).
 - To help develop NeoDB, please see [development guide](https://neodb.net/development/) for some basics to start with
 - To translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/neodb/)
 - To contribute to NeoDB documentation, please submit a PR to the [docs/](docs/) directory.
-- Contributors may use any tools they prefer, but must review all code/text and be sufficiently confident that the contribution is of high enough quality before submitting a PR. Once done so, please confirm that in PR description.
+- Contributors may use any tools they prefer, but must review all code/text and be sufficiently confident that the contribution is of high enough quality before submitting a PR. Once you have done so, please confirm that in the PR description.
+
 
 ## License
-NeoDB is licensed under [AGPL-3.0](LICENSE). Part of the code was originally from [Takahe](https://jointakahe.org/) which is MIT-licensed, and we've been working its authors to contribute back relevant functionalities.
-If you prefer a ActivityPub micro-blogging server without culture review features in more permissive license, please check their [code](https://github.com/jointakahe/takahe) and [fork](https://github.com/avaraline/incarnator).
+NeoDB is licensed under [AGPL-3.0](LICENSE). Part of the code was originally from [Takahē](https://jointakahe.org/) which is MIT-licensed, and we've been working with its authors to contribute back relevant functionalities.
+If you prefer an ActivityPub micro-blogging server without culture-review features, under a more permissive license, please check their [code](https://github.com/jointakahe/takahe) and [fork](https://github.com/avaraline/incarnator).
+
 
 ## Sponsor
-If you like this project, please consider donating to [NeoDB.social on ko-fi](https://ko-fi.com/neodb), or [Takahē](https://www.patreon.com/takahe) and [NiceDB](https://patreon.com/tertius) without whom this project won't be possible.
+If you like this project, please consider donating to [NeoDB.social on ko-fi](https://ko-fi.com/neodb), or [Takahē](https://www.patreon.com/takahe) and [NiceDB](https://patreon.com/tertius) without whom this project wouldn't be possible.

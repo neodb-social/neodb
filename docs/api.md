@@ -2,17 +2,17 @@
 
 ## Endpoints
 
-NeoDB has a set of API endpoints mapping to its functions like marking a book or listing collections, they can be found in swagger based API documentation at `/developer/` of your running instance, [a version of it](https://neodb.social/developer/) is available on our flagship instance.
+NeoDB has a set of API endpoints mapping to its functions, like marking a book or listing collections. They can be found in the Swagger-based API documentation at `/developer/` of your running instance; [a version of it](https://neodb.social/developer/) is available on our flagship instance.
 
 NeoDB also supports a subset of Mastodon API, details can be found in [Mastodon API documentation](https://docs.joinmastodon.org/api/).
 
-Both set of APIs can be accessed by the same access token.
+Both sets of APIs can be accessed by the same access token.
 
 ## How to authorize
 
 ### Create an application
 
-you must have at least one URL included in the Redirect URIs field, e.g. `https://example.org/callback`, or use `urn:ietf:wg:oauth:2.0:oob` if you don't have a callback URL.
+You must have at least one URL included in the Redirect URIs field, e.g. `https://example.org/callback`, or use `urn:ietf:wg:oauth:2.0:oob` if you don't have a callback URL.
 
 ```
 curl https://neodb.social/api/v1/apps \
@@ -21,7 +21,7 @@ curl https://neodb.social/api/v1/apps \
   -d website=https://my.site
 ```
 
-and save of the `client_id` and `client_secret` returned in the response:
+and save the `client_id` and `client_secret` returned in the response:
 
 ```
 {
@@ -41,7 +41,7 @@ and save of the `client_id` and `client_secret` returned in the response:
 https://neodb.social/oauth/authorize?response_type=code&client_id=CLIENT_ID&redirect_uri=https://example.org/callback&scope=read+write
 ```
 
-### Once authorizated by user, it will redirect to `https://example.org/callback` with a `code` parameter:
+### Once authorized by the user, it will redirect to `https://example.org/callback` with a `code` parameter:
 
 ```
 https://example.org/callback?code=AUTH_CODE
@@ -58,7 +58,7 @@ curl https://neodb.social/oauth/token \
 	-d "grant_type=authorization_code"
 ```
 
-and access token will be returned in the response:
+and an access token will be returned in the response:
 
 ```
 {

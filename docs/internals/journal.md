@@ -64,7 +64,7 @@ Item .. Collection
 class Collection {
     +str title
     +str brief
-    +Bool collabrative
+    +Bool collaborative
 }
 List <|-- Tag
 class Tag {

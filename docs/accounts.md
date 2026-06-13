@@ -1,5 +1,5 @@
 # **Manage Accounts**
-Here is a list of things you can do, to manage user accounts. Make sure to replace <span style="color:orange">[USERNAME]</span> accordingly. Usernames are case-sensitive.
+Here is a list of things you can do to manage user accounts. Make sure to replace <span style="color:orange">[USERNAME]</span> accordingly. Usernames are case-sensitive.
 
 Toggling an account is an on/off function. So use the same command to make someone admin/staff/active and to undo it.
 
@@ -24,7 +24,7 @@ docker compose --profile production run --rm shell neodb-manage invite --create
 ---
 
 ## **Create admin account**
-A step-by-step admin account creation. If you already got an account and want to make it admin, skip to the next point.
+A step-by-step admin account creation. If you already have an account and want to make it admin, skip to the next point.
 ```
 docker compose --profile production run --rm shell neodb-manage createsuperuser
 ```
@@ -46,7 +46,7 @@ docker compose --profile production run --rm shell neodb-manage user --super [US
 ---
 
 ## **Toggle an existing account to staff**
-A staff account is able to manually merge entries, which already have been marked by users. There is also an option in each entry, to restrict only staff members to further edit this entry.
+A staff account is able to manually merge entries that have already been marked by users. There is also an option in each entry, to restrict only staff members to further edit this entry.
 ```
 docker compose --profile production run --rm shell neodb-manage user --staff [USERNAME]
 ```

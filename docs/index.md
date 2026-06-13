@@ -1,4 +1,4 @@
-NeoDB is an open-source software and global community platform [since 2021](origin.md). It helps users to manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and the ActivityPub protocol.
+NeoDB is an open-source software and global community platform [since 2021](origin.md). It helps users manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and the ActivityPub protocol.
 
 This project is licensed under AGPLv3.
 
@@ -33,7 +33,7 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
 
 ## Donation
 
-If you appreciate this project, please help spread the words, and consider sponsoring the service providers. Your support is essential to keep these services free, open-sourced and stay committed to their mission. You may donate to the flagship instance, NeoDB.social, through the link below; or check the instance you use for their details about donations.
+If you appreciate this project, please help spread the word, and consider sponsoring the service providers. Your support is essential to keep these services free, open source, and committed to their mission. You may donate to the flagship instance, NeoDB.social, through the link below; or check the instance you use for their details about donations.
 
  [![Kofi](https://img.shields.io/badge/Ko--Fi-Donate-orange?label=Support%20this%20project%20on%20Ko-fi&style=for-the-badge&color=ff5f5f&logo=ko-fi)](https://ko-fi.com/neodb)
 
