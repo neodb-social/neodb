@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 23:31-0400\n"
+"POT-Creation-Date: 2026-06-13 08:25-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1131,7 +1131,7 @@ msgid "Remove this credit?"
 msgstr "移除此演职员？"
 
 #: catalog/templates/_item_credits_list.html:146
-#: catalog/templates/catalog_verify.html:50
+#: catalog/templates/catalog_verify.html:51
 msgid "remove"
 msgstr "移除"
 
@@ -1221,7 +1221,7 @@ msgid "revision history"
 msgstr "编辑历史"
 
 #: catalog/templates/_sidebar_edit.html:15
-#: catalog/templates/catalog_verify.html:85
+#: catalog/templates/catalog_verify.html:86
 msgid "back to item"
 msgstr "回到条目"
 
@@ -1451,7 +1451,7 @@ msgid "To suggest merging or association, please include the URL of the target i
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
 #: catalog/templates/_sidebar_edit.html:320
-#: catalog/templates/catalog_verify.html:81
+#: catalog/templates/catalog_verify.html:82
 msgid "submit"
 msgstr "提交"
 
@@ -1682,35 +1682,39 @@ msgstr "本操作不可撤销。确认合并吗？"
 msgid "If you are a creator of this podcast, you may verify the ownership, so that only you (and other verified creators) can edit its metadata on this site."
 msgstr "如果你是此播客的创作者，可以验证所有权；验证后只有你（以及其他已验证创作者）能在本站编辑其元数据。"
 
-#: catalog/templates/catalog_verify.html:24
+#: catalog/templates/catalog_verify.html:22
+msgid "Your recent episodes may also occasionally be featured in discovery."
+msgstr "你最近的单集有时也可能在发现页中获得推荐。"
+
+#: catalog/templates/catalog_verify.html:25
 msgid "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier may be removed from the description once verified, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
 msgstr "验证方法：将以下任一账号标识添加到播客订阅源的简介中，然后开始验证。验证完成后可以从简介中移除该标识，但我们建议保留它，以便你的听众能在分布式社交媒体上发现并关注你。"
 
-#: catalog/templates/catalog_verify.html:37
+#: catalog/templates/catalog_verify.html:38
 msgid "Verified creators"
 msgstr "已验证创作者"
 
-#: catalog/templates/catalog_verify.html:47
+#: catalog/templates/catalog_verify.html:48
 msgid "Sure to remove this creator verification?"
 msgstr "确定移除此创作者验证吗？"
 
-#: catalog/templates/catalog_verify.html:60
+#: catalog/templates/catalog_verify.html:61
 msgid "Manually verify a creator"
 msgstr "手动验证创作者"
 
-#: catalog/templates/catalog_verify.html:67
+#: catalog/templates/catalog_verify.html:68
 msgid "user handle, e.g. @user or @user@instance"
 msgstr "用户标识，如 @user 或 @user@instance"
 
-#: catalog/templates/catalog_verify.html:68
+#: catalog/templates/catalog_verify.html:69
 msgid "verify"
 msgstr "验证"
 
-#: catalog/templates/catalog_verify.html:73
+#: catalog/templates/catalog_verify.html:74
 msgid "Send feedback"
 msgstr "发送反馈"
 
-#: catalog/templates/catalog_verify.html:80
+#: catalog/templates/catalog_verify.html:81
 msgid "Questions or issues with creator verification? Let the site moderators know."
 msgstr "对创作者验证有疑问或遇到问题？请告知站点管理员。"
 
