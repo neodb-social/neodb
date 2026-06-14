@@ -13,6 +13,9 @@ from .creator import (
     VerifiedCreator,
     creator_identity_candidates,
     match_creator_identity,
+    resolve_creator_identity,
+    user_controls_owner,
+    user_owned_claims_q,
 )
 from .game import Game, GameInSchema, GameSchema
 from .item import (
@@ -171,4 +174,7 @@ __all__ = [
     "VerifiedCreator",
     "creator_identity_candidates",
     "match_creator_identity",
+    "resolve_creator_identity",
+    "user_controls_owner",
+    "user_owned_claims_q",
 ]

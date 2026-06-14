@@ -1209,8 +1209,11 @@ class Item(PolymorphicModel):
         if parent:
             creators += parent.verified_creator_list
         if creators:
-            identity = getattr(user, "identity", None)
-            if not identity or not any(c.owner_id == identity.pk for c in creators):
+            from .creator import user_controls_owner
+
+            # a claim may be attributed to the user's linked Mastodon identity,
+            # not their local one, but they still control it
+            if not any(user_controls_owner(user, c.owner) for c in creators):
                 return False
         return True
 

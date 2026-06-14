@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-13 08:25-0400\n"
+"POT-Creation-Date: 2026-06-14 15:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -564,32 +564,36 @@ msgid "genre"
 msgstr ""
 
 #: catalog/models/common.py:284 catalog/templates/_language_list.html:5
-#: users/models/user.py:128
+#: users/models/user.py:129
 msgid "language"
 msgstr ""
 
-#: catalog/models/creator.py:21
+#: catalog/models/creator.py:24
 msgid "pending"
 msgstr ""
 
-#: catalog/models/creator.py:22
+#: catalog/models/creator.py:25
 msgid "verified"
 msgstr ""
 
-#: catalog/models/creator.py:23
+#: catalog/models/creator.py:26
 msgid "failed"
 msgstr ""
 
-#: catalog/models/creator.py:26
+#: catalog/models/creator.py:29
 msgid "no feed url available for this item"
 msgstr ""
 
-#: catalog/models/creator.py:27
+#: catalog/models/creator.py:30
 msgid "unable to fetch or parse the feed"
 msgstr ""
 
-#: catalog/models/creator.py:28
-msgid "no matching identity found in the feed description"
+#: catalog/models/creator.py:31
+msgid "no audio episode found in the feed"
+msgstr ""
+
+#: catalog/models/creator.py:34
+msgid "no matching identity found in the feed or its linked website"
 msgstr ""
 
 #: catalog/models/game.py:25
@@ -641,7 +645,7 @@ msgstr ""
 msgid "year of publication"
 msgstr ""
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:200
+#: catalog/models/game.py:135 catalog/models/podcast.py:202
 msgid "date of publication"
 msgstr ""
 
@@ -743,7 +747,7 @@ msgstr ""
 msgid "troupe"
 msgstr ""
 
-#: catalog/models/item.py:150 catalog/models/people.py:449
+#: catalog/models/item.py:150 catalog/models/people.py:477
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr ""
@@ -768,7 +772,7 @@ msgstr ""
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:255 catalog/models/people.py:457
+#: catalog/models/item.py:255 catalog/models/people.py:485
 msgid "metadata"
 msgstr ""
 
@@ -776,27 +780,27 @@ msgstr ""
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:1322
+#: catalog/models/item.py:1325
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:1324
+#: catalog/models/item.py:1327
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:1326
+#: catalog/models/item.py:1329
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:1342
+#: catalog/models/item.py:1345
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:1348
+#: catalog/models/item.py:1351
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1351
+#: catalog/models/item.py:1354
 msgid "url to the resource"
 msgstr ""
 
@@ -979,11 +983,11 @@ msgstr ""
 msgid "date of death"
 msgstr ""
 
-#: catalog/models/people.py:451
+#: catalog/models/people.py:479
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:455
+#: catalog/models/people.py:483
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -1063,12 +1067,12 @@ msgstr ""
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:196
+#: catalog/templates/item_base.html:200
 msgid "ratings"
 msgstr ""
 
 #: catalog/templates/_item_card_metadata_base.html:34
-#: catalog/templates/item_base.html:251
+#: catalog/templates/item_base.html:255
 msgid "part of"
 msgstr ""
 
@@ -1093,7 +1097,7 @@ msgstr ""
 #: catalog/templates/_item_comments.html:92
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_notes.html:88
-#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:279
+#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:283
 #: catalog/templates/podcast_episode_data.html:41
 msgid "show more"
 msgstr ""
@@ -1132,7 +1136,7 @@ msgid "Remove this credit?"
 msgstr ""
 
 #: catalog/templates/_item_credits_list.html:146
-#: catalog/templates/catalog_verify.html:51
+#: catalog/templates/catalog_verify.html:85
 msgid "remove"
 msgstr ""
 
@@ -1222,14 +1226,14 @@ msgid "revision history"
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:15
-#: catalog/templates/catalog_verify.html:86
+#: catalog/templates/catalog_verify.html:120
 msgid "back to item"
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:19
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
-#: catalog/templates/item_base.html:177
+#: catalog/templates/item_base.html:181
 msgid "Creator verification"
 msgstr ""
 
@@ -1237,15 +1241,15 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:173
-#: catalog/views/edit.py:81 catalog/views/edit.py:139 catalog/views/edit.py:189
-#: catalog/views/edit.py:227 catalog/views/edit.py:293
-#: catalog/views/edit.py:297 catalog/views/edit.py:315
-#: catalog/views/edit.py:362 catalog/views/edit.py:386
-#: catalog/views/edit.py:401 catalog/views/edit.py:439
-#: catalog/views/edit.py:449 catalog/views/edit.py:475
-#: catalog/views/edit.py:538 catalog/views/edit.py:592
-#: catalog/views/edit.py:613 catalog/views/search.py:366
+#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:177
+#: catalog/views/edit.py:81 catalog/views/edit.py:141 catalog/views/edit.py:191
+#: catalog/views/edit.py:229 catalog/views/edit.py:295
+#: catalog/views/edit.py:299 catalog/views/edit.py:317
+#: catalog/views/edit.py:364 catalog/views/edit.py:388
+#: catalog/views/edit.py:403 catalog/views/edit.py:441
+#: catalog/views/edit.py:451 catalog/views/edit.py:477
+#: catalog/views/edit.py:540 catalog/views/edit.py:594
+#: catalog/views/edit.py:615 catalog/views/search.py:366
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1452,7 +1456,7 @@ msgid "To suggest merging or association, please include the URL of the target i
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:320
-#: catalog/templates/catalog_verify.html:82
+#: catalog/templates/catalog_verify.html:116
 msgid "submit"
 msgstr ""
 
@@ -1566,11 +1570,16 @@ msgstr ""
 msgid "Verification failed"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:36
+#: catalog/templates/_verify_status.html:39
+#: catalog/templates/_verify_status.html:53
+msgid "I have updated my feed's description or website as described above."
+msgstr ""
+
+#: catalog/templates/_verify_status.html:43
 msgid "Try again"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:42
+#: catalog/templates/_verify_status.html:57
 msgid "Start verification"
 msgstr ""
 
@@ -1687,35 +1696,66 @@ msgstr ""
 msgid "Your recent episodes may also occasionally be featured in discovery."
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:25
-msgid "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier may be removed from the description once verified, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
+#: catalog/templates/catalog_verify.html:24
+msgid "To verify, prove you control one of the following identifiers of your account (click to copy):"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:38
+#: catalog/templates/catalog_verify.html:30
+#: catalog/templates/catalog_verify.html:48
+#: catalog/templates/catalog_verify.html:54
+#: catalog/templates/catalog_verify.html:62
+msgid "copied"
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:35
+msgid "You can prove this in a few ways, then start verification: add one of the identifiers above to the podcast feed's description; add a <code>rel=\"me\"</code> link back to one of them on the web page your feed links to (the link verification Mastodon uses); or point your feed's website at your Bluesky handle's own domain."
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:44
+msgid "For example, add this rel=me link to the web page your feed links to (click to copy):"
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:50
+msgid "or, in the page's head:"
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:57
+msgid "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):"
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:62
+msgid "Welcome to follow me on the Fediverse:"
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:66
+msgid "NeoDB does not re-check this periodically at the moment, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
+msgstr ""
+
+#: catalog/templates/catalog_verify.html:72
 msgid "Verified creators"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:48
+#: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:61
+#: catalog/templates/catalog_verify.html:95
 msgid "Manually verify a creator"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:68
+#: catalog/templates/catalog_verify.html:102
 msgid "user handle, e.g. @user or @user@instance"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:69
+#: catalog/templates/catalog_verify.html:103
 msgid "verify"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:74
+#: catalog/templates/catalog_verify.html:108
 msgid "Send feedback"
 msgstr ""
 
-#: catalog/templates/catalog_verify.html:81
+#: catalog/templates/catalog_verify.html:115
 msgid "Questions or issues with creator verification? Let the site moderators know."
 msgstr ""
 
@@ -1772,7 +1812,7 @@ msgstr ""
 msgid "Popular Tags"
 msgstr ""
 
-#: catalog/templates/discover.html:217 catalog/templates/item_base.html:277
+#: catalog/templates/discover.html:217 catalog/templates/item_base.html:281
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28
@@ -1835,67 +1875,67 @@ msgstr ""
 msgid "release year"
 msgstr ""
 
-#: catalog/templates/item_base.html:90
+#: catalog/templates/item_base.html:94
 msgid "select one of the seasons to comment"
 msgstr ""
 
-#: catalog/templates/item_base.html:124
+#: catalog/templates/item_base.html:128
 msgid "mark, comment and collect"
 msgstr ""
 
-#: catalog/templates/item_base.html:137
+#: catalog/templates/item_base.html:141
 msgid "Login or register to review or add this item to your collection."
 msgstr ""
 
-#: catalog/templates/item_base.html:146
+#: catalog/templates/item_base.html:150
 msgid "Related Collections"
 msgstr ""
 
-#: catalog/templates/item_base.html:161
+#: catalog/templates/item_base.html:165
 msgid "Unsupported item type."
 msgstr ""
 
-#: catalog/templates/item_base.html:171
+#: catalog/templates/item_base.html:175
 msgid "Edit this item"
 msgstr ""
 
-#: catalog/templates/item_base.html:182
+#: catalog/templates/item_base.html:186
 msgid "Last edited"
 msgstr ""
 
-#: catalog/templates/item_base.html:225
+#: catalog/templates/item_base.html:229
 msgid "No enough ratings"
 msgstr ""
 
-#: catalog/templates/item_base.html:269
+#: catalog/templates/item_base.html:273
 msgid "overview"
 msgstr ""
 
-#: catalog/templates/item_base.html:300
+#: catalog/templates/item_base.html:304
 msgid "comments"
 msgstr ""
 
-#: catalog/templates/item_base.html:303
+#: catalog/templates/item_base.html:307
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks"
 msgstr ""
 
-#: catalog/templates/item_base.html:304
+#: catalog/templates/item_base.html:308
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
 msgid "marks from who you follow"
 msgstr ""
 
-#: catalog/templates/item_base.html:318
+#: catalog/templates/item_base.html:322
 #: catalog/templates/item_mark_list.html:28
 #: catalog/templates/item_review_list.html:23
 msgid "reviews"
 msgstr ""
 
-#: catalog/templates/item_base.html:328
+#: catalog/templates/item_base.html:332
 msgid "notes"
 msgstr ""
 
@@ -2084,19 +2124,19 @@ msgstr ""
 msgid "Editions"
 msgstr ""
 
-#: catalog/views/edit.py:191
+#: catalog/views/edit.py:193
 msgid "Item in use."
 msgstr ""
 
-#: catalog/views/edit.py:193
+#: catalog/views/edit.py:195
 msgid "Item cannot be deleted."
 msgstr ""
 
-#: catalog/views/edit.py:216 catalog/views/edit.py:270
-#: catalog/views/edit.py:388 catalog/views/edit.py:477
-#: catalog/views/edit.py:509 catalog/views/verify.py:96
-#: catalog/views/verify.py:129 journal/views/article.py:37
-#: journal/views/article.py:118 journal/views/collection.py:238
+#: catalog/views/edit.py:218 catalog/views/edit.py:272
+#: catalog/views/edit.py:390 catalog/views/edit.py:479
+#: catalog/views/edit.py:511 catalog/views/verify.py:147
+#: catalog/views/verify.py:184 journal/views/article.py:37
+#: journal/views/article.py:119 journal/views/collection.py:238
 #: journal/views/collection.py:299 journal/views/collection.py:318
 #: journal/views/collection.py:342 journal/views/collection.py:415
 #: journal/views/collection.py:451 journal/views/collection.py:489
@@ -2112,7 +2152,7 @@ msgstr ""
 msgid "Insufficient permission"
 msgstr ""
 
-#: catalog/views/edit.py:273 catalog/views/edit.py:276
+#: catalog/views/edit.py:275 catalog/views/edit.py:278
 #: journal/views/collection.py:75 journal/views/collection.py:100
 #: journal/views/collection.py:506 journal/views/collection.py:601
 #: journal/views/common.py:196 journal/views/mark.py:171
@@ -2124,43 +2164,43 @@ msgstr ""
 msgid "Invalid parameter"
 msgstr ""
 
-#: catalog/views/edit.py:337
+#: catalog/views/edit.py:339
 msgid "TV Season with IMDB id and season number required."
 msgstr ""
 
-#: catalog/views/edit.py:342
+#: catalog/views/edit.py:344
 msgid "Updating episodes"
 msgstr ""
 
-#: catalog/views/edit.py:367
+#: catalog/views/edit.py:369
 msgid "This person has no supported source to fetch works from."
 msgstr ""
 
-#: catalog/views/edit.py:373
+#: catalog/views/edit.py:375
 msgid "Already pulling works for this person, try again later."
 msgstr ""
 
-#: catalog/views/edit.py:377
+#: catalog/views/edit.py:379
 msgid "Pulling works in background."
 msgstr ""
 
-#: catalog/views/edit.py:399
+#: catalog/views/edit.py:401
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:404
+#: catalog/views/edit.py:406
 msgid "Cannot merge items in different categories"
 msgstr ""
 
-#: catalog/views/edit.py:408
+#: catalog/views/edit.py:410
 msgid "Cannot merge an item to itself"
 msgstr ""
 
-#: catalog/views/edit.py:447
+#: catalog/views/edit.py:449
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr ""
 
-#: catalog/views/edit.py:451
+#: catalog/views/edit.py:453
 msgid "Cannot link items other than editions"
 msgstr ""
 
@@ -2176,29 +2216,37 @@ msgstr ""
 msgid "Unsupported URL"
 msgstr ""
 
-#: catalog/views/verify.py:24
+#: catalog/views/verify.py:33
 msgid "Creator verification is only available for podcasts for now."
 msgstr ""
 
-#: catalog/views/verify.py:72
+#: catalog/views/verify.py:99
 msgid "No feed url available for this item."
 msgstr ""
 
-#: catalog/views/verify.py:80
+#: catalog/views/verify.py:110
 msgid "You are already a verified creator."
 msgstr ""
 
-#: catalog/views/verify.py:102 common/utils.py:109 common/utils.py:150
-#: journal/views/article.py:150 journal/views/review.py:170
+#: catalog/views/verify.py:120
+msgid "Verification is already in progress."
+msgstr ""
+
+#: catalog/views/verify.py:128
+msgid "Please wait a moment before trying again."
+msgstr ""
+
+#: catalog/views/verify.py:153 common/utils.py:109 common/utils.py:150
+#: journal/views/article.py:151 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr ""
 
-#: catalog/views/verify.py:116
+#: catalog/views/verify.py:167
 msgid "Creator verified."
 msgstr ""
 
-#: catalog/views/verify.py:132
+#: catalog/views/verify.py:187
 msgid "Creator verification removed."
 msgstr ""
 
@@ -3820,7 +3868,7 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:168
+#: common/utils.py:128 common/utils.py:130 journal/views/article.py:169
 #: journal/views/profile.py:486 journal/views/review.py:188
 msgid "Login required"
 msgstr ""
@@ -4593,7 +4641,7 @@ msgstr ""
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/models/article.py:153 journal/views/article.py:182
+#: journal/models/article.py:153 journal/views/article.py:183
 msgid "(may contain sensitive content)"
 msgstr ""
 
@@ -4665,7 +4713,7 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/common.py:50 journal/templates/action_open_post.html:15
+#: journal/models/common.py:51 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4679,7 +4727,7 @@ msgstr[1] ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:51 journal/templates/action_open_post.html:9
+#: journal/models/common.py:52 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4692,7 +4740,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:52 journal/templates/collection_share.html:57
+#: journal/models/common.py:53 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4705,27 +4753,27 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:638
+#: journal/models/common.py:639
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:743
+#: journal/models/common.py:744
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:776
+#: journal/models/common.py:777
 msgid "A recent post was not boosted on Mastodon."
 msgstr ""
 
-#: journal/models/common.py:786
+#: journal/models/common.py:787
 msgid "Original post no longer exists."
 msgstr ""
 
-#: journal/models/common.py:800
+#: journal/models/common.py:801
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:809
+#: journal/models/common.py:810
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -5801,16 +5849,16 @@ msgstr ""
 msgid "#%(year)s_report"
 msgstr ""
 
-#: journal/views/article.py:148 journal/views/review.py:168
+#: journal/views/article.py:149 journal/views/review.py:168
 msgid "User not local"
 msgstr ""
 
-#: journal/views/article.py:156 journal/views/article.py:170
+#: journal/views/article.py:157 journal/views/article.py:171
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr ""
 
-#: journal/views/article.py:158 journal/views/article.py:166
+#: journal/views/article.py:159 journal/views/article.py:167
 #: journal/views/review.py:178 journal/views/review.py:186
 msgid "Link invalid"
 msgstr ""
@@ -5954,20 +6002,20 @@ msgstr ""
 msgid "Summary posted to timeline."
 msgstr ""
 
-#: mastodon/models/common.py:12 users/templates/users/account.html:45
+#: mastodon/models/common.py:28 users/templates/users/account.html:45
 #: users/templates/users/account.html:55 users/templates/users/login.html:67
 msgid "Email"
 msgstr ""
 
-#: mastodon/models/common.py:13
+#: mastodon/models/common.py:29
 msgid "Mastodon"
 msgstr ""
 
-#: mastodon/models/common.py:14 users/templates/users/login.html:101
+#: mastodon/models/common.py:30 users/templates/users/login.html:101
 msgid "Threads"
 msgstr ""
 
-#: mastodon/models/common.py:15
+#: mastodon/models/common.py:31
 msgid "Bluesky"
 msgstr ""
 
@@ -6489,23 +6537,23 @@ msgstr ""
 msgid "Complete"
 msgstr ""
 
-#: users/models/user.py:68
+#: users/models/user.py:69
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
 
-#: users/models/user.py:116
+#: users/models/user.py:117
 msgid "username"
 msgstr ""
 
-#: users/models/user.py:121
+#: users/models/user.py:122
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr ""
 
-#: users/models/user.py:124
+#: users/models/user.py:125
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:347
+#: users/models/user.py:368
 msgid "This username is already taken."
 msgstr ""
 

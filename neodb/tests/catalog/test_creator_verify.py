@@ -15,11 +15,22 @@ from catalog.models import (
     VerifiedCreator,
     creator_identity_candidates,
     match_creator_identity,
+    resolve_creator_identity,
+    user_controls_owner,
+    user_owned_claims_q,
 )
 from catalog.sites.rss import RSS
+from mastodon.models.bluesky import BlueskyAccount
+from mastodon.models.mastodon import MastodonAccount
 from users.models import User
 
 _BACKEND = "mastodon.auth.OAuth2Backend"
+
+# a parsed-feed episode list with one audio enclosure, so a feed passes the
+# "has an audio episode" guard during verification
+_AUDIO_EPISODES = [
+    {"enclosures": [{"url": "https://ex.example/1.mp3", "mime_type": "audio/mpeg"}]}
+]
 
 
 def _podcast(title="Test Pod", feed="podcast.example.com/feed.rss") -> Podcast:
@@ -42,6 +53,50 @@ def _verified(item, identity, matched="@x@example.org") -> VerifiedCreator:
         owner=identity,
         state=VerifiedCreator.State.VERIFIED,
         matched=matched,
+    )
+
+
+def _make_remote_identity(username="alice", domain_name="mast.example"):
+    """Create a remote APIdentity (and its Takahe Identity) for tests that
+    attribute a verified work to a linked Mastodon account."""
+    from takahe.models import Domain, Identity
+    from takahe.utils import Takahe
+
+    domain, _ = Domain.objects.get_or_create(
+        domain=domain_name, defaults={"local": False}
+    )
+    identity = Identity.objects.create(
+        actor_uri=f"https://{domain_name}/users/{username}/",
+        profile_uri=f"https://{domain_name}/@{username}",
+        local=False,
+        username=username,
+        domain=domain,
+    )
+    return Takahe.get_or_create_remote_apidentity(identity)
+
+
+def _link_mastodon(
+    user, handle="alice@mast.example", url="https://mast.example/@alice"
+):
+    """Link a Mastodon account to ``user`` so ``user.mastodon`` resolves it."""
+    username, domain = handle.split("@")
+    return MastodonAccount.objects.create(
+        user=user,
+        domain=domain,
+        uid=f"uid-{handle}",
+        handle=handle,
+        account_data={"url": url, "username": username},
+    )
+
+
+def _link_bluesky(user, handle="alice.bsky.social"):
+    """Link a Bluesky account to ``user`` (handle is a domain; url == https://handle)."""
+    return BlueskyAccount.objects.create(
+        user=user,
+        domain="bsky.app",
+        uid=f"did:plc:{handle}",
+        handle=handle,
+        account_data={},
     )
 
 
@@ -187,7 +242,7 @@ class TestVerifyTask:
             RSS,
             "fetch_feed_with_metadata",
             lambda url, etag="", last_modified="": (
-                {"description": f"a podcast by {handle}"},
+                {"description": f"a podcast by {handle}", "episodes": _AUDIO_EPISODES},
                 "",
                 "",
                 200,
@@ -206,7 +261,7 @@ class TestVerifyTask:
             RSS,
             "fetch_feed_with_metadata",
             lambda url, etag="", last_modified="": (
-                {"description": "no identity here"},
+                {"description": "no identity here", "episodes": _AUDIO_EPISODES},
                 "",
                 "",
                 200,
@@ -216,6 +271,28 @@ class TestVerifyTask:
         claim.refresh_from_db()
         assert claim.state == VerifiedCreator.State.FAILED
         assert claim.failure_reason == VerifiedCreator.FailureReason.NO_MATCH
+
+    def test_failed_no_audio_episode(self, monkeypatch):
+        # a feed with no audio episode is not a podcast and must not verify,
+        # even when the identity matches
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        claim = self._claim(user, podcast)
+        handle = f"@{user.identity.full_handle}"
+        monkeypatch.setattr(
+            RSS,
+            "fetch_feed_with_metadata",
+            lambda url, etag="", last_modified="": (
+                {"description": f"by {handle}", "episodes": []},
+                "",
+                "",
+                200,
+            ),
+        )
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.FAILED
+        assert claim.failure_reason == VerifiedCreator.FailureReason.NO_AUDIO
 
     def test_failed_fetch_error(self, monkeypatch):
         user = User.register(email="a@example.com", username="alice")
@@ -277,7 +354,11 @@ class TestVerifyViews:
         podcast = _podcast()
         response = _client(user).get(f"/podcast/{podcast.uuid}/verify")
         assert response.status_code == 200
-        assert f"@{user.identity.full_handle}" in response.content.decode()
+        content = response.content.decode()
+        # only link/url identifiers are listed (bare @handles are discouraged)
+        url_candidates = [c for c in creator_identity_candidates(user) if "://" in c]
+        assert url_candidates
+        assert all(c in content for c in url_candidates)
 
     def test_start_flow(self, monkeypatch):
         user = User.register(email="a@example.com", username="alice")
@@ -287,7 +368,7 @@ class TestVerifyViews:
             RSS,
             "fetch_feed_with_metadata",
             lambda url, etag="", last_modified="": (
-                {"description": f"by {handle}"},
+                {"description": f"by {handle}", "episodes": _AUDIO_EPISODES},
                 "",
                 "",
                 200,
@@ -619,3 +700,217 @@ def test_original_episodes_api(live_server):
     payload = response.json()
     assert len(payload) == 1
     assert payload[0]["uuid"] == episode.uuid
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMastodonAttribution:
+    def test_resolve_identity_local(self):
+        user = User.register(email="a@example.com", username="alice")
+        local = f"@{user.identity.full_handle}"
+        assert resolve_creator_identity(user, local) == user.identity
+
+    def test_resolve_identity_mastodon(self):
+        user = User.register(email="a@example.com", username="alice")
+        _link_mastodon(user)
+        remote = _make_remote_identity("alice", "mast.example")
+        # a match against the linked Mastodon handle/url resolves to its
+        # remote identity; the local handle stays the local identity
+        assert resolve_creator_identity(user, "@alice@mast.example") == remote
+        assert resolve_creator_identity(user, "https://mast.example/@alice") == remote
+        assert resolve_creator_identity(user, f"@{user.identity.full_handle}") == (
+            user.identity
+        )
+
+    def test_user_controls_owner(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        _link_mastodon(alice)
+        remote = _make_remote_identity("alice", "mast.example")
+        # local identity and the linked Mastodon identity are both controlled
+        assert user_controls_owner(alice, alice.identity)
+        assert user_controls_owner(alice, remote)
+        # someone else's identities are not
+        assert not user_controls_owner(bob, remote)
+        assert not user_controls_owner(bob, alice.identity)
+
+    def test_user_owned_claims_q(self):
+        alice = User.register(email="a@example.com", username="alice")
+        _link_mastodon(alice)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        local_claim = _verified(podcast, alice.identity)
+        other = _podcast("Other", "other.example.com/feed.rss")
+        remote_claim = _verified(other, remote, matched="@alice@mast.example")
+        owned = set(
+            VerifiedCreator.objects.filter(user_owned_claims_q(alice)).values_list(
+                "pk", flat=True
+            )
+        )
+        assert owned == {local_claim.pk, remote_claim.pk}
+
+    def test_verify_rehomes_to_mastodon(self, monkeypatch):
+        user = User.register(email="a@example.com", username="alice")
+        _link_mastodon(user)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        handle = "@alice@mast.example"
+        monkeypatch.setattr(
+            RSS,
+            "fetch_feed_with_metadata",
+            lambda url, etag="", last_modified="": (
+                {"description": f"hosted by {handle}", "episodes": _AUDIO_EPISODES},
+                "",
+                "",
+                200,
+            ),
+        )
+        verify_creator_task(claim.pk, user.pk)
+        # the pending local claim is re-homed onto the linked Mastodon identity
+        assert not VerifiedCreator.objects.filter(pk=claim.pk).exists()
+        assert not VerifiedCreator.objects.filter(
+            item=podcast, owner=user.identity
+        ).exists()
+        rehomed = VerifiedCreator.objects.get(item=podcast, owner=remote)
+        assert rehomed.state == VerifiedCreator.State.VERIFIED
+        assert rehomed.matched == handle
+
+    def test_unverify_mastodon_owned_claim(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        _link_mastodon(alice)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        claim = _verified(podcast, remote, matched="@alice@mast.example")
+        url = f"/podcast/{podcast.uuid}/verify/remove"
+        # bob does not control the Mastodon identity
+        assert _client(bob).post(url, {"claim_id": claim.pk}).status_code == 403
+        # alice does, via her linked Mastodon account
+        assert _client(alice).post(url, {"claim_id": claim.pk}).status_code == 302
+        assert not VerifiedCreator.objects.filter(pk=claim.pk).exists()
+
+    def test_edit_allowed_for_mastodon_attributed_creator(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        _link_mastodon(alice)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        _verified(podcast, remote, matched="@alice@mast.example")
+        url = f"/podcast/{podcast.uuid}/edit"
+        assert _client(bob).get(url).status_code == 403
+        assert _client(alice).get(url).status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestFeedLinkCreator:
+    def _feed(self, monkeypatch, description, link="https://pod.example/"):
+        monkeypatch.setattr(
+            RSS,
+            "fetch_feed_with_metadata",
+            lambda url, etag="", last_modified="": (
+                {"description": description, "link": link, "episodes": _AUDIO_EPISODES},
+                "",
+                "",
+                200,
+            ),
+        )
+
+    def _rel_me(self, monkeypatch, urls):
+        monkeypatch.setattr(
+            "catalog.jobs.creator_verify._fetch_page_rel_me_urls",
+            lambda url: urls,
+        )
+
+    def test_page_rel_me_preferred_over_description(self, monkeypatch):
+        # a rel="me" to the linked Mastodon wins over a description match and
+        # attributes the work to that Mastodon identity
+        user = User.register(email="a@example.com", username="alice")
+        _link_mastodon(user)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        self._feed(monkeypatch, f"by @{user.identity.full_handle}")
+        self._rel_me(monkeypatch, ["https://mast.example/@alice"])
+        verify_creator_task(claim.pk, user.pk)
+        rehomed = VerifiedCreator.objects.get(item=podcast, owner=remote)
+        assert rehomed.matched == "https://mast.example/@alice"
+
+    def test_page_rel_me_matches_bluesky(self, monkeypatch):
+        # a rel="me" to the user's Bluesky also verifies (stays local identity)
+        user = User.register(email="a@example.com", username="alice")
+        _link_bluesky(user, "alice.bsky.social")
+        podcast = _podcast()
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        self._feed(monkeypatch, "no identity in here")
+        self._rel_me(monkeypatch, ["https://alice.bsky.social"])
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.VERIFIED
+        assert claim.matched == "https://alice.bsky.social"
+        assert claim.owner_id == user.identity.pk
+
+    def test_channel_link_is_bluesky_handle(self, monkeypatch):
+        # the channel link being on the user's Bluesky handle (a domain) passes
+        # even with no rel="me" on the page
+        user = User.register(email="a@example.com", username="alice")
+        _link_bluesky(user, "alice.bsky.social")
+        podcast = _podcast()
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        self._feed(monkeypatch, "nothing here", link="https://alice.bsky.social/show")
+        self._rel_me(monkeypatch, [])
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.VERIFIED
+        assert claim.matched == "@alice.bsky.social"
+        assert claim.owner_id == user.identity.pk
+
+    def test_unrelated_rel_me_falls_back_to_description(self, monkeypatch):
+        # rel="me" links that aren't the user's are ignored; we fall back to the
+        # description match against the user's own candidates
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        local_handle = f"@{user.identity.full_handle}"
+        self._feed(monkeypatch, f"by {local_handle}")
+        self._rel_me(monkeypatch, ["https://stranger.example/@bob"])
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.VERIFIED
+        assert claim.matched == local_handle
+        assert claim.owner_id == user.identity.pk
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestItemPageMeta:
+    def test_fediverse_creator_meta_on_item_page(self):
+        alice = User.register(email="a@example.com", username="alice")
+        podcast = _podcast("Meta Show")
+        _verified(podcast, alice.identity)
+        response = Client().get(podcast.url)
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert 'name="fediverse:creator"' in content
+        assert f"@{alice.identity.full_handle}" in content
+
+    def test_meta_emitted_for_each_verified_creator(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        podcast = _podcast("Co-hosted Show")
+        _verified(podcast, alice.identity)
+        _verified(podcast, bob.identity)
+        content = Client().get(podcast.url).content.decode()
+        # one fediverse:creator meta per verified creator
+        assert content.count('name="fediverse:creator"') == 2
+        assert f"@{alice.identity.full_handle}" in content
+        assert f"@{bob.identity.full_handle}" in content
+
+    def test_rel_me_link_points_to_creator_profile(self):
+        # a rel="me" link back to the creator's profile lets Mastodon show its
+        # green "verified link" check when the creator lists this page
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast("Rel Me Show")
+        _verified(podcast, remote, matched="@alice@mast.example")
+        content = Client().get(podcast.url).content.decode()
+        assert remote.profile_uri == "https://mast.example/@alice"
+        assert 'rel="me"' in content
+        assert remote.profile_uri in content

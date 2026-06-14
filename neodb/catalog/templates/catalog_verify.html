@@ -21,16 +21,50 @@
           {% trans "If you are a creator of this podcast, you may verify the ownership, so that only you (and other verified creators) can edit its metadata on this site." %}
           {% trans "Your recent episodes may also occasionally be featured in discovery." %}
         </p>
-        <p>
-          {% trans "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier may be removed from the description once verified, but we recommend you keep it so that your audience can discover and connect with you in distributed social media." %}
-        </p>
+        <p>{% trans "To verify, prove you control one of the following identifiers of your account (click to copy):" %}</p>
         <ul>
           {% for candidate in candidates %}
             <li>
-              <code>{{ candidate }}</code>
+              <code style="cursor:copy"
+                    onmouseleave="$(this).removeAttr('data-tooltip')"
+                    onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">{{ candidate }}</code>
             </li>
           {% endfor %}
         </ul>
+        <p>
+          {% blocktrans trimmed %}
+            You can prove this in a few ways, then start verification: add one of the
+            identifiers above to the podcast feed's description; add a <code>rel="me"</code>
+            link back to one of them on the web page your feed links to (the link
+            verification Mastodon uses); or point your feed's website at your Bluesky
+            handle's own domain.
+          {% endblocktrans %}
+        </p>
+        {% if example_url %}
+          <p>{% trans "For example, add this rel=me link to the web page your feed links to (click to copy):" %}</p>
+          <p>
+            <code style="cursor:copy"
+                  onmouseleave="$(this).removeAttr('data-tooltip')"
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">&lt;a rel="me" href="{{ example_url }}"&gt;{{ site_name }}&lt;/a&gt;</code>
+          </p>
+          <p>{% trans "or, in the page's head:" %}</p>
+          <p>
+            <code style="cursor:copy"
+                  onmouseleave="$(this).removeAttr('data-tooltip')"
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">&lt;link rel="me" href="{{ example_url }}"&gt;</code>
+          </p>
+          <p>
+            {% trans "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):" %}
+          </p>
+          <p>
+            <code style="cursor:copy"
+                  onmouseleave="$(this).removeAttr('data-tooltip')"
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">{% trans "Welcome to follow me on the Fediverse:" %} {{ example_url }}</code>
+          </p>
+        {% endif %}
+        <p>
+          {% trans "NeoDB does not re-check this periodically at the moment, but we recommend you keep it so that your audience can discover and connect with you in distributed social media." %}
+        </p>
       </section>
       {% include "_verify_status.html" %}
       {% if verified_creators %}

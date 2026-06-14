@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-13 08:25-0400\n"
+"POT-Creation-Date: 2026-06-14 15:21-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -563,33 +563,37 @@ msgid "genre"
 msgstr "类型"
 
 #: catalog/models/common.py:284 catalog/templates/_language_list.html:5
-#: users/models/user.py:128
+#: users/models/user.py:129
 msgid "language"
 msgstr "语言"
 
-#: catalog/models/creator.py:21
+#: catalog/models/creator.py:24
 msgid "pending"
 msgstr "等待中"
 
-#: catalog/models/creator.py:22
+#: catalog/models/creator.py:25
 msgid "verified"
 msgstr "已验证"
 
-#: catalog/models/creator.py:23
+#: catalog/models/creator.py:26
 msgid "failed"
 msgstr "失败"
 
-#: catalog/models/creator.py:26
+#: catalog/models/creator.py:29
 msgid "no feed url available for this item"
 msgstr "此条目没有可用的订阅源地址"
 
-#: catalog/models/creator.py:27
+#: catalog/models/creator.py:30
 msgid "unable to fetch or parse the feed"
 msgstr "无法获取或解析订阅源"
 
-#: catalog/models/creator.py:28
-msgid "no matching identity found in the feed description"
-msgstr "未在订阅源简介中找到匹配的身份标识"
+#: catalog/models/creator.py:31
+msgid "no audio episode found in the feed"
+msgstr "订阅源中没有找到任何音频单集"
+
+#: catalog/models/creator.py:34
+msgid "no matching identity found in the feed or its linked website"
+msgstr "未在订阅源或其关联网站中找到匹配的身份标识"
 
 #: catalog/models/game.py:25
 msgid "Main Game"
@@ -640,7 +644,7 @@ msgstr "开发者"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:200
+#: catalog/models/game.py:135 catalog/models/podcast.py:202
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -742,7 +746,7 @@ msgstr "工作室"
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:150 catalog/models/people.py:449
+#: catalog/models/item.py:150 catalog/models/people.py:477
 #: catalog/models/performance.py:116 catalog/models/performance.py:135
 msgid "role"
 msgstr "角色"
@@ -767,7 +771,7 @@ msgstr "标题"
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:255 catalog/models/people.py:457
+#: catalog/models/item.py:255 catalog/models/people.py:485
 msgid "metadata"
 msgstr "元数据"
 
@@ -775,27 +779,27 @@ msgstr "元数据"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1322
+#: catalog/models/item.py:1325
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1324
+#: catalog/models/item.py:1327
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1326
+#: catalog/models/item.py:1329
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1342
+#: catalog/models/item.py:1345
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1348
+#: catalog/models/item.py:1351
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1351
+#: catalog/models/item.py:1354
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -978,11 +982,11 @@ msgstr "出生日期"
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:451
+#: catalog/models/people.py:479
 msgid "character"
 msgstr "角色"
 
-#: catalog/models/people.py:455
+#: catalog/models/people.py:483
 msgid "Character name for actor roles"
 msgstr "演员饰演的角色名称"
 
@@ -1062,12 +1066,12 @@ msgstr "无法加载条目，请确认链接正确。部分网站可能删除条
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:196
+#: catalog/templates/item_base.html:200
 msgid "ratings"
 msgstr "个评分"
 
 #: catalog/templates/_item_card_metadata_base.html:34
-#: catalog/templates/item_base.html:251
+#: catalog/templates/item_base.html:255
 msgid "part of"
 msgstr "所属"
 
@@ -1092,7 +1096,7 @@ msgstr "翻译"
 #: catalog/templates/_item_comments.html:92
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_notes.html:88
-#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:279
+#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:283
 #: catalog/templates/podcast_episode_data.html:41
 msgid "show more"
 msgstr "显示更多"
@@ -1131,7 +1135,7 @@ msgid "Remove this credit?"
 msgstr "移除此演职员？"
 
 #: catalog/templates/_item_credits_list.html:146
-#: catalog/templates/catalog_verify.html:51
+#: catalog/templates/catalog_verify.html:85
 msgid "remove"
 msgstr "移除"
 
@@ -1221,14 +1225,14 @@ msgid "revision history"
 msgstr "编辑历史"
 
 #: catalog/templates/_sidebar_edit.html:15
-#: catalog/templates/catalog_verify.html:86
+#: catalog/templates/catalog_verify.html:120
 msgid "back to item"
 msgstr "回到条目"
 
 #: catalog/templates/_sidebar_edit.html:19
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
-#: catalog/templates/item_base.html:177
+#: catalog/templates/item_base.html:181
 msgid "Creator verification"
 msgstr "创作者验证"
 
@@ -1236,15 +1240,15 @@ msgstr "创作者验证"
 msgid "Edit Options"
 msgstr "编辑选项"
 
-#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:173
-#: catalog/views/edit.py:81 catalog/views/edit.py:139 catalog/views/edit.py:189
-#: catalog/views/edit.py:227 catalog/views/edit.py:293
-#: catalog/views/edit.py:297 catalog/views/edit.py:315
-#: catalog/views/edit.py:362 catalog/views/edit.py:386
-#: catalog/views/edit.py:401 catalog/views/edit.py:439
-#: catalog/views/edit.py:449 catalog/views/edit.py:475
-#: catalog/views/edit.py:538 catalog/views/edit.py:592
-#: catalog/views/edit.py:613 catalog/views/search.py:366
+#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:177
+#: catalog/views/edit.py:81 catalog/views/edit.py:141 catalog/views/edit.py:191
+#: catalog/views/edit.py:229 catalog/views/edit.py:295
+#: catalog/views/edit.py:299 catalog/views/edit.py:317
+#: catalog/views/edit.py:364 catalog/views/edit.py:388
+#: catalog/views/edit.py:403 catalog/views/edit.py:441
+#: catalog/views/edit.py:451 catalog/views/edit.py:477
+#: catalog/views/edit.py:540 catalog/views/edit.py:594
+#: catalog/views/edit.py:615 catalog/views/search.py:366
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1451,7 +1455,7 @@ msgid "To suggest merging or association, please include the URL of the target i
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
 #: catalog/templates/_sidebar_edit.html:320
-#: catalog/templates/catalog_verify.html:82
+#: catalog/templates/catalog_verify.html:116
 msgid "submit"
 msgstr "提交"
 
@@ -1565,11 +1569,16 @@ msgstr "移除我的验证"
 msgid "Verification failed"
 msgstr "验证失败"
 
-#: catalog/templates/_verify_status.html:36
+#: catalog/templates/_verify_status.html:39
+#: catalog/templates/_verify_status.html:53
+msgid "I have updated my feed's description or website as described above."
+msgstr "我已按上述说明更新了订阅源的简介或网站。"
+
+#: catalog/templates/_verify_status.html:43
 msgid "Try again"
 msgstr "重试"
 
-#: catalog/templates/_verify_status.html:42
+#: catalog/templates/_verify_status.html:57
 msgid "Start verification"
 msgstr "开始验证"
 
@@ -1686,35 +1695,66 @@ msgstr "如果你是此播客的创作者，可以验证所有权；验证后只
 msgid "Your recent episodes may also occasionally be featured in discovery."
 msgstr "你最近的单集有时也可能在发现页中获得推荐。"
 
-#: catalog/templates/catalog_verify.html:25
-msgid "To verify, add one of the following identifiers of your account to the description of the podcast feed, then start verification. The identifier may be removed from the description once verified, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
-msgstr "验证方法：将以下任一账号标识添加到播客订阅源的简介中，然后开始验证。验证完成后可以从简介中移除该标识，但我们建议保留它，以便你的听众能在分布式社交媒体上发现并关注你。"
+#: catalog/templates/catalog_verify.html:24
+msgid "To verify, prove you control one of the following identifiers of your account (click to copy):"
+msgstr "要进行验证，请证明你拥有以下任一账号标识（点击可复制）："
 
-#: catalog/templates/catalog_verify.html:38
+#: catalog/templates/catalog_verify.html:30
+#: catalog/templates/catalog_verify.html:48
+#: catalog/templates/catalog_verify.html:54
+#: catalog/templates/catalog_verify.html:62
+msgid "copied"
+msgstr "已复制"
+
+#: catalog/templates/catalog_verify.html:35
+msgid "You can prove this in a few ways, then start verification: add one of the identifiers above to the podcast feed's description; add a <code>rel=\"me\"</code> link back to one of them on the web page your feed links to (the link verification Mastodon uses); or point your feed's website at your Bluesky handle's own domain."
+msgstr "你可以通过以下几种方式来证明，然后开始验证：将上述任一标识添加到播客订阅源的简介中；在订阅源所指向的网页上，添加一个指回上述任一标识的 <code>rel=\"me\"</code> 链接（与 Mastodon 所用的链接验证方式相同）；或让订阅源的网站使用你的 Bluesky handle 所在的域名。"
+
+#: catalog/templates/catalog_verify.html:44
+msgid "For example, add this rel=me link to the web page your feed links to (click to copy):"
+msgstr "例如，在订阅源所指向的网页中添加如下 rel=me 链接（点击可复制）："
+
+#: catalog/templates/catalog_verify.html:50
+msgid "or, in the page's head:"
+msgstr "或者，放在网页的 head 中："
+
+#: catalog/templates/catalog_verify.html:57
+msgid "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):"
+msgstr "改不了网站？也可以直接在订阅源的简介里加上这样一句（点击可复制）："
+
+#: catalog/templates/catalog_verify.html:62
+msgid "Welcome to follow me on the Fediverse:"
+msgstr "欢迎在联邦宇宙关注我："
+
+#: catalog/templates/catalog_verify.html:66
+msgid "NeoDB does not re-check this periodically at the moment, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
+msgstr "NeoDB 目前不会定期重新检查，但我们建议保留它，以便你的听众能在分布式社交媒体上发现并关注你。"
+
+#: catalog/templates/catalog_verify.html:72
 msgid "Verified creators"
 msgstr "已验证创作者"
 
-#: catalog/templates/catalog_verify.html:48
+#: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
 msgstr "确定移除此创作者验证吗？"
 
-#: catalog/templates/catalog_verify.html:61
+#: catalog/templates/catalog_verify.html:95
 msgid "Manually verify a creator"
 msgstr "手动验证创作者"
 
-#: catalog/templates/catalog_verify.html:68
+#: catalog/templates/catalog_verify.html:102
 msgid "user handle, e.g. @user or @user@instance"
 msgstr "用户标识，如 @user 或 @user@instance"
 
-#: catalog/templates/catalog_verify.html:69
+#: catalog/templates/catalog_verify.html:103
 msgid "verify"
 msgstr "验证"
 
-#: catalog/templates/catalog_verify.html:74
+#: catalog/templates/catalog_verify.html:108
 msgid "Send feedback"
 msgstr "发送反馈"
 
-#: catalog/templates/catalog_verify.html:81
+#: catalog/templates/catalog_verify.html:115
 msgid "Questions or issues with creator verification? Let the site moderators know."
 msgstr "对创作者验证有疑问或遇到问题？请告知站点管理员。"
 
@@ -1771,7 +1811,7 @@ msgstr "全部标为已读"
 msgid "Popular Tags"
 msgstr "热门标签"
 
-#: catalog/templates/discover.html:217 catalog/templates/item_base.html:277
+#: catalog/templates/discover.html:217 catalog/templates/item_base.html:281
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28
@@ -1834,67 +1874,67 @@ msgstr "系统繁忙，请稍等几秒钟再搜索。"
 msgid "release year"
 msgstr "发行年份"
 
-#: catalog/templates/item_base.html:90
+#: catalog/templates/item_base.html:94
 msgid "select one of the seasons to comment"
 msgstr "这是全剧条目，以下是可标记的单季"
 
-#: catalog/templates/item_base.html:124
+#: catalog/templates/item_base.html:128
 msgid "mark, comment and collect"
 msgstr "标签 · 短评 · 评论 · 收藏"
 
-#: catalog/templates/item_base.html:137
+#: catalog/templates/item_base.html:141
 msgid "Login or register to review or add this item to your collection."
 msgstr "登录后可管理标记收藏。"
 
-#: catalog/templates/item_base.html:146
+#: catalog/templates/item_base.html:150
 msgid "Related Collections"
 msgstr "相关收藏单"
 
-#: catalog/templates/item_base.html:161
+#: catalog/templates/item_base.html:165
 msgid "Unsupported item type."
 msgstr "此类数据尚未支持。"
 
-#: catalog/templates/item_base.html:171
+#: catalog/templates/item_base.html:175
 msgid "Edit this item"
 msgstr "编辑这个条目"
 
-#: catalog/templates/item_base.html:182
+#: catalog/templates/item_base.html:186
 msgid "Last edited"
 msgstr "最近编辑"
 
-#: catalog/templates/item_base.html:225
+#: catalog/templates/item_base.html:229
 msgid "No enough ratings"
 msgstr "评分人数不足"
 
-#: catalog/templates/item_base.html:269
+#: catalog/templates/item_base.html:273
 msgid "overview"
 msgstr "简介"
 
-#: catalog/templates/item_base.html:300
+#: catalog/templates/item_base.html:304
 msgid "comments"
 msgstr "短评"
 
-#: catalog/templates/item_base.html:303
+#: catalog/templates/item_base.html:307
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks"
 msgstr "标记"
 
-#: catalog/templates/item_base.html:304
+#: catalog/templates/item_base.html:308
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
 msgid "marks from who you follow"
 msgstr "好友标记"
 
-#: catalog/templates/item_base.html:318
+#: catalog/templates/item_base.html:322
 #: catalog/templates/item_mark_list.html:28
 #: catalog/templates/item_review_list.html:23
 msgid "reviews"
 msgstr "评论"
 
-#: catalog/templates/item_base.html:328
+#: catalog/templates/item_base.html:332
 msgid "notes"
 msgstr "笔记"
 
@@ -2083,19 +2123,19 @@ msgstr "已验证作品"
 msgid "Editions"
 msgstr "版本"
 
-#: catalog/views/edit.py:191
+#: catalog/views/edit.py:193
 msgid "Item in use."
 msgstr "条目已被引用或标记。"
 
-#: catalog/views/edit.py:193
+#: catalog/views/edit.py:195
 msgid "Item cannot be deleted."
 msgstr "条目不可被删除。"
 
-#: catalog/views/edit.py:216 catalog/views/edit.py:270
-#: catalog/views/edit.py:388 catalog/views/edit.py:477
-#: catalog/views/edit.py:509 catalog/views/verify.py:96
-#: catalog/views/verify.py:129 journal/views/article.py:37
-#: journal/views/article.py:118 journal/views/collection.py:238
+#: catalog/views/edit.py:218 catalog/views/edit.py:272
+#: catalog/views/edit.py:390 catalog/views/edit.py:479
+#: catalog/views/edit.py:511 catalog/views/verify.py:147
+#: catalog/views/verify.py:184 journal/views/article.py:37
+#: journal/views/article.py:119 journal/views/collection.py:238
 #: journal/views/collection.py:299 journal/views/collection.py:318
 #: journal/views/collection.py:342 journal/views/collection.py:415
 #: journal/views/collection.py:451 journal/views/collection.py:489
@@ -2111,7 +2151,7 @@ msgstr "条目不可被删除。"
 msgid "Insufficient permission"
 msgstr "权限不足"
 
-#: catalog/views/edit.py:273 catalog/views/edit.py:276
+#: catalog/views/edit.py:275 catalog/views/edit.py:278
 #: journal/views/collection.py:75 journal/views/collection.py:100
 #: journal/views/collection.py:506 journal/views/collection.py:601
 #: journal/views/common.py:196 journal/views/mark.py:171
@@ -2123,43 +2163,43 @@ msgstr "权限不足"
 msgid "Invalid parameter"
 msgstr "无效参数"
 
-#: catalog/views/edit.py:337
+#: catalog/views/edit.py:339
 msgid "TV Season with IMDB id and season number required."
 msgstr "必须是电视剧分季，且包含IMDB id和分季序号。"
 
-#: catalog/views/edit.py:342
+#: catalog/views/edit.py:344
 msgid "Updating episodes"
 msgstr "正在更新单集列表"
 
-#: catalog/views/edit.py:367
+#: catalog/views/edit.py:369
 msgid "This person has no supported source to fetch works from."
 msgstr "此人没有可供获取作品的数据源。"
 
-#: catalog/views/edit.py:373
+#: catalog/views/edit.py:375
 msgid "Already pulling works for this person, try again later."
 msgstr "已在获取此人的作品，请稍后再试。"
 
-#: catalog/views/edit.py:377
+#: catalog/views/edit.py:379
 msgid "Pulling works in background."
 msgstr "正在后台获取作品。"
 
-#: catalog/views/edit.py:399
+#: catalog/views/edit.py:401
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr "无法合并到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:404
+#: catalog/views/edit.py:406
 msgid "Cannot merge items in different categories"
 msgstr "无法合并不同类型的条目"
 
-#: catalog/views/edit.py:408
+#: catalog/views/edit.py:410
 msgid "Cannot merge an item to itself"
 msgstr "无法合并条目和它自己"
 
-#: catalog/views/edit.py:447
+#: catalog/views/edit.py:449
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr "无法关联到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:451
+#: catalog/views/edit.py:453
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
@@ -2175,29 +2215,37 @@ msgstr "无效网址"
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
-#: catalog/views/verify.py:24
+#: catalog/views/verify.py:33
 msgid "Creator verification is only available for podcasts for now."
 msgstr "创作者验证目前仅支持播客。"
 
-#: catalog/views/verify.py:72
+#: catalog/views/verify.py:99
 msgid "No feed url available for this item."
 msgstr "此条目没有可用的订阅源地址。"
 
-#: catalog/views/verify.py:80
+#: catalog/views/verify.py:110
 msgid "You are already a verified creator."
 msgstr "你已是已验证创作者。"
 
-#: catalog/views/verify.py:102 common/utils.py:109 common/utils.py:150
-#: journal/views/article.py:150 journal/views/review.py:170
+#: catalog/views/verify.py:120
+msgid "Verification is already in progress."
+msgstr "验证已在进行中。"
+
+#: catalog/views/verify.py:128
+msgid "Please wait a moment before trying again."
+msgstr ""
+
+#: catalog/views/verify.py:153 common/utils.py:109 common/utils.py:150
+#: journal/views/article.py:151 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
 
-#: catalog/views/verify.py:116
+#: catalog/views/verify.py:167
 msgid "Creator verified."
 msgstr "创作者已验证。"
 
-#: catalog/views/verify.py:132
+#: catalog/views/verify.py:187
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 
@@ -3840,7 +3888,7 @@ msgstr "用户不存在了"
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:168
+#: common/utils.py:128 common/utils.py:130 journal/views/article.py:169
 #: journal/views/profile.py:486 journal/views/review.py:188
 msgid "Login required"
 msgstr "登录后访问"
@@ -4613,7 +4661,7 @@ msgstr "匹配文件丢失，无法导入。"
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/models/article.py:153 journal/views/article.py:182
+#: journal/models/article.py:153 journal/views/article.py:183
 msgid "(may contain sensitive content)"
 msgstr "（可能包含剧透或敏感内容）"
 
@@ -4685,7 +4733,7 @@ msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 个条目"
 msgstr[1] "%(count)d 个条目"
 
-#: journal/models/common.py:50 journal/templates/action_open_post.html:15
+#: journal/models/common.py:51 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4699,7 +4747,7 @@ msgstr[1] "%(count)d 个条目"
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:51 journal/templates/action_open_post.html:9
+#: journal/models/common.py:52 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4712,7 +4760,7 @@ msgstr "公开"
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:52 journal/templates/collection_share.html:57
+#: journal/models/common.py:53 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4725,27 +4773,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:638
+#: journal/models/common.py:639
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:743
+#: journal/models/common.py:744
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:776
+#: journal/models/common.py:777
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:786
+#: journal/models/common.py:787
 msgid "Original post no longer exists."
 msgstr "原帖文已不存在。"
 
-#: journal/models/common.py:800
+#: journal/models/common.py:801
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:809
+#: journal/models/common.py:810
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5866,16 +5914,16 @@ msgstr "分享年度小结"
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
 
-#: journal/views/article.py:148 journal/views/review.py:168
+#: journal/views/article.py:149 journal/views/review.py:168
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/article.py:156 journal/views/article.py:170
+#: journal/views/article.py:157 journal/views/article.py:171
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr "{0} 的文章"
 
-#: journal/views/article.py:158 journal/views/article.py:166
+#: journal/views/article.py:159 journal/views/article.py:167
 #: journal/views/review.py:178 journal/views/review.py:186
 msgid "Link invalid"
 msgstr "链接无效"
@@ -6019,20 +6067,20 @@ msgstr "标签已更新"
 msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
-#: mastodon/models/common.py:12 users/templates/users/account.html:45
+#: mastodon/models/common.py:28 users/templates/users/account.html:45
 #: users/templates/users/account.html:55 users/templates/users/login.html:67
 msgid "Email"
 msgstr "电子邮件"
 
-#: mastodon/models/common.py:13
+#: mastodon/models/common.py:29
 msgid "Mastodon"
 msgstr "Mastodon"
 
-#: mastodon/models/common.py:14 users/templates/users/login.html:101
+#: mastodon/models/common.py:30 users/templates/users/login.html:101
 msgid "Threads"
 msgstr "Threads"
 
-#: mastodon/models/common.py:15
+#: mastodon/models/common.py:31
 msgid "Bluesky"
 msgstr "Bluesky"
 
@@ -6613,23 +6661,23 @@ msgstr "已开始"
 msgid "Complete"
 msgstr "完成"
 
-#: users/models/user.py:68
+#: users/models/user.py:69
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "输入用户名，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:116
+#: users/models/user.py:117
 msgid "username"
 msgstr "用户名"
 
-#: users/models/user.py:121
+#: users/models/user.py:122
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:124
+#: users/models/user.py:125
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:347
+#: users/models/user.py:368
 msgid "This username is already taken."
 msgstr "用户名已被使用"
 

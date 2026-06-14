@@ -3,11 +3,14 @@ from typing import TYPE_CHECKING, Iterable
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 
 from .item import Item
 
 if TYPE_CHECKING:
-    from users.models import User
+    from django.contrib.auth.models import AnonymousUser
+
+    from users.models import APIdentity, User
 
 
 class VerifiedCreator(models.Model):
@@ -25,7 +28,11 @@ class VerifiedCreator(models.Model):
     class FailureReason(models.TextChoices):
         NO_FEED = "no_feed", _("no feed url available for this item")
         FETCH_FAILED = "fetch_failed", _("unable to fetch or parse the feed")
-        NO_MATCH = "no_match", _("no matching identity found in the feed description")
+        NO_AUDIO = "no_audio", _("no audio episode found in the feed")
+        NO_MATCH = (
+            "no_match",
+            _("no matching identity found in the feed or its linked website"),
+        )
 
     if TYPE_CHECKING:
         item_id: int
@@ -79,6 +86,104 @@ def creator_identity_candidates(user: "User") -> list[str]:
         if user.bluesky.url:
             candidates.append(user.bluesky.url)
     return candidates
+
+
+def _mastodon_handle_parts(user: "User | AnonymousUser") -> tuple[str, str] | None:
+    """(username, domain) of the user's linked Mastodon handle, lowercased."""
+    mastodon = getattr(user, "mastodon", None)
+    handle = getattr(mastodon, "handle", None) if mastodon else None
+    if not handle:
+        return None
+    username, _, domain = handle.partition("@")
+    if not username or not domain:
+        return None
+    return username.lower(), domain.lower()
+
+
+def user_owned_claims_q(user: "User") -> models.Q:
+    """Q matching VerifiedCreator rows controlled by ``user``.
+
+    A claim is controlled by the user when its owner is the user's local
+    identity, or when the owner is the remote identity of the user's linked
+    Mastodon account (matched by the owner's stored username/domain, so no
+    remote-actor resolution happens on the request path).
+    """
+    q = models.Q(owner_id=user.identity.pk)
+    parts = _mastodon_handle_parts(user)
+    if parts:
+        username, domain = parts
+        q |= models.Q(
+            owner__username__iexact=username, owner__domain_name__iexact=domain
+        )
+    return q
+
+
+def user_controls_owner(user: "User | AnonymousUser", owner: "APIdentity") -> bool:
+    """Whether ``user`` controls a claim with this (already-loaded) ``owner``.
+
+    Mirrors :func:`user_owned_claims_q` for in-memory checks; compares only
+    fields already loaded on ``owner`` (no query, no remote-actor resolution).
+    """
+    identity = getattr(user, "identity", None)
+    if identity is None:
+        return False
+    if owner.pk == identity.pk:
+        return True
+    parts = _mastodon_handle_parts(user)
+    if parts and owner.username and owner.domain_name:
+        username, domain = parts
+        return owner.username.lower() == username and (
+            owner.domain_name.lower() == domain
+        )
+    return False
+
+
+def resolve_creator_identity(user: "User", matched: str) -> "APIdentity":
+    """Map a matched candidate string to the fediverse identity it represents.
+
+    A match against the user's linked Mastodon handle/url resolves to that
+    remote Mastodon identity (so the verified work is attributed to it); every
+    other match (local NeoDB handle/uri, Bluesky) stays the local identity.
+
+    This performs remote-actor resolution (DB lookup, then webfinger fetch) and
+    MUST only be called from the background verification task, never on the web
+    request path.
+    """
+    m = matched.strip().lower()
+    mastodon = getattr(user, "mastodon", None)
+    if mastodon and m:
+        mastodon_candidates = {f"@{mastodon.handle}".lower()}
+        if mastodon.url:
+            mastodon_candidates.add(mastodon.url.lower())
+        if m in mastodon_candidates:
+            identity = _resolve_remote_identity(mastodon.handle)
+            if identity:
+                return identity
+    return user.identity
+
+
+def _resolve_remote_identity(handle: str) -> "APIdentity | None":
+    """Resolve a ``user@domain`` handle to a remote APIdentity, fetching it via
+    webfinger when it is not already known. Returns None on failure."""
+    from users.models import APIdentity
+
+    username, _, domain = handle.partition("@")
+    if not username or not domain:
+        return None
+    identity = APIdentity.get_remote(username, domain)
+    if identity:
+        return identity
+    from takahe.models import Identity
+    from takahe.utils import Takahe
+
+    try:
+        takahe_identity = Identity.by_username_and_domain(username, domain, fetch=True)
+    except Exception:
+        logger.exception(f"failed to resolve remote identity {handle}")
+        return None
+    if takahe_identity:
+        return Takahe.get_or_create_remote_apidentity(takahe_identity)
+    return None
 
 
 def match_creator_identity(

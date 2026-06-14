@@ -33,13 +33,29 @@
     <form method="post"
           action="{% url 'catalog:verify_creator_start' item.url_path item.uuid %}">
       {% csrf_token %}
-      <input type="submit" value="{% trans 'Try again' %}">
+      <label>
+        <input type="checkbox"
+               onchange="document.getElementById('verify-submit').disabled = !this.checked">
+        {% trans "I have updated my feed's description or website as described above." %}
+      </label>
+      <input id="verify-submit"
+             type="submit"
+             value="{% trans 'Try again' %}"
+             disabled>
     </form>
   {% else %}
     <form method="post"
           action="{% url 'catalog:verify_creator_start' item.url_path item.uuid %}">
       {% csrf_token %}
-      <input type="submit" value="{% trans 'Start verification' %}">
+      <label>
+        <input type="checkbox"
+               onchange="document.getElementById('verify-submit').disabled = !this.checked">
+        {% trans "I have updated my feed's description or website as described above." %}
+      </label>
+      <input id="verify-submit"
+             type="submit"
+             value="{% trans 'Start verification' %}"
+             disabled>
     </form>
   {% endif %}
 </section>

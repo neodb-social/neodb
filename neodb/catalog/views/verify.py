@@ -15,7 +15,13 @@ from common.utils import (
 from users.models import APIdentity
 
 from ..jobs.creator_verify import enqueue_creator_verification
-from ..models import Item, VerifiedCreator, creator_identity_candidates
+from ..models import (
+    Item,
+    VerifiedCreator,
+    creator_identity_candidates,
+    user_controls_owner,
+    user_owned_claims_q,
+)
 
 VERIFY_COOLDOWN_SECONDS = 60
 
@@ -34,11 +40,29 @@ def _verify_page_url(item: Item) -> str:
 
 
 def _verify_context(request, item: Item) -> dict:
+    # a verified claim may be attributed to the user's linked Mastodon identity,
+    # so look it up by any identity the user controls, not just the local one
+    my_claim = (
+        item.verified_creators.filter(user_owned_claims_q(request.user))
+        .select_related("owner")
+        .order_by("-edited_time")
+        .first()
+    )
+    # show only link/url identifiers; bare @handles still verify but are
+    # discouraged in the UI in favor of rel="me" links
+    candidates = [c for c in creator_identity_candidates(request.user) if "://" in c]
+    # a url to show in the copyable rel="me" example, preferring the linked
+    # Mastodon profile when available
+    mastodon = request.user.mastodon
+    example_url = (mastodon.url if mastodon and mastodon.url else "") or (
+        candidates[0] if candidates else ""
+    )
     return {
         "item": item,
-        "my_claim": item.verified_creators.filter(owner=request.user.identity).first(),
+        "my_claim": my_claim,
         "verified_creators": item.verified_creator_list,
-        "candidates": creator_identity_candidates(request.user),
+        "candidates": candidates,
+        "example_url": example_url,
     }
 
 
@@ -75,14 +99,22 @@ def verify_creator_start(request, item_path, item_uuid):
             request, messages.ERROR, _("No feed url available for this item.")
         )
         return redirect(_verify_page_url(item))
-    existing = VerifiedCreator.objects.filter(
-        item=item, owner=request.user.identity
-    ).first()
-    if existing and existing.state == VerifiedCreator.State.VERIFIED:
+    # a prior verification may have re-homed the claim onto a linked identity,
+    # so check every identity the user controls for an existing verified claim
+    if VerifiedCreator.objects.filter(
+        user_owned_claims_q(request.user),
+        item=item,
+        state=VerifiedCreator.State.VERIFIED,
+    ).exists():
         messages.add_message(
             request, messages.INFO, _("You are already a verified creator.")
         )
         return redirect(_verify_page_url(item))
+    # a pending claim is always owned by the local identity (attribution is
+    # only resolved once verification succeeds)
+    existing = VerifiedCreator.objects.filter(
+        item=item, owner=request.user.identity
+    ).first()
     if existing and existing.state == VerifiedCreator.State.PENDING:
         messages.add_message(
             request, messages.INFO, _("Verification is already in progress.")
@@ -142,9 +174,13 @@ def verify_creator_manual(request, item_path, item_uuid):
 def unverify_creator(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     claim = get_object_or_404(
-        VerifiedCreator, pk=request.POST.get("claim_id"), item=item
+        VerifiedCreator.objects.select_related("owner"),
+        pk=request.POST.get("claim_id"),
+        item=item,
     )
-    if claim.owner_id != request.user.identity.pk and not request.user.is_superuser:
+    if not user_controls_owner(request.user, claim.owner) and (
+        not request.user.is_superuser
+    ):
         raise PermissionDenied(_("Insufficient permission"))
     item.log_action({"!creator_unverified": ["", str(claim.owner)]})
     claim.delete()
