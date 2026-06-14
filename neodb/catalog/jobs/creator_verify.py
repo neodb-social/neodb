@@ -138,7 +138,10 @@ def _verify_claim(claim: VerifiedCreator, user: User, matched: str) -> None:
             verified = pending
         else:
             # attribute the work to the matched identity; the original pending
-            # row is dropped so the (item, owner) uniqueness still holds
+            # row is dropped so the (item, owner) uniqueness still holds.
+            # edited_time is set explicitly: update_or_create saves an existing
+            # row with update_fields limited to defaults, so the auto_now field
+            # would not refresh on the update branch otherwise.
             pending.delete()
             verified, _ = VerifiedCreator.objects.update_or_create(
                 item=item,
@@ -147,9 +150,12 @@ def _verify_claim(claim: VerifiedCreator, user: User, matched: str) -> None:
                     "state": VerifiedCreator.State.VERIFIED,
                     "matched": matched,
                     "failure_reason": "",
+                    "edited_time": timezone.now(),
                 },
             )
-    item.log_action({"!creator_verified": ["", f"{verified.owner} ({matched})"]})
+        # log inside the transaction so the state change and its audit entry
+        # commit together
+        item.log_action({"!creator_verified": ["", f"{verified.owner} ({matched})"]})
     logger.info(f"creator verification matched {matched} for {verified}")
 
 

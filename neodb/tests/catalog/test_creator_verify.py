@@ -835,6 +835,35 @@ class TestMastodonAttribution:
         assert rehomed.state == VerifiedCreator.State.VERIFIED
         assert rehomed.matched == handle
 
+    def test_rehome_onto_existing_claim_refreshes_edited_time(self, monkeypatch):
+        # re-homing onto an already-existing mastodon-owned claim must refresh
+        # edited_time (the page orders "my claim" by -edited_time)
+        user = User.register(email="a@example.com", username="alice")
+        _link_mastodon(user)
+        remote = _make_remote_identity("alice", "mast.example")
+        podcast = _podcast()
+        existing = _verified(podcast, remote, matched="@alice@mast.example")
+        old = timezone.now() - timedelta(days=3)
+        VerifiedCreator.objects.filter(pk=existing.pk).update(edited_time=old)
+        claim = VerifiedCreator.objects.create(item=podcast, owner=user.identity)
+        monkeypatch.setattr(
+            RSS,
+            "fetch_feed_with_metadata",
+            lambda url, etag="", last_modified="": (
+                {
+                    "description": "by @alice@mast.example",
+                    "episodes": _AUDIO_EPISODES,
+                },
+                "",
+                "",
+                200,
+            ),
+        )
+        verify_creator_task(claim.pk, user.pk)
+        existing.refresh_from_db()
+        assert existing.state == VerifiedCreator.State.VERIFIED
+        assert existing.edited_time > old
+
     def test_unverify_mastodon_owned_claim(self):
         alice = User.register(email="a@example.com", username="alice")
         bob = User.register(email="b@example.com", username="bob")
