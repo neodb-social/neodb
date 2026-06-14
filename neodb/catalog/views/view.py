@@ -104,7 +104,16 @@ def retrieve(request, item_path, item_uuid):
     # Prefetch parent item, external resources, and credits to avoid N+1 in templates
     prefetch_related_objects(
         [item],
-        "external_resources",
+        # The detail page only reads url/site_name/site_label (derived from
+        # id_type/id_value) via item.display_resources, so skip the large
+        # metadata/other_lookup_ids JSON columns that made this prefetch a slow
+        # query (EGGPLANT-1DX).
+        Prefetch(
+            "external_resources",
+            queryset=ExternalResource.objects.only(
+                "id", "item_id", "id_type", "id_value", "url"
+            ),
+        ),
         Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
     )
     Item.prefetch_parent_items([item])
