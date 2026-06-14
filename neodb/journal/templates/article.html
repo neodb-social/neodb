@@ -62,12 +62,12 @@
                 {% include "action_post_timestamp.html" with post=article.latest_post %}
                 {% include "action_like_post.html" with post=article.latest_post %}
                 {% include "action_boost_post.html" with post=article.latest_post %}
-                {% if article.classname == "review" and translate_enabled and request.user.is_authenticated %}
+                {% if translate_enabled and request.user.is_authenticated %}
                   <span>
                     <a title="{% trans "translate" %}"
-                       hx-post="{% url 'journal:review_translate' article.uuid %}"
+                       {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
                        hx-trigger="click once"
-                       hx-target="#review_{{ article.uuid }}_content">
+                       hx-target="#{{ article.classname }}_{{ article.uuid }}_content">
                       <i class="fa-solid fa-language"></i>
                     </a>
                   </span>

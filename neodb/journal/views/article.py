@@ -5,9 +5,11 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models.lang import translate
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
 from takahe.utils import Takahe
@@ -128,6 +130,27 @@ def article_retrieve(request, article_uuid: str):
         request,
         "article.html",
         {"article": article, "quotes_count": post_quotes_count(article.latest_post)},
+    )
+
+
+@require_http_methods(["POST"])
+@login_required
+def article_translate(request, article_uuid: str):
+    article = get_object_or_404(Article, uid=get_uuid_or_404(article_uuid))
+    if not article.is_visible_to(request.user):
+        raise PermissionDenied(_("Insufficient permission"))
+    text = article.html_content
+    if article.latest_post:
+        lang = article.latest_post.language
+    elif article.owner.local:
+        lang = article.owner.user.language
+    else:
+        lang = None
+    target_lang = request.user.language or "en"
+    text = translate(text, target_lang, lang)
+    title = translate(article.title, target_lang, lang)
+    return HttpResponse(
+        f'<span hx-swap-oob="true" id="article_{article.uuid}_title">{escape(title)}</span><div>{text}</div>'
     )
 
 

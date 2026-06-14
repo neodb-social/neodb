@@ -1,4 +1,10 @@
-from .article import ArticleFeed, article_edit, article_retrieve, user_article_list
+from .article import (
+    ArticleFeed,
+    article_edit,
+    article_retrieve,
+    article_translate,
+    user_article_list,
+)
 from .collection import (
     add_to_collection,
     collection_add_featured,
@@ -72,6 +78,7 @@ __all__ = [
     "ArticleFeed",
     "article_edit",
     "article_retrieve",
+    "article_translate",
     "user_article_list",
     "add_to_collection",
     "save_as_dynamic_collection",

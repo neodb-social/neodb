@@ -57,6 +57,11 @@ urlpatterns = [
     path("article/compose", article_edit, name="article_compose"),
     path("article/edit/<str:article_uuid>", article_edit, name="article_edit"),
     path("article/delete/<str:piece_uuid>", piece_delete, name="article_delete"),
+    path(
+        "article/translate/<str:article_uuid>",
+        article_translate,
+        name="article_translate",
+    ),
     re_path(
         r"^article/(?P<article_uuid>[A-Za-z0-9]{21,22})$",
         article_retrieve,
