@@ -201,6 +201,8 @@ def people_works(request, item_path, item_uuid, role):
     if hidden_ids:
         works_qs = works_qs.exclude(pk__in=hidden_ids)
 
+    # Order explicitly so pagination yields stable, consistent results.
+    works_qs = works_qs.order_by("-pk")
     total = works_qs.count()
     paginator = CustomPaginator(works_qs, request)
     page_number = request.GET.get("page", default=1)
