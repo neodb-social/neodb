@@ -101,18 +101,21 @@ def retrieve(request, item_path, item_uuid):
         return JsonResponse(item.ap_object, content_type="application/activity+json")
     if request.method == "HEAD":
         return HttpResponse()
-    # Prefetch parent item, external resources, and credits to avoid N+1 in templates
+    # Prefetch parent item, external resources, and credits to avoid N+1 in templates.
+    # The detail page only reads url/site_name/site_label (derived from
+    # id_type/id_value) via item.display_resources, so skip the large
+    # metadata/other_lookup_ids JSON columns that made this prefetch a slow
+    # query (EGGPLANT-1DX). Albums are the exception: album.html renders an
+    # embed via Album.get_embed_link(), which reads res.metadata for Bandcamp
+    # resources, so keep metadata for them to avoid a per-resource deferred load.
+    extres_fields = ["id", "item_id", "id_type", "id_value", "url"]
+    if item.class_name == "album":
+        extres_fields.append("metadata")
     prefetch_related_objects(
         [item],
-        # The detail page only reads url/site_name/site_label (derived from
-        # id_type/id_value) via item.display_resources, so skip the large
-        # metadata/other_lookup_ids JSON columns that made this prefetch a slow
-        # query (EGGPLANT-1DX).
         Prefetch(
             "external_resources",
-            queryset=ExternalResource.objects.only(
-                "id", "item_id", "id_type", "id_value", "url"
-            ),
+            queryset=ExternalResource.objects.only(*extres_fields),
         ),
         Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
     )
