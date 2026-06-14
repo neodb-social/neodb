@@ -173,9 +173,12 @@ def verify_creator_manual(request, item_path, item_uuid):
 @user_identity_required
 def unverify_creator(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    claim_id = request.POST.get("claim_id", "")
+    if not claim_id.isdigit():
+        raise BadRequest(_("Invalid parameter"))
     claim = get_object_or_404(
         VerifiedCreator.objects.select_related("owner"),
-        pk=request.POST.get("claim_id"),
+        pk=claim_id,
         item=item,
     )
     if not user_controls_owner(request.user, claim.owner) and (

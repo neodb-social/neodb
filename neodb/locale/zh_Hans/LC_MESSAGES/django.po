@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 15:21-0400\n"
+"POT-Creation-Date: 2026-06-14 15:31-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -2134,7 +2134,7 @@ msgstr "条目不可被删除。"
 #: catalog/views/edit.py:218 catalog/views/edit.py:272
 #: catalog/views/edit.py:390 catalog/views/edit.py:479
 #: catalog/views/edit.py:511 catalog/views/verify.py:147
-#: catalog/views/verify.py:184 journal/views/article.py:37
+#: catalog/views/verify.py:187 journal/views/article.py:37
 #: journal/views/article.py:119 journal/views/collection.py:238
 #: journal/views/collection.py:299 journal/views/collection.py:318
 #: journal/views/collection.py:342 journal/views/collection.py:415
@@ -2152,14 +2152,15 @@ msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
-#: journal/views/collection.py:75 journal/views/collection.py:100
-#: journal/views/collection.py:506 journal/views/collection.py:601
-#: journal/views/common.py:196 journal/views/mark.py:171
-#: journal/views/post.py:112 journal/views/post.py:114
-#: journal/views/post.py:161 journal/views/post.py:180
-#: journal/views/post.py:182 journal/views/post.py:223
-#: journal/views/post.py:236 journal/views/review.py:142
-#: journal/views/review.py:146 users/views/actions.py:171
+#: catalog/views/verify.py:178 journal/views/collection.py:75
+#: journal/views/collection.py:100 journal/views/collection.py:506
+#: journal/views/collection.py:601 journal/views/common.py:196
+#: journal/views/mark.py:171 journal/views/post.py:112
+#: journal/views/post.py:114 journal/views/post.py:161
+#: journal/views/post.py:180 journal/views/post.py:182
+#: journal/views/post.py:223 journal/views/post.py:236
+#: journal/views/review.py:142 journal/views/review.py:146
+#: users/views/actions.py:171
 msgid "Invalid parameter"
 msgstr "无效参数"
 
@@ -2245,7 +2246,7 @@ msgstr "用户不存在"
 msgid "Creator verified."
 msgstr "创作者已验证。"
 
-#: catalog/views/verify.py:187
+#: catalog/views/verify.py:190
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 

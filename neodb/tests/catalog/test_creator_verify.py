@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.test import Client
 from django.utils import timezone
 
-from catalog.jobs.creator_verify import verify_creator_task
+from catalog.jobs.creator_verify import _has_audio_episode, verify_creator_task
 from catalog.jobs.discover import DiscoverGenerator
 from catalog.models import (
     IdType,
@@ -191,6 +191,33 @@ class TestMatcher:
         assert match_creator_identity([""], ["@alice@example.org"]) is None
 
 
+class TestAudioEpisode:
+    def test_audio_enclosure_counts(self):
+        assert _has_audio_episode(
+            {
+                "episodes": [
+                    {"enclosures": [{"url": "x.mp3", "mime_type": "audio/mpeg"}]}
+                ]
+            }
+        )
+
+    def test_missing_mime_is_accepted(self):
+        assert _has_audio_episode({"episodes": [{"enclosures": [{"url": "x.mp3"}]}]})
+
+    def test_no_episodes_or_enclosures(self):
+        assert not _has_audio_episode({})
+        assert not _has_audio_episode({"episodes": []})
+        assert not _has_audio_episode({"episodes": [{"enclosures": []}]})
+
+    def test_non_audio_and_urlless_do_not_count(self):
+        assert not _has_audio_episode(
+            {"episodes": [{"enclosures": [{"url": "v.mp4", "mime_type": "video/mp4"}]}]}
+        )
+        assert not _has_audio_episode(
+            {"episodes": [{"enclosures": [{"mime_type": "audio/mpeg"}]}]}
+        )
+
+
 @pytest.mark.django_db(databases="__all__")
 class TestCandidates:
     def test_local_identity(self):
@@ -293,6 +320,31 @@ class TestVerifyTask:
         claim.refresh_from_db()
         assert claim.state == VerifiedCreator.State.FAILED
         assert claim.failure_reason == VerifiedCreator.FailureReason.NO_AUDIO
+
+    def test_unexpected_error_fails_claim(self, monkeypatch):
+        # a crash while matching must fail the claim, not leave it PENDING
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        claim = self._claim(user, podcast)
+        monkeypatch.setattr(
+            RSS,
+            "fetch_feed_with_metadata",
+            lambda url, etag="", last_modified="": (
+                {"description": "x", "episodes": _AUDIO_EPISODES},
+                "",
+                "",
+                200,
+            ),
+        )
+
+        def boom(*args, **kwargs):
+            raise RuntimeError("boom")
+
+        monkeypatch.setattr("catalog.jobs.creator_verify._match_creator", boom)
+        verify_creator_task(claim.pk, user.pk)
+        claim.refresh_from_db()
+        assert claim.state == VerifiedCreator.State.FAILED
+        assert claim.failure_reason == VerifiedCreator.FailureReason.FETCH_FAILED
 
     def test_failed_fetch_error(self, monkeypatch):
         user = User.register(email="a@example.com", username="alice")
@@ -465,6 +517,14 @@ class TestVerifyViews:
         response = _client(alice).post(url, {"claim_id": claim.pk})
         assert response.status_code == 302
         assert not VerifiedCreator.objects.filter(pk=claim.pk).exists()
+
+    def test_unverify_invalid_claim_id(self):
+        # a missing or non-numeric claim_id is a bad request, not a 500
+        user = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        url = f"/podcast/{podcast.uuid}/verify/remove"
+        assert _client(user).post(url, {"claim_id": "abc"}).status_code == 400
+        assert _client(user).post(url, {}).status_code == 400
 
 
 @pytest.mark.django_db(databases="__all__")

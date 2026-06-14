@@ -74,6 +74,8 @@ def _fetch_page_rel_me_urls(url: str) -> list[str]:
     except Exception:
         logger.debug(f"verify_creator_task: unable to fetch page {url}")
         return []
+    if content is None:
+        return []
     return [h.strip() for h in content.xpath(_REL_ME_XPATH) if h and h.strip()]
 
 
@@ -179,8 +181,14 @@ def verify_creator_task(claim_id: int, user_id: int) -> None:
     if not _has_audio_episode(feed):
         _fail_claim(claim, VerifiedCreator.FailureReason.NO_AUDIO)
         return
-    matched = _match_creator(user, feed)
-    if matched:
-        _verify_claim(claim, user, matched)
-    else:
-        _fail_claim(claim, VerifiedCreator.FailureReason.NO_MATCH)
+    # never let an unexpected matching/resolution/db error leave the claim stuck
+    # in PENDING; fail it instead so the user can retry
+    try:
+        matched = _match_creator(user, feed)
+        if matched:
+            _verify_claim(claim, user, matched)
+        else:
+            _fail_claim(claim, VerifiedCreator.FailureReason.NO_MATCH)
+    except Exception:
+        logger.exception(f"verify_creator_task: error verifying claim {claim_id}")
+        _fail_claim(claim, VerifiedCreator.FailureReason.FETCH_FAILED)
