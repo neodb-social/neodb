@@ -159,3 +159,20 @@ def test_profile_articles_shelf_empty_hidden_for_visitor():
     assert response.status_code == 200
     # With no articles, a visitor's shelf collapses itself.
     assert "hide closest .shelf" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_profile_articles_shelf_hidden_from_anonymous_when_not_viewable():
+    owner = User.register(email="artprivate@example.com", username="artprivateuser")
+    identity = owner.identity
+    identity.anonymous_viewable = False
+    identity.save(update_fields=["anonymous_viewable"])
+    Article.update_local_article(
+        owner=identity, title="Hidden Article", body="secret", visibility=0
+    )
+
+    # An anonymous visitor gets an empty response (no article data leaked).
+    preview_url = reverse("journal:profile_articles", args=[identity.handle])
+    response = Client().get(preview_url)
+    assert response.status_code == 200
+    assert response.content == b""

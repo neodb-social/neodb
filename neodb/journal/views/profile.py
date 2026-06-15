@@ -448,7 +448,13 @@ def profile_articles(request: AuthedHttpRequest, user_name):
 
     qv = q_owned_piece_visible_to_user(request.user, target)
     articles = Article.objects.filter(owner=target).filter(qv).order_by("-created_time")
-    total = articles.count()
+    # Fetch one past the preview limit so a short result set yields the exact
+    # total without a separate COUNT query; only count when the page is full.
+    preview = list(articles[: _ARTICLE_PREVIEW_COUNT + 1])
+    if len(preview) <= _ARTICLE_PREVIEW_COUNT:
+        total = len(preview)
+    else:
+        total = articles.count()
 
     return render(
         request,
@@ -456,7 +462,7 @@ def profile_articles(request: AuthedHttpRequest, user_name):
         {
             "title": _("Articles"),
             "url": f"{target.url}articles/",
-            "articles": list(articles[:_ARTICLE_PREVIEW_COUNT]),
+            "articles": preview[:_ARTICLE_PREVIEW_COUNT],
             "total": total,
             "show_create_button": target.user == request.user,
         },

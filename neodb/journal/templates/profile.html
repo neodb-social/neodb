@@ -139,7 +139,7 @@
                    hx-trigger="intersect once queue:last">
                 <h5>
                   <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans 'Articles' %}</a>
-                  {% if request.user.identity == identity %}
+                  {% if request.user.is_authenticated and request.user.identity == identity %}
                     <small>
                       <a href="{% url 'journal:article_compose' %}"
                          title="{% trans 'Compose Article' %}">
