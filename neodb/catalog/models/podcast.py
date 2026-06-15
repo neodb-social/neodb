@@ -130,11 +130,19 @@ class Podcast(Item):
         """
         from takahe.models import Identity
 
-        # Restriction lives on the Takahe identity (separate db, shared pk),
-        # so materialize the restricted ids rather than joining across dbs.
+        # Restriction lives on the Takahe identity (separate db, shared pk), so
+        # look up only the identities that are actually verified creators (a
+        # small, curated set) and materialize the restricted ids, rather than
+        # scanning every restricted identity on the instance or joining dbs.
+        verified_owner_ids = list(
+            VerifiedCreator.objects.filter(state=VerifiedCreator.State.VERIFIED)
+            .values_list("owner_id", flat=True)
+            .distinct()
+        )
         restricted_ids = list(
             Identity.objects.filter(
-                restriction__gt=Identity.Restriction.none
+                pk__in=verified_owner_ids,
+                restriction__gt=Identity.Restriction.none,
             ).values_list("pk", flat=True)
         )
         qs = (
