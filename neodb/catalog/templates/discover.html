@@ -84,7 +84,7 @@
               </span>
               <h5>
                 {% if gallery.name == "original_episodes" %}
-                  {% trans 'original episodes' %}
+                  <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'original episodes' %}</a>
                 {% else %}
                   {{ gallery.category.label }}
                 {% endif %}

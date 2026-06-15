@@ -285,6 +285,22 @@ def trending_original_episodes(request):
     return _get_trending("original_episodes")
 
 
+@api.get(
+    "/trending/podcast/verified/",
+    response={200: List[PodcastSchema]},
+    summary="Podcasts with a verified creator",
+    auth=None,
+    tags=["trending"],
+)
+@paginate(PageNumberPagination)
+def trending_verified_podcasts(request):
+    """Podcasts that have a verified creator, most recently verified first.
+
+    These are the shows behind the discover page's "original episodes".
+    """
+    return Podcast.verified_originals()
+
+
 def _get_item(cls, uuid, response):
     item = Item.get_by_url(uuid)
     if not item:

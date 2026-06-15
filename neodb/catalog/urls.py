@@ -284,6 +284,11 @@ urlpatterns = [
         discover_popular_posts,
         name="discover_popular_posts",
     ),
+    path(
+        "discover/original-podcasts/",
+        discover_original_podcasts,
+        name="discover_original_podcasts",
+    ),
     path("discover/", discover, name="discover"),
     # Debug views: DEBUG=True allows anyone, otherwise requires superuser
     path("debug/scraper/", scraper_debug_page, name="debug_scraper"),

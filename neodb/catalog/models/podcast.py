@@ -11,6 +11,7 @@ from .common import (
     LanguageListField,
     jsondata,
 )
+from .creator import VerifiedCreator
 from .item import (
     BaseSchema,
     IdType,
@@ -114,6 +115,31 @@ class Podcast(Item):
             IdType.RSS,
         ]
         return [(i.value, i.label) for i in id_types]
+
+    @classmethod
+    def verified_originals(cls) -> models.QuerySet["Podcast"]:
+        """Podcasts with a verified creator, most recently verified first.
+
+        These are the shows behind the discover page's "original episodes"
+        shelf. A show may carry several verified-creator claims, so it is
+        ranked by the newest of those claims and appears only once.
+        """
+        return (
+            cls.objects.filter(
+                is_deleted=False,
+                merged_to_item__isnull=True,
+            )
+            .annotate(
+                verified_at=models.Max(
+                    "verified_creators__created_time",
+                    filter=models.Q(
+                        verified_creators__state=VerifiedCreator.State.VERIFIED
+                    ),
+                )
+            )
+            .filter(verified_at__isnull=False)
+            .order_by("-verified_at", "-pk")
+        )
 
     @property
     def recent_episodes(self):

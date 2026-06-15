@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count, F, Prefetch, Window, prefetch_related_objects
+from django.db.models import Count, F, Prefetch, Q, Window, prefetch_related_objects
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -34,7 +34,14 @@ from journal.models import (
 )
 from takahe.utils import Takahe
 
-from ..models import ExternalResource, IdType, Item, ItemCredit, Podcast, TVEpisode
+from ..models import (
+    ExternalResource,
+    IdType,
+    Item,
+    ItemCredit,
+    Podcast,
+    TVEpisode,
+)
 from ..models.people import ItemPeopleRelation, People, PeopleRole
 from ..recommendation import blended_for_discover, can_show_reco, similar_items
 from ..sites import WikiData
@@ -326,7 +333,6 @@ def _prefetch_mark_list(members: list["ShelfMember"], user) -> None:
     prefetch_latest_posts(members)
     # Batch-fetch Comments for all (owner, item) pairs
     pairs = [(m.owner_id, m.item_id) for m in members]
-    from django.db.models import Q
 
     q = Q()
     for owner_id, item_id in pairs:
@@ -689,6 +695,44 @@ def discover(request):
             "layout": layout,
             "updated": updated,
             "reco_items": reco_items,
+        },
+    )
+
+
+def discover_original_podcasts(request):
+    """Paginated list of podcasts that have a verified creator.
+
+    These are the shows behind the discover page's "original episodes"
+    shelf; clicking the shelf heading lands here.
+    """
+    queryset = Podcast.verified_originals()
+    paginator = CustomPaginator(queryset, request)
+    page_number = request.GET.get("page", default=1)
+    podcasts = paginator.get_page(page_number)
+    pagination = PageLinksGenerator(page_number, paginator.num_pages, request.GET)
+    podcast_items = list(podcasts.object_list)
+    if podcast_items:
+        prefetch_related_objects(
+            podcast_items,
+            Prefetch(
+                "external_resources",
+                queryset=ExternalResource.objects.only(
+                    "id", "item_id", "id_type", "id_value", "url"
+                ),
+            ),
+            Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        )
+        Rating.attach_to_items(podcast_items)
+        Tag.attach_to_items(podcast_items)
+        if request.user.is_authenticated:
+            Mark.attach_to_items(request.user.identity, podcast_items, request.user)
+    return render(
+        request,
+        "discover_original_podcasts.html",
+        {
+            "podcasts": podcasts,
+            "pagination": pagination,
+            "total": paginator.count,
         },
     )
 

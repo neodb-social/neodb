@@ -813,6 +813,78 @@ def test_original_episodes_api(live_server):
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestVerifiedOriginals:
+    def test_only_verified_podcasts(self):
+        alice = User.register(email="a@example.com", username="alice")
+        verified_pod = _podcast("Verified", "v.example.com/feed.rss")
+        pending_pod = _podcast("Pending", "p.example.com/feed.rss")
+        plain_pod = _podcast("Plain", "x.example.com/feed.rss")
+        _verified(verified_pod, alice.identity)
+        VerifiedCreator.objects.create(item=pending_pod, owner=alice.identity)
+        assert list(Podcast.verified_originals()) == [verified_pod]
+        assert plain_pod not in Podcast.verified_originals()
+
+    def test_deleted_or_merged_excluded(self):
+        alice = User.register(email="a@example.com", username="alice")
+        deleted_pod = _podcast("Deleted", "d.example.com/feed.rss")
+        live_pod = _podcast("Live", "l.example.com/feed.rss")
+        _verified(deleted_pod, alice.identity)
+        _verified(live_pod, alice.identity)
+        deleted_pod.is_deleted = True
+        deleted_pod.save()
+        assert list(Podcast.verified_originals()) == [live_pod]
+
+    def test_distinct_with_multiple_claims(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        _verified(podcast, bob.identity)
+        assert list(Podcast.verified_originals()) == [podcast]
+
+    def test_ordered_by_most_recently_verified(self):
+        alice = User.register(email="a@example.com", username="alice")
+        pod_old = _podcast("Old", "old.example.com/feed.rss")
+        pod_new = _podcast("New", "new.example.com/feed.rss")
+        claim_old = _verified(pod_old, alice.identity)
+        claim_new = _verified(pod_new, alice.identity)
+        now = timezone.now()
+        VerifiedCreator.objects.filter(pk=claim_old.pk).update(
+            created_time=now - timedelta(days=2)
+        )
+        VerifiedCreator.objects.filter(pk=claim_new.pk).update(created_time=now)
+        assert list(Podcast.verified_originals()) == [pod_new, pod_old]
+
+    def test_page_lists_verified_podcasts(self):
+        alice = User.register(email="a@example.com", username="alice")
+        verified_pod = _podcast("My Verified Show", "v.example.com/feed.rss")
+        _podcast("Just A Show", "x.example.com/feed.rss")
+        _verified(verified_pod, alice.identity)
+        response = Client().get("/discover/original-podcasts/")
+        assert response.status_code == 200
+        body = response.content.decode()
+        assert "My Verified Show" in body
+        assert "Just A Show" not in body
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_verified_podcasts_api(live_server):
+    import requests
+
+    alice = User.register(email="a@example.com", username="alice")
+    podcast = _podcast("Api Show")
+    _verified(podcast, alice.identity)
+    response = requests.get(
+        f"{live_server.url}/api/trending/podcast/verified/", timeout=5
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 1
+    assert len(payload["data"]) == 1
+    assert payload["data"][0]["uuid"] == podcast.uuid
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestMastodonAttribution:
     def test_resolve_identity_local(self):
         user = User.register(email="a@example.com", username="alice")

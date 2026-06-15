@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 15:31-0400\n"
+"POT-Creation-Date: 2026-06-15 18:13+0800\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -644,7 +644,7 @@ msgstr "开发者"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:202
+#: catalog/models/game.py:135 catalog/models/podcast.py:228
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -663,7 +663,7 @@ msgstr "平台"
 
 #: catalog/models/game.py:159 catalog/models/movie.py:160
 #: catalog/models/people.py:158 catalog/models/performance.py:259
-#: catalog/models/performance.py:471 catalog/models/podcast.py:87
+#: catalog/models/performance.py:471 catalog/models/podcast.py:88
 #: catalog/models/tv.py:235 catalog/models/tv.py:478
 #: catalog/templates/game.html:34 catalog/templates/movie.html:58
 #: catalog/templates/people.html:44 catalog/templates/performance.html:35
@@ -711,7 +711,7 @@ msgstr "编舞"
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/item.py:125 catalog/models/podcast.py:78
+#: catalog/models/item.py:125 catalog/models/podcast.py:79
 msgid "host"
 msgstr "主播"
 
@@ -1771,47 +1771,49 @@ msgstr "为你推荐"
 msgid "original episodes"
 msgstr "原创单集"
 
-#: catalog/templates/discover.html:123
+#: catalog/templates/discover.html:135
 #: journal/templates/user_collection_list.html:18
 #: journal/templates/user_collection_list.html:32
 msgid "Collections"
 msgstr "收藏单"
 
-#: catalog/templates/discover.html:141 journal/templates/profile.html:235
+#: catalog/templates/discover.html:153 journal/templates/profile.html:244
 msgid "edit layout"
 msgstr "编辑布局"
 
-#: catalog/templates/discover.html:144 journal/templates/profile.html:238
+#: catalog/templates/discover.html:156 journal/templates/profile.html:247
 msgid "save"
 msgstr "保存"
 
-#: catalog/templates/discover.html:155 journal/templates/profile.html:249
+#: catalog/templates/discover.html:167 journal/templates/profile.html:258
 msgid "cancel"
 msgstr "取消"
 
-#: catalog/templates/discover.html:161 journal/templates/profile.html:255
+#: catalog/templates/discover.html:173 journal/templates/profile.html:264
 msgid "show"
 msgstr "显示"
 
-#: catalog/templates/discover.html:162 journal/templates/profile.html:256
+#: catalog/templates/discover.html:174 journal/templates/profile.html:265
 msgid "hide"
 msgstr "隐藏"
 
-#: catalog/templates/discover.html:194 common/templates/_sidebar.html:14
+#: catalog/templates/discover.html:206 common/templates/_sidebar.html:14
 msgid "Unread Announcements"
 msgstr "未读公告"
 
-#: catalog/templates/discover.html:200 common/templates/_sidebar.html:20
+#: catalog/templates/discover.html:212 common/templates/_sidebar.html:20
 #: social/templates/notification.html:67
 msgid "mark all as read"
 msgstr "全部标为已读"
 
-#: catalog/templates/discover.html:210
+#: catalog/templates/discover.html:222
 #: common/templates/_sidebar_anonymous.html:55
 msgid "Popular Tags"
 msgstr "热门标签"
 
-#: catalog/templates/discover.html:217 catalog/templates/item_base.html:281
+#: catalog/templates/discover.html:229
+#: catalog/templates/discover_original_podcasts.html:25
+#: catalog/templates/item_base.html:281
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28
@@ -1819,6 +1821,8 @@ msgstr "热门标签"
 #: common/templates/_sidebar.html:122
 #: common/templates/_sidebar_anonymous.html:46
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
+#: journal/templates/profile_articles.html:24
+#: journal/templates/profile_articles.html:26
 #: journal/templates/profile_items.html:34
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_article_list.html:58
@@ -1832,9 +1836,14 @@ msgstr "热门标签"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/discover.html:227 common/templates/_sidebar.html:245
+#: catalog/templates/discover.html:239 common/templates/_sidebar.html:245
 msgid "Recent Posts"
 msgstr "近期帖文"
+
+#: catalog/templates/discover_original_podcasts.html:10
+#: catalog/templates/discover_original_podcasts.html:18
+msgid "original podcasts"
+msgstr "原创播客"
 
 #: catalog/templates/edition.html:38
 msgid "publication date"
@@ -2098,7 +2107,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:187 journal/views/profile.py:540
+#: journal/templates/profile.html:196 journal/views/profile.py:578
 msgid "People"
 msgstr "人物"
 
@@ -2134,20 +2143,20 @@ msgstr "条目不可被删除。"
 #: catalog/views/edit.py:218 catalog/views/edit.py:272
 #: catalog/views/edit.py:390 catalog/views/edit.py:479
 #: catalog/views/edit.py:511 catalog/views/verify.py:147
-#: catalog/views/verify.py:187 journal/views/article.py:37
-#: journal/views/article.py:119 journal/views/collection.py:238
-#: journal/views/collection.py:299 journal/views/collection.py:318
-#: journal/views/collection.py:342 journal/views/collection.py:415
-#: journal/views/collection.py:451 journal/views/collection.py:489
-#: journal/views/collection.py:501 journal/views/collection.py:526
-#: journal/views/collection.py:529 journal/views/collection.py:570
-#: journal/views/common.py:268 journal/views/mark.py:245
-#: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
-#: journal/views/post.py:165 journal/views/post.py:194
-#: journal/views/post.py:267 journal/views/post.py:282
-#: journal/views/post.py:389 journal/views/post.py:541
-#: journal/views/review.py:52 journal/views/review.py:69
-#: journal/views/review.py:94
+#: catalog/views/verify.py:187 journal/views/article.py:39
+#: journal/views/article.py:121 journal/views/article.py:141
+#: journal/views/collection.py:238 journal/views/collection.py:299
+#: journal/views/collection.py:318 journal/views/collection.py:342
+#: journal/views/collection.py:415 journal/views/collection.py:451
+#: journal/views/collection.py:489 journal/views/collection.py:501
+#: journal/views/collection.py:526 journal/views/collection.py:529
+#: journal/views/collection.py:570 journal/views/common.py:268
+#: journal/views/mark.py:245 journal/views/post.py:58 journal/views/post.py:78
+#: journal/views/post.py:100 journal/views/post.py:165
+#: journal/views/post.py:194 journal/views/post.py:267
+#: journal/views/post.py:282 journal/views/post.py:389
+#: journal/views/post.py:541 journal/views/review.py:52
+#: journal/views/review.py:69 journal/views/review.py:94
 msgid "Insufficient permission"
 msgstr "权限不足"
 
@@ -2237,7 +2246,7 @@ msgid "Please wait a moment before trying again."
 msgstr ""
 
 #: catalog/views/verify.py:153 common/utils.py:109 common/utils.py:150
-#: journal/views/article.py:151 journal/views/review.py:170
+#: journal/views/article.py:174 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
@@ -2250,15 +2259,15 @@ msgstr "创作者已验证。"
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 
-#: catalog/views/view.py:66 catalog/views/view.py:91
+#: catalog/views/view.py:73 catalog/views/view.py:98
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views/view.py:70 catalog/views/view.py:99
+#: catalog/views/view.py:77 catalog/views/view.py:106
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
-#: catalog/views/view.py:167
+#: catalog/views/view.py:186
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
@@ -3885,12 +3894,12 @@ msgid "User no longer exists"
 msgstr "用户不存在了"
 
 #: common/utils.py:120 common/utils.py:122 common/utils.py:125
-#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:445
+#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:483
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:169
-#: journal/views/profile.py:486 journal/views/review.py:188
+#: common/utils.py:128 common/utils.py:130 journal/views/article.py:192
+#: journal/views/profile.py:524 journal/views/review.py:188
 msgid "Login required"
 msgstr "登录后访问"
 
@@ -4662,7 +4671,7 @@ msgstr "匹配文件丢失，无法导入。"
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/models/article.py:153 journal/views/article.py:183
+#: journal/models/article.py:153 journal/views/article.py:206
 msgid "(may contain sensitive content)"
 msgstr "（可能包含剧透或敏感内容）"
 
@@ -5526,7 +5535,8 @@ msgstr "作者已设置仅限已登录用户查看。"
 msgid "Edit Article"
 msgstr "编辑文章"
 
-#: journal/templates/article_edit.html:15 journal/templates/profile.html:142
+#: journal/templates/article_edit.html:15 journal/templates/profile.html:145
+#: journal/templates/profile_articles.html:9
 msgid "Compose Article"
 msgstr "撰写文章"
 
@@ -5820,22 +5830,22 @@ msgstr "日历"
 msgid "annual summary"
 msgstr "年度小结"
 
-#: journal/templates/profile.html:138
+#: journal/templates/profile.html:141
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:38
+#: journal/templates/user_article_list.html:38 journal/views/profile.py:463
 msgid "Articles"
 msgstr "文章"
 
-#: journal/templates/profile.html:153 journal/views/collection.py:385
+#: journal/templates/profile.html:162 journal/views/collection.py:385
 #: journal/views/profile.py:385
 msgid "collection"
 msgstr "收藏单"
 
-#: journal/templates/profile.html:170 journal/views/profile.py:426
+#: journal/templates/profile.html:179 journal/views/profile.py:426
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:204 journal/views/profile.py:542
+#: journal/templates/profile.html:213 journal/views/profile.py:580
 msgid "Organizations"
 msgstr "团体"
 
@@ -5876,17 +5886,17 @@ msgstr "撰写新文章"
 msgid "Liked Collections"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:453
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:491
 #: users/templates/users/account.html:452
 msgid "Following"
 msgstr "正在关注"
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:457
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:495
 #: users/templates/users/account.html:461
 msgid "Followers"
 msgstr "关注者"
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:461
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:499
 msgid "Mutuals"
 msgstr "互相关注"
 
@@ -5915,16 +5925,16 @@ msgstr "分享年度小结"
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
 
-#: journal/views/article.py:149 journal/views/review.py:168
+#: journal/views/article.py:172 journal/views/review.py:168
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/article.py:157 journal/views/article.py:171
+#: journal/views/article.py:180 journal/views/article.py:194
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr "{0} 的文章"
 
-#: journal/views/article.py:159 journal/views/article.py:167
+#: journal/views/article.py:182 journal/views/article.py:190
 #: journal/views/review.py:178 journal/views/review.py:186
 msgid "Link invalid"
 msgstr "链接无效"
