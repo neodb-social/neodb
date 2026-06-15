@@ -230,10 +230,10 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
             qs = qs.filter(boost_pk__lt=last_pk)
         posts = list(qs[:20])
     else:
-        qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=None)
-        if last_pk:
-            qs = qs.filter(pk__lt=last_pk)
-        posts = list(qs.order_by("-pk")[:20])
+        qs = Takahe.get_recent_posts(
+            target.pk, viewer_pk, days=None, before_pk=last_pk or None
+        )
+        posts = list(qs[:20])
     prefetch_pieces_for_posts(posts)
     return render(
         request,
@@ -283,10 +283,10 @@ def user_post_list(request: AuthedHttpRequest, user_name):
                 qs = qs.filter(boost_pk__lt=last_pk)
             posts = list(qs[:_USER_POST_LIST_PAGE_SIZE])
         else:
-            qs = Takahe.get_recent_posts(target.pk, viewer_pk, days=days)
-            if last_pk:
-                qs = qs.filter(pk__lt=last_pk)
-            posts = list(qs.order_by("-pk")[:_USER_POST_LIST_PAGE_SIZE])
+            qs = Takahe.get_recent_posts(
+                target.pk, viewer_pk, days=days, before_pk=last_pk or None
+            )
+            posts = list(qs[:_USER_POST_LIST_PAGE_SIZE])
         prefetch_pieces_for_posts(posts)
     context = {
         "posts": posts,

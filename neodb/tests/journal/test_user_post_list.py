@@ -136,6 +136,45 @@ def test_user_post_list_follower_sees_all(alice_with_posts):
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
+def test_get_recent_posts_keyset_follows_published_not_pk():
+    """Pagination orders by (-published, -pk) but the cursor token is a pk.
+    The pk is resolved back to its published time and filtered as the
+    (published, pk) tuple, so paging must stay correct even when pk order
+    disagrees with published order (federated posts) and when two posts
+    share a published time. Regression for the EGGPLANT-1E7 published-keyset
+    fix.
+    """
+    alice = User.register(email="alice_keyset@example.com", username="alicekeyset")
+    posts = []
+    for i in range(4):
+        book = Edition.objects.create(title=f"Keyset Book {i}")
+        Mark(alice.identity, book).update(ShelfType.WISHLIST, "x", None, [], 0)
+        shelfmember = Mark(alice.identity, book).shelfmember
+        assert shelfmember is not None and shelfmember.latest_post is not None
+        posts.append(shelfmember.latest_post)
+    p0, p1, p2, p3 = posts  # pk strictly ascending (Snowflake creation order)
+    now = timezone.now()
+    # Published order deliberately mismatches pk order: p3 and p0 share the
+    # newest time (p3 has the larger pk, so wins the -pk tiebreak), then p1,
+    # then p2. Expected (-published, -pk) order: [p3, p0, p1, p2].
+    Post.objects.filter(pk=p0.pk).update(published=now)
+    Post.objects.filter(pk=p3.pk).update(published=now)
+    Post.objects.filter(pk=p1.pk).update(published=now - timedelta(days=1))
+    Post.objects.filter(pk=p2.pk).update(published=now - timedelta(days=2))
+
+    viewer_pk = alice.identity.pk
+    page1 = list(Takahe.get_recent_posts(alice.identity.pk, viewer_pk, days=None)[:2])
+    assert [p.pk for p in page1] == [p3.pk, p0.pk]
+    page2 = list(
+        Takahe.get_recent_posts(
+            alice.identity.pk, viewer_pk, days=None, before_pk=page1[-1].pk
+        )[:2]
+    )
+    # No skip and no duplicate of the same-published p3/p0 already shown.
+    assert [p.pk for p in page2] == [p1.pk, p2.pk]
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_user_post_list_self_sees_all(alice_with_posts):
     alice, old_pk = alice_with_posts
     _set_locked(alice.identity, True)
