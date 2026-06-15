@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-06-15 10:47+0000\n"
+"PO-Revision-Date: 2026-06-15 13:14+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -55,12 +55,12 @@ msgstr "Chinês Tradicional"
 #: catalog/book/models.py:78 catalog/book/models.py:97
 #: catalog/common/models.py:296 catalog/common/models.py:314
 msgid "locale"
-msgstr "localização"
+msgstr "localidade"
 
 #: catalog/book/models.py:81 catalog/book/models.py:100
 #: catalog/common/models.py:299 catalog/common/models.py:319
 msgid "text content"
-msgstr "conteúdo do texto"
+msgstr "conteúdo de texto"
 
 #: catalog/book/models.py:115
 msgid "Paperback"
@@ -5091,11 +5091,12 @@ msgstr ""
 
 #: users/templates/users/preferences.html:186
 msgid "Show your name on item page if you recently edited it"
-msgstr "Mostre seu nome na página do item se você a editou recentemente"
+msgstr ""
+"Exibir seu nome na página do item caso você o tenha editado recentemente"
 
 #: users/templates/users/preferences.html:195
 msgid "Settings for current device"
-msgstr "Configurações para o dispositivo atual"
+msgstr "Configurações do dispositivo atual"
 
 #: users/templates/users/preferences.html:197
 msgid "theme"
@@ -5131,7 +5132,7 @@ msgstr "Estilos personalizados"
 
 #: users/templates/users/preferences.html:242
 msgid "Settings for current device saved"
-msgstr "Configurações para o dispositivo atual salvo"
+msgstr "Configurações do dispositivo atual salvas"
 
 #: users/templates/users/preferences.html:248
 msgid "Additional Settings"
@@ -5139,7 +5140,7 @@ msgstr "Configurações Adicionais"
 
 #: users/templates/users/preferences.html:250
 msgid "View authorized applications"
-msgstr "Exibir aplicativos autorizados"
+msgstr "Ver aplicativos autorizados"
 
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
@@ -5147,7 +5148,7 @@ msgstr "clique para desbloquear"
 
 #: users/templates/users/profile_actions.html:13
 msgid "are you sure to unblock?"
-msgstr "tem certeza de que deseja desbloquear?"
+msgstr "Tem certeza de que deseja desbloquear?"
 
 #: users/templates/users/profile_actions.html:16
 msgid "blocked"
@@ -5163,19 +5164,19 @@ msgstr "página inicial original"
 
 #: users/templates/users/profile_actions.html:69
 msgid "accept follow request"
-msgstr "aceitar solicitação para seguir"
+msgstr "aceitar solicitação de seguimento"
 
 #: users/templates/users/profile_actions.html:71
 msgid "sure to accept follow request?"
-msgstr "certeza que deseja aceitar a solicitação para seguir?"
+msgstr "Tem certeza de que deseja aceitar a solicitação de seguimento?"
 
 #: users/templates/users/profile_actions.html:79
 msgid "reject follow request"
-msgstr "rejeitar solicitação para seguir"
+msgstr "recusar solicitação de seguimento"
 
 #: users/templates/users/profile_actions.html:81
 msgid "sure to reject follow request?"
-msgstr "tem certeza que quer rejeitar a solicitação de seguir?"
+msgstr "Tem certeza de que deseja recusar a solicitação de seguimento?"
 
 #: users/templates/users/profile_actions.html:91
 msgid "click to unfollow"
@@ -5183,15 +5184,15 @@ msgstr "clique para deixar de seguir"
 
 #: users/templates/users/profile_actions.html:93
 msgid "sure to unfollow?"
-msgstr "tem certeza que quer deixar de seguir?"
+msgstr "Tem certeza de que deseja deixar de seguir?"
 
 #: users/templates/users/profile_actions.html:102
 msgid "click to cancel follow request"
-msgstr "clique para cancelar a solicitação de seguir"
+msgstr "clique para cancelar a solicitação de seguimento"
 
 #: users/templates/users/profile_actions.html:104
 msgid "sure to cancel follow request?"
-msgstr "tem certeza que deseja cancelar a solicitação para seguir?"
+msgstr "Tem certeza de que deseja cancelar a solicitação de seguimento?"
 
 #: users/templates/users/profile_actions.html:113
 msgid "click to follow"
@@ -5199,7 +5200,7 @@ msgstr "clique para seguir"
 
 #: users/templates/users/profile_actions.html:114
 msgid "sure to follow?"
-msgstr "tem certeza que quer seguir?"
+msgstr "Tem certeza de que deseja seguir?"
 
 #: users/templates/users/profile_actions.html:124
 msgid "click to mute"
@@ -5207,41 +5208,41 @@ msgstr "clique para silenciar"
 
 #: users/templates/users/profile_actions.html:133
 msgid "click to unmute"
-msgstr "clique para remover o silenciar"
+msgstr "clique para deixar de silenciar"
 
 #: users/templates/users/profile_actions.html:143
 msgid "click to block"
-msgstr "clque para bloquear"
+msgstr "clique para bloquear"
 
 #: users/templates/users/profile_actions.html:144
 msgid "sure to block?"
-msgstr "tem certeza que quer bloquear?"
+msgstr "Tem certeza de que deseja bloquear?"
 
 #: users/templates/users/register.html:26
 #, python-format
 msgid "Your username on %(site_name)s"
-msgstr "Seu nome de usuário em %(site_name)s"
+msgstr "Seu nome de usuário no %(site_name)s"
 
 #: users/templates/users/register.html:28
 msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
 msgstr ""
-"2-30 alfabetos, números ou sublinhado, não podem ser alterados depois de "
-"salvos"
+"2 a 30 caracteres alfanuméricos ou sublinhado, não pode ser alterado após "
+"salvo"
 
 #: users/templates/users/register.html:68
 msgid "Turn on crosspost to other social networks by default"
-msgstr "Ativar a postagem cruzada para outras redes sociais por padrão"
+msgstr "Ativar publicação cruzada em outras redes sociais por padrão"
 
 #: users/templates/users/register.html:72
 msgid "Use display name, bio and avatar from the social network you authenticated with"
 msgstr ""
-"Use o nome de exibição, a biografia e o avatar da rede social com a qual "
-"você se autenticou"
+"Usar nome de exibição, biografia e avatar da rede social com a qual você se "
+"autenticou"
 
 #: users/templates/users/register.html:80
 msgid "Add follow, mute and block list from the social network you authenticated with"
 msgstr ""
-"Adicionar seguidos, silenciados e bloqueados da lista da rede social com a "
+"Adicionar lista de seguidos, silenciados e bloqueados da rede social com a "
 "qual você se autenticou"
 
 #: users/templates/users/register.html:85
@@ -5250,7 +5251,7 @@ msgstr "Confirmar e salvar"
 
 #: users/templates/users/register.html:89
 msgid "Cut the sh*t and get me in!"
-msgstr "Corta essa me*** e me coloca pra dentro!"
+msgstr "Chega de enrolação, me deixa entrar!"
 
 #: users/templates/users/relationship_list.html:17
 msgid "export"
@@ -5266,16 +5267,16 @@ msgstr "Itens com falha"
 
 #: users/templates/users/user_task_status.html:33
 msgid "Failed links, you may have to mark them manually"
-msgstr "Links com falha, você pode ter que marcá-los manualmente"
+msgstr "Links com falha; talvez seja necessário marcá-los manualmente"
 
 #: users/templates/users/verify.html:22
 msgid "Please enter the verification code you received."
-msgstr "Insira o código de verificação que você recebeu."
+msgstr "Por favor, insira o código de verificação que você recebeu."
 
 #: users/templates/users/verify_email.html:9
 #: users/templates/users/verify_email.html:18
 msgid "Verify Your Email"
-msgstr "Verifique Seu E-mail"
+msgstr "Verifique seu E-mail"
 
 #: users/templates/users/verify_email.html:21
 msgid "Verified successfully."
@@ -5283,7 +5284,7 @@ msgstr "Verificado com sucesso."
 
 #: users/templates/users/verify_email.html:28
 msgid "Login again"
-msgstr "Faça login novamente"
+msgstr "Entrar novamente"
 
 #: users/templates/users/welcome.html:21
 msgid "Welcome"
@@ -5297,10 +5298,10 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"              %(site_name)s está florescendo por causa de colaborações e "
-"contribuições de usuários como você. Por favor, leia nosso <a href="
-"\"/pages/rules\">rules</a>, e sinta-se à vontade para <a href="
-"\"%(support_link)s\">contact us</a> se você tem alguma dúvida ou feedback.\n"
+"              O %(site_name)s prospera graças às colaborações e "
+"contribuições de usuários como você. Por favor, leia nossas <a href=\"/pages/"
+"rules\">regras</a> e fique à vontade para <a href=\"%(support_link)s\">"
+"entrar em contato conosco</a> caso tenha alguma dúvida ou sugestão.\n"
 "        "
 
 #: users/templates/users/welcome.html:28
@@ -5317,11 +5318,11 @@ msgstr "Este endereço de e-mail já está em uso."
 
 #: users/views/account.py:104
 msgid "Registration is for invitation only"
-msgstr "A inscrição é apenas por convite"
+msgstr "O cadastro é apenas por convite"
 
 #: users/views/account.py:176
 msgid "Valid username required"
-msgstr "Nome de usuário válido necessário"
+msgstr "Nome de usuário válido obrigatório"
 
 #: users/views/account.py:178
 msgid "Username in use"
@@ -5337,7 +5338,7 @@ msgstr "Incompatibilidade de conta."
 
 #: users/views/data.py:163 users/views/data.py:192
 msgid "Export file not available."
-msgstr "Exportar arquivo não disponível."
+msgstr "Arquivo de exportação não disponível."
 
 #: users/views/data.py:186
 msgid "Generating exports."
@@ -5345,7 +5346,7 @@ msgstr "Gerando exportações."
 
 #: users/views/data.py:204
 msgid "Export file expired. Please export again."
-msgstr "O arquivo de exportação expirou. Por favor, exporte novamente."
+msgstr "Arquivo de exportação expirado. Por favor, exporte novamente."
 
 #: users/views/data.py:219 users/views/data.py:239
 msgid "Recent export still in progress."
