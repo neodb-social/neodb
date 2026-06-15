@@ -880,6 +880,7 @@ def test_verified_podcasts_api(live_server):
     assert response.status_code == 200
     payload = response.json()
     assert payload["count"] == 1
+    assert payload["pages"] == 1
     assert len(payload["data"]) == 1
     assert payload["data"][0]["uuid"] == podcast.uuid
 

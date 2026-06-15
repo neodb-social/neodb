@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List
 
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.db.models import Prefetch, prefetch_related_objects
 from django.http import HttpResponse
 from django.utils import timezone
@@ -19,6 +20,7 @@ from .models import (
     AlbumSchema,
     Edition,
     EditionSchema,
+    ExternalResource,
     Game,
     GameSchema,
     Item,
@@ -67,6 +69,12 @@ class SearchResult(Schema):
 
 class EpisodeList(Schema):
     data: List[PodcastEpisodeSchema]
+    pages: int
+    count: int
+
+
+class PodcastList(Schema):
+    data: List[PodcastSchema]
     pages: int
     count: int
 
@@ -287,18 +295,36 @@ def trending_original_episodes(request):
 
 @api.get(
     "/trending/podcast/verified/",
-    response={200: List[PodcastSchema]},
+    response={200: PodcastList},
     summary="Podcasts with a verified creator",
     auth=None,
     tags=["trending"],
 )
-@paginate(PageNumberPagination)
-def trending_verified_podcasts(request):
+def trending_verified_podcasts(request, page: int = 1):
     """Podcasts that have a verified creator, most recently verified first.
 
     These are the shows behind the discover page's "original episodes".
     """
-    return Podcast.verified_originals()
+    paginator = Paginator(Podcast.verified_originals(), PAGE_SIZE)
+    podcasts = list(paginator.get_page(page).object_list)
+    # PodcastSchema serializes credits/external_resources/rating/tags, each of
+    # which queries per item; hydrate in bulk to avoid N+1 during serialization.
+    prefetch_related_objects(
+        podcasts,
+        Prefetch(
+            "external_resources",
+            queryset=ExternalResource.objects.only(
+                "id", "item_id", "id_type", "id_value", "url"
+            ),
+        ),
+        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+    )
+    Rating.attach_to_items(podcasts)
+    Tag.attach_to_items(podcasts)
+    return Status(
+        200,
+        {"data": podcasts, "pages": paginator.num_pages, "count": paginator.count},
+    )
 
 
 def _get_item(cls, uuid, response):
