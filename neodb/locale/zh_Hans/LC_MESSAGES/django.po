@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-16 20:50-0400\n"
-"PO-Revision-Date: 2025-04-27 04:24+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-06-15 10:47+0000\n"
+"Last-Translator: reducedradius <feixiang512@outlook.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
@@ -2222,7 +2222,7 @@ msgstr "验证已在进行中。"
 
 #: catalog/views/verify.py:137
 msgid "Please wait a moment before trying again."
-msgstr ""
+msgstr "重试前请稍等。"
 
 #: catalog/views/verify.py:162 common/utils.py:109 common/utils.py:150
 #: journal/views/article.py:174 journal/views/review.py:170
