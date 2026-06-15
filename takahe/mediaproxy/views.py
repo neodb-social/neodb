@@ -64,7 +64,7 @@ class BaseProxyView(View):
                             body.extend(chunk[:remaining])
                             if len(chunk) > remaining:
                                 return HttpResponse(status=502)
-            except (httpx.RequestError, SSRFAttemptError):
+            except httpx.RequestError, SSRFAttemptError:
                 return HttpResponse(status=502)
             return HttpResponse(
                 bytes(body),

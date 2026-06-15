@@ -440,7 +440,7 @@ class Identity(StatorModel):
 
         try:
             latest = self.posts.latest("created").created.date().isoformat()
-        except (ObjectDoesNotExist, AttributeError):
+        except ObjectDoesNotExist, AttributeError:
             latest = None
         # Match the follow-list endpoints: accepted inbound, active outbound.
         self.stats = {
@@ -890,7 +890,7 @@ class Identity(StatorModel):
                     )
                     if template:
                         return template
-            except (httpx.RequestError, SSRFAttemptError, etree.ParseError):
+            except httpx.RequestError, SSRFAttemptError, etree.ParseError:
                 pass
 
         return f"https://{domain}/.well-known/webfinger?resource={{uri}}"
@@ -904,7 +904,7 @@ class Identity(StatorModel):
         domain = handle.split("@")[1].lower()
         try:
             webfinger_url = cls.fetch_webfinger_url(domain)
-        except (ssl.SSLCertVerificationError, SSRFAttemptError):
+        except ssl.SSLCertVerificationError, SSRFAttemptError:
             return None, None
 
         # Go make a Webfinger request
@@ -960,7 +960,7 @@ class Identity(StatorModel):
                     and link.get("rel") == "self"
                 ):
                     return link["href"], data["subject"]
-        except (KeyError, AttributeError):
+        except KeyError, AttributeError:
             # Server returning wrong payload structure
             pass
         return None, None
@@ -1055,7 +1055,7 @@ class Identity(StatorModel):
             )
         except httpx.TimeoutException:
             raise TryAgainLater()
-        except (httpx.RequestError, ssl.SSLCertVerificationError, SSRFAttemptError):
+        except httpx.RequestError, ssl.SSLCertVerificationError, SSRFAttemptError:
             return False
         content_type = response.headers.get("content-type")
         if content_type and "html" in content_type:
@@ -1076,7 +1076,7 @@ class Identity(StatorModel):
         try:
             json_data = json_from_response(response)
             document = canonicalise(json_data, include_security=True)
-        except (ValueError, JsonLdError):
+        except ValueError, JsonLdError:
             # servers with empty or invalid responses are inevitable
             logger.info(
                 "Invalid response fetching actor %s",
@@ -1159,7 +1159,7 @@ class Identity(StatorModel):
             if tag["type"].lower() in ["toot:emoji", "emoji"]:
                 try:
                     Emoji.by_ap_tag(self.domain, tag, create=True)
-                except (KeyError, ValueError):
+                except KeyError, ValueError:
                     pass
         # Mark as fetched
         self.fetched = timezone.now()
@@ -1297,9 +1297,7 @@ class Identity(StatorModel):
                     if self.metadata
                     else []
                 ),
-                "privacy": privacy_map[
-                    self.config_identity.default_post_visibility
-                ],
+                "privacy": privacy_map[self.config_identity.default_post_visibility],
                 "sensitive": False,
                 "language": "unk",
                 "follow_requests_count": 0,

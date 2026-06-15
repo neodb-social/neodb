@@ -1,4 +1,4 @@
-exclude: ^(neodb/test_data|takahe)/
+exclude: ^(neodb/test_data)/
 default_language_version:
   python: python3.14
 repos:
@@ -42,7 +42,9 @@ repos:
     rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
+        exclude: ^takahe/(templates|docs)/
       - id: djlint-django
+        exclude: ^takahe/(templates|docs)/
 
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.386

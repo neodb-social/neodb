@@ -850,8 +850,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "author_pk": self.owner.pk,
             "visibility": v,
             "post_pk": existing_post.pk if existing_post else None,
-            "post_time": self.created_time,  # type:ignore subclass must have this
-            "edit_time": self.edited_time,  # type:ignore subclass must have this
+            "post_time": self.created_time,  # subclass must have this
+            "edit_time": self.edited_time,  # subclass must have this
             "data": self.get_ap_data(),
             "language": user.macrolanguage,
             "application_id": self.application_id_when_save,

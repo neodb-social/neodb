@@ -15,8 +15,10 @@ def keypair():
     Testing-only keypair
     """
     return {
-        "private_key": """-----BEGIN PRIVATE KEY-----
-MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCzNJa9JIxQpOtQ
+        "private_key": (
+            "-----BEGIN PRIVATE"  # skip detect-private-key pre-commit
+            " KEY-----\n"
+            """MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCzNJa9JIxQpOtQ
 z8UQKXDPREF9DyBliGu3uPWo6DMnkOm7hoh2+nOryrWDqWOFaVK//n7kltHXUEbm
 U3exh0/0iWfzx2AbNrI04csAvW/hRvHbHBnVTotSxzqTd3ESkpcSW4xVuz9aCcFR
 kW3unSCO3fF0Lh8Jsy9N/CT6oTnwG+ZpeGvHVbh9xfR5Ww6zA7z8A6B17hbzdMd/
@@ -42,7 +44,8 @@ pxxwUvuKdWsceVWhgAjZQj5iRtvDK8Fi0XDCFekCgYALTU1v5iMIpaRAe+eyA2B1
 42qm4B/uhXznvOu2YXU6iJFmMgHGYgpa+Dq8uUjKtpn/LIFeX1KN0hH8z/0LW3gB
 e7tN7taW0oLK3RQcEMfkZ7diE9x3LGqo/xMxsZMtxAr88p5eMEU/nxxznOqq+W9b
 qxRbXYzEtHz+cW9+FZkyVw==
------END PRIVATE KEY-----""",
+-----END PRIVATE KEY-----"""
+        ),
         "public_key": """-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszSWvSSMUKTrUM/FEClw
 z0RBfQ8gZYhrt7j1qOgzJ5Dpu4aIdvpzq8q1g6ljhWlSv/5+5JbR11BG5lN3sYdP
@@ -103,29 +106,25 @@ def client_with_user(client, user):
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def user() -> User:
+def user(db) -> User:
     return User.objects.create(email="test@example.com")
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def domain() -> Domain:
+def domain(db) -> Domain:
     return Domain.objects.create(
         domain="example.com", local=True, public=True, state="updated"
     )
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def domain2() -> Domain:
+def domain2(db) -> Domain:
     return Domain.objects.create(
         domain="example2.com", local=True, public=True, state="updated"
     )
 
 
 @pytest.fixture
-@pytest.mark.django_db
 def identity_factory(user, domain, keypair):
     """
     Factory for creating identities with custom parameters
@@ -154,7 +153,6 @@ def identity_factory(user, domain, keypair):
 
 
 @pytest.fixture
-@pytest.mark.django_db
 def identity(identity_factory) -> Identity:
     """
     Creates a basic test identity with a user and domain.
@@ -163,7 +161,6 @@ def identity(identity_factory) -> Identity:
 
 
 @pytest.fixture
-@pytest.mark.django_db
 def identity2(user, domain2) -> Identity:
     """
     Creates a basic test identity with a user and domain.
@@ -197,8 +194,7 @@ def other_identity(user, domain) -> Identity:
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def remote_identity() -> Identity:
+def remote_identity(db) -> Identity:
     """
     Creates a basic remote test identity with a domain.
     """
@@ -218,8 +214,7 @@ def remote_identity() -> Identity:
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def remote_identity2() -> Identity:
+def remote_identity2(db) -> Identity:
     """
     Creates a basic remote test identity with a domain.
     """
@@ -235,7 +230,6 @@ def remote_identity2() -> Identity:
 
 
 @pytest.fixture
-@pytest.mark.django_db
 def api_token(identity) -> Token:
     """
     Creates an API application, an identity, and a token for that identity

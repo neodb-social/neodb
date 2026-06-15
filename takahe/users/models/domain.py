@@ -219,7 +219,7 @@ class Domain(StatorModel):
                 )
             except httpx.HTTPError:
                 pass
-            except (ssl.SSLCertVerificationError, ssl.SSLError, UnicodeDecodeError):
+            except ssl.SSLCertVerificationError, ssl.SSLError, UnicodeDecodeError:
                 return None
             else:
                 try:
@@ -231,7 +231,7 @@ class Domain(StatorModel):
                         ):
                             nodeinfo20_url = link.get("href", nodeinfo20_url)
                             break
-                except (json.JSONDecodeError, AttributeError, UnicodeDecodeError):
+                except json.JSONDecodeError, AttributeError, UnicodeDecodeError:
                     pass
 
             try:
