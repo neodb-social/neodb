@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, F, Q
+from django.db.models import Count, Exists, F, OuterRef, Q
 from django.db.models.query import prefetch_related_objects
 from django.utils import timezone
 from loguru import logger
@@ -325,6 +325,15 @@ class DiscoverGenerator(BaseJob):
                 | set(self._top_post_ids(self.get_popular_posts(1, 0, local), 3))
                 | set(reviews.values_list("posts", flat=True)[:5])
                 | set(articles.values_list("posts", flat=True)[:5])
+            )
+            # An article must not trend if its author has no items on a shelf,
+            # regardless of which path above surfaced its post.
+            post_ids -= set(
+                Article.objects.filter(posts__in=post_ids)
+                .filter(
+                    ~Exists(ShelfMember.objects.filter(owner_id=OuterRef("owner_id")))
+                )
+                .values_list("posts", flat=True)
             )
         else:
             post_ids = []

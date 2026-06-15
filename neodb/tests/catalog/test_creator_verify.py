@@ -9,6 +9,7 @@ from django.utils import timezone
 from catalog.jobs.creator_verify import _has_audio_episode, verify_creator_task
 from catalog.jobs.discover import DiscoverGenerator
 from catalog.models import (
+    Edition,
     IdType,
     Podcast,
     PodcastEpisode,
@@ -20,6 +21,8 @@ from catalog.models import (
     user_owned_claims_q,
 )
 from catalog.sites.rss import RSS
+from common.models import SiteConfig
+from journal.models import Article, Mark, ShelfType
 from mastodon.models.bluesky import BlueskyAccount
 from mastodon.models.mastodon import MastodonAccount
 from users.models import User
@@ -1126,3 +1129,50 @@ class TestItemPageMeta:
         assert remote.profile_uri == "https://mast.example/@alice"
         assert 'rel="me"' in content
         assert remote.profile_uri in content
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTrendingArticles:
+    def _article_post_ids(self, article) -> set:
+        # read post ids from the journal side (the through table), mirroring the
+        # discover job; ``article.posts`` would force a cross-database join.
+        return {
+            pk
+            for pk in Article.objects.filter(pk=article.pk).values_list(
+                "posts", flat=True
+            )
+            if pk is not None
+        }
+
+    def test_article_only_trends_when_author_has_shelf_items(self, monkeypatch):
+        # an author's article is eligible for trending only if the author has
+        # at least one item on a shelf; otherwise it is excluded.
+        monkeypatch.setattr(SiteConfig.system, "discover_show_popular_posts", True)
+
+        with_shelf = User.register(email="ws@example.com", username="hasshelf")
+        without_shelf = User.register(email="ns@example.com", username="noshelf")
+
+        book = Edition.objects.create(title="Shelf Book")
+        Mark(with_shelf.identity, book).update(ShelfType.WISHLIST)
+        kept = Article.update_local_article(
+            owner=with_shelf.identity,
+            title="Kept Article",
+            body="Body of the kept article.",
+            visibility=0,
+        )
+        dropped = Article.update_local_article(
+            owner=without_shelf.identity,
+            title="Dropped Article",
+            body="Body of the dropped article.",
+            visibility=0,
+        )
+
+        kept_posts = self._article_post_ids(kept)
+        dropped_posts = self._article_post_ids(dropped)
+        assert kept_posts and dropped_posts  # both articles created posts
+
+        DiscoverGenerator().run()
+        popular = set(cache.get("popular_posts") or [])
+
+        assert kept_posts & popular  # author with a shelf item trends
+        assert not (dropped_posts & popular)  # author without one does not
