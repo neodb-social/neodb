@@ -609,6 +609,15 @@ class MusicBrainzRelease(AbstractSite):
             except httpx.TimeoutException:
                 logger.warning("MusicBrainz release search timeout", extra={"query": q})
                 record_search_failure(SiteName.MusicBrainz.value, "timeout")
+            except httpx.HTTPError as e:
+                # MusicBrainz frequently returns 503 under load; that and other
+                # transport errors are transient upstream failures, not NeoDB
+                # bugs, so warn rather than error into Sentry.
+                logger.warning(
+                    "MusicBrainz release search error",
+                    extra={"query": q, "exception": e},
+                )
+                record_search_failure(SiteName.MusicBrainz.value, "error")
             except Exception as e:
                 logger.error(
                     "MusicBrainz release search error",
@@ -897,6 +906,16 @@ class MusicBrainzArtist(AbstractSite):
             except httpx.TimeoutException:
                 logger.warning("MusicBrainz artist search timeout", extra={"query": q})
                 record_search_failure(SiteName.MusicBrainz.value, "timeout")
+                return results
+            except httpx.HTTPError as e:
+                # MusicBrainz frequently returns 503 under load; that and other
+                # transport errors are transient upstream failures, not NeoDB
+                # bugs, so warn rather than error into Sentry.
+                logger.warning(
+                    "MusicBrainz artist search error",
+                    extra={"query": q, "exception": e},
+                )
+                record_search_failure(SiteName.MusicBrainz.value, "error")
                 return results
             except Exception as e:
                 logger.error(

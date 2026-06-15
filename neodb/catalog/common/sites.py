@@ -24,6 +24,7 @@ from common.models.misc import uniq
 from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
+from .downloaders import DownloadError
 
 
 @dataclass
@@ -552,7 +553,14 @@ class SiteManager:
                         preloaded_content=linked_resource.get("content"),
                     )
                 except Exception as e:
-                    logger.error(
+                    # DownloadError means the third-party site failed/blocked
+                    # the fetch; that's expected noise, not a NeoDB bug, so log
+                    # it as a warning to keep it out of Sentry issues. Anything
+                    # else is unexpected and stays at error level.
+                    log = (
+                        logger.warning if isinstance(e, DownloadError) else logger.error
+                    )
+                    log(
                         f"error fetching from {linked_site.ID_TYPE}",
                         extra={
                             "resource": resource,
@@ -606,7 +614,10 @@ class SiteManager:
                         case _:
                             logger.error(f"unknown link type {link_type}")
             else:
-                logger.error(
+                # Many linked resources (e.g. a Douban author page) have no
+                # registered site that can resolve them; this is expected and
+                # not actionable, so warn instead of erroring into Sentry.
+                logger.warning(
                     "unable to get site for linked resource",
                     extra={
                         "resource": resource,
