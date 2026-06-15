@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-06-15 13:14+0000\n"
+"PO-Revision-Date: 2026-06-15 21:35+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -4240,7 +4240,7 @@ msgid ""
 "boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"impulsionou sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
+"impulsionou sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> em <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
@@ -4254,15 +4254,15 @@ msgstr ""
 
 #: social/templates/event/follow_requested.html:3
 msgid "requested to follow you"
-msgstr "pediu para seguir você"
+msgstr "solicitou seguir você"
 
 #: social/templates/event/followed.html:3
 msgid "followed you"
-msgstr "seguiu você"
+msgstr "passou a te seguir"
 
 #: social/templates/event/liked.html:3
 msgid "liked your post"
-msgstr "curtiu sua postagem"
+msgstr "curtiu sua publicação"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -4307,8 +4307,8 @@ msgid ""
 "liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"curtiu sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href="
-"\"%(item_url)s\">%(item_title)s</a>\n"
+"curtiu sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> em <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
@@ -4317,7 +4317,7 @@ msgid ""
 "liked your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"curtiu sua marcação emn <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"curtiu sua marcação em <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned.html:3
 msgid "mentioned you"
@@ -4348,7 +4348,7 @@ msgid ""
 "replied to your note on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"respondeu à sua nota sobre <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"respondeu à sua nota em <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_rating.html:3
 #, python-format
@@ -4366,7 +4366,7 @@ msgid ""
 "replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"respondeu à sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
+"respondeu à sua análise <a href=\"%(piece_url)s\">%(piece_title)s</a> em <a "
 "href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
@@ -4397,7 +4397,7 @@ msgstr "Notificações"
 
 #: social/templates/feed_events.html:23
 msgid "boosted"
-msgstr "impulsionado"
+msgstr "impulsionou"
 
 #: social/templates/feed_events.html:41
 msgid "play"
@@ -4405,24 +4405,24 @@ msgstr "reproduzir"
 
 #: social/templates/feed_events.html:52
 msgid "mark"
-msgstr "marcar"
+msgstr "marcação"
 
 #: social/templates/feed_events.html:71
 msgid "wrote a note"
-msgstr "escreveu uma anotação"
+msgstr "escreveu uma nota"
 
 #: social/templates/feed_events.html:139
 msgid "no matching activities."
-msgstr "sem atividades de correspondentes."
+msgstr "nenhuma atividade correspondente."
 
 #: social/templates/feed_events.html:142
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
-"Encontre e marque alguns livros/filmes/podcasts/jogos, <a href="
-"\"%(import_url)s\">importar seus dados</a> do Goodreads/Letterboxd/Douban, "
-"siga alguns outros usuários do %(site_name)s no fediverso, para que as "
-"atividades recentes deles e as suas apareçam aqui."
+"Encontre e marque alguns livros/filmes/podcasts/jogos, <a href=\"%"
+"(import_url)s\">importe seus dados</a> do Goodreads/Letterboxd/Douban, siga "
+"outros usuários do %(site_name)s no Fediverso — as atividades recentes deles "
+"e as suas aparecerão aqui."
 
 #: social/templates/notification.html:30
 msgid "mention"
@@ -4446,19 +4446,19 @@ msgstr "Aprovar manualmente novos seguidores"
 
 #: takahe/models.py:456
 msgid "Include profile and posts in discovery"
-msgstr "Incluir perfil e postagens na descoberta"
+msgstr "Incluir perfil e publicações na descoberta"
 
 #: takahe/models.py:459
 msgid "Include posts in search results"
-msgstr "Incluir postagens nos resultados da pesquisa"
+msgstr "Incluir publicações nos resultados de pesquisa"
 
 #: takahe/models.py:477
 msgid "Profile picture"
-msgstr "Foto do perfil"
+msgstr "Foto de perfil"
 
 #: takahe/models.py:484
 msgid "Header picture"
-msgstr "Imagem do cabeçalho"
+msgstr "Imagem de cabeçalho"
 
 #: users/models/task.py:21
 msgid "Pending"
@@ -4466,7 +4466,7 @@ msgstr "Pendente"
 
 #: users/models/task.py:22
 msgid "Started"
-msgstr "Começou"
+msgstr "Iniciado"
 
 #: users/models/task.py:23
 msgid "Complete"
@@ -4479,8 +4479,9 @@ msgstr "Falhou"
 #: users/models/user.py:53
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr ""
-"Digite um nome de usuário válido. Este valor pode conter apenas letras não "
-"acentuadas de A a Z (maiúsculas e minúsculas), números e o caractere _."
+"Insira um nome de usuário válido. Este valor pode conter apenas letras "
+"minúsculas sem acentuação de a-z e maiúsculas de A-Z, números e o caractere "
+"_."
 
 #: users/models/user.py:101
 msgid "username"
@@ -4488,7 +4489,7 @@ msgstr "nome de usuário"
 
 #: users/models/user.py:106
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
-msgstr "Necessário. 50 caracteres ou menos. Letras, dígitos e _ apenas."
+msgstr "Obrigatório. 50 caracteres ou menos. Apenas letras, dígitos e _."
 
 #: users/models/user.py:109
 msgid "A user with that username already exists."
@@ -4496,7 +4497,7 @@ msgstr "Já existe um usuário com esse nome de usuário."
 
 #: users/templates/users/account.html:11
 msgid "Account Information"
-msgstr "Informações da conta"
+msgstr "Informações da Conta"
 
 #: users/templates/users/account.html:20
 msgid "Display name, avatar and other information"
@@ -4505,9 +4506,9 @@ msgstr "Nome de exibição, avatar e outras informações"
 #: users/templates/users/account.html:23
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr ""
-"Atualizar as informações do perfil aqui desativará a sincronização "
+"Atualizar as informações de perfil aqui desativará a sincronização "
 "automática do nome de exibição, biografia e avatar da sua instância do "
-"Mastodon. Com certeza vai continuar?"
+"Mastodon. Tem certeza de que deseja continuar?"
 
 #: users/templates/users/account.html:26
 msgid "Username"
@@ -4521,14 +4522,15 @@ msgstr "Endereço de email"
 #, python-format
 msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
 msgstr ""
-"Clique no link de confirmação no e-mail enviado para %(pending_email)s; se "
-"você não o recebeu por mais de alguns minutos, insira e salve novamente."
+"Por favor, clique no link de confirmação no e-mail enviado para %"
+"(pending_email)s; caso não o tenha recebido após alguns minutos, insira e "
+"salve novamente."
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:50
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr ""
-"O e-mail é recomendado como um método de login de backup, se você fizer "
-"login por meio de uma instância do Fediverso"
+"O e-mail é recomendado como método de login de backup, caso você entre via "
+"uma instância do Fediverso"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:66
 msgid "Fediverse (Mastodon)"
@@ -4547,20 +4549,20 @@ msgstr "Última atualização"
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
 msgstr ""
-"Se você ainda não se registrou em nenhuma instância federada, pode <a "
-"href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">escolha uma "
-"instância</a> e se registre."
+"Se você ainda não se cadastrou em nenhuma instância federada, pode <a "
+"href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">escolher uma "
+"instância</a> e se registrar."
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
 msgstr ""
 "Para associar a outra identidade federada, insira o nome de domínio da "
-"instância em que a nova identidade está localizada."
+"instância onde a nova identidade está localizada."
 
 #: users/templates/users/account.html:99
 msgid "If you have registered with a Federated instance, please enter the instance domain name."
 msgstr ""
-"se você se registrou em uma instância federada, insira o nome de domínio da "
+"Se você se cadastrou em uma instância federada, insira o nome de domínio da "
 "instância."
 
 #: users/templates/users/account.html:108
@@ -4571,26 +4573,26 @@ msgstr "Vá para a instância de destino e autorize com a identidade"
 msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
 msgstr ""
 "Após substituir a associação, você poderá usar a nova identidade do "
-"Fediverso para fazer login e controlar a visibilidade dos dados. Dados "
+"Fediverso para entrar e controlar a visibilidade dos dados. Os dados "
 "existentes, como etiquetas, comentários e coleções, não serão afetados."
 
 #: users/templates/users/account.html:115
 msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
 msgstr ""
-"Uma vez associado à identidade Fediverso, você pode descobrir mais usuários "
-"e usar todos os recursos deste site."
+"Ao associar-se a uma identidade do Fediverso, você poderá descobrir mais "
+"usuários e utilizar todos os recursos deste site."
 
 #: users/templates/users/account.html:123
 #: users/templates/users/account.html:160
 #: users/templates/users/account.html:215
 msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
 msgstr ""
-"Uma vez desconectado, você não poderá mais fazer login com essa identidade. "
-"Tem certeza de que vai continuar?"
+"Após a desconexão, você não poderá mais entrar com esta identidade. Tem "
+"certeza de que deseja continuar?"
 
 #: users/templates/users/account.html:126
 msgid "Disconnect with this identity"
-msgstr "Desconecte-se com essa identidade"
+msgstr "Desconectar desta identidade"
 
 #: users/templates/users/account.html:135
 msgid "Threads.net"
@@ -4610,7 +4612,7 @@ msgstr "Vincular a uma conta threads.net"
 
 #: users/templates/users/account.html:163
 msgid "Disconnect with Threads"
-msgstr "Desconectar com Threads"
+msgstr "Desconectar do Threads"
 
 #: users/templates/users/account.html:173 users/templates/users/login.html:88
 msgid "Bluesky (ATProto)"
@@ -4630,11 +4632,11 @@ msgstr "Senha do aplicativo Bluesky"
 
 #: users/templates/users/account.html:208
 msgid "Link with a different ATProto identity"
-msgstr "Vincular com uma identidade ATProto diferente"
+msgstr "Vincular a uma identidade ATProto diferente"
 
 #: users/templates/users/account.html:208
 msgid "Link with an ATProto identity"
-msgstr "Vincular com uma identidade ATProto"
+msgstr "Vincular a uma identidade ATProto"
 
 #: users/templates/users/account.html:209 users/templates/users/login.html:169
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
@@ -4644,7 +4646,7 @@ msgstr ""
 
 #: users/templates/users/account.html:218
 msgid "Disconnect with ATProto identity"
-msgstr "Desconectar com a identidade ATProto"
+msgstr "Desconectar da identidade ATProto"
 
 #: users/templates/users/account.html:229
 msgid "Sync and import social account"
@@ -4656,7 +4658,7 @@ msgstr "Sincronizar nome de exibição, biografia e avatar"
 
 #: users/templates/users/account.html:247
 msgid "Sync follow, mute and block"
-msgstr "Sincronizar seguidos, silenciados e bloqueados"
+msgstr "Sincronizar seguimentos, silenciamentos e bloqueios"
 
 #: users/templates/users/account.html:250
 msgid "Save sync settings"
@@ -4665,8 +4667,8 @@ msgstr "Salvar configurações de sincronização"
 #: users/templates/users/account.html:252
 msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
 msgstr ""
-"Novos seguidores, silenciados e bloqueados na identidade associada podem ser "
-"importados automaticamente; a remoção deve ser feita manualmente."
+"Novos seguimentos, silenciamentos e bloqueios na identidade associada podem "
+"ser importados automaticamente; a remoção deve ser feita manualmente."
 
 #: users/templates/users/account.html:259
 msgid "Click button below to start sync now."
@@ -4686,7 +4688,7 @@ msgstr "Usuários que seguem você"
 
 #: users/templates/users/account.html:284
 msgid "Users who request to follow you"
-msgstr "Usuários que solicitam seguir você"
+msgstr "Usuários que solicitaram seguir você"
 
 #: users/templates/users/account.html:290
 msgid "Users you are muting"
@@ -4708,7 +4710,7 @@ msgstr ""
 
 #: users/templates/users/account.html:311
 msgid "Migrate from anther instance to here"
-msgstr "Migrar de outra instância para aqui"
+msgstr "Migrar de outra instância para cá"
 
 #: users/templates/users/account.html:316
 msgid "Migrate to another instance"
@@ -4721,18 +4723,18 @@ msgstr "Excluir Conta"
 #: users/templates/users/account.html:327
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
-"Depois de excluídos, os dados da conta não podem ser recuperados. Certo de "
-"prosseguir?"
+"Uma vez excluídos, os dados da conta não poderão ser recuperados. Tem "
+"certeza de que deseja prosseguir?"
 
 #: users/templates/users/account.html:330
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
-"Digite <code>username@instance.social</code> ou <code>email@domain.com</"
-"code> para confirmar exclusão."
+"Insira o <code>nome_de_usuário@instância.social</code> ou <code>"
+"email@domínio.com</code> completo para confirmar a exclusão."
 
 #: users/templates/users/account.html:340
 msgid "Once deleted, account data cannot be recovered."
-msgstr "Depois de excluídos, os dados da conta não podem ser recuperados."
+msgstr "Uma vez excluídos, os dados da conta não poderão ser recuperados."
 
 #: users/templates/users/account.html:343
 msgid "Task in progress, can't delete now."
@@ -4744,17 +4746,17 @@ msgstr "Excluir Permanentemente"
 
 #: users/templates/users/data.html:11
 msgid "Data Management"
-msgstr "Gerenciamento de dados"
+msgstr "Gerenciamento de Dados"
 
 #: users/templates/users/data.html:27
 msgid "Import Marks and Reviews from Douban"
-msgstr "Importar Marcações e Análises de Douban"
+msgstr "Importar Marcações e Análises do Douban"
 
 #: users/templates/users/data.html:31
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
-"Selecione <code>.xlsx</code> exportado de <a href=\"https://doufen.org\" "
-"target=\"_blank\" rel=\"noopener\">Doufen</a>"
+"Selecione o arquivo <code>.xlsx</code> exportado do <a href=\"https://"
+"doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 
 #: users/templates/users/data.html:34 users/templates/users/data.html:178
 msgid "Import Method"
@@ -4763,18 +4765,18 @@ msgstr "Método de Importação"
 #: users/templates/users/data.html:37
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
 msgstr ""
-"Mesclar: atualize apenas quando o status mudar de lista de desejos para em "
-"andamento ou de em andamento para completo."
+"Mesclar: atualizar apenas quando o status mudar de lista de desejos para em "
+"andamento, ou de em andamento para concluído."
 
 #: users/templates/users/data.html:41
 msgid "Overwrite: update all imported status."
-msgstr "Substituir: atualiza todos os status importados."
+msgstr "Substituir: atualizar todos os status importados."
 
 #: users/templates/users/data.html:74
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
 msgstr ""
-"Já há uma importação em andamento. Iniciar uma nova pode ocasionar "
-"problemas. Deseja realmente importar?"
+"Outra importação está em andamento. Iniciar uma nova importação pode causar "
+"problemas. Tem certeza de que deseja importar?"
 
 #: users/templates/users/data.html:74
 msgid "Import in progress, please wait"
@@ -4788,24 +4790,24 @@ msgstr "Importar"
 
 #: users/templates/users/data.html:81
 msgid "Import Shelf or List from Goodreads"
-msgstr "Importar Prateleira ou Lista do Goodreads"
+msgstr "Importar Estante ou Lista do Goodreads"
 
 #: users/templates/users/data.html:85
 msgid "Link to Goodreads Profile / Shelf / List"
-msgstr "Link para o Perfil / Prateleira / Lista do Goodreads"
+msgstr "Link para Perfil / Estante / Lista do Goodreads"
 
 #: users/templates/users/data.html:90
 msgid "want-to-read / currently-reading / read books and their reviews will be imported."
 msgstr ""
-"quero ler / lendo atualmente / ler livros e suas análises serão importadas."
+"Livros marcados como quer-ler / lendo / lido e suas análise serão importados."
 
 #: users/templates/users/data.html:95
 msgid "Shelf will be imported as a new collection."
-msgstr "A prateleira será importada como uma nova coleção."
+msgstr "A estante será importada como uma nova coleção."
 
 #: users/templates/users/data.html:100
 msgid "List will be imported as a new collection."
-msgstr "Lista será importada como uma nova coleção."
+msgstr "A lista será importada como uma nova coleção."
 
 #: users/templates/users/data.html:119
 msgid "Import from Letterboxd"
@@ -4814,12 +4816,12 @@ msgstr "Importar do Letterboxd"
 #: users/templates/users/data.html:167
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
-"Apenas as alterações progressivas (nenhum -> para assistir -> assistido) "
-"serão importadas."
+"Somente mudanças progressivas (nenhum → a assistir → assistido) serão "
+"importadas."
 
 #: users/templates/users/data.html:174
 msgid "Import Podcast Subscriptions"
-msgstr "Importar Assinaturas de Podcasts"
+msgstr "Importar Assinaturas de Podcast"
 
 #: users/templates/users/data.html:185
 msgid "Mark as listening"
@@ -4827,21 +4829,21 @@ msgstr "Marcar como ouvindo"
 
 #: users/templates/users/data.html:189
 msgid "Import as a new collection"
-msgstr "Importar como uma nova coleção"
+msgstr "Importar como nova coleção"
 
 #: users/templates/users/data.html:218
 msgid "Select OPML file"
-msgstr "Selecionar o arquivo OPML"
+msgstr "Selecionar arquivo OPML"
 
 #: users/templates/users/data.html:228
 msgid "Import NeoDB Archive"
-msgstr "Importar Arquivo NeoDB"
+msgstr "Importar Arquivo do NeoDB"
 
 #: users/templates/users/data.html:234
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr ""
-"Carregue um arquivo <code>.zip</code> contendo <code>.csv</code> ou "
-"<code>.ndjson</code> arquivos exportados do NeoDB."
+"Envie um arquivo <code>.zip</code> contendo arquivos <code>.csv</code> ou "
+"<code>.ndjson</code> exportados do NeoDB."
 
 #: users/templates/users/data.html:236
 msgid "Existing data may be overwritten."
@@ -4865,11 +4867,11 @@ msgstr "Erro ao detectar o formato"
 
 #: users/templates/users/data.html:382
 msgid "Export NeoDB Archive"
-msgstr "Exportar arquivo do NeoDB"
+msgstr "Exportar Arquivo do NeoDB"
 
 #: users/templates/users/data.html:386
 msgid "Export marks, reviews and notes in CSV"
-msgstr "Exportar marcações, análises e notas em CSV"
+msgstr "Exportar marcações, análise e notas em CSV"
 
 #: users/templates/users/data.html:393
 msgid "Export everything in NDJSON"
@@ -4893,18 +4895,18 @@ msgstr "Download"
 
 #: users/templates/users/data.html:418
 msgid "View Annual Summary"
-msgstr "Exibir Resumo Anual"
+msgstr "Ver Resumo Anual"
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
 msgstr ""
-"Não foi possível encontrar o usuário, verifique sua ortografia; ou o "
-"servidor pode estar ocupado, tente novamente mais tarde."
+"Não foi possível encontrar o usuário. Verifique a ortografia; ou o servidor "
+"pode estar ocupado — tente novamente mais tarde."
 
 #: users/templates/users/fetch_identity_pending.html:13
 #: users/templates/users/fetch_identity_pending.html:22
 msgid "Searching the fediverse"
-msgstr "Pesquisando o fediverso"
+msgstr "Pesquisando no Fediverso"
 
 #: users/templates/users/login.html:17
 msgid "Login"
@@ -4917,7 +4919,7 @@ msgstr "Continuar"
 
 #: users/templates/users/login.html:104
 msgid "Enter your email address"
-msgstr "Digite seu endereço de e-mail"
+msgstr "Insira seu endereço de e-mail"
 
 #: users/templates/users/login.html:106
 msgid "Send verification code"
@@ -4925,24 +4927,24 @@ msgstr "Enviar código de verificação"
 
 #: users/templates/users/login.html:121
 msgid "Domain of your instance, e.g. mastodon.social"
-msgstr "Domínio da sua instância, por exemplo, mastodon.social"
+msgstr "Domínio da sua instância, ex.: mastodon.social"
 
 #: users/templates/users/login.html:127
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr ""
-"Insira o domínio da sua instância; por exemplo, se o seu id for "
-"<i>@neodb@mastodon.social</i>, digite apenas <i>mastodon.social</i>."
+"Por favor, insira o domínio da sua instância; ex.: se o seu ID é <i>"
+"@neodb@mastodon.social</i>, insira apenas <i>mastodon.social</i>."
 
 #: users/templates/users/login.html:130 users/templates/users/login.html:183
 msgid "Authorize via Fediverse instance"
-msgstr "Autorizar por meio da instância Fediverso"
+msgstr "Autorizar via instância do Fediverso"
 
 #: users/templates/users/login.html:132
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr ""
-"Se você ainda não tiver uma <a href=\"https://joinmastodon.org/servers\" "
-"target=\"_blank\">Fediverse (Mastodon) account</a>, você pode se registrar "
-"ou fazer login com o Email primeiro e vinculá-lo ao Fediverso (Mastodon) "
+"Se você ainda não tem uma <a href=\"https://joinmastodon.org/servers\" "
+"target=\"_blank\">Fediverse (Mastodon) account</a>, pode se registrar ou "
+"entrar com e-mail primeiro e vinculá-la ao Fediverso (Mastodon) "
 "posteriormente nas configurações da conta."
 
 #: users/templates/users/login.html:142
@@ -4956,31 +4958,31 @@ msgstr "Identificador ATProto"
 #: users/templates/users/login.html:160
 msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
 msgstr ""
-"Por favor, insira seu identificador ATProto (por exemplo, neodb.bsky.social, "
-"sem o @ inicial), não use e-mail. Se você mudou o identificador "
-"recentemente, basta usar o mais recente."
+"Por favor, insira seu identificador ATProto (ex.: neodb.bsky.social, sem o @ "
+"inicial). Não use e-mail. Se você alterou seu identificador recentemente, "
+"use apenas o mais recente."
 
 #: users/templates/users/login.html:170
 msgid "Authorize via bsky.app"
-msgstr "Autorizar via Bsky.app"
+msgstr "Autorizar via bsky.app"
 
 #: users/templates/users/login.html:174
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr ""
-"Por favor, escolha um para se registrar ou fazer login %(site_name)s. Tem "
-"mais de uma dessas identidades? Não se preocupe, você pode vinculá-los nas "
-"configurações da conta depois de fazer login."
+"Por favor, escolha uma opção para registrar-se ou entrar no %(site_name)s. "
+"Possui mais de uma dessas identidades? Não se preocupe, você poderá vinculá-"
+"las nas configurações da conta após o login."
 
 #: users/templates/users/login.html:190
 msgid "Valid invitation code, please login or register."
-msgstr "Código de convite válido, faça login ou registre-se."
+msgstr "Código de convite válido. Por favor, entre ou registre-se."
 
 #: users/templates/users/login.html:192
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr ""
-"Por favor, use o link de convite para registrar uma nova conta; o usuário "
-"existente pode fazer login."
+"Por favor, use o link de convite para registrar uma nova conta; usuários "
+"existentes podem entrar normalmente."
 
 #: users/templates/users/login.html:194
 msgid "Invitation code invalid or expired."
@@ -4988,22 +4990,22 @@ msgstr "Código de convite inválido ou expirado."
 
 #: users/templates/users/login.html:202
 msgid "Loading timed out, please check your network (VPN) settings."
-msgstr "O carregamento expirou, verifique as configurações de rede (VPN)."
+msgstr "O carregamento expirou, verifique suas configurações de rede (VPN)."
 
 #: users/templates/users/login.html:208
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr ""
-"Continuar usando este site implica consentimento para nossa <a href="
-"\"/pages/rules/\">rules</a> e <a href=\"/pages/terms/\">terms</a>, incluindo "
-"o uso de cookies para fornecer a funcionalidade necessária."
+"Continuar usando este site implica consentimento com nossas <a href=\"/pages/"
+"rules/\">regras</a> e <a href=\"/pages/terms/\">termos</a>, incluindo o uso "
+"de cookies para fornecer as funcionalidades necessárias."
 
 #: users/templates/users/login.html:214
 msgid "Domain of your instance (excl. @)"
-msgstr "Domínio da sua instância (excl. @)"
+msgstr "Domínio da sua instância (sem o @)"
 
 #: users/templates/users/preferences.html:28
 msgid "Default view once logged in"
-msgstr "Visualização padrão depois de fazer login"
+msgstr "Visualização padrão após o login"
 
 #: users/templates/users/preferences.html:40
 msgid "Activities"
@@ -5015,7 +5017,7 @@ msgstr "Visibilidade padrão"
 
 #: users/templates/users/preferences.html:73
 msgid "Public status will be posted to fediverse"
-msgstr "O status público será postado no fediverso"
+msgstr "O status público será publicado no Fediverso"
 
 #: users/templates/users/preferences.html:79
 msgid "in public timeline"
@@ -5027,36 +5029,37 @@ msgstr "não listado e excluído da linha do tempo pública"
 
 #: users/templates/users/preferences.html:92
 msgid "local, this site only"
-msgstr "local, apenas este site"
+msgstr "local, apenas neste site"
 
 #: users/templates/users/preferences.html:98
 msgid "Turn on crosspost to timeline by default"
-msgstr "Ativar a postagem cruzada na linha do tempo por padrão"
+msgstr "Ativar publicação cruzada na linha do tempo por padrão"
 
 #: users/templates/users/preferences.html:106
 msgid "Method for crossposting to timeline"
-msgstr "Método de postagem cruzada na linha do tempo"
+msgstr "Método para publicação cruzada na linha do tempo"
 
 #: users/templates/users/preferences.html:113
 msgid "Boost if possible"
-msgstr "Impulsione, se possível"
+msgstr "Impulsionar se possível"
 
 #: users/templates/users/preferences.html:120
 msgid "Create a new post"
-msgstr "Criar uma nova postagem"
+msgstr "Criar uma nova publicação"
 
 #: users/templates/users/preferences.html:121
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr ""
-"este método é menos ideal, pode gerar postagens duplicadas e perder reações."
+"este método é menos eficiente, pode gerar publicações duplicadas e perder "
+"reações."
 
 #: users/templates/users/preferences.html:125
 msgid "Append tags when posting to timeline"
-msgstr "Anexar etiquetas ao postar na linha do tempo"
+msgstr "Acrescentar etiquetas ao publicar na linha do tempo"
 
 #: users/templates/users/preferences.html:128
 msgid "e.g. #bookstodon"
-msgstr "por exemplo, #bookstodon"
+msgstr "ex.: #bookstodon"
 
 #: users/templates/users/preferences.html:133
 msgid "Language"
@@ -5069,25 +5072,25 @@ msgstr "Marcador automático para estas categorias"
 #: users/templates/users/preferences.html:155
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
-"Quando começar a ler/assistir/reproduzir/... um item nessas categorias, um "
-"marcador será criado automaticamente. Os marcadores podem ser visualizados e "
-"gerenciados na maioria <a href=\"https://joinmastodon.org/apps\" target="
-"\"_blank\">Aplicativos compatíveis com Mastodon</a>; suas respostas a essas "
-"postagens se tornarão automaticamente notas para o item."
+"Ao começar a ler/assistir/jogar/... um item nestas categorias, um marcador "
+"será criado automaticamente. Os marcadores podem ser visualizados e "
+"gerenciados na maioria dos <a href=\"https://joinmastodon.org/apps\" "
+"target=\"_blank\">aplicativos compatíveis com o Mastodon</a>; suas respostas "
+"a essas publicações se tornarão automaticamente notas para o item."
 
 #: users/templates/users/preferences.html:159
 msgid "Hide these categories in search results"
-msgstr "Ocultar essas categorias nos resultados da pesquisa"
+msgstr "Ocultar estas categorias nos resultados de pesquisa"
 
 #: users/templates/users/preferences.html:177
 msgid "Profile visible to anonymous web visitors and search engines"
-msgstr "Perfil visível para visitantes anônimos da web e mecanismos de pesquisa"
+msgstr "Perfil visível para visitantes anônimos da web e mecanismos de busca"
 
 #: users/templates/users/preferences.html:178
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
-"Esta opção limita apenas as visitas à web; para limitar a visibilidade "
-"fediverso, escolha somente seguidores ou somente mencionados ao postar"
+"esta opção limita apenas as visitas pela web; para limitar a visibilidade no "
+"Fediverso, escolha apenas seguidores ou apenas mencionados ao publicar"
 
 #: users/templates/users/preferences.html:186
 msgid "Show your name on item page if you recently edited it"
