@@ -137,13 +137,8 @@ def test_user_post_list_follower_sees_all(alice_with_posts):
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
 def test_get_recent_posts_keyset_follows_published_not_pk():
-    """Pagination orders by (-published, -pk) but the cursor token is a pk.
-    The pk is resolved back to its published time and filtered as the
-    (published, pk) tuple, so paging must stay correct even when pk order
-    disagrees with published order (federated posts) and when two posts
-    share a published time. Regression for the EGGPLANT-1E7 published-keyset
-    fix.
-    """
+    """Keyset paging stays correct when pk order != published order and when
+    two posts share a published time (EGGPLANT-1E7 published-keyset fix)."""
     alice = User.register(email="alice_keyset@example.com", username="alicekeyset")
     posts = []
     for i in range(4):

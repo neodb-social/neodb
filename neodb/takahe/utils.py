@@ -1160,13 +1160,10 @@ class Takahe:
             since = timezone.now() - timedelta(days=days)
             qs = qs.filter(published__gte=since)
         if before_pk:
-            # Keyset pagination ordered by (-published, -pk). published is not
-            # unique, so fall back to pk as a stable tiebreaker. The cursor is
-            # still just a post pk (so callers/templates pass one value); we
-            # look up its published time to seed the boundary. Ordering by
-            # published (not pk) also keeps the planner off the pathological
-            # backward primary-key scan that an author-filtered ORDER BY id
-            # DESC LIMIT triggers (EGGPLANT-1E7).
+            # Keyset on (-published, -pk): resolve the cursor pk to its
+            # published time and compare the tuple, so paging holds when pk
+            # order != published order. Sorting by published (not pk) also
+            # avoids the ORDER BY id pathology (EGGPLANT-1E7).
             boundary = (
                 Post.objects.filter(pk=before_pk)
                 .values_list("published", flat=True)
