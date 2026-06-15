@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-04-20 12:09+0000\n"
+"PO-Revision-Date: 2026-06-15 10:47+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #: boofilsic/settings.py:420 common/models/lang.py:216
 msgid "English"
@@ -1121,7 +1121,7 @@ msgstr "filtrar por pessoas (diretor, autor, ator)"
 
 #: catalog/templates/_sidebar_search.html:16
 msgid "filter by company (publisher, troupe) "
-msgstr ""
+msgstr "filtrar por empresa (editora, trupe) "
 
 #: catalog/templates/_sidebar_search.html:19
 msgid "filter by specific year"
@@ -1492,7 +1492,7 @@ msgstr "jogos"
 #: catalog/templates/search_header.html:67
 #: catalog/templates/search_header.html:69
 msgid "performances"
-msgstr "performances"
+msgstr "apresentações"
 
 #: catalog/templates/search_header.html:76
 #: catalog/templates/search_header.html:78
@@ -2366,7 +2366,7 @@ msgstr "Iorubá"
 
 #: common/models/lang.py:242
 msgid "Unknown or Other"
-msgstr ""
+msgstr "Desconhecido ou Outro"
 
 #: common/models/lang.py:285
 msgid "Simplified Chinese (Mainland)"
@@ -2638,6 +2638,40 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <h3>Bem-vindo(a) 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s "
+"tem o compromisso de criar um espaço livre, aberto e interconectado para "
+"colecionar e avaliar livros, filmes, músicas, jogos e podcasts. Aqui, você "
+"pode documentar suas coleções e opiniões, descobrir novos conteúdos e se "
+"conectar com outras pessoas.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-globe\"></i> &nbsp; A melhor forma de "
+"entrar no %(site_name)s é por meio de uma conta em uma instância do "
+"Fediverso (uma rede social distribuída, incluindo Mastodon/Pleroma/etc). Se "
+"você ainda não se cadastrou, pode <a href=\"https://joinmastodon.org/en/"
+"servers\" target=\"_blank\">escolher uma instância do Fediverso e criar uma "
+"conta</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; Se você ainda não "
+"está pronto(a) para ingressar no Fediverso, tudo bem. Você pode criar uma "
+"conta aqui usando seu endereço de e-mail e vinculá-la ao Fediverso quando "
+"estiver pronto(a).\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; Se tiver "
+"dúvidas ou sugestões, fique à vontade para nos contatar pelo <a "
+"href=\"https://mastodon.social/@neodb\">Fediverso</a> ou pelo <a "
+"href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
+"        </p>\n"
+"        <p>\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%"
+"(login_url)s\">Clique aqui</a> para se cadastrar ou entrar.\n"
+"        </p>\n"
+"        "
 
 #: common/templates/common/error.html:12
 msgid "Error"
@@ -3469,7 +3503,7 @@ msgstr "Responder"
 
 #: journal/templates/collection.html:152
 msgid "dynamic collection"
-msgstr ""
+msgstr "coleção dinâmica"
 
 #: journal/templates/collection.html:154
 msgid "Created date"
@@ -3786,8 +3820,8 @@ msgstr[1] "%(count)d podcasts"
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
-msgstr[0] "%(count)d performance"
-msgstr[1] "%(count)d performances"
+msgstr[0] "%(count)d apresentação"
+msgstr[1] "%(count)d apresentações"
 
 #: journal/templatetags/collection.py:91
 #, python-format
@@ -3822,8 +3856,7 @@ msgstr "O item já está na coleção."
 #: journal/views/collection.py:313
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
-"Não conseguimos encontrar o item. Por favor, utilize a URL do item deste "
-"site."
+"Não foi possível encontrar o item. Por favor, use a URL do item deste site."
 
 #: journal/views/collection.py:359
 msgid "Saved."
@@ -4170,7 +4203,7 @@ msgid ""
 "boosted your collection <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"impulsionou sua coleção<a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"impulsionou sua coleção <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_comment.html:3
 #, python-format
@@ -4352,11 +4385,11 @@ msgstr "Atividades de quem você segue"
 
 #: social/templates/feed.html:27 social/templates/feed.html:29
 msgid "All"
-msgstr ""
+msgstr "Todos"
 
 #: social/templates/feed.html:27 social/templates/feed.html:29
 msgid "What they read/watch/..."
-msgstr ""
+msgstr "O que eles leem/assistem/…"
 
 #: social/templates/feed.html:31
 msgid "Notifications"
