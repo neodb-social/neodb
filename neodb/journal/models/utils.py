@@ -7,6 +7,7 @@ from catalog.models import Item
 from journal.search import JournalIndex
 from users.models import APIdentity, User
 
+from .article import Article
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import Content, Debris
@@ -37,6 +38,7 @@ def remove_data_by_identity(owner: APIdentity):
     CollectionMember.objects.filter(owner=owner).delete()
     Collection.objects.filter(owner=owner).delete()
     FeaturedCollection.objects.filter(owner=owner).delete()
+    Article.objects.filter(owner=owner).delete()
     index = JournalIndex.instance()
     index.delete_by_owner(owner.pk)
     logger.info(f"removed journal data by {owner}")

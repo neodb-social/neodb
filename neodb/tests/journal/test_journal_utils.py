@@ -2,6 +2,7 @@ import pytest
 
 from catalog.models import Edition
 from journal.models import (
+    Article,
     Collection,
     CollectionMember,
     Comment,
@@ -73,6 +74,7 @@ class TestRemoveDataByIdentity:
         Note.objects.create(
             owner=self.identity, item=self.book, content="note", visibility=0
         )
+        Article.update_local_article(self.identity, "Article Title", "Article body")
         assert ShelfMember.objects.filter(owner=self.identity).exists()
         assert Comment.objects.filter(owner=self.identity).exists()
         assert Rating.objects.filter(owner=self.identity).exists()
@@ -80,6 +82,7 @@ class TestRemoveDataByIdentity:
         assert TagMember.objects.filter(owner=self.identity).exists()
         assert Note.objects.filter(owner=self.identity).exists()
         assert CollectionMember.objects.filter(owner=self.identity).exists()
+        assert Article.objects.filter(owner=self.identity).exists()
         remove_data_by_identity(self.identity)
         assert not ShelfMember.objects.filter(owner=self.identity).exists()
         assert not ShelfLogEntry.objects.filter(owner=self.identity).exists()
@@ -91,6 +94,7 @@ class TestRemoveDataByIdentity:
         assert not Note.objects.filter(owner=self.identity).exists()
         assert not CollectionMember.objects.filter(owner=self.identity).exists()
         assert not Collection.objects.filter(owner=self.identity).exists()
+        assert not Article.objects.filter(owner=self.identity).exists()
 
 
 @pytest.mark.django_db(databases="__all__")
