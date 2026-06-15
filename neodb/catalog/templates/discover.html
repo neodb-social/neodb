@@ -92,18 +92,30 @@
               <ul class="cards">
                 {% for item in gallery.items %}
                   <li class="card">
-                    <a href="{{ item.url }}" title="{{ item.display_title }}">
-                      {% if gallery.name == "original_episodes" %}
+                    {% if gallery.name == "original_episodes" %}
+                      <a href="{{ item.url }}"
+                         title="{{ item.display_title }}"
+                         class="episode"
+                         data-media="{{ item.media_url }}"
+                         data-cover="{{ item.cover_image_url }}"
+                         data-title="{{ item.display_title }}"
+                         data-album="{{ item.program.display_title }}"
+                         data-hosts="{{ item.program.host_names|join:' / ' }}"
+                         data-uuid="{{ item.uuid }}"
+                         {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' item.uuid %}"{% endif %}>
                         <img src="{{ item.cover_image_url }}"
                              alt="{{ item.display_title }}"
                              loading="lazy">
-                      {% else %}
+                        <div class="card-title">{{ item.display_title }}</div>
+                      </a>
+                    {% else %}
+                      <a href="{{ item.url }}" title="{{ item.display_title }}">
                         <img src="{{ item.cover|thumb:'normal' }}"
                              alt="{{ item.display_title }}"
                              loading="lazy">
-                      {% endif %}
-                      <div class="card-title">{{ item.display_title }}</div>
-                    </a>
+                        <div class="card-title">{{ item.display_title }}</div>
+                      </a>
+                    {% endif %}
                   </li>
                 {% endfor %}
               </ul>
