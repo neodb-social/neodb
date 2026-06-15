@@ -232,9 +232,7 @@ class OpenLibrary(AbstractSite):
                 logger.warning("OpenLibrary search timeout", extra={"query": q})
                 record_search_failure(cls.SITE_NAME.value, "timeout")
             except httpx.HTTPError as e:
-                # Connect errors, transport errors and bad upstream statuses are
-                # transient third-party failures, not NeoDB bugs; warn so they
-                # stay out of Sentry issues.
+                # Transient third-party failure (timeout/connect/bad status) -> warn.
                 logger.warning(
                     "OpenLibrary search error", extra={"query": q, "exception": e}
                 )

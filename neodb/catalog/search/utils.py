@@ -191,9 +191,8 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
                 logger.error(f"fetch {url} failed")
                 _record_fetch_failure(url)
         except DownloadError as e:
-            # External download/network/invalid-response failures are expected
-            # noise, not NeoDB bugs; warn (kept out of Sentry issues) rather
-            # than error. Censored responses are already silently skipped.
+            # Expected external failure -> warn, not a Sentry error. Censored
+            # responses are already skipped.
             if e.response_type != RESPONSE_CENSORSHIP:
                 logger.warning(f"fetch {url} error", extra={"exception": e})
             _record_fetch_failure(url)

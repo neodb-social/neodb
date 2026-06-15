@@ -151,10 +151,8 @@ class TestBandcamp:
         assert site.id_value == t_id_value
 
     def test_custom_domain_url_to_id(self):
-        # Regression for NEODB-SOCIAL-4MW: custom Bandcamp domains (CNAME'd to
-        # Bandcamp, accepted via validate_url_fallback) only match
-        # URL_PATTERN_FALLBACK, so url_to_id must resolve them. Otherwise the
-        # site is built with url=None and scrape() raises AssertionError.
+        # Regression for NEODB-SOCIAL-4MW: custom Bandcamp domains must resolve
+        # via URL_PATTERN_FALLBACK, else scrape() asserts on a None url.
         from catalog.sites.bandcamp import Bandcamp
 
         custom_url = "https://music.example.com/album/some-album"

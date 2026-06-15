@@ -34,10 +34,8 @@ class Bandcamp(AbstractSite):
 
     @classmethod
     def url_to_id(cls, url: str):
-        # Standard *.bandcamp.com album URLs match URL_PATTERNS, but custom
-        # domains (CNAME'd to Bandcamp, accepted via validate_url_fallback) do
-        # not, so fall back to URL_PATTERN_FALLBACK. Without this the site is
-        # built with url=None and scrape() raises AssertionError.
+        # Custom domains match only URL_PATTERN_FALLBACK; without this fallback
+        # url_to_id returns None and scrape() asserts on self.url.
         id_value = super().url_to_id(url)
         if id_value:
             return id_value

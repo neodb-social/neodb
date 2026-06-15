@@ -555,10 +555,8 @@ class SiteManager:
                         preloaded_content=linked_resource.get("content"),
                     )
                 except Exception as e:
-                    # DownloadError means the third-party site failed/blocked
-                    # the fetch; that's expected noise, not a NeoDB bug, so log
-                    # it as a warning to keep it out of Sentry issues. Anything
-                    # else is unexpected and stays at error level.
+                    # DownloadError = expected third-party failure -> warn (no
+                    # Sentry issue); anything else is a real error.
                     is_download = isinstance(e, DownloadError)
                     log = logger.warning if is_download else logger.error
                     log(
@@ -570,8 +568,7 @@ class SiteManager:
                             "exception": e,
                         },
                     )
-                    # Warnings don't surface as Sentry issues, so emit a metric
-                    # to keep these external-fetch failures trackable by site.
+                    # Warnings aren't Sentry issues; metric keeps them trackable.
                     sentry_count(
                         "catalog.linked_resource.failure",
                         attributes={
@@ -624,9 +621,8 @@ class SiteManager:
                         case _:
                             logger.error(f"unknown link type {link_type}")
             else:
-                # Many linked resources (e.g. a Douban author page) have no
-                # registered site that can resolve them; this is expected and
-                # not actionable, so warn instead of erroring into Sentry.
+                # No registered site for this link (e.g. a Douban author);
+                # expected, so warn rather than error.
                 logger.warning(
                     "unable to get site for linked resource",
                     extra={
@@ -634,8 +630,7 @@ class SiteManager:
                         "linked_resource": linked_resource,
                     },
                 )
-                # Tracked as a metric (not an error issue) so the volume of
-                # unresolvable linked resources stays visible by source.
+                # Track as a metric so the volume stays visible.
                 sentry_count(
                     "catalog.linked_resource.failure",
                     attributes={
