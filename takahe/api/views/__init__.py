@@ -6,5 +6,5 @@ def get_object_or_404(*args, **kwargs):
     """Wrapper that returns 404 for invalid PK types (e.g. non-numeric IDs)."""
     try:
         return _get_object_or_404(*args, **kwargs)
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         raise Http404

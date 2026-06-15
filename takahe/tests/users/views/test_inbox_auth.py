@@ -614,8 +614,7 @@ def relay_keypair():
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def relay_identity(relay_keypair) -> Identity:
+def relay_identity(db, relay_keypair) -> Identity:
     """Remote relay actor with its own keypair."""
     domain = Domain.objects.create(domain="relay.test", local=False, state="updated")
     return Identity.objects.create(

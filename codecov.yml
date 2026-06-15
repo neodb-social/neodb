@@ -10,3 +10,10 @@ coverage:
         informational: true
         branches:
           - "!main"
+
+flag_management:
+  individual_flags:
+    - name: neodb
+      carryforward: true
+    - name: takahe
+      carryforward: true

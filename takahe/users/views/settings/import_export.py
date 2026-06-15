@@ -41,7 +41,7 @@ class ImportExportPage(IdentityViewMixin, FormView):
                 if len(entry["handle"].split("@")) != 2:
                     raise ValueError("Handle looks wrong")
                 prepared_data.append(entry)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return redirect(".?bad_format=following")
         # For each one, add an inbox message to create that follow
         # We can't do them all inline here as the identity fetch might take ages

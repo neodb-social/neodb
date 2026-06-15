@@ -123,7 +123,7 @@ class FederationBlocklist(FormView):
                     continue
 
                 domains.append(domain)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             messages.error(self.request, self.error_msg)
             return redirect(".")
 

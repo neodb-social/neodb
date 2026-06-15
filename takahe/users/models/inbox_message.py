@@ -104,7 +104,7 @@ class InboxMessageStates(StateGraph):
                     sig_type,
                     actor_uri,
                 )
-            except (VerificationError, VerificationFormatError):
+            except VerificationError, VerificationFormatError:
                 logger.warning(
                     "Inbox: Deferred %s verification failed for %s",
                     sig_type,
@@ -332,7 +332,7 @@ class InboxMessageStates(StateGraph):
                 case unknown:
                     return cls.errored
             return cls.processed
-        except (ActivityPubError, JsonLdError):
+        except ActivityPubError, JsonLdError:
             return cls.errored
 
 
