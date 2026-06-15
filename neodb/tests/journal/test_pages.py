@@ -4,7 +4,7 @@ from django.test import Client
 from django.urls import reverse
 
 from catalog.models import Edition, Movie
-from journal.models import Collection, Mark, Review, ShelfType, Tag
+from journal.models import Article, Collection, Mark, Review, ShelfType, Tag
 from users.models import User
 
 
@@ -106,3 +106,56 @@ def test_tag_pages_category_filter():
     assert response.status_code == 200
     assert b"Tag Page Book" in response.content
     assert b"Tag Page Movie" not in response.content
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_profile_articles_shelf_preview():
+    user = User.register(email="artshelf@example.com", username="artshelfuser")
+    identity = user.identity
+    Article.update_local_article(
+        owner=identity,
+        title="First Article",
+        body="Body of the first article with several words to excerpt.",
+        tags=["alpha"],
+        visibility=0,
+    )
+    Article.update_local_article(
+        owner=identity,
+        title="Second Article",
+        body="Another article body.",
+        visibility=0,
+    )
+
+    client = Client()
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    handle = identity.handle
+
+    # The shelf preview partial renders recent articles in a compact list.
+    preview_url = reverse("journal:profile_articles", args=[handle])
+    response = client.get(preview_url)
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "First Article" in content
+    assert "Second Article" in content
+    assert 'class="article-preview"' in content
+    # see-all count reflects the visible total
+    assert ">2</a>" in content
+
+    # The profile page lazy-loads the shelf via htmx rather than a bare link.
+    profile_response = client.get(identity.url)
+    assert profile_response.status_code == 200
+    assert preview_url in profile_response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_profile_articles_shelf_empty_hidden_for_visitor():
+    owner = User.register(email="artempty@example.com", username="artemptyuser")
+    visitor = User.register(email="artvisitor@example.com", username="artvisitor")
+
+    client = Client()
+    client.force_login(visitor, backend="mastodon.auth.OAuth2Backend")
+    preview_url = reverse("journal:profile_articles", args=[owner.identity.handle])
+    response = client.get(preview_url)
+    assert response.status_code == 200
+    # With no articles, a visitor's shelf collapses itself.
+    assert "hide closest .shelf" in response.content.decode()

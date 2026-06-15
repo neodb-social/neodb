@@ -121,6 +121,50 @@
   }
 }
 
+.shelf {
+  // Compact, text-only preview of recent articles (articles have no cover
+  // image, so the cover-card row used by other shelves doesn't apply).
+  .article-preview {
+    list-style: none;
+    padding: var(--pico-nav-link-spacing-vertical) 0;
+
+    >li {
+      padding: calc(var(--pico-spacing) / 2) 0;
+      line-height: 1.4;
+
+      &+li {
+        border-top: 1px solid var(--pico-muted-border-color);
+      }
+    }
+
+    .title {
+      font-weight: bold;
+    }
+
+    .meta {
+      color: var(--pico-muted-color);
+      margin-left: 0.4em;
+      white-space: nowrap;
+    }
+
+    .excerpt {
+      margin: calc(var(--pico-spacing) / 4) 0 0;
+      color: var(--pico-muted-color);
+      font-size: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+
+    .empty {
+      color: var(--pico-muted-color);
+      opacity: 0.7;
+    }
+  }
+}
+
 #sibling .cards{
   a>div {
     font-size: 80%;

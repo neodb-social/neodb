@@ -47,6 +47,7 @@ from .post import (
 )
 from .profile import (
     profile,
+    profile_articles,
     profile_collection_items,
     profile_created_collections,
     profile_liked_collections,
@@ -114,6 +115,7 @@ __all__ = [
     "post_compose",
     "post_vote",
     "profile",
+    "profile_articles",
     "profile_collection_items",
     "profile_created_collections",
     "profile_liked_collections",

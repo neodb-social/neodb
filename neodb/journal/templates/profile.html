@@ -134,17 +134,26 @@
               {% endfor %}
             {% endfor %}
             <section class="entity-sort shelf" id="article_created">
-              <h5>
-                <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans 'Articles' %}</a>
-                {% if request.user.identity == identity %}
-                  <small>
-                    <a href="{% url 'journal:article_compose' %}"
-                       title="{% trans 'Compose Article' %}">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </a>
-                  </small>
-                {% endif %}
-              </h5>
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_articles' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <h5>
+                  <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans 'Articles' %}</a>
+                  {% if request.user.identity == identity %}
+                    <small>
+                      <a href="{% url 'journal:article_compose' %}"
+                         title="{% trans 'Compose Article' %}">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                    </small>
+                  {% endif %}
+                </h5>
+                <ul class="article-preview">
+                  <li>
+                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                  </li>
+                </ul>
+              </div>
             </section>
             <section class="entity-sort shelf" id="collection_created">
               <div hx-swap="outerHTML"
