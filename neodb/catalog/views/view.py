@@ -38,7 +38,6 @@ from ..models import (
     ExternalResource,
     IdType,
     Item,
-    ItemCredit,
     Podcast,
     TVEpisode,
 )
@@ -124,7 +123,7 @@ def retrieve(request, item_path, item_uuid):
             "external_resources",
             queryset=ExternalResource.objects.only(*extres_fields),
         ),
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Item.prefetch_parent_items([item])
     focus_item = None
@@ -243,7 +242,7 @@ def people_works(request, item_path, item_uuid, role):
                     "id", "item_id", "id_type", "id_value", "url"
                 ),
             ),
-            Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+            Item.credits_prefetch(),
         )
         Item.prefetch_parent_items(works_items)
         Rating.attach_to_items(works_items)
@@ -720,7 +719,7 @@ def discover_original_podcasts(request):
                     "id", "item_id", "id_type", "id_value", "url"
                 ),
             ),
-            Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+            Item.credits_prefetch(),
         )
         Rating.attach_to_items(podcast_items)
         Tag.attach_to_items(podcast_items)

@@ -1116,6 +1116,85 @@ class TestItemRetrieveCreditsPrefetch:
         # One prefetch query is allowed; should never scale with access count.
         assert len(credit_queries) <= 1
 
+    def test_credits_prefetch_skips_person_metadata(self):
+        """The credits prefetch must not pull the heavy person metadata JSON.
+
+        Selecting each credited person's catalog_item.metadata made this a slow
+        DB query (EGGPLANT-1EF). The optimized Prefetch fetches only the person
+        columns needed for credit.person.url (uid/people_type).
+        """
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(self.book.url)
+        assert response.status_code == 200
+        # The person link must still render: uid/people_type were fetched.
+        assert self.author.url in response.content.decode()
+        # The credits prefetch joins catalog_people; it must not select metadata.
+        person_credit_queries = [
+            q
+            for q in ctx.captured_queries
+            if "catalog_itemcredit" in q["sql"]
+            and "catalog_people" in q["sql"]
+            and "SELECT" in q["sql"].upper()
+        ]
+        assert person_credit_queries, "expected a credits prefetch joining people"
+        for q in person_credit_queries:
+            assert "metadata" not in q["sql"], (
+                "credits prefetch should not select the person metadata column"
+            )
+
+    def test_credits_query_count_independent_of_people(self):
+        """Total query count for the detail page must not grow with the number
+        of credited people.
+
+        The optimized ``.only()`` Prefetch joins the multi-table-inherited
+        ``person`` and defers most columns. This guards against a per-person
+        deferred-field reload (an N+1 on catalog_people / catalog_item) that the
+        catalog_itemcredit-only filters above would not catch.
+        """
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+
+        def make_book(title: str, n: int):
+            book = Edition.objects.create(title=title)
+            for i in range(n):
+                person = People.objects.create(
+                    title=f"{title} P{i}",
+                    people_type=PeopleType.PERSON,
+                    metadata={
+                        "localized_name": [{"lang": "en", "text": f"{title} P{i}"}]
+                    },
+                )
+                ItemCredit.objects.create(
+                    item=book,
+                    person=person,
+                    role=CreditRole.Author,
+                    name=person.display_name,
+                )
+            return book
+
+        small = make_book("QC Small", 2)
+        big = make_book("QC Big", 14)
+
+        def render_query_count(book) -> int:
+            with CaptureQueriesContext(connection) as ctx:
+                response = client.get(book.url)
+            assert response.status_code == 200
+            return len(ctx.captured_queries)
+
+        # Warm up process-level caches (content types, site config) so the
+        # measured renders are not skewed by first-request priming.
+        render_query_count(small)
+        small_count = render_query_count(small)
+        big_count = render_query_count(big)
+        # A per-person deferred-field reload would add ~1 query per extra credit;
+        # the optimized Prefetch keeps the count flat regardless of cast size.
+        assert big_count <= small_count, (
+            f"detail page issued {big_count} queries for 14 credited people vs "
+            f"{small_count} for 2: credits prefetch is not bounded (N+1 on people)"
+        )
+
     def test_sibling_editions_credits_prefetched(self):
         """edition.html shows publisher_name per sibling edition; must not N+1."""
         work = Work.objects.create(title="IR Work")

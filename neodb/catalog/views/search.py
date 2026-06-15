@@ -5,7 +5,7 @@ import django_rq
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.db.models import Prefetch, prefetch_related_objects
+from django.db.models import prefetch_related_objects
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -30,7 +30,6 @@ from ..common.sites import AbstractSite, SiteManager
 from ..models import (
     Item,
     ItemCategory,
-    ItemCredit,
     SiteName,
     item_categories,
 )
@@ -271,7 +270,7 @@ def search(request):
     Item.prefetch_parent_items(all_items)
     prefetch_related_objects(
         all_items,
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Rating.attach_to_items(all_items)
     # Public tags come from the search index (attached in CatalogSearchResult.items),

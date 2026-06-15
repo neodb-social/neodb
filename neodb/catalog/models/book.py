@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Prefetch
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field
@@ -44,7 +43,6 @@ from .item import (
     IdType,
     Item,
     ItemCategory,
-    ItemCredit,
     ItemInSchema,
     ItemType,
     PrimaryLookupIdDescriptor,
@@ -455,12 +453,7 @@ class Edition(Item):
             work.editions.exclude(pk=self.pk)
             .exclude(is_deleted=True)
             .exclude(merged_to_item__isnull=False)
-            .prefetch_related(
-                Prefetch(
-                    "credits",
-                    queryset=ItemCredit.objects.select_related("person"),
-                )
-            )
+            .prefetch_related(Item.credits_prefetch())
             .order_by("-metadata__pub_year")
         )
 

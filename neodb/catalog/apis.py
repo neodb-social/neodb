@@ -24,7 +24,6 @@ from .models import (
     Game,
     GameSchema,
     Item,
-    ItemCredit,
     ItemSchema,
     Movie,
     MovieSchema,
@@ -133,7 +132,7 @@ def search_item(
     Item.prefetch_edition_works(items)
     prefetch_related_objects(
         items,
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)
@@ -317,7 +316,7 @@ def trending_verified_podcasts(request, page: int = 1):
                 "id", "item_id", "id_type", "id_value", "url"
             ),
         ),
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Rating.attach_to_items(podcasts)
     Tag.attach_to_items(podcasts)
@@ -509,7 +508,7 @@ def _prepare_reco_items(request, items: list) -> None:
     Item.prefetch_edition_works(items)
     prefetch_related_objects(
         items,
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Rating.attach_to_items(items)
     Tag.attach_to_items(items)

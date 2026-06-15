@@ -795,6 +795,31 @@ class Item(PolymorphicModel):
             prefetch_related_objects(performanceproductions, "show")
 
     @staticmethod
+    def credits_prefetch() -> models.Prefetch:
+        """Optimized ``Prefetch`` for ``item.credits`` used by templates/APIs.
+
+        ``_credits.html`` and the API ``CreditSchema`` only read
+        ``credit.name``/``role`` and ``credit.person.url`` (which needs the
+        person's ``uid``/``people_type``). Restrict the ``select_related``
+        join to those columns so the batch prefetch no longer pulls the large
+        ``metadata`` JSON on each credited person, which made it a slow DB
+        query (EGGPLANT-1EF).
+        """
+        return models.Prefetch(
+            "credits",
+            queryset=ItemCredit.objects.select_related("person").only(
+                "item_id",
+                "person_id",
+                "role",
+                "name",
+                "character_name",
+                "order",
+                "person__uid",
+                "person__people_type",
+            ),
+        )
+
+    @staticmethod
     def prefetch_credits(items: "Iterable[Item]") -> None:
         """Batch-prefetch credits (with person) for templates that render
         ``item.role_credits`` per card. Without this, each card fires a
@@ -803,13 +828,7 @@ class Item(PolymorphicModel):
         item_list = [i for i in items if i is not None]
         if not item_list:
             return
-        prefetch_related_objects(
-            item_list,
-            models.Prefetch(
-                "credits",
-                queryset=ItemCredit.objects.select_related("person"),
-            ),
-        )
+        prefetch_related_objects(item_list, Item.credits_prefetch())
 
     @staticmethod
     def prefetch_edition_works(items: "Iterable[Item]") -> None:

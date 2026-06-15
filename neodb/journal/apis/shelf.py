@@ -2,7 +2,7 @@ import datetime
 from typing import Any, List
 
 from django.core.cache import cache
-from django.db.models import Prefetch, QuerySet, prefetch_related_objects
+from django.db.models import QuerySet, prefetch_related_objects
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
@@ -12,7 +12,6 @@ from catalog.models import (
     AvailableItemCategory,
     Item,
     ItemCategory,
-    ItemCredit,
     ItemSchema,
 )
 from common.api import PageNumberPagination, Result, api
@@ -45,7 +44,7 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     prefetch_related_objects(
         items,
         "external_resources",
-        Prefetch("credits", queryset=ItemCredit.objects.select_related("person")),
+        Item.credits_prefetch(),
     )
     Item.prefetch_parent_items(items)
     Item.prefetch_edition_works(items)
