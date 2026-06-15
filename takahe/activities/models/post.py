@@ -534,6 +534,11 @@ class Post(StatorModel):
                 name="ix_post_local_public_created",
             ),
             models.Index(fields=["url"], name="activities_post_url_idx"),
+            # Per-author post listing (NeoDB journal.user_post_list) filters by
+            # author and paginates with ORDER BY id DESC; without this composite
+            # index Postgres can scan the primary-key index backwards filtering
+            # author_id and time out the worker (NeoDB EGGPLANT-1E7).
+            models.Index(fields=["author", "-id"], name="ix_post_author_id"),
         ]
 
     class urls(urlman.Urls):
