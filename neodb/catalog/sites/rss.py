@@ -129,7 +129,7 @@ class RSS(AbstractSite):
         title = feed["title"].strip()
         if not title:
             raise ParseError(self, "title")
-        desc = html_to_text(feed["description"])
+        desc = html_to_text(feed.get("description") or "")
         lang = detect_language(title + " " + desc)
         pd = ResourceContent(
             metadata={
