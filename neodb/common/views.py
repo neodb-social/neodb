@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from boofilsic import __version__
-from catalog.views import people_search as catalog_people_search
+from catalog.views import people_search as catalog_people_search, discover
 from catalog.views import search as catalog_search
 from journal.views import search as journal_search
 from social.views import search as timeline_search
@@ -76,7 +76,7 @@ def home(request):
         else:
             return redirect(reverse("catalog:discover"))
     else:
-        return redirect(reverse("catalog:discover"))
+        return discover(request)
 
 
 def ap_redirect(request, uri):
