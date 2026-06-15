@@ -156,9 +156,10 @@ class DiscoverGenerator(BaseJob):
         episodes are listed first. Capped at `max_per_program` per podcast and
         `max_items` overall.
         """
-        verified_item_ids = VerifiedCreator.objects.filter(
-            state=VerifiedCreator.State.VERIFIED
-        ).values_list("item_id", flat=True)
+        # verified_originals() is the single source of truth for which shows
+        # count as "originals": it is deduped and already drops shows whose
+        # verified creator is a restricted identity.
+        verified_item_ids = Podcast.verified_originals().values_list("pk", flat=True)
         base = PodcastEpisode.objects.filter(
             is_deleted=False,
             merged_to_item__isnull=True,

@@ -123,8 +123,21 @@ class Podcast(Item):
         These are the shows behind the discover page's "original episodes"
         shelf. A show may carry several verified-creator claims, so it is
         ranked by the newest of those claims and appears only once.
+
+        A show is hidden entirely if any of its verified creators is a
+        restricted (limited or blocked) identity, so moderated creators do
+        not surface on discover.
         """
-        return (
+        from takahe.models import Identity
+
+        # Restriction lives on the Takahe identity (separate db, shared pk),
+        # so materialize the restricted ids rather than joining across dbs.
+        restricted_ids = list(
+            Identity.objects.filter(
+                restriction__gt=Identity.Restriction.none
+            ).values_list("pk", flat=True)
+        )
+        qs = (
             cls.objects.filter(
                 is_deleted=False,
                 merged_to_item__isnull=True,
@@ -138,8 +151,13 @@ class Podcast(Item):
                 )
             )
             .filter(verified_at__isnull=False)
-            .order_by("-verified_at", "-pk")
         )
+        if restricted_ids:
+            qs = qs.exclude(
+                verified_creators__state=VerifiedCreator.State.VERIFIED,
+                verified_creators__owner_id__in=restricted_ids,
+            )
+        return qs.order_by("-verified_at", "-pk")
 
     @property
     def recent_episodes(self):

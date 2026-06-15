@@ -56,6 +56,13 @@ def _verified(item, identity, matched="@x@example.org") -> VerifiedCreator:
     )
 
 
+def _restrict(identity, level=2) -> None:
+    """Set the Takahe identity's moderation restriction (1=limited, 2=blocked)."""
+    from takahe.models import Identity
+
+    Identity.objects.filter(pk=identity.pk).update(restriction=level)
+
+
 def _make_remote_identity(username="alice", domain_name="mast.example"):
     """Create a remote APIdentity (and its Takahe Identity) for tests that
     attribute a verified work to a linked Mastodon account."""
@@ -717,6 +724,22 @@ class TestOriginalEpisodes:
         self._episodes(podcast)
         assert DiscoverGenerator().get_original_episodes() == []
 
+    def test_restricted_creator_episodes_excluded(self):
+        # episodes of a show whose verified creator is restricted must not
+        # surface in the discover "original episodes" shelf
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        kept_pod = _podcast("Kept", "k.example.com/feed.rss")
+        hidden_pod = _podcast("Hidden", "h.example.com/feed.rss")
+        _verified(kept_pod, alice.identity)
+        _verified(hidden_pod, bob.identity)
+        self._episodes(kept_pod)
+        self._episodes(hidden_pod)
+        _restrict(bob.identity, level=2)
+        episodes = DiscoverGenerator().get_original_episodes()
+        assert episodes
+        assert {e.program_id for e in episodes} == {kept_pod.pk}
+
     def _episode(self, podcast, guid, days_ago):
         return PodcastEpisode.objects.create(
             program=podcast,
@@ -841,6 +864,43 @@ class TestVerifiedOriginals:
         _verified(podcast, alice.identity)
         _verified(podcast, bob.identity)
         assert list(Podcast.verified_originals()) == [podcast]
+
+    def test_blocked_creator_excluded(self):
+        alice = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        _restrict(alice.identity, level=2)
+        assert list(Podcast.verified_originals()) == []
+
+    def test_limited_creator_excluded(self):
+        # the discover convention hides limited identities too, not just blocked
+        alice = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        _restrict(alice.identity, level=1)
+        assert list(Podcast.verified_originals()) == []
+
+    def test_any_restricted_creator_hides_show(self):
+        # a show co-hosted by a restricted creator is hidden entirely, even
+        # though it still has an unrestricted verified creator
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        _verified(podcast, bob.identity)
+        _restrict(bob.identity, level=2)
+        assert list(Podcast.verified_originals()) == []
+
+    def test_unrestricted_creator_kept(self):
+        # restricting an unrelated creator must not drop other shows
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        alice_pod = _podcast("Alice", "a.example.com/feed.rss")
+        bob_pod = _podcast("Bob", "b.example.com/feed.rss")
+        _verified(alice_pod, alice.identity)
+        _verified(bob_pod, bob.identity)
+        _restrict(bob.identity, level=2)
+        assert list(Podcast.verified_originals()) == [alice_pod]
 
     def test_ordered_by_most_recently_verified(self):
         alice = User.register(email="a@example.com", username="alice")
