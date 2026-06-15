@@ -21,6 +21,8 @@ from loguru import logger
 
 from common.models import SiteConfig
 from common.models.misc import uniq
+from common.sentry import count as sentry_count
+from common.sentry import url_domain
 from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
@@ -557,9 +559,8 @@ class SiteManager:
                     # the fetch; that's expected noise, not a NeoDB bug, so log
                     # it as a warning to keep it out of Sentry issues. Anything
                     # else is unexpected and stays at error level.
-                    log = (
-                        logger.warning if isinstance(e, DownloadError) else logger.error
-                    )
+                    is_download = isinstance(e, DownloadError)
+                    log = logger.warning if is_download else logger.error
                     log(
                         f"error fetching from {linked_site.ID_TYPE}",
                         extra={
@@ -567,6 +568,15 @@ class SiteManager:
                             "linked_resource": linked_resource,
                             "linked_site": linked_site,
                             "exception": e,
+                        },
+                    )
+                    # Warnings don't surface as Sentry issues, so emit a metric
+                    # to keep these external-fetch failures trackable by site.
+                    sentry_count(
+                        "catalog.linked_resource.failure",
+                        attributes={
+                            "site": str(linked_site.ID_TYPE),
+                            "reason": "download" if is_download else "error",
                         },
                     )
                     continue
@@ -622,6 +632,16 @@ class SiteManager:
                     extra={
                         "resource": resource,
                         "linked_resource": linked_resource,
+                    },
+                )
+                # Tracked as a metric (not an error issue) so the volume of
+                # unresolvable linked resources stays visible by source.
+                sentry_count(
+                    "catalog.linked_resource.failure",
+                    attributes={
+                        "site": linked_resource.get("id_type")
+                        or url_domain(linked_resource.get("url")),
+                        "reason": "no_site",
                     },
                 )
         if resource.item and processed:
