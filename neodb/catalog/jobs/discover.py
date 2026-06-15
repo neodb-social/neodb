@@ -326,15 +326,21 @@ class DiscoverGenerator(BaseJob):
                 | set(reviews.values_list("posts", flat=True)[:5])
                 | set(articles.values_list("posts", flat=True)[:5])
             )
+            # ``posts`` is a M2M, so values_list() yields None for any piece
+            # without an associated post; drop it before querying or caching.
+            post_ids.discard(None)
             # An article must not trend if its author has no items on a shelf,
             # regardless of which path above surfaced its post.
-            post_ids -= set(
-                Article.objects.filter(posts__in=post_ids)
-                .filter(
-                    ~Exists(ShelfMember.objects.filter(owner_id=OuterRef("owner_id")))
+            if post_ids:
+                post_ids -= set(
+                    Article.objects.filter(posts__in=post_ids)
+                    .filter(
+                        ~Exists(
+                            ShelfMember.objects.filter(owner_id=OuterRef("owner_id"))
+                        )
+                    )
+                    .values_list("posts", flat=True)
                 )
-                .values_list("posts", flat=True)
-            )
         else:
             post_ids = []
         cache.set("public_gallery", gallery_list, timeout=None)
