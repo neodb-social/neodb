@@ -496,7 +496,7 @@ class PostInteraction(StatorModel):
             # Create it
             try:
                 interaction = cls.by_ap(data, create=True)
-            except (cls.DoesNotExist, Post.DoesNotExist):
+            except cls.DoesNotExist, Post.DoesNotExist:
                 # That post is gone, boss
                 # TODO: Limited retry state?
                 return
@@ -514,7 +514,7 @@ class PostInteraction(StatorModel):
             # Find it
             try:
                 interaction = cls.by_ap(data["object"])
-            except (cls.DoesNotExist, Post.DoesNotExist):
+            except cls.DoesNotExist, Post.DoesNotExist:
                 # Well I guess we don't need to undo it do we
                 return
             # Verify the actor matches
@@ -597,7 +597,7 @@ class PostInteraction(StatorModel):
                     interaction.transition_perform(
                         PostInteractionStates.undone_fanned_out
                     )
-            except (cls.DoesNotExist, Post.DoesNotExist):
+            except cls.DoesNotExist, Post.DoesNotExist:
                 return
 
     ### Mastodon API ###

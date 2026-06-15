@@ -134,7 +134,7 @@ def get_remote_file(
                 try:
                     content_length = int(stream.headers["content-length"])
                     allow_download = content_length <= max_size
-                except (KeyError, TypeError):
+                except KeyError, TypeError:
                     pass
             if allow_download:
                 file = ContentFile(stream.read(), name=url)

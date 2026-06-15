@@ -398,7 +398,7 @@ class Follow(StatorModel):
             if not data["object"]:
                 raise Identity.DoesNotExist()
             follow = cls.by_ap(data["object"])
-        except (cls.DoesNotExist, Identity.DoesNotExist):
+        except cls.DoesNotExist, Identity.DoesNotExist:
             logger.warning(
                 "Follow or Identity not found for incoming Accept",
                 extra={"data": data},
@@ -422,7 +422,7 @@ class Follow(StatorModel):
         # Resolve source and target and see if a Follow exists (it really should)
         try:
             follow = cls.by_ap(data["object"])
-        except (cls.DoesNotExist, Identity.DoesNotExist):
+        except cls.DoesNotExist, Identity.DoesNotExist:
             logger.info(
                 "Follow or Identity not found for incoming Reject",
                 extra={"data": data},
@@ -454,7 +454,7 @@ class Follow(StatorModel):
         # Resolve source and target and see if a Follow exists (it hopefully does)
         try:
             follow = cls.by_ap(data["object"])
-        except (cls.DoesNotExist, Identity.DoesNotExist):
+        except cls.DoesNotExist, Identity.DoesNotExist:
             logger.info(
                 "Follow or Identity not found for incoming Undo", extra={"data": data}
             )

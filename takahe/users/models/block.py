@@ -304,7 +304,7 @@ class Block(StatorModel):
         """
         try:
             block = cls.by_ap(data["object"])
-        except (KeyError, cls.DoesNotExist):
+        except KeyError, cls.DoesNotExist:
             return
         # Check the block's source is the actor
         if data["actor"] != block.source.actor_uri:

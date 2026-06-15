@@ -1339,7 +1339,7 @@ class Post(StatorModel):
                     try:
                         emoji = Emoji.by_ap_tag(post.author.domain, tag, create=True)
                         post.emojis.add(emoji)
-                    except (KeyError, ValueError):
+                    except KeyError, ValueError:
                         pass
                 else:
                     # Various ActivityPub implementations and proposals introduced tag
@@ -1368,7 +1368,7 @@ class Post(StatorModel):
                 if "focalPoint" in attachment:
                     try:
                         focal_x, focal_y = attachment["focalPoint"]
-                    except (ValueError, TypeError):
+                    except ValueError, TypeError:
                         focal_x, focal_y = None, None
                 else:
                     focal_x, focal_y = None, None
@@ -1713,7 +1713,7 @@ class Post(StatorModel):
                 cls.by_object_uri(uri, fetch=True, fetch_depth=depth)
             else:
                 logger.warning("Skipping fetch for non-HTTP URI: %s", uri)
-        except (cls.DoesNotExist, KeyError):
+        except cls.DoesNotExist, KeyError:
             pass
 
     MAX_FETCH_REPLIES = 50
@@ -1733,7 +1733,7 @@ class Post(StatorModel):
 
         try:
             response = SystemActor().signed_request(method="get", uri=replies_uri)
-        except (httpx.HTTPError, ssl.SSLCertVerificationError, ValueError):
+        except httpx.HTTPError, ssl.SSLCertVerificationError, ValueError:
             logger.warning("Failed to fetch replies collection: %s", replies_uri)
             return
 
@@ -1747,7 +1747,7 @@ class Post(StatorModel):
 
         try:
             collection = json_from_response(response)
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             logger.warning("Invalid JSON from replies collection: %s", replies_uri)
             return
 

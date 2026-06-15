@@ -196,9 +196,7 @@ class TokenView(View):
                 # lock the authorization row so the code is single-use even
                 # under concurrent redemption attempts
                 authorization = (
-                    Authorization.objects.select_for_update()
-                    .filter(code=code)
-                    .first()
+                    Authorization.objects.select_for_update().filter(code=code).first()
                 )
                 if not authorization or (
                     timezone.now() - authorization.created

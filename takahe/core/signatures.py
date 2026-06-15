@@ -249,7 +249,7 @@ class HttpSignature:
                 cls._check_timestamp_skew(
                     int(signature_details["created"]), "(created) parameter"
                 )
-            except (KeyError, ValueError, TypeError):
+            except KeyError, ValueError, TypeError:
                 raise VerificationFormatError("Invalid (created) parameter")
         # Build the signed string, passing params so (created)/(expires) can be resolved.
         headers_string = cls.headers_from_request(

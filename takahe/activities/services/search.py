@@ -95,7 +95,7 @@ class SearchService:
             seen.add(uri)
             try:
                 response = fetcher.signed_request(method="get", uri=uri)
-            except (httpx.RequestError, SSRFAttemptError):
+            except httpx.RequestError, SSRFAttemptError:
                 return None
             if response.status_code >= 400:
                 return None

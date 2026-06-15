@@ -322,7 +322,7 @@ class Inbox(FederatedView):
         if ld_sig_present and not verified:
             try:
                 creator = urldefrag(document["signature"]["creator"]).url
-            except (KeyError, TypeError):
+            except KeyError, TypeError:
                 logger.warning("Inbox error: Malformed LD signature block")
                 return HttpResponseBadRequest("Malformed LD signature")
             if creator != document["actor"]:

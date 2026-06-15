@@ -162,11 +162,11 @@ class PreviewCardStates(StateGraph):
         instance.image_url = meta.get("og:image") or ""
         try:
             instance.image_width = int(meta["og:image:width"])
-        except (KeyError, ValueError, TypeError):
+        except KeyError, ValueError, TypeError:
             instance.image_width = None
         try:
             instance.image_height = int(meta["og:image:height"])
-        except (KeyError, ValueError, TypeError):
+        except KeyError, ValueError, TypeError:
             instance.image_height = None
         instance.author_name = meta.get("og:article:author") or ""
         instance.provider_name = parsed.hostname or ""

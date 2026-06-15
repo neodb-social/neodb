@@ -16,7 +16,7 @@ def keypair():
     """
     return {
         "private_key": (
-            "-----BEGIN PRIVATE" # skip detect-private-key pre-commit
+            "-----BEGIN PRIVATE"  # skip detect-private-key pre-commit
             " KEY-----\n"
             """MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCzNJa9JIxQpOtQ
 z8UQKXDPREF9DyBliGu3uPWo6DMnkOm7hoh2+nOryrWDqWOFaVK//n7kltHXUEbm
