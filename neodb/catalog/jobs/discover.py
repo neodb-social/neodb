@@ -145,22 +145,43 @@ class DiscoverGenerator(BaseJob):
                     items.append(season.show)
         return items
 
-    def get_original_episodes(self, max_items: int = 20) -> list:
-        """Recent episodes of podcasts with a verified creator."""
+    def get_original_episodes(
+        self, max_items: int = 100, max_per_program: int = 10
+    ) -> list:
+        """Recent episodes of podcasts with a verified creator.
+
+        Episodes are interleaved round-robin across podcasts so every podcast
+        gets equal exposure: the newest episode of each podcast comes first,
+        then the second newest of each, and so on. Within each round newer
+        episodes are listed first. Capped at `max_per_program` per podcast and
+        `max_items` overall.
+        """
         verified_item_ids = VerifiedCreator.objects.filter(
             state=VerifiedCreator.State.VERIFIED
         ).values_list("item_id", flat=True)
-        episodes = list(
-            PodcastEpisode.objects.filter(
-                program_id__in=verified_item_ids,
-                is_deleted=False,
-                merged_to_item__isnull=True,
-                program__is_deleted=False,
-                program__merged_to_item__isnull=True,
+        base = PodcastEpisode.objects.filter(
+            is_deleted=False,
+            merged_to_item__isnull=True,
+            program__is_deleted=False,
+            program__merged_to_item__isnull=True,
+        ).select_related("program")
+        per_program = []
+        for program_id in verified_item_ids:
+            eps = list(
+                base.filter(program_id=program_id).order_by("-pub_date")[
+                    :max_per_program
+                ]
             )
-            .select_related("program")
-            .order_by("-pub_date")[:max_items]
-        )
+            if eps:
+                per_program.append(eps)
+        episodes = []
+        for rank in range(max_per_program):
+            row = [eps[rank] for eps in per_program if len(eps) > rank]
+            row.sort(key=lambda e: e.pub_date, reverse=True)
+            episodes.extend(row)
+            if len(episodes) >= max_items:
+                break
+        episodes = episodes[:max_items]
         for e in episodes:
             e.tags
             e.rating

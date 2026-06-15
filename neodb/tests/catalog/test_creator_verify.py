@@ -576,6 +576,56 @@ class TestOriginalEpisodes:
         self._episodes(podcast)
         assert DiscoverGenerator().get_original_episodes() == []
 
+    def _episode(self, podcast, guid, days_ago):
+        return PodcastEpisode.objects.create(
+            program=podcast,
+            guid=guid,
+            title=guid,
+            pub_date=timezone.now() - timedelta(days=days_ago),
+            media_url="https://example.com/1.mp3",
+        )
+
+    def test_interleaved_so_each_podcast_gets_exposure(self):
+        # pod A has many recent episodes, pod B has a single older one;
+        # round-robin still surfaces B at the second slot.
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        pod_a = _podcast("A", "a.example.com/feed.rss")
+        pod_b = _podcast("B", "b.example.com/feed.rss")
+        _verified(pod_a, alice.identity)
+        _verified(pod_b, bob.identity)
+        for i in range(5):
+            self._episode(pod_a, f"a{i}", days_ago=i)
+        self._episode(pod_b, "b0", days_ago=100)
+        episodes = DiscoverGenerator().get_original_episodes()
+        programs = [e.program_id for e in episodes]
+        assert programs[:2] == [pod_a.pk, pod_b.pk]
+        assert len(episodes) == 6
+
+    def test_max_per_program(self):
+        alice = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        for i in range(15):
+            self._episode(podcast, f"e{i}", days_ago=i)
+        episodes = DiscoverGenerator().get_original_episodes()
+        assert len(episodes) == 10
+        # the 10 newest are kept, ordered newest first
+        assert [e.guid for e in episodes] == [f"e{i}" for i in range(10)]
+
+    def test_max_items_total(self):
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        pod_a = _podcast("A", "a.example.com/feed.rss")
+        pod_b = _podcast("B", "b.example.com/feed.rss")
+        _verified(pod_a, alice.identity)
+        _verified(pod_b, bob.identity)
+        for i in range(3):
+            self._episode(pod_a, f"a{i}", days_ago=i)
+            self._episode(pod_b, f"b{i}", days_ago=i)
+        episodes = DiscoverGenerator().get_original_episodes(max_items=3)
+        assert len(episodes) == 3
+
     def test_discover_gated_by_test_enabled(self, monkeypatch):
         alice = User.register(email="a@example.com", username="alice")
         podcast = _podcast()
