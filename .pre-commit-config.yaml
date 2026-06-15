@@ -42,9 +42,9 @@ repos:
     rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
-        exclude: ^takahe/templates/
+        exclude: ^takahe/(templates|docs)/
       - id: djlint-django
-        exclude: ^takahe/templates/
+        exclude: ^takahe/(templates|docs)/
 
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.386
