@@ -403,7 +403,7 @@ class JournalIndex(Index):
             ),
             "piece_id": [piece.pk],
             "piece_class": [piece.__class__.__name__],
-            "created": int(piece.created_time.timestamp()),  # type: ignore
+            "created": int(piece.created_time.timestamp()),
             "owner_id": piece.owner_id,
             "visibility": piece.visibility,
         }
