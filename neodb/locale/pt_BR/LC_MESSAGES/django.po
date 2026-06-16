@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-06-15 21:35+0000\n"
+"PO-Revision-Date: 2026-06-16 22:01+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -2639,7 +2639,9 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"        <h3>Bem-vindo(a) 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\"><a "
+"href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">\n"
+"        <h3>Bem-vindo(a)🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "        <p>\n"
 "          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s "
 "tem o compromisso de criar um espaço livre, aberto e interconectado para "
@@ -2671,6 +2673,7 @@ msgstr ""
 "          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%"
 "(login_url)s\">Clique aqui</a> para se cadastrar ou entrar.\n"
 "        </p>\n"
+"        </p>\n"
 "        "
 
 #: common/templates/common/error.html:12
@@ -2683,7 +2686,7 @@ msgstr "agora mesmo"
 
 #: common/templatetags/mastodon.py:44
 msgid "mutual followed"
-msgstr "seguidos mutuamente"
+msgstr "seguimento mútuo"
 
 #: common/templatetags/mastodon.py:46
 msgid "followed"
@@ -2725,7 +2728,7 @@ msgstr "Conteúdo (Markdown)"
 #: journal/forms.py:21 journal/templates/comment.html:62
 #: journal/templates/mark.html:115 journal/views/note.py:26
 msgid "Crosspost to timeline"
-msgstr "Postagem cruzada para linha do tempo"
+msgstr "Publicação cruzada na linha do tempo"
 
 #: journal/forms.py:25 journal/forms.py:45
 #: journal/templates/collection_share.html:24
@@ -2737,11 +2740,11 @@ msgstr "Visibilidade"
 
 #: journal/forms.py:34
 msgid "creator only"
-msgstr "criador somente"
+msgstr "apenas o criador"
 
 #: journal/forms.py:35
 msgid "creator and their mutuals"
-msgstr "criador e seus amigos"
+msgstr "criador e seus mutuais"
 
 #: journal/forms.py:52 journal/templates/collection.html:143
 msgid "Collaborative editing"
@@ -2762,7 +2765,7 @@ msgstr "assinaturas de podcast de {username}"
 #: journal/templates/collection_share.html:63
 #: journal/templates/wrapped_share.html:29
 msgid "note"
-msgstr "anotação"
+msgstr "nota"
 
 #: journal/models/collection.py:74
 msgid "search query for dynamic collection"
@@ -2791,7 +2794,7 @@ msgstr "Público"
 #: users/templates/users/data.html:207 users/templates/users/data.html:267
 #: users/templates/users/preferences.html:63
 msgid "Followers Only"
-msgstr "Somente Seguidores"
+msgstr "Apenas Seguidores"
 
 #: journal/models/common.py:41 journal/templates/action_open_post.html:12
 #: journal/templates/collection_share.html:57 journal/templates/comment.html:49
@@ -2800,27 +2803,26 @@ msgstr "Somente Seguidores"
 #: users/templates/users/data.html:215 users/templates/users/data.html:275
 #: users/templates/users/preferences.html:70
 msgid "Mentioned Only"
-msgstr "Somente Mencionados"
+msgstr "Apenas Mencionados"
 
 #: journal/models/common.py:451
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
-"Uma postagem recente não foi publicado no Bluesky. Por favor, faça login no "
-"NeoDB usando o ATProto novamente para reautorizar."
+"Uma publicação recente não foi enviada ao Bluesky. Por favor, faça login no "
+"NeoDB usando ATProto novamente para reautorizar."
 
 #: journal/models/common.py:478
 msgid "A recent post was not posted to Threads."
-msgstr "Uma postagem recente não foi postada no Threads."
+msgstr "Uma publicação recente não foi enviada ao Threads."
 
 #: journal/models/common.py:512
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
-"Uma postagem recente não foi postada no Mastodon, por favor, autorize "
-"novamente."
+"Uma publicação recente não foi enviada ao Mastodon. Por favor, reautorize."
 
 #: journal/models/common.py:519
 msgid "A recent post was not posted to Mastodon."
-msgstr "Uma postagem recente não foi postada no Mastodon."
+msgstr "Uma publicação recente não foi enviada ao Mastodon."
 
 #: journal/models/note.py:34
 msgid "Page"
@@ -2848,7 +2850,7 @@ msgstr "Ciclo"
 
 #: journal/models/note.py:42
 msgid "Timestamp"
-msgstr "Data/Hora"
+msgstr "Marcação de tempo"
 
 #: journal/models/note.py:43
 msgid "Percentage"
@@ -2887,7 +2889,7 @@ msgstr "Ciclo {value}"
 #: journal/models/renderers.py:116
 #, python-brace-format
 msgid "regarding {item_title}, may contain spoiler or triggering content"
-msgstr "em relação a {item_title}, pode conter spoiler ou conteúdo sensível"
+msgstr "sobre {item_title}, pode conter spoilers ou conteúdo sensível"
 
 #: journal/models/shelf.py:28
 msgid "WISHLIST"
@@ -2899,32 +2901,32 @@ msgstr "ANDAMENTO"
 
 #: journal/models/shelf.py:30
 msgid "COMPLETE"
-msgstr "COMPLETO"
+msgstr "CONCLUÍDO"
 
 #: journal/models/shelf.py:31
 msgid "DROPPED"
-msgstr "DESCARTADO"
+msgstr "ABANDONADO"
 
 #: journal/models/shelf.py:40
 msgid "books to read"
-msgstr "livros para ler"
+msgstr "livros a ler"
 
 #: journal/models/shelf.py:41
 msgid "want to read"
-msgstr "quero ler"
+msgstr "quer ler"
 
 #: journal/models/shelf.py:42
 #, python-brace-format
 msgid "wants to read {item}"
-msgstr "quero ler {item}"
+msgstr "quer ler {item}"
 
 #: journal/models/shelf.py:43
 msgid "to read"
-msgstr "para ler"
+msgstr "a ler"
 
 #: journal/models/shelf.py:48
 msgid "books reading"
-msgstr "livros que estou lendo"
+msgstr "livros sendo lidos"
 
 #: journal/models/shelf.py:49
 msgid "start reading"
@@ -2945,7 +2947,7 @@ msgstr "livros concluídos"
 
 #: journal/models/shelf.py:57
 msgid "finish reading"
-msgstr "terminou de ler"
+msgstr "terminar de ler"
 
 #: journal/models/shelf.py:58
 #, python-brace-format
@@ -2958,7 +2960,7 @@ msgstr "lido"
 
 #: journal/models/shelf.py:64
 msgid "books dropped"
-msgstr "livros descartados"
+msgstr "livros abadonados"
 
 #: journal/models/shelf.py:65
 msgid "stop reading"
@@ -2995,7 +2997,7 @@ msgstr "escreveu uma análise de {item}"
 
 #: journal/models/shelf.py:80
 msgid "movies to watch"
-msgstr "filmes para assistir"
+msgstr "filmes a assistir"
 
 #: journal/models/shelf.py:81 journal/models/shelf.py:121
 msgid "want to watch"
@@ -3008,11 +3010,11 @@ msgstr "quer assistir {item}"
 
 #: journal/models/shelf.py:83 journal/models/shelf.py:123
 msgid "to watch"
-msgstr "para assistir"
+msgstr "a assistir"
 
 #: journal/models/shelf.py:88
 msgid "movies watching"
-msgstr "assistindo filmes"
+msgstr "filmes sendo assistidos"
 
 #: journal/models/shelf.py:89 journal/models/shelf.py:129
 msgid "start watching"
@@ -3046,11 +3048,11 @@ msgstr "assistido"
 
 #: journal/models/shelf.py:104
 msgid "movies dropped"
-msgstr "filmes descartados"
+msgstr "filmes abadonados"
 
 #: journal/models/shelf.py:105 journal/models/shelf.py:145
 msgid "stop watching"
-msgstr "pare de assistir"
+msgstr "parar de assistir"
 
 #: journal/models/shelf.py:106 journal/models/shelf.py:146
 #, python-brace-format
@@ -3059,7 +3061,7 @@ msgstr "parou de assistir {item}"
 
 #: journal/models/shelf.py:107 journal/models/shelf.py:147
 msgid "stopped watching"
-msgstr "parei de assistir"
+msgstr "parou de assistir"
 
 #: journal/models/shelf.py:112
 msgid "movies reviewed"
@@ -3067,31 +3069,31 @@ msgstr "filmes analisados"
 
 #: journal/models/shelf.py:120
 msgid "TV shows to watch"
-msgstr "Séries para assistir"
+msgstr "séries a assistir"
 
 #: journal/models/shelf.py:128
 msgid "TV shows watching"
-msgstr "séries que está Assistindo"
+msgstr "séries sendo assistidas"
 
 #: journal/models/shelf.py:136
 msgid "TV shows watched"
-msgstr "Séries Assistidas"
+msgstr "séries assistidas"
 
 #: journal/models/shelf.py:144
 msgid "TV shows dropped"
-msgstr "Séries Descartadas"
+msgstr "séries abandonadas"
 
 #: journal/models/shelf.py:152
 msgid "TV shows reviewed"
-msgstr "Séries Analisadas"
+msgstr "séries analisadas"
 
 #: journal/models/shelf.py:160
 msgid "albums to listen"
-msgstr "álbuns para ouvir"
+msgstr "álbuns a ouvir"
 
 #: journal/models/shelf.py:161 journal/models/shelf.py:241
 msgid "want to listen"
-msgstr "quero ouvir"
+msgstr "quer ouvir"
 
 #: journal/models/shelf.py:162 journal/models/shelf.py:242
 #, python-brace-format
@@ -3100,11 +3102,11 @@ msgstr "quer ouvir {item}"
 
 #: journal/models/shelf.py:163 journal/models/shelf.py:243
 msgid "to listen"
-msgstr "para ouvir"
+msgstr "a ouvir"
 
 #: journal/models/shelf.py:168
 msgid "albums listening"
-msgstr "ouvindo álbuns"
+msgstr "álbuns sendo ouvidos"
 
 #: journal/models/shelf.py:169 journal/models/shelf.py:249
 msgid "start listening"
@@ -3113,7 +3115,7 @@ msgstr "começar a ouvir"
 #: journal/models/shelf.py:170 journal/models/shelf.py:250
 #, python-brace-format
 msgid "started listening {item}"
-msgstr "começou ouvir {item}"
+msgstr "começou a ouvir {item}"
 
 #: journal/models/shelf.py:171 journal/models/shelf.py:251
 msgid "listening"
@@ -3125,7 +3127,7 @@ msgstr "álbuns ouvidos"
 
 #: journal/models/shelf.py:177 journal/models/shelf.py:257
 msgid "finish listening"
-msgstr "terminou de ouvir"
+msgstr "terminar de ouvir"
 
 #: journal/models/shelf.py:178 journal/models/shelf.py:258
 #, python-brace-format
@@ -3134,11 +3136,11 @@ msgstr "terminou de ouvir {item}"
 
 #: journal/models/shelf.py:179 journal/models/shelf.py:259
 msgid "listened"
-msgstr "ouviu"
+msgstr "ouvido"
 
 #: journal/models/shelf.py:184
 msgid "albums dropped"
-msgstr "álbuns descartados"
+msgstr "álbuns abadonados"
 
 #: journal/models/shelf.py:185 journal/models/shelf.py:265
 msgid "stop listening"
@@ -3159,7 +3161,7 @@ msgstr "álbuns analisados"
 
 #: journal/models/shelf.py:200
 msgid "games to play"
-msgstr "jogos para jogar"
+msgstr "jogos a jogar"
 
 #: journal/models/shelf.py:201
 msgid "want to play"
@@ -3172,11 +3174,11 @@ msgstr "quer jogar {item}"
 
 #: journal/models/shelf.py:203
 msgid "to play"
-msgstr "para jogar"
+msgstr "a jogar"
 
 #: journal/models/shelf.py:208
 msgid "games playing"
-msgstr "games que está jogando"
+msgstr "jogos sendo jogados"
 
 #: journal/models/shelf.py:209
 msgid "start playing"
@@ -3193,16 +3195,16 @@ msgstr "jogando"
 
 #: journal/models/shelf.py:216
 msgid "games played"
-msgstr "games jogados"
+msgstr "jogos jogados"
 
 #: journal/models/shelf.py:217
 msgid "finish playing"
-msgstr "termine de jogar"
+msgstr "terminar de jogar"
 
 #: journal/models/shelf.py:218
 #, python-brace-format
 msgid "finished playing {item}"
-msgstr "terminei de jogar {item}"
+msgstr "terminou de jogar {item}"
 
 #: journal/models/shelf.py:219
 msgid "played"
@@ -3210,11 +3212,11 @@ msgstr "jogado"
 
 #: journal/models/shelf.py:224
 msgid "games dropped"
-msgstr "jogos descartados"
+msgstr "jogos abadonados"
 
 #: journal/models/shelf.py:225
 msgid "stop playing"
-msgstr "pare de jogar"
+msgstr "parar de jogar"
 
 #: journal/models/shelf.py:226
 #, python-brace-format
@@ -3231,11 +3233,11 @@ msgstr "jogos analisados"
 
 #: journal/models/shelf.py:240
 msgid "podcasts to listen"
-msgstr "podcasts para ouvir"
+msgstr "podcasts a ouvir"
 
 #: journal/models/shelf.py:248
 msgid "podcasts listening"
-msgstr "ouvindo podcasts"
+msgstr "podcasts sendo ouvidos"
 
 #: journal/models/shelf.py:256
 msgid "podcasts listened"
@@ -3243,7 +3245,7 @@ msgstr "podcasts ouvidos"
 
 #: journal/models/shelf.py:264
 msgid "podcasts dropped"
-msgstr "podcasts descartados"
+msgstr "podcasts abadonados"
 
 #: journal/models/shelf.py:272
 msgid "podcasts reviewed"
@@ -3251,58 +3253,58 @@ msgstr "podcasts analisados"
 
 #: journal/models/shelf.py:280
 msgid "performances to see"
-msgstr "performances para ver"
+msgstr "apresentações a assistir"
 
 #: journal/models/shelf.py:281
 msgid "want to see"
-msgstr "quero ver"
+msgstr "quer assistir"
 
 #: journal/models/shelf.py:282
 #, python-brace-format
 msgid "wants to see {item}"
-msgstr "quer ver {item}"
+msgstr "quer assistir {item}"
 
 #: journal/models/shelf.py:283
 msgid "to see"
-msgstr "para ver"
+msgstr "a assistir"
 
 #: journal/models/shelf.py:290
 msgid "performances saw"
-msgstr "performances que viu"
+msgstr "apresentações assistidas"
 
 #: journal/models/shelf.py:291
 msgid "finish seeing"
-msgstr "terminar de ver"
+msgstr "terminar de assistir"
 
 #: journal/models/shelf.py:292
 #, python-brace-format
 msgid "finished seeing {item}"
-msgstr "terminou de ver {item}"
+msgstr "terminou de assistir {item}"
 
 #: journal/models/shelf.py:293
 msgid "seen"
-msgstr "visto"
+msgstr "assistido"
 
 #: journal/models/shelf.py:298
 msgid "performances dropped"
-msgstr "performances descartadas"
+msgstr "apresentações descartadas"
 
 #: journal/models/shelf.py:299
 msgid "stop seeing"
-msgstr "pare de ver"
+msgstr "parar de assistir"
 
 #: journal/models/shelf.py:300
 #, python-brace-format
 msgid "stopped seeing {item}"
-msgstr "parou de ver {item}"
+msgstr "parou de assistir {item}"
 
 #: journal/models/shelf.py:301
 msgid "stopped seeing"
-msgstr "parei de ver"
+msgstr "parou de assistir"
 
 #: journal/models/shelf.py:306
 msgid "performances reviewed"
-msgstr "performances analisadas"
+msgstr "apresentações analisadas"
 
 #: journal/models/shelf.py:610
 msgid "removed mark"
@@ -3310,15 +3312,15 @@ msgstr "marcação removida"
 
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
-msgstr "pare de rastrear"
+msgstr "parar de rastrear"
 
 #: journal/templates/_feature_stats.html:11
 msgid "Stop tracking this target?"
-msgstr "Parar de rastrear esse alvo?"
+msgstr "Parar de rastrear este destino?"
 
 #: journal/templates/_feature_stats.html:15
 msgid "set as target"
-msgstr "definir como meta"
+msgstr "definir como destino"
 
 #: journal/templates/_list_item.html:15
 msgid "Remove from collection"
@@ -3335,7 +3337,7 @@ msgstr "atualizar marcação"
 #: journal/templates/_list_item.html:51
 #: journal/templates/collection_update_item_note_ok.html:3
 msgid "Update note"
-msgstr "Atualizar anotação"
+msgstr "Atualizar nota"
 
 #: journal/templates/_list_item.html:76 journal/templates/review.html:15
 #: journal/templates/review.html:24 journal/templates/review.html:54
@@ -3348,24 +3350,24 @@ msgstr "Análise"
 #, python-format
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr ""
-"%(dups)s item(ns) são da mesma obra ou têm o mesmo identificador, clique "
+"%(dups)s item(s) são da mesma obra ou possuem o mesmo identificador; clique "
 "aqui para exibir:"
 
 #: journal/templates/_sidebar_search_journal.html:6
 msgid "filter by one of these statuses"
-msgstr "filtrar por um destes estados"
+msgstr "filtrar por um destes status"
 
 #: journal/templates/_sidebar_search_journal.html:9
 msgid "filter by rating range"
-msgstr "filtrar por faixa de avaliação"
+msgstr "filtrar por intervalo de avaliação"
 
 #: journal/templates/_sidebar_search_journal.html:12
 msgid "filter unrated"
-msgstr "filtrar não avaliados"
+msgstr "filtrar sem avaliação"
 
 #: journal/templates/_sidebar_search_journal.html:15
 msgid "filter by tag"
-msgstr "filtrar pela etiqueta"
+msgstr "filtrar por etiqueta"
 
 #: journal/templates/_sidebar_search_journal.html:21
 msgid "filter by one of these types"
@@ -3373,15 +3375,15 @@ msgstr "filtrar por um destes tipos"
 
 #: journal/templates/_sidebar_search_journal.html:24
 msgid "filter by date"
-msgstr "filtrar pela data"
+msgstr "filtrar por data"
 
 #: journal/templates/_sidebar_search_journal.html:27
 msgid "filter by month"
-msgstr "filtrar pelo mês"
+msgstr "filtrar por mês"
 
 #: journal/templates/_sidebar_search_journal.html:30
 msgid "filter by date range"
-msgstr "filtrar pela faixa de datas"
+msgstr "filtrar por intervalo de datas"
 
 #: journal/templates/_sidebar_search_journal.html:33
 msgid "sort by one of these fields"
@@ -3389,15 +3391,15 @@ msgstr "ordenar por um destes campos"
 
 #: journal/templates/_sidebar_search_journal.html:33
 msgid "from new to old"
-msgstr "do novo para o antigo"
+msgstr "do mais recente para o mais antigo"
 
 #: journal/templates/_sidebar_search_journal.html:33
 msgid "from high to low"
-msgstr "do alto para baixo"
+msgstr "do maior para o menor"
 
 #: journal/templates/_sidebar_user_mark_list.html:61
 msgid "sorting"
-msgstr "ordenando"
+msgstr "ordenação"
 
 #: journal/templates/_sidebar_user_mark_list.html:63
 msgid "rating"
@@ -3410,7 +3412,7 @@ msgstr "impulsionar"
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post and the mark or note related with it?"
 msgstr ""
-"Tem certeza de que deseja excluir esta postagem e a marcação ou nota "
+"Tem certeza de que deseja excluir esta publicação e a marcação ou nota "
 "relacionada a ela?"
 
 #: journal/templates/action_delete_post.html:6
@@ -3419,7 +3421,7 @@ msgstr "Tem certeza de que deseja excluir esta resposta?"
 
 #: journal/templates/action_delete_post.html:6
 msgid "Are you sure to delete this post?"
-msgstr "Tem certeza de que deseja excluir esta postagem?"
+msgstr "Tem certeza de que deseja excluir esta publicação?"
 
 #: journal/templates/action_like_post.html:10
 msgid "liked"
@@ -3523,13 +3525,12 @@ msgstr "Adicionar um item a esta coleção"
 
 #: journal/templates/collection_edit.html:92
 msgid "Drag and drop to change the order order and click here to save"
-msgstr ""
-"Arraste e solte para alterar a ordem do pedido e clique aqui para salvar"
+msgstr "Arraste e solte para alterar a ordem e clique aqui para salvar"
 
 #: journal/templates/collection_share.html:24
 msgid "for the sharing post only, not visibility of the collection"
 msgstr ""
-"apenas para a postagem de compartilhamento, não para a visibilidade da "
+"apenas para a publicação de compartilhamento, não para a visibilidade da "
 "coleção"
 
 #: journal/templates/collection_update_item_note.html:4
@@ -3538,21 +3539,21 @@ msgstr "Atualizar"
 
 #: journal/templates/comment.html:16
 msgid "Comment"
-msgstr "Comentar"
+msgstr "Comentário"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
 msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr ""
-"Dicas: use &gt;!text!&lt; para spoilers; algumas instâncias podem não ser "
-"capazes de mostrar postagens com mais de 360 caracteres."
+"Dicas: use &gt;!text!&lt; para spoilers; algumas instâncias podem não "
+"conseguir exibir publicações com mais de 360 caracteres."
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"
-msgstr "compartilhar com a posição de reprodução"
+msgstr "compartilhar com posição de reprodução"
 
 #: journal/templates/mark.html:17
 msgid "Mark"
-msgstr "Marcar"
+msgstr "Marcação"
 
 #: journal/templates/mark.html:50
 msgid "not rated"
@@ -3560,7 +3561,7 @@ msgstr "não avaliado"
 
 #: journal/templates/mark.html:74
 msgid "add a tag and press Enter"
-msgstr "adicionar uma etiqueta e pressione Enter"
+msgstr "adicione uma etiqueta e pressione Enter"
 
 #: journal/templates/mark.html:130
 msgid "change mark date"
@@ -3569,8 +3570,8 @@ msgstr "alterar data da marcação"
 #: journal/templates/mark.html:156
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
-"Tem certeza que deseja excluir a marcação, o comentário e as etiquetas deste "
-"item?"
+"Tem certeza de que deseja excluir a marcação, o comentário e as etiquetas "
+"deste item?"
 
 #: journal/templates/markdown.html:3
 msgid "Markdown format references"
@@ -3624,42 +3625,42 @@ msgstr ""
 "Título\n"
 "=====\n"
 "\n"
-"Legenda\n"
+"Subtítulo\n"
 "--------\n"
 "\n"
 "  Os parágrafos precisam ser separados por uma linha em branco\n"
 "\n"
-"  O recuo no início do parágrafo exige o uso de um espaço de largura "
-"completa unicode\n"
+"  O recuo no início do parágrafo requer o uso de um espaço unicode de "
+"largura total\n"
 "\n"
-"[Link](https://en.wikipedia.org/wiki/Markdown)\n"
-"**Bold**  *Italic* ==Highlight== ~~Strikethrough~~\n"
-"^Super^script ~Sub~script [拼(pīn)音(yīn)]\n"
+"[Link](https://zh.wikipedia.org/wiki/Markdown)\n"
+"**Negrito**  *Itálico* ==Destaque== ~~Tachado~~\n"
+"^Super^escrito~Sub~escrito [拼(pīn)音(yīn)]\n"
 "\n"
-"Arraste e solte uma imagem![](https://upload.wikimedia.org/wikipedia/en/8/80/"
-"Wikipedia-logo-v2.svg)\n"
+"Arraste e solte uma imagem ![](https://upload.wikimedia.org/wikipedia/en/8/"
+"80/Wikipedia-logo-v2.svg)\n"
 "\n"
-"> Citar\n"
+"> Citação\n"
 ">> Citação multinível\n"
 "\n"
-"Em linha >! alerta de spoiler !< (também em comentários curtos)\n"
+"Inline >! aviso de spoiler !< (também em comentários curtos)\n"
 "\n"
-">! Multilinha\n"
+">! Múltiplas linhas\n"
 ">! Spoiler\n"
 "\n"
 "---\n"
 "\n"
-"- Bullet\n"
-"- Pontos\n"
+"- Item\n"
+"- de lista\n"
 "\n"
-"Conteúdo em parágrafo com nota de rodapé[^1] markup.\n"
-"[^1]: nota de rodapé explicativa\n"
+"conteúdo do parágrafo com marcação de nota de rodapé[^1].\n"
+"[^1]: explicação da nota de rodapé\n"
 "\n"
 "```\n"
 "código\n"
 "```\n"
 "\n"
-"Cabeçalho da tabela  | Segundo Cabeçaho\n"
+"Cabeçalho da Tabela  | Segundo Cabeçalho\n"
 "------------- | -------------\n"
 "Célula de Conteúdo  | Célula de Conteúdo\n"
 "Célula de Conteúdo  | Célula de Conteúdo\n"
@@ -3671,22 +3672,23 @@ msgstr "Nota"
 #: journal/templates/note.html:21
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr ""
-"Nota com conteúdo vazio serão excluídas. Tem certeza de que deseja continuar?"
+"Uma nota com conteúdo vazio será excluída. Tem certeza de que deseja "
+"continuar?"
 
 #: journal/templates/piece_delete.html:23
 msgid "Are you sure to delete this entire content?"
-msgstr "Você tem certeza de que deseja excluir todo este conteúdo?"
+msgstr "Tem certeza de que deseja excluir todo este conteúdo?"
 
 #: journal/templates/piece_delete.html:24
 msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
 msgstr ""
-"Ao excluí-lo, você também deixará de acompanhar os comentários e feedbacks "
-"de terceiros sobre o seu conteúdo."
+"Ao excluir, você também perderá o registro dos comentários e feedbacks de "
+"outros usuários sobre seu conteúdo."
 
 #: journal/templates/piece_delete.html:25
 #: journal/templates/piece_delete.html:32
 msgid "Deletion cannot be undone, are you sure to continue?"
-msgstr "A exclusão é irreversível. Tem certeza que deseja continuar?"
+msgstr "A exclusão não pode ser desfeita. Tem certeza de que deseja continuar?"
 
 #: journal/templates/profile.html:60
 msgid "calendar"
@@ -3703,7 +3705,7 @@ msgstr "coleção"
 
 #: journal/templates/profile.html:164
 msgid "liked collection"
-msgstr "coleção curtida"
+msgstr "curtiu a coleção"
 
 #: journal/templates/replies.html:53
 msgid "no replies so far."
@@ -3715,7 +3717,7 @@ msgstr "adicionar uma resposta"
 
 #: journal/templates/review.html:64
 msgid "The author has set it to be viewable only by logged-in users."
-msgstr "O autor definiu que só pode ser visualizado por usuários logados."
+msgstr "O autor definiu que só pode ser visualizado por usuários conectados."
 
 #: journal/templates/review_edit.html:34
 msgid "When saving, replace leading spaces with full-width spaces"
@@ -3723,7 +3725,7 @@ msgstr "Ao salvar, substituir espaços iniciais por espaços de largura total"
 
 #: journal/templates/review_edit.html:43
 msgid "change review date"
-msgstr "mudar data da análise"
+msgstr "alterar data da análise"
 
 #: journal/templates/tag_edit.html:32
 msgid "Pin"
@@ -3736,9 +3738,9 @@ msgstr "Pessoal"
 #: journal/templates/tag_edit.html:52
 msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
 msgstr ""
-"As etiquetas pessoais não são incluídas no índice público. No entanto, se "
-"você usar essa etiqueta ao marcar um item publicamente, ele ainda poderá "
-"ficar visível para outras pessoas."
+"As etiquetas pessoais não estão incluídas no índice público. No entanto, se "
+"você usar esta etiqueta ao marcar um item publicamente, ela ainda poderá ser "
+"visível para outros."
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
@@ -3772,7 +3774,7 @@ msgstr "Compartilhar Resumo Anual"
 #: journal/templates/wrapped_share.html:31
 #, python-format
 msgid "#%(year)s_report"
-msgstr "#%(year)s_relatório"
+msgstr "#relatório_%(year)s"
 
 #: journal/templatetags/collection.py:35
 #, python-format
@@ -3833,7 +3835,7 @@ msgstr[1] "%(count)d itens"
 #: journal/views/collection.py:40 journal/views/collection.py:70
 #, python-brace-format
 msgid "Collection by {0}"
-msgstr "Coleção por {0}"
+msgstr "Coleção de {0}"
 
 #: journal/views/collection.py:209
 msgid "shared my collection"
@@ -3842,12 +3844,12 @@ msgstr "compartilhou minha coleção"
 #: journal/views/collection.py:212
 #, python-brace-format
 msgid "shared {username}'s collection"
-msgstr "coleção de {username} compartilhada"
+msgstr "compartilhou a coleção de {username}"
 
 #: journal/views/collection.py:299 journal/views/collection.py:334
 #: journal/views/collection.py:346 journal/views/collection.py:374
 msgid "Dynamic collection is not editable"
-msgstr "A coleção dinâmica não é editável"
+msgstr "Coleção dinâmica não é editável"
 
 #: journal/views/collection.py:311
 msgid "The item is already in the collection."
@@ -3865,18 +3867,17 @@ msgstr "Salvo."
 #: journal/views/collection.py:445 journal/views/collection.py:466
 #: journal/views/review.py:127
 msgid "Login required"
-msgstr "Login necessário"
+msgstr "Login obrigatório"
 
 #: journal/views/common.py:42 journal/views/mark.py:122
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
-"Os dados salvos, mas não conseguiram post cruzados para a instância do "
-"Fediverse."
+"Dados salvos, mas não foi possível publicar de forma cruzada na instância do "
+"Fediverso."
 
 #: journal/views/common.py:44
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
-msgstr ""
-"Redirecionando agora para a sua instância do Fediverso para reautenticar."
+msgstr "Redirecionando para sua instância do Fediverso agora para reautenticar."
 
 #: journal/views/common.py:51
 msgid "List not found."
@@ -3884,7 +3885,7 @@ msgstr "Lista não encontrada."
 
 #: journal/views/mark.py:113
 msgid "Content too long for your Fediverse instance."
-msgstr "Conteúdo muito longo para sua instância Fediverso."
+msgstr "Conteúdo muito longo para sua instância do Fediverso."
 
 #: journal/views/mark.py:167 journal/views/note.py:98
 #: journal/views/review.py:31
@@ -3913,7 +3914,7 @@ msgstr "Dados de formulário inválidos"
 
 #: journal/views/post.py:40
 msgid "Post not found"
-msgstr "Postagem não encontrada"
+msgstr "Publicação não encontrada"
 
 #: journal/views/review.py:115 journal/views/review.py:129
 #, python-brace-format
@@ -3931,7 +3932,7 @@ msgstr "{review_title} - uma análise de {item_title}"
 
 #: journal/views/review.py:142
 msgid "may contain spoiler or triggering content"
-msgstr "pode conter conteúdo de spoiler ou sensível"
+msgstr "pode conter spoilers ou conteúdo sensível"
 
 #: journal/views/tag.py:41 journal/views/tag.py:55
 msgid "Invalid tag"
@@ -3955,7 +3956,7 @@ msgstr "Etiqueta atualizada."
 
 #: journal/views/wrapped.py:146
 msgid "Summary posted to timeline."
-msgstr "Resumo postado na linha do tempo."
+msgstr "Resumo publicado na linha do tempo."
 
 #: mastodon/models/common.py:12 users/templates/users/account.html:45
 #: users/templates/users/login.html:59
@@ -3982,9 +3983,9 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"Se você não pretendia se registrar ou fazer login, ignore este e-mail. Se "
-"você estiver preocupado com a segurança da sua conta, altere o e-mail "
-"vinculado à sua conta ou entre em contato conosco."
+"Se você não pretendia se cadastrar ou entrar, ignore este e-mail. Se estiver "
+"preocupado com a segurança da sua conta, altere o e-mail vinculado à sua "
+"conta ou entre em contato conosco."
 
 #: mastodon/models/email.py:64 mastodon/models/email.py:69
 msgid "Verification Code"
@@ -3997,7 +3998,7 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Use este código para verificar seu endereço de e-mail {email}\n"
+"Use este código para verificar seu endereço de e-mail {email} \n"
 "\n"
 "{code}"
 
@@ -4008,14 +4009,14 @@ msgid ""
 "\n"
 "{code}"
 msgstr ""
-"Use este código para fazer login com {email}\n"
+"Use este código para entrar como {email} \n"
 "\n"
 "{code}"
 
 #: mastodon/models/email.py:74 users/templates/users/login.html:17
 #: users/templates/users/register.html:9 users/templates/users/welcome.html:9
 msgid "Register"
-msgstr "Registro"
+msgstr "Cadastrar"
 
 #: mastodon/models/email.py:76
 #, python-brace-format
@@ -4026,13 +4027,13 @@ msgid ""
 "\n"
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
-"Ainda não há conta registrada com este endereço de e-mail: {email}\n"
+"Ainda não há nenhuma conta registrada com este endereço de e-mail: {email} \n"
 "\n"
-"Se você já possui uma conta conosco, basta fazer o login e adicionar este e-"
-"mail à sua conta.\n"
+"Se você já possui uma conta conosco, basta entrar e adicionar este e-mail à "
+"sua conta. \n"
 "\n"
-"Se você preferir registrar uma nova conta com este e-mail, use este código "
-"de verificação: {code}"
+"Se preferir registrar uma nova conta com este e-mail, use este código de "
+"verificação: {code}"
 
 #: mastodon/models/mastodon.py:520
 msgid "site domain name"
@@ -4068,7 +4069,7 @@ msgstr "0: lua unicode; 1: emoji personalizado"
 
 #: mastodon/models/mastodon.py:531
 msgid "max toot len"
-msgstr "Tamanho máximo da postagem"
+msgstr "comprimento máximo do toot"
 
 #: mastodon/models/mastodon.py:643
 msgid "Boost"
@@ -4076,7 +4077,7 @@ msgstr "Impulsionar"
 
 #: mastodon/models/mastodon.py:644
 msgid "New Post"
-msgstr "Nova Postagem"
+msgstr "Nova Publicação"
 
 #: mastodon/views/bluesky.py:19 mastodon/views/bluesky.py:25
 #: mastodon/views/common.py:30 mastodon/views/mastodon.py:37
@@ -4088,7 +4089,7 @@ msgstr "Falha na autenticação"
 
 #: mastodon/views/bluesky.py:20
 msgid "Username and app password is required."
-msgstr "O nome de usuário e a senha do aplicativo são necessários."
+msgstr "Nome de usuário e senha do aplicativo são obrigatórios."
 
 #: mastodon/views/bluesky.py:25
 msgid "Invalid account data from Bluesky."
@@ -4100,16 +4101,16 @@ msgstr "Usuário inválido."
 
 #: mastodon/views/common.py:46
 msgid "Registration failed"
-msgstr "Falha no registro"
+msgstr "Falha no cadastro"
 
 #: mastodon/views/common.py:46
 msgid "User already logged in."
-msgstr "Usuário já logado."
+msgstr "Usuário já está conectado."
 
 #: mastodon/views/common.py:58
 #, python-brace-format
 msgid "Continue login as {handle}."
-msgstr "Continuar o login com {handle}."
+msgstr "Continuar login como {handle}."
 
 #: mastodon/views/common.py:64
 msgid "Unable to update login information"
@@ -4118,17 +4119,17 @@ msgstr "Não foi possível atualizar as informações de login"
 #: mastodon/views/common.py:65
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "Identidade {handle} em uso por um usuário diferente."
+msgstr "A identidade {handle} está em uso por outro usuário."
 
 #: mastodon/views/common.py:81
 #, python-brace-format
 msgid "Login information updated as {handle}."
-msgstr "Informações de login atualizadas com {handle}."
+msgstr "Informações de login atualizadas como {handle}."
 
 #: mastodon/views/common.py:91 mastodon/views/common.py:95
 #: mastodon/views/common.py:101
 msgid "Disconnect identity failed"
-msgstr "Falha na desconexão da identidade"
+msgstr "Falha ao desconectar a identidade"
 
 #: mastodon/views/common.py:91
 msgid "Identity not found."
@@ -4141,11 +4142,11 @@ msgstr "Você não pode desconectar a última identidade de login."
 #: mastodon/views/common.py:108
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
-msgstr "As informações de login sobre {handle} foram removidas."
+msgstr "As informações de login de {handle} foram removidas."
 
 #: mastodon/views/email.py:31
 msgid "Invalid email address"
-msgstr "Endereço de e -mail inválido"
+msgstr "Endereço de e-mail inválido"
 
 #: mastodon/views/email.py:37
 msgid "Verification"
@@ -4154,7 +4155,8 @@ msgstr "Verificação"
 #: mastodon/views/email.py:39 users/templates/users/verify.html:20
 msgid "Verification email is being sent, please check your inbox."
 msgstr ""
-"O e-mail de verificação está sendo enviado, verifique sua caixa de entrada."
+"O e-mail de verificação está sendo enviado. Por favor, verifique sua caixa "
+"de entrada."
 
 #: mastodon/views/email.py:57 mastodon/views/email.py:66
 msgid "Invalid verification code"
@@ -4162,7 +4164,7 @@ msgstr "Código de verificação inválido"
 
 #: mastodon/views/mastodon.py:17
 msgid "Missing instance domain"
-msgstr "Domínio da instância ausente"
+msgstr "Domínio de instância ausente"
 
 #: mastodon/views/mastodon.py:26
 msgid "Error connecting to instance"
@@ -4170,11 +4172,11 @@ msgstr "Erro ao conectar à instância"
 
 #: mastodon/views/mastodon.py:38
 msgid "Invalid response from Fediverse instance."
-msgstr "Resposta inválida da instância do Fediverse."
+msgstr "Resposta inválida da instância do Fediverso."
 
 #: mastodon/views/mastodon.py:45
 msgid "Invalid cookie data."
-msgstr "Dados de cookies inválidos."
+msgstr "Dados de cookie inválidos."
 
 #: mastodon/views/mastodon.py:50
 msgid "Invalid instance domain"
@@ -4182,11 +4184,11 @@ msgstr "Domínio de instância inválido"
 
 #: mastodon/views/mastodon.py:55
 msgid "Invalid token from Fediverse instance."
-msgstr "Token inválido da instância Fediverso."
+msgstr "Token inválido da instância do Fediverso."
 
 #: mastodon/views/mastodon.py:62
 msgid "Invalid account data from Fediverse instance."
-msgstr "Dados de conta inválidos da instância do Fediverse."
+msgstr "Dados de conta inválidos da instância do Fediverso."
 
 #: mastodon/views/threads.py:47
 msgid "Invalid account data from Threads."
@@ -4194,7 +4196,7 @@ msgstr "Dados de conta inválidos do Threads."
 
 #: social/templates/event/boosted.html:3
 msgid "boosted your post"
-msgstr "impulsionou sua postagem"
+msgstr "impulsionou sua publicação"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -4212,8 +4214,7 @@ msgid ""
 "boosted your comment on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"impulsionou seu comentário sobre <a href=\"%(item_url)s\">%(item_title)s</a>"
-"\n"
+"impulsionou seu comentário em <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 
 #: social/templates/event/boosted_note.html:3
 #, python-format
