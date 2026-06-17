@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-06-16 22:01+0000\n"
+"PO-Revision-Date: 2026-06-17 23:01+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -68,7 +68,7 @@ msgstr "Encadernado"
 
 #: catalog/book/models.py:116
 msgid "Hardcover"
-msgstr "Capa dura"
+msgstr "Capa Dura"
 
 #: catalog/book/models.py:117
 msgid "eBook"
@@ -114,7 +114,7 @@ msgstr "formato do livro"
 
 #: catalog/book/models.py:200 catalog/templates/edition.html:32
 msgid "publishing house"
-msgstr "editora"
+msgstr "casa editorial"
 
 #: catalog/book/models.py:203
 msgid "publication year"
@@ -126,7 +126,7 @@ msgstr "mês de publicação"
 
 #: catalog/book/models.py:214 catalog/templates/edition.html:54
 msgid "binding"
-msgstr "ligação"
+msgstr "encadernação"
 
 #: catalog/book/models.py:215
 msgid "pages"
@@ -138,7 +138,7 @@ msgstr "séries"
 
 #: catalog/book/models.py:217
 msgid "contents"
-msgstr "conteúdos"
+msgstr "conteúdo"
 
 #: catalog/book/models.py:218 catalog/templates/edition.html:59
 msgid "price"
@@ -146,7 +146,7 @@ msgstr "preço"
 
 #: catalog/book/models.py:219 catalog/templates/edition.html:37
 msgid "imprint"
-msgstr "selo"
+msgstr "selo editorial"
 
 #: catalog/common/models.py:36
 msgid "Unknown"
@@ -240,8 +240,9 @@ msgid "Ypshuo"
 msgstr "Ypshuo"
 
 #: catalog/common/models.py:58 catalog/common/models.py:111
+#, fuzzy
 msgid "Archive of Our Own"
-msgstr "Arquivo Nosso Próprio"
+msgstr "Archive of Our Own"
 
 #: catalog/common/models.py:59 catalog/common/models.py:112
 msgid "JinJiang"
@@ -281,11 +282,11 @@ msgstr "GTIN UPC EAN"
 
 #: catalog/common/models.py:71
 msgid "RSS Feed URL"
-msgstr "Url do Feed RSS"
+msgstr "URL do Feed RSS"
 
 #: catalog/common/models.py:73
 msgid "TMDB TV Serie"
-msgstr "Série do TMDB"
+msgstr "Série de TV TMDB"
 
 #: catalog/common/models.py:74
 msgid "TMDB TV Season"
@@ -301,7 +302,7 @@ msgstr "Filme TMDB"
 
 #: catalog/common/models.py:78
 msgid "Goodreads Work"
-msgstr "Obra do Goodreads"
+msgstr "Obra Goodreads"
 
 #: catalog/common/models.py:80
 msgid "Douban Book"
@@ -309,7 +310,7 @@ msgstr "Livro do Douban"
 
 #: catalog/common/models.py:81
 msgid "Douban Book Work"
-msgstr "Obra do Livro do Douban"
+msgstr "Obra Literária Douban"
 
 #: catalog/common/models.py:82
 msgid "Douban Movie"
@@ -329,23 +330,23 @@ msgstr "Drama Douban"
 
 #: catalog/common/models.py:86
 msgid "Douban Drama Version"
-msgstr "Versão do Drama da Douban"
+msgstr "Versão de Drama Douban"
 
 #: catalog/common/models.py:87
 msgid "BooksTW Book"
-msgstr "Livro do BooksTW"
+msgstr "Livro BooksTW"
 
 #: catalog/common/models.py:92
 msgid "Spotify Album"
-msgstr "Álbum do Spotify"
+msgstr "Álbum Spotify"
 
 #: catalog/common/models.py:93
 msgid "Spotify Podcast"
-msgstr "Podcast do Spotify"
+msgstr "Podcast Spotify"
 
 #: catalog/common/models.py:94
 msgid "Discogs Release"
-msgstr "Lançamento do Discogs"
+msgstr "Lançamento Discogs"
 
 #: catalog/common/models.py:95
 msgid "Discogs Master"
@@ -357,11 +358,11 @@ msgstr "MusicBrainz ID"
 
 #: catalog/common/models.py:102
 msgid "IGDB Game"
-msgstr "Jogo do IGDB"
+msgstr "Jogo IGDB"
 
 #: catalog/common/models.py:103
 msgid "BGG Boardgame"
-msgstr "Jogo de tabuleiro do BGG"
+msgstr "Jogo de Tabuleiro BGG"
 
 #: catalog/common/models.py:104
 msgid "Steam Game"
@@ -373,7 +374,7 @@ msgstr "Edição"
 
 #: catalog/common/models.py:129
 msgid "TV Serie"
-msgstr "Série"
+msgstr "Série de TV"
 
 #: catalog/common/models.py:130 catalog/templates/_sidebar_edit.html:140
 msgid "TV Season"
@@ -401,7 +402,7 @@ msgstr "Jogo"
 
 #: catalog/common/models.py:135
 msgid "Podcast Program"
-msgstr "Programa do Podcast"
+msgstr "Programa de Podcast"
 
 #: catalog/common/models.py:136
 msgid "Podcast Episode"
@@ -476,7 +477,7 @@ msgstr "Tipo de ID Primário"
 
 #: catalog/common/models.py:375 catalog/forms.py:32
 msgid "Primary ID Value"
-msgstr "Valor de ID Primário"
+msgstr "Valor do ID Primário"
 
 #: catalog/common/models.py:381
 msgid "metadata"
@@ -488,27 +489,27 @@ msgstr "capa"
 
 #: catalog/common/models.py:859
 msgid "source site"
-msgstr "site fonte"
+msgstr "site de origem"
 
 #: catalog/common/models.py:861
 msgid "ID on source site"
-msgstr "ID no site fonte"
+msgstr "ID no site de origem"
 
 #: catalog/common/models.py:863
 msgid "source url"
-msgstr "url da fonte"
+msgstr "URL de origem"
 
 #: catalog/common/models.py:879
 msgid "IdType of the source site"
-msgstr "IdType do site fonte"
+msgstr "Tipo de ID do site de origem"
 
 #: catalog/common/models.py:885
 msgid "Primary Id on the source site"
-msgstr "Id primário do site fonte"
+msgstr "ID primário no site de origem"
 
 #: catalog/common/models.py:888
 msgid "url to the resource"
-msgstr "url para pesquisa"
+msgstr "URL do recurso"
 
 #: catalog/game/models.py:20
 msgid "Main Game"
@@ -520,7 +521,7 @@ msgstr "Expansão"
 
 #: catalog/game/models.py:22
 msgid "Downloadable Content"
-msgstr "Conteúdo Disponível para Download"
+msgstr "Conteúdo para Download"
 
 #: catalog/game/models.py:23
 msgid "Mod"
@@ -544,7 +545,7 @@ msgstr "Edição Especial"
 
 #: catalog/game/models.py:69
 msgid "designer"
-msgstr "desenhista"
+msgstr "designer"
 
 #: catalog/game/models.py:77 catalog/music/models.py:61
 msgid "artist"
@@ -606,7 +607,7 @@ msgstr "diretor"
 #: catalog/performance/models.py:289 catalog/tv/models.py:144
 #: catalog/tv/models.py:310
 msgid "playwright"
-msgstr "escritor"
+msgstr "dramaturgo"
 
 #: catalog/movie/models.py:76 catalog/performance/models.py:156
 #: catalog/performance/models.py:317 catalog/tv/models.py:151
@@ -620,7 +621,7 @@ msgstr "ator"
 #: catalog/templates/movie.html:40 catalog/templates/tvseason.html:57
 #: catalog/templates/tvshow.html:52
 msgid "release date"
-msgstr "dia de lançamento"
+msgstr "data de lançamento"
 
 #: catalog/movie/models.py:102 catalog/tv/models.py:343
 #: journal/templates/_sidebar_user_mark_list.html:62
@@ -712,7 +713,7 @@ msgstr "coreógrafo"
 
 #: catalog/performance/models.py:163 catalog/performance/models.py:324
 msgid "performer"
-msgstr "intérprete"
+msgstr "artista"
 
 #: catalog/performance/models.py:170 catalog/performance/models.py:331
 msgid "troupe"
@@ -738,21 +739,22 @@ msgstr "data de encerramento"
 
 #: catalog/podcast/models.py:68
 msgid "host"
-msgstr "apresentador(es)"
+msgstr "host"
 
 #: catalog/search/views.py:190
 msgid "Invalid URL"
-msgstr "Url inválida"
+msgstr "URL Inválida"
 
 #: catalog/search/views.py:193
 msgid "Unsupported URL"
-msgstr "Url não suportada"
+msgstr "URL Não Suportada"
 
 #: catalog/templates/_fetch_failed.html:4
 msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
 msgstr ""
-"Não foi possível buscar no link, verifique novamente. Alguns sites podem "
-"exigir login para determinados links, crie-os manualmente aqui."
+"Não foi possível buscar a partir do link. Por favor, verifique novamente. "
+"Alguns sites podem exigir login para determinados links; crie-os manualmente "
+"aqui."
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -776,7 +778,7 @@ msgstr "parte de"
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
 msgid "this season"
-msgstr "nesta temporada"
+msgstr "esta temporada"
 
 #: catalog/templates/_item_comments.html:25
 msgid "edit this item to fetch or add episode list here"
@@ -811,7 +813,7 @@ msgstr "adicionar um comentário"
 #: catalog/templates/_item_comments_by_episode.html:35
 #: catalog/templates/podcast_episode_data.html:22
 msgid "comment this episode"
-msgstr "comente este episódio"
+msgstr "comentar este episódio"
 
 #: catalog/templates/_item_notes.html:55 catalog/templates/_item_notes.html:66
 msgid "more notes from them"
@@ -819,7 +821,7 @@ msgstr "mais notas deles"
 
 #: catalog/templates/_item_notes.html:81
 msgid "take some note or quote"
-msgstr "tomar nota ou citar"
+msgstr "fazer uma anotação ou citação"
 
 #: catalog/templates/_item_reviews.html:50
 msgid "write a review"
@@ -831,7 +833,7 @@ msgstr "sem histórico."
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "sure to clear mark history?"
-msgstr "tem certeza que deseja limpar o histórico de marcações?"
+msgstr "Tem certeza de que deseja limpar o histórico de marcações?"
 
 #: catalog/templates/_item_user_mark_history.html:23
 msgid "clear mark history"
@@ -847,7 +849,7 @@ msgstr "meu comentário e etiquetas"
 
 #: catalog/templates/_item_user_pieces.html:67
 msgid "my notes"
-msgstr "minhas anotações"
+msgstr "minhas notas"
 
 #: catalog/templates/_item_user_pieces.html:118
 msgid "my review"
@@ -877,7 +879,7 @@ msgstr "voltar ao item"
 
 #: catalog/templates/_sidebar_edit.html:18
 msgid "Edit Options"
-msgstr "Opções de Edição"
+msgstr "Editar Opções"
 
 #: catalog/templates/_sidebar_edit.html:21
 #: catalog/templates/catalog_delete.html:24
@@ -893,7 +895,7 @@ msgstr "O item foi excluído."
 #: catalog/templates/catalog_merge.html:41
 #: catalog/templates/catalog_merge.html:69
 msgid "Item contains sub-items."
-msgstr "O item contém sub-itens."
+msgstr "O item contém subitens."
 
 #: catalog/templates/_sidebar_edit.html:31
 #: catalog/templates/catalog_delete.html:34
@@ -907,11 +909,11 @@ msgstr "O item foi mesclado com outro item."
 #: catalog/templates/catalog_merge.html:51
 #: catalog/templates/catalog_merge.html:79
 msgid "Item has been marked by users."
-msgstr "O item foi marcado pelos usuários."
+msgstr "O item foi marcado por usuários."
 
 #: catalog/templates/_sidebar_edit.html:41
 msgid "The following items are merged into this item"
-msgstr "Os seguintes itens foram mesclados neste item"
+msgstr "Os seguintes itens estão mesclados neste item"
 
 #: catalog/templates/_sidebar_edit.html:53
 msgid "External website"
@@ -919,7 +921,9 @@ msgstr "Site externo"
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "Existing metadata might get overwritten, sure to proceed?"
-msgstr "Metadados existentes podem ser sobrescritos, deseja prosseguir?"
+msgstr ""
+"Os metadados existentes podem ser substituídos. Tem certeza de que deseja "
+"continuar?"
 
 #: catalog/templates/_sidebar_edit.html:62
 msgid "Fetch again"
@@ -927,7 +931,9 @@ msgstr "Buscar novamente"
 
 #: catalog/templates/_sidebar_edit.html:67
 msgid "You may not be able to undo this operation, sure to remove?"
-msgstr "Você não poderá desfazer esta operação, tem certeza que deseja remover?"
+msgstr ""
+"Você pode não conseguir desfazer esta operação. Tem certeza de que deseja "
+"remover?"
 
 #: catalog/templates/_sidebar_edit.html:72
 msgid "Remove link to site"
@@ -935,7 +941,7 @@ msgstr "Remover link para o site"
 
 #: catalog/templates/_sidebar_edit.html:81
 msgid "Edit sub-items"
-msgstr "Editar sub-itens"
+msgstr "Editar subitens"
 
 #: catalog/templates/_sidebar_edit.html:94
 msgid "create"
@@ -952,28 +958,28 @@ msgstr "Buscar tudo"
 #: catalog/templates/_sidebar_edit.html:106
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
 msgstr ""
-"Devido a diferenças na forma como Douban, IMDB e TMDB gerenciam os dados de "
-"temporada, um pequeno número de séries de TV e animações pode não apresentar "
-"resultados corretos. Por favor, verifique e ajuste manualmente após a "
+"Devido às diferenças na forma como Douban, IMDB e TMDB lidam com dados de "
+"temporada, um pequeno número de séries de TV e animações pode não retornar "
+"resultados corretos. Por favor, verifique e limpe manualmente após a "
 "atualização."
 
 #: catalog/templates/_sidebar_edit.html:109
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr ""
-"Para buscar todos os episódios, são necessários os números das temporadas e "
-"as informações do IMDB. Se preencher isso for inconveniente, você também "
-"pode criar subentradas manualmente."
+"Para buscar todos os episódios, os números de temporada e as informações do "
+"IMDB são obrigatórios. Se for inconveniente preencher isso, você também pode "
+"criar subentradas manualmente."
 
 #: catalog/templates/_sidebar_edit.html:115
 #: catalog/templates/_sidebar_edit.html:127
 #: catalog/templates/_sidebar_edit.html:146
 msgid "switch category"
-msgstr "mudar categoria"
+msgstr "alternar categoria"
 
 #: catalog/templates/_sidebar_edit.html:118
 msgid "Switching may remove some metadata. Sure to proceed?"
 msgstr ""
-"A troca pode remover alguns metadados. Tem certeza que deseja prosseguir?"
+"Alternar pode remover alguns metadados. Tem certeza de que deseja continuar?"
 
 #: catalog/templates/_sidebar_edit.html:121
 msgid "TV Show"
@@ -981,11 +987,11 @@ msgstr "Séries"
 
 #: catalog/templates/_sidebar_edit.html:160
 msgid "Link to parent item"
-msgstr "Link para o item pai"
+msgstr "Vincular ao item pai"
 
 #: catalog/templates/_sidebar_edit.html:163
 msgid "Sure to link?"
-msgstr "Confirmar o link?"
+msgstr "Tem certeza de que deseja vincular?"
 
 #: catalog/templates/_sidebar_edit.html:170
 msgid "Update link"
@@ -998,7 +1004,7 @@ msgstr "Limpar temporadas"
 #: catalog/templates/_sidebar_edit.html:179
 #: catalog/templates/catalog_delete.html:45
 msgid "This operation cannot be undone. Sure to delete?"
-msgstr "Esta operação é irreversível. Tem certeza que deseja excluir?"
+msgstr "Esta operação não pode ser desfeita. Tem certeza de que deseja excluir?"
 
 #: catalog/templates/_sidebar_edit.html:183
 msgid "remove seasons not marked"
@@ -1011,12 +1017,12 @@ msgstr "Mesclar"
 
 #: catalog/templates/_sidebar_edit.html:195
 msgid "URL of target item, or empty if undo merge"
-msgstr "URL do item de destino, ou vazio, se a mesclagem for desfeita"
+msgstr "URL do item de destino, ou vazio para desfazer mesclagem"
 
 #: catalog/templates/_sidebar_edit.html:201
 #: catalog/templates/_sidebar_edit.html:262
 msgid "merge to another item"
-msgstr "mesclar a outro item"
+msgstr "mesclar com outro item"
 
 #: catalog/templates/_sidebar_edit.html:206
 #: catalog/templates/_sidebar_edit.html:210
@@ -1029,27 +1035,27 @@ msgstr "Excluir"
 
 #: catalog/templates/_sidebar_edit.html:219
 msgid "Work"
-msgstr "Trabalho"
+msgstr "Obra"
 
 #: catalog/templates/_sidebar_edit.html:220
 msgid "This edition belongs to the following work"
-msgstr "Esta edição pertence ao seguinte trabalho"
+msgstr "Esta edição pertence à seguinte obra"
 
 #: catalog/templates/_sidebar_edit.html:225
 msgid "Sure to unlink?"
-msgstr "Tem certeza que deseja desvincular?"
+msgstr "Tem certeza de que deseja desvincular?"
 
 #: catalog/templates/_sidebar_edit.html:231
 msgid "Unlink from work"
-msgstr "Desvincular do trabalho"
+msgstr "Desvincular da obra"
 
 #: catalog/templates/_sidebar_edit.html:237
 msgid "Link"
-msgstr "Link"
+msgstr "Vincular"
 
 #: catalog/templates/_sidebar_edit.html:248
 msgid "Link to another edition from same work"
-msgstr "Link para outra edição do mesmo trabalho"
+msgstr "Vincular a outra edição da mesma obra"
 
 #: catalog/templates/_sidebar_edit.html:256
 msgid "Suggest Edits"
@@ -1061,7 +1067,7 @@ msgstr "ação proposta"
 
 #: catalog/templates/_sidebar_edit.html:263
 msgid "link to another item"
-msgstr "link para outro item"
+msgstr "vincular a outro item"
 
 #: catalog/templates/_sidebar_edit.html:264
 msgid "change item category"
@@ -1081,9 +1087,7 @@ msgstr "outro"
 
 #: catalog/templates/_sidebar_edit.html:271
 msgid "To suggest merging or association, please include the URL of the target item"
-msgstr ""
-"Para propor uma fusão ou associação, por favor, inclua o URL do item em "
-"questão"
+msgstr "Para sugerir mesclagem ou associação, inclua a URL do item de destino"
 
 #: catalog/templates/_sidebar_edit.html:272
 msgid "submit"
@@ -1092,14 +1096,14 @@ msgstr "enviar"
 #: catalog/templates/_sidebar_edit.html:273
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr ""
-"Como usuário desta comunidade, você pode editar alguns metadados de itens "
-"neste site. Caso tenha dúvidas sobre a adequação de suas edições ou não "
-"consiga realizar uma alteração específica, você pode deixar suas sugestões "
-"aqui. Os moderadores analisarão cada sugestão, ainda que não haja garantia "
-"de que serão sempre plenamente adotadas; as sugestões também podem ser "
-"visualizadas ou discutidas por outros usuários da comunidade. Se você tiver "
-"sugestões que não estejam relacionadas a um item específico, por favor, "
-"entre em contato conosco. Agradecemos pelo seu apoio e contribuição."
+"Como usuário desta comunidade, você pode editar alguns metadados dos itens "
+"neste site. Se não tiver certeza se suas edições são adequadas ou não "
+"conseguir realizar determinada alteração, você pode fazer sugestões aqui. Os "
+"moderadores analisarão cada sugestão, embora não haja garantia de que serão "
+"sempre adotadas integralmente; as sugestões também podem ser visualizadas ou "
+"discutidas por outros usuários da comunidade. Se tiver sugestões não "
+"relacionadas a um item específico, entre em contato conosco. Obrigado pelo "
+"seu apoio e contribuição."
 
 #: catalog/templates/_sidebar_search.html:5
 #: journal/templates/_sidebar_search_journal.html:4
@@ -1109,7 +1113,7 @@ msgstr "Filtros de pesquisa"
 #: catalog/templates/_sidebar_search.html:7
 #: journal/templates/_sidebar_search_journal.html:18
 msgid "filter by one of these categories"
-msgstr "filtrar por uma dessas categorias"
+msgstr "filtrar por uma destas categorias"
 
 #: catalog/templates/_sidebar_search.html:10
 msgid "filter by public tag"
@@ -1161,7 +1165,7 @@ msgstr "Adicionar filmes"
 
 #: catalog/templates/_sidebar_search.html:53
 msgid "Add tv series"
-msgstr "Adicionar séries de tv"
+msgstr "Adicionar séries de TV"
 
 #: catalog/templates/_sidebar_search.html:56
 msgid "Add podcasts"
@@ -1173,11 +1177,11 @@ msgstr "Adicionar álbuns"
 
 #: catalog/templates/_sidebar_search.html:62
 msgid "Add games"
-msgstr "Adicionar games"
+msgstr "Adicionar jogos"
 
 #: catalog/templates/_sidebar_search.html:65
 msgid "Add performance or theater pieces"
-msgstr "Adicionar performances ou peças de teatro"
+msgstr "Adicionar apresentações ou peças de teatro"
 
 #: catalog/templates/album.html:22
 msgid "duration"
@@ -1189,11 +1193,11 @@ msgstr "código de barras"
 
 #: catalog/templates/album.html:38
 msgid "album media"
-msgstr "mídia do álbum"
+msgstr "mídia de álbum"
 
 #: catalog/templates/catalog_delete.html:19
 msgid "Are you sure to delete?"
-msgstr "Tem certeza que deseja excluir?"
+msgstr "Tem certeza de que deseja excluir?"
 
 #: catalog/templates/catalog_delete.html:48
 #: catalog/templates/catalog_merge.html:92
@@ -1235,11 +1239,11 @@ msgstr "Cancelar"
 
 #: catalog/templates/catalog_merge.html:22
 msgid "Are you sure to merge?"
-msgstr "Tem certeza que deseja mesclar?"
+msgstr "Tem certeza de que deseja mesclar?"
 
 #: catalog/templates/catalog_merge.html:24
 msgid "Are you sure to cancel merge?"
-msgstr "Você tem certeza que deseja cancelar a mesclagem?"
+msgstr "Tem certeza de que deseja cancelar a mesclagem?"
 
 #: catalog/templates/catalog_merge.html:27
 msgid "Are you sure to link?"
@@ -1247,7 +1251,7 @@ msgstr "Tem certeza de que deseja vincular?"
 
 #: catalog/templates/catalog_merge.html:86
 msgid "This operation cannot be undone. Sure to merge?"
-msgstr "Esta operação não pode ser desfeita. Tem certeza que deseja mesclar?"
+msgstr "Esta operação não pode ser desfeita. Tem certeza de que deseja mesclar?"
 
 #: catalog/templates/discover.html:19 users/templates/users/preferences.html:34
 msgid "Discover"
@@ -1285,7 +1289,7 @@ msgstr "Anúncios Não Lidos"
 
 #: catalog/templates/discover.html:154 common/templates/_sidebar.html:20
 msgid "mark all as read"
-msgstr "marcar tudo como lido"
+msgstr "marcar todos como lidos"
 
 #: catalog/templates/discover.html:163
 #: common/templates/_sidebar_anonymous.html:51
@@ -1310,7 +1314,7 @@ msgstr "nada até agora."
 
 #: catalog/templates/discover.html:179 common/templates/_sidebar.html:212
 msgid "Recent Posts"
-msgstr "Postagens Recentes"
+msgstr "Publicações Recentes"
 
 #: catalog/templates/edition.html:42
 msgid "publication date"
@@ -1326,13 +1330,13 @@ msgstr "outras edições"
 
 #: catalog/templates/edition.html:126
 msgid "Borrow or Buy"
-msgstr "Pegar Emprestado ou Comprar"
+msgstr "Emprestar ou Comprar"
 
 #: catalog/templates/external_search_results.html:10
 msgid "Some items were found from other websites and instances, click their title to save them locally."
 msgstr ""
 "Alguns itens foram encontrados em outros sites e instâncias; clique no "
-"respectivo título para salvá-los localmente."
+"título deles para salvá-los localmente."
 
 #: catalog/templates/fetch_pending.html:13
 msgid "Search results"
@@ -1341,12 +1345,12 @@ msgstr "Resultados da pesquisa"
 #: catalog/templates/fetch_pending.html:22
 #, python-format
 msgid "Fetching from %(site_label)s"
-msgstr "Buscando a partir de %(site_label)s"
+msgstr "Buscando de %(site_label)s"
 
 #: catalog/templates/fetch_pending.html:29
 #: users/templates/users/fetch_identity_pending.html:29
 msgid "System busy, please try again in a minute."
-msgstr "Sistema ocupado, tente novamente em um minuto."
+msgstr "Sistema ocupado. Por favor, tente novamente em um minuto."
 
 #: catalog/templates/game.html:23
 msgid "release year"
@@ -1354,7 +1358,7 @@ msgstr "ano de lançamento"
 
 #: catalog/templates/item_base.html:69
 msgid "select one of the seasons to comment"
-msgstr "selecionar uma das temporadas para comentar"
+msgstr "selecione uma das temporadas para comentar"
 
 #: catalog/templates/item_base.html:106
 msgid "mark, comment and collect"
@@ -1363,7 +1367,8 @@ msgstr "marcar, comentar e colecionar"
 #: catalog/templates/item_base.html:117
 msgid "Login or register to review or add this item to your collection."
 msgstr ""
-"Entre ou cadastre-se para analisar ou adicionar este item à sua coleção."
+"Entre ou cadastre-se para escrever uma análise ou adicionar este item à sua "
+"coleção."
 
 #: catalog/templates/item_base.html:125
 msgid "Related Collections"
@@ -1383,7 +1388,7 @@ msgstr "Última edição"
 
 #: catalog/templates/item_base.html:195
 msgid "No enough ratings"
-msgstr "Não há avaliações suficientes"
+msgstr "Avaliações insuficientes"
 
 #: catalog/templates/item_base.html:238
 msgid "overview"
@@ -1415,7 +1420,7 @@ msgstr "análises"
 
 #: catalog/templates/item_base.html:296
 msgid "notes"
-msgstr "anotações"
+msgstr "notas"
 
 #: catalog/templates/item_mark_list.html:13
 #: journal/templates/user_mark_list.html:4
@@ -1451,7 +1456,7 @@ msgstr "episódios recentes"
 
 #: catalog/templates/podcast.html:34
 msgid "subscribe in apps"
-msgstr "assinar nos aplicativos"
+msgstr "assinar em aplicativos"
 
 #: catalog/templates/podcast_episode_data.html:28
 msgid "original website"
@@ -1521,14 +1526,14 @@ msgstr "etiqueta"
 #: catalog/templates/search_results.html:34
 #: journal/templates/search_journal.html:26
 msgid "No items matching your search query."
-msgstr "Nenhum item correspondente à sua pesquisa."
+msgstr "Nenhum item corresponde à sua consulta de pesquisa."
 
 #: catalog/templates/search_results.html:35
 msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
 msgstr ""
-"Se você tiver uma URL de um desses sites, por favor, insira a URL completa ("
-"Por exemplo: <code>https://www.imdb.com/title/tt2513074/</code>) para a "
-"caixa de pesquisa e pressione Enter."
+"Se você tiver a URL de um desses sites, insira a URL completa (ex.: <code>"
+"https://www.imdb.com/title/tt2513074/</code>) na caixa de pesquisa e "
+"pressione Enter."
 
 #: catalog/templates/search_results.html:49
 msgid "Searching from other sites"
@@ -1536,7 +1541,7 @@ msgstr "Pesquisando em outros sites"
 
 #: catalog/templates/search_results.html:52
 msgid "Logged in user may see search results from other sites."
-msgstr "O usuário logado poderá ver resultados de busca de outros sites."
+msgstr "Usuários conectados podem ver resultados de pesquisa de outros sites."
 
 #: catalog/templates/tvseason.html:15 catalog/templates/tvshow.html:21
 msgid "all seasons"
@@ -1592,7 +1597,7 @@ msgstr "Item não encontrado"
 
 #: catalog/views.py:58 catalog/views.py:87
 msgid "Item no longer exists"
-msgstr "Item não existe mais"
+msgstr "O item não existe mais"
 
 #: catalog/views_edit.py:125
 msgid "Item in use."
@@ -1600,7 +1605,7 @@ msgstr "Item em uso."
 
 #: catalog/views_edit.py:127
 msgid "Item cannot be deleted."
-msgstr "Item não pode ser excluído."
+msgstr "O item não pode ser excluído."
 
 #: catalog/views_edit.py:150 catalog/views_edit.py:202
 #: catalog/views_edit.py:278 catalog/views_edit.py:359
@@ -1626,7 +1631,7 @@ msgstr "Parâmetro inválido"
 
 #: catalog/views_edit.py:254
 msgid "TV Season with IMDB id and season number required."
-msgstr "Temporada de TV com ID IMDB e número da temporada necessários."
+msgstr "Temporada de TV com ID IMDB e número de temporada obrigatórios."
 
 #: catalog/views_edit.py:259
 msgid "Updating episodes"
@@ -1634,19 +1639,19 @@ msgstr "Atualizando episódios"
 
 #: catalog/views_edit.py:289
 msgid "Cannot be merged to an item already deleted or merged"
-msgstr "Não pode ser mesclado com um item já excluído ou mesclado"
+msgstr "Não é possível mesclar com um item já excluído ou mesclado"
 
 #: catalog/views_edit.py:292
 msgid "Cannot merge items in different categories"
-msgstr "Não é possível mesclar itens em categorias diferentes"
+msgstr "Não é possível mesclar itens de categorias diferentes"
 
 #: catalog/views_edit.py:296
 msgid "Cannot merge an item to itself"
-msgstr "Não é possível mesclar um item consigo mesmo"
+msgstr "Não é possível mesclar um item com ele mesmo"
 
 #: catalog/views_edit.py:333
 msgid "Cannot be linked to an item already deleted or merged"
-msgstr "Não pode ser vinculado a um item já excluído ou mesclado"
+msgstr "Não é possível vincular a um item já excluído ou mesclado"
 
 #: catalog/views_edit.py:335
 msgid "Cannot link items other than editions"
@@ -2426,14 +2431,14 @@ msgstr ""
 #: common/templates/404.html:24
 msgid "If you believe this is our mistake, please contact us through the link at the bottom of the page."
 msgstr ""
-"Se você acredita que isso seja um erro nosso, por favor, entre em contato "
-"conosco pelo link no rodapé da página."
+"Se você acredita que isso é um erro nosso, entre em contato conosco pelo "
+"link no rodapé da página."
 
 #: common/templates/403.html:22
 msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
 msgstr ""
-"Pode ser que o autor exija que você faça login para acessar este conteúdo, "
-"ou você não tem permissão para visualizá-lo."
+"O autor pode exigir que você esteja conectado antes de acessar este "
+"conteúdo, ou você não tem permissão para visualizá-lo."
 
 #: common/templates/404.html:20
 msgid "Something is missing"
@@ -2442,24 +2447,24 @@ msgstr "Algo está faltando"
 #: common/templates/404.html:22
 msgid "You may have visited an incorrect URL, or the content you are looking for has been deleted by the author."
 msgstr ""
-"Você pode ter visitado uma URL incorreta ou o conteúdo que está procurando "
-"foi excluído pelo autor."
+"Você pode ter acessado uma URL incorreta, ou o conteúdo que você procura foi "
+"excluído pelo autor."
 
 #: common/templates/404.html:26
 msgid "Go to Home"
-msgstr "Ir para a Página Inicial"
+msgstr "Ir para o Início"
 
 #: common/templates/500.html:22
 msgid "An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human."
 msgstr ""
-"correu um erro interno. Se esse erro ocorrer repetidamente, ele será "
-"registrado e tratado por um humano."
+"Ocorreu um erro interno. Se este erro ocorrer repetidamente, será registrado "
+"e tratado por uma pessoa."
 
 #: common/templates/500.html:24
 msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
 msgstr ""
-"Em caso de urgência ou dúvidas, por favor, entre em contato conosco pelo "
-"link no rodapé da página."
+"Se você tiver uma situação urgente ou alguma dúvida, entre em contato "
+"conosco pelo link no rodapé da página."
 
 #: common/templates/_footer.html:6
 msgid "Rules"
@@ -2487,9 +2492,9 @@ msgstr "Código-Fonte"
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
-"Você está acessando um domínio alternativo para %(site_name)s, por favor, "
-"sempre use <a href=\"%(site_url)s%(request.get_full_path)s\">versão "
-"original</a> se possível."
+"Você está visitando um domínio alternativo do %(site_name)s. Por favor, use "
+"sempre a <a href=\"%(site_url)s%(request.get_full_path)s\">versão original</"
+"a> sempre que possível."
 
 #: common/templates/_header.html:17 common/templates/_header.html:133
 msgid "title, creator, ISBN, item url, @user, @user@instance"
@@ -2509,7 +2514,7 @@ msgstr "Diário"
 
 #: common/templates/_header.html:50
 msgid "Posts"
-msgstr "Postagens"
+msgstr "Publicações"
 
 #: common/templates/_header.html:72
 msgid "Explore"
@@ -2561,7 +2566,7 @@ msgstr "Cadastre-se ou Entre"
 #: common/templates/_header.html:131
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
-"título ou conteúdo  categoria:tv  estado:completo  avaliação:8..10  "
+"título ou conteúdo  categoria:tv  status:concluído  avaliação:8..10  "
 "data:2021-09-11..2022-02"
 
 #: common/templates/_header.html:145
@@ -2575,11 +2580,11 @@ msgstr "aprovando seguidores manualmente"
 
 #: common/templates/_sidebar.html:75
 msgid "Current Targets"
-msgstr "Metas Atuais"
+msgstr "Destinos Atuais"
 
 #: common/templates/_sidebar.html:88
 msgid "Set a collection as target, its progress will show up here."
-msgstr "Defina uma coleção como meta, e o progresso dela aparecerá aqui."
+msgstr "Defina uma coleção como destino; seu progresso aparecerá aqui."
 
 #: common/templates/_sidebar.html:101
 msgid "Recent podcast episodes"
@@ -2587,11 +2592,11 @@ msgstr "Episódios recentes de podcast"
 
 #: common/templates/_sidebar.html:136
 msgid "Currently reading"
-msgstr "Lendo no momento"
+msgstr "Lendo atualmente"
 
 #: common/templates/_sidebar.html:159
 msgid "Currently watching"
-msgstr "Assistindo agora"
+msgstr "Assistindo atualmente"
 
 #: common/templates/_sidebar.html:182 journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
@@ -2610,7 +2615,7 @@ msgstr "etiqueta pessoal"
 
 #: common/templates/_sidebar.html:198 journal/templates/user_tag_list.html:38
 msgid "no tags so far."
-msgstr "sem etiquetas até agora."
+msgstr "nenhuma etiqueta até agora."
 
 #: common/templates/_sidebar.html:202
 msgid "show all"
