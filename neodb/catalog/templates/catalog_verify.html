@@ -75,7 +75,7 @@
               <li>
                 <a href="{{ claim.owner.url }}">{{ claim.owner.display_name }}</a>
                 <small>@{{ claim.owner.full_handle }}</small>
-                {% if request.user.is_superuser and claim.owner != request.user.identity %}
+                {% if can_moderate and claim.owner != request.user.identity %}
                   <form method="post"
                         style="display:inline"
                         action="{% url 'catalog:unverify_creator' item.url_path item.uuid %}"
@@ -90,7 +90,7 @@
           </ul>
         </section>
       {% endif %}
-      {% if request.user.is_superuser %}
+      {% if can_moderate %}
         <details>
           <summary>{% trans 'Manually verify a creator' %}</summary>
           <form method="post"

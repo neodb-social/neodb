@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 from loguru import logger
 
+from common.utils import discord_send
 from common.validators import is_valid_url
 from journal.models.renderers import html_to_text
 from users.models import User
@@ -157,6 +158,15 @@ def _verify_claim(claim: VerifiedCreator, user: User, matched: str) -> None:
         # commit together
         item.log_action({"!creator_verified": ["", f"{verified.owner} ({matched})"]})
     logger.info(f"creator verification matched {matched} for {verified}")
+    # post the audit line only after the transaction commits, so a rolled-back
+    # verification never emits a (best-effort, non-transactional) Discord message
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\nverified creator: @{identity.full_handle} ({matched})\n"
+        f"by [@{user.username}]({user.absolute_url})",
+        thread_name=f"[verify] {item.display_title}",
+        username=f"@{user.username}",
+    )
 
 
 def verify_creator_task(claim_id: int, user_id: int) -> None:

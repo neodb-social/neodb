@@ -8,11 +8,12 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.utils import (
+    discord_send,
     get_uuid_or_404,
     target_identity_required,
     user_identity_required,
 )
-from users.models import APIdentity
+from users.models import APIdentity, User
 
 from ..jobs.creator_verify import enqueue_creator_verification
 from ..models import (
@@ -24,6 +25,13 @@ from ..models import (
 )
 
 VERIFY_COOLDOWN_SECONDS = 60
+
+
+def _can_moderate_verification(user: User) -> bool:
+    # staff handle routine creator moderation (consistent with is_editable_by
+    # and the rest of catalog moderation); superusers retain access too, since
+    # is_staff and is_superuser are independent flags in this codebase
+    return bool(user.is_staff or user.is_superuser)
 
 
 def _get_verifiable_item(item_uuid) -> Item:
@@ -63,6 +71,7 @@ def _verify_context(request, item: Item) -> dict:
         "verified_creators": item.verified_creator_list,
         "candidates": candidates,
         "example_url": example_url,
+        "can_moderate": _can_moderate_verification(request.user),
     }
 
 
@@ -143,7 +152,7 @@ def verify_creator_start(request, item_path, item_uuid):
 @login_required
 @user_identity_required
 def verify_creator_manual(request, item_path, item_uuid):
-    if not request.user.is_superuser:
+    if not _can_moderate_verification(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     item = _get_verifiable_item(item_uuid)
     handle = request.POST.get("handle", "").strip()
@@ -164,6 +173,13 @@ def verify_creator_manual(request, item_path, item_uuid):
     item.log_action(
         {"!creator_verified": ["", f"{identity} (manual by @{request.user.username})"]}
     )
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\nverified creator: @{identity.full_handle} (manual)\n"
+        f"by [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[verify] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
     messages.add_message(request, messages.INFO, _("Creator verified."))
     return redirect(_verify_page_url(item))
 
@@ -181,12 +197,19 @@ def unverify_creator(request, item_path, item_uuid):
         pk=claim_id,
         item=item,
     )
-    if not user_controls_owner(request.user, claim.owner) and (
-        not request.user.is_superuser
-    ):
+    if not user_controls_owner(
+        request.user, claim.owner
+    ) and not _can_moderate_verification(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     item.log_action({"!creator_unverified": ["", str(claim.owner)]})
     claim.delete()
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\nremoved creator: @{claim.owner.full_handle}\n"
+        f"by [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[unverify] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
     messages.add_message(request, messages.INFO, _("Creator verification removed."))
     return redirect(item.url)
 

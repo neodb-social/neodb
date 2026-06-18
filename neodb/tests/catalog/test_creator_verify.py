@@ -59,6 +59,14 @@ def _verified(item, identity, matched="@x@example.org") -> VerifiedCreator:
     )
 
 
+def _capture_discord(monkeypatch: pytest.MonkeyPatch, target: str) -> list:
+    """Replace the `discord_send` bound in `target`'s module with a stub that
+    records its calls, returning the list of (args, kwargs) tuples."""
+    calls: list = []
+    monkeypatch.setattr(target, lambda *a, **k: calls.append((a, k)) or True)
+    return calls
+
+
 def _restrict(identity, level=2) -> None:
     """Set the Takahe identity's moderation restriction (1=limited, 2=blocked)."""
     from takahe.models import Identity
@@ -271,6 +279,9 @@ class TestVerifyTask:
         return VerifiedCreator.objects.create(item=podcast, owner=user.identity)
 
     def test_verified_on_match(self, monkeypatch):
+        audits = _capture_discord(
+            monkeypatch, "catalog.jobs.creator_verify.discord_send"
+        )
         user = User.register(email="a@example.com", username="alice")
         podcast = _podcast()
         claim = self._claim(user, podcast)
@@ -289,6 +300,9 @@ class TestVerifyTask:
         claim.refresh_from_db()
         assert claim.state == VerifiedCreator.State.VERIFIED
         assert claim.matched == handle
+        # a successful self-service verification posts to the audit channel
+        assert len(audits) == 1
+        assert audits[0][0][0] == "audit"
 
     def test_failed_no_match(self, monkeypatch):
         user = User.register(email="a@example.com", username="alice")
@@ -491,42 +505,73 @@ class TestVerifyViews:
         ).exists()
         assert len(calls) == 1
 
-    def test_manual_verify_superuser_only(self):
+    def test_manual_verify_staff_only(self, monkeypatch):
+        audits = _capture_discord(monkeypatch, "catalog.views.verify.discord_send")
         user = User.register(email="a@example.com", username="alice")
-        admin = User.register(email="root@example.com", username="root")
+        staff = User.register(email="root@example.com", username="root")
         podcast = _podcast()
+        # a non-staff user cannot manually verify, and posts no audit
         response = _client(user).post(
             f"/podcast/{podcast.uuid}/verify/manual", {"handle": "@alice"}
         )
         assert response.status_code == 403
-        admin.is_superuser = True
-        admin.save(update_fields=["is_superuser"])
-        response = _client(admin).post(
+        assert audits == []
+        # staff (not superuser) can manually verify
+        staff.is_staff = True
+        staff.save(update_fields=["is_staff"])
+        response = _client(staff).post(
             f"/podcast/{podcast.uuid}/verify/manual", {"handle": "@alice"}
         )
         assert response.status_code == 302
         claim = VerifiedCreator.objects.get(item=podcast, owner=user.identity)
         assert claim.state == VerifiedCreator.State.VERIFIED
         assert claim.matched == "manual"
+        assert len(audits) == 1
+        assert audits[0][0][0] == "audit"
 
-    def test_unverify_permissions(self):
-        alice = User.register(email="a@example.com", username="alice")
-        bob = User.register(email="b@example.com", username="bob")
+    def test_manual_verify_superuser_still_allowed(self, monkeypatch):
+        # is_staff and is_superuser are independent flags here; broadening to
+        # staff must not drop access for a superuser who is not also staff
+        _capture_discord(monkeypatch, "catalog.views.verify.discord_send")
+        user = User.register(email="a@example.com", username="alice")
         admin = User.register(email="root@example.com", username="root")
         admin.is_superuser = True
         admin.save(update_fields=["is_superuser"])
+        assert not admin.is_staff
+        podcast = _podcast()
+        response = _client(admin).post(
+            f"/podcast/{podcast.uuid}/verify/manual", {"handle": "@alice"}
+        )
+        assert response.status_code == 302
+        claim = VerifiedCreator.objects.get(item=podcast, owner=user.identity)
+        assert claim.state == VerifiedCreator.State.VERIFIED
+
+    def test_unverify_permissions(self, monkeypatch):
+        audits = _capture_discord(monkeypatch, "catalog.views.verify.discord_send")
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        staff = User.register(email="root@example.com", username="root")
+        staff.is_staff = True
+        staff.save(update_fields=["is_staff"])
         podcast = _podcast()
         claim = _verified(podcast, alice.identity)
         url = f"/podcast/{podcast.uuid}/verify/remove"
+        # an unrelated non-staff user cannot remove, and posts no audit
         response = _client(bob).post(url, {"claim_id": claim.pk})
         assert response.status_code == 403
-        response = _client(admin).post(url, {"claim_id": claim.pk})
+        assert audits == []
+        # staff (not superuser) can remove anyone's claim
+        response = _client(staff).post(url, {"claim_id": claim.pk})
         assert response.status_code == 302
         assert not VerifiedCreator.objects.filter(pk=claim.pk).exists()
+        # the creator can still remove their own claim
         claim = _verified(podcast, alice.identity)
         response = _client(alice).post(url, {"claim_id": claim.pk})
         assert response.status_code == 302
         assert not VerifiedCreator.objects.filter(pk=claim.pk).exists()
+        # both successful removals posted to the audit channel
+        assert len(audits) == 2
+        assert all(c[0][0] == "audit" for c in audits)
 
     def test_unverify_invalid_claim_id(self):
         # a missing or non-numeric claim_id is a bad request, not a 500
