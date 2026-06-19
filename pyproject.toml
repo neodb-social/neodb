@@ -107,8 +107,8 @@ dev = [
 # Forked to make pyld's cachetools LRU caches thread-safe: the module-level
 # inverse/resolved-context caches (NEODB-SOCIAL-4P0, EGGPLANT-7K) and the
 # per-ResolvedContext processed cache (EGGPLANT-153). Tracks upstream master
-# @ a7d380ff + neodb-social/pyld@neodb-on-master-a7d380f.
-pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "e1de216d9fba39cf5f01223e862a010e05d33223" }
+# @ 1a8a169b (3.2.0-dev) + neodb-social/pyld@neodb-on-master-1a8a169.
+pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "52d0fe09559f58aed306579d4769873ba527cc0f" }
 
 [tool.ty.environment]
 root = ["./neodb"]
