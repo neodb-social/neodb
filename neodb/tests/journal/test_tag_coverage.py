@@ -55,7 +55,7 @@ class TestTagMemberTitle:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestTagAttachToItems:
+class TestIndexableTagsForItem:
     @pytest.fixture(autouse=True)
     def setup_data(self):
         self.user1 = User.register(email="ati1@test.com", username="atiuser1")
@@ -63,24 +63,18 @@ class TestTagAttachToItems:
         self.book1 = Edition.objects.create(title="ATI Book1")
         self.book2 = Edition.objects.create(title="ATI Book2")
 
-    def test_attach_tags_to_items(self):
+    def test_aggregates_public_tags_across_users(self):
         TagManager.tag_item_for_owner(
             self.user1.identity, self.book1, ["sci-fi", "space"]
         )
         TagManager.tag_item_for_owner(
             self.user2.identity, self.book1, ["sci-fi", "adventure"]
         )
-        items = [self.book1, self.book2]
-        Tag.attach_to_items(items)
-        # book1 should have tags, book2 should have empty list
-        assert hasattr(self.book1, "tags")
-        assert len(self.book1.tags) > 0
-        assert hasattr(self.book2, "tags")
-        assert self.book2.tags == []
-
-    def test_attach_tags_empty_items(self):
-        result = Tag.attach_to_items([])
-        assert result == []
+        tags = TagManager.indexable_tags_for_item(self.book1)
+        # Aggregated across both users, cleaned and de-duplicated.
+        assert "sci fi" in tags
+        assert len(tags) > 0
+        assert TagManager.indexable_tags_for_item(self.book2) == []
 
 
 @pytest.mark.django_db(databases="__all__")

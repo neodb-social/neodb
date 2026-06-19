@@ -184,7 +184,6 @@ class DiscoverGenerator(BaseJob):
                 break
         episodes = episodes[:max_items]
         for e in episodes:
-            e.tags
             e.rating
             e.rating_count
             e.rating_distribution
@@ -232,7 +231,6 @@ class DiscoverGenerator(BaseJob):
                 }
             )
             for i in items:
-                i.tags
                 i.rating
                 i.rating_count
                 i.rating_distribution

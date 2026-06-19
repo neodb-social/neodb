@@ -28,7 +28,7 @@ from journal.models import (
     Review,
     ShelfManager,
     ShelfMember,
-    Tag,
+    TagManager,
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
@@ -126,6 +126,9 @@ def retrieve(request, item_path, item_uuid):
         Item.credits_prefetch(),
     )
     Item.prefetch_parent_items([item])
+    # Public tags are shown on the item detail page; aggregate for this single
+    # item only (list pages no longer attach tags -- NEODB-SOCIAL-7KW).
+    item.tags = TagManager.indexable_tags_for_item(item)
     focus_item = None
     if request.GET.get("focus"):
         focus_item = get_object_or_404(
@@ -246,7 +249,6 @@ def people_works(request, item_path, item_uuid, role):
         )
         Item.prefetch_parent_items(works_items)
         Rating.attach_to_items(works_items)
-        Tag.attach_to_items(works_items)
     return render(
         request,
         "people_works.html",
@@ -722,7 +724,6 @@ def discover_original_podcasts(request):
             Item.credits_prefetch(),
         )
         Rating.attach_to_items(podcast_items)
-        Tag.attach_to_items(podcast_items)
         if request.user.is_authenticated:
             Mark.attach_to_items(request.user.identity, podcast_items, request.user)
     return render(

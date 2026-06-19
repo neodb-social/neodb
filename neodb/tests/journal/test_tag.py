@@ -1,6 +1,8 @@
 from unittest.mock import patch
 
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from catalog.models import Edition, ItemCategory, Movie
 from journal.models import Tag, TagManager
@@ -9,7 +11,10 @@ from users.models import User
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_attach_to_items_sets_public_tags():
+def test_indexable_tags_for_item_aggregates_public_tags():
+    """Public tags are aggregated across users, cleaned and de-duplicated;
+    private (visibility != 0) tags are excluded. This single-item primitive
+    feeds the search index and the item detail page/API."""
     owner = User.register(email="tagger@example.com", username="tagger")
     other = User.register(email="tagger2@example.com", username="tagger2")
     tagged = Edition.objects.create(title="Tagged Book")
@@ -22,10 +27,44 @@ def test_attach_to_items_sets_public_tags():
     dup.append_item(tagged)
     hidden.append_item(tagged)
 
-    Tag.attach_to_items([tagged, untagged])
+    # "Sci-Fi" and "sci fi" both clean to "sci fi"; "Hidden" is private.
+    assert TagManager.indexable_tags_for_item(tagged) == ["sci fi"]
+    assert TagManager.indexable_tags_for_item(untagged) == []
 
-    assert tagged.tags == ["sci fi"]
-    assert untagged.tags == []
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_tags_not_aggregated_on_read():
+    """Item.tags must not auto-aggregate on read (NEODB-SOCIAL-7KW): a freshly
+    loaded item exposes tags as None and touches no journal_tagmember row, so
+    list/feed surfaces that never attach tags cannot trigger the slow query."""
+    owner = User.register(email="noagg@example.com", username="noagg")
+    book = Edition.objects.create(title="No-Aggregation Book")
+    Tag.objects.create(owner=owner.identity, title="public", visibility=0).append_item(
+        book
+    )
+
+    fresh = Edition.objects.get(pk=book.pk)
+    with CaptureQueriesContext(connection) as ctx:
+        tags = fresh.tags
+    assert tags is None
+    assert [q for q in ctx.captured_queries if "journal_tagmember" in q["sql"]] == []
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_to_indexable_doc_includes_public_tags():
+    """The public-tag aggregation runs at index time so read paths can reuse the
+    indexed value; to_indexable_doc must carry the cleaned, public-only tags."""
+    owner = User.register(email="idxtag@example.com", username="idxtag")
+    book = Edition.objects.create(title="Indexed Tag Book")
+    Tag.objects.create(owner=owner.identity, title="Sci-Fi", visibility=0).append_item(
+        book
+    )
+    Tag.objects.create(owner=owner.identity, title="secret", visibility=1).append_item(
+        book
+    )
+
+    doc = Edition.objects.get(pk=book.pk).to_indexable_doc()
+    assert doc["tag"] == ["sci fi"]
 
 
 @pytest.mark.django_db(databases="__all__")

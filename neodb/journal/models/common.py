@@ -974,17 +974,17 @@ def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
         else:
             post.__dict__["item"] = None
     # Batch-prefetch item-card related data so feed templates (item card,
-    # rating, tags, credits, external resources) don't fire per-item queries
-    # while rendering feed_events.html. Mirrors the list-view prefetch in
-    # journal.views.common.
+    # rating, credits, external resources) don't fire per-item queries while
+    # rendering feed_events.html. Mirrors the list-view prefetch in
+    # journal.views.common. Public tags are not shown on feed cards, so they
+    # are intentionally not attached (NEODB-SOCIAL-7KW).
     items = list(items_by_id.values())
     if items:
-        from journal.models import Rating, Tag
+        from journal.models import Rating
 
         Item.prefetch_parent_items(items)
         Item.prefetch_credits(items)
         Rating.attach_to_items(items)
-        Tag.attach_to_items(items)
         prefetch_related_objects(
             items,
             # Feed cards render with allow_embed=1, so Album.get_embed_link reads

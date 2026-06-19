@@ -12,7 +12,7 @@ from ninja.pagination import paginate
 from common.api import PageNumberPagination, RedirectedResult, Result, api
 from journal.models.mark import Mark
 from journal.models.rating import Rating
-from journal.models.tag import Tag
+from journal.models.tag import TagManager
 
 from .common import SiteManager
 from .models import (
@@ -135,7 +135,8 @@ def search_item(
         Item.credits_prefetch(),
     )
     Rating.attach_to_items(items)
-    Tag.attach_to_items(items)
+    # Public tags already ride along from the search index (query_index); no
+    # per-request journal_tagmember aggregation here (NEODB-SOCIAL-7KW).
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
     return Status(200, {"data": items, "pages": num_pages, "count": count})
@@ -319,7 +320,6 @@ def trending_verified_podcasts(request, page: int = 1):
         Item.credits_prefetch(),
     )
     Rating.attach_to_items(podcasts)
-    Tag.attach_to_items(podcasts)
     return Status(
         200,
         {"data": podcasts, "pages": paginator.num_pages, "count": paginator.count},
@@ -340,6 +340,9 @@ def _get_item(cls, uuid, response):
     if item.__class__ != cls:
         response["Location"] = item.api_url
         return Status(302, {"message": "Item recasted", "url": item.api_url})
+    # Public tags are returned for single-item lookups; aggregate for this item
+    # only (list endpoints no longer attach tags -- NEODB-SOCIAL-7KW).
+    item.tags = TagManager.indexable_tags_for_item(item)
     return item
 
 
@@ -499,8 +502,9 @@ def _prepare_reco_items(request, items: list) -> None:
     """Hydrate items for ItemSchema serialization. Mirrors search_item.
 
     Without this the schema dereferences parents, credits, external resources,
-    ratings, tags and mark state per row -- a 60-item response would issue
-    hundreds of queries.
+    ratings and mark state per row -- a 60-item response would issue hundreds
+    of queries. Public tags are intentionally not attached (recommendations are
+    a list surface), so ItemSchema.tags serializes as null without a query.
     """
     if not items:
         return
@@ -511,7 +515,6 @@ def _prepare_reco_items(request, items: list) -> None:
         Item.credits_prefetch(),
     )
     Rating.attach_to_items(items)
-    Tag.attach_to_items(items)
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
 

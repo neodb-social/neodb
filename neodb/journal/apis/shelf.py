@@ -24,7 +24,6 @@ from journal.models.common import (
 )
 from journal.models.rating import Rating
 from journal.models.shelf import ShelfMember
-from journal.models.tag import Tag
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -49,7 +48,9 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     Item.prefetch_parent_items(items)
     Item.prefetch_edition_works(items)
     Rating.attach_to_items(items)
-    Tag.attach_to_items(items)
+    # Public item tags are not returned on the shelf; only the owner's own tags
+    # (MarkSchema.tags, fetched below). ItemSchema.tags serializes as null
+    # without a per-item aggregation (NEODB-SOCIAL-7KW).
     # Batch-fetch latest_post_id for all members to avoid N+1 queries
     # when MarkSchema accesses latest_post_id
     prefetch_latest_posts(members)

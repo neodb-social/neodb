@@ -239,6 +239,12 @@ class Item(PolymorphicModel):
     url_path = "item"  # subclass must specify this
     child_class = None  # subclass may specify this to allow link to parent item
     parent_class = None  # subclass may specify this to allow create child item
+    # Public tags (cross-user, cleaned, top-20) are NOT computed on read. They
+    # are attached explicitly only where shown -- the item detail view/API and
+    # search results (from the precomputed index). Left None on list/feed/
+    # discover surfaces so they neither render nor trigger the per-item tag
+    # aggregation that was the NEODB-SOCIAL-7KW slow query.
+    tags: list[str] | None = None
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
@@ -620,6 +626,8 @@ class Item(PolymorphicModel):
         return list(set(titles))
 
     def to_indexable_doc(self) -> dict[str, str | int | list[str] | list[int]]:
+        from journal.models import TagManager
+
         from .people import PeopleRole
 
         org_roles = PeopleRole.organization_roles()
@@ -636,7 +644,9 @@ class Item(PolymorphicModel):
             "item_id": [self.pk],
             "item_class": self.__class__.__name__,
             "title": self.to_indexable_titles(),
-            "tag": self.tags,
+            # Aggregate public tags here (at index time, async) rather than on
+            # every page render; read paths reuse this indexed value.
+            "tag": TagManager.indexable_tags_for_item(self),
             "mark_count": self.mark_count,
             "language": getattr(self, "language", None) or [],
             "people": people,
@@ -1295,12 +1305,6 @@ class Item(PolymorphicModel):
     @cached_property
     def rating_distribution(self):
         return self.rating_info.get("distribution")
-
-    @cached_property
-    def tags(self):
-        from journal.models import TagManager
-
-        return TagManager.indexable_tags_for_item(self)
 
     def journal_exists(self):
         from journal.models import journal_exists_for_item
