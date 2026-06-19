@@ -98,8 +98,8 @@ def can_show_reco(user, kind: str) -> bool:
     """Single visibility gate used by both HTML views and the Ninja API.
 
     - Authenticated user with a Preference row: defer to
-      Preference.show_recommendations (master switch OR test_enabled, AND
-      user has not opted out).
+      Preference.show_recommendations (master switch AND user has not
+      opted out).
     - Authenticated user without a Preference row: conservatively False.
     - Anonymous viewer: only non-personalised surfaces (similar_items),
       gated by the site master switch.

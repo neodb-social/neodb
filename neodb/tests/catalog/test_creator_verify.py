@@ -793,7 +793,7 @@ class TestOriginalEpisodes:
         episodes = DiscoverGenerator().get_original_episodes(max_items=3)
         assert len(episodes) == 3
 
-    def test_discover_gated_by_test_enabled(self, monkeypatch):
+    def test_discover_gated_by_site_setting(self, monkeypatch):
         alice = User.register(email="a@example.com", username="alice")
         podcast = _podcast()
         _verified(podcast, alice.identity)
@@ -804,13 +804,18 @@ class TestOriginalEpisodes:
             timeout=None,
         )
         cache.set("original_episodes", episodes, timeout=None)
+        # Pin config so the refresh middleware does not reload it mid-test.
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        # Off by default: shelf hidden.
+        monkeypatch.setattr(SiteConfig.system, "discover_show_verified_podcasts", False)
         response = Client().get("/discover/")
         assert 'id="original_episodes"' not in response.content.decode()
-        monkeypatch.setattr(type(alice), "test_enabled", property(lambda s: True))
-        response = _client(alice).get("/discover/")
+        # Enabled: shelf shown, even to anonymous viewers.
+        monkeypatch.setattr(SiteConfig.system, "discover_show_verified_podcasts", True)
+        response = Client().get("/discover/")
         assert 'id="original_episodes"' in response.content.decode()
-        monkeypatch.setattr(type(alice), "test_enabled", property(lambda s: False))
-        response = _client(alice).get("/discover/")
+        monkeypatch.setattr(SiteConfig.system, "discover_show_verified_podcasts", False)
+        response = Client().get("/discover/")
         assert 'id="original_episodes"' not in response.content.decode()
 
 

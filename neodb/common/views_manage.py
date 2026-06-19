@@ -339,6 +339,13 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "title": _("Show Popular Tags"),
             "help_text": _("Show popular public tags on the discover page."),
         },
+        "discover_show_verified_podcasts": {
+            "title": _("Show Verified Podcasts"),
+            "help_text": _(
+                "Show a shelf of recent episodes from podcasts with a "
+                "verified creator on the discover page."
+            ),
+        },
     }
     layout = {
         _("Discover"): [
@@ -348,6 +355,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_show_local_only",
             "discover_show_popular_posts",
             "discover_show_popular_tags",
+            "discover_show_verified_podcasts",
         ],
     }
 
@@ -376,9 +384,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "title": _("Enable Recommendations"),
             "help_text": _(
                 "Master switch. When off, all recommendation surfaces are "
-                "hidden for regular users and the cron jobs are not "
-                "scheduled. Test-enabled accounts (DEBUG mode or '!bazinga' "
-                "in their bio) still see the surfaces, for preview."
+                "hidden and the cron jobs are not scheduled."
             ),
         },
         "reco_min_source_marks": {

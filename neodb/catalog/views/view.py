@@ -632,7 +632,7 @@ def discover(request):
     cache_key = "public_gallery"
     gallery_list = cache.get(cache_key, [])
 
-    if not (request.user.is_authenticated and request.user.test_enabled):
+    if not SiteConfig.system.discover_show_verified_podcasts:
         gallery_list = [g for g in gallery_list if g["name"] != "original_episodes"]
 
     # rotate every 6 minutes

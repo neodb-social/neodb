@@ -53,6 +53,7 @@ class SiteConfig(models.Model):
         discover_show_local_only: bool = False
         discover_show_popular_posts: bool = False
         discover_show_popular_tags: bool = False
+        discover_show_verified_podcasts: bool = False
 
         # Recommendations (off by default; test-enabled users can preview)
         enable_recommendations: bool = False
@@ -184,6 +185,9 @@ class SiteConfig(models.Model):
             ),
             "discover_show_popular_tags": getattr(
                 settings, "DISCOVER_SHOW_POPULAR_TAGS", False
+            ),
+            "discover_show_verified_podcasts": getattr(
+                settings, "DISCOVER_SHOW_VERIFIED_PODCASTS", False
             ),
             # Localization
             "preferred_languages": list(

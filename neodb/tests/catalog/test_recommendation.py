@@ -37,19 +37,12 @@ class TestPreferenceGate:
         self.user = User.register(email="g@test.com", username="g_user")
         _set(enable_recommendations=False)
 
-    def test_off_when_master_off_and_not_test_enabled(self, monkeypatch):
+    def test_off_when_master_off(self):
         _set(enable_recommendations=False)
-        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: False))
         assert self.user.preference.show_recommendations("similar_items") is False
 
-    def test_on_when_test_enabled_even_if_master_off(self, monkeypatch):
-        _set(enable_recommendations=False)
-        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: True))
-        assert self.user.preference.show_recommendations("similar_items") is True
-
-    def test_off_when_user_opted_out_even_if_test_enabled(self, monkeypatch):
+    def test_off_when_user_opted_out(self):
         _set(enable_recommendations=True)
-        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: True))
         self.user.preference.disable_recommendations = True
         self.user.preference.save()
         assert self.user.preference.show_recommendations("similar_items") is False
@@ -297,9 +290,7 @@ class TestBlendedReturnsEmptyWhenDisabled:
         _set(enable_recommendations=False)
         self.user = User.register(email="bd@t.com", username="bd_user")
 
-    def test_empty_when_master_off(self, monkeypatch):
-        # Ensure test_enabled is off so the master switch is the only gate.
-        monkeypatch.setattr(type(self.user), "test_enabled", property(lambda s: False))
+    def test_empty_when_master_off(self):
         out = blended_for_discover(self.user, limit=10)
         assert out == []
 

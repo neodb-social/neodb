@@ -176,6 +176,8 @@ class User(AbstractUser):
 
     @property
     def test_enabled(self):
+        # Internal preview flag (DEBUG mode or marker in bio), kept for
+        # gating future experimental features.
         return settings.DEBUG or "!bazinga" in (self.identity.summary or "")
 
     @property
