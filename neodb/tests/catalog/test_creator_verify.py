@@ -765,6 +765,20 @@ class TestOriginalEpisodes:
         dates = [e.pub_date for e in episodes]
         assert dates == sorted(dates, reverse=True)
 
+    def test_no_duplicate_episodes_with_multiple_verified_creators(self):
+        # a show with several verified creators must surface each episode once,
+        # not once per verified-creator claim
+        alice = User.register(email="a@example.com", username="alice")
+        bob = User.register(email="b@example.com", username="bob")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        _verified(podcast, bob.identity)
+        self._episodes(podcast)
+        episodes = DiscoverGenerator().get_original_episodes()
+        uuids = [e.uuid for e in episodes]
+        assert len(uuids) == len(set(uuids))
+        assert {e.program_id for e in episodes} == {podcast.pk}
+
     def test_pending_claims_excluded(self):
         alice = User.register(email="a@example.com", username="alice")
         podcast = _podcast()
