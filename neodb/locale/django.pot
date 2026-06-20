@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 23:52+0800\n"
+"POT-Creation-Date: 2026-06-19 20:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1769,7 +1769,7 @@ msgid "Recommended for you"
 msgstr ""
 
 #: catalog/templates/discover.html:87
-msgid "original episodes"
+msgid "fediverse originals"
 msgstr ""
 
 #: catalog/templates/discover.html:135
@@ -2143,8 +2143,8 @@ msgstr ""
 
 #: catalog/views/edit.py:218 catalog/views/edit.py:272
 #: catalog/views/edit.py:390 catalog/views/edit.py:479
-#: catalog/views/edit.py:511 catalog/views/verify.py:147
-#: catalog/views/verify.py:187 journal/views/article.py:39
+#: catalog/views/edit.py:511 catalog/views/verify.py:156
+#: catalog/views/verify.py:203 journal/views/article.py:39
 #: journal/views/article.py:121 journal/views/article.py:141
 #: journal/views/collection.py:238 journal/views/collection.py:299
 #: journal/views/collection.py:318 journal/views/collection.py:342
@@ -2162,7 +2162,7 @@ msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
-#: catalog/views/verify.py:178 journal/views/collection.py:75
+#: catalog/views/verify.py:194 journal/views/collection.py:75
 #: journal/views/collection.py:100 journal/views/collection.py:506
 #: journal/views/collection.py:601 journal/views/common.py:196
 #: journal/views/mark.py:171 journal/views/post.py:112
@@ -2226,37 +2226,37 @@ msgstr ""
 msgid "Unsupported URL"
 msgstr ""
 
-#: catalog/views/verify.py:33
+#: catalog/views/verify.py:41
 msgid "Creator verification is only available for podcasts for now."
 msgstr ""
 
-#: catalog/views/verify.py:99
+#: catalog/views/verify.py:108
 msgid "No feed url available for this item."
 msgstr ""
 
-#: catalog/views/verify.py:110
+#: catalog/views/verify.py:119
 msgid "You are already a verified creator."
 msgstr ""
 
-#: catalog/views/verify.py:120
+#: catalog/views/verify.py:129
 msgid "Verification is already in progress."
 msgstr ""
 
-#: catalog/views/verify.py:128
+#: catalog/views/verify.py:137
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: catalog/views/verify.py:153 common/utils.py:109 common/utils.py:150
+#: catalog/views/verify.py:162 common/utils.py:109 common/utils.py:150
 #: journal/views/article.py:174 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr ""
 
-#: catalog/views/verify.py:167
+#: catalog/views/verify.py:183
 msgid "Creator verified."
 msgstr ""
 
-#: catalog/views/verify.py:190
+#: catalog/views/verify.py:213
 msgid "Creator verification removed."
 msgstr ""
 
@@ -6572,7 +6572,7 @@ msgstr ""
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:364
+#: users/models/user.py:370
 msgid "This username is already taken."
 msgstr ""
 

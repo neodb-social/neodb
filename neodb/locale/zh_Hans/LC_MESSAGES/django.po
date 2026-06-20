@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 23:52+0800\n"
+"POT-Creation-Date: 2026-06-19 20:03-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1768,8 +1768,8 @@ msgid "Recommended for you"
 msgstr "为你推荐"
 
 #: catalog/templates/discover.html:87
-msgid "original episodes"
-msgstr "原创单集"
+msgid "fediverse originals"
+msgstr "联邦宇宙原创"
 
 #: catalog/templates/discover.html:135
 #: journal/templates/user_collection_list.html:18
@@ -2142,8 +2142,8 @@ msgstr "条目不可被删除。"
 
 #: catalog/views/edit.py:218 catalog/views/edit.py:272
 #: catalog/views/edit.py:390 catalog/views/edit.py:479
-#: catalog/views/edit.py:511 catalog/views/verify.py:147
-#: catalog/views/verify.py:187 journal/views/article.py:39
+#: catalog/views/edit.py:511 catalog/views/verify.py:156
+#: catalog/views/verify.py:203 journal/views/article.py:39
 #: journal/views/article.py:121 journal/views/article.py:141
 #: journal/views/collection.py:238 journal/views/collection.py:299
 #: journal/views/collection.py:318 journal/views/collection.py:342
@@ -2161,7 +2161,7 @@ msgid "Insufficient permission"
 msgstr "权限不足"
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
-#: catalog/views/verify.py:178 journal/views/collection.py:75
+#: catalog/views/verify.py:194 journal/views/collection.py:75
 #: journal/views/collection.py:100 journal/views/collection.py:506
 #: journal/views/collection.py:601 journal/views/common.py:196
 #: journal/views/mark.py:171 journal/views/post.py:112
@@ -2225,37 +2225,37 @@ msgstr "无效网址"
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
-#: catalog/views/verify.py:33
+#: catalog/views/verify.py:41
 msgid "Creator verification is only available for podcasts for now."
 msgstr "创作者验证目前仅支持播客。"
 
-#: catalog/views/verify.py:99
+#: catalog/views/verify.py:108
 msgid "No feed url available for this item."
 msgstr "此条目没有可用的订阅源地址。"
 
-#: catalog/views/verify.py:110
+#: catalog/views/verify.py:119
 msgid "You are already a verified creator."
 msgstr "你已是已验证创作者。"
 
-#: catalog/views/verify.py:120
+#: catalog/views/verify.py:129
 msgid "Verification is already in progress."
 msgstr "验证已在进行中。"
 
-#: catalog/views/verify.py:128
+#: catalog/views/verify.py:137
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: catalog/views/verify.py:153 common/utils.py:109 common/utils.py:150
+#: catalog/views/verify.py:162 common/utils.py:109 common/utils.py:150
 #: journal/views/article.py:174 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
 
-#: catalog/views/verify.py:167
+#: catalog/views/verify.py:183
 msgid "Creator verified."
 msgstr "创作者已验证。"
 
-#: catalog/views/verify.py:190
+#: catalog/views/verify.py:213
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 
@@ -6696,7 +6696,7 @@ msgstr "必填，限英文字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:364
+#: users/models/user.py:370
 msgid "This username is already taken."
 msgstr "用户名已被使用"
 
