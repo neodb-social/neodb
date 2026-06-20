@@ -3,7 +3,7 @@ from typing import List
 
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.db.models import Prefetch, prefetch_related_objects
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Schema, Status
@@ -20,7 +20,6 @@ from .models import (
     AlbumSchema,
     Edition,
     EditionSchema,
-    ExternalResource,
     Game,
     GameSchema,
     Item,
@@ -311,12 +310,7 @@ def trending_verified_podcasts(request, page: int = 1):
     # which queries per item; hydrate in bulk to avoid N+1 during serialization.
     prefetch_related_objects(
         podcasts,
-        Prefetch(
-            "external_resources",
-            queryset=ExternalResource.objects.only(
-                "id", "item_id", "id_type", "id_value", "url"
-            ),
-        ),
+        Item.external_resources_prefetch(),
         Item.credits_prefetch(),
     )
     Rating.attach_to_items(podcasts)

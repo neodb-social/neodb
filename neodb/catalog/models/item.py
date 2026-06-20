@@ -830,6 +830,21 @@ class Item(PolymorphicModel):
         )
 
     @staticmethod
+    def external_resources_prefetch(
+        *, lookup: str = "external_resources", with_metadata: bool = False
+    ) -> models.Prefetch:
+        """``Prefetch`` for external_resources that drops the large metadata /
+        other_lookup_ids JSON (Sentry: EGGPLANT-1DX); cards and the API only
+        read url/site_name/site_label. Pass ``with_metadata=True`` for embed
+        surfaces (item detail, feed cards) where ``Album.get_embed_link`` reads
+        ``res.metadata``; ``lookup`` sets the relation path for nested prefetch.
+        """
+        fields = ["id", "item_id", "id_type", "id_value", "url"]
+        if with_metadata:
+            fields.append("metadata")
+        return models.Prefetch(lookup, queryset=ExternalResource.objects.only(*fields))
+
+    @staticmethod
     def prefetch_credits(items: "Iterable[Item]") -> None:
         """Batch-prefetch credits (with person) for templates that render
         ``item.role_credits`` per card. Without this, each card fires a

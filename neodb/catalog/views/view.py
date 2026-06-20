@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count, F, Prefetch, Q, Window, prefetch_related_objects
+from django.db.models import Count, F, Q, Window, prefetch_related_objects
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -114,15 +114,9 @@ def retrieve(request, item_path, item_uuid):
     # query (EGGPLANT-1DX). Albums are the exception: album.html renders an
     # embed via Album.get_embed_link(), which reads res.metadata for Bandcamp
     # resources, so keep metadata for them to avoid a per-resource deferred load.
-    extres_fields = ["id", "item_id", "id_type", "id_value", "url"]
-    if item.class_name == "album":
-        extres_fields.append("metadata")
     prefetch_related_objects(
         [item],
-        Prefetch(
-            "external_resources",
-            queryset=ExternalResource.objects.only(*extres_fields),
-        ),
+        Item.external_resources_prefetch(with_metadata=item.class_name == "album"),
         Item.credits_prefetch(),
     )
     Item.prefetch_parent_items([item])
@@ -234,17 +228,12 @@ def people_works(request, item_path, item_uuid, role):
     # Batch-prefetch per-item data used by _item_card_* partials to avoid N+1
     works_items = list(works_page.object_list)
     if works_items:
+        # Card partials only read url/site_name/site_label (derived from
+        # id_type/id_value), so skip the large metadata/other_lookup_ids JSON
+        # columns that made this prefetch a slow query (EGGPLANT-1DX).
         prefetch_related_objects(
             works_items,
-            # Card partials only read url/site_name/site_label (derived from
-            # id_type/id_value), so skip the large metadata/other_lookup_ids
-            # JSON columns that made this prefetch a slow query (EGGPLANT-1DX).
-            Prefetch(
-                "external_resources",
-                queryset=ExternalResource.objects.only(
-                    "id", "item_id", "id_type", "id_value", "url"
-                ),
-            ),
+            Item.external_resources_prefetch(),
             Item.credits_prefetch(),
         )
         Item.prefetch_parent_items(works_items)
@@ -553,15 +542,7 @@ def similar(request, item_path, item_uuid):
         # Card partials only read url/site_name/site_label (derived from
         # id_type/id_value), so skip the large metadata/other_lookup_ids JSON
         # columns that made this prefetch a slow query (EGGPLANT-1DX).
-        prefetch_related_objects(
-            items,
-            Prefetch(
-                "external_resources",
-                queryset=ExternalResource.objects.only(
-                    "id", "item_id", "id_type", "id_value", "url"
-                ),
-            ),
-        )
+        prefetch_related_objects(items, Item.external_resources_prefetch())
     return render(
         request,
         "_item_similar.html",
@@ -674,7 +655,8 @@ def discover(request):
         else:
             Item.prefetch_parent_items(reco_items)
             Item.prefetch_edition_works(reco_items)
-            prefetch_related_objects(reco_items, "external_resources")
+            # Discover cards skip the metadata JSON (EGGPLANT-1DX).
+            prefetch_related_objects(reco_items, Item.external_resources_prefetch())
             cat_order = {
                 cat: i
                 for i, cat in enumerate(
@@ -715,12 +697,7 @@ def discover_original_podcasts(request):
     if podcast_items:
         prefetch_related_objects(
             podcast_items,
-            Prefetch(
-                "external_resources",
-                queryset=ExternalResource.objects.only(
-                    "id", "item_id", "id_type", "id_value", "url"
-                ),
-            ),
+            Item.external_resources_prefetch(),
             Item.credits_prefetch(),
         )
         Rating.attach_to_items(podcast_items)

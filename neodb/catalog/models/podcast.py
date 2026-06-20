@@ -192,7 +192,8 @@ class Podcast(Item):
         # JOIN with catalog_item to filter on is_deleted / merged_to_item_id;
         # for podcasts with many episodes this becomes a slow query
         # (Sentry: EGGPLANT-1BH). Split into two simple index lookups so the
-        # FK scan and the PK-bounded filter happen independently.
+        # FK scan and the PK-bounded filter happen independently. The id lookup
+        # is index-only thanks to the covering index below (EGGPLANT-1EA).
         raw_ids = list(self.episodes.values_list("id", flat=True))
         if not raw_ids:
             return []
@@ -330,5 +331,13 @@ class PodcastEpisode(Item):
         return []
 
     class Meta:
-        indexes = [models.Index(fields=["program", "pub_date"])]
+        indexes = [
+            # Covering index: item_ptr lets child_item_ids read episode ids via
+            # an index-only scan (EGGPLANT-1EA).
+            models.Index(
+                fields=["program", "pub_date"],
+                include=["item_ptr"],
+                name="podcast_ep_prog_pubdate_cov",
+            ),
+        ]
         unique_together = [["program", "guid"]]

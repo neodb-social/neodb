@@ -424,10 +424,12 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
                 id=last_member
             )
         members = list(members_qs[:20])
-        # Batch-fetch items with external_resources to avoid N+1
+        # Member cards skip the metadata JSON (EGGPLANT-1DX).
         item_ids = [m.item_id for m in members]
         items = list(
-            Item.objects.filter(pk__in=item_ids).prefetch_related("external_resources")
+            Item.objects.filter(pk__in=item_ids).prefetch_related(
+                Item.external_resources_prefetch()
+            )
         )
         items_map = {i.pk: i for i in items}
         for member in members:

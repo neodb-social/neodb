@@ -217,7 +217,10 @@ def render_list(
     people_type = request.GET.get("people_type") or ""
     if people_type in PeopleType.values and item_category == ItemCategory.People:
         queryset = queryset.filter(item__people__people_type=people_type)
-    queryset = queryset.prefetch_related("item", "item__external_resources")
+    # Slim external_resources prefetch: cards skip the metadata JSON (EGGPLANT-1DX).
+    queryset = queryset.prefetch_related(
+        "item", Item.external_resources_prefetch(lookup="item__external_resources")
+    )
     paginator = CustomPaginator(queryset, request)
     page_number = int_(request.GET.get("page", default=1))
     members = paginator.get_page(page_number)

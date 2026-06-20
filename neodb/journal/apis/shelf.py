@@ -39,10 +39,10 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     if not members:
         return
     items = [m.item for m in members]
-    # Batch-fetch parent items and item-level data to avoid N+1 queries
+    # Batch-fetch to avoid N+1; external_resources skips metadata (EGGPLANT-1DX).
     prefetch_related_objects(
         items,
-        "external_resources",
+        Item.external_resources_prefetch(),
         Item.credits_prefetch(),
     )
     Item.prefetch_parent_items(items)

@@ -219,9 +219,10 @@ class Collection(List):
             members = p.get_page(page_number)
             pages = p.num_pages
             item_ids = [m.item_id for m in members]
+            # Member cards skip the metadata JSON (EGGPLANT-1DX).
             items = list(
                 Item.objects.filter(pk__in=item_ids).prefetch_related(
-                    "external_resources"
+                    Item.external_resources_prefetch()
                 )
             )
             # All members share this Collection as their parent. Setting it on

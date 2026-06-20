@@ -187,7 +187,7 @@ class DiscoverGenerator(BaseJob):
             e.rating
             e.rating_count
             e.rating_distribution
-        prefetch_related_objects(episodes, "external_resources")
+        prefetch_related_objects(episodes, Item.external_resources_prefetch())
         return episodes
 
     def run(self):
@@ -234,7 +234,13 @@ class DiscoverGenerator(BaseJob):
                 i.rating
                 i.rating_count
                 i.rating_distribution
-            prefetch_related_objects(items, "external_resources")
+            # Cache credits + slim external_resources so the trending API skips
+            # the per-item credits join (EGGPLANT-1EK) and metadata (EGGPLANT-1DX).
+            prefetch_related_objects(
+                items,
+                Item.external_resources_prefetch(),
+                Item.credits_prefetch(),
+            )
             editions = [i for i in items if isinstance(i, Edition)]
             if editions:
                 prefetch_related_objects(editions, "works")

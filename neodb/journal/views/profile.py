@@ -555,7 +555,11 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             Review.objects.filter(q_item_in_category(item_category))
             .filter(qv)
             .order_by("-created_time")
-            .prefetch_related("item", "item__external_resources")
+            # Cards skip the metadata JSON (EGGPLANT-1DX).
+            .prefetch_related(
+                "item",
+                Item.external_resources_prefetch(lookup="item__external_resources"),
+            )
         )
         items = [review.item for review in items_queryset[:20]]
         total = items_queryset.count()
@@ -568,7 +572,11 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
         members_queryset = (
             target.shelf_manager.get_latest_members(shelf_type_enum, item_category)
             .filter(qv)
-            .prefetch_related("item", "item__external_resources")
+            # Cards skip the metadata JSON (EGGPLANT-1DX).
+            .prefetch_related(
+                "item",
+                Item.external_resources_prefetch(lookup="item__external_resources"),
+            )
         )
         if people_type:
             members_queryset = members_queryset.filter(
