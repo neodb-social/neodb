@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2025-04-26 23:57-0400\n"
-"PO-Revision-Date: 2026-06-17 23:01+0000\n"
+"PO-Revision-Date: 2026-06-23 01:07+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "neodb/neodb/pt_BR/>\n"
@@ -240,7 +240,6 @@ msgid "Ypshuo"
 msgstr "Ypshuo"
 
 #: catalog/common/models.py:58 catalog/common/models.py:111
-#, fuzzy
 msgid "Archive of Our Own"
 msgstr "Archive of Our Own"
 
@@ -3292,7 +3291,7 @@ msgstr "assistido"
 
 #: journal/models/shelf.py:298
 msgid "performances dropped"
-msgstr "apresentações descartadas"
+msgstr "apresentações abandonadas"
 
 #: journal/models/shelf.py:299
 msgid "stop seeing"
