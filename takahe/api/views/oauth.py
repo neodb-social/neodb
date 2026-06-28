@@ -49,9 +49,17 @@ class AuthorizationView(LoginRequiredMixin, View):
     """
 
     def get(self, request):
-        redirect_uri = self.request.GET["redirect_uri"]
+        redirect_uri = self.request.GET.get("redirect_uri")
         scope = self.request.GET.get("scope", "read write")
         state = self.request.GET.get("state")
+
+        if not redirect_uri:
+            return render(
+                request,
+                "api/oauth_error.html",
+                {"error": "Missing redirect_uri"},
+                status=400,
+            )
 
         response_type = self.request.GET.get("response_type")
         if response_type != "code":
