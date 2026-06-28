@@ -133,6 +133,7 @@
             {% csrf_token %}
             <input class="contrast" type="submit" value="{% trans 'Fetch all' %}">
             <small>{% trans "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating." %}</small>
+            <small>{% trans "Up to 250 episodes will be fetched for a season." %}</small>
           </form>
         {% else %}
           <i class="fa-solid fa-circle-exclamation"></i> <i>{% trans "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries." %}</i>

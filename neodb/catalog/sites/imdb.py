@@ -9,6 +9,10 @@ from .tmdb import search_tmdb_by_imdb_id
 
 _logger = logging.getLogger(__name__)
 
+# Upper bound on placeholder episodes generated for a season when no episode
+# list can be scraped; protects against pathological episode_count values.
+MAX_DUMMY_EPISODES = 250
+
 
 class IMDBDownloader(ScrapDownloader):
     def __init__(
@@ -216,8 +220,8 @@ class IMDB(AbstractSite):
         else:
             _logger.warning(f"season {season} has no episodes fetched, creating dummy")
             cnt = int(season.episode_count or 0)
-            if cnt > 50:
-                cnt = 50
+            if cnt > MAX_DUMMY_EPISODES:
+                cnt = MAX_DUMMY_EPISODES
             for i in range(1, cnt + 1):
                 episode = TVEpisode.objects.filter(
                     season=season, episode_number=i
