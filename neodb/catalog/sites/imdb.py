@@ -222,11 +222,17 @@ class IMDB(AbstractSite):
             cnt = int(season.episode_count or 0)
             if cnt > MAX_DUMMY_EPISODES:
                 cnt = MAX_DUMMY_EPISODES
+            # Fetch existing episode numbers in one query to avoid an N+1
+            # lookup; TVEpisode is a polymorphic multi-table model so missing
+            # episodes are still created individually (bulk_create is not
+            # supported for such models).
+            existing = set(
+                TVEpisode.objects.filter(
+                    season=season, episode_number__range=(1, cnt)
+                ).values_list("episode_number", flat=True)
+            )
             for i in range(1, cnt + 1):
-                episode = TVEpisode.objects.filter(
-                    season=season, episode_number=i
-                ).first()
-                if not episode:
+                if i not in existing:
                     TVEpisode.objects.create(
                         title=f"S{season.season_number or '0'}E{i}",
                         season=season,

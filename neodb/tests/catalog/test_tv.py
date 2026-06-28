@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 
 from catalog.common import SiteManager, use_local_response
@@ -310,6 +312,49 @@ class TestIMDB:
         assert len(episodes) == 14
         episodes = IMDB.get_episode_list("tt1205438", 4)
         assert len(episodes) == 14
+
+    @use_local_response
+    def test_fetch_episodes_dummy_fallback(self):
+        # When no episode list can be scraped, placeholder episodes are
+        # created up to the season's episode_count.
+        t_url = "https://movie.douban.com/subject/1920763/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        resource = site.get_resource_ready()
+        assert resource is not None
+        season = resource.item
+        assert isinstance(season, TVSeason)
+        season.season_number = 1
+        season.episode_count = 3
+        season.save()
+        with mock.patch.object(IMDB, "get_episode_list", return_value=[]):
+            IMDB.fetch_episodes_for_season(season)
+        episodes = list(season.episodes.all().order_by("episode_number"))
+        assert [e.episode_number for e in episodes] == [1, 2, 3]
+        # Re-running does not create duplicates.
+        with mock.patch.object(IMDB, "get_episode_list", return_value=[]):
+            IMDB.fetch_episodes_for_season(season)
+        assert season.episodes.count() == 3
+
+    @use_local_response
+    def test_fetch_episodes_dummy_cap(self):
+        # episode_count beyond the cap is clamped to MAX_DUMMY_EPISODES.
+        t_url = "https://movie.douban.com/subject/1920763/"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        resource = site.get_resource_ready()
+        assert resource is not None
+        season = resource.item
+        assert isinstance(season, TVSeason)
+        season.season_number = 1
+        season.episode_count = 8
+        season.save()
+        with (
+            mock.patch.object(IMDB, "get_episode_list", return_value=[]),
+            mock.patch("catalog.sites.imdb.MAX_DUMMY_EPISODES", 5),
+        ):
+            IMDB.fetch_episodes_for_season(season)
+        assert season.episodes.count() == 5
 
     @use_local_response
     def test_tvshow(self):
