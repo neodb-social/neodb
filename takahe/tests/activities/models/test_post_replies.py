@@ -1,7 +1,62 @@
 import pytest
 
-from activities.models import Post
+from activities.models import Post, PostStates
+from activities.services import PostService
 from users.models import InboxMessage
+
+
+@pytest.mark.django_db
+def test_reply_count_recalculated_after_reply_deleted(identity, stator):
+    """Regression for #1648: deleting a reply must decrease the parent's
+    replies_count instead of leaving it inflated indefinitely."""
+    parent = Post.create_local(
+        author=identity,
+        content="Parent post",
+        visibility=Post.Visibilities.public,
+    )
+    reply = Post.create_local(
+        author=identity,
+        content="A reply",
+        visibility=Post.Visibilities.public,
+        reply_to=parent,
+    )
+    # create_local() recalculates the parent's stats when a reply is created.
+    parent.refresh_from_db()
+    assert parent.stats["replies"] == 1
+
+    # Delete the reply and let the deleted-state handler run, as stator would.
+    PostService(reply).delete()
+    reply.refresh_from_db()
+    assert reply.state == str(PostStates.deleted)
+    stator.run_single_cycle()
+
+    parent.refresh_from_db()
+    assert parent.stats["replies"] == 0
+
+
+@pytest.mark.django_db
+def test_reply_count_recalculated_after_reply_hard_deleted(identity, config_system):
+    """Hard deletes (incoming AP Delete, prune, admin) bypass handle_deleted,
+    so the post_delete signal must also refresh the parent's replies_count."""
+    parent = Post.create_local(
+        author=identity,
+        content="Parent post",
+        visibility=Post.Visibilities.public,
+    )
+    reply = Post.create_local(
+        author=identity,
+        content="A reply",
+        visibility=Post.Visibilities.public,
+        reply_to=parent,
+    )
+    parent.refresh_from_db()
+    assert parent.stats["replies"] == 1
+
+    # Hard delete the row directly, firing the post_delete signal.
+    reply.delete()
+
+    parent.refresh_from_db()
+    assert parent.stats["replies"] == 0
 
 
 @pytest.mark.django_db

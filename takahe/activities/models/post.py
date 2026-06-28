@@ -236,6 +236,8 @@ class PostStates(StateGraph):
                 )
                 conv.last_post = next_post
                 conv.save(update_fields=["last_post", "updated"])
+        # Keep the parent's replies_count accurate after a soft delete.
+        instance.recalculate_parent_stats()
         return cls.deleted_fanned_out
 
     @classmethod
@@ -856,6 +858,12 @@ class Post(StatorModel):
         }
         if save:
             self.save()
+
+    def recalculate_parent_stats(self) -> None:
+        """If this is a reply, refresh the parent's cached stats (replies_count)."""
+        parent = self.in_reply_to_post()
+        if parent:
+            parent.calculate_stats()
 
     def calculate_type_data(self, save=True):
         """
@@ -1917,6 +1925,10 @@ def post_created(sender, instance: Post, created, **kwargs):
 
 def post_deleted(sender, instance: Post, **kwargs):
     instance.author.calculate_stats()
+    # Hard deletes (incoming AP Delete, prune, admin) bypass handle_deleted;
+    # skip soft-deleted posts whose parent was already recalculated there.
+    if instance.state != PostStates.deleted_fanned_out:
+        instance.recalculate_parent_stats()
 
 
 post_save.connect(post_created, sender=Post, dispatch_uid="activities.post.created")
