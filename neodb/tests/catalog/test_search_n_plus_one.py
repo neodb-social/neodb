@@ -7,7 +7,7 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from catalog.models import Edition, TVSeason, TVShow
+from catalog.models import Edition, ExternalResource, IdType, TVSeason, TVShow
 from catalog.search.index import CatalogIndex, CatalogSearchResult
 from catalog.search.utils import query_index
 
@@ -174,3 +174,53 @@ class TestSearchReusesIndexedTags:
         assert tags == []
         offending = [q for q in ctx.captured_queries if "journal_tagmember" in q["sql"]]
         assert offending == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSearchExternalResourcesSlim:
+    """EGGPLANT-1DX: search loaded the full ``catalog_externalresource`` row
+    (including the large ``metadata``/``other_lookup_ids`` JSON) for every
+    result. Cards only read url/site_name/site_label, so the prefetch must skip
+    those heavy columns.
+    """
+
+    def _run(self, items_in_index):
+        response = {
+            "hits": [{"document": {"id": str(it.pk)}} for it in items_in_index],
+            "found": len(items_in_index),
+            "page": 1,
+            "request_params": {"per_page": 20, "q": "book"},
+        }
+        with patch.object(CatalogIndex, "instance") as mock_instance:
+            mock_index = MagicMock(spec=CatalogIndex)
+            mock_instance.return_value = mock_index
+            result = CatalogSearchResult(mock_index, cast(Any, response))
+            mock_index.search.return_value = result
+            with CaptureQueriesContext(connection) as ctx:
+                query_index("book", page=1, prepare_external=False)
+        return ctx.captured_queries
+
+    def test_external_resources_prefetch_skips_heavy_json(self):
+        book = Edition.objects.create(title="ExtRes Book")
+        ExternalResource.objects.create(
+            item=book,
+            id_type=IdType.RSS,
+            id_value="extres-1",
+            url="https://example.com/extres-1",
+            metadata={"big": "x" * 1000},
+            other_lookup_ids={"isbn": "123"},
+        )
+        extres = [
+            q
+            for q in self._run([book])
+            if 'FROM "catalog_externalresource"' in q["sql"]
+        ]
+        assert extres, "expected an external_resources prefetch query"
+        for q in extres:
+            assert '"metadata"' not in q["sql"], (
+                f"search external_resources prefetch still selects metadata: {q['sql']}"
+            )
+            assert '"other_lookup_ids"' not in q["sql"], (
+                "search external_resources prefetch still selects "
+                f"other_lookup_ids: {q['sql']}"
+            )

@@ -18,7 +18,7 @@ from common.sentry import url_domain
 from takahe.search import search_by_ap_url
 from users.models import User
 
-from ..models import Edition, TVSeason
+from ..models import Edition, Item, TVSeason
 from .index import CatalogIndex, CatalogQueryParser
 
 
@@ -53,7 +53,10 @@ def query_index(
     items = []
     urls = []
     search_items = r.items
-    prefetch_related_objects(search_items, "external_resources")
+    # Result cards only read url/site_name/site_label, so skip the large
+    # metadata/other_lookup_ids JSON columns that made this a slow query
+    # (Sentry: EGGPLANT-1DX).
+    prefetch_related_objects(search_items, Item.external_resources_prefetch())
     editions = [item for item in search_items if isinstance(item, Edition)]
     if editions:
         prefetch_related_objects(editions, "works")

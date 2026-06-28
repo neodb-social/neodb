@@ -431,6 +431,11 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
                 Item.external_resources_prefetch()
             )
         )
+        # Batch credits + rating to avoid a per-item catalog_itemcredit join and
+        # journal_rating GROUP BY (Sentry: EGGPLANT-1EM).
+        Item.prefetch_parent_items(items)
+        Item.prefetch_credits(items)
+        Rating.attach_to_items(items)
         items_map = {i.pk: i for i in items}
         for member in members:
             member.item = items_map.get(member.item_id)

@@ -3,7 +3,9 @@ from types import SimpleNamespace
 
 import pytest
 from django.core.cache import cache
+from django.db import connection
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from catalog.jobs.creator_verify import _has_audio_episode, verify_creator_task
@@ -11,6 +13,7 @@ from catalog.jobs.discover import DiscoverGenerator
 from catalog.models import (
     Edition,
     IdType,
+    ItemCredit,
     Podcast,
     PodcastEpisode,
     VerifiedCreator,
@@ -764,6 +767,31 @@ class TestOriginalEpisodes:
         assert {e.program_id for e in episodes} == {verified_pod.pk}
         dates = [e.pub_date for e in episodes]
         assert dates == sorted(dates, reverse=True)
+
+    def test_program_host_credits_prefetched_no_n_plus_one(self):
+        """NEODB-SOCIAL-7NC: discover episode cards read
+        ``item.program.host_names`` (host credits), so ``get_original_episodes``
+        must prefetch each program's credits; reading them across N episodes
+        must not fire one ``catalog_itemcredit`` query per episode.
+        """
+        alice = User.register(email="a@example.com", username="alice")
+        podcast = _podcast()
+        _verified(podcast, alice.identity)
+        ItemCredit.objects.create(item=podcast, role="host", name="Alice Host")
+        self._episodes(podcast, n=3)
+        episodes = DiscoverGenerator().get_original_episodes()
+        assert len(episodes) == 3
+        with CaptureQueriesContext(connection) as ctx:
+            names = [e.program.host_names for e in episodes]
+        assert names == [["Alice Host"]] * 3
+        offending = [
+            q for q in ctx.captured_queries if "catalog_itemcredit" in q["sql"]
+        ]
+        assert offending == [], (
+            f"reading program.host_names fired {len(offending)} catalog_itemcredit "
+            f"query(ies); program credits should be prefetched. First: "
+            f"{offending[0]['sql'] if offending else 'n/a'}"
+        )
 
     def test_no_duplicate_episodes_with_multiple_verified_creators(self):
         # a show with several verified creators must surface each episode once,

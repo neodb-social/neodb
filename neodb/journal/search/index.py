@@ -238,7 +238,8 @@ class JournalSearchResult(SearchResult):
                 [],
             )
         )
-        items = Item.get_by_ids(ids).prefetch_related("external_resources")
+        # get_by_ids already prefetches external_resources (slim; EGGPLANT-1DX).
+        items = Item.get_by_ids(ids)
         return Item.get_final_items(items)
 
     @cached_property

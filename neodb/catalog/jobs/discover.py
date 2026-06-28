@@ -188,6 +188,10 @@ class DiscoverGenerator(BaseJob):
             e.rating_count
             e.rating_distribution
         prefetch_related_objects(episodes, Item.external_resources_prefetch())
+        # Episode cards render ``item.program.host_names``; batch the per-program
+        # credits join to avoid one catalog_itemcredit query per episode
+        # (Sentry: NEODB-SOCIAL-7NC).
+        Item.prefetch_credits([e.program for e in episodes])
         return episodes
 
     def run(self):

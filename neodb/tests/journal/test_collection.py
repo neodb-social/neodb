@@ -235,3 +235,42 @@ class TestCollectionListOperations:
     def test_collection_member_note_html_empty(self):
         member, _ = self.collection.append_item(self.book1)
         assert member.note_html == ""
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionEditItemsNPlusOne:
+    """EGGPLANT-1EM: /collection/<uuid>/edit_items rendered per-item credits
+    and rating distribution, firing a catalog_itemcredit join for every member.
+    Credits must be batch-prefetched instead.
+    """
+
+    def test_no_per_member_credit_query(self):
+        from django.db import connection
+        from django.test import Client
+        from django.test.utils import CaptureQueriesContext
+        from django.urls import reverse
+
+        from catalog.models import ItemCredit
+
+        user = User.register(email="curator@test.com", username="curator")
+        collection = Collection(owner=user.identity, title="C", brief="b")
+        collection.save()
+        movies = [Movie.objects.create(title=f"Edit Movie {i}") for i in range(4)]
+        for m in movies:
+            ItemCredit.objects.create(item=m, role="director", name="A Director")
+            collection.append_item(m)
+
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        url = reverse("journal:collection_edit_items", args=[collection.uuid])
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(url)
+        assert response.status_code == 200
+        credit_queries = [
+            q for q in ctx.captured_queries if "catalog_itemcredit" in q["sql"]
+        ]
+        # Credits are batch-prefetched once for all members, not per member.
+        assert len(credit_queries) <= 1, (
+            f"edit_items fired {len(credit_queries)} catalog_itemcredit queries "
+            f"for {len(movies)} members; expected <=1 (batched)."
+        )

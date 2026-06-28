@@ -754,9 +754,11 @@ class Item(PolymorphicModel):
     def get_by_ids(cls, ids: list[int]):
         select = {f"id_{i}": f"id={i}" for i in ids}
         order = [f"-id_{i}" for i in ids]
+        # Result cards only read url/site_name/site_label, so skip the large
+        # metadata/other_lookup_ids JSON columns (Sentry: EGGPLANT-1DX).
         items = (
             cls.objects.filter(pk__in=ids, is_deleted=False)
-            .prefetch_related("external_resources")
+            .prefetch_related(cls.external_resources_prefetch())
             .extra(select=select, order_by=order)
         )
         return items
