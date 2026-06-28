@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 20:03-0400\n"
+"POT-Creation-Date: 2026-06-28 17:46-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -58,11 +58,11 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:29 catalog/models/item.py:246
+#: catalog/forms.py:29 catalog/models/item.py:252
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:34 catalog/models/item.py:249
+#: catalog/forms.py:34 catalog/models/item.py:255
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
@@ -644,7 +644,7 @@ msgstr "开发者"
 msgid "year of publication"
 msgstr "发行年份"
 
-#: catalog/models/game.py:135 catalog/models/podcast.py:254
+#: catalog/models/game.py:135 catalog/models/podcast.py:256
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -761,45 +761,45 @@ msgstr "名字"
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:243 catalog/models/item.py:275
+#: catalog/models/item.py:249 catalog/models/item.py:281
 #: journal/models/collection.py:89
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:244 catalog/models/item.py:283
+#: catalog/models/item.py:250 catalog/models/item.py:289
 #: journal/models/collection.py:90
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:255 catalog/models/people.py:485
+#: catalog/models/item.py:261 catalog/models/people.py:485
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:257 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:263 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1344
+#: catalog/models/item.py:1363
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1346
+#: catalog/models/item.py:1365
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1348
+#: catalog/models/item.py:1367
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1364
+#: catalog/models/item.py:1383
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1370
+#: catalog/models/item.py:1389
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1373
+#: catalog/models/item.py:1392
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -1657,7 +1657,7 @@ msgstr "创建"
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:222
+#: users/templates/users/preferences.html:230
 msgid "Save"
 msgstr "保存"
 
@@ -2107,7 +2107,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:196 journal/views/profile.py:578
+#: journal/templates/profile.html:196 journal/views/profile.py:586
 msgid "People"
 msgstr "人物"
 
@@ -2147,10 +2147,10 @@ msgstr "条目不可被删除。"
 #: journal/views/article.py:121 journal/views/article.py:141
 #: journal/views/collection.py:238 journal/views/collection.py:299
 #: journal/views/collection.py:318 journal/views/collection.py:342
-#: journal/views/collection.py:415 journal/views/collection.py:451
-#: journal/views/collection.py:489 journal/views/collection.py:501
-#: journal/views/collection.py:526 journal/views/collection.py:529
-#: journal/views/collection.py:570 journal/views/common.py:268
+#: journal/views/collection.py:415 journal/views/collection.py:453
+#: journal/views/collection.py:491 journal/views/collection.py:503
+#: journal/views/collection.py:528 journal/views/collection.py:531
+#: journal/views/collection.py:572 journal/views/common.py:271
 #: journal/views/mark.py:245 journal/views/post.py:58 journal/views/post.py:78
 #: journal/views/post.py:100 journal/views/post.py:165
 #: journal/views/post.py:194 journal/views/post.py:267
@@ -2162,8 +2162,8 @@ msgstr "权限不足"
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
 #: catalog/views/verify.py:194 journal/views/collection.py:75
-#: journal/views/collection.py:100 journal/views/collection.py:506
-#: journal/views/collection.py:601 journal/views/common.py:196
+#: journal/views/collection.py:100 journal/views/collection.py:508
+#: journal/views/collection.py:603 journal/views/common.py:196
 #: journal/views/mark.py:171 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
@@ -2267,7 +2267,7 @@ msgstr "条目不存在"
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
-#: catalog/views/view.py:185
+#: catalog/views/view.py:182
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
@@ -4695,63 +4695,63 @@ msgstr "备注"
 msgid "search query for dynamic collection"
 msgstr "动态收藏单查询条件"
 
-#: journal/models/collection.py:421 journal/templatetags/collection.py:35
+#: journal/models/collection.py:419 journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] "%(count)d 本书"
 msgstr[1] "%(count)d 本书"
 
-#: journal/models/collection.py:426 journal/templatetags/collection.py:43
+#: journal/models/collection.py:424 journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] "%(count)d 部电影"
 msgstr[1] "%(count)d 部电影"
 
-#: journal/models/collection.py:431 journal/templatetags/collection.py:51
+#: journal/models/collection.py:429 journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] "%(count)d 部电视剧"
 msgstr[1] "%(count)d 部电视剧"
 
-#: journal/models/collection.py:436 journal/templatetags/collection.py:59
+#: journal/models/collection.py:434 journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] "%(count)d 张专辑"
 msgstr[1] "%(count)d 张专辑"
 
-#: journal/models/collection.py:441 journal/templatetags/collection.py:67
+#: journal/models/collection.py:439 journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] "%(count)d 个游戏"
 msgstr[1] "%(count)d 个游戏"
 
-#: journal/models/collection.py:446 journal/templatetags/collection.py:75
+#: journal/models/collection.py:444 journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] "%(count)d 个播客"
 msgstr[1] "%(count)d 个播客"
 
-#: journal/models/collection.py:452 journal/templatetags/collection.py:83
+#: journal/models/collection.py:450 journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] "%(count)d 场演出"
 msgstr[1] "%(count)d 场演出"
 
-#: journal/models/collection.py:460 journal/templatetags/collection.py:91
+#: journal/models/collection.py:458 journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 个条目"
 msgstr[1] "%(count)d 个条目"
 
-#: journal/models/common.py:51 journal/templates/action_open_post.html:15
+#: journal/models/common.py:50 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/comment.html:35
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
@@ -4765,7 +4765,7 @@ msgstr[1] "%(count)d 个条目"
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:52 journal/templates/action_open_post.html:9
+#: journal/models/common.py:51 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
@@ -4778,7 +4778,7 @@ msgstr "公开"
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:53 journal/templates/collection_share.html:57
+#: journal/models/common.py:52 journal/templates/collection_share.html:57
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
@@ -4791,27 +4791,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:639
+#: journal/models/common.py:638
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:744
+#: journal/models/common.py:743
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:777
+#: journal/models/common.py:776
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:787
+#: journal/models/common.py:786
 msgid "Original post no longer exists."
 msgstr "原帖文已不存在。"
 
-#: journal/models/common.py:801
+#: journal/models/common.py:800
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:810
+#: journal/models/common.py:809
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5853,7 +5853,7 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:213 journal/views/profile.py:580
+#: journal/templates/profile.html:213 journal/views/profile.py:588
 msgid "Organizations"
 msgstr "团体"
 
@@ -5961,20 +5961,20 @@ msgstr "分享我的收藏单"
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:453 journal/views/collection.py:491
-#: journal/views/collection.py:503 journal/views/collection.py:531
+#: journal/views/collection.py:455 journal/views/collection.py:493
+#: journal/views/collection.py:505 journal/views/collection.py:533
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:468
+#: journal/views/collection.py:470
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:470
+#: journal/views/collection.py:472
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:516
+#: journal/views/collection.py:518
 msgid "Saved."
 msgstr "已保存"
 
@@ -7679,31 +7679,35 @@ msgstr "以下类型自动加入书签"
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr "将这些类型的条目标记为在读/在看/在玩/...时，自动把相应帖文添加为书签。这些书签帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">应用程序</a>查看和管理，你对这些帖文的回复会自动成为该条目的笔记。"
 
-#: users/templates/users/preferences.html:168
+#: users/templates/users/preferences.html:172
+msgid "Turn replies to my own catalog item posts into notes for the item"
+msgstr "将我对自己条目帖文的回复转为该条目的笔记"
+
+#: users/templates/users/preferences.html:176
 msgid "Hide these categories in search results"
 msgstr "搜索时不显示以下类型"
 
-#: users/templates/users/preferences.html:182
+#: users/templates/users/preferences.html:190
 msgid "Disable these sources in external search"
 msgstr "在外部搜索中不使用以下来源"
 
-#: users/templates/users/preferences.html:197
+#: users/templates/users/preferences.html:205
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr "匿名访客和搜索引擎可以查看你的个人主页"
 
-#: users/templates/users/preferences.html:198
+#: users/templates/users/preferences.html:206
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"
 
-#: users/templates/users/preferences.html:206
+#: users/templates/users/preferences.html:214
 msgid "Show your name on item page if you recently edited it"
 msgstr "显示你是某条目的最近编辑者"
 
-#: users/templates/users/preferences.html:215
+#: users/templates/users/preferences.html:223
 msgid "Do not show me item recommendations"
 msgstr "不向我展示条目推荐"
 
-#: users/templates/users/preferences.html:218
+#: users/templates/users/preferences.html:226
 msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
 msgstr "推荐仅基于公开标记在本服务器批量计算生成。你的私密标记与仅关注者可见的标记不会被用作任何人的推荐信号；本功能也不会与任何第三方共享你的数据。当你公开分享标记并保持个人资料可被发现时，你的标记会帮助本服务器与联邦宇宙中的其他人发现他们可能喜欢的内容——正是这种自愿的分享让本功能对每个人都有价值。如果你不希望参与贡献，请在账户页面取消勾选「允许个人资料、标记和帖文包含在发现中」；该设置会通过 ActivityPub 发布，其他服务器也会据此将你排除在他们的发现功能之外。"
 
@@ -8084,136 +8088,136 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:221 users/views/data.py:250
+#: users/views/data.py:223 users/views/data.py:252
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:244
+#: users/views/data.py:246
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:262
+#: users/views/data.py:264
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:277 users/views/data.py:297
+#: users/views/data.py:279 users/views/data.py:299
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:311
+#: users/views/data.py:313
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:325
+#: users/views/data.py:327
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:380
+#: users/views/data.py:382
 msgid "Account no longer linked."
 msgstr "账户已不再关联。"
 
-#: users/views/data.py:383
+#: users/views/data.py:385
 msgid "Content is no longer public."
 msgstr "内容已不再公开。"
 
-#: users/views/data.py:411
+#: users/views/data.py:413
 msgid "Retry did not complete, please try again."
 msgstr "重试未完成，请再试一次。"
 
-#: users/views/data.py:421 users/views/data.py:454 users/views/data.py:670
-#: users/views/data.py:694 users/views/data.py:719 users/views/data.py:743
-#: users/views/data.py:767
+#: users/views/data.py:423 users/views/data.py:456 users/views/data.py:672
+#: users/views/data.py:696 users/views/data.py:721 users/views/data.py:745
+#: users/views/data.py:769
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:490
+#: users/views/data.py:492
 msgid "Loaded from uploaded matched file."
 msgstr "已从上传的匹配文件中加载。"
 
-#: users/views/data.py:515
+#: users/views/data.py:517
 msgid "Cancelled."
 msgstr "已取消。"
 
-#: users/views/data.py:535
+#: users/views/data.py:537
 msgid "No RateYourMusic import to preview."
 msgstr "暂无可预览的 RateYourMusic 导入任务。"
 
-#: users/views/data.py:543 users/views/data.py:653
+#: users/views/data.py:545 users/views/data.py:655
 msgid "Matched file missing."
 msgstr "匹配文件丢失。"
 
-#: users/views/data.py:639
+#: users/views/data.py:641
 msgid "Starting import..."
 msgstr "开始导入..."
 
-#: users/views/data.py:649
+#: users/views/data.py:651
 msgid "No matched file available."
 msgstr "没有可用的匹配文件。"
 
-#: users/views/data.py:887
+#: users/views/data.py:889
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:909
+#: users/views/data.py:911
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:925
+#: users/views/data.py:927
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:930
+#: users/views/data.py:932
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:940 users/views/data.py:991
+#: users/views/data.py:942 users/views/data.py:993
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:947
+#: users/views/data.py:949
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:952
+#: users/views/data.py:954
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:978
+#: users/views/data.py:980
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:983
+#: users/views/data.py:985
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:996
+#: users/views/data.py:998
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:1007
+#: users/views/data.py:1009
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:1013
+#: users/views/data.py:1015
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:1071
+#: users/views/data.py:1073
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:1087
+#: users/views/data.py:1089
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:1091
+#: users/views/data.py:1093
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:1100
+#: users/views/data.py:1102
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"

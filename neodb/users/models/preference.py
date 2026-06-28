@@ -45,6 +45,8 @@ class Preference(models.Model):
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
     mastodon_boost_enabled = models.BooleanField(null=True, default=False)
     disable_recommendations = models.BooleanField(null=True, default=False)
+    # when replying to one's own catalog item post, turn the reply into a note
+    auto_note_on_reply = models.BooleanField(null=False, default=True)
 
     def __str__(self):
         return str(self.user)

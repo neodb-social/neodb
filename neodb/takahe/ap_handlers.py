@@ -145,6 +145,10 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
                 and reply_to.type_data
                 and "object" in reply_to.type_data
                 and "relatedWith" in reply_to.type_data["object"]
+                # gate on the post author's preference; APIdentity.preference
+                # falls back to defaults (enabled) for identities with no
+                # local user, e.g. service actors
+                and owner.preference.auto_note_on_reply
             ):
                 items = _parse_items(reply_to.type_data["object"].get("tag", []))
             elif (

@@ -165,6 +165,14 @@
                 </small>
               </fieldset>
               <fieldset>
+                <label>
+                  <input type="checkbox"
+                         name="auto_note_on_reply"
+                         {% if request.user.preference.auto_note_on_reply %}checked{% endif %}>
+                  {% trans 'Turn replies to my own catalog item posts into notes for the item' %}
+                </label>
+              </fieldset>
+              <fieldset>
                 <label>{% trans 'Hide these categories in search results' %}</label>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}

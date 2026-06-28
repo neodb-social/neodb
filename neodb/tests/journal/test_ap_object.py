@@ -22,8 +22,9 @@ from journal.models import (
     ShelfMember,
     ShelfType,
 )
+from takahe.ap_handlers import post_created
 from takahe.utils import Takahe
-from users.models import User
+from users.models import APIdentity, Preference, User
 
 
 def _make_remote_post(identity_pk: int, post_id: int = 88888) -> MagicMock:
@@ -753,3 +754,48 @@ class TestUpdateByApObjectMissingUpdated:
         # Stale object — existing member returned unchanged
         assert result is not None
         assert result.pk == member.pk
+
+
+def test_auto_note_on_reply_defaults_true_without_user():
+    """An identity without a local user (e.g. a service actor) falls back to
+    the default (enabled) preference rather than raising."""
+    assert APIdentity(user=None).preference.auto_note_on_reply is True
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestAutoNoteOnReply:
+    """A self-reply to one's own catalog item post becomes a Note only when
+    the ``auto_note_on_reply`` preference is enabled (issue #1649)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.book = Edition.objects.create(title="Auto Note Book")
+        self.user = User.register(email="autonote@test.com", username="autonote")
+        self.identity = self.user.identity
+        Mark(self.identity, self.book).update(ShelfType.PROGRESS, visibility=0)
+        self.mark_post_id = Mark(self.identity, self.book).latest_post_id
+        assert self.mark_post_id is not None
+
+    def _self_reply(self, content: str):
+        # NEODB_MQ.enqueue defers post_created in tests, so trigger it
+        # explicitly to exercise the handler as a worker would.
+        reply = Takahe.reply_post(
+            self.mark_post_id, self.identity.pk, content, Takahe.Visibilities.public
+        )
+        assert reply is not None
+        post_created(reply.pk, {"raw_content": content})
+        return reply
+
+    def test_reply_becomes_note_when_enabled(self):
+        assert self.user.preference.auto_note_on_reply is True
+        reply = self._self_reply("loved this chapter")
+        note = Note.get_by_post_id(reply.pk)
+        assert note is not None
+        assert note.item_id == self.book.pk
+        assert "loved this chapter" in note.content
+
+    def test_reply_stays_plain_when_disabled(self):
+        Preference.objects.filter(user=self.user).update(auto_note_on_reply=False)
+        reply = self._self_reply("just a social reply")
+        assert Note.get_by_post_id(reply.pk) is None
+        assert not Note.objects.filter(owner=self.identity, item=self.book).exists()

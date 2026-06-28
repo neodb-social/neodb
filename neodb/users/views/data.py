@@ -81,6 +81,7 @@ def preferences(request):
         preference.disable_recommendations = bool(
             request.POST.get("disable_recommendations")
         )
+        preference.auto_note_on_reply = bool(request.POST.get("auto_note_on_reply"))
         preference.save(
             update_fields=[
                 "default_visibility",
@@ -95,6 +96,7 @@ def preferences(request):
                 "hidden_categories",
                 "disabled_search_sources",
                 "disable_recommendations",
+                "auto_note_on_reply",
             ]
         )
         lang = request.POST.get("language")
