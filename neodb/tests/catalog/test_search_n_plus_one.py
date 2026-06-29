@@ -7,7 +7,7 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from catalog.models import Edition, ExternalResource, IdType, TVSeason, TVShow
+from catalog.models import Edition, ExternalResource, IdType, Item, TVSeason, TVShow
 from catalog.search.index import CatalogIndex, CatalogSearchResult
 from catalog.search.utils import query_index
 
@@ -199,6 +199,13 @@ class TestSearchExternalResourcesSlim:
             with CaptureQueriesContext(connection) as ctx:
                 query_index("book", page=1, prepare_external=False)
         return ctx.captured_queries
+
+    def test_get_by_ids_empty_fires_no_query(self):
+        # get_by_ids short-circuits on an empty id list instead of building an
+        # empty .extra() query.
+        with CaptureQueriesContext(connection) as ctx:
+            assert list(Item.get_by_ids([])) == []
+        assert ctx.captured_queries == []
 
     def test_external_resources_prefetch_skips_heavy_json(self):
         book = Edition.objects.create(title="ExtRes Book")

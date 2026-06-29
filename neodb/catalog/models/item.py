@@ -752,6 +752,8 @@ class Item(PolymorphicModel):
 
     @classmethod
     def get_by_ids(cls, ids: list[int]):
+        if not ids:
+            return cls.objects.none()
         select = {f"id_{i}": f"id={i}" for i in ids}
         order = [f"-id_{i}" for i in ids]
         # Result cards only read url/site_name/site_label, so skip the large
