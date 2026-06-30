@@ -159,7 +159,12 @@ class PreviewCardStates(StateGraph):
         instance.description = (
             meta.get("og:description") or meta.get("description") or ""
         )
+        # og:image comes from arbitrary remote HTML and can exceed the 2048-char
+        # column width; a truncated URL is useless, so drop it rather than store
+        # a broken value (avoids DataError on save).
         instance.image_url = meta.get("og:image") or ""
+        if len(instance.image_url) > 2048:
+            instance.image_url = ""
         try:
             instance.image_width = int(meta["og:image:width"])
         except KeyError, ValueError, TypeError:
@@ -168,8 +173,9 @@ class PreviewCardStates(StateGraph):
             instance.image_height = int(meta["og:image:height"])
         except KeyError, ValueError, TypeError:
             instance.image_height = None
-        instance.author_name = meta.get("og:article:author") or ""
-        instance.provider_name = parsed.hostname or ""
+        # Clamp remote-sourced text fields to their column widths.
+        instance.author_name = (meta.get("og:article:author") or "")[:500]
+        instance.provider_name = (parsed.hostname or "")[:500]
         instance.provider_url = f"{parsed.scheme}://{parsed.netloc}"
         instance.fetched_at = timezone.now()
         instance.save(

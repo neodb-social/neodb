@@ -278,6 +278,60 @@ def test_handle_needs_fetch_ssrf_blocked(httpx_mock, config_system):
     assert result == PreviewCardStates.fetch_failed
 
 
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False, can_send_already_matched_responses=True
+)
+def test_handle_needs_fetch_drops_oversized_image_url(httpx_mock, config_system):
+    """An og:image longer than the column limit is dropped, not stored truncated."""
+    long_image = "https://example.com/" + ("a" * 3000) + ".jpg"
+    html = (
+        "<html><head><title>T</title>"
+        f'<meta property="og:image" content="{long_image}" />'
+        "</head></html>"
+    )
+    httpx_mock.add_response(
+        url="https://example.com/big-image",
+        headers={"Content-Type": "text/html"},
+        text=html,
+    )
+    card = PreviewCard.objects.create(url="https://example.com/big-image")
+    with patch(
+        "socket.getaddrinfo", return_value=[(2, 1, 0, "", ("93.184.216.34", 443))]
+    ):
+        result = PreviewCardStates.handle_needs_fetch(card)
+    card.refresh_from_db()
+    assert result == PreviewCardStates.fetched
+    assert card.image_url == ""
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False, can_send_already_matched_responses=True
+)
+def test_handle_needs_fetch_truncates_long_author(httpx_mock, config_system):
+    """An og:article:author longer than the column limit is truncated to fit."""
+    long_author = "X" * 600
+    html = (
+        "<html><head><title>T</title>"
+        f'<meta property="og:article:author" content="{long_author}" />'
+        "</head></html>"
+    )
+    httpx_mock.add_response(
+        url="https://example.com/long-author",
+        headers={"Content-Type": "text/html"},
+        text=html,
+    )
+    card = PreviewCard.objects.create(url="https://example.com/long-author")
+    with patch(
+        "socket.getaddrinfo", return_value=[(2, 1, 0, "", ("93.184.216.34", 443))]
+    ):
+        result = PreviewCardStates.handle_needs_fetch(card)
+    card.refresh_from_db()
+    assert result == PreviewCardStates.fetched
+    assert card.author_name == "X" * 500
+
+
 # ---------------------------------------------------------------------------
 # to_mastodon_json
 # ---------------------------------------------------------------------------
