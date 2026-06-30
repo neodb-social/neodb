@@ -87,12 +87,6 @@ class TestStoryGraphImporter:
         assert mark.shelf_type == ShelfType.COMPLETE
         assert mark.rating_grade == 7
 
-    def test_half_star_rating(self):
-        """StoryGraph half-star ratings (3.5) map to NeoDB grade 7."""
-        assert round(3.5 * 2) == 7
-        assert round(4.0 * 2) == 8
-        assert round(0.5 * 2) == 1
-
     def test_find_item_by_isbn(self):
         item = StoryGraphImporter.find_item("9780060929879")
         assert item == self.brave_new_world

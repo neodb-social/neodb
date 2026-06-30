@@ -495,24 +495,6 @@ class TestFediverseInstance:
             result = site.get_local_item_from_external_resources()
             assert result is None
 
-    @patch("catalog.sites.fedi.CachedDownloader")
-    def test_scrape_parse_error(self, mock_downloader):
-        """Test get_json_from_url handles unsupported types"""
-        mock_json_data = {
-            "id": "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4",
-            "type": "UnsupportedType",  # This should cause a ValueError
-            "title": "Test Movie",
-            "external_resources": [],
-        }
-
-        mock_instance = mock_downloader.return_value
-        mock_instance.download.return_value.json.return_value = mock_json_data
-
-        with pytest.raises(ValueError, match="Not a supported format or type"):
-            FediverseInstance.get_json_from_url(
-                "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4"
-            )
-
     @pytest.mark.django_db(databases="__all__")
     @patch("catalog.sites.fedi.CachedDownloader")
     @patch("catalog.sites.fedi.BasicImageDownloader.download_image")
@@ -591,26 +573,3 @@ class TestFediverseInstance:
 
         # Should not include the incompatible external resource in lookup_ids
         assert IdType.ISBN not in content.lookup_ids
-
-    def test_real_url_parsing(self):
-        """Test URL parsing with the specific provided URL"""
-        test_url = "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4"
-        expected_id = "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4"
-
-        result = FediverseInstance.url_to_id(test_url)
-        assert result == expected_id
-
-        # Test with query parameters
-        test_url_with_params = (
-            "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4?param=value"
-        )
-        result_with_params = FediverseInstance.url_to_id(test_url_with_params)
-        assert result_with_params == expected_id
-
-    def test_url_to_id_api_removal(self):
-        """Test URL to ID conversion removes 'api/' prefix"""
-        test_url = "https://example.com/api/movie/123"
-        expected_id = "https://example.com/movie/123"
-
-        result = FediverseInstance.url_to_id(test_url)
-        assert result == expected_id

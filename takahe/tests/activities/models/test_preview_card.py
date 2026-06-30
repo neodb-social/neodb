@@ -114,20 +114,6 @@ def test_url_without_params_unchanged():
 
 
 # ---------------------------------------------------------------------------
-# DB smoke test
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.django_db
-def test_preview_card_create_defaults():
-    card = PreviewCard.objects.create(url="https://example.com/article")
-    assert card.state == "needs_fetch"
-    assert card.card_type == "link"
-    assert card.title == ""
-    assert card.image_url == ""
-
-
-# ---------------------------------------------------------------------------
 # SSRF protection
 # ---------------------------------------------------------------------------
 

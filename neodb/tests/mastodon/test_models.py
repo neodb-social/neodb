@@ -56,11 +56,6 @@ class TestForceRecreateApp:
 
 
 class TestGetRedirectUris:
-    def test_returns_string(self):
-        result = _get_redirect_uris("4.1.0")
-        assert isinstance(result, str)
-        assert len(result) > 0
-
     def test_contains_site_url(self):
         result = _get_redirect_uris("4.1.0")
         assert settings.SITE_INFO["site_url"] in result

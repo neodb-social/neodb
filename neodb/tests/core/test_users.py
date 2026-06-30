@@ -29,9 +29,6 @@ class TestUser:
         with pytest.raises(APIdentity.DoesNotExist):
             APIdentity.get_by_handle("@alice@KKCity")
 
-    def test_fetch(self):
-        pass
-
     def test_follow(self):
         self.alice.follow(self.bob)
         Takahe._force_state_cycle()

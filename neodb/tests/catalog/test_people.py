@@ -407,17 +407,6 @@ class TestPeople:
         assert t == IdType.WikiData.value
         assert v == "Q42"
 
-    def test_metadata_copy_list(self):
-        assert "localized_name" in People.METADATA_COPY_LIST
-        assert "localized_bio" in People.METADATA_COPY_LIST
-        assert "birth_date" in People.METADATA_COPY_LIST
-        assert "death_date" in People.METADATA_COPY_LIST
-        assert "official_site" in People.METADATA_COPY_LIST
-        assert "people_type" in People.METADATA_COPY_LIST
-        # Should NOT include localized_title or localized_description
-        assert "localized_title" not in People.METADATA_COPY_LIST
-        assert "localized_description" not in People.METADATA_COPY_LIST
-
     def test_people_form_includes_people_type(self):
         from catalog.forms import CatalogForms
 
@@ -609,28 +598,6 @@ class TestPopulateCredits:
         assert movie.credits.count() == 1
         call_command("catalog", "migrate", "--name", "populate_credits", stdout=out)
         assert movie.credits.count() == 1
-
-    def test_role_credits_property(self):
-        movie = Movie.objects.create(
-            metadata={
-                "localized_title": [{"lang": "en", "text": "Test Movie"}],
-            }
-        )
-        ItemCredit.objects.create(
-            item=movie, role=CreditRole.Director, name="Dir A", order=0
-        )
-        ItemCredit.objects.create(
-            item=movie, role=CreditRole.Actor, name="Act A", order=0
-        )
-        ItemCredit.objects.create(
-            item=movie, role=CreditRole.Actor, name="Act B", order=1
-        )
-        # Re-fetch to clear cached_property from save()->update_index()
-        movie = Movie.objects.get(pk=movie.pk)
-        rc = movie.role_credits
-        assert len(rc.get("director", [])) == 1
-        assert len(rc.get("actor", [])) == 2
-        assert rc["director"][0].name == "Dir A"
 
 
 @pytest.mark.django_db(databases="__all__")

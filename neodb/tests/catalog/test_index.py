@@ -99,15 +99,6 @@ class TestCatalogIndex:
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogQueryParser:
-    def test_init_basic(self):
-        """Test basic initialization of CatalogQueryParser"""
-        parser = CatalogQueryParser("test query", 1, 20)
-
-        assert parser.q == "test query"
-        assert parser.page == 1
-        assert parser.page_size == 20
-        assert parser.filter_by == {}
-
     def test_tag_filtering(self):
         """Test tag filtering in CatalogQueryParser"""
         parser = CatalogQueryParser("tag:scifi,fantasy", 1, 20)

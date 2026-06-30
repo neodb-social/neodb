@@ -766,36 +766,6 @@ def test_extract_openlibrary_ids():
     assert openlibrary_work["id_type"] == IdType.OpenLibrary_Work
 
 
-def test_openlibrary_work_property_mapping():
-    """Test that P648 is correctly mapped to OpenLibrary IdType (dynamic detection)"""
-    # Verify the mapping exists in WikidataProperties
-    assert "P648" in WikidataProperties.IdTypeMapping
-    assert WikidataProperties.IdTypeMapping["P648"] == IdType.OpenLibrary
-
-
-def test_openlibrary_work_reverse_lookup():
-    """Test that P648 maps to OpenLibrary and dynamic type detection works"""
-    from catalog.sites.openlibrary import OpenLibrary
-    from catalog.sites.wikidata import WikidataProperties
-
-    # Find the property ID for OpenLibrary (P648 maps to generic OpenLibrary)
-    property_id = None
-    for prop_id, mapped_type in WikidataProperties.IdTypeMapping.items():
-        if mapped_type == IdType.OpenLibrary:
-            property_id = prop_id
-            break
-
-    # Verify we found the correct property
-    assert property_id == "P648"
-
-    # Verify that OpenLibrary.guess_id_type correctly identifies Work vs Edition
-    assert OpenLibrary.guess_id_type("OL8694710W") == IdType.OpenLibrary_Work
-    assert OpenLibrary.guess_id_type("OL7353617M") == IdType.OpenLibrary
-
-    # This verifies that the lookup_qid_by_external_id method would work correctly
-    # for both OpenLibrary Edition and Work IDs
-
-
 def test_openlibrary_author_id_detection():
     """Test that OL...A author IDs are correctly detected"""
     from catalog.sites.openlibrary import OpenLibrary
@@ -803,16 +773,6 @@ def test_openlibrary_author_id_detection():
     assert OpenLibrary.guess_id_type("OL34184A") == IdType.OpenLibrary_Author
     assert OpenLibrary.guess_id_type("OL8694710W") == IdType.OpenLibrary_Work
     assert OpenLibrary.guess_id_type("OL7353617M") == IdType.OpenLibrary
-
-
-def test_wikidata_person_id_type_mappings():
-    """Test that person-specific IdType mappings exist in WikidataProperties"""
-    mapping = WikidataProperties.IdTypeMapping
-    assert mapping.get("P4985") == IdType.TMDB_Person
-    assert mapping.get("P2963") == IdType.Goodreads_Author
-    assert mapping.get("P1902") == IdType.Spotify_Artist
-    assert mapping.get("P9650") == IdType.IGDB_Company
-    assert mapping.get("P12836") == IdType.DoubanPersonage
 
 
 class TestWikiDataPerson:

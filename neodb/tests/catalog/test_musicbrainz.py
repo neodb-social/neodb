@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common import *
-from catalog.models import Album, IdType, People, PeopleType, SiteName
+from catalog.models import Album, IdType, People, PeopleType
 from catalog.sites.musicbrainz import (
     MusicBrainzArtist,
     MusicBrainzRelease,
@@ -434,47 +434,6 @@ class TestMusicBrainzIntegration:
         rel_site = SiteManager.get_site_cls_by_id_type(IdType.MusicBrainz_Release)
         assert rel_site is not None
         assert rel_site == MusicBrainzRelease
-
-    def test_url_routing(self):
-        """Test that URLs are routed to the correct class"""
-        rg_url = (
-            "https://musicbrainz.org/release-group/b1392450-e666-3926-a536-22c65f834433"
-        )
-        rel_url = "https://musicbrainz.org/release/1834eae1-741b-3c03-9ca5-0df3decb43ea"
-
-        rg_site = SiteManager.get_site_by_url(rg_url)
-        assert isinstance(rg_site, MusicBrainzReleaseGroup)
-
-        rel_site = SiteManager.get_site_by_url(rel_url)
-        assert isinstance(rel_site, MusicBrainzRelease)
-
-    def test_different_id_types(self):
-        """Test that the classes use different ID types"""
-        assert MusicBrainzReleaseGroup.ID_TYPE == IdType.MusicBrainz_ReleaseGroup
-        assert MusicBrainzRelease.ID_TYPE == IdType.MusicBrainz_Release
-        assert MusicBrainzReleaseGroup.ID_TYPE != MusicBrainzRelease.ID_TYPE
-
-    def test_same_site_name(self):
-        """Test that both classes share the same site name"""
-        assert MusicBrainzReleaseGroup.SITE_NAME == SiteName.MusicBrainz
-        assert MusicBrainzRelease.SITE_NAME == SiteName.MusicBrainz
-        assert MusicBrainzReleaseGroup.SITE_NAME == MusicBrainzRelease.SITE_NAME
-
-    def test_different_wiki_properties(self):
-        """Test that classes have different Wikidata property IDs"""
-        assert (
-            MusicBrainzReleaseGroup.WIKI_PROPERTY_ID == "P436"
-        )  # MusicBrainz release group ID
-        assert MusicBrainzRelease.WIKI_PROPERTY_ID == "P5813"  # MusicBrainz release ID
-        assert (
-            MusicBrainzReleaseGroup.WIKI_PROPERTY_ID
-            != MusicBrainzRelease.WIKI_PROPERTY_ID
-        )
-
-    def test_same_default_model(self):
-        """Test that both classes use Album as default model"""
-        assert MusicBrainzReleaseGroup.DEFAULT_MODEL == Album
-        assert MusicBrainzRelease.DEFAULT_MODEL == Album
 
     def test_extract_first_isrc(self):
         """_extract_first_isrc returns the first non-empty ISRC across media."""

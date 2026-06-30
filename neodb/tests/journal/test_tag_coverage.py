@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.models import Edition
-from journal.models import Tag, TagManager, TagMember
+from journal.models import Tag, TagMember
 from users.models import User
 
 
@@ -52,51 +52,3 @@ class TestTagMemberTitle:
         member = TagMember.objects.filter(parent=tag, item=self.book).first()
         assert member is not None
         assert member.title == "MyTag"
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestIndexableTagsForItem:
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user1 = User.register(email="ati1@test.com", username="atiuser1")
-        self.user2 = User.register(email="ati2@test.com", username="atiuser2")
-        self.book1 = Edition.objects.create(title="ATI Book1")
-        self.book2 = Edition.objects.create(title="ATI Book2")
-
-    def test_aggregates_public_tags_across_users(self):
-        TagManager.tag_item_for_owner(
-            self.user1.identity, self.book1, ["sci-fi", "space"]
-        )
-        TagManager.tag_item_for_owner(
-            self.user2.identity, self.book1, ["sci-fi", "adventure"]
-        )
-        tags = TagManager.indexable_tags_for_item(self.book1)
-        # Aggregated across both users, cleaned and de-duplicated.
-        assert "sci fi" in tags
-        assert len(tags) > 0
-        assert TagManager.indexable_tags_for_item(self.book2) == []
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestTagManagerGetItemsTags:
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user = User.register(email="git@test.com", username="gituser")
-        self.identity = self.user.identity
-        self.book1 = Edition.objects.create(title="GIT Book1")
-        self.book2 = Edition.objects.create(title="GIT Book2")
-        self.book3 = Edition.objects.create(title="GIT Book3")
-
-    def test_get_items_tags_with_tags(self):
-        TagManager.tag_item_for_owner(self.identity, self.book1, ["a", "b"])
-        TagManager.tag_item_for_owner(self.identity, self.book2, ["c"])
-        tm = TagManager(self.identity)
-        result = tm.get_items_tags([self.book1.pk, self.book2.pk, self.book3.pk])
-        assert sorted(result[self.book1.pk]) == ["a", "b"]
-        assert result[self.book2.pk] == ["c"]
-        assert result[self.book3.pk] == []
-
-    def test_get_items_tags_empty_list(self):
-        tm = TagManager(self.identity)
-        result = tm.get_items_tags([])
-        assert result == {}

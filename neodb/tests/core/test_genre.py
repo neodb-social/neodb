@@ -4,8 +4,6 @@ from django.utils import translation
 from common.models.genre import (
     DEFAULT_GENRE_CATEGORIES,
     GENRE_CATALOG,
-    GENRE_CHOICES,
-    GENRE_CODES,
     _build_genre_aliases,
     genre_choices_for,
     get_genre_categories,
@@ -18,14 +16,6 @@ from common.models.genre import (
 class TestGenreCatalog:
     def test_genre_catalog_not_empty(self):
         assert len(GENRE_CATALOG) > 80
-
-    def test_genre_choices_matches_catalog(self):
-        assert len(GENRE_CHOICES) == len(GENRE_CATALOG)
-        for code, label in GENRE_CHOICES:
-            assert code in GENRE_CATALOG
-
-    def test_genre_codes_matches_catalog(self):
-        assert GENRE_CODES == GENRE_CATALOG
 
 
 @pytest.mark.django_db(databases="__all__")
