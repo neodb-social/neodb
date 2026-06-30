@@ -611,7 +611,7 @@ elif MEDIA_BACKEND and not MEDIA_BACKEND.startswith("local"):
     raise ImproperlyConfigured(f"MEDIA_BACKEND {MEDIA_BACKEND} is not supported ")
 else:  # local
     STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
-    STORAGES["takahe"] = {  # type:ignore
+    STORAGES["takahe"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
         "OPTIONS": {"location": TAKAHE_MEDIA_ROOT, "base_url": TAKAHE_MEDIA_URL},
     }

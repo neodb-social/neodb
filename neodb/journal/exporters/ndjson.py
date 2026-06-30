@@ -109,7 +109,7 @@ class NdjsonExporter(Task):
                         re.sub(
                             r"(?<=!\[\]\()([^)]+)(?=\))",
                             lambda x: _save_image(x[1]),
-                            p.body,  # type: ignore
+                            p.body,
                         )
                     elif cls == Note and p.latest_post:
                         note_attachments = []
