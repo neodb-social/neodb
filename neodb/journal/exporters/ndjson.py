@@ -106,11 +106,8 @@ class NdjsonExporter(Task):
                         "metadata": p.metadata,
                     }
                     if cls == Review:
-                        re.sub(
-                            r"(?<=!\[\]\()([^)]+)(?=\))",
-                            lambda x: _save_image(x[1]),
-                            p.body,
-                        )
+                        for url in re.findall(r"(?<=!\[\]\()([^)]+)(?=\))", p.body):
+                            _save_image(url)
                     elif cls == Note and p.latest_post:
                         note_attachments = []
                         for a in p.latest_post.attachments.all():
@@ -144,11 +141,8 @@ class NdjsonExporter(Task):
             # envelope the importer expects.
             for art in Article.objects.filter(owner=user.identity):
                 total += 1
-                re.sub(
-                    r"(?<=!\[\]\()([^)]+)(?=\))",
-                    lambda x: _save_image(x[1]),
-                    art.body,
-                )
+                for url in re.findall(r"(?<=!\[\]\()([^)]+)(?=\))", art.body):
+                    _save_image(url)
                 o = {
                     "type": "Article",
                     "content": art.ap_object,
