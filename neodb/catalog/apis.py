@@ -507,6 +507,11 @@ def _prepare_reco_items(request, items: list) -> None:
     prefetch_related_objects(
         items,
         Item.credits_prefetch(),
+        # Reco items come from similar_items()/blended_for_discover(), which
+        # (unlike query_index) don't pre-hydrate external_resources; without
+        # this ItemSchema.external_resources fires one query per item
+        # (EGGPLANT-1FN /similar, EGGPLANT-1FP /me/recommendations).
+        Item.external_resources_prefetch(),
     )
     Rating.attach_to_items(items)
     if request.user.is_authenticated:

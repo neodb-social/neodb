@@ -3,7 +3,7 @@ from typing import Any, List
 
 from django.core.cache import cache
 from django.core.signing import b62_encode
-from django.db.models import Count, QuerySet
+from django.db.models import Count, QuerySet, prefetch_related_objects
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
@@ -23,7 +23,7 @@ from common.api import (
 from common.sentry import record_activity
 from journal.models.common import q_piece_visible_to_user
 
-from ..models import Collection, FeaturedCollection, ShelfMember, ShelfType
+from ..models import Collection, FeaturedCollection, Rating, ShelfMember, ShelfType
 
 
 class CollectionPageNumberPagination(PageNumberPagination):
@@ -77,6 +77,63 @@ class CollectionInSchema(Schema):
 class CollectionItemSchema(Schema):
     item: ItemSchema
     note: str
+
+
+def _prefetch_collection_member_items(data: list) -> None:
+    """Batch-hydrate items for ``CollectionItemSchema`` (``item: ItemSchema``).
+
+    Without this, each member serializes its item's ``external_resources`` and
+    ``credits`` one row at a time. Dynamic collections carry the item in a
+    dict; static members reference it through a polymorphic FK that can't be
+    ``select_related`` (django-polymorphic), so resolve those in a single query
+    and assign back, mirroring ``Collection.get_members_by_page``.
+    """
+    if not data:
+        return
+    members = [m for m in data if not isinstance(m, dict)]
+    item_ids = [m.item_id for m in members if m.item_id]
+    if item_ids:
+        items_map = {it.pk: it for it in Item.objects.filter(pk__in=item_ids)}
+        for m in members:
+            # Assign only when resolved. The FK is PROTECTed so a miss is not
+            # expected; dereferencing m.item for a missing id would defeat the
+            # batch with a lazy load (and assigning None would break the schema).
+            resolved = items_map.get(m.item_id)
+            if resolved is not None:
+                m.item = resolved
+    items = [(m["item"] if isinstance(m, dict) else m.item) for m in data]
+    items = [i for i in items if i is not None]
+    if not items:
+        return
+    # external_resources skips the metadata JSON (EGGPLANT-1DX).
+    prefetch_related_objects(
+        items,
+        Item.external_resources_prefetch(),
+        Item.credits_prefetch(),
+    )
+    Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
+    Rating.attach_to_items(items)
+
+
+class CollectionItemPageNumberPagination(PageNumberPagination):
+    """Hydrate the page's items so ``CollectionItemSchema`` serialization does
+    not fire per-item ``external_resources``/``credits`` queries (N+1)."""
+
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ):
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        if isinstance(val, tuple):
+            return val
+        data = val.get("data") if isinstance(val, dict) else None
+        if data:
+            _prefetch_collection_member_items(list(data))
+        return val
 
 
 class CollectionItemInSchema(Schema):
@@ -151,7 +208,7 @@ def get_collection(request, collection_uuid: str):
     tags=["collection"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
-@paginate(PageNumberPagination)
+@paginate(CollectionItemPageNumberPagination)
 def collection_list_items(request, collection_uuid: str):
     """
     Get items in a collection collections
@@ -245,7 +302,7 @@ def delete_collection(request, collection_uuid: str):
     response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
 )
-@paginate(PageNumberPagination)
+@paginate(CollectionItemPageNumberPagination)
 def user_collection_list_items(request, collection_uuid: str):
     """
     Get items in a collection collections

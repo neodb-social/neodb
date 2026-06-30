@@ -1,8 +1,17 @@
-import pytest
+from types import SimpleNamespace
 
+import pytest
+from django.contrib.auth.models import AnonymousUser
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+
+from catalog.apis import _prepare_reco_items
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
 from catalog.models import (
     Edition,
+    ExternalResource,
+    IdType,
+    Item,
     ItemSimilarity,
     Performance,
     PerformanceProduction,
@@ -471,3 +480,51 @@ class TestSiblingEditionExclusion:
         _public_mark(watcher.identity, self.e1)
         ids = {i.pk for i in similar_items(self.src, viewer=watcher, limit=10)}
         assert self.e2.pk in ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRecoItemsExternalResourcesNoNPlusOne:
+    """EGGPLANT-1FN (/similar) and EGGPLANT-1FP (/me/recommendations).
+
+    Reco items come from similar_items()/blended_for_discover(), which -- unlike
+    the search path's query_index -- do not pre-hydrate external_resources, so
+    ItemSchema serialization fired one ``catalog_externalresource WHERE
+    item_id = %s`` query per item. ``_prepare_reco_items`` must batch-prefetch
+    them.
+    """
+
+    def _items_with_external_resources(self, n: int = 3) -> list:
+        created = []
+        for i in range(n):
+            book = Edition.objects.create(title=f"Reco {i}")
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.RSS,
+                id_value=f"reco-{i}",
+                url=f"https://example.com/reco-{i}",
+            )
+            created.append(book)
+        # Fresh polymorphic instances with an empty prefetch cache, mirroring
+        # what similar_items()/blended_for_discover() hand back.
+        return list(Item.objects.filter(pk__in=[b.pk for b in created]))
+
+    def test_external_resources_prefetched(self):
+        items = self._items_with_external_resources()
+        request = SimpleNamespace(user=AnonymousUser())
+        _prepare_reco_items(request, items)
+        # Reading external_resources (as ItemSchema does) must now be served
+        # from the prefetch cache without per-item queries.
+        with CaptureQueriesContext(connection) as ctx:
+            for it in items:
+                for res in it.external_resources.all():
+                    _ = res.url
+        offending = [
+            q
+            for q in ctx.captured_queries
+            if 'FROM "catalog_externalresource"' in q["sql"]
+        ]
+        assert offending == [], (
+            f"reading reco items' external_resources fired {len(offending)} "
+            "query(ies); expected 0 (prefetched). First offending SQL: "
+            f"{offending[0]['sql'] if offending else 'n/a'}"
+        )

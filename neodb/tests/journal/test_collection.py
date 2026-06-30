@@ -1,6 +1,9 @@
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
-from catalog.models import Edition, Movie
+from catalog.models import Edition, ExternalResource, IdType, ItemCredit, Movie
+from journal.apis.collection import _prefetch_collection_member_items
 from journal.models.collection import Collection
 from users.models import User
 
@@ -273,4 +276,62 @@ class TestCollectionEditItemsNPlusOne:
         assert len(credit_queries) <= 1, (
             f"edit_items fired {len(credit_queries)} catalog_itemcredit queries "
             f"for {len(movies)} members; expected <=1 (batched)."
+        )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionItemsApiPrefetch:
+    """The ``/collection/{uuid}/item/`` and ``/me/collection/{uuid}/item/``
+    APIs serialize each member's item via ``ItemSchema``; without batch
+    prefetch each item fired a per-row ``catalog_externalresource`` query.
+    ``CollectionItemPageNumberPagination`` hydrates the page post-slice
+    (mirrors the shelf API).
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="colpf@test.com", username="colpf")
+        self.collection = Collection(
+            owner=self.user.identity, title="Pf Collection", brief=""
+        )
+        self.collection.save()
+        for i in range(3):
+            book = Edition.objects.create(title=f"Pf Book {i}")
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.RSS,
+                id_value=f"colpf-{i}",
+                url=f"https://example.com/colpf-{i}",
+            )
+            ItemCredit.objects.create(item=book, role="author", name=f"Author {i}")
+            self.collection.append_item(book)
+
+    def test_member_items_external_resources_and_credits_prefetched(self):
+        # Fresh member instances, as the paginator receives them post-slice.
+        members = list(self.collection.ordered_members)
+        _prefetch_collection_member_items(members)
+        # Reading external_resources and credits (as ItemSchema does) must now
+        # be served from the prefetch cache without per-item queries.
+        with CaptureQueriesContext(connection) as ctx:
+            for m in members:
+                for res in m.item.external_resources.all():
+                    _ = res.url
+                list(m.item.credits.all())
+        extres = [
+            q
+            for q in ctx.captured_queries
+            if 'FROM "catalog_externalresource"' in q["sql"]
+        ]
+        credits = [
+            q for q in ctx.captured_queries if 'FROM "catalog_itemcredit"' in q["sql"]
+        ]
+        assert extres == [], (
+            f"reading collection member items' external_resources fired "
+            f"{len(extres)} query(ies); expected 0 (prefetched). First: "
+            f"{extres[0]['sql'] if extres else 'n/a'}"
+        )
+        assert credits == [], (
+            f"reading collection member items' credits fired {len(credits)} "
+            f"query(ies); expected 0 (prefetched). First: "
+            f"{credits[0]['sql'] if credits else 'n/a'}"
         )
