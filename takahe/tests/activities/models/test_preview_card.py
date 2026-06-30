@@ -283,11 +283,13 @@ def test_handle_needs_fetch_ssrf_blocked(httpx_mock, config_system):
     assert_all_requests_were_expected=False, can_send_already_matched_responses=True
 )
 def test_handle_needs_fetch_drops_oversized_image_url(httpx_mock, config_system):
-    """An og:image longer than the column limit is dropped, not stored truncated."""
+    """An oversized og:image is dropped along with its now-meaningless dimensions."""
     long_image = "https://example.com/" + ("a" * 3000) + ".jpg"
     html = (
         "<html><head><title>T</title>"
         f'<meta property="og:image" content="{long_image}" />'
+        '<meta property="og:image:width" content="1200" />'
+        '<meta property="og:image:height" content="630" />'
         "</head></html>"
     )
     httpx_mock.add_response(
@@ -303,6 +305,9 @@ def test_handle_needs_fetch_drops_oversized_image_url(httpx_mock, config_system)
     card.refresh_from_db()
     assert result == PreviewCardStates.fetched
     assert card.image_url == ""
+    # Dimensions must not linger without an image (avoids inconsistent API output).
+    assert card.image_width is None
+    assert card.image_height is None
 
 
 @pytest.mark.django_db
