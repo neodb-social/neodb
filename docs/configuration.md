@@ -314,7 +314,9 @@ The following settings can still be set in `.env` for backward compatibility, bu
 ### Discover
  - `NEODB_DISCOVER_FILTER_LANGUAGE`
  - `NEODB_DISCOVER_SHOW_LOCAL_ONLY`
- - `NEODB_DISCOVER_UPDATE_INTERVAL`
+ - `NEODB_DISCOVER_UPDATE_INTERVAL` (deprecated; fallback for the two below when either is 0)
+ - `NEODB_DISCOVER_POSTS_UPDATE_INTERVAL` (popular posts refresh, minutes; default 60)
+ - `NEODB_DISCOVER_GALLERY_UPDATE_INTERVAL` (discover gallery refresh, minutes; default 360)
  - `NEODB_DISCOVER_SHOW_POPULAR_POSTS`
  - `NEODB_DISCOVER_SHOW_POPULAR_TAGS`
  - `NEODB_MIN_MARKS_FOR_DISCOVER`

@@ -18,6 +18,7 @@ class CatalogConfig(AppConfig):
             CatalogStats,
             DiscoverGenerator,
             PodcastUpdater,
+            PopularPostsGenerator,
         )
 
         init_catalog_audit_log()

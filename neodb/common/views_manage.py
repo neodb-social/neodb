@@ -317,9 +317,27 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "min_value": 0,
         },
         "discover_update_interval": {
-            "title": _("Update Interval (minutes)"),
-            "help_text": _("How often to refresh the popular items list."),
+            "title": _("Update Interval (minutes, deprecated)"),
+            "help_text": _(
+                "Deprecated. Used as a fallback when either interval below is 0."
+            ),
             "min_value": 1,
+        },
+        "discover_posts_update_interval": {
+            "title": _("Popular Posts Update Interval (minutes)"),
+            "help_text": _(
+                "How often to refresh the popular posts feed. 0 uses the "
+                "deprecated interval above."
+            ),
+            "min_value": 0,
+        },
+        "discover_gallery_update_interval": {
+            "title": _("Gallery Update Interval (minutes)"),
+            "help_text": _(
+                "How often to refresh the discover gallery (trending items, "
+                "collections, tags). 0 uses the deprecated interval above."
+            ),
+            "min_value": 0,
         },
         "discover_filter_language": {
             "title": _("Filter by Preferred Languages"),
@@ -351,6 +369,8 @@ class DiscoverSettings(SiteConfigSettingsPage):
         _("Discover"): [
             "min_marks_for_discover",
             "discover_update_interval",
+            "discover_posts_update_interval",
+            "discover_gallery_update_interval",
             "discover_filter_language",
             "discover_show_local_only",
             "discover_show_popular_posts",

@@ -105,8 +105,12 @@ env = environ.FileAwareEnv(
     NEODB_DISCOVER_SHOW_POPULAR_POSTS=(bool, False),
     # if True, show popular public tags
     NEODB_DISCOVER_SHOW_POPULAR_TAGS=(bool, False),
-    # update popular items every X minutes.
+    # deprecated: fallback for the two intervals below when either is 0.
     NEODB_DISCOVER_UPDATE_INTERVAL=(int, 60),
+    # refresh the popular posts feed every X minutes (0 = use the value above).
+    NEODB_DISCOVER_POSTS_UPDATE_INTERVAL=(int, 60),
+    # refresh the (heavier) discover gallery every X minutes (0 = use the value above).
+    NEODB_DISCOVER_GALLERY_UPDATE_INTERVAL=(int, 360),
     # Disable cron jobs, * for all
     NEODB_DISABLE_CRON_JOBS=(list, []),
     # search sites
@@ -266,6 +270,8 @@ DISABLE_DEFAULT_RELAY = env("NEODB_DISABLE_DEFAULT_RELAY", default=DEBUG)
 MIN_MARKS_FOR_DISCOVER = env("NEODB_MIN_MARKS_FOR_DISCOVER")
 
 DISCOVER_UPDATE_INTERVAL = env("NEODB_DISCOVER_UPDATE_INTERVAL")
+DISCOVER_POSTS_UPDATE_INTERVAL = env("NEODB_DISCOVER_POSTS_UPDATE_INTERVAL")
+DISCOVER_GALLERY_UPDATE_INTERVAL = env("NEODB_DISCOVER_GALLERY_UPDATE_INTERVAL")
 DISCOVER_FILTER_LANGUAGE = env("NEODB_DISCOVER_FILTER_LANGUAGE")
 DISCOVER_SHOW_LOCAL_ONLY = env("NEODB_DISCOVER_SHOW_LOCAL_ONLY")
 DISCOVER_SHOW_POPULAR_POSTS = env("NEODB_DISCOVER_SHOW_POPULAR_POSTS")
