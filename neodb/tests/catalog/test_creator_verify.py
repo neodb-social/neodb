@@ -9,7 +9,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from catalog.jobs.creator_verify import _has_audio_episode, verify_creator_task
-from catalog.jobs.discover import DiscoverGenerator
+from catalog.jobs.discover import DiscoverGenerator, PopularPostsGenerator
 from catalog.models import (
     Edition,
     IdType,
@@ -1323,7 +1323,7 @@ class TestTrendingArticles:
         dropped_posts = self._article_post_ids(dropped)
         assert kept_posts and dropped_posts  # both articles created posts
 
-        DiscoverGenerator().run()
+        PopularPostsGenerator().run()
         popular = set(cache.get("popular_posts") or [])
 
         assert kept_posts & popular  # author with a shelf item trends

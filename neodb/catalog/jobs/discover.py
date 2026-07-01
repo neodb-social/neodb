@@ -29,69 +29,32 @@ MIN_DAYS_FOR_PERIOD = 6
 DAYS_FOR_TRENDS = 3
 
 
-@JobManager.register
-class DiscoverGenerator(BaseJob):
-    @classmethod
-    def get_interval(cls) -> timedelta:
-        return timedelta(minutes=SiteConfig.system.discover_update_interval)
+class _DiscoverBase(BaseJob):
+    """Shared config helpers for the discover jobs."""
 
     @property
     def min_marks(self) -> int:
         return SiteConfig.system.min_marks_for_discover
 
-    def get_no_discover_identities(self) -> list:
-        return list(
-            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
-        )
 
-    def get_popular_posts(
-        self,
-        days: int = 30,
-        min_interaction: int = 1,
-        local_only: bool = False,
-    ):
-        since = timezone.now() - timedelta(days=days)
-        domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
-        qs = (
-            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
-            .filter(author__restriction=0)
-            .exclude(author__discoverable=False)
-            .filter(
-                author__domain__in=domains,
-                visibility__in=[0, 1, 4],
-                published__gte=since,
-            )
-            .annotate(num_interactions=Count("interactions"))
-            .filter(num_interactions__gte=min_interaction)
-            .order_by("-num_interactions", "-published")
-        )
-        if local_only:
-            qs = qs.filter(local=True)
-        if (
-            SiteConfig.system.discover_filter_language
-            and SiteConfig.system.preferred_languages
-        ):
-            q = None
-            for lang in SiteConfig.system.preferred_languages:
-                if q:
-                    q = q | Q(language__istartswith=lang)
-                else:
-                    q = Q(language__istartswith=lang)
-            if q:
-                qs = qs.filter(q)
-        return qs
+@JobManager.register
+class DiscoverGenerator(_DiscoverBase):
+    """Heavy discover refresh: trending item galleries, trends links, original
+    episodes, featured collections and popular tags.
 
-    def _top_post_ids(self, qs, limit: int, max_per_author: int = 2) -> list:
-        pks = []
-        author_count: dict[int, int] = {}
-        for pk, author_id in qs.values_list("pk", "author_id")[: limit * 10]:
-            if author_count.get(author_id, 0) >= max_per_author:
-                continue
-            pks.append(pk)
-            author_count[author_id] = author_count.get(author_id, 0) + 1
-            if len(pks) >= limit:
-                break
-        return pks
+    These are expensive multi-window ``ShelfMember`` aggregations plus per-item
+    prefetches, so this job runs infrequently (``discover_gallery_update_interval``,
+    default 6h). The lightweight popular-posts feed is refreshed separately and
+    more often by :class:`PopularPostsGenerator`.
+    """
+
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        sys = SiteConfig.system
+        # discover_update_interval is deprecated: a 0 in the gallery knob falls
+        # back to it so deployments that only tuned the old value keep working.
+        minutes = sys.discover_gallery_update_interval or sys.discover_update_interval
+        return timedelta(minutes=minutes)
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         qs = (
@@ -299,9 +262,96 @@ class DiscoverGenerator(BaseJob):
         collection_ids = collections.values_list("pk", flat=True)[:40]
 
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
-        excluding_identities = self.get_no_discover_identities()
 
+        cache.set("public_gallery", gallery_list, timeout=None)
+        cache.set("trends_links", trends, timeout=None)
+        cache.set("featured_collections", collection_ids, timeout=None)
+        cache.set("popular_tags", list(tags), timeout=None)
+        cache.set("trends_updated", timezone.now(), timeout=None)
+        logger.info(
+            f"Discover data updated, trends: {len(trends)}, "
+            f"collections: {len(collection_ids)}, tags: {len(tags)}."
+        )
+
+
+@JobManager.register
+class PopularPostsGenerator(_DiscoverBase):
+    """Refresh the popular/trending posts feed (``popular_posts`` /
+    ``trends_statuses``).
+
+    Split out from :class:`DiscoverGenerator` so this lightweight social feed
+    can refresh frequently (``discover_posts_update_interval``, default hourly)
+    without dragging the database through the heavy gallery aggregations on
+    every run.
+    """
+
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        sys = SiteConfig.system
+        # discover_update_interval is deprecated: a 0 in the posts knob falls
+        # back to it so deployments that only tuned the old value keep working.
+        minutes = sys.discover_posts_update_interval or sys.discover_update_interval
+        return timedelta(minutes=minutes)
+
+    def get_no_discover_identities(self) -> list:
+        return list(
+            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+        )
+
+    def get_popular_posts(
+        self,
+        days: int = 30,
+        min_interaction: int = 1,
+        local_only: bool = False,
+    ):
+        since = timezone.now() - timedelta(days=days)
+        domains = FediverseInstance.get_peers_for_search() + [settings.SITE_DOMAIN]
+        qs = (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(author__restriction=0)
+            .exclude(author__discoverable=False)
+            .filter(
+                author__domain__in=domains,
+                visibility__in=[0, 1, 4],
+                published__gte=since,
+            )
+            .annotate(num_interactions=Count("interactions"))
+            .filter(num_interactions__gte=min_interaction)
+            .order_by("-num_interactions", "-published")
+        )
+        if local_only:
+            qs = qs.filter(local=True)
+        if (
+            SiteConfig.system.discover_filter_language
+            and SiteConfig.system.preferred_languages
+        ):
+            q = None
+            for lang in SiteConfig.system.preferred_languages:
+                if q:
+                    q = q | Q(language__istartswith=lang)
+                else:
+                    q = Q(language__istartswith=lang)
+            if q:
+                qs = qs.filter(q)
+        return qs
+
+    def _top_post_ids(self, qs, limit: int, max_per_author: int = 2) -> list:
+        pks = []
+        author_count: dict[int, int] = {}
+        for pk, author_id in qs.values_list("pk", "author_id")[: limit * 10]:
+            if author_count.get(author_id, 0) >= max_per_author:
+                continue
+            pks.append(pk)
+            author_count[author_id] = author_count.get(author_id, 0) + 1
+            if len(pks) >= limit:
+                break
+        return pks
+
+    def run(self):
+        logger.info("Popular posts update start.")
+        local = SiteConfig.system.discover_show_local_only
         if SiteConfig.system.discover_show_popular_posts:
+            excluding_identities = self.get_no_discover_identities()
             reviews = (
                 Review.objects.filter(visibility=0)
                 .exclude(owner_id__in=excluding_identities)
@@ -352,13 +402,6 @@ class DiscoverGenerator(BaseJob):
                 )
         else:
             post_ids = []
-        cache.set("public_gallery", gallery_list, timeout=None)
-        cache.set("trends_links", trends, timeout=None)
-        cache.set("featured_collections", collection_ids, timeout=None)
-        cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
         cache.set("trends_statuses", list(post_ids), timeout=None)
-        cache.set("trends_updated", timezone.now(), timeout=None)
-        logger.info(
-            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
-        )
+        logger.info(f"Popular posts updated: {len(post_ids)}.")

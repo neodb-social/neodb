@@ -48,7 +48,11 @@ class SiteConfig(models.Model):
 
         # Discover
         min_marks_for_discover: int = 1
+        # discover_update_interval is deprecated in favour of the two split
+        # intervals below; it is used as the fallback when either is set to 0.
         discover_update_interval: int = 60
+        discover_posts_update_interval: int = 60
+        discover_gallery_update_interval: int = 360
         discover_filter_language: bool = False
         discover_show_local_only: bool = False
         discover_show_popular_posts: bool = False
@@ -173,6 +177,12 @@ class SiteConfig(models.Model):
             "min_marks_for_discover": getattr(settings, "MIN_MARKS_FOR_DISCOVER", 1),
             "discover_update_interval": getattr(
                 settings, "DISCOVER_UPDATE_INTERVAL", 60
+            ),
+            "discover_posts_update_interval": getattr(
+                settings, "DISCOVER_POSTS_UPDATE_INTERVAL", 60
+            ),
+            "discover_gallery_update_interval": getattr(
+                settings, "DISCOVER_GALLERY_UPDATE_INTERVAL", 360
             ),
             "discover_filter_language": getattr(
                 settings, "DISCOVER_FILTER_LANGUAGE", False
