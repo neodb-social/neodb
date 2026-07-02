@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-16 20:50-0400\n"
-"PO-Revision-Date: 2026-06-15 10:47+0000\n"
-"Last-Translator: reducedradius <feixiang512@outlook.com>\n"
+"PO-Revision-Date: 2026-07-02 15:01+0000\n"
+"Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
@@ -3833,24 +3833,24 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"<h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
+"        <h3>欢迎 🙋🏻🕵♀️ 🙋🏻 🙋🏻🕵♂️</h3>\n"
 "<p>\n"
 "  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里管理收藏、记录想法，以及发现新的内容和朋友。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式通过<em data-tooltip=\"除了最常见的长毛象，另外也有Pleroma、GoToSocial、Takahē、Firefish、Catodon等联邦宇宙实例服务\">联邦宇宙（Fediverse，一种分布式社交网络）</em>实例账号，如果你还没有注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式是通过联邦宇宙（一种分布式社交网络，包括 Mastodon/Pleroma 等）实例账户。如果你还没有注册过，可先 <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">选择实例并注册</a>。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过<em data-tooltip=\"也称ATProto，另一种分布式社交网络\">Bluesky</em>账号，如果你还没有注册过，可先<a href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n"
+"  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过 Bluesky（另一个分布式社交网络，也叫 ATProto）。如果你还没有注册过，可先<a href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n"
 "</p>\n"
 "<p>\n"
 "  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙或蓝天也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a>或<a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
+"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a> 或 <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">点击这里</a>注册或登录。\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">单击这里</a>注册或登录。\n"
 "</p>\n"
 "        "
 
@@ -6375,7 +6375,7 @@ msgstr "无法更新登录信息"
 #: mastodon/views/common.py:75
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
-msgstr "身份 {handle}  已被其它账号使用。"
+msgstr "别的用户在使用 {handle} 身份。"
 
 #: mastodon/views/common.py:91
 #, python-brace-format
@@ -7015,7 +7015,7 @@ msgstr "最近更新"
 
 #: users/templates/users/account.html:92
 msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
-msgstr "如果你还没有在任何<em data-tooltip=\"联邦宇宙(Fediverse 有时也被称为长毛象)是一种分布式社交网络\">联邦宇宙</em>实例注册过，可先<a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。"
+msgstr "如果你还没有在任何联邦宇宙实例注册过，可先 <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例</a> 并注册。"
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
@@ -7402,7 +7402,7 @@ msgstr "导入豆瓣标记和评论"
 
 #: users/templates/users/data.html:31
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
-msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
+msgstr "选择导出自 <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆坟</a> 的 <code>.xlsx</code> 文件"
 
 #: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
