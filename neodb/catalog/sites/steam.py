@@ -108,11 +108,10 @@ class Steam(AbstractSite):
                 )
             )
             for cover in candidates:
-                pd.metadata["cover_image_url"] = cover
-                (
-                    pd.cover_image,
-                    pd.cover_image_extention,
-                ) = BasicImageDownloader.download_image(cover, self.url)
-                if pd.cover_image is not None:
+                img, ext = BasicImageDownloader.download_image(cover, self.url)
+                if img is not None:
+                    pd.cover_image = img
+                    pd.cover_image_extention = ext
+                    pd.metadata["cover_image_url"] = cover
                     break
         return pd
