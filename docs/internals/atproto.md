@@ -49,7 +49,7 @@ referenced with a `com.atproto.repo.strongRef`. Instead every record embeds a
   ...) the work was matched from, **referenced by URL, not raw id**, for
   cross-instance matching.
 - `identifiers` additionally lists **standardized identifiers** of the work --
-  only types from `IdealIdTypes` (ISBN, CUBN, ASIN, GTIN, ISRC, OCLC,
+  only well-known identifier types (ISBN, CUBN, ASIN, GTIN, ISRC, OCLC,
   MusicBrainz, RSS, IMDB, Steam, Itch, WikiData, TMDB person) qualify;
   site-specific ids stay URL-only via `sources`.
 
@@ -81,32 +81,23 @@ rather than on crossposting; disconnecting the account removes it.
 [FEP-c390]: https://codeberg.org/fediverse/fep/src/branch/main/fep/c390/fep-c390.md
 [W3C Data Integrity]: https://www.w3.org/TR/vc-data-integrity/
 
-## Record keys and statelessness
+## Record keys
 
-Every record is keyed by the journal **piece's own uuid** (the mark's or the
-review's), which is deterministic and derivable from the piece itself:
+Every record is keyed by the mark's or review's own uuid, which is
+deterministic and derivable from the item itself:
 
 ```
 at://<did>/net.neodb.mark/<mark-uuid>
 at://<did>/net.neodb.review/<review-uuid>
 ```
 
-Keying by the piece rather than the subject item keeps the AT-URI stable
-across catalog item merges, and lets distinct pieces (e.g. multiple reviews
-of one work, if allowed in the future) map to distinct records.
+Keying by the mark/review rather than the subject item keeps the AT-URI stable
+across catalog item merges, and lets distinct items (e.g. multiple reviews of
+one work) map to distinct records.
 
-Because the key is derivable, NeoDB stores **no** record bookkeeping in its
-database. On every sync the relevant piece is reconciled against the PDS:
-
-- `put_record` (idempotent by key) writes each record that should currently
-  exist, overwriting in place on edit;
-- `delete_record` (idempotent; no error if absent) removes any managed
-  collection that should not exist -- e.g. every record when a piece is made
-  non-public or deleted.
-
-`Piece.atproto_collections()` declares which collections a piece manages and
-`Piece.to_atproto_records()` returns the records that should exist now;
-`Piece._sync_records_to_bluesky()` performs the reconciliation.
+Records are reconciled idempotently against the PDS: each record that should
+exist is written by key (overwriting in place on edit), and any record that
+should no longer exist is deleted.
 
 ## Fediverse back-reference
 
@@ -115,21 +106,13 @@ field pointing back to the ActivityPub post URL.
 
 ## When records are published
 
-Records are reconciled on the same path as Bluesky crossposting
-(`Piece.sync_to_bluesky`), so they require a linked Bluesky/ATProto account and
-are only written for **public** pieces (PDS records are world-readable). When a
-piece's visibility leaves public, its records are deleted. When a piece is
-deleted, its records are removed by the async crosspost-deletion job.
+Records are reconciled on the same path as Bluesky crossposting, so they
+require a linked Bluesky/ATProto account and are only written for **public**
+pieces (PDS records are world-readable). When a piece's visibility leaves
+public, or the piece is deleted, its records are removed.
 
-## Publishing the lexicon
+## Lexicon publication
 
-Schema is being published as a `com.atproto.lexicon.schema` record in `@neodb.net`,
-with a DNS TXT record at `_lexicon.neodb.net` pointing its DID.
-
-To publish manually:
-
-```
-ATPROTO_APP_PASSWORD=... uv run docs/lexicons/publish.py --handle neodb.net
-```
-
-Or automatically on merge to `main` whenever the schema files change.
+The schema is published as a `com.atproto.lexicon.schema` record under
+`@neodb.net`, with a DNS TXT record at `_lexicon.neodb.net` pointing to its DID,
+so the canonical `net.neodb.*` lexicon is resolvable from the network.

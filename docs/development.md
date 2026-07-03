@@ -174,7 +174,7 @@ Main Django apps for NeoDB:
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
  - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` presents timeline and notifications for local users
- - `takahe` communicates with Takahē (a separate Django server, running side by side with this server, code in the `takahe` folder of this repo), see [internals/federation.md](internals/federation.md) for customization of ActivityPub protocol
+ - `takahe` communicates with Takahē (a separate Django server, running side by side with this server, code in the `takahe` folder of this repo), see [internals/activitypub.md](internals/activitypub.md) for customization of ActivityPub protocol
  - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 
