@@ -200,6 +200,18 @@ class TestPeopleWorksMergedAndDeleted:
         response = Client().get(f"{person.url}/works/{PeopleRole.AUTHOR.value}")
         assert response.status_code == 404
 
+    def test_merged_to_deleted_target_returns_404_without_redirect(self):
+        person1 = _author("Dan Simmons")
+        person2 = _author("Daniel Simmons")
+        person1.merge_to(person2)
+        person2.delete(soft=True)
+
+        response = Client().get(f"{person1.url}/works/{PeopleRole.AUTHOR.value}")
+        assert response.status_code == 404
+
+        response = Client().get(f"{person1.url}/works/")
+        assert response.status_code == 404
+
     def test_works_root_on_deleted_people_returns_404(self):
         person = _author()
         person.delete(soft=True)
