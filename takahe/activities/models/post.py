@@ -123,13 +123,15 @@ class PostStates(StateGraph):
 
     @classmethod
     def targets_fan_out(cls, post: "Post", type_: str) -> None:
-        # Fan out to each target
-        for follow in post.get_targets():
-            FanOut.objects.create(
-                identity=follow,
-                type=type_,
-                subject_post=post,
-            )
+        # Fan out to each target in bulk to avoid one INSERT round-trip per
+        # follower (state/created defaults are applied the same as create()).
+        FanOut.objects.bulk_create(
+            (
+                FanOut(identity=follow, type=type_, subject_post=post)
+                for follow in post.get_targets()
+            ),
+            batch_size=500,
+        )
         cls.fan_out_to_relay(post, type_)
 
     @classmethod
