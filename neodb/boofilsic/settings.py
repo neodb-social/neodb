@@ -62,6 +62,8 @@ env = environ.FileAwareEnv(
     NEODB_LOGIN_MASTODON_WHITELIST=(list, []),
     # DATABASE
     NEODB_DB_URL=(str, "postgres://user:pass@127.0.0.1:5432/neodb"),
+    # Seconds to keep DB connections open between requests, 0 to close per request
+    NEODB_DB_CONN_MAX_AGE=(int, 600),
     # Redis, for cache and job queue
     NEODB_REDIS_URL=(str, "redis://127.0.0.1:6379/0"),
     # Search backend, in one of these formats:
@@ -167,6 +169,10 @@ DATABASES["default"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["default"]["TEST"] = {"DEPENDENCIES": ["takahe"]}
 DATABASES["takahe"]["OPTIONS"] = {"client_encoding": "UTF8"}
 DATABASES["takahe"]["TEST"] = {"DEPENDENCIES": []}
+# Persistent connections; takahe app side already uses conn_max_age=600
+for _db in DATABASES.values():
+    _db["CONN_MAX_AGE"] = env("NEODB_DB_CONN_MAX_AGE")
+    _db["CONN_HEALTH_CHECKS"] = True
 REDIS_URL = env("NEODB_REDIS_URL")
 CACHES = {"default": env.cache_url("NEODB_REDIS_URL")}
 _parsed_redis_url: parse.ParseResult = env.url("NEODB_REDIS_URL")
