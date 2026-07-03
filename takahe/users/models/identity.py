@@ -31,6 +31,7 @@ from core.uris import (
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
+from django.db.models.functions import Upper
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -326,7 +327,17 @@ class Identity(StatorModel):
     class Meta:
         verbose_name_plural = "identities"
         unique_together = [("username", "domain")]
-        indexes: list = []  # We need this so Stator can add its own
+        # Non-empty so Stator can append its own state index (see
+        # stator.models.add_stator_indexes). Functional partial index backs the
+        # case-insensitive local handle lookup in by_username_and_domain().
+        indexes: list = [
+            models.Index(
+                Upper("username"),
+                models.F("domain"),
+                condition=models.Q(local=True),
+                name="ix_identity_local_uname_ci",
+            ),
+        ]
 
     class urls(urlman.Urls):
         view = "/@{self.username}@{self.domain_id}/"

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Self
 
 from django.conf import settings
 from django.db import models
+from django.db.models.functions import Upper
 from django.utils import timezone
 from loguru import logger
 
@@ -40,6 +41,12 @@ class APIdentity(models.Model):
         indexes = [
             models.Index(fields=["local", "username"]),
             models.Index(fields=["domain_name", "username"]),
+            # Backs the case-insensitive local handle lookup in get_by_handle().
+            models.Index(
+                Upper("username"),
+                condition=models.Q(local=True, deleted__isnull=True),
+                name="ix_apidentity_local_uname_ci",
+            ),
         ]
 
     def __str__(self):
