@@ -180,7 +180,7 @@ def render_list(
     sort = request.GET.get("sort")
     year = request.GET.get("year")
     if type == "mark" and shelf_type:
-        queryset = target.shelf_manager.get_members(shelf_type, item_category)
+        queryset = target.shelf_manager.get_members(shelf_type)
     elif type == "tagmember":
         tag = Tag.objects.filter(owner=target, title=tag_title).first()
         if not tag:
@@ -188,12 +188,22 @@ def render_list(
         if tag.visibility != 0 and target != viewer:
             return render_list_not_found(request)
         queryset = TagMember.objects.filter(parent=tag)
-        if item_category:
-            queryset = queryset.filter(q_item_in_category(item_category))
     elif type == "review" and item_category:
-        queryset = Review.objects.filter(q_item_in_category(item_category))
+        queryset = Review.objects.all()
     else:
         raise BadRequest(_("Invalid parameter"))
+    queryset = queryset.filter(q_owned_piece_visible_to_user(request.user, target))
+    # year dropdown range is per user, computed before the item_category filter
+    # so the aggregate skips the expensive catalog_item join
+    start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
+    if start_date:
+        start_year = start_date.year
+        current_year = datetime.datetime.now().year
+        years = reversed(range(start_year, current_year + 1))
+    else:
+        years = []
+    if item_category:
+        queryset = queryset.filter(q_item_in_category(item_category))
     if sort == "rating":
         rating = Rating.objects.filter(
             owner_id=OuterRef("owner_id"), item_id=OuterRef("item_id")
@@ -203,14 +213,6 @@ def render_list(
         ).order_by(F("rating_grade").desc(nulls_last=True), "id")
     else:
         queryset = queryset.order_by("-created_time")
-    queryset = queryset.filter(q_owned_piece_visible_to_user(request.user, target))
-    start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
-    if start_date:
-        start_year = start_date.year
-        current_year = datetime.datetime.now().year
-        years = reversed(range(start_year, current_year + 1))
-    else:
-        years = []
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
