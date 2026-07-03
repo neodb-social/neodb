@@ -11,19 +11,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # No-op on fresh databases; cleans up after the interim
-        # 0033_identity_local_username_ci_index migration that briefly
-        # existed on main (merged but never released).
-        migrations.RunSQL(
-            sql="DROP INDEX CONCURRENTLY IF EXISTS ix_identity_local_uname_ci",
-            reverse_sql=migrations.RunSQL.noop,
-        ),
         AddIndexConcurrently(
             model_name="identity",
             index=models.Index(
                 Upper("username"),
                 models.F("domain"),
-                name="ix_identity_handle_ci",
+                condition=models.Q(local=True),
+                name="ix_identity_local_uname_ci",
             ),
         ),
     ]
