@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 
 from catalog.common import *
 from catalog.models import Game, IdType
@@ -96,6 +97,10 @@ class TestSteam:
             "puzzle",
             "adventure",
         ]
+        # header.jpg is horizontal; vertical covers are preferred, falling
+        # through library_600x900_2x (absent in test data) to library_600x900
+        assert "library_600x900.jpg" in site.resource.metadata["cover_image_url"]
+        assert site.resource.cover.name != settings.DEFAULT_ITEM_COVER
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -94,24 +94,25 @@ class Steam(AbstractSite):
         )
         pd.metadata = d
 
-        # try Steam images if no image from IGDB
+        # try Steam images if no image from IGDB;
+        # header.jpg is horizontal, so prefer vertical covers when available
         header = en_data.get("header_image")
-        if header:
-            if pd.cover_image is None:
-                cover = header.replace("header.jpg", "library_600x900_2x.jpg")
+        if header and pd.cover_image is None:
+            candidates = dict.fromkeys(
+                header.replace("header.jpg", asset)
+                for asset in (
+                    "library_600x900_2x.jpg",
+                    "library_600x900.jpg",
+                    "hero_capsule.jpg",
+                    "header.jpg",
+                )
+            )
+            for cover in candidates:
                 pd.metadata["cover_image_url"] = cover
                 (
                     pd.cover_image,
                     pd.cover_image_extention,
-                ) = BasicImageDownloader.download_image(
-                    pd.metadata["cover_image_url"], self.url
-                )
-            if pd.cover_image is None:
-                pd.metadata["cover_image_url"] = header
-                (
-                    pd.cover_image,
-                    pd.cover_image_extention,
-                ) = BasicImageDownloader.download_image(
-                    pd.metadata["cover_image_url"], self.url
-                )
+                ) = BasicImageDownloader.download_image(cover, self.url)
+                if pd.cover_image is not None:
+                    break
         return pd
