@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.core.cache import cache
 from django.db import models
-from django.db.models.functions import Lower
+from django.db.models.functions import Lower, Upper
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
@@ -72,6 +72,9 @@ class SocialAccount(TypedModel):
             models.Index(
                 fields=["type", "domain", "uid"], name="index_social_type_domain_uid"
             ),
+            # Backs handle__iexact lookups (UPPER, so the Lower unique index
+            # below cannot serve them), e.g. APIdentity.get_by_linked_handle().
+            models.Index("type", Upper("handle"), name="ix_social_type_handle_ci"),
         ]
         constraints = [
             models.UniqueConstraint(

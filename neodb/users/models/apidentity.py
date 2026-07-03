@@ -47,6 +47,13 @@ class APIdentity(models.Model):
                 condition=models.Q(local=True, deleted__isnull=True),
                 name="ix_apidentity_local_uname_ci",
             ),
+            # Backs the case-insensitive remote handle lookup in get_remote().
+            models.Index(
+                Upper("username"),
+                Upper("domain_name"),
+                condition=models.Q(deleted__isnull=True),
+                name="ix_apidentity_handle_ci",
+            ),
         ]
 
     def __str__(self):

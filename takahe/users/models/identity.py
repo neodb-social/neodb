@@ -337,6 +337,13 @@ class Identity(StatorModel):
                 condition=models.Q(local=True),
                 name="ix_identity_local_uname_ci",
             ),
+            # Backs username/domain iexact lookups that carry no local filter,
+            # e.g. NeoDB's Takahe.get_identity_by_handler().
+            models.Index(
+                Upper("username"),
+                Upper("domain"),
+                name="ix_identity_handle_ci",
+            ),
         ]
 
     class urls(urlman.Urls):
