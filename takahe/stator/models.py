@@ -130,7 +130,7 @@ class StatorModel(models.Model):
                     | models.Q(state_next_attempt__lte=timezone.now()),
                     state__in=cls.state_graph.automatic_states,
                     state_locked_until__isnull=True,
-                )[:number].select_for_update()
+                )[:number].select_for_update(skip_locked=True)
             )
             cls.objects.filter(pk__in=[i.pk for i in selected]).update(
                 state_locked_until=lock_expiry
