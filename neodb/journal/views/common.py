@@ -1,4 +1,3 @@
-import datetime
 import uuid
 from functools import wraps
 
@@ -198,8 +197,8 @@ def render_list(
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
     if start_date:
         start_year = start_date.year
-        current_year = datetime.datetime.now().year
-        years = reversed(range(start_year, current_year + 1))
+        current_year = timezone.now().year
+        years = range(current_year, start_year - 1, -1)
     else:
         years = []
     if item_category:
