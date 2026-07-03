@@ -189,13 +189,13 @@ def people_works_root(request, item_path, item_uuid):
 @require_http_methods(["GET"])
 def people_works(request, item_path, item_uuid, role):
     item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
+    if role not in PeopleRole.values:
+        raise Http404(_("Invalid role"))
     final = item.final_item
     if final.is_deleted:
         raise Http404(_("Item no longer exists"))
     if final is not item:
         return redirect(f"{final.url}/works/{role}")
-    if role not in PeopleRole.values:
-        raise Http404(_("Invalid role"))
     role_label = PeopleRole(role).label
 
     # All roles this person has, for the role filter dropdown

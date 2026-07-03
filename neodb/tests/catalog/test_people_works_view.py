@@ -236,6 +236,14 @@ class TestPeopleWorksMergedAndDeleted:
         assert response.status_code == 302
         assert response.headers["Location"] == person2.url
 
+    def test_invalid_role_on_merged_people_returns_404_without_redirect(self):
+        person1 = _author("Dan Simmons")
+        person2 = _author("Daniel Simmons")
+        person1.merge_to(person2)
+
+        response = Client().get(f"{person1.url}/works/not_a_role")
+        assert response.status_code == 404
+
     def test_works_root_unknown_uuid_returns_404(self):
         response = Client().get("/people/zzzzzzzzzzzzzzzzzzzzzz/works/")
         assert response.status_code == 404
