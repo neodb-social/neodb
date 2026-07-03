@@ -176,11 +176,35 @@ class TestPeopleWorksMergedAndDeleted:
             f"{person2.url}/works/{PeopleRole.AUTHOR.value}"
         )
 
+    def test_chained_merge_redirects_to_final_target_in_one_hop(self):
+        person1 = _author("Dan Simmons")
+        person2 = _author("Daniel Simmons")
+        person3 = _author("D. Simmons")
+        person1.merge_to(person2)
+        person2.merge_to(person3)
+
+        response = Client().get(f"{person1.url}/works/{PeopleRole.AUTHOR.value}")
+        assert response.status_code == 302
+        assert response.headers["Location"] == (
+            f"{person3.url}/works/{PeopleRole.AUTHOR.value}"
+        )
+
+        response = Client().get(f"{person1.url}/works/")
+        assert response.status_code == 302
+        assert response.headers["Location"] == person3.url
+
     def test_deleted_people_works_returns_404(self):
         person = _author()
         person.delete(soft=True)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.AUTHOR.value}")
+        assert response.status_code == 404
+
+    def test_works_root_on_deleted_people_returns_404(self):
+        person = _author()
+        person.delete(soft=True)
+
+        response = Client().get(f"{person.url}/works/")
         assert response.status_code == 404
 
     def test_works_root_redirects_to_people_page(self):
