@@ -161,3 +161,45 @@ class TestPeopleWorksHidesChildren:
         ids = {w.pk for w in response.context["works"].object_list}
         assert edition.pk in ids
         assert work.pk not in ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPeopleWorksMergedAndDeleted:
+    def test_merged_people_works_redirects_to_target(self):
+        person1 = _author("Dan Simmons")
+        person2 = _author("Daniel Simmons")
+        person1.merge_to(person2)
+
+        response = Client().get(f"{person1.url}/works/{PeopleRole.AUTHOR.value}")
+        assert response.status_code == 302
+        assert response.headers["Location"] == (
+            f"{person2.url}/works/{PeopleRole.AUTHOR.value}"
+        )
+
+    def test_deleted_people_works_returns_404(self):
+        person = _author()
+        person.delete(soft=True)
+
+        response = Client().get(f"{person.url}/works/{PeopleRole.AUTHOR.value}")
+        assert response.status_code == 404
+
+    def test_works_root_redirects_to_people_page(self):
+        person = _author()
+
+        for suffix in ("/works/", "/works"):
+            response = Client().get(f"{person.url}{suffix}")
+            assert response.status_code == 302
+            assert response.headers["Location"] == person.url
+
+    def test_works_root_on_merged_people_redirects_to_target(self):
+        person1 = _author("Dan Simmons")
+        person2 = _author("Daniel Simmons")
+        person1.merge_to(person2)
+
+        response = Client().get(f"{person1.url}/works/")
+        assert response.status_code == 302
+        assert response.headers["Location"] == person2.url
+
+    def test_works_root_unknown_uuid_returns_404(self):
+        response = Client().get("/people/zzzzzzzzzzzzzzzzzzzzzz/works/")
+        assert response.status_code == 404

@@ -56,6 +56,13 @@ urlpatterns = [
         people_works,
         name="people_works",
     ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/works/?$",
+        people_works_root,
+        name="people_works_root",
+    ),
     path("podcast/<str:item_uuid>/episodes", episode_data, name="episode_data"),
     path("catalog/search_people", search_people, name="search_people"),
     path("catalog/create/<str:item_model>", create, name="create"),

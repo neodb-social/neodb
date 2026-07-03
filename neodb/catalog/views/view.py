@@ -176,8 +176,20 @@ def retrieve(request, item_path, item_uuid):
 
 
 @require_http_methods(["GET"])
+def people_works_root(request, item_path, item_uuid):
+    # A role-less works URL has no page of its own; resolve merges and send
+    # the visitor to the people page instead of a bare 404.
+    item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
+    return redirect((item.merged_to_item or item).url)
+
+
+@require_http_methods(["GET"])
 def people_works(request, item_path, item_uuid, role):
     item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
+    if item.merged_to_item:
+        return redirect(f"{item.merged_to_item.url}/works/{role}")
+    if item.is_deleted:
+        raise Http404(_("Item no longer exists"))
     if role not in PeopleRole.values:
         raise Http404(_("Invalid role"))
     role_label = PeopleRole(role).label
