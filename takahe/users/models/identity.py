@@ -328,20 +328,14 @@ class Identity(StatorModel):
         verbose_name_plural = "identities"
         unique_together = [("username", "domain")]
         # Non-empty so Stator can append its own state index (see
-        # stator.models.add_stator_indexes). Functional partial index backs the
-        # case-insensitive local handle lookup in by_username_and_domain().
+        # stator.models.add_stator_indexes). The functional index backs
+        # case-insensitive handle lookups: by_username_and_domain() matches
+        # both columns (exact domain_id), NeoDB's get_identity_by_handler()
+        # matches Upper(username) and filters Upper(domain_id) on the rows.
         indexes: list = [
             models.Index(
                 Upper("username"),
                 models.F("domain"),
-                condition=models.Q(local=True),
-                name="ix_identity_local_uname_ci",
-            ),
-            # Backs username/domain iexact lookups that carry no local filter,
-            # e.g. NeoDB's Takahe.get_identity_by_handler().
-            models.Index(
-                Upper("username"),
-                Upper("domain"),
                 name="ix_identity_handle_ci",
             ),
         ]
