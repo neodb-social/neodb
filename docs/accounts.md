@@ -29,6 +29,8 @@ A step-by-step admin account creation. If you already have an account and want t
 docker compose --profile production run --rm shell neodb-manage createsuperuser
 ```
 
+NeoDB has no password login: the account created this way logs in with a verification code sent to its email address, so `NEODB_EMAIL_URL` must be configured in `.env` first — the command will refuse to run without it. Any password entered at the prompt is not used.
+
 Alternatively, set `NEODB_ADMIN_HANDLES` in `.env` to auto-promote users to superuser when they register with a matching handle:
 ```
 NEODB_ADMIN_HANDLES=mastodon:user@mastodon.social,email:admin@example.com

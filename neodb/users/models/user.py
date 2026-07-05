@@ -91,9 +91,27 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password=None):
+        from django.core.management.base import CommandError
+
         from mastodon.models import Email
         from takahe.models import User as TakaheUser
 
+        # NeoDB has no password login: this account can only log in with a
+        # verification code sent to its email, which requires a working
+        # email backend. Fail early instead of creating an unreachable
+        # account (see https://github.com/neodb-social/neodb/issues/1666).
+        if not settings.ENABLE_LOGIN_EMAIL:
+            raise CommandError(
+                "Refusing to create a superuser that would not be able to"
+                " log in: NeoDB does not support password login, and email"
+                " login is disabled because NEODB_EMAIL_URL is not"
+                " configured.\n"
+                "Either set NEODB_EMAIL_URL in .env and retry, or set"
+                " NEODB_ADMIN_HANDLES to auto-promote a Fediverse login,"
+                " or promote an existing user with"
+                " `neodb-manage user --super <username>`"
+                " (see docs/accounts.md)."
+            )
         Takahe.get_domain()  # ensure configuration is complete
         user = User.register(username=username, is_superuser=True)
         e = Email.new_account(email)
@@ -104,6 +122,10 @@ class UserManager(BaseUserManager):
         tu = TakaheUser.objects.get(pk=user.pk, email="@" + username)
         tu.admin = True
         tu.save()
+        logger.warning(
+            f"Any password entered is not used: log in as {username} with a"
+            f" verification code sent to {email} instead."
+        )
         return user
 
 
