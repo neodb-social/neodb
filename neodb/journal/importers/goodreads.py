@@ -132,7 +132,11 @@ class GoodreadsImporter(Task):
                     self.progress(-1, book_id)
                     continue
 
-                rating_raw = int(row["My Rating"] or 0)
+                try:
+                    # may be float-formatted (e.g. "5.0") if re-saved by a spreadsheet app
+                    rating_raw = int(float(row["My Rating"] or 0))
+                except ValueError:
+                    rating_raw = 0
                 rating = rating_raw * 2 if rating_raw else None
 
                 review_html = row.get("My Review", "").strip()

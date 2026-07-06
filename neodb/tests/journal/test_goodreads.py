@@ -56,6 +56,9 @@ class TestGoodreadsImporter:
         # Book 1008: matched by ISBN13 (no Goodreads ID in DB)
         self.book_1008 = _make_edition_with_isbn("9780152023980", "Fahrenheit 451")
 
+        # Book 1009: float-formatted rating ("5.0") in CSV
+        self.book_1009 = _make_edition_with_goodreads_id("1009", "The Lathe of Heaven")
+
     def test_validate_file(self):
         with open(self.CSV_PATH, "rb") as f:
             assert GoodreadsImporter.validate_file(f)
@@ -71,10 +74,10 @@ class TestGoodreadsImporter:
         task = GoodreadsImporter.create(self.user, visibility=0, file=self.CSV_PATH)
         task.run()
 
-        # 7 imported (1001–1006 via Goodreads ID + 1008 via ISBN13)
+        # 8 imported (1001–1006, 1009 via Goodreads ID + 1008 via ISBN13)
         # 1 skipped (1007 unknown shelf)
         # 1 failed (9999 not in DB)
-        assert task.metadata["imported"] == 7
+        assert task.metadata["imported"] == 8
         assert task.metadata["skipped"] == 1
         assert task.metadata["failed"] == 1
 
@@ -119,6 +122,11 @@ class TestGoodreadsImporter:
         mark_1008 = Mark(self.identity, self.book_1008)
         assert mark_1008.shelf_type == ShelfType.COMPLETE
         assert mark_1008.rating_grade == 6
+
+        # 1009: read, float-formatted rating "5.0" -> grade=10
+        mark_1009 = Mark(self.identity, self.book_1009)
+        assert mark_1009.shelf_type == ShelfType.COMPLETE
+        assert mark_1009.rating_grade == 10
 
         # 9999: not in DB, no mark created
         assert not Mark(self.identity, Edition.objects.create(title="ghost")).shelf_type
