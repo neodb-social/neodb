@@ -363,6 +363,27 @@ def test_shelf_api_mark_and_lookup():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_collection_api_list_items_with_null_note():
+    user = User.register(email="nullnote@example.com", username="nullnote")
+    item = Edition.objects.create(title="Null Note Book")
+    collection = Collection.objects.create(
+        owner=user.identity, title="Null Note Collection", visibility=0
+    )
+    collection.append_item(item)
+    member = collection.ordered_members[0]
+    member.note = None
+    member.save()
+
+    response = Client().get(f"/api/collection/{collection.uuid}/item/")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 1
+    assert payload["data"][0]["item"]["uuid"] == item.uuid
+    assert payload["data"][0]["note"] == ""
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_collection_api_crud_and_items():
     user = User.register(email="collector@example.com", username="collector")
     item = Edition.objects.create(title="Collection Book")

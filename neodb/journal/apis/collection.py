@@ -23,7 +23,14 @@ from common.api import (
 from common.sentry import record_activity
 from journal.models.common import q_piece_visible_to_user
 
-from ..models import Collection, FeaturedCollection, Rating, ShelfMember, ShelfType
+from ..models import (
+    Collection,
+    CollectionMember,
+    FeaturedCollection,
+    Rating,
+    ShelfMember,
+    ShelfType,
+)
 
 
 class CollectionPageNumberPagination(PageNumberPagination):
@@ -77,6 +84,12 @@ class CollectionInSchema(Schema):
 class CollectionItemSchema(Schema):
     item: ItemSchema
     note: str
+
+    @staticmethod
+    def resolve_note(obj: "CollectionMember | dict[str, Any]") -> str:
+        # CollectionMember.note is nullable; keep the API contract a plain str
+        note = obj.get("note") if isinstance(obj, dict) else obj.note
+        return note if isinstance(note, str) else ""
 
 
 def _prefetch_collection_member_items(data: list) -> None:
