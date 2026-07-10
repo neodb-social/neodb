@@ -13,6 +13,8 @@ A few apps for NeoDB are being actively developed:
 - Android
     - NeoComment by `@mohammadrafigh@fosstodon.org` - [Source Code](https://github.com/mohammadrafigh/NeoComment/)
     - NeoDB You by `@neodb_you@mastodon.social` - [F-Droid](https://f-droid.org/packages/day.vitayuzu.neodb/) / [IzzyOnDroid](https://apt.izzysoft.de/fdroid/index/apk/day.vitayuzu.neodb) / [Source Code](https://github.com/heddxh/NeoDB-You/)
+- PWA
+    - [Bielu](https://www.bielu.app/) by `@Shinnki1994@mastodon.social` - [Source Code](https://github.com/shinkisan/NeoDB-Silica)
 
 These apps are not affiliated with NeoDB, but they are being developed with the support of this community. If you are also developing an app for NeoDB, and wish to share that with the community, please [edit this file](https://github.com/neodb-social/neodb/edit/main/docs/apps.md) and submit a pull request.
 
