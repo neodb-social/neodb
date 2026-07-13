@@ -1290,4 +1290,43 @@ class Migration(migrations.Migration):
                 "db_table": "api_pushsubscription",
             },
         ),
+        migrations.CreateModel(
+            name="PushNotification",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("locale", models.CharField(default="en", max_length=2)),
+                ("type", models.CharField(max_length=20)),
+                ("icon", models.CharField(max_length=500)),
+                ("title", models.CharField(max_length=100)),
+                ("body", models.CharField(max_length=500)),
+                ("state", models.CharField(default="sending", max_length=100)),
+                ("state_changed", models.DateTimeField(auto_now_add=True)),
+                ("state_next_attempt", models.DateTimeField(blank=True, null=True)),
+                (
+                    "state_locked_until",
+                    models.DateTimeField(blank=True, db_index=True, null=True),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "token",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="push_notifications",
+                        to="takahe.token",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "api_pushnotification",
+            },
+        ),
     ]
