@@ -5,6 +5,10 @@ body {
     &>nav {
       ul.nav-logo {
         margin-left: var(--pico-nav-link-spacing-horizontal);
+
+        li {
+          padding: 0;
+        }
       }
 
       .nav-search form {

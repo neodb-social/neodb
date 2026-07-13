@@ -4,9 +4,11 @@
 <header class="container-fluid">
   <nav>
     <ul class="nav-logo">
-      <a href="{% url 'common:home' %}">
-        <img src="{{ site_logo }}" alt="" />
-      </a>
+      <li>
+        <a href="{% url 'common:home' %}">
+          <img src="{{ site_logo }}" alt="{{ site_name }}" />
+        </a>
+      </li>
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
       <li>

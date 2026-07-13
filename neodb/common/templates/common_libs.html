@@ -5,7 +5,7 @@
   {% tz_detect %}
 {% endif %}
 <script src="{{ cdn_url }}/npm/cash-dom@8.1.5/dist/cash.min.js"></script>
-<script type="text/javascript">
+<script>
   if (!$.fn.is_visible) $.fn.is_visible = function () {
     return this.filter((_, elt) => (elt.offsetWidth || elt.offsetHeight || elt.getClientRects().length)).length > 0;
   };
@@ -27,17 +27,15 @@
         href="{{ cdn_url }}/npm/@picocss/pico@2.1.1/css/pico.{{ site_color }}.min.css" />
 {% endif %}
 <link href="{% sass_src 'scss/neodb.scss' %}{% if debug_enabled %}?r={% now "U" %}{% endif %}"
-      rel="stylesheet"
-      type="text/css" />
+      rel="stylesheet" />
 <link href="{{ cdn_url }}/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"
-      rel="stylesheet"
-      type="text/css">
+      rel="stylesheet">
 <link rel="manifest" href="{% url 'common:manifest' %}" />
 <link rel="search"
       type="application/opensearchdescription+xml"
       title="{{ site_name }}"
       href="{% url 'common:opensearch' %}">
-<script defer>
+<script>
 (function(){
   const s = localStorage.getItem("user_style");
   if (s) {
@@ -69,7 +67,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="{{ site_name }}">
 {% if request.META.HTTP_HOST == site_domain %}
-  <style type="text/css">.hide_unless_alter_domain{display:none;}</style>
+  <style>.hide_unless_alter_domain{display:none;}</style>
 {% else %}
   <meta name="robots" content="noindex">
 {% endif %}

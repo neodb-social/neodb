@@ -128,6 +128,13 @@
     margin: 0;
   }
 
+  // page title uses h1 for document outline; render it at h3 scale
+  main hgroup h1 {
+    --pico-font-size: 1.5rem;
+    --pico-line-height: 1.175;
+    --pico-typography-spacing-top: 1.5rem;
+  }
+
   main {
     display: grid;
     grid-template-columns: auto 25%;

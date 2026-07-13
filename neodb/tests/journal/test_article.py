@@ -766,3 +766,37 @@ class TestArticleFeed:
         assert self.client.get(self.feed_url).status_code == 404
         # ReviewFeed shares the same guard
         assert self.client.get(f"{self.identity.url}feed/reviews/").status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestArticlePageMarkup:
+    """The /article/<uuid> page head and document structure."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="art_page@test.com", username="art_page")
+        self.identity = self.user.identity
+        self.client = Client()
+        self.client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+
+    def test_article_page_head_and_title(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Anatomy of a Page",
+            body="## Section\n\nbody text",
+            summary="A one-line teaser.",
+            visibility=0,
+        )
+        resp = self.client.get(article.url)
+        assert resp.status_code == 200
+        html = resp.content.decode()
+        assert f'<link rel="canonical" href="{article.absolute_url}">' in html
+        # single meta carries both the plain and the OpenGraph description
+        assert 'name="description"' in html
+        assert 'property="og:description"' in html
+        assert "A one-line teaser." in html
+        assert 'property="article:author"' in html
+        assert 'property="article:published_time"' in html
+        assert 'property="article:modified_time"' in html
+        # the page title is the document's only h1; body headings start at h2
+        assert html.count("<h1>") == 1

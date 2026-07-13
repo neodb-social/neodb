@@ -17,13 +17,19 @@
     {% else %}
       <meta property="og:title" content="{{ article.title }}">
     {% endif %}
+    <meta name="description"
+          property="og:description"
+          content="{{ article.brief_description }}">
     <meta property="og:type" content="article">
-    <meta property="og:article:author"
-          content="{{ article.owner.display_name }}">
+    <meta property="article:author" content="{{ article.owner.display_name }}">
+    <meta property="article:published_time"
+          content="{{ article.created_time | date:'c' }}">
+    <meta property="article:modified_time"
+          content="{{ article.edited_time | date:'c' }}">
     <meta property="og:url" content="{{ article.absolute_url }}">
     <meta property="og:site_name" content="{{ site_name }}">
     <meta name="fediverse:creator" content="@{{ article.owner.full_handle }}">
-    <meta rel="canonical" content="{{ article.absolute_url }}">
+    <link rel="canonical" href="{{ article.absolute_url }}">
     <meta name="lastmodified" content="{{ article.edited_time | date:'r' }}">
     {% if article.classname == "review" %}
       <meta property="og:image" content="{{ article.item.cover|thumb:'normal' }}">
@@ -93,9 +99,9 @@
         <article>
           <header>
             <hgroup>
-              <h3>
+              <h1>
                 <span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span>
-              </h3>
+              </h1>
             </hgroup>
             <p class="piece-summary article-summary">
               {% if article.classname == "article" %}

@@ -21,13 +21,14 @@
     {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
     <meta property="og:site_name"
           content="{{ site_name }} {% trans item.category.label %}">
-    <meta property="og:description"
+    <meta name="description"
+          property="og:description"
           content="{{ item.brief_description|slice:':300' }}">
     {% for claim in item.verified_creator_list %}
       <meta name="fediverse:creator" content="@{{ claim.owner.full_handle }}">
       {% if claim.owner.profile_uri %}<link rel="me" href="{{ claim.owner.profile_uri }}">{% endif %}
     {% endfor %}
-    <meta rel="canonical" content="{{ item.absolute_url }}">
+    <link rel="canonical" href="{{ item.absolute_url }}">
     {% all_languages as languages %}
     {% for lang in languages %}
       <link rel="alternate"

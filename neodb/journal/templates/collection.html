@@ -13,17 +13,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="{{ collection.title }}">
-    <meta property="og:description" content="{{ collection.description }}">
+    <meta name="description"
+          property="og:description"
+          content="{{ collection.description }}">
     <meta property="og:type" content="article">
-    <meta property="og:article:author"
+    <meta property="article:author"
           content="{{ collection.owner.display_name }}">
+    <meta property="article:published_time"
+          content="{{ collection.created_time | date:'c' }}">
+    <meta property="article:modified_time"
+          content="{{ collection.edited_time | date:'c' }}">
     <meta property="og:url" content="{{ collection.absolute_url }}">
     {% if collection.cover_image_url %}<meta property="og:image" content="{{ collection.cover_image_url }}">{% endif %}
     <meta property="og:site_name"
           content="{{ site_name }} {% trans 'Collection' %}">
     <meta name="fediverse:creator"
           content="@{{ collection.owner.full_handle }}">
-    <meta rel="canonical" content="{{ collection.absolute_url }}">
+    <link rel="canonical" href="{{ collection.absolute_url }}">
     <meta name="lastmodified" content="{{ collection.edited_time | date:'r' }}" />
     {% if collection.latest_post %}
       <link rel="alternate"
@@ -81,10 +87,10 @@
         {% endif %}
         <section>
           <hgroup>
-            <h3>
+            <h1>
               {{ collection.title }}
               {% if collection.visibility > 0 %}<small><i class="fa-solid fa-lock"></i></small>{% endif %}
-            </h3>
+            </h1>
           </hgroup>
           <div class="owner-info">
             <div class="info">
@@ -99,7 +105,7 @@
                 <p>
                   <progress value="{{ stats.percentage }}"
                             max="100"
-                            title="{{ stats.percentage }}%" />
+                            title="{{ stats.percentage }}%"></progress>
                 </p>
               {% endif %}
               <div class="markdown-content">{{ collection.html_content | safe }}</div>

@@ -8,13 +8,13 @@
     <a class="activated"
        hx-post="{% url 'journal:post_unlike' post.pk %}"
        title="{% trans "Liked" %}">
-      <i class="fa-solid fa-heart }}"></i>
+      <i class="fa-solid fa-heart"></i>
       <span class="metrics">{{ post.stats.likes }}</span>
     </a>
   {% else %}
     <a hx-post="{% url 'journal:post_like' post.pk %}"
        title="{% trans "Like" %}">
-      <i class="fa-regular fa-heart }}"></i>
+      <i class="fa-regular fa-heart"></i>
       {% if post.stats.likes %}<span class="metrics">{{ post.stats.likes }}</span>{% endif %}
     </a>
   {% endif %}
