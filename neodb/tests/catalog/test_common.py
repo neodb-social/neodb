@@ -11,7 +11,7 @@ class TestArrayField:
     def test_legacy_data(self):
         o = Edition()
         assert o.other_title == []
-        o.other_title = "test"
+        o.other_title = "test"  # ty: ignore[invalid-assignment]  # scalar on purpose
         assert o.other_title == ["test"]
         o.other_title = ["a", "b"]
         assert o.other_title == ["a", "b"]

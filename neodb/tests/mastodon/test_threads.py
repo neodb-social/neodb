@@ -216,6 +216,7 @@ class TestCheckAlive:
         )
         assert account.check_alive(save=False) is True
         assert account.access_token == "newtok"
+        assert account.token_expires_at is not None
         assert account.token_expires_at > timezone.now() + timedelta(days=59)
 
 

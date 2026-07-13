@@ -2,10 +2,10 @@
 import copy
 import json
 from base64 import b64encode
-from datetime import date, datetime
+from datetime import date, datetime, time
 from functools import partialmethod
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
@@ -126,17 +126,30 @@ class JSONFieldDescriptor(object):
         setattr(instance, self.field.json_field_name, json_value)
 
 
-class JSONFieldMixin(object):
+# type accepted on assignment / type returned on read, via JSONFieldDescriptor
+_ST = TypeVar("_ST")
+_GT = TypeVar("_GT")
+
+if TYPE_CHECKING:
+    # model attributes are replaced with JSONFieldDescriptor at runtime by
+    # contribute_to_class; declare the descriptor protocol for type checkers
+    class _TypedDescriptor(Generic[_ST, _GT]):
+        def __get__(self, instance: Any, owner: Any = None) -> _GT: ...
+        def __set__(self, instance: Any, value: _ST) -> None: ...
+
+else:
+    # not Generic at runtime: Generic in the MRO changes instance layout and
+    # breaks the __class__ assignment in django Field.__copy__
+    class _TypedDescriptor:
+        def __class_getitem__(cls, item):
+            return cls
+
+
+class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
     """
     Override django.db.model.fields.Field.contribute_to_class
     to make a field always private, and register custom access descriptor
     """
-
-    if TYPE_CHECKING:
-        # model attributes are replaced with JSONFieldDescriptor at runtime by
-        # contribute_to_class; declare the descriptor protocol for type checkers
-        def __get__(self, instance: Any, owner: Any = None) -> Any: ...
-        def __set__(self, instance: Any, value: Any) -> None: ...
 
     def __init__(self, *args, **kwargs):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
@@ -207,7 +220,7 @@ class JSONFieldMixin(object):
         return super().formfield(**kwargs)  # type: ignore
 
 
-class BooleanField(JSONFieldMixin, fields.BooleanField):
+class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):
     pass
     # def __init__(self, *args, **kwargs):
     #     super(BooleanField, self).__init__(*args, **kwargs)
@@ -215,7 +228,7 @@ class BooleanField(JSONFieldMixin, fields.BooleanField):
     #         self.blank = False
 
 
-class CharField(JSONFieldMixin, fields.CharField):
+class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):
     def from_json(
         self, value
     ):  # TODO workaound some bad data in migration, should be removed after clean up
@@ -224,7 +237,9 @@ class CharField(JSONFieldMixin, fields.CharField):
     pass
 
 
-class DateField(JSONFieldMixin, fields.DateField):
+class DateField(
+    JSONFieldMixin[datetime | date | str | None, date | None], fields.DateField
+):
     def to_json(self, value):
         if value:
             if not isinstance(value, (datetime, date)):
@@ -236,7 +251,9 @@ class DateField(JSONFieldMixin, fields.DateField):
             return dateparse.parse_date(value)
 
 
-class DateTimeField(JSONFieldMixin, fields.DateTimeField):
+class DateTimeField(
+    JSONFieldMixin[datetime | date | str | None, datetime | None], fields.DateTimeField
+):
     def to_json(self, value: datetime | date | str):
         if not value:
             return None
@@ -260,39 +277,43 @@ class DateTimeField(JSONFieldMixin, fields.DateTimeField):
             return dateparse.parse_datetime(value)
 
 
-class DecimalField(JSONFieldMixin, fields.DecimalField):
+class DecimalField(JSONFieldMixin[Any, Any], fields.DecimalField):
     pass
 
 
-class EmailField(JSONFieldMixin, fields.EmailField):
+class EmailField(JSONFieldMixin[str | None, str | None], fields.EmailField):
     pass
 
 
-class FloatField(JSONFieldMixin, fields.FloatField):
+class FloatField(JSONFieldMixin[float | None, float | None], fields.FloatField):
     pass
 
 
-class IntegerField(JSONFieldMixin, fields.IntegerField):
+class IntegerField(JSONFieldMixin[int | None, int | None], fields.IntegerField):
     pass
 
 
-class IPAddressField(JSONFieldMixin, fields.IPAddressField):
+class IPAddressField(JSONFieldMixin[str | None, str | None], fields.IPAddressField):
     pass
 
 
-class GenericIPAddressField(JSONFieldMixin, fields.GenericIPAddressField):
+class GenericIPAddressField(
+    JSONFieldMixin[str | None, str | None], fields.GenericIPAddressField
+):
     pass
 
 
-class NullBooleanField(JSONFieldMixin, fields.NullBooleanField):
+class NullBooleanField(
+    JSONFieldMixin[bool | None, bool | None], fields.NullBooleanField
+):
     pass
 
 
-class TextField(JSONFieldMixin, fields.TextField):
+class TextField(JSONFieldMixin[str | None, str | None], fields.TextField):
     pass
 
 
-class EncryptedTextField(JSONFieldMixin, fields.TextField):
+class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextField):
     def to_json(self, value):
         if value:
             return encrypt_str(str(value))
@@ -302,7 +323,7 @@ class EncryptedTextField(JSONFieldMixin, fields.TextField):
             return decrypt_str(value)
 
 
-class TimeField(JSONFieldMixin, fields.TimeField):
+class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):
     def to_json(self, value):
         if value:
             if not timezone.is_aware(value):
@@ -314,7 +335,7 @@ class TimeField(JSONFieldMixin, fields.TimeField):
             return dateparse.parse_time(value)
 
 
-class URLField(JSONFieldMixin, fields.URLField):
+class URLField(JSONFieldMixin[str | None, str | None], fields.URLField):
     pass
 
 
@@ -332,7 +353,7 @@ class TolerantArrayFormField(DJANGO_ArrayFormField):
             return []
 
 
-class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
+class ArrayField(JSONFieldMixin[list[Any] | None, list[Any]], DJANGO_ArrayField):
     # def __init__(self, *args, **kwargs):
     #     kwargs["help_text"] = _("comma separated list of values")
     #     super().__init__(*args, **kwargs)
@@ -351,9 +372,9 @@ class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
         return []
 
 
-class JSONField(JSONFieldMixin, Patched_DJANGO_JSONField):
+class JSONField(JSONFieldMixin[Any, Any], Patched_DJANGO_JSONField):
     pass
 
 
-class DurationField(JSONFieldMixin, fields.DurationField):
+class DurationField(JSONFieldMixin[Any, Any], fields.DurationField):
     pass

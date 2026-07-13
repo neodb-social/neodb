@@ -969,7 +969,7 @@ class MastodonAccount(SocialAccount):
         )
         response = post_toot2(
             self._api_domain,
-            self.access_token,
+            self.access_token or "",
             text,
             v,
             update_id,

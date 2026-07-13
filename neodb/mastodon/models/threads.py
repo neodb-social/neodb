@@ -321,7 +321,9 @@ class ThreadsAccount(SocialAccount):
             .replace("##obj##", obj.display_title if obj else "")
         )
         text = _truncate_for_threads(text, obj)
-        media_id = Threads.post_single(self.access_token, self.uid, text, reply_to_id)
+        media_id = Threads.post_single(
+            self.access_token or "", self.uid, text, reply_to_id
+        )
         if not media_id:
             raise RequestAborted()
         return {"id": media_id}
