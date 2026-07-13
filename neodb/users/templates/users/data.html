@@ -197,6 +197,9 @@
                 <li>
                   {% blocktrans %}the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
                 </li>
+                <li>
+                  {% blocktrans %}exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below{% endblocktrans %}
+                </li>
               </ul>
               <br>
               <input type="file" name="file" required accept=".zip">

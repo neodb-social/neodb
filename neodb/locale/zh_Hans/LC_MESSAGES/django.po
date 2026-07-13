@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-28 17:46-0400\n"
+"POT-Creation-Date: 2026-07-13 03:55-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -17,44 +17,44 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
-#: boofilsic/settings.py:472 common/models/lang.py:223
+#: boofilsic/settings.py:478 common/models/lang.py:223
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:473 common/models/lang.py:70
+#: boofilsic/settings.py:479 common/models/lang.py:70
 msgid "Danish"
 msgstr "丹麦语"
 
-#: boofilsic/settings.py:474 common/models/lang.py:71
+#: boofilsic/settings.py:480 common/models/lang.py:71
 msgid "German"
 msgstr "德语"
 
-#: boofilsic/settings.py:475 common/models/lang.py:176
+#: boofilsic/settings.py:481 common/models/lang.py:176
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: boofilsic/settings.py:476 common/models/lang.py:80
+#: boofilsic/settings.py:482 common/models/lang.py:80
 msgid "French"
 msgstr "法语"
 
-#: boofilsic/settings.py:477 common/models/lang.py:105
+#: boofilsic/settings.py:483 common/models/lang.py:105
 msgid "Italian"
 msgstr "意大利语"
 
-#: boofilsic/settings.py:478 common/models/lang.py:159
+#: boofilsic/settings.py:484 common/models/lang.py:159
 #: common/models/lang.py:298
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: boofilsic/settings.py:479
+#: boofilsic/settings.py:485
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: boofilsic/settings.py:480 common/models/lang.py:309
+#: boofilsic/settings.py:486 common/models/lang.py:309
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:481 common/models/lang.py:310
+#: boofilsic/settings.py:487 common/models/lang.py:310
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -463,7 +463,7 @@ msgstr "RateYourMusic发行"
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:136 catalog/templates/_sidebar_edit.html:248
+#: catalog/models/common.py:136 catalog/templates/_sidebar_edit.html:249
 msgid "Work"
 msgstr "作品"
 
@@ -471,7 +471,7 @@ msgstr "作品"
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:138 catalog/templates/_sidebar_edit.html:169
+#: catalog/models/common.py:138 catalog/templates/_sidebar_edit.html:170
 msgid "TV Season"
 msgstr "电视分季"
 
@@ -480,7 +480,7 @@ msgid "TV Episode"
 msgstr "电视单集"
 
 #: catalog/models/common.py:140 catalog/models/common.py:156
-#: catalog/models/common.py:170 catalog/templates/_sidebar_edit.html:162
+#: catalog/models/common.py:170 catalog/templates/_sidebar_edit.html:163
 #: journal/templates/_sidebar_user_mark_list.html:35
 #: journal/templates/_sidebar_user_tag_filter.html:27
 msgid "Movie"
@@ -552,7 +552,7 @@ msgid "Music"
 msgstr "音乐"
 
 #: catalog/models/common.py:160 catalog/models/common.py:174
-#: catalog/templates/_sidebar_edit.html:181 common/templates/_header.html:33
+#: catalog/templates/_sidebar_edit.html:182 common/templates/_header.html:33
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
@@ -563,7 +563,7 @@ msgid "genre"
 msgstr "类型"
 
 #: catalog/models/common.py:284 catalog/templates/_language_list.html:5
-#: users/models/user.py:129
+#: users/models/user.py:142
 msgid "language"
 msgstr "语言"
 
@@ -779,27 +779,27 @@ msgstr "元数据"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1363
+#: catalog/models/item.py:1367
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1365
+#: catalog/models/item.py:1369
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1367
+#: catalog/models/item.py:1371
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1383
+#: catalog/models/item.py:1387
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1389
+#: catalog/models/item.py:1393
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1392
+#: catalog/models/item.py:1396
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -1328,65 +1328,65 @@ msgstr "因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动�
 msgid "Up to 250 episodes will be fetched for a season."
 msgstr "每季最多获取 250 集。"
 
-#: catalog/templates/_sidebar_edit.html:138
+#: catalog/templates/_sidebar_edit.html:139
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr "批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。"
 
-#: catalog/templates/_sidebar_edit.html:144
-#: catalog/templates/_sidebar_edit.html:156
-#: catalog/templates/_sidebar_edit.html:175
+#: catalog/templates/_sidebar_edit.html:145
+#: catalog/templates/_sidebar_edit.html:157
+#: catalog/templates/_sidebar_edit.html:176
 msgid "switch category"
 msgstr "切换分类"
 
-#: catalog/templates/_sidebar_edit.html:147
+#: catalog/templates/_sidebar_edit.html:148
 msgid "Switching may remove some metadata. Sure to proceed?"
 msgstr "切换分类可能移除部分数据字段，确认切换吗？"
 
-#: catalog/templates/_sidebar_edit.html:150
+#: catalog/templates/_sidebar_edit.html:151
 msgid "TV Show"
 msgstr "电视剧集"
 
-#: catalog/templates/_sidebar_edit.html:189
+#: catalog/templates/_sidebar_edit.html:190
 msgid "Link to parent item"
 msgstr "关联到上一级条目"
 
-#: catalog/templates/_sidebar_edit.html:192
+#: catalog/templates/_sidebar_edit.html:193
 msgid "Sure to link?"
 msgstr "确认关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:199
+#: catalog/templates/_sidebar_edit.html:200
 msgid "Update link"
 msgstr "更新关联"
 
-#: catalog/templates/_sidebar_edit.html:205
+#: catalog/templates/_sidebar_edit.html:206
 msgid "Cleanup seasons"
 msgstr "本剧所有季"
 
-#: catalog/templates/_sidebar_edit.html:208
+#: catalog/templates/_sidebar_edit.html:209
 #: catalog/templates/catalog_delete.html:45
 msgid "This operation cannot be undone. Sure to delete?"
 msgstr "本操作不可撤销。确认删除吗？"
 
-#: catalog/templates/_sidebar_edit.html:212
+#: catalog/templates/_sidebar_edit.html:213
 msgid "remove seasons not marked"
 msgstr "清理单季"
 
-#: catalog/templates/_sidebar_edit.html:218
+#: catalog/templates/_sidebar_edit.html:219
 #: catalog/templates/catalog_merge.html:12
 msgid "Merge"
 msgstr "合并"
 
-#: catalog/templates/_sidebar_edit.html:224
+#: catalog/templates/_sidebar_edit.html:225
 msgid "URL of target item, or empty if undo merge"
 msgstr "目标条目URL，留空则取消现有合并"
 
-#: catalog/templates/_sidebar_edit.html:230
-#: catalog/templates/_sidebar_edit.html:310
+#: catalog/templates/_sidebar_edit.html:231
+#: catalog/templates/_sidebar_edit.html:311
 msgid "merge to another item"
 msgstr "合并到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:235
-#: catalog/templates/_sidebar_edit.html:239
+#: catalog/templates/_sidebar_edit.html:236
+#: catalog/templates/_sidebar_edit.html:240
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
 #: journal/templates/article.html:172 journal/templates/collection.html:173
@@ -1397,73 +1397,73 @@ msgstr "合并到另一条目"
 msgid "Delete"
 msgstr "删除"
 
-#: catalog/templates/_sidebar_edit.html:249
+#: catalog/templates/_sidebar_edit.html:250
 msgid "This edition belongs to the following work"
 msgstr "这个图书版本属于以下作品"
 
-#: catalog/templates/_sidebar_edit.html:254
+#: catalog/templates/_sidebar_edit.html:255
 msgid "Sure to unlink?"
 msgstr "确认取消关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:260
+#: catalog/templates/_sidebar_edit.html:261
 msgid "Unlink from work"
 msgstr "取消关联到上述著作"
 
-#: catalog/templates/_sidebar_edit.html:266
+#: catalog/templates/_sidebar_edit.html:267
 msgid "Link"
 msgstr "关联"
 
-#: catalog/templates/_sidebar_edit.html:277
+#: catalog/templates/_sidebar_edit.html:278
 msgid "Link to another edition from same work"
 msgstr "关联到同一著作的另一本书"
 
-#: catalog/templates/_sidebar_edit.html:286
+#: catalog/templates/_sidebar_edit.html:287
 msgid "Restriction"
 msgstr "限制"
 
-#: catalog/templates/_sidebar_edit.html:299
+#: catalog/templates/_sidebar_edit.html:300
 #: journal/templates/collection_update_item_note.html:4
 msgid "Update"
 msgstr "更新"
 
-#: catalog/templates/_sidebar_edit.html:304
+#: catalog/templates/_sidebar_edit.html:305
 msgid "Suggest Edits"
 msgstr "修改建议"
 
-#: catalog/templates/_sidebar_edit.html:309
+#: catalog/templates/_sidebar_edit.html:310
 msgid "proposed action"
 msgstr "请选择建议类型..."
 
-#: catalog/templates/_sidebar_edit.html:311
+#: catalog/templates/_sidebar_edit.html:312
 msgid "link to another item"
 msgstr "关联到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:312
+#: catalog/templates/_sidebar_edit.html:313
 msgid "change item category"
 msgstr "更改条目类型"
 
-#: catalog/templates/_sidebar_edit.html:313
+#: catalog/templates/_sidebar_edit.html:314
 msgid "change item metadata"
 msgstr "更正条目信息"
 
-#: catalog/templates/_sidebar_edit.html:314
+#: catalog/templates/_sidebar_edit.html:315
 msgid "remove item"
 msgstr "删除条目"
 
-#: catalog/templates/_sidebar_edit.html:315
+#: catalog/templates/_sidebar_edit.html:316
 msgid "other"
 msgstr "其它"
 
-#: catalog/templates/_sidebar_edit.html:319
+#: catalog/templates/_sidebar_edit.html:320
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
-#: catalog/templates/_sidebar_edit.html:320
+#: catalog/templates/_sidebar_edit.html:321
 #: catalog/templates/catalog_verify.html:116
 msgid "submit"
 msgstr "提交"
 
-#: catalog/templates/_sidebar_edit.html:321
+#: catalog/templates/_sidebar_edit.html:322
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr "本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
 
@@ -2151,10 +2151,10 @@ msgstr "条目不可被删除。"
 #: journal/views/article.py:121 journal/views/article.py:141
 #: journal/views/collection.py:238 journal/views/collection.py:299
 #: journal/views/collection.py:318 journal/views/collection.py:342
-#: journal/views/collection.py:415 journal/views/collection.py:453
-#: journal/views/collection.py:491 journal/views/collection.py:503
-#: journal/views/collection.py:528 journal/views/collection.py:531
-#: journal/views/collection.py:572 journal/views/common.py:271
+#: journal/views/collection.py:415 journal/views/collection.py:458
+#: journal/views/collection.py:496 journal/views/collection.py:508
+#: journal/views/collection.py:533 journal/views/collection.py:536
+#: journal/views/collection.py:577 journal/views/common.py:272
 #: journal/views/mark.py:245 journal/views/post.py:58 journal/views/post.py:78
 #: journal/views/post.py:100 journal/views/post.py:165
 #: journal/views/post.py:194 journal/views/post.py:267
@@ -2166,8 +2166,8 @@ msgstr "权限不足"
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
 #: catalog/views/verify.py:194 journal/views/collection.py:75
-#: journal/views/collection.py:100 journal/views/collection.py:508
-#: journal/views/collection.py:603 journal/views/common.py:196
+#: journal/views/collection.py:100 journal/views/collection.py:513
+#: journal/views/collection.py:608 journal/views/common.py:193
 #: journal/views/mark.py:171 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
@@ -2267,7 +2267,7 @@ msgstr "创作者验证已移除。"
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views/view.py:76 catalog/views/view.py:105
+#: catalog/views/view.py:76 catalog/views/view.py:105 catalog/views/view.py:185
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
@@ -4600,8 +4600,8 @@ msgstr "保存时将行首空格替换为全角"
 #: journal/forms.py:188 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:204 users/templates/users/data.html:255
-#: users/templates/users/data.html:318 users/templates/users/data.html:377
+#: users/templates/users/data.html:207 users/templates/users/data.html:258
+#: users/templates/users/data.html:321 users/templates/users/data.html:380
 #: users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:125
 msgid "Visibility"
@@ -4636,7 +4636,7 @@ msgid "Collaborative editing"
 msgstr "协作编辑"
 
 #: journal/forms.py:180 users/templates/users/crossposts.html:51
-#: users/templates/users/data.html:532
+#: users/templates/users/data.html:535
 msgid "Status"
 msgstr "状态"
 
@@ -4648,7 +4648,7 @@ msgstr "短评"
 msgid "Rating"
 msgstr "评分"
 
-#: journal/importers/goodreads.py:192 journal/importers/letterboxd.py:144
+#: journal/importers/goodreads.py:196 journal/importers/letterboxd.py:144
 #: journal/importers/rym.py:442 journal/importers/storygraph.py:203
 #, python-brace-format
 msgid "a review of {item_title}"
@@ -4760,9 +4760,9 @@ msgstr[1] "%(count)d 个条目"
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:160 users/templates/users/data.html:213
-#: users/templates/users/data.html:264 users/templates/users/data.html:326
-#: users/templates/users/data.html:386
+#: users/templates/users/data.html:160 users/templates/users/data.html:216
+#: users/templates/users/data.html:267 users/templates/users/data.html:329
+#: users/templates/users/data.html:389
 #: users/templates/users/preferences.html:56
 #: users/templates/users/rym_import.html:84
 #: users/templates/users/steam_import.html:128
@@ -4774,8 +4774,8 @@ msgstr "公开"
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:221 users/templates/users/data.html:272
-#: users/templates/users/data.html:334 users/templates/users/data.html:394
+#: users/templates/users/data.html:224 users/templates/users/data.html:275
+#: users/templates/users/data.html:337 users/templates/users/data.html:397
 #: users/templates/users/preferences.html:63
 #: users/templates/users/rym_import.html:88
 #: users/templates/users/steam_import.html:132
@@ -4787,8 +4787,8 @@ msgstr "仅关注者"
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:229 users/templates/users/data.html:280
-#: users/templates/users/data.html:342 users/templates/users/data.html:402
+#: users/templates/users/data.html:232 users/templates/users/data.html:283
+#: users/templates/users/data.html:345 users/templates/users/data.html:405
 #: users/templates/users/preferences.html:70
 #: users/templates/users/rym_import.html:92
 #: users/templates/users/steam_import.html:136
@@ -5965,32 +5965,32 @@ msgstr "分享我的收藏单"
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:455 journal/views/collection.py:493
-#: journal/views/collection.py:505 journal/views/collection.py:533
+#: journal/views/collection.py:460 journal/views/collection.py:498
+#: journal/views/collection.py:510 journal/views/collection.py:538
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:470
+#: journal/views/collection.py:475
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:472
+#: journal/views/collection.py:477
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:518
+#: journal/views/collection.py:523
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:147 journal/views/mark.py:134
+#: journal/views/common.py:146 journal/views/mark.py:134
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:149
+#: journal/views/common.py:148
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:156
+#: journal/views/common.py:155
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -6688,19 +6688,19 @@ msgstr "完成"
 msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
 msgstr "输入用户名，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:117
+#: users/models/user.py:130
 msgid "username"
 msgstr "用户名"
 
-#: users/models/user.py:122
+#: users/models/user.py:135
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
 msgstr "必填，限英文字母数字下划线，最多30个字符。"
 
-#: users/models/user.py:125
+#: users/models/user.py:138
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:370
+#: users/models/user.py:383
 msgid "This username is already taken."
 msgstr "用户名已被使用"
 
@@ -7136,8 +7136,8 @@ msgstr "CSV 文件"
 
 #: users/templates/users/account.html:445 users/templates/users/data.html:74
 #: users/templates/users/data.html:126 users/templates/users/data.html:179
-#: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:347 users/templates/users/data.html:407
+#: users/templates/users/data.html:235 users/templates/users/data.html:286
+#: users/templates/users/data.html:350 users/templates/users/data.html:410
 #: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr "导入"
@@ -7281,7 +7281,7 @@ msgstr "导入豆瓣标记和评论"
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:305
+#: users/templates/users/data.html:34 users/templates/users/data.html:308
 msgid "Import Method"
 msgstr "导入方式"
 
@@ -7345,104 +7345,108 @@ msgstr "下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</c
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr "zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 
-#: users/templates/users/data.html:233 users/templates/users/data.html:284
+#: users/templates/users/data.html:201
+msgid "exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
+msgstr "导出文件不含片单的公开、不公开或私密状态，因此所有导入的标记、评论和收藏单都将以下方选择的可见性创建"
+
+#: users/templates/users/data.html:236 users/templates/users/data.html:287
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
-#: users/templates/users/data.html:240
+#: users/templates/users/data.html:243
 msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
-#: users/templates/users/data.html:246
+#: users/templates/users/data.html:249
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
 msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链接出现。"
 
-#: users/templates/users/data.html:249
+#: users/templates/users/data.html:252
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr "上传下载的<code>.zip</code>文件，无需解压。"
 
-#: users/templates/users/data.html:251
+#: users/templates/users/data.html:254
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr "将导入评分、已看的电影/剧集和想看列表。"
 
-#: users/templates/users/data.html:292
+#: users/templates/users/data.html:295
 #: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr "导入Steam游戏库和愿望清单"
 
-#: users/templates/users/data.html:295
+#: users/templates/users/data.html:298
 msgid "Login with Steam"
 msgstr "使用 Steam 登录"
 
-#: users/templates/users/data.html:301
+#: users/templates/users/data.html:304
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:312
+#: users/templates/users/data.html:315
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:316
+#: users/templates/users/data.html:319
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:345
+#: users/templates/users/data.html:348
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:355
+#: users/templates/users/data.html:358
 msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
-#: users/templates/users/data.html:361
+#: users/templates/users/data.html:364
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
 
-#: users/templates/users/data.html:363
+#: users/templates/users/data.html:366
 msgid "Existing data may be overwritten."
 msgstr "现有数据可能会被覆盖。"
 
-#: users/templates/users/data.html:373
+#: users/templates/users/data.html:376
 msgid "Detected format"
 msgstr "检测到格式"
 
-#: users/templates/users/data.html:434
+#: users/templates/users/data.html:437
 msgid "Detecting format..."
 msgstr "检测格式中"
 
-#: users/templates/users/data.html:460
+#: users/templates/users/data.html:463
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: users/templates/users/data.html:485
+#: users/templates/users/data.html:488
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:509
+#: users/templates/users/data.html:512
 msgid "Export NeoDB Archive"
 msgstr "导出NeoDB备份"
 
-#: users/templates/users/data.html:513
+#: users/templates/users/data.html:516
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
-#: users/templates/users/data.html:520
+#: users/templates/users/data.html:523
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:528
+#: users/templates/users/data.html:531
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr "导出标记、短评和评论 （豆坟xlsx格式）"
 
-#: users/templates/users/data.html:531
+#: users/templates/users/data.html:534
 msgid "Last export"
 msgstr "最近导出"
 
-#: users/templates/users/data.html:536
+#: users/templates/users/data.html:539
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:545
+#: users/templates/users/data.html:548
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
