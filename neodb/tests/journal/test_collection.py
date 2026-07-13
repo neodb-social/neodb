@@ -402,6 +402,18 @@ class TestCollectionCollaborativeEditing:
         self.collection.local = False
         assert not self.collection.is_editable_by(self.mutual)
 
+    def test_staff_can_edit_local_but_not_remote(self):
+        staff = User.register(email="collab_staff@test.com", username="collab_staff")
+        staff.is_staff = True
+        staff.save()
+        assert self.collection.is_editable_by(staff)
+        self.collection.local = False
+        assert not self.collection.is_editable_by(staff)
+
+    def test_user_without_identity_cannot_edit(self):
+        bare = User.objects.create(username="collab_bare")
+        assert not self.collection.is_editable_by(bare)
+
     def test_deletable_by_owner_only(self):
         assert self.collection.is_deletable_by(self.owner)
         assert not self.collection.is_deletable_by(self.mutual)
@@ -447,6 +459,34 @@ class TestCollectionCollaborativeEditing:
         assert response.status_code == 403
         assert Collection.objects.filter(pk=self.collection.pk).exists()
 
+    def test_collaborator_edit_form_excludes_owner_settings(self):
+        client = Client()
+        client.force_login(self.mutual)
+        url = reverse("journal:collection_edit", args=[self.collection.uuid])
+        response = client.get(url)
+        assert response.status_code == 200
+        content = response.content.decode()
+        # check rendered inputs, not ids (a static CSS rule mentions the ids)
+        assert 'name="visibility"' not in content
+        assert 'name="collaborative"' not in content
+        response = client.post(url, {"title": "Renamed by mutual", "brief": "hi"})
+        assert response.status_code == 302
+        self.collection.refresh_from_db()
+        assert self.collection.title == "Renamed by mutual"
+        assert self.collection.collaborative == 1
+        assert self.collection.visibility == 0
+
+    def test_owner_edit_form_includes_owner_settings(self):
+        client = Client()
+        client.force_login(self.owner)
+        response = client.get(
+            reverse("journal:collection_edit", args=[self.collection.uuid])
+        )
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert 'name="visibility"' in content
+        assert 'name="collaborative"' in content
+
     def _api_client_token(self, user: User) -> str:
         app = Takahe.get_or_create_app(
             "Collab Tests",
@@ -486,3 +526,32 @@ class TestCollectionCollaborativeEditing:
         )
         assert response.status_code == 403
         assert Collection.objects.filter(pk=self.collection.pk).exists()
+
+    def test_collaborator_can_rename_but_not_change_visibility_via_api(self):
+        token = self._api_client_token(self.mutual)
+        url = f"/api/me/collection/{self.collection.uuid}"
+        response = Client().put(
+            url,
+            data=json.dumps({"title": "New Title", "brief": "b", "visibility": 1}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 403
+        response = Client().put(
+            url,
+            data=json.dumps({"title": "New Title", "brief": "b", "visibility": 0}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200
+        self.collection.refresh_from_db()
+        assert self.collection.title == "New Title"
+        assert self.collection.visibility == 0
+
+    def test_collaborator_can_list_items_via_me_api(self):
+        token = self._api_client_token(self.mutual)
+        response = Client().get(
+            f"/api/me/collection/{self.collection.uuid}/item/",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200

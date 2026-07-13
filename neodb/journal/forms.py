@@ -175,6 +175,17 @@ class CollectionForm(forms.ModelForm):
         }
 
 
+class CollaboratorCollectionForm(CollectionForm):
+    """Collection form for non-owner editors: owner-only settings
+    (visibility, collaborative) are removed so collaborators can edit
+    content but not privacy or collaboration policy."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        del self.fields["visibility"]
+        del self.fields["collaborative"]
+
+
 class MarkForm(forms.Form):
     status = forms.ChoiceField(
         choices=ShelfType.choices, required=False, label=_("Status")

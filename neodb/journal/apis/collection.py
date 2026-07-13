@@ -192,8 +192,8 @@ def get_user_collection(request, collection_uuid: str):
     c = Collection.get_by_url(collection_uuid)
     if not c:
         return Status(404, {"message": "Collection not found"})
-    if c.owner != request.user.identity:
-        return Status(403, {"message": "Not owner"})
+    if c.owner != request.user.identity and not c.is_editable_by(request.user):
+        return Status(403, {"message": "Permission denied"})
     return c
 
 
@@ -282,6 +282,10 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     is_dynamic = bool(q)
     if c.is_dynamic != is_dynamic:
         return Status(403, {"message": "Cannot change collection type"})
+    if c.owner != request.user.identity and (
+        c_in.visibility != c.visibility or q != c.query
+    ):
+        return Status(403, {"message": "Only owner can change visibility or query"})
     c.title = c_in.title
     c.brief = c_in.brief
     c.visibility = c_in.visibility
@@ -304,8 +308,8 @@ def delete_collection(request, collection_uuid: str):
     c = Collection.get_by_url(collection_uuid)
     if not c:
         return Status(404, {"message": "Collection not found"})
-    if c.owner != request.user.identity:
-        return Status(403, {"message": "Not owner"})
+    if not c.is_deletable_by(request.user):
+        return Status(403, {"message": "Permission denied"})
     c.delete()
     return Status(200, {"message": "OK"})
 
@@ -323,8 +327,8 @@ def user_collection_list_items(request, collection_uuid: str):
     c = Collection.get_by_url(collection_uuid)
     if not c:
         raise Http404("Collection not found")
-    if c.owner != request.user.identity:
-        raise HttpError(403, "Not owner")
+    if c.owner != request.user.identity and not c.is_editable_by(request.user):
+        raise HttpError(403, "Permission denied")
     if c.is_dynamic:
         items = c.query_result.items if c.query_result else []
         members = [{"item": i, "note": ""} for i in items]

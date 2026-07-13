@@ -532,8 +532,6 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     if not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    if not collection.is_editable_by(request.user):
-        raise PermissionDenied(_("Insufficient permission"))
     if collection.is_dynamic:
         raise BadRequest(_("Dynamic collection is not editable"))
     member = collection.get_member_for_item(item)
@@ -575,8 +573,15 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
     )
     if collection and not collection.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
+    # visibility and collaborative are owner-only settings; collaborators
+    # get a reduced form without them
+    form_class = (
+        CollaboratorCollectionForm
+        if collection and collection.owner != getattr(request.user, "identity", None)
+        else CollectionForm
+    )
     if request.method == "GET":
-        form = CollectionForm(instance=collection) if collection else CollectionForm()
+        form = form_class(instance=collection) if collection else form_class()
         if request.GET.get("title"):
             form.instance.title = request.GET.get("title")
         return render(
@@ -591,9 +596,9 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
         )
     else:
         form = (
-            CollectionForm(request.POST, request.FILES, instance=collection)
+            form_class(request.POST, request.FILES, instance=collection)
             if collection
-            else CollectionForm(request.POST)
+            else form_class(request.POST)
         )
         if form.is_valid():
             if not collection:

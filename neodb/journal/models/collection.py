@@ -28,8 +28,6 @@ from .renderers import render_md, render_text
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
 
-    from users.models import User
-
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 _COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
 
@@ -151,20 +149,24 @@ class Collection(List):
         return f.created_time if f else None
 
     def is_editable_by(self, viewing_user: "User | AnonymousUser") -> bool:
+        # Remote mirrors are maintained by federation sync and must stay
+        # read-only locally (staff included) or edits would silently diverge
+        # and be clobbered by the next sync.
+        if not self.local:
+            return False
         if super().is_editable_by(viewing_user):
             return True
         # Collaborative mode: local mutual followers may edit. Gated on
         # visibility so a collaborator can never edit what they cannot see.
-        if self.collaborative != 1 or not self.local:
+        if self.collaborative != 1 or not isinstance(viewing_user, User):
             return False
-        if not isinstance(viewing_user, User) or not viewing_user.is_authenticated:
-            return False
-        viewer = viewing_user.identity
+        # reverse OneToOne raises rather than returns None when missing
+        viewer = getattr(viewing_user, "identity", None)
         return (
             viewer is not None
-            and self.is_visible_to(viewing_user)
             and viewer.is_following(self.owner)
             and viewer.is_followed_by(self.owner)
+            and self.is_visible_to(viewing_user)
         )
 
     def is_deletable_by(self, viewing_user: "User | AnonymousUser") -> bool:
