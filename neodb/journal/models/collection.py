@@ -19,11 +19,16 @@ from common.models import jsondata
 from common.utils import get_file_absolute_url
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
-from users.models import APIdentity
+from users.models import APIdentity, User
 
 from .common import Piece
 from .itemlist import AP_PAGE_SIZE, List, ListMember, list_add, list_remove
 from .renderers import render_md, render_text
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AnonymousUser
+
+    from users.models import User
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 _COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
@@ -144,6 +149,27 @@ class Collection(List):
     def featured_since(self, owner: APIdentity):
         f = FeaturedCollection.objects.filter(target=self, owner=owner).first()
         return f.created_time if f else None
+
+    def is_editable_by(self, viewing_user: "User | AnonymousUser") -> bool:
+        if super().is_editable_by(viewing_user):
+            return True
+        # Collaborative mode: local mutual followers may edit. Gated on
+        # visibility so a collaborator can never edit what they cannot see.
+        if self.collaborative != 1 or not self.local:
+            return False
+        if not isinstance(viewing_user, User) or not viewing_user.is_authenticated:
+            return False
+        viewer = viewing_user.identity
+        return (
+            viewer is not None
+            and self.is_visible_to(viewing_user)
+            and viewer.is_following(self.owner)
+            and viewer.is_followed_by(self.owner)
+        )
+
+    def is_deletable_by(self, viewing_user: "User | AnonymousUser") -> bool:
+        # Collaborators may edit content but only owner/staff may delete.
+        return super().is_editable_by(viewing_user)
 
     def get_query(self, viewer, **kwargs):
         if not self.is_dynamic:

@@ -1,10 +1,16 @@
+import json
+
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.db import connection
+from django.test import Client
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 
 from catalog.models import Edition, ExternalResource, IdType, ItemCredit, Movie
 from journal.apis.collection import _prefetch_collection_member_items
 from journal.models.collection import Collection
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -335,3 +341,148 @@ class TestCollectionItemsApiPrefetch:
             f"query(ies); expected 0 (prefetched). First: "
             f"{credits[0]['sql'] if credits else 'n/a'}"
         )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionCollaborativeEditing:
+    """collaborative=1 lets local mutual followers edit content; deletion stays owner-only."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(
+            email="collab_owner@test.com", username="collab_owner"
+        )
+        self.mutual = User.register(
+            email="collab_mutual@test.com", username="collab_mutual"
+        )
+        self.follower = User.register(
+            email="collab_follower@test.com", username="collab_follower"
+        )
+        self.stranger = User.register(
+            email="collab_stranger@test.com", username="collab_stranger"
+        )
+        self.mutual.identity.follow(self.owner.identity, force_accept=True)
+        self.owner.identity.follow(self.mutual.identity, force_accept=True)
+        self.follower.identity.follow(self.owner.identity, force_accept=True)
+        self.book = Edition.objects.create(title="Collaborative Book")
+        self.collection = Collection(
+            owner=self.owner.identity,
+            title="Collaborative Collection",
+            brief="",
+            collaborative=1,
+        )
+        self.collection.save()
+
+    def test_owner_can_edit(self):
+        assert self.collection.is_editable_by(self.owner)
+
+    def test_mutual_can_edit(self):
+        assert self.collection.is_editable_by(self.mutual)
+
+    def test_one_way_follower_cannot_edit(self):
+        assert not self.collection.is_editable_by(self.follower)
+
+    def test_stranger_cannot_edit(self):
+        assert not self.collection.is_editable_by(self.stranger)
+
+    def test_anonymous_cannot_edit(self):
+        assert not self.collection.is_editable_by(AnonymousUser())
+
+    def test_mutual_cannot_edit_when_not_collaborative(self):
+        self.collection.collaborative = 0
+        assert not self.collection.is_editable_by(self.mutual)
+        assert self.collection.is_editable_by(self.owner)
+
+    def test_mutual_cannot_edit_invisible_collection(self):
+        self.collection.visibility = 2
+        assert not self.collection.is_editable_by(self.mutual)
+        assert self.collection.is_editable_by(self.owner)
+
+    def test_remote_collection_not_editable_by_mutual(self):
+        self.collection.local = False
+        assert not self.collection.is_editable_by(self.mutual)
+
+    def test_deletable_by_owner_only(self):
+        assert self.collection.is_deletable_by(self.owner)
+        assert not self.collection.is_deletable_by(self.mutual)
+
+    def test_mutual_can_append_and_remove_item_via_web(self):
+        client = Client()
+        client.force_login(self.mutual)
+        response = client.post(
+            reverse("journal:collection_append_item", args=[self.collection.uuid]),
+            {"url": self.book.url, "note": "from mutual"},
+        )
+        assert response.status_code == 200
+        member = self.collection.members.first()
+        assert member is not None
+        assert member.item == self.book
+        # attribution stays with the collection owner
+        assert member.owner == self.owner.identity
+        response = client.post(
+            reverse(
+                "journal:collection_remove_item",
+                args=[self.collection.uuid, self.book.uuid],
+            )
+        )
+        assert response.status_code == 200
+        assert self.collection.members.count() == 0
+
+    def test_follower_cannot_append_item_via_web(self):
+        client = Client()
+        client.force_login(self.follower)
+        response = client.post(
+            reverse("journal:collection_append_item", args=[self.collection.uuid]),
+            {"url": self.book.url, "note": ""},
+        )
+        assert response.status_code == 403
+        assert self.collection.members.count() == 0
+
+    def test_mutual_cannot_delete_via_web(self):
+        client = Client()
+        client.force_login(self.mutual)
+        response = client.post(
+            reverse("journal:collection_delete", args=[self.collection.uuid])
+        )
+        assert response.status_code == 403
+        assert Collection.objects.filter(pk=self.collection.pk).exists()
+
+    def _api_client_token(self, user: User) -> str:
+        app = Takahe.get_or_create_app(
+            "Collab Tests",
+            "https://example.org",
+            "https://example.org/callback",
+            owner_pk=user.identity.pk,
+        )
+        return Takahe.refresh_token(app, user.identity.pk, user.pk)
+
+    def test_mutual_can_add_item_via_api(self):
+        token = self._api_client_token(self.mutual)
+        response = Client().post(
+            f"/api/me/collection/{self.collection.uuid}/item/",
+            data=json.dumps({"item_uuid": self.book.uuid, "note": "via api"}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200
+        assert self.collection.members.count() == 1
+
+    def test_follower_cannot_add_item_via_api(self):
+        token = self._api_client_token(self.follower)
+        response = Client().post(
+            f"/api/me/collection/{self.collection.uuid}/item/",
+            data=json.dumps({"item_uuid": self.book.uuid, "note": ""}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 403
+        assert self.collection.members.count() == 0
+
+    def test_mutual_cannot_delete_collection_via_api(self):
+        token = self._api_client_token(self.mutual)
+        response = Client().delete(
+            f"/api/me/collection/{self.collection.uuid}",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 403
+        assert Collection.objects.filter(pk=self.collection.pk).exists()

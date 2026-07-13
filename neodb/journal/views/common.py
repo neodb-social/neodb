@@ -268,7 +268,7 @@ def piece_delete(request, piece_uuid):
         require_https=settings.SSL_ONLY,
     ):
         return_url = "/"
-    if not piece.is_editable_by(request.user):
+    if not piece.is_deletable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         return render(

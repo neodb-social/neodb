@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AnonymousUser
     from django.db.models import ForeignKey
 
     from users.models import APIdentity, User
@@ -69,9 +70,15 @@ class UserOwnedObjectMixin:
             return viewer.is_following(owner)
         return True
 
-    def is_editable_by(self: "Piece", viewing_user: "User"):
+    def is_editable_by(self: "Piece", viewing_user: "User | AnonymousUser"):
         return viewing_user.is_authenticated and (
             viewing_user.is_staff
             or viewing_user.is_superuser
             or viewing_user == self.owner.user
         )
+
+    def is_deletable_by(self: "Piece", viewing_user: "User | AnonymousUser"):
+        # Same as edit permission by default; subclasses granting edit
+        # access beyond the owner (e.g. collaborative Collection) override
+        # this to keep deletion owner-only.
+        return self.is_editable_by(viewing_user)
