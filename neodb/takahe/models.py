@@ -2697,6 +2697,31 @@ class PushSubscription(models.Model):
     policy = models.CharField(max_length=8, default="all")
 
 
+class PushNotification(models.Model):
+    class Meta:
+        db_table = "api_pushnotification"
+
+    token = models.ForeignKey(
+        "takahe.Token",
+        on_delete=models.CASCADE,
+        related_name="push_notifications",
+    )
+    locale = models.CharField(max_length=2, default="en")
+    type = models.CharField(max_length=20)
+    icon = models.CharField(max_length=500)
+    title = models.CharField(max_length=100)
+    body = models.CharField(max_length=500)
+
+    # state = StateField(PushNotificationStates)
+    state = models.CharField(max_length=100, default="sending")
+    state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
 class Bookmark(models.Model):
     class Meta:
         db_table = "users_bookmark"
