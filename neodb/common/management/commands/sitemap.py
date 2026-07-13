@@ -24,15 +24,19 @@ class Command(SiteCommand):
                 ShelfMember.objects.filter(owner_id=OuterRef("owner_id"))
             )
             for cl in [Collection, Review, Article]:
+                if c <= 0:
+                    break
                 self.stdout.write(f"Collecting {cl.__name__}...")
                 pcs = cl.objects.filter(
                     visibility=0, local=True, owner__anonymous_viewable=True
                 )
                 if cl is Article:
                     pcs = pcs.filter(has_marks)
-                for p in pcs:
-                    c -= 1
+                for p in pcs.iterator():
+                    if c <= 0:
+                        break
                     f.write(p.absolute_url + "\n")
+                    c -= 1
 
             self.stdout.write("Collecting Catalog Items...")
             ratings = (
