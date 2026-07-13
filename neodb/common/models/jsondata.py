@@ -5,6 +5,7 @@ from base64 import b64encode
 from datetime import date, datetime
 from functools import partialmethod
 from hashlib import sha256
+from typing import TYPE_CHECKING, Any
 
 from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
@@ -130,6 +131,12 @@ class JSONFieldMixin(object):
     Override django.db.model.fields.Field.contribute_to_class
     to make a field always private, and register custom access descriptor
     """
+
+    if TYPE_CHECKING:
+        # model attributes are replaced with JSONFieldDescriptor at runtime by
+        # contribute_to_class; declare the descriptor protocol for type checkers
+        def __get__(self, instance: Any, owner: Any = None) -> Any: ...
+        def __set__(self, instance: Any, value: Any) -> None: ...
 
     def __init__(self, *args, **kwargs):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
