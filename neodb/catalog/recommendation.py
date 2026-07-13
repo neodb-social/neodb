@@ -12,7 +12,7 @@ from heapq import nlargest
 
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, QuerySet
 from django.utils import timezone
 from loguru import logger
 
@@ -125,13 +125,15 @@ def _live_items(qs):
     return qs
 
 
-def _user_shelved_item_ids(identity_pk: int) -> set[int]:
-    return set(
-        ShelfMember.objects.filter(
-            owner_id=identity_pk,
-            parent__shelf_type__in=SHELF_TYPES_TO_EXCLUDE,
-        ).values_list("item_id", flat=True)
+def _user_shelved_members(identity_pk: int) -> QuerySet[ShelfMember]:
+    return ShelfMember.objects.filter(
+        owner_id=identity_pk,
+        parent__shelf_type__in=SHELF_TYPES_TO_EXCLUDE,
     )
+
+
+def _user_shelved_item_ids(identity_pk: int) -> set[int]:
+    return set(_user_shelved_members(identity_pk).values_list("item_id", flat=True))
 
 
 def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
@@ -351,7 +353,9 @@ def from_your_circles(
     eligible_followees = [f for f in following if f not in not_discoverable]
     if not eligible_followees:
         return []
-    shelved = _user_shelved_item_ids(identity.pk)
+    # Exclude via subquery: a materialized id set would inline one bind
+    # parameter per shelved item, bloating the SQL for heavy users.
+    shelved = _user_shelved_members(identity.pk).values("item_id")
     excluded_ctypes = excluded_target_ctype_ids()
     qs = (
         ShelfMember.objects.filter(q_piece_visible_to_user(viewer))

@@ -22,6 +22,7 @@ from catalog.models import (
 from catalog.recommendation import (
     blended_for_discover,
     compute_for_user,
+    from_your_circles,
     similar_items,
 )
 from common.models import SiteConfig
@@ -527,4 +528,44 @@ class TestRecoItemsExternalResourcesNoNPlusOne:
             f"reading reco items' external_resources fired {len(offending)} "
             "query(ies); expected 0 (prefetched). First offending SQL: "
             f"{offending[0]['sql'] if offending else 'n/a'}"
+        )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestFromYourCircles:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(enable_recommendations=True, reco_circles_window_days=14)
+        self.viewer = User.register(email="c0@test.com", username="c_viewer")
+        self.friends = [
+            User.register(email=f"c{i + 1}@test.com", username=f"c_friend{i}")
+            for i in range(2)
+        ]
+        for f in self.friends:
+            self.viewer.identity.follow(f.identity, True)
+        self.book_a = Edition.objects.create(title="Circles A")
+        self.book_b = Edition.objects.create(title="Circles B")
+        for f in self.friends:
+            _public_mark(f.identity, self.book_a)
+            _public_mark(f.identity, self.book_b)
+
+    def test_returns_followee_items(self):
+        items = from_your_circles(self.viewer)
+        assert {i.pk for i in items} == {self.book_a.pk, self.book_b.pk}
+
+    def test_excludes_viewer_shelved(self):
+        _public_mark(self.viewer.identity, self.book_a)
+        items = from_your_circles(self.viewer)
+        assert {i.pk for i in items} == {self.book_b.pk}
+
+    def test_shelved_exclusion_uses_subquery(self):
+        # Regression for EGGPLANT-1GE: the viewer's shelved items must be
+        # excluded via a subquery, not inlined as one parameter per item.
+        _public_mark(self.viewer.identity, self.book_a)
+        with CaptureQueriesContext(connection) as ctx:
+            from_your_circles(self.viewer)
+        agg = [q["sql"] for q in ctx.captured_queries if "COUNT(DISTINCT" in q["sql"]]
+        assert len(agg) == 1
+        assert "IN (SELECT" in agg[0], (
+            f"shelved-item exclusion is not a subquery: {agg[0]}"
         )
