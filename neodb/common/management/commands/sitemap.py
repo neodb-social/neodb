@@ -3,7 +3,7 @@ import shutil
 import tempfile
 
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, Exists, OuterRef
 
 from catalog.models import *
 from common.management.base import SiteCommand
@@ -18,11 +18,18 @@ class Command(SiteCommand):
         os.close(fd)
         with open(temp, "w") as f:
             c = 50000
-            for cl in [Collection, Review]:
+            # articles only count if the author has marked something,
+            # so accounts created just to publish don't get listed
+            has_marks = Exists(
+                ShelfMember.objects.filter(owner_id=OuterRef("owner_id"))
+            )
+            for cl in [Collection, Review, Article]:
                 self.stdout.write(f"Collecting {cl.__name__}...")
                 pcs = cl.objects.filter(
                     visibility=0, local=True, owner__anonymous_viewable=True
                 )
+                if cl is Article:
+                    pcs = pcs.filter(has_marks)
                 for p in pcs:
                     c -= 1
                     f.write(p.absolute_url + "\n")
