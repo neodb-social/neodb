@@ -126,10 +126,12 @@ def _live_items(qs):
 
 
 def _user_shelved_members(identity_pk: int) -> QuerySet[ShelfMember]:
-    return ShelfMember.objects.filter(
+    # _base_manager skips ShelfMemberManager's default annotations (useless
+    # here); order_by() keeps subqueries free of any future default ordering.
+    return ShelfMember._base_manager.filter(
         owner_id=identity_pk,
         parent__shelf_type__in=SHELF_TYPES_TO_EXCLUDE,
-    )
+    ).order_by()
 
 
 def _user_shelved_item_ids(identity_pk: int) -> set[int]:

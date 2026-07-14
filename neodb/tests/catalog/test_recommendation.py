@@ -569,3 +569,6 @@ class TestFromYourCircles:
         assert "IN (SELECT" in agg[0], (
             f"shelved-item exclusion is not a subquery: {agg[0]}"
         )
+        # ShelfMemberManager's default annotations must not leak in either.
+        assert 'FROM "journal_rating"' not in agg[0]
+        assert 'FROM "journal_comment"' not in agg[0]
