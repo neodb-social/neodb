@@ -6,6 +6,13 @@
         <i class="fa-solid fa-ellipsis"></i>
       </summary>
       <ul role="menu">
+        {% if piece_edit_url %}
+          <li>
+            <span>
+              <a href="{{ piece_edit_url }}" title="{% trans 'Edit' %}">{% trans "Edit" %}</a>
+            </span>
+          </li>
+        {% endif %}
         {% if post.author_id == request.user.identity.pk %}
           <li>{% include "action_pin_post.html" with menu_label=1 %}</li>
           {% if not piece %}

@@ -71,7 +71,10 @@
                        title="{% trans "Share" %}"><i class="fa-solid fa-share-nodes"></i></a>
                   </span>
                 {% endif %}
-                {% include "_post_action_menu.html" with post=collection.latest_post piece=collection %}
+                {% if editable %}
+                  {% firstof collection.edit_url as piece_edit_url %}
+                {% endif %}
+                {% include "_post_action_menu.html" with post=collection.latest_post piece=collection piece_edit_url=piece_edit_url %}
                 {% include "action_open_post.html" with post=collection.latest_post %}
               </span>
               <span class="post_author">
@@ -177,18 +180,21 @@
               <span>
                 <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
               </span>
+            {% elif editable %}
+              <span>
+                <a href="{% url 'journal:collection_edit' collection.uuid %}"
+                   title="{% trans 'Collaborative editing' %}">{% trans 'Edit' %}</a>
+              </span>
             {% endif %}
           </span>
           <span class="action inline">
             {% if collection.latest_post %}
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
-            <span><a>{{ collection.created_time|date }}</a></span>
-            {% if editable and request.user.identity != collection.owner %}
-              <span>
-                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Collaborative editing' %}</a>
-              </span>
+            {% if collection.collaborative == 1 %}
+              <span><small><i class="fa-solid fa-users" title="{% trans 'Collaborative editing' %}"></i></small></span>
             {% endif %}
+            <span><a>{{ collection.created_time|date }}</a></span>
           </span>
         </section>
         {% if collection.latest_post %}

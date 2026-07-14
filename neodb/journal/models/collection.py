@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -122,6 +123,10 @@ class Collection(List):
     @property
     def cover_image_url(self) -> str | None:
         return get_file_absolute_url(self.cover)
+
+    @property
+    def edit_url(self) -> str:
+        return reverse("journal:collection_edit", args=[self.uuid])
 
     @property
     def is_dynamic(self):
