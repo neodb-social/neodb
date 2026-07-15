@@ -398,7 +398,7 @@ class Identity(StatorModel):
                 remote_url=self.icon_uri,
             )
         else:
-            return AutoAbsoluteUrl("/s/img/avatar.svg")
+            return AutoAbsoluteUrl("/s/img/avatar.png")
 
     def local_image_url(self) -> RelativeAbsoluteUrl | None:
         """
@@ -735,6 +735,12 @@ class Identity(StatorModel):
                 "type": "Image",
                 "mediaType": media_type_from_filename(self.icon_uri),
                 "url": self.icon_uri,
+            }
+        elif self.local and not self.deleted:
+            response["icon"] = {
+                "type": "Image",
+                "mediaType": "image/png",
+                "url": AutoAbsoluteUrl("/s/img/avatar.png").absolute,
             }
         if self.image:
             response["image"] = {

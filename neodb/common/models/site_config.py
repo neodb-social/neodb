@@ -30,7 +30,7 @@ class SiteConfig(models.Model):
         site_name: str = ""
         site_logo: str = "/s/img/logo.svg"
         site_icon: str = "/s/img/icon.png"
-        user_icon: str = "/s/img/avatar.svg"
+        user_icon: str = "/s/img/avatar.png"
         site_color: str = "azure"
         site_intro: str = ""
         site_head: str = ""
@@ -149,7 +149,7 @@ class SiteConfig(models.Model):
             "site_name": settings.SITE_INFO.get("site_name", ""),
             "site_logo": settings.SITE_INFO.get("site_logo", "/s/img/logo.svg"),
             "site_icon": settings.SITE_INFO.get("site_icon", "/s/img/icon.png"),
-            "user_icon": settings.SITE_INFO.get("user_icon", "/s/img/avatar.svg"),
+            "user_icon": settings.SITE_INFO.get("user_icon", "/s/img/avatar.png"),
             "site_color": settings.SITE_INFO.get("site_color", "azure"),
             "site_intro": settings.SITE_INFO.get("site_intro", ""),
             "site_head": settings.SITE_INFO.get("site_head", ""),

@@ -314,3 +314,72 @@ def test_attachment_to_ap(identity: Identity, config_system):
         '<a href="http://example.com" rel="nofollow">'
         '<span class="invisible">http://</span>example.com</a>'
     )
+
+
+@pytest.mark.django_db
+def test_default_icon_to_ap(identity: Identity, config_system):
+    """
+    Local identities without a custom avatar serve the default icon in AP,
+    while a custom icon_uri takes precedence.
+    """
+    response = identity.to_ap()
+
+    assert response["icon"] == {
+        "type": "Image",
+        "mediaType": "image/png",
+        "url": "https://example.com/s/img/avatar.png",
+    }
+
+    identity.icon_uri = "https://example.com/icon.jpg"
+    response = identity.to_ap()
+
+    assert response["icon"]["url"] == "https://example.com/icon.jpg"
+
+
+@pytest.mark.django_db
+def test_default_icon_migration(identity_factory, domain):
+    """
+    The 0035 data migration clears stock avatar.svg icon_uri values and
+    transitions affected local identities to "edited" for AP fanout.
+    """
+    from importlib import import_module
+
+    from django.apps import apps
+
+    migration = import_module("users.migrations.0035_fanout_default_icon_update")
+
+    no_icon = identity_factory(username="noicon")
+    no_icon.state = "updated"
+    no_icon.save()
+    old_default = identity_factory(
+        username="olddefault", icon_uri="https://example.com/s/img/avatar.svg"
+    )
+    old_default.state = "updated"
+    old_default.save()
+    custom = identity_factory(
+        username="custom", icon_uri="https://example.com/custom.jpg"
+    )
+    custom.state = "updated"
+    custom.save()
+    remote = Identity.objects.create(
+        actor_uri="https://remote.example/@someone/",
+        username="someone",
+        domain=domain,
+        local=False,
+        icon_uri="https://remote.example/s/img/avatar.svg",
+        state="updated",
+    )
+
+    migration.update_default_icons(apps, None)
+
+    no_icon.refresh_from_db()
+    assert no_icon.state == "edited"
+    old_default.refresh_from_db()
+    assert old_default.icon_uri == ""
+    assert old_default.state == "edited"
+    custom.refresh_from_db()
+    assert custom.icon_uri == "https://example.com/custom.jpg"
+    assert custom.state == "updated"
+    remote.refresh_from_db()
+    assert remote.icon_uri == "https://remote.example/s/img/avatar.svg"
+    assert remote.state == "updated"
