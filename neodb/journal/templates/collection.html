@@ -192,7 +192,7 @@
               {% include "action_open_post.html" with post=collection.latest_post %}
             {% endif %}
             {% if collection.collaborative == 1 %}
-              <span><small><i class="fa-solid fa-users" title="{% trans 'Collaborative editing' %}"></i></small></span>
+              <span><a><i class="fa-solid fa-users" title="{% trans 'Collaborative editing' %}"></i></a></span>
             {% endif %}
             <span><a>{{ collection.created_time|date }}</a></span>
           </span>
