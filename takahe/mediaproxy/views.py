@@ -34,7 +34,7 @@ class BaseProxyView(View):
                     "X-Takahe-RealUri": remote_url,
                     # nginx copies this to the final response; give browsers
                     # a real TTL since remote cache headers are hidden there
-                    "Cache-Control": "public, max-age=86400",
+                    "Cache-Control": "public, max-age=1209600",
                 },
             )
         else:
