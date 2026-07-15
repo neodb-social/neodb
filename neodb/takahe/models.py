@@ -1551,9 +1551,20 @@ class Post(models.Model):
         if save:
             self.save()
 
+    @staticmethod
+    def _rewrite_neodb_urls(content: str) -> str:
+        """Rewrite ~neodb~ placeholder URLs to local search URLs for display."""
+        return re.sub(
+            r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"',
+            'href="' + settings.SITE_INFO["site_url"] + r'/search?r=1&q=\1\2"',
+            content,
+        )
+
     @property
     def safe_content_local(self):
-        return ContentRenderer(local=True).render_post(self.content, self)
+        return self._rewrite_neodb_urls(
+            ContentRenderer(local=True).render_post(self.content, self)
+        )
 
     @property
     def content_plain_text(self):
