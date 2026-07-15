@@ -22,24 +22,19 @@ def update_default_icons(apps, schema_editor):
     Identity = apps.get_model("users", "Identity")
     local = Identity.objects.filter(local=True, deleted__isnull=True)
 
-    stock_icon_pks = list(
-        local.filter(icon_uri__endswith=OLD_DEFAULT_ICON_PATH).values_list(
-            "pk", flat=True
-        )
-    )
-    Identity.objects.filter(pk__in=stock_icon_pks).update(icon_uri="")
-
+    # fan out first, while stock icon_uri values are still recognizable
     no_icon = (models.Q(icon="") | models.Q(icon__isnull=True)) & (
         models.Q(icon_uri="") | models.Q(icon_uri__isnull=True)
     )
     local.filter(state__in=["outdated", "updated"]).filter(
-        models.Q(pk__in=stock_icon_pks) | no_icon
+        models.Q(icon_uri__endswith=OLD_DEFAULT_ICON_PATH) | no_icon
     ).update(
         state="edited",
         state_changed=timezone.now(),
         state_next_attempt=None,
         state_locked_until=None,
     )
+    local.filter(icon_uri__endswith=OLD_DEFAULT_ICON_PATH).update(icon_uri="")
 
 
 class Migration(migrations.Migration):
