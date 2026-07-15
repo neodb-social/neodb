@@ -1552,17 +1552,19 @@ class Post(models.Model):
         if save:
             self.save()
 
-    @staticmethod
-    def _rewrite_neodb_urls(content: str) -> str:
+    _neodb_url_regex = re.compile(r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"')
+
+    @classmethod
+    def _rewrite_neodb_urls(cls, content: str) -> str:
         """Rewrite ~neodb~ placeholder URLs to local search URLs for display."""
         # mark_safe: input is render_post output (already sanitized), and the
         # inserted href is quoted, so the rewrite introduces no unsafe markup.
+        site_url = settings.SITE_INFO["site_url"].rstrip("/")
         return mark_safe(
-            re.sub(
-                r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"',
+            cls._neodb_url_regex.sub(
                 lambda m: (
                     'href="'
-                    + settings.SITE_INFO["site_url"]
+                    + site_url
                     + "/search?r=1&q="
                     + quote(m.group(1) + m.group(2), safe="")
                     + '"'
