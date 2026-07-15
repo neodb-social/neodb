@@ -133,7 +133,9 @@
                 {% endif %}
               {% endfor %}
             </div>
-            <div id="content_{{ post.pk }}" class="content">
+            <div id="content_{{ post.pk }}"
+                 class="content{% if collapse_content %} tldr{% endif %}"
+                 {% if collapse_content %}_="on click toggle .tldr on me"{% endif %}>
               {% if piece and piece.classname == 'note' %}
                 <blockquote style="margin:0; padding-top:0; padding-bottom:0">
                   {{ post.safe_content_local|default:"" }}
@@ -150,7 +152,8 @@
               {% include "post_question.html" %}
             {% endif %}
             {% if post.quoted_post_ or post.quote_url %}
-              <blockquote class="quote-post">
+              <blockquote class="quote-post{% if collapse_content %} tldr{% endif %}"
+                          {% if collapse_content %}_="on click toggle .tldr on me"{% endif %}>
                 {% if post.quoted_post_ %}
                   <a class="nickname"
                      href="{% url 'journal:post_view' post.quoted_post_.author.handle post.quoted_post_.pk %}">{{ post.quoted_post_.author.name | default:post.quoted_post_.author.handle }}</a>:

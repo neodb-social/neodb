@@ -245,7 +245,7 @@
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
    title="{% trans 'show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
-          <div style="font-size:80%">{% include "posts.html" with posts=recent_posts %}</div>
+          <div style="font-size:80%">{% include "posts.html" with posts=recent_posts collapse_content=1 %}</div>
         </details>
       </article>
     </section>
