@@ -7,6 +7,7 @@ import time
 from datetime import date, timedelta
 from functools import cached_property, partial
 from typing import TYPE_CHECKING, ClassVar, Optional
+from urllib.parse import quote
 
 import httpx
 import urlman
@@ -1554,10 +1555,20 @@ class Post(models.Model):
     @staticmethod
     def _rewrite_neodb_urls(content: str) -> str:
         """Rewrite ~neodb~ placeholder URLs to local search URLs for display."""
-        return re.sub(
-            r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"',
-            'href="' + settings.SITE_INFO["site_url"] + r'/search?r=1&q=\1\2"',
-            content,
+        # mark_safe: input is render_post output (already sanitized), and the
+        # inserted href is quoted, so the rewrite introduces no unsafe markup.
+        return mark_safe(
+            re.sub(
+                r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"',
+                lambda m: (
+                    'href="'
+                    + settings.SITE_INFO["site_url"]
+                    + "/search?r=1&q="
+                    + quote(m.group(1) + m.group(2), safe="")
+                    + '"'
+                ),
+                content,
+            )
         )
 
     @property
