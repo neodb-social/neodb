@@ -133,57 +133,56 @@
                 {% endif %}
               {% endfor %}
             </div>
-            <div id="content_{{ post.pk }}"
-                 class="content{% if collapse_content %} tldr{% endif %}"
-                 {% if collapse_content %}_="on click toggle .tldr on me"{% endif %}>
-              {% if piece and piece.classname == 'note' %}
-                <blockquote style="margin:0; padding-top:0; padding-bottom:0">
-                  {{ post.safe_content_local|default:"" }}
-                </blockquote>
-              {% elif piece.classname == 'article' or piece.classname == 'review' %}
-                {% include "_article_teaser.html" with article=piece %}
-              {% elif post.type == 'Article' %}
-                {% include "_remote_article_teaser.html" with post=post show_full=show_full %}
-              {% else %}
-                {{ post.safe_content_local|default:"" }}
-              {% endif %}
-            </div>
-            {% if post.type == 'Question' %}
-              {% include "post_question.html" %}
-            {% endif %}
-            {% if post.quoted_post_ or post.quote_url %}
-              <blockquote class="quote-post{% if collapse_content %} tldr{% endif %}"
-                          {% if collapse_content %}_="on click toggle .tldr on me"{% endif %}>
-                {% if post.quoted_post_ %}
-                  <a class="nickname"
-                     href="{% url 'journal:post_view' post.quoted_post_.author.handle post.quoted_post_.pk %}">{{ post.quoted_post_.author.name | default:post.quoted_post_.author.handle }}</a>:
-                  {{ post.quoted_post_.safe_content_local|default:"" }}
-                {% else %}
-                  <a href="{{ post.quote_url }}" target="_blank" rel="noopener">{{ post.quote_url }}</a>
-                {% endif %}
-              </blockquote>
-            {% endif %}
-          </div>
-          <div class="embed-cover">
-            {% if piece and piece.classname == 'note' %}
-              {% if item %}
-                <a href="{{ item.url }}" title="{{ item.display_title }}">
-                  <img src="{{ item.cover_image_url }}"
-                       title="{{ item.display_title }}"
-                       alt="cover">
-                </a>
-              {% endif %}
-            {% endif %}
-          </div>
+            <div id="content_{{ post.pk }}" class="content{% if collapse_content %} tldr{% endif %}" {% if collapse_content %}_="on click if no (closest <a/> to target) toggle .tldr on me"{% endif %}
+          >
+          {% if piece and piece.classname == 'note' %}
+            <blockquote style="margin:0; padding-top:0; padding-bottom:0">
+              {{ post.safe_content_local|default:"" }}
+            </blockquote>
+          {% elif piece.classname == 'article' or piece.classname == 'review' %}
+            {% include "_article_teaser.html" with article=piece %}
+          {% elif post.type == 'Article' %}
+            {% include "_remote_article_teaser.html" with post=post show_full=show_full %}
+          {% else %}
+            {{ post.safe_content_local|default:"" }}
+          {% endif %}
         </div>
-      </div>
-    </div>
-    <div id="quote_{{ post.pk }}"></div>
-    <div id="replies_{{ post.pk }}"
-         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
-         "
-         hx-swap="outerHTML"
-         hx-trigger="revealed"
-         {% endif %}></div>
-  </section>
+        {% if post.type == 'Question' %}
+          {% include "post_question.html" %}
+        {% endif %}
+        {% if post.quoted_post_ or post.quote_url %}
+          <blockquote class="quote-post{% if collapse_content %} tldr{% endif %}" {% if collapse_content %}_="on click if no (closest <a/> to target) toggle .tldr on me"{% endif %}
+        >
+        {% if post.quoted_post_ %}
+          <a class="nickname"
+             href="{% url 'journal:post_view' post.quoted_post_.author.handle post.quoted_post_.pk %}">{{ post.quoted_post_.author.name | default:post.quoted_post_.author.handle }}</a>:
+          {{ post.quoted_post_.safe_content_local|default:"" }}
+        {% else %}
+          <a href="{{ post.quote_url }}" target="_blank" rel="noopener">{{ post.quote_url }}</a>
+        {% endif %}
+      </blockquote>
+    {% endif %}
+  </div>
+  <div class="embed-cover">
+    {% if piece and piece.classname == 'note' %}
+      {% if item %}
+        <a href="{{ item.url }}" title="{{ item.display_title }}">
+          <img src="{{ item.cover_image_url }}"
+               title="{{ item.display_title }}"
+               alt="cover">
+        </a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+</div>
+</div>
+<div id="quote_{{ post.pk }}"></div>
+<div id="replies_{{ post.pk }}"
+     {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
+     "
+     hx-swap="outerHTML"
+     hx-trigger="revealed"
+     {% endif %}></div>
+</section>
 {% endif %}
