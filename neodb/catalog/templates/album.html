@@ -29,18 +29,18 @@
     {% endif %}
   </div>
   <div>
-    {% if item.album_type %}
+    {% if item.display_album_types %}
       {% trans 'album type' %}:
-      {% for t in item.album_type %}
+      {% for t in item.display_album_types %}
         {% if not forloop.first %}/{% endif %}
         <span>{{ t|code_to_album_type }}</span>
       {% endfor %}
     {% endif %}
   </div>
   <div>
-    {% if item.media_format %}
+    {% if item.display_media_formats %}
       {% trans 'album media' %}:
-      {% for m in item.media_format %}
+      {% for m in item.display_media_formats %}
         {% if not forloop.first %}/{% endif %}
         <span>{{ m|code_to_media_format }}</span>
       {% endfor %}

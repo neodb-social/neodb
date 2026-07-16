@@ -101,6 +101,13 @@ class TestNormalizeLegacyAlbumMetadata:
         assert md["media_format"] == ["cd"]
         assert "media" not in md
 
+    def test_display_properties_tolerate_legacy_scalars(self):
+        # templates iterate these; a pre-migration string value must not
+        # be iterated character by character
+        a = Album(metadata={"album_type": "专辑", "media_format": ["cd"]})
+        assert a.display_album_types == ["album"]
+        assert a.display_media_formats == ["cd"]
+
 
 class TestNormalizeLegacyGameMetadata:
     def test_release_year_fallback(self):

@@ -121,17 +121,8 @@ _SCRAPER_ALIASES: dict[str, str] = {
 }
 
 
-def normalize_country(value: str) -> str | None:
-    """Normalize a single country value to an alpha-2 code.
-
-    Returns the code when the value is a known code, alias or name;
-    otherwise returns the input as-is (stripped) as a custom value.
-    """
-    if not value or not isinstance(value, str):
-        return None
-    v = value.strip()
-    if not v:
-        return None
+@lru_cache(maxsize=1024)
+def _normalize_country_str(v: str) -> str:
     if len(v) == 2 and v.upper() in COUNTRY_CODES:
         return v.upper()
     alias = _SCRAPER_ALIASES.get(v.lower())
@@ -141,6 +132,22 @@ def normalize_country(value: str) -> str | None:
         return pycountry.countries.lookup(v).alpha_2
     except LookupError:
         return v
+
+
+def normalize_country(value: str) -> str | None:
+    """Normalize a single country value to an alpha-2 code.
+
+    Returns the code when the value is a known code, alias or name;
+    otherwise returns the input as-is (stripped) as a custom value.
+    Cached: pycountry name lookups (and their LookupError misses for
+    custom values) are relatively expensive in bulk operations.
+    """
+    if not value or not isinstance(value, str):
+        return None
+    v = value.strip()
+    if not v:
+        return None
+    return _normalize_country_str(v)
 
 
 def normalize_countries(values: list[str] | str | None) -> list[str]:

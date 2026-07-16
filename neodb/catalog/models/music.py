@@ -144,6 +144,15 @@ class Album(Item):
         _("number of discs"), blank=True, default="", max_length=500
     )
 
+    @property
+    def display_album_types(self) -> list[str]:
+        # tolerate legacy scalar values not yet migrated
+        return normalize_album_types(self.album_type)
+
+    @property
+    def display_media_formats(self) -> list[str]:
+        return normalize_media_formats(self.media_format)
+
     @classmethod
     def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
