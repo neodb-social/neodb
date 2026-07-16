@@ -243,6 +243,8 @@ def people_works(request, item_path, item_uuid, role):
         )
         Item.prefetch_parent_items(works_items)
         Rating.attach_to_items(works_items)
+        if request.user.is_authenticated:
+            Mark.attach_to_items(request.user.identity, works_items, request.user)
     return render(
         request,
         "people_works.html",
