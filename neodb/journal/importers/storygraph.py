@@ -135,17 +135,18 @@ class StoryGraphImporter(Task):
         api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q=isbn:{isbn}&maxResults=3"
         try:
             j = BasicDownloader(api_url).download().json()
+            for book in j.get("items", []):
+                identifiers = [
+                    i.get("identifier")
+                    for i in book.get("volumeInfo", {}).get("industryIdentifiers", [])
+                ]
+                if isbn not in identifiers or "id" not in book:
+                    continue
+                return cls._resolve_url(
+                    "https://books.google.com/books?id=" + book["id"]
+                )
         except Exception as e:
             logger.warning(f"Google Books ISBN lookup failed for {isbn}: {e}")
-            return None
-        for book in j.get("items", []):
-            identifiers = [
-                i.get("identifier")
-                for i in book.get("volumeInfo", {}).get("industryIdentifiers", [])
-            ]
-            if isbn not in identifiers:
-                continue
-            return cls._resolve_url("https://books.google.com/books?id=" + book["id"])
         return None
 
     @classmethod
@@ -153,13 +154,12 @@ class StoryGraphImporter(Task):
         api_url = f"https://openlibrary.org/isbn/{isbn}.json"
         try:
             j = BasicDownloader(api_url).download().json()
+            key = j.get("key", "")  # "/books/OL...M"
+            if key.startswith("/books/"):
+                return cls._resolve_url("https://openlibrary.org" + key)
         except Exception as e:
             logger.warning(f"OpenLibrary ISBN lookup failed for {isbn}: {e}")
-            return None
-        key = j.get("key", "")  # "/books/OL...M"
-        if not key.startswith("/books/"):
-            return None
-        return cls._resolve_url("https://openlibrary.org" + key)
+        return None
 
     @classmethod
     def _find_via_local_index(cls, title: str, authors: str) -> Item | None:
@@ -225,25 +225,24 @@ class StoryGraphImporter(Task):
         )
         try:
             j = BasicDownloader(api_url).download().json()
+            for work in j.get("docs", []):
+                editions = work.get("editions", {}).get("docs", [])
+                if not editions:
+                    continue
+                edition = editions[0]
+                # edition title is closer to what the user shelved than work title
+                if not _titles_match(
+                    title, edition.get("title", "")
+                ) and not _titles_match(title, work.get("title", "")):
+                    continue
+                key = edition.get("key", "")  # "/books/OL...M"
+                if not key.startswith("/books/"):
+                    continue
+                item = cls._resolve_url("https://openlibrary.org" + key)
+                if item:
+                    return item
         except Exception as e:
             logger.warning(f"OpenLibrary search failed for '{title}': {e}")
-            return None
-        for work in j.get("docs", []):
-            editions = work.get("editions", {}).get("docs", [])
-            if not editions:
-                continue
-            edition = editions[0]
-            # edition title is closer to what the user shelved than the work title
-            if not _titles_match(title, edition.get("title", "")) and not _titles_match(
-                title, work.get("title", "")
-            ):
-                continue
-            key = edition.get("key", "")  # "/books/OL...M"
-            if not key.startswith("/books/"):
-                continue
-            item = cls._resolve_url("https://openlibrary.org" + key)
-            if item:
-                return item
         return None
 
     def progress(self, mark_state: int, title: str | None = None) -> None:
