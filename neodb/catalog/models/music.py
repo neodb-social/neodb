@@ -15,6 +15,7 @@ from .common import (
     AlbumTypeListField,
     GenreListField,
     MediaFormatListField,
+    ReleaseDateResolverMixin,
     jsondata,
 )
 from .item import (
@@ -30,12 +31,16 @@ from .people import PeopleRole
 from .utils import canonicalize_release_date_key
 
 
-class AlbumInSchema(ItemInSchema):
+class AlbumInSchema(ReleaseDateResolverMixin, ItemInSchema):
     genre: list[str]
     artist: list[str]
     company: list[str]
-    duration: int | None = None
+    duration: int | None = Field(
+        None, deprecated="Milliseconds; use `duration_seconds` instead."
+    )
+    duration_seconds: int | None = None
     release_date: str | None = None
+    release_date_precision: str | None = None
     album_type: list[str]
     media_format: list[str]
     track_list: str | None = None
@@ -44,6 +49,12 @@ class AlbumInSchema(ItemInSchema):
 
     @staticmethod
     def resolve_duration(obj: "Album") -> int | None:
+        # older peers and clients read this as milliseconds
+        seconds = duration_to_seconds(obj.duration)
+        return seconds * 1000 if seconds else None
+
+    @staticmethod
+    def resolve_duration_seconds(obj: "Album") -> int | None:
         # numeric values are trusted as seconds; unit inference happens
         # only on legacy ingest (normalize_legacy_metadata)
         return duration_to_seconds(obj.duration)
@@ -161,13 +172,20 @@ class Album(Item):
         # - duration in milliseconds -> seconds
         # - media (free text) -> media_format (list of slugs)
         # - album_type free text -> list of slugs
-        duration = metadata.get("duration")
-        if duration is not None:
-            duration = coerce_album_duration(duration)
-            if duration:
-                metadata["duration"] = duration
-            else:
-                metadata.pop("duration", None)
+        # a duration_seconds sibling (emitted by current peers alongside
+        # the backward-compatible ms shape) wins losslessly over the
+        # ms-threshold inference
+        seconds = metadata.pop("duration_seconds", None)
+        if isinstance(seconds, (int, float)) and int(seconds) > 0:
+            metadata["duration"] = int(seconds)
+        else:
+            duration = metadata.get("duration")
+            if duration is not None:
+                duration = coerce_album_duration(duration)
+                if duration:
+                    metadata["duration"] = duration
+                else:
+                    metadata.pop("duration", None)
         media = metadata.pop("media", None)
         if media and not metadata.get("media_format"):
             metadata["media_format"] = normalize_media_formats(media)

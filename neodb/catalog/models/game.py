@@ -7,6 +7,7 @@ from common.models import partial_date_to_int, year_of_partial_date
 from .common import (
     LIST_OF_STR_SCHEMA,
     GenreListField,
+    ReleaseDateResolverMixin,
     jsondata,
 )
 from .item import (
@@ -35,13 +36,14 @@ class GameReleaseType(models.TextChoices):
     OTHER = "other", _("Other")
 
 
-class GameInSchema(ItemInSchema):
+class GameInSchema(ReleaseDateResolverMixin, ItemInSchema):
     genre: list[str]
     developer: list[str]
     publisher: list[str]
     platform: list[str]
     release_type: str | None = None
     release_date: str | None = None
+    release_date_precision: str | None = None
     official_site: str | None = None
     # release_year is deprecated
     release_year: int | None = Field(

@@ -93,10 +93,17 @@ class TVShowInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSch
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
+    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
-    duration: int | None = None
-    single_episode_length: int | None = None
+    duration: str | None = Field(
+        None, deprecated="Display string; use `duration_seconds` instead."
+    )
+    duration_seconds: int | None = None
+    single_episode_length: int | None = Field(
+        None, deprecated="Minutes; use `single_episode_length_seconds` instead."
+    )
+    single_episode_length_seconds: int | None = None
     episode_count: int | None = None
     season_uuids: list[str]
     # area and showtime are deprecated
@@ -123,10 +130,17 @@ class TVSeasonInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInS
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
+    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
-    duration: int | None = None
-    single_episode_length: int | None = None
+    duration: str | None = Field(
+        None, deprecated="Display string; use `duration_seconds` instead."
+    )
+    duration_seconds: int | None = None
+    single_episode_length: int | None = Field(
+        None, deprecated="Minutes; use `single_episode_length_seconds` instead."
+    )
+    single_episode_length_seconds: int | None = None
     episode_count: int | None = None
     episode_uuids: list[str]
     # area and showtime are deprecated

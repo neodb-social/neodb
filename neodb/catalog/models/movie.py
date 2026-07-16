@@ -38,9 +38,13 @@ class MovieInSchema(VideoFieldsResolverMixin, ItemInSchema):
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
+    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
-    duration: int | None = None
+    duration: str | None = Field(
+        None, deprecated="Display string; use `duration_seconds` instead."
+    )
+    duration_seconds: int | None = None
     # area and showtime are deprecated
     area: list[str] = Field(
         [], deprecated="Use `origin_country` (ISO 3166-1 alpha-2) instead."

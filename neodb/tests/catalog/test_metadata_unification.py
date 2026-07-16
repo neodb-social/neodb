@@ -179,7 +179,11 @@ class TestDeprecatedApiAliases:
         o = m.ap_object
         assert o["year"] == 2010
         assert o["release_date"] == "2010-07-16"
-        assert o["duration"] == 8880
+        assert o["release_date_precision"] == "day"
+        # duration keeps its legacy display-string shape for older
+        # peers/clients; duration_seconds carries the canonical value
+        assert o["duration"] == "2h 28m"
+        assert o["duration_seconds"] == 8880
         assert o["origin_country"] == ["US", "GB"]
         assert o["area"] == ["US", "GB"]
         assert o["showtime"] == [{"time": "2010-07-16", "region": ""}]
@@ -192,7 +196,7 @@ class TestDeprecatedApiAliases:
                 "duration": "148分钟",
             }
         )
-        assert m.ap_object["duration"] == 8880
+        assert m.ap_object["duration_seconds"] == 8880
 
     def test_album_media_alias(self):
         a = Album.objects.create(
@@ -208,7 +212,9 @@ class TestDeprecatedApiAliases:
         assert o["album_type"] == ["album"]
         assert o["media_format"] == ["cd", "vinyl"]
         assert o["media"] == "cd, vinyl"
-        assert o["duration"] == 2368
+        # legacy shape stays milliseconds for older peers/clients
+        assert o["duration"] == 2368000
+        assert o["duration_seconds"] == 2368
 
     def test_short_and_long_durations_not_recoerced_at_read_time(self):
         # unit inference happens only on legacy ingest; stored seconds are
@@ -220,7 +226,7 @@ class TestDeprecatedApiAliases:
                 "release_date": "2020",
             }
         )
-        assert m.ap_object["duration"] == 480
+        assert m.ap_object["duration_seconds"] == 480
         assert m.to_schema_org()["duration"] == "PT0H8M"
         a = Album.objects.create(
             metadata={
@@ -229,7 +235,39 @@ class TestDeprecatedApiAliases:
                 "duration": 55200,  # 15h20m box set
             }
         )
-        assert a.ap_object["duration"] == 55200
+        assert a.ap_object["duration_seconds"] == 55200
+        assert a.ap_object["duration"] == 55200000
+
+    def test_ap_object_round_trips_losslessly(self):
+        # what one current server emits, another ingests without loss
+        m = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Short"}],
+                "duration": 480,
+                "release_date": "2020",
+            }
+        )
+        o = m.ap_object
+        assert o["release_date"] == "2020-01-01"
+        assert o["release_date_precision"] == "year"
+        assert o["duration"] == "8m"
+        md = {k: v for k, v in o.items()}
+        Movie.normalize_legacy_metadata(md)
+        assert md["release_date"] == "2020"
+        assert md["duration"] == 480
+        a = Album.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Box"}],
+                "artist": ["Y"],
+                "duration": 55200,
+                "release_date": "1997-05",
+            }
+        )
+        oa = a.ap_object
+        md = {k: v for k, v in oa.items()}
+        Album.normalize_legacy_metadata(md)
+        assert md["duration"] == 55200
+        assert md["release_date"] == "1997-05"
 
     def test_merge_preserves_legacy_year(self):
         src = Movie.objects.create(
@@ -254,7 +292,10 @@ class TestDeprecatedApiAliases:
             }
         )
         o = g.ap_object
-        assert o["release_date"] == "1995"
+        # padded for older peers typing this as a strict date; precision
+        # lets current peers recover the partial value
+        assert o["release_date"] == "1995-01-01"
+        assert o["release_date_precision"] == "year"
         assert o["release_year"] == 1995
 
 

@@ -12,6 +12,7 @@ from common.models import (
     parse_duration_text,
     parse_partial_date,
 )
+from common.models.partial_date import unpad_partial_date
 
 from .common import IdType
 
@@ -119,13 +120,22 @@ def upc_to_gtin_13(upc: str):
 def canonicalize_release_date_key(metadata: dict[str, Any]) -> None:
     """Re-canonicalize metadata["release_date"] into partial ISO form.
 
-    Falls back to dateparser for free-text dates (e.g. localized Steam
-    strings). Unparseable non-empty strings are kept as-is rather than
-    destroyed.
+    The API emits release_date as a padded full date plus a
+    release_date_precision key ("year"/"month"/"day") for backward
+    compatibility; when the precision key is present it is applied here
+    so the partial value round-trips losslessly. Otherwise falls back to
+    dateparser for free-text dates (e.g. localized Steam strings).
+    Unparseable non-empty strings are kept as-is rather than destroyed.
     """
+    precision = metadata.pop("release_date_precision", None)
     rd = metadata.get("release_date")
     if rd is None:
         return
+    if precision in ("year", "month"):
+        p = unpad_partial_date(rd if isinstance(rd, str) else None, precision)
+        if p:
+            metadata["release_date"] = p
+            return
     p = parse_partial_date(rd)
     if p is None and isinstance(rd, str) and rd.strip():
         dp = dateparser.parse(rd.strip())
@@ -137,6 +147,12 @@ def canonicalize_release_date_key(metadata: dict[str, Any]) -> None:
 
 
 def _coerce_duration_key(metadata: dict[str, Any], key: str, legacy: bool) -> None:
+    # a "<key>_seconds" sibling (emitted by current peers alongside the
+    # backward-compatible legacy shape) wins losslessly over inference
+    seconds = metadata.pop(f"{key}_seconds", None)
+    if isinstance(seconds, (int, float)) and int(seconds) > 0:
+        metadata[key] = int(seconds)
+        return
     v = metadata.get(key)
     if v is None:
         return
