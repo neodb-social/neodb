@@ -1,0 +1,101 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Review StoryGraph Matches' %}</title>
+    {% include "common_libs.html" %}
+    <style>
+    main.storygraph-preview {
+      max-width: none;
+      width: 100%;
+      padding: calc(2 * var(--pico-spacing));
+      margin: 0;
+    }
+    main.storygraph-preview table { width: 100%; table-layout: fixed; }
+    main.storygraph-preview table th, main.storygraph-preview table td { word-break: break-word; vertical-align: top; }
+    main.storygraph-preview table td input[type="text"] { width: 100%; box-sizing: border-box; }
+    </style>
+    <script>
+    document.addEventListener('htmx:responseError', (event) => {
+      let response = event.detail.xhr.response;
+      let body = response ? response : `Request error: ${event.detail.xhr.statusText}`;
+      alert(body);
+    });
+    document.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+    </script>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="storygraph-preview">
+      <article>
+        <h3>{% trans 'Review StoryGraph Matches' %}</h3>
+        <p>
+          {% blocktrans with total=total local=task.metadata.matched_local external=task.metadata.matched_external unmatched=task.metadata.unmatched %}
+              Matched {{ local }} locally, {{ external }} externally, {{ unmatched }} unmatched out of {{ total }} rows.
+            {% endblocktrans %}
+        </p>
+        <p>
+          <a href="{% url 'users:storygraph_download' %}">
+            <i class="fa fa-download"></i> {% trans 'Download matched CSV' %}
+          </a>
+        </p>
+        <table>
+          <colgroup>
+            <col style="width:20%">
+            <col style="width:50%">
+            <col style="width:15%">
+            <col style="width:15%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>{% trans 'Title / Author' %}</th>
+              <th>{% trans 'Matched Link' %}</th>
+              <th>{% trans 'Shelf' %}</th>
+              <th>{% trans 'Date' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              {% include "users/_storygraph_row.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>
+          {% if has_prev %}
+            <a href="?page={{ page|add:'-1' }}">&laquo; {% trans 'Prev' %}</a>
+          {% endif %}
+          {% trans 'Page' %} {{ page }}
+          {% if has_next %}
+            <a href="?page={{ page|add:'1' }}">{% trans 'Next' %} &raquo;</a>
+          {% endif %}
+        </p>
+        <form method="post" action="{% url 'users:storygraph_confirm' %}">
+          {% csrf_token %}
+          <fieldset>
+            <legend>{% trans 'Visibility' %}</legend>
+            <label>
+              <input type="radio" name="visibility" value="0" checked>
+              {% trans 'Public' %}
+            </label>
+            <label>
+              <input type="radio" name="visibility" value="1">
+              {% trans 'Followers Only' %}
+            </label>
+            <label>
+              <input type="radio" name="visibility" value="2">
+              {% trans 'Mentioned Only' %}
+            </label>
+          </fieldset>
+          <button type="submit">{% trans 'Confirm Import' %}</button>
+          <a href="{% url 'users:data' %}">{% trans 'Back' %}</a>
+        </form>
+      </article>
+    </main>
+  </body>
+</html>

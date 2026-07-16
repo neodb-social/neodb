@@ -23,6 +23,23 @@ urlpatterns = [
     path("data/import/rym/cancel", rym_cancel, name="rym_cancel"),
     path("data/import/rym/download", rym_download, name="rym_download"),
     path("data/import/storygraph", import_storygraph, name="import_storygraph"),
+    path(
+        "data/import/storygraph/preview", storygraph_preview, name="storygraph_preview"
+    ),
+    path(
+        "data/import/storygraph/row/<int:i>",
+        storygraph_save_row,
+        name="storygraph_save_row",
+    ),
+    path(
+        "data/import/storygraph/confirm", storygraph_confirm, name="storygraph_confirm"
+    ),
+    path("data/import/storygraph/cancel", storygraph_cancel, name="storygraph_cancel"),
+    path(
+        "data/import/storygraph/download",
+        storygraph_download,
+        name="storygraph_download",
+    ),
     path("data/import/douban", import_douban, name="import_douban"),
     path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),
     path("data/import/trakt", import_trakt, name="import_trakt"),

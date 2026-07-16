@@ -1,0 +1,56 @@
+{% load i18n %}
+{% with phase=storygraph_task.metadata.phase %}
+  {% if storygraph_task and phase and phase != 'done' and phase != 'cancelled' %}
+    <details open>
+      <summary>{% trans 'Import from StoryGraph' %}</summary>
+      {% include "users/user_task_status.html" with task=storygraph_task %}
+      <div role="group">
+        {% if phase == 'preview' %}
+          <a href="{% url 'users:storygraph_preview' %}"
+             role="button"
+             class="secondary">{% trans 'Review pending matches' %}</a>
+        {% endif %}
+        <button type="button"
+                hx-post="{% url 'users:storygraph_cancel' %}"
+                hx-target="#storygraph"
+                hx-swap="innerHTML"
+                hx-confirm="{% trans 'Cancel the StoryGraph import? Progress will be discarded.' %}"
+                class="secondary outline">{% trans 'Cancel import' %}</button>
+      </div>
+    </details>
+  {% else %}
+    <details {% if storygraph_task and phase == 'done' %}open{% endif %}>
+      <summary>{% trans 'Import from StoryGraph' %}</summary>
+      <form hx-post="{% url 'users:import_storygraph' %}"
+            hx-target="#storygraph"
+            hx-swap="innerHTML"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        <ul>
+          <li>
+            {% blocktrans %}On StoryGraph, click <a href="https://app.thestorygraph.com/user-export" target="_blank" rel="noopener"><b>Export your library</b></a> to download your library as a CSV file.{% endblocktrans %}
+          </li>
+          <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+          <li>
+            {% blocktrans %}Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
+          </li>
+          <li>
+            {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
+          </li>
+        </ul>
+        <input type="file" name="file" required accept=".csv">
+        <input type="submit" value="{% trans 'Upload and match' %}" />
+      </form>
+      {% if storygraph_task and phase == 'done' and storygraph_task.metadata.matched_file %}
+        <p>
+          <a href="{% url 'users:storygraph_download' %}"
+             role="button"
+             class="secondary outline">{% trans 'Download previous matches' %}</a>
+        </p>
+      {% endif %}
+      {% if storygraph_task and phase == 'done' %}
+        {% include "users/user_task_status.html" with task=storygraph_task %}
+      {% endif %}
+    </details>
+  {% endif %}
+{% endwith %}

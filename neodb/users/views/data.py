@@ -2,6 +2,7 @@ import copy
 import csv
 import datetime
 import os
+import shutil
 
 import django_rq
 from django.conf import settings
@@ -198,14 +199,20 @@ def user_task_status(request, task_type: str):
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
     if (
-        task_cls is RymImporter
-        and task
+        task
         and task.state == Task.States.complete
         and task.metadata.get("phase") in ("preview", "done")
     ):
-        # Matching or importing just finished — swap the whole RYM section
+        # Matching or importing just finished — swap the whole section
         # so the cancel button is replaced by the Review/Download/upload UI.
-        return render(request, "users/_rym_section.html", {"rym_task": task})
+        if task_cls is RymImporter:
+            return render(request, "users/_rym_section.html", {"rym_task": task})
+        if task_cls is StoryGraphImporter:
+            return render(
+                request,
+                "users/_storygraph_section.html",
+                {"storygraph_task": task},
+            )
     return render(request, "users/user_task_status.html", {"task": task})
 
 
@@ -475,8 +482,6 @@ def import_rym_upload(request):
     uploaded_name = getattr(request.FILES["file"], "name", "rym_export.csv")
     if had_link:
         # already matched; copy to matched_file and skip phase 1
-        import shutil
-
         stem, _ext = os.path.splitext(os.path.basename(f))
         matched = os.path.join(os.path.dirname(f), f"{stem}-matched.csv")
         shutil.copyfile(f, matched)
@@ -664,6 +669,15 @@ def rym_download(request):
     return response
 
 
+def _storygraph_active_task(user):
+    task = StoryGraphImporter.latest_task(user)
+    if not task:
+        return None
+    if task.metadata.get("phase") not in ("matching", "preview", "importing", "done"):
+        return None
+    return task
+
+
 @login_required
 def import_storygraph(request):
     if request.method != "POST":
@@ -679,13 +693,204 @@ def import_storygraph(request):
     with open(f, "wb+") as destination:
         for chunk in request.FILES["file"].chunks():
             destination.write(chunk)
+    # detect 'link' column for round-trip
+    had_link = False
+    with open(f, encoding="utf-8-sig", newline="") as fp:
+        reader = csv.reader(fp)
+        try:
+            headers = next(reader)
+            had_link = "link" in [h.strip() for h in headers]
+        except StopIteration:
+            pass
+    uploaded_name = getattr(request.FILES["file"], "name", "storygraph_export.csv")
+    if had_link:
+        # already matched; copy to matched_file and skip phase 1
+        stem, _ext = os.path.splitext(os.path.basename(f))
+        matched = os.path.join(os.path.dirname(f), f"{stem}-matched.csv")
+        shutil.copyfile(f, matched)
+        task = StoryGraphImporter.create(
+            request.user,
+            phase="preview",
+            file=f,
+            matched_file=matched,
+            filename_hint=uploaded_name,
+            had_link_column=True,
+        )
+        task.state = Task.States.complete
+        task.message = _("Loaded from uploaded matched file.")
+        task.save(update_fields=["state", "message"])
+        if request.headers.get("HX-Request"):
+            return render(
+                request, "users/_storygraph_section.html", {"storygraph_task": task}
+            )
+        return redirect(reverse("users:data") + "#storygraph")
     task = StoryGraphImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        phase="matching",
         file=f,
+        filename_hint=uploaded_name,
     )
     task.enqueue()
-    return redirect(reverse("users:user_task_status", args=(task.type,)))
+    if request.headers.get("HX-Request"):
+        # Replace the section in place so the page doesn't reload during upload.
+        return render(
+            request, "users/_storygraph_section.html", {"storygraph_task": task}
+        )
+    return redirect(reverse("users:data") + "#storygraph")
+
+
+@login_required
+@require_http_methods(["POST"])
+def storygraph_cancel(request):
+    task = StoryGraphImporter.latest_task(request.user)
+    if task and task.metadata.get("phase") in ("matching", "preview", "importing"):
+        task.metadata["phase"] = "cancelled"
+        task.state = Task.States.failed
+        task.message = _("Cancelled.")
+        task.save(update_fields=["metadata", "state", "message"])
+        # Best-effort: drop the job if still queued. A running worker
+        # picks up phase=cancelled on its next progress save and bails;
+        # the not-yet-enqueued case (had_link round-trip) is skipped.
+        if task.pk:
+            try:
+                django_rq.get_queue(task.TaskQueue).remove(task.job_id)
+            except Exception as e:
+                logger.warning(f"StoryGraph cancel: failed to remove job: {e}")
+    if request.headers.get("HX-Request"):
+        return render(
+            request, "users/_storygraph_section.html", {"storygraph_task": None}
+        )
+    return redirect(reverse("users:data") + "#storygraph")
+
+
+@login_required
+def storygraph_preview(request):
+    task = _storygraph_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(
+            request, messages.ERROR, _("No StoryGraph import to preview.")
+        )
+        return redirect(reverse("users:data"))
+    if task.metadata.get("phase") == "done":
+        # import already applied; preview/matched-CSV are no longer relevant
+        return redirect(reverse("users:data") + "#storygraph")
+    path = task.metadata["matched_file"]
+    if not os.path.exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except TypeError, ValueError:
+        page = 1
+    page_size = 100
+    with open(path, encoding="utf-8-sig", newline="") as fp:
+        reader = csv.DictReader(fp)
+        all_rows = list(reader)
+    total = len(all_rows)
+    start = (page - 1) * page_size
+    end = start + page_size
+    rows = [
+        _storygraph_row_for_template(start + i, raw)
+        for i, raw in enumerate(all_rows[start:end])
+    ]
+    return render(
+        request,
+        "users/storygraph_import.html",
+        {
+            "task": task,
+            "rows": rows,
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "has_prev": page > 1,
+            "has_next": end < total,
+            "shelf_choices": ShelfType.choices,
+        },
+    )
+
+
+def _storygraph_row_for_template(index: int, raw: dict) -> dict:
+    review = (raw.get("Review") or "").strip()
+    excerpt = (review[:14] + "…") if len(review) > 15 else review
+    return {
+        "index": index,
+        "title": raw.get("Title", ""),
+        "authors": raw.get("Authors", ""),
+        "isbn_uid": raw.get("ISBN/UID", ""),
+        "link": raw.get("link", ""),
+        "match_source": raw.get("match_source", ""),
+        "shelf": raw.get("shelf", ""),
+        "collect_date": raw.get("collect_date", ""),
+        "rating": raw.get("Star Rating", ""),
+        "review_excerpt": excerpt,
+    }
+
+
+@login_required
+@require_http_methods(["POST"])
+def storygraph_save_row(request, i: int):
+    task = _storygraph_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        raise BadRequest("no matched file")
+    if task.metadata.get("phase") not in ("preview",):
+        raise BadRequest("cannot edit in current phase")
+    updates = {
+        "link": (request.POST.get("link") or "").strip(),
+        "shelf": (request.POST.get("shelf") or "").strip(),
+        "collect_date": (request.POST.get("collect_date") or "").strip(),
+    }
+    row = update_row_in_matched_file(task.metadata["matched_file"], i, updates)
+    if row is None:
+        raise BadRequest("row index out of range")
+    return render(
+        request,
+        "users/_storygraph_row.html",
+        {
+            "row": _storygraph_row_for_template(i, row),
+            "shelf_choices": ShelfType.choices,
+            "task": task,
+        },
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def storygraph_confirm(request):
+    task = _storygraph_active_task(request.user)
+    if not task or task.metadata.get("phase") != "preview":
+        return redirect(reverse("users:data"))
+    task.metadata["visibility"] = int(request.POST.get("visibility", 0))
+    task.metadata["phase"] = "importing"
+    task.metadata["processed"] = 0
+    task.metadata["imported"] = 0
+    task.metadata["skipped"] = 0
+    task.metadata["failed"] = 0
+    task.metadata["failed_items"] = []
+    task.state = Task.States.pending
+    task.message = _("Starting import...")
+    task.save(update_fields=["metadata", "state", "message"])
+    task.enqueue()
+    return redirect(reverse("users:data") + "#storygraph")
+
+
+@login_required
+def storygraph_download(request):
+    task = _storygraph_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(request, messages.ERROR, _("No matched file available."))
+        return redirect(reverse("users:data"))
+    path = task.metadata["matched_file"]
+    if not os.path.exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    response = HttpResponse()
+    response["X-Accel-Redirect"] = settings.MEDIA_URL + path[len(settings.MEDIA_ROOT) :]
+    response["Content-Type"] = "text/csv"
+    hint = task.metadata.get("filename_hint") or "storygraph_export.csv"
+    stem, _ext = os.path.splitext(hint)
+    filename = f"{stem}-matched.csv"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 @login_required

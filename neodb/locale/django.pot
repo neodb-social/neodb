@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 03:55-0400\n"
+"POT-Creation-Date: 2026-07-15 22:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -492,7 +492,7 @@ msgid "Album"
 msgstr ""
 
 #: catalog/models/common.py:142 catalog/models/common.py:159
-#: catalog/models/common.py:173 common/templates/_header.html:41
+#: catalog/models/common.py:173 common/templates/_header.html:43
 #: journal/templates/_sidebar_user_mark_list.html:48
 #: journal/templates/_sidebar_user_tag_filter.html:39
 msgid "Game"
@@ -507,7 +507,7 @@ msgid "Podcast Episode"
 msgstr ""
 
 #: catalog/models/common.py:145 catalog/models/common.py:161
-#: catalog/models/common.py:175 common/templates/_header.html:45
+#: catalog/models/common.py:175 common/templates/_header.html:47
 #: journal/templates/_sidebar_user_mark_list.html:52
 #: journal/templates/_sidebar_user_tag_filter.html:43
 msgid "Performance"
@@ -522,7 +522,7 @@ msgid "Exhibition"
 msgstr ""
 
 #: catalog/models/common.py:148 catalog/models/common.py:165
-#: journal/templates/collection.html:23 journal/templates/collection.html:34
+#: journal/templates/collection.html:29 journal/templates/collection.html:40
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
@@ -533,7 +533,7 @@ msgid "Person / Organization"
 msgstr ""
 
 #: catalog/models/common.py:155 catalog/models/common.py:169
-#: common/templates/_header.html:25
+#: common/templates/_header.html:27
 #: journal/templates/_sidebar_user_mark_list.html:32
 #: journal/templates/_sidebar_user_tag_filter.html:24
 msgid "Book"
@@ -546,14 +546,14 @@ msgid "TV"
 msgstr ""
 
 #: catalog/models/common.py:158 catalog/models/common.py:172
-#: common/templates/_header.html:37
+#: common/templates/_header.html:39
 #: journal/templates/_sidebar_user_mark_list.html:45
 #: journal/templates/_sidebar_user_tag_filter.html:36
 msgid "Music"
 msgstr ""
 
 #: catalog/models/common.py:160 catalog/models/common.py:174
-#: catalog/templates/_sidebar_edit.html:182 common/templates/_header.html:33
+#: catalog/templates/_sidebar_edit.html:182 common/templates/_header.html:35
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
@@ -763,12 +763,12 @@ msgid "character name"
 msgstr ""
 
 #: catalog/models/item.py:249 catalog/models/item.py:281
-#: journal/models/collection.py:89
+#: journal/models/collection.py:93
 msgid "title"
 msgstr ""
 
 #: catalog/models/item.py:250 catalog/models/item.py:289
-#: journal/models/collection.py:90
+#: journal/models/collection.py:94
 msgid "description"
 msgstr ""
 
@@ -1028,6 +1028,7 @@ msgid "show time"
 msgstr ""
 
 #: catalog/models/tv.py:220 users/templates/users/rym_import.html:60
+#: users/templates/users/storygraph_import.html:60
 msgid "Date"
 msgstr ""
 
@@ -1067,12 +1068,12 @@ msgstr ""
 #: catalog/templates/_item_card_metadata_tvseason.html:7
 #: catalog/templates/_item_card_metadata_tvshow.html:7
 #: catalog/templates/_item_card_metadata_work.html:7
-#: catalog/templates/item_base.html:200
+#: catalog/templates/item_base.html:201
 msgid "ratings"
 msgstr ""
 
 #: catalog/templates/_item_card_metadata_base.html:34
-#: catalog/templates/item_base.html:255
+#: catalog/templates/item_base.html:256
 msgid "part of"
 msgstr ""
 
@@ -1090,14 +1091,14 @@ msgid "hide this tooltip"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:67
+#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:73
 msgid "translate"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:92
 #: catalog/templates/_item_comments_by_episode.html:80
 #: catalog/templates/_item_notes.html:88
-#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:283
+#: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:284
 #: catalog/templates/podcast_episode_data.html:41
 msgid "show more"
 msgstr ""
@@ -1195,11 +1196,12 @@ msgstr ""
 #: catalog/templates/_item_user_pieces.html:86
 #: catalog/templates/catalog_edit.html:12
 #: journal/templates/action_edit_post.html:6
-#: journal/templates/action_edit_post.html:8 journal/templates/article.html:169
-#: journal/templates/collection.html:170
+#: journal/templates/action_edit_post.html:8 journal/templates/article.html:178
+#: journal/templates/collection.html:179 journal/templates/collection.html:187
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_edit.html:26
 #: journal/templates/post_compose.html:16 journal/templates/tag_edit.html:16
+#: social/templates/_post_action_menu.html:12
 msgid "Edit"
 msgstr ""
 
@@ -1233,7 +1235,7 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:19
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
-#: catalog/templates/item_base.html:181
+#: catalog/templates/item_base.html:182
 msgid "Creator verification"
 msgstr ""
 
@@ -1241,7 +1243,7 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
-#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:177
+#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:178
 #: catalog/views/edit.py:81 catalog/views/edit.py:141 catalog/views/edit.py:191
 #: catalog/views/edit.py:229 catalog/views/edit.py:295
 #: catalog/views/edit.py:299 catalog/views/edit.py:317
@@ -1390,7 +1392,7 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:240
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
-#: journal/templates/article.html:172 journal/templates/collection.html:173
+#: journal/templates/article.html:181 journal/templates/collection.html:182
 #: journal/templates/mark.html:157 journal/templates/note.html:45
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
@@ -1818,7 +1820,7 @@ msgstr ""
 
 #: catalog/templates/discover.html:229
 #: catalog/templates/discover_original_podcasts.html:25
-#: catalog/templates/item_base.html:281
+#: catalog/templates/item_base.html:282
 #: catalog/templates/item_mark_list.html:71
 #: catalog/templates/item_review_list.html:51
 #: catalog/templates/people_works.html:28
@@ -1888,67 +1890,67 @@ msgstr ""
 msgid "release year"
 msgstr ""
 
-#: catalog/templates/item_base.html:94
+#: catalog/templates/item_base.html:95
 msgid "select one of the seasons to comment"
 msgstr ""
 
-#: catalog/templates/item_base.html:128
+#: catalog/templates/item_base.html:129
 msgid "mark, comment and collect"
 msgstr ""
 
-#: catalog/templates/item_base.html:141
+#: catalog/templates/item_base.html:142
 msgid "Login or register to review or add this item to your collection."
 msgstr ""
 
-#: catalog/templates/item_base.html:150
+#: catalog/templates/item_base.html:151
 msgid "Related Collections"
 msgstr ""
 
-#: catalog/templates/item_base.html:165
+#: catalog/templates/item_base.html:166
 msgid "Unsupported item type."
 msgstr ""
 
-#: catalog/templates/item_base.html:175
+#: catalog/templates/item_base.html:176
 msgid "Edit this item"
 msgstr ""
 
-#: catalog/templates/item_base.html:186
+#: catalog/templates/item_base.html:187
 msgid "Last edited"
 msgstr ""
 
-#: catalog/templates/item_base.html:229
+#: catalog/templates/item_base.html:230
 msgid "No enough ratings"
 msgstr ""
 
-#: catalog/templates/item_base.html:273
+#: catalog/templates/item_base.html:274
 msgid "overview"
 msgstr ""
 
-#: catalog/templates/item_base.html:304
+#: catalog/templates/item_base.html:305
 msgid "comments"
 msgstr ""
 
-#: catalog/templates/item_base.html:307
+#: catalog/templates/item_base.html:308
 #: catalog/templates/item_mark_list.html:22
 #: catalog/templates/item_mark_list.html:25
 #: catalog/templates/item_review_list.html:21
 msgid "marks"
 msgstr ""
 
-#: catalog/templates/item_base.html:308
+#: catalog/templates/item_base.html:309
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
 msgid "marks from who you follow"
 msgstr ""
 
-#: catalog/templates/item_base.html:322
+#: catalog/templates/item_base.html:323
 #: catalog/templates/item_mark_list.html:28
 #: catalog/templates/item_review_list.html:23
 msgid "reviews"
 msgstr ""
 
-#: catalog/templates/item_base.html:332
+#: catalog/templates/item_base.html:333
 msgid "notes"
 msgstr ""
 
@@ -2154,21 +2156,21 @@ msgstr ""
 #: journal/views/collection.py:318 journal/views/collection.py:342
 #: journal/views/collection.py:415 journal/views/collection.py:458
 #: journal/views/collection.py:496 journal/views/collection.py:508
-#: journal/views/collection.py:533 journal/views/collection.py:536
-#: journal/views/collection.py:577 journal/views/common.py:272
-#: journal/views/mark.py:245 journal/views/post.py:58 journal/views/post.py:78
-#: journal/views/post.py:100 journal/views/post.py:165
-#: journal/views/post.py:194 journal/views/post.py:267
-#: journal/views/post.py:282 journal/views/post.py:389
-#: journal/views/post.py:541 journal/views/review.py:52
-#: journal/views/review.py:69 journal/views/review.py:94
+#: journal/views/collection.py:533 journal/views/collection.py:575
+#: journal/views/common.py:272 journal/views/mark.py:245
+#: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
+#: journal/views/post.py:165 journal/views/post.py:194
+#: journal/views/post.py:267 journal/views/post.py:282
+#: journal/views/post.py:389 journal/views/post.py:541
+#: journal/views/review.py:52 journal/views/review.py:69
+#: journal/views/review.py:94
 msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:275 catalog/views/edit.py:278
 #: catalog/views/verify.py:194 journal/views/collection.py:75
 #: journal/views/collection.py:100 journal/views/collection.py:513
-#: journal/views/collection.py:608 journal/views/common.py:193
+#: journal/views/collection.py:613 journal/views/common.py:193
 #: journal/views/mark.py:171 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
@@ -3547,96 +3549,96 @@ msgstr ""
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
 
-#: common/templates/_header.html:17 common/templates/_header.html:162
+#: common/templates/_header.html:19 common/templates/_header.html:164
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr ""
 
-#: common/templates/_header.html:22
+#: common/templates/_header.html:24
 msgid "All Items"
 msgstr ""
 
-#: common/templates/_header.html:29
+#: common/templates/_header.html:31
 msgid "Movie & TV"
 msgstr ""
 
-#: common/templates/_header.html:48
+#: common/templates/_header.html:50
 msgid "People & Organizations"
 msgstr ""
 
-#: common/templates/_header.html:50
+#: common/templates/_header.html:52
 msgid "Journal"
 msgstr ""
 
-#: common/templates/_header.html:52 journal/templates/user_post_list.html:10
+#: common/templates/_header.html:54 journal/templates/user_post_list.html:10
 #: journal/templates/user_post_list.html:23
 msgid "Posts"
 msgstr ""
 
-#: common/templates/_header.html:87
+#: common/templates/_header.html:89
 msgid "Explore"
 msgstr ""
 
-#: common/templates/_header.html:91
+#: common/templates/_header.html:93
 msgid "Feed"
 msgstr ""
 
-#: common/templates/_header.html:96 journal/templates/profile.html:13
+#: common/templates/_header.html:98 journal/templates/profile.html:13
 #: users/templates/users/preferences.html:46
 msgid "Home"
 msgstr ""
 
-#: common/templates/_header.html:112 common/templates/common/scan.html:9
+#: common/templates/_header.html:114 common/templates/common/scan.html:9
 #: common/templates/common/scan.html:42
 msgid "Scan Barcode"
 msgstr ""
 
-#: common/templates/_header.html:116 social/templates/notification.html:12
+#: common/templates/_header.html:118 social/templates/notification.html:12
 #: social/templates/notification.html:53
 msgid "Notification"
 msgstr ""
 
-#: common/templates/_header.html:120 users/models/task.py:21
+#: common/templates/_header.html:122 users/models/task.py:21
 #: users/templates/users/account.html:228
 #: users/templates/users/crossposts.html:9
 msgid "Pending"
 msgstr ""
 
-#: common/templates/_header.html:123
+#: common/templates/_header.html:125
 msgid "Data"
 msgstr ""
 
-#: common/templates/_header.html:126 common/templates/_header.html:144
+#: common/templates/_header.html:128 common/templates/_header.html:146
 #: users/templates/users/preferences.html:12
 #: users/templates/users/preferences.html:23
 #: users/templates/users/preferences_anonymous.html:13
 msgid "Preferences"
 msgstr ""
 
-#: common/templates/_header.html:129
+#: common/templates/_header.html:131
 msgid "Account"
 msgstr ""
 
-#: common/templates/_header.html:133
+#: common/templates/_header.html:135
 msgid "Manage"
 msgstr ""
 
-#: common/templates/_header.html:137
+#: common/templates/_header.html:139
 msgid "Logout"
 msgstr ""
 
-#: common/templates/_header.html:141
+#: common/templates/_header.html:143
 msgid "Sign up or Login"
 msgstr ""
 
-#: common/templates/_header.html:158
+#: common/templates/_header.html:160
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
 
-#: common/templates/_header.html:160
+#: common/templates/_header.html:162
 msgid "name of a person or company"
 msgstr ""
 
-#: common/templates/_header.html:177
+#: common/templates/_header.html:179
 msgid "Open"
 msgstr ""
 
@@ -3669,7 +3671,7 @@ msgstr ""
 msgid "Currently watching"
 msgstr ""
 
-#: common/templates/_sidebar.html:214 journal/forms.py:186
+#: common/templates/_sidebar.html:214 journal/forms.py:197
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
@@ -4563,7 +4565,7 @@ msgstr ""
 msgid "Content (Markdown)"
 msgstr ""
 
-#: journal/forms.py:41 journal/forms.py:195 journal/templates/comment.html:62
+#: journal/forms.py:41 journal/forms.py:206 journal/templates/comment.html:62
 #: journal/templates/mark.html:115 journal/views/note.py:29
 msgid "Crosspost to timeline"
 msgstr ""
@@ -4577,13 +4579,13 @@ msgid "When saving, replace leading spaces with full-width spaces"
 msgstr ""
 
 #: journal/forms.py:51 journal/forms.py:124 journal/forms.py:149
-#: journal/forms.py:188 journal/templates/collection_share.html:24
+#: journal/forms.py:199 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
-#: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:207 users/templates/users/data.html:258
-#: users/templates/users/data.html:321 users/templates/users/data.html:380
-#: users/templates/users/rym_import.html:81
+#: users/templates/users/data.html:98 users/templates/users/data.html:155
+#: users/templates/users/data.html:206 users/templates/users/data.html:269
+#: users/templates/users/data.html:328 users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:125
+#: users/templates/users/storygraph_import.html:81
 msgid "Visibility"
 msgstr ""
 
@@ -4611,25 +4613,26 @@ msgstr ""
 msgid "owner and their local mutuals"
 msgstr ""
 
-#: journal/forms.py:156 journal/templates/collection.html:184
+#: journal/forms.py:156 journal/templates/collection.html:187
+#: journal/templates/collection.html:196
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:180 users/templates/users/crossposts.html:51
-#: users/templates/users/data.html:535
+#: journal/forms.py:191 users/templates/users/crossposts.html:51
+#: users/templates/users/data.html:483
 msgid "Status"
 msgstr ""
 
-#: journal/forms.py:182 journal/templates/comment.html:16
+#: journal/forms.py:193 journal/templates/comment.html:16
 msgid "Comment"
 msgstr ""
 
-#: journal/forms.py:184
+#: journal/forms.py:195
 msgid "Rating"
 msgstr ""
 
 #: journal/importers/goodreads.py:196 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:442 journal/importers/storygraph.py:499
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr ""
@@ -4639,26 +4642,26 @@ msgstr ""
 msgid "{username}'s podcast subscriptions"
 msgstr ""
 
-#: journal/importers/rym.py:168
+#: journal/importers/rym.py:168 journal/importers/storygraph.py:128
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:178
+#: journal/importers/rym.py:178 journal/importers/storygraph.py:138
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/importers/rym.py:233
+#: journal/importers/rym.py:233 journal/importers/storygraph.py:183
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr ""
 
-#: journal/importers/rym.py:348
+#: journal/importers/rym.py:348 journal/importers/storygraph.py:388
 msgid "Matched file missing; cannot import."
 msgstr ""
 
-#: journal/importers/rym.py:376
+#: journal/importers/rym.py:376 journal/importers/storygraph.py:411
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
@@ -4667,7 +4670,7 @@ msgstr ""
 msgid "(may contain sensitive content)"
 msgstr ""
 
-#: journal/models/collection.py:37 journal/templates/add_to_collection.html:39
+#: journal/models/collection.py:41 journal/templates/add_to_collection.html:39
 #: journal/templates/collection_edit.html:64
 #: journal/templates/collection_share.html:63
 #: journal/templates/collection_update_item_note.html:3
@@ -4675,60 +4678,60 @@ msgstr ""
 msgid "note"
 msgstr ""
 
-#: journal/models/collection.py:104
+#: journal/models/collection.py:108
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:419 journal/templatetags/collection.py:35
+#: journal/models/collection.py:452 journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:424 journal/templatetags/collection.py:43
+#: journal/models/collection.py:457 journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:429 journal/templatetags/collection.py:51
+#: journal/models/collection.py:462 journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:434 journal/templatetags/collection.py:59
+#: journal/models/collection.py:467 journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:439 journal/templatetags/collection.py:67
+#: journal/models/collection.py:472 journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:444 journal/templatetags/collection.py:75
+#: journal/models/collection.py:477 journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:450 journal/templatetags/collection.py:83
+#: journal/models/collection.py:483 journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:458 journal/templatetags/collection.py:91
+#: journal/models/collection.py:491 journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
@@ -4740,12 +4743,12 @@ msgstr[1] ""
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:160 users/templates/users/data.html:216
-#: users/templates/users/data.html:267 users/templates/users/data.html:329
-#: users/templates/users/data.html:389
+#: users/templates/users/data.html:164 users/templates/users/data.html:215
+#: users/templates/users/data.html:277 users/templates/users/data.html:337
 #: users/templates/users/preferences.html:56
 #: users/templates/users/rym_import.html:84
 #: users/templates/users/steam_import.html:128
+#: users/templates/users/storygraph_import.html:84
 msgid "Public"
 msgstr ""
 
@@ -4753,12 +4756,13 @@ msgstr ""
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
-#: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:224 users/templates/users/data.html:275
-#: users/templates/users/data.html:337 users/templates/users/data.html:397
+#: users/templates/users/data.html:115 users/templates/users/data.html:172
+#: users/templates/users/data.html:223 users/templates/users/data.html:285
+#: users/templates/users/data.html:345
 #: users/templates/users/preferences.html:63
 #: users/templates/users/rym_import.html:88
 #: users/templates/users/steam_import.html:132
+#: users/templates/users/storygraph_import.html:88
 msgid "Followers Only"
 msgstr ""
 
@@ -4766,12 +4770,13 @@ msgstr ""
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
-#: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:345 users/templates/users/data.html:405
+#: users/templates/users/data.html:123 users/templates/users/data.html:180
+#: users/templates/users/data.html:231 users/templates/users/data.html:293
+#: users/templates/users/data.html:353
 #: users/templates/users/preferences.html:70
 #: users/templates/users/rym_import.html:92
 #: users/templates/users/steam_import.html:136
+#: users/templates/users/storygraph_import.html:92
 msgid "Mentioned Only"
 msgstr ""
 
@@ -4812,6 +4817,7 @@ msgid "Retrying"
 msgstr ""
 
 #: journal/models/note.py:34 users/templates/users/rym_import.html:73
+#: users/templates/users/storygraph_import.html:73
 msgid "Page"
 msgstr ""
 
@@ -5351,7 +5357,7 @@ msgstr ""
 msgid "Update note"
 msgstr ""
 
-#: journal/templates/_list_item.html:100 journal/templates/article.html:104
+#: journal/templates/_list_item.html:100 journal/templates/article.html:113
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -5481,7 +5487,7 @@ msgid "View post"
 msgstr ""
 
 #: journal/templates/action_quote_post.html:3
-#: journal/templates/article.html:163 journal/templates/collection.html:159
+#: journal/templates/article.html:172 journal/templates/collection.html:168
 msgid "Quote"
 msgstr ""
 
@@ -5490,7 +5496,7 @@ msgid "reply"
 msgstr ""
 
 #: journal/templates/action_reply_post.html:3
-#: journal/templates/article.html:154 journal/templates/collection.html:150
+#: journal/templates/article.html:163 journal/templates/collection.html:159
 msgid "Reply"
 msgstr ""
 
@@ -5507,19 +5513,19 @@ msgstr ""
 msgid "Create a new collection"
 msgstr ""
 
-#: journal/templates/article.html:85 social/templates/_event_post.html:81
+#: journal/templates/article.html:94 social/templates/_event_post.html:81
 msgid "wrote a review"
 msgstr ""
 
-#: journal/templates/article.html:87 social/templates/_event_post.html:83
+#: journal/templates/article.html:96 social/templates/_event_post.html:83
 msgid "wrote an article"
 msgstr ""
 
-#: journal/templates/article.html:117
+#: journal/templates/article.html:126
 msgid "This article may contain sensitive content. Click to reveal."
 msgstr ""
 
-#: journal/templates/article.html:128
+#: journal/templates/article.html:137
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr ""
 
@@ -5580,18 +5586,18 @@ msgstr ""
 msgid "DEC"
 msgstr ""
 
-#: journal/templates/collection.html:65
+#: journal/templates/collection.html:71
 #: journal/templates/collection_share.html:12
 #: journal/templates/collection_share.html:66
 #: journal/templates/wrapped_share.html:59
 msgid "Share"
 msgstr ""
 
-#: journal/templates/collection.html:77
+#: journal/templates/collection.html:86
 msgid "created a collection"
 msgstr ""
 
-#: journal/templates/collection.html:166
+#: journal/templates/collection.html:175
 msgid "Query"
 msgstr ""
 
@@ -5901,7 +5907,7 @@ msgid "shared {username}'s collection"
 msgstr ""
 
 #: journal/views/collection.py:460 journal/views/collection.py:498
-#: journal/views/collection.py:510 journal/views/collection.py:538
+#: journal/views/collection.py:510 journal/views/collection.py:536
 msgid "Dynamic collection is not editable"
 msgstr ""
 
@@ -6524,31 +6530,31 @@ msgstr ""
 msgid "Article"
 msgstr ""
 
-#: takahe/models.py:450
+#: takahe/models.py:451
 msgid "Display Name"
 msgstr ""
 
-#: takahe/models.py:452
+#: takahe/models.py:453
 msgid "Bio"
 msgstr ""
 
-#: takahe/models.py:454
+#: takahe/models.py:455
 msgid "Manually approve new followers"
 msgstr ""
 
-#: takahe/models.py:458
+#: takahe/models.py:459
 msgid "Include profile, marks and posts in discovery"
 msgstr ""
 
-#: takahe/models.py:461
+#: takahe/models.py:462
 msgid "Include posts in search results"
 msgstr ""
 
-#: takahe/models.py:479
+#: takahe/models.py:480
 msgid "Profile picture"
 msgstr ""
 
-#: takahe/models.py:486
+#: takahe/models.py:487
 msgid "Header picture"
 msgstr ""
 
@@ -6674,10 +6680,12 @@ msgid "Create new album"
 msgstr ""
 
 #: users/templates/users/_rym_row.html:28
+#: users/templates/users/_storygraph_row.html:31
 msgid "then paste the link above; leave blank to skip this row."
 msgstr ""
 
 #: users/templates/users/_rym_row.html:39
+#: users/templates/users/_storygraph_row.html:42
 msgid "(skip)"
 msgstr ""
 
@@ -6687,6 +6695,7 @@ msgid "Import from RateYourMusic"
 msgstr ""
 
 #: users/templates/users/_rym_section.html:9
+#: users/templates/users/_storygraph_section.html:9
 msgid "Review pending matches"
 msgstr ""
 
@@ -6695,6 +6704,7 @@ msgid "Cancel the RateYourMusic import? Progress will be discarded."
 msgstr ""
 
 #: users/templates/users/_rym_section.html:16
+#: users/templates/users/_storygraph_section.html:16
 msgid "Cancel import"
 msgstr ""
 
@@ -6703,7 +6713,7 @@ msgid "On RateYourMusic, go to your profile and use the <b>Export your music cat
 msgstr ""
 
 #: users/templates/users/_rym_section.html:31
-#: users/templates/users/data.html:141
+#: users/templates/users/_storygraph_section.html:31
 msgid "Upload the downloaded CSV file below."
 msgstr ""
 
@@ -6712,15 +6722,39 @@ msgid "Albums are matched by title + artist (and year if present) — first agai
 msgstr ""
 
 #: users/templates/users/_rym_section.html:36
+#: users/templates/users/_storygraph_section.html:36
 msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
 msgstr ""
 
 #: users/templates/users/_rym_section.html:40
+#: users/templates/users/_storygraph_section.html:40
 msgid "Upload and match"
 msgstr ""
 
 #: users/templates/users/_rym_section.html:46
+#: users/templates/users/_storygraph_section.html:46
 msgid "Download previous matches"
+msgstr ""
+
+#: users/templates/users/_storygraph_row.html:30
+msgid "Create new book"
+msgstr ""
+
+#: users/templates/users/_storygraph_section.html:5
+#: users/templates/users/_storygraph_section.html:21
+msgid "Import from StoryGraph"
+msgstr ""
+
+#: users/templates/users/_storygraph_section.html:15
+msgid "Cancel the StoryGraph import? Progress will be discarded."
+msgstr ""
+
+#: users/templates/users/_storygraph_section.html:29
+msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
+msgstr ""
+
+#: users/templates/users/_storygraph_section.html:33
+msgid "Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
 msgstr ""
 
 #: users/templates/users/account.html:11
@@ -7011,9 +7045,9 @@ msgid "CSV file"
 msgstr ""
 
 #: users/templates/users/account.html:445 users/templates/users/data.html:74
-#: users/templates/users/data.html:126 users/templates/users/data.html:179
-#: users/templates/users/data.html:235 users/templates/users/data.html:286
-#: users/templates/users/data.html:350 users/templates/users/data.html:410
+#: users/templates/users/data.html:126 users/templates/users/data.html:183
+#: users/templates/users/data.html:234 users/templates/users/data.html:298
+#: users/templates/users/data.html:358
 #: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr ""
@@ -7157,7 +7191,7 @@ msgstr ""
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:308
+#: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
 msgstr ""
 
@@ -7189,140 +7223,128 @@ msgstr ""
 msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
 msgstr ""
 
-#: users/templates/users/data.html:93 users/templates/users/data.html:143
+#: users/templates/users/data.html:93
 msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr ""
 
-#: users/templates/users/data.html:133
-msgid "Import from StoryGraph"
-msgstr ""
-
-#: users/templates/users/data.html:139
-msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
-msgstr ""
-
-#: users/templates/users/data.html:146
-msgid "Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import."
-msgstr ""
-
-#: users/templates/users/data.html:186
+#: users/templates/users/data.html:134
 msgid "Import from Letterboxd"
 msgstr ""
 
-#: users/templates/users/data.html:192
+#: users/templates/users/data.html:140
 msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
 msgstr ""
 
-#: users/templates/users/data.html:195
+#: users/templates/users/data.html:143
 msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
 msgstr ""
 
-#: users/templates/users/data.html:198
+#: users/templates/users/data.html:146
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:201
+#: users/templates/users/data.html:149
 msgid "exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
 msgstr ""
 
-#: users/templates/users/data.html:236 users/templates/users/data.html:287
+#: users/templates/users/data.html:184 users/templates/users/data.html:235
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr ""
 
-#: users/templates/users/data.html:243
+#: users/templates/users/data.html:191
 msgid "Import from Trakt"
 msgstr ""
 
-#: users/templates/users/data.html:249
+#: users/templates/users/data.html:197
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
 msgstr ""
 
-#: users/templates/users/data.html:252
+#: users/templates/users/data.html:200
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr ""
 
-#: users/templates/users/data.html:254
+#: users/templates/users/data.html:202
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr ""
 
-#: users/templates/users/data.html:295
+#: users/templates/users/data.html:243
 #: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr ""
 
-#: users/templates/users/data.html:298
+#: users/templates/users/data.html:246
 msgid "Login with Steam"
 msgstr ""
 
-#: users/templates/users/data.html:304
+#: users/templates/users/data.html:252
 msgid "Import Podcast Subscriptions"
 msgstr ""
 
-#: users/templates/users/data.html:315
+#: users/templates/users/data.html:263
 msgid "Mark as listening"
 msgstr ""
 
-#: users/templates/users/data.html:319
+#: users/templates/users/data.html:267
 msgid "Import as a new collection"
 msgstr ""
 
-#: users/templates/users/data.html:348
+#: users/templates/users/data.html:296
 msgid "Select OPML file"
 msgstr ""
 
-#: users/templates/users/data.html:358
+#: users/templates/users/data.html:306
 msgid "Import NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:364
+#: users/templates/users/data.html:312
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr ""
 
-#: users/templates/users/data.html:366
+#: users/templates/users/data.html:314
 msgid "Existing data may be overwritten."
 msgstr ""
 
-#: users/templates/users/data.html:376
+#: users/templates/users/data.html:324
 msgid "Detected format"
 msgstr ""
 
-#: users/templates/users/data.html:437
+#: users/templates/users/data.html:385
 msgid "Detecting format..."
 msgstr ""
 
-#: users/templates/users/data.html:463
+#: users/templates/users/data.html:411
 msgid "Unknown format"
 msgstr ""
 
-#: users/templates/users/data.html:488
+#: users/templates/users/data.html:436
 msgid "Error detecting format"
 msgstr ""
 
-#: users/templates/users/data.html:512
+#: users/templates/users/data.html:460
 msgid "Export NeoDB Archive"
 msgstr ""
 
-#: users/templates/users/data.html:516
+#: users/templates/users/data.html:464
 msgid "Export marks, reviews and notes in CSV"
 msgstr ""
 
-#: users/templates/users/data.html:523
+#: users/templates/users/data.html:471
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:531
+#: users/templates/users/data.html:479
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr ""
 
-#: users/templates/users/data.html:534
+#: users/templates/users/data.html:482
 msgid "Last export"
 msgstr ""
 
-#: users/templates/users/data.html:539
+#: users/templates/users/data.html:487
 msgid "Download"
 msgstr ""
 
-#: users/templates/users/data.html:548
+#: users/templates/users/data.html:496
 msgid "View Annual Summary"
 msgstr ""
 
@@ -7726,6 +7748,7 @@ msgid "Review RateYourMusic Matches"
 msgstr ""
 
 #: users/templates/users/rym_import.html:39
+#: users/templates/users/storygraph_import.html:39
 #, python-format
 msgid ""
 "\n"
@@ -7734,6 +7757,7 @@ msgid ""
 msgstr ""
 
 #: users/templates/users/rym_import.html:45
+#: users/templates/users/storygraph_import.html:45
 msgid "Download matched CSV"
 msgstr ""
 
@@ -7742,26 +7766,32 @@ msgid "Title / Artist"
 msgstr ""
 
 #: users/templates/users/rym_import.html:58
+#: users/templates/users/storygraph_import.html:58
 msgid "Matched Link"
 msgstr ""
 
 #: users/templates/users/rym_import.html:59
+#: users/templates/users/storygraph_import.html:59
 msgid "Shelf"
 msgstr ""
 
 #: users/templates/users/rym_import.html:71
+#: users/templates/users/storygraph_import.html:71
 msgid "Prev"
 msgstr ""
 
 #: users/templates/users/rym_import.html:75
+#: users/templates/users/storygraph_import.html:75
 msgid "Next"
 msgstr ""
 
 #: users/templates/users/rym_import.html:95
+#: users/templates/users/storygraph_import.html:95
 msgid "Confirm Import"
 msgstr ""
 
 #: users/templates/users/rym_import.html:96
+#: users/templates/users/storygraph_import.html:96
 msgid "Back"
 msgstr ""
 
@@ -7881,6 +7911,15 @@ msgstr ""
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
 msgstr ""
 
+#: users/templates/users/storygraph_import.html:9
+#: users/templates/users/storygraph_import.html:37
+msgid "Review StoryGraph Matches"
+msgstr ""
+
+#: users/templates/users/storygraph_import.html:57
+msgid "Title / Author"
+msgstr ""
+
 #: users/templates/users/user_task_status.html:29
 msgid "Failed items"
 msgstr ""
@@ -7966,136 +8005,141 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:223 users/views/data.py:252
+#: users/views/data.py:230 users/views/data.py:259
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:246
+#: users/views/data.py:253
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:264
+#: users/views/data.py:271
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:279 users/views/data.py:299
+#: users/views/data.py:286 users/views/data.py:306
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:313
+#: users/views/data.py:320
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:327
+#: users/views/data.py:334
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:382
+#: users/views/data.py:389
 msgid "Account no longer linked."
 msgstr ""
 
-#: users/views/data.py:385
+#: users/views/data.py:392
 msgid "Content is no longer public."
 msgstr ""
 
-#: users/views/data.py:413
+#: users/views/data.py:420
 msgid "Retry did not complete, please try again."
 msgstr ""
 
-#: users/views/data.py:423 users/views/data.py:456 users/views/data.py:672
-#: users/views/data.py:696 users/views/data.py:721 users/views/data.py:745
-#: users/views/data.py:769
+#: users/views/data.py:430 users/views/data.py:463 users/views/data.py:686
+#: users/views/data.py:901 users/views/data.py:926 users/views/data.py:950
+#: users/views/data.py:974
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:492
+#: users/views/data.py:497 users/views/data.py:720
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:517
+#: users/views/data.py:522 users/views/data.py:749
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:537
+#: users/views/data.py:542
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:545 users/views/data.py:655
+#: users/views/data.py:550 users/views/data.py:660 users/views/data.py:779
+#: users/views/data.py:884
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:641
+#: users/views/data.py:646 users/views/data.py:870
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:651
+#: users/views/data.py:656 users/views/data.py:880
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:889
+#: users/views/data.py:771
+msgid "No StoryGraph import to preview."
+msgstr ""
+
+#: users/views/data.py:1094
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:911
+#: users/views/data.py:1116
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:927
+#: users/views/data.py:1132
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:932
+#: users/views/data.py:1137
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:942 users/views/data.py:993
+#: users/views/data.py:1147 users/views/data.py:1198
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:949
+#: users/views/data.py:1154
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:954
+#: users/views/data.py:1159
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:980
+#: users/views/data.py:1185
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:985
+#: users/views/data.py:1190
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:998
+#: users/views/data.py:1203
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:1009
+#: users/views/data.py:1214
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:1015
+#: users/views/data.py:1220
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:1073
+#: users/views/data.py:1278
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1089
+#: users/views/data.py:1294
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1093
+#: users/views/data.py:1298
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1102
+#: users/views/data.py:1307
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""
