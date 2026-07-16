@@ -1,5 +1,7 @@
 import dateparser
 
+from common.models import normalize_game_platforms
+
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
@@ -69,7 +71,7 @@ class DoubanGame(AbstractSite):
             content,
             "//dl[@class='thing-attr']//dt[text()='平台:']/following-sibling::dd[1]/a/text()",
         )
-        platform = platform_elem if platform_elem else None
+        platform = normalize_game_platforms(platform_elem) if platform_elem else None
 
         genre_elem = self.query_list(
             content,

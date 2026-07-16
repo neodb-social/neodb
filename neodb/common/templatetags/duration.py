@@ -16,6 +16,7 @@ from common.models.lang import (
     LOCALE_CODES,
     SCRIPT_CODES,
 )
+from common.models.game_platform import GAME_PLATFORM_CODES
 from common.models.music_format import ALBUM_TYPE_CODES, MEDIA_FORMAT_CODES
 
 register = template.Library()
@@ -135,4 +136,10 @@ def code_to_album_type(code):
 @register.filter
 def code_to_media_format(code):
     label = MEDIA_FORMAT_CODES.get(code)
+    return str(label) if label else code
+
+
+@register.filter
+def code_to_platform(code):
+    label = GAME_PLATFORM_CODES.get(code)
     return str(label) if label else code

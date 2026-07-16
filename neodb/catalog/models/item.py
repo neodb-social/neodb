@@ -24,6 +24,7 @@ from common.models import (
     jsondata,
     normalize_album_types,
     normalize_countries,
+    normalize_game_platforms,
     normalize_media_formats,
     parse_partial_date,
     uniq,
@@ -1098,6 +1099,15 @@ class Item(PolymorphicModel):
                 changed = True
         return changed
 
+    def _normalize_platforms(self) -> bool:
+        changed = False
+        if hasattr(self, "platform") and self.platform:
+            platform = normalize_game_platforms(self.platform)
+            if self.platform != platform:
+                self.platform = platform
+                changed = True
+        return changed
+
     def _normalize_release_date(self) -> bool:
         rd = getattr(self, "release_date", None)
         if isinstance(rd, str) and rd:
@@ -1113,6 +1123,7 @@ class Item(PolymorphicModel):
         r |= self._normalize_genres()
         r |= self._normalize_countries()
         r |= self._normalize_music_formats()
+        r |= self._normalize_platforms()
         r |= self._normalize_release_date()
         return r
 

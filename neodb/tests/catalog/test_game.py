@@ -134,7 +134,7 @@ class TestItch:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.itch == "games/3268593"
-        assert site.resource.item.platform == ["Web"]
+        assert site.resource.item.platform == ["web"]
         assert site.resource.item.display_description.startswith(
             "The Unsolvable Mystery"
         )
@@ -234,7 +234,7 @@ class TestBoardGameGeek:
 
         assert len(site.resource.item.localized_title) == 16
         assert isinstance(site.resource.item, Game)
-        assert site.resource.item.platform == ["Boardgame"]
+        assert site.resource.item.platform == ["boardgame"]
         assert site.resource.item.genre[0] == "Economic"
         assert site.resource.item.designer == ["Jacob Fryxelius"]
 
@@ -269,7 +269,7 @@ class TestMobyGames:
         assert isinstance(site.resource.item, Game)
         assert site.resource.item.developer == ["Valve Corporation"]
         assert "action" in site.resource.item.genre
-        assert "Windows" in site.resource.item.platform
+        assert "windows" in site.resource.item.platform
 
 
 @pytest.mark.django_db(databases="__all__")

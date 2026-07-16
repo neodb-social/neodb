@@ -8,6 +8,8 @@ Wikidata property P11688 maps to MobyGames numeric game IDs.
 
 import json
 
+from common.models import normalize_game_platforms
+
 from catalog.common import *
 from catalog.models import *
 from catalog.sites.wikidata import WikiData
@@ -108,6 +110,7 @@ class MobyGames(AbstractSite):
         platform = ld_json.get("gamePlatform") or []
         if isinstance(platform, str):
             platform = [platform]
+        platform = normalize_game_platforms(platform)
 
         # Release date from JSON-LD
         release_date = ld_json.get("datePublished") or None

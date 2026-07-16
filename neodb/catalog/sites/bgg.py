@@ -72,7 +72,7 @@ class BoardGameGeek(AbstractSite):
                     if typ == "boardgameexpansion"
                     else GameReleaseType.GAME
                 ),
-                "platform": ["Boardgame"],
+                "platform": ["boardgame"],
                 "brief": brief,
                 # "official_site": official_site,
                 "cover_image_url": cover_image_url,

@@ -10,6 +10,7 @@ from common.models.duration import duration_to_seconds, format_duration
 from common.models import (
     ALBUM_TYPE_CHOICES,
     COUNTRY_CHOICES,
+    GAME_PLATFORM_CHOICES,
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
     MEDIA_FORMAT_CHOICES,
@@ -381,6 +382,10 @@ def _slug_list_field(verbose_name, choices):
 
 def AlbumTypeListField():
     return _slug_list_field(_("album type"), ALBUM_TYPE_CHOICES)
+
+
+def GamePlatformListField():
+    return _slug_list_field(_("platform"), GAME_PLATFORM_CHOICES)
 
 
 def MediaFormatListField():

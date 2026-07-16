@@ -10,6 +10,8 @@ from lxml import etree
 from lxml import html as lxml_html
 from lxml.html import HtmlElement
 
+from common.models import normalize_game_platforms
+
 from catalog.common import *
 from catalog.models import *
 from common.models.lang import detect_language
@@ -202,20 +204,20 @@ class Itch(AbstractSite):
         if not val:
             return []
         if isinstance(val, str):
-            return [val]
+            val = [val]
         if isinstance(val, list):
-            return [str(v) for v in val if v]
+            return normalize_game_platforms([str(v) for v in val if v])
         return []
 
     @classmethod
     def _extract_platforms_from_links(cls, content) -> list[str]:
         platform_by_path = {
-            "/games/html5": "Web",
-            "/games/platform-windows": "Windows",
-            "/games/platform-osx": "macOS",
-            "/games/platform-linux": "Linux",
-            "/games/platform-android": "Android",
-            "/games/platform-ios": "iOS",
+            "/games/html5": "web",
+            "/games/platform-windows": "windows",
+            "/games/platform-osx": "mac",
+            "/games/platform-linux": "linux",
+            "/games/platform-android": "android",
+            "/games/platform-ios": "ios",
         }
         hrefs = content.xpath("//a[@href]/@href")
         paths = []

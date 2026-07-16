@@ -4,8 +4,11 @@ from ninja import Field
 
 from common.models import partial_date_to_int, year_of_partial_date
 
+from common.models import normalize_game_platforms
+
 from .common import (
     LIST_OF_STR_SCHEMA,
+    GamePlatformListField,
     GenreListField,
     jsondata,
 )
@@ -158,6 +161,8 @@ class Game(Item):
         release_year = metadata.pop("release_year", None)
         if release_year and not metadata.get("release_date"):
             metadata["release_date"] = str(release_year)
+        if metadata.get("platform"):
+            metadata["platform"] = normalize_game_platforms(metadata["platform"])
         canonicalize_release_date_key(metadata)
 
     release_type = jsondata.CharField(
@@ -169,11 +174,7 @@ class Game(Item):
 
     genre = GenreListField(ItemCategory.Game)
 
-    platform = jsondata.ArrayField(
-        verbose_name=_("platform"),
-        base_field=models.CharField(blank=True, default="", max_length=200),
-        default=list,
-    )
+    platform = GamePlatformListField()
 
     official_site = jsondata.CharField(
         verbose_name=_("website"), max_length=1000, null=True, blank=True

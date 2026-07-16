@@ -92,7 +92,7 @@ class Steam(AbstractSite):
                 else None
             ),
             "genre": [g["description"] for g in en_data.get("genres", [])],
-            "platform": ["PC"],
+            "platform": ["windows"],
         }
         d.update(pd.metadata)
         d.update(

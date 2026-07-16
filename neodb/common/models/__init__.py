@@ -13,6 +13,12 @@ from .duration import (
     format_duration,
     parse_duration_text,
 )
+from .game_platform import (
+    GAME_PLATFORM_CHOICES,
+    GAME_PLATFORM_CODES,
+    normalize_game_platform,
+    normalize_game_platforms,
+)
 from .genre import (
     GENRE_CHOICES,
     GENRE_CODES,
@@ -55,6 +61,8 @@ __all__ = [
     "BaseJob",
     "COUNTRY_CHOICES",
     "COUNTRY_CODES",
+    "GAME_PLATFORM_CHOICES",
+    "GAME_PLATFORM_CODES",
     "GENRE_CHOICES",
     "GENRE_CODES",
     "JobManager",
@@ -80,6 +88,8 @@ __all__ = [
     "normalize_album_types",
     "normalize_countries",
     "normalize_country",
+    "normalize_game_platform",
+    "normalize_game_platforms",
     "normalize_genre",
     "normalize_genres",
     "normalize_media_formats",

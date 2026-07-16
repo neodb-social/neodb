@@ -15,6 +15,8 @@ from django.core.cache import cache
 from igdb.wrapper import IGDBWrapper
 from loguru import logger
 
+from common.models import normalize_game_platforms
+
 from catalog.common import *
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
@@ -146,7 +148,7 @@ class IGDB(AbstractSite):
                     )
         if "platforms" in r:
             ps = sorted(r["platforms"], key=lambda p: p["id"])
-            platform = [(p["name"] if p["id"] != 6 else "Windows") for p in ps]
+            platform = normalize_game_platforms([p["name"] for p in ps])
         if "first_release_date" in r:
             release_date = datetime.datetime.fromtimestamp(
                 r["first_release_date"], datetime.timezone.utc

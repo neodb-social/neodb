@@ -5,6 +5,11 @@ from common.models.country import (
     normalize_countries,
     normalize_country,
 )
+from common.models.game_platform import (
+    normalize_game_platform,
+    normalize_game_platforms,
+)
+
 from common.models.duration import (
     coerce_album_duration,
     coerce_video_duration,
@@ -165,6 +170,31 @@ class TestCountry:
         with translation.override("zh-hans"):
             assert country_display_name("US") == "美国"
             assert country_display_name("KR") == "韩国"
+
+
+class TestGamePlatform:
+    def test_single(self):
+        assert normalize_game_platform("PC") == "windows"
+        assert normalize_game_platform("PC (Microsoft Windows)") == "windows"
+        assert normalize_game_platform("Macintosh") == "mac"
+        assert normalize_game_platform("Nintendo Switch") == "switch"
+        assert normalize_game_platform("NS") == "switch"
+        assert normalize_game_platform("PlayStation 4") == "ps4"
+        assert normalize_game_platform("Xbox Series X|S") == "xbox-series"
+        assert normalize_game_platform("Boardgame") == "boardgame"
+        assert normalize_game_platform("桌游") == "boardgame"
+        assert normalize_game_platform("HTML5") == "web"
+        assert normalize_game_platform("Sinclair ZX81") == "Sinclair ZX81"
+
+    def test_list(self):
+        assert normalize_game_platforms(["PC", "PS5", "Nintendo Switch"]) == [
+            "windows",
+            "ps5",
+            "switch",
+        ]
+        assert normalize_game_platforms("PC / PS4") == ["windows", "ps4"]
+        assert normalize_game_platforms(["windows", "PC"]) == ["windows"]
+        assert normalize_game_platforms(None) == []
 
 
 class TestMusicFormat:
