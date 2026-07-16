@@ -738,8 +738,8 @@ class TestWikiData:
         # assert "Q1860" in content.metadata["language"]  # English
         # assert "Q80930" in content.metadata["genre"]  # Tragedy
         assert (
-            content.metadata["opening_date"] == "1602-01-01"
-        )  # convered from 1602-00-00
+            content.metadata["opening_date"] == "1602"
+        )  # 1602-00-00 keeps year precision
 
 
 def test_extract_openlibrary_ids():

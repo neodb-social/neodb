@@ -48,7 +48,7 @@ class TestRating:
             primary_lookup_id_value="12345",
             developer=["Test Developer"],
             platform=["PC"],
-            release_year=2022,
+            release_date="2022",
         )
 
         # Create a TV show with a season and episode
