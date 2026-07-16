@@ -31,7 +31,6 @@ ALBUM_TYPE_CATALOG = {
     "interview": pgettext_lazy("album_type", "Interview"),
     "broadcast": pgettext_lazy("album_type", "Broadcast"),
     "field-recording": pgettext_lazy("album_type", "Field Recording"),
-    "other": pgettext_lazy("album_type", "Other"),
 }
 
 MEDIA_FORMAT_CATALOG = {
@@ -44,7 +43,6 @@ MEDIA_FORMAT_CATALOG = {
     "blu-ray": pgettext_lazy("media_format", "Blu-ray"),
     "minidisc": pgettext_lazy("media_format", "MiniDisc"),
     "vcd": pgettext_lazy("media_format", "VCD"),
-    "other": pgettext_lazy("media_format", "Other"),
 }
 
 ALBUM_TYPE_CHOICES = list(ALBUM_TYPE_CATALOG.items())
@@ -73,7 +71,6 @@ _ALBUM_TYPE_ALIASES: dict[str, str] = {
     "混音": "remix",
     "有声书": "audiobook",
     "访谈": "interview",
-    "其他": "other",
     # Discogs format descriptions / common English variants
     "lp": "album",
     "mini-album": "ep",
@@ -170,7 +167,6 @@ _MEDIA_FORMAT_ALIASES: dict[str, str] = {
     "vhd": "vcd",
     "ced": "vcd",
     "录像带": "vcd",
-    "其他": "other",
 }
 
 _RE_SPLIT = re.compile(r"\s*[/,;，、；]\s*")

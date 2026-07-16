@@ -27,7 +27,8 @@
     {% endif %}
   </div>
   <div>{% include '_people.html' with people=item.additional_title role='other title' max=99 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.publisher role_label='publishing house' max=5 %}</div>
+  {% trans 'publishing house' as publisher_label %}
+  <div>{% include '_credits.html' with credits=item.role_credits.publisher role_label=publisher_label max=5 %}</div>
   <div>
     {% if item.imprint %}
       {% trans 'imprint' %}: {{ item.imprint }}
