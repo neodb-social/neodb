@@ -12,7 +12,6 @@ from common.models import (
     parse_duration_text,
     parse_partial_date,
 )
-from common.models.partial_date import unpad_partial_date
 
 from .common import IdType
 
@@ -120,22 +119,13 @@ def upc_to_gtin_13(upc: str):
 def canonicalize_release_date_key(metadata: dict[str, Any]) -> None:
     """Re-canonicalize metadata["release_date"] into partial ISO form.
 
-    The API emits release_date as a padded full date plus a
-    release_date_precision key ("year"/"month"/"day") for backward
-    compatibility; when the precision key is present it is applied here
-    so the partial value round-trips losslessly. Otherwise falls back to
-    dateparser for free-text dates (e.g. localized Steam strings).
-    Unparseable non-empty strings are kept as-is rather than destroyed.
+    Falls back to dateparser for free-text dates (e.g. localized Steam
+    strings). Unparseable non-empty strings are kept as-is rather than
+    destroyed.
     """
-    precision = metadata.pop("release_date_precision", None)
     rd = metadata.get("release_date")
     if rd is None:
         return
-    if precision in ("year", "month"):
-        p = unpad_partial_date(rd if isinstance(rd, str) else None, precision)
-        if p:
-            metadata["release_date"] = p
-            return
     p = parse_partial_date(rd)
     if p is None and isinstance(rd, str) and rd.strip():
         dp = dateparser.parse(rd.strip())
@@ -147,12 +137,6 @@ def canonicalize_release_date_key(metadata: dict[str, Any]) -> None:
 
 
 def _coerce_duration_key(metadata: dict[str, Any], key: str, legacy: bool) -> None:
-    # a "<key>_seconds" sibling (emitted by current peers alongside the
-    # backward-compatible legacy shape) wins losslessly over inference
-    seconds = metadata.pop(f"{key}_seconds", None)
-    if isinstance(seconds, (int, float)) and int(seconds) > 0:
-        metadata[key] = int(seconds)
-        return
     v = metadata.get(key)
     if v is None:
         return
@@ -179,11 +163,25 @@ def normalize_legacy_video_metadata(metadata: dict[str, Any]) -> None:
     - area (region names) -> origin_country (ISO 3166-1 alpha-2)
     - showtime [{time, region}] -> release_date (earliest); year fallback
 
-    Legacy shape is detected by the presence of pre-unification keys, so
-    running this on already-converted metadata is a no-op.
+    Legacy shape is detected by the presence of pre-unification keys
+    (and the absence of the current "length" key), so running this on
+    already-converted metadata is a no-op.
     """
-    legacy = any(k in metadata for k in ("area", "showtime", "year"))
-    _coerce_duration_key(metadata, "duration", legacy)
+    legacy = "length" not in metadata and any(
+        k in metadata for k in ("area", "showtime", "year")
+    )
+    # current peers emit canonical seconds under "length"; the legacy
+    # "duration" shape is only used when length is absent
+    duration = metadata.pop("duration", None)
+    if not metadata.get("length") and duration is not None:
+        if isinstance(duration, str):
+            length = parse_duration_text(duration)
+        elif isinstance(duration, (int, float)):
+            length = coerce_video_duration(duration) if legacy else int(duration)
+        else:
+            length = None
+        if length and length > 0:
+            metadata["length"] = length
     _coerce_duration_key(metadata, "single_episode_length", legacy)
     area = metadata.pop("area", None)
     if area and not metadata.get("origin_country"):

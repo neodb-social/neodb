@@ -18,8 +18,8 @@
     {% endif %}
   </div>
   <div>
-    {% if item.duration %}
-      {% trans 'duration' %}: {{ item.duration|duration_display }}
+    {% if item.length %}
+      {% trans 'duration' %}: {{ item.length|duration_display }}
     {% endif %}
   </div>
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>

@@ -38,13 +38,12 @@ class MovieInSchema(VideoFieldsResolverMixin, ItemInSchema):
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
-    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
+    length: int | None = None
     duration: str | None = Field(
-        None, deprecated="Display string; use `duration_seconds` instead."
+        None, deprecated="Display string; use `length` (seconds) instead."
     )
-    duration_seconds: int | None = None
     # area and showtime are deprecated
     area: list[str] = Field(
         [], deprecated="Use `origin_country` (ISO 3166-1 alpha-2) instead."
@@ -110,7 +109,7 @@ class Movie(Item):
         "site",
         "origin_country",
         "language",
-        "duration",
+        "length",
         "localized_description",
     ]
     orig_title = jsondata.CharField(
@@ -155,7 +154,7 @@ class Movie(Item):
     site = jsondata.URLField(verbose_name=_("website"), blank=True, max_length=200)
     origin_country = CountryListField()
     language = LanguageListField()
-    duration = jsondata.IntegerField(
+    length = jsondata.IntegerField(
         verbose_name=_("length"), null=True, blank=True, help_text=_("seconds")
     )
     season_number = jsondata.IntegerField(
@@ -220,9 +219,9 @@ class Movie(Item):
         if self.release_date:
             data["dateCreated"] = self.release_date
 
-        duration = duration_to_seconds(self.duration)
-        if duration:
-            data["duration"] = f"PT{duration // 3600}H{(duration % 3600) // 60}M"
+        length = duration_to_seconds(self.length)
+        if length:
+            data["duration"] = f"PT{length // 3600}H{(length % 3600) // 60}M"
 
         directors = self.credit_names_by_role("director")
         if directors:

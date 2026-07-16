@@ -312,7 +312,7 @@ class TestAppleMusic:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == ["pop", "music"]
-        assert site.resource.item.duration == 2368
+        assert site.resource.item.length == 2368
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -343,7 +343,7 @@ class TestYouTubeMusic:
         assert site.resource.metadata["artist"] == ["The Police"]
         assert site.resource.metadata["release_date"] == "1983"
         assert site.resource.metadata["album_type"] == ["album"]
-        assert site.resource.metadata["duration"] == 2675
+        assert site.resource.metadata["length"] == 2675
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.release_date == "1983"
@@ -400,7 +400,7 @@ class TestRateYourMusic:
         assert len(track_lines) == 12
         assert track_lines[0] == "1. Airbag (4:44)"
         assert track_lines[-1] == "12. The Tourist (5:24)"
-        assert meta["duration"] == 3201
+        assert meta["length"] == 3201
         # Primary label parsed out of og:description
         assert meta["company"] == ["Parlophone"]
         assert meta["cover_image_url"].startswith("https://cdn.sonemic.net/")

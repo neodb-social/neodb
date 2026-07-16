@@ -246,7 +246,7 @@ class DoubanMovie(AbstractSite):
                 "site": site,
                 "origin_country": origin_country,
                 "language": language,
-                "duration": duration,
+                "length": duration,
                 "season_number": season,
                 "episode_count": episodes,
                 "single_episode_length": single_episode_length,

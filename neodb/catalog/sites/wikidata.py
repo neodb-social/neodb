@@ -937,7 +937,7 @@ class WikiData(AbstractSite):
         data.metadata["pub_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
-        data.metadata["duration"] = self._extract_duration(entity_data)
+        data.metadata["length"] = self._extract_duration(entity_data)
         data.metadata["guid"] = self._extract_property_value(
             entity_data, WikidataProperties.P433
         )
@@ -1094,7 +1094,7 @@ class WikiData(AbstractSite):
         # data.metadata["part_of_series"] = self._extract_property_value(
         #     entity_data, WikidataProperties.P179
         # )
-        data.metadata["duration"] = self._extract_duration(entity_data)
+        data.metadata["length"] = self._extract_duration(entity_data)
 
         # Additional properties
         # data.metadata["director"] = self._extract_string_list(entity_data, WikidataProperties.P57)

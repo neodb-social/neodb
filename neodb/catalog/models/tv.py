@@ -93,17 +93,13 @@ class TVShowInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSch
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
-    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
+    length: int | None = None
     duration: str | None = Field(
-        None, deprecated="Display string; use `duration_seconds` instead."
+        None, deprecated="Display string; use `length` (seconds) instead."
     )
-    duration_seconds: int | None = None
-    single_episode_length: int | None = Field(
-        None, deprecated="Minutes; use `single_episode_length_seconds` instead."
-    )
-    single_episode_length_seconds: int | None = None
+    single_episode_length: int | None = None
     episode_count: int | None = None
     season_uuids: list[str]
     # area and showtime are deprecated
@@ -130,17 +126,13 @@ class TVSeasonInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInS
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
-    release_date_precision: str | None = None
     year: int | None = None
     site: str | None = None
+    length: int | None = None
     duration: str | None = Field(
-        None, deprecated="Display string; use `duration_seconds` instead."
+        None, deprecated="Display string; use `length` (seconds) instead."
     )
-    duration_seconds: int | None = None
-    single_episode_length: int | None = Field(
-        None, deprecated="Minutes; use `single_episode_length_seconds` instead."
-    )
-    single_episode_length_seconds: int | None = None
+    single_episode_length: int | None = None
     episode_count: int | None = None
     episode_uuids: list[str]
     # area and showtime are deprecated
@@ -205,7 +197,7 @@ class TVShow(Item):
         "site",
         "origin_country",
         "language",
-        "duration",
+        "length",
         "episode_count",
         "single_episode_length",
     ]
@@ -261,9 +253,7 @@ class TVShow(Item):
     season_number = jsondata.IntegerField(
         null=True, blank=True
     )  # TODO remove after migration
-    duration = jsondata.IntegerField(
-        null=True, blank=True
-    )  # TODO remove after migration
+    length = jsondata.IntegerField(null=True, blank=True)  # TODO remove after migration
 
     @property
     def year(self) -> int | None:
@@ -427,7 +417,7 @@ class TVSeason(Item):
         "site",
         "origin_country",
         "language",
-        "duration",
+        "length",
         "single_episode_length",
         "localized_description",
     ]
@@ -481,9 +471,7 @@ class TVSeason(Item):
         blank=True,
         help_text=_("seconds"),
     )
-    duration = jsondata.IntegerField(
-        null=True, blank=True
-    )  # TODO remove after migration
+    length = jsondata.IntegerField(null=True, blank=True)  # TODO remove after migration
 
     @property
     def year(self) -> int | None:

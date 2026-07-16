@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
 from common.models.duration import duration_to_seconds, format_duration
-from common.models.partial_date import pad_partial_date
 
 from common.models import (
     ALBUM_TYPE_CHOICES,
@@ -196,28 +195,11 @@ class LocalizedLabelSchema(Schema):
     text: str
 
 
-class ReleaseDateResolverMixin(Schema):
-    """API emits release_date as a padded full ISO date (older peers and
-    clients type it as a strict date) plus a release_date_precision key
-    ("year"/"month"/"day") so current ingest recovers the stored partial
-    value losslessly."""
-
-    @staticmethod
-    def resolve_release_date(obj) -> str | None:
-        return pad_partial_date(obj.release_date)[0]
-
-    @staticmethod
-    def resolve_release_date_precision(obj) -> str | None:
-        return pad_partial_date(obj.release_date)[1]
-
-
-class VideoFieldsResolverMixin(ReleaseDateResolverMixin):
-    """Shared resolvers for origin_country / release_date / durations and
-    their deprecated aliases (area, showtime) on Movie and TV schemas.
-
-    duration stays a display string and single_episode_length stays
-    minutes for backward compatibility; the *_seconds fields carry the
-    canonical values."""
+class VideoFieldsResolverMixin(Schema):
+    """Shared resolvers for origin_country / release_date / length and
+    the deprecated aliases (area, showtime, duration) on Movie and TV
+    schemas. duration keeps a display-string shape for older peers and
+    clients; length carries the canonical seconds."""
 
     @staticmethod
     def resolve_origin_country(obj) -> list[str]:
@@ -232,23 +214,18 @@ class VideoFieldsResolverMixin(ReleaseDateResolverMixin):
         return [{"time": obj.release_date, "region": ""}] if obj.release_date else []
 
     @staticmethod
+    def resolve_length(obj) -> int | None:
+        # tolerate legacy free-text values not yet migrated; numeric
+        # values are trusted as seconds
+        return duration_to_seconds(obj.length)
+
+    @staticmethod
     def resolve_duration(obj) -> str | None:
-        seconds = duration_to_seconds(obj.duration)
+        seconds = duration_to_seconds(obj.length)
         return format_duration(seconds) if seconds else None
 
     @staticmethod
-    def resolve_duration_seconds(obj) -> int | None:
-        # tolerate legacy free-text values not yet migrated; numeric
-        # values are trusted as seconds
-        return duration_to_seconds(obj.duration)
-
-    @staticmethod
     def resolve_single_episode_length(obj) -> int | None:
-        seconds = duration_to_seconds(getattr(obj, "single_episode_length", None))
-        return seconds // 60 if seconds else None
-
-    @staticmethod
-    def resolve_single_episode_length_seconds(obj) -> int | None:
         return duration_to_seconds(getattr(obj, "single_episode_length", None))
 
 

@@ -134,7 +134,7 @@ class Spotify(AbstractSite):
                 "genre": genre,
                 "track_list": track_list,
                 "release_date": release_date,
-                "duration": duration // 1000,  # tracks sum in ms
+                "length": duration // 1000,  # tracks sum in ms
                 "album_type": normalize_album_types(res_data.get("album_type")),
                 "company": company,
                 "brief": None,

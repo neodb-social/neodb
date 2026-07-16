@@ -17,8 +17,8 @@
   <div>{% include '_country_list.html' with list=item.origin_country max=10 %}</div>
   <div>{% include '_language_list.html' with list=item.language max=5 %}</div>
   <div>
-    {% if item.duration %}
-      {% trans 'length' %}: {{ item.duration|duration_display }}
+    {% if item.length %}
+      {% trans 'length' %}: {{ item.length|duration_display }}
     {% endif %}
   </div>
   <div>

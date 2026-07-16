@@ -306,7 +306,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
         if track_list:
             metadata["track_list"] = track_list
         if duration:
-            metadata["duration"] = duration
+            metadata["length"] = duration
         if company:
             metadata["company"] = company
         if cover_image_url:
@@ -483,7 +483,7 @@ class MusicBrainzRelease(AbstractSite):
         if track_list:
             metadata["track_list"] = track_list
         if duration:
-            metadata["duration"] = duration
+            metadata["length"] = duration
         if company:
             metadata["company"] = company
         if cover_image_url:

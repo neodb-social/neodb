@@ -73,41 +73,6 @@ def partial_date_to_int(value: str | None) -> int:
     return year * 10000 + month * 100 + day
 
 
-def pad_partial_date(
-    value: str | None,
-) -> tuple[str | None, str | None]:
-    """Return (full ISO date, precision) for a partial date string.
-
-    Used for backward-compatible API output: older peers/clients type
-    release_date as a strict date, so "2014" is emitted as
-    ("2014-01-01", "year") and the precision key lets current ingest
-    recover the partial value losslessly. Returns (None, None) for
-    unparseable input.
-    """
-    d = parse_partial_date(value)
-    if not d:
-        return None, None
-    parts = d.split("-")
-    if len(parts) == 1:
-        return f"{d}-01-01", "year"
-    if len(parts) == 2:
-        return f"{d}-01", "month"
-    return d, "day"
-
-
-def unpad_partial_date(value: str | None, precision: str | None) -> str | None:
-    """Inverse of pad_partial_date: truncate a padded date back to its
-    declared precision."""
-    d = parse_partial_date(value)
-    if not d:
-        return None
-    if precision == "year":
-        return d[:4]
-    if precision == "month":
-        return d[:7]
-    return d
-
-
 def _sort_key(d: str) -> tuple[int, int, int]:
     # missing parts sort high so a specific date beats a bare year of the
     # same year, while an earlier year always wins

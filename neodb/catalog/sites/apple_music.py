@@ -130,7 +130,7 @@ class AppleMusic(AbstractSite):
                 "genre": genre,
                 "release_date": release_date,
                 "track_list": "\n".join(track_list),
-                "duration": duration,
+                "length": duration,
                 "cover_image_url": image_url,
             }
         )

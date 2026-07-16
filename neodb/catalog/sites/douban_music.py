@@ -110,7 +110,7 @@ class DoubanMusic(AbstractSite):
             "artist": artist,
             "genre": genre,
             "release_date": release_date,
-            "duration": None,
+            "length": None,
             "company": [company] if company else [],
             "track_list": track_list,
             "brief": brief,

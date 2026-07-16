@@ -194,7 +194,7 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
             "release_date": release_date,
             "album_type": album_type,
             "track_list": "\n".join(track_list),
-            "duration": total_seconds if total_seconds else None,
+            "length": total_seconds if total_seconds else None,
             "cover_image_url": cover_url,
         }
     )

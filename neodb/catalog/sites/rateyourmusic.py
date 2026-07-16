@@ -111,7 +111,7 @@ class RateYourMusic(AbstractSite):
             "artist": artists,
             "genre": genres,
             "track_list": "\n".join(tracks),
-            "duration": total_duration or None,
+            "length": total_duration or None,
             "release_date": release_date,
             "company": company,
             "album_type": album_type,

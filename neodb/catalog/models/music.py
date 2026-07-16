@@ -15,7 +15,6 @@ from .common import (
     AlbumTypeListField,
     GenreListField,
     MediaFormatListField,
-    ReleaseDateResolverMixin,
     jsondata,
 )
 from .item import (
@@ -31,16 +30,15 @@ from .people import PeopleRole
 from .utils import canonicalize_release_date_key
 
 
-class AlbumInSchema(ReleaseDateResolverMixin, ItemInSchema):
+class AlbumInSchema(ItemInSchema):
     genre: list[str]
     artist: list[str]
     company: list[str]
+    length: int | None = None
     duration: int | None = Field(
-        None, deprecated="Milliseconds; use `duration_seconds` instead."
+        None, deprecated="Milliseconds; use `length` (seconds) instead."
     )
-    duration_seconds: int | None = None
     release_date: str | None = None
-    release_date_precision: str | None = None
     album_type: list[str]
     media_format: list[str]
     track_list: str | None = None
@@ -48,16 +46,16 @@ class AlbumInSchema(ReleaseDateResolverMixin, ItemInSchema):
     media: str | None = Field(None, deprecated="Use `media_format` (list) instead.")
 
     @staticmethod
-    def resolve_duration(obj: "Album") -> int | None:
-        # older peers and clients read this as milliseconds
-        seconds = duration_to_seconds(obj.duration)
-        return seconds * 1000 if seconds else None
-
-    @staticmethod
-    def resolve_duration_seconds(obj: "Album") -> int | None:
+    def resolve_length(obj: "Album") -> int | None:
         # numeric values are trusted as seconds; unit inference happens
         # only on legacy ingest (normalize_legacy_metadata)
-        return duration_to_seconds(obj.duration)
+        return duration_to_seconds(obj.length)
+
+    @staticmethod
+    def resolve_duration(obj: "Album") -> int | None:
+        # older peers and clients read this as milliseconds
+        seconds = duration_to_seconds(obj.length)
+        return seconds * 1000 if seconds else None
 
     @staticmethod
     def resolve_album_type(obj: "Album") -> list[str]:
@@ -119,7 +117,7 @@ class Album(Item):
         "disc_count",
         "genre",
         "release_date",
-        "duration",
+        "length",
         "bandcamp_album_id",
     ]
     release_date = jsondata.CharField(
@@ -129,7 +127,7 @@ class Album(Item):
         max_length=10,
         help_text=_("YYYY, YYYY-MM or YYYY-MM-DD"),
     )
-    duration = jsondata.IntegerField(
+    length = jsondata.IntegerField(
         _("length"), null=True, blank=True, help_text=_("seconds")
     )
     artist = jsondata.JSONField(
@@ -172,20 +170,13 @@ class Album(Item):
         # - duration in milliseconds -> seconds
         # - media (free text) -> media_format (list of slugs)
         # - album_type free text -> list of slugs
-        # a duration_seconds sibling (emitted by current peers alongside
-        # the backward-compatible ms shape) wins losslessly over the
-        # ms-threshold inference
-        seconds = metadata.pop("duration_seconds", None)
-        if isinstance(seconds, (int, float)) and int(seconds) > 0:
-            metadata["duration"] = int(seconds)
-        else:
-            duration = metadata.get("duration")
-            if duration is not None:
-                duration = coerce_album_duration(duration)
-                if duration:
-                    metadata["duration"] = duration
-                else:
-                    metadata.pop("duration", None)
+        # current peers emit canonical seconds under "length"; the legacy
+        # "duration" (ms) is only used when length is absent
+        duration = metadata.pop("duration", None)
+        if not metadata.get("length") and duration is not None:
+            length = coerce_album_duration(duration)
+            if length:
+                metadata["length"] = length
         media = metadata.pop("media", None)
         if media and not metadata.get("media_format"):
             metadata["media_format"] = normalize_media_formats(media)
@@ -270,7 +261,7 @@ class Album(Item):
         if self.release_date:
             data["datePublished"] = self.release_date
 
-        seconds = duration_to_seconds(self.duration)
+        seconds = duration_to_seconds(self.length)
         if seconds:
             hours = seconds // 3600
             minutes = (seconds % 3600) // 60

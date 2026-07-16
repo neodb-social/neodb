@@ -17,10 +17,8 @@ from common.models.music_format import (
 )
 from common.models.partial_date import (
     earliest_partial_date,
-    pad_partial_date,
     parse_partial_date,
     partial_date_to_int,
-    unpad_partial_date,
     year_of_partial_date,
 )
 from common.models.price import normalize_price
@@ -69,19 +67,6 @@ class TestPartialDate:
         assert earliest_partial_date(["2010-09", "2010-09-10"]) == "2010-09-10"
         assert earliest_partial_date([None, "x"]) is None
         assert earliest_partial_date([]) is None
-
-    def test_pad_unpad(self):
-        assert pad_partial_date("2014") == ("2014-01-01", "year")
-        assert pad_partial_date("2014-05") == ("2014-05-01", "month")
-        assert pad_partial_date("2014-05-06") == ("2014-05-06", "day")
-        assert pad_partial_date(None) == (None, None)
-        assert pad_partial_date("garbage") == (None, None)
-        assert unpad_partial_date("2014-01-01", "year") == "2014"
-        assert unpad_partial_date("2014-05-01", "month") == "2014-05"
-        assert unpad_partial_date("2014-05-06", "day") == "2014-05-06"
-        assert unpad_partial_date("2014-05-06", None) == "2014-05-06"
-        for d in ("2014", "2014-05", "2014-05-06"):
-            assert unpad_partial_date(*pad_partial_date(d)) == d
 
 
 class TestDuration:

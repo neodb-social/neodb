@@ -17,7 +17,7 @@ class TestNormalizeLegacyVideoMetadata:
         }
         Movie.normalize_legacy_metadata(md)
         assert md == {
-            "duration": 8880,
+            "length": 8880,
             "origin_country": ["US", "GB"],
             "release_date": "2010-07-16",
         }
@@ -26,14 +26,14 @@ class TestNormalizeLegacyVideoMetadata:
         # legacy TMDB shape: int minutes alongside year/showtime keys
         md = {"duration": 148, "year": 2010}
         Movie.normalize_legacy_metadata(md)
-        assert md["duration"] == 8880
+        assert md["length"] == 8880
         assert md["release_date"] == "2010"
 
     def test_movie_int_seconds_without_marker_untouched(self):
-        # new-shape metadata: a 8-minute short stored in seconds stays
-        md = {"duration": 480, "release_date": "2020-01-01"}
+        # new-shape metadata: length in seconds is never re-inferred
+        md = {"length": 480, "release_date": "2020-01-01"}
         Movie.normalize_legacy_metadata(md)
-        assert md["duration"] == 480
+        assert md["length"] == 480
 
     def test_year_only_fallback(self):
         md = {"year": 1994}
@@ -68,7 +68,7 @@ class TestNormalizeLegacyVideoMetadata:
         }
         Movie.normalize_legacy_metadata(md)
         converted = dict(md)
-        assert converted["duration"] == 480
+        assert converted["length"] == 480
         Movie.normalize_legacy_metadata(md)
         assert md == converted
 
@@ -83,16 +83,16 @@ class TestNormalizeLegacyAlbumMetadata:
         }
         Album.normalize_legacy_metadata(md)
         assert md == {
-            "duration": 2368,
+            "length": 2368,
             "media_format": ["cd"],
             "album_type": ["album"],
             "release_date": "2015-02-23",
         }
 
     def test_seconds_untouched(self):
-        md = {"duration": 2368, "album_type": ["album"]}
+        md = {"length": 2368, "album_type": ["album"]}
         Album.normalize_legacy_metadata(md)
-        assert md["duration"] == 2368
+        assert md["length"] == 2368
         assert md["album_type"] == ["album"]
 
     def test_media_format_not_overwritten(self):
@@ -172,18 +172,17 @@ class TestDeprecatedApiAliases:
             metadata={
                 "localized_title": [{"lang": "en", "text": "Inception"}],
                 "release_date": "2010-07-16",
-                "duration": 8880,
+                "length": 8880,
                 "origin_country": ["US", "GB"],
             }
         )
         o = m.ap_object
         assert o["year"] == 2010
         assert o["release_date"] == "2010-07-16"
-        assert o["release_date_precision"] == "day"
         # duration keeps its legacy display-string shape for older
-        # peers/clients; duration_seconds carries the canonical value
+        # peers/clients; length carries the canonical seconds
         assert o["duration"] == "2h 28m"
-        assert o["duration_seconds"] == 8880
+        assert o["length"] == 8880
         assert o["origin_country"] == ["US", "GB"]
         assert o["area"] == ["US", "GB"]
         assert o["showtime"] == [{"time": "2010-07-16", "region": ""}]
@@ -196,7 +195,7 @@ class TestDeprecatedApiAliases:
                 "duration": "148分钟",
             }
         )
-        assert m.ap_object["duration_seconds"] == 8880
+        assert m.ap_object["length"] == 8880
 
     def test_album_media_alias(self):
         a = Album.objects.create(
@@ -205,7 +204,7 @@ class TestDeprecatedApiAliases:
                 "artist": ["Y"],
                 "album_type": ["album"],
                 "media_format": ["cd", "vinyl"],
-                "duration": 2368,
+                "length": 2368,
             }
         )
         o = a.ap_object
@@ -214,7 +213,7 @@ class TestDeprecatedApiAliases:
         assert o["media"] == "cd, vinyl"
         # legacy shape stays milliseconds for older peers/clients
         assert o["duration"] == 2368000
-        assert o["duration_seconds"] == 2368
+        assert o["length"] == 2368
 
     def test_short_and_long_durations_not_recoerced_at_read_time(self):
         # unit inference happens only on legacy ingest; stored seconds are
@@ -222,20 +221,20 @@ class TestDeprecatedApiAliases:
         m = Movie.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Short"}],
-                "duration": 480,  # 8-minute short film
+                "length": 480,  # 8-minute short film
                 "release_date": "2020",
             }
         )
-        assert m.ap_object["duration_seconds"] == 480
+        assert m.ap_object["length"] == 480
         assert m.to_schema_org()["duration"] == "PT0H8M"
         a = Album.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Box"}],
                 "artist": ["Y"],
-                "duration": 55200,  # 15h20m box set
+                "length": 55200,  # 15h20m box set
             }
         )
-        assert a.ap_object["duration_seconds"] == 55200
+        assert a.ap_object["length"] == 55200
         assert a.ap_object["duration"] == 55200000
 
     def test_ap_object_round_trips_losslessly(self):
@@ -243,30 +242,30 @@ class TestDeprecatedApiAliases:
         m = Movie.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Short"}],
-                "duration": 480,
+                "length": 480,
                 "release_date": "2020",
             }
         )
         o = m.ap_object
-        assert o["release_date"] == "2020-01-01"
-        assert o["release_date_precision"] == "year"
+        assert o["release_date"] == "2020"
         assert o["duration"] == "8m"
+        assert o["length"] == 480
         md = {k: v for k, v in o.items()}
         Movie.normalize_legacy_metadata(md)
         assert md["release_date"] == "2020"
-        assert md["duration"] == 480
+        assert md["length"] == 480
         a = Album.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Box"}],
                 "artist": ["Y"],
-                "duration": 55200,
+                "length": 55200,
                 "release_date": "1997-05",
             }
         )
         oa = a.ap_object
         md = {k: v for k, v in oa.items()}
         Album.normalize_legacy_metadata(md)
-        assert md["duration"] == 55200
+        assert md["length"] == 55200
         assert md["release_date"] == "1997-05"
 
     def test_merge_preserves_legacy_year(self):
@@ -292,10 +291,7 @@ class TestDeprecatedApiAliases:
             }
         )
         o = g.ap_object
-        # padded for older peers typing this as a strict date; precision
-        # lets current peers recover the partial value
-        assert o["release_date"] == "1995-01-01"
-        assert o["release_date_precision"] == "year"
+        assert o["release_date"] == "1995"
         assert o["release_year"] == 1995
 
 
@@ -330,13 +326,13 @@ class TestUnifyMetadataMigration:
         m.refresh_from_db()
         a.refresh_from_db()
         g.refresh_from_db()
-        assert m.metadata["duration"] == 8880
+        assert m.metadata["length"] == 8880
         assert m.metadata["origin_country"] == ["US"]
         assert m.metadata["release_date"] == "2010-07-16"
         assert "area" not in m.metadata
         assert "showtime" not in m.metadata
         assert "year" not in m.metadata
-        assert a.metadata["duration"] == 2368
+        assert a.metadata["length"] == 2368
         assert a.metadata["media_format"] == ["cd"]
         assert a.metadata["album_type"] == ["album"]
         assert "media" not in a.metadata

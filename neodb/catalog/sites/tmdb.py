@@ -222,7 +222,7 @@ class TMDB_Movie(AbstractSite):
                 "site": None,
                 "origin_country": origin_country,
                 "language": language,
-                "duration": duration,
+                "length": duration,
                 "season": None,
                 "episodes": None,
                 "single_episode_length": None,

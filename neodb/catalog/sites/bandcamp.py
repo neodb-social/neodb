@@ -112,7 +112,7 @@ class Bandcamp(AbstractSite):
             "genre": genre,
             "track_list": track_list,
             "release_date": release_date,
-            "duration": duration,
+            "length": duration,
             "company": company,
             "brief": brief,
             "bandcamp_album_id": bandcamp_album_id,
