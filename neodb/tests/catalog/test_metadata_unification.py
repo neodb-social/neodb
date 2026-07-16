@@ -174,6 +174,7 @@ class TestDeprecatedApiAliases:
                 "release_date": "2010-07-16",
                 "length": 8880,
                 "origin_country": ["US", "GB"],
+                "site": "https://example.org/inception",
             }
         )
         o = m.ap_object
@@ -186,6 +187,9 @@ class TestDeprecatedApiAliases:
         assert o["origin_country"] == ["US", "GB"]
         assert o["area"] == ["US", "GB"]
         assert o["showtime"] == [{"time": "2010-07-16", "region": ""}]
+        # official_site is aliased to the internal site attribute
+        assert o["official_site"] == "https://example.org/inception"
+        assert o["site"] == "https://example.org/inception"
 
     def test_movie_stale_legacy_metadata_tolerated(self):
         # pre-migration rows must not break schema validation; the legacy
