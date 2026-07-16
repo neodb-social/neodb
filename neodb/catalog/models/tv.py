@@ -97,7 +97,8 @@ class TVShowInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSch
     year: int | None = Field(
         None, deprecated="Use the year part of `release_date` instead."
     )
-    site: str | None = None
+    official_site: str | None = Field(None, alias="site")
+    site: str | None = Field(None, deprecated="Use `official_site` instead.")
     length: int | None = None
     duration: str | None = Field(
         None, deprecated="Display string; use `length` (seconds) instead."
@@ -133,7 +134,8 @@ class TVSeasonInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInS
     year: int | None = Field(
         None, deprecated="Use the year part of `release_date` instead."
     )
-    site: str | None = None
+    official_site: str | None = Field(None, alias="site")
+    site: str | None = Field(None, deprecated="Use `official_site` instead.")
     length: int | None = None
     duration: str | None = Field(
         None, deprecated="Display string; use `length` (seconds) instead."

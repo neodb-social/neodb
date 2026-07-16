@@ -45,7 +45,8 @@ class PodcastEpisodeInSchema(ItemInSchema):
     pub_date: datetime | None = None
     media_url: str | None = None
     link: str | None = None
-    duration: int | None = None
+    length: int | None = Field(None, alias="duration")
+    duration: int | None = Field(None, deprecated="Use `length` (seconds) instead.")
 
 
 class PodcastEpisodeSchema(PodcastEpisodeInSchema, BaseSchema):

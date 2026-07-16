@@ -96,7 +96,10 @@ class EditionInSchema(ItemInSchema):
     )
     pub_year: int | None = None
     pub_month: int | None = None
-    binding: str | None = None
+    format: str | None = None
+    binding: str | None = Field(
+        None, deprecated="Free text; use `format` (BookFormat) instead."
+    )
     price: str | None = None
     pages: int | str | None = None
     series: str | None = None
