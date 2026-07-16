@@ -3,6 +3,7 @@ from ninja import Field
 
 from common.models import (
     coerce_album_duration,
+    duration_to_seconds,
     normalize_album_types,
     normalize_media_formats,
     partial_date_to_int,
@@ -43,8 +44,9 @@ class AlbumInSchema(ItemInSchema):
 
     @staticmethod
     def resolve_duration(obj: "Album") -> int | None:
-        # tolerate legacy millisecond values not yet migrated
-        return coerce_album_duration(obj.duration)
+        # numeric values are trusted as seconds; unit inference happens
+        # only on legacy ingest (normalize_legacy_metadata)
+        return duration_to_seconds(obj.duration)
 
     @staticmethod
     def resolve_album_type(obj: "Album") -> list[str]:
@@ -143,7 +145,7 @@ class Album(Item):
     )
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         # Sources: federated peers running older code, ndjson restores,
         # and local rows that predate the unification.
@@ -241,7 +243,7 @@ class Album(Item):
         if self.release_date:
             data["datePublished"] = self.release_date
 
-        seconds = coerce_album_duration(self.duration)
+        seconds = duration_to_seconds(self.duration)
         if seconds:
             hours = seconds // 3600
             minutes = (seconds % 3600) // 60

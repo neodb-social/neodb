@@ -98,6 +98,22 @@ def coerce_album_duration(value: str | int | float | None) -> int | None:
     return None
 
 
+def duration_to_seconds(value: str | int | float | None) -> int | None:
+    """Read-time tolerant conversion for stored duration values.
+
+    Free-text values (pre-migration rows) are parsed; numeric values are
+    trusted as seconds. Unlike the coerce_* helpers this never applies
+    unit inference, so it is safe on already-converted data.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return parse_duration_text(value)
+    if isinstance(value, (int, float)):
+        return int(value) or None
+    return None
+
+
 def format_duration(value: int | None) -> str:
     """Format seconds for display: "2h 14m", "45m" or "58s"."""
     if not value:

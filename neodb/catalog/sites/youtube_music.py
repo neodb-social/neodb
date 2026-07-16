@@ -22,7 +22,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.common.downloaders import get_mock_mode
 from catalog.models import *
-from common.models import normalize_album_types
+from common.models import normalize_album_types, parse_duration_text
 from common.models.lang import detect_language
 
 _INNERTUBE_URL = "https://music.youtube.com/youtubei/v1/browse"
@@ -53,19 +53,6 @@ def _innertube_browse(browse_id: str) -> dict:
     )
     resp.raise_for_status()
     return resp.json()
-
-
-def _parse_duration_seconds(s: str) -> int:
-    """Convert 'M:SS' or 'H:MM:SS' string to seconds."""
-    parts = s.split(":")
-    try:
-        if len(parts) == 2:
-            return int(parts[0]) * 60 + int(parts[1])
-        if len(parts) == 3:
-            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-    except ValueError:
-        pass
-    return 0
 
 
 def _largest_thumbnail_url(thumbnails: list) -> str | None:
@@ -195,7 +182,7 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
             if fixed
             else ""
         )
-        total_seconds += _parse_duration_seconds(dur_str)
+        total_seconds += parse_duration_text(dur_str) or 0 if dur_str else 0
         track_list.append(f"{idx}. {name}" if idx else name)
 
     lang = detect_language(title)

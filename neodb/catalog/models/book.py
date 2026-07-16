@@ -185,7 +185,7 @@ class Edition(Item):
     url_path = "book"
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         # Sources: federated peers running older code, ndjson restores, and
         # local DB rows that predate the field type change.

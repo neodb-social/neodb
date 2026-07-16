@@ -172,18 +172,11 @@ def _iso3166_translation(locale: str) -> gettext_module.NullTranslations:
         return gettext_module.NullTranslations()
 
 
-def country_display_name(code: str) -> str:
-    """Display name for an alpha-2 code in the active UI language.
-
-    Prefers the translated common name ("韩国") over the official one
-    ("大韩民国"). Non-code custom values are returned verbatim.
-    """
-    if not code or not isinstance(code, str):
-        return code or ""
-    country = pycountry.countries.get(alpha_2=code.upper()) if len(code) == 2 else None
+@lru_cache(maxsize=None)
+def _display_name(code: str, lang: str) -> str:
+    country = pycountry.countries.get(alpha_2=code)
     if country is None:
         return code
-    lang = (translation.get_language() or "en").lower()
     if lang == "en" or lang.startswith("en-"):
         return _english_name(country)
     locale = _PYCOUNTRY_LOCALE_MAP.get(lang, lang.split("-")[0])
@@ -194,3 +187,17 @@ def country_display_name(code: str) -> str:
             if translated != candidate:
                 return translated
     return _english_name(country)
+
+
+def country_display_name(code: str) -> str:
+    """Display name for an alpha-2 code in the active UI language.
+
+    Prefers the translated common name ("韩国") over the official one
+    ("大韩民国"). Non-code custom values are returned verbatim. Cached per
+    (code, language) since the mapping is static within a process.
+    """
+    if not code or not isinstance(code, str):
+        return code or ""
+    if len(code) != 2:
+        return code
+    return _display_name(code.upper(), (translation.get_language() or "en").lower())

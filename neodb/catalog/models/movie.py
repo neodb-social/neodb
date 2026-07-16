@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from ninja import Field
 
 from common.models import (
-    coerce_video_duration,
+    duration_to_seconds,
     partial_date_to_int,
     year_of_partial_date,
 )
@@ -12,6 +12,7 @@ from .common import (
     CountryListField,
     GenreListField,
     LanguageListField,
+    VideoFieldsResolverMixin,
     jsondata,
 )
 from .item import (
@@ -27,7 +28,7 @@ from .people import PeopleRole
 from .utils import normalize_legacy_video_metadata
 
 
-class MovieInSchema(ItemInSchema):
+class MovieInSchema(VideoFieldsResolverMixin, ItemInSchema):
     orig_title: str | None = None
     director: list[str]
     playwright: list[str]
@@ -45,23 +46,6 @@ class MovieInSchema(ItemInSchema):
         [], deprecated="Use `origin_country` (ISO 3166-1 alpha-2) instead."
     )
     showtime: list[dict] = Field([], deprecated="Use `release_date` instead.")
-
-    @staticmethod
-    def resolve_origin_country(obj: "Movie") -> list[str]:
-        return obj.origin_country or []
-
-    @staticmethod
-    def resolve_area(obj: "Movie") -> list[str]:
-        return obj.origin_country or []
-
-    @staticmethod
-    def resolve_showtime(obj: "Movie") -> list[dict]:
-        return [{"time": obj.release_date, "region": ""}] if obj.release_date else []
-
-    @staticmethod
-    def resolve_duration(obj: "Movie") -> int | None:
-        # tolerate legacy free-text values not yet migrated
-        return coerce_video_duration(obj.duration)
 
     @staticmethod
     def resolve_director(obj: "Movie") -> list[str]:
@@ -185,7 +169,7 @@ class Movie(Item):
         return year_of_partial_date(self.release_date)
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         normalize_legacy_video_metadata(metadata)
 
@@ -232,7 +216,7 @@ class Movie(Item):
         if self.release_date:
             data["dateCreated"] = self.release_date
 
-        duration = coerce_video_duration(self.duration)
+        duration = duration_to_seconds(self.duration)
         if duration:
             data["duration"] = f"PT{duration // 3600}H{(duration % 3600) // 60}M"
 

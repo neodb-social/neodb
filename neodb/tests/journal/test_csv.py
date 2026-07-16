@@ -38,20 +38,20 @@ class TestCsvExportImport:
             primary_lookup_id_type=IdType.IMDB,
             primary_lookup_id_value="tt1375666",
             director=["Christopher Nolan"],
-            year=2010,
+            release_date="2010",
         )
         self.movie2 = Movie.objects.create(
             localized_title=[{"lang": "en", "text": "The Matrix"}],
             primary_lookup_id_type=IdType.IMDB,
             primary_lookup_id_value="tt0133093",
             director=["Lana Wachowski", "Lilly Wachowski"],
-            year=1999,
+            release_date="1999",
         )
         self.tvshow = TVShow.objects.create(
             localized_title=[{"lang": "en", "text": "Breaking Bad"}],
             primary_lookup_id_type=IdType.IMDB,
             primary_lookup_id_value="tt0903747",
-            year=2008,
+            release_date="2008",
         )
         self.tvseason = TVSeason.objects.create(
             localized_title=[{"lang": "en", "text": "Breaking Bad Season 1"}],

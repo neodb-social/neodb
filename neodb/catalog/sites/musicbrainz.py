@@ -133,6 +133,52 @@ def _extract_first_isrc(release_data: Dict[str, Any]) -> str | None:
     return None
 
 
+def _extract_track_info(release_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract track listing and duration from release data"""
+    track_list = []
+    total_duration = 0
+
+    if "media" in release_data:
+        for medium in release_data["media"]:
+            if "tracks" in medium:
+                disc_num = medium.get("position", 1)
+                for track in medium["tracks"]:
+                    track_num = track.get("position", len(track_list) + 1)
+                    track_title = track.get("title", "Unknown Track")
+
+                    # Add disc number if multiple discs
+                    if len(release_data["media"]) > 1:
+                        track_entry = f"{disc_num}-{track_num}. {track_title}"
+                    else:
+                        track_entry = f"{track_num}. {track_title}"
+
+                    track_list.append(track_entry)
+
+                    # Add duration if available (in milliseconds). MB
+                    # returns "length": null for tracks of unknown
+                    # length, so the key can be present with a None value;
+                    # guard the value rather than just key presence.
+                    length = track.get("length")
+                    if length is not None:
+                        total_duration += int(length)
+
+    return {
+        "track_list": "\n".join(track_list) if track_list else None,
+        # MB track lengths are milliseconds; catalog stores seconds
+        "duration": total_duration // 1000 if total_duration > 0 else None,
+    }
+
+
+def _extract_label_info(release_data: Dict[str, Any]) -> List[str]:
+    """Extract label/company information from release data"""
+    labels = []
+    if "label-info" in release_data:
+        for label_info in release_data["label-info"]:
+            if "label" in label_info and "name" in label_info["label"]:
+                labels.append(label_info["label"]["name"])
+    return labels
+
+
 @SiteManager.register
 class MusicBrainzReleaseGroup(AbstractSite):
     SITE_NAME = SiteName.MusicBrainz
@@ -228,7 +274,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
             try:
                 release_data = self._get_release_details(release_id)
                 if release_data:
-                    track_info = self._extract_track_info(release_data)
+                    track_info = _extract_track_info(release_data)
                     track_list = track_info["track_list"]
                     duration = track_info["duration"]
                     media_format = normalize_media_formats(
@@ -238,7 +284,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
                             if m.get("format")
                         ]
                     )
-                    company = self._extract_label_info(release_data)
+                    company = _extract_label_info(release_data)
                     cover_image_url = self._get_cover_art_url(release_id)
                     isrc = _extract_first_isrc(release_data)
             except Exception as e:
@@ -293,50 +339,6 @@ class MusicBrainzReleaseGroup(AbstractSite):
         headers = self.get_api_headers()
         downloader = MusicBrainzDownloader(api_url, headers=headers)
         return downloader.download().json()
-
-    def _extract_track_info(self, release_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract track listing and duration from release data"""
-        track_list = []
-        total_duration = 0
-
-        if "media" in release_data:
-            for medium in release_data["media"]:
-                if "tracks" in medium:
-                    disc_num = medium.get("position", 1)
-                    for track in medium["tracks"]:
-                        track_num = track.get("position", len(track_list) + 1)
-                        track_title = track.get("title", "Unknown Track")
-
-                        # Add disc number if multiple discs
-                        if len(release_data["media"]) > 1:
-                            track_entry = f"{disc_num}-{track_num}. {track_title}"
-                        else:
-                            track_entry = f"{track_num}. {track_title}"
-
-                        track_list.append(track_entry)
-
-                        # Add duration if available (in milliseconds). MB
-                        # returns "length": null for tracks of unknown
-                        # length, so the key can be present with a None value;
-                        # guard the value rather than just key presence.
-                        length = track.get("length")
-                        if length is not None:
-                            total_duration += int(length)
-
-        return {
-            "track_list": "\n".join(track_list) if track_list else None,
-            # MB track lengths are milliseconds; catalog stores seconds
-            "duration": total_duration // 1000 if total_duration > 0 else None,
-        }
-
-    def _extract_label_info(self, release_data: Dict[str, Any]) -> List[str]:
-        """Extract label/company information from release data"""
-        labels = []
-        if "label-info" in release_data:
-            for label_info in release_data["label-info"]:
-                if "label" in label_info and "name" in label_info["label"]:
-                    labels.append(label_info["label"]["name"])
-        return labels
 
     def _get_cover_art_url(self, release_id: str) -> str | None:
         """Get cover art URL from Cover Art Archive"""
@@ -455,12 +457,12 @@ class MusicBrainzRelease(AbstractSite):
         )
 
         # Extract track information and duration
-        track_info = self._extract_track_info(data)
+        track_info = _extract_track_info(data)
         track_list = track_info["track_list"]
         duration = track_info["duration"]
 
         # Extract label information
-        company = self._extract_label_info(data)
+        company = _extract_label_info(data)
 
         # Get cover art
         cover_image_url = self._get_cover_art_url(self.id_value)
@@ -504,50 +506,6 @@ class MusicBrainzRelease(AbstractSite):
             pd.lookup_ids[IdType.ISRC] = isrc
 
         return pd
-
-    def _extract_track_info(self, release_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract track listing and duration from release data"""
-        track_list = []
-        total_duration = 0
-
-        if "media" in release_data:
-            for medium in release_data["media"]:
-                if "tracks" in medium:
-                    disc_num = medium.get("position", 1)
-                    for track in medium["tracks"]:
-                        track_num = track.get("position", len(track_list) + 1)
-                        track_title = track.get("title", "Unknown Track")
-
-                        # Add disc number if multiple discs
-                        if len(release_data["media"]) > 1:
-                            track_entry = f"{disc_num}-{track_num}. {track_title}"
-                        else:
-                            track_entry = f"{track_num}. {track_title}"
-
-                        track_list.append(track_entry)
-
-                        # Add duration if available (in milliseconds). MB
-                        # returns "length": null for tracks of unknown
-                        # length, so the key can be present with a None value;
-                        # guard the value rather than just key presence.
-                        length = track.get("length")
-                        if length is not None:
-                            total_duration += int(length)
-
-        return {
-            "track_list": "\n".join(track_list) if track_list else None,
-            # MB track lengths are milliseconds; catalog stores seconds
-            "duration": total_duration // 1000 if total_duration > 0 else None,
-        }
-
-    def _extract_label_info(self, release_data: Dict[str, Any]) -> List[str]:
-        """Extract label/company information from release data"""
-        labels = []
-        if "label-info" in release_data:
-            for label_info in release_data["label-info"]:
-                if "label" in label_info and "name" in label_info["label"]:
-                    labels.append(label_info["label"]["name"])
-        return labels
 
     def _get_cover_art_url(self, release_id) -> str | None:
         """Get cover art URL from Cover Art Archive"""

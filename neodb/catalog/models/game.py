@@ -149,7 +149,7 @@ class Game(Item):
         return year_of_partial_date(self.release_date)
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         # Sources: federated peers running older code, ndjson restores,
         # and local rows that predate the unification.

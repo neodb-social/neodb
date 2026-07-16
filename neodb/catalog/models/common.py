@@ -1,6 +1,11 @@
+from functools import lru_cache
+
 from django.db import models
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from ninja import Schema
+
+from common.models.duration import duration_to_seconds
 
 from common.models import (
     ALBUM_TYPE_CHOICES,
@@ -190,6 +195,33 @@ class LocalizedLabelSchema(Schema):
     text: str
 
 
+class VideoFieldsResolverMixin(Schema):
+    """Shared resolvers for origin_country / release_date and their
+    deprecated aliases (area, showtime) on Movie and TV schemas."""
+
+    @staticmethod
+    def resolve_origin_country(obj) -> list[str]:
+        return obj.origin_country or []
+
+    @staticmethod
+    def resolve_area(obj) -> list[str]:
+        return obj.origin_country or []
+
+    @staticmethod
+    def resolve_showtime(obj) -> list[dict]:
+        return [{"time": obj.release_date, "region": ""}] if obj.release_date else []
+
+    @staticmethod
+    def resolve_duration(obj) -> int | None:
+        # tolerate legacy free-text values not yet migrated; numeric
+        # values are trusted as seconds
+        return duration_to_seconds(obj.duration)
+
+    @staticmethod
+    def resolve_single_episode_length(obj) -> int | None:
+        return duration_to_seconds(getattr(obj, "single_episode_length", None))
+
+
 def get_locale_choices_for_jsonform(choices, const=False):
     """return list for jsonform schema"""
     return [{"title": v, "const" if const else "value": k} for k, v in choices]
@@ -283,6 +315,24 @@ def GenreListField(category=None):
     )
 
 
+@lru_cache(maxsize=None)
+def _country_jsonform_schema(lang: str) -> dict:
+    # ~250 display-name lookups + a sort; cache per UI language since the
+    # result is identical for every render in that language
+    choices = get_locale_choices_for_jsonform(
+        sorted(
+            ((code, country_display_name(code)) for code, _ in COUNTRY_CHOICES),
+            key=lambda x: x[1],
+        ),
+        const=True,
+    )
+    return {
+        "type": "array",
+        "items": {"oneOf": choices + [{"title": "Other", "type": "string"}]},
+        "uniqueItems": True,
+    }
+
+
 def CountryListField():
     """ArrayField of ISO 3166-1 alpha-2 codes with an "Other" passthrough.
 
@@ -291,18 +341,7 @@ def CountryListField():
     """
 
     def schema():
-        choices = get_locale_choices_for_jsonform(
-            sorted(
-                ((code, country_display_name(code)) for code, _ in COUNTRY_CHOICES),
-                key=lambda x: x[1],
-            ),
-            const=True,
-        )
-        return {
-            "type": "array",
-            "items": {"oneOf": choices + [{"title": "Other", "type": "string"}]},
-            "uniqueItems": True,
-        }
+        return _country_jsonform_schema(get_language() or "en")
 
     return jsondata.ArrayField(
         verbose_name=_("origin country"),

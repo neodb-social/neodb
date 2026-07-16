@@ -463,12 +463,20 @@ class Item(PolymorphicModel):
             raise ValueError("cannot merge to item in a different model")
         logger.debug(f"merging {self} to {to_item}")
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
+        # heal pre-migration metadata on both sides so legacy-only values
+        # (e.g. year without release_date) survive the key-based copy below
+        if isinstance(self.metadata, dict):
+            type(self).normalize_legacy_metadata(self.metadata)
+        updated = False
+        if isinstance(to_item.metadata, dict):
+            before = dict(to_item.metadata)
+            type(to_item).normalize_legacy_metadata(to_item.metadata)
+            updated |= to_item.metadata != before
         self.merged_to_item = to_item
         self.save()
         for res in self.external_resources.all():
             res.item = to_item
             res.save()
-        updated = False
         for k in to_item.METADATA_COPY_LIST:
             v = getattr(self, k)
             if v:

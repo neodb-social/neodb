@@ -34,7 +34,7 @@ from loguru import logger
 from ninja import Field, Schema
 
 from common.models import (
-    coerce_video_duration,
+    duration_to_seconds,
     partial_date_to_int,
     year_of_partial_date,
 )
@@ -46,6 +46,7 @@ from .common import (
     CountryListField,
     GenreListField,
     LanguageListField,
+    VideoFieldsResolverMixin,
     jsondata,
 )
 from .item import (
@@ -65,27 +66,6 @@ from .utils import normalize_legacy_video_metadata
 
 class _TVCreditResolverMixin(Schema):
     @staticmethod
-    def resolve_origin_country(obj: "TVShow | TVSeason") -> list[str]:
-        return obj.origin_country or []
-
-    @staticmethod
-    def resolve_area(obj: "TVShow | TVSeason") -> list[str]:
-        return obj.origin_country or []
-
-    @staticmethod
-    def resolve_showtime(obj: "TVShow | TVSeason") -> list[dict]:
-        return [{"time": obj.release_date, "region": ""}] if obj.release_date else []
-
-    @staticmethod
-    def resolve_duration(obj: "TVShow | TVSeason") -> int | None:
-        # tolerate legacy free-text values not yet migrated
-        return coerce_video_duration(obj.duration)
-
-    @staticmethod
-    def resolve_single_episode_length(obj: "TVShow | TVSeason") -> int | None:
-        return coerce_video_duration(obj.single_episode_length)
-
-    @staticmethod
     def resolve_director(obj: "TVShow | TVSeason") -> list[str]:
         return obj.credit_names_by_role("director")
 
@@ -102,7 +82,7 @@ class _TVCreditResolverMixin(Schema):
         return obj.credit_names_by_role("producer")
 
 
-class TVShowInSchema(_TVCreditResolverMixin, ItemInSchema):
+class TVShowInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSchema):
     season_count: int | None = None
     orig_title: str | None = None
     director: list[str]
@@ -132,7 +112,7 @@ class TVShowSchema(TVShowInSchema, BaseSchema):
     pass
 
 
-class TVSeasonInSchema(_TVCreditResolverMixin, ItemInSchema):
+class TVSeasonInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSchema):
     season_number: int | None = None
     orig_title: str | None = None
     director: list[str]
@@ -276,7 +256,7 @@ class TVShow(Item):
         return year_of_partial_date(self.release_date)
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         normalize_legacy_video_metadata(metadata)
 
@@ -358,7 +338,7 @@ class TVShow(Item):
         if self.episode_count:
             data["numberOfEpisodes"] = self.episode_count
 
-        episode_length = coerce_video_duration(self.single_episode_length)
+        episode_length = duration_to_seconds(self.single_episode_length)
         if episode_length:
             data["timeRequired"] = f"PT{episode_length // 60}M"
 
@@ -496,7 +476,7 @@ class TVSeason(Item):
         return year_of_partial_date(self.release_date)
 
     @classmethod
-    def normalize_legacy_metadata(cls, metadata):
+    def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)
         normalize_legacy_video_metadata(metadata)
 
@@ -607,7 +587,7 @@ class TVSeason(Item):
         if self.release_date:
             data["datePublished"] = self.release_date
 
-        episode_length = coerce_video_duration(self.single_episode_length)
+        episode_length = duration_to_seconds(self.single_episode_length)
         if episode_length:
             data["timeRequired"] = f"PT{episode_length // 60}M"
 

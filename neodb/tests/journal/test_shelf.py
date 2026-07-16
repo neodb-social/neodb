@@ -28,7 +28,7 @@ class TestShelfManager:
             primary_lookup_id_type=IdType.IMDB,
             primary_lookup_id_value="tt1234567",
             director=["Test Director"],
-            year=2020,
+            release_date="2020",
         )
 
         self.tvshow = TVShow.objects.create(

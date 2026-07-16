@@ -203,6 +203,42 @@ class TestDeprecatedApiAliases:
         assert o["media"] == "cd, vinyl"
         assert o["duration"] == 2368
 
+    def test_short_and_long_durations_not_recoerced_at_read_time(self):
+        # unit inference happens only on legacy ingest; stored seconds are
+        # trusted as-is by API/schema.org even near heuristic boundaries
+        m = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Short"}],
+                "duration": 480,  # 8-minute short film
+                "release_date": "2020",
+            }
+        )
+        assert m.ap_object["duration"] == 480
+        assert m.to_schema_org()["duration"] == "PT0H8M"
+        a = Album.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Box"}],
+                "artist": ["Y"],
+                "duration": 55200,  # 15h20m box set
+            }
+        )
+        assert a.ap_object["duration"] == 55200
+
+    def test_merge_preserves_legacy_year(self):
+        src = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Src"}],
+                "year": 2010,
+            }
+        )
+        dst = Movie.objects.create(
+            metadata={"localized_title": [{"lang": "en", "text": "Dst"}]}
+        )
+        src.merge_to(dst)
+        dst.refresh_from_db()
+        assert dst.metadata["release_date"] == "2010"
+        assert dst.year == 2010
+
     def test_game_release_year_alias(self):
         g = Game.objects.create(
             metadata={

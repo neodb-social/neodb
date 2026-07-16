@@ -9,6 +9,7 @@ from .cron import BaseJob, JobManager
 from .duration import (
     coerce_album_duration,
     coerce_video_duration,
+    duration_to_seconds,
     format_duration,
     parse_duration_text,
 )
@@ -70,6 +71,7 @@ __all__ = [
     "coerce_video_duration",
     "country_display_name",
     "detect_language",
+    "duration_to_seconds",
     "earliest_partial_date",
     "format_duration",
     "genre_choices_for",

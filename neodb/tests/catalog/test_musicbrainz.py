@@ -7,6 +7,8 @@ from catalog.sites.musicbrainz import (
     MusicBrainzRelease,
     MusicBrainzReleaseGroup,
     _extract_first_isrc,
+    _extract_label_info,
+    _extract_track_info,
 )
 
 
@@ -134,13 +136,12 @@ class TestMusicBrainzReleaseGroup:
                 }
             ]
         }
-        track_info = site._extract_track_info(release_data)
+        track_info = _extract_track_info(release_data)
         assert track_info["track_list"] == "1. Airbag\n2. Paranoid Android"
         assert track_info["duration"] == 667
 
     def test_extract_track_info_multi_disc(self):
         """Test track extraction with multiple discs"""
-        site = MusicBrainzReleaseGroup()
 
         release_data = {
             "media": [
@@ -159,14 +160,13 @@ class TestMusicBrainzReleaseGroup:
             ]
         }
 
-        track_info = site._extract_track_info(release_data)
+        track_info = _extract_track_info(release_data)
         assert track_info["track_list"] == "1-1. Track 1\n2-1. Track 2"
         assert track_info["duration"] == 380
 
     def test_extract_track_info_null_length(self):
         """MB returns "length": null for tracks of unknown length; the key is
         present but the value is None, which int() can't take (EGGPLANT-1E4)."""
-        site = MusicBrainzReleaseGroup()
         release_data = {
             "media": [
                 {
@@ -179,13 +179,12 @@ class TestMusicBrainzReleaseGroup:
                 }
             ]
         }
-        track_info = site._extract_track_info(release_data)
+        track_info = _extract_track_info(release_data)
         assert track_info["track_list"] == "1. Known\n2. Unknown\n3. Missing"
         assert track_info["duration"] == 284
 
     def test_extract_label_info(self):
         """Test label information extraction"""
-        site = MusicBrainzReleaseGroup()
 
         release_data = {
             "label-info": [
@@ -194,7 +193,7 @@ class TestMusicBrainzReleaseGroup:
             ]
         }
 
-        labels = site._extract_label_info(release_data)
+        labels = _extract_label_info(release_data)
         assert labels == ["EMI", "Capitol Records"]
 
     def test_upc_to_gtin_conversion(self):
@@ -383,7 +382,6 @@ class TestMusicBrainzRelease:
 
     def test_track_extraction_from_release(self):
         """Test track extraction directly from release data"""
-        site = MusicBrainzRelease()
 
         release_data = {
             "media": [
@@ -397,14 +395,13 @@ class TestMusicBrainzRelease:
             ]
         }
 
-        track_info = site._extract_track_info(release_data)
+        track_info = _extract_track_info(release_data)
         assert track_info["track_list"] == "1. First Track\n2. Second Track"
         assert track_info["duration"] == 390
 
     def test_track_extraction_null_length(self):
         """A release whose tracks carry "length": null must not crash on
         int(None) while summing duration (EGGPLANT-1E4)."""
-        site = MusicBrainzRelease()
         release_data = {
             "media": [
                 {
@@ -416,7 +413,7 @@ class TestMusicBrainzRelease:
                 }
             ]
         }
-        track_info = site._extract_track_info(release_data)
+        track_info = _extract_track_info(release_data)
         assert track_info["track_list"] == "1. First Track\n2. Second Track"
         assert track_info["duration"] == 210
 
