@@ -4,6 +4,7 @@ from django.conf import settings
 from openpyxl import Workbook
 
 from catalog.models import IdType, ItemCategory, TVEpisode
+from common.models import country_display_name
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Review, ShelfType, q_item_in_category
 from users.models import Task
@@ -86,7 +87,10 @@ class DoufenExporter(Task):
                     summary = (
                         str(movie.year or "")
                         + " / "
-                        + ",".join(movie.area or [])
+                        + ",".join(
+                            country_display_name(c)
+                            for c in (movie.origin_country or [])
+                        )
                         + " / "
                         + ",".join(movie.genre or [])
                         + " / "
@@ -132,7 +136,7 @@ class DoufenExporter(Task):
                 summary = (
                     ",".join(album.credit_names_by_role("artist"))
                     + " / "
-                    + (album.release_date.strftime("%Y") if album.release_date else "")
+                    + (album.release_date or "")[:4]
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (album.rating / 2) if album.rating else None
@@ -216,11 +220,7 @@ class DoufenExporter(Task):
                     + " / "
                     + ",".join(game.platform or [])
                     + " / "
-                    + (
-                        game.release_date.strftime("%Y-%m-%d")
-                        if game.release_date
-                        else ""
-                    )
+                    + (game.release_date or "")
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (game.rating / 2) if game.rating else None

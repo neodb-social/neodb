@@ -1,6 +1,7 @@
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import *
+from common.models import normalize_price
 
 
 @SiteManager.register
@@ -94,7 +95,7 @@ class BooksTW(AbstractSite):
 
         price = content.xpath("string(//div/ul/li[contains(text(),'定價：')])")
         price = (
-            price.strip().split("：", 1)[1].split("元")[0].strip() + " NTD"
+            normalize_price(price.strip().split("：", 1)[1].strip(), "TWD")
             if price
             else None
         )

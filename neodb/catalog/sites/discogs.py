@@ -7,6 +7,11 @@ from django.conf import settings
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
+from common.models import (
+    ALBUM_TYPE_CODES,
+    normalize_album_types,
+    normalize_media_formats,
+)
 
 
 @SiteManager.register
@@ -37,11 +42,20 @@ class DiscogsRelease(AbstractSite):
             set([company.get("name") for company in release.get("companies")])
         )
 
-        media, disc_count = None, None
         formats = release.get("formats", [])
-        if len(formats) == 1:
-            media = formats[0].get("name")
-            disc_count = formats[0].get("qty")
+        media_format = normalize_media_formats(
+            [f.get("name") for f in formats if f.get("name")]
+        )
+        # format descriptions mix release types ("Album", "EP") with other
+        # words ("Reissue", "Stereo"); keep only canonical type slugs
+        album_type = [
+            t
+            for t in normalize_album_types(
+                [d for f in formats for d in f.get("descriptions") or []]
+            )
+            if t in ALBUM_TYPE_CODES
+        ]
+        disc_count = formats[0].get("qty") if len(formats) == 1 else None
 
         identifiers = release.get("identifiers")
         barcode = None
@@ -61,9 +75,10 @@ class DiscogsRelease(AbstractSite):
                 "artist": artist,
                 "genre": genre,
                 "track_list": "\n".join(track_list),
-                # "release_date": None,  # only year provided by API
+                "release_date": (str(release["year"]) if release.get("year") else None),
                 "company": company,
-                "media": media,
+                "media_format": media_format,
+                "album_type": album_type,
                 "disc_count": disc_count,
                 "cover_image_url": image_url,
             }
@@ -107,6 +122,9 @@ class DiscogsMaster(AbstractSite):
                 "artist": artist,
                 "genre": genre,
                 "track_list": "\n".join(track_list),
+                "release_date": (
+                    str(master_release["year"]) if master_release.get("year") else None
+                ),
                 "cover_image_url": image_url,
             }
         )

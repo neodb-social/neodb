@@ -21,7 +21,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.models import *
 from catalog.search import record_search_failure
-from common.models import SiteConfig
+from common.models import SiteConfig, parse_partial_date
 from common.models.lang import SITE_PREFERRED_LANGUAGES
 
 from .douban import *
@@ -166,19 +166,10 @@ class TMDB_Movie(AbstractSite):
         orig_lang = res_data["original_language"]
         if orig_title not in [t["text"] for t in localized_title]:
             localized_title.append({"lang": orig_lang, "text": orig_title})
-        year = (
-            int(res_data["release_date"].split("-")[0])
-            if res_data["release_date"]
-            else None
-        )
-        showtime = (
-            [{"time": res_data["release_date"], "region": "发布日期"}]
-            if res_data["release_date"]
-            else None
-        )
+        release_date = parse_partial_date(res_data["release_date"])
         imdb_code = res_data["imdb_id"]
-        # in minutes
-        duration = res_data["runtime"] if res_data["runtime"] else None
+        # API returns minutes
+        duration = res_data["runtime"] * 60 if res_data["runtime"] else None
 
         genre = [x["name"] for x in res_data["genres"]]
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
@@ -190,7 +181,12 @@ class TMDB_Movie(AbstractSite):
         producer = [c["name"] for c in credits["producers"]]
         actor = [c["name"] for c in credits["cast"]]
         related_people = credits["related_people"]
-        area = []
+        # origin_country (usually 1-2 codes, matches Douban 制片国家/地区
+        # semantics) is preferred over production_countries, which lists
+        # every co-production country; older cached responses may lack it
+        origin_country = res_data.get("origin_country") or [
+            c["iso_3166_1"] for c in res_data.get("production_countries") or []
+        ]
 
         # other_info = {}
         # other_info['TMDB评分'] = res_data['vote_average']
@@ -222,11 +218,10 @@ class TMDB_Movie(AbstractSite):
                 "actor": actor,
                 "producer": producer,
                 "genre": genre,
-                "showtime": showtime,
+                "release_date": release_date,
                 "site": None,
-                "area": area,
+                "origin_country": origin_country,
                 "language": language,
-                "year": year,
                 "duration": duration,
                 "season": None,
                 "episodes": None,
@@ -335,18 +330,11 @@ class TMDB_TV(AbstractSite):
         orig_lang = res_data["original_language"]
         if orig_title not in [t["text"] for t in localized_title]:
             localized_title.append({"lang": orig_lang, "text": orig_title})
-        year = (
-            int(res_data["first_air_date"].split("-")[0])
-            if res_data["first_air_date"]
-            else None
-        )
+        release_date = parse_partial_date(res_data["first_air_date"])
         imdb_code = res_data["external_ids"]["imdb_id"]
-        showtime = (
-            [{"time": res_data["first_air_date"], "region": "首播日期"}]
-            if res_data["first_air_date"]
-            else None
-        )
-        duration = None
+        # API returns minutes
+        episode_run_time = res_data.get("episode_run_time") or []
+        single_episode_length = episode_run_time[0] * 60 if episode_run_time else None
         genre = [x["name"] for x in res_data["genres"]]
         language = list(map(lambda x: x["name"], res_data["spoken_languages"]))
         brief = res_data["overview"]
@@ -360,7 +348,7 @@ class TMDB_TV(AbstractSite):
         playwright = [c["name"] for c in credits["writers"]]
         producer = [c["name"] for c in credits["producers"]]
         actor = [c["name"] for c in credits["cast"]]
-        area = []
+        origin_country = res_data.get("origin_country") or []
 
         related_people = credits["related_people"]
         seen_ids = {int(r["id_value"]) for r in related_people}
@@ -411,16 +399,14 @@ class TMDB_TV(AbstractSite):
                 "actor": actor,
                 "producer": producer,
                 "genre": genre,
-                "showtime": showtime,
+                "release_date": release_date,
                 "site": None,
-                "area": area,
+                "origin_country": origin_country,
                 "language": language,
-                "year": year,
-                "duration": duration,
                 "season_count": res_data["number_of_seasons"],
                 "season": None,
                 "episodes": None,
-                "single_episode_length": None,
+                "single_episode_length": single_episode_length,
                 "brief": brief,
                 "cover_image_url": img_url,
                 "related_resources": season_links
@@ -494,9 +480,14 @@ class TMDB_TVSeason(AbstractSite):
         )
         r["localized_title"] = localized_title
         r["localized_description"] = localized_desc
+        r["release_date"] = parse_partial_date(res_data.get("air_date"))
         pd = ResourceContent(metadata=r)
         pd.metadata["title"] = (
             show_resource.metadata["title"] + " " + pd.metadata["title"]
+        )
+        # season endpoint has no origin_country; inherit from the show
+        pd.metadata["origin_country"] = (
+            show_resource.metadata.get("origin_country") or []
         )
         pd.metadata["required_resources"] = [
             {

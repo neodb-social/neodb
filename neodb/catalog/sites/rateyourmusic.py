@@ -20,6 +20,7 @@ import dateparser
 
 from catalog.common import *
 from catalog.models import *
+from common.models import normalize_album_types, parse_partial_date
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
@@ -94,7 +95,7 @@ class RateYourMusic(AbstractSite):
         company = self._extract_labels(h, og.get("og:description"))
         cover_url = og.get("og:image")
         brief = self._extract_brief(og.get("og:description"))
-        album_type = info.get("Type") or None
+        album_type = normalize_album_types(info.get("Type"))
 
         title_lang = detect_language(title)
         localized_title = [{"lang": title_lang, "text": title}]
@@ -223,9 +224,11 @@ class RateYourMusic(AbstractSite):
         if not raw:
             return None
         cleaned = re.sub(r"\s+", " ", raw).strip()
+        # keep year-only / year-month values at partial precision
+        partial = parse_partial_date(cleaned)
+        if partial:
+            return partial
         try:
-            # Partial dates (year only / month + year) default to the first
-            # day/month rather than today's date.
             dt = dateparser.parse(
                 cleaned,
                 settings={
@@ -263,7 +266,7 @@ class RateYourMusic(AbstractSite):
             prefix = f"{num}. " if num else ""
             suffix = f" ({duration_txt})" if duration_txt else ""
             lines.append(f"{prefix}{title}{suffix}")
-        return lines, total * 1000
+        return lines, total
 
     @staticmethod
     def _extract_labels(h, og_description: str | None) -> list[str]:

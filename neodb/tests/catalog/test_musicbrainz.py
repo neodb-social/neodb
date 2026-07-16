@@ -136,7 +136,7 @@ class TestMusicBrainzReleaseGroup:
         }
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1. Airbag\n2. Paranoid Android"
-        assert track_info["duration"] == 667000
+        assert track_info["duration"] == 667
 
     def test_extract_track_info_multi_disc(self):
         """Test track extraction with multiple discs"""
@@ -161,7 +161,7 @@ class TestMusicBrainzReleaseGroup:
 
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1-1. Track 1\n2-1. Track 2"
-        assert track_info["duration"] == 380000
+        assert track_info["duration"] == 380
 
     def test_extract_track_info_null_length(self):
         """MB returns "length": null for tracks of unknown length; the key is
@@ -181,7 +181,7 @@ class TestMusicBrainzReleaseGroup:
         }
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1. Known\n2. Unknown\n3. Missing"
-        assert track_info["duration"] == 284000
+        assert track_info["duration"] == 284
 
     def test_extract_label_info(self):
         """Test label information extraction"""
@@ -399,7 +399,7 @@ class TestMusicBrainzRelease:
 
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1. First Track\n2. Second Track"
-        assert track_info["duration"] == 390000
+        assert track_info["duration"] == 390
 
     def test_track_extraction_null_length(self):
         """A release whose tracks carry "length": null must not crash on
@@ -418,7 +418,7 @@ class TestMusicBrainzRelease:
         }
         track_info = site._extract_track_info(release_data)
         assert track_info["track_list"] == "1. First Track\n2. Second Track"
-        assert track_info["duration"] == 210000
+        assert track_info["duration"] == 210
 
 
 @pytest.mark.django_db(databases="__all__")

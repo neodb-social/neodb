@@ -3,9 +3,13 @@ from django.utils.translation import gettext_lazy as _
 from ninja import Schema
 
 from common.models import (
+    ALBUM_TYPE_CHOICES,
+    COUNTRY_CHOICES,
     LANGUAGE_CHOICES,
     LOCALE_CHOICES,
+    MEDIA_FORMAT_CHOICES,
     SCRIPT_CHOICES,
+    country_display_name,
     genre_choices_for,
     jsondata,
 )
@@ -277,6 +281,64 @@ def GenreListField(category=None):
         default=list,
         schema=schema,
     )
+
+
+def CountryListField():
+    """ArrayField of ISO 3166-1 alpha-2 codes with an "Other" passthrough.
+
+    The schema is a callable so the dropdown labels follow the active UI
+    language at render time (django_jsonform resolves callable schemas).
+    """
+
+    def schema():
+        choices = get_locale_choices_for_jsonform(
+            sorted(
+                ((code, country_display_name(code)) for code, _ in COUNTRY_CHOICES),
+                key=lambda x: x[1],
+            ),
+            const=True,
+        )
+        return {
+            "type": "array",
+            "items": {"oneOf": choices + [{"title": "Other", "type": "string"}]},
+            "uniqueItems": True,
+        }
+
+    return jsondata.ArrayField(
+        verbose_name=_("origin country"),
+        base_field=models.CharField(blank=True, default="", max_length=100),
+        null=True,
+        blank=True,
+        default=list,
+        schema=schema,
+    )
+
+
+def _slug_list_field(verbose_name, choices):
+    def schema():
+        options = get_locale_choices_for_jsonform(choices, const=True)
+        return {
+            "type": "array",
+            "items": {"oneOf": options + [{"title": "Other", "type": "string"}]},
+            "uniqueItems": True,
+        }
+
+    return jsondata.ArrayField(
+        verbose_name=verbose_name,
+        base_field=models.CharField(blank=True, default="", max_length=100),
+        null=True,
+        blank=True,
+        default=list,
+        schema=schema,
+    )
+
+
+def AlbumTypeListField():
+    return _slug_list_field(_("album type"), ALBUM_TYPE_CHOICES)
+
+
+def MediaFormatListField():
+    return _slug_list_field(_("media format"), MEDIA_FORMAT_CHOICES)
 
 
 def LanguageListField(script=False):

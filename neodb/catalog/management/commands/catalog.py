@@ -167,8 +167,14 @@ class Command(SiteCommand):
             help="Number of hours to look back for edited items (used with idx-catchup)",
         )
 
-    def migrate(self, m, start=None, batch_size=1000):
+    def migrate(self, m, start=None, batch_size=1000, dry_run=False):
         match m:
+            case "unify_metadata":
+                from catalog.common.migrations import unify_metadata_20260715
+
+                unify_metadata_20260715(
+                    start_pk=start or 0, batch_size=batch_size, dry_run=dry_run
+                )
             case "merge_works":
                 from catalog.common.migrations import merge_works_20250301
 
@@ -1034,7 +1040,12 @@ class Command(SiteCommand):
                 if not name:
                     self.stdout.write(self.style.ERROR("name is required."))
                     return
-                self.migrate(name, start=start, batch_size=int(batch_size))
+                self.migrate(
+                    name,
+                    start=start,
+                    batch_size=int(batch_size),
+                    dry_run=options.get("dry_run", False),
+                )
 
             case "idx-catchup":
                 hour = options.get("hour")

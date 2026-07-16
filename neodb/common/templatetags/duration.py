@@ -8,12 +8,15 @@ from django.utils.translation import gettext as _
 
 from catalog.models import item_categories
 from catalog.views import visible_categories as _visible_categories
+from common.models.country import country_display_name
+from common.models.duration import format_duration
 from common.models.genre import GENRE_CODES
 from common.models.lang import (
     LANGUAGE_CODES,
     LOCALE_CODES,
     SCRIPT_CODES,
 )
+from common.models.music_format import ALBUM_TYPE_CODES, MEDIA_FORMAT_CODES
 
 register = template.Library()
 
@@ -106,4 +109,30 @@ def code_to_lang(code):
 @register.filter
 def code_to_genre(code):
     label = GENRE_CODES.get(code)
+    return str(label) if label else code
+
+
+@register.filter(is_safe=True)
+def duration_display(value):
+    """Format integer seconds as "2h 14m" / "45m" / "58s"."""
+    try:
+        return format_duration(int(value)) if value else ""
+    except TypeError, ValueError:
+        return str(value)
+
+
+@register.filter
+def code_to_country(code):
+    return country_display_name(code)
+
+
+@register.filter
+def code_to_album_type(code):
+    label = ALBUM_TYPE_CODES.get(code)
+    return str(label) if label else code
+
+
+@register.filter
+def code_to_media_format(code):
+    label = MEDIA_FORMAT_CODES.get(code)
     return str(label) if label else code

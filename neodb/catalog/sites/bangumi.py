@@ -21,6 +21,7 @@ from catalog.models import (
 from catalog.models.game import GameReleaseType
 from catalog.models.utils import detect_isbn_asin
 from catalog.search import ExternalSearchResultItem, record_search_failure
+from common.models import normalize_price
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
@@ -47,8 +48,6 @@ class Bangumi(AbstractSite):
         pub_month = None
         release_date = None
         release_type = None
-        showtime = None
-        year = None
         related_resources = []
         match o["type"]:
             case 1:
@@ -98,10 +97,7 @@ class Bangumi(AbstractSite):
                     category = ItemCategory.Performance
                     model = "Performance"
                 if dt:
-                    year = dt.split("-")[0]
-                    showtime = [
-                        {"time": dt, "region": "首播日期" if is_season else "发布日期"}
-                    ]
+                    release_date = dt
             case 3:
                 model = "Album"
                 category = ItemCategory.Music
@@ -126,8 +122,6 @@ class Bangumi(AbstractSite):
             "pub_month": pub_month,
             "release_date": release_date,
             "release_type": release_type,
-            "showtime": showtime,
-            "year": year,
         }
 
     @classmethod
@@ -291,7 +285,8 @@ class Bangumi(AbstractSite):
                 case "页数":
                     pages = v
                 case "价格":
-                    price = v
+                    # bangumi is Japan-centric so bare ¥ marks mean JPY
+                    price = normalize_price(v, "JPY") if isinstance(v, str) else None
                 case "开始":
                     opening_date = v
                 case "结束":

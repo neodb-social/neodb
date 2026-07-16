@@ -1,5 +1,6 @@
 import logging
 
+import dateparser
 from django.conf import settings
 
 from catalog.common import *
@@ -75,16 +76,24 @@ class Steam(AbstractSite):
             en_data = self.download("en").get(self.id_value, {}).get("data", {})
         if not en_data or not en_data.get("name"):
             raise ParseError(self, "id")
+        # Steam returns localized free-text dates ("18 Apr, 2011"); parse
+        # to ISO instead of storing raw text
+        release_date_raw = en_data.get("release_date", {}).get("date")
+        release_date_parsed = (
+            dateparser.parse(release_date_raw) if release_date_raw else None
+        )
         # merge data from IGDB, use localized Steam data if available
         d = {
             "developer": en_data.get("developers", []),
             "publisher": en_data.get("publishers", []),
-            "release_date": en_data.get("release_date", {}).get("date"),
+            "release_date": (
+                release_date_parsed.strftime("%Y-%m-%d")
+                if release_date_parsed
+                else None
+            ),
             "genre": [g["description"] for g in en_data.get("genres", [])],
             "platform": ["PC"],
         }
-        if en_data["release_date"].get("date"):
-            d["release_date"] = en_data["release_date"].get("date")
         d.update(pd.metadata)
         d.update(
             {

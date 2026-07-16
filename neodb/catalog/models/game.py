@@ -1,7 +1,8 @@
-from datetime import date
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from ninja import Field
+
+from common.models import partial_date_to_int, year_of_partial_date
 
 from .common import (
     LIST_OF_STR_SCHEMA,
@@ -18,6 +19,7 @@ from .item import (
     PrimaryLookupIdDescriptor,
 )
 from .people import PeopleRole
+from .utils import canonicalize_release_date_key
 
 
 class GameReleaseType(models.TextChoices):
@@ -39,8 +41,16 @@ class GameInSchema(ItemInSchema):
     publisher: list[str]
     platform: list[str]
     release_type: str | None = None
-    release_date: date | None = None
+    release_date: str | None = None
     official_site: str | None = None
+    # release_year is deprecated
+    release_year: int | None = Field(
+        None, deprecated="Use the year part of `release_date` instead."
+    )
+
+    @staticmethod
+    def resolve_release_year(obj: "Game") -> int | None:
+        return obj.release_year
 
     @staticmethod
     def resolve_developer(obj: "Game") -> list[str]:
@@ -86,7 +96,6 @@ class Game(Item):
         "artist",
         "developer",
         "publisher",
-        "release_year",
         "release_date",
         "release_type",
         "genre",
@@ -127,18 +136,29 @@ class Game(Item):
         schema=LIST_OF_STR_SCHEMA,
     )
 
-    release_year = jsondata.IntegerField(
-        verbose_name=_("year of publication"), null=True, blank=True
-    )
-
-    release_date = jsondata.DateField(
+    release_date = jsondata.CharField(
         verbose_name=_("date of publication"),
-        auto_now=False,
-        auto_now_add=False,
         null=True,
         blank=True,
-        help_text=_("YYYY-MM-DD"),
+        max_length=10,
+        help_text=_("YYYY, YYYY-MM or YYYY-MM-DD"),
     )
+
+    @property
+    def release_year(self) -> int | None:
+        return year_of_partial_date(self.release_date)
+
+    @classmethod
+    def normalize_legacy_metadata(cls, metadata):
+        super().normalize_legacy_metadata(metadata)
+        # Sources: federated peers running older code, ndjson restores,
+        # and local rows that predate the unification.
+        # - release_year -> release_date when no date is known
+        # - free-text release_date (e.g. localized Steam strings) -> partial ISO
+        release_year = metadata.pop("release_year", None)
+        if release_year and not metadata.get("release_date"):
+            metadata["release_date"] = str(release_year)
+        canonicalize_release_date_key(metadata)
 
     release_type = jsondata.CharField(
         verbose_name=_("release type"),
@@ -174,9 +194,8 @@ class Game(Item):
 
     def to_indexable_doc(self):
         d = super().to_indexable_doc()
-        d["date"] = (
-            [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
-        )
+        dt = partial_date_to_int(self.release_date)
+        d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
         d["format"] = [self.release_type] if self.release_type else []
         d["format"] += list(self.platform or [])
@@ -205,9 +224,7 @@ class Game(Item):
             ]
 
         if self.release_date:
-            data["datePublished"] = self.release_date.isoformat()
-        elif self.release_year:
-            data["datePublished"] = str(self.release_year)
+            data["datePublished"] = self.release_date
 
         if self.official_site:
             data["sameAs"] = self.official_site

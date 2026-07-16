@@ -19,7 +19,7 @@
   </div>
   <div>
     {% if item.duration %}
-      {% trans 'duration' %}: {{ item.duration|duration_format:1000 }}
+      {% trans 'duration' %}: {{ item.duration|duration_display }}
     {% endif %}
   </div>
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
@@ -30,12 +30,20 @@
   </div>
   <div>
     {% if item.album_type %}
-      {% trans 'album type' %}: {{ item.album_type }}
+      {% trans 'album type' %}:
+      {% for t in item.album_type %}
+        {% if not forloop.first %}/{% endif %}
+        <span>{{ t|code_to_album_type }}</span>
+      {% endfor %}
     {% endif %}
   </div>
   <div>
-    {% if item.media %}
-      {% trans 'album media' %}: {{ item.media }}
+    {% if item.media_format %}
+      {% trans 'album media' %}:
+      {% for m in item.media_format %}
+        {% if not forloop.first %}/{% endif %}
+        <span>{{ m|code_to_media_format }}</span>
+      {% endfor %}
     {% endif %}
   </div>
   <div>

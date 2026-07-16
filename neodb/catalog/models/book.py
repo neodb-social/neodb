@@ -27,7 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field
 
-from common.models import uniq
+from common.models import normalize_price, uniq
 from common.models.misc import int_
 
 from .common import (
@@ -201,6 +201,10 @@ class Edition(Item):
                 metadata["imprint"] = "/".join(coerced)
             else:
                 metadata.pop("imprint", None)
+        # normalize price to "<ISO4217> <amount>" where unambiguous
+        price = metadata.get("price")
+        if isinstance(price, str) and price:
+            metadata["price"] = normalize_price(price)
 
     available_roles = [
         PeopleRole.AUTHOR,

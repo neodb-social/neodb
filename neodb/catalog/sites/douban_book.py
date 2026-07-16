@@ -1,6 +1,7 @@
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import *
+from common.models import normalize_price
 from common.models.lang import detect_language
 
 from .douban import (
@@ -108,7 +109,8 @@ class DoubanBook(AbstractSite):
         price_elem = self.query_list(
             content, "//div[@id='info']//span[text()='定价:']/following::text()"
         )
-        price = price_elem[0].strip() if price_elem else None
+        # douban book prices default to CNY when only 元/¥ or bare numbers
+        price = normalize_price(price_elem[0].strip(), "CNY") if price_elem else None
 
         pages_elem = self.query_list(
             content, "//div[@id='info']//span[text()='页数:']/following::text()"

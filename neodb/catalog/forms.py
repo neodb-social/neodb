@@ -3,7 +3,16 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import *
 from common.forms import PreviewImageInput
-from common.models import SITE_DEFAULT_LANGUAGE, detect_language, uniq
+from common.models import (
+    SITE_DEFAULT_LANGUAGE,
+    detect_language,
+    normalize_album_types,
+    normalize_countries,
+    normalize_media_formats,
+    normalize_price,
+    parse_partial_date,
+    uniq,
+)
 from common.models.genre import normalize_genres
 from common.models.lang import normalize_languages
 
@@ -17,9 +26,6 @@ def _EditForm(item_model):
         + ["cover"]
         + ["primary_lookup_id_type", "primary_lookup_id_value"]
     )
-    if "media" in item_fields:
-        # FIXME not sure why this field is always duplicated
-        item_fields.remove("media")
 
     class EditForm(forms.ModelForm):
         id = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -159,6 +165,23 @@ def _EditForm(item_model):
                 data["language"] = normalize_languages(data["language"])
             if "genre" in data:
                 data["genre"] = normalize_genres(data["genre"])
+            if "origin_country" in data:
+                data["origin_country"] = normalize_countries(data["origin_country"])
+            if "album_type" in data:
+                data["album_type"] = normalize_album_types(data["album_type"])
+            if "media_format" in data:
+                data["media_format"] = normalize_media_formats(data["media_format"])
+            if data.get("price"):
+                data["price"] = normalize_price(data["price"])
+            if data.get("release_date"):
+                release_date = parse_partial_date(data["release_date"])
+                if not release_date:
+                    self.add_error(
+                        "release_date",
+                        _("Invalid date, expecting YYYY, YYYY-MM or YYYY-MM-DD."),
+                    )
+                else:
+                    data["release_date"] = release_date
             return data
 
     return EditForm

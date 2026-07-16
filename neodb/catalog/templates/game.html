@@ -19,8 +19,6 @@
   <div>
     {% if item.release_date %}
       {% trans 'release date' %}: {{ item.release_date }}
-    {% elif item.release_year %}
-      {% trans 'release year' %}: {{ item.release_year }}
     {% endif %}
   </div>
   <div>{% include '_people.html' with people=item.platform role='platform' max=8 %}</div>

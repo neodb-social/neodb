@@ -18,6 +18,7 @@ from catalog.common import *
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
+from common.models import normalize_album_types, normalize_media_formats
 from common.models.lang import detect_language
 
 _logger = logging.getLogger(__name__)
@@ -200,9 +201,20 @@ class MusicBrainzReleaseGroup(AbstractSite):
                 [tag["name"] for tag in data["tags"] if tag.get("count", 0) > 0]
             )
 
+        # Release group primary/secondary types map to album_type
+        album_type = normalize_album_types(
+            [
+                t
+                for t in [data.get("primary-type")]
+                + list(data.get("secondary-types") or [])
+                if t
+            ]
+        )
+
         # Get additional metadata from first release
         track_list = None
         duration = None
+        media_format = []
         company = []
         cover_image_url = None
         isrc = None
@@ -219,6 +231,13 @@ class MusicBrainzReleaseGroup(AbstractSite):
                     track_info = self._extract_track_info(release_data)
                     track_list = track_info["track_list"]
                     duration = track_info["duration"]
+                    media_format = normalize_media_formats(
+                        [
+                            m["format"]
+                            for m in release_data.get("media", [])
+                            if m.get("format")
+                        ]
+                    )
                     company = self._extract_label_info(release_data)
                     cover_image_url = self._get_cover_art_url(release_id)
                     isrc = _extract_first_isrc(release_data)
@@ -234,6 +253,10 @@ class MusicBrainzReleaseGroup(AbstractSite):
             "brief": None,
         }
 
+        if album_type:
+            metadata["album_type"] = album_type
+        if media_format:
+            metadata["media_format"] = media_format
         if track_list:
             metadata["track_list"] = track_list
         if duration:
@@ -302,7 +325,8 @@ class MusicBrainzReleaseGroup(AbstractSite):
 
         return {
             "track_list": "\n".join(track_list) if track_list else None,
-            "duration": total_duration if total_duration > 0 else None,
+            # MB track lengths are milliseconds; catalog stores seconds
+            "duration": total_duration // 1000 if total_duration > 0 else None,
         }
 
     def _extract_label_info(self, release_data: Dict[str, Any]) -> List[str]:
@@ -416,6 +440,20 @@ class MusicBrainzRelease(AbstractSite):
                     [tag["name"] for tag in rg["tags"] if tag.get("count", 0) > 0]
                 )
 
+        # Release group primary/secondary types map to album_type
+        rg = data.get("release-group") or {}
+        album_type = normalize_album_types(
+            [
+                t
+                for t in [rg.get("primary-type")]
+                + list(rg.get("secondary-types") or [])
+                if t
+            ]
+        )
+        media_format = normalize_media_formats(
+            [m["format"] for m in data.get("media", []) if m.get("format")]
+        )
+
         # Extract track information and duration
         track_info = self._extract_track_info(data)
         track_list = track_info["track_list"]
@@ -436,6 +474,10 @@ class MusicBrainzRelease(AbstractSite):
             "brief": None,
         }
 
+        if album_type:
+            metadata["album_type"] = album_type
+        if media_format:
+            metadata["media_format"] = media_format
         if track_list:
             metadata["track_list"] = track_list
         if duration:
@@ -494,7 +536,8 @@ class MusicBrainzRelease(AbstractSite):
 
         return {
             "track_list": "\n".join(track_list) if track_list else None,
-            "duration": total_duration if total_duration > 0 else None,
+            # MB track lengths are milliseconds; catalog stores seconds
+            "duration": total_duration // 1000 if total_duration > 0 else None,
         }
 
     def _extract_label_info(self, release_data: Dict[str, Any]) -> List[str]:

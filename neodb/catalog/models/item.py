@@ -19,7 +19,15 @@ from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
-from common.models import get_current_locales, jsondata, uniq
+from common.models import (
+    get_current_locales,
+    jsondata,
+    normalize_album_types,
+    normalize_countries,
+    normalize_media_formats,
+    parse_partial_date,
+    uniq,
+)
 from common.models.genre import normalize_genres
 from common.models.lang import normalize_languages
 from common.utils import get_file_absolute_url, json_ld_dumps
@@ -1059,10 +1067,45 @@ class Item(PolymorphicModel):
                 changed = True
         return changed
 
+    def _normalize_countries(self) -> bool:
+        changed = False
+        if hasattr(self, "origin_country") and self.origin_country:
+            countries = normalize_countries(self.origin_country)
+            if self.origin_country != countries:
+                self.origin_country = countries
+                changed = True
+        return changed
+
+    def _normalize_music_formats(self) -> bool:
+        changed = False
+        if hasattr(self, "album_type") and self.album_type:
+            album_type = normalize_album_types(self.album_type)
+            if self.album_type != album_type:
+                self.album_type = album_type
+                changed = True
+        if hasattr(self, "media_format") and self.media_format:
+            media_format = normalize_media_formats(self.media_format)
+            if self.media_format != media_format:
+                self.media_format = media_format
+                changed = True
+        return changed
+
+    def _normalize_release_date(self) -> bool:
+        rd = getattr(self, "release_date", None)
+        if isinstance(rd, str) and rd:
+            p = parse_partial_date(rd)
+            if p and p != rd:
+                self.release_date = p
+                return True
+        return False
+
     def normalize_metadata(self, override_resources=None) -> bool:
         r = self._update_primary_lookup_id(override_resources)
         r |= self._normalize_languages()
         r |= self._normalize_genres()
+        r |= self._normalize_countries()
+        r |= self._normalize_music_formats()
+        r |= self._normalize_release_date()
         return r
 
     def merge_data_from_external_resource(

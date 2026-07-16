@@ -3,6 +3,11 @@ import dateparser
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
+from common.models import (
+    normalize_album_types,
+    normalize_media_formats,
+    parse_partial_date,
+)
 from common.models.lang import detect_language
 
 from .douban import DoubanDownloader, DoubanSearcher, extract_people_links_from_anchors
@@ -58,8 +63,11 @@ class DoubanMusic(AbstractSite):
         date_elem = self.query_list(
             content, "//div[@id='info']//span[text()='发行时间:']/following::text()[1]"
         )
-        release_date = dateparser.parse(date_elem[0].strip()) if date_elem else None
-        release_date = release_date.strftime("%Y-%m-%d") if release_date else None
+        # values may be year-only ("1965"); keep partial precision
+        release_date = parse_partial_date(date_elem[0].strip()) if date_elem else None
+        if not release_date and date_elem:
+            parsed = dateparser.parse(date_elem[0].strip())
+            release_date = parsed.strftime("%Y-%m-%d") if parsed else None
 
         company_elem = self.query_list(
             content, "//div[@id='info']//span[text()='出版者:']/following::text()[1]"
@@ -117,13 +125,13 @@ class DoubanMusic(AbstractSite):
             "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]",
         )
         if other_elem:
-            data["album_type"] = other_elem[0].strip()
+            data["album_type"] = normalize_album_types(other_elem[0].strip())
         other_elem = self.query_list(
             content,
             "//div[@id='info']//span[text()='介质:']/following-sibling::text()[1]",
         )
         if other_elem:
-            data["media"] = other_elem[0].strip()
+            data["media_format"] = normalize_media_formats(other_elem[0].strip())
         other_elem = self.query_list(
             content,
             "//div[@id='info']//span[text()='ISRC:']/following-sibling::text()[1]",

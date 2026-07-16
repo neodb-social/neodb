@@ -118,7 +118,7 @@ class AppleMusic(AbstractSite):
         track_list = [t["name"] for t in matched_schema_data.get("tracks", [])]
         duration = round(
             sum(
-                (parse_duration(t["duration"]) or timedelta()).total_seconds() * 1000
+                (parse_duration(t["duration"]) or timedelta()).total_seconds()
                 for t in matched_schema_data.get("tracks", [])
             )
         )

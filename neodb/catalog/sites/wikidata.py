@@ -494,7 +494,11 @@ class WikiData(AbstractSite):
         return result
 
     def _f_date(self, d: str) -> str:
-        return d.replace("-00", "-01")
+        # Wikidata pads unknown parts with 00 ("2010-00-00" = year
+        # precision); strip them to keep a partial ISO date
+        while d.endswith("-00"):
+            d = d[:-3]
+        return d
 
     def _extract_date(self, entity_data, property_id):
         """Extract a date from property value"""
@@ -537,6 +541,13 @@ class WikiData(AbstractSite):
 
         return None
 
+    # units of P2047 quantities -> factor to seconds
+    _DURATION_UNIT_FACTORS = {
+        "Q11574": 1,  # second
+        "Q7727": 60,  # minute
+        "Q25235": 3600,  # hour
+    }
+
     def _extract_duration(self, entity_data):
         """Extract duration in seconds from P2047"""
         value = self._extract_property_value(entity_data, WikidataProperties.P2047)
@@ -544,12 +555,15 @@ class WikiData(AbstractSite):
             return None
 
         if isinstance(value, dict):
-            # Wikidata stores duration as quantity
+            # Wikidata stores duration as a quantity with a unit URI;
+            # films are usually expressed in minutes
             if "amount" in value:
-                # Convert to seconds if needed
-                return int(float(value["amount"]))
+                unit = str(value.get("unit") or "").split("/")[-1]
+                factor = self._DURATION_UNIT_FACTORS.get(unit, 60)
+                return int(float(value["amount"]) * factor)
         elif isinstance(value, (int, float)):
-            return int(value)
+            # unit unknown; assume minutes like most film data
+            return int(value) * 60
 
         return None
 

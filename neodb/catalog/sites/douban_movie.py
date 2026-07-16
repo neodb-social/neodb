@@ -5,6 +5,11 @@ from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
+from common.models import (
+    earliest_partial_date,
+    normalize_countries,
+    parse_duration_text,
+)
 from common.models.lang import detect_language
 from common.models.misc import int_
 
@@ -119,24 +124,10 @@ class DoubanMovie(AbstractSite):
         showtime_elem = self.query_list(
             content, "//span[@property='v:initialReleaseDate']/text()"
         )
-        if showtime_elem:
-            showtime = []
-            for st in showtime_elem:
-                parts = st.split("(")
-                if len(parts) == 1:
-                    time = st.split("(")[0]
-                    region = ""
-                else:
-                    time = st.split("(")[0]
-                    region = st.split("(")[1][0:-1]
-                showtime.append(
-                    {
-                        "region": region,
-                        "time": time,
-                    }
-                )
-        else:
-            showtime = None
+        # each entry looks like "2010-09-01(中国大陆)"; keep the earliest date
+        release_date = earliest_partial_date(
+            st.split("(")[0].strip() for st in showtime_elem or []
+        )
 
         site_elem = self.query_list(
             content,
@@ -151,9 +142,11 @@ class DoubanMovie(AbstractSite):
             "//div[@id='info']//span[text()='制片国家/地区:']/following-sibling::text()[1]",
         )
         if area_elem:
-            area = [a.strip()[:100] for a in area_elem[0].split("/")]
+            origin_country = normalize_countries(
+                [a.strip()[:100] for a in area_elem[0].split("/")]
+            )
         else:
-            area = None
+            origin_country = None
 
         language_elem = self.query_list(
             content,
@@ -167,16 +160,18 @@ class DoubanMovie(AbstractSite):
         year_s = self.query_str(content, "//span[@class='year']/text()")
         year_r = re.search(r"\d+", year_s) if year_s else None
         year = int_(year_r[0]) if year_r else None
+        if not release_date and year:
+            release_date = str(year)
 
         duration_elem = self.query_list(content, "//span[@property='v:runtime']/text()")
         other_duration_elem = self.query_list(
             content, "//span[@property='v:runtime']/following-sibling::text()[1]"
         )
         if duration_elem:
-            duration = duration_elem[0].strip()
+            duration_s = duration_elem[0].strip()
             if other_duration_elem:
-                duration += other_duration_elem[0].rstrip()
-            duration = duration.split("/")[0].strip()
+                duration_s += other_duration_elem[0].rstrip()
+            duration = parse_duration_text(duration_s.split("/")[0].strip())
         else:
             duration = None
 
@@ -207,7 +202,7 @@ class DoubanMovie(AbstractSite):
             "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]",
         )
         single_episode_length = (
-            single_episode_length_elem[0].strip()[:100]
+            parse_duration_text(single_episode_length_elem[0].strip()[:100])
             if single_episode_length_elem
             else None
         )
@@ -247,11 +242,10 @@ class DoubanMovie(AbstractSite):
                 "playwright": playwright,
                 "actor": actor,
                 "genre": genre,
-                "showtime": showtime,
+                "release_date": release_date,
                 "site": site,
-                "area": area,
+                "origin_country": origin_country,
                 "language": language,
-                "year": year,
                 "duration": duration,
                 "season_number": season,
                 "episode_count": episodes,

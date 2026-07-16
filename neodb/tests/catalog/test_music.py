@@ -312,7 +312,7 @@ class TestAppleMusic:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == ["pop", "music"]
-        assert site.resource.item.duration == 2368000
+        assert site.resource.item.duration == 2368
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -341,12 +341,12 @@ class TestYouTubeMusic:
         assert site.resource is not None
         assert site.resource.metadata["title"] == "Synchronicity (Remastered 2003)"
         assert site.resource.metadata["artist"] == ["The Police"]
-        assert site.resource.metadata["release_date"] == "1983-01-01"
-        assert site.resource.metadata["album_type"] == "Album"
-        assert site.resource.metadata["duration"] == 2675000
+        assert site.resource.metadata["release_date"] == "1983"
+        assert site.resource.metadata["album_type"] == ["album"]
+        assert site.resource.metadata["duration"] == 2675
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
-        assert str(site.resource.item.release_date) == "1983-01-01"
+        assert site.resource.item.release_date == "1983"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -389,7 +389,7 @@ class TestRateYourMusic:
         meta = site.resource.metadata
         assert meta["title"] == "OK Computer"
         assert meta["artist"] == ["Radiohead"]
-        assert meta["album_type"] == "Album"
+        assert meta["album_type"] == ["album"]
         assert meta["release_date"] == "1997-06-16"
         # Primary + secondary genres preserved in order
         assert meta["genre"][:2] == ["Alternative Rock", "Art Rock"]
@@ -400,7 +400,7 @@ class TestRateYourMusic:
         assert len(track_lines) == 12
         assert track_lines[0] == "1. Airbag (4:44)"
         assert track_lines[-1] == "12. The Tourist (5:24)"
-        assert meta["duration"] == 3201000
+        assert meta["duration"] == 3201
         # Primary label parsed out of og:description
         assert meta["company"] == ["Parlophone"]
         assert meta["cover_image_url"].startswith("https://cdn.sonemic.net/")

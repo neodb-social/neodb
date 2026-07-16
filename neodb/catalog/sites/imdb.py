@@ -124,7 +124,9 @@ class IMDB(AbstractSite):
         brief: str = ((d.get("plot") or {}).get("plotText") or {}).get("plainText", "")
         data: dict[str, object] = {
             "title": title,
-            "year": d["releaseYear"]["year"] if d.get("releaseYear") else None,
+            "release_date": (
+                str(d["releaseYear"]["year"]) if d.get("releaseYear") else None
+            ),
             "is_series": is_series,
             "is_episode": is_episode,
             "genre": (

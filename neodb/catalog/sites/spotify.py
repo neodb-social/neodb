@@ -15,7 +15,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import upc_to_gtin_13
 from catalog.search import record_search_failure
-from common.models import SiteConfig
+from common.models import SiteConfig, normalize_album_types, parse_partial_date
 from common.models.lang import detect_language
 
 from .douban import *
@@ -111,8 +111,11 @@ class Spotify(AbstractSite):
             else:
                 track_list.append(str(track["track_number"]) + ". " + track["name"])
         track_list = "\n".join(track_list)
-        dt = dateparser.parse(res_data["release_date"])
-        release_date = dt.strftime("%Y-%m-%d") if dt else None
+        # release_date_precision may be year/month/day; keep partial precision
+        release_date = parse_partial_date(res_data["release_date"])
+        if not release_date and res_data.get("release_date"):
+            dt = dateparser.parse(res_data["release_date"])
+            release_date = dt.strftime("%Y-%m-%d") if dt else None
 
         gtin = None
         if res_data["external_ids"].get("upc"):
@@ -131,7 +134,8 @@ class Spotify(AbstractSite):
                 "genre": genre,
                 "track_list": track_list,
                 "release_date": release_date,
-                "duration": duration,
+                "duration": duration // 1000,  # tracks sum in ms
+                "album_type": normalize_album_types(res_data.get("album_type")),
                 "company": company,
                 "brief": None,
                 "cover_image_url": res_data["images"][0]["url"],

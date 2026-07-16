@@ -377,7 +377,7 @@ class TestBooksTW:
         assert site.resource.metadata.get("pub_month") == 2
         assert site.resource.metadata.get("binding") == "平裝"
         assert site.resource.metadata.get("pages") == 792
-        assert site.resource.metadata.get("price") == "1050 NTD"
+        assert site.resource.metadata.get("price") == "TWD 1050"
         assert site.resource.id_type == IdType.BooksTW
         assert site.resource.id_value == "0010947886"
         assert site.resource.item is not None

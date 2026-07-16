@@ -66,7 +66,7 @@ class BoardGameGeek(AbstractSite):
                 "publisher": publisher,
                 "designer": designer,
                 "artist": artist,
-                "release_year": year,
+                "release_date": year,
                 "release_type": (
                     GameReleaseType.EXPANSION
                     if typ == "boardgameexpansion"

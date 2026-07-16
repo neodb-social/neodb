@@ -22,6 +22,7 @@ from loguru import logger
 from catalog.common import *
 from catalog.common.downloaders import get_mock_mode
 from catalog.models import *
+from common.models import normalize_album_types
 from common.models.lang import detect_language
 
 _INNERTUBE_URL = "https://music.youtube.com/youtubei/v1/browse"
@@ -54,14 +55,14 @@ def _innertube_browse(browse_id: str) -> dict:
     return resp.json()
 
 
-def _parse_duration_ms(s: str) -> int:
-    """Convert 'M:SS' or 'H:MM:SS' string to milliseconds."""
+def _parse_duration_seconds(s: str) -> int:
+    """Convert 'M:SS' or 'H:MM:SS' string to seconds."""
     parts = s.split(":")
     try:
         if len(parts) == 2:
-            return (int(parts[0]) * 60 + int(parts[1])) * 1000
+            return int(parts[0]) * 60 + int(parts[1])
         if len(parts) == 3:
-            return (int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])) * 1000
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
     except ValueError:
         pass
     return 0
@@ -148,10 +149,9 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
         ),
         None,
     )
-    # YouTube Music only provides the release year; store as Jan 1 of that year
-    # so the DateField receives a valid YYYY-MM-DD string rather than a bare year.
-    release_date = f"{year}-01-01" if year else None
-    album_type = subtitle_texts[0] if subtitle_texts else None
+    # YouTube Music only provides the release year; keep partial precision
+    release_date = year if year else None
+    album_type = normalize_album_types(subtitle_texts[0] if subtitle_texts else None)
     thumbs = (
         header.get("thumbnail", {})
         .get("musicThumbnailRenderer", {})
@@ -171,7 +171,7 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
     )
 
     track_list = []
-    total_ms = 0
+    total_seconds = 0
     for t in tracks_raw:
         r = t.get("musicResponsiveListItemRenderer", {})
         idx = r.get("index", {}).get("runs", [{}])[0].get("text", "")
@@ -195,7 +195,7 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
             if fixed
             else ""
         )
-        total_ms += _parse_duration_ms(dur_str)
+        total_seconds += _parse_duration_seconds(dur_str)
         track_list.append(f"{idx}. {name}" if idx else name)
 
     lang = detect_language(title)
@@ -207,7 +207,7 @@ def _parse_mpreb_data(data: dict) -> ResourceContent:
             "release_date": release_date,
             "album_type": album_type,
             "track_list": "\n".join(track_list),
-            "duration": total_ms if total_ms else None,
+            "duration": total_seconds if total_seconds else None,
             "cover_image_url": cover_url,
         }
     )

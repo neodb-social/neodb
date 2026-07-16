@@ -274,7 +274,7 @@ class TestCatalogSearch:
         self.movie1.imdb = "tt0068646"
         self.movie1.director = ["Francis Ford Coppola"]
         self.movie1.actor = ["Marlon Brando", "Al Pacino", "James Caan"]
-        self.movie1.year = 1972
+        self.movie1.release_date = "1972"
         self.movie1.language = ["it"]
         self.movie1.save()
         self.movie1.sync_credits_from_metadata()
@@ -284,7 +284,7 @@ class TestCatalogSearch:
         self.movie2.imdb = "tt0071562"
         self.movie2.director = ["Francis Ford Coppola"]
         self.movie2.actor = ["Al Pacino", "Robert De Niro", "Robert Duvall"]
-        self.movie2.year = 1974
+        self.movie2.release_date = "1974"
         self.movie2.language = ["it", "en"]
         self.movie2.save()
         self.movie2.sync_credits_from_metadata()
@@ -299,7 +299,7 @@ class TestCatalogSearch:
             "Joseph Gordon-Levitt",
             "Ellen Page",
         ]
-        self.movie3.year = 2010
+        self.movie3.release_date = "2010"
         self.movie3.language = ["en"]
         self.movie3.save()
         self.movie3.sync_credits_from_metadata()

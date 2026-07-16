@@ -1,11 +1,19 @@
-from datetime import date
-
 from django.utils.translation import gettext_lazy as _
+from ninja import Field
+
+from common.models import (
+    coerce_album_duration,
+    normalize_album_types,
+    normalize_media_formats,
+    partial_date_to_int,
+)
 
 from .common import (
     LIST_OF_ONE_PLUS_STR_SCHEMA,
     LIST_OF_STR_SCHEMA,
+    AlbumTypeListField,
     GenreListField,
+    MediaFormatListField,
     jsondata,
 )
 from .item import (
@@ -18,6 +26,7 @@ from .item import (
     PrimaryLookupIdDescriptor,
 )
 from .people import PeopleRole
+from .utils import canonicalize_release_date_key
 
 
 class AlbumInSchema(ItemInSchema):
@@ -25,8 +34,31 @@ class AlbumInSchema(ItemInSchema):
     artist: list[str]
     company: list[str]
     duration: int | None = None
-    release_date: date | None = None
+    release_date: str | None = None
+    album_type: list[str]
+    media_format: list[str]
     track_list: str | None = None
+    # media is deprecated
+    media: str | None = Field(None, deprecated="Use `media_format` (list) instead.")
+
+    @staticmethod
+    def resolve_duration(obj: "Album") -> int | None:
+        # tolerate legacy millisecond values not yet migrated
+        return coerce_album_duration(obj.duration)
+
+    @staticmethod
+    def resolve_album_type(obj: "Album") -> list[str]:
+        # tolerate legacy free-text values not yet migrated
+        return normalize_album_types(obj.album_type)
+
+    @staticmethod
+    def resolve_media_format(obj: "Album") -> list[str]:
+        return normalize_media_formats(obj.media_format)
+
+    @staticmethod
+    def resolve_media(obj: "Album") -> str | None:
+        formats = normalize_media_formats(obj.media_format)
+        return ", ".join(formats) if formats else None
 
     @staticmethod
     def resolve_artist(obj: "Album") -> list[str]:
@@ -70,18 +102,22 @@ class Album(Item):
         "track_list",
         "localized_description",
         "album_type",
-        "media",
+        "media_format",
         "disc_count",
         "genre",
         "release_date",
         "duration",
         "bandcamp_album_id",
     ]
-    release_date = jsondata.DateField(
-        _("release date"), null=True, blank=True, help_text=_("YYYY-MM-DD")
+    release_date = jsondata.CharField(
+        _("release date"),
+        null=True,
+        blank=True,
+        max_length=10,
+        help_text=_("YYYY, YYYY-MM or YYYY-MM-DD"),
     )
     duration = jsondata.IntegerField(
-        _("length"), null=True, blank=True, help_text=_("milliseconds")
+        _("length"), null=True, blank=True, help_text=_("seconds")
     )
     artist = jsondata.JSONField(
         verbose_name=_("artist"),
@@ -99,12 +135,38 @@ class Album(Item):
         schema=LIST_OF_STR_SCHEMA,
     )
     track_list = jsondata.TextField(_("tracks"), blank=True)
-    album_type = jsondata.CharField(_("album type"), blank=True, max_length=500)
-    media = jsondata.CharField(_("media type"), blank=True, max_length=500)
+    album_type = AlbumTypeListField()
+    media_format = MediaFormatListField()
     bandcamp_album_id = jsondata.CharField(blank=True, max_length=500)
     disc_count = jsondata.IntegerField(
         _("number of discs"), blank=True, default="", max_length=500
     )
+
+    @classmethod
+    def normalize_legacy_metadata(cls, metadata):
+        super().normalize_legacy_metadata(metadata)
+        # Sources: federated peers running older code, ndjson restores,
+        # and local rows that predate the unification.
+        # - duration in milliseconds -> seconds
+        # - media (free text) -> media_format (list of slugs)
+        # - album_type free text -> list of slugs
+        duration = metadata.get("duration")
+        if duration is not None:
+            duration = coerce_album_duration(duration)
+            if duration:
+                metadata["duration"] = duration
+            else:
+                metadata.pop("duration", None)
+        media = metadata.pop("media", None)
+        if media and not metadata.get("media_format"):
+            metadata["media_format"] = normalize_media_formats(media)
+        if "album_type" in metadata:
+            album_type = normalize_album_types(metadata["album_type"])
+            if album_type:
+                metadata["album_type"] = album_type
+            else:
+                metadata.pop("album_type", None)
+        canonicalize_release_date_key(metadata)
 
     def get_embed_link(self) -> str | None:
         bandcamp_link = None
@@ -149,12 +211,10 @@ class Album(Item):
         d = super().to_indexable_doc()
         if self.barcode:
             d["lookup_id"] = [str(self.barcode)]
-        d["date"] = (
-            [int(self.release_date.strftime("%Y%m%d"))] if self.release_date else []
-        )
+        dt = partial_date_to_int(self.release_date)
+        d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
-        d["format"] = [self.album_type] if self.album_type else []
-        d["format"] += [self.media] if self.media else []
+        d["format"] = list(self.album_type or []) + list(self.media_format or [])
         return d
 
     def to_schema_org(self):
@@ -179,11 +239,10 @@ class Album(Item):
             data["publisher"] = {"@type": "Organization", "name": labels[0]}
 
         if self.release_date:
-            data["datePublished"] = self.release_date.isoformat()
+            data["datePublished"] = self.release_date
 
-        if self.duration:
-            # Convert milliseconds to ISO8601 duration format
-            seconds = self.duration // 1000
+        seconds = coerce_album_duration(self.duration)
+        if seconds:
             hours = seconds // 3600
             minutes = (seconds % 3600) // 60
             seconds = seconds % 60

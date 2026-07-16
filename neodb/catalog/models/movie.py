@@ -1,10 +1,15 @@
-from django.db import models
 from django.utils.translation import gettext_lazy as _
+from ninja import Field
 
-from common.models.misc import int_
+from common.models import (
+    coerce_video_duration,
+    partial_date_to_int,
+    year_of_partial_date,
+)
 
 from .common import (
     LIST_OF_STR_SCHEMA,
+    CountryListField,
     GenreListField,
     LanguageListField,
     jsondata,
@@ -19,6 +24,7 @@ from .item import (
     PrimaryLookupIdDescriptor,
 )
 from .people import PeopleRole
+from .utils import normalize_legacy_video_metadata
 
 
 class MovieInSchema(ItemInSchema):
@@ -29,10 +35,33 @@ class MovieInSchema(ItemInSchema):
     producer: list[str]
     genre: list[str]
     language: list[str]
-    area: list[str]
+    origin_country: list[str]
+    release_date: str | None = None
     year: int | None = None
     site: str | None = None
-    duration: str | None = None
+    duration: int | None = None
+    # area and showtime are deprecated
+    area: list[str] = Field(
+        [], deprecated="Use `origin_country` (ISO 3166-1 alpha-2) instead."
+    )
+    showtime: list[dict] = Field([], deprecated="Use `release_date` instead.")
+
+    @staticmethod
+    def resolve_origin_country(obj: "Movie") -> list[str]:
+        return obj.origin_country or []
+
+    @staticmethod
+    def resolve_area(obj: "Movie") -> list[str]:
+        return obj.origin_country or []
+
+    @staticmethod
+    def resolve_showtime(obj: "Movie") -> list[dict]:
+        return [{"time": obj.release_date, "region": ""}] if obj.release_date else []
+
+    @staticmethod
+    def resolve_duration(obj: "Movie") -> int | None:
+        # tolerate legacy free-text values not yet migrated
+        return coerce_video_duration(obj.duration)
 
     @staticmethod
     def resolve_director(obj: "Movie") -> list[str]:
@@ -89,11 +118,10 @@ class Movie(Item):
         "actor",
         "producer",
         "genre",
-        "showtime",
+        "release_date",
         "site",
-        "area",
+        "origin_country",
         "language",
-        "year",
         "duration",
         "localized_description",
     ]
@@ -129,49 +157,19 @@ class Movie(Item):
         schema=LIST_OF_STR_SCHEMA,
     )
     genre = GenreListField(ItemCategory.Movie)
-    showtime = jsondata.JSONField(
-        _("release date"),
+    release_date = jsondata.CharField(
+        verbose_name=_("release date"),
         null=True,
         blank=True,
-        default=list,
-        schema={
-            "type": "list",
-            "items": {
-                "type": "dict",
-                "additionalProperties": False,
-                "keys": {
-                    "time": {
-                        "type": "string",
-                        "title": _("date"),
-                        "placeholder": _("required"),
-                    },
-                    "region": {
-                        "type": "string",
-                        "title": _("region or event"),
-                        "placeholder": _(
-                            "Germany or Toronto International Film Festival"
-                        ),
-                    },
-                },
-                "required": ["time"],
-            },
-        },
+        max_length=10,
+        help_text=_("YYYY, YYYY-MM or YYYY-MM-DD"),
     )
     site = jsondata.URLField(verbose_name=_("website"), blank=True, max_length=200)
-    area = jsondata.ArrayField(
-        verbose_name=_("region"),
-        base_field=models.CharField(
-            blank=True,
-            default="",
-            max_length=100,
-        ),
-        null=True,
-        blank=True,
-        default=list,
-    )
+    origin_country = CountryListField()
     language = LanguageListField()
-    year = jsondata.IntegerField(verbose_name=_("year"), null=True, blank=True)
-    duration = jsondata.CharField(verbose_name=_("length"), blank=True, max_length=200)
+    duration = jsondata.IntegerField(
+        verbose_name=_("length"), null=True, blank=True, help_text=_("seconds")
+    )
     season_number = jsondata.IntegerField(
         null=True, blank=True
     )  # TODO remove after migration
@@ -181,6 +179,15 @@ class Movie(Item):
     single_episode_length = jsondata.IntegerField(
         null=True, blank=True
     )  # TODO remove after migration
+
+    @property
+    def year(self) -> int | None:
+        return year_of_partial_date(self.release_date)
+
+    @classmethod
+    def normalize_legacy_metadata(cls, metadata):
+        super().normalize_legacy_metadata(metadata)
+        normalize_legacy_video_metadata(metadata)
 
     @classmethod
     def lookup_id_type_choices(cls):
@@ -210,7 +217,7 @@ class Movie(Item):
         d = super().to_indexable_doc()
         if self.imdb:
             d["lookup_id"] = [str(self.imdb)]
-        dt = int_(self.year) * 10000
+        dt = partial_date_to_int(self.release_date)
         d["date"] = [dt] if dt else []
         d["genre"] = self.genre or []
         return d
@@ -222,11 +229,12 @@ class Movie(Item):
         if self.orig_title and self.orig_title != self.display_title:
             data["alternateName"] = self.orig_title
 
-        if self.year:
-            data["dateCreated"] = str(self.year)
+        if self.release_date:
+            data["dateCreated"] = self.release_date
 
-        if self.duration:
-            data["duration"] = self.duration
+        duration = coerce_video_duration(self.duration)
+        if duration:
+            data["duration"] = f"PT{duration // 3600}H{(duration % 3600) // 60}M"
 
         directors = self.credit_names_by_role("director")
         if directors:
