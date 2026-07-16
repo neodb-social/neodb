@@ -38,7 +38,10 @@ class MovieInSchema(VideoFieldsResolverMixin, ItemInSchema):
     language: list[str]
     origin_country: list[str]
     release_date: str | None = None
-    year: int | None = None
+    # year is deprecated
+    year: int | None = Field(
+        None, deprecated="Use the year part of `release_date` instead."
+    )
     site: str | None = None
     length: int | None = None
     duration: str | None = Field(
