@@ -188,14 +188,25 @@ class TestDeprecatedApiAliases:
         assert o["showtime"] == [{"time": "2010-07-16", "region": ""}]
 
     def test_movie_stale_legacy_metadata_tolerated(self):
-        # pre-migration rows must not break schema validation
+        # pre-migration rows must not break schema validation; the legacy
+        # duration key surfaces as null length until the migration runs
         m = Movie.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Old"}],
                 "duration": "148分钟",
             }
         )
-        assert m.ap_object["length"] == 8880
+        o = m.ap_object
+        assert o["length"] is None
+        assert o["duration"] is None
+        # a corrupt/hand-edited string in length still parses at read time
+        m2 = Movie.objects.create(
+            metadata={
+                "localized_title": [{"lang": "en", "text": "Odd"}],
+                "length": "148分钟",
+            }
+        )
+        assert m2.ap_object["length"] == 8880
 
     def test_album_media_alias(self):
         a = Album.objects.create(

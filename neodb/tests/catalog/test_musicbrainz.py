@@ -90,8 +90,8 @@ class TestMusicBrainzReleaseGroup:
         assert "alternative rock" in metadata["genre"]
         assert "track_list" in metadata
         assert "1. Airbag" in metadata["track_list"]
-        assert "duration" in metadata
-        assert metadata["duration"] > 0
+        assert "length" in metadata
+        assert metadata["length"] > 0
         assert "company" in metadata
         assert "EMI" in metadata["company"]
 
@@ -302,8 +302,8 @@ class TestMusicBrainzRelease:
         assert "alternative rock" in metadata["genre"]
         assert "track_list" in metadata
         assert "1. Airbag" in metadata["track_list"]
-        assert "duration" in metadata
-        assert metadata["duration"] > 0
+        assert "length" in metadata
+        assert metadata["length"] > 0
         assert "company" in metadata
         assert "EMI" in metadata["company"]
 
