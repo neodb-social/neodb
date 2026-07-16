@@ -205,14 +205,22 @@ def user_task_status(request, task_type: str):
     ):
         # Matching or importing just finished — swap the whole section
         # so the cancel button is replaced by the Review/Download/upload UI.
+        # The poller lives in the status div, so retarget the swap to the
+        # section container to avoid nesting a section inside the old one.
         if task_cls is RymImporter:
-            return render(request, "users/_rym_section.html", {"rym_task": task})
+            response = render(request, "users/_rym_section.html", {"rym_task": task})
+            response["HX-Retarget"] = "#rym"
+            response["HX-Reswap"] = "innerHTML"
+            return response
         if task_cls is StoryGraphImporter:
-            return render(
+            response = render(
                 request,
                 "users/_storygraph_section.html",
                 {"storygraph_task": task},
             )
+            response["HX-Retarget"] = "#storygraph"
+            response["HX-Reswap"] = "innerHTML"
+            return response
     return render(request, "users/user_task_status.html", {"task": task})
 
 
