@@ -1,0 +1,18 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "hobbit_test_id",
+      "volumeInfo": {
+        "title": "The Hobbit",
+        "authors": ["J.R.R. Tolkien"],
+        "industryIdentifiers": [
+          {"type": "ISBN_10", "identifier": "0547928227"},
+          {"type": "ISBN_13", "identifier": "9780547928227"}
+        ]
+      }
+    }
+  ]
+}

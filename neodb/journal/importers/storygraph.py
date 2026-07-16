@@ -1,7 +1,9 @@
 import csv
+import re
 from datetime import datetime
 from urllib.parse import quote_plus
 
+from django.conf import settings
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
@@ -11,6 +13,7 @@ from markdownify import markdownify as md
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
+from catalog.search.index import CatalogIndex, CatalogQueryParser
 from journal.models import *
 from users.models import Task
 
@@ -20,6 +23,26 @@ SHELF_MAP = {
     "currently-reading": ShelfType.PROGRESS,
     "did-not-finish": ShelfType.DROPPED,
 }
+
+# StoryGraph puts its own book UUID in the ISBN/UID column when the edition has no ISBN
+_RE_STORYGRAPH_UUID = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+)
+
+
+def _first_author(authors: str) -> str:
+    return authors.split(",")[0].strip() if authors else ""
+
+
+def _titles_match(a: str, b: str) -> bool:
+    """Accept if either title contains the other (case-insensitive)."""
+    a = (a or "").strip().lower()
+    b = (b or "").strip().lower()
+    return bool(a) and bool(b) and (a in b or b in a)
+
+
+def _escape_quotes(s: str) -> str:
+    return s.replace('"', '\\"')
 
 
 class StoryGraphImporter(Task):
@@ -49,29 +72,129 @@ class StoryGraphImporter(Task):
 
     @classmethod
     def find_item(cls, isbn_uid: str, title: str = "", authors: str = ""):
-        # Step 1: ISBN/UID lookup in local DB (no network)
-        if isbn_uid:
-            id_type, id_value = detect_isbn_asin(isbn_uid.strip())
-            if id_type and id_value:
-                er = ExternalResource.objects.filter(
-                    id_type=id_type, id_value=id_value
-                ).first()
-                if er and er.item:
-                    return er.item
+        isbn_uid = (isbn_uid or "").strip()
+        id_type, id_value = detect_isbn_asin(isbn_uid)
+        sg_uid = isbn_uid.lower() if _RE_STORYGRAPH_UUID.match(isbn_uid.lower()) else ""
 
-        # Step 2: Google Books search by title + author (network fallback)
+        # Step 1: ISBN/ASIN or StoryGraph UUID lookup in local DB (no network)
+        if id_type and id_value:
+            er = ExternalResource.objects.filter(
+                id_type=id_type, id_value=id_value
+            ).first()
+            if er and er.item:
+                return er.item
+        elif sg_uid:
+            er = ExternalResource.objects.filter(
+                id_type=IdType.StoryGraph, id_value=sg_uid
+            ).first()
+            if er and er.item:
+                return er.item
+
+        # Step 2: fetch the exact edition by ISBN from Google Books, then OpenLibrary
+        if id_type == IdType.ISBN and id_value:
+            item = cls._fetch_by_isbn_google_books(id_value)
+            if item:
+                return item
+            item = cls._fetch_by_isbn_openlibrary(id_value)
+            if item:
+                return item
+
+        # Step 3: scrape StoryGraph book page (needs a JS-rendering scrape provider)
+        if sg_uid and settings.DOWNLOADER_PROVIDERS:
+            item = cls._resolve_url(f"https://app.thestorygraph.com/books/{sg_uid}")
+            if item:
+                return item
+
+        # Step 4: title + author matching, local catalog index first then external
         if title:
-            item = cls._find_via_google_books(title, authors)
+            item = (
+                cls._find_via_local_index(title, authors)
+                or cls._find_via_google_books(title, authors)
+                or cls._find_via_openlibrary_search(title, authors)
+            )
             if item:
                 return item
 
         return None
 
     @classmethod
-    def _find_via_google_books(cls, title: str, authors: str):
+    def _resolve_url(cls, url: str) -> Item | None:
+        """Fetch a remote resource by URL and return its local item, or None."""
+        try:
+            site = SiteManager.get_site_by_url(url, detect_redirection=False)
+            if site:
+                resource = site.get_resource_ready()
+                if resource and resource.item:
+                    return resource.item
+        except Exception as e:
+            logger.warning(f"StoryGraph import: fetching {url} failed: {e}")
+        return None
+
+    @classmethod
+    def _fetch_by_isbn_google_books(cls, isbn: str) -> Item | None:
+        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q=isbn:{isbn}&maxResults=3"
+        try:
+            j = BasicDownloader(api_url).download().json()
+        except Exception as e:
+            logger.warning(f"Google Books ISBN lookup failed for {isbn}: {e}")
+            return None
+        for book in j.get("items", []):
+            identifiers = [
+                i.get("identifier")
+                for i in book.get("volumeInfo", {}).get("industryIdentifiers", [])
+            ]
+            if isbn not in identifiers:
+                continue
+            return cls._resolve_url("https://books.google.com/books?id=" + book["id"])
+        return None
+
+    @classmethod
+    def _fetch_by_isbn_openlibrary(cls, isbn: str) -> Item | None:
+        api_url = f"https://openlibrary.org/isbn/{isbn}.json"
+        try:
+            j = BasicDownloader(api_url).download().json()
+        except Exception as e:
+            logger.warning(f"OpenLibrary ISBN lookup failed for {isbn}: {e}")
+            return None
+        key = j.get("key", "")  # "/books/OL...M"
+        if not key.startswith("/books/"):
+            return None
+        return cls._resolve_url("https://openlibrary.org" + key)
+
+    @classmethod
+    def _find_via_local_index(cls, title: str, authors: str) -> Item | None:
+        first_author = _first_author(authors)
+        q = f'"{_escape_quotes(title)}"'
+        if first_author:
+            q += f' people:"{_escape_quotes(first_author)}"'
+        q += " category:book"
+        try:
+            parser = CatalogQueryParser(q, page=1, page_size=5)
+            hits = list(CatalogIndex.instance().search(parser).items)
+        except Exception as e:
+            logger.warning(f"StoryGraph local index search failed: {e}")
+            return None
+        author_lc = first_author.lower()
+        for it in hits:
+            if not isinstance(it, Edition):
+                continue
+            titles = [(t.get("text") or "") for t in it.localized_title or []]
+            titles.append(it.title or "")
+            title_ok = any(_titles_match(title, t) for t in titles)
+            author_names = it.credit_names_by_role("author") + (it.author or [])
+            author_ok = (not author_lc) or any(
+                author_lc in (a or "").lower() or (a or "").lower() in author_lc
+                for a in author_names
+            )
+            if title_ok and author_ok:
+                return it
+        return None
+
+    @classmethod
+    def _find_via_google_books(cls, title: str, authors: str) -> Item | None:
         # Build query: intitle + inauthor (first author only for precision)
         q = f"intitle:{quote_plus(title)}"
-        first_author = authors.split(",")[0].strip() if authors else ""
+        first_author = _first_author(authors)
         if first_author:
             q += f"+inauthor:{quote_plus(first_author)}"
         api_url = (
@@ -80,22 +203,47 @@ class StoryGraphImporter(Task):
         try:
             j = BasicDownloader(api_url).download().json()
             for book in j.get("items", []):
-                vi = book.get("volumeInfo", {})
-                result_title = vi.get("title", "")
-                # Accept if either title contains the other (case-insensitive)
-                if (
-                    title.lower() not in result_title.lower()
-                    and result_title.lower() not in title.lower()
-                ):
+                result_title = book.get("volumeInfo", {}).get("title", "")
+                if not _titles_match(title, result_title):
                     continue
-                url = "https://books.google.com/books?id=" + book["id"]
-                site = SiteManager.get_site_by_url(url, detect_redirection=False)
-                if site:
-                    resource = site.get_resource_ready()
-                    if resource and resource.item:
-                        return resource.item
+                item = cls._resolve_url(
+                    "https://books.google.com/books?id=" + book["id"]
+                )
+                if item:
+                    return item
         except Exception as e:
             logger.warning(f"Google Books search failed for '{title}': {e}")
+        return None
+
+    @classmethod
+    def _find_via_openlibrary_search(cls, title: str, authors: str) -> Item | None:
+        first_author = _first_author(authors)
+        api_url = (
+            f"https://openlibrary.org/search.json?title={quote_plus(title)}"
+            + (f"&author={quote_plus(first_author)}" if first_author else "")
+            + "&limit=3&fields=key,title,editions,editions.key,editions.title"
+        )
+        try:
+            j = BasicDownloader(api_url).download().json()
+        except Exception as e:
+            logger.warning(f"OpenLibrary search failed for '{title}': {e}")
+            return None
+        for work in j.get("docs", []):
+            editions = work.get("editions", {}).get("docs", [])
+            if not editions:
+                continue
+            edition = editions[0]
+            # edition title is closer to what the user shelved than the work title
+            if not _titles_match(title, edition.get("title", "")) and not _titles_match(
+                title, work.get("title", "")
+            ):
+                continue
+            key = edition.get("key", "")  # "/books/OL...M"
+            if not key.startswith("/books/"):
+                continue
+            item = cls._resolve_url("https://openlibrary.org" + key)
+            if item:
+                return item
         return None
 
     def progress(self, mark_state: int, title: str | None = None) -> None:

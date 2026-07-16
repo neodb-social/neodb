@@ -1,0 +1,20 @@
+{
+  "numFound": 1,
+  "start": 0,
+  "docs": [
+    {
+      "key": "/works/OL45804W",
+      "title": "Fantastic Mr Fox",
+      "editions": {
+        "numFound": 1,
+        "start": 0,
+        "docs": [
+          {
+            "key": "/books/OL7353617M",
+            "title": "Fantastic Mr. Fox"
+          }
+        ]
+      }
+    }
+  ]
+}

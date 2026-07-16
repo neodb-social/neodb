@@ -1,0 +1,17 @@
+{
+  "kind": "books#volume",
+  "id": "hobbit_test_id",
+  "volumeInfo": {
+    "title": "The Hobbit",
+    "authors": ["J.R.R. Tolkien"],
+    "publishedDate": "2012-09-18",
+    "publisher": "Houghton Mifflin Harcourt",
+    "pageCount": 300,
+    "language": "en",
+    "description": "Bilbo Baggins is a hobbit who enjoys a comfortable life, rarely traveling any farther than his pantry or cellar.",
+    "industryIdentifiers": [
+      {"type": "ISBN_10", "identifier": "0547928227"},
+      {"type": "ISBN_13", "identifier": "9780547928227"}
+    ]
+  }
+}
