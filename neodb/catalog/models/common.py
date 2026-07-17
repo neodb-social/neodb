@@ -225,10 +225,6 @@ class VideoFieldsResolverMixin(Schema):
         seconds = duration_to_seconds(obj.length)
         return format_duration(seconds) if seconds else None
 
-    @staticmethod
-    def resolve_single_episode_length(obj) -> int | None:
-        return duration_to_seconds(getattr(obj, "single_episode_length", None))
-
 
 def get_locale_choices_for_jsonform(choices, const=False):
     """return list for jsonform schema"""

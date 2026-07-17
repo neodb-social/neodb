@@ -103,7 +103,6 @@ class TVShowInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInSch
     duration: str | None = Field(
         None, deprecated="Display string; use `length` (seconds) instead."
     )
-    single_episode_length: int | None = None
     episode_count: int | None = None
     season_uuids: list[str]
     # area and showtime are deprecated
@@ -140,7 +139,6 @@ class TVSeasonInSchema(VideoFieldsResolverMixin, _TVCreditResolverMixin, ItemInS
     duration: str | None = Field(
         None, deprecated="Display string; use `length` (seconds) instead."
     )
-    single_episode_length: int | None = None
     episode_count: int | None = None
     episode_uuids: list[str]
     # area and showtime are deprecated
