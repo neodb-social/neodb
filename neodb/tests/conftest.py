@@ -1,7 +1,20 @@
 import pytest
+from django.utils import translation
 
 # Marker for multi-database tests - equivalent to Django's databases = "__all__"
 pytest.mark.all_databases = pytest.mark.django_db(databases="__all__", transaction=True)  # type: ignore
+
+
+@pytest.fixture(autouse=True)
+def _reset_language():
+    """Reset the active language after each test.
+
+    Code paths like activate_language_for_user (middleware, crosspost
+    jobs) call translation.activate without restoring, which leaks the
+    language into later tests and makes failures depend on test order.
+    """
+    yield
+    translation.deactivate()
 
 
 @pytest.fixture(autouse=True)
