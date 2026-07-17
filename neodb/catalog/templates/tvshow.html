@@ -39,11 +39,6 @@
     {% endif %}
   </div>
   <div>
-    {% if item.single_episode_length %}
-      {% trans 'episode Length' %}: {{ item.single_episode_length|duration_display }}
-    {% endif %}
-  </div>
-  <div>
     {% if item.length %}
       {% trans 'length' %}: {{ item.length|duration_display }}
     {% endif %}

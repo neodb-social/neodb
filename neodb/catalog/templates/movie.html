@@ -32,11 +32,6 @@
     {% endif %}
   </div>
   <div>
-    {% if item.single_episode_length %}
-      {% trans 'episode Length' %}: {{ item.single_episode_length|duration_display }}
-    {% endif %}
-  </div>
-  <div>
     {% if item.release_date %}
       {% trans 'release date' %}: <span>{{ item.release_date }}</span>
     {% endif %}

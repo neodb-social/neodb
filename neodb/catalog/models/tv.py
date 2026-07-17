@@ -250,6 +250,8 @@ class TVShow(Item):
     origin_country = CountryListField()
     language = LanguageListField()
 
+    # collected but not displayed or exposed in API;
+    # fate undecided, likely to be deprecated
     single_episode_length = jsondata.IntegerField(
         verbose_name=_("episode length"),
         null=True,
@@ -471,6 +473,8 @@ class TVSeason(Item):
     )
     origin_country = CountryListField()
     language = LanguageListField()
+    # collected but not displayed or exposed in API;
+    # fate undecided, likely to be deprecated
     single_episode_length = jsondata.IntegerField(
         verbose_name=_("episode length"),
         null=True,
