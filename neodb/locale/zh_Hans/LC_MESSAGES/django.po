@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-15 23:19-0400\n"
+"POT-Creation-Date: 2026-07-16 20:50-0400\n"
 "PO-Revision-Date: 2025-04-27 04:24+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -4714,11 +4714,11 @@ msgstr "保存时将行首空格替换为全角"
 #: journal/forms.py:51 journal/forms.py:124 journal/forms.py:149
 #: journal/forms.py:199 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
-#: users/templates/users/data.html:98 users/templates/users/data.html:151
-#: users/templates/users/data.html:207 users/templates/users/data.html:258
-#: users/templates/users/data.html:321 users/templates/users/data.html:380
-#: users/templates/users/rym_import.html:81
+#: users/templates/users/data.html:98 users/templates/users/data.html:155
+#: users/templates/users/data.html:206 users/templates/users/data.html:269
+#: users/templates/users/data.html:328 users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:125
+#: users/templates/users/storygraph_import.html:81
 msgid "Visibility"
 msgstr "可见性"
 
@@ -4752,7 +4752,7 @@ msgid "Collaborative editing"
 msgstr "协作编辑"
 
 #: journal/forms.py:191 users/templates/users/crossposts.html:51
-#: users/templates/users/data.html:535
+#: users/templates/users/data.html:483
 msgid "Status"
 msgstr "状态"
 
@@ -4765,7 +4765,7 @@ msgid "Rating"
 msgstr "评分"
 
 #: journal/importers/goodreads.py:196 journal/importers/letterboxd.py:144
-#: journal/importers/rym.py:442 journal/importers/storygraph.py:203
+#: journal/importers/rym.py:442 journal/importers/storygraph.py:500
 #, python-brace-format
 msgid "a review of {item_title}"
 msgstr "关于 {item_title} 的评论"
@@ -4775,26 +4775,26 @@ msgstr "关于 {item_title} 的评论"
 msgid "{username}'s podcast subscriptions"
 msgstr "{username} 的播客订阅"
 
-#: journal/importers/rym.py:168
+#: journal/importers/rym.py:168 journal/importers/storygraph.py:128
 #, python-brace-format
 msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr "匹配中：{done}/{total} — 本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:178
+#: journal/importers/rym.py:178 journal/importers/storygraph.py:138
 #, python-brace-format
 msgid "Importing: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入中：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/importers/rym.py:233
+#: journal/importers/rym.py:233 journal/importers/storygraph.py:184
 #, python-brace-format
 msgid "Matching complete: {local} local, {ext} external, {none} unmatched"
 msgstr "匹配完成：本地 {local}，外部 {ext}，未匹配 {none}"
 
-#: journal/importers/rym.py:348
+#: journal/importers/rym.py:348 journal/importers/storygraph.py:389
 msgid "Matched file missing; cannot import."
 msgstr "匹配文件丢失，无法导入。"
 
-#: journal/importers/rym.py:376
+#: journal/importers/rym.py:376 journal/importers/storygraph.py:412
 #, python-brace-format
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
@@ -4876,12 +4876,12 @@ msgstr[1] "%(count)d 个条目"
 #: journal/templates/mark.html:88 journal/templates/post_compose.html:58
 #: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
 #: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:160 users/templates/users/data.html:216
-#: users/templates/users/data.html:267 users/templates/users/data.html:329
-#: users/templates/users/data.html:389
+#: users/templates/users/data.html:164 users/templates/users/data.html:215
+#: users/templates/users/data.html:277 users/templates/users/data.html:337
 #: users/templates/users/preferences.html:56
 #: users/templates/users/rym_import.html:84
 #: users/templates/users/steam_import.html:128
+#: users/templates/users/storygraph_import.html:84
 msgid "Public"
 msgstr "公开"
 
@@ -4889,12 +4889,13 @@ msgstr "公开"
 #: journal/templates/collection_share.html:46 journal/templates/comment.html:42
 #: journal/templates/mark.html:95 journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
-#: users/templates/users/data.html:115 users/templates/users/data.html:168
-#: users/templates/users/data.html:224 users/templates/users/data.html:275
-#: users/templates/users/data.html:337 users/templates/users/data.html:397
+#: users/templates/users/data.html:115 users/templates/users/data.html:172
+#: users/templates/users/data.html:223 users/templates/users/data.html:285
+#: users/templates/users/data.html:345
 #: users/templates/users/preferences.html:63
 #: users/templates/users/rym_import.html:88
 #: users/templates/users/steam_import.html:132
+#: users/templates/users/storygraph_import.html:88
 msgid "Followers Only"
 msgstr "仅关注者"
 
@@ -4902,12 +4903,13 @@ msgstr "仅关注者"
 #: journal/templates/comment.html:49 journal/templates/mark.html:102
 #: journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
-#: users/templates/users/data.html:123 users/templates/users/data.html:176
-#: users/templates/users/data.html:232 users/templates/users/data.html:283
-#: users/templates/users/data.html:345 users/templates/users/data.html:405
+#: users/templates/users/data.html:123 users/templates/users/data.html:180
+#: users/templates/users/data.html:231 users/templates/users/data.html:293
+#: users/templates/users/data.html:353
 #: users/templates/users/preferences.html:70
 #: users/templates/users/rym_import.html:92
 #: users/templates/users/steam_import.html:136
+#: users/templates/users/storygraph_import.html:92
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
@@ -4948,6 +4950,7 @@ msgid "Retrying"
 msgstr "重试中"
 
 #: journal/models/note.py:34 users/templates/users/rym_import.html:73
+#: users/templates/users/storygraph_import.html:73
 msgid "Page"
 msgstr "页码"
 
@@ -6890,10 +6893,12 @@ msgid "Create new album"
 msgstr "新建专辑"
 
 #: users/templates/users/_rym_row.html:28
+#: users/templates/users/_storygraph_row.html:31
 msgid "then paste the link above; leave blank to skip this row."
 msgstr "然后将链接粘贴到上方；留空则跳过该行。"
 
 #: users/templates/users/_rym_row.html:39
+#: users/templates/users/_storygraph_row.html:42
 msgid "(skip)"
 msgstr "(跳过)"
 
@@ -6903,6 +6908,7 @@ msgid "Import from RateYourMusic"
 msgstr "从RateYourMusic导入"
 
 #: users/templates/users/_rym_section.html:9
+#: users/templates/users/_storygraph_section.html:11
 msgid "Review pending matches"
 msgstr "审阅待处理的匹配"
 
@@ -6911,6 +6917,7 @@ msgid "Cancel the RateYourMusic import? Progress will be discarded."
 msgstr "取消 RateYourMusic 导入？进度将被丢弃。"
 
 #: users/templates/users/_rym_section.html:16
+#: users/templates/users/_storygraph_section.html:18
 msgid "Cancel import"
 msgstr "取消导入"
 
@@ -6919,7 +6926,7 @@ msgid "On RateYourMusic, go to your profile and use the <b>Export your music cat
 msgstr "在 RateYourMusic 个人资料页面，使用 <b>Export your music catalog</b> 选项将你的收藏导出为 CSV 文件。"
 
 #: users/templates/users/_rym_section.html:31
-#: users/templates/users/data.html:141
+#: users/templates/users/_storygraph_section.html:33
 msgid "Upload the downloaded CSV file below."
 msgstr "在下方上传下载到的 CSV 文件。"
 
@@ -6928,16 +6935,40 @@ msgid "Albums are matched by title + artist (and year if present) — first agai
 msgstr "专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
 
 #: users/templates/users/_rym_section.html:36
+#: users/templates/users/_storygraph_section.html:38
 msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
 msgstr "你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配项。"
 
 #: users/templates/users/_rym_section.html:40
+#: users/templates/users/_storygraph_section.html:42
 msgid "Upload and match"
 msgstr "上传并匹配"
 
 #: users/templates/users/_rym_section.html:46
+#: users/templates/users/_storygraph_section.html:48
 msgid "Download previous matches"
 msgstr "下载先前的匹配"
+
+#: users/templates/users/_storygraph_row.html:30
+msgid "Create new book"
+msgstr "新建图书"
+
+#: users/templates/users/_storygraph_section.html:5
+#: users/templates/users/_storygraph_section.html:23
+msgid "Import from StoryGraph"
+msgstr "从StoryGraph导入"
+
+#: users/templates/users/_storygraph_section.html:17
+msgid "Cancel the StoryGraph import? Progress will be discarded."
+msgstr "取消 StoryGraph 导入？进度将被丢弃。"
+
+#: users/templates/users/_storygraph_section.html:31
+msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
+msgstr "在 StoryGraph，点击 <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 将书库下载为 CSV 文件。"
+
+#: users/templates/users/_storygraph_section.html:35
+msgid "Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
+msgstr "图书将按 ISBN 进行匹配——优先查询本地条目库，然后是 Google Books 和 OpenLibrary——如无结果则按标题加作者搜索。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
 
 #: users/templates/users/account.html:11
 msgid "Account Information"
@@ -7227,9 +7258,9 @@ msgid "CSV file"
 msgstr "CSV 文件"
 
 #: users/templates/users/account.html:445 users/templates/users/data.html:74
-#: users/templates/users/data.html:126 users/templates/users/data.html:179
-#: users/templates/users/data.html:235 users/templates/users/data.html:286
-#: users/templates/users/data.html:350 users/templates/users/data.html:410
+#: users/templates/users/data.html:126 users/templates/users/data.html:183
+#: users/templates/users/data.html:234 users/templates/users/data.html:298
+#: users/templates/users/data.html:358
 #: users/templates/users/steam_import.html:140
 msgid "Import"
 msgstr "导入"
@@ -7373,7 +7404,7 @@ msgstr "导入豆瓣标记和评论"
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>导出时勾选<mark>书影音游剧</mark>和<mark>评论</mark>。<br>选择从豆伴(豆坟)导出的<code>.xlsx</code>文件"
 
-#: users/templates/users/data.html:34 users/templates/users/data.html:308
+#: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
 msgstr "导入方式"
 
@@ -7405,140 +7436,128 @@ msgstr "在 Goodreads，点击 <a href=\"https://www.goodreads.com/review/import
 msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
 msgstr "在下方上传下载的 <code>goodreads_library_export.csv</code> 文件。"
 
-#: users/templates/users/data.html:93 users/templates/users/data.html:143
+#: users/templates/users/data.html:93
 msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr "将导入想读、在读、已读和放弃的书籍及其评论。"
 
-#: users/templates/users/data.html:133
-msgid "Import from StoryGraph"
-msgstr "从StoryGraph导入"
-
-#: users/templates/users/data.html:139
-msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
-msgstr "在 StoryGraph，点击 <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 将书库下载为 CSV 文件。"
-
-#: users/templates/users/data.html:146
-msgid "Books are matched first by ISBN, then by title and author via Google Books. <b>The StoryGraph export has limited metadata</b> (many books lack ISBNs), so some items may fail to match or be matched incorrectly — please review the failed items list after import."
-msgstr "书籍首先通过 ISBN 匹配，然后通过 Google Books 按标题和作者匹配。<b>StoryGraph 导出的元数据有限</b>（许多书籍缺少 ISBN），部分条目可能匹配失败或匹配错误——请在导入后查看失败条目列表。"
-
-#: users/templates/users/data.html:186
+#: users/templates/users/data.html:134
 msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
 
-#: users/templates/users/data.html:192
+#: users/templates/users/data.html:140
 msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
 msgstr "在 letterboxd.com 网站，点击 <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">Settings 中的 DATA</a>；或在其 App 中，进入 Settings 后点击 Advanced Settings，再点击 EXPORT YOUR DATA"
 
-#: users/templates/users/data.html:195
+#: users/templates/users/data.html:143
 msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
 msgstr "下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</code> 的文件，请勿解压"
 
-#: users/templates/users/data.html:198
+#: users/templates/users/data.html:146
 msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr "zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 
-#: users/templates/users/data.html:201
+#: users/templates/users/data.html:149
 msgid "exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
 msgstr "导出文件不含片单的公开、不公开或私密状态，因此所有导入的标记、评论和收藏单都将以下方选择的可见性创建"
 
-#: users/templates/users/data.html:236 users/templates/users/data.html:287
+#: users/templates/users/data.html:184 users/templates/users/data.html:235
 msgid "Only forward changes(none->to-watch->watched) will be imported."
 msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
-#: users/templates/users/data.html:243
+#: users/templates/users/data.html:191
 msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
-#: users/templates/users/data.html:249
+#: users/templates/users/data.html:197
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
 msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链接出现。"
 
-#: users/templates/users/data.html:252
+#: users/templates/users/data.html:200
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgstr "上传下载的<code>.zip</code>文件，无需解压。"
 
-#: users/templates/users/data.html:254
+#: users/templates/users/data.html:202
 msgid "Ratings, watched movies/shows and watchlist will be imported."
 msgstr "将导入评分、已看的电影/剧集和想看列表。"
 
-#: users/templates/users/data.html:295
+#: users/templates/users/data.html:243
 #: users/templates/users/steam_import.html:18
 msgid "Import from Steam Wishlist / Library"
 msgstr "导入Steam游戏库和愿望清单"
 
-#: users/templates/users/data.html:298
+#: users/templates/users/data.html:246
 msgid "Login with Steam"
 msgstr "使用 Steam 登录"
 
-#: users/templates/users/data.html:304
+#: users/templates/users/data.html:252
 msgid "Import Podcast Subscriptions"
 msgstr "导入播客订阅列表 (OPML)"
 
-#: users/templates/users/data.html:315
+#: users/templates/users/data.html:263
 msgid "Mark as listening"
 msgstr "标记为在听"
 
-#: users/templates/users/data.html:319
+#: users/templates/users/data.html:267
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:348
+#: users/templates/users/data.html:296
 msgid "Select OPML file"
 msgstr "选择OPML文件"
 
-#: users/templates/users/data.html:358
+#: users/templates/users/data.html:306
 msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
-#: users/templates/users/data.html:364
+#: users/templates/users/data.html:312
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
 msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
 
-#: users/templates/users/data.html:366
+#: users/templates/users/data.html:314
 msgid "Existing data may be overwritten."
 msgstr "现有数据可能会被覆盖。"
 
-#: users/templates/users/data.html:376
+#: users/templates/users/data.html:324
 msgid "Detected format"
 msgstr "检测到格式"
 
-#: users/templates/users/data.html:437
+#: users/templates/users/data.html:385
 msgid "Detecting format..."
 msgstr "检测格式中"
 
-#: users/templates/users/data.html:463
+#: users/templates/users/data.html:411
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: users/templates/users/data.html:488
+#: users/templates/users/data.html:436
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:512
+#: users/templates/users/data.html:460
 msgid "Export NeoDB Archive"
 msgstr "导出NeoDB备份"
 
-#: users/templates/users/data.html:516
+#: users/templates/users/data.html:464
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
-#: users/templates/users/data.html:523
+#: users/templates/users/data.html:471
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:531
+#: users/templates/users/data.html:479
 msgid "Export marks and reviews in XLSX (Doufen format)"
 msgstr "导出标记、短评和评论 （豆坟xlsx格式）"
 
-#: users/templates/users/data.html:534
+#: users/templates/users/data.html:482
 msgid "Last export"
 msgstr "最近导出"
 
-#: users/templates/users/data.html:539
+#: users/templates/users/data.html:487
 msgid "Download"
 msgstr "下载"
 
-#: users/templates/users/data.html:548
+#: users/templates/users/data.html:496
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
@@ -7942,6 +7961,7 @@ msgid "Review RateYourMusic Matches"
 msgstr "审阅 RateYourMusic 匹配结果"
 
 #: users/templates/users/rym_import.html:39
+#: users/templates/users/storygraph_import.html:39
 #, python-format
 msgid ""
 "\n"
@@ -7953,6 +7973,7 @@ msgstr ""
 "            "
 
 #: users/templates/users/rym_import.html:45
+#: users/templates/users/storygraph_import.html:45
 msgid "Download matched CSV"
 msgstr "下载已匹配的 CSV"
 
@@ -7961,30 +7982,37 @@ msgid "Title / Artist"
 msgstr "标题 / 艺术家"
 
 #: users/templates/users/rym_import.html:58
+#: users/templates/users/storygraph_import.html:58
 msgid "Matched Link"
 msgstr "匹配链接"
 
 #: users/templates/users/rym_import.html:59
+#: users/templates/users/storygraph_import.html:59
 msgid "Shelf"
 msgstr "标记"
 
 #: users/templates/users/rym_import.html:60
+#: users/templates/users/storygraph_import.html:60
 msgid "Date"
 msgstr "日期"
 
 #: users/templates/users/rym_import.html:71
+#: users/templates/users/storygraph_import.html:71
 msgid "Prev"
 msgstr "上一页"
 
 #: users/templates/users/rym_import.html:75
+#: users/templates/users/storygraph_import.html:75
 msgid "Next"
 msgstr "下一页"
 
 #: users/templates/users/rym_import.html:95
+#: users/templates/users/storygraph_import.html:95
 msgid "Confirm Import"
 msgstr "确认导入"
 
 #: users/templates/users/rym_import.html:96
+#: users/templates/users/storygraph_import.html:96
 msgid "Back"
 msgstr "返回"
 
@@ -8104,6 +8132,15 @@ msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过-
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
 msgstr "Steam资料必须公开可见才能导入"
 
+#: users/templates/users/storygraph_import.html:9
+#: users/templates/users/storygraph_import.html:37
+msgid "Review StoryGraph Matches"
+msgstr "审阅 StoryGraph 匹配结果"
+
+#: users/templates/users/storygraph_import.html:57
+msgid "Title / Author"
+msgstr "标题 / 作者"
+
 #: users/templates/users/user_task_status.html:29
 msgid "Failed items"
 msgstr "失败条目"
@@ -8192,136 +8229,141 @@ msgstr "账户删除进行中。"
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
-#: users/views/data.py:223 users/views/data.py:252
+#: users/views/data.py:238 users/views/data.py:267
 msgid "Export file not available."
 msgstr "导出文件不可用。"
 
-#: users/views/data.py:246
+#: users/views/data.py:261
 msgid "Generating exports."
 msgstr "正在生成导出文件。"
 
-#: users/views/data.py:264
+#: users/views/data.py:279
 msgid "Export file expired. Please export again."
 msgstr "导出文件已失效，请重新导出"
 
-#: users/views/data.py:279 users/views/data.py:299
+#: users/views/data.py:294 users/views/data.py:314
 msgid "Recent export still in progress."
 msgstr "正在导出"
 
-#: users/views/data.py:313
+#: users/views/data.py:328
 msgid "Sync in progress."
 msgstr "正在同步。"
 
-#: users/views/data.py:327
+#: users/views/data.py:342
 msgid "Settings saved."
 msgstr "设置已保存"
 
-#: users/views/data.py:382
+#: users/views/data.py:397
 msgid "Account no longer linked."
 msgstr "账户已不再关联。"
 
-#: users/views/data.py:385
+#: users/views/data.py:400
 msgid "Content is no longer public."
 msgstr "内容已不再公开。"
 
-#: users/views/data.py:413
+#: users/views/data.py:428
 msgid "Retry did not complete, please try again."
 msgstr "重试未完成，请再试一次。"
 
-#: users/views/data.py:423 users/views/data.py:456 users/views/data.py:672
-#: users/views/data.py:696 users/views/data.py:721 users/views/data.py:745
-#: users/views/data.py:769
+#: users/views/data.py:438 users/views/data.py:471 users/views/data.py:694
+#: users/views/data.py:909 users/views/data.py:934 users/views/data.py:958
+#: users/views/data.py:982
 msgid "Invalid file."
 msgstr "无效文件。"
 
-#: users/views/data.py:492
+#: users/views/data.py:505 users/views/data.py:728
 msgid "Loaded from uploaded matched file."
 msgstr "已从上传的匹配文件中加载。"
 
-#: users/views/data.py:517
+#: users/views/data.py:530 users/views/data.py:757
 msgid "Cancelled."
 msgstr "已取消。"
 
-#: users/views/data.py:537
+#: users/views/data.py:550
 msgid "No RateYourMusic import to preview."
 msgstr "暂无可预览的 RateYourMusic 导入任务。"
 
-#: users/views/data.py:545 users/views/data.py:655
+#: users/views/data.py:558 users/views/data.py:668 users/views/data.py:787
+#: users/views/data.py:892
 msgid "Matched file missing."
 msgstr "匹配文件丢失。"
 
-#: users/views/data.py:641
+#: users/views/data.py:654 users/views/data.py:878
 msgid "Starting import..."
 msgstr "开始导入..."
 
-#: users/views/data.py:651
+#: users/views/data.py:664 users/views/data.py:888
 msgid "No matched file available."
 msgstr "没有可用的匹配文件。"
 
-#: users/views/data.py:889
+#: users/views/data.py:779
+msgid "No StoryGraph import to preview."
+msgstr "暂无可预览的 StoryGraph 导入任务。"
+
+#: users/views/data.py:1102
 msgid "Name is required."
 msgstr "名称不能为空。"
 
-#: users/views/data.py:911
+#: users/views/data.py:1124
 msgid "Application access has been revoked."
 msgstr "应用访问权限已被撤销。"
 
-#: users/views/data.py:927
+#: users/views/data.py:1140
 msgid "Alias update not allowed for a moved account."
 msgstr "已迁移的账号不允许更新别名。"
 
-#: users/views/data.py:932
+#: users/views/data.py:1145
 msgid "No alias specified."
 msgstr "未指定别名。"
 
-#: users/views/data.py:942 users/views/data.py:993
+#: users/views/data.py:1155 users/views/data.py:1206
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr "正在查找账号，请稍后重试。"
 
-#: users/views/data.py:949
+#: users/views/data.py:1162
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr "已移除 {handle} 的别名。"
 
-#: users/views/data.py:954
+#: users/views/data.py:1167
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr "已添加 {handle} 的别名。"
 
-#: users/views/data.py:980
+#: users/views/data.py:1193
 msgid "Migration cancelled."
 msgstr "迁移已取消。"
 
-#: users/views/data.py:985
+#: users/views/data.py:1198
 msgid "No target account specified."
 msgstr "未指定目标账号。"
 
-#: users/views/data.py:998
+#: users/views/data.py:1211
 msgid "Cannot migrate to a local account."
 msgstr "无法迁移到本站账号。"
 
-#: users/views/data.py:1009
+#: users/views/data.py:1222
 msgid "You must set up an alias in the target account first."
 msgstr "请先在目标账号上设置别名。"
 
-#: users/views/data.py:1015
+#: users/views/data.py:1228
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr "开始迁移到 {handle}。"
 
-#: users/views/data.py:1073
+#: users/views/data.py:1286
 msgid "No file uploaded."
 msgstr "未上传文件。"
 
-#: users/views/data.py:1089
+#: users/views/data.py:1302
 msgid "The uploaded file is not a valid CSV."
 msgstr "上传的文件不是有效的 CSV 文件。"
 
-#: users/views/data.py:1093
+#: users/views/data.py:1306
 msgid "No valid entries found in the CSV file."
 msgstr "CSV 文件中未找到有效条目。"
 
-#: users/views/data.py:1102
+#: users/views/data.py:1315
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
