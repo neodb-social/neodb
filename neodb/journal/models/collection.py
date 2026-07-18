@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
-_COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
+COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
 
 
 class CollectionMember(ListMember):
@@ -425,6 +425,7 @@ class Collection(List):
             if (
                 self.catalog_item.title != self.title
                 or self.catalog_item.brief != self.brief
+                or self.catalog_item.cover != self.cover
             ):
                 self.catalog_item.title = self.title
                 self.catalog_item.brief = self.brief
@@ -510,7 +511,7 @@ class Collection(List):
                     return existing
             except Exception:
                 pass
-        if cover_size is not None and cover_size > _COVER_MAX_BYTES:
+        if cover_size is not None and cover_size > COVER_MAX_BYTES:
             logger.warning(
                 f"collection cover too large to attach ({cover_size} bytes): {self.cover}"
             )

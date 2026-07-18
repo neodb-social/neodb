@@ -1,15 +1,18 @@
 from datetime import datetime
 from typing import Any, List
 
+from django import forms
+from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import b62_encode
 from django.db.models import Count, QuerySet, prefetch_related_objects
 from django.http import Http404, HttpRequest, HttpResponse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
-from ninja import Field, Schema, Status
+from ninja import Field, File, Schema, Status
 from ninja.decorators import decorate_view
 from ninja.errors import HttpError
+from ninja.files import UploadedFile
 from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
@@ -21,6 +24,7 @@ from common.api import (
     api,
 )
 from common.sentry import record_activity
+from journal.models.collection import COVER_MAX_BYTES
 from journal.models.common import q_piece_visible_to_user
 
 from ..models import (
@@ -290,6 +294,72 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.brief = c_in.brief
     c.visibility = c_in.visibility
     c.query = q
+    c.application_id_when_save = getattr(request, "application_id", None)
+    c.save()
+    record_activity("collection", "api")
+    return c
+
+
+@api.put(
+    "/me/collection/{collection_uuid}/cover",
+    response={
+        200: CollectionSchema,
+        400: Result,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
+    tags=["collection"],
+)
+def collection_set_cover(request, collection_uuid: str, cover: File[UploadedFile]):
+    """
+    Set the cover image of a collection.
+
+    Send the image as `multipart/form-data` with a `cover` file field;
+    it must be a valid image no larger than 5MB.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return Status(404, {"message": "Collection not found"})
+    if not c.is_editable_by(request.user):
+        return Status(403, {"message": "Permission denied"})
+    if (cover.size or 0) > COVER_MAX_BYTES:
+        return Status(400, {"message": "Image file too large"})
+    try:
+        f = forms.ImageField().to_python(cover)
+    except forms.ValidationError:
+        return Status(400, {"message": "Invalid image file"})
+    if f is None:
+        return Status(400, {"message": "Invalid image file"})
+    # normalize the filename from the detected format so the stored path
+    # gets a meaningful extension even for extension-less uploads
+    image = getattr(f, "image", None)  # set by ImageField.to_python
+    fmt = (image.format or "").lower() if image else ""
+    ext = {"jpeg": "jpg"}.get(fmt, fmt)
+    if ext:
+        f.name = f"cover.{ext}"
+    c.cover = f
+    c.application_id_when_save = getattr(request, "application_id", None)
+    c.save()
+    record_activity("collection", "api")
+    return c
+
+
+@api.delete(
+    "/me/collection/{collection_uuid}/cover",
+    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def collection_remove_cover(request, collection_uuid: str):
+    """
+    Reset the cover image of a collection to default.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return Status(404, {"message": "Collection not found"})
+    if not c.is_editable_by(request.user):
+        return Status(403, {"message": "Permission denied"})
+    c.cover = settings.DEFAULT_ITEM_COVER
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
     record_activity("collection", "api")

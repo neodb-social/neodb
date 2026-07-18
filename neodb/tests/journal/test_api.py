@@ -1,10 +1,15 @@
 import json
+from io import BytesIO
 from unittest.mock import patch
 
 import pytest
+from django.conf import settings
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, override_settings
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 from django.utils import timezone
+from PIL import Image
 
 from catalog.models import Edition, Game, Movie
 from journal.models import (
@@ -508,6 +513,89 @@ def test_collection_api_crud_and_items():
         HTTP_AUTHORIZATION=f"Bearer {token}",
     )
     assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_collection_cover_api(tmp_path):
+    owner = User.register(email="cover@example.com", username="coverowner")
+    other = User.register(email="covop@example.com", username="coverother")
+    collection = Collection.objects.create(
+        owner=owner.identity,
+        title="Cover Collection",
+        brief="",
+        visibility=0,
+    )
+    app = Takahe.get_or_create_app(
+        "Collection Cover API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=owner.identity.pk,
+    )
+    token = Takahe.refresh_token(app, owner.identity.pk, owner.pk)
+    other_token = Takahe.refresh_token(app, other.identity.pk, other.pk)
+    client = Client()
+    url = f"/api/me/collection/{collection.uuid}/cover"
+
+    buf = BytesIO()
+    Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+    png = buf.getvalue()
+
+    def upload(path, content, auth_token, filename="cover.png"):
+        extra = {"HTTP_AUTHORIZATION": f"Bearer {auth_token}"} if auth_token else {}
+        return client.put(
+            path,
+            data=encode_multipart(
+                BOUNDARY,
+                {"cover": SimpleUploadedFile(filename, content, "image/png")},
+            ),
+            content_type=MULTIPART_CONTENT,
+            **extra,
+        )
+
+    with override_settings(MEDIA_ROOT=str(tmp_path)):
+        response = upload(url, png, None)
+        assert response.status_code == 401
+
+        response = upload(url, png, other_token)
+        assert response.status_code == 403
+
+        missing = "7" * 22
+        response = upload(f"/api/me/collection/{missing}/cover", png, token)
+        assert response.status_code == 404
+
+        response = upload(url, b"not an image", token)
+        assert response.status_code == 400
+
+        response = upload(url, b"\0" * (5 * 1024 * 1024 + 1), token)
+        assert response.status_code == 400
+
+        collection.refresh_from_db()
+        assert str(collection.cover) == settings.DEFAULT_ITEM_COVER
+
+        response = upload(url, png, token)
+        assert response.status_code == 200
+        assert response.json()["cover_image_url"]
+
+        collection.refresh_from_db()
+        assert str(collection.cover) != settings.DEFAULT_ITEM_COVER
+        assert (collection.cover.name or "").endswith(".png")
+        assert collection.catalog_item.cover.name == collection.cover.name
+
+        # extension-less filename gets normalized from the detected format
+        response = upload(url, png, token, filename="blob")
+        assert response.status_code == 200
+        assert response.json()["cover_image_url"].endswith(".png")
+
+        response = client.delete(url, HTTP_AUTHORIZATION=f"Bearer {other_token}")
+        assert response.status_code == 403
+
+        response = client.delete(url, HTTP_AUTHORIZATION=f"Bearer {token}")
+        assert response.status_code == 200
+        assert response.json()["cover_image_url"] is None
+
+        collection.refresh_from_db()
+        assert str(collection.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(collection.catalog_item.cover) == settings.DEFAULT_ITEM_COVER
 
 
 @pytest.mark.django_db(databases="__all__")
