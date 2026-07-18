@@ -214,9 +214,9 @@ class Command(SiteCommand):
             if cls is Comment:
                 # comment with a sibling mark is indexed within its ShelfMember doc
                 pieces = pieces.exclude(
-                    item_id__in=ShelfMember.objects.filter(owner_id=identity_id).values(
-                        "item_id"
-                    )
+                    item_id__in=ShelfMember.objects.filter(owner_id=identity_id)
+                    .values("item_id")
+                    .order_by()
                 )
             # left join keeps pieces without any post
             rows = pieces.values_list(

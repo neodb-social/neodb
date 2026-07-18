@@ -463,10 +463,10 @@ class JournalIndex(Index):
             r = self.write_collection.documents.export(
                 {"filter_by": f"owner_id:{owner_id}", "include_fields": "id"}
             )
+            return {json.loads(line)["id"] for line in r.splitlines() if line}
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return None
-        return {json.loads(line)["id"] for line in r.splitlines() if line}
 
     def delete_by_owner(self, owner_ids):
         return self.delete_docs("owner_id", owner_ids)
