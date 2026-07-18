@@ -17,7 +17,6 @@ from journal.models import (
     Content,
     Note,
     Piece,
-    PiecePost,
     Review,
     ShelfMember,
     update_journal_for_merged_item,
@@ -208,6 +207,8 @@ class Command(SiteCommand):
         for post_id in live_post_ids:
             expected[str(post_id)] = ("post", post_id)
         piece_ids: set[int] = set()
+        # piece_id -> (piece_post_pk, post_id) of the latest linked post
+        latest_pps: dict[int, tuple[int, int]] = {}
         for cls in _INDEXABLE_PIECE_CLASSES:
             pieces = cls.objects.filter(owner_id=identity_id, local=True)
             if cls is Comment:
@@ -217,18 +218,18 @@ class Command(SiteCommand):
                         "item_id"
                     )
                 )
-            piece_ids.update(pieces.values_list("pk", flat=True))
-        latest_post_ids: dict[int, int] = {}
-        pps = (
-            PiecePost.objects.filter(piece__owner_id=identity_id, piece__local=True)
-            .order_by("pk")
-            .values_list("piece_id", "post_id")
-        )
-        for piece_id, post_id in pps:
-            if piece_id in piece_ids:
-                latest_post_ids[piece_id] = post_id
+            # left join keeps pieces without any post
+            rows = pieces.values_list(
+                "pk", "post_relations__pk", "post_relations__post_id"
+            )
+            for piece_id, pp_pk, post_id in rows:
+                piece_ids.add(piece_id)
+                if pp_pk is not None and (
+                    piece_id not in latest_pps or pp_pk > latest_pps[piece_id][0]
+                ):
+                    latest_pps[piece_id] = (pp_pk, post_id)
         for piece_id in piece_ids:
-            post_id = latest_post_ids.get(piece_id)
+            post_id = latest_pps[piece_id][1] if piece_id in latest_pps else None
             if post_id is None:
                 expected["p" + str(piece_id)] = ("piece", piece_id)
             elif post_id not in live_post_ids:

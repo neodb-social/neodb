@@ -31,6 +31,11 @@ class TestIdxSync:
         call_command("journal", "idx-sync", *args, stdout=out)
         return out.getvalue()
 
+    def doc_ids(self, owner_id: int) -> set[str]:
+        ids = self.index.get_doc_ids_by_owner(owner_id)
+        assert ids is not None
+        return ids
+
     def stale_docs(self, owner_id: int) -> list[dict]:
         return [
             {
@@ -54,15 +59,15 @@ class TestIdxSync:
         ]
 
     def test_noop_when_in_sync(self):
-        before = self.index.get_doc_ids_by_owner(self.identity1.pk)
+        before = self.doc_ids(self.identity1.pk)
         assert before
         output = self.run_sync()
         assert "0 docs added, 0 docs deleted" in output
         assert "0 docs purged" in output
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk) == before
+        assert self.doc_ids(self.identity1.pk) == before
 
     def test_add_missing_docs(self):
-        # a piece saved without post or index is missing until sync
+        # a review without post is indexed on save as a piece doc
         review = Review(
             owner=self.identity1,
             item=self.book1,
@@ -70,44 +75,43 @@ class TestIdxSync:
             body="review body",
         )
         review.save(post_when_save=False)
-        before = self.index.get_doc_ids_by_owner(self.identity1.pk)
-        assert before and f"p{review.pk}" not in before
-        # docs wiped from index should also be restored by sync
+        before = self.doc_ids(self.identity1.pk)
+        assert f"p{review.pk}" in before
+        # docs wiped from index are restored by sync, as both post and piece docs
         self.index.delete_by_owner([self.identity1.pk])
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk) == set()
+        assert self.doc_ids(self.identity1.pk) == set()
         self.run_sync()
-        after = self.index.get_doc_ids_by_owner(self.identity1.pk)
-        assert after == before | {f"p{review.pk}"}
+        assert self.doc_ids(self.identity1.pk) == before
 
     def test_delete_stale_docs(self):
-        before = self.index.get_doc_ids_by_owner(self.identity1.pk)
+        before = self.doc_ids(self.identity1.pk)
         assert self.index.insert_docs(self.stale_docs(self.identity1.pk)) == 2
         self.run_sync()
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk) == before
+        assert self.doc_ids(self.identity1.pk) == before
 
     def test_purge_deactivated_identity(self):
-        assert self.index.get_doc_ids_by_owner(self.identity2.pk)
+        assert self.doc_ids(self.identity2.pk)
         self.user2.is_active = False
         self.user2.save()
         output = self.run_sync()
         assert "1 deactivated identities" in output
-        assert self.index.get_doc_ids_by_owner(self.identity2.pk) == set()
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk)
+        assert self.doc_ids(self.identity2.pk) == set()
+        assert self.doc_ids(self.identity1.pk)
 
     def test_dry_run(self):
         assert self.index.insert_docs(self.stale_docs(self.identity1.pk)) == 2
         self.user2.is_active = False
         self.user2.save()
-        before1 = self.index.get_doc_ids_by_owner(self.identity1.pk)
-        before2 = self.index.get_doc_ids_by_owner(self.identity2.pk)
+        before1 = self.doc_ids(self.identity1.pk)
+        before2 = self.doc_ids(self.identity2.pk)
         assert before2
         output = self.run_sync("--dry-run")
         assert "would be" in output
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk) == before1
-        assert self.index.get_doc_ids_by_owner(self.identity2.pk) == before2
+        assert self.doc_ids(self.identity1.pk) == before1
+        assert self.doc_ids(self.identity2.pk) == before2
 
     def test_owner_scope(self):
         self.index.delete_by_owner([self.identity1.pk, self.identity2.pk])
         self.run_sync("--owner", "userx")
-        assert self.index.get_doc_ids_by_owner(self.identity1.pk)
-        assert self.index.get_doc_ids_by_owner(self.identity2.pk) == set()
+        assert self.doc_ids(self.identity1.pk)
+        assert self.doc_ids(self.identity2.pk) == set()
