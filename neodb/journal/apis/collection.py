@@ -70,8 +70,9 @@ class CollectionPageNumberPagination(PageNumberPagination):
 
 
 def _prefetch_collection_owners(collections: List[Collection]) -> None:
-    """Batch-load takahe identities so ``CollectionOwnerSchema`` serialization
-    (display_name/avatar) does not fire a cross-db query per collection.
+    """Batch-load takahe identities so owner (``UserIdentitySchema``)
+    serialization (display_name/avatar) does not fire a cross-db query per
+    collection.
 
     Querysets feeding this should ``select_related("owner")``.
     """
