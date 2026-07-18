@@ -42,7 +42,7 @@ class PushType(models.TextChoices):
             "follow": "{name} is now following you",
             "follow_request": "Follow request from {name}",
             "favourite": "{name} favorited your post",
-            "poll": "{name} posted a new poll",
+            "poll": "A poll by {name} has ended",
             "update": "Update",
             "quote": "{name} quoted your post",
             "admin.sign_up": "{name} signed up for an account",

@@ -110,16 +110,27 @@ class PostStates(StateGraph):
 
     edited = State(try_interval=300)
     edited_fanned_out = State(externally_progressed=True)
+    # Open polls: local ones federate throttled tally Updates and close at
+    # expiry; remote ones with local voters get end-of-poll notifications.
+    question_open = State(try_interval=300, attempt_immediately=False)
 
     new.transitions_to(fanned_out)
+    new.transitions_to(question_open)
     fanned_out.transitions_to(deleted_fanned_out)
     fanned_out.transitions_to(deleted)
     fanned_out.transitions_to(edited)
+    fanned_out.transitions_to(question_open)
 
     deleted.transitions_to(deleted_fanned_out)
     edited.transitions_to(edited_fanned_out)
+    edited.transitions_to(question_open)
     edited_fanned_out.transitions_to(edited)
     edited_fanned_out.transitions_to(deleted)
+    edited_fanned_out.transitions_to(question_open)
+    question_open.transitions_to(fanned_out)
+    question_open.transitions_to(edited)
+    question_open.transitions_to(deleted)
+    question_open.transitions_to(deleted_fanned_out)
 
     @classmethod
     def targets_fan_out(cls, post: "Post", type_: str) -> None:
@@ -175,6 +186,8 @@ class PostStates(StateGraph):
             cls.targets_fan_out(instance, FanOut.Types.post)
         instance.ensure_hashtags()
         _attach_preview_card(instance.pk, instance.content)
+        if cls.needs_question_tracking(instance):
+            return cls.question_open
         return cls.fanned_out
 
     @classmethod
@@ -250,7 +263,80 @@ class PostStates(StateGraph):
         cls.targets_fan_out(instance, FanOut.Types.post_edited)
         instance.ensure_hashtags()
         _attach_preview_card(instance.pk, instance.content)
+        if cls.needs_question_tracking(instance):
+            question = instance.type_data
+            if instance.local and question.last_distributed_tally != question.tally:
+                # The Update we just fanned out carries the current tallies
+                question.last_distributed_tally = question.tally
+                instance.save()
+            return cls.question_open
         return cls.edited_fanned_out
+
+    @classmethod
+    def needs_question_tracking(cls, instance: "Post") -> bool:
+        """
+        Whether this post should sit in question_open: an unexpired poll
+        that is either local or has local voters to notify at expiry.
+        """
+        from activities.models.post_interaction import PostInteraction
+
+        if instance.type != Post.Types.question or not isinstance(
+            instance.type_data, QuestionData
+        ):
+            return False
+        if instance.type_data.is_expired:
+            return False
+        if instance.local:
+            return True
+        if not instance.type_data.effective_end_time:
+            # A remote poll that never ends has no expiry to track
+            return False
+        return instance.interactions.filter(
+            type=PostInteraction.Types.vote, identity__local=True
+        ).exists()
+
+    @classmethod
+    def handle_question_open(cls, instance: "Post"):
+        """
+        Watches an open poll: federates throttled tally Updates for local
+        polls, and at expiry sends the final Update (now carrying `closed`)
+        and notifies the author and local voters.
+        """
+        from activities.models.timeline_event import TimelineEvent
+
+        if instance.type != Post.Types.question or not isinstance(
+            instance.type_data, QuestionData
+        ):
+            return cls.fanned_out
+        question = instance.type_data
+        if not question.is_expired:
+            if (
+                instance.local
+                and not question.hide_totals
+                and question.last_distributed_tally != question.tally
+            ):
+                cls.targets_fan_out(instance, FanOut.Types.post_edited)
+                question.last_distributed_tally = question.tally
+                instance.save()
+            return None
+        # The poll has ended
+        if instance.local:
+            # Final Update reveals hidden totals and carries `closed`
+            cls.targets_fan_out(instance, FanOut.Types.post_edited)
+            question.last_distributed_tally = question.tally
+            instance.save()
+            TimelineEvent.add_poll_ended(instance.author, instance)
+        else:
+            try:
+                instance.refresh_question_from_remote()
+            except Exception:
+                logger.warning(
+                    "Could not refresh final poll tallies for %s",
+                    instance.object_uri,
+                )
+        for voter in instance.question_local_voters():
+            TimelineEvent.add_poll_ended(voter, instance)
+        return cls.fanned_out
 
 
 class PostQuerySet(models.QuerySet):
@@ -749,6 +835,9 @@ class Post(StatorModel):
             if question:
                 post.type = question["type"]
                 post.type_data = PostTypeData(root=question).root
+                if isinstance(post.type_data, QuestionData):
+                    # Baseline for detecting when a tally Update is due
+                    post.type_data.last_distributed_tally = post.type_data.tally
             post.save()
             # Assign to conversation if this is a direct message
             if visibility == cls.Visibilities.mentioned:
@@ -769,6 +858,7 @@ class Post(StatorModel):
         attachments: list | None = None,
         attachment_attributes: list | None = None,
         language: str | None = None,
+        question: dict | None = None,
     ):
         with transaction.atomic():
             # Strip all HTML and apply linebreaks filter
@@ -787,6 +877,8 @@ class Post(StatorModel):
             self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
             self.attachments.set(attachments or [])
+            if question is not None or self.type == Post.Types.question:
+                self.apply_question_edit(question)
             self.save()
 
             for attrs in attachment_attributes or []:
@@ -800,6 +892,34 @@ class Post(StatorModel):
 
             self.transition_perform(PostStates.edited)
         self.neodb_sync_local(self.in_reply_to_post(), content, False)
+
+    def apply_question_edit(self, question: dict | None) -> None:
+        """
+        Applies a poll change during a local post edit: adds, replaces or
+        removes the poll. Changing the options or the mode invalidates all
+        previous votes (matching Mastodon).
+        """
+        from activities.models.post_interaction import PostInteraction
+
+        if question is None:
+            # The poll was removed by the edit
+            self.type = Post.Types.note
+            self.type_data = None
+            self.interactions.filter(type=PostInteraction.Types.vote).delete()
+            return
+        old = self.type_data if isinstance(self.type_data, QuestionData) else None
+        new_data = PostTypeData(root=question).root
+        significantly_changed = (
+            old is None
+            or old.mode != new_data.mode
+            or [option.name for option in (old.options or [])]
+            != [option.name for option in (new_data.options or [])]
+        )
+        if significantly_changed:
+            self.interactions.filter(type=PostInteraction.Types.vote).delete()
+        self.type = Post.Types.question
+        self.type_data = new_data
+        self.calculate_type_data(save=False)
 
     @classmethod
     def mentions_from_content(cls, content, author) -> set[Identity]:
@@ -891,6 +1011,61 @@ class Post(StatorModel):
         if save:
             self.save()
 
+    def question_local_voters(self) -> list[Identity]:
+        """
+        Local identities that voted on this poll (for end-of-poll notifications)
+        """
+        from activities.models import PostInteraction
+
+        return list(
+            Identity.objects.filter(
+                interactions__post=self,
+                interactions__type=PostInteraction.Types.vote,
+                local=True,
+            ).distinct()
+        )
+
+    def refresh_question_from_remote(self) -> "Post | None":
+        """
+        Re-fetches a remote poll from its origin to pick up fresh tallies.
+        Returns the updated Post, or None if it could not be refreshed.
+        """
+        if self.local or self.type != Post.Types.question:
+            return None
+        try:
+            response = SystemActor().signed_request(method="get", uri=self.object_uri)
+        except httpx.HTTPError, ssl.SSLCertVerificationError, ValueError, TypeError:
+            return None
+        if response.status_code >= 400:
+            return None
+        try:
+            json_data = json_from_response(response)
+            ap_data = canonicalise(json_data, include_security=True, outbound=False)
+            post = Post.by_ap(ap_data, create=False, update=True)
+        except json.JSONDecodeError, ValueError, JsonLdError, Post.DoesNotExist:
+            return None
+        if isinstance(post.type_data, QuestionData):
+            post.type_data.last_fetched = timezone.now()
+            post.save()
+        return post
+
+    def refresh_question_if_stale(self) -> "Post":
+        """
+        Re-fetches a remote poll when its tallies may be out of date:
+        more than a minute since the last fetch, and not yet fetched
+        after the poll ended (final results).
+        """
+        question = self.type_data
+        if self.local or not isinstance(question, QuestionData):
+            return self
+        if question.last_fetched:
+            if (timezone.now() - question.last_fetched).total_seconds() < 60:
+                return self
+            end_time = question.effective_end_time
+            if end_time and question.last_fetched >= end_time:
+                return self
+        return self.refresh_question_from_remote() or self
+
     ### ActivityPub (outbound) ###
 
     def to_ap(self) -> dict:
@@ -916,17 +1091,25 @@ class Post(StatorModel):
                 self.language: value["content"],
             }
         if self.type == Post.Types.question and self.type_data:
-            value[self.type_data.mode] = [
+            question = self.type_data
+            expired = question.is_expired
+            totals_hidden = question.hide_totals and not expired
+            value[question.mode] = [
                 {
                     "name": option.name,
                     "type": option.type,
-                    "replies": {"type": "Collection", "totalItems": option.votes},
+                    "replies": {
+                        "type": "Collection",
+                        "totalItems": 0 if totals_hidden else option.votes,
+                    },
                 }
-                for option in self.type_data.options
+                for option in question.options or []
             ]
-            value["toot:votersCount"] = self.type_data.voter_count
-            if self.type_data.end_time:
-                value["endTime"] = format_ld_date(self.type_data.end_time)
+            value["toot:votersCount"] = question.voter_count
+            if question.end_time:
+                value["endTime"] = format_ld_date(question.end_time)
+            if expired and question.effective_end_time:
+                value["closed"] = format_ld_date(question.effective_end_time)
         if self.summary:
             value["summary"] = self.summary
         if self.in_reply_to:

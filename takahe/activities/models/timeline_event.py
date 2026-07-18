@@ -24,6 +24,7 @@ class TimelineEvent(models.Model):
         quoted = "quoted"  # Someone quoting one of our posts
         announcement = "announcement"  # Server announcement
         identity_created = "identity_created"  # New identity created
+        poll = "poll"  # A poll we created or voted in has ended
 
     NOTIFICATION_NAMES = {
         Types.post: "status",
@@ -34,6 +35,7 @@ class TimelineEvent(models.Model):
         Types.follow_requested: "follow_request",
         Types.quoted: "quote",
         Types.identity_created: "admin.sign_up",
+        Types.poll: "poll",
     }
 
     # The user this event is for
@@ -181,6 +183,28 @@ class TimelineEvent(models.Model):
         )
         if created:
             identity.notify(PushType.quote, post.author, body=post.content_preview())
+        return event
+
+    @classmethod
+    def add_poll_ended(cls, identity, post):
+        """
+        Notifies identity that a poll they created or voted in has ended
+        """
+        event, created = cls.objects.get_or_create(
+            identity=identity,
+            type=cls.Types.poll,
+            subject_post=post,
+            subject_identity=post.author,
+        )
+        if created:
+            title = (
+                "Your poll has ended"
+                if identity == post.author
+                else "A poll you voted in has ended"
+            )
+            identity.notify(
+                PushType.poll, post.author, title=title, body=post.content_preview()
+            )
         return event
 
     @classmethod

@@ -7,6 +7,12 @@ from django.core.cache import cache
 from django.utils import timezone
 
 from activities.models import Post
+from activities.models.post_types import (
+    POLL_MAX_EXPIRATION,
+    POLL_MAX_OPTION_CHARS,
+    POLL_MAX_OPTIONS,
+    POLL_MIN_EXPIRATION,
+)
 from api import schemas
 from core.models import Config
 from hatchway import api_view
@@ -79,10 +85,10 @@ def instance_info_v1(request) -> dict:
                 "video_matrix_limit": 2000 * 2000,
             },
             "polls": {
-                "max_options": 4,
-                "max_characters_per_option": 50,
-                "min_expiration": 300,
-                "max_expiration": 2629746,
+                "max_options": POLL_MAX_OPTIONS,
+                "max_characters_per_option": POLL_MAX_OPTION_CHARS,
+                "min_expiration": POLL_MIN_EXPIRATION,
+                "max_expiration": POLL_MAX_EXPIRATION,
             },
         },
         "contact_account": (
@@ -157,10 +163,10 @@ def instance_info_v2(request) -> dict:
                 "video_matrix_limit": 2000 * 2000,
             },
             "polls": {
-                "max_options": 4,
-                "max_characters_per_option": 50,
-                "min_expiration": 300,
-                "max_expiration": 2629746,
+                "max_options": POLL_MAX_OPTIONS,
+                "max_characters_per_option": POLL_MAX_OPTION_CHARS,
+                "min_expiration": POLL_MIN_EXPIRATION,
+                "max_expiration": POLL_MAX_EXPIRATION,
             },
             "translation": {"enabled": False},
         },

@@ -1,6 +1,6 @@
 from django.http import Http404
 from api.views import get_object_or_404
-from hatchway import api_view, QueryOrBody
+from hatchway import ApiError, api_view, QueryOrBody
 
 from activities.models import Post, PostInteraction
 from users.models import Block
@@ -16,6 +16,7 @@ def get_poll(request, id: str) -> schemas.Poll:
         source=post.author, target=request.identity, require_active=True
     ):
         raise Http404
+    post = post.refresh_question_if_stale()
     return schemas.Poll.from_post(post, identity=request.identity)
 
 
@@ -23,6 +24,9 @@ def get_poll(request, id: str) -> schemas.Poll:
 @api_view.post
 def vote_poll(request, id: str, choices: QueryOrBody[list[int]]) -> schemas.Poll:
     post = get_object_or_404(Post, pk=id, type=Post.Types.question)
-    PostInteraction.create_votes(post, request.identity, choices)
+    try:
+        PostInteraction.create_votes(post, request.identity, choices)
+    except ValueError as e:
+        raise ApiError(422, str(e)) from e
     post.refresh_from_db()
     return schemas.Poll.from_post(post, identity=request.identity)

@@ -433,3 +433,48 @@ def test_handle_remove_ap(remote_identity: Identity, config_system):
 
     # Remove activity on unknown post is a no-op
     PostInteraction.handle_remove_ap(data=remove_ap | {"object": "unknown-post"})
+
+
+@pytest.mark.django_db
+def test_vote_with_invalid_option_ignored(
+    identity: Identity, remote_identity: Identity, config_system
+):
+    post = Post.create_local(
+        author=identity,
+        content="<p>Test Question</p>",
+        question={
+            "type": "Question",
+            "mode": "oneOf",
+            "options": [
+                {"name": "Option 1", "type": "Note", "votes": 0},
+                {"name": "Option 2", "type": "Note", "votes": 0},
+            ],
+            "voter_count": 0,
+            "end_time": format_ld_date(timezone.now() + timedelta(1)),
+        },
+    )
+
+    def vote_payload(vote_id, note):
+        return {
+            "id": f"https://remote.test/test-actor#votes/{vote_id}/activity",
+            "to": "https://example.com/@test@example.com/",
+            "type": "Create",
+            "actor": "https://remote.test/test-actor/",
+            "object": {
+                "id": f"https://remote.test/users/test-actor#votes/{vote_id}",
+                "to": "https://example.com/@test@example.com/",
+                "type": "Note",
+                "inReplyTo": post.object_uri,
+                "attributedTo": "https://remote.test/test-actor/",
+                **note,
+            },
+        }
+
+    # A vote for an option that does not exist is dropped, not an error
+    PostInteraction.handle_ap(vote_payload(21, {"name": "Nonexistent Option"}))
+    # A bare Note without a name is dropped too
+    PostInteraction.handle_ap(vote_payload(22, {}))
+
+    post.refresh_from_db()
+    assert post.type_data.voter_count == 0
+    assert not post.interactions.filter(type=PostInteraction.Types.vote).exists()

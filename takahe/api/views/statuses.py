@@ -14,6 +14,12 @@ from activities.models import (
     PostInteractionStates,
     TimelineEvent,
 )
+from activities.models.post_types import (
+    POLL_MAX_EXPIRATION,
+    POLL_MAX_OPTION_CHARS,
+    POLL_MAX_OPTIONS,
+    POLL_MIN_EXPIRATION,
+)
 from activities.services import PostService
 from users.models import Identity
 from api import schemas
@@ -28,6 +34,30 @@ class PostPollSchema(Schema):
     multiple: bool = False
     hide_totals: bool = False
 
+    def validate_limits(self) -> None:
+        if len(self.options) < 2:
+            raise ApiError(
+                422, "Validation failed: Options must have more than one item"
+            )
+        if len(self.options) > POLL_MAX_OPTIONS:
+            raise ApiError(
+                422,
+                f"Validation failed: Options can't contain more than {POLL_MAX_OPTIONS} items",
+            )
+        if any(len(option) > POLL_MAX_OPTION_CHARS for option in self.options):
+            raise ApiError(
+                422,
+                f"Validation failed: Options can't be longer than {POLL_MAX_OPTION_CHARS} characters each",
+            )
+        if len(set(self.options)) != len(self.options):
+            raise ApiError(422, "Validation failed: Options contain duplicate items")
+        if self.expires_in < POLL_MIN_EXPIRATION:
+            raise ApiError(422, "Validation failed: Expiration is too soon")
+        if self.expires_in > POLL_MAX_EXPIRATION:
+            raise ApiError(
+                422, "Validation failed: Expiration is too far into the future"
+            )
+
     def dict(self):
         return {
             "type": "Question",
@@ -36,6 +66,7 @@ class PostPollSchema(Schema):
                 {"name": name, "type": "Note", "votes": 0} for name in self.options
             ],
             "voter_count": 0,
+            "hide_totals": self.hide_totals,
             "end_time": timezone.now() + timedelta(seconds=self.expires_in),
         }
 
@@ -68,6 +99,7 @@ class EditStatusSchema(Schema):
     language: str | None = None
     media_ids: list[str] = []
     media_attributes: list[MediaAttributesSchema] = []
+    poll: PostPollSchema | None = None
 
 
 def post_for_id(request: HttpRequest, id: str) -> Post:
@@ -159,6 +191,12 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
         raise ApiError(400, "Status is too long")
     if not details.status and not details.media_ids:
         raise ApiError(400, "Status is empty")
+    if details.poll:
+        if details.media_ids:
+            raise ApiError(
+                422, "Validation failed: Poll can't be attached to a post with media"
+            )
+        details.poll.validate_limits()
     # Grab attachments
     attachments = _resolve_owned_attachments(request, details.media_ids)
     # Create the Post
@@ -229,13 +267,22 @@ def edit_status(request, id: str, details: EditStatusSchema) -> schemas.Status:
         raise ApiError(401, "Not the author of this status")
     if post.in_reply_to is None and (
         post.type == "Article"
-        or (post.type_data and post.type_data.get("object", {}).get("relatedWith"))
+        or (
+            isinstance(post.type_data, dict)
+            and post.type_data.get("object", {}).get("relatedWith")
+        )
     ):
         # NeoDB-managed structured posts (Reviews via relatedWith, and
         # standalone Articles) cannot be edited via Mastodon API without
         # corrupting the source markdown / metadata; users must edit them
         # in NeoDB.
         raise ApiError(422, "This post must be edited in NeoDB")
+    if details.poll:
+        if details.media_ids:
+            raise ApiError(
+                422, "Validation failed: Poll can't be attached to a post with media"
+            )
+        details.poll.validate_limits()
     # Grab attachments
     attachments = _resolve_owned_attachments(request, details.media_ids)
     # Update all details, as the client must provide them all
@@ -246,8 +293,9 @@ def edit_status(request, id: str, details: EditStatusSchema) -> schemas.Status:
         attachments=attachments,
         attachment_attributes=details.media_attributes,
         language=details.language,
+        question=details.poll.dict() if details.poll else None,
     )
-    return schemas.Status.from_post(post)
+    return schemas.Status.from_post(post, identity=request.identity)
 
 
 @scope_required("write:statuses")

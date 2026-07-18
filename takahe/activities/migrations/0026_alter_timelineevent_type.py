@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                     ("quoted", "Quoted"),
                     ("announcement", "Announcement"),
                     ("identity_created", "Identity Created"),
+                    ("poll", "Poll"),
                 ],
                 max_length=100,
             ),

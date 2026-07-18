@@ -1,7 +1,11 @@
 import pytest
 
 from activities.models import Post
-from activities.models.post_types import QuestionData, QuestionOption
+from activities.models.post_types import (
+    PostTypeData,
+    QuestionData,
+    QuestionOption,
+)
 from core.ld import canonicalise
 
 
@@ -76,3 +80,28 @@ def test_question_post(config_system, identity, remote_identity, httpx_mock):
     assert len(question_data.options) == 2
     assert question_data.options[0].votes == 2
     assert question_data.options[1].votes == 1
+
+
+def test_question_closed_datetime_marks_expired():
+    question = PostTypeData(
+        root={
+            "type": "Question",
+            "oneOf": [{"name": "A"}, {"name": "B"}],
+            "closed": "2022-01-01T00:00:00Z",
+        }
+    ).root
+    assert isinstance(question, QuestionData)
+    assert question.is_expired
+    assert question.effective_end_time is not None
+
+
+def test_question_closed_boolean_marks_expired():
+    question = PostTypeData(
+        root={
+            "type": "Question",
+            "oneOf": [{"name": "A"}, {"name": "B"}],
+            "closed": True,
+        }
+    ).root
+    assert isinstance(question, QuestionData)
+    assert question.is_expired
