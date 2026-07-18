@@ -1064,6 +1064,24 @@ class Content(Piece):
                     dup.delete()
         return newest
 
+    @classmethod
+    def apply_ap_update(
+        cls, p: Self | None, owner: APIdentity, item: Item, d: dict[str, Any]
+    ) -> Self:
+        """Save inbound AP fields onto the already-fetched piece, or create one.
+
+        Updates the fetched row directly; a second lookup via
+        update_or_create can hit raced duplicates (no unique constraint on
+        owner+item for Comment/Review).
+        """
+        if p:
+            for k, v in d.items():
+                setattr(p, k, v)
+            p.save()
+        else:
+            p = cls.objects.create(owner=owner, item=item, **d)
+        return p
+
     @property
     def display_title(self) -> str:
         raise NotImplementedError("subclass should override this")

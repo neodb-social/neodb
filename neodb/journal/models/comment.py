@@ -65,14 +65,7 @@ class Comment(Content):
         }
         if obj.get("relatedWithItemPosition"):
             d["metadata"] = {"position": obj["relatedWithItemPosition"]}
-        # update the fetched row directly; a second lookup via update_or_create
-        # can hit raced duplicates (no unique constraint on owner+item)
-        if p:
-            for k, v in d.items():
-                setattr(p, k, v)
-            p.save()
-        else:
-            p = cls.objects.create(owner=owner, item=item, **d)
+        p = cls.apply_ap_update(p, owner, item, d)
         p.link_post_id(post.id)
         return p
 
