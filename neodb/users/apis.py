@@ -1,6 +1,5 @@
 from typing import Any, Literal
 
-from django.conf import settings
 from ninja import Schema, Status
 from ninja.schema import Field
 
@@ -35,16 +34,6 @@ class UserIdentitySchema(Schema):
             username = obj.get("username")
             return username if isinstance(username, str) else ""
         return obj.handle
-
-    @staticmethod
-    def resolve_url(obj: "APIdentity | dict[str, Any]") -> str:
-        url = obj.get("url") if isinstance(obj, dict) else obj.url
-        if not isinstance(url, str):
-            return ""
-        # APIdentity.url is site-relative; return absolute urls in the API
-        if url.startswith("/"):
-            return settings.SITE_INFO["site_url"] + url
-        return url
 
 
 class UserSchema(UserIdentitySchema):
@@ -83,7 +72,8 @@ def me(request):
         {
             # "id": str(request.user.identity.pk),
             "username": request.user.username,
-            "url": settings.SITE_INFO["site_url"] + request.user.url,
+            # site-relative, like identity urls elsewhere in the API
+            "url": request.user.url,
             "external_acct": (
                 request.user.mastodon.handle if request.user.mastodon else None
             ),
