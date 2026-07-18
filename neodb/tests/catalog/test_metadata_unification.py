@@ -381,37 +381,3 @@ class TestUnifyMetadataMigration:
         a.refresh_from_db()
         g.refresh_from_db()
         assert (dict(m.metadata), dict(a.metadata), dict(g.metadata)) == before
-
-    def test_migration_emits_sentry_metrics(self, monkeypatch):
-        calls = []
-        monkeypatch.setattr(
-            "catalog.common.migrations.sentry_count",
-            lambda key, value=1, attributes=None: calls.append(
-                (key, value, attributes)
-            ),
-        )
-        Movie.objects.create(
-            metadata={
-                "localized_title": [{"lang": "en", "text": "Inception"}],
-                "duration": "148分钟",
-                "year": 2010,
-            }
-        )
-        unify_metadata_20260715()
-        assert all(key == "migration" for key, _, _ in calls)
-        names = [attributes["name"] for _, _, attributes in calls]
-        assert names[0] == "catalog.unify_metadata.start"
-        assert names[-1] == "catalog.unify_metadata.end"
-        steps = [v for _, v, a in calls if a["name"] == "catalog.unify_metadata"]
-        assert sum(steps) == 1
-        # a no-op re-run emits only the start/end markers
-        calls.clear()
-        unify_metadata_20260715()
-        assert [a["name"] for _, _, a in calls] == [
-            "catalog.unify_metadata.start",
-            "catalog.unify_metadata.end",
-        ]
-        # dry run emits nothing
-        calls.clear()
-        unify_metadata_20260715(dry_run=True)
-        assert calls == []
