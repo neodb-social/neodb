@@ -30,6 +30,7 @@ from journal.models.common import (
     q_piece_visible_to_user,
 )
 from takahe.utils import Takahe
+from users.apis import UserIdentitySchema
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -77,13 +78,6 @@ def _prefetch_collection_owners(collections: List[Collection]) -> None:
     Takahe.prefetch_takahe_identities([c.owner for c in collections])
 
 
-class CollectionOwnerSchema(Schema):
-    username: str = Field(alias="handle")
-    url: str
-    display_name: str
-    avatar: str
-
-
 class CollectionSchema(Schema):
     uuid: str
     url: str
@@ -99,7 +93,7 @@ class CollectionSchema(Schema):
     is_dynamic: bool
     query: str | None = None
     item_count_by_category: dict[str, int]
-    owner: CollectionOwnerSchema
+    owner: UserIdentitySchema
 
 
 class CollectionInSchema(Schema):

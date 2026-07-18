@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from django.conf import settings
 from ninja import Schema, Status
@@ -19,13 +19,27 @@ class ExternalAccountSchema(Schema):
     url: str | None
 
 
-class UserSchema(Schema):
+class UserIdentitySchema(Schema):
+    """Public info of an identity, embeddable in other schemas (e.g. as owner)."""
+
+    username: str
     url: str
-    external_acct: str | None = Field(deprecated=True)
-    external_accounts: list[ExternalAccountSchema]
     display_name: str
     avatar: str
-    username: str
+
+    @staticmethod
+    def resolve_username(obj: "APIdentity | dict[str, Any]") -> str:
+        # serialized either from an APIdentity ("user" local / "user@site"
+        # remote, same form /api/user/{handle} accepts) or a prebuilt dict
+        if isinstance(obj, dict):
+            username = obj.get("username")
+            return username if isinstance(username, str) else ""
+        return obj.handle
+
+
+class UserSchema(UserIdentitySchema):
+    external_acct: str | None = Field(deprecated=True)
+    external_accounts: list[ExternalAccountSchema]
     roles: list[Literal["admin", "staff"]]
 
 
