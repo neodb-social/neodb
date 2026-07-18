@@ -153,7 +153,7 @@ class TestMastodonTimeoutApply:
     def test_db_value_applies_to_settings(self):
         old_mastodon = settings.MASTODON_TIMEOUT
         old_takahe = settings.TAKAHE_REMOTE_TIMEOUT
-        old_system = SiteConfig.system
+        old_system = getattr(SiteConfig, "system", None)
         try:
             SiteConfig.set_system(mastodon_timeout=17)
             SiteConfig.reload()
@@ -163,4 +163,5 @@ class TestMastodonTimeoutApply:
         finally:
             settings.MASTODON_TIMEOUT = old_mastodon
             settings.TAKAHE_REMOTE_TIMEOUT = old_takahe
-            SiteConfig.system = old_system
+            if old_system is not None:
+                SiteConfig.system = old_system
