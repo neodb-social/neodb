@@ -1,5 +1,6 @@
 import time
 from datetime import timedelta
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import cache
@@ -207,7 +208,7 @@ class DiscoverGenerator(BaseJob):
             ItemCategory.Performance,
         ]
         gallery_list = []
-        trends = []
+        trends: list[dict[str, Any]] = []
         for category in gallery_categories:
             days = MAX_DAYS_FOR_PERIOD
             item_ids = []
