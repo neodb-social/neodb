@@ -183,6 +183,8 @@ class Collection(List):
         member = self.members.filter(item=item).first()
         if member is None:
             return None
+        # reuse the resolved item so save()'s index update doesn't re-fetch it
+        member.item = item
         member.note = note
         member.save()
         # Re-emit list_add so the Collection receiver bumps edited_time

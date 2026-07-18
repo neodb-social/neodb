@@ -611,6 +611,15 @@ def test_collection_api_update_item_note():
     )
     assert response.status_code == 404
 
+    # unknown collection uuid -> 404
+    response = client.put(
+        f"/api/me/collection/nonexistent/item/{book1.uuid}",
+        data=json.dumps({"note": "nope"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 404
+
     # another user's collection -> 403
     other = User.register(email="notother@example.com", username="noteother")
     other_app = Takahe.get_or_create_app(

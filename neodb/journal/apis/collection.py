@@ -407,8 +407,6 @@ def collection_update_item(
     member = c.update_item_note(item, collection_item.note)
     if not member:
         return Status(404, {"message": "Item not in collection"})
-    # reuse the already-resolved polymorphic item for serialization
-    member.item = item
     return member
 
 
