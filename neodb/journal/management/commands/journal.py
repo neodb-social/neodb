@@ -1,5 +1,6 @@
 from argparse import RawTextHelpFormatter
 from datetime import timedelta
+from itertools import batched
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -10,11 +11,13 @@ from catalog.models import Item
 from common.management.base import SiteCommand
 from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
+    Article,
     Collection,
     Comment,
     Content,
     Note,
     Piece,
+    PiecePost,
     Review,
     ShelfMember,
     update_journal_for_merged_item,
@@ -38,7 +41,25 @@ idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
 idx-catchup:    update index for journal items edited in last X hours (use --hour)
+idx-sync:       add missing docs and delete stale docs for each local identity,
+                purge docs of deactivated identities (use --dry-run to preview)
 """
+
+_DELETED_POST_STATES = ["deleted", "deleted_fanned_out"]
+
+# Piece classes whose to_indexable_doc() may produce a doc of its own; the
+# others (Rating, Tag, TagMember, Shelf, CollectionMember, FeaturedCollection,
+# Debris) always return {} and are never indexed individually.
+_INDEXABLE_PIECE_CLASSES: list[type[Piece]] = [
+    ShelfMember,
+    Comment,
+    Review,
+    Collection,
+    Note,
+    Article,
+]
+
+_SYNC_DELETE_CHUNK = 200
 
 
 class Command(SiteCommand):
@@ -64,6 +85,7 @@ class Command(SiteCommand):
                 "idx-delete",
                 "search",
                 "idx-catchup",
+                "idx-sync",
             ],
             help=_HELP_TEXT,
         )
@@ -112,6 +134,11 @@ class Command(SiteCommand):
             "--hour",
             type=int,
             help="Number of hours to look back for edited items (used with idx-catchup)",
+        )
+        parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="report what idx-sync would change without writing to index",
         )
 
     def integrity(self):
@@ -166,6 +193,130 @@ class Command(SiteCommand):
                         )
                     pbar.update(1)
 
+    def expected_index_docs(self, identity_id: int) -> dict[str, tuple[str, int]]:
+        """Doc ids an active local identity should have in the index.
+
+        Returns a map of doc id -> ("post" | "piece", pk), mirroring how
+        JournalIndex.post_to_doc() / piece_to_doc() assign doc ids.
+        """
+        expected: dict[str, tuple[str, int]] = {}
+        live_post_ids = set(
+            Post.objects.filter(local=True, author_id=identity_id)
+            .exclude(state__in=_DELETED_POST_STATES)
+            .values_list("pk", flat=True)
+        )
+        for post_id in live_post_ids:
+            expected[str(post_id)] = ("post", post_id)
+        piece_ids: set[int] = set()
+        for cls in _INDEXABLE_PIECE_CLASSES:
+            pieces = cls.objects.filter(owner_id=identity_id, local=True)
+            if cls is Comment:
+                # comment with a sibling mark is indexed within its ShelfMember doc
+                pieces = pieces.exclude(
+                    item_id__in=ShelfMember.objects.filter(owner_id=identity_id).values(
+                        "item_id"
+                    )
+                )
+            piece_ids.update(pieces.values_list("pk", flat=True))
+        latest_post_ids: dict[int, int] = {}
+        pps = (
+            PiecePost.objects.filter(piece__owner_id=identity_id, piece__local=True)
+            .order_by("pk")
+            .values_list("piece_id", "post_id")
+        )
+        for piece_id, post_id in pps:
+            if piece_id in piece_ids:
+                latest_post_ids[piece_id] = post_id
+        for piece_id in piece_ids:
+            post_id = latest_post_ids.get(piece_id)
+            if post_id is None:
+                expected["p" + str(piece_id)] = ("piece", piece_id)
+            elif post_id not in live_post_ids:
+                # piece_to_doc() keys the doc by the latest linked post id
+                # even if that post is gone from db
+                expected[str(post_id)] = ("piece", piece_id)
+            # otherwise the piece is covered by the doc of its live post
+        return expected
+
+    def sync_identity_index(
+        self, index: JournalIndex, identity_id: int
+    ) -> tuple[int, int] | None:
+        """Add missing docs and delete stale docs for one active identity.
+
+        Docs already in the index are left as is (no deep comparison).
+        Returns (added, deleted), or None on index error.
+        """
+        expected = self.expected_index_docs(identity_id)
+        indexed = index.get_doc_ids_by_owner(identity_id)
+        if indexed is None:
+            return None
+        extra = indexed - expected.keys()
+        missing = expected.keys() - indexed
+        if self.dry_run:
+            return len(missing), len(extra)
+        deleted = 0
+        for chunk in batched(extra, _SYNC_DELETE_CHUNK):
+            deleted += index.delete_docs("id", chunk)
+        added = 0
+        post_ids = [expected[i][1] for i in missing if expected[i][0] == "post"]
+        for chunk in batched(post_ids, self.batch_size):
+            posts = Post.objects.filter(pk__in=chunk)
+            added += index.replace_docs(index.posts_to_docs(posts))
+        piece_ids = [expected[i][1] for i in missing if expected[i][0] == "piece"]
+        for chunk in batched(piece_ids, self.batch_size):
+            pieces = Piece.objects.filter(pk__in=chunk)
+            added += index.replace_docs(index.pieces_to_docs(pieces))
+        return added, deleted
+
+    def idx_sync(self, index: JournalIndex, owners: list[int]):
+        identities = APIdentity.objects.filter(local=True)
+        if owners:
+            identities = identities.filter(pk__in=owners)
+        # mirror APIdentity.is_active
+        active_q = Q(user__isnull=False, user__is_active=True) | Q(
+            user__isnull=True, deleted__isnull=True
+        )
+        active_ids = list(
+            identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
+        )
+        inactive_ids = list(
+            identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
+        )
+        added = deleted = errors = 0
+        for identity_id in tqdm(active_ids, desc="Syncing active identities"):
+            r = self.sync_identity_index(index, identity_id)
+            if r is None:
+                errors += 1
+                continue
+            a, d = r
+            added += a
+            deleted += d
+            if self.verbose and (a or d):
+                self.stdout.write(f"identity {identity_id}: +{a} -{d}")
+        purged = 0
+        if self.dry_run:
+            for identity_id in tqdm(inactive_ids, desc="Checking deactivated"):
+                ids = index.get_doc_ids_by_owner(identity_id)
+                if ids is None:
+                    errors += 1
+                else:
+                    purged += len(ids)
+        else:
+            for chunk in batched(inactive_ids, 100):
+                purged += index.delete_by_owner(chunk)
+        w = "would be " if self.dry_run else ""
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"idx-sync complete: {len(active_ids)} active identities, "
+                f"{added} docs {w}added, {deleted} docs {w}deleted; "
+                f"{len(inactive_ids)} deactivated identities, {purged} docs {w}purged."
+            )
+        )
+        if errors:
+            self.stdout.write(
+                self.style.WARNING(f"{errors} identities skipped due to index errors.")
+            )
+
     def handle(
         self,
         action,
@@ -184,7 +335,8 @@ class Command(SiteCommand):
     ):
         self.verbose = verbose
         self.fix = fix
-        self.batch_size = batch_size
+        self.batch_size = int(batch_size)
+        self.dry_run = kwargs.get("dry_run", False)
         index = JournalIndex.instance()
 
         if owner and not remote:
@@ -329,6 +481,9 @@ class Command(SiteCommand):
             case "idx-catchup":
                 hour = kwargs.get("hour")
                 self.idx_catchup(hour)
+
+            case "idx-sync":
+                self.idx_sync(index, owners)
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))

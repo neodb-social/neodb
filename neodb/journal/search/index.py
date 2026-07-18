@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import datetime
 from functools import cached_property, reduce
@@ -6,10 +7,12 @@ from typing import TYPE_CHECKING, Iterable
 
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
+from loguru import logger
 
 from catalog.models import Item, item_categories
 from common.models import int_, uniq
 from common.search import Index, QueryParser, SearchResult
+from common.search.index import TYPESENSE_ERRORS
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -453,6 +456,17 @@ class JournalIndex(Index):
 
     def delete_all(self):
         return self.delete_docs("owner_id", ">0")
+
+    def get_doc_ids_by_owner(self, owner_id: int) -> set[str] | None:
+        """Return ids of all docs owned by the identity, or None on error."""
+        try:
+            r = self.write_collection.documents.export(
+                {"filter_by": f"owner_id:{owner_id}", "include_fields": "id"}
+            )
+        except TYPESENSE_ERRORS as e:
+            logger.error(f"Typesense: error {e}")
+            return None
+        return {json.loads(line)["id"] for line in r.splitlines() if line}
 
     def delete_by_owner(self, owner_ids):
         return self.delete_docs("owner_id", owner_ids)
