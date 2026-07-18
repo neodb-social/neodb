@@ -642,6 +642,133 @@ class TestUpdateByApObject:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestUpdateByApObjectDuplicateRows:
+    """Duplicate (owner, item) rows must not crash update_by_ap_object.
+
+    Comment and Review have no unique constraint on (owner, item), so
+    concurrent fetch workers can race duplicate rows in; a later update
+    then crashed update_or_create with MultipleObjectsReturned (Sentry
+    EGGPLANT-1GP). The update must consolidate onto the newest row.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.book = Edition.objects.create(title="Test Book")
+        self.user = User.register(email="dupap@test.com", username="dupap_user")
+        self.identity = self.user.identity
+
+    def _comment_ap_obj(self, content: str, updated: str) -> dict:
+        return {
+            "id": "https://example.com/comment/1",
+            "type": "Comment",
+            "content": content,
+            "published": "2021-01-01T00:00:00+00:00",
+            "updated": updated,
+            "attributedTo": self.identity.actor_uri,
+            "withRegardTo": self.book.absolute_url,
+            "href": "https://example.com/comment/1",
+        }
+
+    def _make_duplicate_comments(self) -> tuple[Comment, Comment]:
+        older = Comment.objects.create(
+            item=self.book,
+            owner=self.identity,
+            text="older duplicate",
+            local=False,
+            remote_id="https://example.com/comment/1",
+            visibility=0,
+        )
+        newer = Comment.objects.create(
+            item=self.book,
+            owner=self.identity,
+            text="newer duplicate",
+            local=False,
+            remote_id="https://example.com/comment/1",
+            visibility=0,
+        )
+        # edited_time is auto_now; backdate via update() to control ordering
+        Comment.objects.filter(pk=older.pk).update(
+            edited_time="2021-06-01T00:00:00+00:00"
+        )
+        Comment.objects.filter(pk=newer.pk).update(
+            edited_time="2022-06-01T00:00:00+00:00"
+        )
+        return older, newer
+
+    def test_comment_update_consolidates_duplicates(self):
+        older, newer = self._make_duplicate_comments()
+        post = _make_remote_post(self.identity.pk, post_id=66661)
+        result = Comment.update_by_ap_object(
+            self.identity,
+            self.book,
+            self._comment_ap_obj("final text", "2023-01-01T00:00:00+00:00"),
+            post,
+        )
+        assert result is not None
+        assert result.pk == newer.pk
+        assert result.text == "final text"
+        remaining = Comment.objects.filter(owner=self.identity, item=self.book)
+        assert remaining.count() == 1
+        assert not Comment.objects.filter(pk=older.pk).exists()
+
+    def test_comment_stale_update_still_dedupes(self):
+        older, newer = self._make_duplicate_comments()
+        post = _make_remote_post(self.identity.pk, post_id=66662)
+        result = Comment.update_by_ap_object(
+            self.identity,
+            self.book,
+            self._comment_ap_obj("stale text", "2022-01-01T00:00:00+00:00"),
+            post,
+        )
+        assert result is not None
+        assert result.pk == newer.pk
+        assert result.text == "newer duplicate"
+        remaining = Comment.objects.filter(owner=self.identity, item=self.book)
+        assert remaining.count() == 1
+        assert not Comment.objects.filter(pk=older.pk).exists()
+
+    def test_review_update_consolidates_duplicates(self):
+        reviews = []
+        for title, edited in [
+            ("older duplicate", "2021-06-01T00:00:00+00:00"),
+            ("newer duplicate", "2022-06-01T00:00:00+00:00"),
+        ]:
+            review = Review.objects.create(
+                item=self.book,
+                owner=self.identity,
+                title=title,
+                body="body",
+                local=False,
+                remote_id="https://example.com/review/1",
+                visibility=0,
+            )
+            # edited_time is auto_now; backdate via update() so the incoming
+            # object below is newer than both rows
+            Review.objects.filter(pk=review.pk).update(edited_time=edited)
+            reviews.append(review)
+        post = _make_remote_post(self.identity.pk, post_id=66663)
+        ap_obj = {
+            "id": "https://example.com/review/1",
+            "type": "Review",
+            "name": "final title",
+            "content": "final body",
+            "mediaType": "text/markdown",
+            "published": "2021-01-01T00:00:00+00:00",
+            "updated": "2023-01-01T00:00:00+00:00",
+            "attributedTo": self.identity.actor_uri,
+            "withRegardTo": self.book.absolute_url,
+            "href": "https://example.com/review/1",
+        }
+        result = Review.update_by_ap_object(self.identity, self.book, ap_obj, post)
+        assert result is not None
+        assert result.pk == reviews[1].pk
+        assert result.title == "final title"
+        assert result.body == "final body"
+        remaining = Review.objects.filter(owner=self.identity, item=self.book)
+        assert remaining.count() == 1
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestUpdateByApObjectMissingUpdated:
     """Verify update_by_ap_object handles AP objects that omit the 'updated' field.
 

@@ -1036,6 +1036,24 @@ class Content(Piece):
     def __str__(self):
         return f"{self.__class__.__name__}:{self.uuid}@{self.item}"
 
+    @classmethod
+    def dedupe_newest(cls, owner: APIdentity, item: Item) -> Self | None:
+        """Return the newest piece for (owner, item), deleting older duplicates.
+
+        Only for types where (owner, item) is logically unique but not
+        DB-enforced (Comment, Review — unlike Rating/ShelfMember there is no
+        unique constraint, so concurrent inbound fetch workers can race
+        duplicate rows in). Never use for Note, which allows multiple pieces
+        per (owner, item) by design.
+        """
+        pieces = list(
+            cls.objects.filter(owner=owner, item=item).order_by("-edited_time", "-pk")
+        )
+        for dup in pieces[1:]:
+            logger.warning(f"deleting duplicate {dup!r} of {pieces[0]!r}")
+            dup.delete()
+        return pieces[0] if pieces else None
+
     @property
     def display_title(self) -> str:
         raise NotImplementedError("subclass should override this")

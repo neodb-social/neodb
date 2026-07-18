@@ -46,7 +46,7 @@ class Comment(Content):
     def update_by_ap_object(cls, owner, item, obj, post, crosspost=None):
         if post.local:  # ignore local user updating their post via Mastodon API
             return
-        p = cls.objects.filter(owner=owner, item=item).first()
+        p = cls.dedupe_newest(owner, item)
         updated = obj.get("updated") or obj["published"]
         if p and p.edited_time >= datetime.fromisoformat(updated):
             return p  # incoming ap object is older than what we have, no update needed
@@ -64,7 +64,14 @@ class Comment(Content):
         }
         if obj.get("relatedWithItemPosition"):
             d["metadata"] = {"position": obj["relatedWithItemPosition"]}
-        p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
+        # update the fetched row directly; a second lookup via update_or_create
+        # can hit raced duplicates (no unique constraint on owner+item)
+        if p:
+            for k, v in d.items():
+                setattr(p, k, v)
+            p.save()
+        else:
+            p = cls.objects.create(owner=owner, item=item, **d)
         p.link_post_id(post.id)
         return p
 
