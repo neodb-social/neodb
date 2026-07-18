@@ -227,6 +227,75 @@ def test_item_collections_visibility():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_user_collections_api_visibility():
+    with (
+        patch("journal.models.collection.Collection.sync_to_timeline"),
+        patch("journal.models.collection.Collection.update_index"),
+    ):
+        owner = User.register(email="collowner@example.com", username="collowner")
+        follower = User.register(
+            email="collfollower@example.com", username="collfollower"
+        )
+        stranger = User.register(
+            email="collstranger@example.com", username="collstranger"
+        )
+        public = Collection.objects.create(
+            owner=owner.identity, title="Public Collection", brief="", visibility=0
+        )
+        follower_only = Collection.objects.create(
+            owner=owner.identity, title="Follower Collection", brief="", visibility=1
+        )
+        private = Collection.objects.create(
+            owner=owner.identity, title="Private Collection", brief="", visibility=2
+        )
+    follower.identity.follow(owner.identity, True)
+
+    app = Takahe.get_or_create_app(
+        "User Collection API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=owner.identity.pk,
+    )
+
+    def get_collections(user=None):
+        headers = {}
+        if user:
+            token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+            headers["Authorization"] = f"Bearer {token}"
+        response = Client().get(
+            f"/api/user/{owner.username}/collection/", headers=headers
+        )
+        assert response.status_code == 200
+        return response.json()
+
+    payload = get_collections(owner)
+    assert payload["count"] == 3
+    # most recently edited first, same order as the web page
+    assert [c["uuid"] for c in payload["data"]] == [
+        private.uuid,
+        follower_only.uuid,
+        public.uuid,
+    ]
+
+    payload = get_collections(follower)
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid, follower_only.uuid}
+
+    payload = get_collections(stranger)
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid}
+
+    payload = get_collections()
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid}
+
+    owner.identity.anonymous_viewable = False
+    owner.identity.save(update_fields=["anonymous_viewable"])
+    payload = get_collections()
+    assert payload["count"] == 0
+
+    response = Client().get("/api/user/nosuchuser/collection/")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_tag_api_lifecycle():
     user = User.register(email="tagger@example.com", username="tagger")
     item = Edition.objects.create(title="Tagged Book")

@@ -25,7 +25,11 @@ from common.api import (
 )
 from common.sentry import record_activity
 from journal.models.collection import COVER_MAX_BYTES
-from journal.models.common import q_piece_visible_to_user
+from journal.models.common import (
+    q_owned_piece_visible_to_user,
+    q_piece_visible_to_user,
+)
+from users.models.apidentity import APIdentity
 
 from ..models import (
     Collection,
@@ -186,6 +190,28 @@ def list_user_collections(request):
     """
     queryset = Collection.objects.filter(owner=request.user.identity)
     return queryset
+
+
+@api.get(
+    "/user/{handle}/collection/",
+    response={200: List[CollectionSchema], 401: Result, 404: Result},
+    tags=["collection"],
+    auth=OptionalOAuthAccessTokenAuth(),
+)
+@paginate(CollectionPageNumberPagination)
+def list_collections_of_user(request, handle: str):
+    """
+    Get collections created by a specific user
+
+    Only collections visible to the requesting identity are returned;
+    anonymous access is allowed if the user's profile is anonymous viewable.
+    """
+    try:
+        target = APIdentity.get_by_handle(handle)
+    except APIdentity.DoesNotExist:
+        raise Http404("User not found")
+    qv = q_owned_piece_visible_to_user(request.user, target, check_blocking=True)
+    return Collection.objects.filter(qv).order_by("-edited_time")
 
 
 @api.get(
