@@ -548,6 +548,100 @@ def test_collection_reorder_items():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_collection_api_update_item_note():
+    user = User.register(email="noteedit@example.com", username="noteeditor")
+    book1 = Edition.objects.create(title="Note Book 1")
+    book2 = Edition.objects.create(title="Note Book 2")
+    outside = Edition.objects.create(title="Note Book Outside")
+    collection = Collection.objects.create(
+        owner=user.identity, title="Note Collection", brief="", visibility=0
+    )
+    collection.append_item(book1, note="original")
+    collection.append_item(book2)
+
+    app = Takahe.get_or_create_app(
+        "Collection Note API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    response = client.put(
+        f"/api/me/collection/{collection.uuid}/item/{book1.uuid}",
+        data=json.dumps({"note": "updated"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["item"]["uuid"] == book1.uuid
+    assert payload["note"] == "updated"
+    # position is preserved
+    members = list(collection.ordered_members)
+    assert [m.item.uuid for m in members] == [book1.uuid, book2.uuid]
+    assert members[0].note == "updated"
+
+    # empty string clears the note
+    response = client.put(
+        f"/api/me/collection/{collection.uuid}/item/{book1.uuid}",
+        data=json.dumps({"note": ""}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 200
+    assert response.json()["note"] == ""
+
+    # item not in the collection -> 404
+    response = client.put(
+        f"/api/me/collection/{collection.uuid}/item/{outside.uuid}",
+        data=json.dumps({"note": "nope"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 404
+
+    # unknown item uuid -> 404
+    response = client.put(
+        f"/api/me/collection/{collection.uuid}/item/nonexistent",
+        data=json.dumps({"note": "nope"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 404
+
+    # another user's collection -> 403
+    other = User.register(email="notother@example.com", username="noteother")
+    other_app = Takahe.get_or_create_app(
+        "Collection Note API Tests 2",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=other.identity.pk,
+    )
+    other_token = Takahe.refresh_token(other_app, other.identity.pk, other.pk)
+    response = client.put(
+        f"/api/me/collection/{collection.uuid}/item/{book1.uuid}",
+        data=json.dumps({"note": "hijack"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {other_token}",
+    )
+    assert response.status_code == 403
+
+    # dynamic collection -> 403
+    dynamic = Collection.objects.create(
+        owner=user.identity, title="Dynamic", brief="", visibility=0, query="q"
+    )
+    response = client.put(
+        f"/api/me/collection/{dynamic.uuid}/item/{book1.uuid}",
+        data=json.dumps({"note": "nope"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_collection_reorder_items_validation():
     user = User.register(email="reorder2@example.com", username="reorderer2")
     book1 = Edition.objects.create(title="Reorder2 Book 1")

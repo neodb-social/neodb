@@ -154,6 +154,10 @@ class CollectionItemInSchema(Schema):
     note: str
 
 
+class CollectionItemNoteInSchema(Schema):
+    note: str
+
+
 class CollectionItemReorderInSchema(Schema):
     item_uuids: list[str]
 
@@ -347,6 +351,10 @@ def collection_add_item(
 ):
     """
     Add an item to collection
+
+    If the item is already in the collection this is a no-op and its note is
+    kept; use `PUT /me/collection/{collection_uuid}/item/{item_uuid}` to
+    update the note of an existing item.
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
@@ -364,6 +372,44 @@ def collection_add_item(
         return Status(404, {"message": "Item not found"})
     c.append_item(item, note=collection_item.note)
     return Status(200, {"message": "OK"})
+
+
+@api.put(
+    "/me/collection/{collection_uuid}/item/{item_uuid}",
+    response={200: CollectionItemSchema, 401: Result, 403: Result, 404: Result},
+    tags=["collection"],
+)
+def collection_update_item(
+    request,
+    collection_uuid: str,
+    item_uuid: str,
+    collection_item: CollectionItemNoteInSchema,
+):
+    """
+    Update the note of an item in the collection.
+
+    The item must already be in the collection; 404 is returned otherwise
+    (position is preserved, unlike remove + re-add). Set `note` to an empty
+    string to clear it. Returns the updated member.
+    """
+    c = Collection.get_by_url(collection_uuid)
+    if not c:
+        return Status(404, {"message": "Collection not found"})
+    if not c.is_editable_by(request.user):
+        return Status(403, {"message": "Permission denied"})
+    if c.is_dynamic:
+        return Status(
+            403, {"message": "Item list of dynamic collection cannot be updated"}
+        )
+    item = Item.get_by_url(item_uuid)
+    if not item:
+        return Status(404, {"message": "Item not found"})
+    member = c.update_item_note(item, collection_item.note)
+    if not member:
+        return Status(404, {"message": "Item not in collection"})
+    # reuse the already-resolved polymorphic item for serialization
+    member.item = item
+    return member
 
 
 @api.post(

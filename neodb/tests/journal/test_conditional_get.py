@@ -252,6 +252,12 @@ class TestCollectionMemberEditBumpsEditedTime:
         self.collection.update_item_metadata(self.book1, {"note": "new note"})
         assert self._refetch_edited_time() > before
 
+    def test_update_item_note_bumps_edited_time(self):
+        self.collection.append_item(self.book1, note="old")
+        before = self._refetch_edited_time()
+        self.collection.update_item_note(self.book1, "new note")
+        assert self._refetch_edited_time() > before
+
     def test_view_update_item_note_bumps_edited_time(self):
         self.collection.append_item(self.book1, note="old")
         before = self._refetch_edited_time()

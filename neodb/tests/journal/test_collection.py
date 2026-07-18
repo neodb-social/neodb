@@ -176,6 +176,24 @@ class TestCollectionListOperations:
         # Should not raise when item is not in collection
         self.collection.update_item_metadata(self.book1, {"note": "test"})
 
+    def test_update_item_note(self):
+        self.collection.append_item(self.book1, note="old")
+        member = self.collection.get_member_for_item(self.book1)
+        member.metadata["extra"] = 1
+        member.save()
+
+        member = self.collection.update_item_note(self.book1, "new")
+
+        assert member is not None
+        assert member.note == "new"
+        member = self.collection.get_member_for_item(self.book1)
+        assert member.note == "new"
+        # unlike update_item_metadata, other metadata keys are preserved
+        assert member.metadata.get("extra") == 1
+
+    def test_update_item_note_nonexistent(self):
+        assert self.collection.update_item_note(self.book1, "note") is None
+
     def test_get_summary(self):
         self.collection.append_item(self.book1)
         self.collection.append_item(self.book2)

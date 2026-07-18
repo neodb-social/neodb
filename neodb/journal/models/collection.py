@@ -178,6 +178,18 @@ class Collection(List):
         # Collaborators may edit content but only owner/staff may delete.
         return super().is_editable_by(viewing_user)
 
+    def update_item_note(self, item: Item, note: str) -> CollectionMember | None:
+        """Update the note of an existing member, or return None if item is not in the collection."""
+        member = self.members.filter(item=item).first()
+        if member is None:
+            return None
+        member.note = note
+        member.save()
+        # Re-emit list_add so the Collection receiver bumps edited_time
+        # and federates the updated member state.
+        list_add.send(sender=self.__class__, instance=self, item=item, member=member)
+        return member
+
     def get_query(self, viewer, **kwargs):
         if not self.is_dynamic:
             return None

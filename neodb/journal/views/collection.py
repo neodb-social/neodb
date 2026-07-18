@@ -23,7 +23,6 @@ from users.models import User
 
 from ..forms import *
 from ..models import *
-from ..models.itemlist import list_add
 from ..models.renderers import sanitize_md_images
 from .common import (
     conditional_get_for_anonymous,
@@ -538,12 +537,7 @@ def collection_update_item_note(request: AuthedHttpRequest, collection_uuid, ite
     note = request.POST.get("note", default="")
     cancel = request.GET.get("cancel")
     if request.method == "POST" and member:
-        member.note = note
-        member.save()
-        # Re-emit list_add so the Collection receiver bumps edited_time
-        # and federates the updated member-state — the receiver gates on
-        # is_dynamic itself.
-        list_add.send(sender=Collection, instance=collection, item=item, member=member)
+        member = collection.update_item_note(item, note)
         return render(
             request,
             "collection_update_item_note_ok.html",
