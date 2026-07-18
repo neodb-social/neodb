@@ -204,10 +204,13 @@ class Edition(Item):
                 metadata["imprint"] = "/".join(coerced)
             else:
                 metadata.pop("imprint", None)
-        # normalize price to "<ISO4217> <amount>" where unambiguous
+        # normalize price to "<ISO4217> <amount>" where unambiguous;
+        # legacy 元 prices are overwhelmingly douban-sourced, so assume CNY
+        # (¥/￥ and bare numbers stay as-is without a source hint)
         price = metadata.get("price")
         if isinstance(price, str) and price:
-            metadata["price"] = normalize_price(price)
+            hint = "CNY" if price.strip().endswith("元") else None
+            metadata["price"] = normalize_price(price, hint)
 
     available_roles = [
         PeopleRole.AUTHOR,

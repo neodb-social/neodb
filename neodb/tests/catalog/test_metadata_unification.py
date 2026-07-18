@@ -135,10 +135,24 @@ class TestNormalizeLegacyEditionMetadata:
         Edition.normalize_legacy_metadata(md)
         assert md["price"] == "TWD 450"
 
-    def test_ambiguous_price_kept(self):
+    def test_yuan_suffix_assumed_cny(self):
         md = {"price": "19.00元"}
         Edition.normalize_legacy_metadata(md)
-        assert md["price"] == "19.00元"
+        assert md["price"] == "CNY 19.00"
+        md = {"price": "1,299 元"}
+        Edition.normalize_legacy_metadata(md)
+        assert md["price"] == "CNY 1299"
+        # annotated values still do not parse and are kept verbatim
+        md = {"price": "48.00元（全二册）"}
+        Edition.normalize_legacy_metadata(md)
+        assert md["price"] == "48.00元（全二册）"
+
+    def test_ambiguous_price_kept(self):
+        # ¥ could be JPY or CNY; bare numbers have no currency at all
+        for price in ("¥19.00", "￥484", "19.00"):
+            md = {"price": price}
+            Edition.normalize_legacy_metadata(md)
+            assert md["price"] == price
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -840,6 +840,7 @@ def unify_metadata_20260715(
       album_type -> slug list; release_date canonicalized
     - Game: release_year -> release_date; localized release_date text -> ISO
     - Edition: price -> "<ISO4217> <amount>" where unambiguous
+      (suffixed 元 is assumed CNY)
 
     Restart-safe: one pk-ordered pass over all items (resume with --start),
     and idempotent because legacy keys are removed on first conversion (the
