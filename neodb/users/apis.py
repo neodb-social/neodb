@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+from django.conf import settings
 from ninja import Schema, Status
 from ninja.schema import Field
 
@@ -34,6 +35,17 @@ class UserIdentitySchema(Schema):
             username = obj.get("username")
             return username if isinstance(username, str) else ""
         return obj.handle
+
+    @staticmethod
+    def resolve_avatar(obj: "APIdentity | dict[str, Any]") -> str:
+        avatar = obj.get("avatar") if isinstance(obj, dict) else obj.avatar
+        if not isinstance(avatar, str):
+            return ""
+        # image assets are absolute in the API (like cover_image_url), while
+        # in-site page urls stay relative
+        if avatar.startswith("/"):
+            return settings.SITE_INFO["site_url"] + avatar
+        return avatar
 
 
 class UserSchema(UserIdentitySchema):

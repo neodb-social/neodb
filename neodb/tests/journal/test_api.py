@@ -280,7 +280,7 @@ def test_user_collections_api_visibility():
     assert owner_info["username"] == "collowner"
     assert owner_info["url"] == "/users/collowner/"
     assert owner_info["display_name"]
-    assert owner_info["avatar"]
+    assert owner_info["avatar"].startswith("http")
 
     payload = get_collections(follower)
     assert {c["uuid"] for c in payload["data"]} == {public.uuid, follower_only.uuid}
