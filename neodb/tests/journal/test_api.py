@@ -279,7 +279,7 @@ def test_user_collections_api_visibility():
     ]
     owner_info = payload["data"][0]["owner"]
     assert owner_info["username"] == "collowner"
-    assert owner_info["url"] == "/users/collowner/"
+    assert owner_info["url"] == settings.SITE_INFO["site_url"] + "/users/collowner/"
     assert owner_info["display_name"]
     assert owner_info["avatar"]
 

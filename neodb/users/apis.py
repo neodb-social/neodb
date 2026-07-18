@@ -36,6 +36,16 @@ class UserIdentitySchema(Schema):
             return username if isinstance(username, str) else ""
         return obj.handle
 
+    @staticmethod
+    def resolve_url(obj: "APIdentity | dict[str, Any]") -> str:
+        url = obj.get("url") if isinstance(obj, dict) else obj.url
+        if not isinstance(url, str):
+            return ""
+        # APIdentity.url is site-relative; return absolute urls in the API
+        if url.startswith("/"):
+            return settings.SITE_INFO["site_url"] + url
+        return url
+
 
 class UserSchema(UserIdentitySchema):
     external_acct: str | None = Field(deprecated=True)
