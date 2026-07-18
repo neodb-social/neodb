@@ -18,6 +18,7 @@ from journal.models import (
     FeaturedCollection,
     Mark,
     Note,
+    PieceInteraction,
     Review,
     Tag,
 )
@@ -276,6 +277,11 @@ def test_user_collections_api_visibility():
         follower_only.uuid,
         public.uuid,
     ]
+    owner_info = payload["data"][0]["owner"]
+    assert owner_info["username"] == "collowner"
+    assert owner_info["url"] == "/users/collowner/"
+    assert owner_info["display_name"]
+    assert owner_info["avatar"]
 
     payload = get_collections(follower)
     assert {c["uuid"] for c in payload["data"]} == {public.uuid, follower_only.uuid}
@@ -292,6 +298,95 @@ def test_user_collections_api_visibility():
     assert payload["count"] == 0
 
     response = Client().get("/api/user/nosuchuser/collection/")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_user_liked_collections_api():
+    with (
+        patch("journal.models.collection.Collection.sync_to_timeline"),
+        patch("journal.models.collection.Collection.update_index"),
+    ):
+        owner = User.register(email="lkowner@example.com", username="lkowner")
+        liker = User.register(email="lkliker@example.com", username="lkliker")
+        stranger = User.register(email="lkstranger@example.com", username="lkstranger")
+        ofollower = User.register(
+            email="lkofollower@example.com", username="lkofollower"
+        )
+        public = Collection.objects.create(
+            owner=owner.identity, title="Public Collection", brief="", visibility=0
+        )
+        follower_only = Collection.objects.create(
+            owner=owner.identity, title="Follower Collection", brief="", visibility=1
+        )
+        private = Collection.objects.create(
+            owner=owner.identity, title="Private Collection", brief="", visibility=2
+        )
+        unliked = Collection.objects.create(
+            owner=owner.identity, title="Unliked Collection", brief="", visibility=0
+        )
+    for c in (public, follower_only, private):
+        PieceInteraction.objects.create(
+            target=c,
+            identity=liker.identity,
+            interaction_type="like",
+            target_type="Collection",
+        )
+    ofollower.identity.follow(owner.identity, True)
+
+    app = Takahe.get_or_create_app(
+        "Liked Collection API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=liker.identity.pk,
+    )
+
+    def get_liked(user=None):
+        headers = {}
+        if user:
+            token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+            headers["Authorization"] = f"Bearer {token}"
+        response = Client().get(
+            f"/api/user/{liker.username}/collection/liked/", headers=headers
+        )
+        assert response.status_code == 200
+        return response.json()
+
+    # the liker sees everything they liked, but not what they didn't
+    payload = get_liked(liker)
+    assert {c["uuid"] for c in payload["data"]} == {
+        public.uuid,
+        follower_only.uuid,
+        private.uuid,
+    }
+    assert unliked.uuid not in {c["uuid"] for c in payload["data"]}
+    liked_owner = payload["data"][0]["owner"]
+    assert liked_owner["username"] == "lkowner"
+
+    # others see liked collections gated by their own visibility to each
+    # collection's owner, not their relation to the liker
+    payload = get_liked(stranger)
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid}
+
+    payload = get_liked(ofollower)
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid, follower_only.uuid}
+
+    payload = get_liked(owner)
+    assert {c["uuid"] for c in payload["data"]} == {
+        public.uuid,
+        follower_only.uuid,
+        private.uuid,
+    }
+
+    payload = get_liked()
+    assert {c["uuid"] for c in payload["data"]} == {public.uuid}
+
+    liker.identity.anonymous_viewable = False
+    liker.identity.save(update_fields=["anonymous_viewable"])
+    payload = get_liked()
+    assert payload["count"] == 0
+
+    response = Client().get("/api/user/nosuchuser/collection/liked/")
     assert response.status_code == 404
 
 
