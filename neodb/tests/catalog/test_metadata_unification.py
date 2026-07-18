@@ -134,6 +134,13 @@ class TestNormalizeLegacyEditionMetadata:
         md = {"price": "450 NTD"}
         Edition.normalize_legacy_metadata(md)
         assert md["price"] == "TWD 450"
+        md = {"price": "99 美元"}
+        Edition.normalize_legacy_metadata(md)
+        assert md["price"] == "USD 99"
+        # ends with 元 so the CNY hint fires, but the 日元 alias wins
+        md = {"price": "66日元"}
+        Edition.normalize_legacy_metadata(md)
+        assert md["price"] == "JPY 66"
 
     def test_yuan_suffix_assumed_cny(self):
         md = {"price": "19.00元"}

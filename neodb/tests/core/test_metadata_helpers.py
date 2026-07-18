@@ -126,6 +126,18 @@ class TestPrice:
         assert normalize_price("26.00 USD") == "USD 26.00"
         assert normalize_price("1,299 JPY") == "JPY 1299"
 
+    def test_chinese_currency_names(self):
+        assert normalize_price("99 美元") == "USD 99"
+        assert normalize_price("66日元") == "JPY 66"
+        assert normalize_price("30 港币") == "HKD 30"
+        assert normalize_price("9.9人民币") == "CNY 9.9"
+        assert normalize_price("120 新台币") == "TWD 120"
+        assert normalize_price("484円") == "JPY 484"
+        # unknown CJK words resolve to no currency and are kept,
+        # even when a source hint is present
+        assert normalize_price("99 金币") == "99 金币"
+        assert normalize_price("99 金币", "CNY") == "99 金币"
+
     def test_bare_number_needs_hint(self):
         assert normalize_price("5.99", "CNY") == "CNY 5.99"
         assert normalize_price("5.99") == "5.99"

@@ -2,9 +2,10 @@
 Price normalization
 
 Canonical price form is "<ISO 4217 code> <amount>", e.g. "CNY 26" or
-"USD 10.99". Values that cannot be normalized unambiguously (ranges,
-multiple prices, bare numbers or ¥/元 without a source hint) are kept
-as-is rather than guessed.
+"USD 10.99". Unambiguous Chinese currency names ("99 美元", "66日元")
+normalize as well. Values that cannot be normalized unambiguously
+(ranges, multiple prices, bare numbers or ¥/元 without a source hint)
+are kept as-is rather than guessed.
 """
 
 import re
@@ -13,7 +14,11 @@ _RE_CANONICAL = re.compile(r"^[A-Z]{3} \d+(\.\d+)?$")
 _RE_PREFIXED = re.compile(
     r"^([A-Za-z]{2,4}|US\$|NT\$|HK\$|[$€£¥￥])\s*([\d,]+(?:\.\d+)?)$"
 )
-_RE_SUFFIXED = re.compile(r"^([\d,]+(?:\.\d+)?)\s*([A-Za-z]{2,4}|元|円)$")
+# suffix accepts short CJK currency words (元, 円, 美元, 人民币, ...);
+# unrecognized words resolve to no currency and the value is kept
+_RE_SUFFIXED = re.compile(
+    r"^([\d,]+(?:\.\d+)?)\s*([A-Za-z]{2,4}|[\u4e00-\u9fff]{1,4})$"
+)
 _RE_BARE = re.compile(r"^([\d,]+(?:\.\d+)?)$")
 
 # non-ISO codes and symbols that map to one currency unambiguously
@@ -30,6 +35,19 @@ _CURRENCY_ALIASES = {
     "円": "JPY",
     "YEN": "JPY",
     "WON": "KRW",
+    # Chinese currency names (suffix form, e.g. "99 美元")
+    "美元": "USD",
+    "美金": "USD",
+    "日元": "JPY",
+    "日圆": "JPY",
+    "港元": "HKD",
+    "港币": "HKD",
+    "人民币": "CNY",
+    "欧元": "EUR",
+    "英镑": "GBP",
+    "新台币": "TWD",
+    "台币": "TWD",
+    "韩元": "KRW",
 }
 # symbols/words that are ambiguous without knowing the source site
 _HINT_ONLY = {"¥", "￥", "元"}
