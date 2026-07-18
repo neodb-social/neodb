@@ -64,7 +64,9 @@ class SearchService:
             for identity in Identity.objects.filter(username__istartswith=handle)[:20]:
                 results.add(identity)
             if "." in handle:
-                for identity in Identity.objects.filter(domain__iexact=handle)[:20]:
+                for identity in Identity.objects.filter(domain__domain__iexact=handle)[
+                    :20
+                ]:
                     results.add(identity)
 
         if prio_result:

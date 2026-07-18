@@ -74,6 +74,20 @@ def test_search_url_follows_ap_alternate(monkeypatch, config_system):
 
 
 @pytest.mark.django_db
+def test_search_identities_by_domain(identity, identity2):
+    """Searching a bare domain name should return identities on that
+    domain, matched case-insensitively.
+
+    Regression: EGGPLANT-1GW - ``domain__iexact`` raised FieldError as
+    ``iexact`` cannot be applied directly to the ForeignKey.
+    """
+    results = SearchService("Example.COM", None).search_identities_handle()
+
+    assert identity in results
+    assert identity2 not in results
+
+
+@pytest.mark.django_db
 def test_search_url_gives_up_when_no_alternate(monkeypatch, config_system):
     """If the response is HTML without an AP alternate hint, search_url
     must give up rather than loop or raise."""
