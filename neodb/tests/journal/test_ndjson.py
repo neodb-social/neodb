@@ -555,6 +555,60 @@ class TestNdjsonExportImport:
             == 1
         )
 
+    def test_ndjson_newer_import_updates_instead_of_duplicating(self):
+        """Importing newer data updates existing Comment/Review rows in place;
+        creating another row would duplicate (owner, item) — the same
+        corruption behind Sentry EGGPLANT-1GP."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        owner = self.user2.identity
+
+        Comment.objects.create(
+            item=self.book1,
+            owner=owner,
+            text="old comment",
+            visibility=0,
+            created_time=self.dt,
+        )
+        result = importer.import_comment(
+            {
+                "visibility": 0,
+                "content": {
+                    "withRegardTo": self.book1.absolute_url,
+                    "content": "newer comment",
+                    "published": "2021-02-01T00:00:00Z",
+                },
+            }
+        )
+        assert result == "imported"
+        comment = Comment.objects.get(owner=owner, item=self.book1)
+        assert comment.text == "newer comment"
+        assert comment.created_time == self.dt2
+
+        Review.objects.create(
+            item=self.book1,
+            owner=owner,
+            title="My Review",
+            body="old body",
+            visibility=0,
+            created_time=self.dt,
+        )
+        result = importer.import_review(
+            {
+                "visibility": 0,
+                "content": {
+                    "withRegardTo": self.book1.absolute_url,
+                    "name": "My Review",
+                    "content": "newer body",
+                    "published": "2021-02-01T00:00:00Z",
+                },
+            }
+        )
+        assert result == "imported"
+        review = Review.objects.get(owner=owner, item=self.book1)
+        assert review.body == "newer body"
+        assert review.created_time == self.dt2
+
     def test_ndjson_article_round_trip(self):
         """Standalone Articles round-trip through export and import."""
         Article.update_local_article(

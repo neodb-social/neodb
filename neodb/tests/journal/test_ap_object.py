@@ -648,7 +648,8 @@ class TestUpdateByApObjectDuplicateRows:
     Comment and Review have no unique constraint on (owner, item), so
     concurrent fetch workers can race duplicate rows in; a later update
     then crashed update_or_create with MultipleObjectsReturned (Sentry
-    EGGPLANT-1GP). The update must consolidate onto the newest row.
+    EGGPLANT-1GP). The update must target the newest row and delete older
+    duplicates only when their content matches it.
     """
 
     @pytest.fixture(autouse=True)
@@ -669,11 +670,13 @@ class TestUpdateByApObjectDuplicateRows:
             "href": "https://example.com/comment/1",
         }
 
-    def _make_duplicate_comments(self) -> tuple[Comment, Comment]:
+    def _make_duplicate_comments(
+        self, older_text: str = "duplicate text", newer_text: str = "duplicate text"
+    ) -> tuple[Comment, Comment]:
         older = Comment.objects.create(
             item=self.book,
             owner=self.identity,
-            text="older duplicate",
+            text=older_text,
             local=False,
             remote_id="https://example.com/comment/1",
             visibility=0,
@@ -681,7 +684,7 @@ class TestUpdateByApObjectDuplicateRows:
         newer = Comment.objects.create(
             item=self.book,
             owner=self.identity,
-            text="newer duplicate",
+            text=newer_text,
             local=False,
             remote_id="https://example.com/comment/1",
             visibility=0,
@@ -722,21 +725,39 @@ class TestUpdateByApObjectDuplicateRows:
         )
         assert result is not None
         assert result.pk == newer.pk
-        assert result.text == "newer duplicate"
+        assert result.text == "duplicate text"
         remaining = Comment.objects.filter(owner=self.identity, item=self.book)
         assert remaining.count() == 1
         assert not Comment.objects.filter(pk=older.pk).exists()
 
+    def test_comment_divergent_duplicate_is_kept(self):
+        """A duplicate whose content differs from the newest row must not be
+        deleted; the update still lands on the newest row without crashing."""
+        older, newer = self._make_duplicate_comments(older_text="different text")
+        post = _make_remote_post(self.identity.pk, post_id=66664)
+        result = Comment.update_by_ap_object(
+            self.identity,
+            self.book,
+            self._comment_ap_obj("final text", "2023-01-01T00:00:00+00:00"),
+            post,
+        )
+        assert result is not None
+        assert result.pk == newer.pk
+        assert result.text == "final text"
+        remaining = Comment.objects.filter(owner=self.identity, item=self.book)
+        assert remaining.count() == 2
+        assert Comment.objects.get(pk=older.pk).text == "different text"
+
     def test_review_update_consolidates_duplicates(self):
         reviews = []
-        for title, edited in [
-            ("older duplicate", "2021-06-01T00:00:00+00:00"),
-            ("newer duplicate", "2022-06-01T00:00:00+00:00"),
+        for edited in [
+            "2021-06-01T00:00:00+00:00",
+            "2022-06-01T00:00:00+00:00",
         ]:
             review = Review.objects.create(
                 item=self.book,
                 owner=self.identity,
-                title=title,
+                title="duplicate title",
                 body="body",
                 local=False,
                 remote_id="https://example.com/review/1",

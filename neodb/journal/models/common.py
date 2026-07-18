@@ -1036,9 +1036,15 @@ class Content(Piece):
     def __str__(self):
         return f"{self.__class__.__name__}:{self.uuid}@{self.item}"
 
+    # content fields compared by dedupe_newest; only types where (owner,
+    # item) is logically unique should set this (Comment, Review). The
+    # empty default means nothing is ever deleted by accident.
+    dedupe_content_fields: tuple[str, ...] = ()
+
     @classmethod
     def dedupe_newest(cls, owner: APIdentity, item: Item) -> Self | None:
-        """Return the newest piece for (owner, item), deleting older duplicates.
+        """Return the newest piece for (owner, item), deleting older
+        duplicates whose dedupe_content_fields all match it.
 
         Only for types where (owner, item) is logically unique but not
         DB-enforced (Comment, Review — unlike Rating/ShelfMember there is no
@@ -1049,10 +1055,14 @@ class Content(Piece):
         pieces = list(
             cls.objects.filter(owner=owner, item=item).order_by("-edited_time", "-pk")
         )
-        for dup in pieces[1:]:
-            logger.warning(f"deleting duplicate {dup!r} of {pieces[0]!r}")
-            dup.delete()
-        return pieces[0] if pieces else None
+        newest = pieces[0] if pieces else None
+        fields = cls.dedupe_content_fields
+        if newest and fields:
+            for dup in pieces[1:]:
+                if all(getattr(dup, f) == getattr(newest, f) for f in fields):
+                    logger.warning(f"deleting duplicate {dup!r} of {newest!r}")
+                    dup.delete()
+        return newest
 
     @property
     def display_title(self) -> str:

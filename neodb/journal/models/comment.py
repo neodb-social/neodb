@@ -18,6 +18,7 @@ from .shelf import ShelfManager, ShelfType
 
 
 class Comment(Content):
+    dedupe_content_fields = ("text",)
     text = models.TextField(blank=False, null=False)
 
     class Meta:

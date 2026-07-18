@@ -229,13 +229,22 @@ class NdjsonImporter(BaseImporter):
             existing_review = Review.objects.filter(
                 owner=owner, item=item, title=name
             ).first()
-            if (
-                existing_review
-                and existing_review.created_time
-                and published_dt
-                and existing_review.created_time >= published_dt
-            ):
-                return "skipped"
+            if existing_review:
+                if (
+                    existing_review.created_time
+                    and published_dt
+                    and existing_review.created_time >= published_dt
+                ):
+                    return "skipped"
+                # a newer export updates the existing review in place;
+                # creating another row would duplicate (owner, item, title)
+                existing_review.body = content
+                if published_dt:
+                    existing_review.created_time = published_dt
+                existing_review.visibility = visibility
+                existing_review.metadata = metadata
+                existing_review.save()
+                return "imported"
             Review.objects.create(
                 owner=owner,
                 item=item,
@@ -334,13 +343,23 @@ class NdjsonImporter(BaseImporter):
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             content = content_data.get("content", "")
             existing_comment = Comment.objects.filter(owner=owner, item=item).first()
-            if (
-                existing_comment
-                and existing_comment.created_time
-                and published_dt
-                and existing_comment.created_time >= published_dt
-            ):
-                return "skipped"
+            if existing_comment:
+                if (
+                    existing_comment.created_time
+                    and published_dt
+                    and existing_comment.created_time >= published_dt
+                ):
+                    return "skipped"
+                # a newer export updates the existing comment in place;
+                # creating another row would duplicate (owner, item),
+                # the same corruption behind EGGPLANT-1GP
+                existing_comment.text = content
+                if published_dt:
+                    existing_comment.created_time = published_dt
+                existing_comment.visibility = visibility
+                existing_comment.metadata = metadata
+                existing_comment.save()
+                return "imported"
             Comment.objects.create(
                 owner=owner,
                 item=item,
