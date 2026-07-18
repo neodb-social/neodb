@@ -135,6 +135,7 @@ class SiteConfig(models.Model):
             " read:blocks read:mutes"
             " write:statuses write:media"
         )
+        mastodon_timeout: int = 5
         disable_cron_jobs: list[str] = []
         index_aliases: dict = {"catalog": "catalog2"}
         skip_migrations: list[str] = []
@@ -254,6 +255,7 @@ class SiteConfig(models.Model):
             # Advanced / Operational
             "alternative_domains": list(getattr(settings, "ALTERNATIVE_DOMAINS", [])),
             "mastodon_client_scope": getattr(settings, "MASTODON_CLIENT_SCOPE", ""),
+            "mastodon_timeout": getattr(settings, "MASTODON_TIMEOUT", 5),
             "disable_cron_jobs": list(getattr(settings, "DISABLE_CRON_JOBS", [])),
             "index_aliases": dict(
                 getattr(settings, "INDEX_ALIASES", {"catalog": "catalog2"})
@@ -346,6 +348,10 @@ class SiteConfig(models.Model):
         ]
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
         lang_module.SITE_PREFERRED_LOCALES[:] = lang_module.get_preferred_locales()
+
+        # Timeouts read from settings at call time in mastodon/takahe clients
+        settings.MASTODON_TIMEOUT = opts.mastodon_timeout
+        settings.TAKAHE_REMOTE_TIMEOUT = opts.mastodon_timeout
 
         # Derived values used in many places via settings.SITE_DOMAINS
         settings.SITE_DOMAINS = [settings.SITE_DOMAIN] + opts.alternative_domains

@@ -41,10 +41,16 @@ class TootVisibilityEnum(StrEnum):
     UNLISTED = "unlisted"
 
 
-get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
-put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
-post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
-delete = functools.partial(requests.delete, timeout=settings.MASTODON_TIMEOUT)
+def _request(method: str, url: str, **kwargs: typing.Any) -> requests.Response:
+    # timeout resolved at call time so SiteConfig can override it at runtime
+    kwargs.setdefault("timeout", settings.MASTODON_TIMEOUT)
+    return requests.request(method, url, **kwargs)
+
+
+get = functools.partial(_request, "get")
+put = functools.partial(_request, "put")
+post = functools.partial(_request, "post")
+delete = functools.partial(_request, "delete")
 _sites_cache_key = "login_sites"
 
 # See https://docs.joinmastodon.org/methods/accounts/

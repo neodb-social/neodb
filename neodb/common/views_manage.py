@@ -770,6 +770,14 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "title": _("Mastodon Client Scope"),
             "help_text": _("OAuth scope when creating Mastodon apps."),
         },
+        "mastodon_timeout": {
+            "title": _("Mastodon API Timeout (seconds)"),
+            "help_text": _(
+                "Timeout for requests to Mastodon instances and remote "
+                "fediverse servers."
+            ),
+            "min_value": 1,
+        },
         "disable_cron_jobs": {
             "title": _("Disable Cron Jobs"),
             "help_text": _("Job names to disable, one per line. Use * to disable all."),
@@ -808,6 +816,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
         ],
         _("Operational"): [
             "mastodon_client_scope",
+            "mastodon_timeout",
             "disable_cron_jobs",
             "index_aliases",
             "task_cleanup_days",

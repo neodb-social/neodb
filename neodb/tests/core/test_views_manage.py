@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 
 from common.models import SiteConfig
 from common.views_manage import (
@@ -143,3 +144,23 @@ class TestConvertValueSimple:
     def test_passthrough_int(self):
         result = self.discover._convert_value("min_marks_for_discover", 5)
         assert result == 5
+
+
+@pytest.mark.django_db
+class TestMastodonTimeoutApply:
+    """DB-stored mastodon_timeout must reach django settings on reload."""
+
+    def test_db_value_applies_to_settings(self):
+        old_mastodon = settings.MASTODON_TIMEOUT
+        old_takahe = settings.TAKAHE_REMOTE_TIMEOUT
+        old_system = SiteConfig.system
+        try:
+            SiteConfig.set_system(mastodon_timeout=17)
+            SiteConfig.reload()
+            assert SiteConfig.system.mastodon_timeout == 17
+            assert settings.MASTODON_TIMEOUT == 17
+            assert settings.TAKAHE_REMOTE_TIMEOUT == 17
+        finally:
+            settings.MASTODON_TIMEOUT = old_mastodon
+            settings.TAKAHE_REMOTE_TIMEOUT = old_takahe
+            SiteConfig.system = old_system
