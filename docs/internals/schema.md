@@ -2,7 +2,7 @@
 
 Catalog detail APIs and catalog URLs requested with `Accept: application/activity+json` serialize the same schemas. Generic API lists (trending and recommendations) use only the common item fields; typed detail and search responses add the fields below.
 
-Notation: `T?` is nullable, `T[]` is a list, and **deprecated** fields are compatibility aliases. Dates are partial ISO dates (`YYYY`, `YYYY-MM`, or `YYYY-MM-DD`) unless noted otherwise.
+Notation: `T?` is nullable, `T[]` is a list, and **deprecated** fields, struck through together with their type, are compatibility aliases. Dates are partial ISO dates (`YYYY`, `YYYY-MM`, or `YYYY-MM-DD`) unless noted otherwise.
 
 ## Common item fields
 
@@ -28,8 +28,8 @@ Emitted for `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Gam
 | `rating_count` | integer? | Number of ratings |
 | `rating_distribution` | `integer[]?` | Percentages for grades 1-2, 3-4, 5-6, 7-8, and 9-10 |
 | `tags` | `string[]?` | Public tags; normally populated only on detail and search surfaces |
-| `display_title` **deprecated** | string | Alias of `title` |
-| `brief` **deprecated** | string | Alias of `description` |
+| ~~`display_title`~~ **deprecated** | ~~string~~ **deprecated** | Alias of `title` |
+| ~~`brief`~~ **deprecated** | ~~string~~ **deprecated** | Alias of `description` |
 
 ### LocalizedLabel
 
@@ -73,11 +73,11 @@ Each type below includes the common fields unless stated otherwise.
 | `translator` | string[] |
 | `language` | string[] |
 | `publisher` | string[] |
-| `pub_house` **deprecated** | string? |
+| ~~`pub_house`~~ **deprecated** | ~~string?~~ **deprecated** |
 | `pub_year` | integer? |
 | `pub_month` | integer? |
 | `format` | string? |
-| `binding` **deprecated** | string? |
+| ~~`binding`~~ **deprecated** | ~~string?~~ **deprecated** |
 | `price` | string? |
 | `pages` | integer or string? |
 | `series` | string? |
@@ -101,11 +101,11 @@ Each type below includes the common fields unless stated otherwise.
 | `official_site` | string? |
 | `length` | integer? (seconds) |
 | `imdb` | string? |
-| `year` **deprecated** | integer? |
-| `site` **deprecated** | string? |
-| `duration` **deprecated** | string? |
-| `area` **deprecated** | string[] |
-| `showtime` **deprecated** | `Showtime[]` |
+| ~~`year`~~ **deprecated** | ~~integer?~~ **deprecated** |
+| ~~`site`~~ **deprecated** | ~~string?~~ **deprecated** |
+| ~~`duration`~~ **deprecated** | ~~string?~~ **deprecated** |
+| ~~`area`~~ **deprecated** | ~~string[]~~ **deprecated** |
+| ~~`showtime`~~ **deprecated** | ~~`Showtime[]`~~ **deprecated** |
 
 #### Showtime
 
@@ -151,8 +151,8 @@ Each type below includes the common fields unless stated otherwise.
 | `media_format` | string[] |
 | `track_list` | string? |
 | `barcode` | string? |
-| `duration` **deprecated** | integer? (milliseconds) |
-| `media` **deprecated** | string? |
+| ~~`duration`~~ **deprecated** | ~~integer? (milliseconds)~~ **deprecated** |
+| ~~`media`~~ **deprecated** | ~~string?~~ **deprecated** |
 
 ### Game (`category: game`)
 
@@ -165,7 +165,7 @@ Each type below includes the common fields unless stated otherwise.
 | `release_type` | string? |
 | `release_date` | string? |
 | `official_site` | string? |
-| `release_year` **deprecated** | integer? |
+| ~~`release_year`~~ **deprecated** | ~~integer?~~ **deprecated** |
 
 ### Podcast (`category: podcast`)
 
@@ -175,7 +175,7 @@ Each type below includes the common fields unless stated otherwise.
 | `host` | string[] |
 | `language` | string[] |
 | `official_site` | string? |
-| `hosts` **deprecated** | string[] (alias of `host`) |
+| ~~`hosts`~~ **deprecated** | ~~string[] (alias of `host`)~~ **deprecated** |
 
 ### PodcastEpisode (`category: podcast`)
 
@@ -186,7 +186,7 @@ Each type below includes the common fields unless stated otherwise.
 | `media_url` | string? |
 | `link` | string? |
 | `length` | integer? (seconds) |
-| `duration` **deprecated** | integer? (seconds) |
+| ~~`duration`~~ **deprecated** | ~~integer? (seconds)~~ **deprecated** |
 
 ### Performance (`category: performance`)
 
@@ -252,7 +252,7 @@ People detail responses (`GET /api/people/{uuid}`) and People returned by catalo
 | `death_date` | string? |
 | `official_site` | string? |
 | `imdb` | string? |
-| `display_name` **deprecated** | string (alias of `name`) |
+| ~~`display_name`~~ **deprecated** | ~~string (alias of `name`)~~ **deprecated** |
 
 ## People and credit endpoints
 
