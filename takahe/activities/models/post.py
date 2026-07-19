@@ -335,9 +335,7 @@ class PostStates(StateGraph):
                     TimelineEvent.add_poll_ended(voter, post)
                 return cls.fanned_out
         # Remote poll: refresh final tallies outside the row lock
-        try:
-            instance.refresh_question_from_remote()
-        except Exception:
+        if not instance.refresh_question_from_remote():
             logger.warning(
                 "Could not refresh final poll tallies for %s",
                 instance.object_uri,
@@ -1052,11 +1050,15 @@ class Post(StatorModel):
             json_data = json_from_response(response)
             ap_data = canonicalise(json_data, include_security=True, outbound=False)
             post = Post.by_ap(ap_data, create=False, update=True)
-        except json.JSONDecodeError, ValueError, JsonLdError, Post.DoesNotExist:
+        except (
+            json.JSONDecodeError,
+            ValueError,
+            JsonLdError,
+            ActivityPubFormatError,
+            Post.DoesNotExist,
+        ):
             return None
-        if isinstance(post.type_data, QuestionData):
-            post.type_data.last_fetched = timezone.now()
-            post.save()
+        # by_ap stamped type_data.last_fetched while applying the update
         return post
 
     def refresh_question_if_stale(self) -> "Post":
@@ -1464,6 +1466,10 @@ class Post(StatorModel):
             post.url = data.get("url", data["id"])
             if post.type == cls.Types.question:
                 post.type_data = PostTypeData(root=data).root
+                if not post.local and isinstance(post.type_data, QuestionData):
+                    # Fresh data from the origin counts as a fetch, so
+                    # a first API view doesn't immediately re-fetch it
+                    post.type_data.last_fetched = timezone.now()
             elif post.type == cls.Types.article or "relatedWith" in data:
                 # Preserve the full AS Article (name, summary, source, url,
                 # tags, etc.) so the NeoDB Post-only renderer can show a
