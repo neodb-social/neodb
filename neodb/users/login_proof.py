@@ -16,9 +16,7 @@ LOGIN_PROOF_COUNTER_MIN = 5_000
 LOGIN_PROOF_COUNTER_MAX = 10_000
 LOGIN_PROOF_TTL = 5 * 60
 LOGIN_PROOF_PAYLOAD_MAX_LENGTH = 16_384
-LOGIN_PROOF_METHODS = frozenset(
-    {"passkey", "email", "mastodon", "threads", "bluesky"}
-)
+LOGIN_PROOF_METHODS = frozenset({"passkey", "email", "mastodon", "threads", "bluesky"})
 
 _SESSION_BINDING_KEY = "login_proof_binding"
 _CACHE_KEY_PREFIX = "login_proof_used"
@@ -55,9 +53,10 @@ def create_login_proof_challenge(
     binding = _session_binding(request, create=True)
     if not binding:
         raise RuntimeError("Unable to create login proof session binding")
-    counter = secrets.randbelow(
-        LOGIN_PROOF_COUNTER_MAX - LOGIN_PROOF_COUNTER_MIN + 1
-    ) + LOGIN_PROOF_COUNTER_MIN
+    counter = (
+        secrets.randbelow(LOGIN_PROOF_COUNTER_MAX - LOGIN_PROOF_COUNTER_MIN + 1)
+        + LOGIN_PROOF_COUNTER_MIN
+    )
     challenge = create_challenge(
         LOGIN_PROOF_ALGORITHM,
         cost=LOGIN_PROOF_COST,
@@ -73,7 +72,7 @@ def extract_login_proof(request: HttpRequest) -> str:
     if request.content_type == "application/json":
         try:
             data = json.loads(request.body)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except json.JSONDecodeError, UnicodeDecodeError:
             return ""
         value = data.get("altcha", "") if isinstance(data, dict) else ""
     else:
@@ -111,9 +110,7 @@ def verify_login_proof(request: HttpRequest, method: str) -> bool:
         or parameters.data != expected_data
         or not challenge.signature
         or not isinstance(solution.counter, int)
-        or not LOGIN_PROOF_COUNTER_MIN
-        <= solution.counter
-        <= LOGIN_PROOF_COUNTER_MAX
+        or not LOGIN_PROOF_COUNTER_MIN <= solution.counter <= LOGIN_PROOF_COUNTER_MAX
         or not isinstance(solution.derived_key, str)
         or len(solution.derived_key) != parameters.key_length * 2
         or not solution.derived_key.startswith(parameters.key_prefix)
