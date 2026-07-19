@@ -16,6 +16,7 @@ from loguru import logger
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
 from common.views import render_error
+from users.login_proof import verify_login_proof
 
 from ..models import Threads, ThreadsAccount
 from .common import disconnect_identity, process_verified_account
@@ -24,6 +25,8 @@ from .common import disconnect_identity, process_verified_account
 @require_http_methods(["POST"])
 def threads_login(request: HttpRequest):
     """start login process via threads"""
+    if not verify_login_proof(request, "threads"):
+        return render_error(request, _("Security check failed. Please try again."))
     sentry_count("login.attempt", attributes={"type": "threads"})
     return redirect(Threads.generate_auth_url(request))
 

@@ -26,6 +26,7 @@ from webauthn.helpers.structs import (
 
 from common.sentry import count as sentry_count
 from common.validators import get_safe_redirect_url
+from users.login_proof import verify_login_proof
 
 from ..models import WebAuthnCredential
 from .account import auth_login
@@ -127,6 +128,11 @@ def passkey_register_verify(request):
 
 @require_http_methods(["POST"])
 def passkey_login_options(request):
+    if not verify_login_proof(request, "passkey"):
+        return JsonResponse(
+            {"ok": False, "error": _("Security check failed. Please try again.")},
+            status=400,
+        )
     options = generate_authentication_options(
         rp_id=_get_rp_id(),
         user_verification=UserVerificationRequirement.REQUIRED,

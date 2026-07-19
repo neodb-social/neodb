@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 18:25-0400\n"
+"POT-Creation-Date: 2026-07-19 17:24+0000\n"
 "PO-Revision-Date: 2026-07-02 15:01+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -17,52 +17,52 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
-#: boofilsic/settings.py:480 common/models/lang.py:223
+#: boofilsic/settings.py:479 common/models/lang.py:223
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:481 common/models/lang.py:70
+#: boofilsic/settings.py:480 common/models/lang.py:70
 msgid "Danish"
 msgstr "丹麦语"
 
-#: boofilsic/settings.py:482 common/models/lang.py:71
+#: boofilsic/settings.py:481 common/models/lang.py:71
 msgid "German"
 msgstr "德语"
 
-#: boofilsic/settings.py:483 common/models/lang.py:176
+#: boofilsic/settings.py:482 common/models/lang.py:176
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: boofilsic/settings.py:484 common/models/lang.py:80
+#: boofilsic/settings.py:483 common/models/lang.py:80
 msgid "French"
 msgstr "法语"
 
-#: boofilsic/settings.py:485 common/models/lang.py:105
+#: boofilsic/settings.py:484 common/models/lang.py:105
 msgid "Italian"
 msgstr "意大利语"
 
-#: boofilsic/settings.py:486 common/models/lang.py:159
+#: boofilsic/settings.py:485 common/models/lang.py:159
 #: common/models/lang.py:298
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: boofilsic/settings.py:487
+#: boofilsic/settings.py:486
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: boofilsic/settings.py:488 common/models/lang.py:309
+#: boofilsic/settings.py:487 common/models/lang.py:309
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:489 common/models/lang.py:310
+#: boofilsic/settings.py:488 common/models/lang.py:310
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:35 catalog/models/item.py:261
+#: catalog/forms.py:35 catalog/models/item.py:270
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:40 catalog/models/item.py:264
+#: catalog/forms.py:40 catalog/models/item.py:273
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
@@ -164,7 +164,8 @@ msgstr "目录"
 msgid "price"
 msgstr "价格"
 
-#: catalog/models/book.py:324 catalog/templates/edition.html:34
+#: catalog/models/book.py:324 catalog/models/item.py:149
+#: catalog/templates/edition.html:34
 msgid "imprint"
 msgstr "出品方"
 
@@ -675,7 +676,7 @@ msgid "release type"
 msgstr "发布类型"
 
 #: catalog/models/game.py:180 catalog/models/movie.py:158
-#: catalog/models/people.py:158 catalog/models/performance.py:258
+#: catalog/models/people.py:177 catalog/models/performance.py:258
 #: catalog/models/performance.py:465 catalog/models/podcast.py:89
 #: catalog/models/tv.py:249 catalog/models/tv.py:472
 #: catalog/templates/game.html:33 catalog/templates/movie.html:48
@@ -759,60 +760,68 @@ msgstr "工作室"
 msgid "troupe"
 msgstr "剧团"
 
-#: catalog/models/item.py:159 catalog/models/people.py:477
+#: catalog/models/item.py:147
+msgid "voice actor"
+msgstr "声优"
+
+#: catalog/models/item.py:148 catalog/templates/edition.html:30
+msgid "publishing house"
+msgstr "出版社"
+
+#: catalog/models/item.py:168 catalog/models/people.py:475
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:160 catalog/models/people.py:135
+#: catalog/models/item.py:169 catalog/models/people.py:154
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
 msgstr "名字"
 
-#: catalog/models/item.py:162 catalog/templates/_item_credits_list.html:138
+#: catalog/models/item.py:171 catalog/templates/_item_credits_list.html:138
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:258 catalog/models/item.py:290
+#: catalog/models/item.py:267 catalog/models/item.py:299
 #: journal/models/collection.py:93
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:259 catalog/models/item.py:298
+#: catalog/models/item.py:268 catalog/models/item.py:307
 #: journal/models/collection.py:94
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:270 catalog/models/people.py:485
+#: catalog/models/item.py:279 catalog/models/people.py:483
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:272 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:281 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1429
+#: catalog/models/item.py:1413
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1431
+#: catalog/models/item.py:1415
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1433
+#: catalog/models/item.py:1417
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1449
+#: catalog/models/item.py:1433
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1455
+#: catalog/models/item.py:1439
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1458
+#: catalog/models/item.py:1442
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -844,127 +853,127 @@ msgstr "曲目"
 msgid "number of discs"
 msgstr "碟片数"
 
-#: catalog/models/people.py:32
+#: catalog/models/people.py:33
 msgid "Person"
 msgstr "人物"
 
-#: catalog/models/people.py:33
+#: catalog/models/people.py:34
 msgid "Organization"
 msgstr "团体"
 
-#: catalog/models/people.py:38
+#: catalog/models/people.py:39
 msgid "Author"
 msgstr "作者"
 
-#: catalog/models/people.py:39
+#: catalog/models/people.py:40
 msgid "Translator"
 msgstr "译者"
 
-#: catalog/models/people.py:40
+#: catalog/models/people.py:41
 msgid "Performer"
 msgstr "表演者"
 
-#: catalog/models/people.py:41
+#: catalog/models/people.py:42
 msgid "Actor"
 msgstr "演员"
 
-#: catalog/models/people.py:42
+#: catalog/models/people.py:43
 msgid "Director"
 msgstr "导演"
 
-#: catalog/models/people.py:43
+#: catalog/models/people.py:44
 msgid "Composer"
 msgstr "作曲"
 
-#: catalog/models/people.py:44
+#: catalog/models/people.py:45
 msgid "Artist"
 msgstr "艺术家"
 
-#: catalog/models/people.py:45
+#: catalog/models/people.py:46
 msgid "Voice Actor"
 msgstr "声优"
 
-#: catalog/models/people.py:46
+#: catalog/models/people.py:47
 msgid "Host"
 msgstr "主持人"
 
-#: catalog/models/people.py:47
+#: catalog/models/people.py:48
 msgid "Playwright"
 msgstr "编剧"
 
-#: catalog/models/people.py:48
+#: catalog/models/people.py:49
 msgid "Designer"
 msgstr "设计师"
 
-#: catalog/models/people.py:49
+#: catalog/models/people.py:50
 msgid "Choreographer"
 msgstr "编舞"
 
-#: catalog/models/people.py:50
+#: catalog/models/people.py:51
 msgid "Original Creator"
 msgstr "原作者"
 
-#: catalog/models/people.py:51
+#: catalog/models/people.py:52
 msgid "Producer"
 msgstr "制片人"
 
-#: catalog/models/people.py:54
+#: catalog/models/people.py:55
 msgid "Publisher"
 msgstr "出版商"
 
-#: catalog/models/people.py:55
+#: catalog/models/people.py:56
 msgid "Distributor"
 msgstr "发行商"
 
-#: catalog/models/people.py:56
+#: catalog/models/people.py:57
 msgid "Production Company"
 msgstr "制作公司"
 
-#: catalog/models/people.py:57
+#: catalog/models/people.py:58
 msgid "Record Label"
 msgstr "唱片公司"
 
-#: catalog/models/people.py:58 common/templates/_footer.html:9
+#: catalog/models/people.py:59 common/templates/_footer.html:9
 msgid "Developer"
 msgstr "开发者"
 
-#: catalog/models/people.py:59
+#: catalog/models/people.py:60
 msgid "Studio"
 msgstr "工作室"
 
-#: catalog/models/people.py:60
+#: catalog/models/people.py:61
 msgid "Publishing House"
 msgstr "出版社"
 
-#: catalog/models/people.py:61
+#: catalog/models/people.py:62
 msgid "Troupe"
 msgstr "剧团"
 
-#: catalog/models/people.py:62
+#: catalog/models/people.py:63
 msgid "Crew"
 msgstr "制作人员"
 
-#: catalog/models/people.py:131
+#: catalog/models/people.py:150
 msgid "type"
 msgstr "类型"
 
-#: catalog/models/people.py:143
+#: catalog/models/people.py:162
 msgid "bio"
 msgstr "简介"
 
-#: catalog/models/people.py:152
+#: catalog/models/people.py:171
 msgid "date of birth"
 msgstr "出生日期"
 
-#: catalog/models/people.py:155
+#: catalog/models/people.py:174
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:479
+#: catalog/models/people.py:477
 msgid "character"
 msgstr "角色"
 
-#: catalog/models/people.py:483
+#: catalog/models/people.py:481
 msgid "Character name for actor roles"
 msgstr "演员饰演的角色名称"
 
@@ -1824,10 +1833,6 @@ msgstr "近期帖文"
 msgid "original podcasts"
 msgstr "原创播客"
 
-#: catalog/templates/edition.html:30
-msgid "publishing house"
-msgstr "出版社"
-
 #: catalog/templates/edition.html:39
 msgid "publication date"
 msgstr "发行时间"
@@ -2128,7 +2133,7 @@ msgstr "条目不可被删除。"
 #: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
 #: journal/views/post.py:165 journal/views/post.py:194
 #: journal/views/post.py:267 journal/views/post.py:282
-#: journal/views/post.py:389 journal/views/post.py:541
+#: journal/views/post.py:389 journal/views/post.py:544
 #: journal/views/review.py:52 journal/views/review.py:69
 #: journal/views/review.py:94
 msgid "Insufficient permission"
@@ -2233,15 +2238,15 @@ msgstr "创作者已验证。"
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 
-#: catalog/views/view.py:72 catalog/views/view.py:97
+#: catalog/views/view.py:74 catalog/views/view.py:99
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views/view.py:76 catalog/views/view.py:105 catalog/views/view.py:185
+#: catalog/views/view.py:78 catalog/views/view.py:107 catalog/views/view.py:187
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
-#: catalog/views/view.py:182
+#: catalog/views/view.py:184
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
@@ -3651,7 +3656,7 @@ msgstr "服务协议"
 msgid "About"
 msgstr "关于"
 
-#: common/templates/_footer.html:12 users/templates/users/login.html:228
+#: common/templates/_footer.html:12 users/templates/users/login.html:270
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
@@ -6170,11 +6175,11 @@ msgstr "内容不可为空。"
 msgid "This post cannot be edited here"
 msgstr "此帖子无法在此处编辑"
 
-#: journal/views/post.py:533
+#: journal/views/post.py:536
 msgid "Invalid choices"
 msgstr "无效选择"
 
-#: journal/views/post.py:536
+#: journal/views/post.py:539
 msgid "Invalid post"
 msgstr "无效帖文"
 
@@ -6217,7 +6222,7 @@ msgid "Summary posted to timeline."
 msgstr "总结已发布到时间轴"
 
 #: mastodon/models/common.py:28 users/templates/users/account.html:45
-#: users/templates/users/account.html:55 users/templates/users/login.html:67
+#: users/templates/users/account.html:55 users/templates/users/login.html:76
 msgid "Email"
 msgstr "电子邮件"
 
@@ -6225,7 +6230,7 @@ msgstr "电子邮件"
 msgid "Mastodon"
 msgstr "Mastodon"
 
-#: mastodon/models/common.py:30 users/templates/users/login.html:101
+#: mastodon/models/common.py:30 users/templates/users/login.html:110
 msgid "Threads"
 msgstr "Threads"
 
@@ -6271,7 +6276,7 @@ msgstr ""
 "\n"
 "{code}"
 
-#: mastodon/models/email.py:74 users/templates/users/login.html:18
+#: mastodon/models/email.py:74 users/templates/users/login.html:20
 #: users/templates/users/register.html:9 users/templates/users/welcome.html:10
 msgid "Register"
 msgstr "注册"
@@ -6332,25 +6337,31 @@ msgstr "帖文长度限制"
 msgid "New Post"
 msgstr "新帖文"
 
-#: mastodon/views/bluesky.py:26 mastodon/views/bluesky.py:34
-#: mastodon/views/bluesky.py:44 mastodon/views/common.py:40
-#: mastodon/views/mastodon.py:42 mastodon/views/mastodon.py:50
-#: mastodon/views/mastodon.py:57 mastodon/views/mastodon.py:67
-#: mastodon/views/mastodon.py:74 mastodon/views/threads.py:52
-#: mastodon/views/threads.py:60 mastodon/views/threads.py:66
-#: users/views/account.py:170
+#: mastodon/views/bluesky.py:23 mastodon/views/email.py:35
+#: mastodon/views/mastodon.py:30 mastodon/views/threads.py:29
+#: users/templates/users/login.html:6 users/views/webauthn.py:133
+msgid "Security check failed. Please try again."
+msgstr "安全检查失败，请重试。"
+
+#: mastodon/views/bluesky.py:29 mastodon/views/bluesky.py:37
+#: mastodon/views/bluesky.py:47 mastodon/views/common.py:40
+#: mastodon/views/mastodon.py:51 mastodon/views/mastodon.py:59
+#: mastodon/views/mastodon.py:66 mastodon/views/mastodon.py:76
+#: mastodon/views/mastodon.py:83 mastodon/views/threads.py:55
+#: mastodon/views/threads.py:63 mastodon/views/threads.py:69
+#: users/views/account.py:178
 msgid "Authentication failed"
 msgstr "认证失败"
 
-#: mastodon/views/bluesky.py:27 mastodon/views/email.py:68
+#: mastodon/views/bluesky.py:30 mastodon/views/email.py:66
 msgid "Too many attempts, please try again later."
 msgstr "尝试次数过多，请稍后再试。"
 
-#: mastodon/views/bluesky.py:35
+#: mastodon/views/bluesky.py:38
 msgid "Username and app password is required."
 msgstr "请输入用户名和密码。"
 
-#: mastodon/views/bluesky.py:44
+#: mastodon/views/bluesky.py:47
 msgid "Invalid account data from Bluesky."
 msgstr "Bluesky返回了无效的账号数据。"
 
@@ -6358,7 +6369,7 @@ msgstr "Bluesky返回了无效的账号数据。"
 msgid "Invalid user."
 msgstr "无效用户。"
 
-#: mastodon/views/common.py:56 users/views/account.py:203
+#: mastodon/views/common.py:56 users/views/account.py:211
 msgid "Registration failed"
 msgstr "注册失败"
 
@@ -6403,67 +6414,63 @@ msgstr "无法取消唯一的登录用身份。"
 msgid "Login information about {handle} has been removed."
 msgstr "{handle} 的登录信息已移除。"
 
-#: mastodon/views/email.py:37
-msgid "Invalid captcha"
-msgstr "无效验证码"
-
-#: mastodon/views/email.py:42
+#: mastodon/views/email.py:39
 msgid "Invalid email address"
 msgstr "无效的电子邮件地址"
 
-#: mastodon/views/email.py:48
+#: mastodon/views/email.py:46
 msgid "Verification"
 msgstr "验证"
 
-#: mastodon/views/email.py:50 users/templates/users/verify.html:20
+#: mastodon/views/email.py:48 users/templates/users/verify.html:20
 msgid "Verification email is being sent, please check your inbox."
 msgstr "验证邮件已发送，请查阅收件箱。"
 
-#: mastodon/views/email.py:82
+#: mastodon/views/email.py:80
 msgid "Invalid verification code"
 msgstr "验证码无效或已过期"
 
-#: mastodon/views/mastodon.py:18
+#: mastodon/views/mastodon.py:22
 msgid "Missing instance domain"
 msgstr "未指定实例域名"
 
-#: mastodon/views/mastodon.py:31
+#: mastodon/views/mastodon.py:40
 msgid "Error connecting to instance"
 msgstr "无法连接实例"
 
-#: mastodon/views/mastodon.py:43
+#: mastodon/views/mastodon.py:52
 msgid "Invalid response from Fediverse instance."
 msgstr "联邦实例返回信息无效"
 
-#: mastodon/views/mastodon.py:51 mastodon/views/threads.py:61
+#: mastodon/views/mastodon.py:60 mastodon/views/threads.py:64
 msgid "Invalid OAuth state. Please try again."
 msgstr "无效的OAuth认证状态，请重试"
 
-#: mastodon/views/mastodon.py:58
+#: mastodon/views/mastodon.py:67
 msgid "Invalid cookie data."
 msgstr "无效cookie信息。"
 
-#: mastodon/views/mastodon.py:63
+#: mastodon/views/mastodon.py:72
 msgid "Invalid instance domain"
 msgstr "实例域名无效"
 
-#: mastodon/views/mastodon.py:68
+#: mastodon/views/mastodon.py:77
 msgid "Invalid token from Fediverse instance."
 msgstr "联邦实例返回了无效的认证令牌。"
 
-#: mastodon/views/mastodon.py:75
+#: mastodon/views/mastodon.py:84
 msgid "Invalid account data from Fediverse instance."
 msgstr "联邦实例返回了无效的账号数据。"
 
-#: mastodon/views/threads.py:66
+#: mastodon/views/threads.py:69
 msgid "Invalid account data from Threads."
 msgstr "Threads返回了无效的账号数据。"
 
-#: mastodon/views/threads.py:144
+#: mastodon/views/threads.py:147
 msgid "Data deletion completed"
 msgstr "数据删除已完成"
 
-#: mastodon/views/threads.py:146
+#: mastodon/views/threads.py:149
 #, python-brace-format
 msgid "Data linked to your Threads account has been deleted. Confirmation code: {code}"
 msgstr "与你的 Threads 账号关联的数据已被删除。确认码：{code}"
@@ -6753,52 +6760,69 @@ msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\
 msgid "mention"
 msgstr "提及"
 
-#: social/templates/post_question.html:18
+#: social/templates/post_question.html:6
+msgid "Poll options"
+msgstr "投票选项"
+
+#: social/templates/post_question.html:21
 msgid "Poll has ended."
 msgstr "投票已结束。"
 
-#: social/templates/post_question.html:20 users/templates/users/verify.html:50
+#: social/templates/post_question.html:23 users/templates/users/verify.html:50
 msgid "Submit"
 msgstr "提交"
 
-#: social/templates/post_question.html:23
+#: social/templates/post_question.html:25
+msgid "Log in to vote."
+msgstr "请登录后投票。"
+
+#: social/templates/post_question.html:31
+#, python-format
+msgid "Poll ended at %(end_time)s"
+msgstr "投票已于%(end_time)s结束"
+
+#: social/templates/post_question.html:33
 #, python-format
 msgid "Poll ending at %(end_time)s"
 msgstr "投票将于%(end_time)s结束"
 
-#: social/templates/single_post.html:12 social/templates/single_post.html:18
+#: social/templates/single_post.html:12 social/templates/single_post.html:25
 msgid "Post"
 msgstr "帖文"
 
-#: social/templates/single_post.html:15
+#: social/templates/single_post.html:19
 msgid "Article"
 msgstr "文章"
 
-#: takahe/models.py:451
+#: social/templates/single_post.html:22
+msgid "Poll"
+msgstr "投票"
+
+#: takahe/models.py:452
 msgid "Display Name"
 msgstr "显示名称"
 
-#: takahe/models.py:453
+#: takahe/models.py:454
 msgid "Bio"
 msgstr "简介"
 
-#: takahe/models.py:455
+#: takahe/models.py:456
 msgid "Manually approve new followers"
 msgstr "手动批准新关注者"
 
-#: takahe/models.py:459
+#: takahe/models.py:460
 msgid "Include profile, marks and posts in discovery"
 msgstr "在发现中包含个人资料、标记和帖文"
 
-#: takahe/models.py:462
+#: takahe/models.py:463
 msgid "Include posts in search results"
 msgstr "在搜索结果中包含帖文"
 
-#: takahe/models.py:480
+#: takahe/models.py:481
 msgid "Profile picture"
 msgstr "头像"
 
-#: takahe/models.py:487
+#: takahe/models.py:488
 msgid "Header picture"
 msgstr "横幅图片"
 
@@ -7030,7 +7054,7 @@ msgstr "当前待确认的电子邮件地址为%(pending_email)s，请查收邮�
 msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
 msgstr "推荐输入电子邮件地址作为备用登录方式。"
 
-#: users/templates/users/account.html:73 users/templates/users/login.html:74
+#: users/templates/users/account.html:73 users/templates/users/login.html:83
 msgid "Fediverse (Mastodon)"
 msgstr "联邦宇宙（Mastodon API）"
 
@@ -7102,7 +7126,7 @@ msgstr "关联一个threads.net账号"
 msgid "Disconnect with Threads"
 msgstr "取消关联"
 
-#: users/templates/users/account.html:173 users/templates/users/login.html:109
+#: users/templates/users/account.html:173 users/templates/users/login.html:118
 msgid "Bluesky (ATProto)"
 msgstr "Bluesky (ATProto)"
 
@@ -7114,7 +7138,7 @@ msgstr "已验证的ATProto身份"
 msgid "Bluesky Login ID"
 msgstr "Bluesky 登录名"
 
-#: users/templates/users/account.html:202 users/templates/users/login.html:192
+#: users/templates/users/account.html:202 users/templates/users/login.html:221
 msgid "Bluesky app password"
 msgstr "Bluesky 应用密码"
 
@@ -7126,7 +7150,7 @@ msgstr "关联另一个ATProto身份"
 msgid "Link with an ATProto identity"
 msgstr "关联ATProto身份"
 
-#: users/templates/users/account.html:209 users/templates/users/login.html:197
+#: users/templates/users/account.html:209 users/templates/users/login.html:226
 msgid "App password can be created on <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a>."
 msgstr "应用密码可在 <a href=\"https://bsky.app/settings/app-passwords\" target=\"_blank\">bsky.app</a> 创建管理。"
 
@@ -7142,8 +7166,8 @@ msgstr "通行密钥"
 msgid "Name this passkey:"
 msgstr "为通行密钥命名:"
 
-#: users/templates/users/account.html:236 users/templates/users/login.html:60
-#: users/templates/users/welcome.html:33 users/views/webauthn.py:105
+#: users/templates/users/account.html:236 users/templates/users/login.html:69
+#: users/templates/users/welcome.html:33 users/views/webauthn.py:106
 msgid "Passkey"
 msgstr "通行密钥"
 
@@ -7601,94 +7625,98 @@ msgstr "无法找到用户，请确认拼写正确；也可能服务器正忙，
 msgid "Searching the fediverse"
 msgstr "正在搜索联邦宇宙"
 
-#: users/templates/users/login.html:18
+#: users/templates/users/login.html:5
+msgid "Checking your browser..."
+msgstr "正在检查您的浏览器……"
+
+#: users/templates/users/login.html:20
 msgid "Login"
 msgstr "登录"
 
-#: users/templates/users/login.html:49
+#: users/templates/users/login.html:58
 msgid "logo"
 msgstr "图标"
 
-#: users/templates/users/login.html:54
+#: users/templates/users/login.html:63
 #: users/templates/users/verify_email.html:25
 #: users/templates/users/welcome.html:51
 msgid "Continue"
 msgstr "继续"
 
-#: users/templates/users/login.html:116
+#: users/templates/users/login.html:125
 msgid "Sign in with a passkey saved on this device or in your password manager."
 msgstr "使用保存在此设备或密码管理器中的通行密钥登录。"
 
-#: users/templates/users/login.html:117
+#: users/templates/users/login.html:130
 msgid "Sign in with Passkey"
 msgstr "使用通行密钥登录"
 
-#: users/templates/users/login.html:132
+#: users/templates/users/login.html:146
 msgid "Enter your email address"
 msgstr "输入电子邮件地址"
 
-#: users/templates/users/login.html:134
+#: users/templates/users/login.html:150
 msgid "Send verification code"
 msgstr "发送验证码"
 
-#: users/templates/users/login.html:149
+#: users/templates/users/login.html:168
 msgid "Domain of your instance, e.g. mastodon.social"
 msgstr "实例域名(不含@和@之前的部分)，如mastodon.social"
 
-#: users/templates/users/login.html:155
+#: users/templates/users/login.html:174
 msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
 msgstr "请输入你的实例域名(不含@和@之前的部分)；如果你的联邦账号是<i>@neodb@mastodon.social</i>，只需要在此输入<i>mastodon.social</i>。"
 
-#: users/templates/users/login.html:158 users/templates/users/login.html:211
+#: users/templates/users/login.html:179 users/templates/users/login.html:251
 msgid "Authorize via Fediverse instance"
 msgstr "去联邦实例授权注册或登录"
 
-#: users/templates/users/login.html:160
+#: users/templates/users/login.html:184
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
 msgstr "如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其它平台注册登录，未来再作关联。"
 
-#: users/templates/users/login.html:170
+#: users/templates/users/login.html:196
 msgid "Authorize via Threads"
 msgstr "去Threads授权注册或登录"
 
-#: users/templates/users/login.html:183
+#: users/templates/users/login.html:212
 msgid "ATProto handle"
 msgstr "ATProto 用户标识"
 
-#: users/templates/users/login.html:188
+#: users/templates/users/login.html:217
 msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
 msgstr "请输入你的ATProto用户标识（例如neodb.bsky.social，不包含开头的@），不要输入电子邮件地址。如果你最近更改过标识，请使用最新的那一个。"
 
-#: users/templates/users/login.html:198
+#: users/templates/users/login.html:229
 msgid "Authorize via bsky.app"
 msgstr "使用Bluesky账号信息注册或登录"
 
-#: users/templates/users/login.html:202
+#: users/templates/users/login.html:236
 #, python-format
 msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
 msgstr "请选择一种方式注册或登录 %(site_name)s。如果你有多个社交身份，登录后可在账号设置中添加绑定。"
 
-#: users/templates/users/login.html:218
+#: users/templates/users/login.html:260
 msgid "Valid invitation code, please login or register."
 msgstr "邀请链接有效，可注册新用户"
 
-#: users/templates/users/login.html:220
+#: users/templates/users/login.html:262
 msgid "Please use invitation link to register a new account; existing user may login."
 msgstr "本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册"
 
-#: users/templates/users/login.html:222
+#: users/templates/users/login.html:264
 msgid "Invitation code invalid or expired."
 msgstr "邀请链接无效，已有账户可直接登入，新用户请使用有效邀请链接注册"
 
-#: users/templates/users/login.html:230
+#: users/templates/users/login.html:272
 msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模块加载超时，请检查网络（翻墙）设置。"
 
-#: users/templates/users/login.html:236
+#: users/templates/users/login.html:278
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
 msgstr "继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/terms/\">协议</a>，及使用cookie提供必要功能"
 
-#: users/templates/users/login.html:248
+#: users/templates/users/login.html:292
 msgid "Domain of your instance (excl. @)"
 msgstr "实例域名(不含@和@之前的部分)"
 
@@ -8232,31 +8260,31 @@ msgstr "以后再说"
 msgid "Passkey created"
 msgstr "通行密钥已创建"
 
-#: users/views/account.py:104
+#: users/views/account.py:112
 msgid "This username is already in use."
 msgstr "用户名已被使用"
 
-#: users/views/account.py:115
+#: users/views/account.py:123
 msgid "This email address is already in use."
 msgstr "此电子邮件地址已被使用"
 
-#: users/views/account.py:171
+#: users/views/account.py:179
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/views/account.py:204
+#: users/views/account.py:212
 msgid "Username already taken. Please try again."
 msgstr "用户名已被使用，请重试。"
 
-#: users/views/account.py:233
+#: users/views/account.py:241
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
 
-#: users/views/account.py:303
+#: users/views/account.py:311
 msgid "Account is being deleted."
 msgstr "账户删除进行中。"
 
-#: users/views/account.py:306
+#: users/views/account.py:314
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
@@ -8399,31 +8427,31 @@ msgstr "CSV 文件中未找到有效条目。"
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
 
-#: users/views/webauthn.py:102
+#: users/views/webauthn.py:103
 msgid "Passkey registration failed"
 msgstr "通行密钥注册失败"
 
-#: users/views/webauthn.py:122
+#: users/views/webauthn.py:123
 msgid "Credential already registered"
 msgstr "凭据已注册"
 
-#: users/views/webauthn.py:159 users/views/webauthn.py:166
-#: users/views/webauthn.py:175
+#: users/views/webauthn.py:165 users/views/webauthn.py:172
+#: users/views/webauthn.py:181
 msgid "Passkey not recognized"
 msgstr "无法识别此通行密钥"
 
-#: users/views/webauthn.py:180
+#: users/views/webauthn.py:186
 msgid "Account is inactive"
 msgstr "账户未激活"
 
-#: users/views/webauthn.py:196
+#: users/views/webauthn.py:202
 msgid "Passkey verification failed"
 msgstr "通行密钥验证失败"
 
-#: users/views/webauthn.py:222 users/views/webauthn.py:244
+#: users/views/webauthn.py:228 users/views/webauthn.py:250
 msgid "Passkey not found"
 msgstr "通行密钥未找到"
 
-#: users/views/webauthn.py:238
+#: users/views/webauthn.py:244
 msgid "Name is required"
 msgstr "名称不能为空"

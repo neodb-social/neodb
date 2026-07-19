@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ValidationError
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -18,7 +18,6 @@ from django.views.decorators.http import require_http_methods
 from common.models import SiteConfig
 from common.utils import AuthedHttpRequest
 from common.validators import sanitize_next_url
-from mastodon.forms import EmailLoginForm
 from mastodon.models import (
     Email,
     EmailAccount,
@@ -30,6 +29,7 @@ from mastodon.models import (
 from takahe.models import Token
 from takahe.utils import Takahe
 
+from ..login_proof import LOGIN_PROOF_METHODS, create_login_proof_challenge
 from ..models import User
 
 
@@ -58,7 +58,6 @@ def login(request):
             request.session["invite"] = request.GET.get("invite")
         else:
             invite_status = -2
-    email_form = EmailLoginForm() if settings.ENABLE_LOGIN_EMAIL else None
     return render(
         request,
         "users/login.html",
@@ -72,10 +71,19 @@ def login(request):
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
             "enable_threads": SiteConfig.system.enable_login_threads,
             "enable_bluesky": SiteConfig.system.enable_login_bluesky,
-            "email_form": email_form,
             "invite_status": invite_status,
         },
     )
+
+
+@require_http_methods(["GET"])
+def login_proof(request: HttpRequest) -> JsonResponse:
+    method = request.GET.get("method", "")
+    if method not in LOGIN_PROOF_METHODS:
+        return JsonResponse({"error": "Unknown login method"}, status=400)
+    response = JsonResponse(create_login_proof_challenge(request, method))
+    response["Cache-Control"] = "no-store, private"
+    return response
 
 
 @require_http_methods(["POST"])

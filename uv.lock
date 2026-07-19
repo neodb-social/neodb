@@ -82,6 +82,15 @@ wheels = [
 ]
 
 [[package]]
+name = "altcha"
+version = "2.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f0/c2/295917abf45cab0a33c2cd167beb645c68044e7b45967880375b4d4339ce/altcha-2.0.2.tar.gz", hash = "sha256:5897bb3812569e9b7b5234d7d93e216d9f158c9ccf0f5b822380bcdba59c1626", size = 23492, upload-time = "2026-06-20T10:16:26.389Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/9e/c9a1bcdfb33bc91c0f22f675c69fe7a7743f65b16eed9b80fd070ecc583b/altcha-2.0.2-py3-none-any.whl", hash = "sha256:1631905ac468538fccff04cabf6d2f026c03fe170aa96cab0af799363cb405e8", size = 18744, upload-time = "2026-06-20T10:16:25.228Z" },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -816,15 +825,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-ranged-response"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/70/e3/9372fcdca8e9c3205e7979528ccd1a14354a9a24d38efff11c1846ff8bf1/django-ranged-response-0.2.0.tar.gz", hash = "sha256:f71fff352a37316b9bead717fc76e4ddd6c9b99c4680cdf4783b9755af1cf985", size = 3021, upload-time = "2017-07-18T09:20:27.603Z" }
-
-[[package]]
 name = "django-redis"
 version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -858,20 +858,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/22/5c/4247e8c01634770f8c88fb8cc96d656c560f50bc2379131fd613a3f11c69/django_sass_processor-1.4.2.tar.gz", hash = "sha256:59c1028b5a5bd0158a0ea92ac5d538e5d89eb547e910a45e334d9c7b3b814b18", size = 20175, upload-time = "2025-06-26T12:36:44.598Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/aa/21adbffc3ad330ea5971a3c7fa5c5c4e50142dd848659e9bb9c8c562d108/django_sass_processor-1.4.2-py3-none-any.whl", hash = "sha256:604b00b19f7bbccfb838f766a284257bad3bb4ec3012f0770a1415913783bacc", size = 20579, upload-time = "2025-06-26T12:36:43.306Z" },
-]
-
-[[package]]
-name = "django-simple-captcha"
-version = "0.6.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-    { name = "django-ranged-response" },
-    { name = "pillow" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d3/12/dfcfd76d890c23bde772127647f4d61a6138e5e53453d7aa188e5aee0598/django_simple_captcha-0.6.3.tar.gz", hash = "sha256:6d295dac7213946631b88783b420e58d5d67bf2ff1c9704ac57986323e23bbef", size = 125646, upload-time = "2025-12-07T17:45:11.31Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/8c/d0d007820174922fbbaae98074d3a6ffc1b1f53f0c0f68302c5f1b4bb67f/django_simple_captcha-0.6.3-py2.py3-none-any.whl", hash = "sha256:822750ee91ac5bb74c86e785b9539ca22cba2c5d83c0bdf7b4eaaf20c0abff84", size = 94099, upload-time = "2025-12-07T17:45:09.734Z" },
 ]
 
 [[package]]
@@ -1704,6 +1690,7 @@ name = "neodb"
 version = "0.15"
 source = { virtual = "." }
 dependencies = [
+    { name = "altcha" },
     { name = "atproto" },
     { name = "blurhash-rs" },
     { name = "cachetools" },
@@ -1732,7 +1719,6 @@ dependencies = [
     { name = "django-redis" },
     { name = "django-rq" },
     { name = "django-sass-processor" },
-    { name = "django-simple-captcha" },
     { name = "django-storages", extra = ["boto3", "google"] },
     { name = "django-typed-models" },
     { name = "django-tz-detect" },
@@ -1800,6 +1786,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "altcha", specifier = ">=2.0.2,<3" },
     { name = "atproto", specifier = ">=0.0.55" },
     { name = "blurhash-rs", specifier = ">=1.1.0" },
     { name = "cachetools", specifier = ">=5.5.0" },
@@ -1828,7 +1815,6 @@ requires-dist = [
     { name = "django-redis" },
     { name = "django-rq", specifier = ">=3.1" },
     { name = "django-sass-processor", specifier = ">=1.4.1" },
-    { name = "django-simple-captcha", specifier = ">=0.6.2" },
     { name = "django-storages", extras = ["boto3", "google"], specifier = ">=1.14.5" },
     { name = "django-typed-models", git = "https://github.com/alphatownsman/django-typed-models.git" },
     { name = "django-tz-detect", specifier = ">=0.5.0" },

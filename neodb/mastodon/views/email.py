@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from django.core.validators import EmailValidator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
@@ -7,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.sentry import count as sentry_count
 from common.views import render_error
+from users.login_proof import verify_login_proof
 
 from ..forms import EmailLoginForm
 from ..models import Email
@@ -31,15 +31,13 @@ def email_login_state(request):
 
 @require_http_methods(["POST"])
 def email_login(request: HttpRequest):
+    if not verify_login_proof(request, "email"):
+        return render_error(request, _("Security check failed. Please try again."))
     sentry_count("login.attempt", attributes={"type": "email"})
     form = EmailLoginForm(request.POST)
     if not form.is_valid():
-        return render_error(request, _("Invalid captcha"))
-    login_email = form.cleaned_data["email"]
-    try:
-        EmailValidator()(login_email)
-    except Exception:
         return render_error(request, _("Invalid email address"))
+    login_email = form.cleaned_data["email"]
     Email.send_login_email(request, login_email, "login")
     return render(
         request,

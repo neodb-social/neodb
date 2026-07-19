@@ -99,21 +99,18 @@
     background-color: var(--pico-text-selection-color);
   }
 
-  form {
-    .captcha {
-      margin-bottom: 1em;
-      margin-left: auto;
-      margin-right: auto;
-      height: 4em;
-      display: block;
-    }
+  .login-proof-status {
+    display: block;
+    min-height: 1.5em;
+    color: var(--pico-muted-color);
+  }
 
-    .code-input {
-      font-family: monospace;
-      font-weight: bolder;
-      letter-spacing: 1em;
-      text-align: center;
-    }
+  .login-proof-status:empty {
+    visibility: hidden;
+  }
+
+  .login-proof-status.error {
+    color: var(--pico-del-color);
   }
 
   article {

@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from common.sentry import count as sentry_count
 from common.views import render_error
+from users.login_proof import verify_login_proof
 
 from ..models import Bluesky
 from .common import client_ip, disconnect_identity, process_verified_account
@@ -18,6 +19,8 @@ _AUTH_FAIL_TTL = 60 * 60
 
 @require_http_methods(["POST"])
 def bluesky_login(request: HttpRequest):
+    if not verify_login_proof(request, "bluesky"):
+        return render_error(request, _("Security check failed. Please try again."))
     sentry_count("login.attempt", attributes={"type": "bluesky"})
     fail_key = f"bluesky_login_fails_{client_ip(request)}"
     if (cache.get(fail_key) or 0) >= _MAX_AUTH_FAILS:

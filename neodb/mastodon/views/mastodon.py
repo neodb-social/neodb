@@ -1,6 +1,9 @@
+from urllib.parse import urlencode
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -8,6 +11,7 @@ from common.sentry import count as sentry_count
 from common.views import render_error
 from mastodon.models import Mastodon
 from mastodon.views.common import disconnect_identity, process_verified_account
+from users.login_proof import verify_login_proof
 
 
 @require_http_methods(["GET", "POST"])
@@ -19,6 +23,11 @@ def mastodon_login(request):
     login_domain = (
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
+    if request.method == "GET" and not request.user.is_authenticated:
+        query = urlencode({"method": "mastodon", "domain": login_domain})
+        return redirect(f"{reverse('users:login')}?{query}")
+    if not verify_login_proof(request, "mastodon"):
+        return render_error(request, _("Security check failed. Please try again."))
     sentry_count(
         "login.attempt",
         attributes={"type": "mastodon", "domain": login_domain or "unknown"},

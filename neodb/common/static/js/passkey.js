@@ -105,7 +105,7 @@
     }
   }
 
-  async function passkeyLogin(optionsUrl, verifyUrl, onSuccess, onError) {
+  async function passkeyLogin(optionsUrl, verifyUrl, proof, onSuccess, onError) {
     try {
       // 1. Get authentication options from server
       var optResp = await fetch(optionsUrl, {
@@ -114,10 +114,13 @@
           "X-CSRFToken": getCsrfToken(),
           "Content-Type": "application/json",
         },
-        body: "{}",
+        body: JSON.stringify({ altcha: proof }),
       });
       if (!optResp.ok) {
-        throw new Error("Failed to get login options");
+        var optError = await optResp.json().catch(function () {
+          return {};
+        });
+        throw new Error(optError.error || "Failed to get login options");
       }
       var options = await optResp.json();
 

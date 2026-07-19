@@ -56,7 +56,7 @@ dependencies = [
     "certifi==2026.2.25",
     "deepl>=1.22.0",
     "nh3>=0.3.5",
-    "django-simple-captcha>=0.6.2",
+    "altcha>=2.0.2,<3",
     "webauthn>=2.0.0,<3",
     "numpy>=2.4.6",
     "scipy>=1.17.1",

@@ -2,6 +2,8 @@
 {% load static %}
 {% load safe_redirect %}
 {% get_current_language as LANGUAGE_CODE %}
+{% translate "Checking your browser..." as login_proof_verifying %}
+{% translate "Security check failed. Please try again." as login_proof_error %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="login-page">
   <head>
@@ -20,10 +22,17 @@
     <meta name="robots" content="noindex">
     <script src="{{ cdn_url }}/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
     <script src="{{ cdn_url }}/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script async
+            defer
+            src="{{ cdn_url }}/npm/altcha@3.2.1/dist/main/altcha.min.js"
+            type="module"></script>
     <script>
-    $(document).ready(function () {
-      if (!window.htmx || !window._hyperscript) return; // disable login if cash, htmx or hyperscript not loaded
-      $('.delayed').remove(); $('#loginButton').prop("disabled", false);
+    $(document).ready(function() {
+      if (!window.htmx || !window._hyperscript || !window.customElements) return;
+      customElements.whenDefined('altcha-widget').then(function() {
+        $('.delayed').remove();
+        $('.login-submit').prop('disabled', false);
+      });
     });
     </script>
     <style type="text/css">
@@ -114,7 +123,13 @@
 <form id="login-passkey" style="display:none">
   {% csrf_token %}
   <p>{% trans "Sign in with a passkey saved on this device or in your password manager." %}</p>
-  <button type="button" style="width:100%" id="passkey-login-btn">{% trans "Sign in with Passkey" %}</button>
+  <button type="button"
+          class="login-submit"
+          style="width:100%"
+          id="passkey-login-btn"
+          disabled>{% trans "Sign in with Passkey" %}</button>
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
   <small id="passkey-error" style="display:none; color:var(--pico-del-color)"></small>
 </form>
 <form id="login-email"
@@ -124,14 +139,18 @@
       onsubmit="return login(this);">
   {% csrf_token %}
   <input name="method" value="email" type="hidden" />
-  {{ email_form.human }}
   <input required
          name="email"
          id="email"
          type="email"
          placeholder="{% trans 'Enter your email address' %}"
          autocomplete="email" />
-  <input type='submit' value="{% trans 'Send verification code' %}" />
+  <input type="submit"
+         class="login-submit"
+         value="{% trans 'Send verification code' %}"
+         disabled />
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
 </form>
 <form id="login-mastodon"
       style="display:none"
@@ -155,7 +174,12 @@
     {% blocktrans %}Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>.{% endblocktrans %}
   </small>
   <br>
-  <input type='submit' value="{% trans 'Authorize via Fediverse instance' %}" />
+  <input type="submit"
+         class="login-submit"
+         value="{% trans 'Authorize via Fediverse instance' %}"
+         disabled />
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
   <small>
     {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
   </small>
@@ -167,7 +191,12 @@
       onsubmit="return login(this);">
   {% csrf_token %}
   <input name="method" value="threads" type="hidden" />
-  <input type='submit' value="{% trans 'Authorize via Threads' %}" />
+  <input type="submit"
+         class="login-submit"
+         value="{% trans 'Authorize via Threads' %}"
+         disabled />
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=threads" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
 </form>
 <form id="login-bluesky"
       style="display:none"
@@ -195,7 +224,12 @@
          autocomplete="off"
          spellcheck="false" />
   <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
-  <input type='submit' value="{% trans 'Authorize via bsky.app' %}" />
+  <input type="submit"
+         class="login-submit"
+         value="{% trans 'Authorize via bsky.app' %}"
+         disabled />
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
 </form>
 <form>
   <div style="margin:0 1em;">
@@ -203,13 +237,21 @@
   </div>
 </form>
 {% else %}
-<form>
+<form id="login-mastodon-whitelist"
+      action="{% url 'mastodon:login' %}"
+      method="post"
+      onsubmit="return login(this);">
+  {% csrf_token %}
+  <input name="method" value="mastodon" type="hidden" />
   <select name="domain">
     {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
   </select>
-  <input type='submit'
+  <input type="submit"
+         class="login-submit"
          value="{% trans 'Authorize via Fediverse instance' %}"
-         id="loginButton" />
+         disabled />
+  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+  <small class="login-proof-status" role="status" aria-live="polite"></small>
 </form>
 {% endif %}
 {% if invite_status %}
@@ -244,29 +286,76 @@
       if (pk) pk.style.display = 'none';
     }
 
-    const sites = JSON.parse(document.getElementById('sites-data').textContent);
-    const autoCompleteJS = new autoComplete({ placeHolder: "{% trans 'Domain of your instance (excl. @)' %}",
-      selector: "#domain",
-      // wrapper: false,
-      data: {
-          src: sites
-      },
-      submit: true,
-      resultsList: {
-        tabSelect: true,
-        maxResults: 10
-      },
-      events: {
-        input: {
-          selection: (event) => {
-            const selection = event.detail.selection.value;
-            autoCompleteJS.input.value = selection;
+    const domainInput = document.getElementById('domain');
+    if (domainInput) {
+      const sites = JSON.parse(document.getElementById('sites-data').textContent);
+      const autoCompleteJS = new autoComplete({ placeHolder: "{% trans 'Domain of your instance (excl. @)' %}",
+        selector: "#domain",
+        // wrapper: false,
+        data: {
+            src: sites
+        },
+        submit: true,
+        resultsList: {
+          tabSelect: true,
+          maxResults: 10
+        },
+        events: {
+          input: {
+            selection: (event) => {
+              const selection = event.detail.selection.value;
+              autoCompleteJS.input.value = selection;
+            }
           }
         }
+      });
+    }
+
+    const loginProofMessages = {
+      verifying: '{{ login_proof_verifying|escapejs }}',
+      error: '{{ login_proof_error|escapejs }}'
+    };
+
+    function updateLoginProofState(widget, state) {
+      const form = widget.closest('form');
+      const status = form && form.querySelector('.login-proof-status');
+      const submit = form && form.querySelector('.login-submit');
+      if (!status || !submit) return;
+      status.classList.remove('error');
+      status.replaceChildren();
+      if (state === 'verifying') {
+        const waitIcon = document.createElement('i');
+        waitIcon.className = 'fa-solid fa-circle-nodes fa-spin-snap-8';
+        waitIcon.setAttribute('aria-hidden', 'true');
+        status.append(
+          waitIcon,
+          document.createTextNode(' ' + loginProofMessages.verifying)
+        );
+        submit.disabled = true;
+        submit.setAttribute('aria-busy', 'true');
+      } else if (state === 'error' || state === 'expired') {
+        status.textContent = loginProofMessages.error;
+        status.classList.add('error');
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+      } else if (state === 'verified' || state === 'unverified') {
+        status.textContent = '';
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
       }
+    }
+
+    window.addEventListener('load', function() {
+      document.querySelectorAll('.login-proof').forEach(function(widget) {
+        widget.addEventListener('statechange', function(event) {
+          updateLoginProofState(widget, event.detail.state);
+        });
+      });
     });
 
     function login(f){
+      const proof = f.querySelector('.login-proof');
+      if (!proof || typeof proof.verify !== 'function') return false;
       localStorage.login_method = $(f).find('input[name="method"]').val();
       localStorage.mastodon_domain = $('#domain').val();
       localStorage.email = $('#email').val();
@@ -291,7 +380,7 @@
         $('#domain').val(localStorage.mastodon_domain);
         $('#email').val(localStorage.email);
       } else {
-        // restire cookie from previous versions
+        // restore cookie from previous versions
         var d = Cookies.get('mastodon_domain');
         if (d) {
           if (d == "@") {
@@ -318,19 +407,33 @@
     if (!window.Passkey || !Passkey.isSupported()) return;
     var btn = document.getElementById('passkey-login-btn');
     if (!btn) return;
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', async function() {
+      var widget = document.querySelector('#login-passkey .login-proof');
+      if (!widget || typeof widget.verify !== 'function') return;
       localStorage.login_method = 'passkey';
       btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
       var errEl = document.getElementById('passkey-error');
       errEl.style.display = 'none';
+      errEl.textContent = '';
+      var proof = await widget.verify();
+      if (!proof) {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        return;
+      }
+      btn.setAttribute('aria-busy', 'true');
+      btn.disabled = true;
       Passkey.login(
         '{% url "users:passkey_login_options" %}',
         '{% url "users:passkey_login_verify" %}',
+        proof.payload,
         function(result) {
           location.href = result.redirect || '/';
         },
         function(err) {
           btn.removeAttribute('aria-busy');
+          btn.disabled = false;
           if (err) {
             errEl.textContent = err;
             errEl.style.display = '';

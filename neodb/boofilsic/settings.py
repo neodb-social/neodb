@@ -377,7 +377,6 @@ INSTALLED_APPS = [
     "user_messages",
     "corsheaders",
     "anymail",
-    "captcha",
     # "silk",
 ]
 
@@ -710,9 +709,6 @@ CORS_ALLOW_METHODS = (
     # "PUT",
 )
 CORS_ALLOW_HEADERS = (*default_headers,)
-
-# CAPTCHA_2X_IMAGE = True
-CAPTCHA_FOREGROUND_COLOR = "#566078"
 
 DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 

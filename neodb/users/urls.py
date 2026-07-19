@@ -5,6 +5,7 @@ from .views import *
 app_name = "users"
 urlpatterns = [
     path("login", login, name="login"),
+    path("login/proof", login_proof, name="login_proof"),
     path("register", register, name="register"),
     path("fetch_refresh", fetch_refresh, name="fetch_refresh"),
     path("data", data, name="data"),
