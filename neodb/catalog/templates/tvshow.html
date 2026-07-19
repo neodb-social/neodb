@@ -56,9 +56,9 @@
     {% endif %}
   </div>
   <div>
-    {% if item.site %}
+    {% if item.official_site %}
       {% trans 'website' %}:
-      <a href="{{ item.site }}" target="_blank" rel="noopener">{{ item.site|strip_scheme }}</a>
+      <a href="{{ item.official_site }}" target="_blank" rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}
   </div>
   {% if item.other_info %}

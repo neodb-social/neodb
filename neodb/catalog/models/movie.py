@@ -175,6 +175,10 @@ class Movie(Item):
     def year(self) -> int | None:
         return year_of_partial_date(self.release_date)
 
+    @property
+    def official_site(self) -> str | None:
+        return self.site
+
     @classmethod
     def normalize_legacy_metadata(cls, metadata: dict) -> None:
         super().normalize_legacy_metadata(metadata)

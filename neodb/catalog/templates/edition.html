@@ -47,11 +47,6 @@
   </div>
   <div>{% include '_language_list.html' with list=item.language max=10 %}</div>
   <div>
-    {% if item.binding %}
-      {% trans 'binding' %}: {{ item.binding }}
-    {% endif %}
-  </div>
-  <div>
     {% if item.price %}
       {% trans 'price' %}: {{ item.price }}
     {% endif %}
