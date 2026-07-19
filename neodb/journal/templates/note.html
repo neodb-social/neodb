@@ -6,6 +6,7 @@
 {% load thumb %}
 <dialog open
         class="mark-editor"
+        data-existing-note="{% if note %}true{% else %}false{% endif %}"
         _="on close_dialog add .closing then wait for animationend then remove me">
   <article>
     <header>
@@ -13,30 +14,68 @@
             aria-label="Close"
             class="close"
             _="on click trigger close_dialog" />
-      <strong>{% trans 'Note' %} - {{ item.display_title }}</strong>
+      <strong>
+        {% if note or not can_update_progress %}
+          {% trans "Note" %}
+        {% else %}
+          {% trans "Note and progress" %}
+        {% endif %}
+        - {{ item.display_title }}
+      </strong>
     </header>
     <div>
       <form action="{% url 'journal:note' item.uuid %}"
             method="post"
-            onsubmit="return !!$('#{{ form.content.id_for_label }}').val() || confirm('{% trans "Note with empty content will be deleted, sure to continue?" %}');;">
+            onsubmit="return this.elements.mode.value === 'progress' || !!$('#{{ form.content.id_for_label }}').val() || confirm('{% trans "Note with empty content will be deleted, sure to continue?" %}');">
         {% csrf_token %}
         {{ form.uuid }}
-        <div class="grid">
+        {% if not note and can_update_progress %}
+          <fieldset id="note-mode-selector">
+            {{ form.mode }}
+          </fieldset>
+        {% else %}
+          {{ form.mode.as_hidden }}
+        {% endif %}
+        <div id="progress-fields" class="grid">
           <div>{{ form.progress_type }}</div>
           <div>{{ form.progress_value }}</div>
         </div>
-        {{ form.content }}
-        {{ form.title }}
-        <div class="grid">
+        <div id="note-only-fields" {% if mode == "progress" %}hidden{% endif %}>
+          {{ form.content }}
+          {{ form.title }}
           <div>{{ form.visibility }}</div>
-          <div>
-            <label for="{{ form.share_to_mastodon.id_for_label }}">
-              {{ form.share_to_mastodon }} {{ form.share_to_mastodon.label }}
-            </label>
+          <div class="grid">
+            {% if can_update_progress %}
+              <div>
+                <label for="{{ form.update_progress.id_for_label }}">
+                  {{ form.update_progress }} {{ form.update_progress.label }}
+                </label>
+              </div>
+            {% endif %}
+            <div>
+              <label for="{{ form.share_to_mastodon.id_for_label }}">
+                {{ form.share_to_mastodon }} {{ form.share_to_mastodon.label }}
+                <i class="fa-regular fa-circle-question"
+                   tabindex="0"
+                   aria-label="{% trans 'Also publish this note to your connected social accounts.' %}"
+                   data-tooltip="{% trans 'Also publish this note to your connected social accounts.' %}"></i>
+              </label>
+            </div>
           </div>
         </div>
         <div class="note-edit-buttons">
           <input type="submit" value="{% trans "Save" %}">
+          {% if mode == "progress" and has_current_progress %}
+            <button type="submit"
+                    name="clear_progress"
+                    value="1"
+                    class="secondary outline"
+                    formnovalidate
+                    title="{% trans 'Clear progress' %}"
+                    aria-label="{% trans 'Clear progress' %}">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          {% endif %}
           {% if note %}
             <a hx-post="{% url 'journal:note_delete' note.uuid %}?return_url={{ request.META.HTTP_REFERER|default:'/' }}"
                hx-confirm="{% trans 'Are you sure to delete this note?' %}"
@@ -48,4 +87,23 @@
       </form>
     </div>
   </article>
+  <script>
+    (() => {
+      const dialog = document.currentScript.closest("dialog");
+      const noteFields = dialog.querySelector("#note-only-fields");
+      const content = dialog.querySelector("#{{ form.content.id_for_label }}");
+      const updateMode = () => {
+        const selected = dialog.querySelector('input[name="mode"]:checked, input[name="mode"][type="hidden"]');
+        const progressMode = selected && selected.value === "progress";
+        noteFields.hidden = progressMode;
+        if (content) {
+          content.required = !progressMode && dialog.dataset.existingNote !== "true";
+        }
+      };
+      dialog.querySelectorAll('input[name="mode"]').forEach((input) => {
+        input.addEventListener("change", updateMode);
+      });
+      updateMode();
+    })();
+  </script>
 </dialog>

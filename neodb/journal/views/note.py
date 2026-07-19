@@ -2,7 +2,8 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
-from django.http import Http404, HttpResponseRedirect
+from django.db import transaction
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
@@ -13,20 +14,24 @@ from common.forms import NeoModelForm
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
-from ..models import Note
+from ..models import Mark, Note, ShelfType
 from ..models.common import VisibilityType
 
 
 class NoteForm(NeoModelForm):
-    # _progress_choices = [
-    #     ("", _("Progress Type (optional)"))
-    # ] + Note.ProgressType.choices
-    # progress_type = forms.ChoiceField(choices=_progress_choices, required=False)
+    mode = forms.ChoiceField(
+        choices=(("note", _("Note")), ("progress", _("Progress"))),
+        initial="note",
+        widget=forms.RadioSelect(),
+    )
+    update_progress = forms.BooleanField(
+        label=_("Update progress"), initial=False, required=False
+    )
     visibility = forms.ChoiceField(
         widget=forms.RadioSelect(), choices=VisibilityType.choices, initial=0
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Crosspost to timeline"), initial=True, required=False
+        label=_("Crosspost"), initial=False, required=False
     )
     uuid = forms.CharField(widget=forms.HiddenInput(), required=False)
     # content = forms.CharField(required=False, widget=forms.Textarea)
@@ -52,8 +57,9 @@ class NoteForm(NeoModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         item = kwargs.pop("item")
+        mode = kwargs.pop("mode", "note")
         super().__init__(*args, **kwargs)
         # allow submit empty content for existing note, and we'll delete it
         if self.instance.id:
@@ -61,6 +67,9 @@ class NoteForm(NeoModelForm):
         # get the corresponding progress types for the item
         types = Note.get_progress_types_by_item(item)
         pt = self.instance.progress_type
+        if mode == "progress":
+            self.fields["visibility"].required = False
+            self.fields["content"].required = False
         if pt and pt not in types:
             try:
                 types.append(Note.ProgressType(pt))
@@ -70,9 +79,22 @@ class NoteForm(NeoModelForm):
         self.fields["progress_type"].choices = choices  # type: ignore
 
 
+def _return_url(request: AuthedHttpRequest) -> str:
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        return "/"
+    return referer
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
-def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
+def note_edit(
+    request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""
+) -> HttpResponse:
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     owner = request.user.identity
     note_uuid = request.POST.get("uuid", note_uuid)
@@ -81,11 +103,39 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
         note = get_object_or_404(
             Note, owner=owner, item=item, uid=get_uuid_or_404(note_uuid)
         )
+
+    mark = Mark(owner, item)
+    can_update_progress = (
+        item.class_name == "edition" and mark.shelf_type == ShelfType.PROGRESS
+    )
+    requested_mode = request.POST.get("mode") or request.GET.get("mode") or "note"
+    if note:
+        mode = "note"
+    elif requested_mode == "progress" and can_update_progress:
+        mode = "progress"
+    elif requested_mode == "progress" and request.method == "POST":
+        raise BadRequest(_("Only in-progress books can have reading progress."))
+    else:
+        mode = "note"
+
+    initial = {"uuid": note_uuid, "mode": mode, "share_to_mastodon": False}
+    if not note:
+        initial.update(
+            {
+                "progress_type": mark.progress_type,
+                "progress_value": mark.progress_value,
+            }
+        )
     form = NoteForm(
-        request.POST or None, item=item, instance=note, initial={"uuid": note_uuid}
+        request.POST or None,
+        item=item,
+        mode=mode,
+        instance=note,
+        initial=initial,
     )
     form.instance.owner = owner
     form.instance.item = item
+
     if request.method == "GET":
         return render(
             request,
@@ -94,30 +144,50 @@ def note_edit(request: AuthedHttpRequest, item_uuid: str, note_uuid: str = ""):
                 "item": item,
                 "note": note,
                 "form": form,
+                "mode": mode,
+                "can_update_progress": can_update_progress,
+                "has_current_progress": bool(mark.progress_value),
             },
         )
-    if not form.data["content"]:
+
+    if mode == "progress":
+        try:
+            if request.POST.get("clear_progress"):
+                mark.set_progress(None, None)
+            else:
+                if not form.is_valid():
+                    raise BadRequest(_("Invalid form data"))
+                mark.set_progress(
+                    form.cleaned_data["progress_type"],
+                    form.cleaned_data["progress_value"],
+                )
+        except ValueError as error:
+            raise BadRequest(str(error)) from error
+        record_activity("progress", "web")
+        return HttpResponseRedirect(_return_url(request))
+
+    if not form.data.get("content"):
         if not note:
             raise Http404(_("Content not found"))
         note.delete()
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
-        return HttpResponseRedirect(referer)
+        return HttpResponseRedirect(_return_url(request))
+
     if not form.is_valid():
         raise BadRequest(_("Invalid form data"))
-    form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
-    note = form.save()
+    if form.cleaned_data["update_progress"] and not can_update_progress:
+        raise BadRequest(_("Only in-progress books can have reading progress."))
+
+    try:
+        with transaction.atomic():
+            form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
+            note = form.save()
+            if form.cleaned_data["update_progress"]:
+                mark.set_progress(
+                    form.cleaned_data["progress_type"],
+                    form.cleaned_data["progress_value"],
+                )
+    except ValueError as error:
+        raise BadRequest(str(error)) from error
+
     record_activity("note", "web")
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
-    return HttpResponseRedirect(referer)
+    return HttpResponseRedirect(_return_url(request))

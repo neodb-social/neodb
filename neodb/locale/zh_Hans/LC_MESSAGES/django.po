@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 17:24+0000\n"
+"POT-Creation-Date: 2026-07-19 22:16+0000\n"
 "PO-Revision-Date: 2026-07-02 15:01+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -58,11 +58,11 @@ msgstr "简体中文"
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: catalog/forms.py:35 catalog/models/item.py:270
+#: catalog/forms.py:35 catalog/models/item.py:271
 msgid "Primary ID Type"
 msgstr "主要标识类型"
 
-#: catalog/forms.py:40 catalog/models/item.py:273
+#: catalog/forms.py:40 catalog/models/item.py:274
 msgid "Primary ID Value"
 msgstr "主要标识数据"
 
@@ -110,7 +110,7 @@ msgstr "副标题"
 
 #: catalog/models/book.py:270 catalog/models/movie.py:120
 #: catalog/models/performance.py:385 catalog/models/tv.py:211
-#: catalog/models/tv.py:433
+#: catalog/models/tv.py:437
 msgid "original title"
 msgstr "原名"
 
@@ -144,7 +144,7 @@ msgstr "发行年份"
 msgid "publication month"
 msgstr "发行月份"
 
-#: catalog/models/book.py:319 catalog/templates/edition.html:51
+#: catalog/models/book.py:319
 msgid "binding"
 msgstr "装订"
 
@@ -156,11 +156,11 @@ msgstr "页数"
 msgid "series"
 msgstr "丛书"
 
-#: catalog/models/book.py:322 catalog/templates/edition.html:70
+#: catalog/models/book.py:322 catalog/templates/edition.html:65
 msgid "contents"
 msgstr "目录"
 
-#: catalog/models/book.py:323 catalog/templates/edition.html:56
+#: catalog/models/book.py:323 catalog/templates/edition.html:51
 msgid "price"
 msgstr "价格"
 
@@ -667,7 +667,7 @@ msgstr "发行日期"
 
 #: catalog/models/game.py:147 catalog/models/movie.py:156
 #: catalog/models/music.py:128 catalog/models/tv.py:247
-#: catalog/models/tv.py:469
+#: catalog/models/tv.py:473
 msgid "YYYY, YYYY-MM or YYYY-MM-DD"
 msgstr "YYYY、YYYY-MM 或 YYYY-MM-DD"
 
@@ -676,9 +676,9 @@ msgid "release type"
 msgstr "发布类型"
 
 #: catalog/models/game.py:180 catalog/models/movie.py:158
-#: catalog/models/people.py:177 catalog/models/performance.py:258
+#: catalog/models/people.py:178 catalog/models/performance.py:258
 #: catalog/models/performance.py:465 catalog/models/podcast.py:89
-#: catalog/models/tv.py:249 catalog/models/tv.py:472
+#: catalog/models/tv.py:249 catalog/models/tv.py:476
 #: catalog/templates/game.html:33 catalog/templates/movie.html:48
 #: catalog/templates/people.html:44 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
@@ -689,24 +689,24 @@ msgstr "网站"
 
 #: catalog/models/item.py:125 catalog/models/movie.py:123
 #: catalog/models/performance.py:182 catalog/models/performance.py:389
-#: catalog/models/tv.py:214 catalog/models/tv.py:436
+#: catalog/models/tv.py:214 catalog/models/tv.py:440
 msgid "director"
 msgstr "导演"
 
 #: catalog/models/item.py:126 catalog/models/movie.py:130
 #: catalog/models/performance.py:189 catalog/models/performance.py:396
-#: catalog/models/tv.py:221 catalog/models/tv.py:443
+#: catalog/models/tv.py:221 catalog/models/tv.py:447
 msgid "playwright"
 msgstr "编剧"
 
 #: catalog/models/item.py:127 catalog/models/movie.py:137
 #: catalog/models/performance.py:217 catalog/models/performance.py:424
-#: catalog/models/tv.py:228 catalog/models/tv.py:450
+#: catalog/models/tv.py:228 catalog/models/tv.py:454
 msgid "actor"
 msgstr "演员"
 
 #: catalog/models/item.py:128 catalog/models/movie.py:144
-#: catalog/models/tv.py:235 catalog/models/tv.py:457
+#: catalog/models/tv.py:235 catalog/models/tv.py:461
 msgid "producer"
 msgstr "制片人"
 
@@ -768,12 +768,12 @@ msgstr "声优"
 msgid "publishing house"
 msgstr "出版社"
 
-#: catalog/models/item.py:168 catalog/models/people.py:475
+#: catalog/models/item.py:168 catalog/models/people.py:476
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr "角色"
 
-#: catalog/models/item.py:169 catalog/models/people.py:154
+#: catalog/models/item.py:169 catalog/models/people.py:155
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
@@ -783,50 +783,50 @@ msgstr "名字"
 msgid "character name"
 msgstr "角色名"
 
-#: catalog/models/item.py:267 catalog/models/item.py:299
+#: catalog/models/item.py:268 catalog/models/item.py:300
 #: journal/models/collection.py:93
 msgid "title"
 msgstr "标题"
 
-#: catalog/models/item.py:268 catalog/models/item.py:307
+#: catalog/models/item.py:269 catalog/models/item.py:308
 #: journal/models/collection.py:94
 msgid "description"
 msgstr "描述"
 
-#: catalog/models/item.py:279 catalog/models/people.py:483
+#: catalog/models/item.py:280 catalog/models/people.py:484
 msgid "metadata"
 msgstr "元数据"
 
-#: catalog/models/item.py:281 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:282 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1413
+#: catalog/models/item.py:1414
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1415
+#: catalog/models/item.py:1416
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1417
+#: catalog/models/item.py:1418
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1433
+#: catalog/models/item.py:1434
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1439
+#: catalog/models/item.py:1440
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1442
+#: catalog/models/item.py:1443
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
 #: catalog/models/movie.py:152 catalog/models/music.py:124
-#: catalog/models/tv.py:243 catalog/models/tv.py:465
+#: catalog/models/tv.py:243 catalog/models/tv.py:469
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:17 catalog/templates/game.html:22
 #: catalog/templates/movie.html:36 catalog/templates/tvseason.html:53
@@ -841,7 +841,7 @@ msgid "length"
 msgstr "长度"
 
 #: catalog/models/movie.py:162 catalog/models/music.py:131
-#: catalog/models/tv.py:259 catalog/models/tv.py:482
+#: catalog/models/tv.py:259 catalog/models/tv.py:486
 msgid "seconds"
 msgstr "秒"
 
@@ -953,27 +953,27 @@ msgstr "剧团"
 msgid "Crew"
 msgstr "制作人员"
 
-#: catalog/models/people.py:150
+#: catalog/models/people.py:151
 msgid "type"
 msgstr "类型"
 
-#: catalog/models/people.py:162
+#: catalog/models/people.py:163
 msgid "bio"
 msgstr "简介"
 
-#: catalog/models/people.py:171
+#: catalog/models/people.py:172
 msgid "date of birth"
 msgstr "出生日期"
 
-#: catalog/models/people.py:174
+#: catalog/models/people.py:175
 msgid "date of death"
 msgstr "死亡日期"
 
-#: catalog/models/people.py:477
+#: catalog/models/people.py:478
 msgid "character"
 msgstr "角色"
 
-#: catalog/models/people.py:481
+#: catalog/models/people.py:482
 msgid "Character name for actor roles"
 msgstr "演员饰演的角色名称"
 
@@ -1008,25 +1008,25 @@ msgstr "结束日期"
 msgid "number of seasons"
 msgstr "季数"
 
-#: catalog/models/tv.py:189 catalog/models/tv.py:411
+#: catalog/models/tv.py:189 catalog/models/tv.py:415
 #: catalog/templates/tvseason.html:43 catalog/templates/tvshow.html:38
 msgid "number of episodes"
 msgstr "集数"
 
-#: catalog/models/tv.py:256 catalog/models/tv.py:479
+#: catalog/models/tv.py:256 catalog/models/tv.py:483
 msgid "episode length"
 msgstr "单集长度"
 
-#: catalog/models/tv.py:408 catalog/templates/tvseason.html:33
+#: catalog/models/tv.py:412 catalog/templates/tvseason.html:33
 msgid "season number"
 msgstr "本季序号"
 
-#: catalog/models/tv.py:522
+#: catalog/models/tv.py:530
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr "{show_title} 第{season_number}季"
 
-#: catalog/models/tv.py:676
+#: catalog/models/tv.py:684
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr "{season_title} 第{episode_number}集"
@@ -1150,19 +1150,19 @@ msgstr "撰写评论"
 msgid "similar items"
 msgstr "相似条目"
 
-#: catalog/templates/_item_user_mark_history.html:20
+#: catalog/templates/_item_user_mark_history.html:25
 msgid "no history."
 msgstr "暂无标记历史。"
 
-#: catalog/templates/_item_user_mark_history.html:28
+#: catalog/templates/_item_user_mark_history.html:33
 msgid "sure to clear mark history?"
 msgstr "确定清除所有标记历史吗？"
 
-#: catalog/templates/_item_user_mark_history.html:28
+#: catalog/templates/_item_user_mark_history.html:33
 msgid "clear mark history"
 msgstr "清除标记历史"
 
-#: catalog/templates/_item_user_mark_history.html:30
+#: catalog/templates/_item_user_mark_history.html:35
 msgid "clear history will not remove current mark"
 msgstr "清除标记历史不会删除或改变现有标记"
 
@@ -1171,10 +1171,19 @@ msgid "my comment and tags"
 msgstr "我的短评和标签"
 
 #: catalog/templates/_item_user_pieces.html:67
-msgid "my notes"
-msgstr "我的笔记"
+msgid "my notes and progress"
+msgstr "我的笔记和进度"
 
-#: catalog/templates/_item_user_pieces.html:86
+#: catalog/templates/_item_user_pieces.html:74
+msgid "Add note"
+msgstr "添加笔记"
+
+#: catalog/templates/_item_user_pieces.html:83
+#: common/templates/_sidebar.html:183 journal/templates/profile_items.html:38
+msgid "Set progress"
+msgstr "设置进度"
+
+#: catalog/templates/_item_user_pieces.html:101
 #: catalog/templates/catalog_edit.html:12
 #: journal/templates/action_edit_post.html:6
 #: journal/templates/action_edit_post.html:8 journal/templates/article.html:178
@@ -1186,15 +1195,15 @@ msgstr "我的笔记"
 msgid "Edit"
 msgstr "编辑"
 
-#: catalog/templates/_item_user_pieces.html:127
+#: catalog/templates/_item_user_pieces.html:142
 msgid "my review"
 msgstr "我的评论"
 
-#: catalog/templates/_item_user_pieces.html:169
+#: catalog/templates/_item_user_pieces.html:184
 msgid "my collection"
 msgstr "我的收藏单"
 
-#: catalog/templates/_item_user_pieces.html:199
+#: catalog/templates/_item_user_pieces.html:214
 msgid "mark history"
 msgstr "标记历史"
 
@@ -1374,7 +1383,7 @@ msgstr "合并到另一条目"
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
 #: journal/templates/article.html:181 journal/templates/collection.html:182
-#: journal/templates/mark.html:157 journal/templates/note.html:45
+#: journal/templates/mark.html:157 journal/templates/note.html:84
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
 #: users/templates/users/account.html:263
@@ -1640,7 +1649,7 @@ msgstr "创建"
 #: journal/templates/add_to_collection.html:43
 #: journal/templates/article_edit.html:57
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
-#: journal/templates/mark.html:142 journal/templates/note.html:39
+#: journal/templates/mark.html:142 journal/templates/note.html:67
 #: journal/templates/post_compose.html:103
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
@@ -1811,7 +1820,7 @@ msgstr "热门标签"
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
 #: journal/templates/profile_articles.html:24
 #: journal/templates/profile_articles.html:26
-#: journal/templates/profile_items.html:34
+#: journal/templates/profile_items.html:81
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_article_list.html:58
 #: journal/templates/user_collection_list.html:52
@@ -1824,7 +1833,7 @@ msgstr "热门标签"
 msgid "nothing so far."
 msgstr "暂无内容。"
 
-#: catalog/templates/discover.html:239 common/templates/_sidebar.html:245
+#: catalog/templates/discover.html:239 common/templates/_sidebar.html:268
 msgid "Recent Posts"
 msgstr "近期帖文"
 
@@ -1837,15 +1846,15 @@ msgstr "原创播客"
 msgid "publication date"
 msgstr "发行时间"
 
-#: catalog/templates/edition.html:61
+#: catalog/templates/edition.html:56
 msgid "number of pages"
 msgstr "页数"
 
-#: catalog/templates/edition.html:85
+#: catalog/templates/edition.html:80
 msgid "other editions"
 msgstr "其它版本"
 
-#: catalog/templates/edition.html:125
+#: catalog/templates/edition.html:120
 msgid "Borrow or Buy"
 msgstr "借阅或购买"
 
@@ -2086,7 +2095,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其它网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:196 journal/views/profile.py:586
+#: journal/templates/profile.html:196 journal/views/profile.py:596
 msgid "People"
 msgstr "人物"
 
@@ -2129,7 +2138,7 @@ msgstr "条目不可被删除。"
 #: journal/views/collection.py:414 journal/views/collection.py:457
 #: journal/views/collection.py:495 journal/views/collection.py:507
 #: journal/views/collection.py:532 journal/views/collection.py:569
-#: journal/views/common.py:272 journal/views/mark.py:245
+#: journal/views/common.py:272 journal/views/mark.py:264
 #: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
 #: journal/views/post.py:165 journal/views/post.py:194
 #: journal/views/post.py:267 journal/views/post.py:282
@@ -2143,7 +2152,7 @@ msgstr "权限不足"
 #: catalog/views/verify.py:194 journal/views/collection.py:74
 #: journal/views/collection.py:99 journal/views/collection.py:512
 #: journal/views/collection.py:607 journal/views/common.py:193
-#: journal/views/mark.py:171 journal/views/post.py:112
+#: journal/views/mark.py:190 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
 #: journal/views/post.py:223 journal/views/post.py:236
@@ -3779,31 +3788,31 @@ msgstr "近期播客节目"
 msgid "Currently reading"
 msgstr "正在阅读"
 
-#: common/templates/_sidebar.html:191
+#: common/templates/_sidebar.html:214
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:214 journal/forms.py:197
+#: common/templates/_sidebar.html:237 journal/forms.py:197
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr "标签"
 
-#: common/templates/_sidebar.html:220 journal/templates/user_tag_list.html:28
+#: common/templates/_sidebar.html:243 journal/templates/user_tag_list.html:28
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr "置顶标签"
 
-#: common/templates/_sidebar.html:223 journal/templates/user_tag_list.html:31
+#: common/templates/_sidebar.html:246 journal/templates/user_tag_list.html:31
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr "个人标签"
 
-#: common/templates/_sidebar.html:230 journal/templates/user_tag_list.html:39
+#: common/templates/_sidebar.html:253 journal/templates/user_tag_list.html:39
 msgid "no tags so far."
 msgstr "暂无标签。"
 
-#: common/templates/_sidebar.html:234 common/templates/_sidebar.html:247
+#: common/templates/_sidebar.html:257 common/templates/_sidebar.html:270
 msgid "show all"
 msgstr "显示全部"
 
@@ -4707,7 +4716,7 @@ msgid "Content (Markdown)"
 msgstr "内容 （Markdown格式）"
 
 #: journal/forms.py:41 journal/forms.py:206 journal/templates/comment.html:62
-#: journal/templates/mark.html:115 journal/views/note.py:29
+#: journal/templates/mark.html:115
 msgid "Crosspost to timeline"
 msgstr "转发到时间轴"
 
@@ -4956,6 +4965,23 @@ msgstr "失败"
 #: journal/models/crosspost.py:18 users/templates/users/_crosspost_row.html:33
 msgid "Retrying"
 msgstr "重试中"
+
+#: journal/models/mark.py:467 journal/views/note.py:117
+#: journal/views/note.py:178
+msgid "Only in-progress books can have reading progress."
+msgstr "只有正在阅读的书籍可以设置阅读进度。"
+
+#: journal/models/mark.py:471
+msgid "Progress must be 500 characters or fewer."
+msgstr "阅读进度不得超过 500 个字符。"
+
+#: journal/models/mark.py:478
+msgid "Invalid progress type."
+msgstr "无效的进度类型。"
+
+#: journal/models/mark.py:480
+msgid "Invalid progress type for this item."
+msgstr "此条目的进度类型无效。"
 
 #: journal/models/note.py:34 users/templates/users/rym_import.html:73
 #: users/templates/users/storygraph_import.html:73
@@ -5457,7 +5483,7 @@ msgstr "关注的人"
 msgid "started following {item}"
 msgstr "关注了{item}"
 
-#: journal/models/shelf.py:854
+#: journal/models/shelf.py:893
 msgid "removed mark"
 msgstr "移除标记"
 
@@ -5882,15 +5908,27 @@ msgstr ""
 "Content Cell  | Content Cell\n"
 "\n"
 
-#: journal/templates/note.html:16
+#: journal/templates/note.html:19 journal/views/note.py:23
 msgid "Note"
 msgstr "笔记"
 
 #: journal/templates/note.html:21
+msgid "Note and progress"
+msgstr "笔记和进度"
+
+#: journal/templates/note.html:29
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr "无内容的笔记会被删除，确定继续吗？"
 
-#: journal/templates/note.html:42
+#: journal/templates/note.html:60 journal/templates/note.html:61
+msgid "Also publish this note to your connected social accounts."
+msgstr "同时将这则笔记发布到你已连接的社交账号。"
+
+#: journal/templates/note.html:74 journal/templates/note.html:75
+msgid "Clear progress"
+msgstr "清除进度"
+
+#: journal/templates/note.html:81
 msgid "Are you sure to delete this note?"
 msgstr "确认删除这则笔记吗？"
 
@@ -5988,7 +6026,7 @@ msgstr "收藏单"
 msgid "liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:213 journal/views/profile.py:588
+#: journal/templates/profile.html:213 journal/views/profile.py:598
 msgid "Organizations"
 msgstr "团体"
 
@@ -6113,7 +6151,7 @@ msgstr "找不到条目，请使用本站条目网址。"
 msgid "Saved."
 msgstr "已保存"
 
-#: journal/views/common.py:146 journal/views/mark.py:134
+#: journal/views/common.py:146 journal/views/mark.py:153
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
@@ -6125,37 +6163,49 @@ msgstr "正在重定向到你的联邦实例以重新认证。"
 msgid "List not found."
 msgstr "列表未找到。"
 
-#: journal/views/mark.py:125
+#: journal/views/mark.py:144
 msgid "Content too long for your Fediverse instance."
 msgstr "内容过长，超出了你的联邦实例的限制。"
 
-#: journal/views/mark.py:153
+#: journal/views/mark.py:172
 msgid "Invalid input"
 msgstr "无效输入"
 
-#: journal/views/mark.py:193 journal/views/mark.py:243
-#: journal/views/note.py:101 journal/views/review.py:50
+#: journal/views/mark.py:212 journal/views/mark.py:262
+#: journal/views/note.py:171 journal/views/review.py:50
 #: journal/views/review.py:67
 msgid "Content not found"
 msgstr "内容未找到"
 
-#: journal/views/note.py:47
+#: journal/views/note.py:23
+msgid "Progress"
+msgstr "进度"
+
+#: journal/views/note.py:28
+msgid "Update progress"
+msgstr "更新进度"
+
+#: journal/views/note.py:34
+msgid "Crosspost"
+msgstr "同步发布"
+
+#: journal/views/note.py:52
 msgid "Progress (optional)"
 msgstr "进度（选填）"
 
-#: journal/views/note.py:49
+#: journal/views/note.py:54
 msgid "Note Content"
 msgstr "笔记内容"
 
-#: journal/views/note.py:51
+#: journal/views/note.py:56
 msgid "Content Warning (optional)"
 msgstr "剧透或敏感内容提示（选填）"
 
-#: journal/views/note.py:69
+#: journal/views/note.py:78
 msgid "Progress Type (optional)"
 msgstr "进度类型（选填）"
 
-#: journal/views/note.py:112
+#: journal/views/note.py:159 journal/views/note.py:176
 msgid "Invalid form data"
 msgstr "无效表单信息。"
 

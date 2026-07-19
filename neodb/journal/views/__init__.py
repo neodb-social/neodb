@@ -25,6 +25,7 @@ from .collection import (
 )
 from .common import generate_upload_path, piece_delete, upload_image
 from .mark import (
+    book_progress,
     comment,
     comment_translate,
     follow,
@@ -98,6 +99,7 @@ __all__ = [
     "user_collection_list",
     "user_liked_collection_list",
     "piece_delete",
+    "book_progress",
     "comment",
     "comment_translate",
     "mark",

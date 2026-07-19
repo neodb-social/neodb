@@ -545,6 +545,8 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
 
     # Get visibility filter
     qv = q_owned_piece_visible_to_user(request.user, target)
+    show_progress_badges = False
+    can_update_progress = False
 
     # Get shelf label and URL
     if shelf_type == "reviewed":
@@ -578,6 +580,14 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
                 Item.external_resources_prefetch(lookup="item__external_resources"),
             )
         )
+        show_progress_badges = (
+            item_category == ItemCategory.Book and shelf_type_enum == ShelfType.PROGRESS
+        )
+        if show_progress_badges:
+            members_queryset = members_queryset.select_related("current_progress")
+            can_update_progress = (
+                request.user.is_authenticated and request.user.identity == target
+            )
         if people_type:
             members_queryset = members_queryset.filter(
                 item__people__people_type=people_type
@@ -587,8 +597,17 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             else:
                 label = _("Organizations")
             url = f"{url}?people_type={people_type}"
-        items = [member.item for member in members_queryset[:20]]
+        members = list(members_queryset[:20])
+        items = [member.item for member in members]
         total = members_queryset.count()
+        if show_progress_badges:
+            for member in members:
+                current_progress = getattr(member, "current_progress", None)
+                if current_progress:
+                    member.item.reading_progress = current_progress.progress_display
+                    member.item.reading_progress_short = (
+                        current_progress.progress_short_display
+                    )
     if items:
         Item.prefetch_parent_items(items)
         Rating.attach_to_items(items)
@@ -605,5 +624,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             "url": url,
             "items": items,
             "total": total,
+            "show_progress_badges": show_progress_badges,
+            "can_update_progress": can_update_progress,
         },
     )

@@ -1040,6 +1040,92 @@ def test_collection_trending_endpoint():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_book_progress_api_get_set_clear_and_logs():
+    user = User.register(email="progress-api@example.com", username="progressapi")
+    item = Edition.objects.create(title="Progress API Book")
+    mark = Mark(user.identity, item)
+    mark.update(ShelfType.PROGRESS, "API comment", 8, visibility=0)
+    initial_post_id = mark.latest_post_id
+    initial_post_count = Post.objects.count()
+
+    app = Takahe.get_or_create_app(
+        "Progress API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+    authorization = f"Bearer {token}"
+
+    response = client.get(
+        f"/api/me/shelf/item/{item.uuid}/progress",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "progress_type": None,
+        "progress_value": None,
+        "progress_display": "",
+    }
+
+    response = client.post(
+        f"/api/me/shelf/item/{item.uuid}/progress",
+        data=json.dumps({"progress_type": "page", "progress_value": "125"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "progress_type": "page",
+        "progress_value": "125",
+        "progress_display": "Page 125",
+    }
+    assert Post.objects.count() == initial_post_count
+    assert Mark(user.identity, item).latest_post_id == initial_post_id
+
+    response = client.get(
+        f"/api/me/shelf/item/{item.uuid}/logs",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    latest_log = response.json()["data"][-1]
+    assert latest_log["progress_type"] == "page"
+    assert latest_log["progress_value"] == "125"
+    assert latest_log["comment_text"] is None
+    assert latest_log["rating_grade"] is None
+
+    response = client.delete(
+        f"/api/me/shelf/item/{item.uuid}/progress",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    assert response.json() == {"message": "OK"}
+    assert Mark(user.identity, item).progress_value is None
+    assert Post.objects.count() == initial_post_count
+
+    response = client.get(
+        f"/api/me/shelf/item/{item.uuid}/logs",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    latest_log = response.json()["data"][-1]
+    assert latest_log["progress_type"] is None
+    assert latest_log["progress_value"] is None
+    assert latest_log["comment_text"] is None
+    assert latest_log["rating_grade"] is None
+
+    Mark(user.identity, item).update(ShelfType.COMPLETE, visibility=0)
+    response = client.post(
+        f"/api/me/shelf/item/{item.uuid}/progress",
+        data=json.dumps({"progress_type": "page", "progress_value": "126"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_shelf_api_list_delete_and_logs():
     user = User.register(email="shelf-list@example.com", username="shelfuser2")
     item = Edition.objects.create(title="Shelf Log Book")

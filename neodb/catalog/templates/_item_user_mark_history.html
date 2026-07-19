@@ -14,6 +14,11 @@
       <div>
         {% if log.rating_grade %}{{ log.rating_grade|rating_star }}{% endif %}
         {% if log.comment_text %}{{ log.comment_text }}{% endif %}
+        {% if log.progress_value %}
+          <span class="tag-list">
+            <span><a>{{ log.progress_display }}</a></span>
+          </span>
+        {% endif %}
       </div>
     </li>
   {% empty %}

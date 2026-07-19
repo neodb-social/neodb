@@ -28,6 +28,7 @@ from users.models.apidentity import APIdentity
 
 from ..models import (
     Mark,
+    Note,
     ShelfType,
 )
 
@@ -105,10 +106,23 @@ class MarkLogSchema(Schema):
     timestamp: datetime.datetime
     comment_text: str | None
     rating_grade: int | None = Field(ge=1, le=10)
+    progress_type: Note.ProgressType | None
+    progress_value: str | None
 
 
 class CalendarDaySchema(Schema):
     items: list[str]
+
+
+class ProgressSchema(Schema):
+    progress_type: Note.ProgressType | None
+    progress_value: str | None
+    progress_display: str
+
+
+class ProgressInSchema(Schema):
+    progress_type: Note.ProgressType | None = None
+    progress_value: str | None = None
 
 
 @api.get(
@@ -223,6 +237,109 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     if not shelfmember:
         return Status(404, {"message": "Mark not found"})
     return shelfmember
+
+
+@api.get(
+    "/me/shelf/item/{item_uuid}/progress",
+    response={
+        200: ProgressSchema,
+        302: Result,
+        400: Result,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
+    tags=["shelf"],
+)
+def get_item_progress(request, item_uuid: str, response: HttpResponse):
+    """Get reading progress for an in-progress book."""
+    item = Item.get_by_url(item_uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    if item.merged_to_item:
+        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
+    mark = Mark(request.user.identity, item)
+    if mark.shelf_type != ShelfType.PROGRESS:
+        return Status(400, {"message": "Only in-progress items can have progress."})
+    return {
+        "progress_type": mark.progress_type,
+        "progress_value": mark.progress_value,
+        "progress_display": mark.progress_display,
+    }
+
+
+@api.post(
+    "/me/shelf/item/{item_uuid}/progress",
+    response={
+        200: ProgressSchema,
+        302: Result,
+        400: Result,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
+    tags=["shelf"],
+)
+def set_item_progress(
+    request,
+    item_uuid: str,
+    progress: ProgressInSchema,
+    response: HttpResponse,
+):
+    """Set or clear reading progress for an in-progress item."""
+    item = Item.get_by_url(item_uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    if item.merged_to_item:
+        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
+    mark = Mark(request.user.identity, item)
+    try:
+        mark.set_progress(progress.progress_type, progress.progress_value)
+    except ValueError as error:
+        return Status(400, {"message": str(error)})
+    record_activity("progress", "api")
+    return {
+        "progress_type": mark.progress_type,
+        "progress_value": mark.progress_value,
+        "progress_display": mark.progress_display,
+    }
+
+
+@api.delete(
+    "/me/shelf/item/{item_uuid}/progress",
+    response={
+        200: Result,
+        302: Result,
+        400: Result,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
+    tags=["shelf"],
+)
+def delete_item_progress(request, item_uuid: str, response: HttpResponse):
+    """Clear reading progress for an in-progress item."""
+    item = Item.get_by_url(item_uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    if item.merged_to_item:
+        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
+        return Status(
+            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
+        )
+    mark = Mark(request.user.identity, item)
+    try:
+        mark.set_progress(None, None)
+    except ValueError as error:
+        return Status(400, {"message": str(error)})
+    record_activity("progress", "api")
+    return Status(200, {"message": "OK"})
 
 
 @api.get(

@@ -21,6 +21,7 @@ urlpatterns = [
     path("wish/<str:item_uuid>", wish, name="wish"),
     path("follow/<str:item_uuid>", follow, name="follow"),
     path("mark/<str:item_uuid>", mark, name="mark"),
+    path("item/<str:item_uuid>/progress", book_progress, name="book_progress"),
     path("comment/<str:item_uuid>", comment, name="comment"),
     path(
         "comment/translate/<str:comment_uuid>",

@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -42,14 +42,27 @@ def _sidebar_context(user):
     recent_podcast_episodes = PodcastEpisode.objects.filter(
         program_id__in=podcast_ids
     ).order_by("-pub_date")[:10]
-    books_in_progress = Edition.objects.filter(
-        id__in=[
-            p.item_id
-            for p in user.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.Book
-            )[:10]
-        ]
+    book_members = list(
+        user.shelf_manager.get_latest_members(
+            ShelfType.PROGRESS, ItemCategory.Book
+        ).select_related("current_progress")[:10]
     )
+    books_by_id = Edition.objects.filter(
+        id__in=[member.item_id for member in book_members]
+    ).in_bulk()
+    books_in_progress = []
+    for member in book_members:
+        book = books_by_id.get(member.item_id)
+        if not book:
+            continue
+        current_progress = getattr(member, "current_progress", None)
+        if current_progress:
+            rendered_book = cast(Any, book)
+            rendered_book.reading_progress = current_progress.progress_display
+            rendered_book.reading_progress_short = (
+                current_progress.progress_short_display
+            )
+        books_in_progress.append(book)
     tvshows_in_progress = Item.objects.filter(
         id__in=[
             p.item_id

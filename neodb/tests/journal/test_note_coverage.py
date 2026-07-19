@@ -51,6 +51,13 @@ class TestNoteProgressDisplay:
         assert "Page" in note.progress_display
         assert "chapter-one" in note.progress_display
 
+    def test_short_progress_display(self):
+        assert Note.format_progress_short(Note.ProgressType.PAGE, "22") == "p22"
+        assert Note.format_progress_short(Note.ProgressType.CHAPTER, "7") == "ch7"
+        assert Note.format_progress_short(Note.ProgressType.PERCENTAGE, "50") == "50%"
+        assert Note.format_progress_short(None, "custom") == "custom"
+        assert Note.format_progress_short("unknown", "42") == "42"
+
 
 class TestNoteExtractProgress:
     def test_track_prefix(self):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 17:24+0000\n"
+"POT-Creation-Date: 2026-07-19 22:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,11 +59,11 @@ msgstr ""
 msgid "Traditional Chinese"
 msgstr ""
 
-#: catalog/forms.py:35 catalog/models/item.py:270
+#: catalog/forms.py:35 catalog/models/item.py:271
 msgid "Primary ID Type"
 msgstr ""
 
-#: catalog/forms.py:40 catalog/models/item.py:273
+#: catalog/forms.py:40 catalog/models/item.py:274
 msgid "Primary ID Value"
 msgstr ""
 
@@ -111,7 +111,7 @@ msgstr ""
 
 #: catalog/models/book.py:270 catalog/models/movie.py:120
 #: catalog/models/performance.py:385 catalog/models/tv.py:211
-#: catalog/models/tv.py:433
+#: catalog/models/tv.py:437
 msgid "original title"
 msgstr ""
 
@@ -145,7 +145,7 @@ msgstr ""
 msgid "publication month"
 msgstr ""
 
-#: catalog/models/book.py:319 catalog/templates/edition.html:51
+#: catalog/models/book.py:319
 msgid "binding"
 msgstr ""
 
@@ -157,11 +157,11 @@ msgstr ""
 msgid "series"
 msgstr ""
 
-#: catalog/models/book.py:322 catalog/templates/edition.html:70
+#: catalog/models/book.py:322 catalog/templates/edition.html:65
 msgid "contents"
 msgstr ""
 
-#: catalog/models/book.py:323 catalog/templates/edition.html:56
+#: catalog/models/book.py:323 catalog/templates/edition.html:51
 msgid "price"
 msgstr ""
 
@@ -668,7 +668,7 @@ msgstr ""
 
 #: catalog/models/game.py:147 catalog/models/movie.py:156
 #: catalog/models/music.py:128 catalog/models/tv.py:247
-#: catalog/models/tv.py:469
+#: catalog/models/tv.py:473
 msgid "YYYY, YYYY-MM or YYYY-MM-DD"
 msgstr ""
 
@@ -677,9 +677,9 @@ msgid "release type"
 msgstr ""
 
 #: catalog/models/game.py:180 catalog/models/movie.py:158
-#: catalog/models/people.py:177 catalog/models/performance.py:258
+#: catalog/models/people.py:178 catalog/models/performance.py:258
 #: catalog/models/performance.py:465 catalog/models/podcast.py:89
-#: catalog/models/tv.py:249 catalog/models/tv.py:472
+#: catalog/models/tv.py:249 catalog/models/tv.py:476
 #: catalog/templates/game.html:33 catalog/templates/movie.html:48
 #: catalog/templates/people.html:44 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
@@ -690,24 +690,24 @@ msgstr ""
 
 #: catalog/models/item.py:125 catalog/models/movie.py:123
 #: catalog/models/performance.py:182 catalog/models/performance.py:389
-#: catalog/models/tv.py:214 catalog/models/tv.py:436
+#: catalog/models/tv.py:214 catalog/models/tv.py:440
 msgid "director"
 msgstr ""
 
 #: catalog/models/item.py:126 catalog/models/movie.py:130
 #: catalog/models/performance.py:189 catalog/models/performance.py:396
-#: catalog/models/tv.py:221 catalog/models/tv.py:443
+#: catalog/models/tv.py:221 catalog/models/tv.py:447
 msgid "playwright"
 msgstr ""
 
 #: catalog/models/item.py:127 catalog/models/movie.py:137
 #: catalog/models/performance.py:217 catalog/models/performance.py:424
-#: catalog/models/tv.py:228 catalog/models/tv.py:450
+#: catalog/models/tv.py:228 catalog/models/tv.py:454
 msgid "actor"
 msgstr ""
 
 #: catalog/models/item.py:128 catalog/models/movie.py:144
-#: catalog/models/tv.py:235 catalog/models/tv.py:457
+#: catalog/models/tv.py:235 catalog/models/tv.py:461
 msgid "producer"
 msgstr ""
 
@@ -769,12 +769,12 @@ msgstr ""
 msgid "publishing house"
 msgstr ""
 
-#: catalog/models/item.py:168 catalog/models/people.py:475
+#: catalog/models/item.py:168 catalog/models/people.py:476
 #: catalog/models/performance.py:115 catalog/models/performance.py:134
 msgid "role"
 msgstr ""
 
-#: catalog/models/item.py:169 catalog/models/people.py:154
+#: catalog/models/item.py:169 catalog/models/people.py:155
 #: catalog/models/performance.py:114 catalog/models/performance.py:129
 #: users/models/webauthn.py:14
 msgid "name"
@@ -784,50 +784,50 @@ msgstr ""
 msgid "character name"
 msgstr ""
 
-#: catalog/models/item.py:267 catalog/models/item.py:299
+#: catalog/models/item.py:268 catalog/models/item.py:300
 #: journal/models/collection.py:93
 msgid "title"
 msgstr ""
 
-#: catalog/models/item.py:268 catalog/models/item.py:307
+#: catalog/models/item.py:269 catalog/models/item.py:308
 #: journal/models/collection.py:94
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:279 catalog/models/people.py:483
+#: catalog/models/item.py:280 catalog/models/people.py:484
 msgid "metadata"
 msgstr ""
 
-#: catalog/models/item.py:281 catalog/templates/_item_card.html:34
+#: catalog/models/item.py:282 catalog/templates/_item_card.html:34
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:1413
+#: catalog/models/item.py:1414
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:1415
+#: catalog/models/item.py:1416
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:1417
+#: catalog/models/item.py:1418
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:1433
+#: catalog/models/item.py:1434
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:1439
+#: catalog/models/item.py:1440
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1442
+#: catalog/models/item.py:1443
 msgid "url to the resource"
 msgstr ""
 
 #: catalog/models/movie.py:152 catalog/models/music.py:124
-#: catalog/models/tv.py:243 catalog/models/tv.py:465
+#: catalog/models/tv.py:243 catalog/models/tv.py:469
 #: catalog/templates/_item_card_metadata_album.html:16
 #: catalog/templates/album.html:17 catalog/templates/game.html:22
 #: catalog/templates/movie.html:36 catalog/templates/tvseason.html:53
@@ -842,7 +842,7 @@ msgid "length"
 msgstr ""
 
 #: catalog/models/movie.py:162 catalog/models/music.py:131
-#: catalog/models/tv.py:259 catalog/models/tv.py:482
+#: catalog/models/tv.py:259 catalog/models/tv.py:486
 msgid "seconds"
 msgstr ""
 
@@ -954,27 +954,27 @@ msgstr ""
 msgid "Crew"
 msgstr ""
 
-#: catalog/models/people.py:150
+#: catalog/models/people.py:151
 msgid "type"
 msgstr ""
 
-#: catalog/models/people.py:162
+#: catalog/models/people.py:163
 msgid "bio"
 msgstr ""
 
-#: catalog/models/people.py:171
+#: catalog/models/people.py:172
 msgid "date of birth"
 msgstr ""
 
-#: catalog/models/people.py:174
+#: catalog/models/people.py:175
 msgid "date of death"
 msgstr ""
 
-#: catalog/models/people.py:477
+#: catalog/models/people.py:478
 msgid "character"
 msgstr ""
 
-#: catalog/models/people.py:481
+#: catalog/models/people.py:482
 msgid "Character name for actor roles"
 msgstr ""
 
@@ -1009,25 +1009,25 @@ msgstr ""
 msgid "number of seasons"
 msgstr ""
 
-#: catalog/models/tv.py:189 catalog/models/tv.py:411
+#: catalog/models/tv.py:189 catalog/models/tv.py:415
 #: catalog/templates/tvseason.html:43 catalog/templates/tvshow.html:38
 msgid "number of episodes"
 msgstr ""
 
-#: catalog/models/tv.py:256 catalog/models/tv.py:479
+#: catalog/models/tv.py:256 catalog/models/tv.py:483
 msgid "episode length"
 msgstr ""
 
-#: catalog/models/tv.py:408 catalog/templates/tvseason.html:33
+#: catalog/models/tv.py:412 catalog/templates/tvseason.html:33
 msgid "season number"
 msgstr ""
 
-#: catalog/models/tv.py:522
+#: catalog/models/tv.py:530
 #, python-brace-format
 msgid "{show_title} Season {season_number}"
 msgstr ""
 
-#: catalog/models/tv.py:676
+#: catalog/models/tv.py:684
 #, python-brace-format
 msgid "{season_title} E{episode_number}"
 msgstr ""
@@ -1151,19 +1151,19 @@ msgstr ""
 msgid "similar items"
 msgstr ""
 
-#: catalog/templates/_item_user_mark_history.html:20
+#: catalog/templates/_item_user_mark_history.html:25
 msgid "no history."
 msgstr ""
 
-#: catalog/templates/_item_user_mark_history.html:28
+#: catalog/templates/_item_user_mark_history.html:33
 msgid "sure to clear mark history?"
 msgstr ""
 
-#: catalog/templates/_item_user_mark_history.html:28
+#: catalog/templates/_item_user_mark_history.html:33
 msgid "clear mark history"
 msgstr ""
 
-#: catalog/templates/_item_user_mark_history.html:30
+#: catalog/templates/_item_user_mark_history.html:35
 msgid "clear history will not remove current mark"
 msgstr ""
 
@@ -1172,10 +1172,19 @@ msgid "my comment and tags"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:67
-msgid "my notes"
+msgid "my notes and progress"
 msgstr ""
 
-#: catalog/templates/_item_user_pieces.html:86
+#: catalog/templates/_item_user_pieces.html:74
+msgid "Add note"
+msgstr ""
+
+#: catalog/templates/_item_user_pieces.html:83
+#: common/templates/_sidebar.html:183 journal/templates/profile_items.html:38
+msgid "Set progress"
+msgstr ""
+
+#: catalog/templates/_item_user_pieces.html:101
 #: catalog/templates/catalog_edit.html:12
 #: journal/templates/action_edit_post.html:6
 #: journal/templates/action_edit_post.html:8 journal/templates/article.html:178
@@ -1187,15 +1196,15 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: catalog/templates/_item_user_pieces.html:127
+#: catalog/templates/_item_user_pieces.html:142
 msgid "my review"
 msgstr ""
 
-#: catalog/templates/_item_user_pieces.html:169
+#: catalog/templates/_item_user_pieces.html:184
 msgid "my collection"
 msgstr ""
 
-#: catalog/templates/_item_user_pieces.html:199
+#: catalog/templates/_item_user_pieces.html:214
 msgid "mark history"
 msgstr ""
 
@@ -1375,7 +1384,7 @@ msgstr ""
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
 #: journal/templates/article.html:181 journal/templates/collection.html:182
-#: journal/templates/mark.html:157 journal/templates/note.html:45
+#: journal/templates/mark.html:157 journal/templates/note.html:84
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
 #: users/templates/users/account.html:263
@@ -1641,7 +1650,7 @@ msgstr ""
 #: journal/templates/add_to_collection.html:43
 #: journal/templates/article_edit.html:57
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
-#: journal/templates/mark.html:142 journal/templates/note.html:39
+#: journal/templates/mark.html:142 journal/templates/note.html:67
 #: journal/templates/post_compose.html:103
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
@@ -1812,7 +1821,7 @@ msgstr ""
 #: common/templates/_sidebar_anonymous.html:62 journal/templates/posts.html:8
 #: journal/templates/profile_articles.html:24
 #: journal/templates/profile_articles.html:26
-#: journal/templates/profile_items.html:34
+#: journal/templates/profile_items.html:81
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_article_list.html:58
 #: journal/templates/user_collection_list.html:52
@@ -1825,7 +1834,7 @@ msgstr ""
 msgid "nothing so far."
 msgstr ""
 
-#: catalog/templates/discover.html:239 common/templates/_sidebar.html:245
+#: catalog/templates/discover.html:239 common/templates/_sidebar.html:268
 msgid "Recent Posts"
 msgstr ""
 
@@ -1838,15 +1847,15 @@ msgstr ""
 msgid "publication date"
 msgstr ""
 
-#: catalog/templates/edition.html:61
+#: catalog/templates/edition.html:56
 msgid "number of pages"
 msgstr ""
 
-#: catalog/templates/edition.html:85
+#: catalog/templates/edition.html:80
 msgid "other editions"
 msgstr ""
 
-#: catalog/templates/edition.html:125
+#: catalog/templates/edition.html:120
 msgid "Borrow or Buy"
 msgstr ""
 
@@ -2087,7 +2096,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:196 journal/views/profile.py:586
+#: journal/templates/profile.html:196 journal/views/profile.py:596
 msgid "People"
 msgstr ""
 
@@ -2130,7 +2139,7 @@ msgstr ""
 #: journal/views/collection.py:414 journal/views/collection.py:457
 #: journal/views/collection.py:495 journal/views/collection.py:507
 #: journal/views/collection.py:532 journal/views/collection.py:569
-#: journal/views/common.py:272 journal/views/mark.py:245
+#: journal/views/common.py:272 journal/views/mark.py:264
 #: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
 #: journal/views/post.py:165 journal/views/post.py:194
 #: journal/views/post.py:267 journal/views/post.py:282
@@ -2144,7 +2153,7 @@ msgstr ""
 #: catalog/views/verify.py:194 journal/views/collection.py:74
 #: journal/views/collection.py:99 journal/views/collection.py:512
 #: journal/views/collection.py:607 journal/views/common.py:193
-#: journal/views/mark.py:171 journal/views/post.py:112
+#: journal/views/mark.py:190 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
 #: journal/views/post.py:223 journal/views/post.py:236
@@ -3780,31 +3789,31 @@ msgstr ""
 msgid "Currently reading"
 msgstr ""
 
-#: common/templates/_sidebar.html:191
+#: common/templates/_sidebar.html:214
 msgid "Currently watching"
 msgstr ""
 
-#: common/templates/_sidebar.html:214 journal/forms.py:197
+#: common/templates/_sidebar.html:237 journal/forms.py:197
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr ""
 
-#: common/templates/_sidebar.html:220 journal/templates/user_tag_list.html:28
+#: common/templates/_sidebar.html:243 journal/templates/user_tag_list.html:28
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:223 journal/templates/user_tag_list.html:31
+#: common/templates/_sidebar.html:246 journal/templates/user_tag_list.html:31
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:230 journal/templates/user_tag_list.html:39
+#: common/templates/_sidebar.html:253 journal/templates/user_tag_list.html:39
 msgid "no tags so far."
 msgstr ""
 
-#: common/templates/_sidebar.html:234 common/templates/_sidebar.html:247
+#: common/templates/_sidebar.html:257 common/templates/_sidebar.html:270
 msgid "show all"
 msgstr ""
 
@@ -4687,7 +4696,7 @@ msgid "Content (Markdown)"
 msgstr ""
 
 #: journal/forms.py:41 journal/forms.py:206 journal/templates/comment.html:62
-#: journal/templates/mark.html:115 journal/views/note.py:29
+#: journal/templates/mark.html:115
 msgid "Crosspost to timeline"
 msgstr ""
 
@@ -4935,6 +4944,23 @@ msgstr ""
 
 #: journal/models/crosspost.py:18 users/templates/users/_crosspost_row.html:33
 msgid "Retrying"
+msgstr ""
+
+#: journal/models/mark.py:467 journal/views/note.py:117
+#: journal/views/note.py:178
+msgid "Only in-progress books can have reading progress."
+msgstr ""
+
+#: journal/models/mark.py:471
+msgid "Progress must be 500 characters or fewer."
+msgstr ""
+
+#: journal/models/mark.py:478
+msgid "Invalid progress type."
+msgstr ""
+
+#: journal/models/mark.py:480
+msgid "Invalid progress type for this item."
 msgstr ""
 
 #: journal/models/note.py:34 users/templates/users/rym_import.html:73
@@ -5437,7 +5463,7 @@ msgstr ""
 msgid "started following {item}"
 msgstr ""
 
-#: journal/models/shelf.py:854
+#: journal/models/shelf.py:893
 msgid "removed mark"
 msgstr ""
 
@@ -5817,15 +5843,27 @@ msgid ""
 "\n"
 msgstr ""
 
-#: journal/templates/note.html:16
+#: journal/templates/note.html:19 journal/views/note.py:23
 msgid "Note"
 msgstr ""
 
 #: journal/templates/note.html:21
+msgid "Note and progress"
+msgstr ""
+
+#: journal/templates/note.html:29
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr ""
 
-#: journal/templates/note.html:42
+#: journal/templates/note.html:60 journal/templates/note.html:61
+msgid "Also publish this note to your connected social accounts."
+msgstr ""
+
+#: journal/templates/note.html:74 journal/templates/note.html:75
+msgid "Clear progress"
+msgstr ""
+
+#: journal/templates/note.html:81
 msgid "Are you sure to delete this note?"
 msgstr ""
 
@@ -5923,7 +5961,7 @@ msgstr ""
 msgid "liked collection"
 msgstr ""
 
-#: journal/templates/profile.html:213 journal/views/profile.py:588
+#: journal/templates/profile.html:213 journal/views/profile.py:598
 msgid "Organizations"
 msgstr ""
 
@@ -6048,7 +6086,7 @@ msgstr ""
 msgid "Saved."
 msgstr ""
 
-#: journal/views/common.py:146 journal/views/mark.py:134
+#: journal/views/common.py:146 journal/views/mark.py:153
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
@@ -6060,37 +6098,49 @@ msgstr ""
 msgid "List not found."
 msgstr ""
 
-#: journal/views/mark.py:125
+#: journal/views/mark.py:144
 msgid "Content too long for your Fediverse instance."
 msgstr ""
 
-#: journal/views/mark.py:153
+#: journal/views/mark.py:172
 msgid "Invalid input"
 msgstr ""
 
-#: journal/views/mark.py:193 journal/views/mark.py:243
-#: journal/views/note.py:101 journal/views/review.py:50
+#: journal/views/mark.py:212 journal/views/mark.py:262
+#: journal/views/note.py:171 journal/views/review.py:50
 #: journal/views/review.py:67
 msgid "Content not found"
 msgstr ""
 
-#: journal/views/note.py:47
+#: journal/views/note.py:23
+msgid "Progress"
+msgstr ""
+
+#: journal/views/note.py:28
+msgid "Update progress"
+msgstr ""
+
+#: journal/views/note.py:34
+msgid "Crosspost"
+msgstr ""
+
+#: journal/views/note.py:52
 msgid "Progress (optional)"
 msgstr ""
 
-#: journal/views/note.py:49
+#: journal/views/note.py:54
 msgid "Note Content"
 msgstr ""
 
-#: journal/views/note.py:51
+#: journal/views/note.py:56
 msgid "Content Warning (optional)"
 msgstr ""
 
-#: journal/views/note.py:69
+#: journal/views/note.py:78
 msgid "Progress Type (optional)"
 msgstr ""
 
-#: journal/views/note.py:112
+#: journal/views/note.py:159 journal/views/note.py:176
 msgid "Invalid form data"
 msgstr ""
 

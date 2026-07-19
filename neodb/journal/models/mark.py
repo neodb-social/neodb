@@ -1,9 +1,10 @@
+import copy
 from datetime import datetime
 from functools import cached_property
 from typing import Any, Iterable, Sequence
 
-from django.db import IntegrityError
-from django.db.models import F
+from django.db import IntegrityError, transaction
+from django.db.models import F, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -22,7 +23,14 @@ from .comment import Comment
 from .note import Note
 from .rating import Rating
 from .review import Review
-from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
+from .shelf import (
+    Shelf,
+    ShelfMemberProgress,
+    ShelfLogEntry,
+    ShelfManager,
+    ShelfMember,
+    ShelfType,
+)
 
 
 class Mark:
@@ -98,6 +106,38 @@ class Mark:
             if self.shelf_type
             else None
         )
+
+    @cached_property
+    def current_progress(self) -> ShelfMemberProgress | None:
+        if not self.shelfmember or self.shelf_type != ShelfType.PROGRESS:
+            return None
+        try:
+            return self.shelfmember.current_progress
+        except ShelfMemberProgress.DoesNotExist:
+            return None
+
+    @property
+    def progress_type(self) -> str | None:
+        return self.current_progress.progress_type if self.current_progress else None
+
+    @property
+    def progress_value(self) -> str | None:
+        return self.current_progress.progress_value if self.current_progress else None
+
+    @property
+    def progress_display(self) -> str:
+        return Note.format_progress(self.progress_type, self.progress_value)
+
+    @property
+    def progress_short_display(self) -> str:
+        return Note.format_progress_short(self.progress_type, self.progress_value)
+
+    @property
+    def progress_type_choices(self) -> list[tuple[str, str]]:
+        return [
+            (progress_type.value, str(progress_type.label))
+            for progress_type in Note.get_progress_types_by_item(self.item)
+        ]
 
     @cached_property
     def notes(self) -> list[Note]:
@@ -183,7 +223,7 @@ class Mark:
         for m in (
             ShelfMember.objects.filter(item__in=items)
             .filter(q)
-            .select_related("parent")
+            .select_related("parent", "current_progress")
         ):
             marks[m.item_id].shelfmember = m
         for c in Comment.objects.filter(item__in=items).filter(q):
@@ -249,9 +289,9 @@ class Mark:
     """
 
     @property
-    def all_post_ids(self):
+    def all_post_ids(self) -> QuerySet:
         """all post ids for this user and item"""
-        return self.logs.values_list("posts", flat=True)
+        return self.logs.filter(posts__isnull=False).values_list("posts", flat=True)
 
     @property
     def current_post_ids(self):
@@ -343,6 +383,10 @@ class Mark:
             log_entry = shelfmember.ensure_log_entry()
             shelfmember.clear_post_ids()
 
+        if shelf_type != ShelfType.PROGRESS:
+            ShelfMemberProgress.objects.filter(shelf_member=self.shelfmember).delete()
+            self.__dict__.pop("current_progress", None)
+
         return shelfmember_changed, update_mode, log_entry
 
     def _update_comment(
@@ -411,6 +455,90 @@ class Mark:
             in (self.owner.user.preference.auto_bookmark_cats or [])
         ):
             Takahe.bookmark(post.pk, self.owner.pk)
+
+    @transaction.atomic
+    def set_progress(
+        self,
+        progress_type: Note.ProgressType | str | None,
+        progress_value: str | None,
+    ) -> ShelfLogEntry | None:
+        """Set reading progress without creating or updating a timeline post."""
+        if self.item.class_name != "edition" or self.shelf_type != ShelfType.PROGRESS:
+            raise ValueError(_("Only in-progress books can have reading progress."))
+
+        normalized_value = progress_value.strip() if progress_value else None
+        if normalized_value and len(normalized_value) > 500:
+            raise ValueError(_("Progress must be 500 characters or fewer."))
+
+        normalized_type: Note.ProgressType | None = None
+        if normalized_value and progress_type:
+            try:
+                normalized_type = Note.ProgressType(progress_type)
+            except ValueError as error:
+                raise ValueError(_("Invalid progress type.")) from error
+            if normalized_type not in Note.get_progress_types_by_item(self.item):
+                raise ValueError(_("Invalid progress type for this item."))
+
+        assert self.shelfmember is not None
+        shelfmember = (
+            ShelfMember.objects.select_for_update()
+            .select_related("parent")
+            .get(pk=self.shelfmember.pk)
+        )
+        self.shelfmember = shelfmember
+        current_progress = (
+            ShelfMemberProgress.objects.select_for_update()
+            .filter(shelf_member=shelfmember)
+            .first()
+        )
+        if (
+            (current_progress and current_progress.progress_type == normalized_type)
+            and current_progress.progress_value == normalized_value
+        ) or (current_progress is None and normalized_value is None):
+            return None
+
+        latest_log = (
+            ShelfLogEntry.objects.select_for_update()
+            .filter(owner=self.owner, item=self.item)
+            .order_by("-timestamp", "-pk")
+            .first()
+        )
+        metadata = copy.deepcopy(latest_log.metadata) if latest_log else {}
+        metadata.pop("comment_text", None)
+        metadata.pop("rating_grade", None)
+        timestamp = timezone.now()
+        log_entry = ShelfLogEntry(
+            owner=self.owner,
+            item=self.item,
+            shelf_type=ShelfType.PROGRESS,
+            timestamp=timestamp,
+            metadata=metadata,
+        )
+        log_entry.progress_type = normalized_type
+        log_entry.progress_value = normalized_value
+        log_entry.save()
+
+        if normalized_value:
+            if current_progress:
+                current_progress.progress_type = normalized_type
+                current_progress.progress_value = normalized_value
+                current_progress.save(
+                    update_fields=["progress_type", "progress_value", "edited_time"]
+                )
+            else:
+                current_progress = ShelfMemberProgress.objects.create(
+                    shelf_member=shelfmember,
+                    progress_type=normalized_type,
+                    progress_value=normalized_value,
+                )
+        elif current_progress:
+            current_progress.delete()
+            current_progress = None
+
+        shelfmember.created_time = timestamp
+        shelfmember.save(update_fields=["created_time"])
+        self.current_progress = current_progress
+        return log_entry
 
     def update(
         self,

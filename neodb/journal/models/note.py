@@ -68,6 +68,16 @@ class Note(Content):
         ProgressType.PERCENTAGE: "{value}%",
         ProgressType.TIMESTAMP: "{value}",
     }
+    _progress_short_display_template = {
+        ProgressType.PAGE: "p{value}",
+        ProgressType.CHAPTER: "ch{value}",
+        ProgressType.PART: "pt{value}",
+        ProgressType.EPISODE: "ep{value}",
+        ProgressType.TRACK: "trk{value}",
+        ProgressType.CYCLE: "cycle {value}",
+        ProgressType.PERCENTAGE: "{value}%",
+        ProgressType.TIMESTAMP: "{value}",
+    }
 
     class Meta:
         indexes = [
@@ -81,16 +91,35 @@ class Note(Content):
 
     @property
     def progress_display(self) -> str:
-        if not self.progress_value:
+        return self.format_progress(self.progress_type, self.progress_value)
+
+    @classmethod
+    def format_progress(
+        cls, progress_type: str | None, progress_value: str | None
+    ) -> str:
+        if not progress_value:
             return ""
-        if not self.progress_type:
-            return str(self.progress_value)
-        tpl = Note._progress_display_template.get(self.progress_type, None)
+        if not progress_type:
+            return str(progress_value)
+        tpl = cls._progress_display_template.get(progress_type, None)
         if not tpl:
-            return str(self.progress_value)
-        if _number.match(self.progress_value):
-            return tpl.format(value=self.progress_value)
-        return Note.ProgressType(self.progress_type).label + ": " + self.progress_value
+            return str(progress_value)
+        if _number.match(progress_value):
+            return tpl.format(value=progress_value)
+        return cls.ProgressType(progress_type).label + ": " + progress_value
+
+    @classmethod
+    def format_progress_short(
+        cls, progress_type: str | None, progress_value: str | None
+    ) -> str:
+        if not progress_value:
+            return ""
+        if not progress_type:
+            return str(progress_value)
+        tpl = cls._progress_short_display_template.get(progress_type)
+        if not tpl:
+            return str(progress_value)
+        return tpl.format(value=progress_value)
 
     @property
     def ap_object(self):
@@ -248,7 +277,7 @@ class Note(Content):
         return None, None
 
     @classmethod
-    def get_progress_types_by_item(cls, item: Item):
+    def get_progress_types_by_item(cls, item: Item) -> list[ProgressType]:
         match item.__class__.__name__:
             case "Edition":
                 v = [

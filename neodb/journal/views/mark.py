@@ -63,6 +63,25 @@ def follow(request: AuthedHttpRequest, item_uuid):
 
 
 @login_required
+@require_http_methods(["POST"])
+def book_progress(request: AuthedHttpRequest, item_uuid: str):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    mark = Mark(request.user.identity, item)
+    if request.POST.get("clear"):
+        progress_type = None
+        progress_value = None
+    else:
+        progress_type = request.POST.get("progress_type") or None
+        progress_value = request.POST.get("progress_value") or None
+    try:
+        mark.set_progress(progress_type, progress_value)
+    except ValueError as error:
+        raise BadRequest(str(error)) from error
+    record_activity("progress", "web")
+    return HttpResponseRedirect(item.url)
+
+
+@login_required
 @require_http_methods(["GET", "POST"])
 def mark(request: AuthedHttpRequest, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))

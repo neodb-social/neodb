@@ -356,6 +356,7 @@ class ShelfMember(ListMember):
         owner_id: int
         item_id: int
         _tags: list[str]
+        current_progress: "ShelfMemberProgress"
 
     parent = models.ForeignKey(  # type: ignore
         "Shelf", related_name="members", on_delete=models.CASCADE
@@ -608,6 +609,42 @@ class ShelfMember(ListMember):
         return super().link_post_id(post_id)
 
 
+class ShelfMemberProgress(models.Model):
+    if TYPE_CHECKING:
+        shelf_member_id: int
+
+    shelf_member = models.OneToOneField(
+        ShelfMember,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="current_progress",
+    )
+    progress_type = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+    progress_value = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+    )
+    created_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
+
+    @property
+    def progress_display(self) -> str:
+        from .note import Note
+
+        return Note.format_progress(self.progress_type, self.progress_value)
+
+    @property
+    def progress_short_display(self) -> str:
+        from .note import Note
+
+        return Note.format_progress_short(self.progress_type, self.progress_value)
+
+
 class Shelf(List):
     """
     Shelf
@@ -834,6 +871,8 @@ class ShelfLogEntry(models.Model):
     )
     comment_text = jsondata.TextField(null=True, blank=True)
     rating_grade = jsondata.IntegerField(null=True)
+    progress_type = jsondata.CharField(max_length=50, null=True, blank=True)
+    progress_value = jsondata.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -852,6 +891,12 @@ class ShelfLogEntry(models.Model):
             return ShelfManager.get_action_label(self.shelf_type, self.item.category)
         else:
             return _("removed mark")
+
+    @property
+    def progress_display(self) -> str:
+        from .note import Note
+
+        return Note.format_progress(self.progress_type, self.progress_value)
 
     def link_post_id(self, post_id: int):
         ShelfLogEntryPost.objects.get_or_create(log_entry=self, post_id=post_id)

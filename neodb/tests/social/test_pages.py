@@ -1,7 +1,10 @@
 import pytest
 import requests
 from django.test import Client
+from django.urls import reverse
 
+from catalog.models import Edition
+from journal.models import Mark, Note, ShelfType
 from users.models import User
 
 
@@ -53,3 +56,28 @@ def test_social_pages_logged_in_user(live_server):
 
     response = authed_client.post("/timeline/dismiss_notification", follow=True)
     assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_currently_reading_sidebar_progress_badges():
+    user = User.register(email="sidebar-progress@example.com", username="sidebarprog")
+    progressed_book = Edition.objects.create(title="Sidebar Progress Book")
+    unstarted_book = Edition.objects.create(title="Sidebar Unstarted Book")
+    progressed_mark = Mark(user.identity, progressed_book)
+    progressed_mark.update(ShelfType.PROGRESS, visibility=0)
+    progressed_mark.set_progress(Note.ProgressType.PAGE, "22")
+    Mark(user.identity, unstarted_book).update(ShelfType.PROGRESS, visibility=0)
+    client = Client()
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    response = client.get("/timeline/")
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    progressed_url = reverse("journal:note", args=[progressed_book.uuid])
+    unstarted_url = reverse("journal:note", args=[unstarted_book.uuid])
+    assert f'hx-get="{progressed_url}?mode=progress"' in content
+    assert f'hx-get="{unstarted_url}?mode=progress"' in content
+    assert "p22" in content
+    assert 'title="Page 22"' in content
+    assert "fa-solid fa-percent" in content

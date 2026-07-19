@@ -22,7 +22,14 @@ from .note import Note
 from .rating import Rating
 from .renderers import render_md
 from .review import Review
-from .shelf import Shelf, ShelfLogEntry, ShelfManager, ShelfMember, ShelfType
+from .shelf import (
+    Shelf,
+    ShelfMemberProgress,
+    ShelfLogEntry,
+    ShelfManager,
+    ShelfMember,
+    ShelfType,
+)
 from .tag import Tag, TagManager, TagMember
 from .utils import (
     journal_exists_for_item,
@@ -58,6 +65,7 @@ __all__ = [
     "render_md",
     "Review",
     "Shelf",
+    "ShelfMemberProgress",
     "ShelfLogEntry",
     "ShelfManager",
     "ShelfMember",
