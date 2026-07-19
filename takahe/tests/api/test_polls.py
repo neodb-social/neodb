@@ -161,6 +161,7 @@ def test_poll_hide_totals(api_client, identity2):
             "can't contain more than",
         ),
         ({"options": ["A", "A"], "expires_in": 300}, "duplicate"),
+        ({"options": ["A", "  "], "expires_in": 300}, "blank"),
         ({"options": ["A", "B" * 51], "expires_in": 300}, "characters each"),
         ({"options": ["A", "B"], "expires_in": 60}, "too soon"),
         ({"options": ["A", "B"], "expires_in": 3000000}, "too far into the future"),
@@ -271,3 +272,25 @@ def test_poll_notification(api_client, identity, identity2):
     assert response[0]["type"] == "poll"
     assert response[0]["status"]["id"] == str(post.id)
     assert response[0]["account"]["id"] == str(identity2.id)
+
+
+@pytest.mark.django_db
+def test_poll_visibility_respected(api_client, identity2):
+    post = Post.create_local(
+        author=identity2,
+        content="<p>Followers only poll</p>",
+        visibility=Post.Visibilities.followers,
+        question={
+            "type": "Question",
+            "mode": "oneOf",
+            "options": [
+                {"name": "Option 1", "type": "Note", "votes": 0},
+                {"name": "Option 2", "type": "Note", "votes": 0},
+            ],
+            "voter_count": 0,
+            "end_time": format_ld_date(timezone.now() + timedelta(1)),
+        },
+    )
+    # The API identity does not follow identity2, so the poll is invisible
+    assert api_client.get(f"/api/v1/polls/{post.id}").status_code == 404
+    assert vote(api_client, post.id, [0]).status_code == 404

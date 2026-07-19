@@ -86,6 +86,7 @@ def test_question_open_distributes_tally_updates(
     post.refresh_from_db()
     assert PostStates.handle_question_open(post) is None
     assert edited_fan_outs(post).filter(identity=identity2).exists()
+    post.refresh_from_db()
     assert post.type_data.last_distributed_tally == "1:1:0"
 
     # Unchanged tallies do not fan out again
@@ -245,3 +246,61 @@ def test_refresh_question_from_remote(
     assert refreshed.type_data.last_fetched is not None
     # A fresh fetch within a minute is skipped (no second request mocked)
     assert refreshed.refresh_question_if_stale().type_data.voter_count == 12
+
+
+@pytest.mark.django_db
+def test_vote_on_remote_poll_with_long_option(
+    identity: Identity, remote_identity: Identity, config_system
+):
+    long_name = "A" * 80
+    post = Post.objects.create(
+        author=remote_identity,
+        local=False,
+        content="<p>Test Question</p>",
+        object_uri="https://remote.test/status/poll-long",
+        state=PostStates.fanned_out,
+        type=Post.Types.question,
+        type_data={
+            "type": "Question",
+            "mode": "oneOf",
+            "options": [
+                {"name": long_name, "type": "Note", "votes": 0},
+                {"name": "Short", "type": "Note", "votes": 0},
+            ],
+            "voter_count": 0,
+            "end_time": format_ld_date(timezone.now() + timedelta(1)),
+        },
+    )
+    post.refresh_from_db()
+    vote = PostInteraction.create_votes(post, identity, [0])[0]
+    # The stored value fits the 50-char column, and own_votes still resolve
+    assert vote.value == long_name[:50]
+    json = post.type_data.to_mastodon_json(post, identity=identity)
+    assert json["own_votes"] == [0]
+
+
+@pytest.mark.django_db
+def test_undone_votes_are_not_counted(
+    identity: Identity, identity2: Identity, config_system
+):
+    from activities.models import PostInteractionStates
+
+    post = make_local_poll(identity)
+    vote = PostInteraction.create_votes(post, identity2, [0])[0]
+    post.refresh_from_db()
+    assert post.type_data.options[0].votes == 1
+
+    # e.g. a block or an AP Undo forces the vote out of the active states
+    vote.transition_perform(PostInteractionStates.undone_fanned_out)
+    post.calculate_type_data()
+    post.refresh_from_db()
+    assert post.type_data.options[0].votes == 0
+    assert post.type_data.voter_count == 0
+    assert post.question_local_voters() == []
+
+
+@pytest.mark.django_db
+def test_update_ap_ids_are_unique_per_revision(identity: Identity, config_system):
+    post = make_local_poll(identity)
+    first = post.to_update_ap()["id"]
+    assert "#updates/" in first

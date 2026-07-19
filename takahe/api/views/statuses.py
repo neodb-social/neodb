@@ -39,6 +39,8 @@ class PostPollSchema(Schema):
             raise ApiError(
                 422, "Validation failed: Options must have more than one item"
             )
+        if any(not option.strip() for option in self.options):
+            raise ApiError(422, "Validation failed: Options can't be blank")
         if len(self.options) > POLL_MAX_OPTIONS:
             raise ApiError(
                 422,

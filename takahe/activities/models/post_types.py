@@ -16,6 +16,14 @@ POLL_MIN_EXPIRATION = 300
 POLL_MAX_EXPIRATION = 2629746
 
 
+def vote_value(option_name: str) -> str:
+    """
+    The stored form of a voted option: remote polls may have names longer
+    than local limits allow, but PostInteraction.value is a 50-char column.
+    """
+    return option_name[:POLL_MAX_OPTION_CHARS]
+
+
 class BasePostDataType(BaseModel):
     pass
 
@@ -129,7 +137,7 @@ class QuestionData(BasePostDataType):
                 }
             )
             value["votes_count"] += option.votes
-            option_map[option.name] = index
+            option_map[vote_value(option.name)] = index
 
         if identity:
             votes = post.interactions.filter(

@@ -54,6 +54,7 @@ from activities.models.post_types import (
     PostTypeDataDecoder,
     PostTypeDataEncoder,
     QuestionData,
+    vote_value,
 )
 from activities.models.quote_authorization import QuoteAuthorization
 
@@ -304,36 +305,43 @@ class PostStates(StateGraph):
         """
         from activities.models.timeline_event import TimelineEvent
 
-        if instance.type != Post.Types.question or not isinstance(
-            instance.type_data, QuestionData
-        ):
-            return cls.fanned_out
-        question = instance.type_data
-        if not question.is_expired:
-            if (
-                instance.local
-                and not question.hide_totals
-                and question.last_distributed_tally != question.tally
+        with transaction.atomic():
+            # Lock the row so concurrent vote handling can't clobber the
+            # type_data we are about to save
+            post = Post.objects.select_for_update().get(pk=instance.pk)
+            if post.type != Post.Types.question or not isinstance(
+                post.type_data, QuestionData
             ):
-                cls.targets_fan_out(instance, FanOut.Types.post_edited)
+                return cls.fanned_out
+            question = post.type_data
+            if not question.is_expired:
+                if (
+                    post.local
+                    and not question.hide_totals
+                    and question.last_distributed_tally != question.tally
+                ):
+                    cls.targets_fan_out(post, FanOut.Types.post_edited)
+                    question.last_distributed_tally = question.tally
+                    post.save()
+                return None
+            # The poll has ended
+            if post.local:
+                # Final Update reveals hidden totals and carries `closed`
+                cls.targets_fan_out(post, FanOut.Types.post_edited)
                 question.last_distributed_tally = question.tally
-                instance.save()
-            return None
-        # The poll has ended
-        if instance.local:
-            # Final Update reveals hidden totals and carries `closed`
-            cls.targets_fan_out(instance, FanOut.Types.post_edited)
-            question.last_distributed_tally = question.tally
-            instance.save()
-            TimelineEvent.add_poll_ended(instance.author, instance)
-        else:
-            try:
-                instance.refresh_question_from_remote()
-            except Exception:
-                logger.warning(
-                    "Could not refresh final poll tallies for %s",
-                    instance.object_uri,
-                )
+                post.save()
+                TimelineEvent.add_poll_ended(post.author, post)
+                for voter in post.question_local_voters():
+                    TimelineEvent.add_poll_ended(voter, post)
+                return cls.fanned_out
+        # Remote poll: refresh final tallies outside the row lock
+        try:
+            instance.refresh_question_from_remote()
+        except Exception:
+            logger.warning(
+                "Could not refresh final poll tallies for %s",
+                instance.object_uri,
+            )
         for voter in instance.question_local_voters():
             TimelineEvent.add_poll_ended(voter, instance)
         return cls.fanned_out
@@ -861,6 +869,9 @@ class Post(StatorModel):
         question: dict | None = None,
     ):
         with transaction.atomic():
+            # Serialize against concurrent vote handling, which also
+            # rewrites type_data
+            Post.objects.select_for_update().get(pk=self.pk)
             # Strip all HTML and apply linebreaks filter
             parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
             self.content = parser.html
@@ -991,22 +1002,20 @@ class Post(StatorModel):
         """
         Recalculate type_data (used mostly for poll votes)
         """
-        from activities.models import PostInteraction
+        from activities.models import PostInteraction, PostInteractionStates
 
         if self.local and isinstance(self.type_data, QuestionData):
+            active_votes = self.interactions.filter(
+                type=PostInteraction.Types.vote,
+                state__in=PostInteractionStates.group_active(),
+            )
             self.type_data.voter_count = (
-                self.interactions.filter(
-                    type=PostInteraction.Types.vote,
-                )
-                .values("identity")
-                .distinct()
-                .count()
+                active_votes.values("identity").distinct().count()
             )
 
             for option in self.type_data.options:
-                option.votes = self.interactions.filter(
-                    type=PostInteraction.Types.vote,
-                    value=option.name,
+                option.votes = active_votes.filter(
+                    value=vote_value(option.name),
                 ).count()
         if save:
             self.save()
@@ -1015,12 +1024,13 @@ class Post(StatorModel):
         """
         Local identities that voted on this poll (for end-of-poll notifications)
         """
-        from activities.models import PostInteraction
+        from activities.models import PostInteraction, PostInteractionStates
 
         return list(
             Identity.objects.filter(
                 interactions__post=self,
                 interactions__type=PostInteraction.Types.vote,
+                interactions__state__in=PostInteractionStates.group_active(),
                 local=True,
             ).distinct()
         )
@@ -1222,11 +1232,18 @@ class Post(StatorModel):
         Returns the AP JSON to update this object
         """
         object = self.to_ap()
+        # Each revision needs its own activity ID - some servers (e.g.
+        # Pleroma) deduplicate activities by ID, and polls now send
+        # several Updates (tallies, closing) over their lifetime.
+        if self.updated:
+            update_id = f"{self.object_uri}#updates/{int(self.updated.timestamp())}"
+        else:
+            update_id = self.object_uri + "#update"
         return {
             "to": object.get("to", []),
             "cc": object.get("cc", []),
             "type": "Update",
-            "id": self.object_uri + "#update",
+            "id": update_id,
             "actor": self.author.actor_uri,
             "object": object,
         }
