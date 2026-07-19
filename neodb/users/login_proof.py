@@ -92,29 +92,36 @@ def verify_login_proof(request: HttpRequest, method: str) -> bool:
     try:
         payload = Payload.from_base64(encoded)
         result = verify_solution(payload, _hmac_secret())
-    except Exception:
-        return False
-    if not result.verified:
-        return False
+        if not result.verified:
+            return False
 
-    challenge = payload.challenge
-    parameters = challenge.parameters
-    solution = payload.solution
-    binding = _session_binding(request, create=False)
-    expected_data = (
-        {"method": method, "session": _binding_digest(binding)} if binding else None
-    )
-    if (
-        parameters.algorithm != LOGIN_PROOF_ALGORITHM
-        or parameters.cost != LOGIN_PROOF_COST
-        or parameters.data != expected_data
-        or not challenge.signature
-        or not isinstance(solution.counter, int)
-        or not LOGIN_PROOF_COUNTER_MIN <= solution.counter <= LOGIN_PROOF_COUNTER_MAX
-        or not isinstance(solution.derived_key, str)
-        or len(solution.derived_key) != parameters.key_length * 2
-        or not solution.derived_key.startswith(parameters.key_prefix)
-    ):
+        challenge = payload.challenge
+        parameters = challenge.parameters
+        solution = payload.solution
+        binding = _session_binding(request, create=False)
+        expected_data = (
+            {"method": method, "session": _binding_digest(binding)} if binding else None
+        )
+        if (
+            parameters.algorithm != LOGIN_PROOF_ALGORITHM
+            or parameters.cost != LOGIN_PROOF_COST
+            or parameters.data != expected_data
+            or not isinstance(challenge.signature, str)
+            or not challenge.signature
+            or not isinstance(solution.counter, int)
+            or not LOGIN_PROOF_COUNTER_MIN
+            <= solution.counter
+            <= LOGIN_PROOF_COUNTER_MAX
+            or not isinstance(solution.derived_key, str)
+            or not isinstance(parameters.key_length, int)
+            or parameters.key_length <= 0
+            or len(solution.derived_key) != parameters.key_length * 2
+            or not isinstance(parameters.key_prefix, str)
+            or not parameters.key_prefix
+            or not solution.derived_key.startswith(parameters.key_prefix)
+        ):
+            return False
+    except Exception:
         return False
 
     replay_key = f"{_CACHE_KEY_PREFIX}:{challenge.signature}"

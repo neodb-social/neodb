@@ -1,6 +1,7 @@
 import json
 import struct
 from collections.abc import Callable
+from types import SimpleNamespace
 
 import pytest
 from altcha import Challenge, Payload, Solution, derive_key_pbkdf2, solve_challenge
@@ -115,6 +116,7 @@ class TestLoginProof:
         assert b"captcha/" not in response.content
         assert b"Checking your browser..." in response.content
         assert b"fa-circle-nodes fa-spin-snap-8" in response.content
+        assert b"catch (err)" in response.content
 
     def test_challenge_is_signed_bound_and_not_cacheable(self, client, proof):
         response = client.get(reverse("users:login_proof"), {"method": "mastodon"})
@@ -151,6 +153,41 @@ class TestLoginProof:
         assert SECURITY_ERROR in missing.content
         assert SECURITY_ERROR in malformed.content
         assert calls == []
+
+    def test_verified_payload_with_missing_fields_is_rejected(
+        self, client, proof, monkeypatch
+    ):
+        response = client.get(reverse("users:login_proof"), {"method": "email"})
+        challenge = Challenge.from_dict(response.json())
+        malformed_payload = SimpleNamespace(
+            challenge=SimpleNamespace(
+                parameters=SimpleNamespace(
+                    algorithm=challenge.parameters.algorithm,
+                    cost=challenge.parameters.cost,
+                    data=challenge.parameters.data,
+                    key_prefix=challenge.parameters.key_prefix,
+                ),
+                signature=challenge.signature,
+            ),
+            solution=SimpleNamespace(counter=2, derived_key="00" * 32),
+        )
+        monkeypatch.setattr(
+            login_proof.Payload,
+            "from_base64",
+            lambda encoded: malformed_payload,
+        )
+        monkeypatch.setattr(
+            login_proof,
+            "verify_solution",
+            lambda payload, secret: SimpleNamespace(verified=True),
+        )
+
+        response = client.post(
+            reverse("mastodon:email_login"),
+            {"email": "alice@example.org", "altcha": "malformed-but-verified"},
+        )
+        assert response.status_code == 200
+        assert SECURITY_ERROR in response.content
 
     def test_valid_proof_is_accepted_once(self, client, proof, monkeypatch):
         calls = []

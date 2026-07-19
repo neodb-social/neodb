@@ -416,7 +416,16 @@
       var errEl = document.getElementById('passkey-error');
       errEl.style.display = 'none';
       errEl.textContent = '';
-      var proof = await widget.verify();
+      var proof;
+      try {
+        proof = await widget.verify();
+      } catch (err) {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        errEl.textContent = err && err.message ? err.message : loginProofMessages.error;
+        errEl.style.display = '';
+        return;
+      }
       if (!proof) {
         btn.removeAttribute('aria-busy');
         btn.disabled = false;
