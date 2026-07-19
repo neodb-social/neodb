@@ -308,11 +308,11 @@ class IdentityService:
                 relationships["inbound_follow"] is not None
                 and relationships["inbound_follow"].accepted
             ),
-            "showing_reblogs": (
+            "showing_reblogs": bool(
                 relationships["outbound_follow"] is not None
                 and relationships["outbound_follow"].boosts
             ),
-            "notifying": (
+            "notifying": bool(
                 relationships["outbound_follow"] is not None
                 and relationships["outbound_follow"].notify
             ),

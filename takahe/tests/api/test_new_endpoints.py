@@ -140,3 +140,36 @@ def test_account_note_in_relationship(api_client, identity, other_identity):
     data = response.json()
     assert len(data) == 1
     assert data[0]["note"] == "My note"
+
+
+@pytest.mark.django_db
+def test_relationship_null_boolean_columns(identity, other_identity):
+    """
+    Legacy/imported follow rows can hold NULL in the notify/boosts columns.
+    The relationship JSON must coerce these to real booleans so the Mastodon
+    Relationship schema validation does not fail (NEODB-SOCIAL-7RP).
+    """
+    from api.schemas import Relationship
+    from users.models.follow import Follow, FollowStates
+    from users.services import IdentityService
+
+    follow = Follow.create_local(source=identity, target=other_identity)
+    follow.state = FollowStates.accepted
+    # Simulate NULL columns from imported data.
+    follow.notify = None
+    follow.boosts = None
+
+    relationships = {
+        "outbound_follow": follow,
+        "inbound_follow": None,
+        "outbound_block": None,
+        "inbound_block": None,
+        "outbound_mute": None,
+    }
+    data = IdentityService(other_identity)._build_relationship_json(
+        relationships, identity
+    )
+    assert data["notifying"] is False
+    assert data["showing_reblogs"] is False
+    # Must not raise pydantic ValidationError.
+    Relationship(**data)
