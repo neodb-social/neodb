@@ -51,8 +51,7 @@ def test_single_post_renders_converted_object_card(post_type):
         object_uri=f"https://example.com/objects/{slug}",
         url=card.url,
         content=(
-            f"<p>{post_type} body</p><p>{post_type} title</p>"
-            f"<p>{post_type} summary</p>"
+            f"<p>{post_type} body</p><p>{post_type} title</p><p>{post_type} summary</p>"
         ),
         type=post_type,
         type_data={
