@@ -9,7 +9,9 @@ from catalog.models import (
     Album,
     Edition,
     Game,
+    ItemCredit,
     Movie,
+    People,
     Performance,
     PerformanceProduction,
     Podcast,
@@ -286,3 +288,94 @@ def test_podcast_episode_list_endpoint(live_server):
     payload = response.json()
     assert payload["count"] == 1
     assert payload["data"][0]["uuid"] == episode1.uuid
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_people_detail_endpoint(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "API Person"}],
+            people_type="person",
+        )
+
+    response = requests.get(f"{live_server.url}/api/people/{person.uuid}", timeout=5)
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["uuid"] == person.uuid
+    assert payload["display_name"] == "API Person"
+    assert payload["api_url"] == f"/api/people/{person.uuid}"
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_item_credit_endpoints_include_linked_and_name_only_credits(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Credited Movie")
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Linked Actor"}]
+        )
+        ItemCredit.objects.create(
+            item=movie,
+            person=person,
+            role="actor",
+            name="Linked Actor",
+            character_name="Lead",
+        )
+        ItemCredit.objects.create(
+            item=movie, role="director", name="Name Only Director"
+        )
+
+    for item_type in ("item", "movie"):
+        response = requests.get(
+            f"{live_server.url}/api/catalog/{item_type}/{movie.uuid}/credit/",
+            timeout=5,
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["count"] == 2
+        credits = {credit["name"]: credit for credit in payload["data"]}
+        assert credits["Linked Actor"]["role"] == "actor"
+        assert credits["Linked Actor"]["character_name"] == "Lead"
+        assert credits["Linked Actor"]["person"]["uuid"] == person.uuid
+        assert credits["Name Only Director"]["person"] is None
+
+    response = requests.get(
+        f"{live_server.url}/api/catalog/book/{movie.uuid}/credit/",
+        timeout=5,
+        allow_redirects=False,
+    )
+    assert response.status_code == 302
+    assert response.headers["Location"] == (f"/api/catalog/movie/{movie.uuid}/credit/")
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_people_work_endpoint_groups_all_credits_by_item(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Multi-role Person"}]
+        )
+        movie = Movie.objects.create(title="Movie Work")
+        book = Edition.objects.create(title="Book Work")
+        ItemCredit.objects.create(
+            item=movie, person=person, role="actor", name="Multi-role Person"
+        )
+        ItemCredit.objects.create(
+            item=movie, person=person, role="director", name="Multi-role Person"
+        )
+        ItemCredit.objects.create(
+            item=book, person=person, role="author", name="Multi-role Person"
+        )
+
+    response = requests.get(
+        f"{live_server.url}/api/people/{person.uuid}/work/", timeout=5
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 2
+    works = {entry["item"]["uuid"]: entry for entry in payload["data"]}
+    assert {credit["role"] for credit in works[movie.uuid]["credits"]} == {
+        "actor",
+        "director",
+    }
+    assert [credit["role"] for credit in works[book.uuid]["credits"]] == ["author"]

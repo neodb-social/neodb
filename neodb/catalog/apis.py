@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.utils import timezone
-from ninja import Schema, Status
+from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
 from common.api import PageNumberPagination, RedirectedResult, Result, api
@@ -23,9 +23,11 @@ from .models import (
     Game,
     GameSchema,
     Item,
+    ItemCredit,
     ItemSchema,
     Movie,
     MovieSchema,
+    People,
     PeopleSchema,
     Performance,
     PerformanceProduction,
@@ -41,6 +43,7 @@ from .models import (
     TVSeasonSchema,
     TVShow,
     TVShowSchema,
+    Work,
 )
 from .recommendation import blended_for_discover, can_show_reco, similar_items
 from .search.utils import enqueue_fetch, get_fetch_lock, query_index
@@ -77,6 +80,58 @@ class PodcastList(Schema):
     count: int
 
 
+class PeopleSummarySchema(Schema):
+    id: str = Field(alias="absolute_url")
+    uuid: str
+    url: str
+    api_url: str
+    people_type: str
+    display_name: str
+    cover_image_url: str | None
+
+
+class ItemSummarySchema(Schema):
+    id: str = Field(alias="absolute_url")
+    type: str = Field(alias="ap_object_type")
+    uuid: str
+    url: str
+    api_url: str
+    category: str
+    parent_uuid: str | None
+    display_title: str
+    cover_image_url: str | None
+
+
+class CreditDetailSchema(Schema):
+    role: str
+    name: str
+    character_name: str
+    person: PeopleSummarySchema | None
+
+
+class CreditListSchema(Schema):
+    data: list[CreditDetailSchema]
+    pages: int
+    count: int
+
+
+class PeopleWorkCreditSchema(Schema):
+    role: str
+    name: str
+    character_name: str
+
+
+class PeopleWorkSchema(Schema):
+    item: ItemSummarySchema
+    credits: list[PeopleWorkCreditSchema]
+
+
+class PeopleWorkListSchema(Schema):
+    data: list[PeopleWorkSchema]
+    pages: int
+    count: int
+
+
 class SearchableItemCategory(Enum):
     Book = "book"
     Movie = "movie"
@@ -86,6 +141,58 @@ class SearchableItemCategory(Enum):
     Game = "game"
     Podcast = "podcast"
     Performance = "performance"
+
+
+class CreditItemType(str, Enum):
+    Item = "item"
+    Book = "book"
+    Edition = "edition"
+    Movie = "movie"
+    TV = "tv"
+    TVShow = "tvshow"
+    TVSeason = "tvseason"
+    TVEpisode = "tvepisode"
+    Album = "album"
+    Game = "game"
+    Podcast = "podcast"
+    PodcastEpisode = "podcastepisode"
+    Performance = "performance"
+    PerformanceProduction = "performanceproduction"
+    Work = "work"
+
+
+_CREDIT_ITEM_MODELS: dict[CreditItemType, type[Item]] = {
+    CreditItemType.Item: Item,
+    CreditItemType.Book: Edition,
+    CreditItemType.Edition: Edition,
+    CreditItemType.Movie: Movie,
+    CreditItemType.TV: TVShow,
+    CreditItemType.TVShow: TVShow,
+    CreditItemType.TVSeason: TVSeason,
+    CreditItemType.TVEpisode: TVEpisode,
+    CreditItemType.Album: Album,
+    CreditItemType.Game: Game,
+    CreditItemType.Podcast: Podcast,
+    CreditItemType.PodcastEpisode: PodcastEpisode,
+    CreditItemType.Performance: Performance,
+    CreditItemType.PerformanceProduction: PerformanceProduction,
+    CreditItemType.Work: Work,
+}
+
+_CANONICAL_CREDIT_ITEM_TYPES: dict[type[Item], CreditItemType] = {
+    Edition: CreditItemType.Book,
+    Movie: CreditItemType.Movie,
+    TVShow: CreditItemType.TV,
+    TVSeason: CreditItemType.TVSeason,
+    TVEpisode: CreditItemType.TVEpisode,
+    Album: CreditItemType.Album,
+    Game: CreditItemType.Game,
+    Podcast: CreditItemType.Podcast,
+    PodcastEpisode: CreditItemType.PodcastEpisode,
+    Performance: CreditItemType.Performance,
+    PerformanceProduction: CreditItemType.PerformanceProduction,
+    Work: CreditItemType.Work,
+}
 
 
 class Gallery(Schema):
@@ -338,6 +445,122 @@ def _get_item(cls, uuid, response):
     # only (list endpoints no longer attach tags -- NEODB-SOCIAL-7KW).
     item.tags = TagManager.indexable_tags_for_item(item)
     return item
+
+
+@api.get(
+    "/people/{uuid}",
+    response={200: PeopleSchema, 302: RedirectedResult, 404: Result},
+    auth=None,
+    tags=["catalog"],
+)
+def get_people(request, uuid: str, response: HttpResponse):
+    return _get_item(People, uuid, response)
+
+
+@api.get(
+    "/catalog/{item_type}/{uuid}/credit/",
+    response={200: CreditListSchema, 302: RedirectedResult, 404: Result},
+    summary="List all credits for a catalog item",
+    auth=None,
+    tags=["catalog"],
+)
+def get_item_credits(
+    request,
+    item_type: CreditItemType,
+    uuid: str,
+    response: HttpResponse,
+    page: int = 1,
+):
+    item = Item.get_by_url(uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    expected_cls = _CREDIT_ITEM_MODELS[item_type]
+    if item.merged_to_item:
+        target_type = (
+            item_type
+            if expected_cls is Item
+            else _CANONICAL_CREDIT_ITEM_TYPES.get(
+                item.merged_to_item.__class__, CreditItemType.Item
+            )
+        )
+        url = f"/api/catalog/{target_type.value}/{item.merged_to_item.uuid}/credit/"
+        response["Location"] = url
+        return Status(302, {"message": "Item merged", "url": url})
+    if expected_cls is not Item and item.__class__ is not expected_cls:
+        target_type = _CANONICAL_CREDIT_ITEM_TYPES.get(
+            item.__class__, CreditItemType.Item
+        )
+        url = f"/api/catalog/{target_type.value}/{item.uuid}/credit/"
+        response["Location"] = url
+        return Status(302, {"message": "Item recasted", "url": url})
+
+    paginator = Paginator(
+        ItemCredit.objects.filter(item=item)
+        .select_related("person")
+        .order_by("role", "order", "pk"),
+        PAGE_SIZE,
+    )
+    credit_page = paginator.get_page(page)
+    return Status(
+        200,
+        {
+            "data": list(credit_page.object_list),
+            "pages": paginator.num_pages,
+            "count": paginator.count,
+        },
+    )
+
+
+@api.get(
+    "/people/{uuid}/work/",
+    response={200: PeopleWorkListSchema, 302: RedirectedResult, 404: Result},
+    summary="List all catalog works credited to a person or organization",
+    auth=None,
+    tags=["catalog"],
+)
+def get_people_works(request, uuid: str, response: HttpResponse, page: int = 1):
+    item = Item.get_by_url(uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "People not found"})
+    if item.merged_to_item:
+        url = f"{item.merged_to_item.api_url}/work/"
+        response["Location"] = url
+        return Status(302, {"message": "People merged", "url": url})
+    if item.__class__ is not People:
+        response["Location"] = item.api_url
+        return Status(302, {"message": "Item recasted", "url": item.api_url})
+
+    item_ids = (
+        ItemCredit.objects.filter(
+            person=item,
+            item__is_deleted=False,
+            item__merged_to_item__isnull=True,
+        )
+        .order_by()
+        .values_list("item_id", flat=True)
+        .distinct()
+    )
+    paginator = Paginator(
+        Item.objects.filter(pk__in=item_ids).order_by("-pk"), PAGE_SIZE
+    )
+    work_page = paginator.get_page(page)
+    items = list(work_page.object_list)
+    Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
+
+    credits_by_item: dict[int, list[ItemCredit]] = {}
+    for credit in ItemCredit.objects.filter(
+        person=item, item_id__in=[work.pk for work in items]
+    ).order_by("item_id", "role", "order", "pk"):
+        credits_by_item.setdefault(credit.item_id, []).append(credit)
+
+    data = [
+        {"item": work, "credits": credits_by_item.get(work.pk, [])} for work in items
+    ]
+    return Status(
+        200,
+        {"data": data, "pages": paginator.num_pages, "count": paginator.count},
+    )
 
 
 @api.get(
