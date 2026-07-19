@@ -367,10 +367,32 @@ class InboxMessage(StatorModel):
 
     @property
     def message_object_type(self) -> str | None:
-        if isinstance(self.message["object"], dict):
-            return self.message["object"].get("type", "").lower() or None
-        else:
+        if not isinstance(self.message["object"], dict):
             return None
+        value = self.message["object"].get("type")
+        if isinstance(value, str):
+            return value.lower() or None
+        if not isinstance(value, list):
+            return None
+
+        types = [item.lower() for item in value if isinstance(item, str) and item]
+        if not types:
+            return None
+        # JSON-LD permits multiple types. Prefer a concrete type over the
+        # generic ActivityStreams base classes so e.g. ["Document", "Page"]
+        # is routed to the Page post handler.
+        generic_types = {
+            "activity",
+            "collection",
+            "collectionpage",
+            "document",
+            "intransitiveactivity",
+            "link",
+            "object",
+            "orderedcollection",
+            "orderedcollectionpage",
+        }
+        return next((item for item in types if item not in generic_types), types[0])
 
     @property
     def message_type_full(self):

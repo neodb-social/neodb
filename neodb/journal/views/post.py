@@ -473,7 +473,10 @@ def _post_last_modified(request, handle: str, post_pk: int):
 def post_view(request, handle: str, post_pk: int):
     if request.headers.get("Accept", "").endswith("json"):
         raise BadRequest("JSON not supported yet")
-    post: Post = get_object_or_404(Post, pk=post_pk)
+    post: Post = get_object_or_404(
+        Post.objects.select_related("preview_card"),
+        pk=post_pk,
+    )
     if post.state in ["deleted", "deleted_fanned_out"]:
         raise Http404("Post not available")
     viewer = request.user.identity if request.user.is_authenticated else None

@@ -61,3 +61,49 @@ def urlparams(context, **kwargs):
         elif name in params:
             del params[name]
     return urlencode(params)
+
+
+@register.simple_tag(takes_context=True)
+def poll_vote_context(context, post):
+    """Return browser-session voting state for a Question post."""
+    request = context.get("request")
+    identity = None
+    identities = []
+
+    if request is not None and request.user.is_authenticated:
+        identities = list(request.user.identities.all())
+        requested_identity_id = request.GET.get("identity")
+        session = getattr(request, "session", None)
+        session_identity_id = session.get("identity_id") if session else None
+        selected_identity_id = requested_identity_id or session_identity_id
+        identity = next(
+            (
+                candidate
+                for candidate in identities
+                if str(candidate.pk) == str(selected_identity_id)
+            ),
+            identities[0] if identities else None,
+        )
+
+    poll = post.type_data.to_mastodon_json(post, identity=identity)
+    own_votes = set(poll["own_votes"])
+    option_count = len(poll["options"])
+    can_vote = bool(
+        identity
+        and identity.pk != post.author_id
+        and not poll["expired"]
+        and (
+            (poll["multiple"] and len(own_votes) < option_count)
+            or (not poll["multiple"] and not poll["voted"])
+        )
+    )
+    return {
+        "authenticated": bool(request and request.user.is_authenticated),
+        "can_vote": can_vote,
+        "identities": identities,
+        "identity": identity,
+        "multiple_identities": len(identities) > 1,
+        "own_poll": bool(identity and identity.pk == post.author_id),
+        "own_votes": own_votes,
+        "poll": poll,
+    }

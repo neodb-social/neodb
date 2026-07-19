@@ -33,7 +33,11 @@
     {% endif %}
 
     <div class="content {% if post.summary %}hidden {% endif %}"{% if post.language %} lang="{{ post.language }}"{% endif %}>
-        {{ post.safe_content_local }}
+        {% if post.type == "Question" %}
+            {% include "activities/_type_question.html" with sanitized_content=post.safe_content_note_local interactive=True %}
+        {% else %}
+            {{ post.safe_content_local }}
+        {% endif %}
 
         {% if post.attachments.exists %}
             <div class="attachments">
@@ -65,6 +69,8 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        {% include "activities/_preview_card.html" %}
     </div>
 
     {% if post.edited %}

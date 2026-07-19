@@ -1636,6 +1636,51 @@ form .post {
     text-decoration: underline;
 }
 
+.post .converted-object-card {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-text-duller);
+    border-radius: 4px;
+    background: var(--color-bg-menu);
+    color: var(--color-text-main);
+}
+
+.post .converted-object-card:hover {
+    text-decoration: none;
+    border-color: var(--color-highlight);
+    background: var(--color-bg-main);
+}
+
+.post .converted-object-card img {
+    width: min(160px, 35%);
+    min-height: 96px;
+    max-height: 180px;
+    object-fit: cover;
+}
+
+.post .converted-object-card-body {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 12px 10px 0;
+}
+
+.post .converted-object-card-body strong,
+.post .converted-object-card-body span,
+.post .converted-object-card-body small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post .converted-object-card-body small {
+    color: var(--color-text-dull);
+}
+
 /* Special Type Posts */
 .post .notice a:hover {
     text-decoration: underline;
@@ -1658,7 +1703,43 @@ form .post {
     border: 1px solid var(--color-text-dull);
     border-radius: 3px;
     margin-bottom: 6px;
-    opacity: 0.5;
+}
+
+.post .poll li.selected {
+    border-color: var(--color-highlight);
+}
+
+.post .poll-option {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.post .poll-option input {
+    flex: 0 0 auto;
+    margin: 0;
+    width: auto;
+}
+
+.post .poll-identity {
+    margin-bottom: 8px;
+}
+
+.post .poll-identity select {
+    display: inline-block;
+    margin-left: 4px;
+    width: auto;
+}
+
+.post .poll-actions {
+    align-items: center;
+    display: flex;
+    min-height: 32px;
+}
+
+.post .poll-actions button {
+    margin: 0;
+    width: auto;
 }
 
 .poll-number {
@@ -1669,12 +1750,6 @@ form .post {
 .poll-footer {
     padding: 6px 0 6px;
     font-size: 12px;
-}
-
-.poll-footer span.todo {
-    padding-left: 6px;
-    font-size: 90%;
-    color: var(--color-text-dull);
 }
 
 .post .poll ul li .votes {

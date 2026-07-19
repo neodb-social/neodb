@@ -4,6 +4,51 @@
 		margin-bottom: 0.5em;
 	}
 
+	.converted-object-card {
+		display: flex;
+		gap: 0.75em;
+		margin: 0.75em 0;
+		overflow: hidden;
+		border: 1px solid var(--pico-muted-border-color);
+		border-radius: var(--pico-border-radius);
+		background: var(--pico-card-background-color);
+		color: var(--pico-color);
+
+		&:hover {
+			text-decoration: none;
+			border-color: var(--pico-primary);
+		}
+
+		>img {
+			width: 35%;
+			max-width: 10em;
+			min-height: 6em;
+			max-height: 12em;
+			object-fit: cover;
+		}
+
+		.converted-object-card-body {
+			display: flex;
+			min-width: 0;
+			flex: 1;
+			flex-direction: column;
+			justify-content: center;
+			gap: 0.25em;
+			padding: 0.65em 0.75em 0.65em 0;
+
+			strong,
+			span,
+			small {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			small {
+				color: var(--pico-muted-color);
+			}
+		}
+	}
+
 	.embed-cover {
 		img {
 			max-width: 6em;

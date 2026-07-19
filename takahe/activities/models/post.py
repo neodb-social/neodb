@@ -66,6 +66,100 @@ logger = logging.getLogger(__name__)
 _QUOTE_URI_MAX_LENGTH = 2048
 
 
+def _ap_link(value, preferred_media_type: str | None = None) -> tuple[str | None, dict]:
+    """Return one URL and its Link/Object metadata from an AS url value.
+
+    ActivityStreams permits URL values to be URI strings, embedded Link
+    objects, or arrays of either. Prefer a requested media type (normally
+    text/html for a status permalink), then fall back to the first usable
+    value. The metadata is returned as well so callers can retain dimensions
+    and media type information for icons and attachments.
+    """
+
+    candidates: list[tuple[str, dict]] = []
+
+    def collect(item, inherited: dict | None = None) -> None:
+        if isinstance(item, str):
+            candidates.append((item, inherited or {}))
+            return
+        if isinstance(item, list):
+            for child in item:
+                collect(child, inherited)
+            return
+        if not isinstance(item, dict):
+            return
+
+        # AS Link uses href; Object subclasses usually use url.
+        href = item.get("href")
+        if isinstance(href, str):
+            candidates.append((href, item))
+        nested_url = item.get("url")
+        if nested_url is not None:
+            collect(nested_url, item)
+        if not isinstance(href, str) and nested_url is None:
+            object_id = item.get("id")
+            if isinstance(object_id, str):
+                candidates.append((object_id, item))
+
+    collect(value)
+    if not candidates:
+        return None, {}
+    if preferred_media_type:
+        for url, metadata in candidates:
+            media_type = metadata.get("mediaType")
+            if (
+                isinstance(media_type, str)
+                and media_type.split(";", 1)[0].lower() == preferred_media_type
+            ):
+                return url, metadata
+    return candidates[0]
+
+
+def _natural_language_value(data: dict, key: str) -> str:
+    """Read an AS natural-language field, coalescing JSON-LD list values."""
+
+    try:
+        value = get_value_or_map(data, key, f"{key}Map")
+    except ActivityPubFormatError:
+        return ""
+    if isinstance(value, list):
+        value = value[0] if value else ""
+    return value if isinstance(value, str) else ""
+
+
+def _converted_post_content(data: dict, object_url: str) -> str:
+    """Convert a non-status AS object into Mastodon-compatible status HTML.
+
+    Mastodon's converted-object path keeps the body, title, summary, and a
+    link to the original object in the status content (rather than exposing
+    these object types as a separate client-API entity).
+    """
+
+    content = _natural_language_value(data, "content")
+    name = _natural_language_value(data, "name")
+    summary = _natural_language_value(data, "summary")
+    parts: list[str] = []
+    if content:
+        parts.append(content)
+    if name:
+        # AS name is plain natural-language text, not trusted markup.
+        parts.append(f"<p>{html.escape(strip_tags(name))}</p>")
+    if summary:
+        parts.append(summary)
+    parts.append(
+        f'<p><a href="{html.escape(object_url)}">{html.escape(object_url)}</a></p>'
+    )
+    return "\n".join(parts)
+
+
+def _positive_int(value) -> int | None:
+    try:
+        value = int(value)
+    except TypeError, ValueError:
+        return None
+    return value if value >= 0 else None
+
+
 def _is_quote_uri(value: str) -> bool:
     return (
         bool(value)
@@ -186,7 +280,8 @@ class PostStates(StateGraph):
         ):
             cls.targets_fan_out(instance, FanOut.Types.post)
         instance.ensure_hashtags()
-        _attach_preview_card(instance.pk, instance.content)
+        if instance.type not in instance.CONVERTED_TYPES:
+            _attach_preview_card(instance.pk, instance.content)
         if cls.needs_question_tracking(instance):
             return cls.question_open
         return cls.fanned_out
@@ -263,7 +358,8 @@ class PostStates(StateGraph):
         """
         cls.targets_fan_out(instance, FanOut.Types.post_edited)
         instance.ensure_hashtags()
-        _attach_preview_card(instance.pk, instance.content)
+        if instance.type not in instance.CONVERTED_TYPES:
+            _attach_preview_card(instance.pk, instance.content)
         if cls.needs_question_tracking(instance):
             question = instance.type_data
             if instance.local and question.last_distributed_tally != question.tally:
@@ -496,6 +592,19 @@ class Post(StatorModel):
         question = "Question"
         video = "Video"
 
+    # Mastodon calls these "converted" objects: they become ordinary statuses
+    # for client/API purposes, while their complete AS object remains available
+    # in type_data for lossless handling by Takahē and NeoDB.
+    CONVERTED_TYPES = frozenset(
+        {
+            Types.page,
+            Types.image,
+            Types.audio,
+            Types.video,
+            Types.event,
+        }
+    )
+
     id = models.BigIntegerField(primary_key=True, default=Snowflake.generate_post)
 
     # The author (attributedTo) of the post
@@ -688,6 +797,11 @@ class Post(StatorModel):
     def _safe_content_note(self, *, local: bool = True):
         return ContentRenderer(local=local).render_post(self.content, self)
 
+    @property
+    def safe_content_note_local(self):
+        """Render just the note body for request-aware typed templates."""
+        return self._rewrite_neodb_urls(self._safe_content_note(local=True))
+
     def _safe_content_question(self, *, local: bool = True):
         if local:
             context = {
@@ -713,7 +827,15 @@ class Post(StatorModel):
             context,
         )
 
+    @property
+    def converted_preview_card(self):
+        if self.type not in self.CONVERTED_TYPES or not self.preview_card_id:
+            return None
+        return self.preview_card if self.preview_card.state == "fetched" else None
+
     def safe_content(self, *, local: bool = True):
+        if self.type in self.CONVERTED_TYPES:
+            return self._safe_content_note(local=local)
         func = getattr(
             self, f"_safe_content_{self.type.lower()}", self._safe_content_typed
         )
@@ -1388,6 +1510,21 @@ class Post(StatorModel):
         return value if isinstance(value, str) else None
 
     @classmethod
+    def _primary_post_type(cls, value):
+        """Select the Takahē post type from an AS type string or array."""
+
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list):
+            strings = [item for item in value if isinstance(item, str)]
+            for supported_type in cls.Types.values:
+                if supported_type in strings:
+                    return supported_type
+            if strings:
+                return strings[0]
+        return None
+
+    @classmethod
     def by_ap(cls, data, create=False, update=False, fetch_author=False) -> "Post":
         """
         Retrieves a Post instance by its ActivityPub JSON object.
@@ -1403,6 +1540,7 @@ class Post(StatorModel):
             # ``[author_person, blog_group]`` for blog posts; the author
             # is conventionally first, so we take the head.
             data["attributedTo"] = cls._primary_attributed_to(data.get("attributedTo"))
+            data["type"] = cls._primary_post_type(data.get("type"))
             # Ensure data has the primary fields of all Posts
             if (
                 not isinstance(data["id"], str)
@@ -1463,7 +1601,8 @@ class Post(StatorModel):
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
         if update or created:
             post.type = data["type"]
-            post.url = data.get("url", data["id"])
+            post.url, _ = _ap_link(data.get("url"), preferred_media_type="text/html")
+            post.url = post.url or data["id"]
             if post.type == cls.Types.question:
                 post.type_data = PostTypeData(root=data).root
                 if not post.local and isinstance(post.type_data, QuestionData):
@@ -1477,18 +1616,31 @@ class Post(StatorModel):
                 # ``{"object": data}`` shape used by NeoDB's relatedWith
                 # envelopes (Reviews/Marks) and by locally-authored Articles.
                 post.type_data = {"object": data}
-            try:
-                # apparently sometimes posts (Pages?) in the fediverse
-                # don't have content, but this shouldn't be a total failure
-                post.content = get_value_or_map(data, "content", "contentMap") or ""
-            except ActivityPubFormatError as err:
-                logger.warning("%s on %s", err, post.url)
-                post.content = ""
-            # Document types have names, not summaries
-            post.summary = data.get("summary") or data.get("name")
-            if not post.content and post.summary:
-                post.content = post.summary
+            elif post.type in cls.CONVERTED_TYPES:
+                # Keep every field, including Event times/location and media
+                # metadata, while presenting the object as a normal status to
+                # Mastodon clients.
+                post.type_data = {"object": data}
+            else:
+                post.type_data = None
+            if post.type in cls.CONVERTED_TYPES:
+                post.content = _converted_post_content(data, post.url)
+                # Mastodon includes a converted object's summary in its status
+                # text and does not expose it as the status content warning.
                 post.summary = None
+            else:
+                try:
+                    # Some fediverse objects do not have content; this should
+                    # not make the whole activity fail.
+                    post.content = get_value_or_map(data, "content", "contentMap") or ""
+                except ActivityPubFormatError as err:
+                    logger.warning("%s on %s", err, post.url)
+                    post.content = ""
+                # Document types have names, not summaries.
+                post.summary = data.get("summary") or data.get("name")
+                if not post.content and post.summary:
+                    post.content = post.summary
+                    post.summary = None
             post.sensitive = data.get("sensitive", False)
             post.published = parse_ld_date(data.get("published")) or timezone.now()
             post.edited = parse_ld_date(data.get("updated"))
@@ -1578,9 +1730,12 @@ class Post(StatorModel):
             # These have no IDs, so we have to wipe them each time
             post.attachments.all().delete()
             for attachment in get_list(data, "attachment"):
+                if not isinstance(attachment, dict):
+                    continue
                 if "url" not in attachment and "href" in attachment:
                     # Links have hrefs, while other Objects have urls
                     attachment["url"] = attachment["href"]
+                attachment_url, link_metadata = _ap_link(attachment.get("url"))
                 if "focalPoint" in attachment:
                     try:
                         focal_x, focal_y = attachment["focalPoint"]
@@ -1588,21 +1743,25 @@ class Post(StatorModel):
                         focal_x, focal_y = None, None
                 else:
                     focal_x, focal_y = None, None
-                mimetype = attachment.get("mediaType")
+                mimetype = attachment.get("mediaType") or link_metadata.get("mediaType")
                 if not mimetype or not isinstance(mimetype, str):
-                    if "url" not in attachment:
+                    if not attachment_url:
                         raise ActivityPubFormatError(
                             f"No URL present on attachment in {post.url}"
                         )
-                    mimetype, _ = mimetypes.guess_type(attachment["url"])
+                    mimetype, _ = mimetypes.guess_type(attachment_url)
                     if not mimetype:
                         mimetype = "application/octet-stream"
+                if not attachment_url:
+                    raise ActivityPubFormatError(
+                        f"No URL present on attachment in {post.url}"
+                    )
                 post.attachments.create(
-                    remote_url=attachment["url"],
+                    remote_url=attachment_url,
                     mimetype=mimetype,
-                    name=attachment.get("name"),
-                    width=attachment.get("width"),
-                    height=attachment.get("height"),
+                    name=attachment.get("name") or attachment.get("summary"),
+                    width=_positive_int(attachment.get("width")),
+                    height=_positive_int(attachment.get("height")),
                     blurhash=attachment.get("blurhash"),
                     focal_x=focal_x,
                     focal_y=focal_y,
@@ -1613,6 +1772,9 @@ class Post(StatorModel):
                 # if we don't commit the transaction here, there's a chance
                 # the parent fetch below goes into an infinite loop
                 post.save()
+
+            if post.type in cls.CONVERTED_TYPES:
+                post._sync_converted_preview_card(data)
 
             # Assign to conversation if this is a direct message
             if post.visibility == Post.Visibilities.mentioned:
@@ -2001,18 +2163,83 @@ class Post(StatorModel):
     ### OpenGraph API ###
 
     def to_opengraph_dict(self) -> dict:
+        card = self.converted_preview_card
+        title = f"{self.author.name} (@{self.author.handle})"
+        description = self.summary or self.safe_content_local()
+        image_url = self.author.local_icon_url().absolute
+        image_height = 85
+        image_width = 85
+        if card:
+            title = card.title or title
+            description = card.description or description
+            if card.image_proxy_url:
+                image_url = card.image_proxy_url.absolute
+                image_height = card.image_height or 85
+                image_width = card.image_width or 85
         return {
-            "og:title": f"{self.author.name} (@{self.author.handle})",
+            "og:title": title,
             "og:type": "article",
             "og:published_time": (self.published or self.created).isoformat(),
             "og:modified_time": (
                 self.edited or self.published or self.created
             ).isoformat(),
-            "og:description": (self.summary or self.safe_content_local()),
-            "og:image:url": self.author.local_icon_url().absolute,
-            "og:image:height": 85,
-            "og:image:width": 85,
+            "og:description": description,
+            "og:image:url": image_url,
+            "og:image:height": image_height,
+            "og:image:width": image_width,
         }
+
+    def _sync_converted_preview_card(self, data: dict) -> None:
+        """Expose converted-object metadata, including icon, as a card."""
+
+        from activities.models.preview_card import PreviewCard, PreviewCardStates
+
+        card_url = self.url or self.object_uri
+        if not card_url or not card_url.startswith(("https://", "http://")):
+            return
+
+        icon_url, icon = _ap_link(data.get("icon"))
+        if icon_url and (
+            not icon_url.startswith(("https://", "http://"))
+            or len(icon_url) > PreviewCard._meta.get_field("image_url").max_length
+        ):
+            icon_url = None
+
+        parsed_url = urlparse(card_url)
+        provider_url = (
+            f"{parsed_url.scheme}://{parsed_url.netloc}" if parsed_url.netloc else ""
+        )
+        card_type = PreviewCard.CardTypes.link
+        if self.type == self.Types.image:
+            card_type = PreviewCard.CardTypes.photo
+        elif self.type == self.Types.video:
+            card_type = PreviewCard.CardTypes.video
+
+        title = strip_tags(_natural_language_value(data, "name"))
+        description = strip_tags(
+            _natural_language_value(data, "summary")
+            or _natural_language_value(data, "content")
+        )
+        now = timezone.now()
+        card, _ = PreviewCard.objects.update_or_create(
+            url=card_url,
+            defaults={
+                "title": title,
+                "description": description,
+                "card_type": card_type,
+                "provider_name": parsed_url.hostname or "",
+                "provider_url": provider_url,
+                "image_url": icon_url or "",
+                "image_width": _positive_int(icon.get("width")),
+                "image_height": _positive_int(icon.get("height")),
+                "fetched_at": now,
+                "last_referenced_at": now,
+                "state": PreviewCardStates.fetched,
+            },
+        )
+        if self.preview_card_id != card.pk:
+            type(self).objects.filter(pk=self.pk).update(preview_card=card)
+            self.preview_card = card
 
     ### Mastodon API ###
 

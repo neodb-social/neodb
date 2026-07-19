@@ -148,6 +148,7 @@
                 {{ post.safe_content_local|default:"" }}
               {% endif %}
             </div>
+            {% include "_converted_object_card.html" %}
             {% if post.type == 'Question' %}
               {% include "post_question.html" %}
             {% endif %}

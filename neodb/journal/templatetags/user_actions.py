@@ -65,7 +65,8 @@ def pinned_post(context, post):
 
 @register.simple_tag(takes_context=True)
 def post_vote_info(context, post):
-    user = context["request"].user
-    if not user or not user.is_authenticated or not post or post.type != "Question":
+    if not post or post.type != "Question":
         return {}
-    return Takahe.get_poll_info(post, user.identity.pk)
+    user = context["request"].user
+    identity_pk = user.identity.pk if user and user.is_authenticated else None
+    return Takahe.get_poll_info(post, identity_pk)

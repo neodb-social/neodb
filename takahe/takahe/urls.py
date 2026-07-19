@@ -290,7 +290,16 @@ urlpatterns = [
     ),
     # Posts
     path("@<handle>/compose/", compose.Compose.as_view(), name="compose"),
-    path("@<handle>/posts/<int:post_id>/", posts.Individual.as_view()),
+    path(
+        "@<handle>/posts/<int:post_id>/",
+        posts.Individual.as_view(),
+        name="post_view",
+    ),
+    path(
+        "@<handle>/posts/<int:post_id>/vote/",
+        posts.PollVote.as_view(),
+        name="post_vote",
+    ),
     path(
         "@<handle>/posts/<int:post_id>/replies/", posts.PostRepliesCollection.as_view()
     ),

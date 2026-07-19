@@ -125,7 +125,7 @@ def search_data(request):
         r = index.search(q)
         events = [
             SearchResultEvent(p)
-            for p in r.posts.select_related("author")
+            for p in r.posts.select_related("author", "preview_card")
             .prefetch_related("attachments", "mentions")
             .order_by("-id")
         ]
@@ -163,6 +163,7 @@ def data(request):
             "subject_post",
             "subject_post__author",
             "subject_post__author__domain",
+            "subject_post__preview_card",
             "subject_identity",
             "subject_identity__domain",
             "subject_post_interaction",

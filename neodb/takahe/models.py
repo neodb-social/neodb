@@ -1075,6 +1075,73 @@ class PostManager(models.Manager):
     #     return self.get_queryset().tagged_with(hashtag=hashtag)
 
 
+class PreviewCard(models.Model):
+    """Read-only NeoDB mirror of Takahē's status preview-card metadata."""
+
+    class CardTypes(models.TextChoices):
+        link = "link", "Link"
+        photo = "photo", "Photo"
+        video = "video", "Video"
+        rich = "rich", "Rich"
+
+    state = models.CharField(max_length=100, default="needs_fetch")
+    state_changed = models.DateTimeField(auto_now_add=True)
+    state_next_attempt = models.DateTimeField(blank=True, null=True)
+    state_locked_until = models.DateTimeField(null=True, blank=True, db_index=True)
+    url = models.CharField(max_length=2048, unique=True, db_index=True)
+    title = models.TextField(blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    card_type = models.CharField(
+        max_length=10,
+        choices=CardTypes.choices,
+        default=CardTypes.link,
+    )
+    author_name = models.CharField(max_length=500, blank=True, default="")
+    author_url = models.CharField(max_length=2048, blank=True, default="")
+    provider_name = models.CharField(max_length=500, blank=True, default="")
+    provider_url = models.CharField(max_length=2048, blank=True, default="")
+    embed_html = models.TextField(blank=True, default="")
+    image_url = models.CharField(max_length=2048, blank=True, default="")
+    image_width = models.IntegerField(null=True, blank=True)
+    image_height = models.IntegerField(null=True, blank=True)
+    blurhash = models.TextField(null=True, blank=True)
+    fetched_at = models.DateTimeField(null=True, blank=True)
+    last_referenced_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "activities_previewcard"
+
+    @property
+    def image_proxy_url(self):
+        if not self.image_url:
+            return None
+        return ProxyAbsoluteUrl(
+            f"/proxy/preview_card/{self.pk}/",
+            remote_url=self.image_url,
+        )
+
+    def to_mastodon_json(self) -> dict:
+        image_proxy_url = self.image_proxy_url
+        return {
+            "url": self.url,
+            "title": self.title,
+            "description": self.description,
+            "type": self.card_type,
+            "author_name": self.author_name,
+            "author_url": self.author_url,
+            "provider_name": self.provider_name,
+            "provider_url": self.provider_url,
+            "html": self.embed_html,
+            "width": self.image_width or 0,
+            "height": self.image_height or 0,
+            "image": image_proxy_url.absolute if image_proxy_url else None,
+            "embed_url": "",
+            "blurhash": self.blurhash,
+        }
+
+
 class Post(models.Model):
     """
     A post (status, toot) that is either local or remote.
@@ -1086,6 +1153,7 @@ class Post(models.Model):
     if TYPE_CHECKING:
         author_id: int
         application_id: int | None
+        preview_card_id: int | None
         interactions: "models.QuerySet[PostInteraction]"
         attachments: "models.QuerySet[PostAttachment]"
 
@@ -1106,6 +1174,16 @@ class Post(models.Model):
         question = "Question"
         video = "Video"
 
+    CONVERTED_TYPES: ClassVar[frozenset[str]] = frozenset(
+        {
+            Types.page,
+            Types.image,
+            Types.audio,
+            Types.video,
+            Types.event,
+        }
+    )
+
     id = models.BigIntegerField(primary_key=True, default=Snowflake.generate_post)
 
     # The author (attributedTo) of the post
@@ -1118,6 +1196,14 @@ class Post(models.Model):
     # The application used to create this post (if created via API)
     application = models.ForeignKey(
         "takahe.Application",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="posts",
+    )
+
+    preview_card = models.ForeignKey(
+        "takahe.PreviewCard",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -1552,6 +1638,12 @@ class Post(models.Model):
         if save:
             self.save()
 
+    @cached_property
+    def converted_preview_card(self):
+        if self.type not in self.CONVERTED_TYPES or not self.preview_card_id:
+            return None
+        return self.preview_card if self.preview_card.state == "fetched" else None
+
     _neodb_url_regex = re.compile(r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"')
 
     @classmethod
@@ -1666,7 +1758,11 @@ class Post(models.Model):
             ),
             "reblog": None,
             "poll": None,  # self.type_data.to_mastodon_json(self, identity) if isinstance(self.type_data, QuestionData) else None,
-            "card": None,
+            "card": (
+                self.preview_card.to_mastodon_json()
+                if self.preview_card_id and self.preview_card.state == "fetched"
+                else None
+            ),
             "text": self.safe_content_remote(),
             "edited_at": format_ld_date(self.edited) if self.edited else None,
             "application": self.application.to_mastodon_status_json()

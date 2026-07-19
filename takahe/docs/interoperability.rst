@@ -56,3 +56,18 @@ These servers have the beginnings of support but known bugs that need fixing:
 * Gotosocial
 
   * Issues pulling accounts
+
+
+ActivityStreams Object Types
+----------------------------
+
+Takahé handles Note and Question as first-class statuses. Incoming Article
+objects retain their document metadata. As with Mastodon, incoming Page, Image,
+Audio, Video, and Event objects are converted to ordinary statuses: their
+content, name, summary, and canonical URL are made available to clients, while
+the complete original object is retained. An object icon is exposed as the
+status preview-card image when present. The Mastodon-compatible API, Takahē
+post page, and NeoDB post page all expose that card. Question objects remain
+first-class polls: the client API exposes poll data, and both Takahē and NeoDB
+render options for every reader plus voting controls for eligible signed-in
+users.

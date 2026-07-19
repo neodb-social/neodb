@@ -1,0 +1,22 @@
+{% with card=post.converted_preview_card %}
+  {% if card %}
+    <a class="converted-object-card converted-object-card-{{ card.card_type }}"
+       href="{{ card.url }}"
+       target="_blank"
+       rel="nofollow noopener noreferrer">
+      {% if card.image_url %}
+        <img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">
+      {% endif %}
+      <span class="converted-object-card-body">
+        <strong>{{ card.title|default:post.type }}</strong>
+        {% if card.description %}
+          <span>{{ card.description }}</span>
+        {% endif %}
+        <small>
+          {{ post.type }}
+          {% if card.provider_name %}&middot; {{ card.provider_name }}{% endif %}
+        </small>
+      </span>
+    </a>
+  {% endif %}
+{% endwith %}

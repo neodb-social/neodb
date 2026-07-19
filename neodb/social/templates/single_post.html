@@ -10,28 +10,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} {% trans "Post" %} | {{ owner.display_name }}</title>
-    {% if post.type == 'Article' %}
-      <meta property="og:title"
-            content="{{ post.type_data.object.name|default:post.summary|striptags|default:_("Article") }}">
-    {% else %}
-      <meta property="og:title"
-            content="{{ post.summary|striptags|default:_("Post") }}">
-    {% endif %}
-    <meta property="og:site_name" content="{{ site_name }}">
-    <meta property="og:type" content="article">
-    <meta property="article:author" content="{{ owner.display_name }}">
-    <meta property="article:published_time"
-          content="{{ post.published | date:'c' }}">
-    <meta property="article:modified_time"
-          content="{{ post.updated | date:'c' }}">
-    {% if post.item.has_cover %}<meta property="og:image" content="{{ post.item.cover|thumb:'normal' }}">{% endif %}
-    {% if post.type == 'Article' %}
-      <meta property="og:description"
-            content="{{ post.type_data.object.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
-    {% else %}
-      <meta property="og:description"
-            content="{{ post.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
-    {% endif %}
+    {% with card=post.converted_preview_card %}
+      {% if card %}
+        <meta property="og:title"
+              content="{{ card.title|default:post.type|striptags }}">
+      {% elif post.type == 'Article' %}
+        <meta property="og:title"
+              content="{{ post.type_data.object.name|default:post.summary|striptags|default:_("Article") }}">
+      {% elif post.type == 'Question' %}
+        <meta property="og:title"
+              content="{{ post.content_plain_text|truncatechars:100|default:_("Poll") }}">
+      {% else %}
+        <meta property="og:title"
+              content="{{ post.summary|striptags|default:_("Post") }}">
+      {% endif %}
+      <meta property="og:site_name" content="{{ site_name }}">
+      <meta property="og:type" content="article">
+      <meta property="article:author" content="{{ owner.display_name }}">
+      <meta property="article:published_time"
+            content="{{ post.published | date:'c' }}">
+      <meta property="article:modified_time"
+            content="{{ post.updated | date:'c' }}">
+      {% if card.image_url %}
+        <meta property="og:image" content="{{ card.image_proxy_url.absolute }}">
+      {% elif post.item.has_cover %}
+        <meta property="og:image" content="{{ post.item.cover|thumb:'normal' }}">
+      {% endif %}
+      {% if card %}
+        <meta property="og:description"
+              content="{{ card.description|default:post.content_plain_text|striptags|slice:':300' }}" />
+      {% elif post.type == 'Article' %}
+        <meta property="og:description"
+              content="{{ post.type_data.object.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
+      {% else %}
+        <meta property="og:description"
+              content="{{ post.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
+      {% endif %}
+    {% endwith %}
     <meta name="fediverse:creator" content="@{{ owner.full_handle }}">
     <meta name="lastmodified" content="{{ post.updated | date:'r' }}" />
     {% if not owner.local or not owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}

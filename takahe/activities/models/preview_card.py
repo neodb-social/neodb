@@ -284,7 +284,17 @@ class PreviewCard(StatorModel):
         }
         return urlunparse(parsed._replace(query=urlencode(filtered, doseq=True)))
 
+    @property
+    def image_proxy_url(self):
+        if not self.image_url:
+            return None
+        return ProxyAbsoluteUrl(
+            f"/proxy/preview_card/{self.pk}/",
+            remote_url=self.image_url,
+        )
+
     def to_mastodon_json(self) -> dict:
+        image_proxy_url = self.image_proxy_url
         return {
             "url": self.url,
             "title": self.title,
@@ -297,14 +307,7 @@ class PreviewCard(StatorModel):
             "html": self.embed_html,
             "width": self.image_width or 0,
             "height": self.image_height or 0,
-            "image": (
-                ProxyAbsoluteUrl(
-                    f"/proxy/preview_card/{self.pk}/",
-                    remote_url=self.image_url,
-                ).absolute
-                if self.image_url
-                else None
-            ),
+            "image": image_proxy_url.absolute if image_proxy_url else None,
             "embed_url": "",
             "blurhash": self.blurhash,
         }

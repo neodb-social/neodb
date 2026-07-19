@@ -1,24 +1,76 @@
 {% load activity_tags %}
-
 {{ sanitized_content }}
-
+{% poll_vote_context post as vote %}
 <div class="poll">
-    <h3 style="display: none;">Options: {% if post.type_data.mode == "oneOf" %}<small>(choose one)</small>{% endif %}</h3>
-    {% for item in post.type_data.options %}
-        {% if forloop.first %}<ul>{% endif %}{% widthratio item.votes post.type_data.voter_count 100 as item_percent %}
-        <li>
-            <label class="poll-option">
-                <input style="display:none" name="vote-options" type="{% if post.type_data.mode == "oneOf" %}radio{% else %}checkbox{% endif %}" value="0">
-                <span class="poll-number" title="{{ item.votes }} votes">{{ item_percent }}%</span>
-                <span class="poll-option-text">{{ item.name }}</span>
-            </label>
+  <h3 class="screenreader-text">
+    Options:
+    {% if vote.poll.multiple %}
+      <small>(choose one or more)</small>
+    {% else %}
+      <small>(choose one)</small>
+    {% endif %}
+  </h3>
+  {% if interactive and vote.multiple_identities %}
+    <form class="poll-identity" action="{{ request.path }}" method="get">
+      <label>
+        Vote as
+        <select name="identity" onchange="this.form.submit()">
+          {% for identity in vote.identities %}
+            <option value="{{ identity.pk }}"
+                    {% if identity == vote.identity %} selected{% endif %}>@{{ identity.handle }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+  {% endif %}
+  {% if interactive %}
+    <form action="{% url 'post_vote' handle=post.author.handle post_id=post.pk %}"
+          method="post">
+      {% csrf_token %}
+      {% if vote.identity %}<input name="identity" type="hidden" value="{{ vote.identity.pk }}">{% endif %}
+    {% endif %}
+    {% for option in vote.poll.options %}
+      {% if forloop.first %}<ul>{% endif %}
+        <li {% if forloop.counter0 in vote.own_votes %} class="selected"{% endif %}>
+          <label class="poll-option">
+            <input name="choices"
+                   type="{% if vote.poll.multiple %}checkbox{% else %}radio{% endif %}"
+                   value="{{ forloop.counter0 }}"
+                   {% if forloop.counter0 in vote.own_votes %}checked{% endif %}
+                   {% if not interactive or not vote.can_vote or forloop.counter0 in vote.own_votes %}disabled{% endif %}>
+            {% if option.votes_count is not None %}
+              {% widthratio option.votes_count vote.poll.votes_count 100 as option_percent %}
+              <span class="poll-number" title="{{ option.votes_count }} votes">{{ option_percent }}%</span>
+            {% else %}
+              <span class="poll-number" title="Vote totals are hidden">&mdash;</span>
+            {% endif %}
+            <span class="poll-option-text">{{ option.title }}</span>
+          </label>
         </li>
         {% if forloop.last %}</ul>{% endif %}
     {% endfor %}
     <div class="poll-footer">
-        <span class="vote-total">{{ post.type_data.voter_count }} {{ post.type_data.voter_count|pluralize:"vote,votes" }}</span>
-        &mdash;
-        {% if post.type_data.end_time %}<span class="vote-end">{{ post.type_data.end_time|timedeltashortenddate }}</span>{% endif %}
-        <span class="todo">Polls are currently display only</span>
+      <span class="vote-total">{{ vote.poll.voters_count }} {{ vote.poll.voters_count|pluralize:"voter,voters" }}</span>
+      {% if post.type_data.effective_end_time %}
+        &mdash; <span class="vote-end">{{ post.type_data.effective_end_time|timedeltashortenddate }}</span>
+      {% endif %}
     </div>
+    {% if interactive %}
+      <div class="poll-actions">
+        {% if vote.can_vote %}
+          <button type="submit">{% if vote.poll.multiple and vote.own_votes %}Add votes{% else %}Vote{% endif %}</button>
+        {% elif not vote.authenticated %}
+          <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in to vote</a>
+        {% elif not vote.identity %}
+          <a href="{% url 'identity_create' %}">Create an identity to vote</a>
+        {% elif vote.own_poll %}
+          <small>You can't vote in your own poll.</small>
+        {% elif vote.poll.expired %}
+          <small>This poll has ended.</small>
+        {% elif vote.poll.voted %}
+          <small>You voted in this poll.</small>
+        {% endif %}
+      </div>
+    </form>
+  {% endif %}
 </div>

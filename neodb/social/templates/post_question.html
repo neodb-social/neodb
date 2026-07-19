@@ -3,24 +3,35 @@
 {% post_vote_info post as info %}
 <form hx-post="{% url 'journal:post_vote' post.pk %}">
   <fieldset>
+    <legend>{% trans "Poll options" %}</legend>
     {% for option in info.options %}
-      {% if info.voted or info.ended %}<span class="votes">{{ option.votes|default:'0' }}</span>{% endif %}
+      {% if info.voted or info.ended or not info.can_vote %}
+        <span class="votes">{{ option.votes|default:'0' }}</span>
+      {% endif %}
       <label>
         <input name="choices"
                {% if info.mode == 'oneOf' %}type="radio"{% elif info.mode == 'anyOf' %}type="checkbox"{% else %}type="hidden" disabled{% endif %}
                {% if option.chosen %}checked{% endif %}
-               {% if info.ended or info.voted %}disabled{% endif %}
+               {% if info.ended or info.voted or not info.can_vote %}disabled{% endif %}
                value="{{ option.name }}" />
         {{ option.name }}
       </label>
     {% endfor %}
     {% if info.ended %}
       <p class="empty">{% trans "Poll has ended." %}</p>
-    {% elif not info.voted %}
+    {% elif info.can_vote %}
       <input type="submit" class="outline" value="{% trans "Submit" %}" />
-      <small>
+    {% elif not request.user.is_authenticated %}
+      <small>{% trans "Log in to vote." %}</small>
+    {% endif %}
+    {% if info.end_time %}
+      <small class="poll-end-time">
         {% with info.end_time as end_time %}
-          {% blocktrans %}Poll ending at {{ end_time }}{% endblocktrans %}
+          {% if info.ended %}
+            {% blocktrans %}Poll ended at {{ end_time }}{% endblocktrans %}
+          {% else %}
+            {% blocktrans %}Poll ending at {{ end_time }}{% endblocktrans %}
+          {% endif %}
         {% endwith %}
       </small>
     {% endif %}
