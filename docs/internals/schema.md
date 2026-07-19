@@ -17,8 +17,7 @@ Emitted for `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Gam
 | `api_url` | string | Relative API URL |
 | `category` | string | `book`, `movie`, `tv`, `music`, `game`, `podcast`, or `performance` |
 | `parent_uuid` | string? | Parent Work, show, season, podcast, or performance UUID |
-| `display_title` | string | Locale-selected display title |
-| `title` | string | Same locale-selected title |
+| `title` | string | Locale-selected display title |
 | `description` | string | Locale-selected description |
 | `localized_title` | `LocalizedLabel[]` | Titles by locale |
 | `localized_description` | `LocalizedLabel[]` | Descriptions by locale |
@@ -29,6 +28,7 @@ Emitted for `Edition`, `Movie`, `TVShow`, `TVSeason`, `TVEpisode`, `Album`, `Gam
 | `rating_count` | integer? | Number of ratings |
 | `rating_distribution` | `integer[]?` | Percentages for grades 1-2, 3-4, 5-6, 7-8, and 9-10 |
 | `tags` | `string[]?` | Public tags; normally populated only on detail and search surfaces |
+| `display_title` **deprecated** | string | Alias of `title` |
 | `brief` **deprecated** | string | Alias of `description` |
 
 ### LocalizedLabel
@@ -243,7 +243,6 @@ People detail responses (`GET /api/people/{uuid}`) and People returned by catalo
 | `url` | string |
 | `api_url` | string |
 | `people_type` | `person` or `organization` |
-| `display_name` | string |
 | `name` | string |
 | `bio` | string |
 | `localized_name` | `LocalizedLabel[]` |
@@ -253,6 +252,7 @@ People detail responses (`GET /api/people/{uuid}`) and People returned by catalo
 | `death_date` | string? |
 | `official_site` | string? |
 | `imdb` | string? |
+| `display_name` **deprecated** | string (alias of `name`) |
 
 ## People and credit endpoints
 
@@ -341,24 +341,3 @@ Name-only credits are included by the item credit endpoint with `person: null`.
 | `parent_uuid` | string? |
 | `display_title` | string |
 | `cover_image_url` | string? |
-
-## ActivityPub references
-
-Posts do not inline the full schema. Their catalog tag uses `CatalogTag`; `type` is the catalog model name. People references use `Person` or `Organization` as `type`.
-
-List entries carry the item URL in `withRegardTo`. Dereference an item URL with an ActivityPub JSON `Accept` header for the full object above.
-
-### CatalogTag
-
-| Field | Type |
-| --- | --- |
-| `type` | string |
-| `href` | string |
-| `name` | string |
-| `image` | string? |
-
-### CollectionItemReference
-
-| Field | Type |
-| --- | --- |
-| `withRegardTo` | string |

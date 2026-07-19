@@ -112,7 +112,8 @@ class PeopleSchema(Schema):
     url: str
     api_url: str
     people_type: str
-    display_name: str
+    # display_name is deprecated, use name instead
+    display_name: str = Field(deprecated=True)
     name: str = Field(alias="display_name")
     bio: str = Field(default="", alias="display_description")
     localized_name: list[LocalizedLabelSchema] = []

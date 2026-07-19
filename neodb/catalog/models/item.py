@@ -217,7 +217,8 @@ class BaseSchema(Schema):
     api_url: str
     category: ItemCategory
     parent_uuid: str | None
-    display_title: str
+    # display_title is deprecated, use title instead
+    display_title: str = Field(deprecated=True)
     external_resources: list[ExternalResourceSchema] | None
     credits: list[CreditSchema] = Field([], alias="api_credits")
 
