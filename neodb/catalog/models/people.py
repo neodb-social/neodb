@@ -21,6 +21,7 @@ from .common import (
     LocalizedLabelSchema,
 )
 from .item import (
+    CreditRole,
     Item,
     ItemCategory,
     ItemType,
@@ -73,6 +74,24 @@ class PeopleRole(models.TextChoices):
             cls.PUBLISHING_HOUSE,
             cls.TROUPE,
         }
+
+
+def credit_role_label(role: str) -> "StrOrPromise":
+    """Human label for an ``ItemCredit`` role value.
+
+    ItemCredit uses the CreditRole vocabulary, which includes a few values
+    (e.g. ``imprint``) that PeopleRole lacks. Prefer the PeopleRole label
+    (capitalized, matching the historical people-page UI) and fall back to
+    CreditRole, then the raw value, so no role ever raises here.
+    """
+    try:
+        return PeopleRole(role).label
+    except ValueError:
+        pass
+    try:
+        return CreditRole(role).label
+    except ValueError:
+        return role
 
 
 class PeopleInSchema(Schema):
@@ -190,6 +209,10 @@ class People(Item):
             return f"/{self.url_path_organization}/{self.uuid}"
         return f"/{self.url_path_person}/{self.uuid}"
 
+    @property
+    def api_url(self):
+        return f"/api/people/{self.uuid}"
+
     def get_localized_name(self) -> str | None:
         if self.localized_name:
             locales = get_current_locales()
@@ -252,7 +275,15 @@ class People(Item):
         from .item import Item
 
         limit = self.RELATED_ITEMS_DISPLAY_LIMIT
-        relations = self.item_relations.order_by("role").values_list("role", "item_id")
+        # Read from ItemCredit (credited_items is the reverse FK of
+        # ItemCredit.person); distinct because ItemCredit has no
+        # (item, person, role) unique constraint, unlike the deprecated
+        # ItemPeopleRelation.
+        relations = (
+            self.credited_items.order_by("role")
+            .values_list("role", "item_id")
+            .distinct()
+        )
         role_item_ids: OrderedDict[str, list[int]] = OrderedDict()
         for role, item_id in relations:
             role_item_ids.setdefault(role, []).append(item_id)
@@ -280,40 +311,12 @@ class People(Item):
         return [
             (
                 role,
-                PeopleRole(role).label,
+                credit_role_label(role),
                 len(live),
                 [items_by_id[i] for i in live[:limit] if i in items_by_id],
             )
             for role, live in role_live_ids.items()
         ]
-
-    @staticmethod
-    def _credit_role_to_people_role(credit_role: str) -> str | None:
-        """Map CreditRole value to PeopleRole value."""
-        mapping = {
-            "author": PeopleRole.AUTHOR,
-            "translator": PeopleRole.TRANSLATOR,
-            "director": PeopleRole.DIRECTOR,
-            "playwright": PeopleRole.PLAYWRIGHT,
-            "actor": PeopleRole.ACTOR,
-            "producer": PeopleRole.PRODUCER,
-            "artist": PeopleRole.ARTIST,
-            "designer": PeopleRole.DESIGNER,
-            "composer": PeopleRole.COMPOSER,
-            "choreographer": PeopleRole.CHOREOGRAPHER,
-            "performer": PeopleRole.PERFORMER,
-            "host": PeopleRole.HOST,
-            "original_creator": PeopleRole.ORIGINAL_CREATOR,
-            "crew": PeopleRole.CREW,
-            "publisher": PeopleRole.PUBLISHER,
-            "developer": PeopleRole.DEVELOPER,
-            "production_company": PeopleRole.PRODUCTION_COMPANY,
-            "record_label": PeopleRole.RECORD_LABEL,
-            "distributor": PeopleRole.DISTRIBUTOR,
-            "studio": PeopleRole.STUDIO,
-            "troupe": PeopleRole.TROUPE,
-        }
-        return mapping.get(credit_role)
 
     @classmethod
     def create_from_external_resource(cls, p: "ExternalResource") -> Self:
@@ -333,23 +336,8 @@ class People(Item):
             not self.is_deleted
             and not self.merged_to_item_id
             and not self.merged_from_items.exists()
-            and not self.item_relations.exists()
             and not self.credited_items.exists()
         )
-
-    def merge_relations(self, to_item):
-        for link in self.item_relations.all():
-            existing_link = to_item.item_relations.filter(
-                item=link.item, people=to_item, role=link.role
-            ).first()
-            if existing_link:
-                if link.character and not existing_link.character:
-                    existing_link.character = link.character
-                    existing_link.save()
-                link.delete()
-            else:
-                link.people = to_item
-                link.save()
 
     def merge_credits(self, to_item):
         """Reparent ItemCredits from this person to the target person."""
@@ -363,7 +351,6 @@ class People(Item):
         super().merge_to(to_item)
         if not to_item:
             return
-        self.merge_relations(to_item)
         self.merge_credits(to_item)
 
     def update_index(self, later: bool = False):
@@ -466,7 +453,18 @@ class People(Item):
 
 
 class ItemPeopleRelation(models.Model):
-    """Through model linking Items to People with roles"""
+    """DEPRECATED (2026-07-19): through model linking Items to People with roles.
+
+    Superseded by :class:`~catalog.models.item.ItemCredit`, which is now the
+    single source of truth for item<->people links. As of 2026-07-19 this model
+    is no longer read or written by application code; existing rows were
+    backfilled into ItemCredit (see
+    ``catalog.common.migrations.backfill_credits_from_relations_20260719``).
+
+    The table is intentionally retained (not dropped) so the backfill can be
+    verified and rolled back if needed; a follow-up change will remove it. Do
+    not add new reads or writes here -- use ItemCredit instead.
+    """
 
     item = models.ForeignKey(
         Item, on_delete=models.CASCADE, related_name="people_relations"

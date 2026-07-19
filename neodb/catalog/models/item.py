@@ -142,11 +142,20 @@ class CreditRole(models.TextChoices):
     Distributor = "distributor", _("distributor")
     Studio = "studio", _("studio")
     Troupe = "troupe", _("troupe")
+    # Roles retained from the deprecated ItemPeopleRelation/PeopleRole vocabulary
+    # so ItemCredit can faithfully represent every historical relation role.
+    VoiceActor = "voice_actor", _("voice actor")
+    PublishingHouse = "publishing_house", _("publishing house")
+    Imprint = "imprint", _("imprint")
 
 
 class ItemCredit(models.Model):
     """Links a person to an item with a role. Person FK is optional --
     when null, the credit is ad-hoc (name only, not linked to a People item)."""
+
+    if TYPE_CHECKING:
+        item_id: int
+        person_id: int | None
 
     item = models.ForeignKey("Item", on_delete=models.CASCADE, related_name="credits")
     person = models.ForeignKey(
@@ -424,30 +433,6 @@ class Item(PolymorphicModel):
             self, action=LogEntry.Action.UPDATE, changes=changes
         )
 
-    def merge_people_relations(self, to_item: Self) -> bool:
-        """Merge people relations from this item to the target item"""
-        updated = False
-        for relation in self.people_relations.all():
-            existing_relation = to_item.people_relations.filter(
-                people=relation.people, role=relation.role
-            ).first()
-            if existing_relation:
-                save_existing = False
-                if relation.character and not existing_relation.character:
-                    existing_relation.character = relation.character
-                    save_existing = True
-                if relation.metadata and not existing_relation.metadata:
-                    existing_relation.metadata = relation.metadata
-                    save_existing = True
-                if save_existing:
-                    existing_relation.save()
-                relation.delete()
-            else:
-                relation.item = to_item
-                relation.save()
-                updated = True
-        return updated
-
     def merge_to(self, to_item: Self | None):
         if to_item is None:
             if self.merged_to_item is not None:
@@ -491,7 +476,6 @@ class Item(PolymorphicModel):
             to_item.cover = self.cover
             updated = True
         updated |= to_item.normalize_metadata()
-        updated |= self.merge_people_relations(to_item)
         # Reparent ItemCredits to the target item
         for credit in self.credits.all():
             existing = to_item.credits.filter(
@@ -1331,8 +1315,8 @@ class Item(PolymorphicModel):
         from .people import People
 
         return People.objects.filter(
-            item_relations__item=self, item_relations__role=role
-        )
+            credited_items__item=self, credited_items__role=role
+        ).distinct()
 
     def get_credits_by_role(self, role: str) -> "QuerySet[ItemCredit]":
         return self.credits.filter(role=role).select_related("person")

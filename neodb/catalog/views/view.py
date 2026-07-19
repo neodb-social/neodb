@@ -35,13 +35,15 @@ from journal.models import (
 from takahe.utils import Takahe
 
 from ..models import (
+    CreditRole,
     ExternalResource,
     IdType,
     Item,
+    ItemCredit,
     Podcast,
     TVEpisode,
 )
-from ..models.people import ItemPeopleRelation, People, PeopleRole
+from ..models.people import People, credit_role_label
 from ..recommendation import blended_for_discover, can_show_reco, similar_items
 from ..sites import WikiData
 
@@ -178,26 +180,26 @@ def retrieve(request, item_path, item_uuid):
 @require_http_methods(["GET"])
 def people_works(request, item_path, item_uuid, role):
     item = get_object_or_404(People, uid=get_uuid_or_404(item_uuid))
-    if role not in PeopleRole.values:
+    if role not in CreditRole.values:
         raise Http404(_("Invalid role"))
     final = item.final_item
     if final.is_deleted:
         raise Http404(_("Item no longer exists"))
     if final is not item:
         return redirect(f"{final.url}/works/{role}")
-    role_label = PeopleRole(role).label
+    role_label = credit_role_label(role)
 
-    # All roles this person has, for the role filter dropdown
+    # All roles this person has, for the role filter dropdown. Read from
+    # ItemCredit (person side); distinct because ItemCredit has no
+    # (item, person, role) unique constraint.
     all_roles = (
-        ItemPeopleRelation.objects.filter(people=item)
-        .values_list("role", flat=True)
-        .distinct()
+        ItemCredit.objects.filter(person=item).values_list("role", flat=True).distinct()
     )
-    role_choices = [(r, PeopleRole(r).label) for r in all_roles]
+    role_choices = [(r, credit_role_label(r)) for r in all_roles]
 
     # Filter by role
-    qs = ItemPeopleRelation.objects.filter(people=item, role=role)
-    item_ids = list(qs.values_list("item_id", flat=True))
+    qs = ItemCredit.objects.filter(person=item, role=role)
+    item_ids = list(qs.values_list("item_id", flat=True).distinct())
     works_qs = Item.objects.filter(
         pk__in=item_ids, is_deleted=False, merged_to_item__isnull=True
     )

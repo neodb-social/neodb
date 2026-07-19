@@ -11,7 +11,6 @@ from catalog.models import (
     ExternalResource,
     Game,
     ItemCredit,
-    ItemPeopleRelation,
     Movie,
     People,
     PeopleRole,
@@ -19,6 +18,7 @@ from catalog.models import (
     Performance,
 )
 from catalog.models.common import IdType
+from catalog.models.people import credit_role_label
 from catalog.sites.douban_personage import (
     _parse_douban_date,
     _split_alt_names,
@@ -111,21 +111,21 @@ class TestPeople:
             title="Daniel Simmons", people_type=PeopleType.PERSON
         )
 
-        # Create link for person1
-        link1 = ItemPeopleRelation.objects.create(
-            item=book, people=person1, role=PeopleRole.AUTHOR
+        # Create credit linked to person1
+        credit1 = ItemCredit.objects.create(
+            item=book, person=person1, role=PeopleRole.AUTHOR, name="Dan Simmons"
         )
 
         # Merge person1 to person2
         person1.merge_to(person2)
 
-        # Link should now point to person2
-        link1.refresh_from_db()
-        assert link1.people == person2
+        # Credit should now point to person2
+        credit1.refresh_from_db()
+        assert credit1.person == person2
 
-        # Should have only one link for this item-role combination
-        links = ItemPeopleRelation.objects.filter(item=book, role=PeopleRole.AUTHOR)
-        assert links.count() == 1
+        # Still a single credit for this item-role combination
+        credits = ItemCredit.objects.filter(item=book, role=PeopleRole.AUTHOR)
+        assert credits.count() == 1
 
     def test_people_merge_duplicate_links(self):
         book = Edition.objects.create(title="Hyperion")
@@ -136,23 +136,22 @@ class TestPeople:
             title="Daniel Simmons", people_type=PeopleType.PERSON
         )
 
-        # Create same role links for both people
-        ItemPeopleRelation.objects.create(
-            item=book, people=person1, role=PeopleRole.AUTHOR
+        # Create same role credits for both people
+        ItemCredit.objects.create(
+            item=book, person=person1, role=PeopleRole.AUTHOR, name="Dan Simmons"
         )
-        ItemPeopleRelation.objects.create(
-            item=book, people=person2, role=PeopleRole.AUTHOR
+        ItemCredit.objects.create(
+            item=book, person=person2, role=PeopleRole.AUTHOR, name="Daniel Simmons"
         )
 
         # Merge person1 to person2
         person1.merge_to(person2)
 
-        # Should have only one link remaining (duplicate removed)
-        relations = ItemPeopleRelation.objects.filter(item=book, role=PeopleRole.AUTHOR)
-        assert relations.count() == 1
-        r = relations.first()
-        assert r is not None
-        assert r.people == person2
+        # merge_credits reparents person1's credit to person2; both now belong
+        # to person2 (People-side merge reparents rather than dedupes).
+        credits = ItemCredit.objects.filter(item=book, role=PeopleRole.AUTHOR)
+        assert credits.count() == 2
+        assert all(c.person == person2 for c in credits)
 
     def test_people_soft_delete(self):
         person = People.objects.create(people_type=PeopleType.PERSON)
@@ -167,8 +166,8 @@ class TestPeople:
             metadata=_DAN_SIMMONS_METADATA, people_type=PeopleType.PERSON
         )
 
-        ItemPeopleRelation.objects.create(
-            item=book, people=person, role=PeopleRole.AUTHOR
+        ItemCredit.objects.create(
+            item=book, person=person, role=PeopleRole.AUTHOR, name="Dan Simmons"
         )
 
         assert not person.is_deletable()
@@ -218,19 +217,22 @@ class TestPeople:
             brief="Publishing company",
         )
 
-        # Create relations
-        ItemPeopleRelation.objects.create(
-            item=book, people=author, role=PeopleRole.AUTHOR
+        # Create credits
+        ItemCredit.objects.create(
+            item=book, person=author, role=PeopleRole.AUTHOR, name=author.display_name
         )
-        ItemPeopleRelation.objects.create(
-            item=book, people=publisher, role=PeopleRole.PUBLISHER
+        ItemCredit.objects.create(
+            item=book,
+            person=publisher,
+            role=PeopleRole.PUBLISHER,
+            name=publisher.display_name,
         )
 
         # Test that get_people_by_role returns People queryset
         authors = book.get_people_by_role(PeopleRole.AUTHOR)
         publishers = book.get_people_by_role(PeopleRole.PUBLISHER)
 
-        # Should return People objects, not ItemPeopleRelation objects
+        # Should return People objects, not ItemCredit objects
         assert authors.count() == 1
         assert isinstance(authors.first(), People)
         assert authors.first() == author
@@ -244,7 +246,7 @@ class TestPeople:
         assert directors.count() == 0
 
     def test_item_merge_with_people_relations(self):
-        """Test that people relations are merged when items are merged"""
+        """Test that people credits are merged when items are merged"""
         # Create two books
         book1 = Edition.objects.create(title="Hyperion First Edition")
         book2 = Edition.objects.create(title="Hyperion Second Edition")
@@ -261,26 +263,29 @@ class TestPeople:
             brief="Publishing company",
         )
 
-        # Create relations for book1
-        ItemPeopleRelation.objects.create(
-            item=book1, people=author, role=PeopleRole.AUTHOR
+        # Create credits for book1
+        ItemCredit.objects.create(
+            item=book1, person=author, role=PeopleRole.AUTHOR, name=author.display_name
         )
-        ItemPeopleRelation.objects.create(
-            item=book1, people=publisher, role=PeopleRole.PUBLISHER
+        ItemCredit.objects.create(
+            item=book1,
+            person=publisher,
+            role=PeopleRole.PUBLISHER,
+            name=publisher.display_name,
         )
 
         # Verify initial state
-        assert book1.people_relations.count() == 2
-        assert book2.people_relations.count() == 0
+        assert book1.credits.count() == 2
+        assert book2.credits.count() == 0
 
         # Merge book1 to book2
         book1.merge_to(book2)
 
-        # Verify relations were transferred
-        assert book1.people_relations.count() == 0  # Relations moved from book1
-        assert book2.people_relations.count() == 2  # Relations moved to book2
+        # Verify credits were transferred
+        assert book1.credits.count() == 0  # Credits moved from book1
+        assert book2.credits.count() == 2  # Credits moved to book2
 
-        # Verify the actual relations
+        # Verify the actual credits
         book2_authors = book2.get_people_by_role(PeopleRole.AUTHOR)
         book2_publishers = book2.get_people_by_role(PeopleRole.PUBLISHER)
 
@@ -290,7 +295,7 @@ class TestPeople:
         assert book2_publishers.first() == publisher
 
     def test_item_merge_with_duplicate_people_relations(self):
-        """Test merging items when both have relations to the same people with same roles"""
+        """Test merging items when both have credits to the same people with same roles"""
         # Create two books
         book1 = Edition.objects.create(title="Hyperion First Edition")
         book2 = Edition.objects.create(title="Hyperion Second Edition")
@@ -302,37 +307,39 @@ class TestPeople:
             brief="Science fiction author",
         )
 
-        # Create same author relation for both books
-        ItemPeopleRelation.objects.create(
+        # Create same author credit for both books
+        ItemCredit.objects.create(
             item=book1,
-            people=author,
+            person=author,
             role=PeopleRole.ACTOR,
-            character="Kassad",  # book1 has character info
+            name=author.display_name,
+            character_name="Kassad",  # book1 has character info
         )
-        ItemPeopleRelation.objects.create(
+        ItemCredit.objects.create(
             item=book2,
-            people=author,
+            person=author,
             role=PeopleRole.ACTOR,
+            name=author.display_name,
             # book2 has no character info
         )
 
         # Verify initial state
-        assert book1.people_relations.count() == 1
-        assert book2.people_relations.count() == 1
+        assert book1.credits.count() == 1
+        assert book2.credits.count() == 1
 
         # Merge book1 to book2
         book1.merge_to(book2)
 
-        # Verify only one relation remains (duplicate removed)
-        assert book1.people_relations.count() == 0
-        assert book2.people_relations.count() == 1
+        # Verify only one credit remains (deduped by role+name on the item side)
+        assert book1.credits.count() == 0
+        assert book2.credits.count() == 1
 
         # Verify character info was preserved from book1
-        remaining_relation = book2.people_relations.first()
-        assert remaining_relation is not None
-        assert remaining_relation.people == author
-        assert remaining_relation.role == PeopleRole.ACTOR
-        assert remaining_relation.character == "Kassad"
+        remaining_credit = book2.credits.first()
+        assert remaining_credit is not None
+        assert remaining_credit.person == author
+        assert remaining_credit.role == PeopleRole.ACTOR
+        assert remaining_credit.character_name == "Kassad"
 
     def test_bio(self):
         person = People.objects.create(
@@ -1199,14 +1206,17 @@ class TestRelatedItemsByRole:
             metadata={"localized_name": [{"lang": "en", "text": "Multi-talent"}]},
             people_type=PeopleType.PERSON,
         )
-        ItemPeopleRelation.objects.create(
-            item=movie1, people=person, role=PeopleRole.DIRECTOR
+        ItemCredit.objects.create(
+            item=movie1,
+            person=person,
+            role=PeopleRole.DIRECTOR,
+            name=person.display_name,
         )
-        ItemPeopleRelation.objects.create(
-            item=movie2, people=person, role=PeopleRole.ACTOR
+        ItemCredit.objects.create(
+            item=movie2, person=person, role=PeopleRole.ACTOR, name=person.display_name
         )
-        ItemPeopleRelation.objects.create(
-            item=book, people=person, role=PeopleRole.AUTHOR
+        ItemCredit.objects.create(
+            item=book, person=person, role=PeopleRole.AUTHOR, name=person.display_name
         )
         groups = person.related_items_by_role
         assert len(groups) == 3
@@ -1223,8 +1233,11 @@ class TestRelatedItemsByRole:
             metadata={"localized_name": [{"lang": "en", "text": "Person"}]},
             people_type=PeopleType.PERSON,
         )
-        ItemPeopleRelation.objects.create(
-            item=movie, people=person, role=PeopleRole.DIRECTOR
+        ItemCredit.objects.create(
+            item=movie,
+            person=person,
+            role=PeopleRole.DIRECTOR,
+            name=person.display_name,
         )
         movie.is_deleted = True
         movie.save()
@@ -1232,30 +1245,22 @@ class TestRelatedItemsByRole:
         assert len(groups) == 0
 
 
-@pytest.mark.django_db(databases="__all__")
-class TestCreditRoleMapping:
-    def test_all_credit_roles_map(self):
-        """All CreditRole values that have a PeopleRole equivalent should map correctly."""
-        mapped = {
-            CreditRole.Author: PeopleRole.AUTHOR,
-            CreditRole.Director: PeopleRole.DIRECTOR,
-            CreditRole.Actor: PeopleRole.ACTOR,
-            CreditRole.Playwright: PeopleRole.PLAYWRIGHT,
-            CreditRole.Composer: PeopleRole.COMPOSER,
-            CreditRole.Artist: PeopleRole.ARTIST,
-            CreditRole.Designer: PeopleRole.DESIGNER,
-            CreditRole.Performer: PeopleRole.PERFORMER,
-            CreditRole.Host: PeopleRole.HOST,
-            CreditRole.Publisher: PeopleRole.PUBLISHER,
-            CreditRole.Developer: PeopleRole.DEVELOPER,
-        }
-        for credit_role, people_role in mapped.items():
-            result = People._credit_role_to_people_role(credit_role)
-            assert result == people_role, f"{credit_role} should map to {people_role}"
+class TestCreditRoleLabel:
+    def test_prefers_people_role_label(self):
+        # Values shared by both vocabularies use the capitalized PeopleRole label.
+        assert credit_role_label(CreditRole.Author.value) == PeopleRole.AUTHOR.label
+        assert credit_role_label(CreditRole.Director.value) == PeopleRole.DIRECTOR.label
+        assert (
+            credit_role_label(CreditRole.VoiceActor.value)
+            == PeopleRole.VOICE_ACTOR.label
+        )
 
-    def test_unmapped_role_returns_none(self):
-        result = People._credit_role_to_people_role("nonexistent_role")
-        assert result is None
+    def test_falls_back_to_credit_role_label(self):
+        # ``imprint`` exists in CreditRole but not PeopleRole.
+        assert credit_role_label(CreditRole.Imprint.value) == CreditRole.Imprint.label
+
+    def test_unknown_role_returns_raw_value(self):
+        assert credit_role_label("nonexistent_role") == "nonexistent_role"
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -17,7 +17,6 @@ from catalog.models import (
     PeopleType,
     Work,
 )
-from catalog.models.people import ItemPeopleRelation
 from journal.models import Collection, Mark, ShelfType, Tag
 from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
@@ -1003,9 +1002,6 @@ class TestPeopleWorksPrefetch:
                 person=self.author,
                 role=CreditRole.Author,
                 name=self.author.display_name,
-            )
-            ItemPeopleRelation.objects.create(
-                item=book, people=self.author, role=PeopleRole.AUTHOR
             )
             ExternalResource.objects.create(
                 item=book,

@@ -217,6 +217,14 @@ class Command(SiteCommand):
                 )
 
                 edition_normalize_publisher_imprint_20260428(batch_size=batch_size)
+            case "backfill_credits_from_relations":
+                from catalog.common.migrations import (
+                    backfill_credits_from_relations_20260719,
+                )
+
+                backfill_credits_from_relations_20260719(
+                    start_pk=start or 0, batch_size=batch_size
+                )
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -548,8 +556,8 @@ class Command(SiteCommand):
         start=None,
         force_rescrape=False,
     ):
-        """Materialize People (and link ItemCredits / ItemPeopleRelations) from
-        existing Items' ExternalResources.
+        """Materialize People (and link ItemCredits) from existing Items'
+        ExternalResources.
 
         Iterates Item-side ExternalResources of the given IdType, and for each
         one, promotes its related_resources People links to actual People rows

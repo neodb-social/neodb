@@ -10,10 +10,8 @@ from catalog.models import (
     ExternalResource,
     IdType,
     ItemCredit,
-    ItemPeopleRelation,
     Movie,
     People,
-    PeopleRole,
     PeopleType,
 )
 
@@ -225,9 +223,6 @@ class TestBackfillPeople:
         )
         credit.refresh_from_db()
         assert credit.person == person
-        assert ItemPeopleRelation.objects.filter(
-            item=movie, people=person, role=PeopleRole.DIRECTOR
-        ).exists()
 
     def test_scraped_resource_without_people_is_not_rescraped(self):
         """A resource that has already been scraped and genuinely has no
@@ -277,7 +272,7 @@ class TestFetchLinkedResourcesSibling:
 
     def _movie_with_credit_and_person(self, person_resource):
         """Helper: build a Movie, an ItemCredit for 'Bryan Cranston', and a
-        pre-existing People tied to that credit via ItemPeopleRelation."""
+        pre-existing People linked to that credit."""
         movie = Movie.objects.create(
             metadata={
                 "localized_title": [{"lang": "en", "text": "Breaking Stub"}],
@@ -306,9 +301,6 @@ class TestFetchLinkedResourcesSibling:
             name="Bryan Cranston",
             person=person,
             order=0,
-        )
-        ItemPeopleRelation.objects.create(
-            item=movie, people=person, role=PeopleRole.DIRECTOR
         )
         return movie, resource, person
 
@@ -448,9 +440,6 @@ class TestFetchLinkedResourcesSibling:
             name="成龙",
             person=person,
             order=0,
-        )
-        ItemPeopleRelation.objects.create(
-            item=movie, people=person, role=PeopleRole.DIRECTOR
         )
         # URL-only link -- no id_type / id_value. Covered by extract_people_
         # links_from_anchors for author/musician redirects.
@@ -608,9 +597,6 @@ class TestLinkRequesterCredits:
         )
         credit.refresh_from_db()
         assert credit.person == person_resource.item
-        assert ItemPeopleRelation.objects.filter(
-            item=movie, people=person_resource.item, role=PeopleRole.DIRECTOR
-        ).exists()
 
     @use_local_response
     def test_fan_out_does_not_link_unrelated_items_same_name(self):

@@ -632,6 +632,98 @@ def populate_credits_extra_20260415(batch_size=1000):
     logger.success(f"Total credits created: {total_created}")
 
 
+def backfill_credits_from_relations_20260719(start_pk=0, batch_size=1000):
+    """Backfill ItemCredit from the deprecated ItemPeopleRelation table.
+
+    For each live relation ``(item, person, role)``: if a matching
+    ``ItemCredit(item, person, role)`` already exists, skip it; otherwise create
+    one using the person's display name and the relation's ``character``. This
+    guarantees ItemCredit is a superset of every person<->item link the old
+    table held, so reads that moved from ItemPeopleRelation to ItemCredit lose
+    nothing.
+
+    Only relations whose item and person are both live (not deleted, not merged)
+    are copied -- links on dead rows are invisible everywhere and the raw
+    ItemPeopleRelation table is retained, so they remain recoverable.
+
+    Idempotent: safe to rerun; already-represented relations are skipped.
+    """
+    from django.core.paginator import Paginator
+
+    from catalog.models import ItemCredit
+    from catalog.models.people import ItemPeopleRelation
+
+    qs = (
+        ItemPeopleRelation.objects.filter(
+            pk__gte=start_pk,
+            item__is_deleted=False,
+            item__merged_to_item__isnull=True,
+            people__is_deleted=False,
+            people__merged_to_item__isnull=True,
+        )
+        .select_related("people")
+        .order_by("pk")
+    )
+    total = qs.count()
+    logger.info(f"Backfilling ItemCredit from {total} ItemPeopleRelation rows...")
+    sentry_count(
+        "migration",
+        attributes={"name": "catalog.backfill_credits_from_relations.start"},
+    )
+    created = 0
+    skipped = 0
+    no_name = 0
+    pending: list[ItemCredit] = []
+    pg = Paginator(qs, batch_size)
+
+    def flush():
+        nonlocal created
+        if pending:
+            ItemCredit.objects.bulk_create(pending)
+            created += len(pending)
+            pending.clear()
+
+    for page_num in tqdm(pg.page_range, desc="Relations"):
+        for relation in pg.get_page(page_num).object_list:
+            if ItemCredit.objects.filter(
+                item_id=relation.item_id,
+                person_id=relation.people_id,
+                role=relation.role,
+            ).exists():
+                skipped += 1
+                continue
+            name = relation.people.display_name if relation.people else ""
+            if not name:
+                no_name += 1
+                continue
+            pending.append(
+                ItemCredit(
+                    item_id=relation.item_id,
+                    person_id=relation.people_id,
+                    role=relation.role,
+                    name=name,
+                    character_name=relation.character or "",
+                    order=0,
+                )
+            )
+        if len(pending) >= batch_size:
+            flush()
+    flush()
+    sentry_count(
+        "migration",
+        created,
+        attributes={"name": "catalog.backfill_credits_from_relations"},
+    )
+    sentry_count(
+        "migration",
+        attributes={"name": "catalog.backfill_credits_from_relations.end"},
+    )
+    logger.success(
+        f"Backfill complete: {created} created, {skipped} already present, "
+        f"{no_name} skipped (person has no name); {total} relations scanned."
+    )
+
+
 def link_credits_20260412():
     """Link unlinked ItemCredits to matching People items."""
     from catalog.models import ItemCredit, People

@@ -365,7 +365,7 @@ class SiteManager:
 
         Returns the number of newly linked credits.
         """
-        from ..models import ItemCredit, ItemPeopleRelation, People
+        from ..models import ItemCredit, People
 
         if requester_item is None or person is None or not isinstance(person, People):
             return 0
@@ -392,20 +392,6 @@ class SiteManager:
         linked_count = ItemCredit.objects.filter(
             pk__in=ids, person__isnull=True
         ).update(person=person)
-        # Create ItemPeopleRelation once per distinct role across all credits
-        # now linking person to requester_item (including ones a concurrent
-        # worker may have linked).
-        roles = (
-            ItemCredit.objects.filter(pk__in=ids, person=person)
-            .values_list("role", flat=True)
-            .distinct()
-        )
-        for credit_role in roles:
-            role = People._credit_role_to_people_role(credit_role)
-            if role:
-                ItemPeopleRelation.objects.get_or_create(
-                    item=requester_item, people=person, role=role
-                )
         if linked_count:
             logger.info(
                 f"Linked {linked_count} credits on {requester_item} to {person}"
@@ -432,30 +418,17 @@ class SiteManager:
             return None
         from ..models import People
 
-        # People already attached to parent_item (via credit or relation) whose
-        # localized_name contains the link's display name. The credit/relation
-        # condition is split into two index-driven queries instead of a single
-        # OR across both join tables: the OR plan degraded into a slow scan over
-        # catalog_people with DISTINCT (EGGPLANT-1CV, ~1.4s), whereas each branch
-        # drives from the itemcredit/itempeoplerelation (item) index over the
-        # handful of people attached to one item.
+        # People already credited on parent_item (via ItemCredit) whose
+        # localized_name contains the link's display name. Driving from the
+        # itemcredit (item) index over the handful of people attached to one
+        # item keeps this off the slow DISTINCT scan over catalog_people
+        # (EGGPLANT-1CV).
         base = People.objects.filter(
             is_deleted=False,
             merged_to_item__isnull=True,
             metadata__localized_name__contains=[{"text": name}],
         )
-        candidates = []
-        candidate_pks: set[int] = set()
-        for branch in (
-            base.filter(credited_items__item=parent_item).distinct(),
-            base.filter(item_relations__item=parent_item).distinct(),
-        ):
-            for person in branch[:2]:
-                if person.pk not in candidate_pks:
-                    candidate_pks.add(person.pk)
-                    candidates.append(person)
-            if len(candidates) > 1:
-                break
+        candidates = list(base.filter(credited_items__item=parent_item).distinct()[:2])
         if len(candidates) != 1:
             return None
         c = candidates[0]

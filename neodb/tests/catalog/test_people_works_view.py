@@ -3,7 +3,7 @@ from django.test import Client
 
 from catalog.models import (
     Edition,
-    ItemPeopleRelation,
+    ItemCredit,
     Movie,
     People,
     PeopleRole,
@@ -31,6 +31,13 @@ def _director(name: str = "Jane Director") -> People:
     )
 
 
+def _credit(item, person: People, role) -> ItemCredit:
+    """Create the ItemCredit link the people-works view now reads from."""
+    return ItemCredit.objects.create(
+        item=item, person=person, role=role, name=person.display_name
+    )
+
+
 @pytest.mark.django_db(databases="__all__")
 class TestPeopleWorksHidesChildren:
     def test_hides_edition_when_work_credited(self):
@@ -38,12 +45,8 @@ class TestPeopleWorksHidesChildren:
         work = Work.objects.create(title="Hyperion")
         edition = Edition.objects.create(title="Hyperion (1989)")
         work.editions.add(edition)
-        ItemPeopleRelation.objects.create(
-            item=work, people=person, role=PeopleRole.AUTHOR
-        )
-        ItemPeopleRelation.objects.create(
-            item=edition, people=person, role=PeopleRole.AUTHOR
-        )
+        _credit(work, person, PeopleRole.AUTHOR)
+        _credit(edition, person, PeopleRole.AUTHOR)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.AUTHOR.value}")
         assert response.status_code == 200
@@ -59,12 +62,8 @@ class TestPeopleWorksHidesChildren:
         work = Work.objects.create(title="Hyperion")
         edition = Edition.objects.create(title="Hyperion (1989)")
         work.editions.add(edition)
-        ItemPeopleRelation.objects.create(
-            item=work, people=person, role=PeopleRole.AUTHOR
-        )
-        ItemPeopleRelation.objects.create(
-            item=edition, people=person, role=PeopleRole.AUTHOR
-        )
+        _credit(work, person, PeopleRole.AUTHOR)
+        _credit(edition, person, PeopleRole.AUTHOR)
         work.delete(soft=True)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.AUTHOR.value}")
@@ -77,12 +76,8 @@ class TestPeopleWorksHidesChildren:
         person = _director()
         show = TVShow.objects.create(title="Show")
         season = TVSeason.objects.create(title="Show S1", show=show, season_number=1)
-        ItemPeopleRelation.objects.create(
-            item=show, people=person, role=PeopleRole.DIRECTOR
-        )
-        ItemPeopleRelation.objects.create(
-            item=season, people=person, role=PeopleRole.DIRECTOR
-        )
+        _credit(show, person, PeopleRole.DIRECTOR)
+        _credit(season, person, PeopleRole.DIRECTOR)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.DIRECTOR.value}")
         assert response.status_code == 200
@@ -99,12 +94,8 @@ class TestPeopleWorksHidesChildren:
         episode = TVEpisode.objects.create(
             title="Show S1E1", season=season, episode_number=1
         )
-        ItemPeopleRelation.objects.create(
-            item=show, people=person, role=PeopleRole.DIRECTOR
-        )
-        ItemPeopleRelation.objects.create(
-            item=episode, people=person, role=PeopleRole.DIRECTOR
-        )
+        _credit(show, person, PeopleRole.DIRECTOR)
+        _credit(episode, person, PeopleRole.DIRECTOR)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.DIRECTOR.value}")
         assert response.status_code == 200
@@ -120,9 +111,7 @@ class TestPeopleWorksHidesChildren:
         episode = TVEpisode.objects.create(
             title="Show S1E1", season=season, episode_number=1
         )
-        ItemPeopleRelation.objects.create(
-            item=episode, people=person, role=PeopleRole.DIRECTOR
-        )
+        _credit(episode, person, PeopleRole.DIRECTOR)
 
         response = Client().get(f"{person.url}/works/{PeopleRole.DIRECTOR.value}")
         assert response.status_code == 200
@@ -136,12 +125,8 @@ class TestPeopleWorksHidesChildren:
         work = Work.objects.create(title="Hyperion")
         edition = Edition.objects.create(title="Hyperion (1989)")
         work.editions.add(edition)
-        ItemPeopleRelation.objects.create(
-            item=work, people=person, role=PeopleRole.AUTHOR
-        )
-        ItemPeopleRelation.objects.create(
-            item=edition, people=person, role=PeopleRole.AUTHOR
-        )
+        _credit(work, person, PeopleRole.AUTHOR)
+        _credit(edition, person, PeopleRole.AUTHOR)
 
         user = User.register(email="reader@example.com", username="reader")
         shelf = user.identity.shelf_manager.get_shelf(ShelfType.COMPLETE)
@@ -224,9 +209,7 @@ class TestPeopleWorksMarks:
         watched = Movie.objects.create(title="Watched Movie")
         unwatched = Movie.objects.create(title="Unwatched Movie")
         for movie in (watched, unwatched):
-            ItemPeopleRelation.objects.create(
-                item=movie, people=person, role=PeopleRole.DIRECTOR
-            )
+            _credit(movie, person, PeopleRole.DIRECTOR)
         user = User.register(email="viewer@example.com", username="viewer")
         shelf = user.identity.shelf_manager.get_shelf(ShelfType.COMPLETE)
         ShelfMember.objects.create(
