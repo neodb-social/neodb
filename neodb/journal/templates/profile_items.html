@@ -22,7 +22,7 @@
 </h5>
 <ul class="cards">
   {% for item in items %}
-    <li class="card" style="position: relative">
+    <li class="card progress-card">
       <a href="{{ item.url }}" title="{{ item.display_title }}">
         <img src="{{ item.cover|thumb:'normal' }}"
              alt="{{ item.display_title }}"
@@ -32,22 +32,11 @@
       {% if show_progress_badges %}
         {% if can_update_progress %}
           <a href="#"
+             class="progress-badge"
              hx-get="{% url 'journal:note' item.uuid %}?mode=progress"
              hx-target="body"
              hx-swap="beforeend"
-             title="{% if item.reading_progress %}{{ item.reading_progress }}{% else %}{% trans 'Set progress' %}{% endif %}"
-             style="position: absolute;
-                    top: 0.25rem;
-                    right: 0.25rem;
-                    z-index: 1;
-                    min-width: 1.75rem;
-                    padding: 0.15rem 0.35rem;
-                    border-radius: 0.75rem;
-                    background: var(--pico-primary-background);
-                    color: var(--pico-primary-inverse);
-                    font-size: 0.75rem;
-                    line-height: 1.25rem;
-                    text-align: center">
+             title="{% if item.reading_progress %}{{ item.reading_progress }}{% else %}{% trans 'Set progress' %}{% endif %}">
             {% if item.reading_progress_short %}
               {{ item.reading_progress_short }}
             {% else %}
@@ -55,19 +44,7 @@
             {% endif %}
           </a>
         {% else %}
-          <span title="{{ item.reading_progress|default:'' }}"
-                style="position: absolute;
-                       top: 0.25rem;
-                       right: 0.25rem;
-                       z-index: 1;
-                       min-width: 1.75rem;
-                       padding: 0.15rem 0.35rem;
-                       border-radius: 0.75rem;
-                       background: var(--pico-primary-background);
-                       color: var(--pico-primary-inverse);
-                       font-size: 0.75rem;
-                       line-height: 1.25rem;
-                       text-align: center">
+          <span class="progress-badge" title="{{ item.reading_progress|default:'' }}">
             {% if item.reading_progress_short %}
               {{ item.reading_progress_short }}
             {% else %}

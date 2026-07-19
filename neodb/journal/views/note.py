@@ -135,20 +135,17 @@ def note_edit(
     )
     form.instance.owner = owner
     form.instance.item = item
+    context = {
+        "item": item,
+        "note": note,
+        "form": form,
+        "mode": mode,
+        "can_update_progress": can_update_progress,
+        "has_current_progress": bool(mark.progress_value),
+    }
 
     if request.method == "GET":
-        return render(
-            request,
-            "note.html",
-            {
-                "item": item,
-                "note": note,
-                "form": form,
-                "mode": mode,
-                "can_update_progress": can_update_progress,
-                "has_current_progress": bool(mark.progress_value),
-            },
-        )
+        return render(request, "note.html", context)
 
     if mode == "progress":
         try:
@@ -156,13 +153,14 @@ def note_edit(
                 mark.set_progress(None, None)
             else:
                 if not form.is_valid():
-                    raise BadRequest(_("Invalid form data"))
+                    return render(request, "note.html", context, status=400)
                 mark.set_progress(
                     form.cleaned_data["progress_type"],
                     form.cleaned_data["progress_value"],
                 )
         except ValueError as error:
-            raise BadRequest(str(error)) from error
+            form.add_error("progress_value", str(error))
+            return render(request, "note.html", context, status=400)
         record_activity("progress", "web")
         return HttpResponseRedirect(_return_url(request))
 
@@ -173,9 +171,12 @@ def note_edit(
         return HttpResponseRedirect(_return_url(request))
 
     if not form.is_valid():
-        raise BadRequest(_("Invalid form data"))
+        return render(request, "note.html", context, status=400)
     if form.cleaned_data["update_progress"] and not can_update_progress:
-        raise BadRequest(_("Only in-progress books can have reading progress."))
+        form.add_error(
+            "update_progress", _("Only in-progress books can have reading progress.")
+        )
+        return render(request, "note.html", context, status=400)
 
     try:
         with transaction.atomic():
@@ -187,7 +188,8 @@ def note_edit(
                     form.cleaned_data["progress_value"],
                 )
     except ValueError as error:
-        raise BadRequest(str(error)) from error
+        form.add_error("progress_value", str(error))
+        return render(request, "note.html", context, status=400)
 
     record_activity("note", "web")
     return HttpResponseRedirect(_return_url(request))

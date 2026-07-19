@@ -115,14 +115,13 @@ class CalendarDaySchema(Schema):
 
 
 class ProgressSchema(Schema):
-    progress_type: Note.ProgressType | None
-    progress_value: str | None
-    progress_display: str
+    type: Note.ProgressType | None
+    value: str | None
 
 
 class ProgressInSchema(Schema):
-    progress_type: Note.ProgressType | None = None
-    progress_value: str | None = None
+    type: Note.ProgressType | None = None
+    value: str | None = None
 
 
 @api.get(
@@ -265,9 +264,8 @@ def get_item_progress(request, item_uuid: str, response: HttpResponse):
     if mark.shelf_type != ShelfType.PROGRESS:
         return Status(400, {"message": "Only in-progress items can have progress."})
     return {
-        "progress_type": mark.progress_type,
-        "progress_value": mark.progress_value,
-        "progress_display": mark.progress_display,
+        "type": mark.progress_type,
+        "value": mark.progress_value,
     }
 
 
@@ -300,14 +298,13 @@ def set_item_progress(
         )
     mark = Mark(request.user.identity, item)
     try:
-        mark.set_progress(progress.progress_type, progress.progress_value)
+        mark.set_progress(progress.type, progress.value)
     except ValueError as error:
         return Status(400, {"message": str(error)})
     record_activity("progress", "api")
     return {
-        "progress_type": mark.progress_type,
-        "progress_value": mark.progress_value,
-        "progress_display": mark.progress_display,
+        "type": mark.progress_type,
+        "value": mark.progress_value,
     }
 
 

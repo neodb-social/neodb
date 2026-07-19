@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Any, Iterable, Sequence
 
@@ -516,7 +516,22 @@ class Mark:
         )
         log_entry.progress_type = normalized_type
         log_entry.progress_value = normalized_value
-        log_entry.save()
+        while True:
+            try:
+                with transaction.atomic():
+                    log_entry.save(force_insert=True)
+                break
+            except IntegrityError:
+                collision_exists = ShelfLogEntry.objects.filter(
+                    owner_id=log_entry.owner_id,
+                    item_id=log_entry.item_id,
+                    shelf_type=log_entry.shelf_type,
+                    timestamp=log_entry.timestamp,
+                ).exists()
+                if not collision_exists:
+                    raise
+                log_entry.pk = None
+                log_entry.timestamp += timedelta(microseconds=1)
 
         if normalized_value:
             if current_progress:

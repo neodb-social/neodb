@@ -1064,22 +1064,20 @@ def test_book_progress_api_get_set_clear_and_logs():
     )
     assert response.status_code == 200
     assert response.json() == {
-        "progress_type": None,
-        "progress_value": None,
-        "progress_display": "",
+        "type": None,
+        "value": None,
     }
 
     response = client.post(
         f"/api/me/shelf/item/{item.uuid}/progress",
-        data=json.dumps({"progress_type": "page", "progress_value": "125"}),
+        data=json.dumps({"type": "page", "value": "125"}),
         content_type="application/json",
         HTTP_AUTHORIZATION=authorization,
     )
     assert response.status_code == 200
     assert response.json() == {
-        "progress_type": "page",
-        "progress_value": "125",
-        "progress_display": "Page 125",
+        "type": "page",
+        "value": "125",
     }
     assert Post.objects.count() == initial_post_count
     assert Mark(user.identity, item).latest_post_id == initial_post_id
@@ -1118,7 +1116,7 @@ def test_book_progress_api_get_set_clear_and_logs():
     Mark(user.identity, item).update(ShelfType.COMPLETE, visibility=0)
     response = client.post(
         f"/api/me/shelf/item/{item.uuid}/progress",
-        data=json.dumps({"progress_type": "page", "progress_value": "126"}),
+        data=json.dumps({"type": "page", "value": "126"}),
         content_type="application/json",
         HTTP_AUTHORIZATION=authorization,
     )

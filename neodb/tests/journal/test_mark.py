@@ -181,6 +181,35 @@ def test_set_book_progress_logs_change_without_new_post():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_set_book_progress_retries_log_timestamp_collision(monkeypatch):
+    user = User.register(email="progress-collision@example.com", username="progressdup")
+    book = Edition.objects.create(title="Progress Collision Book")
+    mark = Mark(user.identity, book)
+    mark.update(ShelfType.PROGRESS, visibility=0)
+    collision_time = timezone.now() + timedelta(days=1)
+    ShelfLogEntry.objects.create(
+        owner=user.identity,
+        item=book,
+        shelf_type=ShelfType.PROGRESS,
+        timestamp=collision_time,
+    )
+    monkeypatch.setattr(timezone, "now", lambda: collision_time)
+
+    progress_log = mark.set_progress(Note.ProgressType.PAGE, "42")
+
+    assert progress_log is not None
+    assert progress_log.timestamp == collision_time + timedelta(microseconds=1)
+    assert ShelfLogEntry.objects.filter(
+        owner=user.identity,
+        item=book,
+        shelf_type=ShelfType.PROGRESS,
+        timestamp=progress_log.timestamp,
+        progress_type=Note.ProgressType.PAGE,
+        progress_value="42",
+    ).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_backfill_member_progress_from_latest_progress_note():
     user = User.register(email="backfill-progress@example.com", username="backfillprog")
     current_book = Edition.objects.create(title="Backfilled Progress Book")
@@ -312,6 +341,8 @@ def test_edition_and_profile_show_and_update_book_progress(client):
     assert response.status_code == 200
     content = response.content.decode()
     assert "ch7" in content
+    assert 'class="card progress-card"' in content
+    assert 'class="progress-badge"' in content
     assert f"{note_url}?mode=progress" in content
 
     response = client.get(f"{note_url}?mode=progress")
@@ -369,6 +400,30 @@ def test_note_and_progress_dialog_modes(client):
     response = client.post(
         note_url,
         {
+            "mode": "progress",
+            "progress_type": "track",
+            "progress_value": "30",
+        },
+    )
+    assert response.status_code == 400
+    assert "progress_type" in response.context["form"].errors
+    assert Mark(user.identity, book).progress_value == "22"
+
+    response = client.post(
+        note_url,
+        {
+            "mode": "note",
+            "content": "A bound invalid note",
+            "visibility": "invalid",
+        },
+    )
+    assert response.status_code == 400
+    assert "visibility" in response.context["form"].errors
+    assert response.context["form"]["content"].value() == "A bound invalid note"
+
+    response = client.post(
+        note_url,
+        {
             "mode": "note",
             "content": "A note at another page",
             "title": "",
@@ -400,6 +455,31 @@ def test_note_and_progress_dialog_modes(client):
     response = client.get(reverse("journal:note", args=[book.uuid, note.uuid]))
     assert response.status_code == 200
     assert 'id="note-mode-selector"' not in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_note_dialog_rejects_progress_update_for_nonprogress_book(client):
+    user = User.register(email="note-wishlist@example.com", username="notewishlist")
+    book = Edition.objects.create(title="Wishlist Note Book")
+    Mark(user.identity, book).update(ShelfType.WISHLIST, visibility=0)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    note_url = reverse("journal:note", args=[book.uuid])
+
+    response = client.post(
+        note_url,
+        {
+            "mode": "note",
+            "content": "Do not update progress",
+            "visibility": "0",
+            "progress_type": "page",
+            "progress_value": "10",
+            "update_progress": "on",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "update_progress" in response.context["form"].errors
+    assert not Note.objects.filter(owner=user.identity, item=book).exists()
 
 
 @pytest.mark.django_db(databases="__all__")

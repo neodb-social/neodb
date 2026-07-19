@@ -78,6 +78,8 @@ def test_currently_reading_sidebar_progress_badges():
     unstarted_url = reverse("journal:note", args=[unstarted_book.uuid])
     assert f'hx-get="{progressed_url}?mode=progress"' in content
     assert f'hx-get="{unstarted_url}?mode=progress"' in content
+    assert content.count('class="card progress-card"') >= 2
+    assert content.count('class="progress-badge"') >= 2
     assert "p22" in content
     assert 'title="Page 22"' in content
     assert "fa-solid fa-percent" in content

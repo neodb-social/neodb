@@ -23,6 +23,26 @@
   }
 }
 
+.progress-card {
+  position: relative;
+}
+
+.shelf .progress-card > .progress-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  z-index: 1;
+  min-width: 1.75rem;
+  margin: 0;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.75rem;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  text-align: center;
+}
+
 #mark_date {
   width: unset !important;
 }
