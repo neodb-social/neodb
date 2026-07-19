@@ -79,6 +79,37 @@ def test_single_post_renders_converted_object_card(post_type):
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
+def test_deleted_preview_card_does_not_break_mastodon_serialization():
+    owner = User.register(email="deleted-card@example.com", username="deletedcard")
+    card = PreviewCard.objects.create(
+        state="fetched",
+        url="https://remote.test/view/deleted-card",
+        title="Deleted card",
+        image_url="https://remote.test/icons/deleted-card.png",
+    )
+    post = Post.objects.create(
+        author=owner.identity.takahe_identity,
+        local=True,
+        object_uri="https://example.com/objects/deleted-card",
+        url=card.url,
+        content="<p>Deleted card body</p>",
+        type=Post.Types.page,
+        type_data={"object": {"type": "Page"}},
+        preview_card=card,
+        visibility=Post.Visibilities.public,
+        state="fanned_out",
+    )
+    stale_post = Post.objects.get(pk=post.pk)
+    card_pk = card.pk
+
+    card.delete()
+
+    assert stale_post.preview_card_id == card_pk
+    assert stale_post.to_mastodon_json()["card"] is None
+    assert stale_post.converted_preview_card is None
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_single_question_renders_for_anonymous_and_allows_authenticated_vote():
     owner = User.register(email="poll-owner@example.com", username="pollowner")
     viewer = User.register(email="poll-viewer@example.com", username="pollviewer")

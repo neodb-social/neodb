@@ -29,6 +29,7 @@ from common.validators import is_valid_url
 
 from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
+from .uris import ProxyAbsoluteUrl
 
 if TYPE_CHECKING:
     from django_stubs_ext.db.models.manager import RelatedManager
@@ -1642,7 +1643,11 @@ class Post(models.Model):
     def converted_preview_card(self):
         if self.type not in self.CONVERTED_TYPES or not self.preview_card_id:
             return None
-        return self.preview_card if self.preview_card.state == "fetched" else None
+        try:
+            card = self.preview_card
+        except PreviewCard.DoesNotExist:
+            return None
+        return card if card.state == "fetched" else None
 
     _neodb_url_regex = re.compile(r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"')
 
@@ -1696,6 +1701,7 @@ class Post(models.Model):
         }
 
     def to_mastodon_json(self, interactions=None, bookmarks=None, identity=None):
+        card = self.converted_preview_card
         reply_parent = None
         if self.in_reply_to:
             # Load the PK and author.id explicitly to prevent a SELECT on the entire author Identity
@@ -1758,11 +1764,7 @@ class Post(models.Model):
             ),
             "reblog": None,
             "poll": None,  # self.type_data.to_mastodon_json(self, identity) if isinstance(self.type_data, QuestionData) else None,
-            "card": (
-                self.preview_card.to_mastodon_json()
-                if self.preview_card_id and self.preview_card.state == "fetched"
-                else None
-            ),
+            "card": card.to_mastodon_json() if card else None,
             "text": self.safe_content_remote(),
             "edited_at": format_ld_date(self.edited) if self.edited else None,
             "application": self.application.to_mastodon_status_json()

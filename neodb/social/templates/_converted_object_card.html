@@ -5,9 +5,7 @@
        href="{{ card.url }}"
        target="_blank"
        rel="nofollow noopener noreferrer">
-      {% if card.image_url %}
-        <img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">
-      {% endif %}
+      {% if card.image_url %}<img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">{% endif %}
       <span class="converted-object-card-body">
         <strong>{{ card.title|default:post.type }}</strong>
         {% if card.description %}<span>{{ card.description }}</span>{% endif %}
