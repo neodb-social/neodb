@@ -184,12 +184,14 @@ class SiteConfig(models.Model):
             "enable_login_threads": getattr(settings, "ENABLE_LOGIN_THREADS", False),
             "email_url": getattr(
                 settings, "EMAIL_URL_ENV", getattr(settings, "EMAIL_URL", "")
-            ),
+            )
+            or "",
             "email_from": getattr(
                 settings,
                 "DEFAULT_FROM_EMAIL_ENV",
                 getattr(settings, "DEFAULT_FROM_EMAIL", ""),
-            ),
+            )
+            or "",
             # Discover
             "min_marks_for_discover": getattr(settings, "MIN_MARKS_FOR_DISCOVER", 1),
             "discover_update_interval": getattr(

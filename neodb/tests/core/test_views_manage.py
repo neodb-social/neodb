@@ -156,8 +156,32 @@ class TestResolveEmailSettings:
         }
         assert config["ENABLE_LOGIN_EMAIL"] is True
 
-    def test_empty_url_disables_email(self) -> None:
-        config = resolve_email_settings("", False)
+    def test_anymail_url_without_debug(self) -> None:
+        config = resolve_email_settings("anymail://mailgun?API_KEY=secret", False)
+
+        assert config["ANYMAIL"] == {"API_KEY": "secret"}
+
+    def test_console_url_in_debug(self) -> None:
+        config = resolve_email_settings("console://", True)
+
+        assert config["EMAIL_BACKEND"] == (
+            "django.core.mail.backends.console.EmailBackend"
+        )
+        assert config["ENABLE_LOGIN_EMAIL"] is True
+
+    @pytest.mark.parametrize("email_url", [None, "", 123])
+    def test_invalid_or_missing_url_type_disables_email(
+        self, email_url: object
+    ) -> None:
+        config = resolve_email_settings(email_url, False)
+
+        assert config["EMAIL_BACKEND"] == (
+            "django.core.mail.backends.dummy.EmailBackend"
+        )
+        assert config["ENABLE_LOGIN_EMAIL"] is False
+
+    def test_url_without_scheme_disables_email(self) -> None:
+        config = resolve_email_settings("smtp.example.org", False)
 
         assert config["EMAIL_BACKEND"] == (
             "django.core.mail.backends.dummy.EmailBackend"
@@ -182,6 +206,15 @@ class TestResolveEmailSettings:
     def test_invalid_url_is_rejected_by_site_config(self) -> None:
         with pytest.raises(pydantic.ValidationError, match="Invalid email schema"):
             SiteConfig.SystemOptions(email_url="invalid://example.org")
+
+    def test_none_environment_values_use_empty_defaults(self, settings: Any) -> None:
+        settings.EMAIL_URL_ENV = None
+        settings.DEFAULT_FROM_EMAIL_ENV = None
+
+        defaults = SiteConfig._env_defaults()
+
+        assert defaults["email_url"] == ""
+        assert defaults["email_from"] == ""
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -103,6 +103,18 @@ class TestLoginMethodSelection:
         assert b'id="platform-mastodon"' not in response.content
         assert b'id="login-mastodon"' not in response.content
 
+    def test_disabled_mastodon_preserves_another_selected_method(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        response = client.get(
+            reverse("users:login"),
+            {"method": "email", "domain": "mastodon.online"},
+        )
+
+        assert response.status_code == 200
+        assert response.context["selected_method"] == "email"
+        assert response.context["selected_domain"] == ""
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestReauthorizeUrl:
@@ -362,6 +374,51 @@ class TestLoginProof:
 
         assert response.status_code == 200
         assert b"Mastodon login is disabled." in response.content
+
+    def test_disabled_mastodon_oauth_is_rejected(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        response = client.get(reverse("mastodon:oauth"), {"code": "oauth-code"})
+
+        assert response.status_code == 200
+        assert b"Mastodon login is disabled." in response.content
+
+    def test_disabled_mastodon_whitelist_does_not_block_email_registration(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        SiteConfig.system.mastodon_login_whitelist = ["mastodon.online"]
+        account = Email.new_account("register@example.org")
+        assert account is not None
+        session = client.session
+        session["verified_account"] = account.to_dict()
+        session.save()
+
+        response = client.get(reverse("users:register"))
+
+        assert response.status_code == 200
+        assert response.context["email_readonly"] is True
+
+    def test_enabled_mastodon_whitelist_blocks_email_registration(
+        self, client, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        configured = SiteConfig.system.model_copy(
+            update={
+                "enable_login_mastodon": True,
+                "mastodon_login_whitelist": ["mastodon.online"],
+            }
+        )
+        monkeypatch.setattr(SiteConfig, "system", configured)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        account = Email.new_account("register@example.org")
+        assert account is not None
+        session = client.session
+        session["verified_account"] = account.to_dict()
+        session.save()
+
+        response = client.get(reverse("users:register"))
+
+        assert response.status_code == 302
+        assert response.url == reverse("common:home")
 
     def test_authenticated_mastodon_reconnect_bypasses_proof(
         self, client, monkeypatch, mastodon_login_disabled: None

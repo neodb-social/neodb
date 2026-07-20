@@ -4,9 +4,8 @@ import environ
 from django.core.exceptions import ImproperlyConfigured
 
 
-def resolve_email_settings(email_url: str, debug: bool) -> dict[str, object]:
+def resolve_email_settings(email_url: object, debug: bool) -> dict[str, object]:
     """Resolve an email URL into settings that can be applied at runtime."""
-    parsed_email_url = parse.urlparse(email_url)
     config: dict[str, object] = {
         "EMAIL_BACKEND": "django.core.mail.backends.dummy.EmailBackend",
         "EMAIL_USE_TLS": False,
@@ -14,6 +13,9 @@ def resolve_email_settings(email_url: str, debug: bool) -> dict[str, object]:
         "ANYMAIL": {},
         "ENABLE_LOGIN_EMAIL": False,
     }
+    if not isinstance(email_url, str) or not email_url:
+        return config
+    parsed_email_url = parse.urlparse(email_url)
     if parsed_email_url.scheme == "anymail":
         if not parsed_email_url.hostname:
             raise ImproperlyConfigured("Anymail URL must include a backend name")
