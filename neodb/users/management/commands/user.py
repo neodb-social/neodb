@@ -19,6 +19,13 @@ class Command(SiteCommand):
         parser.add_argument("--fix", action="store_true")
         parser.add_argument("--delete", action="store", nargs="*", help="delete user")
         parser.add_argument(
+            "--maxwait",
+            action="store",
+            type=int,
+            default=10,
+            help="max seconds to wait for takahe-stator per deleted user (default: 10)",
+        )
+        parser.add_argument(
             "--integrity",
             action="store_true",
             help="check and fix integrity for missing data for user models",
@@ -61,7 +68,7 @@ class Command(SiteCommand):
             self.set_active(options["active"])
         if options["delete"]:
             if input("Are you sure to delete? [Y/N] ").startswith("Y"):
-                self.delete(options["delete"])
+                self.delete(options["delete"], options["maxwait"])
         if options["actor_type"]:
             self.set_actor_type(options["actor_type"][0], options["actor_type"][1])
 
@@ -196,7 +203,7 @@ class Command(SiteCommand):
         identity.save()
         self.stdout.write(f"update {u} actor_type: {actor_type}")
 
-    def delete(self, v):
+    def delete(self, v, maxwait: int = 10):
         for n in v:
             identity_id = None
             try:
@@ -219,7 +226,7 @@ class Command(SiteCommand):
                 if not r:
                     self.stdout.write(self.style.ERROR(f"identity {n} not found"))
             if identity_id:
-                count_down = 10
+                count_down = maxwait
                 while count_down > 0:
                     i = Identity.objects.filter(pk=identity_id).first()
                     if i and i.state != "deleted_fanned_out":
