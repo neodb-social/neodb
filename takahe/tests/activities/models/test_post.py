@@ -694,3 +694,76 @@ def test_post_targets_to_ap(
     elif visibility == Post.Visibilities.mentioned:
         assert "to" not in ap_dict
         assert ap_dict["cc"] == [other_identity.actor_uri]
+
+
+@pytest.mark.django_db
+def test_article_web_view_shows_cover_and_links_tags(remote_identity):
+    """
+    The web article view (local render) surfaces the AS ``image`` as a lead
+    image and renders hashtags as links; the Mastodon API content (remote
+    render) keeps neither the cover nor its <img>.
+    """
+    post = Post.by_ap(
+        data={
+            "id": "https://remote.test/posts/article-cover/",
+            "type": "Article",
+            "name": "Cover Test",
+            "content": "<p>Body text.</p>",
+            "image": {"type": "Image", "url": "https://remote.test/lead.jpg"},
+            "tag": [
+                {
+                    "type": "Hashtag",
+                    "name": "#news",
+                    "href": "https://remote.test/tags/news/",
+                }
+            ],
+            "attributedTo": "https://remote.test/test-actor/",
+            "published": "2026-05-08T11:35:17Z",
+        },
+        create=True,
+    )
+
+    assert post.article_cover_url == "https://remote.test/lead.jpg"
+
+    web = post.safe_content_local()
+    assert "https://remote.test/lead.jpg" in web
+    assert 'href="https://remote.test/tags/news/"' in web
+    assert "#news" in web
+
+    api = post.safe_content_remote()
+    assert "https://remote.test/lead.jpg" not in api
+    assert "Body text." in api
+
+
+@pytest.mark.parametrize(
+    "image,expected",
+    [
+        ("https://remote.test/a.jpg", "https://remote.test/a.jpg"),
+        (
+            {"type": "Image", "url": "https://remote.test/b.jpg"},
+            "https://remote.test/b.jpg",
+        ),
+        (
+            {"url": {"type": "Link", "href": "https://remote.test/c.jpg"}},
+            "https://remote.test/c.jpg",
+        ),
+        (
+            [{"url": "https://remote.test/d.jpg"}, "ignored"],
+            "https://remote.test/d.jpg",
+        ),
+        (None, None),
+        ({}, None),
+        ("ftp://remote.test/e.jpg", None),
+    ],
+)
+def test_article_cover_url_normalizes_image_shapes(image, expected):
+    post = Post(type=Post.Types.article, type_data={"object": {"image": image}})
+    assert post.article_cover_url == expected
+
+
+def test_article_cover_url_none_for_non_article():
+    post = Post(
+        type=Post.Types.note,
+        type_data={"object": {"image": "https://remote.test/x.jpg"}},
+    )
+    assert post.article_cover_url is None

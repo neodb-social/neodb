@@ -833,6 +833,26 @@ class Post(StatorModel):
             return None
         return self.preview_card if self.preview_card.state == "fetched" else None
 
+    @property
+    def article_cover_url(self) -> str | None:
+        """Lead image URL for an Article, if its AS object carries one.
+
+        The AS ``image`` may be a URL string, an Image/Link object, or an array
+        of either; normalize to a single http(s) URL for the web article view.
+        Returns None for non-Article posts or when no usable image is present.
+        This is used by the web templates only and is not folded into the
+        Mastodon API status content.
+        """
+        if self.type != self.Types.article:
+            return None
+        obj = self.type_data.get("object") if isinstance(self.type_data, dict) else None
+        if not isinstance(obj, dict):
+            return None
+        url, _ = _ap_link(obj.get("image"))
+        if isinstance(url, str) and url.startswith(("http://", "https://")):
+            return url
+        return None
+
     def safe_content(self, *, local: bool = True):
         if self.type in self.CONVERTED_TYPES:
             return self._safe_content_note(local=local)

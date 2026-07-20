@@ -6,6 +6,11 @@
       <a href="{{ post.url|default:post.object_uri }}">{{ post.type_data.object.name }}</a>
     </h4>
   {% endif %}
+  {% if local_display and post.article_cover_url %}
+    <figure class="article-cover">
+      <img src="{{ post.article_cover_url }}" alt="" loading="lazy">
+    </figure>
+  {% endif %}
 {% endif %}
 
 <div class="article-body">
@@ -17,7 +22,9 @@
     {% if tags %}
       <div class="article-tags">
         {% for t in tags %}
-          {% if t.type == 'Hashtag' and t.name %}<span class="tag">{{ t.name }}</span>{% endif %}
+          {% if t.type == 'Hashtag' and t.name %}
+            <span class="tag">{% if t.href %}<a href="{{ t.href }}" rel="tag">{{ t.name }}</a>{% else %}{{ t.name }}{% endif %}</span>
+          {% endif %}
         {% endfor %}
       </div>
     {% endif %}

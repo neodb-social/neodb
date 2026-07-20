@@ -1515,6 +1515,34 @@ form .post {
     max-height: 400px;
 }
 
+.post .article-title {
+    margin: 0 0 0.4em 0;
+}
+
+.post .article-cover {
+    margin: 0 0 0.8em 0;
+}
+
+.post .article-cover img {
+    display: block;
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 4px;
+}
+
+.post .article-tags {
+    margin-top: 0.8em;
+}
+
+.post .article-tags .tag {
+    display: inline-block;
+    margin-right: 0.5em;
+    color: var(--color-text-duller);
+    font-size: 90%;
+}
+
 .post .attachments .badge {
     position: absolute;
     bottom: 6px;
