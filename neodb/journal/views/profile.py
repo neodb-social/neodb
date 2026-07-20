@@ -580,14 +580,16 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
                 Item.external_resources_prefetch(lookup="item__external_resources"),
             )
         )
+        is_owner = request.user.is_authenticated and request.user.identity == target
+        # Reading progress is private; only show the badge to the shelf owner.
         show_progress_badges = (
-            item_category == ItemCategory.Book and shelf_type_enum == ShelfType.PROGRESS
+            is_owner
+            and item_category == ItemCategory.Book
+            and shelf_type_enum == ShelfType.PROGRESS
         )
         if show_progress_badges:
             members_queryset = members_queryset.select_related("current_progress")
-            can_update_progress = (
-                request.user.is_authenticated and request.user.identity == target
-            )
+            can_update_progress = True
         if people_type:
             members_queryset = members_queryset.filter(
                 item__people__people_type=people_type

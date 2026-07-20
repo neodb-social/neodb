@@ -365,6 +365,33 @@ def test_edition_and_profile_show_and_update_book_progress(client):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_profile_book_progress_badge_hidden_from_non_owner(client):
+    owner = User.register(email="progress-owner@example.com", username="progressowner")
+    book = Edition.objects.create(title="Private Progress Book")
+    mark = Mark(owner.identity, book)
+    mark.update(ShelfType.PROGRESS, visibility=0)
+    mark.set_progress(Note.ProgressType.CHAPTER, "7")
+
+    viewer = User.register(
+        email="progress-viewer@example.com", username="progressviewer"
+    )
+    client.force_login(viewer, backend="mastodon.auth.OAuth2Backend")
+
+    response = client.get(
+        f"/users/{owner.username}/profile/book/progress/items",
+    )
+    assert response.status_code == 200
+    content = response.content.decode()
+    # The public shelf still lists the book, but the private reading
+    # progress must not leak to anyone other than the owner.
+    assert 'class="card progress-card"' in content
+    assert book.display_title in content
+    assert 'class="progress-badge"' not in content
+    assert "ch7" not in content
+    assert "Chapter 7" not in content
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_note_and_progress_dialog_modes(client):
     user = User.register(email="note-progress@example.com", username="noteprogress")
     book = Edition.objects.create(title="Note Progress Book")
