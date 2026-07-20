@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.models import SiteConfig
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest
 from common.validators import sanitize_next_url
 from mastodon.models import (
@@ -164,6 +165,7 @@ def _handle_new_user_registration(request, form, verified_account, email_readonl
         form.add_error("username", e.message)
         return None
     auth_login(request, new_user)
+    record_activity("register", "web")
 
     if not email_readonly and form.cleaned_data["email"]:
         # if new user wants to link email too
@@ -225,6 +227,7 @@ def register(request: AuthedHttpRequest):
                     },
                 )
             auth_login(request, new_user)
+            record_activity("register", "web")
             return render(request, "users/welcome.html")
         else:
             return redirect(request.session.get("next_url", reverse("common:home")))
@@ -319,6 +322,7 @@ def clear_data(request):
         for acct in request.user.social_accounts.all():
             if acct.handle == v:
                 initiate_user_deletion(request.user)
+                record_activity("leave", "web")
                 messages.add_message(
                     request, messages.INFO, _("Account is being deleted.")
                 )
