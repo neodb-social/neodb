@@ -500,11 +500,24 @@ class AccessSettings(SiteConfigSettingsPage):
             "title": _("Mastodon Login Whitelist"),
             "help_text": _("One domain per line. Leave empty to allow any instance."),
         },
+        "enable_login_mastodon": {
+            "title": _("Enable Mastodon Login"),
+        },
         "enable_login_bluesky": {
             "title": _("Enable Bluesky Login"),
         },
         "enable_login_threads": {
             "title": _("Enable Threads Login"),
+        },
+        "email_url": {
+            "title": _("Email URL"),
+            "help_text": _(
+                "Email backend URL for login codes, such as an SMTP or Anymail URL."
+            ),
+        },
+        "email_from": {
+            "title": _("Email From"),
+            "help_text": _("Sender name and address for outgoing email."),
         },
         "preferred_languages": {
             "title": _("Preferred Languages"),
@@ -521,8 +534,13 @@ class AccessSettings(SiteConfigSettingsPage):
             "mastodon_login_whitelist",
         ],
         _("Login Methods"): [
+            "enable_login_mastodon",
             "enable_login_bluesky",
             "enable_login_threads",
+        ],
+        _("Email"): [
+            "email_url",
+            "email_from",
         ],
         _("Localization"): [
             "preferred_languages",
@@ -638,16 +656,6 @@ class APIKeysSettings(SiteConfigSettingsPage):
         "threads_app_secret": {
             "title": _("Threads App Secret"),
         },
-        "sentry_dsn": {
-            "title": _("Sentry DSN"),
-            "help_text": _("Requires restart to take effect."),
-        },
-        "sentry_sample_rate": {
-            "title": _("Sentry Sample Rate"),
-            "help_text": _("0.0 to 1.0. Requires restart to take effect."),
-            "min_value": 0,
-            "max_value": 1,
-        },
         "discord_webhooks": {
             "title": _("Discord Webhooks"),
             "help_text": _(
@@ -687,9 +695,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
             "threads_app_id",
             "threads_app_secret",
         ],
-        _("Monitoring"): [
-            "sentry_dsn",
-            "sentry_sample_rate",
+        _("Notifications"): [
             "discord_webhooks",
         ],
     }

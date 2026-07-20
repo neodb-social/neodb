@@ -51,8 +51,8 @@ COPY --from=build /neodb-venv /neodb-venv
 
 WORKDIR /neodb
 RUN /neodb-venv/bin/django-admin compilemessages \
- && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py compilescss \
- && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" NEODB_SITE_NAME="z" /neodb-venv/bin/python3 manage.py collectstatic --noinput
+ && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" /neodb-venv/bin/python3 manage.py compilescss \
+ && NEODB_SECRET_KEY="t" NEODB_SITE_DOMAIN="x.y" /neodb-venv/bin/python3 manage.py collectstatic --noinput
 
 WORKDIR /takahe
 RUN TAKAHE_DATABASE_SERVER="postgres://x@y/z" TAKAHE_SECRET_KEY="t" TAKAHE_MAIN_DOMAIN="x.y" /neodb-venv/bin/python3 manage.py collectstatic --noinput

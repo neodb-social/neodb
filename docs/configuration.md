@@ -20,13 +20,22 @@ Most configuration settings can be managed through the web-based Site Settings p
 
  - **Branding** - site name, logo, icon, color theme, description, footer links, custom HTML head
  - **Discover** - minimum marks, update interval, language filtering, local-only mode, popular posts/tags
- - **Access** - invite-only mode, local-only posting, Mastodon login whitelist, Bluesky/Threads login, preferred languages
+ - **Access** - invite-only mode, local-only posting, email delivery, Mastodon/Bluesky/Threads login, preferred languages
  - **Federation** - default relay, fanout limit, prune horizon, search sites/peers, hidden categories
- - **API Keys** - Spotify, TMDB, Google Books, Discogs, IGDB, Steam, DeepL, LibreTranslate, Threads, Sentry, Discord webhooks
+ - **API Keys** - Spotify, TMDB, Google Books, Discogs, IGDB, Steam, DeepL, LibreTranslate, Threads, Discord webhooks
  - **Downloader** - scraping providers, proxy list, provider API keys, timeouts
  - **Advanced** - alternative domains, Mastodon client scope, cron jobs, index aliases
 
 Settings configured in the UI take effect immediately (within 30 seconds) without restarting the server. Values set in the UI override `.env` values. If a setting has not been configured in the UI, the `.env` value is used as fallback.
+
+Mastodon login is enabled by default. It can be disabled in Site Settings > Access without affecting Mastodon accounts already linked to signed-in users.
+
+Before creating the first admin, configure `NEODB_EMAIL_URL` and `NEODB_EMAIL_FROM` in `.env` so the account can receive its login code. After an admin is available, email delivery can be managed in Site Settings > Access. A database value takes priority over the bootstrap `.env` value. Supported email URL formats include:
+
+ - `smtp://<username>:<password>@<host>:<port>`
+ - `smtp+tls://<username>:<password>@<host>:<port>`
+ - `smtp+ssl://<username>:<password>@<host>:<port>`
+ - `anymail://<anymail_backend_name>?<anymail_args>`, see [anymail doc](https://anymail.dev/)
 
 ## Settings that must remain in `.env`
 
@@ -37,12 +46,6 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_DB_URL`, `TAKAHE_DB_URL` - database connection strings
  - `NEODB_REDIS_URL` - Redis URL for cache and job queue
  - `NEODB_SEARCH_URL` - Typesense search backend URL
- - `NEODB_EMAIL_URL` - email sender configuration, e.g.
- 	- `smtp://<username>:<password>@<host>:<port>`
- 	- `smtp+tls://<username>:<password>@<host>:<port>`
- 	- `smtp+ssl://<username>:<password>@<host>:<port>`
- 	- `anymail://<anymail_backend_name>?<anymail_args>`, see [anymail doc](https://anymail.dev/)
- - `NEODB_EMAIL_FROM` - the email address to send email from
  - `MEDIA_BACKEND` - storage backend (local/s3)
  - `NEODB_MEDIA_ROOT`, `NEODB_MEDIA_URL` - media storage paths
  - `SSL_ONLY` - Force HTTPS
@@ -50,10 +53,10 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_PORT` - the port to expose the main web server on
  - `NEODB_IMAGE` - docker image to pull from
  - `TAKAHE_NO_FEDERATION` - disable federation (test/development only)
+ - `NEODB_SENTRY_DSN`, `NEODB_SENTRY_SAMPLE_RATE` - Sentry error reporting for NeoDB. Requires restart.
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
  - `NEODB_ADMIN_HANDLES` - comma-separated list of handles to auto-promote to superuser on registration, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
  - `NEODB_LOG_LEVEL` - logging level (DEBUG, INFO, WARNING, ERROR). Requires restart.
- - `SKIP_MIGRATIONS` - **deprecated**, retained as a fallback only. Configure skipped post-migration job keys in Admin > Advanced > "Skip Migration Jobs" instead. The UI value is read by the worker at dequeue time (no restart needed); skipped jobs log a warning and post a `[migration] <key>: skipped` notice to the Discord `system` channel.
 
 
 ## S3 and Compatible Storage
@@ -291,7 +294,7 @@ It's possible to run multiple clusters in one host server with docker compose, a
 
 ## Deprecated `.env` settings
 
-The following settings can still be set in `.env` for backward compatibility, but should be configured through the Site Settings UI (`/manage/`) instead. `.env` values are used as initial defaults when the UI has not been configured.
+The following settings can still be set in `.env` for bootstrap or backward-compatible defaults, but should normally be configured through the Site Settings UI (`/manage/`). A database value overrides the `.env` value.
 
 ### Customization
  - `NEODB_SITE_LOGO`
@@ -310,6 +313,10 @@ The following settings can still be set in `.env` for backward compatibility, bu
  - `NEODB_LOGIN_MASTODON_WHITELIST`
  - `NEODB_ENABLE_LOGIN_BLUESKY`
  - `NEODB_ENABLE_LOGIN_THREADS`
+
+### Email
+ - `NEODB_EMAIL_URL`
+ - `NEODB_EMAIL_FROM`
 
 ### Discover
  - `NEODB_DISCOVER_FILTER_LANGUAGE`
@@ -333,6 +340,7 @@ The following settings can still be set in `.env` for backward compatibility, bu
  - `GOOGLE_API_KEY`
  - `DISCOGS_API_KEY`
  - `IGDB_API_CLIENT_ID`, `IGDB_API_CLIENT_SECRET`
+ - `BGG_API_TOKEN`
  - `STEAM_API_KEY`
 
 ### Scraping providers
@@ -354,9 +362,9 @@ The following settings can still be set in `.env` for backward compatibility, bu
 
 ### Administration
  - `DISCORD_WEBHOOKS`
- - `NEODB_SENTRY_DSN`
- - `NEODB_SENTRY_SAMPLE_RATE`
  - `THREADS_APP_ID`, `THREADS_APP_SECRET`
  - `NEODB_MASTODON_CLIENT_SCOPE`
+ - `NEODB_LOGIN_MASTODON_TIMEOUT`
  - `NEODB_DISABLE_CRON_JOBS`
  - `INDEX_ALIASES`
+ - `SKIP_MIGRATIONS` - skipped post-migration job keys. Configure these in Admin > Advanced > "Skip Migration Jobs". The UI value is read by the worker at dequeue time without a restart.

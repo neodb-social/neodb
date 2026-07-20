@@ -35,6 +35,7 @@ from ..models import User
 
 @require_http_methods(["GET"])
 def login(request):
+    enable_mastodon = SiteConfig.system.enable_login_mastodon
     selected_domain = request.GET.get("domain", default="")
     # "atproto" kept as an alias for "bluesky": reauth URLs using it are
     # persisted in old notification messages
@@ -43,11 +44,15 @@ def login(request):
         selected_method = "bluesky"
     if selected_method not in ("passkey", "email", "mastodon", "threads", "bluesky"):
         selected_method = ""
+    if not enable_mastodon:
+        selected_domain = ""
+        if selected_method == "mastodon":
+            selected_method = ""
     # ATProto handle to prefill the Bluesky form, e.g. from a reauth link
     selected_username = request.GET.get("username", default="")
     if not re.fullmatch(r"[A-Za-z0-9.\-]+", selected_username):
         selected_username = ""
-    sites = Mastodon.get_sites()
+    sites = Mastodon.get_sites() if enable_mastodon else []
     next_url = sanitize_next_url(request.GET.get("next"))
     if next_url:
         request.session["next_url"] = next_url
@@ -67,7 +72,9 @@ def login(request):
             "selected_domain": selected_domain,
             "selected_method": selected_method,
             "selected_username": selected_username,
-            "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
+            "allow_any_site": not enable_mastodon
+            or len(SiteConfig.system.mastodon_login_whitelist) == 0,
+            "enable_mastodon": enable_mastodon,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
             "enable_threads": SiteConfig.system.enable_login_threads,
             "enable_bluesky": SiteConfig.system.enable_login_bluesky,
@@ -81,6 +88,8 @@ def login_proof(request: HttpRequest) -> JsonResponse:
     method = request.GET.get("method", "")
     if method not in LOGIN_PROOF_METHODS:
         return JsonResponse({"error": "Unknown login method"}, status=400)
+    if method == "mastodon" and not SiteConfig.system.enable_login_mastodon:
+        return JsonResponse({"error": "Mastodon login is disabled"}, status=400)
     response = JsonResponse(create_login_proof_challenge(request, method))
     response["Cache-Control"] = "no-store, private"
     return response
@@ -194,7 +203,10 @@ def register(request: AuthedHttpRequest):
             return redirect(reverse("users:login"))
 
     # no registration form for closed community mode
-    if not len(SiteConfig.system.mastodon_login_whitelist) == 0:
+    if (
+        SiteConfig.system.enable_login_mastodon
+        and not len(SiteConfig.system.mastodon_login_whitelist) == 0
+    ):
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
             mastodon_account: MastodonAccount = verified_account

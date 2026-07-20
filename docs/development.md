@@ -37,7 +37,6 @@ Start local instance for development
 ------------------------------------
 Follow [install guide](install.md) to create `.env` in the root folder of NeoDB code, including at least the following configuration:
 ```
-NEODB_SITE_NAME="My Test"
 NEODB_SITE_DOMAIN=mydomain.dev
 NEODB_SECRET_KEY=_random_string__50_characters_of_length__no_whitespaces_
 NEODB_IMAGE=neodb/neodb:edge

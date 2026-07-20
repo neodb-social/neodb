@@ -1,6 +1,12 @@
+from typing import Any
+
+import pydantic
 import pytest
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
+from boofilsic import settings as boofilsic_settings
+from common.config import resolve_email_settings
 from common.models import SiteConfig
 from common.views_manage import (
     AccessSettings,
@@ -81,6 +87,143 @@ class TestSettingsCoverage:
             )
 
 
+class TestEnvironmentOnlySettings:
+    def test_site_name_has_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("NEODB_SITE_NAME", raising=False)
+        monkeypatch.delenv("NEODB_SITE_NAME_FILE", raising=False)
+
+        assert boofilsic_settings.env("NEODB_SITE_NAME") == "My NeoDB Site"
+
+    @pytest.mark.django_db(databases="__all__")
+    def test_legacy_sentry_data_is_ignored(self) -> None:
+        legacy_data = {
+            "sentry_dsn": "https://example.invalid/1",
+            "sentry_sample_rate": 0.5,
+        }
+        SiteConfig.objects.update_or_create(pk=1, defaults={"data": legacy_data})
+
+        site_config = SiteConfig.load_system()
+
+        assert "sentry_dsn" not in SiteConfig.SystemOptions.model_fields
+        assert "sentry_sample_rate" not in SiteConfig.SystemOptions.model_fields
+        assert SiteConfig.objects.get(pk=1).data == legacy_data
+        assert not hasattr(site_config, "sentry_dsn")
+        assert not hasattr(site_config, "sentry_sample_rate")
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMastodonLoginSettings:
+    def test_enabled_by_default(self) -> None:
+        assert SiteConfig.SystemOptions().enable_login_mastodon is True
+
+    def test_database_can_disable_login(self) -> None:
+        old_system = getattr(SiteConfig, "system", None)
+        try:
+            SiteConfig.set_system(enable_login_mastodon=False)
+
+            SiteConfig.reload()
+
+            assert SiteConfig.system.enable_login_mastodon is False
+            assert SiteConfig.objects.get(pk=1).data["enable_login_mastodon"] is False
+        finally:
+            SiteConfig.objects.filter(pk=1).delete()
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+
+
+class TestResolveEmailSettings:
+    def test_smtp_tls_url(self) -> None:
+        config = resolve_email_settings(
+            "smtp+tls://user:password@smtp.example.org:587", False
+        )
+
+        assert config["EMAIL_BACKEND"] == (
+            "django.core.mail.backends.smtp.EmailBackend"
+        )
+        assert config["EMAIL_HOST"] == "smtp.example.org"
+        assert config["EMAIL_PORT"] == 587
+        assert config["EMAIL_USE_TLS"] is True
+        assert config["ENABLE_LOGIN_EMAIL"] is True
+
+    def test_anymail_url(self) -> None:
+        config = resolve_email_settings("anymail://mailgun?API_KEY=secret", True)
+
+        assert config["EMAIL_BACKEND"] == "anymail.backends.mailgun.EmailBackend"
+        assert config["ANYMAIL"] == {
+            "API_KEY": "secret",
+            "DEBUG_API_REQUESTS": True,
+        }
+        assert config["ENABLE_LOGIN_EMAIL"] is True
+
+    def test_empty_url_disables_email(self) -> None:
+        config = resolve_email_settings("", False)
+
+        assert config["EMAIL_BACKEND"] == (
+            "django.core.mail.backends.dummy.EmailBackend"
+        )
+        assert config["ENABLE_LOGIN_EMAIL"] is False
+
+    def test_invalid_url_scheme(self) -> None:
+        with pytest.raises(ImproperlyConfigured, match="Invalid email schema"):
+            resolve_email_settings("invalid://example.org", False)
+
+    @pytest.mark.parametrize(
+        ("email_url", "error"),
+        [
+            ("anymail://", "Anymail URL must include a backend name"),
+            ("smtp://", "SMTP URL must include a host"),
+        ],
+    )
+    def test_missing_backend_or_host(self, email_url: str, error: str) -> None:
+        with pytest.raises(ImproperlyConfigured, match=error):
+            resolve_email_settings(email_url, False)
+
+    def test_invalid_url_is_rejected_by_site_config(self) -> None:
+        with pytest.raises(pydantic.ValidationError, match="Invalid email schema"):
+            SiteConfig.SystemOptions(email_url="invalid://example.org")
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEmailSettingsApply:
+    @pytest.mark.parametrize(
+        ("db_url", "expected_backend", "enabled"),
+        [
+            ("memorymail://", "django.core.mail.backends.locmem.EmailBackend", True),
+            ("", "django.core.mail.backends.dummy.EmailBackend", False),
+        ],
+    )
+    def test_db_value_overrides_environment_fallback(
+        self,
+        settings: Any,
+        db_url: str,
+        expected_backend: str,
+        enabled: bool,
+    ) -> None:
+        settings.EMAIL_URL_ENV = "smtp://env-user:env-pass@smtp.example.org:25"
+        settings.DEFAULT_FROM_EMAIL_ENV = "Environment <env@example.org>"
+        old_system = getattr(SiteConfig, "system", None)
+        try:
+            SiteConfig.set_system(
+                email_url=db_url,
+                email_from="NeoDB Test <test@example.org>",
+            )
+
+            SiteConfig.reload()
+
+            assert SiteConfig.system.email_url == db_url
+            assert settings.EMAIL_URL == db_url
+            assert settings.EMAIL_BACKEND == expected_backend
+            assert settings.DEFAULT_FROM_EMAIL == "NeoDB Test <test@example.org>"
+            assert settings.ENABLE_LOGIN_EMAIL is enabled
+            assert settings.SITE_INFO["enable_login_email"] is enabled
+        finally:
+            SiteConfig.objects.filter(pk=1).delete()
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+
+
 class TestConvertValueList:
     """Test _convert_value for list-type fields."""
 
@@ -146,7 +289,7 @@ class TestConvertValueSimple:
         assert result == 5
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(databases="__all__")
 class TestMastodonTimeoutApply:
     """DB-stored mastodon_timeout must reach django settings on reload."""
 

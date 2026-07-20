@@ -8,6 +8,7 @@ from altcha import Challenge, Payload, Solution, derive_key_pbkdf2, solve_challe
 from django.test import Client, override_settings
 from django.urls import reverse
 
+from common.models import SiteConfig
 from mastodon.models import (
     Bluesky,
     BlueskyAccount,
@@ -37,6 +38,13 @@ def proof(monkeypatch: pytest.MonkeyPatch) -> Callable[[Client, str], str]:
         return Payload(challenge, solution).to_base64()
 
     return issue
+
+
+@pytest.fixture
+def mastodon_login_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    disabled = SiteConfig.system.model_copy(update={"enable_login_mastodon": False})
+    monkeypatch.setattr(SiteConfig, "system", disabled)
+    monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -79,6 +87,21 @@ class TestLoginMethodSelection:
         )
         assert response.status_code == 200
         assert response.context["selected_username"] == ""
+
+    def test_disabled_mastodon_is_not_offered(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        response = client.get(
+            reverse("users:login"),
+            {"method": "mastodon", "domain": "mastodon.online"},
+        )
+
+        assert response.status_code == 200
+        assert response.context["enable_mastodon"] is False
+        assert response.context["selected_method"] == ""
+        assert response.context["selected_domain"] == ""
+        assert b'id="platform-mastodon"' not in response.content
+        assert b'id="login-mastodon"' not in response.content
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -135,6 +158,14 @@ class TestLoginProof:
     def test_unknown_challenge_method_rejected(self, client):
         response = client.get(reverse("users:login_proof"), {"method": "unknown"})
         assert response.status_code == 400
+
+    def test_disabled_mastodon_challenge_rejected(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        response = client.get(reverse("users:login_proof"), {"method": "mastodon"})
+
+        assert response.status_code == 400
+        assert response.json()["error"] == "Mastodon login is disabled"
 
     def test_missing_and_malformed_proofs_rejected(self, client, monkeypatch):
         calls = []
@@ -324,7 +355,17 @@ class TestLoginProof:
             reverse("users:login") + "?method=mastodon&domain=mastodon.online"
         )
 
-    def test_authenticated_mastodon_reconnect_bypasses_proof(self, client, monkeypatch):
+    def test_disabled_mastodon_login_is_rejected(
+        self, client, mastodon_login_disabled: None
+    ) -> None:
+        response = client.get(reverse("mastodon:login"), {"domain": "example.org"})
+
+        assert response.status_code == 200
+        assert b"Mastodon login is disabled." in response.content
+
+    def test_authenticated_mastodon_reconnect_bypasses_proof(
+        self, client, monkeypatch, mastodon_login_disabled: None
+    ):
         user = User.register(email="pow@example.com", username="powuser")
         client.force_login(user)
         monkeypatch.setattr(

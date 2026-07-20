@@ -2,10 +2,13 @@ import functools
 from typing import ClassVar
 
 import pydantic
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.utils import DatabaseError, ProgrammingError
 from loguru import logger
 
+from common.config import resolve_email_settings
 from common.models.genre import DEFAULT_GENRE_CATEGORIES
 
 
@@ -43,8 +46,11 @@ class SiteConfig(models.Model):
         mastodon_login_whitelist: list[str] = []
 
         # Auth Options
+        enable_login_mastodon: bool = True
         enable_login_bluesky: bool = False
         enable_login_threads: bool = False
+        email_url: str = ""
+        email_from: str = ""
 
         # Discover
         min_marks_for_discover: int = 1
@@ -107,9 +113,7 @@ class SiteConfig(models.Model):
         threads_app_id: str = ""
         threads_app_secret: str = ""
 
-        # Monitoring & Notifications
-        sentry_dsn: str = ""
-        sentry_sample_rate: float = 0.0
+        # Notifications
         discord_webhooks: dict = {}
 
         # Downloader
@@ -140,11 +144,18 @@ class SiteConfig(models.Model):
         index_aliases: dict = {"catalog": "catalog2"}
         skip_migrations: list[str] = []
 
+        @pydantic.field_validator("email_url")
+        @classmethod
+        def validate_email_url(cls, value: str) -> str:
+            try:
+                resolve_email_settings(value, settings.DEBUG)
+            except ImproperlyConfigured as exc:
+                raise ValueError(str(exc)) from exc
+            return value
+
     @classmethod
     def _env_defaults(cls) -> dict:
         """Read current env-var-derived values from django settings as fallbacks."""
-        from django.conf import settings
-
         return {
             # Branding
             "site_name": settings.SITE_INFO.get("site_name", ""),
@@ -168,8 +179,17 @@ class SiteConfig(models.Model):
             "mastodon_login_whitelist": list(
                 getattr(settings, "MASTODON_ALLOWED_SITES", [])
             ),
+            "enable_login_mastodon": True,
             "enable_login_bluesky": getattr(settings, "ENABLE_LOGIN_BLUESKY", False),
             "enable_login_threads": getattr(settings, "ENABLE_LOGIN_THREADS", False),
+            "email_url": getattr(
+                settings, "EMAIL_URL_ENV", getattr(settings, "EMAIL_URL", "")
+            ),
+            "email_from": getattr(
+                settings,
+                "DEFAULT_FROM_EMAIL_ENV",
+                getattr(settings, "DEFAULT_FROM_EMAIL", ""),
+            ),
             # Discover
             "min_marks_for_discover": getattr(settings, "MIN_MARKS_FOR_DISCOVER", 1),
             "discover_update_interval": getattr(
@@ -222,9 +242,7 @@ class SiteConfig(models.Model):
             "lt_api_key": getattr(settings, "LT_API_KEY", ""),
             "threads_app_id": getattr(settings, "THREADS_APP_ID", ""),
             "threads_app_secret": getattr(settings, "THREADS_APP_SECRET", ""),
-            # Monitoring & Notifications
-            "sentry_dsn": getattr(settings, "_SENTRY_DSN", ""),
-            "sentry_sample_rate": getattr(settings, "_SENTRY_SAMPLE_RATE", 0.0),
+            # Notifications
             "discord_webhooks": dict(getattr(settings, "DISCORD_WEBHOOKS", {})),
             # Downloader
             "downloader_proxy_list": list(
@@ -324,8 +342,6 @@ class SiteConfig(models.Model):
     @classmethod
     def _apply_to_settings(cls, opts: "SiteConfig.SystemOptions") -> None:
         """Write config values back to django.conf.settings for backward compat."""
-        from django.conf import settings
-
         # Branding -> SITE_INFO
         si = settings.SITE_INFO
         si["site_name"] = opts.site_name
@@ -339,6 +355,15 @@ class SiteConfig(models.Model):
         si["site_links"] = [{"title": k, "url": v} for k, v in opts.site_links.items()]
         si["enable_login_atproto"] = opts.enable_login_bluesky
         si["translate_enabled"] = bool(opts.deepl_api_key) or bool(opts.lt_api_url)
+
+        # Email delivery and login availability
+        settings.EMAIL_URL = opts.email_url
+        settings.DEFAULT_FROM_EMAIL = opts.email_from
+        for key, value in resolve_email_settings(
+            opts.email_url, settings.DEBUG
+        ).items():
+            setattr(settings, key, value)
+        si["enable_login_email"] = settings.ENABLE_LOGIN_EMAIL
 
         # Refresh module-level language caches
         import common.models.lang as lang_module

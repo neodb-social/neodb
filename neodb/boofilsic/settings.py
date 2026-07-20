@@ -9,6 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from boofilsic import __version__
+from common.config import resolve_email_settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -31,7 +32,7 @@ env = environ.FileAwareEnv(
     # WARNING: must use your own key and keep it secret
     NEODB_SECRET_KEY=(str),
     # Site information
-    NEODB_SITE_NAME=(str),
+    NEODB_SITE_NAME=(str, "My NeoDB Site"),
     NEODB_SITE_DOMAIN=(str),
     NEODB_SITE_LOGO=(str, "/s/img/logo.svg"),
     NEODB_SITE_ICON=(str, "/s/img/icon.png"),
@@ -211,28 +212,13 @@ if _parsed_search_url.scheme == "typesense":
 #     MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
 #     MEILISEARCH_KEY =  _parsed_search_url.password
 
+EMAIL_URL = env("NEODB_EMAIL_URL")
 DEFAULT_FROM_EMAIL = env("NEODB_EMAIL_FROM")
-_parsed_email_url: parse.ParseResult = env.url("NEODB_EMAIL_URL")
-if _parsed_email_url.scheme == "anymail":
-    # "anymail://<anymail_backend_name>?<anymail_args>"
-    # see https://anymail.dev/
-    from urllib import parse
-
-    EMAIL_BACKEND = f"anymail.backends.{_parsed_email_url.hostname}.EmailBackend"
-    ANYMAIL = dict(parse.parse_qsl(_parsed_email_url.query))
-    ENABLE_LOGIN_EMAIL = True
-    if DEBUG:
-        ANYMAIL["DEBUG_API_REQUESTS"] = True  # type:ignore
-elif DEBUG and _parsed_email_url.scheme == "console":
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    ENABLE_LOGIN_EMAIL = True
-elif _parsed_email_url.scheme:
-    _parsed_email_config = env.email("NEODB_EMAIL_URL")
-    EMAIL_TIMEOUT = 5
-    vars().update(_parsed_email_config)
-    ENABLE_LOGIN_EMAIL = True
-else:
-    ENABLE_LOGIN_EMAIL = False
+EMAIL_URL_ENV = EMAIL_URL
+DEFAULT_FROM_EMAIL_ENV = DEFAULT_FROM_EMAIL
+_resolved_email_settings = resolve_email_settings(EMAIL_URL, DEBUG)
+vars().update(_resolved_email_settings)
+ENABLE_LOGIN_EMAIL: bool = bool(_resolved_email_settings["ENABLE_LOGIN_EMAIL"])
 
 
 THREADS_APP_ID = env("THREADS_APP_ID")

@@ -15,7 +15,7 @@ docker compose --profile production run --rm shell neodb-manage user --list
 ---
 
 ## **Create invitation code**
-If you set `NEODB_INVITE_ONLY` to `true` in your .env file, only users with an invite code are able to create an account. This is how you can create a code.
+Enable **Invite Only** in Site Settings > Access to require an invite code when creating an account. This is how you can create a code.
 ```
 docker compose --profile production run --rm shell neodb-manage invite --create
 ```
@@ -29,7 +29,7 @@ A step-by-step admin account creation. If you already have an account and want t
 docker compose --profile production run --rm shell neodb-manage createsuperuser
 ```
 
-NeoDB has no password login: the account created this way logs in with a verification code sent to its email address, so `NEODB_EMAIL_URL` must be configured in `.env` first — the command will refuse to run without it. Any password entered at the prompt is not used.
+NeoDB has no password login: the account created this way logs in with a verification code sent to its email address, so `NEODB_EMAIL_URL` must be configured in `.env` before creating the first admin. Afterward, email delivery can be managed in Site Settings > Access. The command will refuse to run without email login configured. Any password entered at the prompt is not used.
 
 Alternatively, set `NEODB_ADMIN_HANDLES` in `.env` to auto-promote users to superuser when they register with a matching handle:
 ```

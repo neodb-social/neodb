@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models import SiteConfig
 from common.sentry import count as sentry_count
 from common.views import render_error
 from mastodon.models import Mastodon
@@ -17,6 +18,11 @@ from users.login_proof import verify_login_proof
 @require_http_methods(["GET", "POST"])
 def mastodon_login(request):
     """verify mastodon api server and redirect"""
+    if (
+        not request.user.is_authenticated
+        and not SiteConfig.system.enable_login_mastodon
+    ):
+        return render_error(request, _("Mastodon login is disabled."))
     login_domain = request.POST.get("domain") or request.GET.get("domain")
     if not login_domain:
         return render_error(request, _("Missing instance domain"))
@@ -44,6 +50,11 @@ def mastodon_login(request):
 @require_http_methods(["GET"])
 def mastodon_oauth(request):
     """handle redirect back from mastodon api server"""
+    if (
+        not request.user.is_authenticated
+        and not SiteConfig.system.enable_login_mastodon
+    ):
+        return render_error(request, _("Mastodon login is disabled."))
     code = request.GET.get("code")
     if not code:
         return render_error(
