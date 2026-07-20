@@ -237,6 +237,33 @@
           $('.unsorted .entity-sort').each((i, elem) => {
               $('.sortable').append(elem);
           });
+          // Progressively reveal shelves: show only the first section's loading
+          // state and keep the rest hidden until the preceding one has finished
+          // loading, so the page fills top-to-bottom instead of showing a stack
+          // of placeholders that then grow or get removed. Lazy (intersect)
+          // loading is preserved: a revealed section still waits until scrolled
+          // into view before it loads.
+          (function () {
+              const sections = Array.prototype.slice
+                  .call(document.querySelectorAll('.sortable > .entity-sort'))
+                  .filter((el) => el.style.display !== 'none');
+              if (sections.length <= 1) return;
+              for (let i = 1; i < sections.length; i++) {
+                  sections[i].style.display = 'none';
+              }
+              let active = 0;
+              const advance = (section) => {
+                  if (sections.indexOf(section) !== active) return;
+                  active += 1;
+                  if (active < sections.length) sections[active].style.display = '';
+              };
+              const onLoaded = (e) => {
+                  const section = e.target.closest && e.target.closest('.entity-sort');
+                  if (section) advance(section);
+              };
+              document.body.addEventListener('htmx:afterSettle', onLoaded);
+              document.body.addEventListener('htmx:afterRequest', onLoaded);
+          })();
           </script>
           {% if identity.user == request.user %}
             <div class="entity-sort-control">
