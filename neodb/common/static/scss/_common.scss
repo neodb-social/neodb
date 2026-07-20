@@ -29,6 +29,44 @@
   }
 }
 
+// Full reading view for a federated ActivityPub Article (WriteFreely / Plume /
+// Ghost / Wordpress-AP). Rendered on the post detail page via
+// ``_remote_article_teaser.html`` in ``show_full`` mode.
+.remote-article {
+  .article-cover {
+    margin: 0 0 0.8em 0;
+
+    img {
+      width: 100%;
+      max-height: 22em;
+      object-fit: cover;
+      border-radius: var(--pico-border-radius);
+    }
+  }
+
+  >header {
+    margin-bottom: 0.6em;
+
+    .remote-article-title {
+      font-size: 1.5rem;
+      margin-bottom: 0.2em;
+    }
+
+    .piece-summary {
+      margin: 0;
+    }
+  }
+
+  .markdown-content img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  >footer {
+    margin-top: 1em;
+  }
+}
+
 .tldr-2 {
   overflow: hidden;
   text-overflow: " ... [点击展开]";

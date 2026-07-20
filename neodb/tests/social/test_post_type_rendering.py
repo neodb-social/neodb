@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from django.template.loader import render_to_string
 from django.test import Client
 from django.utils import timezone
 
@@ -157,3 +158,128 @@ def test_single_question_renders_for_anonymous_and_allows_authenticated_vote():
     authenticated_html = authenticated_response.content.decode()
     assert 'value="Submit"' in authenticated_html
     assert "Log in to vote." not in authenticated_html
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_single_article_renders_reading_view():
+    owner = User.register(email="article-owner@example.com", username="articleowner")
+    post = Post.objects.create(
+        author=owner.identity.takahe_identity,
+        local=True,
+        object_uri="https://remote.test/articles/hello",
+        url="https://remote.test/articles/hello",
+        content="<p>The full body of the article.</p><p>Second paragraph.</p>",
+        type=Post.Types.article,
+        type_data={
+            "object": {
+                "id": "https://remote.test/articles/hello",
+                "type": "Article",
+                "name": "Hello Fediverse",
+                "summary": "A short standfirst.",
+                "image": {"type": "Image", "url": "https://remote.test/cover.jpg"},
+                "tag": [
+                    {"type": "Hashtag", "name": "#fediverse"},
+                    {"type": "Mention", "name": "@someone"},
+                ],
+            }
+        },
+        visibility=Post.Visibilities.public,
+        state="fanned_out",
+    )
+
+    response = Client().get(f"/@{owner.username}/posts/{post.pk}/")
+
+    assert response.status_code == 200
+    html = response.content.decode()
+    # full reading view, not the compact timeline teaser
+    assert 'class="remote-article"' in html
+    assert 'class="article-teaser"' not in html
+    # title renders exactly once as the reading-view heading
+    assert html.count("remote-article-title") == 1
+    assert "Hello Fediverse" in html
+    assert "A short standfirst." in html
+    assert "wrote an article" in html
+    # lead image (also surfaced as the OpenGraph image), body, and hashtag
+    assert "https://remote.test/cover.jpg" in html
+    assert 'property="og:image" content="https://remote.test/cover.jpg"' in html
+    assert "The full body of the article." in html
+    assert "#fediverse" in html
+    # non-hashtag tags (mentions) are filtered out of the tag footer
+    assert "@someone" not in html
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_article_timeline_teaser_links_to_detail_and_truncates():
+    owner = User.register(email="teaser-owner@example.com", username="teaserowner")
+    body = " ".join(f"word{i}" for i in range(100))
+    post = Post.objects.create(
+        author=owner.identity.takahe_identity,
+        local=True,
+        object_uri="https://remote.test/articles/long",
+        url="https://remote.test/articles/long",
+        content=f"<p>{body}</p>",
+        type=Post.Types.article,
+        type_data={"object": {"type": "Article", "name": "Long Read"}},
+        visibility=Post.Visibilities.public,
+        state="fanned_out",
+    )
+
+    html = render_to_string(
+        "_remote_article_teaser.html", {"post": post, "show_full": False}
+    )
+
+    assert "article-teaser" in html
+    assert "remote-article" not in html  # dedicated reading view not used inline
+    assert "Long Read" in html
+    assert "word0" in html
+    assert "word99" not in html  # truncated at 60 words
+    # teaser title links to our detail page, not the external original
+    assert f"/posts/{post.pk}/" in html
+    assert "https://remote.test/articles/long" not in html
+
+
+@pytest.mark.parametrize(
+    "image,expected",
+    [
+        ("https://remote.test/a.jpg", "https://remote.test/a.jpg"),
+        (
+            {"type": "Image", "url": "https://remote.test/b.jpg"},
+            "https://remote.test/b.jpg",
+        ),
+        (
+            {"url": {"type": "Link", "href": "https://remote.test/c.jpg"}},
+            "https://remote.test/c.jpg",
+        ),
+        (
+            {"type": "Link", "href": "https://remote.test/f.jpg"},
+            "https://remote.test/f.jpg",
+        ),
+        (
+            [{"url": "https://remote.test/d.jpg"}, "ignored"],
+            "https://remote.test/d.jpg",
+        ),
+        (None, None),
+        ({}, None),
+        ("ftp://remote.test/e.jpg", None),
+    ],
+)
+def test_article_cover_url_normalizes_image_shapes(image, expected):
+    post = Post(type=Post.Types.article, type_data={"object": {"image": image}})
+    assert post.article_cover_url == expected
+
+
+def test_article_cover_url_none_for_non_article():
+    post = Post(
+        type=Post.Types.note,
+        type_data={"object": {"image": "https://remote.test/x.jpg"}},
+    )
+    assert post.article_cover_url is None
+
+
+def test_article_cover_url_handles_non_dict_type_data():
+    # type_data may be any JSON shape; a list must not raise AttributeError.
+    assert Post(type=Post.Types.article, type_data=[]).article_cover_url is None
+    assert (
+        Post(type=Post.Types.article, type_data={"object": []}).article_cover_url
+        is None
+    )

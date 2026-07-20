@@ -35,6 +35,8 @@
         <meta property="og:image" content="{{ card.image_proxy_url.absolute }}">
       {% elif post.item.has_cover %}
         <meta property="og:image" content="{{ post.item.cover|thumb:'normal' }}">
+      {% elif post.article_cover_url %}
+        <meta property="og:image" content="{{ post.article_cover_url }}">
       {% endif %}
       {% if card %}
         <meta property="og:description"

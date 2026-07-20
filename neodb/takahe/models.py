@@ -1649,6 +1649,38 @@ class Post(models.Model):
             return None
         return card if card.state == "fetched" else None
 
+    @property
+    def article_cover_url(self) -> str | None:
+        """Lead image URL for a federated Article, if the AS object carries one.
+
+        The AS ``image`` may be a bare URL string, an Image/Link object (with
+        ``url`` or a top-level ``href``, either of which can itself be a Link),
+        or a list of either; normalize to a single http(s) URL for the reading
+        view. Returns None for non-Article posts or when no usable image is
+        present.
+        """
+        if self.type != self.Types.article:
+            return None
+        if not isinstance(self.type_data, dict):
+            return None
+        obj = self.type_data.get("object")
+        if not isinstance(obj, dict):
+            return None
+        image = obj.get("image")
+        if isinstance(image, list):
+            image = image[0] if image else None
+        if isinstance(image, dict):
+            url = image.get("url") or image.get("href")
+            if isinstance(url, dict):
+                url = url.get("href")
+        elif isinstance(image, str):
+            url = image
+        else:
+            url = None
+        if isinstance(url, str) and url.startswith(("http://", "https://")):
+            return url
+        return None
+
     _neodb_url_regex = re.compile(r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"')
 
     @classmethod

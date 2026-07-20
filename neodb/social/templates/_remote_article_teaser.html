@@ -1,16 +1,37 @@
 {% load i18n %}
 {% with title=post.type_data.object.name|default:post.summary|striptags summary=post.type_data.object.summary %}
-  <section class="article-teaser">
-    <h6>
-      <a href="{{ post.url|default:post.object_uri }}">{{ title|default:_("Untitled article") }}</a>
-    </h6>
-    {% if show_full %}
-      {% if summary %}<p class="piece-summary">{{ summary|striptags }}</p>{% endif %}
+  {% if show_full %}
+    <section class="remote-article">
+      {% if post.article_cover_url %}
+        <figure class="article-cover">
+          <img src="{{ post.article_cover_url }}" alt="" loading="lazy">
+        </figure>
+      {% endif %}
+      <header>
+        <h1 class="remote-article-title">{{ title|default:_("Untitled article") }}</h1>
+        {% if summary %}<p class="piece-summary">{{ summary|striptags }}</p>{% endif %}
+      </header>
       <div class="markdown-content">{{ post.safe_content_local }}</div>
-    {% else %}
+      {% with tags=post.type_data.object.tag %}
+        {% if tags %}
+          <footer>
+            <p class="tag-list">
+              {% for t in tags %}
+                {% if t.type == 'Hashtag' and t.name %}<span class="tag"><a>{{ t.name }}</a></span>{% endif %}
+              {% endfor %}
+            </p>
+          </footer>
+        {% endif %}
+      {% endwith %}
+    </section>
+  {% else %}
+    <section class="article-teaser">
+      <h6>
+        <a href="{% url 'journal:post_view' post.author.handle post.pk %}">{{ title|default:_("Untitled article") }}</a>
+      </h6>
       {% with teaser=summary|default:post.content_plain_text %}
         {% if teaser %}<p class="piece-summary">{{ teaser|striptags|truncatewords:60 }}</p>{% endif %}
       {% endwith %}
-    {% endif %}
-  </section>
+    </section>
+  {% endif %}
 {% endwith %}
