@@ -580,7 +580,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
                 Item.external_resources_prefetch(lookup="item__external_resources"),
             )
         )
-        is_owner = request.user.is_authenticated and request.user.identity == target
+        is_owner = request.user.is_authenticated and target.user == request.user
         # Reading progress is private; only show the badge to the shelf owner.
         show_progress_badges = (
             is_owner
