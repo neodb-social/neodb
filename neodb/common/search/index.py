@@ -234,7 +234,8 @@ class Index:
     search_result_class = SearchResult
 
     _instance = None
-    _client: Client
+    _read_client: Client
+    _write_client: Client
 
     @classmethod
     def instance(cls) -> Self:
@@ -243,18 +244,31 @@ class Index:
         return cls._instance
 
     @classmethod
-    def get_client(cls):
-        return Client(settings.TYPESENSE_CONNECTION)
+    def get_client(cls, for_write: bool = False) -> Client:
+        # Reads are on the request path, so they must never retry: on a timeout
+        # the client retries the identical (slow) query immediately with no
+        # backoff, turning one slow search into a burst of consecutive HTTP
+        # calls that both stalls the page and piles load onto an already-slow
+        # Typesense (NEODB-SOCIAL-7RV). Writes run in background jobs where
+        # durability matters more than latency, so they retry a couple of times.
+        return Client(
+            {
+                **settings.TYPESENSE_CONNECTION,
+                "num_retries": 2 if for_write else 0,
+            }
+        )
 
     def __init__(self):
-        self._client = self.get_client()
+        self._read_client = self.get_client()
+        self._write_client = self.get_client(for_write=True)
 
     def _get_collection(self, for_write=False) -> Collection:
         collection_id = self.name + ("_write" if for_write else "_read")
         cname = SiteConfig.system.index_aliases.get(
             collection_id
         ) or SiteConfig.system.index_aliases.get(self.name, self.name)
-        collection = self._client.collections[cname]
+        client = self._write_client if for_write else self._read_client
+        collection = client.collections[cname]
         if not collection:
             raise KeyError(f"Typesense: collection {collection_id} not found")
         return collection
@@ -277,12 +291,12 @@ class Index:
         return schema  # type: ignore
 
     def check(self) -> CollectionSchema:
-        if not self._client.operations.is_healthy():
+        if not self._read_client.operations.is_healthy():
             raise ValueError("Typesense: server not healthy")
         return self.read_collection.retrieve()
 
     def create_collection(self):
-        self._client.collections.create(self.get_schema())
+        self._write_client.collections.create(self.get_schema())
 
     def delete_collection(self):
         self.write_collection.delete()
@@ -293,7 +307,7 @@ class Index:
     def initialize_collection(self, max_wait=5) -> bool:
         try:
             wait = max_wait
-            while not self._client.operations.is_healthy() and wait:
+            while not self._write_client.operations.is_healthy() and wait:
                 logger.warning("Typesense: server not healthy")
                 sleep(1)
                 wait -= 1
@@ -303,7 +317,7 @@ class Index:
             cname = SiteConfig.system.index_aliases.get(
                 self.name + "_write"
             ) or SiteConfig.system.index_aliases.get(self.name, self.name)
-            collection = self._client.collections[cname]
+            collection = self._write_client.collections[cname]
             if collection:
                 try:
                     i = collection.retrieve()
@@ -403,7 +417,7 @@ class Index:
             logger.debug(f"Typesense: search {self.name} {params}")
         try:
             # use multi_search as typesense limits query size for normal search
-            r = self._client.multi_search.perform(
+            r = self._read_client.multi_search.perform(
                 cast(MultiSearchRequestSchema, {"searches": [params]}),
                 cast(
                     MultiSearchCommonParameters,

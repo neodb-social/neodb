@@ -204,7 +204,14 @@ if _parsed_search_url.scheme == "typesense":
                 "protocol": "http",
             }
         ],
-        "connection_timeout_seconds": 2,
+        # connection_timeout_seconds is applied as the httpx read timeout too,
+        # so a slow (but valid) multi_search on a popular item would exceed the
+        # old 2s and get killed, then retried immediately with no backoff. Give
+        # queries enough headroom to finish in one attempt. num_retries is set
+        # per read/write client in common.search.index (reads never retry so a
+        # slow query can't turn into a consecutive-HTTP storm; see
+        # NEODB-SOCIAL-7RV).
+        "connection_timeout_seconds": 4,
     }
     TYPESENSE_INDEX_NAME = _parsed_search_url.path[1:]
 # elif _parsed_search_url.scheme == "meilisearch":
