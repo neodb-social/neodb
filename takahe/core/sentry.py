@@ -45,6 +45,16 @@ def count(key: str, value: float = 1, attributes: dict[str, str] | None = None):
     _metrics_count(key, value, attributes=attributes or {})
 
 
+def record_activity(action: str, source: str) -> None:
+    """Emit a `user.activity` counter for a user-initiated action.
+
+    Mirror of neodb's ``common.sentry.record_activity`` for the takahe-served
+    Mastodon API; takahe is a separate project and cannot import the neodb
+    package, so the counter is re-emitted here with the same key/attributes.
+    """
+    count("user.activity", attributes={"action": action, "source": source})
+
+
 def distribution(
     key: str,
     value: float,

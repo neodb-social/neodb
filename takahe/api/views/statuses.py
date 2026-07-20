@@ -21,6 +21,7 @@ from activities.models.post_types import (
     POLL_MIN_EXPIRATION,
 )
 from activities.services import PostService
+from core import sentry
 from users.models import Identity
 from api import schemas
 from api.decorators import scope_required
@@ -248,6 +249,7 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
     )
     # Add their own timeline event for immediate visibility
     TimelineEvent.add_post(request.identity, post)
+    sentry.record_activity("post", "api")
     return schemas.Status.from_post(post, identity=request.identity)
 
 
