@@ -57,6 +57,7 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
             ).pk
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
+        record_activity("collection", "web")
         referer = request.META.get("HTTP_REFERER") or ""
         if not url_has_allowed_host_and_scheme(
             referer,
@@ -463,6 +464,7 @@ def collection_append_item(request: AuthedHttpRequest, collection_uuid):
     member = None
     if item:
         member, new = collection.append_item(item, note=note)
+        record_activity("collection", "web")
         # ``append_item`` fires the ``list_add`` signal, which the
         # ``_collection_member_changed`` receiver maps to
         # ``collection.save()`` (and federation re-post). No explicit save

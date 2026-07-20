@@ -523,6 +523,7 @@ def collection_add_item(
     if not item:
         return Status(404, {"message": "Item not found"})
     c.append_item(item, note=collection_item.note)
+    record_activity("collection", "api")
     return Status(200, {"message": "OK"})
 
 

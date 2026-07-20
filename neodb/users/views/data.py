@@ -22,6 +22,7 @@ from catalog.common import SiteManager
 from catalog.models import Item, SiteName
 from catalog.sites import FediverseInstance
 from common.models import SiteConfig
+from common.sentry import record_activity
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
 from journal.importers import (
@@ -258,6 +259,7 @@ def export_marks(request):
     # TODO: deprecated
     if request.method == "POST":
         DoufenExporter.create(request.user).enqueue()
+        record_activity("export", "web")
         messages.add_message(request, messages.INFO, _("Generating exports."))
         return redirect(reverse("users:data"))
     else:
@@ -295,6 +297,7 @@ def export_csv(request):
             )
             return redirect(reverse("users:data"))
         CsvExporter.create(request.user).enqueue()
+        record_activity("export", "web")
         return redirect(
             reverse("users:user_task_status", args=("journal.csvexporter",))
         )
@@ -315,6 +318,7 @@ def export_ndjson(request):
             )
             return redirect(reverse("users:data"))
         NdjsonExporter.create(request.user).enqueue()
+        record_activity("export", "web")
         return redirect(
             reverse("users:user_task_status", args=("journal.ndjsonexporter",))
         )
@@ -451,6 +455,7 @@ def import_goodreads(request):
         file=f,
     )
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -469,6 +474,8 @@ def import_rym_upload(request):
         return redirect(reverse("users:data"))
     if not RymImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
+    # record once at import start; the confirm step re-enqueues the same task.
+    record_activity("import", "web")
     f = (
         settings.MEDIA_ROOT
         + "/"
@@ -692,6 +699,8 @@ def import_storygraph(request):
         return redirect(reverse("users:data"))
     if not StoryGraphImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
+    # record once at import start; the confirm step re-enqueues the same task.
+    record_activity("import", "web")
     f = (
         settings.MEDIA_ROOT
         + "/"
@@ -923,6 +932,7 @@ def import_douban(request):
         file=f,
     )
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -947,6 +957,7 @@ def import_letterboxd(request):
         file=f,
     )
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -971,6 +982,7 @@ def import_trakt(request):
         file=f,
     )
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -996,6 +1008,7 @@ def import_opml(request):
         file=f,
     )
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -1028,6 +1041,7 @@ def import_neodb(request):
             file=f,
         )
         task.enqueue()
+        record_activity("import", "web")
         return redirect(reverse("users:user_task_status", args=(task.type,)))
     return redirect(reverse("users:data"))
 
@@ -1086,6 +1100,7 @@ def import_steam(request):
 
     task = SteamImporter.create(user=request.user, **metadata)
     task.enqueue()
+    record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
@@ -1306,6 +1321,7 @@ def import_social_graph(request):
         messages.error(request, _("No valid entries found in the CSV file."))
         return redirect(reverse("users:info"))
 
+    record_activity("import", "web")
     django_rq.get_queue("mastodon").enqueue(
         _import_social_graph_task, identity.pk, import_type, entries
     )
@@ -1321,6 +1337,7 @@ def import_social_graph(request):
 @login_required
 def export_social_graph_csv(request, export_type: str):
     identity = request.user.identity
+    record_activity("export", "web")
 
     response = HttpResponse(content_type="text/csv")
 
