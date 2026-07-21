@@ -130,9 +130,14 @@ class Note(Content):
     ) -> int | None:
         """Return reading progress as an integer percent (0-100), if derivable.
 
-        Percentage-type progress is used directly; page-type is converted when
-        the total page count is known. Other types have no known total, so no
-        percentage can be computed and None is returned.
+        Percentage-type progress is used as-is; page-type is converted when a
+        positive total page count is known. Other types, and pages without a
+        usable total, have no derivable percentage and return None.
+
+        Inputs are coerced defensively so a bad value never raises: the value
+        is free-text, and ``total`` comes from an item's metadata JSON where a
+        page count may be stored as a non-int (or be negative/zero). Anything
+        that cannot be parsed into a positive total simply yields None.
         """
         if not progress_value or not _number.match(str(progress_value)):
             return None
@@ -142,8 +147,16 @@ class Note(Content):
             return None
         if progress_type == cls.ProgressType.PERCENTAGE:
             percent = value
-        elif progress_type == cls.ProgressType.PAGE and total:
-            percent = value / total * 100
+        elif progress_type == cls.ProgressType.PAGE:
+            if total is None:
+                return None
+            try:
+                total_pages = float(total)
+            except TypeError, ValueError:
+                return None
+            if total_pages <= 0:
+                return None
+            percent = value / total_pages * 100
         else:
             return None
         return max(0, min(100, round(percent)))

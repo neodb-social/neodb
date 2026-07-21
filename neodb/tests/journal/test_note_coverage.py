@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 import pytest
 
 from catalog.models import (
@@ -77,9 +79,27 @@ class TestNoteProgressPercentage:
     def test_page_type_rounds(self):
         assert Note.get_progress_percentage(Note.ProgressType.PAGE, "1", 3) == 33
 
-    def test_page_type_without_total(self):
+    def test_page_type_without_usable_total(self):
         assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100") is None
         assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100", 0) is None
+        assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100", -10) is None
+
+    def test_page_type_non_numeric_total(self):
+        # Edition.pages comes from item metadata JSON and may arrive as a
+        # non-int; a total that cannot be parsed must not raise.
+        assert (
+            Note.get_progress_percentage(
+                Note.ProgressType.PAGE, "100", cast(Any, "many")
+            )
+            is None
+        )
+        # A numeric string total is still usable.
+        assert (
+            Note.get_progress_percentage(
+                Note.ProgressType.PAGE, "100", cast(Any, "400")
+            )
+            == 25
+        )
 
     def test_chapter_type_has_no_percentage(self):
         assert Note.get_progress_percentage(Note.ProgressType.CHAPTER, "3", 10) is None
@@ -87,6 +107,10 @@ class TestNoteProgressPercentage:
     def test_empty_or_non_numeric_value(self):
         assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, None) is None
         assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "") is None
+        # passes the numeric-ish guard but is not a real number -> no crash
+        assert (
+            Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "12:30") is None
+        )
         assert (
             Note.get_progress_percentage(Note.ProgressType.PAGE, "12-15", 100) is None
         )
