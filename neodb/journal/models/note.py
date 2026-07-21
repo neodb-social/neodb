@@ -121,6 +121,33 @@ class Note(Content):
             return str(progress_value)
         return tpl.format(value=progress_value)
 
+    @classmethod
+    def get_progress_percentage(
+        cls,
+        progress_type: str | None,
+        progress_value: str | None,
+        total: int | None = None,
+    ) -> int | None:
+        """Return reading progress as an integer percent (0-100), if derivable.
+
+        Percentage-type progress is used directly; page-type is converted when
+        the total page count is known. Other types have no known total, so no
+        percentage can be computed and None is returned.
+        """
+        if not progress_value or not _number.match(str(progress_value)):
+            return None
+        try:
+            value = float(str(progress_value))
+        except TypeError, ValueError:
+            return None
+        if progress_type == cls.ProgressType.PERCENTAGE:
+            percent = value
+        elif progress_type == cls.ProgressType.PAGE and total:
+            percent = value / total * 100
+        else:
+            return None
+        return max(0, min(100, round(percent)))
+
     @property
     def ap_object(self):
         d = {

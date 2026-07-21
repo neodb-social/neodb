@@ -644,6 +644,13 @@ class ShelfMemberProgress(models.Model):
 
         return Note.format_progress_short(self.progress_type, self.progress_value)
 
+    def progress_percentage(self, total: int | None = None) -> int | None:
+        from .note import Note
+
+        return Note.get_progress_percentage(
+            self.progress_type, self.progress_value, total
+        )
+
 
 class Shelf(List):
     """

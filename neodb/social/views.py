@@ -62,6 +62,9 @@ def _sidebar_context(user):
             rendered_book.reading_progress_short = (
                 current_progress.progress_short_display
             )
+            rendered_book.reading_progress_percent = (
+                current_progress.progress_percentage(book.pages)
+            )
         books_in_progress.append(book)
     tvshows_in_progress = Item.objects.filter(
         id__in=[

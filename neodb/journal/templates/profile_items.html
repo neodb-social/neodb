@@ -24,9 +24,16 @@
   {% for item in items %}
     <li class="card progress-card">
       <a href="{{ item.url }}" title="{{ item.display_title }}">
-        <img src="{{ item.cover|thumb:'normal' }}"
-             alt="{{ item.display_title }}"
-             loading="lazy">
+        <span class="cover">
+          <img src="{{ item.cover|thumb:'normal' }}"
+               alt="{{ item.display_title }}"
+               loading="lazy">
+          {% if item.reading_progress_percent %}
+            <span class="progress-bar" title="{{ item.reading_progress_percent }}%">
+              <span style="width:{{ item.reading_progress_percent }}%"></span>
+            </span>
+          {% endif %}
+        </span>
         <div>{{ item.display_title }}</div>
       </a>
       {% if show_progress_badges %}

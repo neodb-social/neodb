@@ -610,6 +610,11 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
                     member.item.reading_progress_short = (
                         current_progress.progress_short_display
                     )
+                    member.item.reading_progress_percent = (
+                        current_progress.progress_percentage(
+                            getattr(member.item, "pages", None)
+                        )
+                    )
     if items:
         Item.prefetch_parent_items(items)
         Rating.attach_to_items(items)

@@ -43,6 +43,36 @@
   text-align: center;
 }
 
+// The cover wrapper anchors overlays (badge, progress bar) to the image edges.
+.shelf .progress-card .cover {
+  position: relative;
+  display: block;
+}
+
+.shelf .progress-card .cover > img {
+  display: block;
+}
+
+// Reading progress bar overlaid along the bottom of the book cover. Inset by
+// 2px to sit inside the cover's transparent border.
+.shelf .progress-card .cover > .progress-bar {
+  position: absolute;
+  inset-inline: 2px;
+  bottom: 2px;
+  z-index: 1;
+  height: 0.3rem;
+  border-radius: 0.15rem;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.shelf .progress-card .cover > .progress-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pico-primary-background);
+}
+
 #mark_date {
   width: unset !important;
 }

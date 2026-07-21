@@ -59,6 +59,39 @@ class TestNoteProgressDisplay:
         assert Note.format_progress_short("unknown", "42") == "42"
 
 
+class TestNoteProgressPercentage:
+    def test_percentage_type_used_directly(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "50") == 50
+
+    def test_percentage_type_ignores_total(self):
+        assert (
+            Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "30", 400) == 30
+        )
+
+    def test_percentage_clamped_to_max(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "150") == 100
+
+    def test_page_type_converted_with_total(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100", 400) == 25
+
+    def test_page_type_rounds(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PAGE, "1", 3) == 33
+
+    def test_page_type_without_total(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100") is None
+        assert Note.get_progress_percentage(Note.ProgressType.PAGE, "100", 0) is None
+
+    def test_chapter_type_has_no_percentage(self):
+        assert Note.get_progress_percentage(Note.ProgressType.CHAPTER, "3", 10) is None
+
+    def test_empty_or_non_numeric_value(self):
+        assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, None) is None
+        assert Note.get_progress_percentage(Note.ProgressType.PERCENTAGE, "") is None
+        assert (
+            Note.get_progress_percentage(Note.ProgressType.PAGE, "12-15", 100) is None
+        )
+
+
 class TestNoteExtractProgress:
     def test_track_prefix(self):
         typ, val = Note.extract_progress("trk 5")

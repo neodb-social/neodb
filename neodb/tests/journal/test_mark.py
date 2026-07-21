@@ -181,6 +181,36 @@ def test_set_book_progress_logs_change_without_new_post():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_progress_shelf_renders_progress_bar(client):
+    user = User.register(email="progressbar@example.com", username="progressbar")
+    book = Edition.objects.create(title="Bar Book")
+    book.pages = 400
+    book.save()
+    mark = Mark(user.identity, book)
+    mark.update(ShelfType.PROGRESS, visibility=0)
+    mark.set_progress(Note.ProgressType.PAGE, "100")
+
+    url = reverse(
+        "journal:profile_shelf_items", args=[user.username, "book", "progress"]
+    )
+
+    # Owner sees the progress bar; page 100 of 400 converts to 25%.
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.get(url)
+    assert response.status_code == 200
+    owner_content = response.content.decode()
+    assert "progress-bar" in owner_content
+    assert "width:25%" in owner_content
+
+    # Reading progress is private: another viewer never sees the bar.
+    other = User.register(email="progressbar-other@example.com", username="pbother")
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert "progress-bar" not in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_set_book_progress_retries_log_timestamp_collision(monkeypatch):
     user = User.register(email="progress-collision@example.com", username="progressdup")
     book = Edition.objects.create(title="Progress Collision Book")
