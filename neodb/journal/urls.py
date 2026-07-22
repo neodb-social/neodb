@@ -233,6 +233,11 @@ urlpatterns = [
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"
     ),
     re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/\.well-known/site\.standard\.publication$",
+        standard_site_publication,
+        name="standard_site_publication",
+    ),
+    re_path(
         r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/calendar_data$",
         user_calendar_data,
         name="user_calendar_data",

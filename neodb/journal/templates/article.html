@@ -30,6 +30,14 @@
     <meta property="og:site_name" content="{{ site_name }}">
     <meta name="fediverse:creator" content="@{{ article.owner.full_handle }}">
     <link rel="canonical" href="{{ article.absolute_url }}">
+    {% if article.atproto_document_uri %}
+      <link rel="site.standard.document"
+            href="{{ article.atproto_document_uri }}">
+    {% endif %}
+    {% if article.atproto_publication_uri %}
+      <link rel="site.standard.publication"
+            href="{{ article.atproto_publication_uri }}">
+    {% endif %}
     <meta name="lastmodified" content="{{ article.edited_time | date:'r' }}">
     {% if article.classname == "review" %}
       <meta property="og:image" content="{{ article.item.cover|thumb:'normal' }}">

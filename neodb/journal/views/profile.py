@@ -27,6 +27,22 @@ from ..models.common import prefetch_pieces_for_posts
 from ..search import JournalIndex
 
 
+@require_http_methods(["GET"])
+@profile_identity_required
+def standard_site_publication(request: AuthedHttpRequest, user_name):
+    """Verification endpoint (https://standard.site/) returning the at://
+    uri of the identity's ``site.standard.publication`` record as plain text.
+
+    Served under the record's ``url`` (the profile page), so consumers can
+    confirm the identity behind that url controls the record.
+    """
+    target = request.target_identity
+    account = target.user.bluesky if target.local and target.user else None
+    if not account or not target.discoverable:
+        raise Http404(_("Content not found"))
+    return HttpResponse(account.publication_uri, content_type="text/plain")
+
+
 @require_http_methods(["GET", "HEAD"])
 @profile_identity_required
 def profile(request: AuthedHttpRequest, user_name):

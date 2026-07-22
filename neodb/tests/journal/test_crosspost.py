@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from catalog.models import Edition
 from journal.models import Comment, CrosspostRetry, Piece, Review
+from journal.models.atproto import DOCUMENT_NSID
 from mastodon.models import BlueskyAccount, MastodonAccount, ThreadsAccount
 from users.jobs.cleanup import prune_crosspost_retries
 from users.models import User
@@ -307,6 +308,47 @@ class TestCrosspostViews:
         session.save()
         response = client.get(url)
         assert b"passkey-nudge" not in response.content
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_crosspost_attaches_standard_site_refs(user, monkeypatch):
+    _link_bluesky(user)
+    book = Edition.objects.create(title="Test Book")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    calls = []
+    pub_ref = {"uri": "at://did:plc:3/site.standard.publication/3pub", "cid": "pc"}
+
+    def fake_put(self, collection, rkey, record):
+        calls.append(("put", collection))
+        return {"uri": f"at://did:plc:3/{collection}/{rkey}", "cid": "dc"}
+
+    posted: dict = {}
+
+    def fake_post(self, **kwargs):
+        calls.append(("post", None))
+        posted.update(kwargs)
+        return {"cid": "c1", "id": "at://did:plc:3/app.bsky.feed.post/1"}
+
+    monkeypatch.setattr(BlueskyAccount, "put_record", fake_put)
+    monkeypatch.setattr(
+        BlueskyAccount, "get_publication_ref", lambda self: dict(pub_ref)
+    )
+    monkeypatch.setattr(BlueskyAccount, "post", fake_post)
+
+    review._sync_to_social_accounts(0)
+
+    rkey = review.metadata["atproto_document_rkey"]
+    assert posted["associated_refs"] == [
+        pub_ref,
+        {"uri": f"at://did:plc:3/{DOCUMENT_NSID}/{rkey}", "cid": "dc"},
+    ]
+    # the document must exist on the PDS before the skeet strong-refs it
+    assert calls.index(("put", DOCUMENT_NSID)) < calls.index(("post", None))
+    # and it is rewritten after the post so it carries bskyPostRef
+    assert calls.count(("put", DOCUMENT_NSID)) == 2
+    assert review.metadata["bluesky_id"] == "at://did:plc:3/app.bsky.feed.post/1"
 
 
 @pytest.mark.django_db(databases="__all__")

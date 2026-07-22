@@ -7,7 +7,11 @@ definitions are documented under ``docs/lexicons/net/neodb/``.
 
 Long-form pieces (reviews and articles) are additionally published as
 ``site.standard.document`` records (https://standard.site/) so generic
-ATProto publishing apps can read them; see :func:`build_document`.
+ATProto publishing apps can read them; see :func:`build_document`. Together
+with the owner's ``site.standard.publication`` record (built by
+``BlueskyAccount``), these back the enhanced publication card bsky.app
+renders for crossposted long-form pieces via the skeet embed's
+``associatedRefs``.
 
 NeoDB catalog items are not themselves ATProto records, so a work is
 referenced inline via :func:`build_subject` (NeoDB permalink, source URLs
@@ -149,22 +153,17 @@ def build_fediverse_uri(piece: "Piece") -> str | None:
     return post.object_uri if post else None
 
 
-def build_document_rkey(piece: "Piece") -> str:
-    """Deterministic TID record key for a piece's ``site.standard.document``.
+def build_tid(dt: datetime, pk: int) -> str:
+    """Deterministic TID record key derived from a timestamp and integer id.
 
-    The lexicon requires ``tid`` record keys, so the piece uuid (used for
-    ``net.neodb.*`` records) is not acceptable. A TID is derived from the
-    piece itself -- creation time as the timestamp bits, primary key as the
-    clock-id bits -- so it needs no stored state and stays idempotent across
-    sync retries. ``created_time`` is user-editable, so the first successful
-    sync freezes the key in ``metadata["atproto_document_rkey"]`` (see
-    ``Piece.atproto_document_rkey``) to keep later backdating from orphaning
-    the PDS record.
+    Standard.site lexicons require ``tid`` record keys, so a NeoDB uuid
+    (used for ``net.neodb.*`` records) is not acceptable. Deriving the TID
+    from the row itself needs no stored state and stays idempotent across
+    sync retries.
     """
-    micros = (_as_utc(piece.created_time) - _EPOCH) // timedelta(microseconds=1)
-    pk = piece.pk or 0
+    micros = (_as_utc(dt) - _EPOCH) // timedelta(microseconds=1)
     # mix the pk's high bits into the (sub-millisecond) timestamp and its low
-    # bits into the clock id, so pieces sharing one creation time (date-only
+    # bits into the clock id, so rows sharing one timestamp (date-only
     # backdated imports land on the exact same microsecond) can never derive
     # the same key; clamp pre-1970 times to zero instead of mask-wrapping
     micros = max(0, micros) + (pk >> _TID_CLOCKID_BITS)
@@ -176,6 +175,18 @@ def build_document_rkey(piece: "Piece") -> str:
         chars.append(_TID_ALPHABET[n & 0x1F])
         n >>= 5
     return "".join(reversed(chars))
+
+
+def build_document_rkey(piece: "Piece") -> str:
+    """Deterministic TID record key for a piece's ``site.standard.document``.
+
+    Derived from the piece itself -- creation time as the timestamp bits,
+    primary key as the clock-id bits. ``created_time`` is user-editable, so
+    the first successful sync freezes the key in
+    ``metadata["atproto_document_rkey"]`` (see ``Piece.atproto_document_rkey``)
+    to keep later backdating from orphaning the PDS record.
+    """
+    return build_tid(piece.created_time, piece.pk or 0)
 
 
 def build_document(

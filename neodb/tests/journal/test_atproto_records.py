@@ -38,6 +38,12 @@ class FakeBluesky:
     def delete_record(self, collection, rkey):
         self.deletes.append((collection, rkey))
 
+    def get_publication_ref(self):
+        return {
+            "uri": f"at://{self.uid}/site.standard.publication/3pubrkey",
+            "cid": "pubcid",
+        }
+
 
 @pytest.mark.django_db(databases="__all__")
 def test_review_atproto_record():
@@ -430,6 +436,75 @@ def test_sync_drop_deletes_document():
     assert (DOCUMENT_NSID, rkey) in fake.deletes
     assert (REVIEW_NSID, review.uuid) in fake.deletes
     assert "atproto_document_rkey" not in review.metadata
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_embed_refs_publication_then_document():
+    user = User.register(email="refs@example.com", username="refsuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    fake = FakeBluesky()
+
+    refs = review._atproto_embed_refs(fake)
+
+    rkey = build_document_rkey(review)
+    # publication first, document second, matching how bsky.app posts embed
+    # standard.site records; the document is written before the skeet exists
+    assert refs == [
+        fake.get_publication_ref(),
+        {"uri": f"at://did:plc:fake/{DOCUMENT_NSID}/{rkey}", "cid": "cid"},
+    ]
+    assert (DOCUMENT_NSID, rkey) in fake.puts
+    assert "bskyPostRef" not in fake.puts[(DOCUMENT_NSID, rkey)]
+    assert review.metadata["atproto_document_rkey"] == rkey
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_embed_refs_none_for_short_form():
+    user = User.register(email="short@example.com", username="shortuser")
+    book = Edition.objects.create(title="Dune")
+    mark = Mark(user.identity, book)
+    mark.update(ShelfType.COMPLETE, "short note", None, visibility=0)
+    fake = FakeBluesky()
+    assert mark.comment is not None
+    assert mark.comment._atproto_embed_refs(fake) is None
+    assert fake.puts == {}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_document_and_publication_uri_properties():
+    user = User.register(email="uris@example.com", username="urisuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="uris.example"
+    )
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+
+    # the document link only appears once a sync has frozen the rkey,
+    # i.e. the record actually exists on the PDS
+    assert review.atproto_document_uri is None
+    assert review.atproto_publication_uri == account.publication_uri
+
+    review._sync_records_to_bluesky(FakeBluesky())
+    rkey = review.metadata["atproto_document_rkey"]
+    assert review.atproto_document_uri == f"at://did:plc:fake/{DOCUMENT_NSID}/{rkey}"
+
+    review.visibility = 1
+    assert review.atproto_document_uri is None
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_uris_none_without_account():
+    user = User.register(email="nouris@example.com", username="nourisuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    review._sync_records_to_bluesky(FakeBluesky())
+    assert review.metadata["atproto_document_rkey"]
+    assert review.atproto_document_uri is None
+    assert review.atproto_publication_uri is None
 
 
 @pytest.mark.django_db(databases="__all__")

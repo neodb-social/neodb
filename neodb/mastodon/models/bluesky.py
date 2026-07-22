@@ -20,6 +20,7 @@ from django.core.cache import cache
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import strip_tags
 from loguru import logger
 
 from common.models import jsondata
@@ -48,6 +49,15 @@ PROFILE_NSID = "net.neodb.profile"
 _OAUTH_SESSION_KEY = "atproto_oauth"
 # refresh the access token when it expires within this margin
 _TOKEN_EXPIRY_MARGIN = 60
+
+# standard.site lexicon (https://standard.site/docs/lexicons/publication)
+# describing the owner's journal, so Bluesky renders crossposted long-form
+# pieces with the enhanced publication card. Field caps are in graphemes;
+# capping code-point length is strictly conservative (see journal.models.atproto)
+PUBLICATION_NSID = "site.standard.publication"
+PUBLICATION_NAME_MAX_GRAPHEMES = 500
+PUBLICATION_DESCRIPTION_MAX_GRAPHEMES = 3000
+PUBLICATION_ICON_MAX_SIZE = 1000000
 
 
 class Bluesky:
@@ -182,6 +192,14 @@ class BlueskyAccount(SocialAccount):
     )
     # JSON-encoded OAuth session: tokens, DPoP key and server nonces
     oauth_session = jsondata.EncryptedTextField(
+        json_field_name="access_data", default=""
+    )
+    # avatar blob already uploaded for the publication record, keyed by
+    # content hash so refreshes reuse it instead of re-uploading
+    publication_icon_hash = jsondata.CharField(
+        json_field_name="access_data", default=""
+    )
+    publication_icon_blob = jsondata.TextField(
         json_field_name="access_data", default=""
     )
     display_name = jsondata.CharField(json_field_name="account_data", default="")
@@ -379,6 +397,7 @@ class BlueskyAccount(SocialAccount):
                 ]
             )
         self.sync_profile_record()
+        self.sync_publication_record()
         return True
 
     @staticmethod
@@ -446,11 +465,124 @@ class BlueskyAccount(SocialAccount):
         except Exception as e:
             logger.warning(f"{self} profile record sync error {e}")
 
-    def on_disconnect(self) -> None:
+    @property
+    def publication_rkey(self) -> str:
+        """Deterministic TID record key for the account's
+        ``site.standard.publication``; derived from the account row itself
+        (linking time + primary key, neither user-editable) so it needs no
+        stored state."""
+        from journal.models.atproto import build_tid
+
+        return build_tid(self.created, self.pk or 0)
+
+    @property
+    def publication_uri(self) -> str:
+        return f"at://{self.uid}/{PUBLICATION_NSID}/{self.publication_rkey}"
+
+    def _publication_icon(self) -> dict[str, typing.Any] | None:
+        """Blob ref for the identity's avatar, uploaded at most once per
+        distinct image (cached by content hash in access_data)."""
+        identity = self.user.identity
+        icon_file = identity.takahe_identity.icon if identity.local else None
+        if not icon_file:
+            return None
         try:
-            self.delete_record(PROFILE_NSID, "self")
+            with icon_file.open("rb") as f:
+                data = f.read()
         except Exception as e:
-            logger.warning(f"{self} profile record cleanup error {e}")
+            logger.warning(f"{self} publication icon read error {e}")
+            return None
+        if not data or len(data) > PUBLICATION_ICON_MAX_SIZE:
+            return None
+        digest = hashlib.sha256(data).hexdigest()
+        if digest == self.publication_icon_hash and self.publication_icon_blob:
+            return json.loads(self.publication_icon_blob)
+        blob = self._client.upload_blob(data).blob.model_dump(by_alias=True)
+        self.publication_icon_hash = digest
+        self.publication_icon_blob = json.dumps(blob)
+        if self.pk:
+            self.save(update_fields=["access_data"])
+        return blob
+
+    def _build_publication_record(self) -> dict[str, typing.Any]:
+        """``site.standard.publication`` record describing the owner's
+        journal at their profile URL. Crossposted long-form pieces strong-ref
+        it (next to their ``site.standard.document``) from the skeet embed's
+        ``associatedRefs`` so Bluesky renders the enhanced publication card.
+        """
+        identity = self.user.identity
+        record: dict[str, typing.Any] = {
+            "$type": PUBLICATION_NSID,
+            # the spec wants base urls without a trailing slash
+            "url": (settings.SITE_INFO["site_url"] + identity.url).rstrip("/"),
+            "name": (identity.display_name or identity.full_handle)[
+                :PUBLICATION_NAME_MAX_GRAPHEMES
+            ],
+            "preferences": {"showInDiscover": True},
+        }
+        description = strip_tags(identity.summary or "").strip()
+        if description:
+            record["description"] = description[:PUBLICATION_DESCRIPTION_MAX_GRAPHEMES]
+        icon = self._publication_icon()
+        if icon:
+            record["icon"] = icon
+        return record
+
+    def sync_publication_record(self) -> dict[str, str] | None:
+        """Reconcile the ``site.standard.publication`` record describing the
+        owner's journal; returns the record's strong ref when it exists.
+
+        Mirrors :meth:`sync_profile_record`: written only while the identity
+        is publicly discoverable -- PDS records are world-readable -- and
+        deleted otherwise (both idempotent).
+        """
+        identity = self.user.identity if self.user else None
+        if not identity:
+            return None
+        try:
+            if identity.discoverable:
+                return self.put_record(
+                    PUBLICATION_NSID,
+                    self.publication_rkey,
+                    self._build_publication_record(),
+                )
+            self.delete_record(PUBLICATION_NSID, self.publication_rkey)
+        except Exception as e:
+            logger.warning(f"{self} publication record sync error {e}")
+        return None
+
+    def get_publication_ref(self) -> dict[str, str] | None:
+        """Strong ref (uri + cid) of the publication record, for a skeet
+        embed's ``associatedRefs``; writes the record first when it does not
+        exist yet. None when the identity is not discoverable (no record
+        should exist) or the lookup and sync both failed.
+        """
+        identity = self.user.identity if self.user else None
+        if not identity or not identity.discoverable:
+            return None
+        try:
+            r = self._client.com.atproto.repo.get_record(
+                models.ComAtprotoRepoGetRecord.Params(
+                    repo=self.uid,
+                    collection=PUBLICATION_NSID,
+                    rkey=self.publication_rkey,
+                )
+            )
+            if r.cid:
+                return {"uri": r.uri, "cid": r.cid}
+        except Exception:
+            pass
+        return self.sync_publication_record()
+
+    def on_disconnect(self) -> None:
+        for collection, rkey in [
+            (PROFILE_NSID, "self"),
+            (PUBLICATION_NSID, self.publication_rkey),
+        ]:
+            try:
+                self.delete_record(collection, rkey)
+            except Exception as e:
+                logger.warning(f"{self} {collection} record cleanup error {e}")
 
     def _paginate_dids(
         self,
@@ -542,6 +674,7 @@ class BlueskyAccount(SocialAccount):
         rating=None,
         images=[],
         fediverse_uri: str | None = None,
+        associated_refs: list[dict[str, str]] | None = None,
         **kwargs,
     ):
         from journal.models.renderers import render_rating
@@ -593,6 +726,14 @@ class BlueskyAccount(SocialAccount):
                     description=obj.brief_description,
                     uri=obj.absolute_url,
                     thumb=blob_ref,
+                    # standard.site records backing this card, so bsky.app
+                    # renders the enhanced publication view
+                    associated_refs=[
+                        models.ComAtprotoRepoStrongRef.Main(uri=r["uri"], cid=r["cid"])
+                        for r in associated_refs
+                    ]
+                    if associated_refs
+                    else None,
                 )
             )
         else:

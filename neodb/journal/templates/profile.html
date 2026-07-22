@@ -18,6 +18,10 @@
           content="{{ identity.display_name }} - @{{ identity.handle }}">
     <meta property="og:type" content="profile">
     <meta property="og:url" content="{{ identity.url }}">
+    {% if identity.local and identity.user.bluesky and identity.discoverable %}
+      <link rel="site.standard.publication"
+            href="{{ identity.user.bluesky.publication_uri }}">
+    {% endif %}
     {% include "profile_common.html" %}
     {% include "common_libs.html" %}
     <script src="{% static 'js/calendar_yearview_blocks.js' %}" defer></script>

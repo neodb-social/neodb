@@ -405,6 +405,33 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         """
         return None
 
+    @property
+    def atproto_document_uri(self) -> str | None:
+        """``at://`` uri of this piece's synced ``site.standard.document``,
+        for the page's verification link tag; ``None`` until a sync has
+        written the record (which freezes the rkey in metadata)."""
+        collections = self.atproto_document_collections()
+        metadata = getattr(self, "metadata", None) or {}
+        rkey = metadata.get("atproto_document_rkey")
+        if not collections or not rkey or getattr(self, "visibility", None) != 0:
+            return None
+        account = self.owner.user.bluesky if self.owner.user_id else None
+        if not account:
+            return None
+        return f"at://{account.uid}/{next(iter(collections))}/{rkey}"
+
+    @property
+    def atproto_publication_uri(self) -> str | None:
+        """``at://`` uri of the owner's ``site.standard.publication``, for
+        the page's discovery link tag; ``None`` when no record should exist
+        (not a long-form piece, no linked account, or not discoverable)."""
+        if not self.atproto_document_collections():
+            return None
+        account = self.owner.user.bluesky if self.owner.user_id else None
+        if not account or not self.owner.discoverable:
+            return None
+        return account.publication_uri
+
     @classmethod
     def update_by_ap_object(
         cls,
@@ -625,6 +652,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         fediverse_uri = self.latest_post.object_uri if self.latest_post else None
         if fediverse_uri:
             params["fediverse_uri"] = fediverse_uri
+        # write the piece's standard.site records first so the skeet's
+        # external embed can strong-ref them, which makes bsky.app render
+        # the enhanced publication card instead of a plain link card
+        refs = self._atproto_embed_refs(bluesky)
+        if refs:
+            params["associated_refs"] = refs
         try:
             r = bluesky.post(**params)
         except (exceptions.UnauthorizedError, exceptions.BadRequestError) as e:
@@ -712,19 +745,73 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             except Exception as e:
                 logger.warning(f"{self} build atproto document error {e}")
                 return
+        if document:
+            self._put_document_record(bluesky, document)
+            return
         rkey = self.atproto_document_rkey()
         for collection in collections:
             try:
-                if document:
-                    bluesky.put_record(collection, rkey, document)
-                    self.metadata.setdefault("atproto_document_rkey", rkey)
-                else:
-                    bluesky.delete_record(collection, rkey)
-                    self.metadata.pop("atproto_document_rkey", None)
+                bluesky.delete_record(collection, rkey)
+                self.metadata.pop("atproto_document_rkey", None)
             except Exception as e:
                 logger.warning(
                     f"{self} sync document {collection} to {bluesky} error {e}"
                 )
+
+    def _put_document_record(self, bluesky, document=None) -> dict[str, str] | None:
+        """Write this piece's ``site.standard.document`` and return the
+        record's strong ref (uri + cid), or ``None`` when the piece publishes
+        no document or the write failed. Freezes the TID record key in
+        ``metadata`` on success; see :meth:`_sync_document_to_bluesky`.
+        """
+        collections = self.atproto_document_collections()
+        if not collections:
+            return None
+        if document is None:
+            try:
+                document = self.to_atproto_document()
+            except Exception as e:
+                logger.warning(f"{self} build atproto document error {e}")
+                return None
+        if not document:
+            return None
+        rkey = self.atproto_document_rkey()
+        ref = None
+        for collection in collections:
+            try:
+                ref = bluesky.put_record(collection, rkey, document)
+                self.metadata.setdefault("atproto_document_rkey", rkey)
+            except Exception as e:
+                logger.warning(
+                    f"{self} sync document {collection} to {bluesky} error {e}"
+                )
+        return ref
+
+    def _atproto_embed_refs(self, bluesky) -> list[dict[str, str]] | None:
+        """Strong refs for a skeet embed's ``associatedRefs``: the owner's
+        ``site.standard.publication`` followed by this piece's
+        ``site.standard.document``, each written to the PDS beforehand.
+
+        The document is written here without ``bskyPostRef`` (the skeet does
+        not exist yet) and rewritten with it by the post-crosspost record
+        sync; Bluesky hydrates the refs by uri, so the cid going stale on
+        that second write is expected (bsky.app deliberately keeps the
+        snapshot instead of re-rendering edited records).
+        """
+        if not self.atproto_document_collections():
+            return None
+        refs = []
+        try:
+            publication_ref = bluesky.get_publication_ref()
+        except Exception as e:
+            logger.warning(f"{self} publication ref error {e}")
+            publication_ref = None
+        if publication_ref:
+            refs.append(publication_ref)
+        document_ref = self._put_document_record(bluesky)
+        if document_ref:
+            refs.append(document_ref)
+        return refs or None
 
     def sync_to_threads(self, params, update_mode):
         # skip non-public post as Threads does not support it
