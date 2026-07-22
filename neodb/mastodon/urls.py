@@ -23,6 +23,12 @@ urlpatterns = [
     path("threads/delete/status", threads_delete_status, name="threads_delete_status"),
     # Bluesky
     path("bluesky/login", bluesky_login, name="bluesky_login"),
+    path("bluesky/oauth", bluesky_oauth, name="bluesky_oauth"),
+    path(
+        "bluesky/client-metadata.json",
+        bluesky_client_metadata,
+        name="bluesky_client_metadata",
+    ),
     path("bluesky/reconnect", bluesky_reconnect, name="bluesky_reconnect"),
     path("bluesky/disconnect", bluesky_disconnect, name="bluesky_disconnect"),
 ]

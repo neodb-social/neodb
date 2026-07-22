@@ -219,18 +219,9 @@
          autocomplete="off"
          spellcheck="false" />
   <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
-  <input required
-         type="password"
-         name="password"
-         placeholder="{% trans 'Bluesky app password' %}"
-         autocorrect="off"
-         autocapitalize="off"
-         autocomplete="off"
-         spellcheck="false" />
-  <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
   <input type="submit"
          class="login-submit"
-         value="{% trans 'Authorize via bsky.app' %}"
+         value="{% trans 'Authorize via ATProto server' %}"
          disabled />
   <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
   <small class="login-proof-status" role="status" aria-live="polite"></small>

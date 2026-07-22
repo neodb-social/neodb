@@ -297,6 +297,9 @@ class TestLoginProof:
     def test_mastodon_threads_and_bluesky_accept_valid_proofs(
         self, client, proof, monkeypatch
     ):
+        enabled = SiteConfig.system.model_copy(update={"enable_login_bluesky": True})
+        monkeypatch.setattr(SiteConfig, "system", enabled)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
         calls = []
         monkeypatch.setattr(
             Mastodon,
@@ -314,8 +317,10 @@ class TestLoginProof:
         )
         monkeypatch.setattr(
             Bluesky,
-            "authenticate",
-            lambda handle, password: calls.append(("bluesky", handle)),
+            "generate_auth_url",
+            lambda handle, request: (
+                calls.append(("bluesky", handle)) or "https://pds.example/authorize"
+            ),
         )
 
         mastodon = client.post(
@@ -330,13 +335,13 @@ class TestLoginProof:
             reverse("mastodon:bluesky_login"),
             {
                 "username": "alice.bsky.social",
-                "password": "app-password",
                 "altcha": proof(client, "bluesky"),
             },
         )
         assert mastodon.status_code == 302
         assert threads.status_code == 302
-        assert b"Invalid account data from Bluesky" in bluesky.content
+        assert bluesky.status_code == 302
+        assert bluesky.url == "https://pds.example/authorize"
         assert calls == [
             ("mastodon", "mastodon.online"),
             ("threads", None),

@@ -2,9 +2,11 @@ import base64
 import hashlib
 import json
 import re
+import secrets
+import time
 import typing
 from functools import cached_property
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 from atproto import Client, SessionEvent, client_utils
 from atproto_client import models
@@ -14,6 +16,8 @@ from atproto_identity.handle.resolver import HandleResolver
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
+from django.core.cache import cache
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from loguru import logger
@@ -21,6 +25,17 @@ from loguru import logger
 from common.models import jsondata
 from takahe.utils import Takahe
 
+from .bluesky_oauth import (
+    DpopRequest,
+    OAuthError,
+    fetch_authserver_metadata,
+    fetch_pds_authserver,
+    generate_dpop_jwk,
+    get_client_id,
+    initial_token_request,
+    refresh_token_request,
+    send_par,
+)
 from .common import SocialAccount
 
 if typing.TYPE_CHECKING:
@@ -29,6 +44,10 @@ if typing.TYPE_CHECKING:
 
 
 PROFILE_NSID = "net.neodb.profile"
+
+_OAUTH_SESSION_KEY = "atproto_oauth"
+# refresh the access token when it expires within this margin
+_TOKEN_EXPIRY_MARGIN = 60
 
 
 class Bluesky:
@@ -42,46 +61,107 @@ class Bluesky:
     # handle and base_url may change in BlueskyAccount.refresh()
 
     @staticmethod
-    def authenticate(handle: str, password: str) -> "BlueskyAccount | None":
+    def _resolve_identity(handle: str) -> tuple[str, str]:
+        """handle -> (did, pds endpoint), with bidirectional verification."""
+        handle_r = HandleResolver(timeout=5)
+        did = handle_r.resolve(handle)
+        if not did:
+            raise OAuthError(f"handle {handle} not found")
+        did_r = DidResolver()
+        did_doc = did_r.resolve(did)
+        if not did_doc:
+            raise OAuthError(f"DID document for {did} not found")
+        resolved_handle = did_doc.get_handle()
+        if resolved_handle != handle:
+            raise OAuthError(f"handle {handle} does not match its DID document")
+        pds_url = did_doc.get_pds_endpoint()
+        if not pds_url:
+            raise OAuthError(f"no PDS endpoint for {did}")
+        return did, pds_url
+
+    @staticmethod
+    def generate_auth_url(handle: str, request: HttpRequest) -> str:
+        """Resolve the handle, push an authorization request to its auth
+        server and return the URL to redirect the user to; the pending
+        authorization state is kept in the django session."""
+        handle = handle.strip().lstrip("@").lower()
         if not Bluesky._RE_HANDLE.match(handle) or len(handle) > 500:
-            logger.warning(f"ATProto login failed: handle {handle} is invalid")
+            raise OAuthError("invalid handle")
+        did, pds_url = Bluesky._resolve_identity(handle)
+        issuer = fetch_pds_authserver(pds_url)
+        meta = fetch_authserver_metadata(issuer)
+        state = secrets.token_urlsafe(32)
+        code_verifier = secrets.token_urlsafe(48)
+        dpop_jwk = generate_dpop_jwk()
+        request_uri, nonce = send_par(
+            meta, dpop_jwk, handle=handle, state=state, code_verifier=code_verifier
+        )
+        request.session[_OAUTH_SESSION_KEY] = {
+            "state": state,
+            "did": did,
+            "handle": handle,
+            "pds_url": pds_url,
+            "issuer": meta["issuer"],
+            "token_endpoint": meta["token_endpoint"],
+            "code_verifier": code_verifier,
+            "dpop_jwk": dpop_jwk,
+            "authserver_nonce": nonce,
+        }
+        query = urlencode({"client_id": get_client_id(), "request_uri": request_uri})
+        return f"{meta['authorization_endpoint']}?{query}"
+
+    @staticmethod
+    def receive_oauth_code(
+        request: HttpRequest, code: str, state: str, iss: str | None
+    ) -> "BlueskyAccount | None":
+        """Complete the authorization code flow and return the account."""
+        pending = request.session.pop(_OAUTH_SESSION_KEY, None)
+        if not pending or not secrets.compare_digest(
+            pending["state"].encode(), state.encode()
+        ):
+            logger.warning("ATProto OAuth failed: state mismatch")
+            return None
+        if iss and iss.rstrip("/") != pending["issuer"].rstrip("/"):
+            logger.warning(f"ATProto OAuth failed: iss mismatch {iss}")
             return None
         try:
-            handle_r = HandleResolver(timeout=5)
-            did = handle_r.resolve(handle)
-            if not did:
-                logger.warning(
-                    f"ATProto login failed: handle {handle} -> <missing did>"
-                )
-                return
-            did_r = DidResolver()
-            did_doc = did_r.resolve(did)
-            if not did_doc:
-                logger.warning(
-                    f"ATProto login failed: handle {handle} -> did {did} -> <missing doc>"
-                )
-                return
-            resolved_handle = did_doc.get_handle()
-            if resolved_handle != handle:
-                logger.warning(
-                    f"ATProto login failed: handle {handle} -> did {did} -> handle {resolved_handle}"
-                )
-                return
-            base_url = did_doc.get_pds_endpoint()
-            client = Client(base_url)
-            profile = client.login(handle, password)
-            session_string = client.export_session_string()
-        except Exception as e:
-            logger.warning(f"Bluesky login {handle} exception {e}")
-            return
-        account = BlueskyAccount.objects.filter(
-            uid=profile.did, domain=Bluesky._DOMAIN
-        ).first()
+            tokens, nonce = initial_token_request(
+                pending["token_endpoint"],
+                pending["issuer"],
+                code,
+                pending["code_verifier"],
+                pending["dpop_jwk"],
+                pending["authserver_nonce"],
+            )
+        except OAuthError as e:
+            logger.warning(f"ATProto OAuth token exchange failed: {e}")
+            return None
+        did = tokens.get("sub")
+        if did != pending["did"]:
+            logger.warning(f"ATProto OAuth failed: sub {did} != {pending['did']}")
+            return None
+        if "atproto" not in (tokens.get("scope") or "").split():
+            logger.warning("ATProto OAuth failed: atproto scope not granted")
+            return None
+        account = BlueskyAccount.objects.filter(uid=did, domain=Bluesky._DOMAIN).first()
         if not account:
-            account = BlueskyAccount(uid=profile.did, domain=Bluesky._DOMAIN)
-        account._client = client
-        account.session_string = session_string
-        account.base_url = base_url
+            account = BlueskyAccount(uid=did, domain=Bluesky._DOMAIN)
+        account.handle = pending["handle"]
+        account.base_url = pending["pds_url"]
+        account.session_string = ""  # drop legacy app-password session if any
+        account._set_oauth(
+            {
+                "issuer": pending["issuer"],
+                "token_endpoint": pending["token_endpoint"],
+                "dpop_jwk": pending["dpop_jwk"],
+                "access_token": tokens["access_token"],
+                "refresh_token": tokens.get("refresh_token", ""),
+                "expires_at": int(time.time()) + int(tokens.get("expires_in") or 300),
+                "scope": tokens.get("scope", ""),
+                "authserver_nonce": nonce,
+                "pds_nonce": "",
+            }
+        )
         if account.pk:
             account.refresh(save=True, did_check=False)
         else:
@@ -90,23 +170,106 @@ class Bluesky:
 
 
 class BlueskyAccount(SocialAccount):
-    # app_username = jsondata.CharField(json_field_name="access_data", default="")
-    # app_password = jsondata.EncryptedTextField(
-    #     json_field_name="access_data", default=""
-    # )
     base_url = jsondata.CharField(json_field_name="access_data", default=None)
+    # legacy app-password session; still used by accounts that have not
+    # re-authorized via OAuth yet
     session_string = jsondata.EncryptedTextField(
+        json_field_name="access_data", default=""
+    )
+    # JSON-encoded OAuth session: tokens, DPoP key and server nonces
+    oauth_session = jsondata.EncryptedTextField(
         json_field_name="access_data", default=""
     )
     display_name = jsondata.CharField(json_field_name="account_data", default="")
     description = jsondata.CharField(json_field_name="account_data", default="")
     avatar = jsondata.CharField(json_field_name="account_data", default="")
 
+    _oauth_cache: dict | None = None
+
     def get_reauthorize_url(self) -> str:
         url = reverse("users:login") + "?method=bluesky"
         if self.handle:
             url += "&username=" + quote(self.handle)
         return url
+
+    def _get_oauth(self) -> dict:
+        if self._oauth_cache is None:
+            try:
+                self._oauth_cache = (
+                    json.loads(self.oauth_session) if self.oauth_session else {}
+                )
+            except json.JSONDecodeError:
+                self._oauth_cache = {}
+        return self._oauth_cache
+
+    def _set_oauth(self, session: dict, save: bool = False) -> None:
+        self._oauth_cache = session
+        self.oauth_session = json.dumps(session)
+        if save and self.pk:
+            self.save(update_fields=["access_data"])
+
+    def get_dpop_jwk(self) -> dict:
+        return self._get_oauth().get("dpop_jwk") or {}
+
+    def get_pds_nonce(self) -> str:
+        return self._get_oauth().get("pds_nonce") or ""
+
+    def save_pds_nonce(self, nonce: str) -> None:
+        session = self._get_oauth()
+        session["pds_nonce"] = nonce
+        self._set_oauth(session, save=True)
+
+    def get_access_token(self, force_refresh: bool = False) -> str:
+        session = self._get_oauth()
+        if not session.get("access_token"):
+            raise OAuthError("no OAuth session for this account")
+        if (
+            force_refresh
+            or int(session.get("expires_at") or 0) < time.time() + _TOKEN_EXPIRY_MARGIN
+        ):
+            self._refresh_oauth_token()
+            session = self._get_oauth()
+        return session["access_token"]
+
+    def _refresh_oauth_token(self) -> None:
+        # refresh tokens are single-use, so serialize refreshes across
+        # workers and pick up tokens another worker may have just rotated
+        lock_key = f"bluesky_oauth_refresh_{self.uid}"
+        acquired = cache.add(lock_key, 1, timeout=60)
+        try:
+            if not acquired:
+                for _ in range(20):
+                    time.sleep(0.5)
+                    if not cache.get(lock_key):
+                        break
+            if self.pk:
+                fresh = BlueskyAccount.objects.filter(pk=self.pk).first()
+                if fresh and fresh.access_data != self.access_data:
+                    self.access_data = fresh.access_data
+                    self._oauth_cache = None
+            session = self._get_oauth()
+            expires_at = int(session.get("expires_at") or 0)
+            if expires_at > time.time() + _TOKEN_EXPIRY_MARGIN:
+                return  # already refreshed by another worker
+            if not session.get("refresh_token"):
+                raise OAuthError("OAuth session expired, re-authorization needed")
+            tokens, nonce = refresh_token_request(
+                session["token_endpoint"],
+                session["issuer"],
+                session["refresh_token"],
+                session["dpop_jwk"],
+                session.get("authserver_nonce", ""),
+            )
+            session.update(
+                access_token=tokens["access_token"],
+                refresh_token=tokens.get("refresh_token", session["refresh_token"]),
+                expires_at=int(time.time()) + int(tokens.get("expires_in") or 300),
+                authserver_nonce=nonce,
+            )
+            self._set_oauth(session, save=True)
+        finally:
+            if acquired:
+                cache.delete(lock_key)
 
     def on_session_change(self, event, session) -> None:
         if event in (SessionEvent.CREATE, SessionEvent.REFRESH):
@@ -118,6 +281,13 @@ class BlueskyAccount(SocialAccount):
 
     @cached_property
     def _client(self):
+        if self._get_oauth().get("access_token"):
+            client = Client(self.base_url, request=DpopRequest(self))
+            self._profile = client.app.bsky.actor.get_profile(
+                models.AppBskyActorGetProfile.Params(actor=self.uid)
+            )
+            client.me = self._profile
+            return client
         client = Client()
         client.on_session_change(self.on_session_change)
         self._profile = client.login(session_string=self.session_string)

@@ -815,6 +815,14 @@ class AdvancedSettings(SiteConfigSettingsPage):
                 "skipped jobs log a warning and notify the Discord system channel."
             ),
         },
+        "atproto_client_jwk": {
+            "title": _("ATProto OAuth Client Key"),
+            "help_text": _(
+                "Private key (JWK) identifying this site to ATProto "
+                "authorization servers. Auto-generated on first Bluesky "
+                "login; clear to regenerate."
+            ),
+        },
     }
     layout = {
         _("Domains"): [
@@ -827,6 +835,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "index_aliases",
             "task_cleanup_days",
             "skip_migrations",
+            "atproto_client_jwk",
         ],
     }
 

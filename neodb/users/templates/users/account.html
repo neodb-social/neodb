@@ -191,22 +191,13 @@
                     <input required
                            name="username"
                            autofocus
-                           placeholder="{% trans 'Bluesky Login ID' %}"
-                           autocorrect="off"
-                           autocapitalize="off"
-                           autocomplete="off"
-                           spellcheck="false" />
-                    <input required
-                           type="password"
-                           name="password"
-                           placeholder="{% trans 'Bluesky app password' %}"
+                           placeholder="{% trans 'ATProto handle' %}"
                            autocorrect="off"
                            autocapitalize="off"
                            autocomplete="off"
                            spellcheck="false" />
                     <input type="submit"
                            value="{% if request.user.bluesky %} {% trans 'Link with a different ATProto identity' %} {% else %} {% trans "Link with an ATProto identity" %} {% endif %} " />
-                    <small>{% blocktrans %}App password can be created on <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app</a>.{% endblocktrans %}</small>
                   </fieldset>
                 </form>
                 {% if request.user.bluesky %}

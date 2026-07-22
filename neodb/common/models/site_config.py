@@ -133,6 +133,9 @@ class SiteConfig(models.Model):
         task_cleanup_days: int = 28
 
         # Advanced / Operational
+        # auto-generated ES256 key (JWK) for the ATProto OAuth client;
+        # managed by mastodon.models.bluesky_oauth, not exposed in the UI
+        atproto_client_jwk: str = ""
         alternative_domains: list[str] = []
         mastodon_client_scope: str = (
             "read:accounts read:follows read:search"

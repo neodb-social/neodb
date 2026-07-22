@@ -9,6 +9,23 @@ The lexicon is project-owned under the `net.neodb.*` namespace (reverse of
 `neodb.net`), so it is shared by every NeoDB instance. The schema files live in
 [`docs/lexicons/net/neodb/`](../lexicons/net/neodb).
 
+## Authentication
+
+Users link their ATProto identity via [OAuth](https://atproto.com/specs/oauth)
+(`mastodon/models/bluesky_oauth.py`): the login form takes only a handle, which
+is resolved handle -> DID -> PDS -> authorization server; the authorization
+request is pushed via PAR with PKCE and the user is redirected to their server
+to approve the `atproto transition:generic` scope. NeoDB acts as a confidential
+client: the client metadata document is served at
+`/account/bluesky/client-metadata.json` (its URL is the `client_id`) and token
+requests carry a `private_key_jwt` assertion signed with an auto-generated
+ES256 key persisted in SiteConfig. Access tokens are DPoP-bound; a custom
+transport for the atproto SDK client signs every XRPC call and transparently
+handles server nonce rotation and token refresh. Tokens, the per-session DPoP
+key and nonces are stored encrypted on the account. Accounts created before
+the OAuth flow keep working through their stored app-password session until
+they re-authorize.
+
 ## Record types
 
 | Collection (NSID)   | Written from         | Purpose                                   |
