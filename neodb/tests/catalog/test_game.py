@@ -1,10 +1,14 @@
+import asyncio
+import time
+
+import httpx
 import pytest
 import requests
 from django.conf import settings
 from igdb.wrapper import IGDBWrapper
 
 from catalog.common import *
-from catalog.models import Game, IdType
+from catalog.models import Game, IdType, SiteName
 from catalog.sites.igdb import IGDB, igdb_limiter
 
 
@@ -70,6 +74,7 @@ class TestIGDB:
         # propagate and crash the caller (e.g. a Steam import job).
         # Regression for EGGPLANT-1GY / EGGPLANT-1GZ.
         monkeypatch.setattr(igdb_limiter(), "acquire", lambda timeout: None)
+        monkeypatch.setattr(time, "sleep", lambda s: None)
 
         def _raise_429(self, endpoint, query):
             response = requests.Response()
@@ -78,6 +83,58 @@ class TestIGDB:
 
         monkeypatch.setattr(IGDBWrapper, "api_request", _raise_429)
         assert IGDB.api_query("games", "fields *;") == []
+
+    def test_api_query_retries_429_then_succeeds(self, monkeypatch):
+        # A 429 can still slip past the limiter (Redis unreachable, or the
+        # queue exceeded acquire()'s timeout); a bounded retry that honors
+        # Retry-After should recover the item instead of losing its data.
+        monkeypatch.setattr(igdb_limiter(), "acquire", lambda timeout: None)
+        sleeps = []
+        monkeypatch.setattr(time, "sleep", lambda s: sleeps.append(s))
+
+        calls = {"n": 0}
+
+        def _flaky(self, endpoint, query):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                response = requests.Response()
+                response.status_code = 429
+                response.headers["Retry-After"] = "2"
+                raise requests.exceptions.HTTPError(
+                    "429 Client Error", response=response
+                )
+            return b'[{"id": 1}]'
+
+        monkeypatch.setattr(IGDBWrapper, "api_request", _flaky)
+        assert IGDB.api_query("games", "fields *;") == [{"id": 1}]
+        assert sleeps == [2.0]
+
+    def test_search_task_429_records_failure(self, monkeypatch):
+        # search_task never called raise_for_status(), so a 429 silently
+        # fell through to a cacheable empty result with no failure
+        # telemetry. It must now be caught and recorded like any other
+        # transient IGDB failure.
+        async def _noop_acquire(timeout=15.0):
+            return None
+
+        monkeypatch.setattr(igdb_limiter(), "acquire_async", _noop_acquire)
+
+        async def _fake_post(self, url, **kwargs):
+            return httpx.Response(429, request=httpx.Request("POST", url))
+
+        monkeypatch.setattr(httpx.AsyncClient, "post", _fake_post)
+
+        failures = []
+        monkeypatch.setattr(
+            "catalog.sites.igdb.record_search_failure",
+            lambda site, reason: failures.append((site, reason)),
+        )
+
+        results = asyncio.run(
+            IGDB.search_task("test", page=1, category="game", page_size=5)
+        )
+        assert results == []
+        assert failures == [(SiteName.IGDB.value, "error")]
 
 
 @pytest.mark.django_db(databases="__all__")

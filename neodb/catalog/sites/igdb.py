@@ -7,6 +7,7 @@ use (e.g. "portal-2") as id, which is different from real id in IGDB API
 import datetime
 import json
 import threading
+import time
 from urllib.parse import quote_plus
 
 import httpx
@@ -45,6 +46,23 @@ def igdb_limiter() -> RedisRateLimiter:
                     rate=4.0,
                 )
     return _igdb_limiter
+
+
+# A 429 can still slip past the limiter (Redis unreachable, or the queue
+# exceeded acquire()'s timeout and fell open), so retry it a bounded number
+# of times before giving up -- otherwise a single rate-limit blip permanently
+# loses that item's IGDB metadata instead of just being slow.
+_IGDB_MAX_429_RETRIES = 2
+
+
+def _retry_after_seconds(response: requests.Response, default: float) -> float:
+    value = response.headers.get("Retry-After")
+    if value:
+        try:
+            return max(float(value), 0.0)
+        except ValueError:
+            pass
+    return default
 
 
 def _igdb_access_token():
@@ -102,8 +120,23 @@ class IGDB(AbstractSite):
                 SiteConfig.system.igdb_client_id, _igdb_access_token()
             )
             try:
-                igdb_limiter().acquire(timeout=60.0)
-                r = json.loads(_wrapper.api_request(p, q))
+                for attempt in range(_IGDB_MAX_429_RETRIES + 1):
+                    igdb_limiter().acquire(timeout=60.0)
+                    try:
+                        r = json.loads(_wrapper.api_request(p, q))
+                        break
+                    except requests.exceptions.HTTPError as e:
+                        is_429 = (
+                            e.response is not None and e.response.status_code == 429
+                        )
+                        if not is_429 or attempt == _IGDB_MAX_429_RETRIES:
+                            raise
+                        wait = _retry_after_seconds(e.response, default=1.0)
+                        logger.warning(
+                            f"IGDB API rate limited, retrying in {wait:.1f}s",
+                            extra={"exception": e},
+                        )
+                        time.sleep(wait)
             except requests.exceptions.RequestException as e:
                 # Transient third-party failure (rate limit, timeout, etc.) -> warn,
                 # not a Sentry error; IGDBWrapper raises requests' HTTPError, not httpx's.
@@ -238,8 +271,8 @@ class IGDB(AbstractSite):
                 url = IGDBWrapper._build_url("games")
                 params = _wrapper._compose_request(q)
                 response = await client.post(url, **params)
-                if response.status_code == 200:
-                    rs = json.loads(response.content)
+                response.raise_for_status()
+                rs = json.loads(response.content)
             except httpx.HTTPError as e:
                 # Transient third-party failure -> warn, not a Sentry error.
                 logger.warning(f"IGDB API: {e}", extra={"exception": e})
