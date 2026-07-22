@@ -551,6 +551,18 @@ class BlueskyAccount(SocialAccount):
             logger.warning(f"{self} publication record sync error {e}")
         return None
 
+    @staticmethod
+    def sync_identity_records_task(user_id: int) -> None:
+        """Reconcile the identity-derived PDS records (``net.neodb.profile``
+        and ``site.standard.publication``) right after a profile edit, so a
+        ``discoverable`` flip (or a name/summary/icon change) is honored
+        immediately instead of at the next scheduled account refresh."""
+        account = BlueskyAccount.objects.filter(user_id=user_id).first()
+        if not account:
+            return
+        account.sync_profile_record()
+        account.sync_publication_record()
+
     def get_publication_ref(self) -> dict[str, str] | None:
         """Strong ref (uri + cid) of the publication record, for a skeet
         embed's ``associatedRefs``; writes the record first when it does not

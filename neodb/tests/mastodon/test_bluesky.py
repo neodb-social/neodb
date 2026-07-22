@@ -317,6 +317,54 @@ def test_post_attaches_associated_refs():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_sync_identity_records_task_reconciles_records(monkeypatch):
+    user = User.register(email="task@example.com", username="taskuser")
+    takahe_identity = user.identity.takahe_identity
+    takahe_identity.discoverable = False
+    takahe_identity.save()
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:task", handle="task.example"
+    )
+    deletes: list = []
+    monkeypatch.setattr(
+        BlueskyAccount, "put_record", lambda self, c, rk, r: {"uri": "u", "cid": "c"}
+    )
+    monkeypatch.setattr(
+        BlueskyAccount, "delete_record", lambda self, c, rk: deletes.append((c, rk))
+    )
+
+    BlueskyAccount.sync_identity_records_task(user.pk)
+
+    # turning discovery off must drop both world-readable records at once
+    assert (PROFILE_NSID, "self") in deletes
+    assert any(c == PUBLICATION_NSID for c, _ in deletes)
+
+    BlueskyAccount.sync_identity_records_task(user.pk + 12345)  # no account: no-op
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_profile_edit_enqueues_record_sync(client, monkeypatch):
+    user = User.register(email="edit@example.com", username="edituser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:edit", handle="edit.example"
+    )
+    calls: list = []
+    monkeypatch.setattr(
+        "users.views.profile.django_rq.get_queue",
+        lambda name: SimpleNamespace(enqueue=lambda *a, **kw: calls.append(a)),
+    )
+    client.force_login(user)
+
+    response = client.post(
+        "/account/profile",
+        {"name": "New Name", "summary": "bio"},  # discoverable unchecked -> False
+    )
+
+    assert response.status_code == 302
+    assert calls == [(BlueskyAccount.sync_identity_records_task, user.pk)]
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_standard_site_publication_wellknown(client):
     user = User.register(email="wk@example.com", username="wkuser")
     url = f"/users/{user.username}/.well-known/site.standard.publication"

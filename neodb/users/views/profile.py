@@ -1,3 +1,4 @@
+import django_rq
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from common.models import SiteConfig
+from mastodon.models import BlueskyAccount
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models.task import Task
@@ -68,6 +70,13 @@ def account_profile(request):
             if u.mastodon and not u.preference.mastodon_skip_userinfo:
                 u.preference.mastodon_skip_userinfo = True
                 u.preference.save(update_fields=["mastodon_skip_userinfo"])
+            if u.bluesky:
+                # PDS records derived from the profile (discoverable gating,
+                # name/summary/icon) must be reconciled now rather than at
+                # the next scheduled account refresh
+                django_rq.get_queue("mastodon").enqueue(
+                    BlueskyAccount.sync_identity_records_task, u.pk
+                )
     return HttpResponseRedirect(reverse("users:info"))
 
 
