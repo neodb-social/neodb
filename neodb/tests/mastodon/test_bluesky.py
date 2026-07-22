@@ -393,14 +393,17 @@ def test_user_clear_cleans_pds_records(monkeypatch):
     rkey = account.publication_rkey
     deletes: list = []
     monkeypatch.setattr(
-        BlueskyAccount, "delete_record", lambda self, c, rk: deletes.append((c, rk))
+        BlueskyAccount,
+        "delete_record",
+        lambda self, c, rk: deletes.append((self.pk, c, rk)),
     )
 
     user.clear()
 
-    # account closure must not leave world-readable records on the PDS
-    assert (PROFILE_NSID, "self") in deletes
-    assert (PUBLICATION_NSID, rkey) in deletes
+    # account closure must not leave world-readable records on the PDS;
+    # cleanup must run with the pk dropped so no callback saves the dead row
+    assert (None, PROFILE_NSID, "self") in deletes
+    assert (None, PUBLICATION_NSID, rkey) in deletes
     assert not BlueskyAccount.objects.filter(uid="did:plc:close").exists()
 
 
@@ -418,16 +421,17 @@ def test_reconnect_account_cleans_replaced_pds_records(monkeypatch):
     monkeypatch.setattr(
         BlueskyAccount,
         "delete_record",
-        lambda self, c, rk: deletes.append((self.uid, c, rk)),
+        lambda self, c, rk: deletes.append((self.uid, self.pk, c, rk)),
     )
 
     user.reconnect_account(new)
 
-    # the replaced account's records are cleaned from its own repo
-    assert ("did:plc:old", PROFILE_NSID, "self") in deletes
-    assert ("did:plc:old", PUBLICATION_NSID, old_rkey) in deletes
+    # the replaced account's records are cleaned from its own repo, with
+    # the pk dropped so no callback can save the dead row mid-cleanup
+    assert ("did:plc:old", None, PROFILE_NSID, "self") in deletes
+    assert ("did:plc:old", None, PUBLICATION_NSID, old_rkey) in deletes
     # the incoming account keeps its records
-    assert not any(uid == "did:plc:new" for uid, _, _ in deletes)
+    assert not any(d[0] == "did:plc:new" for d in deletes)
     new.refresh_from_db()
     assert new.user == user
 

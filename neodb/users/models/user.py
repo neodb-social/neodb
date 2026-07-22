@@ -242,7 +242,10 @@ class User(AbstractUser):
             logger.warning(f"User {self} cleared.")
         for account in accounts:
             # platform-specific cleanup (e.g. PDS records); best-effort and
-            # outside the transaction, like the explicit disconnect view
+            # outside the transaction, like the explicit disconnect view.
+            # the rows are gone: drop the pk (as instance.delete() would) so
+            # a session-refresh callback cannot save the dead row mid-cleanup
+            account.pk = None
             try:
                 account.on_disconnect()
             except Exception as e:
@@ -417,7 +420,10 @@ class User(AbstractUser):
             account.save()
         for old in replaced:
             # the replaced account's credentials are gone once the row is
-            # deleted, so its world-readable PDS records must go now
+            # deleted, so its world-readable PDS records must go now; drop
+            # the pk (as instance.delete() would) so a session-refresh
+            # callback cannot save the dead row mid-cleanup
+            old.pk = None
             try:
                 old.on_disconnect()
             except Exception as e:
