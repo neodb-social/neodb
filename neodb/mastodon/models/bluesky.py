@@ -20,7 +20,6 @@ from django.core.cache import cache
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import strip_tags
 from loguru import logger
 
 from common.models import jsondata
@@ -522,7 +521,9 @@ class BlueskyAccount(SocialAccount):
             ],
             "preferences": {"showInDiscover": True},
         }
-        description = strip_tags(identity.summary or "").strip()
+        # summaries are stored as HTML (ProfileForm.clean_summary); html2txt
+        # decodes entities and keeps block separation, unlike strip_tags
+        description = Takahe.html2txt(identity.summary or "").strip()
         if description:
             record["description"] = description[:PUBLICATION_DESCRIPTION_MAX_GRAPHEMES]
         icon = self._publication_icon()
@@ -549,6 +550,14 @@ class BlueskyAccount(SocialAccount):
                     self._build_publication_record(),
                 )
             self.delete_record(PUBLICATION_NSID, self.publication_rkey)
+            if self.publication_icon_hash or self.publication_icon_blob:
+                # the deleted record no longer references the uploaded icon
+                # blob, so the PDS may garbage-collect it; force a re-upload
+                # next time instead of reusing a possibly-dead ref
+                self.publication_icon_hash = ""
+                self.publication_icon_blob = ""
+                if self.pk:
+                    self.save(update_fields=["access_data"])
         except Exception as e:
             logger.warning(f"{self} publication record sync error {e}")
         return None

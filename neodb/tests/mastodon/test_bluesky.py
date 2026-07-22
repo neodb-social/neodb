@@ -252,6 +252,54 @@ def test_publication_record_synced(monkeypatch):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_publication_description_decoded_from_html(monkeypatch):
+    user = User.register(email="desc@example.com", username="descuser")
+    takahe_identity = user.identity.takahe_identity
+    takahe_identity.summary = "<p>Rock &amp; Roll</p>"
+    takahe_identity.save()
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:desc", handle="desc.example"
+    )
+    puts: dict = {}
+    monkeypatch.setattr(
+        account,
+        "put_record",
+        lambda c, rk, r: puts.update({(c, rk): r}) or {"uri": "u", "cid": "c"},
+    )
+
+    account.sync_publication_record()
+
+    record = puts[(PUBLICATION_NSID, account.publication_rkey)]
+    # summaries are stored as HTML; entities must be decoded, tags dropped
+    assert "Rock & Roll" in record["description"]
+    assert "&amp;" not in record["description"]
+    assert "<p>" not in record["description"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_publication_icon_cache_cleared_when_record_deleted(monkeypatch):
+    user = User.register(email="icache@example.com", username="icacheuser")
+    takahe_identity = user.identity.takahe_identity
+    takahe_identity.discoverable = False
+    takahe_identity.save()
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:icache", handle="icache.example"
+    )
+    account.publication_icon_hash = "deadbeef"
+    account.publication_icon_blob = '{"$type": "blob"}'
+    account.save()
+    monkeypatch.setattr(account, "delete_record", lambda c, rk: None)
+
+    account.sync_publication_record()
+
+    # deleting the record unreferences the blob (subject to GC); the cache
+    # must go with it so the next write re-uploads instead of reusing it
+    account.refresh_from_db()
+    assert not account.publication_icon_hash
+    assert not account.publication_icon_blob
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_publication_record_removed_when_not_discoverable(monkeypatch):
     user = User.register(email="hidpub@example.com", username="hidpubuser")
     takahe_identity = user.identity.takahe_identity

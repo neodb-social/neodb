@@ -496,6 +496,24 @@ def test_atproto_document_and_publication_uri_properties():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_atproto_document_uri_suppressed_after_account_replacement():
+    user = User.register(email="repl@example.com", username="repluser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="repl.example"
+    )
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    review._sync_records_to_bluesky(FakeBluesky())
+    assert review.metadata["atproto_document_did"] == "did:plc:fake"
+    assert review.atproto_document_uri is not None
+
+    # last synced to a repo the current account does not own: no link tag
+    review.metadata["atproto_document_did"] = "did:plc:oldrepo"
+    assert review.atproto_document_uri is None
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_atproto_uris_none_without_account():
     user = User.register(email="nouris@example.com", username="nourisuser")
     book = Edition.objects.create(title="Dune")

@@ -409,16 +409,24 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def atproto_document_uri(self) -> str | None:
         """``at://`` uri of this piece's synced ``site.standard.document``,
         for the page's verification link tag; ``None`` until a sync has
-        written the record (which freezes the rkey in metadata)."""
+        written the record (which freezes the rkey and stamps the repo DID
+        in metadata, so a piece last synced to a replaced account does not
+        advertise a record the current repo does not hold)."""
         collections = self.atproto_document_collections()
         metadata = getattr(self, "metadata", None) or {}
         rkey = metadata.get("atproto_document_rkey")
-        if not collections or not rkey or getattr(self, "visibility", None) != 0:
+        did = metadata.get("atproto_document_did")
+        if (
+            not collections
+            or not rkey
+            or not did
+            or getattr(self, "visibility", None) != 0
+        ):
             return None
         account = self.owner.user.bluesky if self.owner.user_id else None
-        if not account:
+        if not account or account.uid != did:
             return None
-        return f"at://{account.uid}/{next(iter(collections))}/{rkey}"
+        return f"at://{did}/{next(iter(collections))}/{rkey}"
 
     @property
     def atproto_publication_uri(self) -> str | None:
@@ -753,6 +761,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             try:
                 bluesky.delete_record(collection, rkey)
                 self.metadata.pop("atproto_document_rkey", None)
+                self.metadata.pop("atproto_document_did", None)
             except Exception as e:
                 logger.warning(
                     f"{self} sync document {collection} to {bluesky} error {e}"
@@ -781,6 +790,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             try:
                 ref = bluesky.put_record(collection, rkey, document)
                 self.metadata.setdefault("atproto_document_rkey", rkey)
+                # the repo the record lives in, so the page's link tag stays
+                # correct (or is suppressed) after an account replacement
+                self.metadata["atproto_document_did"] = bluesky.uid
             except Exception as e:
                 logger.warning(
                     f"{self} sync document {collection} to {bluesky} error {e}"
