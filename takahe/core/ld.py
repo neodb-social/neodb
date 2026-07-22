@@ -777,6 +777,39 @@ def get_str_or_id(value: str | dict | None, key: str = "id") -> str | None:
     return None
 
 
+# The generic ActivityStreams base classes, which JSON-LD permits alongside
+# a concrete type (e.g. ["Activity", "Create"])
+GENERIC_AS_TYPES = frozenset(
+    {
+        "activity",
+        "collection",
+        "collectionpage",
+        "document",
+        "intransitiveactivity",
+        "link",
+        "object",
+        "orderedcollection",
+        "orderedcollectionpage",
+    }
+)
+
+
+def get_first_concrete_type(value) -> str | None:
+    """
+    Given an AS ``type`` value (a string or, per JSON-LD, a list of
+    strings), return the first concrete type lowercased, preferring
+    anything over the generic ActivityStreams base classes.
+    """
+    if isinstance(value, str):
+        return value.lower() or None
+    if not isinstance(value, list):
+        return None
+    types = [item.lower() for item in value if isinstance(item, str) and item]
+    if not types:
+        return None
+    return next((item for item in types if item not in GENERIC_AS_TYPES), types[0])
+
+
 def format_ld_date(value: datetime.datetime) -> str:
     # We chop the timestamp to be identical to the timestamps returned by
     # Mastodon's API, because some clients like Toot! (for iOS) are especially

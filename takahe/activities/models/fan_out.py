@@ -5,6 +5,7 @@ from activities.models.timeline_event import TimelineEvent
 from core.ld import canonicalise
 from stator.models import State, StateField, StateGraph, StatorModel
 from users.models import Block, FollowStates, Identity
+from users.models.system_actor import SystemActor
 
 
 class FanOutStates(StateGraph):
@@ -143,7 +144,7 @@ class FanOutStates(StateGraph):
             # Handle sending remote posts create
             case (FanOut.Types.post, False):
                 post = instance.subject_post
-                # Sign it and send it
+                # Sign it (HTTP and, for public posts, LD) and send it
                 try:
                     post.author.signed_request(
                         method="post",
@@ -151,7 +152,7 @@ class FanOutStates(StateGraph):
                             instance.identity.shared_inbox_uri
                             or instance.identity.inbox_uri
                         ),
-                        body=canonicalise(post.to_create_ap()),
+                        body=post.to_fan_out_ap(instance.type),
                     )
                 except httpx.RequestError:
                     return
@@ -159,7 +160,7 @@ class FanOutStates(StateGraph):
             # Handle sending remote posts update
             case (FanOut.Types.post_edited, False):
                 post = instance.subject_post
-                # Sign it and send it
+                # Sign it (HTTP and, for public posts, LD) and send it
                 try:
                     post.author.signed_request(
                         method="post",
@@ -167,7 +168,7 @@ class FanOutStates(StateGraph):
                             instance.identity.shared_inbox_uri
                             or instance.identity.inbox_uri
                         ),
-                        body=canonicalise(post.to_update_ap()),
+                        body=post.to_fan_out_ap(instance.type),
                     )
                 except httpx.RequestError:
                     return
@@ -190,7 +191,7 @@ class FanOutStates(StateGraph):
                             instance.identity.shared_inbox_uri
                             or instance.identity.inbox_uri
                         ),
-                        body=canonicalise(post.to_delete_ap()),
+                        body=post.to_fan_out_ap(instance.type),
                     )
                 except ValueError:
                     pass  # ignore 401 when identity deletion is processed by remote earlier
@@ -415,6 +416,31 @@ class FanOutStates(StateGraph):
                 except httpx.RequestError:
                     return
 
+            # Forward a third-party LD-signed activity concerning a local
+            # thread (AP 7.1.2). The document is re-sent exactly as
+            # received - its LD signature authenticates the true author -
+            # while the system actor provides the delivery HTTP signature.
+            case (FanOut.Types.forward, False):
+                if not instance.subject_document:
+                    return cls.skipped
+                try:
+                    SystemActor().signed_request(
+                        method="post",
+                        uri=(
+                            instance.identity.shared_inbox_uri
+                            or instance.identity.inbox_uri
+                        ),
+                        body=instance.subject_document,
+                    )
+                except ValueError:
+                    pass  # remote refused the forward; it's best-effort
+                except httpx.RequestError:
+                    return
+
+            # Forwards are only ever created for remote followers
+            case (FanOut.Types.forward, True):
+                return cls.skipped
+
             case _:
                 raise ValueError(
                     f"Cannot fan out with type {instance.type} local={instance.identity.local}"
@@ -440,6 +466,7 @@ class FanOut(StatorModel):
         identity_moved = "identity_moved"
         tag_featured = "tag_featured"
         tag_unfeatured = "tag_unfeatured"
+        forward = "forward"
 
     state = StateField(FanOutStates)
 
@@ -485,6 +512,11 @@ class FanOut(StatorModel):
         null=True,
         related_name="fan_outs",
     )
+
+    # For forwards: the original LD-signed document to re-deliver verbatim.
+    # Deliberately not tied to subject_post so forwarded deletes survive
+    # the deletion of our local copy.
+    subject_document = models.JSONField(blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

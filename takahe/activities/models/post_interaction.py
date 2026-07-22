@@ -525,6 +525,22 @@ class PostInteraction(StatorModel):
                     raise ActivityPubFormatError(
                         f"Cannot handle AP type {data['type']}"
                     )
+                # Boosts of the same post by the same identity are
+                # idempotent - groups (e.g. Lemmy communities) announce a
+                # new post both as Announce(Create(Page)) and as a bare
+                # Announce(Page), each with its own activity id. Lock the
+                # post row (we are always inside a transaction here via
+                # handle_ap) so concurrent duplicate announces serialize.
+                if type == cls.Types.boost:
+                    post = Post.objects.select_for_update().get(pk=post.pk)
+                    existing = cls.objects.filter(
+                        identity=identity,
+                        post=post,
+                        type=cls.Types.boost,
+                        state__in=PostInteractionStates.group_active(),
+                    ).first()
+                    if existing:
+                        return existing
                 # Make the actual interaction
                 boost = cls.objects.create(
                     object_uri=data["id"],

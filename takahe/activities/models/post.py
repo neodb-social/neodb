@@ -17,8 +17,10 @@ from core.json import json_from_response
 from core.ld import (
     canonicalise,
     format_ld_date,
+    get_first_concrete_type,
     get_language,
     get_list,
+    get_str_or_id,
     get_value_or_map,
     parse_ld_date,
 )
@@ -247,21 +249,12 @@ class PostStates(StateGraph):
         relay_uris = Relay.active_inbox_uris()
         if not relay_uris:
             return
-        obj = None
-        match type_:
-            case FanOut.Types.post:
-                obj = canonicalise(post.to_create_ap())
-            case FanOut.Types.post_edited:
-                obj = canonicalise(post.to_update_ap())
-            case FanOut.Types.post_deleted:
-                obj = canonicalise(post.to_delete_ap())
+        # to_fan_out_ap attaches the LD signature relay recipients need to
+        # verify the original author independently of the relay's HTTP
+        # signature.
+        obj = post.to_fan_out_ap(type_)
         if not obj:
             return
-        # Attach LD signature so relay recipients can verify the original author
-        # independently of the relay's HTTP signature.
-        obj["signature"] = LDSignature.create_signature(
-            obj, post.author.private_key, post.author.public_key_id
-        )
         for uri in relay_uris:
             try:
                 post.author.signed_request(method="post", uri=uri, body=obj)
@@ -1406,6 +1399,36 @@ class Post(StatorModel):
             "object": object,
         }
 
+    def to_fan_out_ap(self, type_: str) -> dict | None:
+        """
+        Returns the canonicalised AP document for delivering this post to a
+        remote inbox, given a FanOut type.
+
+        Public/unlisted local posts carry an LD signature so receivers can
+        authenticate the author independently of the delivery HTTP signature
+        and pass the activity on (relay distribution, reply forwarding).
+        Private posts are deliberately left unsigned to keep them repudiable.
+        """
+        match type_:
+            case FanOut.Types.post:
+                document = canonicalise(self.to_create_ap())
+            case FanOut.Types.post_edited:
+                document = canonicalise(self.to_update_ap())
+            case FanOut.Types.post_deleted:
+                document = canonicalise(self.to_delete_ap())
+            case _:
+                return None
+        if (
+            self.local
+            and self.visibility
+            in [Post.Visibilities.public, Post.Visibilities.unlisted]
+            and self.author.private_key
+        ):
+            document["signature"] = LDSignature.create_signature(
+                document, self.author.private_key, self.author.public_key_id
+            )
+        return document
+
     def get_targets(self) -> Iterable[Identity]:
         """
         Returns a list of Identities that need to see posts and their changes
@@ -1902,6 +1925,53 @@ class Post(StatorModel):
             else:
                 raise cls.DoesNotExist(f"Cannot find Post with URI {object_uri}")
 
+    @classmethod
+    def refresh_from_origin(cls, object_uri: str) -> "Post | None":
+        """
+        Re-fetches a remote post from its origin server and updates our
+        copy, deleting the copy if the origin reports it gone (404/410 or
+        a Tombstone). Used when a third party (e.g. an announcing group)
+        tells us about an edit or deletion we cannot authenticate directly.
+
+        Returns the refreshed post, or None if it is gone or unknown.
+        Leaves the copy untouched when the origin cannot be reached.
+        """
+        try:
+            post = cls.objects.get(object_uri=object_uri)
+        except cls.DoesNotExist:
+            return None
+        if post.local:
+            return post
+        try:
+            response = SystemActor().signed_request(method="get", uri=object_uri)
+        except (
+            httpx.HTTPError,
+            ssl.SSLCertVerificationError,
+            ValueError,
+            TypeError,
+        ):
+            return post
+        if response.status_code in [404, 410]:
+            post.perform_remote_deletion()
+            return None
+        if response.status_code >= 400:
+            return post
+        try:
+            json_data = json_from_response(response)
+            ap_data = canonicalise(json_data, include_security=True, outbound=False)
+        except json.JSONDecodeError, ValueError, JsonLdError:
+            return post
+        if str(ap_data.get("type", "")).lower() == "tombstone":
+            post.perform_remote_deletion()
+            return None
+        # Only accept the document that actually lives at this URI
+        if ap_data.get("id") != object_uri:
+            return post
+        try:
+            return cls.by_ap(ap_data, create=False, update=True)
+        except cls.DoesNotExist, ActivityPubFormatError, ActorMismatchError:
+            return post
+
     MAX_ANCESTOR_FETCH_DEPTH = 20
 
     @classmethod
@@ -1990,6 +2060,28 @@ class Post(StatorModel):
                 # We don't have a copy - assume we got a delete first and ignore.
                 pass
 
+    def perform_remote_deletion(self):
+        """
+        Removes our copy of a remote post, cleaning up any NeoDB piece
+        data attached to it.
+        """
+        if self.type == "Article" or (
+            self.type_data
+            and "object" in self.type_data
+            and "relatedWith" in self.type_data.get("object", {})
+        ):
+            # NeoDB-managed posts (Reviews/Comments via ``relatedWith``,
+            # plus standalone Articles which deliberately omit it) need
+            # the post_deleted callback so the linked Piece row + search
+            # document are cleaned up; otherwise we orphan them.
+            settings.NEODB_MQ.enqueue(
+                "takahe.ap_handlers.post_deleted",
+                self.pk,
+                False,
+                self.type_data["object"] if self.type_data else {},
+            )
+        self.delete()
+
     @classmethod
     def handle_delete_ap(cls, data):
         """
@@ -2010,22 +2102,128 @@ class Post(StatorModel):
             # Ensure the actor on the request authored the post
             if not post.author.actor_uri == data["actor"]:
                 raise ActorMismatchError("Actor on delete does not match object")
-            if post.type == "Article" or (
-                post.type_data
-                and "object" in post.type_data
-                and "relatedWith" in post.type_data.get("object", {})
-            ):
-                # NeoDB-managed posts (Reviews/Comments via ``relatedWith``,
-                # plus standalone Articles which deliberately omit it) need
-                # the post_deleted callback so the linked Piece row + search
-                # document are cleaned up; otherwise we orphan them.
-                settings.NEODB_MQ.enqueue(
-                    "takahe.ap_handlers.post_deleted",
-                    post.pk,
-                    False,
-                    post.type_data["object"] if post.type_data else {},
+            post.perform_remote_deletion()
+
+    @classmethod
+    def handle_announced_activity_ap(cls, data):
+        """
+        Handles an Announce whose object is itself an activity
+        (Create/Update/Delete), as sent by group actors relaying their
+        members' activities to followers (Lemmy communities, Guppe, etc).
+
+        The embedded activity is authenticated only by the announcing
+        server, whose actor is generally not the inner author, so the
+        embedded copy is never ingested directly: content is always
+        dereferenced from (or verified against) its origin server.
+        """
+        from activities.models import PostInteraction
+
+        inner = data.get("object")
+        if not isinstance(inner, dict):
+            return
+        inner_type = get_first_concrete_type(inner.get("type"))
+        if not inner_type:
+            return
+        object_uri = get_str_or_id(inner.get("object"))
+        if not object_uri or "://" not in object_uri:
+            return
+        match inner_type:
+            case "create":
+                try:
+                    post = cls.by_object_uri(object_uri, fetch=True)
+                except cls.DoesNotExist:
+                    return
+                if post.local:
+                    return
+                # Replies (e.g. Lemmy comments) are only ingested so they
+                # thread under their parent; boosting each one onto
+                # followers' timelines would be far too noisy. Top-level
+                # objects surface as a boost by the announcing group,
+                # exactly like a bare Announce of the object would.
+                if not post.in_reply_to and data.get("id") and data.get("actor"):
+                    PostInteraction.handle_ap(
+                        {
+                            "id": data["id"],
+                            "type": "Announce",
+                            "actor": data["actor"],
+                            "object": object_uri,
+                            "published": data.get("published")
+                            or inner.get("published"),
+                        }
+                    )
+            case "update":
+                # Only refresh content we already hold; an update for an
+                # unknown object is not worth a fetch as nobody here has
+                # seen it.
+                cls.refresh_from_origin(object_uri)
+            case "delete":
+                # We cannot authenticate a relayed delete, but the origin
+                # can confirm it: refresh deletes our copy on 404/410 or
+                # Tombstone.
+                cls.refresh_from_origin(object_uri)
+
+    @classmethod
+    def forward_activity_ap(cls, message: dict, raw_document: dict | None) -> None:
+        """
+        AP inbox forwarding (spec 7.1.2): when an LD-signed remote activity
+        concerns a reply to a local user's post, re-deliver the original
+        document to that user's remote followers, so every server watching
+        the thread sees the reply (and its edits/deletes) even though the
+        origin server does not know those followers.
+        """
+        if not isinstance(raw_document, dict) or "signature" not in raw_document:
+            return
+        object_uri = get_str_or_id(message.get("object"))
+        if not object_uri:
+            return
+        try:
+            post = cls.objects.select_related("author", "author__domain").get(
+                object_uri=object_uri
+            )
+        except cls.DoesNotExist:
+            return
+        if post.local:
+            return
+        # Only the author's own activities about their post are forwarded
+        if message.get("actor") != post.author.actor_uri:
+            return
+        if post.visibility not in [
+            cls.Visibilities.public,
+            cls.Visibilities.unlisted,
+        ]:
+            return
+        parent = post.in_reply_to_post()
+        if parent is None or not parent.local or not parent.author.local:
+            return
+        # Target the thread author's remote followers, deduplicated by
+        # shared inbox, skipping the origin server (it already has it)
+        origin_domain_id = post.author.domain_id
+        targets = []
+        seen_shared_inboxes = set()
+        for follow in (
+            parent.author.inbound_follows.filter(state__in=FollowStates.group_active())
+            .exclude(source__state=IdentityStates.connection_issue)
+            .select_related("source")
+        ):
+            target = follow.source
+            if target.local or target.domain_id == origin_domain_id:
+                continue
+            if target.shared_inbox_uri:
+                if target.shared_inbox_uri in seen_shared_inboxes:
+                    continue
+                seen_shared_inboxes.add(target.shared_inbox_uri)
+            targets.append(target)
+        FanOut.objects.bulk_create(
+            (
+                FanOut(
+                    identity=target,
+                    type=FanOut.Types.forward,
+                    subject_document=raw_document,
                 )
-            post.delete()
+                for target in targets
+            ),
+            batch_size=500,
+        )
 
     @classmethod
     def handle_quote_request_ap(cls, data):

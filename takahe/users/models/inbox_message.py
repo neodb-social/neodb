@@ -6,6 +6,7 @@ from pyld.jsonld import JsonLdError
 
 from activities.models.hashtag import Hashtag
 from core.exceptions import ActivityPubError
+from core.ld import get_first_concrete_type
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -155,11 +156,16 @@ class InboxMessageStates(StateGraph):
                 case "block":
                     Block.handle_ap(instance.message)
                 case "announce":
-                    # Ignore Lemmy-specific likes and dislikes for perf reasons
-                    # (we can't parse them anyway)
-                    if instance.message_object_type in ["like", "dislike"]:
+                    # Ignore Lemmy-specific likes/dislikes and their undos
+                    # for perf reasons (we don't tally group-relayed votes)
+                    if instance.message_object_type in ["like", "dislike", "undo"]:
                         return cls.processed
-                    PostInteraction.handle_ap(instance.message)
+                    if instance.message_object_type in ["create", "update", "delete"]:
+                        # Group actors (e.g. Lemmy communities) relay their
+                        # members' activities to followers inside Announce
+                        Post.handle_announced_activity_ap(instance.message)
+                    else:
+                        PostInteraction.handle_ap(instance.message)
                 case "like":
                     PostInteraction.handle_ap(instance.message)
                 case "create":
@@ -235,6 +241,12 @@ class InboxMessageStates(StateGraph):
                         case unknown:
                             return cls.errored
                 case "delete":
+                    # Forward before deleting: targeting needs our copy of
+                    # the post (no-op unless the inbox kept a raw document)
+                    if instance.raw_document:
+                        Post.forward_activity_ap(
+                            instance.message, instance.raw_document
+                        )
                     # If there is no object type, we need to see if it's a profile or a post
                     if not isinstance(instance.message["object"], dict):
                         if Identity.objects.filter(
@@ -331,6 +343,14 @@ class InboxMessageStates(StateGraph):
                             return cls.errored
                 case unknown:
                     return cls.errored
+            # Replies (and their edits) to local threads are forwarded to
+            # the thread author's followers once ingested (no-op unless
+            # the inbox kept a raw LD-signed document)
+            if instance.raw_document and instance.message_type in [
+                "create",
+                "update",
+            ]:
+                Post.forward_activity_ap(instance.message, instance.raw_document)
             return cls.processed
         except ActivityPubError, JsonLdError:
             return cls.errored
@@ -346,6 +366,12 @@ class InboxMessage(StatorModel):
 
     message = models.JSONField()
     metadata = models.JSONField(null=True, blank=True, default=None)
+
+    # The original (pre-canonicalisation) document, kept only when the
+    # activity carries an LD signature and may need to be forwarded to a
+    # local thread's followers (AP 7.1.2): the signature only verifies
+    # over the exact structure the origin signed.
+    raw_document = models.JSONField(null=True, blank=True, default=None)
 
     state = StateField(InboxMessageStates)
 
@@ -369,30 +395,10 @@ class InboxMessage(StatorModel):
     def message_object_type(self) -> str | None:
         if not isinstance(self.message["object"], dict):
             return None
-        value = self.message["object"].get("type")
-        if isinstance(value, str):
-            return value.lower() or None
-        if not isinstance(value, list):
-            return None
-
-        types = [item.lower() for item in value if isinstance(item, str) and item]
-        if not types:
-            return None
         # JSON-LD permits multiple types. Prefer a concrete type over the
         # generic ActivityStreams base classes so e.g. ["Document", "Page"]
         # is routed to the Page post handler.
-        generic_types = {
-            "activity",
-            "collection",
-            "collectionpage",
-            "document",
-            "intransitiveactivity",
-            "link",
-            "object",
-            "orderedcollection",
-            "orderedcollectionpage",
-        }
-        return next((item for item in types if item not in generic_types), types[0])
+        return get_first_concrete_type(self.message["object"].get("type"))
 
     @property
     def message_type_full(self):

@@ -214,19 +214,21 @@ class Inbox(FederatedView):
             return HttpResponse(status=202)
 
         # See if it's a type of message we know we want to ignore right now
-        # (e.g. Lemmy likes/dislikes, which we can't process anyway)
+        # (Lemmy-style group-announced votes and their undos, which we
+        # don't tally). Announced Create/Update/Delete activities are let
+        # through so group-relayed content (posts, comments, edits) can be
+        # ingested from its origin.
         if document_type == "Announce" and document_subtype in [
             "Like",
             "Dislike",
-            "Create",
             "Undo",
-            "Update",
         ]:
             return HttpResponse(status=202)
 
         http_sig_present = "Signature" in request.headers
         ld_sig_present = "signature" in document
         verified = False
+        ld_sig_verified = False  # True when the LD signature itself checked out
         relay_mode = False  # True when HTTP signer != document actor
         relay_http_verified = False  # True when relay HTTP sig verified immediately
         metadata = {}
@@ -344,6 +346,7 @@ class Inbox(FederatedView):
                     LDSignature.verify_signature(
                         raw_document, creator_identity.public_key
                     )
+                    ld_sig_verified = True
                     # For relay: only mark fully verified when relay HTTP was also
                     # confirmed immediately (not deferred).
                     if not relay_mode or relay_http_verified:
@@ -384,8 +387,47 @@ class Inbox(FederatedView):
         if document["type"].startswith("__"):
             return HttpResponseUnauthorized("Bad type")
 
+        # Keep the original document when the activity is LD-signed and may
+        # concern a local thread: forwarding it to the thread's followers
+        # (AP 7.1.2) must re-send the exact structure the author signed.
+        forward_raw_document = None
+        if ld_sig_present and document_type in ["Create", "Update", "Delete"]:
+            keep = False
+            obj = document.get("object")
+            if document_type == "Delete":
+                deleted_uri = obj if isinstance(obj, str) else (obj or {}).get("id")
+                keep = bool(deleted_uri) and (
+                    Post.objects.filter(object_uri=deleted_uri, local=False)
+                    .exclude(in_reply_to__isnull=True)
+                    .exclude(in_reply_to="")
+                    .exists()
+                )
+            else:
+                keep = isinstance(obj, dict) and bool(obj.get("inReplyTo"))
+            # A valid HTTP signature skips LD verification above, but we
+            # must not amplify a document whose LD signature would fail at
+            # the receiving end: verify it before agreeing to forward.
+            if keep and not ld_sig_verified:
+                try:
+                    creator = urldefrag(document["signature"]["creator"]).url
+                    if creator == document["actor"] and identity.public_key:
+                        LDSignature.verify_signature(raw_document, identity.public_key)
+                        ld_sig_verified = True
+                except KeyError, TypeError, VerificationError, VerificationFormatError:
+                    logger.info(
+                        "Inbox: Unverifiable LD signature, not forwarding %s",
+                        document.get("id"),
+                    )
+            if keep and ld_sig_verified:
+                # Re-parse the body: canonicalise mutates raw_document
+                # (e.g. appending to @context) and forwarding must resend
+                # exactly what the origin signed.
+                forward_raw_document = json.loads(request.body)
+
         if verified:
-            InboxMessage.objects.create(message=document)
+            InboxMessage.objects.create(
+                message=document, raw_document=forward_raw_document
+            )
         else:
             # Signatures present but keys unavailable; defer until
             # the actor's key can be fetched and the signature verified.
@@ -397,6 +439,7 @@ class Inbox(FederatedView):
             InboxMessage.objects.create(
                 message=document,
                 metadata=metadata,
+                raw_document=forward_raw_document,
             )
         sentry.count("ap.message.enqueued", attributes={"type": document_type.lower()})
         return HttpResponse(status=202)
