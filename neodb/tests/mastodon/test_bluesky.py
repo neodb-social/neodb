@@ -300,6 +300,28 @@ def test_publication_icon_cache_cleared_when_record_deleted(monkeypatch):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_publication_icon_cache_cleared_when_avatar_removed(monkeypatch):
+    user = User.register(email="noicon@example.com", username="noiconuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:noicon", handle="noicon.example"
+    )
+    account.publication_icon_hash = "deadbeef"
+    account.publication_icon_blob = '{"$type": "blob"}'
+    account.save()
+    monkeypatch.setattr(
+        account, "put_record", lambda c, rk, r: {"uri": "u", "cid": "c"}
+    )
+
+    # test identity has no avatar file: the record is written without an
+    # icon, so the cached (now unreferenced) blob ref must be dropped too
+    account.sync_publication_record()
+
+    account.refresh_from_db()
+    assert not account.publication_icon_hash
+    assert not account.publication_icon_blob
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_publication_record_removed_when_not_discoverable(monkeypatch):
     user = User.register(email="hidpub@example.com", username="hidpubuser")
     takahe_identity = user.identity.takahe_identity

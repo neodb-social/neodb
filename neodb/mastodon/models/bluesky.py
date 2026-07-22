@@ -480,20 +480,33 @@ class BlueskyAccount(SocialAccount):
     def publication_uri(self) -> str:
         return f"at://{self.uid}/{PUBLICATION_NSID}/{self.publication_rkey}"
 
+    def _clear_publication_icon_cache(self) -> None:
+        """Forget the uploaded icon blob. Called whenever a record stops
+        referencing it: the PDS may garbage-collect the blob, so a later
+        write must re-upload instead of reusing a possibly-dead ref."""
+        if self.publication_icon_hash or self.publication_icon_blob:
+            self.publication_icon_hash = ""
+            self.publication_icon_blob = ""
+            if self.pk:
+                self.save(update_fields=["access_data"])
+
     def _publication_icon(self) -> dict[str, typing.Any] | None:
         """Blob ref for the identity's avatar, uploaded at most once per
         distinct image (cached by content hash in access_data)."""
         identity = self.user.identity
         icon_file = identity.takahe_identity.icon if identity.local else None
         if not icon_file:
+            self._clear_publication_icon_cache()
             return None
         try:
             with icon_file.open("rb") as f:
                 data = f.read()
         except Exception as e:
             logger.warning(f"{self} publication icon read error {e}")
+            self._clear_publication_icon_cache()
             return None
         if not data or len(data) > PUBLICATION_ICON_MAX_SIZE:
+            self._clear_publication_icon_cache()
             return None
         digest = hashlib.sha256(data).hexdigest()
         if digest == self.publication_icon_hash and self.publication_icon_blob:
@@ -550,14 +563,7 @@ class BlueskyAccount(SocialAccount):
                     self._build_publication_record(),
                 )
             self.delete_record(PUBLICATION_NSID, self.publication_rkey)
-            if self.publication_icon_hash or self.publication_icon_blob:
-                # the deleted record no longer references the uploaded icon
-                # blob, so the PDS may garbage-collect it; force a re-upload
-                # next time instead of reusing a possibly-dead ref
-                self.publication_icon_hash = ""
-                self.publication_icon_blob = ""
-                if self.pk:
-                    self.save(update_fields=["access_data"])
+            self._clear_publication_icon_cache()
         except Exception as e:
             logger.warning(f"{self} publication record sync error {e}")
         return None
