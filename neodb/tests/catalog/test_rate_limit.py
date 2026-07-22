@@ -9,6 +9,7 @@ import uuid
 import pytest
 
 from catalog.common.rate_limit import RedisRateLimiter
+from catalog.sites.igdb import igdb_limiter
 from catalog.sites.musicbrainz import musicbrainz_limiter
 
 
@@ -83,3 +84,12 @@ def test_musicbrainz_limiter_is_singleton() -> None:
     assert a.key == "ratelimit:musicbrainz.org"
     # MusicBrainz' documented 1 req/s/IP ceiling.
     assert 1.0 / a.interval <= 1.0
+
+
+def test_igdb_limiter_is_singleton() -> None:
+    a = igdb_limiter()
+    b = igdb_limiter()
+    assert a is b
+    assert a.key == "ratelimit:api.igdb.com"
+    # IGDB's documented 4 req/s/client-ID ceiling.
+    assert 1.0 / a.interval <= 4.0

@@ -1,8 +1,11 @@
 import pytest
+import requests
 from django.conf import settings
+from igdb.wrapper import IGDBWrapper
 
 from catalog.common import *
 from catalog.models import Game, IdType
+from catalog.sites.igdb import IGDB, igdb_limiter
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -60,6 +63,21 @@ class TestIGDB:
             site.resource.item.primary_lookup_id_value
             == "the-legend-of-zelda-breath-of-the-wild"
         )
+
+    def test_api_query_handles_429_without_crashing(self, monkeypatch):
+        # IGDBWrapper raises requests' HTTPError (not httpx's) on a 429;
+        # api_query must catch it and degrade to [] rather than let it
+        # propagate and crash the caller (e.g. a Steam import job).
+        # Regression for EGGPLANT-1GY / EGGPLANT-1GZ.
+        monkeypatch.setattr(igdb_limiter(), "acquire", lambda timeout: None)
+
+        def _raise_429(self, endpoint, query):
+            response = requests.Response()
+            response.status_code = 429
+            raise requests.exceptions.HTTPError("429 Client Error", response=response)
+
+        monkeypatch.setattr(IGDBWrapper, "api_request", _raise_429)
+        assert IGDB.api_query("games", "fields *;") == []
 
 
 @pytest.mark.django_db(databases="__all__")

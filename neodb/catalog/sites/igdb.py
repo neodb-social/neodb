@@ -6,6 +6,7 @@ use (e.g. "portal-2") as id, which is different from real id in IGDB API
 
 import datetime
 import json
+import threading
 from urllib.parse import quote_plus
 
 import httpx
@@ -18,11 +19,32 @@ from loguru import logger
 from common.models import normalize_game_platforms
 
 from catalog.common import *
+from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
 
 _cache_key = "igdb_access_token"
+
+# IGDB (Twitch-authenticated) documents a 4 requests/second cap per client ID:
+# https://api-docs.igdb.com/#rate-limits. Steam library imports can call
+# api_query several times per game, so throttle every caller through one
+# shared cursor rather than bursting past the cap and getting 429'd.
+_igdb_limiter: RedisRateLimiter | None = None
+_igdb_limiter_lock = threading.Lock()
+
+
+def igdb_limiter() -> RedisRateLimiter:
+    """Singleton limiter for api.igdb.com calls."""
+    global _igdb_limiter
+    if _igdb_limiter is None:
+        with _igdb_limiter_lock:
+            if _igdb_limiter is None:
+                _igdb_limiter = RedisRateLimiter(
+                    key="ratelimit:api.igdb.com",
+                    rate=4.0,
+                )
+    return _igdb_limiter
 
 
 def _igdb_access_token():
@@ -80,9 +102,12 @@ class IGDB(AbstractSite):
                 SiteConfig.system.igdb_client_id, _igdb_access_token()
             )
             try:
+                igdb_limiter().acquire(timeout=60.0)
                 r = json.loads(_wrapper.api_request(p, q))
-            except httpx.HTTPError as e:
-                logger.error(f"IGDB API: {e}", extra={"exception": e})
+            except requests.exceptions.RequestException as e:
+                # Transient third-party failure (rate limit, timeout, etc.) -> warn,
+                # not a Sentry error; IGDBWrapper raises requests' HTTPError, not httpx's.
+                logger.warning(f"IGDB API: {e}", extra={"exception": e})
                 return []
             if settings.DOWNLOADER_SAVEDIR:
                 with open(
@@ -206,13 +231,18 @@ class IGDB(AbstractSite):
         async with httpx.AsyncClient() as client:
             rs = []
             try:
+                # Shares the same 4 req/s IGDB quota as api_query, so a bulk
+                # import running concurrently doesn't push interactive
+                # searches (or itself) over the cap.
+                await igdb_limiter().acquire_async(timeout=15.0)
                 url = IGDBWrapper._build_url("games")
                 params = _wrapper._compose_request(q)
                 response = await client.post(url, **params)
                 if response.status_code == 200:
                     rs = json.loads(response.content)
             except httpx.HTTPError as e:
-                logger.error(f"IGDB API: {e}", extra={"exception": e})
+                # Transient third-party failure -> warn, not a Sentry error.
+                logger.warning(f"IGDB API: {e}", extra={"exception": e})
                 reason = "timeout" if isinstance(e, httpx.TimeoutException) else "error"
                 record_search_failure(SiteName.IGDB.value, reason)
         result = []
