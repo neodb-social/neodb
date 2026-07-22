@@ -1,31 +1,33 @@
-name: Mirror to Codeberg
-
-on:
-  push:
-    branches: [main]
-    tags: ["*"]
-  delete:
-
-permissions:
-  contents: read
-
-jobs:
-  to_codeberg:
-    if: github.repository_owner == 'neodb-social' && (github.event_name != 'delete' || github.event.ref_type == 'tag')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Push main and tags to Codeberg
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.CODEBERG_SSH_PRIVATEKEY }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_codeberg
-          chmod 600 ~/.ssh/id_codeberg
-          ssh-keyscan codeberg.org >> ~/.ssh/known_hosts
-          export GIT_SSH_COMMAND='ssh -i ~/.ssh/id_codeberg'
-          git push --prune git@codeberg.org:NeoDB/neodb.git \
-            '+refs/remotes/origin/main:refs/heads/main' \
-            '+refs/tags/*:refs/tags/*'
+# Codeberg sync disabled
+#
+# name: Mirror to Codeberg
+#
+# on:
+#   push:
+#     branches: [main]
+#     tags: ["*"]
+#   delete:
+#
+# permissions:
+#   contents: read
+#
+# jobs:
+#   to_codeberg:
+#     if: github.repository_owner == 'neodb-social' && (github.event_name != 'delete' || github.event.ref_type == 'tag')
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v5
+#         with:
+#           fetch-depth: 0
+#       - name: Push main and tags to Codeberg
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.CODEBERG_SSH_PRIVATEKEY }}
+#         run: |
+#           mkdir -p ~/.ssh
+#           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_codeberg
+#           chmod 600 ~/.ssh/id_codeberg
+#           ssh-keyscan codeberg.org >> ~/.ssh/known_hosts
+#           export GIT_SSH_COMMAND='ssh -i ~/.ssh/id_codeberg'
+#           git push --prune git@codeberg.org:NeoDB/neodb.git \
+#             '+refs/remotes/origin/main:refs/heads/main' \
+#             '+refs/tags/*:refs/tags/*'
