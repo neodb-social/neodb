@@ -169,8 +169,12 @@ def fetch_authserver_metadata(issuer: str) -> dict:
         "token_endpoint",
         "pushed_authorization_request_endpoint",
     ):
-        if not meta.get(key):
+        endpoint = meta.get(key)
+        if not endpoint or not isinstance(endpoint, str):
             raise OAuthError(f"authorization server metadata missing {key}")
+        # server-side requests (PAR/token) and the user redirect must never
+        # be sent to a non-https endpoint smuggled via compliant metadata
+        _require_https(endpoint, key)
     return meta
 
 

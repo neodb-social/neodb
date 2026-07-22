@@ -479,3 +479,82 @@ def test_oauth_callback_shows_authserver_error(client, bluesky_enabled):
     assert response.status_code == 200
     assert b"user said no" in response.content
     assert "atproto_oauth" not in client.session
+
+
+def test_authserver_metadata_rejects_http_endpoint(monkeypatch, settings):
+    settings.DEBUG = False
+    meta = {
+        "issuer": "https://auth.example",
+        "authorization_endpoint": "https://auth.example/authorize",
+        "token_endpoint": "http://169.254.169.254/token",
+        "pushed_authorization_request_endpoint": "https://auth.example/par",
+    }
+    monkeypatch.setattr(
+        bluesky_oauth.httpx,
+        "get",
+        lambda url, timeout=None: httpx.Response(
+            200, json=meta, request=httpx.Request("GET", url)
+        ),
+    )
+    with pytest.raises(OAuthError, match="token_endpoint"):
+        bluesky_oauth.fetch_authserver_metadata("https://auth.example")
+
+
+def test_account_force_refresh_rotates_unexpired_token(monkeypatch):
+    # the PDS may reject a token before its recorded expiry; a forced
+    # refresh must not trust expires_at and return the same token
+    account = BlueskyAccount(uid="did:plc:alice", domain="-")
+    account.access_data = {}
+    account._set_oauth(_oauth_session(expires_at=int(time.time()) + 3600))
+    monkeypatch.setattr(
+        bluesky_module,
+        "refresh_token_request",
+        lambda *args: (
+            {"access_token": "rotated", "refresh_token": "r2", "expires_in": 600},
+            "n2",
+        ),
+    )
+
+    assert account.get_access_token() == "old-token"
+    assert account.get_access_token(force_refresh=True) == "rotated"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_oauth_callback_persists_tokens_even_if_refresh_fails(
+    client, monkeypatch, bluesky_enabled
+):
+    from users.models import User
+
+    user = User.register(email="cb@example.com", username="cbuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:alice", handle="alice.test"
+    )
+    account._set_oauth(_oauth_session(access_token="stale"), save=True)
+    _prime_pending(client)
+    monkeypatch.setattr(
+        bluesky_module,
+        "initial_token_request",
+        lambda *args: (
+            {
+                "sub": "did:plc:alice",
+                "access_token": "fresh",
+                "refresh_token": "rt-2",
+                "expires_in": 300,
+                "scope": SCOPE,
+            },
+            "n1",
+        ),
+    )
+    # simulate a transient PDS failure right after the token exchange
+    monkeypatch.setattr(
+        BlueskyAccount, "refresh", lambda self, save=True, did_check=True: False
+    )
+
+    response = client.get(
+        reverse("mastodon:bluesky_oauth"), {"code": "c", "state": "state-1"}
+    )
+
+    assert response.status_code == 302
+    stored = BlueskyAccount.objects.get(pk=account.pk)._get_oauth()
+    assert stored["access_token"] == "fresh"
+    assert stored["refresh_token"] == "rt-2"

@@ -163,6 +163,10 @@ class Bluesky:
             }
         )
         if account.pk:
+            # persist the exchanged credentials before the profile refresh:
+            # the old tokens are already invalid, so a transient PDS failure
+            # during refresh() must not leave them in the database
+            account.save(update_fields=["access_data", "handle"])
             account.refresh(save=True, did_check=False)
         else:
             account.refresh(save=False, did_check=False)
@@ -227,13 +231,14 @@ class BlueskyAccount(SocialAccount):
             force_refresh
             or int(session.get("expires_at") or 0) < time.time() + _TOKEN_EXPIRY_MARGIN
         ):
-            self._refresh_oauth_token()
+            self._refresh_oauth_token(force=force_refresh)
             session = self._get_oauth()
         return session["access_token"]
 
-    def _refresh_oauth_token(self) -> None:
+    def _refresh_oauth_token(self, force: bool = False) -> None:
         # refresh tokens are single-use, so serialize refreshes across
         # workers and pick up tokens another worker may have just rotated
+        rejected_token = self._get_oauth().get("access_token")
         lock_key = f"bluesky_oauth_refresh_{self.uid}"
         acquired = cache.add(lock_key, 1, timeout=60)
         try:
@@ -249,7 +254,13 @@ class BlueskyAccount(SocialAccount):
                     self._oauth_cache = None
             session = self._get_oauth()
             expires_at = int(session.get("expires_at") or 0)
-            if expires_at > time.time() + _TOKEN_EXPIRY_MARGIN:
+            rotated = session.get("access_token") != rejected_token
+            # a forced refresh means the server rejected the current token,
+            # so its recorded expiry cannot be trusted; only skip if another
+            # worker has already rotated it away
+            if expires_at > time.time() + _TOKEN_EXPIRY_MARGIN and (
+                not force or rotated
+            ):
                 return  # already refreshed by another worker
             if not session.get("refresh_token"):
                 raise OAuthError("OAuth session expired, re-authorization needed")
