@@ -192,17 +192,37 @@ def test_publication_rkey_is_valid_stable_tid():
     created = datetime(2026, 7, 1, tzinfo=timezone.utc)
     a = BlueskyAccount(uid="did:plc:one")
     a.created = created
-    a.pk = 42
     b = BlueskyAccount(uid="did:plc:one")
     b.created = created
-    b.pk = 42
+    other = BlueskyAccount(uid="did:plc:two")
+    other.created = created
     rkey = a.publication_rkey
     # the site.standard.publication lexicon requires tid record keys, and
-    # the key must be reconstructable without stored state
+    # the key must be reconstructable without stored state (the primary key
+    # is deliberately not an input: it is cleared before disconnect cleanup)
     assert len(rkey) == 13
     assert all(c in _TID_ALPHABET for c in rkey)
     assert b.publication_rkey == rkey
+    assert other.publication_rkey != rkey
     assert a.publication_uri == f"at://did:plc:one/{PUBLICATION_NSID}/{rkey}"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_on_disconnect_cleans_records_after_row_delete(monkeypatch):
+    user = User.register(email="bye@example.com", username="byeuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:bye", handle="bye.example"
+    )
+    rkey = account.publication_rkey
+    deletes: list = []
+    monkeypatch.setattr(account, "delete_record", lambda c, rk: deletes.append((c, rk)))
+
+    # the disconnect view deletes the row (clearing pk) before cleanup runs
+    account.delete()
+    account.on_disconnect()
+
+    assert (PROFILE_NSID, "self") in deletes
+    assert (PUBLICATION_NSID, rkey) in deletes
 
 
 @pytest.mark.django_db(databases="__all__")

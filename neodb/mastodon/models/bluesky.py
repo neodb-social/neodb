@@ -468,12 +468,14 @@ class BlueskyAccount(SocialAccount):
     @property
     def publication_rkey(self) -> str:
         """Deterministic TID record key for the account's
-        ``site.standard.publication``; derived from the account row itself
-        (linking time + primary key, neither user-editable) so it needs no
-        stored state."""
+        ``site.standard.publication``; derived from fields that survive row
+        deletion (linking time + did) so it needs no stored state and the
+        disconnect cleanup can still find the record after ``delete()``
+        cleared the primary key."""
         from journal.models.atproto import build_tid
 
-        return build_tid(self.created, self.pk or 0)
+        seed = int.from_bytes(hashlib.sha256(self.uid.encode()).digest()[:4], "big")
+        return build_tid(self.created, seed)
 
     @property
     def publication_uri(self) -> str:
