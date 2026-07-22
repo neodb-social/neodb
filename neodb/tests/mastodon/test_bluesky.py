@@ -337,6 +337,54 @@ def test_post_attaches_associated_refs():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_user_clear_cleans_pds_records(monkeypatch):
+    user = User.register(email="close@example.com", username="closeuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:close", handle="close.example"
+    )
+    rkey = account.publication_rkey
+    deletes: list = []
+    monkeypatch.setattr(
+        BlueskyAccount, "delete_record", lambda self, c, rk: deletes.append((c, rk))
+    )
+
+    user.clear()
+
+    # account closure must not leave world-readable records on the PDS
+    assert (PROFILE_NSID, "self") in deletes
+    assert (PUBLICATION_NSID, rkey) in deletes
+    assert not BlueskyAccount.objects.filter(uid="did:plc:close").exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reconnect_account_cleans_replaced_pds_records(monkeypatch):
+    user = User.register(email="swap@example.com", username="swapuser")
+    old = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:old", handle="old.example"
+    )
+    old_rkey = old.publication_rkey
+    new = BlueskyAccount.objects.create(
+        domain="-", uid="did:plc:new", handle="new.example"
+    )
+    deletes: list = []
+    monkeypatch.setattr(
+        BlueskyAccount,
+        "delete_record",
+        lambda self, c, rk: deletes.append((self.uid, c, rk)),
+    )
+
+    user.reconnect_account(new)
+
+    # the replaced account's records are cleaned from its own repo
+    assert ("did:plc:old", PROFILE_NSID, "self") in deletes
+    assert ("did:plc:old", PUBLICATION_NSID, old_rkey) in deletes
+    # the incoming account keeps its records
+    assert not any(uid == "did:plc:new" for uid, _, _ in deletes)
+    new.refresh_from_db()
+    assert new.user == user
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_sync_identity_records_task_reconciles_records(monkeypatch):
     user = User.register(email="task@example.com", username="taskuser")
     takahe_identity = user.identity.takahe_identity

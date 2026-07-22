@@ -230,8 +230,9 @@ class User(AbstractUser):
         return p.edited_time if p else None
 
     def clear(self):
+        accounts = list(self.social_accounts.all())
         with transaction.atomic():
-            accts = [str(a) for a in self.social_accounts.all()]
+            accts = [str(a) for a in accounts]
             if accts:
                 self.first_name = (";").join(accts)
             self.last_name = self.username
@@ -239,6 +240,13 @@ class User(AbstractUser):
             self.save()
             self.social_accounts.all().delete()
             logger.warning(f"User {self} cleared.")
+        for account in accounts:
+            # platform-specific cleanup (e.g. PDS records); best-effort and
+            # outside the transaction, like the explicit disconnect view
+            try:
+                account.on_disconnect()
+            except Exception as e:
+                logger.warning(f"{account} on_disconnect error {e}")
 
     def sync_identity(self):
         """sync display name, bio, and avatar from available sources"""
@@ -399,9 +407,21 @@ class User(AbstractUser):
 
     def reconnect_account(self, account: SocialAccount):
         with transaction.atomic():
+            replaced = list(
+                SocialAccount.objects.filter(user=self, type=account.type).exclude(
+                    pk=account.pk
+                )
+            )
             SocialAccount.objects.filter(user=self, type=account.type).delete()
             account.user = self
             account.save()
+        for old in replaced:
+            # the replaced account's credentials are gone once the row is
+            # deleted, so its world-readable PDS records must go now
+            try:
+                old.on_disconnect()
+            except Exception as e:
+                logger.warning(f"{old} on_disconnect error {e}")
 
 
 def _check_auto_promote_superuser(user: User, account: SocialAccount) -> None:
