@@ -7,7 +7,16 @@ from django.conf import settings
 from django.utils import timezone
 
 from catalog.models import Edition, ExternalResource, TVSeason, TVShow
-from journal.models import Article, Mark, Rating, Review, ShelfMember, ShelfType, Tag
+from journal.models import (
+    Article,
+    Comment,
+    Mark,
+    Rating,
+    Review,
+    ShelfMember,
+    ShelfType,
+    Tag,
+)
 from journal.models.atproto import (
     DOCUMENT_NSID,
     MARK_NSID,
@@ -658,4 +667,170 @@ def test_failed_repost_drops_stale_bsky_post_ref(monkeypatch):
     review.refresh_from_db()
     assert "bluesky_id" not in review.metadata
     assert "bluesky_cid" not in review.metadata
+    assert review.metadata["atproto_document_rkey"] == build_document_rkey(review)
+
+
+def _fake_queue(monkeypatch, calls):
+    # patching journal.models.common.django_rq patches the shared django_rq
+    # module, so the fake also absorbs unrelated scheduling (enqueue_in)
+    monkeypatch.setattr(
+        "journal.models.common.django_rq.get_queue",
+        lambda name: SimpleNamespace(
+            enqueue=lambda *a, **kw: calls.append(a),
+            enqueue_in=lambda *a, **kw: None,
+        ),
+    )
+
+
+def _enable_publish_records(user):
+    user.preference.bluesky_publish_records = True
+    user.preference.save(update_fields=["bluesky_publish_records"])
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_records_only_sync_gated_on_preference(monkeypatch):
+    user = User.register(email="gate@example.com", username="gateuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="gate.example"
+    )
+    calls = []
+    _fake_queue(monkeypatch, calls)
+
+    # preference off -> nothing enqueued even with an account linked
+    review = Review.objects.get(pk=review.pk)
+    review.sync_bluesky_records()
+    assert calls == []
+
+    _enable_publish_records(user)
+    review = Review.objects.get(pk=review.pk)
+    review.sync_bluesky_records()
+    assert [a[0].__name__ for a in calls] == ["_sync_bluesky_records"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_records_only_sync_requires_linked_account(monkeypatch):
+    user = User.register(email="noacct@example.com", username="noacctuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    _enable_publish_records(user)
+    calls = []
+    _fake_queue(monkeypatch, calls)
+
+    review = Review.objects.get(pk=review.pk)
+    review.sync_bluesky_records()
+    assert calls == []
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_records_only_sync_skips_pieces_without_records(monkeypatch):
+    user = User.register(email="norec@example.com", username="norecuser")
+    book = Edition.objects.create(title="Dune")
+    comment = Comment.objects.create(
+        owner=user.identity, item=book, text="c", visibility=0
+    )
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="norec.example"
+    )
+    _enable_publish_records(user)
+    calls = []
+    _fake_queue(monkeypatch, calls)
+
+    comment.sync_bluesky_records()
+    assert calls == []
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_save_syncs_records_when_not_crossposting(monkeypatch):
+    user = User.register(email="rsave@example.com", username="rsaveuser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="rsave.example"
+    )
+    _enable_publish_records(user)
+    book = Edition.objects.create(title="Dune")
+    calls = []
+    _fake_queue(monkeypatch, calls)
+
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    assert [a[0].__name__ for a in calls] == ["_sync_bluesky_records"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_update_syncs_records_when_not_crossposting(monkeypatch):
+    user = User.register(email="msave@example.com", username="msaveuser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="msave.example"
+    )
+    _enable_publish_records(user)
+    book = Edition.objects.create(title="Dune")
+    calls = []
+    _fake_queue(monkeypatch, calls)
+
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "done", 8, visibility=0)
+    names = [a[0].__name__ for a in calls]
+    assert "_sync_bluesky_records" in names
+    assert "_sync_to_social_accounts" not in names
+
+    # the crosspost switch still controls the explicit text post: with it on,
+    # the full crosspost path runs instead of the records-only sync
+    calls.clear()
+    Mark(user.identity, book).update(
+        ShelfType.WISHLIST, None, None, visibility=0, share_to_mastodon=True
+    )
+    names = [a[0].__name__ for a in calls]
+    assert "_sync_to_social_accounts" in names
+    assert "_sync_bluesky_records" not in names
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_records_only_sync_writes_then_drops(monkeypatch):
+    user = User.register(email="wd@example.com", username="wduser")
+    book = Edition.objects.create(title="Dune")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "great", 7, visibility=0)
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="wd.example"
+    )
+    sm = ShelfMember.objects.get(owner=user.identity, item=book)
+
+    fake = FakeBluesky()
+    monkeypatch.setattr(BlueskyAccount, "put_record", fake.put_record)
+    monkeypatch.setattr(BlueskyAccount, "delete_record", fake.delete_record)
+
+    sm._sync_bluesky_records()
+    assert (MARK_NSID, sm.uuid) in fake.puts
+    assert fake.deletes == []
+    # no skeet is posted by the records-only sync
+    sm.refresh_from_db()
+    assert "bluesky_id" not in sm.metadata
+
+    # once the piece is no longer public, records are dropped from the PDS
+    ShelfMember.objects.filter(pk=sm.pk).update(visibility=2)
+    sm._sync_bluesky_records()
+    assert (MARK_NSID, sm.uuid) in fake.deletes
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_records_only_sync_freezes_document_rkey(monkeypatch):
+    user = User.register(email="frz@example.com", username="frzuser")
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "T", "body")
+    assert review is not None
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="frz.example"
+    )
+
+    fake = FakeBluesky()
+    monkeypatch.setattr(BlueskyAccount, "put_record", fake.put_record)
+    monkeypatch.setattr(BlueskyAccount, "delete_record", fake.delete_record)
+
+    review = Review.objects.get(pk=review.pk)
+    review._sync_bluesky_records()
+    assert (REVIEW_NSID, review.uuid) in fake.puts
+    assert (DOCUMENT_NSID, build_document_rkey(review)) in fake.puts
+    # the document rkey is persisted just like in the crosspost path
+    review.refresh_from_db()
     assert review.metadata["atproto_document_rkey"] == build_document_rkey(review)

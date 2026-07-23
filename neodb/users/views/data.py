@@ -66,6 +66,9 @@ def preferences(request):
         preference.mastodon_boost_enabled = (
             int(request.POST.get("mastodon_boost_enabled", 0)) == 1
         )
+        preference.bluesky_publish_records = (
+            int(request.POST.get("bluesky_publish_records", 0)) == 1
+        )
         preference.classic_homepage = int(request.POST.get("classic_homepage", 0))
         preference.hidden_categories = request.POST.getlist("hidden_categories")
         preference.disabled_search_sources = request.POST.getlist(
@@ -94,6 +97,7 @@ def preferences(request):
                 "mastodon_repost_mode",
                 "mastodon_default_repost",
                 "mastodon_boost_enabled",
+                "bluesky_publish_records",
                 "show_last_edit",
                 "hidden_categories",
                 "disabled_search_sources",

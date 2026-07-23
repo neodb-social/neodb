@@ -130,6 +130,17 @@
                   <em data-tooltip="{% trans "this method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                 </fieldset>
               {% endif %}
+              {% if request.user.bluesky %}
+                <fieldset>
+                  <label>
+                    <input type="checkbox"
+                           name="bluesky_publish_records"
+                           value="1"
+                           {% if request.user.preference.bluesky_publish_records %}checked{% endif %}>
+                    {% trans "Always publish my public marks, reviews and articles as data records to my Bluesky account storage, even when crosspost is off; the crosspost switch then only controls the post on timeline" %}
+                  </label>
+                </fieldset>
+              {% endif %}
               <fieldset>
                 <label for="mastodon_append_tag">{% trans 'Append tags when posting to timeline' %}</label>
                 <input name="mastodon_append_tag"

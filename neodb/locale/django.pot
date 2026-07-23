@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-22 00:05-0400\n"
+"POT-Creation-Date: 2026-07-22 23:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1073,7 +1073,7 @@ msgid "hide this tooltip"
 msgstr ""
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:73
+#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:81
 msgid "translate"
 msgstr ""
 
@@ -1187,7 +1187,7 @@ msgstr ""
 #: catalog/templates/_item_user_pieces.html:101
 #: catalog/templates/catalog_edit.html:12
 #: journal/templates/action_edit_post.html:6
-#: journal/templates/action_edit_post.html:8 journal/templates/article.html:178
+#: journal/templates/action_edit_post.html:8 journal/templates/article.html:186
 #: journal/templates/collection.html:179 journal/templates/collection.html:187
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_edit.html:26
@@ -1383,7 +1383,7 @@ msgstr ""
 #: catalog/templates/_sidebar_edit.html:240
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
-#: journal/templates/article.html:181 journal/templates/collection.html:182
+#: journal/templates/article.html:189 journal/templates/collection.html:182
 #: journal/templates/mark.html:157 journal/templates/note.html:84
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
@@ -1655,7 +1655,7 @@ msgstr ""
 #: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:230
+#: users/templates/users/preferences.html:241
 msgid "Save"
 msgstr ""
 
@@ -1775,23 +1775,23 @@ msgstr ""
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:153 journal/templates/profile.html:271
+#: catalog/templates/discover.html:153 journal/templates/profile.html:275
 msgid "edit layout"
 msgstr ""
 
-#: catalog/templates/discover.html:156 journal/templates/profile.html:274
+#: catalog/templates/discover.html:156 journal/templates/profile.html:278
 msgid "save"
 msgstr ""
 
-#: catalog/templates/discover.html:167 journal/templates/profile.html:285
+#: catalog/templates/discover.html:167 journal/templates/profile.html:289
 msgid "cancel"
 msgstr ""
 
-#: catalog/templates/discover.html:173 journal/templates/profile.html:291
+#: catalog/templates/discover.html:173 journal/templates/profile.html:295
 msgid "show"
 msgstr ""
 
-#: catalog/templates/discover.html:174 journal/templates/profile.html:292
+#: catalog/templates/discover.html:174 journal/templates/profile.html:296
 msgid "hide"
 msgstr ""
 
@@ -2096,7 +2096,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:196 journal/views/profile.py:598
+#: journal/templates/profile.html:200 journal/views/profile.py:614
 msgid "People"
 msgstr ""
 
@@ -4002,12 +4002,12 @@ msgid "User no longer exists"
 msgstr ""
 
 #: common/utils.py:120 common/utils.py:122 common/utils.py:125
-#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:483
+#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:499
 msgid "Access denied"
 msgstr ""
 
 #: common/utils.py:128 common/utils.py:130 journal/views/article.py:192
-#: journal/views/profile.py:524 journal/views/review.py:188
+#: journal/views/profile.py:540 journal/views/review.py:188
 msgid "Login required"
 msgstr ""
 
@@ -4929,27 +4929,27 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:638
+#: journal/models/common.py:711
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:743
+#: journal/models/common.py:874
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:776
+#: journal/models/common.py:907
 msgid "A recent post was not boosted on Mastodon."
 msgstr ""
 
-#: journal/models/common.py:786
+#: journal/models/common.py:917
 msgid "Original post no longer exists."
 msgstr ""
 
-#: journal/models/common.py:800
+#: journal/models/common.py:931
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:809
+#: journal/models/common.py:940
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -4965,20 +4965,20 @@ msgstr ""
 msgid "Retrying"
 msgstr ""
 
-#: journal/models/mark.py:467 journal/views/note.py:117
+#: journal/models/mark.py:469 journal/views/note.py:117
 #: journal/views/note.py:177
 msgid "Only in-progress books can have reading progress."
 msgstr ""
 
-#: journal/models/mark.py:471
+#: journal/models/mark.py:473
 msgid "Progress must be 500 characters or fewer."
 msgstr ""
 
-#: journal/models/mark.py:478
+#: journal/models/mark.py:480
 msgid "Invalid progress type."
 msgstr ""
 
-#: journal/models/mark.py:480
+#: journal/models/mark.py:482
 msgid "Invalid progress type for this item."
 msgstr ""
 
@@ -5523,7 +5523,7 @@ msgstr ""
 msgid "Update note"
 msgstr ""
 
-#: journal/templates/_list_item.html:100 journal/templates/article.html:113
+#: journal/templates/_list_item.html:100 journal/templates/article.html:121
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -5657,7 +5657,7 @@ msgid "View post"
 msgstr ""
 
 #: journal/templates/action_quote_post.html:3
-#: journal/templates/article.html:172 journal/templates/collection.html:168
+#: journal/templates/article.html:180 journal/templates/collection.html:168
 msgid "Quote"
 msgstr ""
 
@@ -5666,7 +5666,7 @@ msgid "reply"
 msgstr ""
 
 #: journal/templates/action_reply_post.html:3
-#: journal/templates/article.html:163 journal/templates/collection.html:159
+#: journal/templates/article.html:171 journal/templates/collection.html:159
 msgid "Reply"
 msgstr ""
 
@@ -5683,19 +5683,19 @@ msgstr ""
 msgid "Create a new collection"
 msgstr ""
 
-#: journal/templates/article.html:94 social/templates/_event_post.html:81
+#: journal/templates/article.html:102 social/templates/_event_post.html:81
 msgid "wrote a review"
 msgstr ""
 
-#: journal/templates/article.html:96 social/templates/_event_post.html:83
+#: journal/templates/article.html:104 social/templates/_event_post.html:83
 msgid "wrote an article"
 msgstr ""
 
-#: journal/templates/article.html:126
+#: journal/templates/article.html:134
 msgid "This article may contain sensitive content. Click to reveal."
 msgstr ""
 
-#: journal/templates/article.html:137
+#: journal/templates/article.html:145
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr ""
 
@@ -5703,7 +5703,7 @@ msgstr ""
 msgid "Edit Article"
 msgstr ""
 
-#: journal/templates/article_edit.html:15 journal/templates/profile.html:145
+#: journal/templates/article_edit.html:15 journal/templates/profile.html:149
 #: journal/templates/profile_articles.html:9
 msgid "Compose Article"
 msgstr ""
@@ -5904,7 +5904,7 @@ msgstr ""
 msgid " Note to %(reply_to_name)s "
 msgstr ""
 
-#: journal/templates/post_compose.html:20 journal/templates/profile.html:37
+#: journal/templates/post_compose.html:20 journal/templates/profile.html:41
 #: social/templates/_compose_menu.html:4
 msgid "Compose"
 msgstr ""
@@ -5956,31 +5956,31 @@ msgstr ""
 msgid "Quotes"
 msgstr ""
 
-#: journal/templates/profile.html:78
+#: journal/templates/profile.html:82
 msgid "calendar"
 msgstr ""
 
-#: journal/templates/profile.html:81 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:85 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:54
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:141
+#: journal/templates/profile.html:145
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:38 journal/views/profile.py:463
+#: journal/templates/user_article_list.html:38 journal/views/profile.py:479
 msgid "Articles"
 msgstr ""
 
-#: journal/templates/profile.html:162 journal/views/collection.py:385
-#: journal/views/profile.py:385
+#: journal/templates/profile.html:166 journal/views/collection.py:385
+#: journal/views/profile.py:401
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:179 journal/views/profile.py:426
+#: journal/templates/profile.html:183 journal/views/profile.py:442
 msgid "liked collection"
 msgstr ""
 
-#: journal/templates/profile.html:213 journal/views/profile.py:600
+#: journal/templates/profile.html:217 journal/views/profile.py:616
 msgid "Organizations"
 msgstr ""
 
@@ -6021,17 +6021,17 @@ msgstr ""
 msgid "Liked Collections"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:491
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:507
 #: users/templates/users/account.html:443
 msgid "Following"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:495
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:511
 #: users/templates/users/account.html:452
 msgid "Followers"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:499
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:515
 msgid "Mutuals"
 msgstr ""
 
@@ -6126,8 +6126,8 @@ msgid "Invalid input"
 msgstr ""
 
 #: journal/views/mark.py:212 journal/views/mark.py:262
-#: journal/views/note.py:169 journal/views/review.py:50
-#: journal/views/review.py:67
+#: journal/views/note.py:169 journal/views/profile.py:42
+#: journal/views/review.py:50 journal/views/review.py:67
 msgid "Content not found"
 msgstr ""
 
@@ -6800,7 +6800,7 @@ msgstr ""
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:383
+#: users/models/user.py:394
 msgid "This username is already taken."
 msgstr ""
 
@@ -7775,55 +7775,59 @@ msgstr ""
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
 msgstr ""
 
-#: users/templates/users/preferences.html:134
+#: users/templates/users/preferences.html:140
+msgid "Always publish my public marks, reviews and articles as data records to my Bluesky account storage, even when crosspost is off; the crosspost switch then only controls the post on timeline"
+msgstr ""
+
+#: users/templates/users/preferences.html:145
 msgid "Append tags when posting to timeline"
 msgstr ""
 
-#: users/templates/users/preferences.html:137
+#: users/templates/users/preferences.html:148
 msgid "e.g. #bookstodon"
 msgstr ""
 
-#: users/templates/users/preferences.html:142
+#: users/templates/users/preferences.html:153
 msgid "Language"
 msgstr ""
 
-#: users/templates/users/preferences.html:151
+#: users/templates/users/preferences.html:162
 msgid "Automatic bookmark for these categories"
 msgstr ""
 
-#: users/templates/users/preferences.html:164
+#: users/templates/users/preferences.html:175
 msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
 msgstr ""
 
-#: users/templates/users/preferences.html:172
+#: users/templates/users/preferences.html:183
 msgid "Turn replies to my own catalog item posts into notes for the item"
 msgstr ""
 
-#: users/templates/users/preferences.html:176
+#: users/templates/users/preferences.html:187
 msgid "Hide these categories in search results"
 msgstr ""
 
-#: users/templates/users/preferences.html:190
+#: users/templates/users/preferences.html:201
 msgid "Disable these sources in external search"
 msgstr ""
 
-#: users/templates/users/preferences.html:205
+#: users/templates/users/preferences.html:216
 msgid "Profile visible to anonymous web visitors and search engines"
 msgstr ""
 
-#: users/templates/users/preferences.html:206
+#: users/templates/users/preferences.html:217
 msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
 msgstr ""
 
-#: users/templates/users/preferences.html:214
+#: users/templates/users/preferences.html:225
 msgid "Show your name on item page if you recently edited it"
 msgstr ""
 
-#: users/templates/users/preferences.html:223
+#: users/templates/users/preferences.html:234
 msgid "Do not show me item recommendations"
 msgstr ""
 
-#: users/templates/users/preferences.html:226
+#: users/templates/users/preferences.html:237
 msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
 msgstr ""
 
@@ -8220,141 +8224,141 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:239 users/views/data.py:269
+#: users/views/data.py:243 users/views/data.py:273
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:263
+#: users/views/data.py:267
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:281
+#: users/views/data.py:285
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:296 users/views/data.py:317
+#: users/views/data.py:300 users/views/data.py:321
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:332
+#: users/views/data.py:336
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:346
+#: users/views/data.py:350
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:401
+#: users/views/data.py:405
 msgid "Account no longer linked."
 msgstr ""
 
-#: users/views/data.py:404
+#: users/views/data.py:408
 msgid "Content is no longer public."
 msgstr ""
 
-#: users/views/data.py:432
+#: users/views/data.py:436
 msgid "Retry did not complete, please try again."
 msgstr ""
 
-#: users/views/data.py:442 users/views/data.py:476 users/views/data.py:701
-#: users/views/data.py:918 users/views/data.py:944 users/views/data.py:969
-#: users/views/data.py:994
+#: users/views/data.py:446 users/views/data.py:480 users/views/data.py:705
+#: users/views/data.py:922 users/views/data.py:948 users/views/data.py:973
+#: users/views/data.py:998
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:512 users/views/data.py:737
+#: users/views/data.py:516 users/views/data.py:741
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:537 users/views/data.py:766
+#: users/views/data.py:541 users/views/data.py:770
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:557
+#: users/views/data.py:561
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:565 users/views/data.py:675 users/views/data.py:796
-#: users/views/data.py:901
+#: users/views/data.py:569 users/views/data.py:679 users/views/data.py:800
+#: users/views/data.py:905
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:661 users/views/data.py:887
+#: users/views/data.py:665 users/views/data.py:891
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:671 users/views/data.py:897
+#: users/views/data.py:675 users/views/data.py:901
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:788
+#: users/views/data.py:792
 msgid "No StoryGraph import to preview."
 msgstr ""
 
-#: users/views/data.py:1117
+#: users/views/data.py:1121
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:1139
+#: users/views/data.py:1143
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:1155
+#: users/views/data.py:1159
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:1160
+#: users/views/data.py:1164
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:1170 users/views/data.py:1221
+#: users/views/data.py:1174 users/views/data.py:1225
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:1177
+#: users/views/data.py:1181
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:1182
+#: users/views/data.py:1186
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:1208
+#: users/views/data.py:1212
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:1213
+#: users/views/data.py:1217
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:1226
+#: users/views/data.py:1230
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:1237
+#: users/views/data.py:1241
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:1243
+#: users/views/data.py:1247
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:1301
+#: users/views/data.py:1305
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1317
+#: users/views/data.py:1321
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1321
+#: users/views/data.py:1325
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1331
+#: users/views/data.py:1335
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

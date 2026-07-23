@@ -446,6 +446,8 @@ class Mark:
         post = shelfmember.sync_to_timeline(update_mode)
         if share_to_mastodon:
             shelfmember.sync_to_social_accounts(update_mode)
+        else:
+            shelfmember.sync_bluesky_records()
         shelfmember.update_index()
         # auto add bookmark
         if (

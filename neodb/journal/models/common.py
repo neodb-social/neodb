@@ -200,6 +200,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             self.sync_to_timeline(update_mode)
             if self.crosspost_when_save:
                 self.sync_to_social_accounts(update_mode)
+            else:
+                self.sync_bluesky_records()
         if index_when_save:
             self.update_index()
 
@@ -625,6 +627,36 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             self.sync_to_bluesky(params_for_platform(params, "bluesky"), update_mode)
         if self.metadata != metadata:
             # do not trigger sync or index again
+            self.save(
+                update_fields=["metadata"], post_when_save=False, index_when_save=False
+            )
+
+    def sync_bluesky_records(self):
+        """Enqueue a records-only PDS sync when the owner opted to always
+        publish records; the crosspost switch then only controls whether an
+        explicit text post is sent (see :meth:`sync_to_bluesky`)."""
+        if not (self.atproto_collections() or self.atproto_document_collections()):
+            return
+        if not self.owner.user_id:
+            return
+        user = self.owner.user
+        if not user.preference.bluesky_publish_records or not user.bluesky:
+            return
+        django_rq.get_queue("mastodon").enqueue(self._sync_bluesky_records)
+
+    def _sync_bluesky_records(self):
+        # reload like _sync_to_social_accounts: the piece was pickled at
+        # enqueue time and may have changed (or been deleted) since
+        try:
+            self.refresh_from_db()
+        except self.DoesNotExist:
+            return
+        bluesky = self.owner.user.bluesky
+        if not bluesky:
+            return
+        metadata = self.metadata.copy()
+        self._sync_records_to_bluesky(bluesky, drop=self.visibility != 0)
+        if self.metadata != metadata:
             self.save(
                 update_fields=["metadata"], post_when_save=False, index_when_save=False
             )

@@ -44,6 +44,9 @@ class Preference(models.Model):
     mastodon_skip_userinfo = models.BooleanField(null=False, default=False)
     mastodon_skip_relationship = models.BooleanField(null=False, default=False)
     mastodon_boost_enabled = models.BooleanField(null=True, default=False)
+    # always write mark/review/article records to the linked Bluesky account's
+    # PDS; the crosspost switch then only controls the timeline post
+    bluesky_publish_records = models.BooleanField(null=False, default=False)
     disable_recommendations = models.BooleanField(null=True, default=False)
     # when replying to one's own catalog item post, turn the reply into a note
     auto_note_on_reply = models.BooleanField(null=False, default=True)
