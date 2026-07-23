@@ -3,12 +3,19 @@ import json
 from email.utils import format_datetime
 
 import pytest
+from activities.models import Post
 from core.signatures import HttpSignature, LDSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from django.utils import timezone
 
 from users.models import InboxMessage
+
+
+def _local_thread_uri(identity) -> str:
+    """Creates a local post to reply to, returning its object URI."""
+    post = Post.create_local(author=identity, content="<p>Thread</p>")
+    return Post.objects.get(pk=post.pk).object_uri
 
 
 def _document(actor_uri, in_reply_to=None):
@@ -49,14 +56,16 @@ def _ld_sign_and_post(client, identity, remote_identity, keypair, document):
 
 
 @pytest.mark.django_db
-def test_ld_signed_reply_keeps_raw_document(client, identity, remote_identity, keypair):
+def test_ld_signed_reply_keeps_raw_document(
+    client, identity, remote_identity, keypair, config_system
+):
     """
     The inbox must keep the original (pre-canonicalisation) document of an
     LD-signed reply so it can later be forwarded verbatim (AP 7.1.2).
     """
     document = _document(
         remote_identity.actor_uri,
-        in_reply_to="https://example.com/@test@example.com/posts/1/",
+        in_reply_to=_local_thread_uri(identity),
     )
     resp = _ld_sign_and_post(client, identity, remote_identity, keypair, document)
     assert resp.status_code == 202
@@ -117,7 +126,7 @@ def _http_sign_and_post(client, identity, document, keypair):
 
 @pytest.mark.django_db
 def test_forged_ld_signature_not_kept_despite_valid_http_signature(
-    client, identity, remote_identity, keypair
+    client, identity, remote_identity, keypair, config_system
 ):
     """
     A valid HTTP signature authenticates delivery, but a reply whose LD
@@ -130,7 +139,7 @@ def test_forged_ld_signature_not_kept_despite_valid_http_signature(
     remote_identity.save()
     document = _document(
         remote_identity.actor_uri,
-        in_reply_to="https://example.com/@test@example.com/posts/1/",
+        in_reply_to=_local_thread_uri(identity),
     )
     document["signature"] = {
         "type": "RsaSignature2017",
@@ -146,7 +155,7 @@ def test_forged_ld_signature_not_kept_despite_valid_http_signature(
 
 @pytest.mark.django_db
 def test_valid_ld_signature_kept_alongside_http_signature(
-    client, identity, remote_identity, keypair
+    client, identity, remote_identity, keypair, config_system
 ):
     """
     When both signatures are valid, the raw document is kept even though
@@ -158,7 +167,7 @@ def test_valid_ld_signature_kept_alongside_http_signature(
     remote_identity.save()
     document = _document(
         remote_identity.actor_uri,
-        in_reply_to="https://example.com/@test@example.com/posts/1/",
+        in_reply_to=_local_thread_uri(identity),
     )
     document["signature"] = LDSignature.create_signature(
         document, keypair["private_key"], key_id
@@ -167,3 +176,22 @@ def test_valid_ld_signature_kept_alongside_http_signature(
     assert resp.status_code == 202
     message = InboxMessage.objects.last()
     assert message.raw_document == document
+
+
+@pytest.mark.django_db
+def test_reply_to_remote_thread_does_not_keep_raw_document(
+    client, identity, remote_identity, keypair
+):
+    """
+    Replies to threads that are not ours are never kept: forwarding is the
+    thread host's job, and keeping every signed reply would bloat the
+    inbox queue on well-connected instances.
+    """
+    document = _document(
+        remote_identity.actor_uri,
+        in_reply_to="https://elsewhere.test/posts/1/",
+    )
+    resp = _ld_sign_and_post(client, identity, remote_identity, keypair, document)
+    assert resp.status_code == 202
+    message = InboxMessage.objects.last()
+    assert message.raw_document is None

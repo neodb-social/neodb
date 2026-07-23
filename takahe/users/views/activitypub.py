@@ -7,7 +7,7 @@ from activities.models import Post
 from activities.services import TimelineService
 from core import sentry
 from core.decorators import cache_page
-from core.ld import canonicalise
+from core.ld import canonicalise, get_str_or_id
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -387,23 +387,35 @@ class Inbox(FederatedView):
         if document["type"].startswith("__"):
             return HttpResponseUnauthorized("Bad type")
 
-        # Keep the original document when the activity is LD-signed and may
-        # concern a local thread: forwarding it to the thread's followers
-        # (AP 7.1.2) must re-send the exact structure the author signed.
+        # Keep the original document when the activity is LD-signed and
+        # concerns a reply to a LOCAL thread: forwarding it to the thread's
+        # followers (AP 7.1.2) must re-send the exact structure the author
+        # signed. The locality pre-check keeps storage and signature
+        # verification off the hot path for the (vast) majority of inbound
+        # replies that have nothing to do with our threads.
         forward_raw_document = None
         if ld_sig_present and document_type in ["Create", "Update", "Delete"]:
             keep = False
             obj = document.get("object")
             if document_type == "Delete":
                 deleted_uri = obj if isinstance(obj, str) else (obj or {}).get("id")
-                keep = bool(deleted_uri) and (
+                parent_uri = (
                     Post.objects.filter(object_uri=deleted_uri, local=False)
                     .exclude(in_reply_to__isnull=True)
                     .exclude(in_reply_to="")
-                    .exists()
+                    .values_list("in_reply_to", flat=True)
+                    .first()
+                    if deleted_uri
+                    else None
                 )
             else:
-                keep = isinstance(obj, dict) and bool(obj.get("inReplyTo"))
+                parent_uri = (
+                    get_str_or_id(obj.get("inReplyTo"))
+                    if isinstance(obj, dict)
+                    else None
+                )
+            if parent_uri:
+                keep = Post.objects.filter(object_uri=parent_uri, local=True).exists()
             # A valid HTTP signature skips LD verification above, but we
             # must not amplify a document whose LD signature would fail at
             # the receiving end: verify it before agreeing to forward.
