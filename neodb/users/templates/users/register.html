@@ -87,6 +87,16 @@
                          checked />
                   {% trans "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account." %}
                 </label>
+                {% if bluesky_register %}
+                  <label>
+                    <input name="pref_bluesky_publish_records"
+                           type="checkbox"
+                           role="switch"
+                           value="1"
+                           checked />
+                    {% trans "Always publish my public marks, reviews and articles as data records to my Bluesky account storage, even when crosspost is off; the crosspost switch then only controls the post on timeline" %}
+                  </label>
+                {% endif %}
               {% endif %}
             </fieldset>
             {% csrf_token %}

@@ -155,6 +155,9 @@ def _handle_new_user_registration(request, form, verified_account, email_readonl
         is not None,
         "mastodon_skip_userinfo": request.POST.get("pref_sync_info") is None,
         "mastodon_skip_relationship": request.POST.get("pref_sync_graph") is None,
+        # the checkbox is only offered when registering with a Bluesky account
+        "bluesky_publish_records": verified_account.platform == Platform.BLUESKY
+        and request.POST.get("pref_bluesky_publish_records") is not None,
     }
 
     try:
@@ -264,7 +267,14 @@ def register(request: AuthedHttpRequest):
     return render(
         request,
         "users/register.html",
-        {"form": form, "email_readonly": email_readonly, "error": error},
+        {
+            "form": form,
+            "email_readonly": email_readonly,
+            "error": error,
+            "bluesky_register": bool(
+                verified_account and verified_account.platform == Platform.BLUESKY
+            ),
+        },
     )
 
 

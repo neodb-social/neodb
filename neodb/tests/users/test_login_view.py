@@ -440,3 +440,63 @@ class TestLoginProof:
         )
         assert response.status_code == 302
         assert response.url == "https://mastodon.example/"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRegisterBlueskyRecordsPreference:
+    def _prime_bluesky(self, client: Client) -> None:
+        account = BlueskyAccount(
+            uid="did:plc:reguser", domain="-", handle="reg.bsky.social"
+        )
+        session = client.session
+        session["verified_account"] = account.to_dict()
+        session.save()
+
+    def test_option_offered_and_defaults_on_for_bluesky(self, client):
+        self._prime_bluesky(client)
+        response = client.get(reverse("users:register"))
+        assert response.status_code == 200
+        assert response.context["bluesky_register"] is True
+        assert b"pref_bluesky_publish_records" in response.content
+
+        response = client.post(
+            reverse("users:register"),
+            {"username": "regbsky", "email": "", "pref_bluesky_publish_records": "1"},
+        )
+        assert response.status_code == 200
+        user = User.objects.get(username="regbsky")
+        assert user.preference.bluesky_publish_records is True
+
+    def test_option_can_be_unchecked(self, client):
+        self._prime_bluesky(client)
+        response = client.post(
+            reverse("users:register"), {"username": "regbsky2", "email": ""}
+        )
+        assert response.status_code == 200
+        user = User.objects.get(username="regbsky2")
+        assert user.preference.bluesky_publish_records is False
+
+    def test_option_not_offered_for_other_platforms(self, client):
+        account = Email.new_account("regmail@example.org")
+        assert account is not None
+        session = client.session
+        session["verified_account"] = account.to_dict()
+        session.save()
+
+        response = client.get(reverse("users:register"))
+        assert response.status_code == 200
+        assert response.context["bluesky_register"] is False
+        assert b"pref_bluesky_publish_records" not in response.content
+
+        # a rogue value is ignored for non-Bluesky registrations
+        response = client.post(
+            reverse("users:register"),
+            {
+                "username": "regmail",
+                "email": "regmail@example.org",
+                "pref_bluesky_publish_records": "1",
+            },
+        )
+        assert response.status_code == 200
+        user = User.objects.get(username="regmail")
+        assert user.preference.bluesky_publish_records is False

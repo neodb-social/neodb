@@ -807,10 +807,18 @@ def test_records_only_sync_writes_then_drops(monkeypatch):
     sm.refresh_from_db()
     assert "bluesky_id" not in sm.metadata
 
-    # once the piece is no longer public, records are dropped from the PDS
+    # once the piece is no longer public (followers-only or mentioned-only),
+    # records are dropped from the PDS and nothing new is written
+    ShelfMember.objects.filter(pk=sm.pk).update(visibility=1)
+    sm._sync_bluesky_records()
+    assert (MARK_NSID, sm.uuid) in fake.deletes
+    assert len(fake.puts) == 1
+
+    fake.deletes.clear()
     ShelfMember.objects.filter(pk=sm.pk).update(visibility=2)
     sm._sync_bluesky_records()
     assert (MARK_NSID, sm.uuid) in fake.deletes
+    assert len(fake.puts) == 1
 
 
 @pytest.mark.django_db(databases="__all__")
