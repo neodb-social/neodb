@@ -72,7 +72,8 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Atmosphere](https://b
   + NeoDB instances may share public rating and reviews with a default relay
   + implementation is based on [Takahē](https://jointakahe.org/) server
 - ATProto support
-  + NeoDB is not a PDS, but may publish posts to user feed
+  + NeoDB can store data records to PDS and publish posts to user feed
+  + Records from Bookhive and Popfeed are [bridged to NeoDB](https://bridge.neodb.net)
 - comprehensive API support
   + RESTful API with OpenAPI specification, see `/developer/` of your instance
   + Mastodon-compatible API is available; most Mastodon apps work out of the box

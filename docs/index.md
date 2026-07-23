@@ -1,4 +1,4 @@
-NeoDB is an open-source software and global community platform [since 2021](origin.md). It helps users manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and the ActivityPub protocol.
+NeoDB is an open-source software and global community platform [since 2021](origin.md). It helps users manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and open protocols such as ActivityPub and the AT Protocol.
 
 This project is licensed under AGPLv3.
 
@@ -14,7 +14,7 @@ Besides the web version of your chosen server, you may also use [various apps](a
 
 You can [install and run your own instance of NeoDB](install.md). If you would like to share your server with the public, please let us know so that we can add it to the list above.
 
-All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon.
+All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon. NeoDB also reaches into the Atmosphere: you can sign in with a Bluesky account and cross-post your reviews and collections to the AT Protocol network.
 
 
 ## API, Development and Translation

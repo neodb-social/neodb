@@ -5,7 +5,7 @@ Data Models
 -----------
 All types of catalog items inherit from `Item`, which is stored as a multi-table Django model.
 One `Item` may have multiple `ExternalResource`s, each representing one page on an external site.
-See the [catalog wire schema](schema.md) for the attributes sent through the API and ActivityPub.
+See the [catalog schema](schema.md) for the attributes sent through the API.
 
 ```mermaid
 classDiagram

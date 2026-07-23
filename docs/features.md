@@ -58,6 +58,10 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
     - NeoDB instances communicate with each other via an extended version of ActivityPub
     - NeoDB instances may share public rating and reviews with a default relay
     - implementation is based on [Takahē](https://jointakahe.org/) server
+  - ATProto support
+    - NeoDB is not a PDS, but publishes public reviews and ratings to your ATProto repository as structured records
+    - a human-readable version is also cross-posted to Bluesky, so other Atmosphere apps may discover it
+    - Records from Bookhive and Popfeed are [bridged to NeoDB](https://bridge.neodb.net), so you can see ratings and reviews from those apps
 
 
 ## API
