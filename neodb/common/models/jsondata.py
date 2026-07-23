@@ -220,7 +220,7 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
         return super().formfield(**kwargs)  # type: ignore
 
 
-class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):
+class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):  # ty: ignore[invalid-method-override]
     pass
     # def __init__(self, *args, **kwargs):
     #     super(BooleanField, self).__init__(*args, **kwargs)
@@ -228,7 +228,7 @@ class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField
     #         self.blank = False
 
 
-class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):
+class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):  # ty: ignore[invalid-method-override]
     def from_json(
         self, value
     ):  # TODO workaound some bad data in migration, should be removed after clean up
@@ -239,7 +239,7 @@ class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):
 
 class DateField(
     JSONFieldMixin[datetime | date | str | None, date | None], fields.DateField
-):
+):  # ty: ignore[invalid-method-override]
     def to_json(self, value):
         if value:
             if not isinstance(value, (datetime, date)):
@@ -253,7 +253,7 @@ class DateField(
 
 class DateTimeField(
     JSONFieldMixin[datetime | date | str | None, datetime | None], fields.DateTimeField
-):
+):  # ty: ignore[invalid-method-override]
     def to_json(self, value: datetime | date | str):
         if not value:
             return None
@@ -281,39 +281,39 @@ class DecimalField(JSONFieldMixin[Any, Any], fields.DecimalField):
     pass
 
 
-class EmailField(JSONFieldMixin[str | None, str | None], fields.EmailField):
+class EmailField(JSONFieldMixin[str | None, str | None], fields.EmailField):  # ty: ignore[invalid-method-override]
     pass
 
 
-class FloatField(JSONFieldMixin[float | None, float | None], fields.FloatField):
+class FloatField(JSONFieldMixin[float | None, float | None], fields.FloatField):  # ty: ignore[invalid-method-override]
     pass
 
 
-class IntegerField(JSONFieldMixin[int | None, int | None], fields.IntegerField):
+class IntegerField(JSONFieldMixin[int | None, int | None], fields.IntegerField):  # ty: ignore[invalid-method-override]
     pass
 
 
-class IPAddressField(JSONFieldMixin[str | None, str | None], fields.IPAddressField):
+class IPAddressField(JSONFieldMixin[str | None, str | None], fields.IPAddressField):  # ty: ignore[invalid-method-override]
     pass
 
 
 class GenericIPAddressField(
     JSONFieldMixin[str | None, str | None], fields.GenericIPAddressField
-):
+):  # ty: ignore[invalid-method-override]
     pass
 
 
 class NullBooleanField(
     JSONFieldMixin[bool | None, bool | None], fields.NullBooleanField
-):
+):  # ty: ignore[invalid-method-override]
     pass
 
 
-class TextField(JSONFieldMixin[str | None, str | None], fields.TextField):
+class TextField(JSONFieldMixin[str | None, str | None], fields.TextField):  # ty: ignore[invalid-method-override]
     pass
 
 
-class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextField):
+class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextField):  # ty: ignore[invalid-method-override]
     def to_json(self, value):
         if value:
             return encrypt_str(str(value))
@@ -323,7 +323,7 @@ class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextFiel
             return decrypt_str(value)
 
 
-class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):
+class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):  # ty: ignore[invalid-method-override]
     def to_json(self, value):
         if value:
             if not timezone.is_aware(value):
@@ -335,7 +335,7 @@ class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):
             return dateparse.parse_time(value)
 
 
-class URLField(JSONFieldMixin[str | None, str | None], fields.URLField):
+class URLField(JSONFieldMixin[str | None, str | None], fields.URLField):  # ty: ignore[invalid-method-override]
     pass
 
 

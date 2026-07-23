@@ -7901,8 +7901,8 @@ msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、
 
 #: users/templates/users/preferences.html:140
 #: users/templates/users/register.html:97
-msgid "Always publish my public marks, reviews and articles as data records to my Bluesky account storage, even when crosspost is off; the crosspost switch then only controls the post on timeline"
-msgstr "始终将公开的标记、评论和文章作为数据记录发布到我的 Bluesky 账号存储，即使未开启转发；转发开关仅控制是否发布时间轴帖文"
+msgid "Always publish my public marks, reviews and articles as data records to my PDS."
+msgstr "始终将公开的标记、评论和文章作为数据记录发布到我的个人数据服务器；转发开关仅控制是否发布Bluesky时间轴帖文"
 
 #: users/templates/users/preferences.html:145
 msgid "Append tags when posting to timeline"

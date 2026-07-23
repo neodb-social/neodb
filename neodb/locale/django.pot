@@ -7777,7 +7777,7 @@ msgstr ""
 
 #: users/templates/users/preferences.html:140
 #: users/templates/users/register.html:97
-msgid "Always publish my public marks, reviews and articles as data records to my Bluesky account storage, even when crosspost is off; the crosspost switch then only controls the post on timeline"
+msgid "Always publish my public marks, reviews and articles as data records to my PDS."
 msgstr ""
 
 #: users/templates/users/preferences.html:145

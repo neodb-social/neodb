@@ -105,7 +105,9 @@ class TestDoubanDrama:
         SiteManager.fetch_related_resources_task(
             resource.pk
         )  # force the async job to run now
-        productions = sorted(list(item.productions.all()), key=lambda p: p.opening_date)
+        productions = sorted(
+            list(item.productions.all()), key=lambda p: p.opening_date or ""
+        )
         assert len(productions) == 4
         assert productions[3].actor == [
             {"name": "石丸幹二", "role": "パーシー・ブレイクニー"},
