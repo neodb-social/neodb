@@ -794,6 +794,7 @@ def test_records_only_sync_writes_then_drops(monkeypatch):
     BlueskyAccount.objects.create(
         user=user, domain="-", uid="did:plc:fake", handle="wd.example"
     )
+    _enable_publish_records(user)
     sm = ShelfMember.objects.get(owner=user.identity, item=book)
 
     fake = FakeBluesky()
@@ -830,6 +831,7 @@ def test_records_only_sync_freezes_document_rkey(monkeypatch):
     BlueskyAccount.objects.create(
         user=user, domain="-", uid="did:plc:fake", handle="frz.example"
     )
+    _enable_publish_records(user)
 
     fake = FakeBluesky()
     monkeypatch.setattr(BlueskyAccount, "put_record", fake.put_record)
@@ -842,3 +844,47 @@ def test_records_only_sync_freezes_document_rkey(monkeypatch):
     # the document rkey is persisted just like in the crosspost path
     review.refresh_from_db()
     assert review.metadata["atproto_document_rkey"] == build_document_rkey(review)
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_private_piece_drops_records_even_after_opt_out(monkeypatch):
+    user = User.register(email="optout@example.com", username="optoutuser")
+    book = Edition.objects.create(title="Dune")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "great", 7, visibility=0)
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="optout.example"
+    )
+    _enable_publish_records(user)
+    sm = ShelfMember.objects.get(owner=user.identity, item=book)
+
+    fake = FakeBluesky()
+    monkeypatch.setattr(BlueskyAccount, "put_record", fake.put_record)
+    monkeypatch.setattr(BlueskyAccount, "delete_record", fake.delete_record)
+    sm._sync_bluesky_records()
+    assert (MARK_NSID, sm.uuid) in fake.puts
+
+    # the owner opts out; the record published above still exists on the PDS
+    user.preference.bluesky_publish_records = False
+    user.preference.save(update_fields=["bluesky_publish_records"])
+
+    # a records-only sync is still enqueued once the piece stops being
+    # public, so the world-readable record cannot outlive its piece
+    ShelfMember.objects.filter(pk=sm.pk).update(visibility=1)
+    sm = ShelfMember.objects.get(pk=sm.pk)
+    calls = []
+    _fake_queue(monkeypatch, calls)
+    sm.sync_bluesky_records()
+    assert [a[0].__name__ for a in calls] == ["_sync_bluesky_records"]
+    sm._sync_bluesky_records()
+    assert (MARK_NSID, sm.uuid) in fake.deletes
+    assert len(fake.puts) == 1  # nothing new was written
+
+    # while the piece is public, opting out means no enqueue, and even a
+    # stale queued job will not write records
+    ShelfMember.objects.filter(pk=sm.pk).update(visibility=0)
+    sm = ShelfMember.objects.get(pk=sm.pk)
+    calls.clear()
+    sm.sync_bluesky_records()
+    assert calls == []
+    sm._sync_bluesky_records()
+    assert len(fake.puts) == 1

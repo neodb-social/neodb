@@ -634,13 +634,21 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     def sync_bluesky_records(self):
         """Enqueue a records-only PDS sync when the owner opted to always
         publish records; the crosspost switch then only controls whether an
-        explicit text post is sent (see :meth:`sync_to_bluesky`)."""
+        explicit text post is sent (see :meth:`sync_to_bluesky`).
+
+        Only public writes are gated on the preference: a piece that is no
+        longer public always reconciles (drops) its records, since they may
+        exist from an earlier crosspost or from before the owner opted out,
+        and PDS records are world-readable.
+        """
         if not (self.atproto_collections() or self.atproto_document_collections()):
             return
         if not self.owner.user_id:
             return
         user = self.owner.user
-        if not user.preference.bluesky_publish_records or not user.bluesky:
+        if self.visibility == 0 and not user.preference.bluesky_publish_records:
+            return
+        if not user.bluesky:
             return
         django_rq.get_queue("mastodon").enqueue(self._sync_bluesky_records)
 
@@ -654,8 +662,13 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         bluesky = self.owner.user.bluesky
         if not bluesky:
             return
+        drop = self.visibility != 0
+        if not drop and not self.owner.user.preference.bluesky_publish_records:
+            # owner opted out after this job was enqueued; never write
+            # records for a public piece without the preference on
+            return
         metadata = self.metadata.copy()
-        self._sync_records_to_bluesky(bluesky, drop=self.visibility != 0)
+        self._sync_records_to_bluesky(bluesky, drop=drop)
         if self.metadata != metadata:
             self.save(
                 update_fields=["metadata"], post_when_save=False, index_when_save=False
