@@ -42,10 +42,6 @@ classDiagram
     class Series {
         +String Goodreads_Series_ID
     }
-    class Work {
-        +String Douban_ID
-        +String Goodreads_ID
-    }
     class Edition{
         +String ISBN
         +String Douban_ID
@@ -90,7 +86,7 @@ classDiagram
 Add a new site
 --------------
 
- - If official API is available for the site, it should be the preferred way to get data.
+ - If an official API is available for the site, it should be the preferred way to get data.
  - add a new value to `IdType` and `SiteName` in `catalog/common/models.py`
  - add a new file in `catalog/sites/`, a new class inherits `AbstractSite`, with:
     * `SITE_NAME`
@@ -104,12 +100,12 @@ Add a new site
     * check out existing files in `catalog/sites/` for more examples
  - add an import in `catalog/sites/__init__.py`
  - add some tests to `catalog/<folder>/tests.py` according to site type
-    + add `DOWNLOADER_SAVEDIR = '/tmp'` to `settings.py` can save all response to /tmp
+    + adding `DOWNLOADER_SAVEDIR = '/tmp'` to `settings.py` will save all responses to `/tmp`
     + run `neodb-manage cat <url>` for debugging or saving response file to `/tmp`. Detailed code of `cat` is in `catalog/management/commands/cat.py`
     + move the captured response file to `test_data/`, except large/image files. Or, if necessary, replace it with a minimal version (e.g., a 1x1 pixel image or 1s audio clip)
     + add `@use_local_response` decorator to test methods that should pick up these responses (if `BasicDownloader` or `ProxiedDownloader` is used)
  - run all the tests and make sure they pass
-    - Command: `neodb-manage python3 manage.py test [--keepdb]`.
+      - Command: `neodb-shell /neodb-venv/bin/pytest`.
     - See [this issue](https://github.com/neodb-social/neodb/issues/5) if `lxml.etree.ParserError` occurs on macOS.
  - add a site UI label style to `common/static/scss/_sitelabel.scss`
  - update documentation in [sites.md](../sites.md)

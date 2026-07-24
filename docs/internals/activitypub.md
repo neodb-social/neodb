@@ -9,6 +9,12 @@ to reconstruct the underlying marks, ratings, reviews and lists.
 
 For NeoDB's ATProto (Bluesky) behaviour, see [atproto.md](atproto.md).
 
+## Federation topology
+
+How NeoDB instances interconnect with each other, the Fediverse, and the Atmosphere:
+
+![How NeoDB instances interconnect](../assets/federation.svg)
+
 ## Supported protocols and standards
 
 - [ActivityPub](https://www.w3.org/TR/activitypub/) (server-to-server)

@@ -21,6 +21,6 @@ These apps are not affiliated with NeoDB, but they are being developed with the 
 
 ## Mastodon apps
 
-[Mastodon compatible mobile and native apps](https://joinmastodon.org/apps) can be used to log in and utilize the micro-blogging features in NeoDB server.
+[Mastodon compatible mobile and native apps](https://joinmastodon.org/apps) can be used to log in and utilize the micro-blogging features in a NeoDB server.
 
 In addition to micro-blogging, Mastodon-compatible apps can also be used to take notes on the book you are currently reading. Just head to the bookmark section in your app; your currently-reading books are listed there as bookmarked posts, and replying to any of them will create a note for that book.

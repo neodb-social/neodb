@@ -1,0 +1,38 @@
+flowchart TB
+    subgraph fediverse ["Fediverse — ActivityPub"]
+        neodb1["NeoDB instance<br/>e.g. neodb.social"]
+        relay["Relay<br/>relay.neodb.net"]
+        neodb2["NeoDB instance<br/>your instance"]
+        mastodon["Mastodon etc.<br/>other AP servers"]
+        neodb1 <-- "follow & interact<br/>catalog sync" --> neodb2
+        neodb1 <-- "public posts" --> relay
+        relay <--> neodb2
+        neodb2 <-- "follow & interact" --> mastodon
+    end
+    bridge["Bridge<br/>bridge.neodb.net"]
+    subgraph atmosphere ["Atmosphere — AT Protocol"]
+        pds["User's PDS repo<br/>mark · review · profile"]
+        lexicon["@neodb.net repo<br/>net.neodb.* lexicon"]
+        bluesky["Bluesky<br/>cross-posted skeet"]
+        jetstream["Jetstream<br/>firehose event stream"]
+        userpds["Users' PDS repos"]
+        bookhive["Bookhive"]
+        popfeed["Popfeed"]
+    end
+    neodb1 -- "writes net.neodb.* records" --> pds
+    pds --> bluesky
+    lexicon -.-> pds
+    bookhive --> userpds
+    popfeed --> userpds
+    userpds --> jetstream
+    jetstream -- "reads" --> bridge
+    bridge -- "bridged posts" --> relay
+
+    classDef neodb fill:#FAEEDA,stroke:#BA7517,color:#412402
+    classDef ap fill:#E6F1FB,stroke:#185FA5,color:#042C53
+    classDef atproto fill:#E1F5EE,stroke:#0F6E56,color:#04342C
+    classDef service fill:#F1EFE8,stroke:#888780,color:#2C2C2A
+    class neodb1,neodb2 neodb
+    class mastodon ap
+    class pds,lexicon,bluesky,jetstream,userpds,bookhive,popfeed atproto
+    class relay,bridge service

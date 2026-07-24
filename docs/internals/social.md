@@ -47,7 +47,7 @@ Local Timeline
 
 Activity Streams
 ----------------
-These are list of activities should be either shown in the site or delivered as ActivityStreams or both:
+This is a list of activities that should be shown on the site, delivered as ActivityStreams, or both:
 
  - `Add` / `Remove` an *Item* to / from a *List*:
      + add / remove *Item* to / from a user *Collection*
@@ -59,14 +59,14 @@ These are list of activities should be either shown in the site or delivered as 
  - `Create` / `Update` / `Delete` a *Reply* to another *Content*
  - `Announce` / `Like` a *Content* / *Collection*, or `Undo` that
  - Social Graph interaction
-     + `Follow`/`Unfo` `Follow`
+     + `Follow`/`Undo` `Follow`
      + `Accept`/`Reject`
      + `Block`/`Undo` `Block`
 
 Supporting these activities above will be essential to a reasonable ActivityPub server implementation.
 
 There are additional activities not made into ActivityPub MVP but technically possible to support in future:
-  - `Create` / `Update` / `Delete` a *Content*  in different flavors, without link to *Item*
+  - `Create` / `Update` / `Delete` a *Content* in different flavors, without link to *Item*
       * `Note` or `Article` without link to *Item*
       * DM (`Note`)
       * `Question`
@@ -90,7 +90,7 @@ References:
  - https://www.w3.org/TR/activitystreams-core/
  - https://www.w3.org/TR/activitystreams-vocabulary/
  - https://www.w3.org/TR/json-ld/
- - https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-e232.md
+ - https://codeberg.org/fediverse/fep/src/branch/main/fep/e232/fep-e232.md
  - https://socialhub.activitypub.rocks/t/guide-for-new-activitypub-implementers/479
  - https://docs.joinmastodon.org/spec/activitypub/
  - https://docs.joinbookwyrm.com/activitypub.html

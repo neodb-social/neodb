@@ -30,9 +30,9 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
   - rate and write reviews for an item
   - write notes for an item with progress (e.g. reading notes at page 42)
   - create tags for an item, either privately or publicly
-  - create and share list of items
+  - create and share lists of items
   - track progress of a list (e.g. personal reading challenges)
-  - Import and export full user data archive
+  - import and export full user data archive
   - import list or archives from some 3rd party sites (see [supported sites](sites.md) for details):
     - Goodreads reading list (CSV export)
     - StoryGraph reading list (CSV export)
@@ -48,15 +48,15 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
   - view home feed with friends' activities
     - every activity can be set as viewable to self/follower-only/public
     - eligible items, e.g. podcasts and albums, are playable in feed
-  - login with other Fediverse identity and import social graph
+  - log in with other Fediverse identities and import social graph
     - supported servers: Mastodon/Pleroma/Firefish/GoToSocial/Pixelfed/Friendica/Takahē
-  - login with Bluesky / ATProto identity and import social graph
-  - login with threads.net (requires app verification by Meta)
+  - log in with Bluesky / ATProto identity and import social graph
+  - log in with threads.net (requires app verification by Meta)
   - share collections and reviews to Fediverse/Bluesky/Threads
   - ActivityPub support
     - NeoDB users can follow and interact with users on other ActivityPub services like Mastodon and Pleroma
     - NeoDB instances communicate with each other via an extended version of ActivityPub
-    - NeoDB instances may share public rating and reviews with a default relay
+    - NeoDB instances may share public ratings and reviews with a default relay
     - implementation is based on [Takahē](https://jointakahe.org/) server
   - ATProto support
     - NeoDB is not a PDS, but publishes public reviews and ratings to your ATProto repository as structured records
@@ -74,4 +74,4 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
   - English
   - Simplified Chinese
   - Traditional Chinese
-  - more to come and your contributions are welcomed!
+  - more to come and your contributions are welcome!

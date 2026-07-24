@@ -5,7 +5,7 @@ Check the [release notes](https://github.com/neodb-social/neodb/releases), updat
 
 If there is `compose.override.yml`, make sure it's compatible with the updated `compose.yml`.
 
-Pull the latest container image
+Pull the latest container images:
 ```bash
 docker compose --profile production pull
 ```
@@ -17,5 +17,5 @@ docker compose --profile production up -d
 
 Optionally, clean up old images:
 ```bash
-docker system prune -af --volumes
+docker system prune -af
 ```

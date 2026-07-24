@@ -9,6 +9,12 @@ The lexicon is project-owned under the `net.neodb.*` namespace (reverse of
 `neodb.net`), so it is shared by every NeoDB instance. The schema files live in
 [`docs/lexicons/net/neodb/`](../lexicons/net/neodb).
 
+## How it connects
+
+How NeoDB reaches the Atmosphere, alongside its ActivityPub federation:
+
+![How NeoDB instances interconnect](../assets/federation.svg)
+
 ## Authentication
 
 Users link their ATProto identity via [OAuth](https://atproto.com/specs/oauth)
