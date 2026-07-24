@@ -3,7 +3,7 @@ Development
 
 Overview
 --------
-NeoDB is a Django project (code in the `neodb` folder of this repo), and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in the `takahe` folder of this repo). They communicate with each other mainly through database and task queue; [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
+NeoDB is a Django project (code in the `neodb` folder of this repo), and it runs side by side with a [modified version](https://github.com/neodb-social/neodb-takahe) of [Takahē](https://github.com/jointakahe/takahe) (a separate Django project, code in the `takahe` folder of this repo). They communicate with each other mainly through the database and task queue; [the diagram](troubleshooting.md#containers) demonstrates a typical architecture. Currently the two are loosely coupled, so you may take either one offline without immediate impact on the other, which makes it very easy to conduct maintenance and troubleshooting separately. In the future, they may get combined but it's not decided and will not be decided very soon.
 
 
 Prerequisite
@@ -79,7 +79,7 @@ docker compose --profile dev down
 
 Restart background tasks (unlike web servers, background tasks don't auto reload after code change):
 ```
-docker-compose --profile dev restart dev-neodb-worker dev-takahe-stator
+docker compose --profile dev restart dev-neodb-worker dev-takahe-stator
 ```
 
 When updating code:
@@ -135,7 +135,7 @@ The `dev` profile is different from `production`:
 Note:
 
 - A single Python virtual environment inside the docker image, `/neodb-venv`, is shared by both the neodb and takahe apps and used by default (its dependencies come from the unified `pyproject.toml`/`uv.lock` at the repo root). It can be changed to a different location with `NEODB_VENV` and `TAKAHE_VENV` if needed, usually in a case of development code using a package not in docker venv.
-- Some packages inside python virtual environments are platform dependent, so mount venv built by macOS host into the Linux container will likely not work.
+- Some packages inside python virtual environments are platform dependent, so mounting a venv built on a macOS host into the Linux container will likely not work.
 - Python servers are launched as `app` user, who has no write access to anywhere except /tmp and media path, that's by design.
 - Database/redis/typesense used in the container cluster are not accessible from host directly, which is by design. Querying them can be done by one of the following:
     - `neodb-manage dbshell`
@@ -155,9 +155,9 @@ services:
 ```
 
 
-Development with Github Codespace
----------------------------------
-At the time of writing, docker compose will work in Github Codespace by adding this in `.env`:
+Development with GitHub Codespaces
+----------------------------------
+At the time of writing, docker compose will work in GitHub Codespaces by adding this in `.env`:
 
 ```
 NEODB_SITE_DOMAIN=${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
@@ -169,16 +169,16 @@ Applications
 Main Django apps for NeoDB:
 
  - `users` manages users in typical Django fashion
- - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto](https://atproto.com) for user login and data sync. see [ATProto](internals/atproto.md) for details of ATProto implementation
+ - `mastodon` this leverages [Mastodon API](https://docs.joinmastodon.org/client/intro/), [Threads API](https://developers.facebook.com/docs/threads/) and [ATProto](https://atproto.com) for user login and data sync. See [ATProto](internals/atproto.md) for details of ATProto implementation
  - `catalog` manages different types of items user may collect, and scrapers to fetch from external resources, see [catalog.md](internals/catalog.md) for more details
- - `journal` manages user created content(review/ratings) and lists(collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
+ - `journal` manages user-created content (reviews/ratings) and lists (collection/shelf/tag/note), see [journal.md](internals/journal.md) for more details
  - `social` presents timeline and notifications for local users
  - `takahe` communicates with Takahē (a separate Django server, running side by side with this server, code in the `takahe` folder of this repo), see [internals/activitypub.md](internals/activitypub.md) for customization of ActivityPub protocol
- - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old urls to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
+ - `legacy` this is only used by instances upgraded from 0.4.x and earlier, to provide a link mapping from old URLs to new ones. If your journey starts with 0.5 and later, feel free to ignore it.
 
 
 Miscellaneous notes
 -------------------
 If models in `neodb/takahe/models.py` are changed, instead of adding incremental migrations, just regenerate `neodb/takahe/migrations/0001_initial.py` instead, because these migrations will never be applied except for constructing a test database.
 
-A `libsass` wheel is stored in the repo to speed up the docker image building process in Github Actions.
+A `libsass` wheel is stored in the repo to speed up the docker image building process in GitHub Actions.

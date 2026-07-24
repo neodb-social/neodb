@@ -1,4 +1,4 @@
-NeoDB is an open-source software and global community platform [since 2021](origin.md). It helps users manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and open protocols such as ActivityPub and the AT Protocol.
+NeoDB is open-source software and a global community platform [since 2021](origin.md). It helps users manage and explore collections, reviews, and ratings for various cultural products, including books, movies, music, podcasts, games, and performances. Additionally, users can share their collections, publish microblogs, and engage with others in the Fediverse. NeoDB integrates the functionalities of platforms like Goodreads, Letterboxd, RateYourMusic, and Podchaser, among others. It also supports self-hosting and interconnection through containerized deployment and open protocols such as ActivityPub and the AT Protocol.
 
 This project is licensed under AGPLv3.
 
@@ -7,12 +7,12 @@ This project is licensed under AGPLv3.
 
 Please [find a server](servers.md) to register with your email, Mastodon or Bluesky ID.
 
-Besides the web version of your chosen server, you may also use [various apps](apps.md) to login, create new posts and manage your collections.
+Besides the web version of your chosen server, you may also use [various apps](apps.md) to log in, create new posts and manage your collections.
 
 
 ## Host your own instance
 
-You can [install and run your own instance of NeoDB](install.md). If you would like to share your server with the public, please let us know so that we can add it to the list above.
+You can [install and run your own instance of NeoDB](install.md). If you would like to share your server with the public, please let us know so that we can add it to the [server list](servers.md).
 
 All instances interact with each other in the Fediverse via ActivityPub, allowing you to follow users from other NeoDB instances or instances running other ActivityPub software, such as Mastodon. NeoDB also reaches into the Atmosphere: you can sign in with a Bluesky account and cross-post your reviews and collections to the AT Protocol network.
 
@@ -21,14 +21,14 @@ All instances interact with each other in the Fediverse via ActivityPub, allowin
 
  - NeoDB offers [APIs to manage user collections](api.md), and [Mastodon client compatible API](https://docs.joinmastodon.org/client/) to manage user posts.
  - For those interested in developing for NeoDB, please refer to the [development](development.md) section for basic instructions to get started.
- - To help translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/)
+ - To help translate NeoDB to more languages, please join [our project on Weblate](https://hosted.weblate.org/projects/neodb/).
 
 
 ## Copyleft
 
  - NeoDB software code is licensed under AGPL, please check it if you plan to provide a service with modified code.
- - If you publish a work (e.g. application, website or service) utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply the affiliation with NeoDB software and team.
- - If you publish such work to serve others, we do appreciate you clearly mention the usage of NeoDB in your work, provide descriptions and links to NeoDB software (neodb.net) and service providers (e.g. neodb.social), and guide your users to support them directly.
+ - If you publish a work (e.g. application, website or service) utilizing NeoDB software or API, you may use "NeoDB" and its visual identity in your work, but please refrain from any usage that may imply affiliation with the NeoDB software and team.
+ - If you publish such work to serve others, we do appreciate it if you clearly mention the usage of NeoDB in your work, provide descriptions and links to NeoDB software (neodb.net) and service providers (e.g. neodb.social), and guide your users to support them directly.
 
 
 ## Donation

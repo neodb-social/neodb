@@ -9,7 +9,7 @@ Set these in `.env` before starting the instance for the first time:
 
 **`NEODB_SECRET_KEY` and `NEODB_SITE_DOMAIN` MUST NOT be changed later.**
 
-If you are doing debug or development:
+If you are debugging or developing:
 
  - `NEODB_DEBUG` - True will turn on debug for both neodb and takahe, turn off relay, and reveal self as debug mode in nodeinfo (so peers won't try to run fedi search on this node)
  - `NEODB_IMAGE` - the docker image to use, `neodb/neodb:edge` for the main branch
@@ -97,7 +97,7 @@ MEDIA_BACKEND=s3-insecure://minioadmin:change_password@minio:9000/media
 MEDIA_URL=https://my.media.domain/media/
 ```
 
-Also make sure `my.media.domain`  maps to your Minio server (port 9000 as configured above)
+Also make sure `my.media.domain` maps to your Minio server (port 9000 as configured above).
 
 
 ### Garage
@@ -136,7 +136,7 @@ MEDIA_BACKEND=s3-insecure://KEY_ID:SECRET_KEY@garage:3900/media
 MEDIA_URL=https://media.my.media.domain/
 ```
 
-Garage serves files publicly via its S3 Web endpoint (port 3902) using virtual-host-style routing. The `MEDIA_URL` hostname must match `{bucket}.{root_domain}` configured in `[s3_web]` section of `garage.toml`. For example, with `root_domain = ".my.media.domain"` and bucket `media`, the public URL becomes `https://media.my.media.domain/`. Make sure DNS for that hostname points to Garage's port 3902.
+Garage serves files publicly via its S3 Web endpoint (port 3902) using virtual-host-style routing. The `MEDIA_URL` hostname must match `{bucket}.{root_domain}` configured in the `[s3_web]` section of `garage.toml`. For example, with `root_domain = ".my.media.domain"` and bucket `media`, the public URL becomes `https://media.my.media.domain/`. Make sure DNS for that hostname points to Garage's port 3902.
 
 
 ### SeaweedFS
@@ -171,7 +171,7 @@ Make sure `my.media.domain` maps to your SeaweedFS server (port 8333). Files are
 
 ## Scaling Parameters
 
-For high-traffic instance, spin up these configurations to a higher number in `.env`, as long as the host server can handle them:
+For a high-traffic instance, raise these settings to higher values in `.env`, as long as the host server can handle them:
 
  - `NEODB_WEB_WORKER_NUM`
  - `NEODB_API_WORKER_NUM`
@@ -180,7 +180,7 @@ For high-traffic instance, spin up these configurations to a higher number in `.
  - `TAKAHE_STATOR_CONCURRENCY`
  - `TAKAHE_STATOR_CONCURRENCY_PER_MODEL`
 
-Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider run db/redis/typesense separately, and then duplicate web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once when start or upgrade, it should be kept that way.
+Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider running db/redis/typesense separately, and then duplicating web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once on start or upgrade, and it should be kept that way.
 
 
 ## Other Maintenance Tasks
@@ -188,7 +188,7 @@ Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope
 Add alias to your shell for easier access. Not necessary, just for convenience.
 
 ```
-alias neodb-manage='docker-compose --profile production run --rm shell neodb-manage'
+alias neodb-manage='docker compose --profile production run --rm shell neodb-manage'
 ```
 
 Manage user tasks and cron jobs
@@ -204,12 +204,12 @@ Rebuild search index
 neodb-manage catalog idx-reindex
 ```
 
-There are [more commands](usage/catalog.md) available to manage catalog and take a look at [Manage Accounts](accounts.md) to learn how to create an admin/staff account, create an invitation code and more.
+There are [more commands](usage/catalog.md) available to manage the catalog; also take a look at [Manage Accounts](accounts.md) to learn how to create an admin/staff account, create an invitation code and more.
 
 
-## Run PostgresQL/Redis/Typesense without Docker
+## Run PostgreSQL/Redis/Typesense without Docker
 
-It's currently possible but quite cumbersome to run without Docker, hence not recommended. However it's possible to only use docker to run neodb server but reuse existing PostgresQL/Redis/Typesense servers with `compose.override.yml`, an example for reference:
+It's currently possible but quite cumbersome to run without Docker, hence not recommended. However, it's possible to only use docker to run neodb server but reuse existing PostgreSQL/Redis/Typesense servers with `compose.override.yml`, an example for reference:
 
 ```
 services:
@@ -284,7 +284,7 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on: !reset []
 ```
-(`extra_hosts` is only needed if PostgresQL/Redis/Typesense is on your host server)
+(`extra_hosts` is only needed if PostgreSQL/Redis/Typesense is on your host server)
 
 
 ## Multiple instances on one server

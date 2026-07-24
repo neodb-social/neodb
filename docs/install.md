@@ -7,7 +7,7 @@ For small and medium NeoDB instances, it's recommended to deploy as a container 
 
 Follow [official instructions](https://docs.docker.com/compose/install/) to install Docker Compose if you haven't already.
 
-Please verify its version is 2.x or higher before next step:
+Please verify its version is 2.x or higher before the next step:
 
 ```
 docker compose version
@@ -23,7 +23,7 @@ Follow [official instructions](https://docs.docker.com/engine/install/linux-post
 
 
 ## Prepare configuration files
- - create a folder for configuration, eg ~/mysite/config
+ - create a folder for configuration, e.g. `~/mysite/config`
  - grab `compose.yml` and `neodb.env.example` from [latest release](https://github.com/neodb-social/neodb/releases)
  - rename `neodb.env.example` to `.env`
 
@@ -43,18 +43,18 @@ Optionally:
 
 Site name, preferred languages, and other customization options can be configured later through the Site Settings UI at `/manage/`.
 
-See [neodb.env.example](https://raw.githubusercontent.com/neodb-social/neodb/main/neodb.env.example) and [configuration](configuration.md) for more options
+See [neodb.env.example](https://raw.githubusercontent.com/neodb-social/neodb/main/neodb.env.example) and [configuration](configuration.md) for more options.
 
 
 ## Start container
 
-in the folder with `compose.yml` and `.env`, run:
+In the folder with `compose.yml` and `.env`, run:
 ```
 docker compose --profile production pull
 docker compose --profile production up -d
 ```
 
-Starting up for the first time might take a few minutes, depending on download speed, use the following commands for status and logs:
+Starting up for the first time might take a few minutes depending on download speed. Use the following commands for status and logs:
 ```
 docker compose ps
 docker compose --profile production logs -f
@@ -73,7 +73,7 @@ JSON response will be returned if the server is up and running:
 
 ## Make the site available publicly
 
-The next step is to expose `http://127.0.0.1:8000` to external network as `https://yourdomain.tld` (NeoDB requires `https`). There are many ways to do it, you may use nginx or caddy as a reverse proxy server with an SSL cert configured, or configure a tunnel provider like cloudflared to do the same. Once done, you may check it with:
+The next step is to expose `http://127.0.0.1:8000` to the external network as `https://yourdomain.tld` (NeoDB requires `https`). There are many ways to do it, you may use nginx or caddy as a reverse proxy server with an SSL cert configured, or configure a tunnel provider like cloudflared to do the same. Once done, you may check it with:
 
 ```
 curl https://yourdomain.tld/nodeinfo/2.0/
@@ -84,7 +84,7 @@ You should see the same JSON response as above, and the site is now accessible t
 
 ## Register an account and make it admin
 
-Open `https://yourdomain.tld` in your browser and register an account. If `NEODB_ADMIN_HANDLES` is configured, the account will be auto-promoted to superuser on registration. Otherwise, assuming username is `admin`, run the following command to make it super user:
+Open `https://yourdomain.tld` in your browser and register an account. If `NEODB_ADMIN_HANDLES` is configured, the account will be auto-promoted to superuser on registration. Otherwise, assuming the username is `admin`, run the following command to make it a superuser:
 
 ```
 docker compose --profile production run --rm shell neodb-manage user --super admin

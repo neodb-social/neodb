@@ -6,7 +6,7 @@ NeoDB has a set of API endpoints mapping to its functions, like marking a book o
 
 NeoDB also supports a subset of Mastodon API, details can be found in [Mastodon API documentation](https://docs.joinmastodon.org/api/).
 
-Both sets of APIs can be accessed by the same access token.
+Both sets of APIs can be accessed with the same access token.
 
 ## How to authorize
 
@@ -74,7 +74,7 @@ and an access token will be returned in the response:
 curl -H "Authorization: Bearer ACCESS_TOKEN" -X GET https://neodb.social/api/me
 ```
 
-and response will be returned accordingly:
+and the response will be returned accordingly:
 
 ```
 {"url": "https://neodb.social/users/xxx/", "external_acct": "xxx@yyy.zzz", "display_name": "XYZ", "avatar": "https://yyy.zzz/xxx.gif"}

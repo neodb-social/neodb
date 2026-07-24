@@ -3,14 +3,14 @@
 
 ## Tips
 
- - `docker compose ps` to see if any service is down, (btw it's normal that `migration` is in `Exit 0` state)
+ - `docker compose ps` to see if any service is down (by the way, it's normal that `migration` is in `Exit 0` state)
  - `docker compose run shell` to open a shell in the cluster; or `docker compose run root` for a root shell, where `apt` is available if extra packages are needed
  - see `Debug in Docker` in [development doc](development.md) for debugging tips
 
 
 ## Containers
 
-a typical neodb cluster looks like:
+A typical NeoDB cluster looks like:
 
 ```mermaid
 flowchart TB
@@ -37,7 +37,7 @@ flowchart TB
 
 ## Data Folders
 
-a typical neodb folder after starting up should look like:
+A typical NeoDB folder after starting up should look like:
 
 ```
 mysite
@@ -46,10 +46,10 @@ mysite
 │   ├── neodb-media     # uid must be 1000 (app user in docker image), chmod if not so
 │   ├── redis           # neodb/takahe cache
 │   ├── takahe-cache    # uid must be 33 (www-data user in docker image), chmod if not so
-│   ├── takahe-db       # neodb database
+│   ├── takahe-db       # takahe database
 │   ├── takahe-media    # uid must be 1000 (app user in docker image), chmod if not so
 │   ├── typesense       # neodb search index
-│   └── www-root        # neodb web root for robots.txt, logo.png and etc
+│   └── www-root        # neodb web root for robots.txt, logo.png, etc.
 └── config
     ├── compose.yml     # copied from neodb release
     └── .env            # your configuration, see neodb.env.example
