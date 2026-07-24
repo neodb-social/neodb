@@ -63,9 +63,9 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
             },
         )
     form = (
-        ArticleForm(request.POST, instance=article)
+        ArticleForm(request.POST, request.FILES, instance=article)
         if article
-        else ArticleForm(request.POST)
+        else ArticleForm(request.POST, request.FILES)
     )
     if not form.is_valid():
         # Re-render with the bound form so users see field-level errors
@@ -93,6 +93,7 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         tags=tags,
         article=article,
         share_to_mastodon=bool(form.cleaned_data.get("share_to_mastodon", False)),
+        cover=form.cleaned_data.get("cover"),
     )
     record_activity("article", "web")
     return redirect(reverse("journal:article_retrieve", args=[article.uuid]))

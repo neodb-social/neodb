@@ -143,11 +143,29 @@ class NdjsonExporter(Task):
                 total += 1
                 for url in re.findall(r"(?<=!\[\]\()([^)]+)(?=\))", art.body):
                     _save_image(url)
+                # bundle the featured image file (the ap_object only carries a
+                # URL that may be unreachable after migration), mirroring how
+                # Collection covers are archived and restored on import
+                cover_file = None
+                if art.cover and str(art.cover) != settings.DEFAULT_ITEM_COVER:
+                    cover_filename = os.path.basename(str(art.cover))
+                    cover_dest = os.path.join(attachment_path, cover_filename)
+                    try:
+                        with art.cover.open("rb") as src:
+                            with open(cover_dest, "wb") as dst:
+                                shutil.copyfileobj(src, dst)
+                        cover_file = f"attachments/{cover_filename}"
+                    except Exception as e:
+                        logger.error(
+                            f"error copying cover {cover_filename} to {cover_dest}",
+                            extra={"exception": e},
+                        )
                 o = {
                     "type": "Article",
                     "content": art.ap_object,
                     "visibility": art.visibility,
                     "metadata": art.metadata,
+                    "cover": cover_file,
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 

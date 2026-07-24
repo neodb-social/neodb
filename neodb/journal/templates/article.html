@@ -42,6 +42,8 @@
     {% if article.classname == "review" %}
       <meta property="og:image" content="{{ article.item.cover|thumb:'normal' }}">
       <script type="application/ld+json">{{ article.to_schema_org_json | safe }}</script>
+    {% elif article.cover_image_url %}
+      <meta property="og:image" content="{{ article.cover_image_url }}">
     {% endif %}
     {% if article.latest_post %}
       <link rel="alternate"
@@ -139,6 +141,14 @@
                class="markdown-content"
                {% if article.classname == "article" and article.sensitive %}hidden{% endif %}>
             {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+              {% if article.classname == "article" and article.cover_image_url %}
+                <img class="article-cover"
+                     src="{{ article.cover_image_url }}"
+                     alt="{{ article.title }}"
+                     style="max-width:100%;
+                            height:auto;
+                            margin-bottom:1rem">
+              {% endif %}
               {{ article.html_content | safe }}
             {% else %}
               <p class="empty">

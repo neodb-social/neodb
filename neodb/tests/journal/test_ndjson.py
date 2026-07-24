@@ -1,12 +1,16 @@
 import json
 import os
 import zipfile
+from io import BytesIO
 from tempfile import TemporaryDirectory
 
 import pytest
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.utils.dateparse import parse_datetime
 from loguru import logger
+from PIL import Image
 
 from catalog.models import (
     Edition,
@@ -672,6 +676,34 @@ class TestNdjsonExportImport:
         assert a2.sensitive is True
         assert a2.summary == "careful"
         assert a2.normalized_tags == ["opinion"]
+
+    def test_ndjson_article_cover_round_trip(self, tmp_path):
+        """A featured image is bundled on export and restored on import."""
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            buf = BytesIO()
+            Image.new("RGB", (2, 2), "blue").save(buf, format="PNG")
+            Article.update_local_article(
+                owner=self.user1.identity,
+                title="Covered Read",
+                body="body",
+                visibility=0,
+                cover=SimpleUploadedFile("cover.png", buf.getvalue(), "image/png"),
+            )
+            exporter = NdjsonExporter.create(user=self.user1)
+            exporter.run()
+            export_path = exporter.metadata["file"]
+
+            importer = NdjsonImporter.create(
+                user=self.user2, file=export_path, visibility=0
+            )
+            importer.run()
+            assert importer.metadata["failed"] == 0
+
+            imported = Article.objects.get(
+                owner=self.user2.identity, title="Covered Read"
+            )
+            assert str(imported.cover) != settings.DEFAULT_ITEM_COVER
+            assert (imported.cover_image_url or "").endswith(".png")
 
     def test_ndjson_article_reimport_dedup(self):
         """Re-importing the same Article bundle doesn't duplicate rows."""

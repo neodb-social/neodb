@@ -809,6 +809,14 @@ class BlueskyAccount(SocialAccount):
         )
         return {"uri": r.uri, "cid": r.cid}
 
+    def upload_blob_dict(self, data: bytes) -> dict[str, typing.Any]:
+        """Upload bytes as a blob and return its ref as a plain dict.
+
+        ``model_dump(by_alias=True)`` yields the ``{"$type": "blob", ...}``
+        wire shape, suitable for embedding in a hand-built record dict passed
+        to :meth:`put_record` (mirrors the publication-icon blob path)."""
+        return self._client.upload_blob(data).blob.model_dump(by_alias=True)
+
     def delete_record(self, collection: str, rkey: str) -> None:
         """Delete a record by key. Idempotent: no error if it does not exist."""
         self._client.com.atproto.repo.delete_record(
