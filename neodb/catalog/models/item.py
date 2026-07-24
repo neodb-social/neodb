@@ -30,7 +30,7 @@ from common.models import (
     uniq,
 )
 from common.models.genre import normalize_genres
-from common.models.lang import normalize_languages
+from common.models.lang import localized_label_text, normalize_languages
 from common.utils import get_file_absolute_url, json_ld_dumps
 
 from .common import (
@@ -157,6 +157,11 @@ class ItemCredit(models.Model):
         item_id: int
         person_id: int | None
 
+    #: Per-request localized display name, set by
+    #: ``Item.attach_localized_credit_names``; not a DB field. Empty means
+    #: "use the stored ``name`` snapshot" (see ``display_name``).
+    _localized_name: str = ""
+
     item = models.ForeignKey("Item", on_delete=models.CASCADE, related_name="credits")
     person = models.ForeignKey(
         "People",
@@ -186,21 +191,16 @@ class ItemCredit(models.Model):
 
     @property
     def display_name(self) -> str:
-        """Localized name for HTML display.
+        """Request-localized name for HTML display, else the stored snapshot.
 
-        When linked to a People whose ``localized_name`` is already loaded, use
-        its live-localized ``display_name`` so the credit follows the viewer's
-        language (``name`` is a snapshot frozen at sync time). Fall back to the
-        stored ``name`` for ad-hoc (unlinked) credits, when the linked person
-        has no localized name, or when the person was loaded with ``metadata``
-        deferred -- reading it would trigger a per-credit query (the batch
-        ``credits_prefetch`` defers it on card/list surfaces). Detail pages opt
-        in via ``credits_prefetch(with_person_metadata=True)``.
+        ``name`` is frozen at sync time (under the source's locale). The
+        localized value is populated only when ``Item.attach_localized_credit_names``
+        has run for this render (detail pages); otherwise this returns ``name``.
+        This property never issues a query on its own -- it reads an attribute
+        set by that bounded batch helper, so card/list/API surfaces that skip it
+        pay nothing and keep the snapshot.
         """
-        person = self.person
-        if person is not None and "metadata" not in person.get_deferred_fields():
-            return person.display_name or self.name
-        return self.name
+        return self._localized_name or self.name
 
     def __str__(self):
         linked = f" -> {self.person}" if self.person else ""
@@ -831,7 +831,7 @@ class Item(PolymorphicModel):
             prefetch_related_objects(performanceproductions, "show")
 
     @staticmethod
-    def credits_prefetch(*, with_person_metadata: bool = False) -> models.Prefetch:
+    def credits_prefetch() -> models.Prefetch:
         """Optimized ``Prefetch`` for ``item.credits`` used by templates/APIs.
 
         ``_credits.html`` and the API ``CreditSchema`` only read
@@ -841,28 +841,63 @@ class Item(PolymorphicModel):
         ``metadata`` JSON on each credited person, which made it a slow DB
         query (EGGPLANT-1EF).
 
-        Pass ``with_person_metadata=True`` to also load ``person__metadata``
-        (which holds ``localized_name``) so ``ItemCredit.display_name`` can
-        localize credit names without a per-credit deferred load. Use this only
-        on the single-item detail page -- not on high-cardinality card/list
-        surfaces, where loading person metadata is the cost EGGPLANT-1EF avoided.
+        This intentionally does NOT load ``localized_name`` (which lives in the
+        deferred ``metadata`` JSON): to localize credit names for display, call
+        ``attach_localized_credit_names`` instead, which fetches only that JSON
+        sub-key in one bounded query.
         """
-        fields = [
-            "item_id",
-            "person_id",
-            "role",
-            "name",
-            "character_name",
-            "order",
-            "person__uid",
-            "person__people_type",
-        ]
-        if with_person_metadata:
-            fields.append("person__metadata")
         return models.Prefetch(
             "credits",
-            queryset=ItemCredit.objects.select_related("person").only(*fields),
+            queryset=ItemCredit.objects.select_related("person").only(
+                "item_id",
+                "person_id",
+                "role",
+                "name",
+                "character_name",
+                "order",
+                "person__uid",
+                "person__people_type",
+            ),
         )
+
+    @staticmethod
+    def attach_localized_credit_names(items: "Iterable[Item]") -> None:
+        """Attach request-localized display names to each item's credits.
+
+        Credit rows store ``name`` as a snapshot frozen at sync time (under the
+        source's locale), so an English viewer could see a Chinese director. The
+        linked ``People`` carries a localized name, but it lives in the heavy,
+        deliberately-deferred person ``metadata`` JSON (EGGPLANT-1EF), so we must
+        not select it via ``credits_prefetch``. Instead fetch only the
+        ``localized_name`` sub-key for every credited person in ONE bounded
+        query (flat regardless of cast size) and stash the localized string on
+        each credit; ``ItemCredit.display_name`` then prefers it over ``name``.
+
+        Call this on HTML display surfaces (item detail) after credits are
+        loaded. Surfaces that skip it keep the stored snapshot -- and canonical
+        outputs (ap_object, backups, schema.org, import matching) always do.
+        """
+        from .people import People
+
+        by_person: dict[int, list[ItemCredit]] = {}
+        for it in items:
+            if it is None:
+                continue
+            for group in it.role_credits.values():
+                for credit in group:
+                    if credit.person_id:
+                        by_person.setdefault(credit.person_id, []).append(credit)
+        if not by_person:
+            return
+        locales = get_current_locales()
+        rows = People.objects.filter(pk__in=by_person).values_list(
+            "pk", "metadata__localized_name"
+        )
+        for pk, localized in rows:
+            name = localized_label_text(localized, locales)
+            if name:
+                for credit in by_person[pk]:
+                    credit._localized_name = name
 
     @staticmethod
     def external_resources_prefetch(

@@ -399,6 +399,23 @@ def get_current_locales() -> list[str]:
     return locales
 
 
+def localized_label_text(
+    labels: list[dict] | None, locales: list[str] | None = None
+) -> str | None:
+    """First matching ``text`` from a ``[{lang, text}]`` label list for the
+    given locale preference (defaults to the request's ``get_current_locales``).
+    """
+    if not labels:
+        return None
+    if locales is None:
+        locales = get_current_locales()
+    for loc in locales:
+        v = next((t.get("text") for t in labels if t.get("lang") == loc), None)
+        if v:
+            return v
+    return None
+
+
 _eng = re.compile(r"^[A-Z-a-z0-9]+$")
 # Intentionally broad Unicode ranges below cover Chinese text:
 # U+4E00..U+9FFF  CJK Unified Ideographs

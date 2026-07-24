@@ -119,10 +119,11 @@ def retrieve(request, item_path, item_uuid):
     prefetch_related_objects(
         [item],
         Item.external_resources_prefetch(with_metadata=item.class_name == "album"),
-        # Load person metadata so credit names localize on the detail page
-        # (ItemCredit.display_name); cheap here (one item, few credits).
-        Item.credits_prefetch(with_person_metadata=True),
+        Item.credits_prefetch(),
     )
+    # Localize credit names for display (one bounded query, no heavy person
+    # metadata load) so _credits.html follows the viewer's language.
+    Item.attach_localized_credit_names([item])
     Item.prefetch_parent_items([item])
     # Public tags are shown on the item detail page; aggregate for this single
     # item only (list pages no longer attach tags -- NEODB-SOCIAL-7KW).
