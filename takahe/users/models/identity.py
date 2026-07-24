@@ -1108,7 +1108,10 @@ class Identity(StatorModel):
             return False
         _neodb_sync = self.username != document.get("preferredUsername")
         self.name = document.get("name")
-        self.profile_uri = document.get("url")
+        # Lemmy and some other implementations omit the top-level "url" (the
+        # actor id is the web profile). Fall back to actor_uri so the profile
+        # link is never empty.
+        self.profile_uri = document.get("url") or self.actor_uri
         self.inbox_uri = document.get("inbox")
         self.outbox_uri = document.get("outbox")
         self.followers_uri = document.get("followers")

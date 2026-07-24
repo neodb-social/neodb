@@ -130,7 +130,10 @@ class APIdentity(models.Model):
 
     @property
     def profile_uri(self):
-        return self.takahe_identity.profile_uri
+        # Some implementations (e.g. Lemmy) don't provide a separate web
+        # profile url; the actor uri is the web profile. Fall back to it so
+        # already-fetched identities aren't left with an empty link.
+        return self.takahe_identity.profile_uri or self.takahe_identity.actor_uri
 
     @cached_property
     def display_name(self):
@@ -156,8 +159,12 @@ class APIdentity(models.Model):
                 if self.takahe_identity.icon
                 else self.takahe_identity.icon_uri or settings.SITE_INFO["user_icon"]
             )
-        else:
+        elif self.takahe_identity.icon_uri:
             return f"/proxy/identity_icon/{self.pk}/"
+        else:
+            # Remote identity without an avatar: the icon proxy would 404, so
+            # fall back to the default user icon instead of a broken image.
+            return settings.SITE_INFO["user_icon"]
 
     @property
     def url(self):

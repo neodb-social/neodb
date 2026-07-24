@@ -261,3 +261,47 @@ class TestAPIdentityModel:
 
     def test_actor_type(self):
         assert self.identity.actor_type is not None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRemoteAPIdentity:
+    """Remote identities from implementations (e.g. Lemmy) that omit the
+    web profile url and/or an avatar must still render sensible values."""
+
+    def _make_remote(self, *, profile_uri=None, icon_uri="", actor_type="group"):
+        from django.conf import settings
+        from takahe.models import Domain, Identity
+        from takahe.utils import Takahe
+
+        self.settings = settings
+        domain, _ = Domain.objects.get_or_create(
+            domain="lemmy.example", defaults={"local": False}
+        )
+        identity = Identity.objects.create(
+            actor_uri="https://lemmy.example/c/books",
+            local=False,
+            username="books",
+            domain=domain,
+            actor_type=actor_type,
+            profile_uri=profile_uri,
+            icon_uri=icon_uri,
+        )
+        return Takahe.get_or_create_remote_apidentity(identity)
+
+    def test_profile_uri_falls_back_to_actor_uri(self):
+        identity = self._make_remote(profile_uri=None)
+        assert identity.profile_uri == "https://lemmy.example/c/books"
+
+    def test_profile_uri_uses_url_when_present(self):
+        identity = self._make_remote(profile_uri="https://lemmy.example/c/books/view")
+        assert identity.profile_uri == "https://lemmy.example/c/books/view"
+
+    def test_avatar_falls_back_to_default_when_no_icon(self):
+        identity = self._make_remote(icon_uri="")
+        assert identity.avatar == self.settings.SITE_INFO["user_icon"]
+
+    def test_avatar_uses_proxy_when_icon_present(self):
+        identity = self._make_remote(
+            icon_uri="https://lemmy.example/pictrs/image/books.png"
+        )
+        assert identity.avatar == f"/proxy/identity_icon/{identity.pk}/"
