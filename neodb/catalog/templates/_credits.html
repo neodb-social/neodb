@@ -8,9 +8,9 @@
       {% if forloop.counter <= max %}
         {% if not forloop.first %}/{% endif %}
         {% if credit.person %}
-          <a href="{{ credit.person.url }}">{{ credit.name }}</a>
+          <a href="{{ credit.person.url }}">{{ credit.display_name }}</a>
         {% else %}
-          <span>{{ credit.name }}</span>
+          <span>{{ credit.display_name }}</span>
         {% endif %}
       {% elif forloop.last %}
         …

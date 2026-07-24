@@ -1,4 +1,8 @@
 import pytest
+from django.db import connection
+from django.db.models import prefetch_related_objects
+from django.test.utils import CaptureQueriesContext
+from django.utils import translation
 
 from catalog.models import (
     CreditRole,
@@ -238,6 +242,101 @@ class TestSchemaCreditResolvers:
         assert ap["publisher"] == ["Penguin"]
         # Deprecated scalar still exposed for API back-compat.
         assert ap["pub_house"] == "Penguin"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCreditDisplayNameLocalization:
+    """ItemCredit.display_name localizes a linked-person credit name for HTML
+    display, following the viewer's language instead of the snapshot frozen at
+    sync time -- but only when the person's localized_name is already loaded
+    (no per-credit query). Canonical surfaces (credit_names_by_role, which
+    feeds ap_object / backups / schema.org / import matching) keep the snapshot.
+
+    Regression: a Douban-sourced movie froze the director credit name in
+    Chinese, so the movie page rendered Chinese even for English viewers, while
+    the person page (which localizes live) showed English.
+    """
+
+    def _linked_movie(self) -> Movie:
+        person = People.objects.create(people_type="person", title="del Toro")
+        person.localized_name = [
+            {"lang": "zh-cn", "text": "吉尔莫·德尔·托罗"},
+            {"lang": "en", "text": "Guillermo del Toro"},
+        ]
+        person.save()
+        m = Movie.objects.create(title="Test Film")
+        m.localized_title = [{"lang": "en", "text": "Test Film"}]
+        m.save()
+        # Frozen snapshot in Chinese, as captured at sync time.
+        ItemCredit.objects.create(
+            item=m,
+            role=CreditRole.Director,
+            name="吉尔莫·德尔·托罗",
+            person=person,
+            order=0,
+        )
+        return m
+
+    def _director_credit(self, movie: Movie) -> ItemCredit:
+        # Full person load (metadata not deferred), as on a detail request with
+        # credits_prefetch(with_person_metadata=True). Fresh per language since
+        # People.display_name is cached per instance.
+        return (
+            Movie.objects.get(pk=movie.pk)
+            .credits.select_related("person")
+            .get(role=CreditRole.Director)
+        )
+
+    def test_linked_credit_follows_request_language(self):
+        m = self._linked_movie()
+        with translation.override("en"):
+            assert self._director_credit(m).display_name == "Guillermo del Toro"
+        with translation.override("zh-hans"):
+            assert self._director_credit(m).display_name == "吉尔莫·德尔·托罗"
+
+    def test_unlinked_credit_uses_frozen_name(self):
+        m = Movie.objects.create(title="Test Film")
+        m.localized_title = [{"lang": "en", "text": "Test Film"}]
+        m.save()
+        ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="吉尔莫·德尔·托罗", order=0
+        )
+        with translation.override("en"):
+            assert self._director_credit(m).display_name == "吉尔莫·德尔·托罗"
+
+    def test_credit_names_by_role_stays_canonical(self):
+        # ap_object / backups / schema.org / import matching must not localize.
+        base = self._linked_movie()
+        for lang in ("en", "zh-hans"):
+            with translation.override(lang):
+                m = Movie.objects.get(pk=base.pk)
+                assert m.credit_names_by_role("director") == ["吉尔莫·德尔·托罗"]
+
+    def test_deferred_person_metadata_falls_back_without_query(self):
+        # Card/list prefetch defers person metadata; display_name must not fire
+        # a per-credit query, so it returns the frozen snapshot.
+        base = self._linked_movie()
+        with translation.override("en"):
+            m = Movie.objects.get(pk=base.pk)
+            prefetch_related_objects([m], Item.credits_prefetch())
+            credit = list(m.credits.all())[0]
+            with CaptureQueriesContext(connection) as ctx:
+                assert credit.display_name == "吉尔莫·德尔·托罗"
+            assert len(ctx) == 0
+
+    def test_detail_prefetch_localizes_without_n_plus_one(self):
+        # with_person_metadata=True loads localized_name in the batch join, so
+        # display_name localizes with no extra per-credit query.
+        base = self._linked_movie()
+        with translation.override("en"):
+            m = Movie.objects.get(pk=base.pk)
+            prefetch_related_objects(
+                [m], Item.credits_prefetch(with_person_metadata=True)
+            )
+            credit = list(m.credits.all())[0]
+            with CaptureQueriesContext(connection) as ctx:
+                assert credit.display_name == "Guillermo del Toro"
+            assert len(ctx) == 0
 
 
 @pytest.mark.django_db(databases="__all__")

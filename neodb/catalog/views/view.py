@@ -119,7 +119,9 @@ def retrieve(request, item_path, item_uuid):
     prefetch_related_objects(
         [item],
         Item.external_resources_prefetch(with_metadata=item.class_name == "album"),
-        Item.credits_prefetch(),
+        # Load person metadata so credit names localize on the detail page
+        # (ItemCredit.display_name); cheap here (one item, few credits).
+        Item.credits_prefetch(with_person_metadata=True),
     )
     Item.prefetch_parent_items([item])
     # Public tags are shown on the item detail page; aggregate for this single

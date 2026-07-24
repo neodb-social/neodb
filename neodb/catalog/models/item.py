@@ -184,6 +184,24 @@ class ItemCredit(models.Model):
     def person_api_url(self) -> str | None:
         return self.person.api_url if self.person else None
 
+    @property
+    def display_name(self) -> str:
+        """Localized name for HTML display.
+
+        When linked to a People whose ``localized_name`` is already loaded, use
+        its live-localized ``display_name`` so the credit follows the viewer's
+        language (``name`` is a snapshot frozen at sync time). Fall back to the
+        stored ``name`` for ad-hoc (unlinked) credits, when the linked person
+        has no localized name, or when the person was loaded with ``metadata``
+        deferred -- reading it would trigger a per-credit query (the batch
+        ``credits_prefetch`` defers it on card/list surfaces). Detail pages opt
+        in via ``credits_prefetch(with_person_metadata=True)``.
+        """
+        person = self.person
+        if person is not None and "metadata" not in person.get_deferred_fields():
+            return person.display_name or self.name
+        return self.name
+
     def __str__(self):
         linked = f" -> {self.person}" if self.person else ""
         return f"{self.name} ({self.role}) on {self.item}{linked}"
@@ -204,6 +222,8 @@ class ExternalResourceSchema(Schema):
 
 class CreditSchema(Schema):
     role: str
+    # Stored snapshot, not display_name: this schema backs ap_object (served as
+    # activity+json) and catalog backups, which must stay locale-independent.
     name: str
     character_name: str = ""
     person_url: str | None = Field(None, alias="person_api_url")
@@ -811,7 +831,7 @@ class Item(PolymorphicModel):
             prefetch_related_objects(performanceproductions, "show")
 
     @staticmethod
-    def credits_prefetch() -> models.Prefetch:
+    def credits_prefetch(*, with_person_metadata: bool = False) -> models.Prefetch:
         """Optimized ``Prefetch`` for ``item.credits`` used by templates/APIs.
 
         ``_credits.html`` and the API ``CreditSchema`` only read
@@ -820,19 +840,28 @@ class Item(PolymorphicModel):
         join to those columns so the batch prefetch no longer pulls the large
         ``metadata`` JSON on each credited person, which made it a slow DB
         query (EGGPLANT-1EF).
+
+        Pass ``with_person_metadata=True`` to also load ``person__metadata``
+        (which holds ``localized_name``) so ``ItemCredit.display_name`` can
+        localize credit names without a per-credit deferred load. Use this only
+        on the single-item detail page -- not on high-cardinality card/list
+        surfaces, where loading person metadata is the cost EGGPLANT-1EF avoided.
         """
+        fields = [
+            "item_id",
+            "person_id",
+            "role",
+            "name",
+            "character_name",
+            "order",
+            "person__uid",
+            "person__people_type",
+        ]
+        if with_person_metadata:
+            fields.append("person__metadata")
         return models.Prefetch(
             "credits",
-            queryset=ItemCredit.objects.select_related("person").only(
-                "item_id",
-                "person_id",
-                "role",
-                "name",
-                "character_name",
-                "order",
-                "person__uid",
-                "person__people_type",
-            ),
+            queryset=ItemCredit.objects.select_related("person").only(*fields),
         )
 
     @staticmethod
@@ -1337,7 +1366,14 @@ class Item(PolymorphicModel):
         return self._credits_with_person()
 
     def credit_names_by_role(self, role: str) -> list[str]:
-        """Return credit names as list[str] from the credits table."""
+        """Return credit names as list[str] from the credits table.
+
+        Uses the stored ``name`` snapshot (not the localized display name):
+        this feeds canonical/locale-independent surfaces -- ActivityPub
+        ``ap_object``, catalog backups, schema.org markup and StoryGraph
+        import matching. Localization happens only at the HTML display layer
+        via ``ItemCredit.display_name``.
+        """
         return [c.name for c in self.role_credits.get(role, [])]
 
     @cached_property
