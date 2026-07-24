@@ -59,7 +59,9 @@ class ReviewForm(forms.ModelForm):
 class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ["id", "title", "body", "summary", "sensitive", "visibility"]
+        fields = ["id", "title", "cover", "body", "summary", "sensitive", "visibility"]
+        widgets = {"cover": PreviewImageInput()}
+        labels = {"cover": _("Featured image (optional)")}
 
     # Labels are pinned for accessibility (screen readers / HTML
     # ``<label>``-by-association) but the visible UI surfaces them as

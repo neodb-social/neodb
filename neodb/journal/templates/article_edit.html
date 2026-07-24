@@ -30,10 +30,12 @@
     <main>
       <div>
         <article>
-          <form method="post" class="review-form">
+          <form method="post" class="review-form" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.id }}
             {{ form.title }}
+            <label for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
+            {{ form.cover }}
             {{ form.summary }}
             {{ form.body }}
             {{ form.tags }}

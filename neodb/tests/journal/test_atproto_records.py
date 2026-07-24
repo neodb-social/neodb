@@ -1,10 +1,14 @@
+import io
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from types import SimpleNamespace
 
 import pytest
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.utils import timezone
+from PIL import Image
 
 from catalog.models import Edition, ExternalResource, TVSeason, TVShow
 from journal.models import (
@@ -32,6 +36,12 @@ from users.models import User
 _TID_ALPHABET = "234567abcdefghijklmnopqrstuvwxyz"
 
 
+def _png_bytes() -> bytes:
+    buf = io.BytesIO()
+    Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+    return buf.getvalue()
+
+
 class FakeBluesky:
     """Stand-in for BlueskyAccount capturing record writes/deletes."""
 
@@ -39,10 +49,15 @@ class FakeBluesky:
         self.uid = "did:plc:fake"
         self.puts: dict[tuple[str, str], dict] = {}
         self.deletes: list[tuple[str, str]] = []
+        self.blobs: list[bytes] = []
 
     def put_record(self, collection, rkey, record):
         self.puts[(collection, rkey)] = record
         return {"uri": f"at://{self.uid}/{collection}/{rkey}", "cid": "cid"}
+
+    def upload_blob_dict(self, data):
+        self.blobs.append(data)
+        return {"$type": "blob", "ref": {"$link": "fakecid"}, "size": len(data)}
 
     def delete_record(self, collection, rkey):
         self.deletes.append((collection, rkey))
@@ -370,6 +385,42 @@ def test_article_document_description_prefers_summary():
     doc = article.to_atproto_document()
 
     assert doc["description"] == "hand-written teaser"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_document_includes_cover_image_blob(tmp_path):
+    user = User.register(email="artcov@example.com", username="artcovuser")
+    with override_settings(MEDIA_ROOT=str(tmp_path)):
+        article = Article.update_local_article(
+            user.identity,
+            "Covered Essay",
+            "body",
+            cover=SimpleUploadedFile("cover.png", _png_bytes(), "image/png"),
+        )
+        fake = FakeBluesky()
+        article._sync_records_to_bluesky(fake)
+
+    rkey = build_document_rkey(article)
+    doc = fake.puts[(DOCUMENT_NSID, rkey)]
+    # the featured image is uploaded as a blob and referenced by coverImage
+    assert doc["coverImage"] == {
+        "$type": "blob",
+        "ref": {"$link": "fakecid"},
+        "size": len(_png_bytes()),
+    }
+    assert fake.blobs and fake.blobs[0][:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_document_omits_cover_image_without_cover():
+    user = User.register(email="artnocov@example.com", username="artnocovuser")
+    article = Article.update_local_article(user.identity, "Bare Essay", "body")
+    fake = FakeBluesky()
+    article._sync_records_to_bluesky(fake)
+
+    rkey = build_document_rkey(article)
+    assert "coverImage" not in fake.puts[(DOCUMENT_NSID, rkey)]
+    assert fake.blobs == []
 
 
 @pytest.mark.django_db(databases="__all__")

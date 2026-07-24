@@ -763,6 +763,75 @@ def test_collection_cover_api(tmp_path):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_article_cover_api(tmp_path):
+    owner = User.register(email="artcoverapi@example.com", username="artcoverapi")
+    other = User.register(email="artcoverother@example.com", username="artcoverother")
+    app = Takahe.get_or_create_app(
+        "Article Cover API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=owner.identity.pk,
+    )
+    token = Takahe.refresh_token(app, owner.identity.pk, owner.pk)
+    other_token = Takahe.refresh_token(app, other.identity.pk, other.pk)
+    client = Client()
+
+    buf = BytesIO()
+    Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+    png = buf.getvalue()
+
+    def upload(path, content, auth_token, filename="cover.png"):
+        extra = {"HTTP_AUTHORIZATION": f"Bearer {auth_token}"} if auth_token else {}
+        return client.put(
+            path,
+            data=encode_multipart(
+                BOUNDARY,
+                {"cover": SimpleUploadedFile(filename, content, "image/png")},
+            ),
+            content_type=MULTIPART_CONTENT,
+            **extra,
+        )
+
+    with override_settings(MEDIA_ROOT=str(tmp_path)):
+        resp = client.post(
+            "/api/me/article/",
+            data=json.dumps({"title": "Cover Me", "body": "body", "visibility": 0}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert resp.status_code == 200
+        created = resp.json()
+        assert created["cover_image_url"] is None
+        url = f"/api/me/article/{created['uuid']}/cover"
+
+        assert upload(url, png, None).status_code == 401
+        # article lookups are owner-scoped: a non-owner gets 404 (not 403),
+        # matching update_article/delete_article so existence stays private
+        assert upload(url, png, other_token).status_code == 404
+        missing = "7" * 22
+        assert upload(f"/api/me/article/{missing}/cover", png, token).status_code == 404
+        assert upload(url, b"not an image", token).status_code == 400
+        assert upload(url, b"\0" * (5 * 1024 * 1024 + 1), token).status_code == 400
+
+        resp = upload(url, png, token)
+        assert resp.status_code == 200
+        assert resp.json()["cover_image_url"]
+
+        # extension-less filename normalized from the detected format
+        resp = upload(url, png, token, filename="blob")
+        assert resp.status_code == 200
+        assert resp.json()["cover_image_url"].endswith(".png")
+
+        assert (
+            client.delete(url, HTTP_AUTHORIZATION=f"Bearer {other_token}").status_code
+            == 404
+        )
+        resp = client.delete(url, HTTP_AUTHORIZATION=f"Bearer {token}")
+        assert resp.status_code == 200
+        assert resp.json()["cover_image_url"] is None
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_collection_reorder_items():
     user = User.register(email="reorder@example.com", username="reorderer")
     book1 = Edition.objects.create(title="Reorder Book 1")

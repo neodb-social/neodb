@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import Any, List
 
+from django import forms
+from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja import Field, Schema, Status
+from ninja import Field, File, Schema, Status
+from ninja.files import UploadedFile
 from ninja.pagination import paginate
 
 from common.api import (
@@ -17,6 +20,7 @@ from common.api import (
 from common.sentry import record_activity
 
 from ..models import Article
+from ..models.collection import COVER_MAX_BYTES
 from ..models.common import prefetch_latest_posts
 
 
@@ -34,6 +38,7 @@ class ArticleSchema(Schema):
     language: str = ""
     tags: list[str] = []
     html_content: str
+    cover_image_url: str | None = None
 
 
 class ArticleInSchema(Schema):
@@ -160,6 +165,63 @@ def update_article(request, article_uuid: str, a_in: ArticleInSchema):
         share_to_mastodon=a_in.post_to_fediverse,
         application_id=getattr(request, "application_id", None),
     )
+    record_activity("article", "api")
+    return article
+
+
+@api.put(
+    "/me/article/{article_uuid}/cover",
+    response={200: ArticleSchema, 400: Result, 401: Result, 403: Result, 404: Result},
+    tags=["article"],
+)
+def set_article_cover(request, article_uuid: str, cover: File[UploadedFile]):
+    """
+    Set the featured image of an article owned by current user.
+
+    Send the image as `multipart/form-data` with a `cover` file field;
+    it must be a valid image no larger than 5MB. Saving re-syncs the article's
+    federated post and Bluesky records so the new image propagates.
+    """
+    article = Article.get_by_url_and_owner(article_uuid, request.user.identity.pk)
+    if not article:
+        return NOT_FOUND
+    if (cover.size or 0) > COVER_MAX_BYTES:
+        return Status(400, {"message": "Image file too large"})
+    try:
+        f = forms.ImageField().to_python(cover)
+    except forms.ValidationError:
+        return Status(400, {"message": "Invalid image file"})
+    if f is None:
+        return Status(400, {"message": "Invalid image file"})
+    # normalize the filename from the detected format so the stored path gets
+    # a meaningful extension even for extension-less uploads
+    image = getattr(f, "image", None)  # set by ImageField.to_python
+    fmt = (image.format or "").lower() if image else ""
+    ext = {"jpeg": "jpg"}.get(fmt, fmt)
+    if ext:
+        f.name = f"cover.{ext}"
+    article.cover = f
+    article.application_id_when_save = getattr(request, "application_id", None)
+    article.save()
+    record_activity("article", "api")
+    return article
+
+
+@api.delete(
+    "/me/article/{article_uuid}/cover",
+    response={200: ArticleSchema, 401: Result, 403: Result, 404: Result},
+    tags=["article"],
+)
+def remove_article_cover(request, article_uuid: str):
+    """
+    Remove the featured image of an article owned by current user.
+    """
+    article = Article.get_by_url_and_owner(article_uuid, request.user.identity.pk)
+    if not article:
+        return NOT_FOUND
+    article.cover = settings.DEFAULT_ITEM_COVER
+    article.application_id_when_save = getattr(request, "application_id", None)
+    article.save()
     record_activity("article", "api")
     return article
 

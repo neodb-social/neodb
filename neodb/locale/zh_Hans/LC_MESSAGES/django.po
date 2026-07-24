@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-23 00:06-0400\n"
+"POT-Creation-Date: 2026-07-24 11:13+0800\n"
 "PO-Revision-Date: 2026-07-02 15:01+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1072,7 +1072,7 @@ msgid "hide this tooltip"
 msgstr "不再提示"
 
 #: catalog/templates/_item_comments.html:58
-#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:81
+#: catalog/templates/item_mark_list.html:46 journal/templates/article.html:83
 msgid "translate"
 msgstr "翻译"
 
@@ -1186,7 +1186,7 @@ msgstr "设置进度"
 #: catalog/templates/_item_user_pieces.html:101
 #: catalog/templates/catalog_edit.html:12
 #: journal/templates/action_edit_post.html:6
-#: journal/templates/action_edit_post.html:8 journal/templates/article.html:186
+#: journal/templates/action_edit_post.html:8 journal/templates/article.html:196
 #: journal/templates/collection.html:179 journal/templates/collection.html:187
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_edit.html:26
@@ -1382,7 +1382,7 @@ msgstr "合并到另一条目"
 #: catalog/templates/_sidebar_edit.html:240
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
-#: journal/templates/article.html:189 journal/templates/collection.html:182
+#: journal/templates/article.html:199 journal/templates/collection.html:182
 #: journal/templates/mark.html:157 journal/templates/note.html:84
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
@@ -1647,7 +1647,7 @@ msgstr "创建"
 #: catalog/templates/catalog_edit.html:65
 #: common/templates/manage/settings.html:136
 #: journal/templates/add_to_collection.html:43
-#: journal/templates/article_edit.html:57
+#: journal/templates/article_edit.html:59
 #: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
 #: journal/templates/mark.html:142 journal/templates/note.html:67
 #: journal/templates/post_compose.html:103
@@ -2132,7 +2132,7 @@ msgstr "条目不可被删除。"
 #: catalog/views/edit.py:390 catalog/views/edit.py:479
 #: catalog/views/edit.py:511 catalog/views/verify.py:156
 #: catalog/views/verify.py:203 journal/views/article.py:39
-#: journal/views/article.py:121 journal/views/article.py:141
+#: journal/views/article.py:122 journal/views/article.py:142
 #: journal/views/collection.py:238 journal/views/collection.py:299
 #: journal/views/collection.py:318 journal/views/collection.py:342
 #: journal/views/collection.py:415 journal/views/collection.py:458
@@ -2234,7 +2234,7 @@ msgid "Please wait a moment before trying again."
 msgstr "重试前请稍等。"
 
 #: catalog/views/verify.py:162 common/utils.py:109 common/utils.py:150
-#: journal/views/article.py:174 journal/views/review.py:170
+#: journal/views/article.py:175 journal/views/review.py:170
 #: users/views/actions.py:37 users/views/actions.py:123
 msgid "User not found"
 msgstr "用户不存在"
@@ -3792,7 +3792,7 @@ msgstr "正在阅读"
 msgid "Currently watching"
 msgstr "正在追看"
 
-#: common/templates/_sidebar.html:233 journal/forms.py:197
+#: common/templates/_sidebar.html:233 journal/forms.py:199
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
@@ -4026,7 +4026,7 @@ msgstr "用户不存在了"
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:192
+#: common/utils.py:128 common/utils.py:130 journal/views/article.py:193
 #: journal/views/profile.py:540 journal/views/review.py:188
 msgid "Login required"
 msgstr "登录后访问"
@@ -4723,32 +4723,32 @@ msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则
 msgid "Genres by Category"
 msgstr "按分类设置类型"
 
-#: journal/forms.py:24 journal/forms.py:26 journal/forms.py:70
-#: journal/forms.py:73 journal/forms.py:140
+#: journal/forms.py:24 journal/forms.py:26 journal/forms.py:72
+#: journal/forms.py:75 journal/forms.py:142
 msgid "Title"
 msgstr "标题"
 
 #: journal/forms.py:30 journal/forms.py:35 journal/forms.py:36
-#: journal/forms.py:89 journal/forms.py:94 journal/forms.py:95
-#: journal/forms.py:142
+#: journal/forms.py:91 journal/forms.py:96 journal/forms.py:97
+#: journal/forms.py:144
 msgid "Content (Markdown)"
 msgstr "内容 （Markdown格式）"
 
-#: journal/forms.py:41 journal/forms.py:206 journal/templates/comment.html:62
+#: journal/forms.py:41 journal/forms.py:208 journal/templates/comment.html:62
 #: journal/templates/mark.html:115
 msgid "Crosspost to timeline"
 msgstr "转发到时间轴"
 
-#: journal/forms.py:44 journal/forms.py:117
+#: journal/forms.py:44 journal/forms.py:119
 msgid "Keep leading spaces"
 msgstr "保留行首空格"
 
-#: journal/forms.py:45 journal/forms.py:118
+#: journal/forms.py:45 journal/forms.py:120
 msgid "When saving, replace leading spaces with full-width spaces"
 msgstr "保存时将行首空格替换为全角"
 
-#: journal/forms.py:51 journal/forms.py:124 journal/forms.py:149
-#: journal/forms.py:199 journal/templates/collection_share.html:24
+#: journal/forms.py:51 journal/forms.py:126 journal/forms.py:151
+#: journal/forms.py:201 journal/templates/collection_share.html:24
 #: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
 #: users/templates/users/data.html:98 users/templates/users/data.html:155
 #: users/templates/users/data.html:206 users/templates/users/data.html:269
@@ -4758,45 +4758,49 @@ msgstr "保存时将行首空格替换为全角"
 msgid "Visibility"
 msgstr "可见性"
 
-#: journal/forms.py:77 journal/forms.py:83 journal/forms.py:84
+#: journal/forms.py:64
+msgid "Featured image (optional)"
+msgstr "封面图片（选填）"
+
+#: journal/forms.py:79 journal/forms.py:85 journal/forms.py:86
 msgid "Summary (optional)"
 msgstr "摘要（选填）"
 
-#: journal/forms.py:100 journal/forms.py:105 journal/forms.py:106
+#: journal/forms.py:102 journal/forms.py:107 journal/forms.py:108
 msgid "Tags (comma separated)"
 msgstr "标签（逗号分隔）"
 
-#: journal/forms.py:111 journal/templates/post_compose.html:86
+#: journal/forms.py:113 journal/templates/post_compose.html:86
 msgid "Mark as sensitive"
 msgstr "标记为敏感"
 
-#: journal/forms.py:114
+#: journal/forms.py:116
 msgid "Crosspost to Mastodon"
 msgstr "转发到Mastodon"
 
-#: journal/forms.py:133
+#: journal/forms.py:135
 msgid "owner only"
 msgstr "仅创建者"
 
-#: journal/forms.py:134
+#: journal/forms.py:136
 msgid "owner and their local mutuals"
 msgstr "创建者和他们的本地互关"
 
-#: journal/forms.py:156 journal/templates/collection.html:187
+#: journal/forms.py:158 journal/templates/collection.html:187
 #: journal/templates/collection.html:196
 msgid "Collaborative editing"
 msgstr "协作编辑"
 
-#: journal/forms.py:191 users/templates/users/crossposts.html:51
+#: journal/forms.py:193 users/templates/users/crossposts.html:51
 #: users/templates/users/data.html:483
 msgid "Status"
 msgstr "状态"
 
-#: journal/forms.py:193 journal/templates/comment.html:16
+#: journal/forms.py:195 journal/templates/comment.html:16
 msgid "Comment"
 msgstr "短评"
 
-#: journal/forms.py:195
+#: journal/forms.py:197
 msgid "Rating"
 msgstr "评分"
 
@@ -4835,7 +4839,7 @@ msgstr "匹配文件丢失，无法导入。"
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/models/article.py:153 journal/views/article.py:206
+#: journal/models/article.py:210 journal/views/article.py:207
 msgid "(may contain sensitive content)"
 msgstr "（可能包含剧透或敏感内容）"
 
@@ -4949,27 +4953,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:711
+#: journal/models/common.py:730
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:874
+#: journal/models/common.py:919
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:907
+#: journal/models/common.py:952
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:917
+#: journal/models/common.py:962
 msgid "Original post no longer exists."
 msgstr "原帖文已不存在。"
 
-#: journal/models/common.py:931
+#: journal/models/common.py:976
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:940
+#: journal/models/common.py:985
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -5543,7 +5547,7 @@ msgstr "更新标记"
 msgid "Update note"
 msgstr "修改备注"
 
-#: journal/templates/_list_item.html:100 journal/templates/article.html:121
+#: journal/templates/_list_item.html:100 journal/templates/article.html:123
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
@@ -5677,7 +5681,7 @@ msgid "View post"
 msgstr "查看帖文"
 
 #: journal/templates/action_quote_post.html:3
-#: journal/templates/article.html:180 journal/templates/collection.html:168
+#: journal/templates/article.html:190 journal/templates/collection.html:168
 msgid "Quote"
 msgstr "引用"
 
@@ -5686,7 +5690,7 @@ msgid "reply"
 msgstr "回应"
 
 #: journal/templates/action_reply_post.html:3
-#: journal/templates/article.html:171 journal/templates/collection.html:159
+#: journal/templates/article.html:181 journal/templates/collection.html:159
 msgid "Reply"
 msgstr "回应"
 
@@ -5703,19 +5707,19 @@ msgstr "添加到收藏单"
 msgid "Create a new collection"
 msgstr "创建新收藏单"
 
-#: journal/templates/article.html:102 social/templates/_event_post.html:81
+#: journal/templates/article.html:104 social/templates/_event_post.html:81
 msgid "wrote a review"
 msgstr "写了评论"
 
-#: journal/templates/article.html:104 social/templates/_event_post.html:83
+#: journal/templates/article.html:106 social/templates/_event_post.html:83
 msgid "wrote an article"
 msgstr "写了文章"
 
-#: journal/templates/article.html:134
+#: journal/templates/article.html:136
 msgid "This article may contain sensitive content. Click to reveal."
 msgstr "文章可能包含敏感内容，点击显示全文。"
 
-#: journal/templates/article.html:145
+#: journal/templates/article.html:155
 msgid "The author has set it to be viewable only by logged-in users."
 msgstr "作者已设置仅限已登录用户查看。"
 
@@ -6125,16 +6129,16 @@ msgstr "分享年度小结"
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
 
-#: journal/views/article.py:172 journal/views/review.py:168
+#: journal/views/article.py:173 journal/views/review.py:168
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/article.py:180 journal/views/article.py:194
+#: journal/views/article.py:181 journal/views/article.py:195
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr "{0} 的文章"
 
-#: journal/views/article.py:182 journal/views/article.py:190
+#: journal/views/article.py:183 journal/views/article.py:191
 #: journal/views/review.py:178 journal/views/review.py:186
 msgid "Link invalid"
 msgstr "链接无效"

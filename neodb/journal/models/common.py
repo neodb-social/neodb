@@ -387,6 +387,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         """
         return set()
 
+    def atproto_document_cover_image(self) -> "bytes | None":
+        """Bytes for this piece's ``site.standard.document`` coverImage blob,
+        or ``None``. Long-form subclasses with a featured image (article)
+        override this; the default publishes no cover."""
+        return None
+
     def atproto_document_rkey(self) -> str:
         """Record key for this piece's ``site.standard.document``.
 
@@ -812,6 +818,31 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                     f"{self} sync document {collection} to {bluesky} error {e}"
                 )
 
+    def _with_document_cover(self, bluesky, document: dict) -> dict:
+        """Return ``document`` with a ``coverImage`` blob attached when the
+        piece exposes cover bytes, else unchanged.
+
+        The blob is uploaded to the PDS here (not in the pure record builder)
+        because a blob ref can only be minted with a live client. Failures are
+        logged and swallowed so a cover problem never blocks the document
+        write itself.
+        """
+        if "coverImage" in document:
+            return document
+        try:
+            data = self.atproto_document_cover_image()
+        except Exception as e:
+            logger.warning(f"{self} document cover read error {e}")
+            return document
+        if not data:
+            return document
+        try:
+            blob = bluesky.upload_blob_dict(data)
+        except Exception as e:
+            logger.warning(f"{self} document cover upload error {e}")
+            return document
+        return {**document, "coverImage": blob}
+
     def _put_document_record(self, bluesky, document=None) -> dict[str, str] | None:
         """Write this piece's ``site.standard.document`` and return the
         record's strong ref (uri + cid), or ``None`` when the piece publishes
@@ -829,6 +860,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 return None
         if not document:
             return None
+        document = self._with_document_cover(bluesky, document)
         rkey = self.atproto_document_rkey()
         ref = None
         for collection in collections:

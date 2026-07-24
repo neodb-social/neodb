@@ -1,18 +1,32 @@
 """Tests for the standalone Article piece (item-less, markdown-authored)."""
 
+import io
 from datetime import timedelta
 from unittest.mock import MagicMock
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
-from django.test import Client
+from django.test import Client, override_settings
 from django.utils import timezone
+from PIL import Image
 
 from journal.models import Article
 from journal.search import JournalQueryParser
 from takahe.ap_handlers import post_deleted
 from takahe.utils import Takahe
 from users.models import User
+
+
+def _png_bytes() -> bytes:
+    """A tiny valid PNG so ImageField/form validation accepts the upload."""
+    buf = io.BytesIO()
+    Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def _png_upload(name: str = "cover.png") -> SimpleUploadedFile:
+    return SimpleUploadedFile(name, _png_bytes(), content_type="image/png")
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -303,6 +317,78 @@ class TestArticleModel:
         assert "Some body" in doc["content"]
         assert sorted(doc["tag"]) == ["bar", "foo"]
 
+    def test_cover_stored_and_ap_emits_image_and_attachment(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            article = Article.update_local_article(
+                owner=self.identity,
+                title="Covered",
+                body="body",
+                visibility=0,
+                cover=_png_upload(),
+            )
+            assert str(article.cover) != "item/default.svg"
+            url = article.cover_image_url
+            assert url and url.endswith(".png")
+            obj = article.ap_object
+            # spec-correct featured-image slot
+            assert obj["image"] == {
+                "type": "Image",
+                "url": url,
+                "mediaType": "image/png",
+                "name": "Covered",
+            }
+            # mirrored into attachment (Mastodon/Pleroma only render that),
+            # as a distinct dict so a consumer mutating one leaves the other
+            assert obj["attachment"] == [obj["image"]]
+            assert obj["attachment"][0] is not obj["image"]
+
+    def test_ap_object_omits_image_without_cover(self):
+        article = Article.update_local_article(
+            owner=self.identity, title="Bare", body="body", visibility=0
+        )
+        obj = article.ap_object
+        assert "image" not in obj
+        assert "attachment" not in obj
+        assert article.cover_image_url is None
+
+    def test_cover_unchanged_on_edit_without_new_upload(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            article = Article.update_local_article(
+                owner=self.identity,
+                title="V1",
+                body="first",
+                visibility=0,
+                cover=_png_upload(),
+            )
+            name = article.cover.name
+            # a later edit that passes no cover must not drop the existing one
+            article = Article.update_local_article(
+                owner=self.identity,
+                title="V2",
+                body="second",
+                visibility=0,
+                article=article,
+            )
+            article.refresh_from_db()
+            assert article.cover.name == name
+
+    def test_atproto_document_cover_image_returns_bytes(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            article = Article.update_local_article(
+                owner=self.identity,
+                title="Doc Cover",
+                body="body",
+                visibility=0,
+                cover=_png_upload(),
+            )
+            data = article.atproto_document_cover_image()
+            assert isinstance(data, bytes) and data[:8] == b"\x89PNG\r\n\x1a\n"
+
+        plain = Article.update_local_article(
+            owner=self.identity, title="No Cover", body="body", visibility=0
+        )
+        assert plain.atproto_document_cover_image() is None
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestArticleSearchParser:
@@ -474,6 +560,45 @@ class TestArticleInboundParsing:
         assert result.title == "Round Trip"
         assert result.body == "**Mark** _down_"
         assert sorted(result.normalized_tags) == ["alpha", "beta"]
+
+    def test_inbound_image_cached_in_metadata(self):
+        post = _make_remote_post(self.identity.pk)
+        ap = self._ap_obj()
+        ap["image"] = {"type": "Image", "url": "https://remote.example/cover.jpg"}
+        article = Article.update_by_ap_object(self.identity, None, ap, post)
+        assert article is not None
+        # remote covers are cached as a URL (never downloaded)
+        assert article.metadata["cover_url"] == "https://remote.example/cover.jpg"
+        assert article.cover_image_url == "https://remote.example/cover.jpg"
+
+    def test_inbound_image_from_attachment_fallback(self):
+        post = _make_remote_post(self.identity.pk)
+        ap = self._ap_obj()
+        ap["attachment"] = [{"type": "Image", "url": "https://remote.example/att.png"}]
+        article = Article.update_by_ap_object(self.identity, None, ap, post)
+        assert article is not None
+        assert article.cover_image_url == "https://remote.example/att.png"
+
+    def test_inbound_image_rejects_non_http_url(self):
+        post = _make_remote_post(self.identity.pk)
+        ap = self._ap_obj()
+        ap["image"] = {"type": "Image", "url": "file:///etc/passwd"}
+        article = Article.update_by_ap_object(self.identity, None, ap, post)
+        assert article is not None
+        assert "cover_url" not in article.metadata
+        assert article.cover_image_url is None
+
+    def test_inbound_image_removal_clears_cached_url(self):
+        post = _make_remote_post(self.identity.pk)
+        ap = self._ap_obj()
+        ap["image"] = {"type": "Image", "url": "https://remote.example/cover.jpg"}
+        Article.update_by_ap_object(self.identity, None, ap, post)
+        # a newer update that dropped the image must clear the cached url
+        ap2 = self._ap_obj()
+        ap2["updated"] = (timezone.now() + timedelta(seconds=5)).isoformat()
+        article = Article.update_by_ap_object(self.identity, None, ap2, post)
+        assert article is not None
+        assert "cover_url" not in article.metadata
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -800,3 +925,34 @@ class TestArticlePageMarkup:
         assert 'property="article:modified_time"' in html
         # the page title is the document's only h1; body headings start at h2
         assert html.count("<h1>") == 1
+
+    def test_article_page_renders_featured_image(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            article = Article.update_local_article(
+                owner=self.identity,
+                title="With Cover",
+                body="body",
+                visibility=0,
+                cover=_png_upload(),
+            )
+            resp = self.client.get(article.url)
+            assert resp.status_code == 200
+            html = resp.content.decode()
+            url = article.cover_image_url
+            assert url
+            assert 'class="article-cover"' in html
+            assert f'src="{url}"' in html
+            assert f'property="og:image" content="{url}"' in html
+
+    def test_article_page_no_featured_image_without_cover(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="No Cover Page",
+            body="body",
+            visibility=0,
+        )
+        resp = self.client.get(article.url)
+        assert resp.status_code == 200
+        html = resp.content.decode()
+        assert 'class="article-cover"' not in html
+        assert 'property="og:image"' not in html

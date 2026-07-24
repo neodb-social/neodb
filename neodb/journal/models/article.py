@@ -1,6 +1,9 @@
+import mimetypes
 import re
 from typing import Any
 
+from django.conf import settings
+from django.core.files.base import File
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -10,6 +13,8 @@ from django.utils.translation import gettext as _
 from loguru import logger
 from markdownify import markdownify as md
 
+from catalog.models.utils import piece_cover_path
+from common.utils import get_file_absolute_url
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -21,6 +26,11 @@ from .tag import Tag as TagModel
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 
 _TAG_MAX_COUNT = 30
+
+# ATProto blob (Bluesky external-embed thumb, site.standard.document
+# coverImage) and the AS ``image`` are all backed by the same cover file;
+# the lexicons cap the blob at 1MB, so skip anything larger than the card.
+_COVER_BLOB_MAX_SIZE = 1000000
 
 
 def _normalize_tags(values: Any) -> list[str]:
@@ -39,6 +49,34 @@ def _normalize_tags(values: Any) -> list[str]:
         if len(out) >= _TAG_MAX_COUNT:
             break
     return out
+
+
+def _image_url_from_ap(obj: Any) -> str:
+    """Featured-image URL from an AS object's ``image`` (falling back to an
+    ``attachment`` Image), or '' when none. The value may be a URL string, a
+    single Image/Link dict, or a list of them. Only ``http(s)`` URLs are
+    returned so a malformed remote payload cannot smuggle a local/file ref."""
+
+    def _url(v: Any) -> str:
+        if isinstance(v, str):
+            u = v
+        elif isinstance(v, dict):
+            u = v.get("url") or v.get("href") or ""
+        else:
+            u = ""
+        return u if isinstance(u, str) and u.startswith(("http://", "https://")) else ""
+
+    candidates: list[Any] = []
+    image = obj.get("image")
+    candidates += image if isinstance(image, list) else [image]
+    for att in obj.get("attachment", []) or []:
+        if isinstance(att, dict) and str(att.get("type", "")).lower() == "image":
+            candidates.append(att)
+    for c in candidates:
+        u = _url(c)
+        if u:
+            return u
+    return ""
 
 
 class Article(Piece):
@@ -74,6 +112,13 @@ class Article(Piece):
     language = models.CharField(max_length=8, blank=True, default="")
     attachments = models.JSONField(default=list)
     tags = models.JSONField(default=list)
+    # Featured/cover image. Optional; mirrors ``Collection.cover`` (same
+    # ``upload_to`` and default sentinel). Federated as the AS ``image``
+    # (plus an ``attachment`` mirror) and used for the Bluesky external-card
+    # thumb and the ``site.standard.document`` coverImage blob.
+    cover = models.ImageField(
+        upload_to=piece_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
+    )
 
     class Meta:
         indexes = [
@@ -87,6 +132,18 @@ class Article(Piece):
     @property
     def display_title(self) -> str:
         return self.title
+
+    @property
+    def cover_image_url(self) -> str | None:
+        """Absolute URL of the featured image, or ``None`` when unset.
+
+        Local articles store the file in ``cover``; a federated remote article
+        carries only a URL, cached in ``metadata['cover_url']`` by
+        ``params_from_ap_object`` (the image is never downloaded locally)."""
+        url = get_file_absolute_url(self.cover)
+        if url:
+            return url
+        return (self.metadata or {}).get("cover_url") or None
 
     @property
     def html_content(self) -> str:
@@ -157,6 +214,26 @@ class Article(Piece):
                 text = marker
         return text
 
+    def _ap_image_object(self) -> dict | None:
+        """AS ``Image`` for the featured image, or ``None`` when unset.
+
+        Emitted both as the object's ``image`` (the AS spec's banner/featured
+        slot, honored by Ghost / Lemmy / the WordPress ActivityPub plugin) and
+        mirrored into ``attachment`` -- Mastodon/Pleroma ignore an object-level
+        ``image`` and only render media listed in ``attachment``. Consumers
+        that read both may show it twice; this matches the WordPress plugin's
+        deliberate belt-and-suspenders emission."""
+        url = self.cover_image_url
+        if not url:
+            return None
+        image: dict[str, Any] = {"type": "Image", "url": url}
+        media_type = mimetypes.guess_type(url)[0]
+        if media_type:
+            image["mediaType"] = media_type
+        if self.title:
+            image["name"] = self.title  # doubles as alt text
+        return image
+
     @property
     def ap_object(self) -> dict:
         # No ``id`` key on purpose: ``get_ap_data()`` is merged into the
@@ -177,6 +254,10 @@ class Article(Piece):
             "href": self.absolute_url,
             "tag": [{"type": "Hashtag", "name": f"#{t}"} for t in self.normalized_tags],
         }
+        image = self._ap_image_object()
+        if image:
+            d["image"] = image
+            d["attachment"] = [dict(image)]
         # AS ``summary`` here carries the *raw* user-supplied text only.
         # NDJSON export and inbound ``update_by_ap_object`` both round-trip
         # through ``ap_object``, so storing the auto-marker here would
@@ -234,6 +315,31 @@ class Article(Piece):
             description=self.display_summary or self.excerpt,
             tags=self.normalized_tags,
         )
+
+    def atproto_document_cover_image(self) -> bytes | None:
+        """Featured-image bytes for the ``site.standard.document`` coverImage
+        blob, or ``None`` when unset or too large.
+
+        Read through ``storage.open`` (an independent handle) so it never
+        disturbs the ``cover`` FieldFile's lazily-opened state that the
+        Bluesky external-embed thumb path reads from in the same crosspost."""
+        if not self.cover or str(self.cover) == settings.DEFAULT_ITEM_COVER:
+            return None
+        name = self.cover.name
+        if not name:
+            return None
+        try:
+            f = self.cover.storage.open(name, "rb")
+            try:
+                data = f.read()
+            finally:
+                f.close()
+        except Exception as e:
+            logger.warning(f"{self} cover read error {e}")
+            return None
+        if not data or len(data) > _COVER_BLOB_MAX_SIZE:
+            return None
+        return data
 
     def to_indexable_doc(self) -> dict[str, Any]:
         return {
@@ -297,16 +403,24 @@ class Article(Piece):
             logger.warning(f"Article {obj.get('id')} has unparseable timestamps")
             return None
         d = cls.params_from_ap_object(post, obj, existing)
+        # Remote articles carry the featured image as a URL only; cache it in
+        # metadata (no download) so cover_image_url can surface it.
+        cover_url = _image_url_from_ap(obj)
         if existing:
             if existing.edited_time >= edited:
                 return existing  # stale; no-op
             for k, v in d.items():
                 setattr(existing, k, v)
             existing.edited_time = edited
-            existing.metadata = {
+            meta = {
                 **(existing.metadata or {}),
                 "word_count": existing._compute_word_count(),
             }
+            if cover_url:
+                meta["cover_url"] = cover_url
+            else:
+                meta.pop("cover_url", None)
+            existing.metadata = meta
             existing.save(
                 update_fields=list(d.keys()) + ["edited_time", "metadata"],
                 post_when_save=False,
@@ -325,6 +439,8 @@ class Article(Piece):
         )
         article = cls(**d)
         article.metadata = {"word_count": article._compute_word_count()}
+        if cover_url:
+            article.metadata["cover_url"] = cover_url
         article.previous_visibility = visibility
         article.save(link_post_id=post.id, post_when_save=False)
         return article
@@ -344,6 +460,7 @@ class Article(Piece):
         article: "Article | None" = None,
         share_to_mastodon: bool = False,
         application_id: int | None = None,
+        cover: "File | None" = None,
     ) -> "Article":
         if article is None:
             article = cls(owner=owner)
@@ -358,6 +475,11 @@ class Article(Piece):
         article.visibility = int(visibility)
         article.language = language or ""
         article.tags = _normalize_tags(tags or [])
+        # A falsy cover (no upload / API call that omits it) leaves the current
+        # image untouched; removal has a dedicated endpoint. Assigning the
+        # unchanged FieldFile back on edit is a harmless no-op.
+        if cover:
+            article.cover = cover
         article.edited_time = timezone.now()
         article.metadata = {
             **(article.metadata or {}),
