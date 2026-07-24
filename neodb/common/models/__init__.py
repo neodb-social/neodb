@@ -36,6 +36,8 @@ from .lang import (
     SITE_PREFERRED_LOCALES,
     detect_language,
     get_current_locales,
+    refresh_language_caches,
+    register_language_cache_refresh,
 )
 from .misc import int_, uniq
 from .music_format import (
@@ -95,6 +97,8 @@ __all__ = [
     "normalize_media_formats",
     "normalize_price",
     "parse_duration_text",
+    "refresh_language_caches",
+    "register_language_cache_refresh",
     "parse_partial_date",
     "partial_date_to_int",
     "uniq",

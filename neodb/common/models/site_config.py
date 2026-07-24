@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.utils import DatabaseError, ProgrammingError
+from django.utils.translation import trans_real
 from loguru import logger
 
 from common.config import resolve_email_settings
@@ -76,6 +77,10 @@ class SiteConfig(models.Model):
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]
+        # Default UI language for visitors and users with no language preference.
+        # Unlike preferred_languages this keeps the sub-tag (e.g. zh-hant), so it
+        # cannot be derived from that list.
+        language_code: str = "en"
 
         # Federation
         disable_default_relay: bool = False
@@ -146,6 +151,17 @@ class SiteConfig(models.Model):
         disable_cron_jobs: list[str] = []
         index_aliases: dict = {"catalog": "catalog2"}
         skip_migrations: list[str] = []
+
+        @pydantic.field_validator("language_code")
+        @classmethod
+        def validate_language_code(cls, value: str) -> str:
+            supported = getattr(settings, "SUPPORTED_UI_LANGUAGES", {})
+            if supported and value not in supported:
+                raise ValueError(
+                    f"{value} is not a supported UI language: "
+                    f"{', '.join(supported.keys())}"
+                )
+            return value
 
         @pydantic.field_validator("email_url")
         @classmethod
@@ -219,6 +235,10 @@ class SiteConfig(models.Model):
             "preferred_languages": list(
                 getattr(settings, "PREFERRED_LANGUAGES", ["en", "zh"])
             ),
+            "language_code": getattr(
+                settings, "LANGUAGE_CODE_ENV", getattr(settings, "LANGUAGE_CODE", "en")
+            )
+            or "en",
             # Federation
             "disable_default_relay": getattr(settings, "DISABLE_DEFAULT_RELAY", False),
             "fanout_limit_days": getattr(settings, "FANOUT_LIMIT_DAYS", 9),
@@ -373,11 +393,26 @@ class SiteConfig(models.Model):
         # Refresh module-level language caches
         import common.models.lang as lang_module
 
+        previous_languages = list(lang_module.SITE_PREFERRED_LANGUAGES)
         lang_module.SITE_PREFERRED_LANGUAGES[:] = opts.preferred_languages or [
             lang_module.FALLBACK_LANGUAGE
         ]
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
         lang_module.SITE_PREFERRED_LOCALES[:] = lang_module.get_preferred_locales()
+        if previous_languages != lang_module.SITE_PREFERRED_LANGUAGES:
+            # Ordering of the language/locale/script choices follows the preferred
+            # list. Rebuilding is not free and mutates shared lists in place, so
+            # only do it when the preferred languages actually changed.
+            lang_module.refresh_language_caches()
+
+        # Default UI language, read live by users.middlewares.LanguageMiddleware
+        if settings.LANGUAGE_CODE != opts.language_code:
+            settings.LANGUAGE_CODE = opts.language_code
+            # trans_real caches the default translation object, built from
+            # LANGUAGE_CODE on first use and consulted whenever no language is
+            # active (RQ jobs, management commands). Django resets it the same
+            # way when LANGUAGE_CODE changes, in django/test/signals.py.
+            trans_real._default = None  # ty: ignore[unresolved-attribute]
 
         # Timeouts read from settings at call time in mastodon/takahe clients
         settings.MASTODON_TIMEOUT = opts.mastodon_timeout

@@ -1,5 +1,9 @@
+import pytest
+from django.conf import settings
 from django.utils import translation
 
+import catalog.models.common as catalog_common
+import common.models.lang as lang
 from common.models.lang import get_current_locales, localize_number
 
 
@@ -66,3 +70,82 @@ class TestGetCurrentLocales:
             locales = get_current_locales()
             assert locales[0] == "fr"
             assert "en" in locales
+
+
+class TestPreferredLanguagesIsolation:
+    def test_runtime_cache_does_not_alias_the_setting(self):
+        """SiteConfig rewrites SITE_PREFERRED_LANGUAGES in place and reads
+        settings.PREFERRED_LANGUAGES back as the env fallback, so the two must
+        not be the same list."""
+        assert lang.SITE_PREFERRED_LANGUAGES is not settings.PREFERRED_LANGUAGES
+
+    def test_rewriting_the_cache_leaves_the_setting_alone(self):
+        original_setting = list(settings.PREFERRED_LANGUAGES)
+        original_cache = list(lang.SITE_PREFERRED_LANGUAGES)
+        try:
+            lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+
+            assert list(settings.PREFERRED_LANGUAGES) == original_setting
+        finally:
+            lang.SITE_PREFERRED_LANGUAGES[:] = original_cache
+
+
+class TestLanguageCacheRefresh:
+    """The choice caches are ordered by SITE_PREFERRED_LANGUAGES, which is only
+    known from env at import time. A later SiteConfig change must reach them."""
+
+    @pytest.fixture(autouse=True)
+    def restore_caches(self):
+        original = list(lang.SITE_PREFERRED_LANGUAGES)
+        yield
+        lang.SITE_PREFERRED_LANGUAGES[:] = original
+        lang.refresh_language_caches()
+
+    def test_preferred_languages_lead_the_choices(self):
+        lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+
+        lang.refresh_language_caches()
+
+        assert lang.LANGUAGE_CHOICES[0][0] == "ja"
+        assert lang.LOCALE_CHOICES[0][0] == "ja"
+        assert lang.SCRIPT_CHOICES[0][0] == "ja"
+        assert next(iter(lang.LANGUAGE_CODES)) == "ja"
+        # every language stays offered, only the order changes
+        assert len(lang.LANGUAGE_CODES) == len(dict(lang.LANGUAGE_CHOICES))
+        assert "en" in lang.LANGUAGE_CODES
+
+    def test_refresh_keeps_object_identity_for_importers(self):
+        """Importers bind these by name, so a rebind would never reach them."""
+        locale_choices = lang.LOCALE_CHOICES
+        language_codes = lang.LANGUAGE_CODES
+        jsonform = catalog_common.LOCALE_CHOICES_JSONFORM
+
+        lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+        lang.refresh_language_caches()
+
+        assert locale_choices is lang.LOCALE_CHOICES
+        assert language_codes is lang.LANGUAGE_CODES
+        assert jsonform is catalog_common.LOCALE_CHOICES_JSONFORM
+        assert jsonform[0]["value"] == "ja"
+
+    def test_field_schema_built_before_refresh_follows_it(self):
+        """Model fields capture the schema at class definition time."""
+        field = catalog_common.LanguageListField()
+        one_of = field.schema["items"]["oneOf"]
+
+        lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+        lang.refresh_language_caches()
+
+        assert one_of is field.schema["items"]["oneOf"]
+        assert one_of[0]["const"] == "ja"
+        assert one_of[-1] == {"title": "Other", "type": "string"}
+
+    def test_script_field_schema_follows_refresh(self):
+        field = catalog_common.LanguageListField(script=True)
+        one_of = field.schema["items"]["oneOf"]
+
+        lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+        lang.refresh_language_caches()
+
+        assert one_of[0]["const"] == "ja"
+        assert one_of[-1] == {"title": "Other", "type": "string"}

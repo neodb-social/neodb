@@ -4,6 +4,7 @@ from typing import ClassVar
 
 import pydantic
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
@@ -519,6 +520,14 @@ class AccessSettings(SiteConfigSettingsPage):
             "title": _("Email From"),
             "help_text": _("Sender name and address for outgoing email."),
         },
+        "language_code": {
+            "title": _("Default Language"),
+            "choices": list(settings.LANGUAGES),
+            "help_text": _(
+                "Interface language for visitors and for users who have not "
+                "chosen one themselves."
+            ),
+        },
         "preferred_languages": {
             "title": _("Preferred Languages"),
             "help_text": _(
@@ -543,6 +552,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "email_from",
         ],
         _("Localization"): [
+            "language_code",
             "preferred_languages",
         ],
     }

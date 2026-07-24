@@ -18,6 +18,7 @@ from common.models import (
     country_display_name,
     genre_choices_for,
     jsondata,
+    register_language_cache_refresh,
 )
 
 
@@ -237,6 +238,28 @@ LANGUAGE_CHOICES_JSONFORM = get_locale_choices_for_jsonform(
 )
 SCRIPT_CHOICES_JSONFORM = get_locale_choices_for_jsonform(SCRIPT_CHOICES, const=True)
 
+_OTHER_LANGUAGE_JSONFORM = {"title": "Other", "type": "string"}
+# LanguageListField() embeds these in a schema captured at model definition time,
+# so they must stay the same list objects across a language cache refresh.
+LANGUAGE_ONEOF_JSONFORM = LANGUAGE_CHOICES_JSONFORM + [_OTHER_LANGUAGE_JSONFORM]
+SCRIPT_ONEOF_JSONFORM = SCRIPT_CHOICES_JSONFORM + [_OTHER_LANGUAGE_JSONFORM]
+
+
+def _refresh_jsonform_choices() -> None:
+    """Re-derive jsonform choices after common.models.lang rebuilds its caches."""
+    LOCALE_CHOICES_JSONFORM[:] = get_locale_choices_for_jsonform(LOCALE_CHOICES)
+    LANGUAGE_CHOICES_JSONFORM[:] = get_locale_choices_for_jsonform(
+        LANGUAGE_CHOICES, const=True
+    )
+    SCRIPT_CHOICES_JSONFORM[:] = get_locale_choices_for_jsonform(
+        SCRIPT_CHOICES, const=True
+    )
+    LANGUAGE_ONEOF_JSONFORM[:] = LANGUAGE_CHOICES_JSONFORM + [_OTHER_LANGUAGE_JSONFORM]
+    SCRIPT_ONEOF_JSONFORM[:] = SCRIPT_CHOICES_JSONFORM + [_OTHER_LANGUAGE_JSONFORM]
+
+
+register_language_cache_refresh(_refresh_jsonform_choices)
+
 LOCALIZED_LABEL_SCHEMA = {
     "type": "list",
     "items": {
@@ -398,10 +421,7 @@ def LanguageListField(script=False):
         schema={
             "type": "array",
             "items": {
-                "oneOf": (
-                    SCRIPT_CHOICES_JSONFORM if script else LANGUAGE_CHOICES_JSONFORM
-                )
-                + [{"title": "Other", "type": "string"}]
+                "oneOf": (SCRIPT_ONEOF_JSONFORM if script else LANGUAGE_ONEOF_JSONFORM)
             },
             "uniqueItems": True,
         },

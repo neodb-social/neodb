@@ -2,12 +2,16 @@ from typing import Any
 
 import pydantic
 import pytest
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import translation
+from django.utils.translation import trans_real
 
 from boofilsic import settings as boofilsic_settings
 from common.config import resolve_email_settings
 from common.models import SiteConfig
+from users.middlewares import activate_language_for_user
 from common.views_manage import (
     AccessSettings,
     AdvancedSettings,
@@ -341,3 +345,117 @@ class TestMastodonTimeoutApply:
             settings.TAKAHE_REMOTE_TIMEOUT = old_takahe
             if old_system is not None:
                 SiteConfig.system = old_system
+
+
+class TestLanguageCodeOptions:
+    def test_default_is_english(self) -> None:
+        assert SiteConfig.SystemOptions().language_code == "en"
+
+    def test_environment_value_is_the_fallback(self, settings: Any) -> None:
+        settings.LANGUAGE_CODE_ENV = "zh-hant"
+
+        assert SiteConfig._env_defaults()["language_code"] == "zh-hant"
+
+    def test_environment_subtag_is_not_flattened_by_preferred_languages(
+        self, settings: Any
+    ) -> None:
+        """preferred_languages collapses zh-hant to zh; language_code must not."""
+        settings.LANGUAGE_CODE_ENV = "zh-hant"
+        settings.PREFERRED_LANGUAGES = ["zh", "en"]
+
+        defaults = SiteConfig._env_defaults()
+
+        assert defaults["language_code"] == "zh-hant"
+        assert defaults["preferred_languages"] == ["zh", "en"]
+
+    def test_missing_environment_value_falls_back_to_english(
+        self, settings: Any
+    ) -> None:
+        settings.LANGUAGE_CODE_ENV = None
+
+        assert SiteConfig._env_defaults()["language_code"] == "en"
+
+    def test_unsupported_code_is_rejected(self) -> None:
+        with pytest.raises(pydantic.ValidationError, match="not a supported"):
+            SiteConfig.SystemOptions(language_code="tlh")
+
+    def test_supported_code_is_accepted(self) -> None:
+        assert SiteConfig.SystemOptions(language_code="zh-hant").language_code
+
+    def test_offered_choices_are_supported_ui_languages(self) -> None:
+        choices = AccessSettings.options["language_code"]["choices"]
+
+        assert [code for code, _label in choices] == list(
+            settings.SUPPORTED_UI_LANGUAGES
+        )
+
+    def test_renders_as_a_select(self) -> None:
+        form = AccessSettings().get_form_class()()
+
+        widget = form.fields["language_code"].widget
+
+        assert isinstance(widget, forms.Select)
+        assert "zh-hans" in [code for code, _label in widget.choices]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLanguageCodeApply:
+    """DB-stored language_code must reach settings.LANGUAGE_CODE on reload."""
+
+    def test_db_value_overrides_environment_fallback(self, settings: Any) -> None:
+        settings.LANGUAGE_CODE_ENV = "en"
+        old_language = settings.LANGUAGE_CODE
+        old_system = getattr(SiteConfig, "system", None)
+        try:
+            SiteConfig.set_system(language_code="zh-hans")
+
+            SiteConfig.reload()
+
+            assert SiteConfig.system.language_code == "zh-hans"
+            assert settings.LANGUAGE_CODE == "zh-hans"
+            # the cached default translation must not survive the change
+            assert trans_real._default is None  # ty: ignore[unresolved-attribute]
+        finally:
+            SiteConfig.objects.filter(pk=1).delete()
+            settings.LANGUAGE_CODE = old_language
+            trans_real._default = None  # ty: ignore[unresolved-attribute]
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+
+    def test_applies_to_visitors_without_a_preference(self, settings: Any) -> None:
+        settings.LANGUAGE_CODE_ENV = "en"
+        old_language = settings.LANGUAGE_CODE
+        old_system = getattr(SiteConfig, "system", None)
+        try:
+            SiteConfig.set_system(language_code="zh-hans")
+            SiteConfig.reload()
+
+            activate_language_for_user(None)
+
+            assert translation.get_language() == "zh-hans"
+        finally:
+            translation.deactivate()
+            SiteConfig.objects.filter(pk=1).delete()
+            settings.LANGUAGE_CODE = old_language
+            trans_real._default = None  # ty: ignore[unresolved-attribute]
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+
+    def test_unchanged_value_leaves_cached_translation_alone(
+        self, settings: Any
+    ) -> None:
+        """The 30s config refresh must not clear the translation cache."""
+        settings.LANGUAGE_CODE_ENV = settings.LANGUAGE_CODE
+        translation.activate(settings.LANGUAGE_CODE)
+        trans_real._default = trans_real.translation(  # ty: ignore[unresolved-attribute]
+            settings.LANGUAGE_CODE
+        )
+        try:
+            SiteConfig._apply_to_settings(SiteConfig.load_system())
+
+            assert trans_real._default is not None  # ty: ignore[unresolved-attribute]
+        finally:
+            translation.deactivate()
+            trans_real._default = None  # ty: ignore[unresolved-attribute]

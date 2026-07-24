@@ -23,6 +23,7 @@ https://en.wikipedia.org/wiki/IETF_language_tag
 
 import hashlib
 import re
+from collections.abc import Callable
 from typing import Any
 
 import deepl
@@ -38,9 +39,11 @@ from loguru import logger
 from common.models.site_config import SiteConfig
 
 FALLBACK_LANGUAGE = "en"
-SITE_PREFERRED_LANGUAGES: list[str] = settings.PREFERRED_LANGUAGES or [
-    FALLBACK_LANGUAGE
-]
+# Copy: SiteConfig rewrites this list in place, and settings.PREFERRED_LANGUAGES
+# must keep the env-derived value it reads back as the fallback.
+SITE_PREFERRED_LANGUAGES: list[str] = list(
+    settings.PREFERRED_LANGUAGES or [FALLBACK_LANGUAGE]
+)
 SITE_DEFAULT_LANGUAGE: str = SITE_PREFERRED_LANGUAGES[0]
 
 ISO_639_1 = {
@@ -378,6 +381,37 @@ LANGUAGE_CHOICES: list[tuple[str, Any]] = _get_language_choices()
 LANGUAGE_CODES = {k: v for k, v in LANGUAGE_CHOICES}
 SCRIPT_CODES = {k: v for k, v in SCRIPT_CHOICES}
 LOCALE_CODES = {k: v for k, v in LOCALE_CHOICES}
+
+# Caches above are ordered by SITE_PREFERRED_LANGUAGES, which is only known from
+# env at import time: SiteConfig is not readable until apps are loaded. Modules
+# that derive their own structures from them register a callback here so a later
+# SiteConfig change can rebuild everything. All refreshes mutate in place, since
+# importers hold direct references to these objects.
+_refresh_callbacks: list[Callable[[], None]] = []
+
+
+def register_language_cache_refresh(callback: Callable[[], None]) -> None:
+    """Register a callback to run whenever the language caches are rebuilt."""
+    _refresh_callbacks.append(callback)
+
+
+def refresh_language_caches() -> None:
+    """Re-derive the preferred-language-ordered caches from the current value of
+    SITE_PREFERRED_LANGUAGES. Called by SiteConfig when the setting changes."""
+    _BASE_LANGUAGE_LIST.clear()
+    _BASE_LANGUAGE_LIST.update(_get_base_language_list())
+    LOCALE_CHOICES[:] = _get_locale_choices()
+    SCRIPT_CHOICES[:] = _get_script_choices()
+    LANGUAGE_CHOICES[:] = _get_language_choices()
+    for codes, choices in (
+        (LANGUAGE_CODES, LANGUAGE_CHOICES),
+        (SCRIPT_CODES, SCRIPT_CHOICES),
+        (LOCALE_CODES, LOCALE_CHOICES),
+    ):
+        codes.clear()
+        codes.update(choices)
+    for callback in _refresh_callbacks:
+        callback()
 
 
 def get_current_locales() -> list[str]:

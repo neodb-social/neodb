@@ -509,6 +509,10 @@ if TESTING:  # force en if testing
     LANGUAGE_CODE = "en"
     PREFERRED_LANGUAGES = ["en"]
 
+# SiteConfig overwrites LANGUAGE_CODE at runtime; keep the env-derived value so it
+# stays available as the fallback when no DB override is set.
+LANGUAGE_CODE_ENV = LANGUAGE_CODE
+
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
 TIME_ZONE = env("NEODB_TIMEZONE", default="Asia/Shanghai")
