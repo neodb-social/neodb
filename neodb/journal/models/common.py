@@ -836,11 +836,19 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return document
         if not data:
             return document
+        # A full crosspost writes the document twice (embed refs, then again
+        # with bskyPostRef); cache the uploaded blob on the instance, keyed by
+        # PDS, so the same cover is not re-uploaded on the second write.
+        uid = getattr(bluesky, "uid", None)
+        cache = getattr(self, "_atproto_cover_blob_cache", None)
+        if cache and cache.get("uid") == uid:
+            return {**document, "coverImage": cache["blob"]}
         try:
             blob = bluesky.upload_blob_dict(data)
         except Exception as e:
             logger.warning(f"{self} document cover upload error {e}")
             return document
+        self._atproto_cover_blob_cache = {"uid": uid, "blob": blob}
         return {**document, "coverImage": blob}
 
     def _put_document_record(self, bluesky, document=None) -> dict[str, str] | None:

@@ -579,6 +579,15 @@ class TestArticleInboundParsing:
         assert article is not None
         assert article.cover_image_url == "https://remote.example/att.png"
 
+    def test_inbound_image_from_singular_attachment(self):
+        # a peer may send a single Image object rather than an array
+        post = _make_remote_post(self.identity.pk)
+        ap = self._ap_obj()
+        ap["attachment"] = {"type": "Image", "url": "https://remote.example/one.png"}
+        article = Article.update_by_ap_object(self.identity, None, ap, post)
+        assert article is not None
+        assert article.cover_image_url == "https://remote.example/one.png"
+
     def test_inbound_image_rejects_non_http_url(self):
         post = _make_remote_post(self.identity.pk)
         ap = self._ap_obj()

@@ -69,7 +69,9 @@ def _image_url_from_ap(obj: Any) -> str:
     candidates: list[Any] = []
     image = obj.get("image")
     candidates += image if isinstance(image, list) else [image]
-    for att in obj.get("attachment", []) or []:
+    # ``attachment`` may be a single object or an array (both valid AS2)
+    attachment = obj.get("attachment")
+    for att in attachment if isinstance(attachment, list) else [attachment]:
         if isinstance(att, dict) and str(att.get("type", "")).lower() == "image":
             candidates.append(att)
     for c in candidates:

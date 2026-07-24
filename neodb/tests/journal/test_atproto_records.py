@@ -412,6 +412,27 @@ def test_article_document_includes_cover_image_blob(tmp_path):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_article_document_cover_uploaded_once_per_crosspost(tmp_path):
+    user = User.register(email="artcov1@example.com", username="artcov1user")
+    with override_settings(MEDIA_ROOT=str(tmp_path)):
+        article = Article.update_local_article(
+            user.identity,
+            "Covered Once",
+            "body",
+            cover=SimpleUploadedFile("cover.png", _png_bytes(), "image/png"),
+        )
+        fake = FakeBluesky()
+        # a full crosspost writes the document twice (embed refs, then again
+        # with bskyPostRef); the cover blob must be uploaded only once
+        article._atproto_embed_refs(fake)
+        article._sync_records_to_bluesky(fake)
+
+    rkey = build_document_rkey(article)
+    assert "coverImage" in fake.puts[(DOCUMENT_NSID, rkey)]
+    assert len(fake.blobs) == 1
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_article_document_omits_cover_image_without_cover():
     user = User.register(email="artnocov@example.com", username="artnocovuser")
     article = Article.update_local_article(user.identity, "Bare Essay", "body")

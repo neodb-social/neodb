@@ -180,15 +180,29 @@ class NdjsonImporter(BaseImporter):
                 owner=owner, title=title, created_time=published_dt
             ).exists():
                 return "skipped"
-            article = Article.update_local_article(
-                owner=owner,
-                title=title,
-                body=body,
-                summary=summary,
-                sensitive=sensitive,
-                visibility=visibility,
-                tags=tags,
-            )
+            # Restore the bundled featured image (if any) as part of the
+            # initial create so the federated post carries it too. Keep the
+            # handle open across the create — the ImageField reads it on save.
+            cover_src = self._resolve_temp_path(data.get("cover"))
+            cover_arg = None
+            cover_fh = None
+            if cover_src and os.path.isfile(cover_src):
+                cover_fh = open(cover_src, "rb")
+                cover_arg = File(cover_fh, name=os.path.basename(cover_src))
+            try:
+                article = Article.update_local_article(
+                    owner=owner,
+                    title=title,
+                    body=body,
+                    summary=summary,
+                    sensitive=sensitive,
+                    visibility=visibility,
+                    tags=tags,
+                    cover=cover_arg,
+                )
+            finally:
+                if cover_fh is not None:
+                    cover_fh.close()
             # ``update_local_article`` overwrites metadata['word_count'];
             # merge any other keys (e.g. author-specific extras) the bundle
             # carried back in.
