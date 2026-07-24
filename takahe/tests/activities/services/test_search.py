@@ -3,6 +3,7 @@ import pytest
 
 from activities.models import Post
 from activities.services.search import SearchService
+from users.models import Identity
 from users.models.system_actor import SystemActor
 
 
@@ -139,3 +140,42 @@ def test_search_url_does_not_loop_on_self_referential_alternate(
 
     assert SearchService(url, None).search_url() is None
     assert call_count == 1
+
+
+@pytest.mark.django_db
+def test_search_url_handles_list_type(monkeypatch, config_system):
+    """An actor whose JSON-LD "type" is a list (e.g. ActivityPods emits
+    ["Person", "foaf:Person"]) must still be recognised as an identity."""
+    url = "https://pods.example/u/test"
+    response = httpx.Response(
+        200,
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                {"foaf": "http://xmlns.com/foaf/0.1/"},
+            ],
+            "id": url,
+            "type": ["Person", "foaf:Person"],
+            "inbox": f"{url}/inbox",
+            "preferredUsername": "test",
+        },
+        request=httpx.Request("GET", url),
+    )
+
+    def fake_signed_request(self, method, uri, body=None):
+        return response
+
+    monkeypatch.setattr(SystemActor, "signed_request", fake_signed_request)
+
+    captured: dict = {}
+
+    def fake_by_actor_uri(cls, uri, create=False):
+        captured["uri"] = uri
+        return None
+
+    monkeypatch.setattr(Identity, "by_actor_uri", classmethod(fake_by_actor_uri))
+
+    assert SearchService(url, None).search_url() is None
+    # Routed to the identity branch, not dropped as an unknown type
+    assert captured["uri"] == url

@@ -19,6 +19,19 @@ JSON_AP_TYPES = ("application/activity+json", "application/ld+json")
 JSON_MEDIA_TYPES = ("application/json",) + JSON_AP_TYPES
 
 
+def first_known_type(value) -> str:
+    """
+    Normalise an AS ``type`` value, which JSON-LD permits to be a list
+    (e.g. ["Person", "foaf:Person"]), into the first type we recognise.
+    Falls back to the first plain string so unknown types still get named.
+    """
+    if not isinstance(value, list):
+        value = [value]
+    types = [item.lower() for item in value if isinstance(item, str) and item]
+    known = actor_types + post_types
+    return next((item for item in types if item in known), types[0] if types else "")
+
+
 def _split_link_entries(value: str) -> list[str]:
     entries: list[str] = []
     depth = 0
@@ -148,7 +161,7 @@ class Command(SiteCommand):
                     bare_media_type = content_type.split(";", 1)[0].strip().lower()
             if bare_media_type in JSON_MEDIA_TYPES:
                 j = response.json()
-                typ = j.get("type", "").lower()
+                typ = first_known_type(j.get("type"))
                 uri = j.get("id", "")
                 if not typ or not uri:
                     self.stdout.write(self.style.WARNING("Unknown object id/type"))

@@ -297,6 +297,62 @@ def test_fetch_actor_without_url_falls_back_to_actor_uri(httpx_mock, config_syst
 
 @pytest.mark.django_db
 @pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_actor_with_list_type(httpx_mock, config_system):
+    """
+    JSON-LD allows "type" to be a list, and ActivityPods-style servers emit
+    ["Person", "foaf:Person"]. It should resolve to the known actor type.
+    """
+    identity = Identity.objects.create(
+        actor_uri="https://pods.example/u/test",
+        local=False,
+    )
+    httpx_mock.add_response(
+        url="https://pods.example/.well-known/webfinger?resource=acct:test@pods.example",
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "subject": "acct:test@pods.example",
+            "links": [
+                {
+                    "rel": "self",
+                    "type": "application/activity+json",
+                    "href": "https://pods.example/u/test",
+                },
+            ],
+        },
+    )
+    httpx_mock.add_response(
+        url="https://pods.example/u/test",
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/v1",
+                {"foaf": "http://xmlns.com/foaf/0.1/"},
+            ],
+            "id": "https://pods.example/u/test",
+            "type": ["Person", "foaf:Person"],
+            "inbox": "https://pods.example/u/test/inbox",
+            "followers": "https://pods.example/u/test/followers",
+            "publicKey": {
+                "id": "https://pods.example/u/test#main-key",
+                "owner": "https://pods.example/u/test",
+                "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nits-a-faaaake\n-----END PUBLIC KEY-----\n",
+            },
+            "name": "Test Pod User",
+            "preferredUsername": "test",
+            "url": "https://pods.example/u/test",
+        },
+    )
+    assert identity.fetch_actor()
+
+    identity = Identity.objects.get(pk=identity.pk)
+    assert identity.actor_type == "person"
+    assert identity.username == "test"
+    assert identity.name == "Test Pod User"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
 def test_fetch_webfinger_url(httpx_mock: HTTPXMock, config_system):
     """
     Ensures that we can deal with various kinds of webfinger URLs

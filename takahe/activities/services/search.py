@@ -1,7 +1,7 @@
 import httpx
 from core.files import SSRFAttemptError
 from core.json import find_ap_alternate, json_from_response
-from core.ld import canonicalise
+from core.ld import canonicalise, get_first_concrete_type
 from users.models.system_actor import SystemActor
 
 from activities.models import Hashtag, Post
@@ -115,7 +115,14 @@ class SearchService:
             document = canonicalise(json_data, include_security=True, outbound=False)
         except ValueError:
             return None
-        type = document.get("type", "unknown").lower()
+        # JSON-LD allows a list of types (e.g. ["Person", "foaf:Person"])
+        post_types = [value.lower() for value in Post.Types.values]
+        type = (
+            get_first_concrete_type(
+                document.get("type"), preferred=Identity.ACTOR_TYPES + post_types
+            )
+            or "unknown"
+        )
 
         # Is it an identity?
         if type in Identity.ACTOR_TYPES:
@@ -126,7 +133,7 @@ class SearchService:
             return identity
 
         # Is it a post?
-        elif type in [value.lower() for value in Post.Types.values]:
+        elif type in post_types:
             # Try and retrieve the post by URI
             # (we do not trust the JSON we just got - fetch from source!)
             try:

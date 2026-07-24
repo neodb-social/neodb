@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import urllib.parse as urllib_parse
+from collections.abc import Container
 
 from dateutil import parser
 from pyld import jsonld
@@ -794,19 +795,27 @@ GENERIC_AS_TYPES = frozenset(
 )
 
 
-def get_first_concrete_type(value) -> str | None:
+def get_first_concrete_type(
+    value, preferred: Container[str] | None = None
+) -> str | None:
     """
     Given an AS ``type`` value (a string or, per JSON-LD, a list of
     strings), return the first concrete type lowercased, preferring
     anything over the generic ActivityStreams base classes.
+
+    ``preferred`` is an optional set of known types to pick first
+    regardless of order, so a vocabulary-prefixed duplicate does not win
+    (e.g. ["foaf:Person", "Person"] -> "person").
     """
-    if isinstance(value, str):
-        return value.lower() or None
     if not isinstance(value, list):
-        return None
+        value = [value]
     types = [item.lower() for item in value if isinstance(item, str) and item]
     if not types:
         return None
+    if preferred is not None:
+        known = next((item for item in types if item in preferred), None)
+        if known:
+            return known
     return next((item for item in types if item not in GENERIC_AS_TYPES), types[0])
 
 

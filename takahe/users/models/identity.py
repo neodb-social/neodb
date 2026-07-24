@@ -14,6 +14,7 @@ from core.json import json_from_response
 from core.ld import (
     canonicalise,
     format_ld_date,
+    get_first_concrete_type,
     get_first_image_url,
     get_list,
     media_type_from_filename,
@@ -1118,7 +1119,11 @@ class Identity(StatorModel):
         self.following_uri = document.get("following")
         self.featured_collection_uri = document.get("featured")
         self.featured_tags_uri = document.get("featuredTags")
-        self.actor_type = document["type"].lower()
+        # JSON-LD allows a list of types (e.g. ["Person", "foaf:Person"])
+        self.actor_type = (
+            get_first_concrete_type(document["type"], preferred=self.ACTOR_TYPES)
+            or "person"
+        )
         self.shared_inbox_uri = document.get("endpoints", {}).get("sharedInbox")
         self.summary = document.get("summary")
         self.username = document.get("preferredUsername")

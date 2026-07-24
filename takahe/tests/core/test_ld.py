@@ -2,7 +2,12 @@ import datetime
 
 from dateutil.tz import tzutc
 
-from core.ld import canonicalise, get_language, parse_ld_date
+from core.ld import (
+    canonicalise,
+    get_first_concrete_type,
+    get_language,
+    parse_ld_date,
+)
 
 
 def test_parse_ld_date():
@@ -144,3 +149,32 @@ def test_get_language():
     assert get_language({"contentMap": {"EN": "<p>Hello</p>"}}) == "en"
     assert get_language({"contentMap": {"und": "<p>Hello</p>"}}) is None
     assert get_language({}) is None
+
+
+def test_get_first_concrete_type():
+    """
+    JSON-LD permits "type" to be a list, so we have to cope with both forms
+    """
+    ACTOR_TYPES = ["person", "service", "application", "group", "organization"]
+
+    assert get_first_concrete_type("Person") == "person"
+    assert get_first_concrete_type(["Person"]) == "person"
+    # Generic AS base classes lose to a concrete sibling
+    assert get_first_concrete_type(["Object", "Note"]) == "note"
+    assert get_first_concrete_type(["Activity", "Create"]) == "create"
+    # ... but are still returned if that's all we got
+    assert get_first_concrete_type(["Collection"]) == "collection"
+
+    # A known type wins regardless of position, so a vocabulary-prefixed
+    # duplicate doesn't get stored as the actor type
+    assert get_first_concrete_type(["Person", "foaf:Person"], ACTOR_TYPES) == "person"
+    assert get_first_concrete_type(["foaf:Person", "Person"], ACTOR_TYPES) == "person"
+    # Nothing known: fall back to the first concrete type
+    assert get_first_concrete_type(["foaf:Person"], ACTOR_TYPES) == "foaf:person"
+
+    # Junk in, None out
+    assert get_first_concrete_type(None) is None
+    assert get_first_concrete_type("") is None
+    assert get_first_concrete_type([]) is None
+    assert get_first_concrete_type([{"id": "Person"}]) is None
+    assert get_first_concrete_type({"@value": "Person"}) is None

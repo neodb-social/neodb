@@ -1,6 +1,6 @@
 import httpx
 
-from takahe.management.commands.fetch import find_ap_alternate_url
+from takahe.management.commands.fetch import find_ap_alternate_url, first_known_type
 
 
 def _resp(url: str, *, content: bytes = b"", headers=None) -> httpx.Response:
@@ -115,3 +115,15 @@ def test_find_ap_alternate_url_ignores_non_alternate_rels():
         ],
     )
     assert find_ap_alternate_url(response) is None
+
+
+def test_first_known_type():
+    assert first_known_type("Person") == "person"
+    assert first_known_type("Note") == "note"
+    # JSON-LD allows a list of types; the known one wins regardless of order
+    assert first_known_type(["Person", "foaf:Person"]) == "person"
+    assert first_known_type(["foaf:Person", "Person"]) == "person"
+    # Unknown types are still named so the error message stays useful
+    assert first_known_type(["foaf:Agent"]) == "foaf:agent"
+    assert first_known_type(None) == ""
+    assert first_known_type([]) == ""
