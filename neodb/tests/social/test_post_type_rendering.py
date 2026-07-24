@@ -73,6 +73,8 @@ def test_single_post_renders_converted_object_card(post_type):
     assert response.status_code == 200
     html = response.content.decode()
     assert 'class="converted-object-card ' in html
+    # page objects reorder the body so the linked page card renders first
+    assert "pagecard-order" in html
     assert f"{post_type} title" in html
     assert f"{post_type} summary" in html
     assert f"/proxy/preview_card/{card.pk}/" in html

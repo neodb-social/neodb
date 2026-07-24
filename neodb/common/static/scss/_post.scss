@@ -4,6 +4,26 @@
 		margin-bottom: 0.5em;
 	}
 
+	// Page/converted objects: render the linked page card first, then user
+	// content, then image attachments. DOM order is unchanged; only visual
+	// order is reordered so ordinary posts are unaffected.
+	.pagecard-order {
+		display: flex;
+		flex-direction: column;
+
+		> .converted-object-card {
+			order: -2;
+		}
+
+		> .content {
+			order: -1;
+		}
+
+		> .attachments {
+			order: 0;
+		}
+	}
+
 	.converted-object-card {
 		display: flex;
 		gap: 0.75em;

@@ -104,7 +104,8 @@
         {% if post.type != 'Article' %}<div>{{ post.summary|default:'' }}</div>{% endif %}
         <div style="display:flex;">
           <div style="flex-grow:1"
-               {% if post.type != 'Article' %}{% if post.summary or post.sensitive %}class="spoiler" _="on click toggle .revealed on me"{% endif %}
+               class="{% if post.converted_preview_card %}pagecard-order{% endif %}{% if post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}"
+               {% if post.type != 'Article' %}{% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}
                {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}

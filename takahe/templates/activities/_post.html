@@ -33,6 +33,8 @@
     {% endif %}
 
     <div class="content {% if post.summary %}hidden {% endif %}"{% if post.language %} lang="{{ post.language }}"{% endif %}>
+        {% include "activities/_preview_card.html" %}
+
         {% if post.type == "Question" %}
             {% include "activities/_type_question.html" with sanitized_content=post.safe_content_note_local interactive=True %}
         {% else %}
@@ -69,8 +71,6 @@
                 {% endfor %}
             </div>
         {% endif %}
-
-        {% include "activities/_preview_card.html" %}
     </div>
 
     {% if post.edited %}
