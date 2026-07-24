@@ -83,9 +83,18 @@ class FollowStates(StateGraph):
             except httpx.RequestError:
                 return
             except ActivityPubDeliveryError as error:
-                # Resending the same Follow will not change the answer: servers
-                # that deduplicate by activity id (Lemmy) reject every resend of
-                # one they already processed. Wait for an Accept/Reject instead.
+                if error.retryable:
+                    # The target will take it later, so ask again next cycle
+                    logger.info("Follow %s was deferred: %s", instance.pk, error)
+                    return
+                if error.unauthorized:
+                    # The target will not take follows from us at all
+                    logger.warning("Follow %s was rejected: %s", instance.pk, error)
+                    return cls.rejecting
+                # Any other 4xx is ambiguous, and resending cannot resolve it:
+                # servers that deduplicate by activity id (Lemmy) refuse every
+                # resend of a Follow they already recorded. Wait for the
+                # Accept/Reject instead of retrying for a day.
                 logger.warning("Follow %s was refused: %s", instance.pk, error)
             return cls.pending_approval
         # local/remote follow local, check deleted & manually_approve

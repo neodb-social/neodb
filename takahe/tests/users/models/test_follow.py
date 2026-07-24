@@ -117,6 +117,47 @@ def test_follow_refused_delivery_is_not_resent(
     assert len(deliveries) == 1
 
 
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_follow_deferred_delivery_is_retried(
+    identity: Identity,
+    remote_identity: Identity,
+    stator,
+    httpx_mock: HTTPXMock,
+):
+    """
+    A Follow refused with a retryable status is sent again later.
+    """
+    follow = IdentityService(identity).follow(remote_identity)
+    httpx_mock.add_response(
+        url="https://remote.test/@test/inbox/",
+        status_code=429,
+    )
+    stator.run_single_cycle()
+    assert Follow.objects.get(pk=follow.pk).state == FollowStates.unrequested
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_follow_unauthorized_delivery_is_rejected(
+    identity: Identity,
+    remote_identity: Identity,
+    stator,
+    httpx_mock: HTTPXMock,
+):
+    """
+    A Follow the target refuses to authorise is dropped rather than waiting
+    for an Accept that cannot arrive.
+    """
+    follow = IdentityService(identity).follow(remote_identity)
+    httpx_mock.add_response(
+        url="https://remote.test/@test/inbox/",
+        status_code=403,
+    )
+    stator.run_single_cycle()
+    assert Follow.objects.get(pk=follow.pk).state == FollowStates.rejecting
+
+
 def _stats(i: Identity) -> dict:
     return Identity.objects.get(pk=i.pk).stats or {}
 
