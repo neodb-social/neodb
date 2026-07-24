@@ -1,5 +1,6 @@
 import json
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
@@ -56,6 +57,64 @@ def test_follow(
     stator.run_single_cycle()
     stator.run_single_cycle()
     assert Follow.objects.get(pk=follow.pk).state == FollowStates.accepted
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_follow_accepted_after_failed_delivery(
+    identity: Identity,
+    remote_identity: Identity,
+    stator,
+    httpx_mock: HTTPXMock,
+):
+    """
+    An Accept is honoured even when delivering the Follow looked like a
+    failure to us: the target may have processed it before we timed out.
+    """
+    follow = IdentityService(identity).follow(remote_identity)
+    httpx_mock.add_exception(httpx.ReadTimeout("timed out"))
+    stator.run_single_cycle()
+    assert Follow.objects.get(pk=follow.pk).state == FollowStates.unrequested
+    # The target accepted it regardless
+    InboxMessage.objects.create(
+        message={
+            "type": "Accept",
+            "id": "test",
+            "actor": remote_identity.actor_uri,
+            "object": f"{identity.actor_uri}follow/{follow.pk}/",
+        }
+    )
+    stator.run_single_cycle()
+    stator.run_single_cycle()
+    assert Follow.objects.get(pk=follow.pk).state == FollowStates.accepted
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_follow_refused_delivery_is_not_resent(
+    identity: Identity,
+    remote_identity: Identity,
+    stator,
+    httpx_mock: HTTPXMock,
+):
+    """
+    A Follow refused with a 4xx is not sent again: servers deduplicating by
+    activity id (Lemmy) refuse every resend of one they already processed.
+    """
+    follow = IdentityService(identity).follow(remote_identity)
+    httpx_mock.add_response(
+        url="https://remote.test/@test/inbox/",
+        status_code=400,
+        content=b'{"error":"unknown","message":""}',
+    )
+    stator.run_single_cycle()
+    assert Follow.objects.get(pk=follow.pk).state == FollowStates.pending_approval
+    # Nothing resends it while it waits for an Accept
+    stator.run_single_cycle()
+    deliveries = httpx_mock.get_requests(
+        url="https://remote.test/@test/inbox/", method="POST"
+    )
+    assert len(deliveries) == 1
 
 
 def _stats(i: Identity) -> dict:

@@ -19,6 +19,7 @@ from idna.core import InvalidCodepoint
 from pyld import jsonld
 
 from core import sentry
+from core.exceptions import ActivityPubDeliveryError
 from core.files import SSRFAttemptError, check_url_safety
 from core.ld import format_ld_date
 
@@ -358,8 +359,8 @@ class HttpSignature:
                 and response.status_code < 500
                 and response.status_code not in [404, 410]
             ):
-                raise ValueError(
-                    f"POST error to {uri}: {response.status_code} {response.content!r}"
+                raise ActivityPubDeliveryError(
+                    uri, response.status_code, response.content
                 )
             return response
 

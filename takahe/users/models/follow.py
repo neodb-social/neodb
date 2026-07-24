@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 import httpx
-from core.exceptions import ActorMismatchError
+from core.exceptions import ActivityPubDeliveryError, ActorMismatchError
 from core.ld import canonicalise, get_str_or_id
 from core.snowflake import Snowflake
 from django.db import models, transaction
@@ -82,6 +82,11 @@ class FollowStates(StateGraph):
                 )
             except httpx.RequestError:
                 return
+            except ActivityPubDeliveryError as error:
+                # Resending the same Follow will not change the answer: servers
+                # that deduplicate by activity id (Lemmy) reject every resend of
+                # one they already processed. Wait for an Accept/Reject instead.
+                logger.warning("Follow %s was refused: %s", instance.pk, error)
             return cls.pending_approval
         # local/remote follow local, check deleted & manually_approve
         if instance.target.deleted:
@@ -410,8 +415,11 @@ class Follow(StatorModel):
             raise ActorMismatchError(
                 "Accept actor does not match its Follow object", data
             )
-        # If the follow was waiting to be accepted, transition it
-        if follow and follow.state == FollowStates.pending_approval:
+        # If the follow was waiting to be accepted, transition it. An Accept can
+        # also arrive while the follow is still unrequested: the target may have
+        # processed our Follow even though delivering it looked like a failure
+        # to us (a timeout, or a refusal of a resend it had already handled).
+        if follow.state in [FollowStates.unrequested, FollowStates.pending_approval]:
             follow.transition_perform(FollowStates.accepting)
 
     @classmethod
