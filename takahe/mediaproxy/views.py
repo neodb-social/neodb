@@ -5,7 +5,8 @@ from activities.models import Emoji, PostAttachment
 from core.files import SSRFAttemptError, make_safe_client
 from django.conf import settings
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.templatetags.static import static
 from django.views.generic import View
 
 from users.models import Identity
@@ -95,10 +96,34 @@ class EmojiCacheView(BaseProxyView):
 
 class IdentityIconCacheView(BaseProxyView):
     """
-    Proxies identity icons (avatars)
+    Proxies identity icons (avatars).
+
+    Falls back to the default avatar image instead of returning an error when
+    the icon is unavailable, so callers never surface a broken avatar image.
     """
 
-    def get_remote_url(self):
+    #: Static path (within takahe) of the placeholder avatar.
+    default_icon_static_path = "img/avatar.png"
+
+    def get(self, request, **kwargs):
+        try:
+            response = super().get(request, **kwargs)
+        except Http404:
+            # No such identity, a local identity, or no stored icon_uri.
+            return self.default_icon_response()
+        # Remote fetch failed (>= 400, too large, or network/SSRF error).
+        if response.status_code >= 400:
+            return self.default_icon_response()
+        return response
+
+    def default_icon_response(self) -> HttpResponse:
+        # static() honours STATIC_URL and manifest hashing so the redirect
+        # points at the file collectstatic actually serves.
+        response = redirect(static(self.default_icon_static_path))
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+
+    def get_remote_url(self) -> str:
         self.identity = get_object_or_404(Identity, pk=self.kwargs["identity_id"])
         if self.identity.local or not self.identity.icon_uri:
             raise Http404()
