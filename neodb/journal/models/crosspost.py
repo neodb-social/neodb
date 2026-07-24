@@ -10,12 +10,12 @@ class CrosspostRetry(models.Model):
     """
 
     class ErrorType(models.IntegerChoices):
-        other = 0, _("Error")  # ty: ignore[invalid-assignment]
-        auth = 1, _("Authorization expired")  # ty: ignore[invalid-assignment]
+        other = 0, _("Error")
+        auth = 1, _("Authorization expired")
 
     class State(models.IntegerChoices):
-        failed = 0, _("Failed")  # ty: ignore[invalid-assignment]
-        retrying = 1, _("Retrying")  # ty: ignore[invalid-assignment]
+        failed = 0, _("Failed")
+        retrying = 1, _("Retrying")
 
     # transient, set by views for template rendering
     reauth_url: str | None = None

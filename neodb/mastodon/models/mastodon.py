@@ -703,8 +703,8 @@ class Mastodon:
 
 class MastodonAccount(SocialAccount):
     class CrosspostMode(models.IntegerChoices):
-        BOOST = 0, _("Boost")  # ty: ignore[invalid-assignment]
-        POST = 1, _("New Post")  # ty: ignore[invalid-assignment]
+        BOOST = 0, _("Boost")
+        POST = 1, _("New Post")
 
     access_token = jsondata.EncryptedTextField(
         json_field_name="access_data", default=""

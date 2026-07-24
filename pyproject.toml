@@ -114,10 +114,7 @@ pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "52d0fe09559f58
 root = ["./neodb"]
 
 [tool.ty.src]
-exclude = ["takahe", "data-svc"]
-
-[tool.ty.rules]
-unused-ignore-comment = "ignore"
+exclude = ["takahe"]
 
 [tool.djlint]
 ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"

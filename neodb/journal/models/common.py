@@ -47,9 +47,9 @@ if TYPE_CHECKING:
 
 
 class VisibilityType(models.IntegerChoices):
-    Public = 0, _("Public")  # ty: ignore[invalid-assignment]
-    Follower_Only = 1, _("Followers Only")  # ty: ignore[invalid-assignment]
-    Private = 2, _("Mentioned Only")  # ty: ignore[invalid-assignment]
+    Public = 0, _("Public")
+    Follower_Only = 1, _("Followers Only")
+    Private = 2, _("Mentioned Only")
 
 
 def q_owned_piece_visible_to_user(
