@@ -430,13 +430,15 @@ class TestReadmoo:
         assert site.resource.metadata.get("pub_month") == 7
         assert site.resource.metadata.get("language") == ["zh-tw"]
         assert site.resource.metadata.get("binding") == "流動版面 EPUB"
-        assert site.resource.metadata.get("price") == "TWD 323"
+        # 紙本書定價, not the promotional 電子書售價 of NT$ 323
+        assert site.resource.metadata.get("price") == "TWD 430"
         # 字數 is a word count, not a page count
         assert site.resource.metadata.get("pages") is None
         assert site.resource.metadata.get("series") is None
-        # the eISBN is preferred over the print edition's ISBN (9786267916254)
-        assert site.resource.metadata.get("isbn") == "9786267916247"
-        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9786267916247"
+        # the print ISBN identifies the item; the ebook's own is kept for dedupe
+        assert site.resource.metadata.get("isbn") == "9786267916254"
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9786267916254"
+        assert site.resource.metadata.get("eisbn") == "9786267916247"
         brief = site.resource.metadata.get("brief", "")
         assert brief.startswith(
             "大多數人認識的馬拉拉，是那位在十五歲遭塔利班槍擊後倖存"
@@ -451,7 +453,7 @@ class TestReadmoo:
         assert site.resource.id_value == "210484376000101"
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Edition)
-        assert site.resource.item.isbn == "9786267916247"
+        assert site.resource.item.isbn == "9786267916254"
         assert site.resource.item.format == "ebook"
         assert site.resource.item.display_title == "我是馬拉拉，也是我自己"
         assert site.resource.item.language == ["zh-tw"]
@@ -469,7 +471,9 @@ class TestReadmoo:
         assert site.resource.metadata.get("series") == "莊子，從心開始【增訂紀念版】"
         assert site.resource.metadata.get("author") == ["蔡璧名"]
         assert site.resource.metadata.get("translator") == []
-        assert site.resource.metadata.get("isbn") == "9786264442459"
+        assert site.resource.metadata.get("isbn") == "9786264442176"
+        assert site.resource.metadata.get("eisbn") == "9786264442459"
+        assert site.resource.metadata.get("price") == "TWD 500"
         assert site.resource.item is not None
         assert site.resource.item.display_title == "莊子，從心開始【增訂紀念版】肆"
         assert site.resource.item.localized_subtitle == [
@@ -478,7 +482,7 @@ class TestReadmoo:
 
     @use_local_response
     def test_scrape_eisbn_only(self):
-        # published without a print counterpart, so only an eISBN is listed
+        # no print ISBN listed, so the eISBN identifies the item on its own
         t_url = "https://readmoo.com/book/210395030000101"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
@@ -488,6 +492,10 @@ class TestReadmoo:
             site.resource.metadata.get("title") == "很小很小的小偏方：女人煩惱一掃而光"
         )
         assert site.resource.metadata.get("isbn") == "9789865636623"
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9789865636623"
+        # it is the lookup id, so it is not also kept as a backup
+        assert site.resource.metadata.get("eisbn") is None
+        assert site.resource.metadata.get("price") == "TWD 260"
         assert site.resource.metadata.get("binding") == "固定版面 EPUB"
         # fixed layout titles report 頁數 instead of 字數
         assert site.resource.metadata.get("pages") == 288
@@ -498,8 +506,8 @@ class TestReadmoo:
         assert site.resource.item.format == "ebook"
 
     @use_local_response
-    def test_scrape_print_isbn_fallback(self):
-        # no eISBN listed, so the print edition's ISBN identifies the item
+    def test_scrape_ebook_list_price(self):
+        # no paper edition, so the list price is labelled 電子書定價
         t_url = "https://readmoo.com/book/210391959000101"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
@@ -508,6 +516,9 @@ class TestReadmoo:
         assert site.resource.metadata.get("title") == "中國文化現代化（下）"
         assert site.resource.metadata.get("isbn") == "9789887646259"
         assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9789887646259"
+        assert site.resource.metadata.get("eisbn") is None
+        # 電子書定價, not the 電子書售價 of NT$ 129
+        assert site.resource.metadata.get("price") == "TWD 356"
         assert site.resource.metadata.get("author") == ["歐陽方"]
         assert site.resource.metadata.get("publisher") == ["博學出版社"]
         assert site.resource.metadata.get("pub_year") == 2024
@@ -530,6 +541,9 @@ class TestReadmoo:
         )
         assert site.resource.metadata.get("isbn") is None
         assert site.resource.other_lookup_ids.get(IdType.ISBN) is None
+        assert site.resource.metadata.get("eisbn") is None
+        # 紙本書定價 wins over the 電子書定價 also shown on this page
+        assert site.resource.metadata.get("price") == "TWD 360"
         assert site.resource.metadata.get("author") == ["康軒學習雜誌編輯部"]
         assert site.resource.metadata.get("publisher") == ["康軒文教"]
         assert site.resource.metadata.get("pub_year") == 2023

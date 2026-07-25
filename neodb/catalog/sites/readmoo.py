@@ -5,12 +5,18 @@ Book pages carry schema.org Book microdata, which is far more stable than
 the surrounding presentation markup, so parsing keys off `itemprop` where
 one is available and falls back to the labelled `<li>` rows otherwise.
 
-Readmoo only sells ebooks. Pages may expose two identifiers: `eisbn` is the
-ebook's own ISBN and `isbn` the print edition's. The eISBN identifies what
-this record actually describes, so it wins; keying an ebook off the print
-ISBN would collide with the paper edition, and since a merge only fills
-fields the item is still missing, whichever of the two was imported first
-would permanently dictate the other's format, binding and price.
+Readmoo only sells ebooks. Pages may expose two identifiers: `isbn` is the
+print edition's ISBN and `eisbn` the ebook's own. The print ISBN is the one
+the item is looked up by, so items match those imported from the
+print-oriented sites that populate most of the Chinese-language catalog
+(BooksTW, Douban); the eISBN is kept alongside it as a backup rather than a
+lookup id, since the ISBN slot in a resource's lookup ids is what becomes
+the item's primary id. Titles published without a print counterpart are
+identified by their eISBN.
+
+Prices are taken from 定價, the list price, rather than 電子書售價, which
+moves with promotions; Readmoo labels it 紙本書定價 when a paper edition
+exists and 電子書定價 otherwise.
 """
 
 import re
@@ -119,11 +125,9 @@ class Readmoo(AbstractSite):
 
         language = normalize_language(_str(content, "//span[@itemprop='inLanguage']"))
 
-        # the ebook's own ISBN identifies this record; fall back to the print
-        # edition's only when Readmoo publishes no eISBN
-        isbn = _str(content, "//span[@itemprop='eisbn']") or _str(
-            content, "//span[@itemprop='isbn']"
-        )
+        print_isbn = _str(content, "//span[@itemprop='isbn']")
+        eisbn = _str(content, "//span[@itemprop='eisbn']")
+        isbn = print_isbn or eisbn
 
         # "流動版面 EPUB" (reflowable) or "固定版面 EPUB"/"PDF" (fixed layout)
         binding = _meta_row(content, "商品格式")
@@ -133,7 +137,22 @@ class Readmoo(AbstractSite):
         pages = _meta_row(content, "頁數").replace(",", "")
         pages = int(pages) if pages.isdigit() and 0 < int(pages) < 1000000 else None
 
-        price = _str(content, "//div[@id='main_page']//*[@itemprop='price']")
+        # the price rows sit in a container that also matches on a looser
+        # selector, which would run all of their labels together
+        list_prices = {}
+        for div in content.xpath(
+            "//div[@id='main_page']"
+            "//div[contains(concat(' ', normalize-space(@class), ' '), ' price ')]"
+        ):
+            label, _, value = " ".join(div.text_content().split()).partition("：")
+            if value and label in ("紙本書定價", "電子書定價"):
+                list_prices.setdefault(label, value.strip())
+        price = (
+            list_prices.get("紙本書定價")
+            or list_prices.get("電子書定價")
+            # neither list price is shown; 電子書售價 is all that is left
+            or _str(content, "//div[@id='main_page']//*[@itemprop='price']")
+        )
         currency = _str(
             content, "//div[@id='main_page']//meta[@itemprop='priceCurrency']/@content"
         )
@@ -192,6 +211,9 @@ class Readmoo(AbstractSite):
             "price": price,
             "pages": pages,
             "isbn": isbn or None,
+            # recorded as a backup identifier when the print ISBN is the one
+            # the item is looked up by
+            "eisbn": eisbn if eisbn and eisbn != isbn else None,
             "brief": brief,
             "contents": contents or None,
             "series": series or None,
