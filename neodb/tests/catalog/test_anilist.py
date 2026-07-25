@@ -1,8 +1,55 @@
+import json
+
 import pytest
 
-from catalog.common import SiteManager, use_local_response
+from catalog.common import ParseError, SiteManager, use_local_response
 from catalog.models import Edition, IdType, Movie, TVSeason
-from catalog.sites.anilist import AniListAnime, AniListManga, _base_role
+from catalog.sites.anilist import (
+    AniListAnime,
+    AniListManga,
+    _base_role,
+    _localized,
+    _titles,
+)
+
+
+def _fixture(media_id: int) -> dict:
+    with open(f"test_data/anilist_media_{media_id}") as f:
+        return json.load(f)["data"]["Media"]
+
+
+class TestTitleLanguages:
+    def test_romaji_language_is_assigned_not_detected(self):
+        # langdetect reads "NARUTO: Shippuuden" as Finnish and "Sen to Chihiro
+        # no Kamikakushi" as Swahili, so romaji must never be detected.
+        for media_id, romaji in (
+            (1735, "NARUTO: Shippuuden"),
+            (199, "Sen to Chihiro no Kamikakushi"),
+        ):
+            entries = _localized(_titles(_fixture(media_id)))
+            lang = next(e["lang"] for e in entries if e["text"] == romaji)
+            assert lang == "x"  # English title exists, so romaji is unknown
+
+    def test_english_title_owns_en(self):
+        entries = _localized(_titles(_fixture(1735)))
+        assert entries[0] == {"lang": "en", "text": "Naruto: Shippuden"}
+
+    def test_romaji_stands_in_for_en_without_english_title(self):
+        media = _fixture(1735)
+        media["title"]["english"] = None
+        entries = _localized(_titles(media))
+        assert entries[0] == {"lang": "en", "text": "NARUTO: Shippuuden"}
+
+    def test_no_two_titles_claim_the_same_language(self):
+        for media_id in (1735, 199, 30011):
+            entries = _localized(_titles(_fixture(media_id)))
+            langs = [e["lang"] for e in entries if e["lang"] != "x"]
+            assert len(langs) == len(set(langs))
+
+    def test_native_title_uses_country_of_origin(self):
+        entries = _localized(_titles(_fixture(199)))
+        lang = next(e["lang"] for e in entries if e["text"] == "千と千尋の神隠し")
+        assert lang == "ja"
 
 
 class TestBaseRole:
@@ -18,6 +65,23 @@ class TestBaseRole:
         assert _base_role("Episode Director (ep 480)") == "episode director"
         assert _base_role("ADR Director (Italian; eps 287-348)") == "adr director"
         assert _base_role("Assistant Director") == "assistant director"
+
+
+class TestAuthorRoles:
+    def test_only_exact_author_roles_count(self):
+        from catalog.sites.anilist import _AUTHOR_ROLES, _staff_names
+
+        media = {
+            "staff": {
+                "edges": [
+                    {"role": "Story & Art", "node": {"name": {"full": "Real Author"}}},
+                    {"role": "Art Director", "node": {"name": {"full": "Not Author"}}},
+                    {"role": "Story Editor", "node": {"name": {"full": "Also Not"}}},
+                    {"role": "Art Assistant", "node": {"name": {"full": "Nope"}}},
+                ]
+            }
+        }
+        assert _staff_names(media, lambda r: r in _AUTHOR_ROLES) == ["Real Author"]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -78,6 +142,19 @@ class TestAniListAnime:
         assert "episode_count" not in m
         assert site.resource.get_all_lookup_ids().get(IdType.MAL_Anime) == "199"
         assert isinstance(site.resource.item, Movie)
+
+    @use_local_response
+    def test_rejects_a_manga_id_under_the_anime_path(self):
+        """anilist.co/anime/30011 is really a manga id.
+
+        AniList keeps anime and manga in one id space, so without a type check
+        this would build a TVSeason from manga data and file the manga's
+        idMal (11) as IdType.MAL_Anime, corrupting MyAnimeList dedupe.
+        """
+        site = SiteManager.get_site_by_url("https://anilist.co/anime/30011")
+        assert isinstance(site, AniListAnime)
+        with pytest.raises(ParseError):
+            site.scrape()
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -13,13 +13,17 @@ lands on existing items instead of creating duplicates.
 import re
 import threading
 from collections import OrderedDict
-from typing import Any
+from pathlib import Path
+from typing import Any, cast
 
 import httpx
+import requests
 from django.conf import settings
 from loguru import logger
+from requests.exceptions import RequestException
 
 from catalog.common import *
+from catalog.common.downloaders import DownloaderResponse, get_mock_file
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import (
     Edition,
@@ -30,7 +34,6 @@ from catalog.models import (
     TVSeason,
 )
 from catalog.search import ExternalSearchResultItem, record_search_failure
-from common.models import SiteConfig
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
 
@@ -57,6 +60,66 @@ def anilist_limiter() -> RedisRateLimiter:
     return _anilist_limiter
 
 
+class AniListDownloader(RetryDownloader):
+    """POST a GraphQL query while keeping per-query mock fixtures.
+
+    Going through the downloader framework rather than calling httpx directly
+    buys the retry loop and, more importantly, the right error classification:
+    a 429 or 5xx becomes DownloadError, which callers such as
+    catalog.search.utils treat as an expected third-party failure instead of
+    logging it as an internal error.
+
+    Every query hits the same endpoint, so ``url`` carries a synthetic
+    "anilist:media:<id>" key that names the mock fixture, while live requests
+    always POST to the real endpoint.
+    """
+
+    def __init__(
+        self,
+        url: str,
+        payload: dict[str, Any],
+        headers: dict | None = None,
+        timeout: float | None = None,
+    ):
+        super().__init__(url, headers=headers, timeout=timeout)
+        self._payload = payload
+
+    def _download(self, url):
+        if get_mock_mode():
+            return super()._download(url)
+        anilist_limiter().acquire(timeout=30.0)
+        try:
+            resp = cast(
+                DownloaderResponse,
+                requests.post(
+                    _API_URL,
+                    json=self._payload,
+                    headers=self.headers,
+                    timeout=self.timeout,
+                ),
+            )
+            resp.__class__ = DownloaderResponse
+            if settings.DOWNLOADER_SAVEDIR:
+                savedir = Path(settings.DOWNLOADER_SAVEDIR).resolve()
+                target = (savedir / get_mock_file(url)).resolve()
+                if target.is_relative_to(savedir):
+                    try:
+                        with open(target, "w", encoding="utf-8") as fp:
+                            fp.write(resp.text)
+                    except Exception:
+                        logger.warning("Save downloaded data failed.")
+            response_type = self.validate_response(resp)
+            self.logs.append(
+                {"response_type": response_type, "url": url, "exception": None}
+            )
+            return resp, response_type
+        except RequestException as e:
+            self.logs.append(
+                {"response_type": RESPONSE_NETWORK_ERROR, "url": url, "exception": e}
+            )
+            return None, RESPONSE_NETWORK_ERROR
+
+
 _MEDIA_FIELDS = """
     id
     idMal
@@ -80,7 +143,16 @@ _MEDIA_FIELDS = """
     externalLinks { site url }
 """
 
-_MEDIA_QUERY = "query ($id: Int) { Media(id: $id) {" + _MEDIA_FIELDS + "} }"
+# The type is constrained here, not just selected: AniList keeps anime and
+# manga in one id space, so an unconstrained Media(id:) happily returns the
+# manga for an /anime/<id> URL. That would build a TVSeason out of manga data
+# and, worse, file the manga's idMal under IdType.MAL_Anime. A mismatch now
+# yields no Media, which _fetch turns into a ParseError.
+_MEDIA_QUERY = (
+    "query ($id: Int, $type: MediaType) { Media(id: $id, type: $type) {"
+    + _MEDIA_FIELDS
+    + "} }"
+)
 
 _SEARCH_QUERY = """
 query ($q: String, $type: MediaType, $page: Int, $perPage: Int) {
@@ -104,8 +176,10 @@ _MOVIE_FORMATS = {"MOVIE", "MUSIC"}
 
 _DIRECTOR_ROLES = {"director", "chief director"}
 _WRITER_ROLES = {"script", "screenplay", "series composition"}
-# Matches "Story", "Art", "Story & Art", "Original Story"; not "Artist"/"Assistant".
-_AUTHOR_ROLE_RE = re.compile(r"\b(story|art)\b")
+# Exact roles only. A substring match would pull in "Art Director", "Story
+# Editor" and "Art Assistant", and author is the primary displayed creator for
+# a book as well as the source for People credits.
+_AUTHOR_ROLES = {"story & art", "story and art", "story", "art", "original story"}
 
 # Roles carry a trailing scope, e.g. "Director (eps 1-479)" or
 # "ADR Director (Italian; eps 287-348)". Strip it so the base role can be
@@ -117,8 +191,12 @@ _ROLE_SCOPE_RE = re.compile(r"\s*\([^()]*\)\s*$")
 def _base_role(role: str) -> str:
     return _ROLE_SCOPE_RE.sub("", role).strip().lower()
 
+
 # The native title's language follows the work's country of origin.
 _LANG_BY_COUNTRY = {"JP": "ja", "KR": "ko", "CN": "zh-cn", "TW": "zh-tw"}
+
+# The catalog's "Unknown" locale; detect_language() also falls back to it.
+_UNKNOWN_LANG = "x"
 
 
 def _parse_date(d: dict[str, Any] | None) -> str | None:
@@ -160,13 +238,24 @@ def _titles(media: dict[str, Any]) -> "OrderedDict[str, str | None]":
     """Ordered candidate titles mapped to a known language (None = detect)."""
     title = media.get("title") or {}
     country = media.get("countryOfOrigin")
+    romaji, english, native = (
+        title.get("romaji"),
+        title.get("english"),
+        title.get("native"),
+    )
     titles: OrderedDict[str, str | None] = OrderedDict()
-    if title.get("romaji"):
-        titles[title["romaji"]] = None
-    if title.get("english"):
-        titles.setdefault(title["english"], "en")
-    if title.get("native"):
-        titles.setdefault(title["native"], _LANG_BY_COUNTRY.get(country))
+    # romaji is romanized Japanese, never English, and langdetect guesses wildly
+    # on it ("NARUTO: Shippuuden" -> fi, "Sen to Chihiro no Kamikakushi" -> sw),
+    # so its language is always assigned rather than detected. It stands in as
+    # the readable latin title only when AniList has no English one.
+    if english:
+        titles[english] = "en"
+        if romaji:
+            titles.setdefault(romaji, _UNKNOWN_LANG)
+    elif romaji:
+        titles[romaji] = "en"
+    if native:
+        titles.setdefault(native, _LANG_BY_COUNTRY.get(country))
     for syn in media.get("synonyms") or []:
         if syn:
             titles.setdefault(syn, None)
@@ -174,11 +263,27 @@ def _titles(media: dict[str, Any]) -> "OrderedDict[str, str | None]":
 
 
 def _localized(titles: "OrderedDict[str, str | None]") -> list[dict[str, str]]:
-    return [
-        {"lang": lang or detect_language(text), "text": text}
-        for text, lang in titles.items()
-        if text
-    ]
+    """Tag each title with a language, letting no two claim the same one.
+
+    Synonyms are detected, and langdetect is confidently wrong often enough
+    that a later title would otherwise shadow an earlier, better one for a
+    whole locale (AniList's Icelandic title for Spirited Away detects as `hu`,
+    which would be served to Hungarian viewers). Titles are ordered
+    best-known-first, so a repeat language means the guess lost: keep the text
+    for search but mark its language unknown.
+    """
+    out = []
+    claimed = set()
+    for text, lang in titles.items():
+        if not text:
+            continue
+        code = lang or detect_language(text)
+        if code in claimed:
+            code = _UNKNOWN_LANG
+        else:
+            claimed.add(code)
+        out.append({"lang": code, "text": text})
+    return out
 
 
 def _description(media: dict[str, Any]) -> str:
@@ -200,47 +305,34 @@ class AniList(AbstractSite):
     def id_to_url(cls, id_value):
         return f"https://anilist.co/{cls.URL_PATH}/{id_value}"
 
-    @classmethod
-    def _post(cls, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
-        r = httpx.post(
-            _API_URL,
-            json=payload,
-            headers={
-                "User-Agent": settings.NEODB_USER_AGENT,
-                "Accept": "application/json",
-            },
-            timeout=timeout,
-        )
-        r.raise_for_status()
-        return r.json()
-
     def _fetch(self) -> dict[str, Any]:
         if not self.id_value:
             raise ParseError(self, "id")
-        # One constant POST URL would collapse every mock fixture onto the same
-        # filename, so key them by a synthetic string (as igdb.api_query does).
-        key = f"anilist:media:{self.id_value}"
-        if get_mock_mode():
-            j = BasicDownloader(key).download().json()
-        else:
-            anilist_limiter().acquire(timeout=30.0)
-            try:
-                j = self._post(
-                    {
-                        "query": _MEDIA_QUERY,
-                        "variables": {"id": int(self.id_value)},
-                    },
-                    SiteConfig.system.downloader_request_timeout,
-                )
-            except (httpx.HTTPError, ValueError) as e:
-                logger.warning(
-                    "AniList fetch failed",
-                    extra={"url": self.url, "exception": e},
-                )
-                raise ParseError(self, "media") from e
+        # Synthetic key so each query gets its own mock fixture; see
+        # AniListDownloader.
+        j = (
+            AniListDownloader(
+                f"anilist:media:{self.id_value}",
+                {
+                    "query": _MEDIA_QUERY,
+                    "variables": {"id": int(self.id_value), "type": self.MEDIA_TYPE},
+                },
+                headers={
+                    "User-Agent": settings.NEODB_USER_AGENT,
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+            )
+            .download()
+            .json()
+        )
         media = (j.get("data") or {}).get("Media")
         if not media:
             raise ParseError(self, "media")
+        # The query already constrains the type; re-check so a stale fixture or
+        # an API change can't smuggle a manga into the anime site or vice versa.
+        if media.get("type") != self.MEDIA_TYPE:
+            raise ParseError(self, "type")
         return media
 
     def scrape(self) -> ResourceContent:
@@ -334,16 +426,15 @@ class AniList(AbstractSite):
                             title=title,
                             subtitle=subtitle,
                             brief=_description(media),
-                            cover_url=(media.get("coverImage") or {}).get("large") or "",
+                            cover_url=(media.get("coverImage") or {}).get("large")
+                            or "",
                         )
                     )
             except httpx.TimeoutException:
                 logger.warning("AniList search timeout", extra={"query": q})
                 record_search_failure(cls.SITE_NAME.value, "timeout")
             except Exception as e:
-                logger.error(
-                    "AniList search error", extra={"query": q, "exception": e}
-                )
+                logger.error("AniList search error", extra={"query": q, "exception": e})
                 record_search_failure(cls.SITE_NAME.value, "error")
         return results
 
@@ -433,7 +524,7 @@ class AniListManga(AniList):
             ),
             "other_title": others or None,
             "orig_title": title.get("native"),
-            "author": _staff_names(media, lambda r: bool(_AUTHOR_ROLE_RE.search(r))),
+            "author": _staff_names(media, lambda r: r in _AUTHOR_ROLES),
             "pub_year": start.get("year"),
             "pub_month": start.get("month"),
         }
