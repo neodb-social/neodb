@@ -73,6 +73,37 @@ class TestCommon:
         # an English title borrowing a foreign article stays English
         assert detect_language("El Camino: A Breaking Bad Movie") == "en"
 
+    def test_detect_lang_bgg_top_ranked(self):
+        """Real titles from the BoardGameGeek ranking, whose primary names are
+        English-language catalog entries. langdetect scattered these across
+        af/cs/de/nl/pl/so/tl/tr."""
+        for title in (
+            "Ark Nova",
+            "Terraforming Mars",
+            "Star Wars: Rebellion",
+            "Spirit Island",
+            "Gaia Project",
+            "Twilight Struggle",
+            "Through the Ages: A New Story of Civilization",
+            "Sky Team",
+            "Terra Mystica",
+            "Blood Rage",
+            "Power Grid",
+            "Sleeping Gods",
+            "Underwater Cities",
+            "Mechs vs. Minions",
+            "Bomb Busters",
+            "Final Girl",
+            "Tzolk'in: The Mayan Calendar",
+            "Viticulture Essential Edition",
+            "Endeavor: Deep Sea",
+        ):
+            assert detect_language(title) == "en", title
+        # titles that really are not English keep their own language
+        assert detect_language("Orléans") == "fr"
+        assert detect_language("Le Havre") == "fr"
+        assert detect_language("Puerto Rico") == "es"
+
     def test_detect_lang_is_deterministic(self):
         """The old langdetect backend returned different answers across calls
         for the same short string, which silently churned stored lang tags."""
