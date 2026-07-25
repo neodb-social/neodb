@@ -32,6 +32,53 @@ class TestCommon:
         assert detect_language("") == "x"
         assert detect_language("   ") == "x"
 
+    def test_detect_lang_japanese_without_kana(self):
+        """Kanji-only titles are Japanese when they use a Japanese-exclusive
+        character form (shinjitai/kokuji), which no statistical model detects."""
+        assert detect_language("攻殻機動隊") == "ja"
+        assert detect_language("新世紀福音戦士") == "ja"
+        assert detect_language("囲碁") == "ja"
+        assert detect_language("黒澤明") == "ja"
+        assert detect_language("津軽海峡冬景色") == "ja"
+        # Han text sharing all characters with Chinese stays Chinese unless the
+        # caller knows better, since the two are written identically
+        assert detect_language("東京物語") == "zh-tw"
+        assert detect_language("東京物語", hint="ja") == "ja"
+        assert detect_language("村上春樹", hint="ja") == "ja"
+        # A hint only breaks the Han ja/zh tie. Simplified forms are no evidence
+        # against Japanese (体 and 国 are both shinjitai and simplified
+        # Chinese), so the hint still wins for any Han-only string...
+        assert detect_language("三体", hint="ja") == "ja"
+        # ...but a non-Han script is real evidence and always wins.
+        assert detect_language("오징어 게임", hint="ja") == "ko"
+        assert detect_language("となりのトトロ", hint="zh") == "ja"
+        assert detect_language("Breaking Bad", hint="ja") == "en"
+
+    def test_detect_lang_short_titles(self):
+        """Short catalog titles: the dominant input shape for this function."""
+        # traditional vs simplified Chinese
+        assert detect_language("霸王別姬") == "zh-tw"
+        assert detect_language("我不是药神") == "zh-cn"
+        # English titles that langdetect used to mis-tag
+        for title in ("Breaking Bad", "Pride and Prejudice", "A Love Supreme"):
+            assert detect_language(title) == "en", title
+        # Cyrillic is Russian, not Bulgarian/Macedonian
+        assert detect_language("Война и мир") == "ru"
+        assert detect_language("Иди и смотри") == "ru"
+        # board game titles, where the leading article carries the signal
+        assert detect_language("Die Siedler von Catan") == "de"
+        assert detect_language("Los Olvidados") == "es"
+        assert detect_language("Os Colonizadores") == "pt"
+        assert detect_language("Il Postino") == "it"
+        # an English title borrowing a foreign article stays English
+        assert detect_language("El Camino: A Breaking Bad Movie") == "en"
+
+    def test_detect_lang_is_deterministic(self):
+        """The old langdetect backend returned different answers across calls
+        for the same short string, which silently churned stored lang tags."""
+        for title in ("Solo Tú", "Tokyo Story", "En Attendant Godot", "Fuga"):
+            assert len({detect_language(title) for _ in range(8)}) == 1, title
+
     def test_lang_list(self):
         assert len(SITE_PREFERRED_LANGUAGES) >= 1
         assert len(SITE_PREFERRED_LOCALES) >= 1

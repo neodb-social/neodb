@@ -22,7 +22,7 @@ from catalog.models.game import GameReleaseType
 from catalog.models.utils import detect_isbn_asin
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import normalize_price
-from common.models.lang import detect_language
+from common.models.lang import detect_language, normalize_languages
 
 _logger = logging.getLogger(__name__)
 
@@ -320,8 +320,12 @@ class Bangumi(AbstractSite):
         )
         if o.get("name_cn"):
             titles[o.get("name_cn")] = "zh-cn"
+        # Bangumi catalogues mostly Japanese works, whose original titles are
+        # often kanji-only: 東京物語 is written the same in Chinese, so pass the
+        # item's own declared language as the tie-breaker.
+        title_hint = next(iter(normalize_languages(language or [])), None)
         localized_title = [
-            {"lang": lang or detect_language(t), "text": t}
+            {"lang": lang or detect_language(t, title_hint), "text": t}
             for t, lang in titles.items()
             if t
         ]
