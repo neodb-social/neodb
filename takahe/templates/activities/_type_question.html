@@ -1,7 +1,6 @@
 {% load activity_tags %}
 {{ sanitized_content }}
 {% poll_vote_context post as vote %}
-{# vote is None when the post has no usable poll data; render the body only #}
 {% if vote %}
 <div class="poll">
   <h3 class="screenreader-text">
