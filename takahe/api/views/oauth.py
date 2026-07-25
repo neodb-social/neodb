@@ -150,6 +150,19 @@ def extract_client_info_from_basic_auth(request):
     return None, None
 
 
+def constant_time_equal(expected: str | None, provided: str | None) -> bool:
+    """
+    Constant-time comparison of two credential strings.
+
+    hmac.compare_digest raises TypeError for str arguments holding non-ASCII
+    characters, so compare the encoded bytes instead: a client sending a
+    non-ASCII client_id/secret must get a clean auth failure rather than a 500.
+    """
+    return hmac.compare_digest(
+        (expected or "").encode("utf-8"), (provided or "").encode("utf-8")
+    )
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class TokenView(View):
     def verify_code(
@@ -158,8 +171,8 @@ class TokenView(View):
         application = authorization.application
         # Use constant-time comparison on secrets to prevent timing attacks
         return (
-            hmac.compare_digest(application.client_id, client_id or "")
-            and hmac.compare_digest(application.client_secret, client_secret or "")
+            constant_time_equal(application.client_id, client_id)
+            and constant_time_equal(application.client_secret, client_secret)
             and authorization.redirect_uri == redirect_uri
         )
 

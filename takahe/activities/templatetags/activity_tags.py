@@ -4,6 +4,8 @@ from urllib.parse import urlencode
 from django import template
 from django.utils import timezone
 
+from activities.models.post_types import QuestionData
+
 register = template.Library()
 
 
@@ -65,7 +67,18 @@ def urlparams(context, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def poll_vote_context(context, post):
-    """Return browser-session voting state for a Question post."""
+    """
+    Return browser-session voting state for a Question post, or None when the
+    post carries no usable poll data.
+
+    A Question whose type_data is missing or not a QuestionData (legacy rows, a
+    partially-applied ingest) must not raise: unlike ``{{ }}`` resolution, an
+    exception in a template tag is not swallowed, so it would take down every
+    page the post appears on rather than just the one post.
+    """
+    if not isinstance(post.type_data, QuestionData):
+        return None
+
     request = context.get("request")
     identity = None
     identities = []

@@ -47,3 +47,58 @@ def test_authorization_code_single_use(client, identity):
 
     response = client.post("/oauth/token", data)
     assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_token_non_ascii_credentials_rejected(client, identity):
+    """
+    A non-ASCII client_id/client_secret must fail authentication cleanly.
+    hmac.compare_digest raises TypeError on non-ASCII str arguments, which
+    turned a bad credential into a 500 instead of an access_denied.
+    """
+    application = Application.objects.create(
+        name="Unicode App",
+        client_id="tk-unicode-test",
+        client_secret="unicodesecret",
+        redirect_uris="https://example.com/callback",
+    )
+    Authorization.objects.create(
+        application=application,
+        user=identity.users.first(),
+        identity=identity,
+        code="unicodeauthcode",
+        redirect_uri="https://example.com/callback",
+        scopes=["read"],
+    )
+
+    for client_id, client_secret in [
+        ("tk-unicode-tëst", "unicodesecret"),
+        ("tk-unicode-test", "unicodesécret"),
+        ("クライアント", "秘密"),
+    ]:
+        response = client.post(
+            "/oauth/token",
+            {
+                "grant_type": "authorization_code",
+                "code": "unicodeauthcode",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": "https://example.com/callback",
+            },
+        )
+        assert response.status_code == 401
+        assert response.json() == {"error": "access_denied"}
+
+    # The rejected attempts must not have consumed the code
+    response = client.post(
+        "/oauth/token",
+        {
+            "grant_type": "authorization_code",
+            "code": "unicodeauthcode",
+            "client_id": "tk-unicode-test",
+            "client_secret": "unicodesecret",
+            "redirect_uri": "https://example.com/callback",
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["access_token"]

@@ -182,3 +182,24 @@ def test_question_page_allows_additive_multiple_choice_votes(
     assert poll["own_votes"] == [0, 1]
     assert poll["votes_count"] == 2
     assert poll["voters_count"] == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("type_data", [None, {"object": {"name": "not a poll"}}])
+def test_question_without_poll_data_still_renders(
+    config_system, identity, client, type_data
+):
+    """
+    A Question row whose type_data is missing or the wrong shape (legacy data,
+    a partially-applied ingest) must not raise out of the template tag: that
+    would 500 every page the post appears on instead of degrading one post.
+    """
+    post = make_poll(identity)
+    Post.objects.filter(pk=post.pk).update(type_data=type_data)
+
+    page = client.get(post_path(post))
+
+    assert page.status_code == 200
+    # The note body survives; only the poll widget is dropped
+    assert b"Choose a route" in page.content
+    assert b'class="poll"' not in page.content
