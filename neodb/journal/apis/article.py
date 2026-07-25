@@ -72,9 +72,7 @@ class ArticlePageNumberPagination(PageNumberPagination):
         **params: Any,
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
-        if isinstance(val, tuple):
-            return val
-        data = val.get("data") if isinstance(val, dict) else None
+        data = val.get("data")
         if data:
             prefetch_latest_posts(list(data))
         return val

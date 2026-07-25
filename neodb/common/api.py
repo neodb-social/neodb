@@ -95,8 +95,11 @@ class PageNumberPagination(NinjaPageNumberPagination):
         request: HttpRequest,
         **params: Any,
     ):
-        if isinstance(queryset, tuple):
-            return queryset
+        if isinstance(queryset, dict):
+            # ninja unwraps Status(code, payload) before paginating, so a view
+            # returning e.g. Status(302, {"message": ...}) lands here as a bare
+            # payload: pass it through with the items attribute ninja expects.
+            return {self.items_attribute: [], "count": 0, "pages": 0, **queryset}
         val = super().paginate_queryset(queryset, pagination, request, **params)
         return {
             "data": val["data"],

@@ -1251,6 +1251,32 @@ def test_shelf_api_list_delete_and_logs():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_shelf_api_logs_on_merged_item_redirects():
+    user = User.register(email="shelf-merged@example.com", username="shelfuser3")
+    merged_item = Edition.objects.create(title="Merged Away Book")
+    target_item = Edition.objects.create(title="Surviving Book")
+    merged_item.merge_to(target_item)
+
+    app = Takahe.get_or_create_app(
+        "Shelf API Merge Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    response = client.get(
+        f"/api/me/shelf/item/{merged_item.uuid}/logs",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 302
+    assert response["Location"] == f"/api/me/shelf/item/{target_item.uuid}/logs"
+    assert response.json() == {"message": "Item merged"}
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_note_api_crud():
     user = User.register(email="note@example.com", username="noteuser")
     item = Edition.objects.create(title="Note Book")

@@ -59,9 +59,7 @@ class CollectionPageNumberPagination(PageNumberPagination):
         **params: Any,
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
-        if isinstance(val, tuple):
-            return val
-        data = val.get("data") if isinstance(val, dict) else None
+        data = val.get("data")
         if data:
             collections = list(data)
             Collection.attach_item_count_by_category(collections)
@@ -164,9 +162,7 @@ class CollectionItemPageNumberPagination(PageNumberPagination):
         **params: Any,
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
-        if isinstance(val, tuple):
-            return val
-        data = val.get("data") if isinstance(val, dict) else None
+        data = val.get("data")
         if data:
             _prefetch_collection_member_items(list(data))
         return val
