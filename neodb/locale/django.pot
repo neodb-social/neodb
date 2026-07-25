@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 18:08-0400\n"
+"POT-Creation-Date: 2026-07-25 17:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,32 +18,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:472 common/models/lang.py:224
+#: boofilsic/settings.py:472 common/models/lang.py:226
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:473 common/models/lang.py:71
+#: boofilsic/settings.py:473 common/models/lang.py:73
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:474 common/models/lang.py:72
+#: boofilsic/settings.py:474 common/models/lang.py:74
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:475 common/models/lang.py:177
+#: boofilsic/settings.py:475 common/models/lang.py:179
 msgid "Spanish"
 msgstr ""
 
-#: boofilsic/settings.py:476 common/models/lang.py:81
+#: boofilsic/settings.py:476 common/models/lang.py:83
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:477 common/models/lang.py:106
+#: boofilsic/settings.py:477 common/models/lang.py:108
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:478 common/models/lang.py:160
-#: common/models/lang.py:299
+#: boofilsic/settings.py:478 common/models/lang.py:162
+#: common/models/lang.py:301
 msgid "Portuguese"
 msgstr ""
 
@@ -51,11 +51,11 @@ msgstr ""
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:480 common/models/lang.py:310
+#: boofilsic/settings.py:480 common/models/lang.py:312
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:481 common/models/lang.py:311
+#: boofilsic/settings.py:481 common/models/lang.py:313
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -72,12 +72,12 @@ msgid "Invalid date, expecting YYYY, YYYY-MM or YYYY-MM-DD."
 msgstr ""
 
 #: catalog/models/book.py:139 catalog/models/book.py:158
-#: catalog/models/common.py:270 catalog/models/common.py:288
+#: catalog/models/common.py:278 catalog/models/common.py:296
 msgid "locale"
 msgstr ""
 
 #: catalog/models/book.py:142 catalog/models/book.py:161
-#: catalog/models/common.py:273 catalog/models/common.py:293
+#: catalog/models/common.py:281 catalog/models/common.py:301
 msgid "text content"
 msgstr ""
 
@@ -170,7 +170,7 @@ msgstr ""
 msgid "imprint"
 msgstr ""
 
-#: catalog/models/common.py:26 common/models/lang.py:250
+#: catalog/models/common.py:26 common/models/lang.py:252
 msgid "Unknown"
 msgstr ""
 
@@ -178,11 +178,11 @@ msgstr ""
 msgid "Douban"
 msgstr ""
 
-#: catalog/models/common.py:28 catalog/models/common.py:77
+#: catalog/models/common.py:28 catalog/models/common.py:78
 msgid "Goodreads"
 msgstr ""
 
-#: catalog/models/common.py:29 catalog/models/common.py:79
+#: catalog/models/common.py:29 catalog/models/common.py:80
 msgid "Google Books"
 msgstr ""
 
@@ -190,16 +190,16 @@ msgstr ""
 msgid "BooksTW"
 msgstr ""
 
-#: catalog/models/common.py:31 catalog/models/common.py:88
-#: catalog/models/common.py:90
+#: catalog/models/common.py:31 catalog/models/common.py:89
+#: catalog/models/common.py:91
 msgid "Bibliotek.dk"
 msgstr ""
 
-#: catalog/models/common.py:32 catalog/models/common.py:89
+#: catalog/models/common.py:32 catalog/models/common.py:90
 msgid "eReolen.dk"
 msgstr ""
 
-#: catalog/models/common.py:33 catalog/models/common.py:72
+#: catalog/models/common.py:33 catalog/models/common.py:73
 #: catalog/templates/movie.html:41 catalog/templates/people.html:37
 #: catalog/templates/tvseason.html:58 catalog/templates/tvshow.html:53
 msgid "IMDb"
@@ -209,7 +209,7 @@ msgstr ""
 msgid "TMDB"
 msgstr ""
 
-#: catalog/models/common.py:35 catalog/models/common.py:91
+#: catalog/models/common.py:35 catalog/models/common.py:92
 msgid "Bandcamp"
 msgstr ""
 
@@ -225,11 +225,11 @@ msgstr ""
 msgid "Steam"
 msgstr ""
 
-#: catalog/models/common.py:39 catalog/models/common.py:111
+#: catalog/models/common.py:39 catalog/models/common.py:112
 msgid "itch.io"
 msgstr ""
 
-#: catalog/models/common.py:40 catalog/models/common.py:112
+#: catalog/models/common.py:40 catalog/models/common.py:113
 msgid "Bangumi"
 msgstr ""
 
@@ -237,7 +237,7 @@ msgstr ""
 msgid "BGG"
 msgstr ""
 
-#: catalog/models/common.py:42 catalog/models/common.py:113
+#: catalog/models/common.py:42 catalog/models/common.py:114
 msgid "Apple Podcast"
 msgstr ""
 
@@ -249,35 +249,35 @@ msgstr ""
 msgid "Discogs"
 msgstr ""
 
-#: catalog/models/common.py:45 catalog/models/common.py:114
+#: catalog/models/common.py:45 catalog/models/common.py:115
 msgid "Apple Music"
 msgstr ""
 
-#: catalog/models/common.py:46 catalog/models/common.py:116
+#: catalog/models/common.py:46 catalog/models/common.py:117
 msgid "Fediverse"
 msgstr ""
 
-#: catalog/models/common.py:47 catalog/models/common.py:117
+#: catalog/models/common.py:47 catalog/models/common.py:118
 msgid "Qidian"
 msgstr ""
 
-#: catalog/models/common.py:48 catalog/models/common.py:118
+#: catalog/models/common.py:48 catalog/models/common.py:119
 msgid "Ypshuo"
 msgstr ""
 
-#: catalog/models/common.py:49 catalog/models/common.py:119
+#: catalog/models/common.py:49 catalog/models/common.py:120
 msgid "Archive of Our Own"
 msgstr ""
 
-#: catalog/models/common.py:50 catalog/models/common.py:120
+#: catalog/models/common.py:50 catalog/models/common.py:121
 msgid "JinJiang"
 msgstr ""
 
-#: catalog/models/common.py:51 catalog/models/common.py:62
+#: catalog/models/common.py:51 catalog/models/common.py:63
 msgid "WikiData"
 msgstr ""
 
-#: catalog/models/common.py:52 catalog/models/common.py:121
+#: catalog/models/common.py:52 catalog/models/common.py:122
 msgid "Open Library"
 msgstr ""
 
@@ -289,15 +289,15 @@ msgstr ""
 msgid "WorldCat"
 msgstr ""
 
-#: catalog/models/common.py:55 catalog/models/common.py:123
+#: catalog/models/common.py:55 catalog/models/common.py:124
 msgid "MobyGames"
 msgstr ""
 
-#: catalog/models/common.py:56 catalog/models/common.py:124
+#: catalog/models/common.py:56 catalog/models/common.py:125
 msgid "StoryGraph"
 msgstr ""
 
-#: catalog/models/common.py:57 catalog/models/common.py:115
+#: catalog/models/common.py:57 catalog/models/common.py:116
 msgid "YouTube Music"
 msgstr ""
 
@@ -305,286 +305,306 @@ msgstr ""
 msgid "RateYourMusic"
 msgstr ""
 
-#: catalog/models/common.py:63
+#: catalog/models/common.py:59
+msgid "AniList"
+msgstr ""
+
+#: catalog/models/common.py:64
 msgid "ISBN10"
 msgstr ""
 
-#: catalog/models/common.py:64 catalog/templates/edition.html:19
+#: catalog/models/common.py:65 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr ""
 
-#: catalog/models/common.py:65
+#: catalog/models/common.py:66
 msgid "ASIN"
 msgstr ""
 
-#: catalog/models/common.py:66
+#: catalog/models/common.py:67
 msgid "ISSN"
 msgstr ""
 
-#: catalog/models/common.py:67
+#: catalog/models/common.py:68
 msgid "CUBN"
 msgstr ""
 
-#: catalog/models/common.py:68
+#: catalog/models/common.py:69
 msgid "ISRC"
 msgstr ""
 
-#: catalog/models/common.py:69
+#: catalog/models/common.py:70
 msgid "GTIN UPC EAN"
 msgstr ""
 
-#: catalog/models/common.py:70
+#: catalog/models/common.py:71
 msgid "OCLC Number"
 msgstr ""
 
-#: catalog/models/common.py:71
+#: catalog/models/common.py:72
 msgid "RSS Feed URL"
 msgstr ""
 
-#: catalog/models/common.py:73
+#: catalog/models/common.py:74
 msgid "TMDB TV Series"
 msgstr ""
 
-#: catalog/models/common.py:74
+#: catalog/models/common.py:75
 msgid "TMDB TV Season"
 msgstr ""
 
-#: catalog/models/common.py:75
+#: catalog/models/common.py:76
 msgid "TMDB TV Episode"
 msgstr ""
 
-#: catalog/models/common.py:76
+#: catalog/models/common.py:77
 msgid "TMDB Movie"
 msgstr ""
 
-#: catalog/models/common.py:78
+#: catalog/models/common.py:79
 msgid "Goodreads Work"
 msgstr ""
 
-#: catalog/models/common.py:80
+#: catalog/models/common.py:81
 msgid "Douban Book"
 msgstr ""
 
-#: catalog/models/common.py:81
+#: catalog/models/common.py:82
 msgid "Douban Book Work"
 msgstr ""
 
-#: catalog/models/common.py:82
+#: catalog/models/common.py:83
 msgid "Douban Movie"
 msgstr ""
 
-#: catalog/models/common.py:83
+#: catalog/models/common.py:84
 msgid "Douban Music"
 msgstr ""
 
-#: catalog/models/common.py:84
+#: catalog/models/common.py:85
 msgid "Douban Game"
 msgstr ""
 
-#: catalog/models/common.py:85
+#: catalog/models/common.py:86
 msgid "Douban Drama"
 msgstr ""
 
-#: catalog/models/common.py:86
+#: catalog/models/common.py:87
 msgid "Douban Drama Version"
 msgstr ""
 
-#: catalog/models/common.py:87
+#: catalog/models/common.py:88
 msgid "BooksTW Book"
 msgstr ""
 
-#: catalog/models/common.py:92
+#: catalog/models/common.py:93
 msgid "Spotify Album"
 msgstr ""
 
-#: catalog/models/common.py:93
+#: catalog/models/common.py:94
 msgid "Spotify Podcast"
 msgstr ""
 
-#: catalog/models/common.py:94
+#: catalog/models/common.py:95
 msgid "Discogs Release"
 msgstr ""
 
-#: catalog/models/common.py:95
+#: catalog/models/common.py:96
 msgid "Discogs Master"
 msgstr ""
 
-#: catalog/models/common.py:98
+#: catalog/models/common.py:99
 msgid "MusicBrainz Release Group"
 msgstr ""
 
-#: catalog/models/common.py:100
+#: catalog/models/common.py:101
 msgid "MusicBrainz Release"
 msgstr ""
 
-#: catalog/models/common.py:101
+#: catalog/models/common.py:102
 msgid "MusicBrainz Artist"
 msgstr ""
 
-#: catalog/models/common.py:102
+#: catalog/models/common.py:103
 msgid "Douban Personage"
 msgstr ""
 
-#: catalog/models/common.py:103
+#: catalog/models/common.py:104
 msgid "Goodreads Author"
 msgstr ""
 
-#: catalog/models/common.py:104
+#: catalog/models/common.py:105
 msgid "Spotify Artist"
 msgstr ""
 
-#: catalog/models/common.py:105
+#: catalog/models/common.py:106
 msgid "TMDB Person"
 msgstr ""
 
-#: catalog/models/common.py:106
+#: catalog/models/common.py:107
 msgid "Open Library Author"
 msgstr ""
 
-#: catalog/models/common.py:107
+#: catalog/models/common.py:108
 msgid "IGDB Company"
 msgstr ""
 
-#: catalog/models/common.py:108
+#: catalog/models/common.py:109
 msgid "IGDB Game"
 msgstr ""
 
-#: catalog/models/common.py:109
+#: catalog/models/common.py:110
 msgid "BGG Boardgame"
 msgstr ""
 
-#: catalog/models/common.py:110
+#: catalog/models/common.py:111
 msgid "Steam Game"
 msgstr ""
 
-#: catalog/models/common.py:122
+#: catalog/models/common.py:123
 msgid "Open Library Work"
 msgstr ""
 
-#: catalog/models/common.py:125
+#: catalog/models/common.py:126
 msgid "RateYourMusic Release"
 msgstr ""
 
-#: catalog/models/common.py:146
+#: catalog/models/common.py:130
+msgid "AniList Anime"
+msgstr ""
+
+#: catalog/models/common.py:131
+msgid "AniList Manga"
+msgstr ""
+
+#: catalog/models/common.py:132
+msgid "MyAnimeList Anime"
+msgstr ""
+
+#: catalog/models/common.py:133
+msgid "MyAnimeList Manga"
+msgstr ""
+
+#: catalog/models/common.py:154
 msgid "Edition"
 msgstr ""
 
-#: catalog/models/common.py:147 catalog/templates/_sidebar_edit.html:249
+#: catalog/models/common.py:155 catalog/templates/_sidebar_edit.html:249
 msgid "Work"
 msgstr ""
 
-#: catalog/models/common.py:148
+#: catalog/models/common.py:156
 msgid "TV Series"
 msgstr ""
 
-#: catalog/models/common.py:149 catalog/templates/_sidebar_edit.html:170
+#: catalog/models/common.py:157 catalog/templates/_sidebar_edit.html:170
 msgid "TV Season"
 msgstr ""
 
-#: catalog/models/common.py:150
+#: catalog/models/common.py:158
 msgid "TV Episode"
 msgstr ""
 
-#: catalog/models/common.py:151 catalog/models/common.py:167
-#: catalog/models/common.py:181 catalog/templates/_sidebar_edit.html:163
+#: catalog/models/common.py:159 catalog/models/common.py:175
+#: catalog/models/common.py:189 catalog/templates/_sidebar_edit.html:163
 #: journal/templates/_sidebar_user_mark_list.html:35
 #: journal/templates/_sidebar_user_tag_filter.html:27
 msgid "Movie"
 msgstr ""
 
-#: catalog/models/common.py:152
+#: catalog/models/common.py:160
 msgid "Album"
 msgstr ""
 
-#: catalog/models/common.py:153 catalog/models/common.py:170
-#: catalog/models/common.py:184 common/templates/_header.html:43
+#: catalog/models/common.py:161 catalog/models/common.py:178
+#: catalog/models/common.py:192 common/templates/_header.html:43
 #: journal/templates/_sidebar_user_mark_list.html:48
 #: journal/templates/_sidebar_user_tag_filter.html:39
 msgid "Game"
 msgstr ""
 
-#: catalog/models/common.py:154
+#: catalog/models/common.py:162
 msgid "Podcast Program"
 msgstr ""
 
-#: catalog/models/common.py:155
+#: catalog/models/common.py:163
 msgid "Podcast Episode"
 msgstr ""
 
-#: catalog/models/common.py:156 catalog/models/common.py:172
-#: catalog/models/common.py:186 common/templates/_header.html:47
+#: catalog/models/common.py:164 catalog/models/common.py:180
+#: catalog/models/common.py:194 common/templates/_header.html:47
 #: journal/templates/_sidebar_user_mark_list.html:52
 #: journal/templates/_sidebar_user_tag_filter.html:43
 msgid "Performance"
 msgstr ""
 
-#: catalog/models/common.py:157
+#: catalog/models/common.py:165
 msgid "Production"
 msgstr ""
 
-#: catalog/models/common.py:158
+#: catalog/models/common.py:166
 msgid "Exhibition"
 msgstr ""
 
-#: catalog/models/common.py:159 catalog/models/common.py:176
+#: catalog/models/common.py:167 catalog/models/common.py:184
 #: journal/templates/collection.html:29 journal/templates/collection.html:40
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
 msgid "Collection"
 msgstr ""
 
-#: catalog/models/common.py:162 catalog/models/common.py:175
+#: catalog/models/common.py:170 catalog/models/common.py:183
 msgid "Person / Organization"
 msgstr ""
 
-#: catalog/models/common.py:166 catalog/models/common.py:180
+#: catalog/models/common.py:174 catalog/models/common.py:188
 #: common/templates/_header.html:27
 #: journal/templates/_sidebar_user_mark_list.html:32
 #: journal/templates/_sidebar_user_tag_filter.html:24
 msgid "Book"
 msgstr ""
 
-#: catalog/models/common.py:168 catalog/models/common.py:182
+#: catalog/models/common.py:176 catalog/models/common.py:190
 #: journal/templates/_sidebar_user_mark_list.html:38
 #: journal/templates/_sidebar_user_tag_filter.html:30
 msgid "TV"
 msgstr ""
 
-#: catalog/models/common.py:169 catalog/models/common.py:183
+#: catalog/models/common.py:177 catalog/models/common.py:191
 #: common/templates/_header.html:39
 #: journal/templates/_sidebar_user_mark_list.html:45
 #: journal/templates/_sidebar_user_tag_filter.html:36
 msgid "Music"
 msgstr ""
 
-#: catalog/models/common.py:171 catalog/models/common.py:185
+#: catalog/models/common.py:179 catalog/models/common.py:193
 #: catalog/templates/_sidebar_edit.html:182 common/templates/_header.html:35
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
 msgstr ""
 
-#: catalog/models/common.py:336 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:344 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr ""
 
-#: catalog/models/common.py:374
+#: catalog/models/common.py:382
 msgid "origin country"
 msgstr ""
 
-#: catalog/models/common.py:403 catalog/templates/album.html:33
+#: catalog/models/common.py:411 catalog/templates/album.html:33
 msgid "album type"
 msgstr ""
 
-#: catalog/models/common.py:407 catalog/templates/_platform_list.html:5
+#: catalog/models/common.py:415 catalog/templates/_platform_list.html:5
 msgid "platform"
 msgstr ""
 
-#: catalog/models/common.py:411
+#: catalog/models/common.py:419
 msgid "media format"
 msgstr ""
 
-#: catalog/models/common.py:416 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:424 catalog/templates/_language_list.html:5
 #: users/models/user.py:142
 msgid "language"
 msgstr ""
@@ -1384,7 +1404,7 @@ msgstr ""
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
 #: journal/templates/article.html:199 journal/templates/collection.html:182
-#: journal/templates/mark.html:157 journal/templates/note.html:84
+#: journal/templates/mark.html:149 journal/templates/note.html:82
 #: journal/templates/piece_delete.html:10
 #: journal/templates/piece_delete.html:34
 #: users/templates/users/account.html:254
@@ -1648,11 +1668,11 @@ msgstr ""
 #: catalog/templates/catalog_edit.html:65
 #: common/templates/manage/settings.html:136
 #: journal/templates/add_to_collection.html:43
-#: journal/templates/article_edit.html:59
-#: journal/templates/collection_edit.html:39 journal/templates/comment.html:69
-#: journal/templates/mark.html:142 journal/templates/note.html:67
+#: journal/templates/article_edit.html:60
+#: journal/templates/collection_edit.html:39 journal/templates/comment.html:41
+#: journal/templates/mark.html:134 journal/templates/note.html:65
 #: journal/templates/post_compose.html:103
-#: journal/templates/review_edit.html:39 journal/templates/tag_edit.html:51
+#: journal/templates/review_edit.html:46 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
 #: users/templates/users/preferences.html:241
@@ -2139,7 +2159,7 @@ msgstr ""
 #: journal/views/collection.py:415 journal/views/collection.py:458
 #: journal/views/collection.py:497 journal/views/collection.py:509
 #: journal/views/collection.py:534 journal/views/collection.py:571
-#: journal/views/common.py:272 journal/views/mark.py:264
+#: journal/views/common.py:272 journal/views/mark.py:281
 #: journal/views/post.py:58 journal/views/post.py:78 journal/views/post.py:100
 #: journal/views/post.py:165 journal/views/post.py:194
 #: journal/views/post.py:267 journal/views/post.py:282
@@ -2153,7 +2173,7 @@ msgstr ""
 #: catalog/views/verify.py:194 journal/views/collection.py:75
 #: journal/views/collection.py:100 journal/views/collection.py:514
 #: journal/views/collection.py:609 journal/views/common.py:193
-#: journal/views/mark.py:190 journal/views/post.py:112
+#: journal/views/mark.py:196 journal/views/post.py:112
 #: journal/views/post.py:114 journal/views/post.py:161
 #: journal/views/post.py:180 journal/views/post.py:182
 #: journal/views/post.py:223 journal/views/post.py:236
@@ -2740,759 +2760,759 @@ msgctxt "genre"
 msgid "Health"
 msgstr ""
 
-#: common/models/lang.py:48
+#: common/models/lang.py:50
 msgid "Afar"
 msgstr ""
 
-#: common/models/lang.py:49
+#: common/models/lang.py:51
 msgid "Afrikaans"
 msgstr ""
 
-#: common/models/lang.py:50
+#: common/models/lang.py:52
 msgid "Akan"
 msgstr ""
 
-#: common/models/lang.py:51
+#: common/models/lang.py:53
 msgid "Aragonese"
 msgstr ""
 
-#: common/models/lang.py:52
+#: common/models/lang.py:54
 msgid "Assamese"
 msgstr ""
 
-#: common/models/lang.py:53
+#: common/models/lang.py:55
 msgid "Avaric"
 msgstr ""
 
-#: common/models/lang.py:54
+#: common/models/lang.py:56
 msgid "Avestan"
 msgstr ""
 
-#: common/models/lang.py:55
+#: common/models/lang.py:57
 msgid "Aymara"
 msgstr ""
 
-#: common/models/lang.py:56
+#: common/models/lang.py:58
 msgid "Azerbaijani"
 msgstr ""
 
-#: common/models/lang.py:57
+#: common/models/lang.py:59
 msgid "Bashkir"
 msgstr ""
 
-#: common/models/lang.py:58
+#: common/models/lang.py:60
 msgid "Bambara"
 msgstr ""
 
-#: common/models/lang.py:59
+#: common/models/lang.py:61
 msgid "Bislama"
 msgstr ""
 
-#: common/models/lang.py:60
+#: common/models/lang.py:62
 msgid "Tibetan"
 msgstr ""
 
-#: common/models/lang.py:61
+#: common/models/lang.py:63
 msgid "Breton"
 msgstr ""
 
-#: common/models/lang.py:62
+#: common/models/lang.py:64
 msgid "Catalan"
 msgstr ""
 
-#: common/models/lang.py:63
+#: common/models/lang.py:65
 msgid "Czech"
 msgstr ""
 
-#: common/models/lang.py:64
+#: common/models/lang.py:66
 msgid "Chechen"
 msgstr ""
 
-#: common/models/lang.py:65
+#: common/models/lang.py:67
 msgid "Slavic"
 msgstr ""
 
-#: common/models/lang.py:66
+#: common/models/lang.py:68
 msgid "Chuvash"
 msgstr ""
 
-#: common/models/lang.py:67
+#: common/models/lang.py:69
 msgid "Cornish"
 msgstr ""
 
-#: common/models/lang.py:68
+#: common/models/lang.py:70
 msgid "Corsican"
 msgstr ""
 
-#: common/models/lang.py:69
+#: common/models/lang.py:71
 msgid "Cree"
 msgstr ""
 
-#: common/models/lang.py:70
+#: common/models/lang.py:72
 msgid "Welsh"
 msgstr ""
 
-#: common/models/lang.py:73
+#: common/models/lang.py:75
 msgid "Divehi"
 msgstr ""
 
-#: common/models/lang.py:74
+#: common/models/lang.py:76
 msgid "Dzongkha"
 msgstr ""
 
-#: common/models/lang.py:75
+#: common/models/lang.py:77
 msgid "Esperanto"
 msgstr ""
 
-#: common/models/lang.py:76
+#: common/models/lang.py:78
 msgid "Estonian"
 msgstr ""
 
-#: common/models/lang.py:77
+#: common/models/lang.py:79
 msgid "Basque"
 msgstr ""
 
-#: common/models/lang.py:78
+#: common/models/lang.py:80
 msgid "Faroese"
 msgstr ""
 
-#: common/models/lang.py:79
+#: common/models/lang.py:81
 msgid "Fijian"
 msgstr ""
 
-#: common/models/lang.py:80
+#: common/models/lang.py:82
 msgid "Finnish"
 msgstr ""
 
-#: common/models/lang.py:82
+#: common/models/lang.py:84
 msgid "Frisian"
 msgstr ""
 
-#: common/models/lang.py:83
+#: common/models/lang.py:85
 msgid "Fulah"
 msgstr ""
 
-#: common/models/lang.py:84
+#: common/models/lang.py:86
 msgid "Gaelic"
 msgstr ""
 
-#: common/models/lang.py:85
+#: common/models/lang.py:87
 msgid "Irish"
 msgstr ""
 
-#: common/models/lang.py:86
+#: common/models/lang.py:88
 msgid "Galician"
 msgstr ""
 
-#: common/models/lang.py:87
+#: common/models/lang.py:89
 msgid "Manx"
 msgstr ""
 
-#: common/models/lang.py:88
+#: common/models/lang.py:90
 msgid "Guarani"
 msgstr ""
 
-#: common/models/lang.py:89
+#: common/models/lang.py:91
 msgid "Gujarati"
 msgstr ""
 
-#: common/models/lang.py:90
+#: common/models/lang.py:92
 msgid "Haitian; Haitian Creole"
 msgstr ""
 
-#: common/models/lang.py:91
+#: common/models/lang.py:93
 msgid "Hausa"
 msgstr ""
 
-#: common/models/lang.py:92
+#: common/models/lang.py:94
 msgid "Serbo-Croatian"
 msgstr ""
 
-#: common/models/lang.py:93
+#: common/models/lang.py:95
 msgid "Herero"
 msgstr ""
 
-#: common/models/lang.py:94
+#: common/models/lang.py:96
 msgid "Hiri Motu"
 msgstr ""
 
-#: common/models/lang.py:95
+#: common/models/lang.py:97
 msgid "Croatian"
 msgstr ""
 
-#: common/models/lang.py:96
+#: common/models/lang.py:98
 msgid "Hungarian"
 msgstr ""
 
-#: common/models/lang.py:97
+#: common/models/lang.py:99
 msgid "Igbo"
 msgstr ""
 
-#: common/models/lang.py:98
+#: common/models/lang.py:100
 msgid "Ido"
 msgstr ""
 
-#: common/models/lang.py:99
+#: common/models/lang.py:101
 msgid "Yi"
 msgstr ""
 
-#: common/models/lang.py:100
+#: common/models/lang.py:102
 msgid "Inuktitut"
 msgstr ""
 
-#: common/models/lang.py:101
+#: common/models/lang.py:103
 msgid "Interlingue"
 msgstr ""
 
-#: common/models/lang.py:102
+#: common/models/lang.py:104
 msgid "Interlingua"
 msgstr ""
 
-#: common/models/lang.py:103
+#: common/models/lang.py:105
 msgid "Indonesian"
 msgstr ""
 
-#: common/models/lang.py:104
+#: common/models/lang.py:106
 msgid "Inupiaq"
 msgstr ""
 
-#: common/models/lang.py:105
+#: common/models/lang.py:107
 msgid "Icelandic"
 msgstr ""
 
-#: common/models/lang.py:107
+#: common/models/lang.py:109
 msgid "Javanese"
 msgstr ""
 
-#: common/models/lang.py:108
+#: common/models/lang.py:110
 msgid "Japanese"
 msgstr ""
 
-#: common/models/lang.py:109
+#: common/models/lang.py:111
 msgid "Kalaallisut"
 msgstr ""
 
-#: common/models/lang.py:110
+#: common/models/lang.py:112
 msgid "Kannada"
 msgstr ""
 
-#: common/models/lang.py:111
+#: common/models/lang.py:113
 msgid "Kashmiri"
 msgstr ""
 
-#: common/models/lang.py:112
+#: common/models/lang.py:114
 msgid "Kanuri"
 msgstr ""
 
-#: common/models/lang.py:113
+#: common/models/lang.py:115
 msgid "Kazakh"
 msgstr ""
 
-#: common/models/lang.py:114
+#: common/models/lang.py:116
 msgid "Khmer"
 msgstr ""
 
-#: common/models/lang.py:115
+#: common/models/lang.py:117
 msgid "Kikuyu"
 msgstr ""
 
-#: common/models/lang.py:116
+#: common/models/lang.py:118
 msgid "Kinyarwanda"
 msgstr ""
 
-#: common/models/lang.py:117
+#: common/models/lang.py:119
 msgid "Kirghiz"
 msgstr ""
 
-#: common/models/lang.py:118
+#: common/models/lang.py:120
 msgid "Komi"
 msgstr ""
 
-#: common/models/lang.py:119
+#: common/models/lang.py:121
 msgid "Kongo"
 msgstr ""
 
-#: common/models/lang.py:120
+#: common/models/lang.py:122
 msgid "Korean"
 msgstr ""
 
-#: common/models/lang.py:121
+#: common/models/lang.py:123
 msgid "Kuanyama"
 msgstr ""
 
-#: common/models/lang.py:122
+#: common/models/lang.py:124
 msgid "Kurdish"
 msgstr ""
 
-#: common/models/lang.py:123
+#: common/models/lang.py:125
 msgid "Lao"
 msgstr ""
 
-#: common/models/lang.py:124
+#: common/models/lang.py:126
 msgid "Latin"
 msgstr ""
 
-#: common/models/lang.py:125
+#: common/models/lang.py:127
 msgid "Latvian"
 msgstr ""
 
-#: common/models/lang.py:126
+#: common/models/lang.py:128
 msgid "Limburgish"
 msgstr ""
 
-#: common/models/lang.py:127
+#: common/models/lang.py:129
 msgid "Lingala"
 msgstr ""
 
-#: common/models/lang.py:128
+#: common/models/lang.py:130
 msgid "Lithuanian"
 msgstr ""
 
-#: common/models/lang.py:129
+#: common/models/lang.py:131
 msgid "Letzeburgesch"
 msgstr ""
 
-#: common/models/lang.py:130
+#: common/models/lang.py:132
 msgid "Luba-Katanga"
 msgstr ""
 
-#: common/models/lang.py:131
+#: common/models/lang.py:133
 msgid "Ganda"
 msgstr ""
 
-#: common/models/lang.py:132
+#: common/models/lang.py:134
 msgid "Marshall"
 msgstr ""
 
-#: common/models/lang.py:133
+#: common/models/lang.py:135
 msgid "Malayalam"
 msgstr ""
 
-#: common/models/lang.py:134
+#: common/models/lang.py:136
 msgid "Marathi"
 msgstr ""
 
-#: common/models/lang.py:135
+#: common/models/lang.py:137
 msgid "Malagasy"
 msgstr ""
 
-#: common/models/lang.py:136
+#: common/models/lang.py:138
 msgid "Maltese"
 msgstr ""
 
-#: common/models/lang.py:137
+#: common/models/lang.py:139
 msgid "Moldavian"
 msgstr ""
 
-#: common/models/lang.py:138
+#: common/models/lang.py:140
 msgid "Mongolian"
 msgstr ""
 
-#: common/models/lang.py:139
+#: common/models/lang.py:141
 msgid "Maori"
 msgstr ""
 
-#: common/models/lang.py:140
+#: common/models/lang.py:142
 msgid "Malay"
 msgstr ""
 
-#: common/models/lang.py:141
+#: common/models/lang.py:143
 msgid "Burmese"
 msgstr ""
 
-#: common/models/lang.py:142
+#: common/models/lang.py:144
 msgid "Nauru"
 msgstr ""
 
-#: common/models/lang.py:143
+#: common/models/lang.py:145
 msgid "Navajo"
 msgstr ""
 
-#: common/models/lang.py:144 common/models/lang.py:145
+#: common/models/lang.py:146 common/models/lang.py:147
 msgid "Ndebele"
 msgstr ""
 
-#: common/models/lang.py:146
+#: common/models/lang.py:148
 msgid "Ndonga"
 msgstr ""
 
-#: common/models/lang.py:147
+#: common/models/lang.py:149
 msgid "Nepali"
 msgstr ""
 
-#: common/models/lang.py:148
+#: common/models/lang.py:150
 msgid "Dutch"
 msgstr ""
 
-#: common/models/lang.py:149
+#: common/models/lang.py:151
 msgid "Norwegian Nynorsk"
 msgstr ""
 
-#: common/models/lang.py:150
+#: common/models/lang.py:152
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: common/models/lang.py:151
+#: common/models/lang.py:153
 msgid "Norwegian"
 msgstr ""
 
-#: common/models/lang.py:152
+#: common/models/lang.py:154
 msgid "Chichewa; Nyanja"
 msgstr ""
 
-#: common/models/lang.py:153
+#: common/models/lang.py:155
 msgid "Occitan"
 msgstr ""
 
-#: common/models/lang.py:154
+#: common/models/lang.py:156
 msgid "Ojibwa"
 msgstr ""
 
-#: common/models/lang.py:155
+#: common/models/lang.py:157
 msgid "Oriya"
 msgstr ""
 
-#: common/models/lang.py:156
+#: common/models/lang.py:158
 msgid "Oromo"
 msgstr ""
 
-#: common/models/lang.py:157
+#: common/models/lang.py:159
 msgid "Ossetian; Ossetic"
 msgstr ""
 
-#: common/models/lang.py:158
+#: common/models/lang.py:160
 msgid "Pali"
 msgstr ""
 
-#: common/models/lang.py:159
+#: common/models/lang.py:161
 msgid "Polish"
 msgstr ""
 
-#: common/models/lang.py:161
+#: common/models/lang.py:163
 msgid "Quechua"
 msgstr ""
 
-#: common/models/lang.py:162
+#: common/models/lang.py:164
 msgid "Raeto-Romance"
 msgstr ""
 
-#: common/models/lang.py:163
+#: common/models/lang.py:165
 msgid "Romanian"
 msgstr ""
 
-#: common/models/lang.py:164
+#: common/models/lang.py:166
 msgid "Rundi"
 msgstr ""
 
-#: common/models/lang.py:165
+#: common/models/lang.py:167
 msgid "Russian"
 msgstr ""
 
-#: common/models/lang.py:166
+#: common/models/lang.py:168
 msgid "Sango"
 msgstr ""
 
-#: common/models/lang.py:167
+#: common/models/lang.py:169
 msgid "Sanskrit"
 msgstr ""
 
-#: common/models/lang.py:168
+#: common/models/lang.py:170
 msgid "Sinhalese"
 msgstr ""
 
-#: common/models/lang.py:169
+#: common/models/lang.py:171
 msgid "Slovak"
 msgstr ""
 
-#: common/models/lang.py:170
+#: common/models/lang.py:172
 msgid "Slovenian"
 msgstr ""
 
-#: common/models/lang.py:171
+#: common/models/lang.py:173
 msgid "Northern Sami"
 msgstr ""
 
-#: common/models/lang.py:172
+#: common/models/lang.py:174
 msgid "Samoan"
 msgstr ""
 
-#: common/models/lang.py:173
+#: common/models/lang.py:175
 msgid "Shona"
 msgstr ""
 
-#: common/models/lang.py:174
+#: common/models/lang.py:176
 msgid "Sindhi"
 msgstr ""
 
-#: common/models/lang.py:175
+#: common/models/lang.py:177
 msgid "Somali"
 msgstr ""
 
-#: common/models/lang.py:176
+#: common/models/lang.py:178
 msgid "Sotho"
 msgstr ""
 
-#: common/models/lang.py:178
+#: common/models/lang.py:180
 msgid "Albanian"
 msgstr ""
 
-#: common/models/lang.py:179
+#: common/models/lang.py:181
 msgid "Sardinian"
 msgstr ""
 
-#: common/models/lang.py:180
+#: common/models/lang.py:182
 msgid "Serbian"
 msgstr ""
 
-#: common/models/lang.py:181
+#: common/models/lang.py:183
 msgid "Swati"
 msgstr ""
 
-#: common/models/lang.py:182
+#: common/models/lang.py:184
 msgid "Sundanese"
 msgstr ""
 
-#: common/models/lang.py:183
+#: common/models/lang.py:185
 msgid "Swahili"
 msgstr ""
 
-#: common/models/lang.py:184
+#: common/models/lang.py:186
 msgid "Swedish"
 msgstr ""
 
-#: common/models/lang.py:185
+#: common/models/lang.py:187
 msgid "Tahitian"
 msgstr ""
 
-#: common/models/lang.py:186
+#: common/models/lang.py:188
 msgid "Tamil"
 msgstr ""
 
-#: common/models/lang.py:187
+#: common/models/lang.py:189
 msgid "Tatar"
 msgstr ""
 
-#: common/models/lang.py:188
+#: common/models/lang.py:190
 msgid "Telugu"
 msgstr ""
 
-#: common/models/lang.py:189
+#: common/models/lang.py:191
 msgid "Tajik"
 msgstr ""
 
-#: common/models/lang.py:190
+#: common/models/lang.py:192
 msgid "Tagalog"
 msgstr ""
 
-#: common/models/lang.py:191
+#: common/models/lang.py:193
 msgid "Thai"
 msgstr ""
 
-#: common/models/lang.py:192
+#: common/models/lang.py:194
 msgid "Tigrinya"
 msgstr ""
 
-#: common/models/lang.py:193
+#: common/models/lang.py:195
 msgid "Tonga"
 msgstr ""
 
-#: common/models/lang.py:194
+#: common/models/lang.py:196
 msgid "Tswana"
 msgstr ""
 
-#: common/models/lang.py:195
+#: common/models/lang.py:197
 msgid "Tsonga"
 msgstr ""
 
-#: common/models/lang.py:196
+#: common/models/lang.py:198
 msgid "Turkmen"
 msgstr ""
 
-#: common/models/lang.py:197
+#: common/models/lang.py:199
 msgid "Turkish"
 msgstr ""
 
-#: common/models/lang.py:198
+#: common/models/lang.py:200
 msgid "Twi"
 msgstr ""
 
-#: common/models/lang.py:199
+#: common/models/lang.py:201
 msgid "Uighur"
 msgstr ""
 
-#: common/models/lang.py:200
+#: common/models/lang.py:202
 msgid "Ukrainian"
 msgstr ""
 
-#: common/models/lang.py:201
+#: common/models/lang.py:203
 msgid "Urdu"
 msgstr ""
 
-#: common/models/lang.py:202
+#: common/models/lang.py:204
 msgid "Uzbek"
 msgstr ""
 
-#: common/models/lang.py:203
+#: common/models/lang.py:205
 msgid "Venda"
 msgstr ""
 
-#: common/models/lang.py:204
+#: common/models/lang.py:206
 msgid "Vietnamese"
 msgstr ""
 
-#: common/models/lang.py:205
+#: common/models/lang.py:207
 msgid "Volapük"
 msgstr ""
 
-#: common/models/lang.py:206
+#: common/models/lang.py:208
 msgid "Walloon"
 msgstr ""
 
-#: common/models/lang.py:207
+#: common/models/lang.py:209
 msgid "Wolof"
 msgstr ""
 
-#: common/models/lang.py:208
+#: common/models/lang.py:210
 msgid "Xhosa"
 msgstr ""
 
-#: common/models/lang.py:209
+#: common/models/lang.py:211
 msgid "Yiddish"
 msgstr ""
 
-#: common/models/lang.py:210
+#: common/models/lang.py:212
 msgid "Zhuang"
 msgstr ""
 
-#: common/models/lang.py:211
+#: common/models/lang.py:213
 msgid "Zulu"
 msgstr ""
 
-#: common/models/lang.py:212
+#: common/models/lang.py:214
 msgid "Abkhazian"
 msgstr ""
 
-#: common/models/lang.py:213
+#: common/models/lang.py:215
 msgid "Chinese"
 msgstr ""
 
-#: common/models/lang.py:214
+#: common/models/lang.py:216
 msgid "Pushto"
 msgstr ""
 
-#: common/models/lang.py:215
+#: common/models/lang.py:217
 msgid "Amharic"
 msgstr ""
 
-#: common/models/lang.py:216
+#: common/models/lang.py:218
 msgid "Arabic"
 msgstr ""
 
-#: common/models/lang.py:217
+#: common/models/lang.py:219
 msgid "Bulgarian"
 msgstr ""
 
-#: common/models/lang.py:218
+#: common/models/lang.py:220
 msgid "Macedonian"
 msgstr ""
 
-#: common/models/lang.py:219
+#: common/models/lang.py:221
 msgid "Greek"
 msgstr ""
 
-#: common/models/lang.py:220
+#: common/models/lang.py:222
 msgid "Persian"
 msgstr ""
 
-#: common/models/lang.py:221
+#: common/models/lang.py:223
 msgid "Hebrew"
 msgstr ""
 
-#: common/models/lang.py:222
+#: common/models/lang.py:224
 msgid "Hindi"
 msgstr ""
 
-#: common/models/lang.py:223
+#: common/models/lang.py:225
 msgid "Armenian"
 msgstr ""
 
-#: common/models/lang.py:225
+#: common/models/lang.py:227
 msgid "Ewe"
 msgstr ""
 
-#: common/models/lang.py:226
+#: common/models/lang.py:228
 msgid "Georgian"
 msgstr ""
 
-#: common/models/lang.py:227
+#: common/models/lang.py:229
 msgid "Punjabi"
 msgstr ""
 
-#: common/models/lang.py:228
+#: common/models/lang.py:230
 msgid "Bengali"
 msgstr ""
 
-#: common/models/lang.py:229
+#: common/models/lang.py:231
 msgid "Bosnian"
 msgstr ""
 
-#: common/models/lang.py:230
+#: common/models/lang.py:232
 msgid "Chamorro"
 msgstr ""
 
-#: common/models/lang.py:231
+#: common/models/lang.py:233
 msgid "Belarusian"
 msgstr ""
 
-#: common/models/lang.py:232
+#: common/models/lang.py:234
 msgid "Yoruba"
 msgstr ""
 
-#: common/models/lang.py:294
+#: common/models/lang.py:296
 msgid "Simplified Chinese (Mainland)"
 msgstr ""
 
-#: common/models/lang.py:295
+#: common/models/lang.py:297
 msgid "Traditional Chinese (Taiwan)"
 msgstr ""
 
-#: common/models/lang.py:296
+#: common/models/lang.py:298
 msgid "Traditional Chinese (Hongkong)"
 msgstr ""
 
-#: common/models/lang.py:304
+#: common/models/lang.py:306
 msgid "Portuguese (Brazil)"
 msgstr ""
 
-#: common/models/lang.py:307
+#: common/models/lang.py:309
 msgid "Simplified Chinese (Singapore)"
 msgstr ""
 
-#: common/models/lang.py:308
+#: common/models/lang.py:310
 msgid "Simplified Chinese (Malaysia)"
 msgstr ""
 
-#: common/models/lang.py:309
+#: common/models/lang.py:311
 msgid "Traditional Chinese (Macau)"
 msgstr ""
 
-#: common/models/lang.py:317
+#: common/models/lang.py:319
 msgid "Mandarin Chinese"
 msgstr ""
 
-#: common/models/lang.py:318
+#: common/models/lang.py:320
 msgid "Yue Chinese"
 msgstr ""
 
-#: common/models/lang.py:322
+#: common/models/lang.py:324
 msgid "Min Nan Chinese"
 msgstr ""
 
-#: common/models/lang.py:323
+#: common/models/lang.py:325
 msgid "Wu Chinese"
 msgstr ""
 
-#: common/models/lang.py:324
+#: common/models/lang.py:326
 msgid "Hakka Chinese"
 msgstr ""
 
@@ -3793,7 +3813,7 @@ msgstr ""
 msgid "Currently watching"
 msgstr ""
 
-#: common/templates/_sidebar.html:233 journal/forms.py:199
+#: common/templates/_sidebar.html:233 journal/forms.py:217
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
@@ -4711,84 +4731,91 @@ msgstr ""
 msgid "Genres by Category"
 msgstr ""
 
-#: journal/forms.py:24 journal/forms.py:26 journal/forms.py:72
-#: journal/forms.py:75 journal/forms.py:142
+#: journal/forms.py:12
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgstr ""
+
+#: journal/forms.py:29 journal/forms.py:31 journal/forms.py:80
+#: journal/forms.py:83 journal/forms.py:153
 msgid "Title"
 msgstr ""
 
-#: journal/forms.py:30 journal/forms.py:35 journal/forms.py:36
-#: journal/forms.py:91 journal/forms.py:96 journal/forms.py:97
-#: journal/forms.py:144
+#: journal/forms.py:35 journal/forms.py:40 journal/forms.py:41
+#: journal/forms.py:99 journal/forms.py:104 journal/forms.py:105
+#: journal/forms.py:155
 msgid "Content (Markdown)"
 msgstr ""
 
-#: journal/forms.py:41 journal/forms.py:208 journal/templates/comment.html:62
-#: journal/templates/mark.html:115
-msgid "Crosspost to timeline"
+#: journal/forms.py:46 journal/forms.py:124 journal/forms.py:226
+#: journal/forms.py:288 journal/views/note.py:38
+msgid "Crosspost"
 msgstr ""
 
-#: journal/forms.py:44 journal/forms.py:119
+#: journal/forms.py:47 journal/forms.py:125 journal/forms.py:227
+#: journal/forms.py:289 journal/views/note.py:39
+msgid "Crosspost to your connected social networks"
+msgstr ""
+
+#: journal/forms.py:52 journal/forms.py:130
 msgid "Keep leading spaces"
 msgstr ""
 
-#: journal/forms.py:45 journal/forms.py:120
+#: journal/forms.py:53 journal/forms.py:131
 msgid "When saving, replace leading spaces with full-width spaces"
 msgstr ""
 
-#: journal/forms.py:51 journal/forms.py:126 journal/forms.py:151
-#: journal/forms.py:201 journal/templates/collection_share.html:24
-#: journal/templates/wrapped_share.html:36 users/templates/users/data.html:45
-#: users/templates/users/data.html:98 users/templates/users/data.html:155
-#: users/templates/users/data.html:206 users/templates/users/data.html:269
-#: users/templates/users/data.html:328 users/templates/users/rym_import.html:81
+#: journal/forms.py:59 journal/forms.py:137 journal/forms.py:162
+#: journal/forms.py:219 journal/forms.py:281
+#: journal/templates/collection_share.html:24
+#: journal/templates/wrapped_share.html:36 journal/views/note.py:31
+#: users/templates/users/data.html:45 users/templates/users/data.html:98
+#: users/templates/users/data.html:155 users/templates/users/data.html:206
+#: users/templates/users/data.html:269 users/templates/users/data.html:328
+#: users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:125
 #: users/templates/users/storygraph_import.html:81
 msgid "Visibility"
 msgstr ""
 
-#: journal/forms.py:64
+#: journal/forms.py:72
 msgid "Featured image (optional)"
 msgstr ""
 
-#: journal/forms.py:79 journal/forms.py:85 journal/forms.py:86
+#: journal/forms.py:87 journal/forms.py:93 journal/forms.py:94
 msgid "Summary (optional)"
 msgstr ""
 
-#: journal/forms.py:102 journal/forms.py:107 journal/forms.py:108
+#: journal/forms.py:110 journal/forms.py:115 journal/forms.py:116
 msgid "Tags (comma separated)"
 msgstr ""
 
-#: journal/forms.py:113 journal/templates/post_compose.html:86
+#: journal/forms.py:121 journal/templates/post_compose.html:86
 msgid "Mark as sensitive"
 msgstr ""
 
-#: journal/forms.py:116
-msgid "Crosspost to Mastodon"
-msgstr ""
-
-#: journal/forms.py:135
+#: journal/forms.py:146
 msgid "owner only"
 msgstr ""
 
-#: journal/forms.py:136
+#: journal/forms.py:147
 msgid "owner and their local mutuals"
 msgstr ""
 
-#: journal/forms.py:158 journal/templates/collection.html:187
+#: journal/forms.py:169 journal/templates/collection.html:187
 #: journal/templates/collection.html:196
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:193 users/templates/users/crossposts.html:51
+#: journal/forms.py:204 users/templates/users/crossposts.html:51
 #: users/templates/users/data.html:483
 msgid "Status"
 msgstr ""
 
-#: journal/forms.py:195 journal/templates/comment.html:16
+#: journal/forms.py:209 journal/forms.py:275 journal/templates/comment.html:16
 msgid "Comment"
 msgstr ""
 
-#: journal/forms.py:197
+#: journal/forms.py:215
 msgid "Rating"
 msgstr ""
 
@@ -4900,12 +4927,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: journal/models/common.py:50 journal/templates/action_open_post.html:15
-#: journal/templates/collection_share.html:35 journal/templates/comment.html:35
-#: journal/templates/mark.html:88 journal/templates/post_compose.html:58
-#: journal/templates/tag_edit.html:42 journal/templates/wrapped_share.html:43
-#: users/templates/users/data.html:54 users/templates/users/data.html:107
-#: users/templates/users/data.html:164 users/templates/users/data.html:215
-#: users/templates/users/data.html:277 users/templates/users/data.html:337
+#: journal/templates/collection_share.html:35 journal/templates/mark.html:84
+#: journal/templates/post_compose.html:58 journal/templates/tag_edit.html:42
+#: journal/templates/wrapped_share.html:43 users/templates/users/data.html:54
+#: users/templates/users/data.html:107 users/templates/users/data.html:164
+#: users/templates/users/data.html:215 users/templates/users/data.html:277
+#: users/templates/users/data.html:337
 #: users/templates/users/preferences.html:56
 #: users/templates/users/rym_import.html:84
 #: users/templates/users/steam_import.html:128
@@ -4914,8 +4941,8 @@ msgid "Public"
 msgstr ""
 
 #: journal/models/common.py:51 journal/templates/action_open_post.html:9
-#: journal/templates/collection_share.html:46 journal/templates/comment.html:42
-#: journal/templates/mark.html:95 journal/templates/post_compose.html:65
+#: journal/templates/collection_share.html:46 journal/templates/mark.html:91
+#: journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:62
 #: users/templates/users/data.html:115 users/templates/users/data.html:172
 #: users/templates/users/data.html:223 users/templates/users/data.html:285
@@ -4928,8 +4955,7 @@ msgid "Followers Only"
 msgstr ""
 
 #: journal/models/common.py:52 journal/templates/collection_share.html:57
-#: journal/templates/comment.html:49 journal/templates/mark.html:102
-#: journal/templates/post_compose.html:72
+#: journal/templates/mark.html:98 journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:70
 #: users/templates/users/data.html:123 users/templates/users/data.html:180
 #: users/templates/users/data.html:231 users/templates/users/data.html:293
@@ -4977,8 +5003,8 @@ msgstr ""
 msgid "Retrying"
 msgstr ""
 
-#: journal/models/mark.py:469 journal/views/note.py:117
-#: journal/views/note.py:177
+#: journal/models/mark.py:469 journal/views/note.py:124
+#: journal/views/note.py:184
 msgid "Only in-progress books can have reading progress."
 msgstr ""
 
@@ -5803,11 +5829,7 @@ msgstr ""
 msgid "for the sharing post only, not visibility of the collection"
 msgstr ""
 
-#: journal/templates/comment.html:24 journal/templates/mark.html:66
-msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr ""
-
-#: journal/templates/comment.html:75
+#: journal/templates/comment.html:47
 msgid "share with playback position"
 msgstr ""
 
@@ -5819,15 +5841,15 @@ msgstr ""
 msgid "not rated"
 msgstr ""
 
-#: journal/templates/mark.html:74
+#: journal/templates/mark.html:70
 msgid "add a tag and press Enter"
 msgstr ""
 
-#: journal/templates/mark.html:130
+#: journal/templates/mark.html:122
 msgid "change mark date"
 msgstr ""
 
-#: journal/templates/mark.html:156
+#: journal/templates/mark.html:148
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""
 
@@ -5886,15 +5908,11 @@ msgstr ""
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr ""
 
-#: journal/templates/note.html:60 journal/templates/note.html:61
-msgid "Also publish this note to your connected social accounts."
-msgstr ""
-
-#: journal/templates/note.html:74 journal/templates/note.html:75
+#: journal/templates/note.html:72 journal/templates/note.html:73
 msgid "Clear progress"
 msgstr ""
 
-#: journal/templates/note.html:81
+#: journal/templates/note.html:79
 msgid "Are you sure to delete this note?"
 msgstr ""
 
@@ -6008,7 +6026,7 @@ msgstr ""
 msgid "add a reply"
 msgstr ""
 
-#: journal/templates/review_edit.html:42
+#: journal/templates/review_edit.html:49
 msgid "change review date"
 msgstr ""
 
@@ -6117,7 +6135,7 @@ msgstr ""
 msgid "Saved."
 msgstr ""
 
-#: journal/views/common.py:146 journal/views/mark.py:153
+#: journal/views/common.py:146 journal/views/mark.py:159
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
@@ -6129,16 +6147,16 @@ msgstr ""
 msgid "List not found."
 msgstr ""
 
-#: journal/views/mark.py:144
+#: journal/views/mark.py:150
 msgid "Content too long for your Fediverse instance."
 msgstr ""
 
-#: journal/views/mark.py:172
+#: journal/views/mark.py:178 journal/views/mark.py:238
 msgid "Invalid input"
 msgstr ""
 
-#: journal/views/mark.py:212 journal/views/mark.py:262
-#: journal/views/note.py:169 journal/views/profile.py:42
+#: journal/views/mark.py:225 journal/views/mark.py:279
+#: journal/views/note.py:176 journal/views/profile.py:42
 #: journal/views/review.py:50 journal/views/review.py:67
 msgid "Content not found"
 msgstr ""
@@ -6151,23 +6169,19 @@ msgstr ""
 msgid "Update progress"
 msgstr ""
 
-#: journal/views/note.py:34
-msgid "Crosspost"
-msgstr ""
-
-#: journal/views/note.py:52
+#: journal/views/note.py:59
 msgid "Progress (optional)"
 msgstr ""
 
-#: journal/views/note.py:54
+#: journal/views/note.py:61
 msgid "Note Content"
 msgstr ""
 
-#: journal/views/note.py:56
+#: journal/views/note.py:63
 msgid "Content Warning (optional)"
 msgstr ""
 
-#: journal/views/note.py:78
+#: journal/views/note.py:85
 msgid "Progress Type (optional)"
 msgstr ""
 
@@ -6237,7 +6251,7 @@ msgstr ""
 msgid "Mastodon"
 msgstr ""
 
-#: mastodon/models/common.py:30 users/templates/users/login.html:112
+#: mastodon/models/common.py:30 users/templates/users/login.html:120
 msgid "Threads"
 msgstr ""
 
@@ -7088,7 +7102,7 @@ msgstr ""
 msgid "Disconnect with Threads"
 msgstr ""
 
-#: users/templates/users/account.html:173 users/templates/users/login.html:120
+#: users/templates/users/account.html:173 users/templates/users/login.html:112
 msgid "Bluesky (ATProto)"
 msgstr ""
 

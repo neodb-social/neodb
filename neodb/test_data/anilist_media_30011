@@ -1,0 +1,305 @@
+{
+ "data": {
+  "Media": {
+   "id": 30011,
+   "idMal": 11,
+   "type": "MANGA",
+   "format": "MANGA",
+   "status": "FINISHED",
+   "siteUrl": "https://anilist.co/manga/30011",
+   "description": "Before Naruto's birth, a great demon fox had attacked the Hidden Leaf Village. A man known as the 4th Hokage sealed the demon inside the newly born Naruto, causing him to unknowingly grow up detested by his fellow villagers. Despite his lack of talent in many areas of ninjutsu, Naruto strives for only one goal: to gain the title of Hokage, the strongest ninja in his village. Desiring the respect he never received, Naruto works towards his dream with fellow friends Sasuke and Sakura and mentor Kakashi as they go through many trials and battles that come with being a ninja.",
+   "episodes": null,
+   "duration": null,
+   "chapters": 700,
+   "volumes": 72,
+   "countryOfOrigin": "JP",
+   "startDate": {
+    "year": 1999,
+    "month": 9,
+    "day": 21
+   },
+   "genres": [
+    "Action",
+    "Adventure",
+    "Supernatural"
+   ],
+   "synonyms": [
+    "נארוטו",
+    "Наруто",
+    "火影忍者",
+    "나루토",
+    "นินจาคาถา โอ้โฮเฮะ"
+   ],
+   "title": {
+    "romaji": "NARUTO",
+    "english": "Naruto",
+    "native": "NARUTO -ナルト-"
+   },
+   "coverImage": {
+    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/nx30011-9yUF1dXWgDOx.jpg",
+    "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/nx30011-9yUF1dXWgDOx.jpg"
+   },
+   "studios": {
+    "edges": []
+   },
+   "staff": {
+    "edges": [
+     {
+      "role": "Story & Art",
+      "node": {
+       "name": {
+        "full": "Masashi Kishimoto"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Yuuichi Itakura"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Ryou Tasaka"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Akira Oukubo"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Kazuhiro Takahashi"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Osamu Kajisa"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Mikio Ikemoto"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Kenji Taira"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Masaru Matsubara"
+       }
+      }
+     },
+     {
+      "role": "Assistant",
+      "node": {
+       "name": {
+        "full": "Satou Atsuhiro"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vol 59)",
+      "node": {
+       "name": {
+        "full": "Alexis Kirsch"
+       }
+      }
+     },
+     {
+      "role": "Translator (Norwegian: vol 1-9)",
+      "node": {
+       "name": {
+        "full": "Annette Nordheim"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vols 20, 24)",
+      "node": {
+       "name": {
+        "full": "Joe Yamazaki"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vols 2-18, 22, 28, 32-72)",
+      "node": {
+       "name": {
+        "full": "Mari Morimoto"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vols 1, 2)",
+      "node": {
+       "name": {
+        "full": "Katy Bridges"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vol 21, 26-27, 30)",
+      "node": {
+       "name": {
+        "full": "Azurelore Korrigan"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vols 19, 23, 25, 29, 31)",
+      "node": {
+       "name": {
+        "full": "Kyoko Shapiro"
+       }
+      }
+     },
+     {
+      "role": "Translator (English: vol 21, 26-27, 30)",
+      "node": {
+       "name": {
+        "full": "Naomi Kokubo"
+       }
+      }
+     },
+     {
+      "role": "Translator (French: vols 1-10)",
+      "node": {
+       "name": {
+        "full": "Sylvain Chollet"
+       }
+      }
+     },
+     {
+      "role": "Translator (French: vols 55-58)",
+      "node": {
+       "name": {
+        "full": "Frederic Malet"
+       }
+      }
+     },
+     {
+      "role": "Translator (French: vols 11-54, 59-72)",
+      "node": {
+       "name": {
+        "full": "Sebastien Bigini"
+       }
+      }
+     },
+     {
+      "role": "Translator (Vietnamese, vols 50-72)",
+      "node": {
+       "name": {
+        "full": "Hằng Trần"
+       }
+      }
+     },
+     {
+      "role": "Translator (Vietnamese, vols 1-49)",
+      "node": {
+       "name": {
+        "full": "Việt"
+       }
+      }
+     },
+     {
+      "role": "Translator (Turkish: vols 1-4, 7-27)",
+      "node": {
+       "name": {
+        "full": "Tayfun Nitahara Haksöyliyen"
+       }
+      }
+     },
+     {
+      "role": "Translator (Turkish: vols 5-6)",
+      "node": {
+       "name": {
+        "full": "Sercan Sert"
+       }
+      }
+     }
+    ]
+   },
+   "externalLinks": [
+    {
+     "site": "MANGA Plus",
+     "url": "https://mangaplus.shueisha.co.jp/titles/100018"
+    },
+    {
+     "site": "VIZ",
+     "url": "https://www.viz.com/shonenjump/chapters/naruto"
+    },
+    {
+     "site": "Mangas.io",
+     "url": "https://www.mangas.io/lire/naruto"
+    },
+    {
+     "site": "MANGA Plus",
+     "url": "https://mangaplus.shueisha.co.jp/titles/200001"
+    },
+    {
+     "site": "Official Site",
+     "url": "https://naruto-official.com/"
+    },
+    {
+     "site": "Shonen Jump Plus",
+     "url": "https://shonenjumpplus.com/episode/10833519556325021854"
+    },
+    {
+     "site": "Official Site",
+     "url": "https://www.shueisha.co.jp/books/search/search.html?seriesid=35181"
+    },
+    {
+     "site": "KakaoPage",
+     "url": "https://page.kakao.com/content/46335136"
+    },
+    {
+     "site": "VIZ",
+     "url": "https://www.viz.com/manga-books/manga/naruto/all"
+    },
+    {
+     "site": "Official Site",
+     "url": "https://zebrack-comic.shueisha.co.jp/title/48"
+    },
+    {
+     "site": "ONO",
+     "url": "https://www.ono.live/manga/naruto"
+    },
+    {
+     "site": "Twitter",
+     "url": "https://x.com/NARUTO_kousiki"
+    },
+    {
+     "site": "Twitter",
+     "url": "https://x.com/NARUTO_info_en"
+    }
+   ]
+  }
+ }
+}

@@ -56,6 +56,7 @@ class SiteName(models.TextChoices):
     StoryGraph = "storygraph", _("StoryGraph")
     YouTubeMusic = "yt_music", _("YouTube Music")
     RateYourMusic = "rateyourmusic", _("RateYourMusic")
+    AniList = "anilist", _("AniList")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -123,6 +124,13 @@ class IdType(models.TextChoices):  # values must be in lowercase
     MobyGames = "mobygames", _("MobyGames")
     StoryGraph = "storygraph", _("StoryGraph")
     RateYourMusic_Release = "rateyourmusic_release", _("RateYourMusic Release")
+    # AniList shares one numeric id space between anime and manga, so the two
+    # are separate id types to keep them from colliding; MyAnimeList uses two
+    # distinct spaces. Both pairs map 1:1 onto their Wikidata properties.
+    AniList_Anime = "anilist_anime", _("AniList Anime")
+    AniList_Manga = "anilist_manga", _("AniList Manga")
+    MAL_Anime = "mal_anime", _("MyAnimeList Anime")
+    MAL_Manga = "mal_manga", _("MyAnimeList Manga")
 
 
 IdealIdTypes = [

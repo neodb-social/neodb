@@ -1,4 +1,5 @@
 from ..common.sites import SiteManager
+from .anilist import AniListAnime, AniListManga
 from .ao3 import ArchiveOfOurOwn
 from .apple_music import AppleMusic
 from .apple_podcast import ApplePodcast
@@ -38,6 +39,8 @@ from .ypshuo import Ypshuo
 
 __all__ = [
     "SiteManager",
+    "AniListAnime",
+    "AniListManga",
     "ArchiveOfOurOwn",
     "AppleMusic",
     "ApplePodcast",

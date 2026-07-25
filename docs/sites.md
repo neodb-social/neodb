@@ -4,6 +4,7 @@ The following external sites are supported for importing catalog items.
 
 | Site | Media types | Import archive |
 | ---- | ----------- | -------------- |
+| AniList | Movie · TV (Season) · Book (Edition) | |
 | Apple Music | Music (Album) | |
 | Apple Podcasts | Podcast | |
 | Archive of Our Own | Book (Edition) | |

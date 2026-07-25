@@ -1,0 +1,305 @@
+{
+ "data": {
+  "Media": {
+   "id": 199,
+   "idMal": 199,
+   "type": "ANIME",
+   "format": "MOVIE",
+   "status": "FINISHED",
+   "siteUrl": "https://anilist.co/anime/199",
+   "description": "On the way to their new home, 10-year-old Chihiro Ogino's family stumbles upon a deserted theme park. Intrigued, the family investigates the park, though unbeknownst to them, it is secretly inhabited by spirits who sleep by day and appear at night. When Chihiro's mother and father eat food from a restaurant in the street, angry spirits turn them into pigs. Furthermore, a wide sea has appeared between the spirit world and the human one, trapping Chihiro, the sole human, in a land of spirits. Luckily for her though, a mysterious boy named Haku appears, claiming to know her from the past. Under his instructions, Chihiro secures a job in the bathhouse where Haku works. With only her courage and some new found friends to aid her, Chihiro embarks on a journey to turn her parents back to their original forms and return home.\n",
+   "episodes": 1,
+   "duration": 125,
+   "chapters": null,
+   "volumes": null,
+   "countryOfOrigin": "JP",
+   "startDate": {
+    "year": 2001,
+    "month": 7,
+    "day": 20
+   },
+   "genres": [
+    "Adventure",
+    "Drama",
+    "Fantasy",
+    "Supernatural"
+   ],
+   "synonyms": [
+    "Le Voyage de Chihiro",
+    "La Città Incantata",
+    "El Viaje de Chihiro",
+    "Chihiros Reise ins Zauberland",
+    "Ruhların Kaçışı",
+    "המסע המופלא",
+    "Călătoria lui Chihiro",
+    "Spirited Away: W krainie bogów",
+    "Chihiro Szellemországban",
+    "A Viagem de Chihiro",
+    "千与千寻",
+    "Унесённые призраками",
+    "Chihiro og heksene",
+    "Ταξίδι στην Χώρα των Θαυμάτων",
+    "มิติวิญญาณมหัศจรรย์",
+    "Henkien kätkemä",
+    "Chihiro ilmmiid gaskkas",
+    "Vaimudest viidud",
+    "Chihiro og álögin"
+   ],
+   "title": {
+    "romaji": "Sen to Chihiro no Kamikakushi",
+    "english": "Spirited Away",
+    "native": "千と千尋の神隠し"
+   },
+   "coverImage": {
+    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx199-sWefXJvXkDOb.jpg",
+    "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx199-sWefXJvXkDOb.jpg"
+   },
+   "studios": {
+    "edges": [
+     {
+      "isMain": true,
+      "node": {
+       "name": "Studio Ghibli"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "Studio Hibari"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "Walt Disney Studios"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "GKIDS"
+      }
+     }
+    ]
+   },
+   "staff": {
+    "edges": [
+     {
+      "role": "Original Creator",
+      "node": {
+       "name": {
+        "full": "Hayao Miyazaki"
+       }
+      }
+     },
+     {
+      "role": "Director",
+      "node": {
+       "name": {
+        "full": "Hayao Miyazaki"
+       }
+      }
+     },
+     {
+      "role": "Assistant Director",
+      "node": {
+       "name": {
+        "full": "Masayuki Miyaji"
+       }
+      }
+     },
+     {
+      "role": "Assistant Director",
+      "node": {
+       "name": {
+        "full": "Atsushi Takahashi"
+       }
+      }
+     },
+     {
+      "role": "Title Logo Design",
+      "node": {
+       "name": {
+        "full": "Kaoru Mano"
+       }
+      }
+     },
+     {
+      "role": "Assistance",
+      "node": {
+       "name": {
+        "full": "Fumio Yamazaki"
+       }
+      }
+     },
+     {
+      "role": "Assistance",
+      "node": {
+       "name": {
+        "full": "Kino Arai"
+       }
+      }
+     },
+     {
+      "role": "Art Director",
+      "node": {
+       "name": {
+        "full": "Youji Takeshige"
+       }
+      }
+     },
+     {
+      "role": "Assistant Art Director",
+      "node": {
+       "name": {
+        "full": "Noboru Yoshida"
+       }
+      }
+     },
+     {
+      "role": "Color Design",
+      "node": {
+       "name": {
+        "full": "Michiyo Yasuda"
+       }
+      }
+     },
+     {
+      "role": "Director of Photography",
+      "node": {
+       "name": {
+        "full": "Atsushi Okui"
+       }
+      }
+     },
+     {
+      "role": "Editing",
+      "node": {
+       "name": {
+        "full": "Takeshi Seyama"
+       }
+      }
+     },
+     {
+      "role": "Sound Director",
+      "node": {
+       "name": {
+        "full": "Kazuhiro Wakabayashi"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects",
+      "node": {
+       "name": {
+        "full": "Tooru Noguchi"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects",
+      "node": {
+       "name": {
+        "full": "Michihiro Itou"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Eiko Morikawa"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Mayuka Miyazawa"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Daisuke Murakami"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Toshiaki Abe"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Fumiko Ueda"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Rie Komiya"
+       }
+      }
+     },
+     {
+      "role": "Sound Effects Assistance",
+      "node": {
+       "name": {
+        "full": "Kazuaki Narita"
+       }
+      }
+     },
+     {
+      "role": "Music",
+      "node": {
+       "name": {
+        "full": "Joe Hisaishi"
+       }
+      }
+     },
+     {
+      "role": "Music Producer",
+      "node": {
+       "name": {
+        "full": "Masayoshi Ookawa"
+       }
+      }
+     },
+     {
+      "role": "Music Production",
+      "node": {
+       "name": {
+        "full": "Kazumi Inaki"
+       }
+      }
+     }
+    ]
+   },
+   "externalLinks": [
+    {
+     "site": "Netflix",
+     "url": "https://www.netflix.com/title/60023642"
+    },
+    {
+     "site": "Max",
+     "url": "https://www.max.com/movies/3deab668-d0a4-4a8d-9bc8-0952a0ad836e"
+    },
+    {
+     "site": "Max",
+     "url": "https://www.max.com/movies/00ad6746-f3f0-4f6b-b8ea-0997f5880aa5"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,341 @@
+{
+ "data": {
+  "Media": {
+   "id": 1735,
+   "idMal": 1735,
+   "type": "ANIME",
+   "format": "TV",
+   "status": "FINISHED",
+   "siteUrl": "https://anilist.co/anime/1735",
+   "description": "Naruto: Shippuuden is the continuation of the original animated TV series Naruto. The story revolves around an older and slightly more matured Uzumaki Naruto and his quest to save his friend Uchiha Sasuke from the grips of the snake-like Shinobi, Orochimaru. After 2 and a half years Naruto finally returns to his village of Konoha, and sets about putting his ambitions to work, though it will not be easy, as he has amassed a few (more dangerous) enemies, in the likes of the shinobi organization; Akatsuki. <br><br>\n(Source: Anime News Network)",
+   "episodes": 500,
+   "duration": 23,
+   "chapters": null,
+   "volumes": null,
+   "countryOfOrigin": "JP",
+   "startDate": {
+    "year": 2007,
+    "month": 2,
+    "day": 15
+   },
+   "genres": [
+    "Action",
+    "Adventure",
+    "Comedy",
+    "Drama",
+    "Fantasy",
+    "Supernatural"
+   ],
+   "synonyms": [
+    "Naruto Shippuuden",
+    "Naruto Shippuden",
+    "נארוטו שיפודן",
+    "火影忍者 疾风传",
+    "นารูโตะ ตำนานวายุสลาตัน",
+    "ناروتو شيبودن",
+    "Наруто: Ураганные хроники"
+   ],
+   "title": {
+    "romaji": "NARUTO: Shippuuden",
+    "english": "Naruto: Shippuden",
+    "native": "NARUTO -ナルト- 疾風伝"
+   },
+   "coverImage": {
+    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1735-kGfVm0YqCPcu.png",
+    "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx1735-kGfVm0YqCPcu.png"
+   },
+   "studios": {
+    "edges": [
+     {
+      "isMain": true,
+      "node": {
+       "name": "Studio Pierrot"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "TV Tokyo"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "Aniplex"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "KSS"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "Viz Media"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "Rakuonsha"
+      }
+     },
+     {
+      "isMain": false,
+      "node": {
+       "name": "TV Tokyo Music"
+      }
+     }
+    ]
+   },
+   "staff": {
+    "edges": [
+     {
+      "role": "Original Creator",
+      "node": {
+       "name": {
+        "full": "Masashi Kishimoto"
+       }
+      }
+     },
+     {
+      "role": "Director (eps 1-479)",
+      "node": {
+       "name": {
+        "full": "Hayato Date"
+       }
+      }
+     },
+     {
+      "role": "Series Composition (eps 1-289, 296-479)",
+      "node": {
+       "name": {
+        "full": "Junki Takegami"
+       }
+      }
+     },
+     {
+      "role": "Character Design",
+      "node": {
+       "name": {
+        "full": "Tetsuya Nishio"
+       }
+      }
+     },
+     {
+      "role": "Character Design",
+      "node": {
+       "name": {
+        "full": "Hirofumi Suzuki"
+       }
+      }
+     },
+     {
+      "role": "Editing (eps 480-500)",
+      "node": {
+       "name": {
+        "full": "Seiji Morita"
+       }
+      }
+     },
+     {
+      "role": "Sound Director",
+      "node": {
+       "name": {
+        "full": "Yasunori Ebina"
+       }
+      }
+     },
+     {
+      "role": "Music (eps 2-256, 261-500)",
+      "node": {
+       "name": {
+        "full": "Yasuharu Takanashi"
+       }
+      }
+     },
+     {
+      "role": "Theme Song Performance",
+      "node": {
+       "name": {
+        "full": "AZU"
+       }
+      }
+     },
+     {
+      "role": "Episode Director (eps 5, 29, 63, 77, 90, 97, 105, 111, 125, 147, 156, 163, 171)",
+      "node": {
+       "name": {
+        "full": "Yuuki Kinoshita"
+       }
+      }
+     },
+     {
+      "role": "Episode Director (eps 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 89, 98, 106, 114, 122, 130, 139, 146, 155, 165, 175, 179, 189, 196, 206, 215)",
+      "node": {
+       "name": {
+        "full": "Hiroshi Kimura"
+       }
+      }
+     },
+     {
+      "role": "Storyboard (eps 223, 329)",
+      "node": {
+       "name": {
+        "full": "Tomoyuki Kurokawa"
+       }
+      }
+     },
+     {
+      "role": "Storyboard (eps 40, 48, 80, 89, 98, 106, 122, 130, 165, 175, 206, 215)",
+      "node": {
+       "name": {
+        "full": "Hiroshi Kimura"
+       }
+      }
+     },
+     {
+      "role": "Animation Director (eps 78, 87, 96, 104, 112, 119, 128, 136, 145, 154, 161)",
+      "node": {
+       "name": {
+        "full": "Yukari Kobayashi"
+       }
+      }
+     },
+     {
+      "role": "Animation Director (eps 35, 42, 55, 138)",
+      "node": {
+       "name": {
+        "full": "Masahiko Murata"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Yuuichi Tanaka"
+       }
+      }
+     },
+     {
+      "role": "Key Animation (ep 123)",
+      "node": {
+       "name": {
+        "full": "Chikara Sakurai"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Hiroshi Yakou"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Shuu Watanabe"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Yuuji Takagi"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Katsuya Kikuchi"
+       }
+      }
+     },
+     {
+      "role": "Key Animation",
+      "node": {
+       "name": {
+        "full": "Natsuko Suzuki"
+       }
+      }
+     },
+     {
+      "role": "In-Between Animation",
+      "node": {
+       "name": {
+        "full": "Naoki Kobayashi"
+       }
+      }
+     },
+     {
+      "role": "In-Between Animation",
+      "node": {
+       "name": {
+        "full": "Yuuji Takagi"
+       }
+      }
+     },
+     {
+      "role": "In-Between Animation",
+      "node": {
+       "name": {
+        "full": "Toshirou Fujii"
+       }
+      }
+     }
+    ]
+   },
+   "externalLinks": [
+    {
+     "site": "Crunchyroll",
+     "url": "http://www.crunchyroll.com/naruto-shippuden"
+    },
+    {
+     "site": "Hulu",
+     "url": "http://www.hulu.com/naruto-shippuden"
+    },
+    {
+     "site": "Adult Swim",
+     "url": "https://www.adultswim.com/videos/naruto-shippuden"
+    },
+    {
+     "site": "Netflix",
+     "url": "https://www.netflix.com/title/80000603"
+    },
+    {
+     "site": "Bilibili",
+     "url": "https://www.bilibili.com/bangumi/media/md3287/"
+    },
+    {
+     "site": "Bilibili TV",
+     "url": "https://www.bilibili.tv/play/1005195"
+    },
+    {
+     "site": "Twitter",
+     "url": "https://twitter.com/NARUTOtoBORUTO"
+    },
+    {
+     "site": "Official Site",
+     "url": "https://www.tv-tokyo.co.jp/anime/naruto/index2.html"
+    },
+    {
+     "site": "YouTube",
+     "url": "https://www.youtube.com/@NARUTO_BORUTO_officialchannel"
+    },
+    {
+     "site": "Official Site",
+     "url": "https://naruto-official.com/"
+    }
+   ]
+  }
+ }
+}
