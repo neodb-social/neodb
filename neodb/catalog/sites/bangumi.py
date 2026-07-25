@@ -322,10 +322,17 @@ class Bangumi(AbstractSite):
             titles[o.get("name_cn")] = "zh-cn"
         # Bangumi catalogues mostly Japanese works, whose original titles are
         # often kanji-only: 東京物語 is written the same in Chinese, so pass the
-        # item's own declared language as the tie-breaker.
+        # item's own declared language as the tie-breaker. Only the original
+        # names get the hint -- 别名 is a grab-bag that mixes languages, and a
+        # Chinese alias of a Japanese work must not be tagged Japanese.
         title_hint = next(iter(normalize_languages(language or [])), None)
+        original_titles = {t for t in (title, orig_title) if t}
         localized_title = [
-            {"lang": lang or detect_language(t, title_hint), "text": t}
+            {
+                "lang": lang
+                or detect_language(t, title_hint if t in original_titles else None),
+                "text": t,
+            }
             for t, lang in titles.items()
             if t
         ]

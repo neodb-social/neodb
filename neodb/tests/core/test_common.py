@@ -35,19 +35,21 @@ class TestCommon:
     def test_detect_lang_japanese_without_kana(self):
         """Kanji-only titles are Japanese when they use a Japanese-exclusive
         character form (shinjitai/kokuji), which no statistical model detects."""
-        assert detect_language("攻殻機動隊") == "ja"
         assert detect_language("新世紀福音戦士") == "ja"
         assert detect_language("囲碁") == "ja"
         assert detect_language("黒澤明") == "ja"
         assert detect_language("津軽海峡冬景色") == "ja"
         # Han text sharing all characters with Chinese stays Chinese unless the
-        # caller knows better, since the two are written identically
+        # caller knows better, since the two are written identically. 攻殻機動隊
+        # is here rather than above because 殻 is a traditional Chinese form as
+        # well as a Japanese one, so it is not evidence either way.
         assert detect_language("東京物語") == "zh-tw"
+        assert detect_language("攻殻機動隊") == "zh-tw"
         assert detect_language("東京物語", hint="ja") == "ja"
         assert detect_language("村上春樹", hint="ja") == "ja"
-        # A hint only breaks the Han ja/zh tie. Simplified forms are no evidence
-        # against Japanese (体 and 国 are both shinjitai and simplified
-        # Chinese), so the hint still wins for any Han-only string...
+        assert detect_language("攻殻機動隊", hint="ja") == "ja"
+        # Simplified forms that Japanese also uses (体, 国) are no evidence
+        # against Japanese, so the hint still decides...
         assert detect_language("三体", hint="ja") == "ja"
         # ...but a non-Han script is real evidence and always wins.
         assert detect_language("오징어 게임", hint="ja") == "ko"
@@ -103,6 +105,56 @@ class TestCommon:
         assert detect_language("Orléans") == "fr"
         assert detect_language("Le Havre") == "fr"
         assert detect_language("Puerto Rico") == "es"
+
+    def test_detect_lang_traditional_chinese_not_japanese(self):
+        """Hong Kong and Taiwan variant forms are not Japanese-exclusive. They
+        live outside plain Big5, so generating the Japanese set from `big5`
+        rather than `big5hkscs` sweeps them in and tags 林峯 as Japanese."""
+        for title in ("林峯", "啓示錄", "大衆電影", "鷄同鴨講", "顔", "半澤直樹"):
+            assert detect_language(title) == "zh-tw", title
+
+    def test_detect_lang_hint_yields_to_evidence(self):
+        """A hint breaks the ja/zh tie but never overrides the text itself."""
+        # simplified-only forms are outside the Japanese repertoire
+        for title in ("东京物语", "红楼梦", "千与千寻", "语文"):
+            assert detect_language(title, hint="ja") == "zh-cn", title
+        # forms Japanese does share stay open to the hint
+        assert detect_language("三体", hint="ja") == "ja"
+        assert detect_language("東京物語", hint="ja") == "ja"
+
+    def test_detect_lang_ignores_incidental_cjk(self):
+        """One CJK character must not decide a long Latin string: detect_language
+        runs on `brief`/`description` in a dozen scrapers."""
+        assert (
+            detect_language(
+                "A biography of the director whose name is written 黒澤 in "
+                "kanji, an English text of some length discussing his films."
+            )
+            == "en"
+        )
+        assert (
+            detect_language(
+                "An essay on the concept of 道 in classical thought, written "
+                "entirely in English for a general audience."
+            )
+            == "en"
+        )
+        # but a genuinely bilingual title is still Chinese
+        assert detect_language("巫师3：狂猎 The Witcher 3: Wild Hunt") == "zh-cn"
+        assert detect_language("君の名は。 Your Name") == "ja"
+
+    def test_detect_lang_own_script_languages(self):
+        """Languages with a script of their own cost nothing in confusability
+        and must not fall out of the candidate set as 'x'."""
+        assert detect_language("ვეფხისტყაოსანი") == "ka"
+        assert detect_language("Սասունցի Դավիթ") == "hy"
+        assert detect_language("తెలుగు కథలు") == "te"
+        assert detect_language("ગુજરાતી સાહિત્ય") == "gu"
+
+    def test_detect_lang_elided_article(self):
+        """An apostrophe ends the first word, so L' is seen as an article."""
+        assert detect_language("L'Eclisse") == "it"
+        assert detect_language("L'Avventura") == "it"
 
     def test_detect_lang_is_deterministic(self):
         """The old langdetect backend returned different answers across calls

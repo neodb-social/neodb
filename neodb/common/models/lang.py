@@ -465,38 +465,67 @@ _hangul = re.compile(r"[\uAC00-\uD7AF\u1100-\u11FF]")  # Hangul → ko
 _han = re.compile(r"[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]")
 # Iteration/repetition marks used in Japanese but not in Chinese
 _ja_marks = re.compile(r"[々〆ヶゝゞヽヾ]")
+_latin_letter = re.compile(r"[A-Za-z]")
 
-# Ideographs encodable in JIS X 0208 but in neither GB2312 nor Big5, i.e. the
-# shinjitai and kokuji forms that are exclusive to Japanese (円 図 楽 殻 黒 ...).
-# Their presence identifies Japanese text that contains no kana at all, which
-# no statistical detector can do: lingua reports Chinese with confidence 1.00
-# for 攻殻機動隊 and 黒澤明. Regenerate with:
-#   [chr(c) for c in range(0x3400, 0xA000)
-#    if enc(c, "shift_jis") and not enc(c, "gb2312") and not enc(c, "big5")]
+# Ideographs in JIS X 0208 but in neither GB2312, Big5-HKSCS nor the
+# traditional list above: the shinjitai and kokuji exclusive to Japanese
+# (黒 囲 営 図 楽 読 ...). Their presence identifies Japanese text containing no
+# kana at all, which no statistical detector manages -- lingua reports Chinese
+# with confidence 1.00 for every Han-only string. Regenerate with:
+#   [chr(c) for c in range(0x3400, 0xA000) if enc(c, "shift_jis")
+#    and not enc(c, "gb2312") and not enc(c, "big5hkscs") and c not in _tc_char]
+# Plain "big5" is wrong here: it omits the HKSCS/ETen extensions, so Hong Kong
+# and Taiwan variant forms (峯 啓 眞 衆 鷄) end up looking Japanese-exclusive.
 _JA_ONLY_HAN = frozenset(
-    "丗両乕乗乢亀亅亊亜亰仏仭仮伜価侫侭俤俥値倶倹偐偖偸働僞儁儖兎児兪円冐冦冨冩冴凖処凧凩凪凾刄刋刔刧剏剣剤剰剱剳劒劔労劵効勅勠勧勲匁匂匳匸卆"
-    "単厠厰厳収叺呉呑呟呪咲哘唖啌啓啝喞喩喰営噐噛噺嚊嚔嚠嚢囎囘団囲図圀圏圦圧圷圸坿垈垉垪垰垳埀埓埖堺塀塁塩塰塲増墸墹墻壊壌壗壜壥壱売壷壻変夊"
-    "夐夘夛夲奨奬妛妬姉姙姫娚娯嫐嫺嬢嬶宍実寃寉寛寳対専尅尓尠尭屓屶岻岼岾峅峠峩峯峺崕崘嵜嵳嵶嶋嶌嶐巌巓巣巵巻帋帯帰幇幤庁広廃廏廐廰廸廻廼弉弌"
-    "弍弐弖弾彁彑彜徃従徳徴応忰怱怺恊恠恵恷悋悧悩悪悳惣愡愼愽慂慙慯憇憙懐懴戝戞戦戯戸戻払扨抂抜択拝拠拡挙挧挿捜掲掵掻揺摂撃撹擡擧擶攅敍斈斉斎"
-    "旙昿晄晧晩暁暃暎暦暼曁曵曽朖朞朶朷杁杢杣杤枠枡枦枩査柾栂栃栄栞栢桙桜桝桟梍梶梹梺梼棊椀椙椚椛検椡椢椣椦椨椶楕楡楳楽楾榁榊榲槇様槝槞槹樋樌"
-    "樒樢権樫樮樶橲橸檪櫁欅欝欟歓歩歯歳歴殱殻毎毟気氷汚汢沢浄涙涜渇済渉渋渓渕湶満溂溌滝漑潅澁澑濳濶瀞瀬烱焔焼煕熈熕燗燵爲爼牀犂犇犠犲狛狢猟猯"
-    "獏獣珎珱瑠璢瓧瓰瓱瓲瓸甅甎甞産甼畄畆畉畊畍畑畠畧畩畭畳疂疉疎痩瘻癧癨癶発皀皃皐皷皹県眞眤瞹砕砿硲硴碁碯碵磆礇禝秡稲稾穂穃穉穏穐穣穽窓窰竃"
-    "竈竍竏竒竓竕竚竜竝竡竢竪竰竸笂笶笹筬筺箆箒箚箟篏篭篶簒簓簔簗籏籖籘籾粂粃粋粐粛粧粫粭糀糂糘糺絋経絵絶綉継続綛綫総緑緕緜緤縁縄縅縦繊繋繍繝"
-    "繦繧繿纃纉纎纐纒罎罸羂羣羮翆聟聡聢聨聴肬脇脳腟膓膤膸臈臓舎舗舘舩舮艝艢艪艶苅茘茣荘莟莵菓菷萠萢萪葢蒄蒭蓙蓚蔵蕋蕚薗薫薬蘂蘓蘯蘰蚫蛍蛯蝋蝿"
-    "蟇蟐蠎蠏蠧衂衆衞袮袰袴袵袿裃裄裏褄褝襃襍襷覇覊覚覧覩観觧訳説読諌諚謌謡譌譛譱譲讃讐谺豼貎貭貮賍賎賛贋赱踈躙躰躱躾軅軆軈転軣軽輌輙轌轜辧辷"
-    "辺辻込迚迯逎逓逧逹遅遖遡邉邨郷酔醗醤醸釈釖釛釟釡釶釼鈎鈩鈬鉄鉢鉱銭銹鋭鋲鋳錬録錺錻鍄鍮鎭鎹鏥鐚鐡鑁鑓鑚鑛閇閊閖閙閠関閧閲闘陥陦険隠隣隲隷"
-    "雑雫霊靤靫靭靱靹鞆鞐韈韮韲頚頬頴頼頽顋顔顕颪飃飜飮餝餠饂馼駄駅駆駈駲騒験騨髄髞髢髪髴鬪鮃鮎鮖鮗鮟鮴鯏鯑鯒鯣鯱鯲鯵鰄鰊鰌鰐鰕鰛鰮鰯鰰鰺鱇鱚"
-    "鱶鳫鳬鳰鴎鴪鴫鴬鵄鵆鵈鵐鵞鵤鵺鶏鶫鷄鷆鹸麁麕麪麹麺麿黒黙鼈鼡齢龝"
+    "丗乕乗乢亊亜亰仏仭伜価侭値倶倹偐偸儖兎児冐冦冩凖処凧凩凪刄刔剏剣剤剰剱劒労勧勲匂卆単厳収叺呉呑呟哘唖啌喞営噛嚔嚠嚢囎囘団囲図圏圦圧圷圸垉"
+    "垰垳埀埓埖塁塰増墸墹壊壌壥壱壷変夐夘夛奨妛娯嫐嬢嬶宍寉対専尭屶岻岼岾峅峠峺嵜嵳嵶嶌嶐巌巓巣巻帯帰幇幤庁廃廏廰弉弐弖弾彁従徳徴応忰怺恠悋悩"
+    "悪愡愼懴戝戞戦戯戸戻払抜択拝拠拡挙挧挿捜掲掵掻揺摂撃撹擶攅斎旙昿晩暁暃暦暼曁曵曽朷杁杣杤枡枦枩桙桜桟梍梺梼検椡椢椣椦椨楽楾榁槇様槝槞樒権"
+    "樮樶橲橸檪櫁欟歓歩歳殱毎毟気汢浄涙涜渇済渉渋渓満溂溌漑潅澑濳焔焼煕熕燗爼犠狛猟猯獣珱璢甼畄畉畩畳疂疉痩癨皀皃皹砕砿硲硴碵磆礇秡稲穂穏穐穣"
+    "竍竒竕竡竰竸笂笶筺箆箚箟篭篶簓簔簗籏籘粂粋粐粛粫粭糀糘絋経絵継続綛緕縁縄縅縦繊繋繍繝繦纃纉纐羂翆聟聨聴肬脳腟膤膸臓舎舗舮艝艪苅茣荘莟莵菷"
+    "萢萪蒄蓙蔵薫薬蘓蘰蚫蛍蝋蝿蟇蟐蠎袰裃裄褄褝覚観訳読譛譱譲谺豼貎貮賎赱踈躙躱躾軅軆軈軣軽輌轌迯逎逓逧逹遅邉郷酔醗醤醸釈釛釡釼鈩鈬鉱銭錺錻鎹"
+    "鐚鐡鑁鑓鑚閇閊闘陥陦険隠隲隷雑雫霊靤靫靹鞆鞐頚頬頼顕颪飮餝餠駆駈駲騒験騨髄髞髪鮖鮴鯑鯣鯲鯵鰄鰰鱶鳫鳰鴎鴪鴫鴬鵆鵈鵤鵺鶏鷆鹸麹麺黒黙鼡龝"
 )
 
-# Candidate set handed to lingua. A narrower set is both faster and more
-# accurate (fewer confusable neighbours), so it covers the languages that
-# actually occur in catalog metadata plus whatever the site itself uses.
-# Operators wanting broader coverage can extend _DETECT_BASELINE_LANGUAGES.
+# Route to a CJK language only when CJK characters actually carry the string.
+# The replaced implementation required the whole string to be ASCII+CJK; with no
+# test at all, one kanji in a long English description decides its language.
+_CJK_MIN_SHARE = 0.1
+
+
+def _cjk_share(s: str) -> float:
+    """Share of the letters in ``s`` that are CJK rather than Latin."""
+    cjk = len(_han.findall(s)) + len(_kana.findall(s)) + len(_hangul.findall(s))
+    if not cjk:
+        return 0.0
+    return cjk / (cjk + len(_latin_letter.findall(s)))
+
+
+def _has_chinese_only_han(s: str) -> bool:
+    """Whether ``s`` uses an ideograph outside the Japanese repertoire.
+
+    JIS X 0213 covers the characters Japanese is written with, so a Han
+    character it cannot encode (东 语 药 门 车) is positive evidence of Chinese
+    and must outweigh a caller's ``hint``.
+    """
+    for ch in s:
+        if _han.match(ch):
+            try:
+                ch.encode("shift_jis_2004")
+            except UnicodeEncodeError:
+                return True
+    return False
+
+
+# Candidate set handed to lingua. A narrow set is faster and more accurate,
+# since most of the errors on short text are between confusable neighbours, so
+# this covers the languages that occur in catalog metadata plus whatever the
+# site itself uses. The second row is languages with a script of their own:
+# they cost nothing in confusability and would otherwise come back "x".
 _DETECT_BASELINE_LANGUAGES = [
     "ar", "bn", "cs", "da", "de", "el", "en", "es", "fa", "fi", "fr", "he",
     "hi", "hu", "id", "it", "ja", "ko", "nl", "pl", "pt", "ro", "ru", "sv",
     "ta", "th", "tr", "uk", "vi", "zh",
+    "gu", "hy", "ka", "pa", "te",
 ]  # fmt: skip
 _detector: LanguageDetector | None = None
 
@@ -506,7 +535,10 @@ def _build_detector() -> LanguageDetector:
     for k in _DETECT_BASELINE_LANGUAGES + SITE_PREFERRED_LANGUAGES + TOP_USED_LANGUAGES:
         base = k.split("-")[0].upper()
         iso = getattr(IsoCode639_1, base, None)
-        if iso is not None and iso not in codes:
+        if iso is None:
+            # e.g. "no": lingua models Bokmål and Nynorsk, not macro-Norwegian
+            logger.warning(f"{k} is not supported by the language detector")
+        elif iso not in codes:
             codes.append(iso)
     return LanguageDetectorBuilder.from_iso_codes_639_1(*codes).build()
 
@@ -549,24 +581,27 @@ _EN_NEAR_TIE_RATIO = 0.6
 _EN_WEAK_WINNER = 0.2
 
 # Leading articles are the strongest clue short text offers, and separate the
-# Romance languages lingua confuses ("Os Colonizadores", "El Grande"). Forms
-# shared between candidate languages only mark the title as article-opening,
-# since they cannot pick a language on their own. English titles borrow foreign
-# articles freely ("El Camino", "Die Hard"), so an article overrides the winner
-# only when its own language outranks English.
+# Romance languages lingua confuses ("Os Colonizadores", "El Grande"). Each maps
+# to the languages it can belong to: one candidate overrides lingua's winner
+# outright, several mean the article only narrows the field, so the best-ranked
+# candidate wins. Because English titles borrow foreign articles freely, a
+# candidate must outrank English, which keeps "El Camino: A Breaking Bad Movie"
+# in English. That is a safeguard rather than a cure: "Die Hard" still comes out
+# German, as it did under langdetect.
 _LEADING_ARTICLES = {
-    "das": "de", "dem": "de", "der": "de", "die": "de", "ein": "de",
-    "eine": "de", "einer": "de",
-    "el": "es", "las": "es", "los": "es",
-    "gli": "it", "il": "it", "lo": "it",
-    "o": "pt", "os": "pt", "um": "pt", "uma": "pt",
-    "du": "fr", "les": "fr", "une": "fr",
-    "het": "nl",
+    "das": ("de",), "dem": ("de",), "der": ("de",), "die": ("de",),
+    "ein": ("de",), "eine": ("de",), "einer": ("de",),
+    "el": ("es",), "las": ("es",), "los": ("es",),
+    "gli": ("it",), "il": ("it",), "lo": ("it",),
+    "o": ("pt",), "os": ("pt",), "um": ("pt",), "uma": ("pt",),
+    "du": ("fr",), "les": ("fr",), "une": ("fr",),
+    "het": ("nl",),
+    "l": ("fr", "it"), "la": ("es", "fr", "it"), "le": ("fr", "it"),
+    "un": ("es", "fr", "it"), "una": ("es", "it"), "uno": ("es", "it"),
+    "de": ("nl", "pt"), "den": ("da", "de", "sv"), "det": ("da", "sv"),
 }  # fmt: skip
-_AMBIGUOUS_ARTICLES = frozenset(
-    ("a", "as", "de", "den", "det", "la", "le", "un", "una", "uno", "l")
-)
-_RE_FIRST_WORD = re.compile(r"[\s,:;.!?]+")
+# Apostrophes split too, so an elided article ("L'Eclisse") is recognised
+_RE_FIRST_WORD = re.compile(r"[\s,:;.!?'’`]+")
 
 
 def _detect_latin(s: str) -> str:
@@ -578,25 +613,28 @@ def _detect_latin(s: str) -> str:
     best = values[0].value
     code = values[0].language.iso_code_639_1.name.lower()
     en = conf.get("en", 0.0)
-    first = _RE_FIRST_WORD.split(s.strip().lower(), 1)[0].strip("'’`")
-    article = _LEADING_ARTICLES.get(first)
+    first = _RE_FIRST_WORD.split(s.strip().lower(), 1)[0]
+    candidates = _LEADING_ARTICLES.get(first, ())
     if code != "en" and (
         (en > 0 and en / best >= _EN_NEAR_TIE_RATIO)
-        or (best < _EN_WEAK_WINNER and not article and first not in _AMBIGUOUS_ARTICLES)
+        or (best < _EN_WEAK_WINNER and not candidates)
     ):
         code = "en"
-    if article and article != code and conf.get(article, 0.0) >= max(en, 1e-9):
-        code = article
+    if candidates:
+        article = max(candidates, key=lambda c: conf.get(c, 0.0))
+        if article != code and conf.get(article, 0.0) >= max(en, 1e-9):
+            code = article
     return code
 
 
 def detect_language(s: str, hint: str | None = None) -> str:
     """Best-effort IETF language tag for ``s``.
 
-    ``hint`` is the language the caller expects, used only to break the tie
-    that character data cannot: Han text with no Japanese-exclusive character
+    ``hint`` is the language the caller expects. It only breaks the tie that
+    character data cannot: Han text with no Japanese-exclusive character
     (東京物語, 村上春樹) is written identically in Chinese and Japanese, so a
-    scraper that knows its source is Japanese should say so.
+    scraper that knows its source is Japanese should say so. Evidence in the
+    text always wins over the hint.
     """
     if not s or not s.strip():
         return "x"
@@ -605,15 +643,18 @@ def detect_language(s: str, hint: str | None = None) -> str:
         # all-ASCII single token is still ambiguous and overwhelmingly English
         # in catalog metadata.
         return "en"
-    if _hangul.search(s):
-        return "ko"
-    if _kana.search(s) or _ja_marks.search(s) or (_JA_ONLY_HAN & set(s)):
-        return "ja"
-    if _han.search(s):
-        base = (hint or "").split("-")[0].lower()
-        if base in ("ja", "ko"):
-            return base
-        return _zh_variant(s)
+    if _cjk_share(s) >= _CJK_MIN_SHARE:
+        if _kana.search(s) or _ja_marks.search(s):
+            return "ja"
+        if _hangul.search(s):
+            return "ko"
+        if _JA_ONLY_HAN & set(s):
+            return "ja"
+        if _han.search(s):
+            base = (hint or "").split("-")[0].lower()
+            if base in ("ja", "ko") and not _has_chinese_only_han(s):
+                return base
+            return _zh_variant(s)
     code = _detect_latin(s)
     # romanised Chinese has no Han characters to inspect, so it falls back to
     # the simplified variant like any other indeterminate Chinese string
