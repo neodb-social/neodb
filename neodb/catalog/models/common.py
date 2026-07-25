@@ -57,6 +57,7 @@ class SiteName(models.TextChoices):
     YouTubeMusic = "yt_music", _("YouTube Music")
     RateYourMusic = "rateyourmusic", _("RateYourMusic")
     AniList = "anilist", _("AniList")
+    Readmoo = "readmoo", _("Readmoo")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -86,6 +87,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     DoubanDrama = "doubandrama", _("Douban Drama")
     DoubanDramaVersion = "doubandrama_version", _("Douban Drama Version")
     BooksTW = "bookstw", _("BooksTW Book")
+    Readmoo = "readmoo", _("Readmoo Book")
     BibliotekDK_Edition = "bibliotekdk_edition", _("Bibliotek.dk")
     BibliotekDK_eReolen = "bibliotekdk_ereolen", _("eReolen.dk")
     BibliotekDK_Work = "bibliotekdk_work", _("Bibliotek.dk")

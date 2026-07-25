@@ -27,6 +27,7 @@ from .musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
 from .openlibrary import OpenLibrary, OpenLibrary_Work
 from .qidian import Qidian
 from .rateyourmusic import RateYourMusic
+from .readmoo import Readmoo
 from .rss import RSS
 from .spotify import Spotify
 from .steam import Steam
@@ -69,6 +70,7 @@ __all__ = [
     "JJWXC",
     "Qidian",
     "RateYourMusic",
+    "Readmoo",
     "RSS",
     "Spotify",
     "Steam",

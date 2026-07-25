@@ -392,6 +392,129 @@ class TestBooksTW:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestReadmoo:
+    def test_parse(self):
+        t_type = IdType.Readmoo
+        t_id = "210484376000101"
+        t_url = "https://readmoo.com/book/210484376000101"
+        for u in [
+            t_url,
+            "http://readmoo.com/book/210484376000101",
+            "https://www.readmoo.com/book/210484376000101",
+            "https://m.readmoo.com/book/210484376000101",
+            "https://readmoo.com/book/210484376000101?utm_source=share",
+        ]:
+            p = SiteManager.get_site_by_url(u)
+            assert p is not None
+            assert p.ID_TYPE == t_type
+            assert p.id_value == t_id
+            assert p.url == t_url
+
+    @use_local_response
+    def test_scrape(self):
+        # a translated title: 原文作者 restates the author and is not collected
+        t_url = "https://readmoo.com/book/210484376000101"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        assert site.ready is False
+        site.get_resource_ready()
+        assert site.ready is True
+        assert site.resource is not None
+        assert site.resource.metadata.get("title") == "我是馬拉拉，也是我自己"
+        assert site.resource.metadata.get("subtitle") is None
+        assert site.resource.metadata.get("orig_title") == "Finding My Way : A Memoir"
+        assert site.resource.metadata.get("author") == ["馬拉拉．優薩福扎伊"]
+        assert site.resource.metadata.get("translator") == ["張芷盈"]
+        assert site.resource.metadata.get("publisher") == ["天下雜誌出版"]
+        assert site.resource.metadata.get("pub_year") == 2026
+        assert site.resource.metadata.get("pub_month") == 7
+        assert site.resource.metadata.get("language") == ["zh-tw"]
+        assert site.resource.metadata.get("binding") == "流動版面 EPUB"
+        assert site.resource.metadata.get("price") == "TWD 323"
+        # 字數 is a word count, not a page count
+        assert site.resource.metadata.get("pages") is None
+        assert site.resource.metadata.get("series") is None
+        # the print ISBN is preferred over the eISBN (9786267916247)
+        assert site.resource.metadata.get("isbn") == "9786267916254"
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9786267916254"
+        assert site.resource.metadata.get("brief", "").startswith(
+            "大多數人認識的馬拉拉，是那位在十五歲遭塔利班槍擊後倖存"
+        )
+        assert "1 從人權鬥士到牛津大學生" in site.resource.metadata.get("contents", "")
+        assert site.resource.id_type == IdType.Readmoo
+        assert site.resource.id_value == "210484376000101"
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        assert site.resource.item.isbn == "9786267916254"
+        assert site.resource.item.format == "ebook"
+        assert site.resource.item.display_title == "我是馬拉拉，也是我自己"
+        assert site.resource.item.language == ["zh-tw"]
+
+    @use_local_response
+    def test_scrape_series(self):
+        t_url = "https://readmoo.com/book/210453057000101"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.metadata.get("title") == "莊子，從心開始【增訂紀念版】肆"
+        assert site.resource.metadata.get("subtitle") == "陶養鬆柔，習慣自然"
+        # the volume count Readmoo appends is stripped
+        assert site.resource.metadata.get("series") == "莊子，從心開始【增訂紀念版】"
+        assert site.resource.metadata.get("author") == ["蔡璧名"]
+        assert site.resource.metadata.get("translator") == []
+        assert site.resource.metadata.get("isbn") == "9786264442176"
+        assert site.resource.item is not None
+        assert site.resource.item.display_title == "莊子，從心開始【增訂紀念版】肆"
+        assert site.resource.item.localized_subtitle == [
+            {"lang": "zh-tw", "text": "陶養鬆柔，習慣自然"}
+        ]
+
+    @use_local_response
+    def test_scrape_eisbn_only(self):
+        # published without a print counterpart, so the eISBN is used
+        t_url = "https://readmoo.com/book/210395030000101"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert (
+            site.resource.metadata.get("title") == "很小很小的小偏方：女人煩惱一掃而光"
+        )
+        assert site.resource.metadata.get("isbn") == "9789865636623"
+        assert site.resource.metadata.get("binding") == "固定版面 EPUB"
+        # fixed layout titles report 頁數 instead of 字數
+        assert site.resource.metadata.get("pages") == 288
+        assert site.resource.metadata.get("pub_year") is None
+        assert site.resource.metadata.get("pub_month") is None
+        assert site.resource.item is not None
+        assert site.resource.item.isbn == "9789865636623"
+        assert site.resource.item.format == "ebook"
+
+    @use_local_response
+    def test_scrape_without_isbn(self):
+        # magazines carry neither ISBN nor eISBN
+        t_url = "https://readmoo.com/book/220373578000101"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert (
+            site.resource.metadata.get("title") == "康軒學習雜誌進階版469期 2023/01/15"
+        )
+        assert site.resource.metadata.get("isbn") is None
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) is None
+        assert site.resource.metadata.get("author") == ["康軒學習雜誌編輯部"]
+        assert site.resource.metadata.get("publisher") == ["康軒文教"]
+        assert site.resource.metadata.get("pub_year") == 2023
+        assert site.resource.metadata.get("pub_month") == 1
+        assert site.resource.metadata.get("pages") == 64
+        assert site.resource.item is not None
+        assert isinstance(site.resource.item, Edition)
+        assert site.resource.item.format == "ebook"
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestDoubanBook:
     def test_parse(self):
         t_type = IdType.DoubanBook
