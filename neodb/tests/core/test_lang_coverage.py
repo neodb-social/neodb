@@ -1,9 +1,13 @@
+from typing import Any
+
 import pytest
 from django.conf import settings
 from django.utils import translation
 
 import catalog.models.common as catalog_common
+import catalog.sites.tmdb as tmdb
 import common.models.lang as lang
+from catalog.common.downloaders import BasicDownloader
 from common.models.lang import get_current_locales, localize_number
 
 
@@ -88,6 +92,44 @@ class TestPreferredLanguagesIsolation:
             assert list(settings.PREFERRED_LANGUAGES) == original_setting
         finally:
             lang.SITE_PREFERRED_LANGUAGES[:] = original_cache
+
+
+class TestLanguageConsumersFollowSettings:
+    """settings.LANGUAGE_CODE is runtime-configurable, so values derived from it
+    must not stay pinned to whatever was in the environment at startup."""
+
+    def test_tmdb_keeps_no_import_time_language_cache(self) -> None:
+        """These were module constants, so TMDB requests kept the startup
+        language for the life of the process. Keep them per-call."""
+        assert not hasattr(tmdb, "TMDB_DEFAULT_LANG")
+        assert not hasattr(tmdb, "TMDB_PREFERRED_LANGS")
+
+    def test_tmdb_language_is_resolved_per_call(self, settings: Any) -> None:
+        settings.LANGUAGE_CODE = "zh-hant"
+
+        assert tmdb._get_language_code() == "zh-TW"
+
+    def test_tmdb_preferred_languages_are_resolved_per_call(self) -> None:
+        original = list(lang.SITE_PREFERRED_LANGUAGES)
+        try:
+            lang.SITE_PREFERRED_LANGUAGES[:] = ["ja", "en"]
+
+            assert list(tmdb._get_preferred_languages()) == ["ja", "en"]
+        finally:
+            lang.SITE_PREFERRED_LANGUAGES[:] = original
+
+    def test_downloader_accept_language_follows_a_refresh(self, settings: Any) -> None:
+        original = BasicDownloader.headers["Accept-Language"]
+        try:
+            settings.LANGUAGE_CODE = "zh-hans"
+
+            lang.refresh_language_caches()
+
+            assert BasicDownloader.headers["Accept-Language"].startswith("zh-CN")
+            # callers that spread the class attribute see it too
+            assert {**BasicDownloader.headers}["Accept-Language"].startswith("zh-CN")
+        finally:
+            BasicDownloader.headers["Accept-Language"] = original
 
 
 class TestLanguageCacheRefresh:

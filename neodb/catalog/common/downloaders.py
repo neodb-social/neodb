@@ -17,7 +17,7 @@ from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
 
-from common.models import SiteConfig
+from common.models import SiteConfig, register_language_cache_refresh
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
 from common.validators import is_valid_url
@@ -207,6 +207,10 @@ class BasicDownloader:
         "Cache-Control": "no-cache",
     }
 
+    @classmethod
+    def _refresh_accept_language(cls) -> None:
+        cls.headers["Accept-Language"] = cls.get_accept_language()
+
     @property
     def timeout(self):
         if hasattr(self, "_timeout"):
@@ -289,6 +293,12 @@ class BasicDownloader:
         if self.response_type == RESPONSE_OK and resp:
             return resp
         raise DownloadError(self)
+
+
+# headers is a class attribute that callers also read directly (and spread into
+# their own dicts), so the language entry is rewritten in place when the site
+# language settings change rather than resolved per request.
+register_language_cache_refresh(BasicDownloader._refresh_accept_language)
 
 
 class BasicDownloader2(BasicDownloader):

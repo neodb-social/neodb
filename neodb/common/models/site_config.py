@@ -399,20 +399,25 @@ class SiteConfig(models.Model):
         ]
         lang_module.SITE_DEFAULT_LANGUAGE = lang_module.SITE_PREFERRED_LANGUAGES[0]
         lang_module.SITE_PREFERRED_LOCALES[:] = lang_module.get_preferred_locales()
-        if previous_languages != lang_module.SITE_PREFERRED_LANGUAGES:
-            # Ordering of the language/locale/script choices follows the preferred
-            # list. Rebuilding is not free and mutates shared lists in place, so
-            # only do it when the preferred languages actually changed.
-            lang_module.refresh_language_caches()
+        languages_changed = previous_languages != lang_module.SITE_PREFERRED_LANGUAGES
 
-        # Default UI language, read live by users.middlewares.LanguageMiddleware
-        if settings.LANGUAGE_CODE != opts.language_code:
+        # Default UI language, read live by users.middlewares.LanguageMiddleware.
+        # Assigned before the refresh below so consumers derived from it see the
+        # new value.
+        language_code_changed = settings.LANGUAGE_CODE != opts.language_code
+        if language_code_changed:
             settings.LANGUAGE_CODE = opts.language_code
             # trans_real caches the default translation object, built from
             # LANGUAGE_CODE on first use and consulted whenever no language is
             # active (RQ jobs, management commands). Django resets it the same
             # way when LANGUAGE_CODE changes, in django/test/signals.py.
             trans_real._default = None  # ty: ignore[unresolved-attribute]
+
+        if languages_changed or language_code_changed:
+            # Rebuilds the choice caches (ordered by the preferred list) and
+            # notifies everything derived from either setting. Not free, and it
+            # mutates shared objects in place, so only run it on a real change.
+            lang_module.refresh_language_caches()
 
         # Timeouts read from settings at call time in mastodon/takahe clients
         settings.MASTODON_TIMEOUT = opts.mastodon_timeout

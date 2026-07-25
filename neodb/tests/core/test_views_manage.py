@@ -413,8 +413,11 @@ class TestLanguageCodeApply:
 
             assert SiteConfig.system.language_code == "zh-hans"
             assert settings.LANGUAGE_CODE == "zh-hans"
-            # the cached default translation must not survive the change
-            assert trans_real._default is None  # ty: ignore[unresolved-attribute]
+            # No catalog for the old language may survive. It is dropped on
+            # change, and anything that forces a lazy string afterwards (the
+            # cache refresh does) rebuilds it for the new language.
+            cached = trans_real._default  # ty: ignore[unresolved-attribute]
+            assert cached is None or cached.language() == "zh-hans"
         finally:
             SiteConfig.objects.filter(pk=1).delete()
             settings.LANGUAGE_CODE = old_language
