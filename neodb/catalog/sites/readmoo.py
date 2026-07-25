@@ -160,16 +160,14 @@ class Readmoo(AbstractSite):
         img_url = _str(content, "//meta[@property='og:image']/@content") or None
 
         lang = language or "zh-tw"
+        localized_subtitle = [{"lang": lang, "text": subtitle}] if subtitle else []
+        localized_description = [{"lang": lang, "text": brief}] if brief else []
         data = {
             "title": title,
             "subtitle": subtitle or None,
             "localized_title": [{"lang": lang, "text": title}],
-            "localized_subtitle": (
-                [{"lang": lang, "text": subtitle}] if subtitle else []
-            ),
-            "localized_description": (
-                [{"lang": lang, "text": brief}] if brief else []
-            ),
+            "localized_subtitle": localized_subtitle,
+            "localized_description": localized_description,
             "orig_title": orig_title or None,
             "author": authors,
             "translator": translators,
