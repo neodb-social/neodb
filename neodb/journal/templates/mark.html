@@ -60,11 +60,7 @@
       {% endif %}
       <div>
         <fieldset>
-          <textarea name="text"
-                    rows="5"
-                    autofocus
-                    placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
-                    id="id_text">{{ mark.comment_text|default:"" }}</textarea>
+          {{ form.text }}
         </fieldset>
       </div>
       <div>
@@ -105,14 +101,10 @@
         <div>
           <fieldset>
             {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
-              <label for="id_share_to_mastodon">
-                <input role="switch"
-                       type="checkbox"
-                       name="share_to_mastodon"
-                       id="id_share_to_mastodon"
-                       value="1"
-                       {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                {% trans "Crosspost to timeline" %}
+              <label for="{{ form.share_to_mastodon.id_for_label }}"
+                     title="{{ form.share_to_mastodon.help_text }}">
+                {{ form.share_to_mastodon }}
+                {{ form.share_to_mastodon.label }}
               </label>
             {% endif %}
           </fieldset>

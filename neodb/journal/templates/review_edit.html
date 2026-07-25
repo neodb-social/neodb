@@ -10,7 +10,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans 'Review' %} - {{ item.display_title }}</title>
     {% include "common_libs.html" %}
-    <style type="text/css">#id_visibility, #id_visibility li {padding-left:0; margin-bottom:0; display: inline-block !important;}</style>
+    <style type="text/css">
+      #id_visibility,
+      #id_visibility li {
+        padding-left: 0;
+        margin-bottom: 0;
+        display: inline-block !important;
+      }
+    </style>
   </head>
   <body>
     {% include "_header.html" %}
@@ -25,14 +32,14 @@
             <div class="grid">
               <div>{{ form.visibility }}</div>
               <div>
-                <label for="id_share_to_mastodon">
+                <label for="id_share_to_mastodon"
+                       title="{{ form.share_to_mastodon.help_text }}">
                   {{ form.share_to_mastodon }}
                   {{ form.share_to_mastodon.label }}
                 </label>
-                <label for="id_leading_space">
+                <label for="id_leading_space" title="{{ form.leading_space.help_text }}">
                   {{ form.leading_space }}
                   {{ form.leading_space.label }}
-                  <a data-tooltip="{{ form.leading_space.help_text }}"><i class="fa-solid fa-circle-info"></i></a>
                 </label>
               </div>
             </div>
@@ -51,11 +58,11 @@
               </label>
             </div>
             <script type="text/javascript">
-                  $("#mark_anotherday").on('click', ()=>{
-                    if ($("#mark_anotherday:checked").val() == '1') {
-                      $("#mark_date").show()
+                  $("#mark_anotherday").on("click", () => {
+                    if ($("#mark_anotherday:checked").val() == "1") {
+                      $("#mark_date").show();
                     } else {
-                      $("#mark_date").hide()
+                      $("#mark_date").hide();
                     }
                   });
             </script>
@@ -68,9 +75,9 @@
       </aside>
     </main>
     <script>
-          $(".spoiler").on('click', function(){
-            $(this).toggleClass('revealed');
-          })
+          $(".spoiler").on("click", function () {
+            $(this).toggleClass("revealed");
+          });
     </script>
     {% include "_footer.html" %}
   </body>

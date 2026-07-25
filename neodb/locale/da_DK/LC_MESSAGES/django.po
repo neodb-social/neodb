@@ -3236,8 +3236,8 @@ msgid "Comment"
 msgstr "Kommentar"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:74
-msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr "Tips: brug &gt;!text!&lt; for spoilers; nogle instanser kan ikke vise indlæg længere end 360 tegn."
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgstr "Tips: brug >!text!< for spoilers; nogle instanser kan ikke vise indlæg længere end 360 tegn."
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"

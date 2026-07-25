@@ -5816,8 +5816,8 @@ msgid "for the sharing post only, not visibility of the collection"
 msgstr "分享帖文的可见性，不同于收藏单本身的权限"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
-msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr "提示： 善用 &gt;!文字!&lt; 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgstr "提示： 善用 >!文字!< 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"
@@ -6210,7 +6210,7 @@ msgstr "更新进度"
 
 #: journal/views/note.py:34
 msgid "Crosspost"
-msgstr "同步发布"
+msgstr "转发"
 
 #: journal/views/note.py:52
 msgid "Progress (optional)"
@@ -7880,7 +7880,7 @@ msgstr "仅本站"
 #: users/templates/users/preferences.html:102
 #: users/templates/users/register.html:68
 msgid "Turn on crosspost to other social networks by default"
-msgstr "发表时默认转发到社交网络时间轴"
+msgstr "发表时默认转发到已绑定的其它社交网络时间轴"
 
 #: users/templates/users/preferences.html:111
 #: users/templates/users/register.html:88

@@ -53,12 +53,10 @@
               </div>
             {% endif %}
             <div>
-              <label for="{{ form.share_to_mastodon.id_for_label }}">
-                {{ form.share_to_mastodon }} {{ form.share_to_mastodon.label }}
-                <i class="fa-regular fa-circle-question"
-                   tabindex="0"
-                   aria-label="{% trans 'Also publish this note to your connected social accounts.' %}"
-                   data-tooltip="{% trans 'Also publish this note to your connected social accounts.' %}"></i>
+              <label for="{{ form.share_to_mastodon.id_for_label }}"
+                     title="{{ form.share_to_mastodon.help_text }}">
+                {{ form.share_to_mastodon }}
+                {{ form.share_to_mastodon.label }}
               </label>
             </div>
           </div>

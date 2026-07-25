@@ -16,7 +16,7 @@ from common.models.lang import translate
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
-from ..forms import MarkForm
+from ..forms import CommentForm, MarkForm
 from ..models import Comment, Mark, ShelfManager, ShelfType
 from .common import render_list, render_relogin
 
@@ -100,6 +100,12 @@ def mark(request: AuthedHttpRequest, item_uuid):
             {
                 "item": item,
                 "mark": mark,
+                "form": MarkForm(
+                    initial={
+                        "text": mark.comment_text or "",
+                        "share_to_mastodon": request.user.preference.mastodon_default_repost,
+                    }
+                ),
                 "shelf_type": shelf_type,
                 "tags": tags,
                 "recent_tags": recent_tags,
@@ -204,6 +210,13 @@ def comment(request: AuthedHttpRequest, item_uuid):
             {
                 "item": item,
                 "comment": comment,
+                "form": CommentForm(
+                    initial={
+                        "text": comment.text if comment else "",
+                        "visibility": comment.visibility if comment else 0,
+                        "share_to_mastodon": request.user.preference.mastodon_default_repost,
+                    }
+                ),
             },
         )
     else:
@@ -219,11 +232,15 @@ def comment(request: AuthedHttpRequest, item_uuid):
             ):
                 referer = "/"
             return HttpResponseRedirect(referer)
-        visibility = int(request.POST.get("visibility", default=0))
-        text = request.POST.get("text")
+        form = CommentForm(request.POST)
+        if not form.is_valid():
+            logger.warning(f"Comment form invalid: {form.errors}")
+            raise BadRequest(_("Invalid input"))
+        visibility = form.cleaned_data["visibility"]
+        text = form.cleaned_data["text"]
         position = None
         if item.class_name == "podcastepisode":
-            position = request.POST.get("position") or "0:0:0"
+            position = form.cleaned_data["position"] or "0:0:0"
             try:
                 pos = datetime.strptime(position, "%H:%M:%S")
                 position = pos.hour * 3600 + pos.minute * 60 + pos.second
@@ -235,7 +252,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
         if position:
             d["metadata"] = {"position": position}
         delete_existing_post = comment is not None and comment.visibility != visibility
-        share_to_mastodon = bool(request.POST.get("share_to_mastodon", default=False))
+        share_to_mastodon = form.cleaned_data["share_to_mastodon"]
         comment = Comment.objects.update_or_create(
             owner=request.user.identity, item=item, defaults=d
         )[0]

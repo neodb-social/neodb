@@ -42,7 +42,8 @@
             <div class="grid controls">
               <div>{{ form.visibility }}</div>
               <div>
-                <label for="id_share_to_mastodon">
+                <label for="id_share_to_mastodon"
+                       title="{{ form.share_to_mastodon.help_text }}">
                   {{ form.share_to_mastodon }}
                   {{ form.share_to_mastodon.label }}
                 </label>
@@ -50,9 +51,9 @@
                   {{ form.sensitive }}
                   {{ form.sensitive.label }}
                 </label>
-                <label for="id_leading_space">
+                <label for="id_leading_space" title="{{ form.leading_space.help_text }}">
                   {{ form.leading_space }}
-                  <a data-tooltip="{{ form.leading_space.help_text }}">{{ form.leading_space.label }}</a>
+                  {{ form.leading_space.label }}
                 </label>
               </div>
             </div>

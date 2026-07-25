@@ -3377,8 +3377,8 @@ msgid "Comment"
 msgstr "寫短評"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
-msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr "提示： 善用 &gt;!文字!&lt; 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgstr "提示： 善用 >!文字!< 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
 
 #: journal/templates/comment.html:75
 msgid "share with playback position"

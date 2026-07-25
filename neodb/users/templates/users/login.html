@@ -105,20 +105,20 @@
           </svg>
         </button>
       {% endif %}
-      {% if enable_threads %}
+      {% if enable_bluesky %}
         <button class="platform outline"
-                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
-                id="platform-threads"
-                title="{% trans 'Threads' %}">
-        <i class="fa-brands fa-threads"></i>
+                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
+                id="platform-bluesky"
+                title="{% trans 'Bluesky (ATProto)' %}">
+        <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
       </button>
     {% endif %}
-    {% if enable_bluesky %}
+    {% if enable_threads %}
       <button class="platform outline"
-              _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
-              id="platform-bluesky"
-              title="{% trans 'Bluesky (ATProto)' %}">
-      <i class="fa-brands fa-bluesky" style="font-size:85%"></i>
+              _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
+              id="platform-threads"
+              title="{% trans 'Threads' %}">
+      <i class="fa-brands fa-threads"></i>
     </button>
   {% endif %}
 </div>

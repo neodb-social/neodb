@@ -6,16 +6,19 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 
-from catalog.models import Edition
+from catalog.models import Edition, IdType, Podcast, PodcastEpisode, TVEpisode
 from journal.jobs.migrations import backfill_member_progress_from_notes_20260720
 from journal.models import (
+    Comment,
     Mark,
     Note,
+    Review,
     ShelfMemberProgress,
     ShelfLogEntry,
     ShelfType,
     TagManager,
 )
+from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
 from users.models import User
 
@@ -433,26 +436,14 @@ def test_note_and_progress_dialog_modes(client):
 
     response = client.get(note_url)
     assert response.status_code == 200
-    content = response.content.decode()
     assert response.context["mode"] == "note"
     assert response.context["form"]["progress_type"].value() == "page"
     assert response.context["form"]["progress_value"].value() == "22"
     assert response.context["form"]["share_to_mastodon"].value() is False
-    assert response.context["form"]["share_to_mastodon"].label == "Crosspost"
-    assert 'id="note-mode-selector"' in content
-    assert content.index('id="id_update_progress"') < content.index(
-        'id="id_share_to_mastodon"'
-    )
-    assert "Crosspost to timeline" not in content
-    assert (
-        'data-tooltip="Also publish this note to your connected social accounts."'
-        in content
-    )
 
     response = client.get(f"{note_url}?mode=progress")
     assert response.status_code == 200
     assert response.context["mode"] == "progress"
-    assert 'id="note-only-fields" hidden' in response.content.decode()
 
     response = client.post(
         note_url,
@@ -780,3 +771,177 @@ class TestMarkWithPosts:
         reading_latest_post = Takahe.get_post(reading_latest_post_id)
         assert reading_latest_post is not None
         assert reading_latest_post.state == "new"
+
+
+def _connect_mastodon(user, default_repost=True):
+    """The crosspost switch only renders for users with a connected account."""
+    MastodonAccount.objects.create(
+        user=user,
+        domain="example.social",
+        uid=user.username,
+        handle=f"{user.username}@example.social",
+    )
+    user.preference.mastodon_default_repost = default_repost
+    user.preference.save()
+
+
+@pytest.mark.django_db(databases="__all__")
+@pytest.mark.parametrize("default_repost", [True, False])
+def test_mark_editor_crosspost_switch_follows_preference(client, default_repost):
+    suffix = "on" if default_repost else "off"
+    user = User.register(email=f"xp-{suffix}@example.com", username=f"xp{suffix}")
+    _connect_mastodon(user, default_repost=default_repost)
+    book = Edition.objects.create(title="Crosspost Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    response = client.get(reverse("journal:mark", args=[book.uuid]))
+    assert response.status_code == 200
+    # the default follows the user's preference, not the form's initial=False
+    assert response.context["form"]["share_to_mastodon"].value() is default_repost
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_editor_textarea_comes_from_form(client):
+    user = User.register(email="mark-text@example.com", username="marktext")
+    book = Edition.objects.create(title="Mark Text Book")
+    mark = Mark(user.identity, book)
+    mark.update(ShelfType.PROGRESS, "an existing note", visibility=0)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    response = client.get(reverse("journal:mark", args=[book.uuid]))
+    assert response.status_code == 200
+    content = response.content.decode()
+    field = str(response.context["form"]["text"])
+
+    # widget attributes the hand-written textarea carried must survive
+    assert 'rows="5"' in field
+    assert "autofocus" in field
+    # the placeholder holds a raw >!text!< in source, escaped exactly once
+    assert "&gt;!text!&lt;" in field
+    assert "&amp;gt;" not in content
+    # the existing mark comment still prefills the box
+    assert "an existing note" in field
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_comment_editor_renders_form_fields(client):
+    user = User.register(email="xp-cmt@example.com", username="xpcmt")
+    _connect_mastodon(user, default_repost=True)
+    ep = TVEpisode.objects.create(title="Crosspost Episode")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    response = client.get(reverse("journal:comment", args=[ep.uuid]))
+    assert response.status_code == 200
+    field = response.context["form"]["share_to_mastodon"]
+    assert field.value() is True
+    # a comment that does not exist yet defaults to public
+    assert response.context["form"]["visibility"].value() == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_comment_editor_preselects_existing_visibility(client):
+    user = User.register(email="xp-cmt2@example.com", username="xpcmt2")
+    ep = TVEpisode.objects.create(title="Existing Comment Episode")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:comment", args=[ep.uuid])
+
+    assert client.post(url, {"text": "hello", "visibility": "1"}).status_code == 302
+    response = client.get(url)
+    assert response.context["form"]["visibility"].value() == 1
+    assert "hello" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_comment_post_round_trip(client):
+    user = User.register(email="cmt-post@example.com", username="cmtpost")
+    ep = TVEpisode.objects.create(title="Comment Post Episode")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:comment", args=[ep.uuid])
+
+    assert (
+        client.post(url, {"text": "first take", "visibility": "0"}).status_code == 302
+    )
+    comment = Comment.objects.get(owner=user.identity, item=ep)
+    assert comment.text == "first take"
+    assert comment.visibility == 0
+
+    assert (
+        client.post(url, {"text": "second take", "visibility": "1"}).status_code == 302
+    )
+    comment.refresh_from_db()
+    assert comment.text == "second take"
+    assert comment.visibility == 1
+
+    # the browser always submits a checked radio, but a malformed visibility is
+    # now rejected instead of silently falling back to public
+    assert client.post(url, {"text": "x", "visibility": "nope"}).status_code == 400
+    comment.refresh_from_db()
+    assert comment.text == "second take"
+
+    # surrounding whitespace is preserved, as it was before the form existed
+    assert (
+        client.post(url, {"text": "  spaced  ", "visibility": "0"}).status_code == 302
+    )
+    comment.refresh_from_db()
+    assert comment.text == "  spaced  "
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_comment_post_records_podcast_position(client):
+    user = User.register(email="cmt-pos@example.com", username="cmtpos")
+    podcast = Podcast.objects.create(
+        localized_title=[{"lang": "en", "text": "Position Podcast"}],
+        primary_lookup_id_type=IdType.RSS,
+        primary_lookup_id_value="https://example.com/position.xml",
+        host=["Host"],
+    )
+    ep = PodcastEpisode.objects.create(
+        localized_title=[{"lang": "en", "text": "Position Episode"}],
+        program=podcast,
+        guid="position-guid",
+        pub_date=timezone.now(),
+    )
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:comment", args=[ep.uuid])
+
+    response = client.post(
+        url, {"text": "at the good bit", "visibility": "0", "position": "01:02:03"}
+    )
+    assert response.status_code == 302
+    comment = Comment.objects.get(owner=user.identity, item=ep)
+    assert comment.metadata["position"] == 3723
+
+    # a zero position is never written, matching the pre-form behaviour (note it
+    # also does not clear an already-stored position, hence the fresh episode)
+    fresh = PodcastEpisode.objects.create(
+        localized_title=[{"lang": "en", "text": "Zero Position Episode"}],
+        program=podcast,
+        guid="zero-position-guid",
+        pub_date=timezone.now(),
+    )
+    response = client.post(
+        reverse("journal:comment", args=[fresh.uuid]),
+        {"text": "from the top", "visibility": "0", "position": "00:00:00"},
+    )
+    assert response.status_code == 302
+    zero_comment = Comment.objects.get(owner=user.identity, item=fresh)
+    assert "position" not in (zero_comment.metadata or {})
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_edit_does_not_default_to_crossposting(client):
+    """Editing an existing review must not re-crosspost unless asked."""
+    user = User.register(email="rv-edit@example.com", username="rvedit")
+    _connect_mastodon(user, default_repost=True)
+    book = Edition.objects.create(title="Reviewed Book")
+    review = Review.objects.create(owner=user.identity, item=book, title="t", body="b")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    edit = client.get(reverse("journal:review_edit", args=[book.uuid, review.uuid]))
+    assert edit.status_code == 200
+    assert edit.context["form"]["share_to_mastodon"].value() is False
+
+    # a brand new review still follows the user's preference
+    create = client.get(reverse("journal:review_create", args=[book.uuid]))
+    assert create.status_code == 200
+    assert create.context["form"]["share_to_mastodon"].value() is True

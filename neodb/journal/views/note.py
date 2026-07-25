@@ -27,11 +27,18 @@ class NoteForm(NeoModelForm):
     update_progress = forms.BooleanField(
         label=_("Update progress"), initial=False, required=False
     )
-    visibility = forms.ChoiceField(
-        widget=forms.RadioSelect(), choices=VisibilityType.choices, initial=0
+    visibility = forms.TypedChoiceField(
+        label=_("Visibility"),
+        initial=0,
+        coerce=int,
+        choices=VisibilityType.choices,
+        widget=forms.RadioSelect,
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Crosspost"), initial=False, required=False
+        label=_("Crosspost"),
+        help_text=_("Crosspost to your connected social networks"),
+        initial=False,
+        required=False,
     )
     uuid = forms.CharField(widget=forms.HiddenInput(), required=False)
     # content = forms.CharField(required=False, widget=forms.Textarea)

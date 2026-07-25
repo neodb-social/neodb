@@ -8,6 +8,11 @@ from common.forms import PreviewImageInput
 from .models import *
 
 
+COMMENT_TIPS = _(
+    "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+)
+
+
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
@@ -38,7 +43,10 @@ class ReviewForm(forms.ModelForm):
         ),
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Crosspost to timeline"), initial=True, required=False
+        label=_("Crosspost"),
+        help_text=_("Crosspost to your connected social networks"),
+        initial=False,
+        required=False,
     )
     leading_space = forms.BooleanField(
         label=_("Keep leading spaces"),
@@ -113,7 +121,10 @@ class ArticleForm(forms.ModelForm):
         label=_("Mark as sensitive"), required=False, initial=False
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Crosspost to Mastodon"), initial=False, required=False
+        label=_("Crosspost"),
+        help_text=_("Crosspost to your connected social networks"),
+        initial=False,
+        required=False,
     )
     leading_space = forms.BooleanField(
         label=_("Keep leading spaces"),
@@ -146,7 +157,7 @@ class CollectionForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={"class": "easymde-editor"}),
     )
-    # share_to_mastodon = forms.BooleanField(label=_("Crosspost to timeline"), initial=True, required=False)
+    # share_to_mastodon = forms.BooleanField(label=_("Crosspost"), initial=True, required=False)
     visibility = forms.TypedChoiceField(
         label=_("Visibility"),
         initial=0,
@@ -192,7 +203,14 @@ class MarkForm(forms.Form):
     status = forms.ChoiceField(
         choices=ShelfType.choices, required=False, label=_("Status")
     )
-    text = forms.CharField(required=False, widget=forms.Textarea, label=_("Comment"))
+    text = forms.CharField(
+        required=False,
+        strip=False,
+        label=_("Comment"),
+        widget=forms.Textarea(
+            attrs={"rows": 5, "autofocus": True, "placeholder": COMMENT_TIPS}
+        ),
+    )
     rating_grade = forms.IntegerField(
         required=False, min_value=0, max_value=10, label=_("Rating")
     )
@@ -205,7 +223,11 @@ class MarkForm(forms.Form):
         widget=forms.RadioSelect,
     )
     share_to_mastodon = forms.BooleanField(
-        label=_("Crosspost to timeline"), initial=False, required=False
+        label=_("Crosspost"),
+        help_text=_("Crosspost to your connected social networks"),
+        widget=forms.CheckboxInput(attrs={"role": "switch"}),
+        initial=False,
+        required=False,
     )
     mark_anotherday = forms.BooleanField(required=False)
     mark_date = forms.CharField(required=False)
@@ -243,3 +265,32 @@ class MarkForm(forms.Form):
                 mark_date = timezone.now()
         cleaned_data["mark_date_parsed"] = mark_date
         return cleaned_data
+
+
+class CommentForm(forms.Form):
+    # strip=False keeps the raw textarea value, as the pre-form view did
+    text = forms.CharField(
+        required=False,
+        strip=False,
+        label=_("Comment"),
+        widget=forms.Textarea(
+            attrs={"cols": 40, "rows": 10, "placeholder": COMMENT_TIPS}
+        ),
+    )
+    visibility = forms.TypedChoiceField(
+        label=_("Visibility"),
+        initial=0,
+        coerce=int,
+        choices=VisibilityType.choices,
+        widget=forms.RadioSelect,
+    )
+    share_to_mastodon = forms.BooleanField(
+        label=_("Crosspost"),
+        help_text=_("Crosspost to your connected social networks"),
+        widget=forms.CheckboxInput(attrs={"role": "switch"}),
+        initial=False,
+        required=False,
+    )
+    # raw "hh:mm:ss" playback position; only meaningful for podcast episodes,
+    # so the view parses it against the item type
+    position = forms.CharField(required=False)

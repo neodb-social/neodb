@@ -18,48 +18,20 @@
     <div>
       <form action="{% url 'journal:comment' item.uuid %}" method="post">
         {% csrf_token %}
-        <textarea name="text"
-                  cols="40"
-                  rows="10"
-                  placeholder="{% trans "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors." %}"
-                  id="id_text">{% if comment.text %}{{ comment.text }}{% endif %}</textarea>
+        {{ form.text }}
         <div class="grid">
           <div>
             <fieldset>
-              <input type="radio"
-                     name="visibility"
-                     value="0"
-                     required=""
-                     id="id_visibility_0"
-                     {% if comment.visibility == 0 or not comment %}checked{% endif %}>
-              <label for="id_visibility_0">{% trans "Public" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="1"
-                     required=""
-                     id="id_visibility_1"
-                     {% if comment.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     required=""
-                     id="id_visibility_2"
-                     {% if comment.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
+              {{ form.visibility }}
             </fieldset>
           </div>
           <div>
             <fieldset>
               {% if request.user.mastodon %}
-                <label for="id_share_to_mastodon">
-                  <input role="switch"
-                         type="checkbox"
-                         name="share_to_mastodon"
-                         id="id_share_to_mastodon"
-                         value="1"
-                         {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
-                  {% trans "Crosspost to timeline" %}
+                <label for="{{ form.share_to_mastodon.id_for_label }}"
+                       title="{{ form.share_to_mastodon.help_text }}">
+                  {{ form.share_to_mastodon }}
+                  {{ form.share_to_mastodon.label }}
                 </label>
               {% endif %}
             </fieldset>

@@ -3395,7 +3395,7 @@ msgid "Comment"
 msgstr "Comentário"
 
 #: journal/templates/comment.html:24 journal/templates/mark.html:66
-msgid "Tips: use &gt;!text!&lt; for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
 msgstr ""
 "Dicas: utilize &gt;!text!&lt; para spoilers; algumas instâncias podem não "
 "conseguir mostrar posts com mais de 360 caracteres."
