@@ -5,11 +5,12 @@ Book pages carry schema.org Book microdata, which is far more stable than
 the surrounding presentation markup, so parsing keys off `itemprop` where
 one is available and falls back to the labelled `<li>` rows otherwise.
 
-Readmoo only sells ebooks. Pages may expose two identifiers: `isbn` is the
-print edition's ISBN and `eisbn` the ebook's own. The print ISBN is
-preferred so items match those imported from the print-oriented sites that
-populate most of the Chinese-language catalog (BooksTW, Douban); the eISBN
-is only used for titles published without a print counterpart.
+Readmoo only sells ebooks. Pages may expose two identifiers: `eisbn` is the
+ebook's own ISBN and `isbn` the print edition's. The eISBN identifies what
+this record actually describes, so it wins; keying an ebook off the print
+ISBN would collide with the paper edition, and since a merge only fills
+fields the item is still missing, whichever of the two was imported first
+would permanently dictate the other's format, binding and price.
 """
 
 import re
@@ -29,6 +30,9 @@ from journal.models.renderers import html_to_text
 _RE_SERIES_SUFFIX = re.compile(r"\s*(（共\s*\d+\s*本）|（已完結）)+\s*$")
 # shown in place of the contributor list when a title has many authors
 _MULTI_AUTHOR_PLACEHOLDER = "多位作者"
+# the 詳細資訊 block runs on into contributor bios, which describe the people
+# rather than the book and sometimes carry their personal contact details
+_RE_BIO_HEADING = re.compile(r"^\s*(作者|譯者|繪者|編者)簡介\s*$", re.MULTILINE)
 
 
 def _str(content, query: str) -> str:
@@ -41,7 +45,9 @@ def _meta_row(content, label: str) -> str:
     for li in content.xpath("//ul[contains(@class,'book-meta-published')]/li"):
         text = " ".join(li.text_content().split())
         if text.startswith(label):
-            return text.split("：", 1)[-1].strip() if "：" in text else ""
+            # rows in this list mix fullwidth and ASCII colons
+            parts = re.split(r"[：:]", text, maxsplit=1)
+            return parts[1].strip() if len(parts) > 1 else ""
     return ""
 
 
@@ -103,7 +109,7 @@ class Readmoo(AbstractSite):
         publisher = _str(content, "//a[@itemprop='publisher']")
 
         pub_date = re.match(
-            r"^(\d{4})/(\d{1,2})",
+            r"^(\d{4})[/-](\d{1,2})",
             _str(content, "//meta[@itemprop='datePublished']/@content"),
         )
         pub_year = int(pub_date[1]) if pub_date else None
@@ -113,9 +119,10 @@ class Readmoo(AbstractSite):
 
         language = normalize_language(_str(content, "//span[@itemprop='inLanguage']"))
 
-        # ebook-only titles carry an eISBN but no print ISBN
-        isbn = _str(content, "//span[@itemprop='isbn']") or _str(
-            content, "//span[@itemprop='eisbn']"
+        # the ebook's own ISBN identifies this record; fall back to the print
+        # edition's only when Readmoo publishes no eISBN
+        isbn = _str(content, "//span[@itemprop='eisbn']") or _str(
+            content, "//span[@itemprop='isbn']"
         )
 
         # "流動版面 EPUB" (reflowable) or "固定版面 EPUB"/"PDF" (fixed layout)
@@ -149,6 +156,9 @@ class Readmoo(AbstractSite):
                 )
             )
         )
+        bio = _RE_BIO_HEADING.search(brief)
+        if bio:
+            brief = brief[: bio.start()].strip()
 
         contents = "\n".join(
             " ".join(li.text_content().split())

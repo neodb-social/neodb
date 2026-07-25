@@ -434,18 +434,24 @@ class TestReadmoo:
         # 字數 is a word count, not a page count
         assert site.resource.metadata.get("pages") is None
         assert site.resource.metadata.get("series") is None
-        # the print ISBN is preferred over the eISBN (9786267916247)
-        assert site.resource.metadata.get("isbn") == "9786267916254"
-        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9786267916254"
-        assert site.resource.metadata.get("brief", "").startswith(
+        # the eISBN is preferred over the print edition's ISBN (9786267916254)
+        assert site.resource.metadata.get("isbn") == "9786267916247"
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9786267916247"
+        brief = site.resource.metadata.get("brief", "")
+        assert brief.startswith(
             "大多數人認識的馬拉拉，是那位在十五歲遭塔利班槍擊後倖存"
         )
+        # the description is cut before the contributor bios, which describe the
+        # people rather than the book and carry the translator's email address
+        assert "作者簡介" not in brief
+        assert "譯者簡介" not in brief
+        assert "@" not in brief
         assert "1 從人權鬥士到牛津大學生" in site.resource.metadata.get("contents", "")
         assert site.resource.id_type == IdType.Readmoo
         assert site.resource.id_value == "210484376000101"
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Edition)
-        assert site.resource.item.isbn == "9786267916254"
+        assert site.resource.item.isbn == "9786267916247"
         assert site.resource.item.format == "ebook"
         assert site.resource.item.display_title == "我是馬拉拉，也是我自己"
         assert site.resource.item.language == ["zh-tw"]
@@ -463,7 +469,7 @@ class TestReadmoo:
         assert site.resource.metadata.get("series") == "莊子，從心開始【增訂紀念版】"
         assert site.resource.metadata.get("author") == ["蔡璧名"]
         assert site.resource.metadata.get("translator") == []
-        assert site.resource.metadata.get("isbn") == "9786264442176"
+        assert site.resource.metadata.get("isbn") == "9786264442459"
         assert site.resource.item is not None
         assert site.resource.item.display_title == "莊子，從心開始【增訂紀念版】肆"
         assert site.resource.item.localized_subtitle == [
@@ -472,7 +478,7 @@ class TestReadmoo:
 
     @use_local_response
     def test_scrape_eisbn_only(self):
-        # published without a print counterpart, so the eISBN is used
+        # published without a print counterpart, so only an eISBN is listed
         t_url = "https://readmoo.com/book/210395030000101"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None
@@ -489,6 +495,26 @@ class TestReadmoo:
         assert site.resource.metadata.get("pub_month") is None
         assert site.resource.item is not None
         assert site.resource.item.isbn == "9789865636623"
+        assert site.resource.item.format == "ebook"
+
+    @use_local_response
+    def test_scrape_print_isbn_fallback(self):
+        # no eISBN listed, so the print edition's ISBN identifies the item
+        t_url = "https://readmoo.com/book/210391959000101"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.metadata.get("title") == "中國文化現代化（下）"
+        assert site.resource.metadata.get("isbn") == "9789887646259"
+        assert site.resource.other_lookup_ids.get(IdType.ISBN) == "9789887646259"
+        assert site.resource.metadata.get("author") == ["歐陽方"]
+        assert site.resource.metadata.get("publisher") == ["博學出版社"]
+        assert site.resource.metadata.get("pub_year") == 2024
+        assert site.resource.metadata.get("pub_month") == 7
+        assert site.resource.metadata.get("pages") == 40
+        assert site.resource.item is not None
+        assert site.resource.item.isbn == "9789887646259"
         assert site.resource.item.format == "ebook"
 
     @use_local_response
