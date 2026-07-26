@@ -261,7 +261,7 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     tags=["shelf"],
 )
 def get_item_progress(request, item_uuid: str, response: HttpResponse):
-    """Get reading progress for an in-progress book.
+    """Get progress of a marked item.
 
     If the item was merged into another one, HTTP 302 is returned.
     """
@@ -271,8 +271,8 @@ def get_item_progress(request, item_uuid: str, response: HttpResponse):
     if not item:
         return redirect
     mark = Mark(request.user.identity, item)
-    if mark.shelf_type != ShelfType.PROGRESS:
-        return Status(400, {"message": "Only in-progress items can have progress."})
+    if not mark.shelfmember:
+        return Status(404, {"message": "Mark not found"})
     return {
         "type": mark.progress_type,
         "value": mark.progress_value,
@@ -297,7 +297,7 @@ def set_item_progress(
     progress: ProgressInSchema,
     response: HttpResponse,
 ):
-    """Set or clear reading progress for an in-progress item.
+    """Set or clear progress of a marked item.
 
     If the item was merged into another one, HTTP 307 is returned; repeat the
     request against the returned url.
@@ -332,7 +332,7 @@ def set_item_progress(
     tags=["shelf"],
 )
 def delete_item_progress(request, item_uuid: str, response: HttpResponse):
-    """Clear reading progress for an in-progress item.
+    """Clear progress of a marked item.
 
     If the item was merged into another one, HTTP 307 is returned; repeat the
     request against the returned url.

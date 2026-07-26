@@ -112,16 +112,15 @@ def note_edit(
         )
 
     mark = Mark(owner, item)
-    can_update_progress = (
-        item.class_name == "edition" and mark.shelf_type == ShelfType.PROGRESS
-    )
+    # mark progress is editable and surfaced while the item is in progress
+    can_update_progress = mark.shelf_type == ShelfType.PROGRESS
     requested_mode = request.POST.get("mode") or request.GET.get("mode") or "note"
     if note:
         mode = "note"
     elif requested_mode == "progress" and can_update_progress:
         mode = "progress"
     elif requested_mode == "progress" and request.method == "POST":
-        raise BadRequest(_("Only in-progress books can have reading progress."))
+        raise BadRequest(_("Only in-progress items can have progress."))
     else:
         mode = "note"
 
@@ -129,8 +128,8 @@ def note_edit(
     if not note:
         initial.update(
             {
-                "progress_type": mark.progress_type,
-                "progress_value": mark.progress_value,
+                "progress_type": mark.progress_type if can_update_progress else None,
+                "progress_value": mark.progress_value if can_update_progress else None,
             }
         )
     form = NoteForm(
@@ -148,7 +147,7 @@ def note_edit(
         "form": form,
         "mode": mode,
         "can_update_progress": can_update_progress,
-        "has_current_progress": bool(mark.progress_value),
+        "has_current_progress": bool(can_update_progress and mark.progress_value),
     }
 
     if request.method == "GET":
@@ -181,7 +180,7 @@ def note_edit(
         return render(request, "note.html", context, status=400)
     if form.cleaned_data["update_progress"] and not can_update_progress:
         form.add_error(
-            "update_progress", _("Only in-progress books can have reading progress.")
+            "update_progress", _("Only in-progress items can have progress.")
         )
         return render(request, "note.html", context, status=400)
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 20:43+0000\n"
+"POT-Creation-Date: 2026-07-26 18:42+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,32 +18,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: boofilsic/settings.py:472 common/models/lang.py:226
+#: boofilsic/settings.py:472 common/models/lang.py:230
 msgid "English"
 msgstr ""
 
-#: boofilsic/settings.py:473 common/models/lang.py:73
+#: boofilsic/settings.py:473 common/models/lang.py:77
 msgid "Danish"
 msgstr ""
 
-#: boofilsic/settings.py:474 common/models/lang.py:74
+#: boofilsic/settings.py:474 common/models/lang.py:78
 msgid "German"
 msgstr ""
 
-#: boofilsic/settings.py:475 common/models/lang.py:179
+#: boofilsic/settings.py:475 common/models/lang.py:183
 msgid "Spanish"
 msgstr ""
 
-#: boofilsic/settings.py:476 common/models/lang.py:83
+#: boofilsic/settings.py:476 common/models/lang.py:87
 msgid "French"
 msgstr ""
 
-#: boofilsic/settings.py:477 common/models/lang.py:108
+#: boofilsic/settings.py:477 common/models/lang.py:112
 msgid "Italian"
 msgstr ""
 
-#: boofilsic/settings.py:478 common/models/lang.py:162
-#: common/models/lang.py:301
+#: boofilsic/settings.py:478 common/models/lang.py:166
+#: common/models/lang.py:305
 msgid "Portuguese"
 msgstr ""
 
@@ -51,11 +51,11 @@ msgstr ""
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: boofilsic/settings.py:480 common/models/lang.py:312
+#: boofilsic/settings.py:480 common/models/lang.py:316
 msgid "Simplified Chinese"
 msgstr ""
 
-#: boofilsic/settings.py:481 common/models/lang.py:313
+#: boofilsic/settings.py:481 common/models/lang.py:317
 msgid "Traditional Chinese"
 msgstr ""
 
@@ -170,7 +170,7 @@ msgstr ""
 msgid "imprint"
 msgstr ""
 
-#: catalog/models/common.py:26 common/models/lang.py:252
+#: catalog/models/common.py:26 common/models/lang.py:256
 msgid "Unknown"
 msgstr ""
 
@@ -2768,759 +2768,759 @@ msgctxt "genre"
 msgid "Health"
 msgstr ""
 
-#: common/models/lang.py:50
+#: common/models/lang.py:54
 msgid "Afar"
 msgstr ""
 
-#: common/models/lang.py:51
+#: common/models/lang.py:55
 msgid "Afrikaans"
 msgstr ""
 
-#: common/models/lang.py:52
+#: common/models/lang.py:56
 msgid "Akan"
 msgstr ""
 
-#: common/models/lang.py:53
+#: common/models/lang.py:57
 msgid "Aragonese"
 msgstr ""
 
-#: common/models/lang.py:54
+#: common/models/lang.py:58
 msgid "Assamese"
 msgstr ""
 
-#: common/models/lang.py:55
+#: common/models/lang.py:59
 msgid "Avaric"
 msgstr ""
 
-#: common/models/lang.py:56
+#: common/models/lang.py:60
 msgid "Avestan"
 msgstr ""
 
-#: common/models/lang.py:57
+#: common/models/lang.py:61
 msgid "Aymara"
 msgstr ""
 
-#: common/models/lang.py:58
+#: common/models/lang.py:62
 msgid "Azerbaijani"
 msgstr ""
 
-#: common/models/lang.py:59
+#: common/models/lang.py:63
 msgid "Bashkir"
 msgstr ""
 
-#: common/models/lang.py:60
+#: common/models/lang.py:64
 msgid "Bambara"
 msgstr ""
 
-#: common/models/lang.py:61
+#: common/models/lang.py:65
 msgid "Bislama"
 msgstr ""
 
-#: common/models/lang.py:62
+#: common/models/lang.py:66
 msgid "Tibetan"
 msgstr ""
 
-#: common/models/lang.py:63
+#: common/models/lang.py:67
 msgid "Breton"
 msgstr ""
 
-#: common/models/lang.py:64
+#: common/models/lang.py:68
 msgid "Catalan"
 msgstr ""
 
-#: common/models/lang.py:65
+#: common/models/lang.py:69
 msgid "Czech"
 msgstr ""
 
-#: common/models/lang.py:66
+#: common/models/lang.py:70
 msgid "Chechen"
 msgstr ""
 
-#: common/models/lang.py:67
+#: common/models/lang.py:71
 msgid "Slavic"
 msgstr ""
 
-#: common/models/lang.py:68
+#: common/models/lang.py:72
 msgid "Chuvash"
 msgstr ""
 
-#: common/models/lang.py:69
+#: common/models/lang.py:73
 msgid "Cornish"
 msgstr ""
 
-#: common/models/lang.py:70
+#: common/models/lang.py:74
 msgid "Corsican"
 msgstr ""
 
-#: common/models/lang.py:71
+#: common/models/lang.py:75
 msgid "Cree"
 msgstr ""
 
-#: common/models/lang.py:72
+#: common/models/lang.py:76
 msgid "Welsh"
 msgstr ""
 
-#: common/models/lang.py:75
+#: common/models/lang.py:79
 msgid "Divehi"
 msgstr ""
 
-#: common/models/lang.py:76
+#: common/models/lang.py:80
 msgid "Dzongkha"
 msgstr ""
 
-#: common/models/lang.py:77
+#: common/models/lang.py:81
 msgid "Esperanto"
 msgstr ""
 
-#: common/models/lang.py:78
+#: common/models/lang.py:82
 msgid "Estonian"
 msgstr ""
 
-#: common/models/lang.py:79
+#: common/models/lang.py:83
 msgid "Basque"
 msgstr ""
 
-#: common/models/lang.py:80
+#: common/models/lang.py:84
 msgid "Faroese"
 msgstr ""
 
-#: common/models/lang.py:81
+#: common/models/lang.py:85
 msgid "Fijian"
 msgstr ""
 
-#: common/models/lang.py:82
+#: common/models/lang.py:86
 msgid "Finnish"
 msgstr ""
 
-#: common/models/lang.py:84
+#: common/models/lang.py:88
 msgid "Frisian"
 msgstr ""
 
-#: common/models/lang.py:85
+#: common/models/lang.py:89
 msgid "Fulah"
 msgstr ""
 
-#: common/models/lang.py:86
+#: common/models/lang.py:90
 msgid "Gaelic"
 msgstr ""
 
-#: common/models/lang.py:87
+#: common/models/lang.py:91
 msgid "Irish"
 msgstr ""
 
-#: common/models/lang.py:88
+#: common/models/lang.py:92
 msgid "Galician"
 msgstr ""
 
-#: common/models/lang.py:89
+#: common/models/lang.py:93
 msgid "Manx"
 msgstr ""
 
-#: common/models/lang.py:90
+#: common/models/lang.py:94
 msgid "Guarani"
 msgstr ""
 
-#: common/models/lang.py:91
+#: common/models/lang.py:95
 msgid "Gujarati"
 msgstr ""
 
-#: common/models/lang.py:92
+#: common/models/lang.py:96
 msgid "Haitian; Haitian Creole"
 msgstr ""
 
-#: common/models/lang.py:93
+#: common/models/lang.py:97
 msgid "Hausa"
 msgstr ""
 
-#: common/models/lang.py:94
+#: common/models/lang.py:98
 msgid "Serbo-Croatian"
 msgstr ""
 
-#: common/models/lang.py:95
+#: common/models/lang.py:99
 msgid "Herero"
 msgstr ""
 
-#: common/models/lang.py:96
+#: common/models/lang.py:100
 msgid "Hiri Motu"
 msgstr ""
 
-#: common/models/lang.py:97
+#: common/models/lang.py:101
 msgid "Croatian"
 msgstr ""
 
-#: common/models/lang.py:98
+#: common/models/lang.py:102
 msgid "Hungarian"
 msgstr ""
 
-#: common/models/lang.py:99
+#: common/models/lang.py:103
 msgid "Igbo"
 msgstr ""
 
-#: common/models/lang.py:100
+#: common/models/lang.py:104
 msgid "Ido"
 msgstr ""
 
-#: common/models/lang.py:101
+#: common/models/lang.py:105
 msgid "Yi"
 msgstr ""
 
-#: common/models/lang.py:102
+#: common/models/lang.py:106
 msgid "Inuktitut"
 msgstr ""
 
-#: common/models/lang.py:103
+#: common/models/lang.py:107
 msgid "Interlingue"
 msgstr ""
 
-#: common/models/lang.py:104
+#: common/models/lang.py:108
 msgid "Interlingua"
 msgstr ""
 
-#: common/models/lang.py:105
+#: common/models/lang.py:109
 msgid "Indonesian"
 msgstr ""
 
-#: common/models/lang.py:106
+#: common/models/lang.py:110
 msgid "Inupiaq"
 msgstr ""
 
-#: common/models/lang.py:107
+#: common/models/lang.py:111
 msgid "Icelandic"
 msgstr ""
 
-#: common/models/lang.py:109
+#: common/models/lang.py:113
 msgid "Javanese"
 msgstr ""
 
-#: common/models/lang.py:110
+#: common/models/lang.py:114
 msgid "Japanese"
 msgstr ""
 
-#: common/models/lang.py:111
+#: common/models/lang.py:115
 msgid "Kalaallisut"
 msgstr ""
 
-#: common/models/lang.py:112
+#: common/models/lang.py:116
 msgid "Kannada"
 msgstr ""
 
-#: common/models/lang.py:113
+#: common/models/lang.py:117
 msgid "Kashmiri"
 msgstr ""
 
-#: common/models/lang.py:114
+#: common/models/lang.py:118
 msgid "Kanuri"
 msgstr ""
 
-#: common/models/lang.py:115
+#: common/models/lang.py:119
 msgid "Kazakh"
 msgstr ""
 
-#: common/models/lang.py:116
+#: common/models/lang.py:120
 msgid "Khmer"
 msgstr ""
 
-#: common/models/lang.py:117
+#: common/models/lang.py:121
 msgid "Kikuyu"
 msgstr ""
 
-#: common/models/lang.py:118
+#: common/models/lang.py:122
 msgid "Kinyarwanda"
 msgstr ""
 
-#: common/models/lang.py:119
+#: common/models/lang.py:123
 msgid "Kirghiz"
 msgstr ""
 
-#: common/models/lang.py:120
+#: common/models/lang.py:124
 msgid "Komi"
 msgstr ""
 
-#: common/models/lang.py:121
+#: common/models/lang.py:125
 msgid "Kongo"
 msgstr ""
 
-#: common/models/lang.py:122
+#: common/models/lang.py:126
 msgid "Korean"
 msgstr ""
 
-#: common/models/lang.py:123
+#: common/models/lang.py:127
 msgid "Kuanyama"
 msgstr ""
 
-#: common/models/lang.py:124
+#: common/models/lang.py:128
 msgid "Kurdish"
 msgstr ""
 
-#: common/models/lang.py:125
+#: common/models/lang.py:129
 msgid "Lao"
 msgstr ""
 
-#: common/models/lang.py:126
+#: common/models/lang.py:130
 msgid "Latin"
 msgstr ""
 
-#: common/models/lang.py:127
+#: common/models/lang.py:131
 msgid "Latvian"
 msgstr ""
 
-#: common/models/lang.py:128
+#: common/models/lang.py:132
 msgid "Limburgish"
 msgstr ""
 
-#: common/models/lang.py:129
+#: common/models/lang.py:133
 msgid "Lingala"
 msgstr ""
 
-#: common/models/lang.py:130
+#: common/models/lang.py:134
 msgid "Lithuanian"
 msgstr ""
 
-#: common/models/lang.py:131
+#: common/models/lang.py:135
 msgid "Letzeburgesch"
 msgstr ""
 
-#: common/models/lang.py:132
+#: common/models/lang.py:136
 msgid "Luba-Katanga"
 msgstr ""
 
-#: common/models/lang.py:133
+#: common/models/lang.py:137
 msgid "Ganda"
 msgstr ""
 
-#: common/models/lang.py:134
+#: common/models/lang.py:138
 msgid "Marshall"
 msgstr ""
 
-#: common/models/lang.py:135
+#: common/models/lang.py:139
 msgid "Malayalam"
 msgstr ""
 
-#: common/models/lang.py:136
+#: common/models/lang.py:140
 msgid "Marathi"
 msgstr ""
 
-#: common/models/lang.py:137
+#: common/models/lang.py:141
 msgid "Malagasy"
 msgstr ""
 
-#: common/models/lang.py:138
+#: common/models/lang.py:142
 msgid "Maltese"
 msgstr ""
 
-#: common/models/lang.py:139
+#: common/models/lang.py:143
 msgid "Moldavian"
 msgstr ""
 
-#: common/models/lang.py:140
+#: common/models/lang.py:144
 msgid "Mongolian"
 msgstr ""
 
-#: common/models/lang.py:141
+#: common/models/lang.py:145
 msgid "Maori"
 msgstr ""
 
-#: common/models/lang.py:142
+#: common/models/lang.py:146
 msgid "Malay"
 msgstr ""
 
-#: common/models/lang.py:143
+#: common/models/lang.py:147
 msgid "Burmese"
 msgstr ""
 
-#: common/models/lang.py:144
+#: common/models/lang.py:148
 msgid "Nauru"
 msgstr ""
 
-#: common/models/lang.py:145
+#: common/models/lang.py:149
 msgid "Navajo"
 msgstr ""
 
-#: common/models/lang.py:146 common/models/lang.py:147
+#: common/models/lang.py:150 common/models/lang.py:151
 msgid "Ndebele"
 msgstr ""
 
-#: common/models/lang.py:148
+#: common/models/lang.py:152
 msgid "Ndonga"
 msgstr ""
 
-#: common/models/lang.py:149
+#: common/models/lang.py:153
 msgid "Nepali"
 msgstr ""
 
-#: common/models/lang.py:150
+#: common/models/lang.py:154
 msgid "Dutch"
 msgstr ""
 
-#: common/models/lang.py:151
+#: common/models/lang.py:155
 msgid "Norwegian Nynorsk"
 msgstr ""
 
-#: common/models/lang.py:152
+#: common/models/lang.py:156
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: common/models/lang.py:153
+#: common/models/lang.py:157
 msgid "Norwegian"
 msgstr ""
 
-#: common/models/lang.py:154
+#: common/models/lang.py:158
 msgid "Chichewa; Nyanja"
 msgstr ""
 
-#: common/models/lang.py:155
+#: common/models/lang.py:159
 msgid "Occitan"
 msgstr ""
 
-#: common/models/lang.py:156
+#: common/models/lang.py:160
 msgid "Ojibwa"
 msgstr ""
 
-#: common/models/lang.py:157
+#: common/models/lang.py:161
 msgid "Oriya"
 msgstr ""
 
-#: common/models/lang.py:158
+#: common/models/lang.py:162
 msgid "Oromo"
 msgstr ""
 
-#: common/models/lang.py:159
+#: common/models/lang.py:163
 msgid "Ossetian; Ossetic"
 msgstr ""
 
-#: common/models/lang.py:160
+#: common/models/lang.py:164
 msgid "Pali"
 msgstr ""
 
-#: common/models/lang.py:161
+#: common/models/lang.py:165
 msgid "Polish"
 msgstr ""
 
-#: common/models/lang.py:163
+#: common/models/lang.py:167
 msgid "Quechua"
 msgstr ""
 
-#: common/models/lang.py:164
+#: common/models/lang.py:168
 msgid "Raeto-Romance"
 msgstr ""
 
-#: common/models/lang.py:165
+#: common/models/lang.py:169
 msgid "Romanian"
 msgstr ""
 
-#: common/models/lang.py:166
+#: common/models/lang.py:170
 msgid "Rundi"
 msgstr ""
 
-#: common/models/lang.py:167
+#: common/models/lang.py:171
 msgid "Russian"
 msgstr ""
 
-#: common/models/lang.py:168
+#: common/models/lang.py:172
 msgid "Sango"
 msgstr ""
 
-#: common/models/lang.py:169
+#: common/models/lang.py:173
 msgid "Sanskrit"
 msgstr ""
 
-#: common/models/lang.py:170
+#: common/models/lang.py:174
 msgid "Sinhalese"
 msgstr ""
 
-#: common/models/lang.py:171
+#: common/models/lang.py:175
 msgid "Slovak"
 msgstr ""
 
-#: common/models/lang.py:172
+#: common/models/lang.py:176
 msgid "Slovenian"
 msgstr ""
 
-#: common/models/lang.py:173
+#: common/models/lang.py:177
 msgid "Northern Sami"
 msgstr ""
 
-#: common/models/lang.py:174
+#: common/models/lang.py:178
 msgid "Samoan"
 msgstr ""
 
-#: common/models/lang.py:175
+#: common/models/lang.py:179
 msgid "Shona"
 msgstr ""
 
-#: common/models/lang.py:176
+#: common/models/lang.py:180
 msgid "Sindhi"
 msgstr ""
 
-#: common/models/lang.py:177
+#: common/models/lang.py:181
 msgid "Somali"
 msgstr ""
 
-#: common/models/lang.py:178
+#: common/models/lang.py:182
 msgid "Sotho"
 msgstr ""
 
-#: common/models/lang.py:180
+#: common/models/lang.py:184
 msgid "Albanian"
 msgstr ""
 
-#: common/models/lang.py:181
+#: common/models/lang.py:185
 msgid "Sardinian"
 msgstr ""
 
-#: common/models/lang.py:182
+#: common/models/lang.py:186
 msgid "Serbian"
 msgstr ""
 
-#: common/models/lang.py:183
+#: common/models/lang.py:187
 msgid "Swati"
 msgstr ""
 
-#: common/models/lang.py:184
+#: common/models/lang.py:188
 msgid "Sundanese"
 msgstr ""
 
-#: common/models/lang.py:185
+#: common/models/lang.py:189
 msgid "Swahili"
 msgstr ""
 
-#: common/models/lang.py:186
+#: common/models/lang.py:190
 msgid "Swedish"
 msgstr ""
 
-#: common/models/lang.py:187
+#: common/models/lang.py:191
 msgid "Tahitian"
 msgstr ""
 
-#: common/models/lang.py:188
+#: common/models/lang.py:192
 msgid "Tamil"
 msgstr ""
 
-#: common/models/lang.py:189
+#: common/models/lang.py:193
 msgid "Tatar"
 msgstr ""
 
-#: common/models/lang.py:190
+#: common/models/lang.py:194
 msgid "Telugu"
 msgstr ""
 
-#: common/models/lang.py:191
+#: common/models/lang.py:195
 msgid "Tajik"
 msgstr ""
 
-#: common/models/lang.py:192
+#: common/models/lang.py:196
 msgid "Tagalog"
 msgstr ""
 
-#: common/models/lang.py:193
+#: common/models/lang.py:197
 msgid "Thai"
 msgstr ""
 
-#: common/models/lang.py:194
+#: common/models/lang.py:198
 msgid "Tigrinya"
 msgstr ""
 
-#: common/models/lang.py:195
+#: common/models/lang.py:199
 msgid "Tonga"
 msgstr ""
 
-#: common/models/lang.py:196
+#: common/models/lang.py:200
 msgid "Tswana"
 msgstr ""
 
-#: common/models/lang.py:197
+#: common/models/lang.py:201
 msgid "Tsonga"
 msgstr ""
 
-#: common/models/lang.py:198
+#: common/models/lang.py:202
 msgid "Turkmen"
 msgstr ""
 
-#: common/models/lang.py:199
+#: common/models/lang.py:203
 msgid "Turkish"
 msgstr ""
 
-#: common/models/lang.py:200
+#: common/models/lang.py:204
 msgid "Twi"
 msgstr ""
 
-#: common/models/lang.py:201
+#: common/models/lang.py:205
 msgid "Uighur"
 msgstr ""
 
-#: common/models/lang.py:202
+#: common/models/lang.py:206
 msgid "Ukrainian"
 msgstr ""
 
-#: common/models/lang.py:203
+#: common/models/lang.py:207
 msgid "Urdu"
 msgstr ""
 
-#: common/models/lang.py:204
+#: common/models/lang.py:208
 msgid "Uzbek"
 msgstr ""
 
-#: common/models/lang.py:205
+#: common/models/lang.py:209
 msgid "Venda"
 msgstr ""
 
-#: common/models/lang.py:206
+#: common/models/lang.py:210
 msgid "Vietnamese"
 msgstr ""
 
-#: common/models/lang.py:207
+#: common/models/lang.py:211
 msgid "Volapük"
 msgstr ""
 
-#: common/models/lang.py:208
+#: common/models/lang.py:212
 msgid "Walloon"
 msgstr ""
 
-#: common/models/lang.py:209
+#: common/models/lang.py:213
 msgid "Wolof"
 msgstr ""
 
-#: common/models/lang.py:210
+#: common/models/lang.py:214
 msgid "Xhosa"
 msgstr ""
 
-#: common/models/lang.py:211
+#: common/models/lang.py:215
 msgid "Yiddish"
 msgstr ""
 
-#: common/models/lang.py:212
+#: common/models/lang.py:216
 msgid "Zhuang"
 msgstr ""
 
-#: common/models/lang.py:213
+#: common/models/lang.py:217
 msgid "Zulu"
 msgstr ""
 
-#: common/models/lang.py:214
+#: common/models/lang.py:218
 msgid "Abkhazian"
 msgstr ""
 
-#: common/models/lang.py:215
+#: common/models/lang.py:219
 msgid "Chinese"
 msgstr ""
 
-#: common/models/lang.py:216
+#: common/models/lang.py:220
 msgid "Pushto"
 msgstr ""
 
-#: common/models/lang.py:217
+#: common/models/lang.py:221
 msgid "Amharic"
 msgstr ""
 
-#: common/models/lang.py:218
+#: common/models/lang.py:222
 msgid "Arabic"
 msgstr ""
 
-#: common/models/lang.py:219
+#: common/models/lang.py:223
 msgid "Bulgarian"
 msgstr ""
 
-#: common/models/lang.py:220
+#: common/models/lang.py:224
 msgid "Macedonian"
 msgstr ""
 
-#: common/models/lang.py:221
+#: common/models/lang.py:225
 msgid "Greek"
 msgstr ""
 
-#: common/models/lang.py:222
+#: common/models/lang.py:226
 msgid "Persian"
 msgstr ""
 
-#: common/models/lang.py:223
+#: common/models/lang.py:227
 msgid "Hebrew"
 msgstr ""
 
-#: common/models/lang.py:224
+#: common/models/lang.py:228
 msgid "Hindi"
 msgstr ""
 
-#: common/models/lang.py:225
+#: common/models/lang.py:229
 msgid "Armenian"
 msgstr ""
 
-#: common/models/lang.py:227
+#: common/models/lang.py:231
 msgid "Ewe"
 msgstr ""
 
-#: common/models/lang.py:228
+#: common/models/lang.py:232
 msgid "Georgian"
 msgstr ""
 
-#: common/models/lang.py:229
+#: common/models/lang.py:233
 msgid "Punjabi"
 msgstr ""
 
-#: common/models/lang.py:230
+#: common/models/lang.py:234
 msgid "Bengali"
 msgstr ""
 
-#: common/models/lang.py:231
+#: common/models/lang.py:235
 msgid "Bosnian"
 msgstr ""
 
-#: common/models/lang.py:232
+#: common/models/lang.py:236
 msgid "Chamorro"
 msgstr ""
 
-#: common/models/lang.py:233
+#: common/models/lang.py:237
 msgid "Belarusian"
 msgstr ""
 
-#: common/models/lang.py:234
+#: common/models/lang.py:238
 msgid "Yoruba"
 msgstr ""
 
-#: common/models/lang.py:296
+#: common/models/lang.py:300
 msgid "Simplified Chinese (Mainland)"
 msgstr ""
 
-#: common/models/lang.py:297
+#: common/models/lang.py:301
 msgid "Traditional Chinese (Taiwan)"
 msgstr ""
 
-#: common/models/lang.py:298
+#: common/models/lang.py:302
 msgid "Traditional Chinese (Hongkong)"
 msgstr ""
 
-#: common/models/lang.py:306
+#: common/models/lang.py:310
 msgid "Portuguese (Brazil)"
 msgstr ""
 
-#: common/models/lang.py:309
+#: common/models/lang.py:313
 msgid "Simplified Chinese (Singapore)"
 msgstr ""
 
-#: common/models/lang.py:310
+#: common/models/lang.py:314
 msgid "Simplified Chinese (Malaysia)"
 msgstr ""
 
-#: common/models/lang.py:311
+#: common/models/lang.py:315
 msgid "Traditional Chinese (Macau)"
 msgstr ""
 
-#: common/models/lang.py:319
+#: common/models/lang.py:323
 msgid "Mandarin Chinese"
 msgstr ""
 
-#: common/models/lang.py:320
+#: common/models/lang.py:324
 msgid "Yue Chinese"
 msgstr ""
 
-#: common/models/lang.py:324
+#: common/models/lang.py:328
 msgid "Min Nan Chinese"
 msgstr ""
 
-#: common/models/lang.py:325
+#: common/models/lang.py:329
 msgid "Wu Chinese"
 msgstr ""
 
-#: common/models/lang.py:326
+#: common/models/lang.py:330
 msgid "Hakka Chinese"
 msgstr ""
 
@@ -5011,9 +5011,8 @@ msgstr ""
 msgid "Retrying"
 msgstr ""
 
-#: journal/models/mark.py:469 journal/views/note.py:124
-#: journal/views/note.py:184
-msgid "Only in-progress books can have reading progress."
+#: journal/models/mark.py:469
+msgid "Please mark the item before setting progress."
 msgstr ""
 
 #: journal/models/mark.py:473
@@ -6164,7 +6163,7 @@ msgid "Invalid input"
 msgstr ""
 
 #: journal/views/mark.py:225 journal/views/mark.py:279
-#: journal/views/note.py:176 journal/views/profile.py:42
+#: journal/views/note.py:175 journal/views/profile.py:42
 #: journal/views/review.py:50 journal/views/review.py:67
 msgid "Content not found"
 msgstr ""
@@ -6191,6 +6190,10 @@ msgstr ""
 
 #: journal/views/note.py:85
 msgid "Progress Type (optional)"
+msgstr ""
+
+#: journal/views/note.py:123 journal/views/note.py:183
+msgid "Only in-progress items can have progress."
 msgstr ""
 
 #: journal/views/post.py:98 journal/views/post.py:387

@@ -109,7 +109,7 @@ class Mark:
 
     @cached_property
     def current_progress(self) -> ShelfMemberProgress | None:
-        if not self.shelfmember or self.shelf_type != ShelfType.PROGRESS:
+        if not self.shelfmember:
             return None
         try:
             return self.shelfmember.current_progress
@@ -464,9 +464,9 @@ class Mark:
         progress_type: Note.ProgressType | str | None,
         progress_value: str | None,
     ) -> ShelfLogEntry | None:
-        """Set reading progress without creating or updating a timeline post."""
-        if self.item.class_name != "edition" or self.shelf_type != ShelfType.PROGRESS:
-            raise ValueError(_("Only in-progress books can have reading progress."))
+        """Set progress without creating or updating a timeline post."""
+        if not self.shelfmember:
+            raise ValueError(_("Please mark the item before setting progress."))
 
         normalized_value = progress_value.strip() if progress_value else None
         if normalized_value and len(normalized_value) > 500:
@@ -481,7 +481,6 @@ class Mark:
             if normalized_type not in Note.get_progress_types_by_item(self.item):
                 raise ValueError(_("Invalid progress type for this item."))
 
-        assert self.shelfmember is not None
         shelfmember = (
             ShelfMember.objects.select_for_update()
             .select_related("parent")
@@ -512,7 +511,7 @@ class Mark:
         log_entry = ShelfLogEntry(
             owner=self.owner,
             item=self.item,
-            shelf_type=ShelfType.PROGRESS,
+            shelf_type=shelfmember.parent.shelf_type,
             timestamp=timestamp,
             metadata=metadata,
         )

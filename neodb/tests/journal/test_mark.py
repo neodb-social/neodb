@@ -184,6 +184,38 @@ def test_set_book_progress_logs_change_without_new_post():
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_set_progress_allows_any_item_type_and_shelf():
+    user = User.register(email="progress-any@example.com", username="progressany")
+    podcast = Podcast.objects.create(title="Progress Podcast")
+    book = Edition.objects.create(title="Completed Progress Book")
+    podcast_mark = Mark(user.identity, podcast)
+    podcast_mark.update(ShelfType.PROGRESS, visibility=0)
+    book_mark = Mark(user.identity, book)
+    book_mark.update(ShelfType.COMPLETE, visibility=0)
+
+    podcast_log = podcast_mark.set_progress(Note.ProgressType.EPISODE, "12")
+    assert podcast_log is not None
+    assert podcast_log.shelf_type == ShelfType.PROGRESS
+    assert podcast_mark.progress_value == "12"
+
+    # progress on another shelf is logged under that shelf, not as in-progress
+    book_log = book_mark.set_progress(Note.ProgressType.PAGE, "42")
+    assert book_log is not None
+    assert book_log.shelf_type == ShelfType.COMPLETE
+    assert book_mark.progress_value == "42"
+    assert Mark(user.identity, book).progress_value == "42"
+
+    # progress types still have to match the item type
+    with pytest.raises(ValueError):
+        podcast_mark.set_progress(Note.ProgressType.PAGE, "3")
+
+    # progress hangs off a mark, so an unmarked item cannot have any
+    unmarked = Mark(user.identity, Edition.objects.create(title="Unmarked Book"))
+    with pytest.raises(ValueError):
+        unmarked.set_progress(Note.ProgressType.PAGE, "1")
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_progress_shelf_renders_progress_bar(client):
     user = User.register(email="progressbar@example.com", username="progressbar")
     book = Edition.objects.create(title="Bar Book")
@@ -503,6 +535,32 @@ def test_note_and_progress_dialog_modes(client):
     response = client.get(reverse("journal:note", args=[book.uuid, note.uuid]))
     assert response.status_code == 200
     assert 'id="note-mode-selector"' not in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_note_dialog_offers_progress_for_nonbook_item(client):
+    user = User.register(email="note-podcast@example.com", username="notepodcast")
+    podcast = Podcast.objects.create(title="Note Progress Podcast")
+    Mark(user.identity, podcast).update(ShelfType.PROGRESS, visibility=0)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    note_url = reverse("journal:note", args=[podcast.uuid])
+
+    response = client.get(f"{note_url}?mode=progress")
+    assert response.status_code == 200
+    assert response.context["mode"] == "progress"
+    assert response.context["can_update_progress"] is True
+
+    response = client.post(
+        note_url,
+        {
+            "mode": "progress",
+            "progress_type": "episode",
+            "progress_value": "9",
+        },
+    )
+    assert response.status_code == 302
+    assert Mark(user.identity, podcast).progress_value == "9"
+    assert Note.objects.filter(owner=user.identity, item=podcast).count() == 0
 
 
 @pytest.mark.django_db(databases="__all__")

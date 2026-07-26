@@ -1182,10 +1182,50 @@ def test_book_progress_api_get_set_clear_and_logs():
     assert latest_log["comment_text"] is None
     assert latest_log["rating_grade"] is None
 
+    # progress is not restricted to items on the in-progress shelf
     Mark(user.identity, item).update(ShelfType.COMPLETE, visibility=0)
     response = client.post(
         f"/api/me/shelf/item/{item.uuid}/progress",
         data=json.dumps({"type": "page", "value": "126"}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "type": "page",
+        "value": "126",
+    }
+
+    response = client.get(
+        f"/api/me/shelf/item/{item.uuid}/progress",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "type": "page",
+        "value": "126",
+    }
+
+    response = client.get(
+        f"/api/me/shelf/item/{item.uuid}/logs",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 200
+    latest_log = response.json()["data"][-1]
+    assert latest_log["shelf_type"] == "complete"
+    assert latest_log["progress_value"] == "126"
+
+    # progress belongs to a mark, so an unmarked item has none
+    unmarked = Edition.objects.create(title="Unmarked Progress Book")
+    response = client.get(
+        f"/api/me/shelf/item/{unmarked.uuid}/progress",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 404
+
+    response = client.post(
+        f"/api/me/shelf/item/{unmarked.uuid}/progress",
+        data=json.dumps({"type": "page", "value": "1"}),
         content_type="application/json",
         HTTP_AUTHORIZATION=authorization,
     )
