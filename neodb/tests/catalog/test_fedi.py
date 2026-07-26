@@ -128,6 +128,34 @@ class TestFediverseInstance:
                 FediverseInstance.is_local_item_url("https://external.com/movie/789")
                 is False
             )
+            # a hostname-less or malformed URL is not local, and must not raise
+            assert FediverseInstance.is_local_item_url("neodb.social") is False
+            assert FediverseInstance.is_local_item_url("") is False
+            # userinfo must not be mistaken for the host
+            assert (
+                FediverseInstance.is_local_item_url(
+                    "https://neodb.social@external.com/movie/789"
+                )
+                is False
+            )
+            assert (
+                FediverseInstance.is_local_item_url(
+                    "https://external.com@neodb.social/movie/789"
+                )
+                is True
+            )
+
+    def test_is_local_item_url_with_port(self):
+        """A SITE_DOMAINS entry may carry a port in local setups"""
+        with patch("catalog.sites.fedi.settings.SITE_DOMAINS", ["localhost:8000"]):
+            assert (
+                FediverseInstance.is_local_item_url("http://localhost:8000/movie/123")
+                is True
+            )
+            assert (
+                FediverseInstance.is_local_item_url("http://localhost/movie/123")
+                is False
+            )
 
     @patch("catalog.sites.fedi.CachedDownloader")
     @patch("catalog.sites.fedi.Item.get_by_url")

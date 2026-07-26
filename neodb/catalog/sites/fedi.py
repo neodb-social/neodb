@@ -104,8 +104,15 @@ class FediverseInstance(AbstractSite):
     @classmethod
     def is_local_item_url(cls, url: str) -> bool:
         """Check if the given URL belongs to a local item"""
-        host = url.split("://", 1)[1].split("/", 1)[0].lower()
-        return host in settings.SITE_DOMAINS
+        parsed = urlparse(url)
+        if not parsed.hostname:
+            return False
+        # hostname drops any :port and userinfo; netloc keeps the port, which
+        # SITE_DOMAINS may carry in local setups
+        return (
+            parsed.hostname in settings.SITE_DOMAINS
+            or parsed.netloc.lower() in settings.SITE_DOMAINS
+        )
 
     def get_local_item_from_external_resources(self) -> Item | None:
         """if a local item is in the external_resources, return it"""

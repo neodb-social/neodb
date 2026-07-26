@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List
+from urllib.parse import urlparse
 
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -47,6 +48,7 @@ from .models import (
 )
 from .recommendation import blended_for_discover, can_show_reco, similar_items
 from .search.utils import enqueue_fetch, get_fetch_lock, query_index
+from .sites.fedi import FediverseInstance
 
 PAGE_SIZE = 20
 
@@ -250,7 +252,13 @@ def search_item(
 
 @api.get(
     "/catalog/fetch",
-    response={302: RedirectedResult, 202: Result, 422: Result, 429: Result},
+    response={
+        302: RedirectedResult,
+        202: Result,
+        404: Result,
+        422: Result,
+        429: Result,
+    },
     summary="Fetch item from URL of a supported site",
     auth=None,
     tags=["catalog"],
@@ -258,6 +266,10 @@ def search_item(
 def fetch_item(request, url: str, response: HttpResponse):
     """
     Convert a URL from a supported site (e.g. https://m.imdb.com/title/tt2852400/) to an item.
+
+    An item URL of this server (e.g. https://neodb.social/movie/4W2ZHSBFHfCbRhdBUlHhBS)
+    is also accepted, and resolved directly without fetching.
+    If such URL doesn't match an item here, HTTP 404 will be returned.
 
     If the URL is not supported by this server, HTTP 422 will be returned.
     If the item is available in the catalog, HTTP 302 will be returned.
@@ -267,6 +279,14 @@ def fetch_item(request, url: str, response: HttpResponse):
     If not getting the item after 120 seconds, please stop and consider the URL is not available.
     Frequent request may result with HTTP 429.
     """
+    if FediverseInstance.is_local_item_url(url):
+        # our own item URL: resolve it locally, no fetching or rate limit needed.
+        # match on path only, so the host can't fool the uuid search in get_by_url
+        item = Item.get_by_url(urlparse(url).path, resolve_merge=True)
+        if not item or item.is_deleted:
+            return Status(404, {"message": "Item not found"})
+        response["Location"] = item.api_url
+        return Status(302, {"message": "Item fetched", "url": item.api_url})
     site = SiteManager.get_site_by_url(url, detect_redirection=False)
     if not site:
         return Status(422, {"message": "URL not supported"})

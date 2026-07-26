@@ -2,6 +2,7 @@ from unittest.mock import ANY, patch
 
 import pytest
 import requests
+from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -124,6 +125,94 @@ def test_catalog_fetch_endpoint_returns_accepted_when_queued(live_server):
 
     assert response.status_code == 202
     enqueue_fetch.assert_called_once_with("http://example.com/queued", False, ANY)
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_catalog_fetch_endpoint_resolves_local_url(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Local Movie")
+
+    with patch("catalog.apis.enqueue_fetch") as enqueue_fetch:
+        response = requests.get(
+            f"{live_server.url}/api/catalog/fetch",
+            params={"url": movie.absolute_url},
+            timeout=5,
+            allow_redirects=False,
+        )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == movie.api_url
+    assert response.json()["url"] == movie.api_url
+    enqueue_fetch.assert_not_called()
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_catalog_fetch_endpoint_resolves_local_alternative_url(live_server):
+    """The federated `/~neodb~/` prefix and the API path resolve too."""
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Local Movie")
+
+    site_url = settings.SITE_INFO["site_url"]
+    for url in [
+        f"{site_url}/~neodb~{movie.url}",
+        f"{site_url}{movie.api_url}",
+        f"{site_url}{movie.url}/",
+    ]:
+        response = requests.get(
+            f"{live_server.url}/api/catalog/fetch",
+            params={"url": url},
+            timeout=5,
+            allow_redirects=False,
+        )
+        assert response.status_code == 302, url
+        assert response.headers["Location"] == movie.api_url
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_catalog_fetch_endpoint_resolves_merged_local_url(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Local Movie")
+        merged = Movie.objects.create(title="Merged Movie", merged_to_item=movie)
+
+    response = requests.get(
+        f"{live_server.url}/api/catalog/fetch",
+        params={"url": merged.absolute_url},
+        timeout=5,
+        allow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == movie.api_url
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+@pytest.mark.parametrize("path", ["/movie/nonexistentitemuuid1", "/users/someone/"])
+def test_catalog_fetch_endpoint_returns_not_found_for_local_url(live_server, path):
+    response = requests.get(
+        f"{live_server.url}/api/catalog/fetch",
+        params={"url": f"{settings.SITE_INFO['site_url']}{path}"},
+        timeout=5,
+        allow_redirects=False,
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_catalog_fetch_endpoint_returns_not_found_for_deleted_local_item(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Deleted Movie")
+        movie.is_deleted = True
+        movie.save()
+
+    response = requests.get(
+        f"{live_server.url}/api/catalog/fetch",
+        params={"url": movie.absolute_url},
+        timeout=5,
+        allow_redirects=False,
+    )
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
