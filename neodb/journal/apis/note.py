@@ -1,12 +1,21 @@
 from datetime import datetime
 from typing import List
 
-from django.http import Http404
-from ninja import Field, Schema, Status
+from django.http import HttpResponse
+from ninja import Field, Schema
 from ninja.pagination import paginate
 
-from catalog.models import Item, ItemSchema
-from common.api import NOT_FOUND, OK, PageNumberPagination, Result, api
+from catalog.models import ItemSchema
+from common.api import (
+    NOT_FOUND,
+    OK,
+    PageNumberPagination,
+    RedirectedResult,
+    Result,
+    api,
+    resolve_item_for_read,
+    resolve_item_for_write,
+)
 from common.sentry import record_activity
 
 from ..models import Note
@@ -37,33 +46,56 @@ class NoteInSchema(Schema):
 
 @api.get(
     "/me/note/item/{item_uuid}/",
-    response={200: List[NoteSchema], 401: Result, 403: Result},
+    response={
+        200: List[NoteSchema],
+        302: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["note"],
 )
 @paginate(PageNumberPagination)
-def list_notes_for_item(request, item_uuid):
+def list_notes_for_item(request, item_uuid: str, response: HttpResponse):
     """
     List notes by current user for an item
+
+    If the item was merged into another one, HTTP 302 is returned.
     """
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/me/note/item/{uuid}/", response
+    )
     if not item:
-        raise Http404("Item not found")
+        return redirect
     queryset = Note.objects.filter(owner=request.user.identity, item=item)
     return queryset.prefetch_related("item")
 
 
 @api.post(
     "/me/note/item/{item_uuid}/",
-    response={200: NoteSchema, 401: Result, 403: Result, 404: Result},
+    response={
+        200: NoteSchema,
+        307: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["note"],
 )
-def add_note_for_item(request, item_uuid: str, n_in: NoteInSchema):
+def add_note_for_item(
+    request, item_uuid: str, n_in: NoteInSchema, response: HttpResponse
+):
     """
     Add a note for an item
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
     """
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/note/item/{uuid}/", response
+    )
     if not item:
-        return Status(404, {"message": "Item not found"})
+        return redirect
     note = Note()
     note.item = item
     note.owner = request.user.identity

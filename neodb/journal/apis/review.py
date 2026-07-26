@@ -1,12 +1,21 @@
 from datetime import datetime
 from typing import List
 
+from django.http import HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
 from catalog.models import AvailableItemCategory, Item, ItemSchema
-from common.api import OptionalOAuthAccessTokenAuth, PageNumberPagination, Result, api
+from common.api import (
+    OptionalOAuthAccessTokenAuth,
+    PageNumberPagination,
+    RedirectedResult,
+    Result,
+    api,
+    resolve_item_for_read,
+    resolve_item_for_write,
+)
 from common.sentry import record_activity
 
 from ..models import (
@@ -55,16 +64,26 @@ def list_reviews(request, category: AvailableItemCategory | None = None):
 
 @api.get(
     "/me/review/item/{item_uuid}",
-    response={200: ReviewSchema, 401: Result, 403: Result, 404: Result},
+    response={
+        200: ReviewSchema,
+        302: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["review"],
 )
-def get_review_by_item(request, item_uuid: str):
+def get_review_by_item(request, item_uuid: str, response: HttpResponse):
     """
     Get review on current user's shelf by item uuid
+
+    If the item was merged into another one, HTTP 302 is returned.
     """
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/me/review/item/{uuid}", response
+    )
     if not item:
-        return Status(404, {"message": "Item not found"})
+        return redirect
     review = Review.objects.filter(owner=request.user.identity, item=item).first()
     if not review:
         return Status(404, {"message": "Review not found"})
@@ -73,20 +92,33 @@ def get_review_by_item(request, item_uuid: str):
 
 @api.post(
     "/me/review/item/{item_uuid}",
-    response={200: Result, 401: Result, 403: Result, 404: Result},
+    response={
+        200: Result,
+        307: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["review"],
 )
-def review_item(request, item_uuid: str, review: ReviewInSchema):
+def review_item(
+    request, item_uuid: str, review: ReviewInSchema, response: HttpResponse
+):
     """
     Create or update a review about an item for current user.
 
     `title`, `body` (markdown formatted) and`visibility` are required;
     `created_time` is optional, default to now.
     if the item is already reviewed, this will update the review.
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
     """
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/review/item/{uuid}", response
+    )
     if not item:
-        return Status(404, {"message": "Item not found"})
+        return redirect
     if review.created_time and review.created_time >= timezone.now():
         review.created_time = None
     Review.update_item_review(

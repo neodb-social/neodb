@@ -1,15 +1,17 @@
 from typing import List, Literal, Union
 
+from django.http import HttpResponse
 from ninja import Field, Schema
 
 from catalog.models import Item
 from common.api import (
     INVALID_PAGE,
-    NOT_FOUND,
     OAuthAccessTokenAuth,
     OptionalOAuthAccessTokenAuth,
+    RedirectedResult,
     Result,
     api,
+    resolve_item_for_read,
 )
 from journal.search import JournalIndex, JournalQueryParser
 
@@ -133,23 +135,37 @@ PostTypes = {"mark", "comment", "review", "collection", "note"}
 
 @api.get(
     "/item/{item_uuid}/posts/",
-    response={200: PaginatedPostList, 400: Result, 401: Result, 404: Result},
+    response={
+        200: PaginatedPostList,
+        302: RedirectedResult,
+        400: Result,
+        401: Result,
+        404: Result,
+    },
     tags=["catalog"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
 def list_posts_for_item(
-    request, item_uuid: str, type: str | None = None, page: int = 1
+    request,
+    item_uuid: str,
+    response: HttpResponse,
+    type: str | None = None,
+    page: int = 1,
 ):
     """
     Get posts for an item
 
     `type` is optional, can be a comma separated list of `comment`, `review`, `collection`, `note`, `mark`; default is `comment,review`
+
+    If the item was merged into another one, HTTP 302 is returned.
     """
     if page < 1 or page > 99:
         return INVALID_PAGE
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/item/{uuid}/posts/", response
+    )
     if not item:
-        return NOT_FOUND
+        return redirect
     types = [t for t in (type or "").split(",") if t in PostTypes]
     q = "type:" + ",".join(types or ["comment", "review"])
     query = JournalQueryParser(q, page)

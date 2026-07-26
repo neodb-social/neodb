@@ -1251,7 +1251,7 @@ def test_shelf_api_list_delete_and_logs():
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_shelf_api_logs_on_merged_item_redirects():
+def test_read_apis_on_merged_item_redirect_with_302():
     user = User.register(email="shelf-merged@example.com", username="shelfuser3")
     merged_item = Edition.objects.create(title="Merged Away Book")
     target_item = Edition.objects.create(title="Surviving Book")
@@ -1266,14 +1266,121 @@ def test_shelf_api_logs_on_merged_item_redirects():
     token = Takahe.refresh_token(app, user.identity.pk, user.pk)
     client = Client()
 
-    response = client.get(
-        f"/api/me/shelf/item/{merged_item.uuid}/logs",
-        HTTP_AUTHORIZATION=f"Bearer {token}",
-    )
+    paths = [
+        "/api/me/shelf/item/{}",
+        "/api/me/shelf/item/{}/progress",
+        "/api/me/shelf/item/{}/logs",
+        "/api/me/review/item/{}",
+        "/api/me/note/item/{}/",
+        "/api/item/{}/posts/",
+    ]
+    for path in paths:
+        location = path.format(target_item.uuid)
+        response = client.get(
+            path.format(merged_item.uuid),
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
 
-    assert response.status_code == 302
-    assert response["Location"] == f"/api/me/shelf/item/{target_item.uuid}/logs"
-    assert response.json() == {"message": "Item merged"}
+        assert response.status_code == 302, path
+        assert response["Location"] == location
+        assert response.json() == {"message": "Item merged", "url": location}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_write_apis_on_merged_item_redirect_with_307():
+    """Writes get 307, so the client can replay method and body as-is."""
+    user = User.register(email="merged-write@example.com", username="mergeduser")
+    merged_item = Edition.objects.create(title="Merged Away Book 2")
+    target_item = Edition.objects.create(title="Surviving Book 2")
+    merged_item.merge_to(target_item)
+
+    app = Takahe.get_or_create_app(
+        "Merged Write API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    authorization = f"Bearer {token}"
+    client = Client()
+
+    cases = [
+        ("post", "/api/me/shelf/item/{}", {"shelf_type": "complete", "visibility": 0}),
+        (
+            "post",
+            "/api/me/shelf/item/{}/progress",
+            {"type": "page", "value": "10"},
+        ),
+        ("delete", "/api/me/shelf/item/{}/progress", None),
+        (
+            "post",
+            "/api/me/review/item/{}",
+            {"title": "Title", "body": "Body", "visibility": 0},
+        ),
+        (
+            "post",
+            "/api/me/note/item/{}/",
+            {"title": "Title", "content": "Content", "visibility": 0},
+        ),
+    ]
+    for method, path, payload in cases:
+        url = path.format(merged_item.uuid)
+        location = path.format(target_item.uuid)
+        kwargs = {"HTTP_AUTHORIZATION": authorization}
+        if payload is not None:
+            kwargs["data"] = json.dumps(payload)
+            kwargs["content_type"] = "application/json"
+        response = getattr(client, method)(url, **kwargs)
+        assert response.status_code == 307, url
+        assert response["Location"] == location
+        assert response.json() == {"message": "Item merged", "url": location}
+
+    # nothing was written to the merged-away item
+    assert Mark(user.identity, merged_item).shelf_type is None
+    assert not Review.objects.filter(item=merged_item).exists()
+    assert not Note.objects.filter(item=merged_item).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_write_apis_on_deleted_item_return_404():
+    user = User.register(email="deleted-write@example.com", username="deleteduser")
+    item = Edition.objects.create(title="Deleted Write Book")
+    item.is_deleted = True
+    item.save()
+
+    app = Takahe.get_or_create_app(
+        "Deleted Write API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    authorization = f"Bearer {token}"
+    client = Client()
+
+    response = client.post(
+        f"/api/me/shelf/item/{item.uuid}",
+        data=json.dumps({"shelf_type": "complete", "visibility": 0}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 404
+
+    response = client.post(
+        f"/api/me/review/item/{item.uuid}",
+        data=json.dumps({"title": "Title", "body": "Body", "visibility": 0}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 404
+
+    response = client.post(
+        f"/api/me/note/item/{item.uuid}/",
+        data=json.dumps({"title": "Title", "content": "Content", "visibility": 0}),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=authorization,
+    )
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(databases="__all__")

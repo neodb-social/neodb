@@ -3,7 +3,7 @@ from typing import Any, List
 
 from django.core.cache import cache
 from django.db.models import QuerySet, prefetch_related_objects
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
 from ninja.pagination import paginate
@@ -14,7 +14,14 @@ from catalog.models import (
     ItemCategory,
     ItemSchema,
 )
-from common.api import PageNumberPagination, Result, api
+from common.api import (
+    PageNumberPagination,
+    RedirectedResult,
+    Result,
+    api,
+    resolve_item_for_read,
+    resolve_item_for_write,
+)
 from common.sentry import record_activity
 from common.utils import get_uuid_or_404
 from journal.models.common import (
@@ -215,21 +222,26 @@ def list_marks_on_shelf(
 
 @api.get(
     "/me/shelf/item/{item_uuid}",
-    response={200: MarkSchema, 302: Result, 401: Result, 403: Result, 404: Result},
+    response={
+        200: MarkSchema,
+        302: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["shelf"],
 )
 def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     """
     Get holding mark on current user's shelf by item uuid
+
+    If the item was merged into another one, HTTP 302 is returned.
     """
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted:
-        return Status(404, {"message": "Item not found"})
-    if item.merged_to_item:
-        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}"
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/me/shelf/item/{uuid}", response
+    )
+    if not item:
+        return redirect
     shelfmember = request.user.shelf_manager.locate_item(item)
     if not shelfmember:
         return Status(404, {"message": "Mark not found"})
@@ -240,7 +252,7 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     "/me/shelf/item/{item_uuid}/progress",
     response={
         200: ProgressSchema,
-        302: Result,
+        302: RedirectedResult,
         400: Result,
         401: Result,
         403: Result,
@@ -249,15 +261,15 @@ def get_mark_by_item(request, item_uuid: str, response: HttpResponse):
     tags=["shelf"],
 )
 def get_item_progress(request, item_uuid: str, response: HttpResponse):
-    """Get reading progress for an in-progress book."""
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted:
-        return Status(404, {"message": "Item not found"})
-    if item.merged_to_item:
-        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+    """Get reading progress for an in-progress book.
+
+    If the item was merged into another one, HTTP 302 is returned.
+    """
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/me/shelf/item/{uuid}/progress", response
+    )
+    if not item:
+        return redirect
     mark = Mark(request.user.identity, item)
     if mark.shelf_type != ShelfType.PROGRESS:
         return Status(400, {"message": "Only in-progress items can have progress."})
@@ -271,7 +283,7 @@ def get_item_progress(request, item_uuid: str, response: HttpResponse):
     "/me/shelf/item/{item_uuid}/progress",
     response={
         200: ProgressSchema,
-        302: Result,
+        307: RedirectedResult,
         400: Result,
         401: Result,
         403: Result,
@@ -285,15 +297,16 @@ def set_item_progress(
     progress: ProgressInSchema,
     response: HttpResponse,
 ):
-    """Set or clear reading progress for an in-progress item."""
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted:
-        return Status(404, {"message": "Item not found"})
-    if item.merged_to_item:
-        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+    """Set or clear reading progress for an in-progress item.
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
+    """
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/shelf/item/{uuid}/progress", response
+    )
+    if not item:
+        return redirect
     mark = Mark(request.user.identity, item)
     try:
         mark.set_progress(progress.type, progress.value)
@@ -310,7 +323,7 @@ def set_item_progress(
     "/me/shelf/item/{item_uuid}/progress",
     response={
         200: Result,
-        302: Result,
+        307: RedirectedResult,
         400: Result,
         401: Result,
         403: Result,
@@ -319,15 +332,16 @@ def set_item_progress(
     tags=["shelf"],
 )
 def delete_item_progress(request, item_uuid: str, response: HttpResponse):
-    """Clear reading progress for an in-progress item."""
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted:
-        return Status(404, {"message": "Item not found"})
-    if item.merged_to_item:
-        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/progress"
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+    """Clear reading progress for an in-progress item.
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
+    """
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/shelf/item/{uuid}/progress", response
+    )
+    if not item:
+        return redirect
     mark = Mark(request.user.identity, item)
     try:
         mark.set_progress(None, None)
@@ -360,10 +374,16 @@ def get_marks_by_item_list(request, item_uuids: str, response: HttpResponse):
 
 @api.post(
     "/me/shelf/item/{item_uuid}",
-    response={200: Result, 401: Result, 403: Result, 404: Result},
+    response={
+        200: Result,
+        307: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["shelf"],
 )
-def mark_item(request, item_uuid: str, mark: MarkInSchema):
+def mark_item(request, item_uuid: str, mark: MarkInSchema, response: HttpResponse):
     """
     Create or update a holding mark about an item for current user.
 
@@ -371,10 +391,15 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema):
     if the item is already marked, this will update the mark.
 
     updating mark without `rating_grade`, `comment_text` or `tags` field will clear them.
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
     """
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted or item.merged_to_item:
-        return Status(404, {"message": "Item not found"})
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/shelf/item/{uuid}", response
+    )
+    if not item:
+        return redirect
     if mark.created_time:
         if mark.created_time.tzinfo is None:
             mark.created_time = timezone.make_aware(
@@ -418,7 +443,7 @@ def delete_mark(request, item_uuid: str):
     "/me/shelf/item/{item_uuid}/logs",
     response={
         200: List[MarkLogSchema],
-        302: Result,
+        302: RedirectedResult,
         401: Result,
         404: Result,
     },
@@ -428,13 +453,12 @@ def delete_mark(request, item_uuid: str):
 def get_mark_logs_by_item(request, item_uuid: str, response: HttpResponse):
     """
     Get holding mark on current user's shelf by item uuid
+
+    If the item was merged into another one, HTTP 302 is returned.
     """
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted:
-        raise Http404("Item not found")
-    if item.merged_to_item:
-        response["Location"] = f"/api/me/shelf/item/{item.merged_to_item.uuid}/logs"
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+    item, redirect = resolve_item_for_read(
+        item_uuid, "/api/me/shelf/item/{uuid}/logs", response
+    )
+    if not item:
+        return redirect
     return Mark(request.user.identity, item).logs

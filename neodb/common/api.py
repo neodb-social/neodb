@@ -2,12 +2,13 @@ from typing import Any, List
 
 from django.conf import settings
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from loguru import logger
 from ninja import NinjaAPI, Schema, Status
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
 from ninja.security import HttpBearer
 
+from catalog.models import Item
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity
 
@@ -119,3 +120,41 @@ NOT_FOUND = Status(404, {"message": "Not found"})
 OK = Status(200, {"message": "OK"})
 NO_DATA = {"data": [], "count": 0, "pages": 0}
 INVALID_PAGE = Status(400, {"message": "Invalid page number"})
+
+
+def _resolve_item(
+    item_uuid: str, api_path: str, response: HttpResponse, redirect_status: int
+) -> tuple[Item | None, Any]:
+    item = Item.get_by_url(item_uuid)
+    if not item or item.is_deleted:
+        return None, Status(404, {"message": "Item not found"})
+    if item.merged_to_item:
+        url = api_path.format(uuid=item.final_item.uuid)
+        response["Location"] = url
+        return None, Status(redirect_status, {"message": "Item merged", "url": url})
+    return item, None
+
+
+def resolve_item_for_read(
+    item_uuid: str, api_path: str, response: HttpResponse
+) -> tuple[Item | None, Any]:
+    """Resolve the item a read API is about, redirecting merged items.
+
+    `api_path` is this endpoint's path with `{uuid}` where the item uuid goes.
+    Returns `(item, None)` when the item can be read, otherwise `(None, status)`:
+    404 if the item is unknown or deleted, or 302 pointing at the item a merged
+    one was folded into.
+    """
+    return _resolve_item(item_uuid, api_path, response, 302)
+
+
+def resolve_item_for_write(
+    item_uuid: str, api_path: str, response: HttpResponse
+) -> tuple[Item | None, Any]:
+    """Resolve the item a write API is about, redirecting merged items.
+
+    Same as `resolve_item_for_read`, but a merged item gets 307 rather than 302,
+    so the client replays the same method and body instead of turning the write
+    into a GET.
+    """
+    return _resolve_item(item_uuid, api_path, response, 307)
