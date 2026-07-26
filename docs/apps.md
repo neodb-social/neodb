@@ -25,3 +25,18 @@ These apps are not affiliated with NeoDB, but they are being developed with the 
 [Mastodon compatible mobile and native apps](https://joinmastodon.org/apps) can be used to log in and utilize the micro-blogging features in a NeoDB server.
 
 In addition to micro-blogging, Mastodon-compatible apps can also be used to take notes on the book you are currently reading. Just head to the bookmark section in your app; your currently-reading books are listed there as bookmarked posts, and replying to any of them will create a note for that book.
+
+## KOReader plugin
+
+[KOReader](https://koreader.rocks/) is an open-sourced document viewer for E-Ink devices.
+NeoDB has a plugin for it so users can sync progress/rating/comment/note directly from e-readers.
+
+### Install NeoDB for KOReader
+
+- Download [the latest release](https://github.com/neodb-social/neodb.koplugin/archive/main.zip)
+- unzip, rename the folder to `neodb.koplugin` and copy it into KOReader's `plugins` directory.
+- Restart KOReader. The plugin appears under **☰ → Tools → NeoDB**
+- Open any book, then **☰ → Tools → NeoDB → Sign in to NeoDB…** to scan QR code and link your NeoDB account
+
+For one-gesture access, bind **NeoDB: book actions** in
+*Settings → Taps and gestures → Gesture manager*
