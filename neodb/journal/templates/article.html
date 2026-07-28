@@ -116,14 +116,14 @@
                 <span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span>
               </h1>
             </hgroup>
-            <p class="piece-summary article-summary">
+            <div class="piece-summary article-summary">
               {% if article.classname == "article" %}
                 {{ article.display_summary|default:'' }}
               {% else %}
                 <a href="{{ article.item.url }}">{{ article.item.display_title }}</a> - {% trans 'Review' %}
                 {% if article.rating_grade %}{{ article.rating_grade | rating_star }}{% endif %}
               {% endif %}
-            </p>
+            </div>
           </header>
           {% if article.classname == "article" and article.sensitive %}
             <p id="article_{{ article.uuid }}_reveal_wrap"

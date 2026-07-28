@@ -15,6 +15,11 @@
   color: var(--pico-muted-color, #888);
 }
 
+// A <div>, not a <p>, so restore the paragraph spacing Pico would have given it.
+.article-summary {
+  margin-bottom: var(--pico-typography-spacing-vertical);
+}
+
 // Compact timeline-teaser layout shared by review / article / post-only
 // article cards. Replaces inline ``style="margin-bottom:0.2em"`` /
 // ``style="margin:0 0 0.4em 0"`` that used to live on each template.
