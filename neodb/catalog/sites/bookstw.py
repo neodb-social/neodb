@@ -4,6 +4,29 @@ from catalog.models.utils import *
 from common.models import normalize_price
 
 
+class BooksTWDownloader(ScrapDownloader):
+    def __init__(
+        self,
+        url: str,
+        headers: dict | None = None,
+        timeout: float | None = None,
+    ):
+        super().__init__(url, headers, timeout, "div.type02_p002")
+
+    def validate_response(self, response) -> int:
+        if response is None:
+            return RESPONSE_NETWORK_ERROR
+        if response.status_code == 404:
+            return RESPONSE_INVALID_CONTENT
+        if response.status_code == 200:
+            content = response.content.decode("utf-8", errors="ignore")
+            if "type02_p002" not in content:
+                # Cloudflare challenge or error page, try next provider
+                return RESPONSE_NETWORK_ERROR
+            return RESPONSE_OK
+        return RESPONSE_INVALID_CONTENT
+
+
 @SiteManager.register
 class BooksTW(AbstractSite):
     SITE_NAME = SiteName.BooksTW
@@ -20,7 +43,7 @@ class BooksTW(AbstractSite):
 
     def scrape(self):
         assert self.url
-        content = BasicDownloader(self.url).download().html()
+        content = BooksTWDownloader(self.url).download().html()
 
         isbn_elem = content.xpath(
             "//div[@class='bd']/ul/li[starts-with(text(),'ISBN：')]/text()"

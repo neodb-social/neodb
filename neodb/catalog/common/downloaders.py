@@ -939,6 +939,9 @@ class ScrapDownloader(BasicDownloader):
         # Try each configured provider
         for provider in providers:
             resp, resp_type = self._scrape_with_provider(provider)
+            if resp_type == RESPONSE_OK and resp is not None:
+                # let subclasses reject challenge/error pages served with HTTP 200
+                resp_type = self.validate_response(resp)
 
             if resp_type == RESPONSE_OK and resp is not None:
                 self.response_type = resp_type
@@ -956,6 +959,8 @@ class ScrapDownloader(BasicDownloader):
         if backup and backup not in providers:
             logger.debug(f"Trying backup provider: {backup}")
             resp, resp_type = self._scrape_with_provider(backup)
+            if resp_type == RESPONSE_OK and resp is not None:
+                resp_type = self.validate_response(resp)
 
         self.response_type = resp_type
         if self.response_type == RESPONSE_OK and resp:
