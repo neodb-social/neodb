@@ -294,6 +294,12 @@ class PostStates(StateGraph):
             days=settings.SETUP.REMOTE_PRUNE_HORIZON
         ):
             return
+        # Never prune posts from other NeoDB instances: local journal
+        # pieces stay linked to them, and pruning breaks item post
+        # listings until the post is refetched
+        domain = instance.author.domain
+        if domain and "neodb" in ((domain.nodeinfo or {}).get("protocols") or []):
+            return
         # It must have no local interactions
         if instance.interactions.filter(identity__local=True).exists():
             return
