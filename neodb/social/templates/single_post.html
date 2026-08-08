@@ -9,23 +9,31 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} {% trans "Post" %} | {{ owner.display_name }}</title>
+    {% firstof post.item.display_title post.type_data.object.name post.content_plain_text|truncatechars:60 as title_hint %}
+    <title>{{ site_name }} {% trans "Post" %} | {{ owner.display_name }}
+      {% if title_hint %}| {{ title_hint }}{% endif %}
+    </title>
+    <link rel="canonical" href="{{ post.absolute_object_uri }}">
+    <link rel="alternate"
+          type="application/activity+json"
+          href="{{ post.object_uri }}">
     {% with card=post.converted_preview_card %}
       {% if card %}
         <meta property="og:title"
               content="{{ card.title|default:post.type|striptags }}">
       {% elif post.type == 'Article' %}
         <meta property="og:title"
-              content="{{ post.type_data.object.name|default:post.summary|striptags|default:_("Article") }}">
+              content="{{ post.type_data.object.name|default:post.summary|default:''|striptags|default:_("Article") }}">
       {% elif post.type == 'Question' %}
         <meta property="og:title"
               content="{{ post.content_plain_text|truncatechars:100|default:_("Poll") }}">
       {% else %}
         <meta property="og:title"
-              content="{{ post.summary|striptags|default:_("Post") }}">
+              content="{{ post.summary|default:title_hint|default:''|striptags|default:_("Post") }}">
       {% endif %}
       <meta property="og:site_name" content="{{ site_name }}">
       <meta property="og:type" content="article">
+      <meta property="og:url" content="{{ post.absolute_object_uri }}">
       <meta property="article:author" content="{{ owner.display_name }}">
       <meta property="article:published_time"
             content="{{ post.published | date:'c' }}">
@@ -38,20 +46,18 @@
       {% elif post.article_cover_url %}
         <meta property="og:image" content="{{ post.article_cover_url }}">
       {% endif %}
-      {% if card %}
-        <meta property="og:description"
-              content="{{ card.description|default:post.content_plain_text|striptags|slice:':300' }}" />
-      {% elif post.type == 'Article' %}
-        <meta property="og:description"
-              content="{{ post.type_data.object.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
-      {% else %}
-        <meta property="og:description"
-              content="{{ post.summary|default:post.content_plain_text|striptags|slice:':300' }}" />
+      {% firstof card.description|default:''|striptags|slice:':300' post.type_data.object.summary|default:''|striptags|slice:':300' post.summary|default:''|striptags|slice:':300' post.piece.comment_text|default:''|striptags|slice:':300' post.piece.text|default:''|striptags|slice:':300' post.content_plain_text|striptags|slice:':300' as description %}
+      {% if description %}
+        <meta name="description" content="{{ description }}" />
+        <meta property="og:description" content="{{ description }}" />
       {% endif %}
     {% endwith %}
     <meta name="fediverse:creator" content="@{{ owner.full_handle }}">
     <meta name="lastmodified" content="{{ post.updated | date:'r' }}" />
-    {% if not owner.local or not owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
+    {% if not owner.local or not owner.anonymous_viewable or post.author.restriction or post.visibility != post.Visibilities.public %}
+      <meta name="robots" content="noindex">
+    {% endif %}
+    <script type="application/ld+json">{{ post.to_schema_org_json | safe }}</script>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"

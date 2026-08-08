@@ -6,7 +6,7 @@ import ssl
 import time
 from datetime import date, timedelta
 from functools import cached_property, partial
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 from urllib.parse import quote
 
 import httpx
@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 from lxml import etree
 
 from common.models import SiteConfig
+from common.utils import json_ld_dumps
 from common.validators import is_valid_url
 
 from .html import ContentRenderer, FediverseHtmlParser
@@ -1708,7 +1709,7 @@ class Post(models.Model):
             ContentRenderer(local=True).render_post(self.content, self)
         )
 
-    @property
+    @cached_property
     def content_plain_text(self):
         return FediverseHtmlParser(self.content).plain_text
 
@@ -1731,6 +1732,85 @@ class Post(models.Model):
             "boosts": self.stats.get("boosts", 0) if self.stats else 0,
             "replies": self.stats.get("replies", 0) if self.stats else 0,
         }
+
+    def to_schema_org(self) -> dict[str, Any]:
+        """Generate Schema.org structured data for the single post page."""
+        item = self.item
+        piece = self.piece
+        rating_grade = getattr(piece, "rating_grade", None)
+        if item and rating_grade:
+            data: dict[str, Any] = {
+                "@context": "https://schema.org",
+                "@type": "Review",
+                "itemReviewed": item.to_schema_org(),
+                "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": rating_grade,
+                    "worstRating": 1,
+                    "bestRating": 10,
+                },
+            }
+            # the post content wraps the user's words in generated text
+            # (action line, rating emojis), so prefer the piece's own text
+            body = (
+                getattr(piece, "comment_text", None)
+                or getattr(piece, "text", None)
+                or self.content_plain_text
+            )
+            if body:
+                data["reviewBody"] = body
+        else:
+            data = {
+                "@context": "https://schema.org",
+                "@type": (
+                    "Article"
+                    if self.type == self.Types.article
+                    else "SocialMediaPosting"
+                ),
+            }
+            if self.content:
+                data["articleBody"] = self.content_plain_text
+            if item:
+                data["about"] = item.to_schema_org()
+        card = self.converted_preview_card
+        headline = None
+        if card and card.title:
+            headline = card.title
+        elif self.type == self.Types.article and isinstance(self.type_data, dict):
+            obj = self.type_data.get("object")
+            if isinstance(obj, dict) and isinstance(obj.get("name"), str):
+                headline = obj["name"]
+        elif self.summary:
+            headline = self.summary
+        if headline:
+            data["headline"] = headline
+        data["url"] = self.absolute_object_uri()
+        data["datePublished"] = self.published.isoformat()
+        data["dateModified"] = (self.edited or self.published).isoformat()
+        if self.language:
+            data["inLanguage"] = self.language
+        data["author"] = {
+            "@type": "Person",
+            "name": self.author.name or self.author.username,
+            "url": self.author.absolute_profile_uri(),
+        }
+        image = None
+        if card and card.image_url:
+            proxy_url = card.image_proxy_url
+            image = proxy_url.absolute if proxy_url else None
+        elif item and item.has_cover():
+            image = item.cover_image_url
+        elif self.article_cover_url:
+            image = self.article_cover_url
+        if image:
+            data["image"] = image
+        replies = self.stats.get("replies", 0) if self.stats else 0
+        if replies:
+            data["commentCount"] = replies
+        return data
+
+    def to_schema_org_json(self) -> str:
+        return json_ld_dumps(self.to_schema_org())
 
     def to_mastodon_json(self, interactions=None, bookmarks=None, identity=None):
         card = self.converted_preview_card

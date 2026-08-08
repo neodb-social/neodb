@@ -1,13 +1,15 @@
 import os
 import shutil
 import tempfile
+from itertools import islice
 
 from django.conf import settings
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, Max, OuterRef
 
 from catalog.models import *
 from common.management.base import SiteCommand
 from journal.models import *
+from takahe.models import Identity, Post
 
 
 class Command(SiteCommand):
@@ -36,6 +38,44 @@ class Command(SiteCommand):
                     if c <= 0:
                         break
                     f.write(p.absolute_url + "\n")
+                    c -= 1
+
+            # comments have no page of their own; list the single post page
+            # of recent ones, skipping posts rendered with a noindex tag
+            self.stdout.write("Collecting Comments...")
+            n = min(10000, c)
+            comment_ids = (
+                Comment.objects.filter(
+                    visibility=0, local=True, owner__anonymous_viewable=True
+                )
+                .order_by("-created_time")
+                .values_list("pk", flat=True)
+                .iterator()
+            )
+            while n > 0:
+                batch = list(islice(comment_ids, 1000))
+                if not batch:
+                    break
+                post_ids = (
+                    PiecePost.objects.filter(piece_id__in=batch)
+                    .values("piece_id")
+                    .annotate(latest=Max("post_id"))
+                    .values_list("latest", flat=True)
+                )
+                posts = (
+                    Post.objects.filter(
+                        pk__in=list(post_ids),
+                        local=True,
+                        visibility=0,
+                        author__restriction=Identity.Restriction.none,
+                    )
+                    .exclude(state__in=["deleted", "deleted_fanned_out"])
+                    .select_related("author", "author__domain")
+                    .order_by("-pk")
+                )
+                for post in posts[:n]:
+                    f.write(post.absolute_object_uri() + "\n")
+                    n -= 1
                     c -= 1
 
             self.stdout.write("Collecting Catalog Items...")
