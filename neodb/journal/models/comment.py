@@ -56,7 +56,9 @@ class Comment(Content):
             return p
         content = obj.get("content", "").strip() if obj else ""
         if not content:
-            cls.objects.filter(owner=owner, item=item).delete()
+            # instance deletes so index docs are cleaned up as well
+            for c in cls.objects.filter(owner=owner, item=item):
+                c.delete()
             return
         d = {
             "text": content,

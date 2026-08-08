@@ -40,9 +40,10 @@ idx-alt:        update index schema
 idx-delete:     delete docs in index
 idx-reindex:    reindex docs
 idx-catchup:    update index for journal items edited in last X hours (use --hour)
-idx-sync:       add missing docs and delete stale docs for each local identity,
-                purge docs of deactivated identities (use --dry-run to preview,
-                --remote to sync remote pieces and identities instead)
+idx-sync:       add missing docs, delete stale docs and rewrite docs still
+                referencing dead posts for each local identity, purge docs of
+                deactivated identities (use --dry-run to preview, --remote to
+                sync remote pieces and identities instead)
 """
 
 _DELETED_POST_STATES = ["deleted", "deleted_fanned_out"]
@@ -204,8 +205,11 @@ class Command(SiteCommand):
         Local identities get a doc per live local post plus one per piece
         without a live post; for remote identities only pieces are indexed.
 
-        Returns a map of doc id -> ("post" | "piece", pk), mirroring how
-        JournalIndex.post_to_doc() / piece_to_doc() assign doc ids.
+        Returns a map of doc id -> (kind, pk), mirroring how
+        JournalIndex.post_to_doc() / piece_to_doc() assign doc ids. Kind
+        is "post", "piece", or "stale-piece" for a piece doc keyed by a
+        dead post id: its content may still reference that post from
+        before the post died, so it must be rewritten even when present.
         """
         expected: dict[str, tuple[str, int]] = {}
         live_post_ids: set[int] = set()
@@ -239,15 +243,26 @@ class Command(SiteCommand):
                     piece_id not in latest_pps or pp_pk > latest_pps[piece_id][0]
                 ):
                     latest_pps[piece_id] = (pp_pk, post_id)
+        if remote:
+            # for remote identities, live-ness of the linked posts decides
+            # which piece docs may carry a stale post reference
+            live_post_ids = set(
+                Post.objects.filter(pk__in=[v[1] for v in latest_pps.values()])
+                .exclude(state__in=_DELETED_POST_STATES)
+                .values_list("pk", flat=True)
+            )
         for piece_id in piece_ids:
             post_id = latest_pps[piece_id][1] if piece_id in latest_pps else None
             if post_id is None:
                 expected["p" + str(piece_id)] = ("piece", piece_id)
-            elif post_id not in live_post_ids:
+            elif post_id in live_post_ids:
+                if remote:
+                    expected[str(post_id)] = ("piece", piece_id)
+                # for local, the piece is covered by the doc of its live post
+            else:
                 # piece_to_doc() keys the doc by the latest linked post id
                 # even if that post is gone from db
-                expected[str(post_id)] = ("piece", piece_id)
-            # otherwise the piece is covered by the doc of its live post
+                expected[str(post_id)] = ("stale-piece", piece_id)
         return expected
 
     def sync_identity_index(
@@ -255,7 +270,8 @@ class Command(SiteCommand):
     ) -> tuple[int, int] | None:
         """Add missing docs and delete stale docs for one active identity.
 
-        Docs already in the index are left as is (no deep comparison).
+        Docs already in the index are left as is (no deep comparison),
+        except "stale-piece" docs which are always rewritten.
         Returns (added, deleted), or None on index error.
         """
         expected = self.expected_index_docs(identity_id, remote)
@@ -264,8 +280,13 @@ class Command(SiteCommand):
             return None
         extra = indexed - expected.keys()
         missing = expected.keys() - indexed
+        rewrite = {
+            i
+            for i, (kind, _) in expected.items()
+            if kind == "stale-piece" and i in indexed
+        }
         if self.dry_run:
-            return len(missing), len(extra)
+            return len(missing) + len(rewrite), len(extra)
         deleted = 0
         for chunk in batched(extra, _SYNC_DELETE_CHUNK):
             deleted += index.delete_docs("id", chunk)
@@ -274,7 +295,9 @@ class Command(SiteCommand):
         for chunk in batched(post_ids, self.batch_size):
             posts = Post.objects.filter(pk__in=chunk)
             added += index.replace_docs(index.posts_to_docs(posts))
-        piece_ids = [expected[i][1] for i in missing if expected[i][0] == "piece"]
+        piece_ids = [
+            expected[i][1] for i in missing | rewrite if expected[i][0] != "post"
+        ]
         for chunk in batched(piece_ids, self.batch_size):
             pieces = Piece.objects.filter(pk__in=chunk)
             added += index.replace_docs(index.pieces_to_docs(pieces))

@@ -207,7 +207,7 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
             logger.warning(f"Unknown link type {p['type']}")
             continue
         pc = cls.update_by_ap_object(owner, item, p, post)
-        if cls in [ShelfMember] and not local:
+        if pc and cls in [ShelfMember] and not local:
             remote_marks.append(pc)
     for mark in remote_marks:
         mark.update_index()
@@ -217,10 +217,10 @@ def post_deleted(pk, local, post_data):
     for piece in Piece.objects.filter(posts__id=pk):
         if piece.local and piece.__class__ not in (Note, Article):
             # Marks/Reviews/Comments are NeoDB-managed; keep the piece even
-            # if the user nukes the timeline post (legacy behavior). Notes
-            # and standalone Articles cascade so a Mastodon-API delete
-            # cleans up the model row as well.
-            return
+            # if the user nukes the timeline post (legacy behavior), but
+            # refresh its index doc, which may reference the deleted post
+            piece.update_index()
+            continue
         # delete piece if the deleted post is the most recent one for the piece
         if piece.latest_post_id == pk:
             logger.debug(f"Deleting piece {piece}")

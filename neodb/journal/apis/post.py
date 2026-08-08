@@ -172,6 +172,9 @@ def list_posts_for_item(
     viewer = request.user.identity if request.user.is_authenticated else None
     query.filter_by_viewer(viewer)
     query.filter("item_id", item.pk)
+    # count only docs carrying a post, so `count` matches what `data`
+    # can actually return
+    query.filter("post_id", ">0")
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     result = {
@@ -212,6 +215,8 @@ def timeline_link(
     query = JournalQueryParser("", page_size=limit)
     query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
+    # post-less docs would hydrate to nothing and waste `limit` slots
+    query.filter("post_id", ">0")
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     return [

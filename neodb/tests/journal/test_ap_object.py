@@ -17,12 +17,13 @@ from journal.models import (
     Comment,
     Mark,
     Note,
+    Piece,
     Rating,
     Review,
     ShelfMember,
     ShelfType,
 )
-from takahe.ap_handlers import post_created
+from takahe.ap_handlers import post_created, post_edited
 from takahe.utils import Takahe
 from users.models import APIdentity, Preference, User
 
@@ -462,6 +463,31 @@ class TestUpdateByApObject:
         self.book = Edition.objects.create(title="Test Book")
         self.user = User.register(email="updbap@test.com", username="updbap_user")
         self.identity = self.user.identity
+
+    def test_get_by_post_id_scoped_to_class(self):
+        # a mark post links ShelfMember and Comment pieces; class-scoped
+        # lookups must not return a sibling of another class
+        Mark(self.identity, self.book).update(
+            ShelfType.COMPLETE, "nice one", visibility=0
+        )
+        member = ShelfMember.objects.get(owner=self.identity, item=self.book)
+        comment = Comment.objects.get(owner=self.identity, item=self.book)
+        comment.link_post_id(member.latest_post_id)
+        assert ShelfMember.get_by_post_id(member.latest_post_id) == member
+        assert Comment.get_by_post_id(member.latest_post_id) == comment
+        assert Note.get_by_post_id(member.latest_post_id) is None
+        # unscoped lookup keeps returning the first linked piece
+        assert Piece.get_by_post_id(member.latest_post_id) == member
+
+    def test_remote_mark_unknown_status_ignored(self):
+        post = _make_remote_post(self.identity.pk)
+        obj = {
+            "status": "invalid-status",
+            "published": "2024-01-01T00:00:00+00:00",
+            "updated": "2024-01-01T00:00:00+00:00",
+        }
+        result = ShelfMember.update_by_ap_object(self.identity, self.book, obj, post)
+        assert result is None
 
     def test_shelf_member_round_trip(self):
         Mark(self.identity, self.book).update(ShelfType.COMPLETE, visibility=0)
@@ -947,3 +973,13 @@ class TestAutoNoteOnReply:
         reply = self._self_reply("just a social reply")
         assert Note.get_by_post_id(reply.pk) is None
         assert not Note.objects.filter(owner=self.identity, item=self.book).exists()
+
+    def test_edit_mark_post_makes_note_without_touching_mark(self):
+        # editing the mark post itself from a Mastodon client flows through
+        # post_edited; the Note lookup must not grab the linked ShelfMember
+        # (that crashed the handler and killed the note)
+        post_edited(self.mark_post_id, {"raw_content": "edited into a note"})
+        assert ShelfMember.objects.filter(owner=self.identity, item=self.book).exists()
+        note = Note.objects.filter(owner=self.identity, item=self.book).first()
+        assert note is not None
+        assert "edited into a note" in note.content

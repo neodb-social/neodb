@@ -227,6 +227,26 @@ class TestIdxSyncRemote:
         assert "would be" in output
         assert self.doc_ids(self.owner.pk) == set()
 
+    def _item_review_posts_count(self) -> tuple[int, int]:
+        q = JournalQueryParser("type:review", 1)
+        q.filter_by_viewer(None)
+        q.filter("item_id", self.book.pk)
+        q.filter("post_id", ">0")
+        r = self.index.search(q)
+        return r.total, len(list(r.posts))
+
+    def test_remote_sync_rewrites_doc_of_pruned_post(self):
+        post_pk = self.post.pk
+        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        # takahe pruned the post; the doc still claims post_id, so it is
+        # counted while its post can never be returned
+        self.post.delete()
+        assert self._item_review_posts_count() == (1, 0)
+        self.run_sync("--remote")
+        # same doc id, but content rewritten without the dead post_id
+        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        assert self._item_review_posts_count() == (0, 0)
+
     def test_remote_sync_cleans_docs_of_pieceless_owner(self):
         assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
         # queryset delete bypasses Piece.delete()'s index cleanup, leaving

@@ -209,8 +209,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         if self.local:
             self.delete_from_timeline()
             self.delete_crossposts()
-        if self.local or self.index_when_save:
-            self.delete_index()
+        self.delete_index()
         return super().delete(*args, **kwargs)
 
     @property
@@ -231,11 +230,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def like_count(self):
-        return (
-            Takahe.get_post_stats(self.latest_post.pk).get("likes", 0)
-            if self.latest_post
-            else 0
-        )
+        return self.latest_post.stats_with_defaults["likes"] if self.latest_post else 0
 
     def is_liked_by(self, identity):
         return self.latest_post and Takahe.post_liked_by(
@@ -245,9 +240,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @property
     def reply_count(self):
         return (
-            Takahe.get_post_stats(self.latest_post.pk).get("replies", 0)
-            if self.latest_post
-            else 0
+            self.latest_post.stats_with_defaults["replies"] if self.latest_post else 0
         )
 
     def get_replies(self, viewing_identity):
@@ -283,8 +276,14 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @classmethod
     def get_by_post_id(cls, post_id: int):
-        pp = PiecePost.objects.filter(post_id=post_id).first()
-        return pp.piece if pp else None
+        # scoped to cls: a mark post links ShelfMember, Comment and Rating
+        # pieces, so an unscoped lookup could return a sibling of another
+        # class; ordered by link row so the first linked piece wins
+        return (
+            cls.objects.filter(post_relations__post_id=post_id)
+            .order_by("post_relations__pk")
+            .first()
+        )
 
     def _invalidate_post_caches(self) -> None:
         # ``latest_post_id`` / ``latest_post`` / ``all_post_ids`` are

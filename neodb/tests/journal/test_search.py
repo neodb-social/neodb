@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.models import Edition
-from journal.models import Mark, Note, Review, ShelfType
+from journal.models import Mark, Note, Review, ShelfMember, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Domain, Post
 from takahe.models import Identity as TakaheIdentity
@@ -131,6 +131,7 @@ class TestRemotePieceIndex:
         q = JournalQueryParser(f"type:{piece_type}", 1)
         q.filter_by_viewer(None)
         q.filter("item_id", self.book.pk)
+        q.filter("post_id", ">0")
         q.sort(["created:desc"])
         return self.index.search(q)
 
@@ -275,3 +276,40 @@ class TestRemotePieceIndex:
         posts = list(r.posts)
         assert r.total == len(posts) == 1
         assert posts[0].pk == post.pk
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLocalPostDeleted:
+    """A local mark whose post is deleted from a Mastodon client is kept,
+    but its index doc must stop counting toward item post listings."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(title="Hyperion")
+        self.user = User.register(email="pd@y.com", username="pduser")
+        self.identity = self.user.identity
+
+    def test_deleted_post_stops_counting(self):
+        from takahe.ap_handlers import post_deleted
+
+        mark = Mark(self.identity, self.book)
+        mark.update(ShelfType.COMPLETE, "a fine comment", 8, [], 0)
+        member = ShelfMember.objects.get(owner=self.identity, item=self.book)
+        post_pk = member.latest_post_id
+        assert post_pk is not None
+        Takahe.delete_posts([post_pk])
+        post_deleted(post_pk, True, None)
+        # the piece is kept and still searchable by its owner
+        member.refresh_from_db()
+        q = JournalQueryParser("fine")
+        q.filter_by_owner(self.identity)
+        assert self.index.search(q).total == 1
+        # but item post listings no longer count it
+        q = JournalQueryParser("type:mark", 1)
+        q.filter_by_viewer(None)
+        q.filter("item_id", self.book.pk)
+        q.filter("post_id", ">0")
+        r = self.index.search(q)
+        assert r.total == len(list(r.posts)) == 0

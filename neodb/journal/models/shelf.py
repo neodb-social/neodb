@@ -11,6 +11,7 @@ from polymorphic.models import ContentType, PolymorphicManager
 
 from catalog.models import Item, ItemCategory, item_categories
 from common.models import jsondata
+from journal.search import JournalIndex
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -861,7 +862,10 @@ class Shelf(List):
                 m.pk for item_id, m in existing_members.items() if item_id not in kept
             ]
             if stale_ids:
+                # queryset delete bypasses Piece.delete(), so clean up the
+                # index docs explicitly
                 ShelfMember.objects.filter(pk__in=stale_ids).delete()
+                JournalIndex.instance().delete_by_piece(stale_ids)
         return pending
 
 
@@ -961,7 +965,9 @@ class ShelfManager:
         )
 
     def get_shelf(self, shelf_type: ShelfType):
-        return self.shelf_list[shelf_type]
+        # None for an unrecognized type: shelf_type may come from a
+        # federation peer, so a bad value must not raise
+        return self.shelf_list.get(shelf_type)
 
     def get_latest_members(
         self, shelf_type: ShelfType, item_category: ItemCategory | None = None
