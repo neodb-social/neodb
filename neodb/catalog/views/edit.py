@@ -179,8 +179,29 @@ def edit(request, item_path, item_uuid):
             "item": item,
             "people_names_json": people_names,
             "people_works_source_ids": people_works.supported_people_work_source_ids(),
+            "resource_covers": [
+                r for r in item.external_resources.all() if r.has_cover()
+            ],
         },
     )
+
+
+@require_http_methods(["POST"])
+@login_required
+def pick_cover(request, item_path, item_uuid):
+    item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
+    if not item.is_editable_by(request.user):
+        raise PermissionDenied(_("Editing this item is restricted."))
+    resource_id = request.POST.get("resource_id")
+    if not resource_id:
+        raise BadRequest(_("Invalid parameter"))
+    resource = get_object_or_404(ExternalResource, id=resource_id, item=item)
+    if not resource.has_cover():
+        raise BadRequest(_("Invalid parameter"))
+    item.cover = resource.cover
+    item.edited_time = timezone.now()
+    item.save()
+    return redirect("catalog:edit", item.url_path, item.uuid)
 
 
 @require_http_methods(["POST"])

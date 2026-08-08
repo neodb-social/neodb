@@ -76,6 +76,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/pick_cover$",
+        pick_cover,
+        name="pick_cover",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/credits$",
         item_credits,
         name="item_credits",

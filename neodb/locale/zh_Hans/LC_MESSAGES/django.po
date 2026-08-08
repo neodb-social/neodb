@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-26 18:42+0800\n"
+"POT-Creation-Date: 2026-08-08 14:16-0400\n"
 "PO-Revision-Date: 2026-07-02 15:01+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -496,7 +496,7 @@ msgstr "MyAnimeList漫画"
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:157 catalog/templates/_sidebar_edit.html:249
+#: catalog/models/common.py:157 catalog/templates/_sidebar_edit.html:273
 msgid "Work"
 msgstr "作品"
 
@@ -504,7 +504,7 @@ msgstr "作品"
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:159 catalog/templates/_sidebar_edit.html:170
+#: catalog/models/common.py:159 catalog/templates/_sidebar_edit.html:194
 msgid "TV Season"
 msgstr "电视分季"
 
@@ -513,7 +513,7 @@ msgid "TV Episode"
 msgstr "电视单集"
 
 #: catalog/models/common.py:161 catalog/models/common.py:177
-#: catalog/models/common.py:191 catalog/templates/_sidebar_edit.html:163
+#: catalog/models/common.py:191 catalog/templates/_sidebar_edit.html:187
 #: journal/templates/_sidebar_user_mark_list.html:35
 #: journal/templates/_sidebar_user_tag_filter.html:27
 msgid "Movie"
@@ -585,7 +585,7 @@ msgid "Music"
 msgstr "音乐"
 
 #: catalog/models/common.py:181 catalog/models/common.py:195
-#: catalog/templates/_sidebar_edit.html:182 common/templates/_header.html:35
+#: catalog/templates/_sidebar_edit.html:206 common/templates/_header.html:35
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
@@ -1235,179 +1235,192 @@ msgstr "我的收藏单"
 msgid "mark history"
 msgstr "标记历史"
 
-#: catalog/templates/_sidebar_edit.html:7
+#: catalog/templates/_sidebar_edit.html:8
 msgid "edit"
 msgstr "编辑"
 
-#: catalog/templates/_sidebar_edit.html:11
+#: catalog/templates/_sidebar_edit.html:12
 #: catalog/templates/catalog_history.html:10
 #: catalog/templates/catalog_history.html:58
 msgid "revision history"
 msgstr "编辑历史"
 
-#: catalog/templates/_sidebar_edit.html:15
+#: catalog/templates/_sidebar_edit.html:16
 #: catalog/templates/catalog_verify.html:120
 msgid "back to item"
 msgstr "回到条目"
 
-#: catalog/templates/_sidebar_edit.html:19
+#: catalog/templates/_sidebar_edit.html:20
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
 #: catalog/templates/item_base.html:182
 msgid "Creator verification"
 msgstr "创作者验证"
 
-#: catalog/templates/_sidebar_edit.html:24
+#: catalog/templates/_sidebar_edit.html:25
 msgid "Edit Options"
 msgstr "编辑选项"
 
-#: catalog/templates/_sidebar_edit.html:27 catalog/templates/item_base.html:178
-#: catalog/views/edit.py:81 catalog/views/edit.py:141 catalog/views/edit.py:191
-#: catalog/views/edit.py:229 catalog/views/edit.py:295
-#: catalog/views/edit.py:299 catalog/views/edit.py:317
-#: catalog/views/edit.py:364 catalog/views/edit.py:388
-#: catalog/views/edit.py:403 catalog/views/edit.py:441
-#: catalog/views/edit.py:451 catalog/views/edit.py:477
-#: catalog/views/edit.py:540 catalog/views/edit.py:594
-#: catalog/views/edit.py:615 catalog/views/search.py:365
+#: catalog/templates/_sidebar_edit.html:28 catalog/templates/item_base.html:178
+#: catalog/views/edit.py:81 catalog/views/edit.py:141 catalog/views/edit.py:194
+#: catalog/views/edit.py:212 catalog/views/edit.py:250
+#: catalog/views/edit.py:316 catalog/views/edit.py:320
+#: catalog/views/edit.py:338 catalog/views/edit.py:385
+#: catalog/views/edit.py:409 catalog/views/edit.py:424
+#: catalog/views/edit.py:462 catalog/views/edit.py:472
+#: catalog/views/edit.py:498 catalog/views/edit.py:561
+#: catalog/views/edit.py:615 catalog/views/edit.py:636
+#: catalog/views/search.py:365
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
-#: catalog/templates/_sidebar_edit.html:32
+#: catalog/templates/_sidebar_edit.html:33
 msgid "This item is maintained by its verified creators."
 msgstr "此条目由经过验证的创作者维护。"
 
-#: catalog/templates/_sidebar_edit.html:37
+#: catalog/templates/_sidebar_edit.html:38
 msgid "This item has been deleted."
 msgstr "条目已被删除。"
 
-#: catalog/templates/_sidebar_edit.html:42
+#: catalog/templates/_sidebar_edit.html:43
 msgid "This item contains sub-items."
 msgstr "条目下已有子项。"
 
-#: catalog/templates/_sidebar_edit.html:47
+#: catalog/templates/_sidebar_edit.html:48
 msgid "This item has been merged to another item."
 msgstr "条目已被合并到其他条目。"
 
-#: catalog/templates/_sidebar_edit.html:52
+#: catalog/templates/_sidebar_edit.html:53
 msgid "This item has been marked by users."
 msgstr "条目已被用户标记过。"
 
-#: catalog/templates/_sidebar_edit.html:57
+#: catalog/templates/_sidebar_edit.html:58
 msgid "The following items are merged into this item"
 msgstr "以下条目被并入本条目"
 
-#: catalog/templates/_sidebar_edit.html:69
+#: catalog/templates/_sidebar_edit.html:70
 msgid "External website"
 msgstr "外部网站"
 
-#: catalog/templates/_sidebar_edit.html:80
+#: catalog/templates/_sidebar_edit.html:81
 msgid "Fetch films and TV shows for this person from this external source"
 msgstr "从这个来源获取此人的电影与电视剧作品"
 
-#: catalog/templates/_sidebar_edit.html:81
+#: catalog/templates/_sidebar_edit.html:82
 msgid "pull works"
 msgstr "获取作品"
 
-#: catalog/templates/_sidebar_edit.html:87
+#: catalog/templates/_sidebar_edit.html:88
 msgid "Existing metadata might get overwritten, sure to proceed?"
 msgstr "现有信息可能会被覆盖。确认重新获取吗？"
 
-#: catalog/templates/_sidebar_edit.html:91
+#: catalog/templates/_sidebar_edit.html:92
 msgid "Fetch again"
 msgstr "重新获取"
 
-#: catalog/templates/_sidebar_edit.html:96
+#: catalog/templates/_sidebar_edit.html:97
 msgid "You may not be able to undo this operation, sure to remove?"
 msgstr "本操作不可撤销。确认取消关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:101
+#: catalog/templates/_sidebar_edit.html:102
 msgid "Remove link to site"
 msgstr "取消关联"
 
 #: catalog/templates/_sidebar_edit.html:110
+msgid "Choose cover"
+msgstr "选择封面"
+
+#: catalog/templates/_sidebar_edit.html:116
+msgid "Sure to replace the cover with this image?"
+msgstr "确定要用这张图片替换封面吗？"
+
+#: catalog/templates/_sidebar_edit.html:128
+msgid "Click an image to use it as the cover of this item."
+msgstr "点击图片将其用作此条目的封面。"
+
+#: catalog/templates/_sidebar_edit.html:134
 msgid "Edit sub-items"
 msgstr "编辑下级条目"
 
-#: catalog/templates/_sidebar_edit.html:123
+#: catalog/templates/_sidebar_edit.html:147
 msgid "create"
 msgstr "创建"
 
-#: catalog/templates/_sidebar_edit.html:129
+#: catalog/templates/_sidebar_edit.html:153
 msgid "Fetch all episodes"
 msgstr "批量获取单集条目"
 
-#: catalog/templates/_sidebar_edit.html:134
+#: catalog/templates/_sidebar_edit.html:158
 msgid "Fetch all"
 msgstr "批量获取"
 
-#: catalog/templates/_sidebar_edit.html:135
+#: catalog/templates/_sidebar_edit.html:159
 msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
 msgstr "因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。"
 
-#: catalog/templates/_sidebar_edit.html:136
+#: catalog/templates/_sidebar_edit.html:160
 msgid "Up to 250 episodes will be fetched for a season."
 msgstr "每季最多获取 250 集。"
 
-#: catalog/templates/_sidebar_edit.html:139
+#: catalog/templates/_sidebar_edit.html:163
 msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
 msgstr "批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。"
 
-#: catalog/templates/_sidebar_edit.html:145
-#: catalog/templates/_sidebar_edit.html:157
-#: catalog/templates/_sidebar_edit.html:176
+#: catalog/templates/_sidebar_edit.html:169
+#: catalog/templates/_sidebar_edit.html:181
+#: catalog/templates/_sidebar_edit.html:200
 msgid "switch category"
 msgstr "切换分类"
 
-#: catalog/templates/_sidebar_edit.html:148
+#: catalog/templates/_sidebar_edit.html:172
 msgid "Switching may remove some metadata. Sure to proceed?"
 msgstr "切换分类可能移除部分数据字段，确认切换吗？"
 
-#: catalog/templates/_sidebar_edit.html:151
+#: catalog/templates/_sidebar_edit.html:175
 msgid "TV Show"
 msgstr "电视剧集"
 
-#: catalog/templates/_sidebar_edit.html:190
+#: catalog/templates/_sidebar_edit.html:214
 msgid "Link to parent item"
 msgstr "关联到上一级条目"
 
-#: catalog/templates/_sidebar_edit.html:193
+#: catalog/templates/_sidebar_edit.html:217
 msgid "Sure to link?"
 msgstr "确认关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:200
+#: catalog/templates/_sidebar_edit.html:224
 msgid "Update link"
 msgstr "更新关联"
 
-#: catalog/templates/_sidebar_edit.html:206
+#: catalog/templates/_sidebar_edit.html:230
 msgid "Cleanup seasons"
 msgstr "本剧所有季"
 
-#: catalog/templates/_sidebar_edit.html:209
+#: catalog/templates/_sidebar_edit.html:233
 #: catalog/templates/catalog_delete.html:45
 msgid "This operation cannot be undone. Sure to delete?"
 msgstr "本操作不可撤销。确认删除吗？"
 
-#: catalog/templates/_sidebar_edit.html:213
+#: catalog/templates/_sidebar_edit.html:237
 msgid "remove seasons not marked"
 msgstr "清理单季"
 
-#: catalog/templates/_sidebar_edit.html:219
+#: catalog/templates/_sidebar_edit.html:243
 #: catalog/templates/catalog_merge.html:12
 msgid "Merge"
 msgstr "合并"
 
-#: catalog/templates/_sidebar_edit.html:225
+#: catalog/templates/_sidebar_edit.html:249
 msgid "URL of target item, or empty if undo merge"
 msgstr "目标条目URL，留空则取消现有合并"
 
-#: catalog/templates/_sidebar_edit.html:231
-#: catalog/templates/_sidebar_edit.html:311
+#: catalog/templates/_sidebar_edit.html:255
+#: catalog/templates/_sidebar_edit.html:335
 msgid "merge to another item"
 msgstr "合并到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:236
-#: catalog/templates/_sidebar_edit.html:240
+#: catalog/templates/_sidebar_edit.html:260
+#: catalog/templates/_sidebar_edit.html:264
 #: catalog/templates/catalog_delete.html:12
 #: journal/templates/action_delete_post.html:10
 #: journal/templates/article.html:199 journal/templates/collection.html:182
@@ -1418,73 +1431,73 @@ msgstr "合并到另一条目"
 msgid "Delete"
 msgstr "删除"
 
-#: catalog/templates/_sidebar_edit.html:250
+#: catalog/templates/_sidebar_edit.html:274
 msgid "This edition belongs to the following work"
 msgstr "这个图书版本属于以下作品"
 
-#: catalog/templates/_sidebar_edit.html:255
+#: catalog/templates/_sidebar_edit.html:279
 msgid "Sure to unlink?"
 msgstr "确认取消关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:261
+#: catalog/templates/_sidebar_edit.html:285
 msgid "Unlink from work"
 msgstr "取消关联到上述著作"
 
-#: catalog/templates/_sidebar_edit.html:267
+#: catalog/templates/_sidebar_edit.html:291
 msgid "Link"
 msgstr "关联"
 
-#: catalog/templates/_sidebar_edit.html:278
+#: catalog/templates/_sidebar_edit.html:302
 msgid "Link to another edition from same work"
 msgstr "关联到同一著作的另一本书"
 
-#: catalog/templates/_sidebar_edit.html:287
+#: catalog/templates/_sidebar_edit.html:311
 msgid "Restriction"
 msgstr "限制"
 
-#: catalog/templates/_sidebar_edit.html:300
+#: catalog/templates/_sidebar_edit.html:324
 #: journal/templates/collection_update_item_note.html:4
 msgid "Update"
 msgstr "更新"
 
-#: catalog/templates/_sidebar_edit.html:305
+#: catalog/templates/_sidebar_edit.html:329
 msgid "Suggest Edits"
 msgstr "修改建议"
 
-#: catalog/templates/_sidebar_edit.html:310
+#: catalog/templates/_sidebar_edit.html:334
 msgid "proposed action"
 msgstr "请选择建议类型..."
 
-#: catalog/templates/_sidebar_edit.html:312
+#: catalog/templates/_sidebar_edit.html:336
 msgid "link to another item"
 msgstr "关联到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:313
+#: catalog/templates/_sidebar_edit.html:337
 msgid "change item category"
 msgstr "更改条目类型"
 
-#: catalog/templates/_sidebar_edit.html:314
+#: catalog/templates/_sidebar_edit.html:338
 msgid "change item metadata"
 msgstr "更正条目信息"
 
-#: catalog/templates/_sidebar_edit.html:315
+#: catalog/templates/_sidebar_edit.html:339
 msgid "remove item"
 msgstr "删除条目"
 
-#: catalog/templates/_sidebar_edit.html:316
+#: catalog/templates/_sidebar_edit.html:340
 msgid "other"
 msgstr "其它"
 
-#: catalog/templates/_sidebar_edit.html:320
+#: catalog/templates/_sidebar_edit.html:344
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
-#: catalog/templates/_sidebar_edit.html:321
+#: catalog/templates/_sidebar_edit.html:345
 #: catalog/templates/catalog_verify.html:116
 msgid "submit"
 msgstr "提交"
 
-#: catalog/templates/_sidebar_edit.html:322
+#: catalog/templates/_sidebar_edit.html:346
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr "本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
 
@@ -2148,17 +2161,31 @@ msgstr "已验证作品"
 msgid "Editions"
 msgstr "版本"
 
-#: catalog/views/edit.py:193
+#: catalog/views/edit.py:197 catalog/views/edit.py:200
+#: catalog/views/edit.py:296 catalog/views/edit.py:299
+#: catalog/views/verify.py:194 journal/views/collection.py:75
+#: journal/views/collection.py:100 journal/views/collection.py:514
+#: journal/views/collection.py:609 journal/views/common.py:193
+#: journal/views/mark.py:196 journal/views/post.py:112
+#: journal/views/post.py:114 journal/views/post.py:161
+#: journal/views/post.py:180 journal/views/post.py:182
+#: journal/views/post.py:223 journal/views/post.py:236
+#: journal/views/review.py:142 journal/views/review.py:146
+#: users/views/actions.py:171
+msgid "Invalid parameter"
+msgstr "无效参数"
+
+#: catalog/views/edit.py:214
 msgid "Item in use."
 msgstr "条目已被引用或标记。"
 
-#: catalog/views/edit.py:195
+#: catalog/views/edit.py:216
 msgid "Item cannot be deleted."
 msgstr "条目不可被删除。"
 
-#: catalog/views/edit.py:218 catalog/views/edit.py:272
-#: catalog/views/edit.py:390 catalog/views/edit.py:479
-#: catalog/views/edit.py:511 catalog/views/verify.py:156
+#: catalog/views/edit.py:239 catalog/views/edit.py:293
+#: catalog/views/edit.py:411 catalog/views/edit.py:500
+#: catalog/views/edit.py:532 catalog/views/verify.py:156
 #: catalog/views/verify.py:203 journal/views/article.py:39
 #: journal/views/article.py:122 journal/views/article.py:142
 #: journal/views/collection.py:238 journal/views/collection.py:299
@@ -2176,56 +2203,43 @@ msgstr "条目不可被删除。"
 msgid "Insufficient permission"
 msgstr "权限不足"
 
-#: catalog/views/edit.py:275 catalog/views/edit.py:278
-#: catalog/views/verify.py:194 journal/views/collection.py:75
-#: journal/views/collection.py:100 journal/views/collection.py:514
-#: journal/views/collection.py:609 journal/views/common.py:193
-#: journal/views/mark.py:196 journal/views/post.py:112
-#: journal/views/post.py:114 journal/views/post.py:161
-#: journal/views/post.py:180 journal/views/post.py:182
-#: journal/views/post.py:223 journal/views/post.py:236
-#: journal/views/review.py:142 journal/views/review.py:146
-#: users/views/actions.py:171
-msgid "Invalid parameter"
-msgstr "无效参数"
-
-#: catalog/views/edit.py:339
+#: catalog/views/edit.py:360
 msgid "TV Season with IMDB id and season number required."
 msgstr "必须是电视剧分季，且包含IMDB id和分季序号。"
 
-#: catalog/views/edit.py:344
+#: catalog/views/edit.py:365
 msgid "Updating episodes"
 msgstr "正在更新单集列表"
 
-#: catalog/views/edit.py:369
+#: catalog/views/edit.py:390
 msgid "This person has no supported source to fetch works from."
 msgstr "此人没有可供获取作品的数据源。"
 
-#: catalog/views/edit.py:375
+#: catalog/views/edit.py:396
 msgid "Already pulling works for this person, try again later."
 msgstr "已在获取此人的作品，请稍后再试。"
 
-#: catalog/views/edit.py:379
+#: catalog/views/edit.py:400
 msgid "Pulling works in background."
 msgstr "正在后台获取作品。"
 
-#: catalog/views/edit.py:401
+#: catalog/views/edit.py:422
 msgid "Cannot be merged to an item already deleted or merged"
 msgstr "无法合并到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:406
+#: catalog/views/edit.py:427
 msgid "Cannot merge items in different categories"
 msgstr "无法合并不同类型的条目"
 
-#: catalog/views/edit.py:410
+#: catalog/views/edit.py:431
 msgid "Cannot merge an item to itself"
 msgstr "无法合并条目和它自己"
 
-#: catalog/views/edit.py:449
+#: catalog/views/edit.py:470
 msgid "Cannot be linked to an item already deleted or merged"
 msgstr "无法关联到一个已经被合并或删除的条目"
 
-#: catalog/views/edit.py:453
+#: catalog/views/edit.py:474
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 

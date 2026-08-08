@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load mastodon %}
+{% load duration %}
 {% if item %}
   <div class="action">
     <span>
@@ -104,6 +105,29 @@
         </div>
       </details>
     {% endfor %}
+    {% if resource_covers %}
+      <details>
+        <summary>{% trans 'Choose cover' %}</summary>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          {% for res in resource_covers %}
+            <form method="post"
+                  style="text-align: center"
+                  action="{% url 'catalog:pick_cover' item.url_path item.uuid %}"
+                  onsubmit="return confirm('{% trans "Sure to replace the cover with this image?" %}');">
+              {% csrf_token %}
+              <input type="hidden" name="resource_id" value="{{ res.id }}">
+              <input type="image"
+                     src="{{ res.cover.url|relative_uri }}"
+                     alt="{{ res.site_label }}"
+                     title="{{ res.site_label }}"
+                     style="width: 5rem">
+              <small>{{ res.site_label }}</small>
+            </form>
+          {% endfor %}
+        </div>
+        <small>{% trans "Click an image to use it as the cover of this item." %}</small>
+      </details>
+    {% endif %}
     {% if item.child_class %}
       <details>
         <summary>
