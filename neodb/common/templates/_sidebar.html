@@ -68,9 +68,10 @@
               {% include 'users/profile_actions.html' %}
             {% endif %}
           </span>
-          {% if identity.user == request.user %}
-            <div>
-              <small>
+          {% current_user_relationship identity as sidebar_relationship %}
+          <div>
+            <small>
+              {% if identity.user == request.user or sidebar_relationship.mutual %}
                 <a href="{% url 'journal:user_follow_list' identity.handle 'following' %}">
                   {{ identity.following_count }} {% trans "following" %}
                 </a>
@@ -78,9 +79,13 @@
                 <a href="{% url 'journal:user_follow_list' identity.handle 'followers' %}">
                   {{ identity.follower_count }} {% trans "followers" %}
                 </a>
-              </small>
-            </div>
-          {% endif %}
+              {% else %}
+                {{ identity.following_count }} {% trans "following" %}
+                &nbsp;·&nbsp;
+                {{ identity.follower_count }} {% trans "followers" %}
+              {% endif %}
+            </small>
+          </div>
           {% if identity.safe_metadata %}
             <dl>
               {% for entry in identity.safe_metadata %}

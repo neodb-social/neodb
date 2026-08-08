@@ -26,6 +26,7 @@ def current_user_relationship(context, target_identity: "APIdentity"):
         "following": False,
         "muting": False,
         "rejecting": False,
+        "mutual": False,
         "status": "",
     }
     if target_identity and current_identity and not target_identity.restricted:
@@ -39,14 +40,14 @@ def current_user_relationship(context, target_identity: "APIdentity"):
                 r["requested"] = current_identity.is_requested(target_identity)
                 r["muting"] = current_identity.is_muting(target_identity)
                 r["following"] = current_identity.is_following(target_identity)
-                if r["following"]:
-                    if current_identity.is_followed_by(target_identity):
-                        r["status"] = _("mutual followed")
-                    else:
-                        r["status"] = _("followed")
-                else:
-                    if current_identity.is_followed_by(target_identity):
-                        r["status"] = _("following you")
+                followed_by = current_identity.is_followed_by(target_identity)
+                r["mutual"] = r["following"] and followed_by
+                if r["mutual"]:
+                    r["status"] = _("mutual followed")
+                elif r["following"]:
+                    r["status"] = _("followed")
+                elif followed_by:
+                    r["status"] = _("following you")
         else:
             r["unavailable"] = True
             r["status"] = _("you")

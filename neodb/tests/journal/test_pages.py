@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from catalog.models import Edition, Movie
 from journal.models import Article, Collection, Mark, Review, ShelfType, Tag
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -176,3 +177,46 @@ def test_profile_articles_shelf_hidden_from_anonymous_when_not_viewable():
     response = Client().get(preview_url)
     assert response.status_code == 200
     assert response.content == b""
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_profile_follow_counts():
+    alice = User.register(email="alicefc@example.com", username="alicefc").identity
+    bob = User.register(email="bobfc@example.com", username="bobfc").identity
+    following_url = reverse(
+        "journal:user_follow_list", args=[alice.handle, "following"]
+    )
+    followers_url = reverse(
+        "journal:user_follow_list", args=[alice.handle, "followers"]
+    )
+
+    # An anonymous visitor sees the counts but no links to the lists.
+    content = Client().get(alice.url).content.decode()
+    assert "0 following" in content
+    assert "0 followers" in content
+    assert following_url not in content
+    assert followers_url not in content
+
+    # A one-way follower sees the counts but no links either.
+    bob.follow(alice)
+    Takahe._force_state_cycle()
+    client = Client()
+    client.force_login(bob.user, backend="mastodon.auth.OAuth2Backend")
+    content = client.get(alice.url).content.decode()
+    assert "1 followers" in content
+    assert following_url not in content
+    assert followers_url not in content
+
+    # A mutual follower gets links to the lists.
+    alice.follow(bob)
+    Takahe._force_state_cycle()
+    content = client.get(alice.url).content.decode()
+    assert following_url in content
+    assert followers_url in content
+
+    # The owner always gets links to the lists.
+    owner_client = Client()
+    owner_client.force_login(alice.user, backend="mastodon.auth.OAuth2Backend")
+    content = owner_client.get(alice.url).content.decode()
+    assert following_url in content
+    assert followers_url in content
