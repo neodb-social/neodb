@@ -38,7 +38,7 @@ idx-init:       check and create index if not exists
 idx-destroy:    delete index
 idx-alt:        update index schema
 idx-delete:     delete docs in index
-idx-reindex:    reindex docs
+idx-rebuild:    rebuild docs in index
 idx-catchup:    update index for journal items edited in last X hours (use --hour)
 idx-sync:       add missing docs, delete stale docs and rewrite docs still
                 referencing dead posts for each local identity, purge docs of
@@ -85,7 +85,7 @@ class Command(SiteCommand):
                 "idx-init",
                 "idx-alt",
                 "idx-destroy",
-                "idx-reindex",
+                "idx-rebuild",
                 "idx-delete",
                 "search",
                 "idx-catchup",
@@ -464,7 +464,7 @@ class Command(SiteCommand):
                     c = index.delete_all()
                 self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
 
-            case "idx-reindex":
+            case "idx-rebuild":
                 if fast and not owners:
                     q = Q(social_accounts__type="mastodon.mastodonaccount") | Q(
                         social_accounts__last_reachable__gt=timezone.now()

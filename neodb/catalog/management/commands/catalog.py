@@ -54,7 +54,7 @@ idx-init:         check and create index if not exists
 idx-destroy:      delete index
 idx-alt:          update index schema
 idx-delete:       delete docs in index
-idx-reindex:      reindex docs
+idx-rebuild:      rebuild docs in index
 idx-get:          dump one doc (use --query for URL)
 idx-catchup:      update index for items edited in last X hours (use --hour)
 """
@@ -81,7 +81,7 @@ class Command(SiteCommand):
                 "idx-init",
                 "idx-alt",
                 "idx-destroy",
-                "idx-reindex",
+                "idx-rebuild",
                 "idx-delete",
                 "idx-get",
                 "idx-catchup",
@@ -977,7 +977,7 @@ class Command(SiteCommand):
                 c = index.delete_all()
                 self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))
 
-            case "idx-reindex":
+            case "idx-rebuild":
                 people_ct_id = ContentType.objects.get_for_model(People).id
                 items = (
                     Item.objects.filter(

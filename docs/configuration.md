@@ -201,7 +201,7 @@ neodb-manage cron --list
 Rebuild search index
 
 ```
-neodb-manage catalog idx-reindex
+neodb-manage catalog idx-rebuild
 ```
 
 There are [more commands](usage/catalog.md) available to manage the catalog; also take a look at [Manage Accounts](accounts.md) to learn how to create an admin/staff account, create an invitation code and more.

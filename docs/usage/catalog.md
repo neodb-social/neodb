@@ -51,9 +51,9 @@ neodb-manage crawl <url>  # crawl all recognizable links from a page
 - `neodb-manage catalog idx-delete`: Delete all documents in the index
   - Example: `neodb-manage catalog idx-delete`
 
-- `neodb-manage catalog idx-reindex`: Rebuild the search index
+- `neodb-manage catalog idx-rebuild`: Rebuild the search index
   - Use `--batch-size` to specify how many items to process at once
-  - Example: `neodb-manage catalog idx-reindex --batch-size 500`
+  - Example: `neodb-manage catalog idx-rebuild --batch-size 500`
 
 - `neodb-manage catalog idx-get`: View one document in the index
   - Requires `--url` to specify which item to retrieve
