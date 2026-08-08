@@ -95,6 +95,14 @@ class TestPickCover:
         response = client.post(f"{edition.url}/pick_cover", {})
         assert response.status_code == 400
 
+    def test_nonnumeric_resource_id_returns_400(self):
+        edition = _make_edition_with_resource()
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{edition.url}/pick_cover", {"resource_id": "abc"})
+        assert response.status_code == 400
+
     def test_protected_item_requires_staff(self):
         edition = _make_edition_with_resource()
         edition.is_protected = True

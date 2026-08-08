@@ -192,8 +192,8 @@ def pick_cover(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
-    resource_id = request.POST.get("resource_id")
-    if not resource_id:
+    resource_id = request.POST.get("resource_id", "")
+    if not resource_id.isdigit():
         raise BadRequest(_("Invalid parameter"))
     resource = get_object_or_404(ExternalResource, id=resource_id, item=item)
     if not resource.has_cover():
