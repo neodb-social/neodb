@@ -860,7 +860,7 @@ def translate(
             j = deepl_client.translate_text(
                 message, target_lang=lang, tag_handling="html"
             )
-            r = (j[0] if isinstance(j, list) else j).text  # type: ignore
+            r = (j[0] if isinstance(j, list) else j).text
         except deepl.exceptions.DeepLException as e:
             logger.error(f"DeepL API error: {e}")
     if r is not None:
