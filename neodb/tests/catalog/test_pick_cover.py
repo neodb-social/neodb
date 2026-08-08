@@ -41,9 +41,22 @@ class TestPickCover:
             f"{edition.url}/pick_cover", {"resource_id": resource.pk}
         )
         assert response.status_code == 302
-        assert response.headers["Location"] == f"{edition.url}/edit"
+        assert response.headers["Location"] == edition.url
         edition.refresh_from_db()
         assert edition.cover.name == resource.cover.name
+
+    def test_pick_current_cover_keeps_existing(self):
+        edition = _make_edition_with_resource()
+        edition.cover = "item/test/original.jpg"
+        edition.save(update_fields=["cover"])
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{edition.url}/pick_cover", {"resource_id": "current"})
+        assert response.status_code == 302
+        assert response.headers["Location"] == edition.url
+        edition.refresh_from_db()
+        assert edition.cover.name == "item/test/original.jpg"
 
     def test_edit_page_lists_resource_covers(self):
         edition = _make_edition_with_resource()

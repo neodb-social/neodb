@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load mastodon %}
-{% load duration %}
+{% load thumb %}
 {% if item %}
   <div class="action">
     <span>
@@ -108,24 +108,37 @@
     {% if resource_covers %}
       <details>
         <summary>{% trans 'Choose cover' %}</summary>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-          {% for res in resource_covers %}
-            <form method="post"
-                  style="text-align: center"
-                  action="{% url 'catalog:pick_cover' item.url_path item.uuid %}"
-                  onsubmit="return confirm('{% trans "Sure to replace the cover with this image?" %}');">
-              {% csrf_token %}
-              <input type="hidden" name="resource_id" value="{{ res.id }}">
-              <input type="image"
-                     src="{{ res.cover.url|relative_uri }}"
+        <form method="post"
+              action="{% url 'catalog:pick_cover' item.url_path item.uuid %}">
+          {% csrf_token %}
+          <div class="cover-picker">
+            {% if item.has_cover %}
+              <label>
+                <input type="radio" name="resource_id" value="current" checked>
+                <img src="{{ item.cover|thumb:'normal' }}"
+                     alt="{% trans 'Current cover' %}"
+                     title="{% trans 'Current cover' %}"
+                     loading="lazy">
+                <small>{% trans 'Current cover' %}</small>
+              </label>
+            {% endif %}
+            {% for res in resource_covers %}
+              <label>
+                <input type="radio"
+                       name="resource_id"
+                       value="{{ res.id }}"
+                       {% if not item.has_cover and forloop.first %}checked{% endif %}>
+                <img src="{{ res.cover|thumb:'normal' }}"
                      alt="{{ res.site_label }}"
                      title="{{ res.site_label }}"
-                     style="width: 5rem">
-              <small>{{ res.site_label }}</small>
-            </form>
-          {% endfor %}
-        </div>
-        <small>{% trans "Click an image to use it as the cover of this item." %}</small>
+                     loading="lazy">
+                <small>{{ res.site_label }}</small>
+              </label>
+            {% endfor %}
+          </div>
+          <small>{% trans "Select an image to use as the cover of this item." %}</small>
+          <input type="submit" value="{% trans 'Save' %}">
+        </form>
       </details>
     {% endif %}
     {% if item.child_class %}
