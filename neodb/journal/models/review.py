@@ -120,7 +120,10 @@ class Review(Content):
         p = cls.dedupe_newest(owner, item)
         updated = obj.get("updated") or obj["published"]
         if p and p.edited_time >= datetime.fromisoformat(updated):
-            return p  # incoming ap object is older than what we have, no update needed
+            # incoming ap object is not newer than what we have; still
+            # link the post in case it replaces a pruned one
+            p.relink_post_id(post.id)
+            return p
         content = (
             obj["content"]
             if obj.get("mediaType") == "text/markdown"
@@ -135,9 +138,7 @@ class Review(Content):
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(updated),
         }
-        p = cls.apply_ap_update(p, owner, item, d)
-        p.link_post_id(post.id)
-        return p
+        return cls.apply_ap_update(p, owner, item, d, post.id)
 
     def get_crosspost_postfix(self):
         tags = render_post_with_macro(

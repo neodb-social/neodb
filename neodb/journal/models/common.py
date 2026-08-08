@@ -297,6 +297,26 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         PiecePost.objects.get_or_create(piece=self, post_id=post_id)
         self._invalidate_post_caches()
 
+    def relink_post_id(self, post_id: int):
+        """Link a post that arrived for an existing piece whose latest known
+        post is gone.
+
+        Takahe prunes old remote posts, so a refetch recreates the post
+        under a new pk while the AP object itself may be unchanged; link
+        the new post and refresh the index doc so both reference a live
+        post (#1761). Skipped while the piece still has a live post: a
+        stale object refetched later must not displace a newer post, as
+        the last linked post counts as latest.
+        """
+        if post_id in self.all_post_ids:
+            return
+        if self.latest_post is not None:
+            return
+        self.link_post_id(post_id)
+        # no-op for pieces indexed within another doc: their
+        # to_indexable_doc() is empty and piece_to_doc() skips them
+        self.update_index()
+
     def clear_post_ids(self):
         PiecePost.objects.filter(piece=self).delete()
         self._invalidate_post_caches()
@@ -461,6 +481,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         Create or update a content piece with related AP message
         """
         p = cls.get_by_post_id(post.id)
+        if not p and not post.local and obj.get("id"):
+            # takahe prunes old remote posts, so a refetched post arrives
+            # under a new pk; match the piece by its stable AP object id
+            # to avoid creating a duplicate
+            p = cls.objects.filter(owner=owner, remote_id=obj["id"]).first()
         if p and p.owner.pk != post.author_id:
             logger.warning(f"Owner mismatch: {p.owner.pk} != {post.author_id}")
             return
@@ -475,7 +500,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 else datetime.fromisoformat(obj.get("updated") or obj["published"])
             )
             if p.edited_time >= edited:
-                # incoming ap object is older than what we have, no update needed
+                # incoming ap object is not newer than what we have; still
+                # link the post in case it replaces a pruned one
+                p.relink_post_id(post.id)
                 return p
             d["edited_time"] = edited
             d["visibility"] = visibility
@@ -483,7 +510,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 setattr(p, k, v)
             if crosspost is not None:
                 p.crosspost_when_save = crosspost
-            p.save(update_fields=d.keys())
+            # link within save so the index doc references the post
+            p.save(update_fields=d.keys(), link_post_id=post.id)
         else:
             # no previously linked piece, create a new one and link to post
             d.update(
@@ -1250,20 +1278,28 @@ class Content(Piece):
 
     @classmethod
     def apply_ap_update(
-        cls, p: Self | None, owner: APIdentity, item: Item, d: dict[str, Any]
+        cls,
+        p: Self | None,
+        owner: APIdentity,
+        item: Item,
+        d: dict[str, Any],
+        link_post_id: int | None = None,
     ) -> Self:
         """Save inbound AP fields onto the already-fetched piece, or create one.
 
         Updates the fetched row directly; a second lookup via
         update_or_create can hit raced duplicates (no unique constraint on
         owner+item for Comment/Review).
+
+        ``link_post_id`` is linked within save() so the index doc written
+        by ``index_when_save`` classes references the post (#1761).
         """
         if p:
             for k, v in d.items():
                 setattr(p, k, v)
-            p.save()
         else:
-            p = cls.objects.create(owner=owner, item=item, **d)
+            p = cls(owner=owner, item=item, **d)
+        p.save(link_post_id=link_post_id if link_post_id else -1)
         return p
 
     @property

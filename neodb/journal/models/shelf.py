@@ -392,7 +392,10 @@ class ShelfMember(ListMember):
         p = cls.objects.filter(owner=owner, item=item).first()
         updated = obj.get("updated") or obj["published"]
         if p and p.edited_time >= datetime.fromisoformat(updated):
-            return p  # incoming ap object is older than what we have, no update needed
+            # incoming ap object is not newer than what we have; still
+            # link the post in case it replaces a pruned one
+            p.relink_post_id(post.id)
+            return p
         shelf = owner.shelf_manager.get_shelf(obj["status"])
         if not shelf:
             logger.warning(f"unable to locate shelf for {owner}, {obj}")

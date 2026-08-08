@@ -468,6 +468,15 @@ class JournalIndex(Index):
             logger.error(f"Typesense: error {e}")
             return None
 
+    def get_indexed_owner_ids(self) -> set[int] | None:
+        """Return distinct owner_id over all docs, or None on error."""
+        try:
+            r = self.write_collection.documents.export({"include_fields": "owner_id"})
+            return {json.loads(line)["owner_id"] for line in r.splitlines() if line}
+        except TYPESENSE_ERRORS as e:
+            logger.error(f"Typesense: error {e}")
+            return None
+
     def delete_by_owner(self, owner_ids):
         return self.delete_docs("owner_id", owner_ids)
 

@@ -1,8 +1,11 @@
 import pytest
 
 from catalog.models import Edition
-from journal.models import Mark, ShelfType
+from journal.models import Mark, Note, Review, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
+from takahe.models import Domain, Post
+from takahe.models import Identity as TakaheIdentity
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -82,3 +85,193 @@ class TestSearch:
         q.filter_by_viewer(self.user1.identity)
         r = self.index.search(q)
         assert r.total == 3
+
+
+def _make_remote_identity(username: str, domain_name: str = "remote.example"):
+    domain, _ = Domain.objects.get_or_create(
+        domain=domain_name, defaults={"local": False}
+    )
+    identity = TakaheIdentity.objects.create(
+        actor_uri=f"https://{domain_name}/users/{username}/",
+        local=False,
+        username=username,
+        domain=domain,
+    )
+    return Takahe.get_or_create_remote_apidentity(identity)
+
+
+def _make_remote_post(owner_pk: int, uri: str, obj: dict) -> Post:
+    return Post.objects.create(
+        author_id=owner_pk,
+        local=False,
+        object_uri=uri,
+        content=obj.get("content", ""),
+        type="Article" if obj["type"] == "Review" else "Note",
+        type_data={"object": {"relatedWith": [obj]}},
+        visibility=Post.Visibilities.public,
+        state="fanned_out",
+    )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRemotePieceIndex:
+    """Regression tests for #1761: docs indexed for remote pieces must
+    reference the linked post, so that item post search returns as many
+    posts as it counts."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(title="Hyperion")
+        self.owner = _make_remote_identity("reader")
+
+    def search_item_posts(self, piece_type: str):
+        # mirrors the query built by /api/item/{uuid}/posts/
+        q = JournalQueryParser(f"type:{piece_type}", 1)
+        q.filter_by_viewer(None)
+        q.filter("item_id", self.book.pk)
+        q.sort(["created:desc"])
+        return self.index.search(q)
+
+    def test_remote_review_count_matches_posts(self):
+        obj = {
+            "id": "https://remote.example/review/1",
+            "type": "Review",
+            "name": "Great Book",
+            "content": "review body",
+            "mediaType": "text/markdown",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        post = _make_remote_post(self.owner.pk, obj["id"], obj)
+        piece = Review.update_by_ap_object(self.owner, self.book, obj, post)
+        assert piece is not None
+        assert piece.latest_post_id == post.pk
+        r = self.search_item_posts("review")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post.pk
+
+    def test_remote_review_replacement_post(self):
+        # remote user deleted and recreated their review post; the newer
+        # object arrives linked to a different post
+        obj = {
+            "id": "https://remote.example/review/1",
+            "type": "Review",
+            "name": "Great Book",
+            "content": "review body",
+            "mediaType": "text/markdown",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        post1 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        Review.update_by_ap_object(self.owner, self.book, obj, post1)
+        post1.state = "deleted"
+        post1.save()
+        obj2 = {
+            **obj,
+            "id": "https://remote.example/review/2",
+            "content": "updated body",
+            "updated": "2026-01-02T00:00:00+00:00",
+        }
+        post2 = _make_remote_post(self.owner.pk, obj2["id"], obj2)
+        piece = Review.update_by_ap_object(self.owner, self.book, obj2, post2)
+        assert piece is not None
+        assert piece.latest_post_id == post2.pk
+        r = self.search_item_posts("review")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post2.pk
+
+    def test_remote_review_refetched_post(self):
+        # takahe pruned the remote post; a refetch of the same unchanged
+        # object recreates it under a new pk, which must be relinked
+        obj = {
+            "id": "https://remote.example/review/1",
+            "type": "Review",
+            "name": "Great Book",
+            "content": "review body",
+            "mediaType": "text/markdown",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        post1 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        Review.update_by_ap_object(self.owner, self.book, obj, post1)
+        post1.delete()
+        post2 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        piece = Review.update_by_ap_object(self.owner, self.book, obj, post2)
+        assert piece is not None
+        assert piece.latest_post_id == post2.pk
+        assert Review.objects.filter(owner=self.owner, item=self.book).count() == 1
+        r = self.search_item_posts("review")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post2.pk
+
+    def test_remote_stale_refetch_does_not_displace_live_post(self):
+        # an old pruned post refetched under a new pk must not become the
+        # piece's latest post while a newer post is still live
+        obj = {
+            "id": "https://remote.example/review/1",
+            "type": "Review",
+            "name": "Great Book",
+            "content": "review body",
+            "mediaType": "text/markdown",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        post1 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        Review.update_by_ap_object(self.owner, self.book, obj, post1)
+        post1.delete()
+        obj2 = {
+            **obj,
+            "id": "https://remote.example/review/2",
+            "content": "updated body",
+            "updated": "2026-01-02T00:00:00+00:00",
+        }
+        post2 = _make_remote_post(self.owner.pk, obj2["id"], obj2)
+        Review.update_by_ap_object(self.owner, self.book, obj2, post2)
+        post3 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        piece = Review.update_by_ap_object(self.owner, self.book, obj, post3)
+        assert piece is not None
+        assert piece.latest_post_id == post2.pk
+        r = self.search_item_posts("review")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post2.pk
+
+    def test_remote_note_refetched_post(self):
+        # same as above for notes, which additionally must not be
+        # duplicated when the piece can only be matched by remote_id
+        obj = {
+            "id": "https://remote.example/note/1",
+            "type": "Note",
+            "content": "note content",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        post1 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        Note.update_by_ap_object(self.owner, self.book, obj, post1)
+        post1.delete()
+        post2 = _make_remote_post(self.owner.pk, obj["id"], obj)
+        piece = Note.update_by_ap_object(self.owner, self.book, obj, post2)
+        assert piece is not None
+        assert piece.latest_post_id == post2.pk
+        assert Note.objects.filter(owner=self.owner, item=self.book).count() == 1
+        r = self.search_item_posts("note")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post2.pk
+
+    def test_remote_note_count_matches_posts(self):
+        obj = {
+            "id": "https://remote.example/note/1",
+            "type": "Note",
+            "content": "note content",
+            "published": "2026-01-01T00:00:00+00:00",
+            "progress": {"type": "page", "value": "42"},
+        }
+        post = _make_remote_post(self.owner.pk, obj["id"], obj)
+        piece = Note.update_by_ap_object(self.owner, self.book, obj, post)
+        assert piece is not None
+        assert piece.latest_post_id == post.pk
+        r = self.search_item_posts("note")
+        posts = list(r.posts)
+        assert r.total == len(posts) == 1
+        assert posts[0].pk == post.pk

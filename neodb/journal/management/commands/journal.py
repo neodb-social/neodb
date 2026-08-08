@@ -41,7 +41,8 @@ idx-delete:     delete docs in index
 idx-reindex:    reindex docs
 idx-catchup:    update index for journal items edited in last X hours (use --hour)
 idx-sync:       add missing docs and delete stale docs for each local identity,
-                purge docs of deactivated identities (use --dry-run to preview)
+                purge docs of deactivated identities (use --dry-run to preview,
+                --remote to sync remote pieces and identities instead)
 """
 
 _DELETED_POST_STATES = ["deleted", "deleted_fanned_out"]
@@ -59,6 +60,9 @@ _INDEXABLE_PIECE_CLASSES: list[type[Piece]] = [
 ]
 
 _SYNC_DELETE_CHUNK = 200
+
+# stays well under postgres's 65535 query-parameter limit
+_SYNC_OWNER_CHUNK = 10000
 
 
 class Command(SiteCommand):
@@ -127,7 +131,7 @@ class Command(SiteCommand):
         parser.add_argument(
             "--remote",
             action="store_true",
-            help="reindex remote pieces only, does not work with --owner",
+            help="reindex/sync remote pieces only, does not work with --owner",
         )
         parser.add_argument(
             "--hour",
@@ -192,25 +196,32 @@ class Command(SiteCommand):
                         )
                     pbar.update(1)
 
-    def expected_index_docs(self, identity_id: int) -> dict[str, tuple[str, int]]:
-        """Doc ids an active local identity should have in the index.
+    def expected_index_docs(
+        self, identity_id: int, remote: bool = False
+    ) -> dict[str, tuple[str, int]]:
+        """Doc ids an active identity should have in the index.
+
+        Local identities get a doc per live local post plus one per piece
+        without a live post; for remote identities only pieces are indexed.
 
         Returns a map of doc id -> ("post" | "piece", pk), mirroring how
         JournalIndex.post_to_doc() / piece_to_doc() assign doc ids.
         """
         expected: dict[str, tuple[str, int]] = {}
-        live_post_ids = set(
-            Post.objects.filter(local=True, author_id=identity_id)
-            .exclude(state__in=_DELETED_POST_STATES)
-            .values_list("pk", flat=True)
-        )
-        for post_id in live_post_ids:
-            expected[str(post_id)] = ("post", post_id)
+        live_post_ids: set[int] = set()
+        if not remote:
+            live_post_ids = set(
+                Post.objects.filter(local=True, author_id=identity_id)
+                .exclude(state__in=_DELETED_POST_STATES)
+                .values_list("pk", flat=True)
+            )
+            for post_id in live_post_ids:
+                expected[str(post_id)] = ("post", post_id)
         piece_ids: set[int] = set()
         # piece_id -> (piece_post_pk, post_id) of the latest linked post
         latest_pps: dict[int, tuple[int, int]] = {}
         for cls in _INDEXABLE_PIECE_CLASSES:
-            pieces = cls.objects.filter(owner_id=identity_id, local=True)
+            pieces = cls.objects.filter(owner_id=identity_id, local=not remote)
             if cls is Comment:
                 # comment with a sibling mark is indexed within its ShelfMember doc
                 pieces = pieces.exclude(
@@ -240,14 +251,14 @@ class Command(SiteCommand):
         return expected
 
     def sync_identity_index(
-        self, index: JournalIndex, identity_id: int
+        self, index: JournalIndex, identity_id: int, remote: bool = False
     ) -> tuple[int, int] | None:
         """Add missing docs and delete stale docs for one active identity.
 
         Docs already in the index are left as is (no deep comparison).
         Returns (added, deleted), or None on index error.
         """
-        expected = self.expected_index_docs(identity_id)
+        expected = self.expected_index_docs(identity_id, remote)
         indexed = index.get_doc_ids_by_owner(identity_id)
         if indexed is None:
             return None
@@ -269,23 +280,58 @@ class Command(SiteCommand):
             added += index.replace_docs(index.pieces_to_docs(pieces))
         return added, deleted
 
-    def idx_sync(self, index: JournalIndex, owners: list[int]):
-        identities = APIdentity.objects.filter(local=True)
+    def idx_sync(self, index: JournalIndex, owners: list[int], remote: bool = False):
+        identities = APIdentity.objects.filter(local=not remote)
         if owners:
             identities = identities.filter(pk__in=owners)
         # mirror APIdentity.is_active
         active_q = Q(user__isnull=False, user__is_active=True) | Q(
             user__isnull=True, deleted__isnull=True
         )
-        active_ids = list(
-            identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
-        )
+        indexed_owner_ids: set[int] | None = None
+        if remote:
+            # candidates: remote identities owning indexable pieces, plus
+            # any owner still holding docs in the index (stale docs may
+            # outlive their pieces); enumerating every known remote
+            # identity instead would be pointlessly slow
+            candidate_ids: set[int] = set()
+            for cls in _INDEXABLE_PIECE_CLASSES:
+                candidate_ids.update(
+                    cls.objects.filter(local=False)
+                    .values_list("owner_id", flat=True)
+                    .distinct()
+                )
+            indexed_owner_ids = index.get_indexed_owner_ids()
+            if indexed_owner_ids is None:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "failed to list indexed owners, stale docs of "
+                        "identities without pieces may be missed"
+                    )
+                )
+            else:
+                candidate_ids |= indexed_owner_ids
+            active_ids = []
+            for chunk in batched(sorted(candidate_ids), _SYNC_OWNER_CHUNK):
+                active_ids.extend(
+                    identities.filter(active_q, pk__in=chunk).values_list(
+                        "pk", flat=True
+                    )
+                )
+            active_ids.sort()
+        else:
+            active_ids = list(
+                identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
+            )
         inactive_ids = list(
             identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
         )
+        if indexed_owner_ids is not None:
+            # purging owners holding no docs would be a no-op; skip them
+            inactive_ids = [i for i in inactive_ids if i in indexed_owner_ids]
         added = deleted = errors = 0
         for identity_id in tqdm(active_ids, desc="Syncing active identities"):
-            r = self.sync_identity_index(index, identity_id)
+            r = self.sync_identity_index(index, identity_id, remote)
             if r is None:
                 errors += 1
                 continue
@@ -484,7 +530,7 @@ class Command(SiteCommand):
                 self.idx_catchup(hour)
 
             case "idx-sync":
-                self.idx_sync(index, owners)
+                self.idx_sync(index, owners, remote)
 
             case _:
                 self.stdout.write(self.style.ERROR("action not found."))
