@@ -55,7 +55,8 @@ class RateYourMusicDownloader(ScrapDownloader):
             return RESPONSE_INVALID_CONTENT
         content = response.content.decode("utf-8", errors="ignore")
         if "page_release" not in content and 'id="tracks"' not in content:
-            return RESPONSE_INVALID_CONTENT
+            # likely a bot challenge page, retryable with next provider
+            return RESPONSE_NETWORK_ERROR
         return RESPONSE_OK
 
 
