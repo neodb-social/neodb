@@ -282,6 +282,8 @@ class InboxMessageStates(StateGraph):
                             PostInteraction.handle_remove_ap(instance.message)
                 case "quoterequest" | "https://w3id.org/fep/044f#quoterequest":
                     Post.handle_quote_request_ap(instance.message)
+                case "featurerequest" | "https://w3id.org/fep/7aa9#featurerequest":
+                    Identity.handle_feature_request_ap(instance.message)
                 case "move":
                     # We're ignoring moves for now
                     pass

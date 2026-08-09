@@ -3,6 +3,7 @@ from .announcement import Announcement  # noqa
 from .block import Block, BlockStates  # noqa
 from .bookmark import Bookmark  # noqa
 from .domain import Domain  # noqa
+from .feature_authorization import FeatureAuthorization  # noqa
 from .follow import Follow, FollowStates  # noqa
 from .hashtags import HashtagFeature, HashtagFollow  # noqa
 from .identity import Identity, IdentityStates  # noqa

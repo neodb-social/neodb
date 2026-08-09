@@ -17,13 +17,14 @@ from core.signatures import (
 from core.views import StaticContentView
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from takahe.neodb import __version__ as __neodb_version__
 
-from users.models import Identity, InboxMessage, SystemActor
+from users.models import FeatureAuthorization, Identity, InboxMessage, SystemActor
 from users.models.domain import Domain
 from users.shortcuts import by_handle_or_404
 
@@ -540,6 +541,33 @@ class FeaturedTags(FederatedView):
                     ],
                 }
             ),
+            content_type="application/activity+json",
+        )
+
+
+class FeatureAuthorizationView(View):
+    """
+    Serves a FEP-7aa9 FeatureAuthorization at a dereferenceable URL so that
+    third-party servers can verify that a local identity consented to being
+    listed in a featured collection.
+    """
+
+    def get(self, request, handle, auth_id):
+        if settings.SETUP.NO_FEDERATION:
+            return HttpResponse(status=503)
+        identity = by_handle_or_404(request, handle, local=False)
+        if not identity.local:
+            raise Http404("Not a local identity")
+        auth = get_object_or_404(
+            FeatureAuthorization.objects.select_related("identity"),
+            pk=auth_id,
+            identity=identity,
+        )
+        if not identity.discoverable:
+            # Consent was withdrawn since the stamp was issued
+            raise Http404("Feature authorization withdrawn")
+        return JsonResponse(
+            canonicalise(auth.to_ap(), include_security=True),
             content_type="application/activity+json",
         )
 

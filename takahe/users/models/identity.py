@@ -17,6 +17,7 @@ from core.ld import (
     get_first_concrete_type,
     get_first_image_url,
     get_list,
+    get_str_or_id,
     media_type_from_filename,
 )
 from core.models import Config
@@ -721,6 +722,18 @@ class Identity(StatorModel):
             "toot:discoverable": self.discoverable,
             "toot:indexable": self.indexable,
         }
+        if self.local:
+            # FEP-7aa9: consent to being listed in someone's featured
+            # collection ("collection" / starter pack) follows the discovery
+            # setting. Refusal is spelled as the actor's own id rather than an
+            # empty list, which would vanish under JSON-LD canonicalisation.
+            response["interactionPolicy"] = {
+                "canFeature": {
+                    "automaticApproval": [
+                        "as:Public" if self.discoverable else self.actor_uri
+                    ],
+                }
+            }
         if self.name:
             response["name"] = self.name
         if self.summary:
@@ -858,6 +871,66 @@ class Identity(StatorModel):
             actor.delete()
         except cls.DoesNotExist:
             pass
+
+    @classmethod
+    def handle_feature_request_ap(cls, data):
+        """
+        Handles an incoming FeatureRequest (FEP-7aa9), i.e. someone asking to
+        list this identity in their featured collection ("collection" on
+        Mastodon). Auto-accepts for discoverable identities, rejects otherwise.
+        """
+        from users.models import FeatureAuthorization
+
+        actor_uri = data.get("actor")
+        object_uri = get_str_or_id(data.get("object"))
+        collection_uri = get_str_or_id(data.get("instrument"))
+        if not actor_uri or not object_uri or not collection_uri:
+            return
+        try:
+            identity = cls.by_actor_uri(object_uri)
+        except cls.DoesNotExist:
+            return
+        if not identity.local or identity.deleted or identity.blocked:
+            return
+        try:
+            requester = cls.by_actor_uri(actor_uri, create=True)
+        except cls.DoesNotExist:
+            return
+        if not requester.inbox_uri:
+            requester.fetch_actor()
+        if not requester.inbox_uri:
+            logger.warning("No inbox to answer FeatureRequest from %s", actor_uri)
+            return
+        if identity.discoverable:
+            auth = FeatureAuthorization.objects.create(
+                identity=identity,
+                collection_uri=collection_uri,
+                request_uri=data.get("id"),
+            )
+            reply = {
+                "type": "Accept",
+                "id": f"{identity.actor_uri}#accept-{Snowflake.generate_identity()}",
+                "actor": identity.actor_uri,
+                "to": actor_uri,
+                "object": data.get("id", actor_uri),
+                "result": auth.to_ap(),
+            }
+        else:
+            reply = {
+                "type": "Reject",
+                "id": f"{identity.actor_uri}#reject-{Snowflake.generate_identity()}",
+                "actor": identity.actor_uri,
+                "to": actor_uri,
+                "object": data.get("id", actor_uri),
+            }
+        try:
+            identity.signed_request(
+                method="post",
+                uri=requester.inbox_uri,
+                body=canonicalise(reply),
+            )
+        except Exception as e:
+            logger.warning("Error answering FeatureRequest: %s", e)
 
     ### Deletion ###
 
