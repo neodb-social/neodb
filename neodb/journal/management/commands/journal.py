@@ -3,6 +3,7 @@ from datetime import timedelta
 from itertools import batched
 from time import sleep
 
+from django.core.management.base import CommandError
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
@@ -298,7 +299,13 @@ class Command(SiteCommand):
 
         Docs already in the index are left as is (no deep comparison),
         except "stale-piece" docs which are always rewritten.
-        Returns (added, deleted), or None on index error.
+
+        Returns (added, deleted), or None if the index could not be read or a
+        write did not fully land. Callers must not treat an identity that
+        returned None as reconciled: advancing the resume cursor past it would
+        drop it from every later slice. A partly-written identity reports None
+        and so loses its counts from the totals, which is the cheaper wrong
+        answer next to a silently skipped owner.
         """
         expected = self.expected_index_docs(identity_id, remote)
         indexed = index.get_doc_ids_by_owner(identity_id)
@@ -313,21 +320,33 @@ class Command(SiteCommand):
         }
         if self.dry_run:
             return len(missing) + len(rewrite), len(extra)
+        # delete_docs()/replace_docs() log Typesense errors and return a count
+        # rather than raising, so a short count is the only signal that the
+        # write did not land
+        complete = True
         deleted = 0
         for chunk in batched(extra, _SYNC_DELETE_CHUNK):
-            deleted += index.delete_docs("id", chunk)
+            n = index.delete_docs("id", chunk)
+            deleted += n
+            complete = complete and n == len(chunk)
         added = 0
         post_ids = [expected[i][1] for i in missing if expected[i][0] == "post"]
         for chunk in batched(post_ids, self.batch_size):
             posts = Post.objects.filter(pk__in=chunk)
-            added += index.replace_docs(index.posts_to_docs(posts))
+            docs = [d for d in index.posts_to_docs(posts) if d]
+            n = index.replace_docs(docs)
+            added += n
+            complete = complete and n == len(docs)
         piece_ids = [
             expected[i][1] for i in missing | rewrite if expected[i][0] != "post"
         ]
         for chunk in batched(piece_ids, self.batch_size):
             pieces = Piece.objects.filter(pk__in=chunk)
-            added += index.replace_docs(index.pieces_to_docs(pieces))
-        return added, deleted
+            docs = [d for d in index.pieces_to_docs(pieces) if d]
+            n = index.replace_docs(docs)
+            added += n
+            complete = complete and n == len(docs)
+        return (added, deleted) if complete else None
 
     def apply_cursor(self, identity_ids: list[int]) -> list[int]:
         """Cut the ascending identity list down to --after-id/--limit.
@@ -520,6 +539,13 @@ class Command(SiteCommand):
         self.after_id = kwargs.get("after_id") or 0
         self.limit = kwargs.get("limit") or 0
         self.throttle = kwargs.get("throttle") or 0.0
+        # a negative value here fails quietly and badly: --limit -1 drops the
+        # last identity of every slice, --throttle -1 raises from sleep() only
+        # after the first identity has already been synced
+        if self.after_id < 0 or self.limit < 0 or self.throttle < 0:
+            raise CommandError(
+                "--after-id, --limit and --throttle must not be negative"
+            )
         index = JournalIndex.instance()
 
         if owner and not remote:

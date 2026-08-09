@@ -2,6 +2,7 @@ from io import StringIO
 
 import pytest
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.utils import timezone
 
 from catalog.models import Edition
@@ -171,6 +172,21 @@ class TestIdxSync:
         output = self.run_sync("--limit", "2")
         assert f"--after-id {first}" in output
         assert "stops before the first identity that errored" in output
+
+    def test_failed_write_blocks_resume_cursor(self, monkeypatch):
+        # replace_docs() logs Typesense errors and returns a count, so a short
+        # count is the only sign the write did not land; the cursor must not
+        # move past an owner whose docs never made it in
+        self.index.delete_by_owner([self.identity1.pk, self.identity2.pk])
+        monkeypatch.setattr(JournalIndex, "replace_docs", lambda self, docs: 0)
+        output = self.run_sync("--limit", "2")
+        assert "no resume cursor" in output
+        assert "2 identities skipped due to index errors" in output
+
+    def test_negative_slice_values_rejected(self):
+        for arg in ("--limit", "--after-id", "--throttle"):
+            with pytest.raises(CommandError):
+                self.run_sync(arg, "-1")
 
     def test_slice_skips_purge(self):
         self.user2.is_active = False
