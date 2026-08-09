@@ -391,6 +391,9 @@ class Command(SiteCommand):
             # outlive their pieces); enumerating every known remote
             # identity instead would be pointlessly slow
             candidate_ids: set[int] = set()
+            # highest owner id below which every candidate is known to be in
+            # candidate_ids; None while no per-class scan has been cut short
+            frontier: int | None = None
             for cls in _INDEXABLE_PIECE_CLASSES:
                 pieces = cls.objects.filter(local=False)
                 if self.after_id:
@@ -398,20 +401,32 @@ class Command(SiteCommand):
                     # scans over the piece tables, and a slice that enumerates
                     # the whole estate first is not a shorter run
                     pieces = pieces.filter(owner_id__gt=self.after_id)
-                owner_ids = (
+                owner_q = (
                     pieces.values_list("owner_id", flat=True)
                     .distinct()
                     .order_by("owner_id")
                 )
                 if self.limit:
-                    # the globally smallest --limit owner ids are contained in
-                    # the per-class smallest --limit, so bounding each scan
-                    # keeps the union small without losing any of the ids this
-                    # slice is due. Otherwise every slice would materialise and
-                    # sort the whole remaining tail, which is quadratic over a
-                    # resumed run.
-                    owner_ids = owner_ids[: self.limit]
+                    # bound each scan, or every slice materialises and sorts
+                    # the whole remaining tail, which is quadratic over a
+                    # resumed run
+                    owner_q = owner_q[: self.limit]
+                owner_ids = list(owner_q)
                 candidate_ids.update(owner_ids)
+                if self.limit and len(owner_ids) == self.limit:
+                    # this class may hold more owners past its last returned
+                    # id, so nothing above that id is proven enumerated
+                    last = owner_ids[-1]
+                    frontier = last if frontier is None else min(frontier, last)
+            if frontier is not None:
+                # Beyond the frontier the candidate set is incomplete, and
+                # incomplete is dangerous rather than merely short: these caps
+                # are applied before active_q, so a class whose first --limit
+                # owners are all deactivated can hide a lower active owner.
+                # Syncing a higher active owner from another class would then
+                # advance the cursor past that hidden one and strand it for
+                # good. Only ids the scan actually proved are in play.
+                candidate_ids = {i for i in candidate_ids if i <= frontier}
             if sliced:
                 # get_indexed_owner_ids() exports the whole collection, and it
                 # would run before the slice is applied -- so N slices would

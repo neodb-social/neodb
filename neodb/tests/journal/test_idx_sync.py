@@ -280,6 +280,57 @@ class TestIdxSyncRemote:
         assert ids is not None
         return ids
 
+    def _make_remote_piece(self, owner, uri: str, review: bool):
+        obj = {
+            "id": uri,
+            "type": "Review" if review else "Comment",
+            "content": "body",
+            "published": "2026-01-01T00:00:00+00:00",
+        }
+        if review:
+            obj["name"] = "title"
+            obj["mediaType"] = "text/markdown"
+        post = Post.objects.create(
+            author_id=owner.pk,
+            local=False,
+            object_uri=uri,
+            content=obj["content"],
+            type="Article" if review else "Note",
+            type_data={"object": {"relatedWith": [obj]}},
+            visibility=Post.Visibilities.public,
+            state="fanned_out",
+        )
+        cls = Review if review else Comment
+        piece = cls.update_by_ap_object(owner, self.book, obj, post)
+        assert piece is not None
+        return piece
+
+    def test_sliced_cursor_does_not_skip_owner_capped_out_of_a_class(self):
+        # the per-class --limit cap is applied before active_q, so a class
+        # whose first --limit owners are deactivated can hide a lower active
+        # owner. Syncing a higher active owner from another class and taking
+        # it as the cursor would strand the hidden one for good.
+        deactivated = self.owner  # lowest id, owns a Review
+        deactivated.deleted = timezone.now()
+        deactivated.save()
+        mid = _make_remote_identity("midreader")
+        self._make_remote_piece(mid, "https://remote.example/review/2", review=True)
+        high = _make_remote_identity("highreader")
+        self._make_remote_piece(high, "https://remote.example/comment/2", review=False)
+        assert deactivated.pk < mid.pk < high.pk
+        self.index.delete_all()
+
+        output = self.run_sync("--remote", "--limit", "1")
+
+        # Review's first (and only, under the cap) owner is the deactivated
+        # one, so nothing above it is proven enumerated: the cursor must stop
+        # there rather than jump to high and skip mid
+        assert f"--after-id {deactivated.pk}" in output
+        assert self.doc_ids(high.pk) == set()
+        # and resuming from that cursor still reaches mid
+        self.run_sync("--remote", "--after-id", str(deactivated.pk), "--limit", "1")
+        assert self.doc_ids(mid.pk)
+
     def test_add_missing_remote_docs(self):
         assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
         self.index.delete_by_owner([self.owner.pk])
