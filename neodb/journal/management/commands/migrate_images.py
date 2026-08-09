@@ -7,8 +7,7 @@ from tqdm import tqdm
 
 from common.management.base import SiteCommand
 from journal.models import Collection, Review
-
-_RE_MD_IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
+from journal.models.renderers import RE_MD_IMAGE
 
 
 def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
@@ -73,7 +72,7 @@ def _process_content(text: str, identity_id: int, created_year: str) -> str | No
             return f"![{alt}]({new_src})"
         return m.group(0)
 
-    result = _RE_MD_IMAGE.sub(_replace, text)
+    result = RE_MD_IMAGE.sub(_replace, text)
     return result if changed else None
 
 

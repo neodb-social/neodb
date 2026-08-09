@@ -1,12 +1,13 @@
 import json
 import os
-import re
 import shutil
 import tempfile
 import uuid
+from typing import Any
 
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.db.models.fields.files import ImageFieldFile
 from django.utils import timezone
 from loguru import logger
 
@@ -15,16 +16,26 @@ from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import (
     Article,
     Collection,
-    Content,
+    Comment,
     Note,
+    Rating,
     Review,
     ShelfLogEntry,
     ShelfMember,
+    ShelfMemberProgress,
     Tag,
     TagMember,
 )
+from journal.models.renderers import RE_MD_IMAGE
 from takahe.models import Post
 from users.models import Task
+
+# Content subclasses carried on the journal stream, in the order they are
+# written. Enumerated rather than walked via ``Content.__subclasses__()``:
+# that also yields ``Debris`` (tombstones left by catalog item merges), which
+# has no ``ap_object`` and used to abort the whole export with
+# NotImplementedError for any user who had one.
+_CONTENT_CLASSES = (Rating, Comment, Review, Note)
 
 
 class NdjsonExporter(Task):
@@ -57,135 +68,201 @@ class NdjsonExporter(Task):
             "created_time": timezone.now().isoformat(),
         }
 
-    def run(self):
-        self.ref_items = []
-        user = self.user
-        temp_dir = tempfile.mkdtemp()
-        temp_folder_path = os.path.join(temp_dir, self.filename)
-        os.makedirs(temp_folder_path)
-        attachment_path = os.path.join(temp_folder_path, "attachments")
-        os.makedirs(attachment_path, exist_ok=True)
+    # --- bundling helpers -------------------------------------------------
+    #
+    # Every helper returns an archive-relative path ("attachments/xxx.png")
+    # so the importer can restore the file and repoint the record at it.
 
-        def _save_image(url):
-            if url.startswith("http"):
+    def _bundle_path(self, filename: str) -> tuple[str, str]:
+        """Absolute destination and archive-relative path for ``filename``,
+        uniquified so two sources with the same basename can't clobber."""
+        dest = os.path.join(self.attachment_path, filename)
+        if os.path.exists(dest):
+            filename = f"{uuid.uuid4()}-{filename}"
+            dest = os.path.join(self.attachment_path, filename)
+        return dest, f"attachments/{filename}"
+
+    def _save_image(self, url: str) -> str | None:
+        """Copy (local) or download (remote) an image into the bundle.
+
+        Returns its archive-relative path, or None when it can't be bundled.
+        Local media is checked first: MEDIA_URL may itself be an absolute
+        ``https://`` URL, and pulling our own files back over HTTP would be
+        both wasteful and unreliable behind an internal-only media host.
+        """
+        cached = self.bundled_images.get(url)
+        if cached is not None:
+            return cached or None
+        path = None
+        if url.startswith(settings.MEDIA_URL):
+            rel_path = url[len(settings.MEDIA_URL) :]
+            basename = os.path.basename(rel_path)
+            if basename:
+                dest, path = self._bundle_path(basename)
                 try:
-                    raw_img, ext = ProxiedImageDownloader.download_image(url, "")
-                    if raw_img:
-                        file = "%s/%s.%s" % (attachment_path, uuid.uuid4(), ext)
-                        with open(file, "wb") as binary_file:
-                            binary_file.write(raw_img)
-                        return file
-                except Exception:
-                    logger.debug(f"error downloading {url}")
-            elif url.startswith(settings.MEDIA_URL):
-                rel_path = url[len(settings.MEDIA_URL) :]
-                try:
-                    dest = os.path.join(attachment_path, os.path.basename(rel_path))
                     with default_storage.open(rel_path, "rb") as src:
                         with open(dest, "wb") as dst:
                             shutil.copyfileobj(src, dst)
                 except Exception:
-                    logger.error(f"error copying {url} to {attachment_path}")
-                return url
-            return url
+                    logger.error(f"error copying {url} to {self.attachment_path}")
+                    path = None
+        elif url.startswith("http"):
+            try:
+                raw_img, ext = ProxiedImageDownloader.download_image(url, "")
+                if raw_img:
+                    dest, path = self._bundle_path(f"{uuid.uuid4()}.{ext or 'jpg'}")
+                    with open(dest, "wb") as binary_file:
+                        binary_file.write(raw_img)
+            except Exception:
+                logger.debug(f"error downloading {url}")
+                path = None
+        # cache misses too, so a broken URL is only attempted once per export
+        self.bundled_images[url] = path or ""
+        return path
 
-        filename = os.path.join(temp_folder_path, "journal.ndjson")
+    def _bundle_body_images(self, body: str) -> list[dict[str, str]]:
+        """Bundle every inline markdown image in ``body``.
+
+        Returns ``[{"src": <original>, "file": <archive path>}]`` for the
+        images that were archived; the importer uses this to rewrite the
+        body, without which local images 404 on the destination server.
+        """
+        images: list[dict[str, str]] = []
+        seen: set[str] = set()
+        # RE_MD_IMAGE is the renderer's own pattern; the previous local one
+        # only matched an empty alt text, silently skipping ``![alt](url)``
+        for m in RE_MD_IMAGE.finditer(body or ""):
+            src = m.group(2).strip()
+            if not src or src in seen:
+                continue
+            seen.add(src)
+            path = self._save_image(src)
+            if path:
+                images.append({"src": src, "file": path})
+        return images
+
+    def _bundle_cover(self, cover: ImageFieldFile) -> str | None:
+        """Bundle a piece's cover image file (Article / Collection).
+
+        The ap_object only carries a URL that may be unreachable after
+        migration, so the bytes travel in the archive.
+        """
+        if not cover or str(cover) == settings.DEFAULT_ITEM_COVER:
+            return None
+        basename = os.path.basename(str(cover))
+        if not basename:
+            return None
+        dest, path = self._bundle_path(basename)
+        try:
+            with cover.open("rb") as src:
+                with open(dest, "wb") as dst:
+                    shutil.copyfileobj(src, dst)
+        except Exception as e:
+            logger.error(
+                f"error copying cover {basename} to {dest}", extra={"exception": e}
+            )
+            return None
+        return path
+
+    def _bundle_post_attachments(self, post: Post) -> list[dict[str, str]]:
+        attachments = []
+        for a in post.attachments.all():
+            basename = os.path.basename(a.file.name or "")
+            if not basename:
+                continue
+            dest, path = self._bundle_path(basename)
+            try:
+                with a.file.open("rb") as src:
+                    with open(dest, "wb") as dst:
+                        shutil.copyfileobj(src, dst)
+            except Exception as e:
+                logger.error(
+                    f"error copying attachment {basename} to {dest}",
+                    extra={"exception": e},
+                )
+                continue
+            attachments.append({"file": path, "mimetype": a.mimetype})
+        return attachments
+
+    def _bundle_note_attachments(self, note: Note) -> list[dict[str, str]]:
+        """Attachment records for a Note.
+
+        Preferred source is the linked post, which holds the actual files.
+        Takahe prunes posts though, so fall back to the Note's own stored
+        ``attachments`` JSON rather than dropping the media silently; the
+        file is bundled too when its URL still resolves to local storage.
+        """
+        if note.latest_post:
+            attachments = self._bundle_post_attachments(note.latest_post)
+            if attachments:
+                return attachments
+        attachments = []
+        for a in note.attachments or []:
+            url = a.get("url")
+            if not url:
+                continue
+            entry = {"mimetype": a.get("mimetype", ""), "url": url}
+            path = self._save_image(url)
+            if path:
+                entry["file"] = path
+            attachments.append(entry)
+        return attachments
+
+    def run(self):
+        self.ref_items = []
+        self.bundled_images: dict[str, str] = {}
+        user = self.user
+        temp_dir = tempfile.mkdtemp()
+        temp_folder_path = os.path.join(temp_dir, self.filename)
+        os.makedirs(temp_folder_path)
+        self.attachment_path = os.path.join(temp_folder_path, "attachments")
+        os.makedirs(self.attachment_path, exist_ok=True)
+
+        journal_file = os.path.join(temp_folder_path, "journal.ndjson")
         total = 0
-        with open(filename, "w") as f:
+        with open(journal_file, "w") as f:
             f.write(json.dumps(self.get_header()) + "\n")
 
-            for cls in list(Content.__subclasses__()):
-                pieces = cls.objects.filter(owner=user.identity)
-                for p in pieces:
+            for cls in _CONTENT_CLASSES:
+                for p in cls.objects.filter(owner=user.identity):
                     total += 1
                     self.ref(p.item)
-                    o = {
+                    o: dict[str, Any] = {
                         "type": p.__class__.__name__,
                         "content": p.ap_object,
                         "visibility": p.visibility,
                         "metadata": p.metadata,
                     }
-                    if cls == Review:
-                        for url in re.findall(r"(?<=!\[\]\()([^)]+)(?=\))", p.body):
-                            _save_image(url)
-                    elif cls == Note and p.latest_post:
-                        note_attachments = []
-                        for a in p.latest_post.attachments.all():
-                            filename = os.path.basename(a.file.name or "")
-                            if not filename:
-                                continue
-                            dest = os.path.join(attachment_path, filename)
-                            try:
-                                with a.file.open("rb") as src:
-                                    with open(dest, "wb") as dst:
-                                        shutil.copyfileobj(src, dst)
-                                note_attachments.append(
-                                    {
-                                        "file": f"attachments/{filename}",
-                                        "mimetype": a.mimetype,
-                                    }
-                                )
-                            except Exception as e:
-                                logger.error(
-                                    f"error copying attachment {filename} to {dest}",
-                                    extra={"exception": e},
-                                )
-                        if note_attachments:
-                            o["attachments"] = note_attachments
+                    if isinstance(p, Review):
+                        images = self._bundle_body_images(p.body)
+                        if images:
+                            o["images"] = images
+                    elif isinstance(p, Note):
+                        attachments = self._bundle_note_attachments(p)
+                        if attachments:
+                            o["attachments"] = attachments
                     f.write(json.dumps(o, default=str) + "\n")
 
             # Articles are item-less so they don't fall under
-            # Content.__subclasses__(). Mirror Review's body-image side-effect
-            # (downloads referenced inline images into the bundle) and
-            # serialize via the same {type, content, visibility, metadata}
-            # envelope the importer expects.
+            # _CONTENT_CLASSES. Serialized via the same
+            # {type, content, visibility, metadata} envelope the importer
+            # expects, plus the bundled body images and featured image.
             for art in Article.objects.filter(owner=user.identity):
                 total += 1
-                for url in re.findall(r"(?<=!\[\]\()([^)]+)(?=\))", art.body):
-                    _save_image(url)
-                # bundle the featured image file (the ap_object only carries a
-                # URL that may be unreachable after migration), mirroring how
-                # Collection covers are archived and restored on import
-                cover_file = None
-                if art.cover and str(art.cover) != settings.DEFAULT_ITEM_COVER:
-                    cover_filename = os.path.basename(str(art.cover))
-                    cover_dest = os.path.join(attachment_path, cover_filename)
-                    try:
-                        with art.cover.open("rb") as src:
-                            with open(cover_dest, "wb") as dst:
-                                shutil.copyfileobj(src, dst)
-                        cover_file = f"attachments/{cover_filename}"
-                    except Exception as e:
-                        logger.error(
-                            f"error copying cover {cover_filename} to {cover_dest}",
-                            extra={"exception": e},
-                        )
                 o = {
                     "type": "Article",
                     "content": art.ap_object,
                     "visibility": art.visibility,
                     "metadata": art.metadata,
-                    "cover": cover_file,
+                    "cover": self._bundle_cover(art.cover),
                 }
+                images = self._bundle_body_images(art.body)
+                if images:
+                    o["images"] = images
                 f.write(json.dumps(o, default=str) + "\n")
 
-            collections = Collection.objects.filter(owner=user.identity)
-            for c in collections:
+            for c in Collection.objects.filter(owner=user.identity):
                 total += 1
-                cover_file = None
-                if c.cover and str(c.cover) != settings.DEFAULT_ITEM_COVER:
-                    cover_filename = os.path.basename(str(c.cover))
-                    cover_dest = os.path.join(attachment_path, cover_filename)
-                    try:
-                        with c.cover.open("rb") as src:
-                            with open(cover_dest, "wb") as dst:
-                                shutil.copyfileobj(src, dst)
-                        cover_file = f"attachments/{cover_filename}"
-                    except Exception as e:
-                        logger.error(
-                            f"error copying cover {cover_filename} to {cover_dest}",
-                            extra={"exception": e},
-                        )
                 o = {
                     "type": "Collection",
                     "content": c.ap_object,
@@ -193,16 +270,19 @@ class NdjsonExporter(Task):
                     "metadata": c.metadata,
                     "collaborative": c.collaborative,
                     "query": c.query,
-                    "cover": cover_file,
+                    "cover": self._bundle_cover(c.cover),
                     "items": [
                         {"item": self.ref(m.item), "metadata": m.metadata}
                         for m in c.ordered_members
                     ],
                 }
+                # the description is markdown and may embed images too
+                images = self._bundle_body_images(c.brief)
+                if images:
+                    o["images"] = images
                 f.write(json.dumps(o, default=str) + "\n")
 
-            tags = Tag.objects.filter(owner=user.identity)
-            for t in tags:
+            for t in Tag.objects.filter(owner=user.identity):
                 total += 1
                 o = {
                     "type": "Tag",
@@ -212,8 +292,7 @@ class NdjsonExporter(Task):
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 
-            tags = TagMember.objects.filter(owner=user.identity)
-            for t in tags:
+            for t in TagMember.objects.filter(owner=user.identity):
                 total += 1
                 self.ref(t.item)
                 o = {
@@ -223,24 +302,41 @@ class NdjsonExporter(Task):
                     "metadata": t.metadata,
                 }
                 f.write(json.dumps(o, default=str) + "\n")
-            marks = ShelfMember.objects.filter(owner=user.identity)
-            for m in marks:
+
+            progress_by_member = {
+                p.shelf_member_id: p
+                for p in ShelfMemberProgress.objects.filter(
+                    shelf_member__owner=user.identity
+                )
+            }
+            for m in ShelfMember.objects.filter(owner=user.identity):
                 total += 1
+                # a mark whose item has no comment/rating/log would otherwise
+                # never reach catalog.ndjson, and fail to import
+                self.ref(m.item)
                 o = {
                     "type": "ShelfMember",
                     "content": m.ap_object,
                     "visibility": m.visibility,
                     "metadata": m.metadata,
                 }
+                progress = progress_by_member.get(m.pk)
+                if progress and progress.progress_value:
+                    o["progress"] = {
+                        "type": progress.progress_type or "",
+                        "value": progress.progress_value,
+                    }
                 f.write(json.dumps(o, default=str) + "\n")
 
-            logs = ShelfLogEntry.objects.filter(owner=user.identity)
-            for log in logs:
+            for log in ShelfLogEntry.objects.filter(owner=user.identity):
                 total += 1
                 o = {
                     "type": "ShelfLog",
                     "item": self.ref(log.item),
                     "status": log.shelf_type,
+                    # jsondata fields (comment_text, rating_grade, progress_*)
+                    # live in metadata; without it the history reimports blank
+                    "metadata": log.metadata,
                     "posts": list(log.all_post_ids()),
                     "timestamp": log.timestamp,
                 }
@@ -249,35 +345,23 @@ class NdjsonExporter(Task):
             posts = Post.objects.filter(author_id=user.identity.pk).exclude(
                 type_data__has_key="object"
             )
-
             for p in posts:
                 total += 1
                 o = {"type": "post", "post": p.to_mastodon_json()}
-                for a in p.attachments.all():
-                    filename = os.path.basename(a.file.name or "")
-                    if not filename:
-                        continue
-                    dest = os.path.join(attachment_path, filename)
-                    try:
-                        with a.file.open("rb") as src:
-                            with open(dest, "wb") as dst:
-                                shutil.copyfileobj(src, dst)
-                    except Exception as e:
-                        logger.error(
-                            f"error copying attachment {filename} to {dest}",
-                            extra={"exception": e},
-                        )
+                attachments = self._bundle_post_attachments(p)
+                if attachments:
+                    o["attachments"] = attachments
                 f.write(json.dumps(o, default=str) + "\n")
 
-        filename = os.path.join(temp_folder_path, "catalog.ndjson")
-        with open(filename, "w") as f:
+        catalog_file = os.path.join(temp_folder_path, "catalog.ndjson")
+        with open(catalog_file, "w") as f:
             f.write(json.dumps(self.get_header()) + "\n")
             for item in self.ref_items:
                 f.write(json.dumps(item.ap_object, default=str) + "\n")
 
         # Export actor.ndjson with Takahe identity data
-        filename = os.path.join(temp_folder_path, "actor.ndjson")
-        with open(filename, "w") as f:
+        actor_file = os.path.join(temp_folder_path, "actor.ndjson")
+        with open(actor_file, "w") as f:
             f.write(json.dumps(self.get_header()) + "\n")
             takahe_identity = self.user.identity.takahe_identity
             identity_data = {
@@ -300,6 +384,9 @@ class NdjsonExporter(Task):
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
         shutil.make_archive(filename[:-4], "zip", temp_folder_path)
+        # the staging copy holds every attachment we just bundled; drop it
+        # so exports don't accumulate in the system temp dir
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.metadata["file"] = filename
         self.metadata["total"] = total

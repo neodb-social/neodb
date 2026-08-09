@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import tempfile
 import uuid
 import zipfile
@@ -8,8 +9,10 @@ from typing import Any, Callable, Dict
 from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.utils import timezone
 from loguru import logger
 
+from catalog.models import Item
 from journal.models import (
     Article,
     Collection,
@@ -19,11 +22,15 @@ from journal.models import (
     Rating,
     Review,
     ShelfLogEntry,
+    ShelfMember,
+    ShelfMemberProgress,
     ShelfType,
     Tag,
     TagMember,
 )
+from journal.models.renderers import RE_MD_IMAGE
 from takahe.utils import Takahe
+from users.models import APIdentity
 
 from .base import BaseImporter
 
@@ -53,6 +60,56 @@ class NdjsonImporter(BaseImporter):
             return None
         return resolved
 
+    def _store_bundled_file(self, rel_path: str | None) -> str | None:
+        """Copy a file out of the extracted bundle into media storage.
+
+        Returns the stored file's media URL, which is MEDIA_URL-prefixed and
+        therefore accepted by ``renderers._normalize_image_src``. Returns
+        None when the bundle carries no such file.
+        """
+        src = self._store_path(rel_path)
+        if not src:
+            return None
+        ext = os.path.splitext(src)[1]
+        # same layout as journal.views.common.generate_upload_path, so
+        # restored images sit where the rest of the app expects uploads
+        name = f"upload/{self.user.identity.pk}/{timezone.now():%Y}/{uuid.uuid4()}{ext}"
+        with open(src, "rb") as f:
+            name = default_storage.save(name, File(f))
+        return default_storage.url(name)
+
+    def _store_path(self, rel_path: str | None) -> str | None:
+        """Resolved path of a regular file inside the bundle, else None."""
+        src = self._resolve_temp_path(rel_path)
+        return src if src and os.path.isfile(src) else None
+
+    def _restore_body_images(self, body: str, data: Dict[str, Any]) -> str:
+        """Repoint inline markdown images at copies restored from the bundle.
+
+        Without this a migrated review / article / collection keeps pointing
+        at the source server's media, which 404s for every reader on the
+        destination server.
+        """
+        images = data.get("images") or []
+        if not body or not images:
+            return body
+        mapping: Dict[str, str] = {}
+        for entry in images:
+            if not isinstance(entry, dict):
+                continue
+            src = entry.get("src")
+            url = self._store_bundled_file(entry.get("file"))
+            if src and url:
+                mapping[src] = url
+        if not mapping:
+            return body
+
+        def _replace(m: "re.Match[str]") -> str:
+            src = m.group(2).strip()
+            return f"![{m.group(1)}]({mapping.get(src, src)})"
+
+        return RE_MD_IMAGE.sub(_replace, body)
+
     def import_collection(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a collection from NDJSON data."""
         try:
@@ -69,15 +126,17 @@ class NdjsonImporter(BaseImporter):
             collection = Collection.objects.create(
                 owner=owner,
                 title=name,
-                brief=content,
+                brief=self._restore_body_images(content, data),
                 visibility=visibility,
-                metadata=data.get("metadata", {}),
-                created_time=published_dt,
+                metadata=data.get("metadata") or {},
                 collaborative=data.get("collaborative", 0),
                 query=data.get("query"),
+                # created_time is not nullable; let the model default stand
+                # when a bundle carries no published timestamp
+                **({"created_time": published_dt} if published_dt else {}),
             )
-            cover_src = self._resolve_temp_path(data.get("cover"))
-            if cover_src and os.path.isfile(cover_src):
+            cover_src = self._store_path(data.get("cover"))
+            if cover_src:
                 with open(cover_src, "rb") as f:
                     collection.cover.save(
                         os.path.basename(cover_src), File(f), save=True
@@ -102,7 +161,7 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             item = self.items.get(content_data.get("withRegardTo", ""))
@@ -118,10 +177,35 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 created_time=published_dt,
             )
+            self.restore_progress(owner, item, data.get("progress") or {})
             return "imported"
         except Exception:
             logger.exception("Error importing shelf member")
             return "failed"
+
+    def restore_progress(
+        self, owner: APIdentity, item: Item, progress: Dict[str, Any]
+    ) -> None:
+        """Restore a mark's current reading progress.
+
+        Written straight to ``ShelfMemberProgress`` rather than through
+        ``Mark.set_progress``: that would append a fresh log entry stamped
+        with the import time, polluting the history the ShelfLog records
+        restore separately.
+        """
+        value = progress.get("value")
+        if not value:
+            return
+        shelfmember = ShelfMember.objects.filter(owner=owner, item=item).first()
+        if not shelfmember:
+            return
+        ShelfMemberProgress.objects.update_or_create(
+            shelf_member=shelfmember,
+            defaults={
+                "progress_type": progress.get("type") or None,
+                "progress_value": value,
+            },
+        )
 
     def import_shelf_log(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a shelf log entry from NDJSON data."""
@@ -134,11 +218,20 @@ class NdjsonImporter(BaseImporter):
             # posts = data.get("posts", [])  # TODO but will be tricky
             timestamp = data.get("timestamp")
             timestamp_dt = self.parse_datetime(timestamp) if timestamp else None
+            if not timestamp_dt:
+                # timestamp is not nullable; inserting would raise
+                # IntegrityError and break the enclosing transaction
+                raise ValueError(f"Shelf log without timestamp: {data.get('item', '')}")
+            # comment_text / rating_grade / progress_* are jsondata fields
+            # stored inside metadata. Only overwrite when the bundle carries
+            # them, so older exports don't blank what the mark import wrote.
+            metadata = data.get("metadata") or {}
             _, created = ShelfLogEntry.objects.update_or_create(
                 owner=owner,
                 item=item,
                 shelf_type=shelf_type,
                 timestamp=timestamp_dt,
+                defaults={"metadata": metadata} if metadata else {},
             )
             # return "imported" if created else "skipped"
             # count skip as success otherwise it may confuse user
@@ -157,7 +250,7 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {}) or {}
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {}) or {}
             published_dt = self.parse_datetime(content_data.get("published"))
             title = (content_data.get("name") or "")[:500]
@@ -180,13 +273,14 @@ class NdjsonImporter(BaseImporter):
                 owner=owner, title=title, created_time=published_dt
             ).exists():
                 return "skipped"
+            body = self._restore_body_images(body, data)
             # Restore the bundled featured image (if any) as part of the
             # initial create so the federated post carries it too. Keep the
             # handle open across the create — the ImageField reads it on save.
-            cover_src = self._resolve_temp_path(data.get("cover"))
+            cover_src = self._store_path(data.get("cover"))
             cover_arg = None
             cover_fh = None
-            if cover_src and os.path.isfile(cover_src):
+            if cover_src:
                 cover_fh = open(cover_src, "rb")
                 cover_arg = File(cover_fh, name=os.path.basename(cover_src))
             try:
@@ -232,7 +326,7 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             item = self.items.get(content_data.get("withRegardTo", ""))
@@ -252,7 +346,7 @@ class NdjsonImporter(BaseImporter):
                     return "skipped"
                 # a newer export updates the existing review in place;
                 # creating another row would duplicate (owner, item, title)
-                existing_review.body = content
+                existing_review.body = self._restore_body_images(content, data)
                 if published_dt:
                     existing_review.created_time = published_dt
                 existing_review.visibility = visibility
@@ -263,10 +357,10 @@ class NdjsonImporter(BaseImporter):
                 owner=owner,
                 item=item,
                 title=name,
-                body=content,
-                created_time=published_dt,
+                body=self._restore_body_images(content, data),
                 visibility=visibility,
                 metadata=metadata,
+                **({"created_time": published_dt} if published_dt else {}),
             )
             return "imported"
         except Exception:
@@ -301,44 +395,41 @@ class NdjsonImporter(BaseImporter):
                 sensitive=sensitive,
                 progress_type=progress_type,
                 progress_value=progress_value,
-                created_time=published_dt,
                 visibility=visibility,
-                metadata=data.get("metadata", {}),
+                metadata=data.get("metadata") or {},
+                **({"created_time": published_dt} if published_dt else {}),
             )
-            attachments_data = data.get("attachments", [])
-            if attachments_data and hasattr(self, "temp_dir"):
-                note_attachments = []
-                for atta in attachments_data:
-                    file_rel = atta.get("file")
-                    mimetype = atta.get("mimetype", "")
-                    src = self._resolve_temp_path(file_rel)
-                    if not src or not os.path.isfile(src):
-                        continue
-                    ext = os.path.splitext(src)[1]
-                    storage_name = f"journal/attachments/{uuid.uuid4()}{ext}"
-                    with open(src, "rb") as f:
-                        storage_name = default_storage.save(storage_name, File(f))
-                    storage_url = default_storage.url(storage_name)
-                    url = (
-                        settings.SITE_INFO["site_url"].rstrip("/") + storage_url
-                        if storage_url.startswith("/")
-                        else storage_url
-                    )
-                    note_attachments.append(
-                        {
-                            "type": (mimetype or "unknown").split("/")[0],
-                            "mimetype": mimetype,
-                            "url": url,
-                            "preview_url": "",
-                        }
-                    )
-                if note_attachments:
-                    note.attachments = note_attachments
-                    note.save(
-                        update_fields=["attachments"],
-                        post_when_save=False,
-                        index_when_save=False,
-                    )
+            note_attachments = []
+            for atta in data.get("attachments") or []:
+                if not isinstance(atta, dict):
+                    continue
+                mimetype = atta.get("mimetype", "")
+                url = self._store_bundled_file(atta.get("file"))
+                if url:
+                    if url.startswith("/"):
+                        url = settings.SITE_INFO["site_url"].rstrip("/") + url
+                else:
+                    # the exporter could not bundle the file (post pruned or
+                    # media held elsewhere); keep its recorded URL rather
+                    # than dropping the attachment entirely
+                    url = atta.get("url")
+                if not url:
+                    continue
+                note_attachments.append(
+                    {
+                        "type": (mimetype or "unknown").split("/")[0],
+                        "mimetype": mimetype,
+                        "url": url,
+                        "preview_url": "",
+                    }
+                )
+            if note_attachments:
+                note.attachments = note_attachments
+                note.save(
+                    update_fields=["attachments"],
+                    post_when_save=False,
+                    index_when_save=False,
+                )
             return "imported"
         except Exception:
             logger.exception("Error importing note")
@@ -349,7 +440,7 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             item = self.items.get(content_data.get("withRegardTo", ""))
@@ -378,9 +469,9 @@ class NdjsonImporter(BaseImporter):
                 owner=owner,
                 item=item,
                 text=content,
-                created_time=published_dt,
                 visibility=visibility,
                 metadata=metadata,
+                **({"created_time": published_dt} if published_dt else {}),
             )
             return "imported"
         except Exception:
@@ -392,28 +483,42 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
-            rating_grade = int(float(content_data.get("value", 0)))
-            existing_rating = Rating.objects.filter(owner=owner, item=item).first()
-            if (
-                existing_rating
-                and existing_rating.created_time
-                and published_dt
-                and existing_rating.created_time >= published_dt
-            ):
+            rating_grade = int(float(content_data.get("value") or 0))
+            if not rating_grade:
+                # a rating with no grade carries nothing to restore, and
+                # Rating.update_item_rating treats it as a deletion
                 return "skipped"
+            existing_rating = Rating.objects.filter(owner=owner, item=item).first()
+            if existing_rating:
+                if (
+                    existing_rating.created_time
+                    and published_dt
+                    and existing_rating.created_time >= published_dt
+                ):
+                    return "skipped"
+                # (owner, item) is unique on Rating: inserting a second row
+                # raises IntegrityError, which marks the surrounding
+                # transaction for rollback and fails every later record too
+                existing_rating.grade = rating_grade
+                if published_dt:
+                    existing_rating.created_time = published_dt
+                existing_rating.visibility = visibility
+                existing_rating.metadata = metadata
+                existing_rating.save()
+                return "imported"
             Rating.objects.create(
                 owner=owner,
                 item=item,
                 grade=rating_grade,
-                created_time=published_dt,
                 visibility=visibility,
                 metadata=metadata,
+                **({"created_time": published_dt} if published_dt else {}),
             )
             return "imported"
         except Exception:
@@ -445,7 +550,7 @@ class NdjsonImporter(BaseImporter):
         try:
             owner = self.user.identity
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
-            metadata = data.get("metadata", {})
+            metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             item = self.items.get(content_data.get("withRegardTo", ""))
@@ -478,13 +583,16 @@ class NdjsonImporter(BaseImporter):
             logger.exception("Error importing tag member")
             return "failed"
 
-    def process_journal(self, file_path: str) -> None:
-        """Process a NDJSON file and import all items."""
-        logger.debug(f"Processing {file_path}")
-        lines_error = 0
-        import_funcs: dict[
-            str, Callable[[Dict[str, Any]], BaseImporter.ImportResult]
-        ] = {
+    def import_funcs(
+        self,
+    ) -> dict[str, Callable[[Dict[str, Any]], BaseImporter.ImportResult]]:
+        """Handler per journal record ``type``, in dependency order.
+
+        Keys must cover every ``type`` NdjsonExporter writes; iteration order
+        is the import order (Tag before TagMember, Rating/Comment before
+        ShelfMember, which reads them back through Mark).
+        """
+        return {
             "Tag": self.import_tag,
             "TagMember": self.import_tag_member,
             "Rating": self.import_rating,
@@ -494,9 +602,18 @@ class NdjsonImporter(BaseImporter):
             "Note": self.import_note,
             "Collection": self.import_collection,
             "ShelfLog": self.import_shelf_log,
+            # the exporter writes lowercase "post"; "Post" is accepted too so
+            # the two never silently drift apart again
+            "post": self.import_post,
             "Post": self.import_post,
             "Article": self.import_article,
         }
+
+    def process_journal(self, file_path: str) -> None:
+        """Process a NDJSON file and import all items."""
+        logger.debug(f"Processing {file_path}")
+        lines_error = 0
+        import_funcs = self.import_funcs()
         journal: dict[str, list[Dict[str, Any]]] = {k: [] for k in import_funcs.keys()}
         with open(file_path, "r") as jsonfile:
             # Skip header line
@@ -523,10 +640,19 @@ class NdjsonImporter(BaseImporter):
         if lines_error:
             logger.error(f"Error processing journal.ndjson: {lines_error} lines")
 
-        for typ, func in import_funcs.items():
-            for data in journal.get(typ, []):
-                result = func(data)
-                self.progress(result)
+        # journal is seeded from import_funcs, so iterating it preserves the
+        # dependency order (Tag before TagMember, Rating/Comment before
+        # ShelfMember) and puts unrecognised types last. Every record is
+        # accounted for, including unrecognised ones — otherwise processed
+        # never reaches total and progress stalls short of 100%.
+        for typ, entries in journal.items():
+            func = import_funcs.get(typ)
+            for data in entries:
+                if func is None:
+                    logger.debug(f"Skipping unsupported record type {typ}")
+                    self.progress("skipped")
+                else:
+                    self.progress(func(data))
         logger.info(
             f"Imported {self.metadata['imported']}, skipped {self.metadata['skipped']}, failed {self.metadata['failed']}"
         )
@@ -538,18 +664,24 @@ class NdjsonImporter(BaseImporter):
         try:
             with open(file_path, "r") as jsonfile:
                 for line in jsonfile:
+                    # the whole body is guarded, not just the parse: a single
+                    # unresolvable entry must not abort the catalog, or every
+                    # later piece fails to find its item
                     try:
                         i = json.loads(line)
-                    except json.JSONDecodeError, Exception:
+                        u = i.get("id")
+                        if not u:
+                            continue
+                        # self.catalog_items[u] = i
+                        item_count += 1
+                        links = [u] + [
+                            r["url"]
+                            for r in i.get("external_resources") or []
+                            if isinstance(r, dict) and r.get("url")
+                        ]
+                        self.items[u] = self.get_item_by_info_and_links("", "", links)
+                    except Exception:
                         logger.exception("Error processing catalog item")
-                        continue
-                    u = i.get("id")
-                    if not u:
-                        continue
-                    # self.catalog_items[u] = i
-                    item_count += 1
-                    links = [u] + [r["url"] for r in i.get("external_resources", [])]
-                    self.items[u] = self.get_item_by_info_and_links("", "", links)
             logger.info(f"Loaded {item_count} items from catalog")
             self.metadata["catalog_processed"] = item_count
         except Exception:

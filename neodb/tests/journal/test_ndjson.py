@@ -6,6 +6,8 @@ from tempfile import TemporaryDirectory
 
 import pytest
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.utils.dateparse import parse_datetime
@@ -25,6 +27,8 @@ from catalog.models import (
 from journal.exporters import NdjsonExporter
 from journal.importers import NdjsonImporter
 from journal.models import *
+from journal.models.common import Debris
+from takahe.utils import Takahe
 from users.models import User
 
 
@@ -821,3 +825,288 @@ class TestNdjsonExportImport:
                 owner=self.user2.identity, title="Cover Directory Skipped"
             )
             assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER
+
+    def test_ndjson_export_skips_debris(self):
+        """A Debris tombstone must not abort the export.
+
+        Debris is a Content subclass with no ap_object, so walking
+        Content.__subclasses__() blew the whole export up with
+        NotImplementedError for anyone who had survived an item merge.
+        """
+        comment = Comment.objects.create(
+            item=self.book1, owner=self.user1.identity, text="hi", visibility=0
+        )
+        Debris.create_from_piece(comment)
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            journal = zf.read("journal.ndjson").decode()
+        types = {json.loads(line)["type"] for line in journal.splitlines()[1:]}
+        assert "Comment" in types
+        assert "Debris" not in types
+
+    def test_ndjson_catalog_covers_shelf_only_items(self):
+        """A mark whose item has no comment/rating/log still round-trips.
+
+        Only ShelfMember referenced such an item, and ShelfMember was the one
+        piece type that never ref()'d its item into catalog.ndjson, so the
+        mark failed to import with "Could not find item".
+        """
+        mark = Mark(self.user1.identity, self.book1)
+        mark.update(ShelfType.WISHLIST, created_time=self.dt)
+        mark.delete_all_logs()
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            catalog = zf.read("catalog.ndjson").decode()
+        assert self.book1.absolute_url in catalog
+
+        importer = NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+        assert importer.metadata["failed"] == 0
+        assert Mark(self.user2.identity, self.book1).shelf_type == ShelfType.WISHLIST
+
+    def test_ndjson_rating_newer_import_updates_in_place(self):
+        """(owner, item) is unique on Rating, so a newer import must update.
+
+        Inserting a second row raised IntegrityError, which marks the
+        surrounding transaction for rollback and fails every later record.
+        """
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        owner = self.user2.identity
+        Rating.objects.create(
+            item=self.book1, owner=owner, grade=5, visibility=0, created_time=self.dt
+        )
+
+        result = importer.import_rating(
+            {
+                "visibility": 0,
+                "content": {
+                    "withRegardTo": self.book1.absolute_url,
+                    "value": 9,
+                    "published": "2021-02-01T00:00:00Z",
+                },
+            }
+        )
+        assert result == "imported"
+        rating = Rating.objects.get(owner=owner, item=self.book1)
+        assert rating.grade == 9
+        assert rating.created_time == self.dt2
+        # the transaction is still usable — the old failure poisoned it
+        assert Rating.objects.filter(owner=owner).count() == 1
+
+    def test_ndjson_every_exported_type_has_an_importer(self):
+        """The two sides must agree on every record type name.
+
+        The exporter writes type "post" while the importer dispatched on
+        "Post", so posts were counted in total but never processed and the
+        progress percentage never reached 100%.
+        """
+        Takahe.post(self.user1.identity.pk, "hello world", Takahe.Visibilities.public)
+        Mark(self.user1.identity, self.book1).update(
+            ShelfType.COMPLETE, "done", 8, ["tagged"], 0, created_time=self.dt
+        )
+        Review.update_item_review(
+            self.book1, self.user1.identity, "R", "body", visibility=0
+        )
+        Note.objects.create(
+            item=self.book1, owner=self.user1.identity, content="n", visibility=0
+        )
+        Collection.objects.create(
+            owner=self.user1.identity, title="C", brief="", visibility=0
+        )
+        Article.update_local_article(
+            owner=self.user1.identity, title="A", body="b", visibility=0
+        )
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        export_path = exporter.metadata["file"]
+        with zipfile.ZipFile(export_path) as zf:
+            journal = zf.read("journal.ndjson").decode()
+        exported_types = {
+            json.loads(line)["type"]
+            for line in journal.splitlines()[1:]
+            if "type" in json.loads(line)
+        }
+        # covers every branch of the exporter, so a new record type added
+        # without a matching handler fails here rather than in production
+        assert exported_types >= {
+            "Rating",
+            "Comment",
+            "Review",
+            "Note",
+            "Article",
+            "Collection",
+            "Tag",
+            "TagMember",
+            "ShelfMember",
+            "ShelfLog",
+            "post",
+        }
+
+        importer = NdjsonImporter.create(
+            user=self.user2, file=export_path, visibility=0
+        )
+        assert exported_types <= set(importer.import_funcs())
+
+        importer.run()
+        m = importer.metadata
+        assert m["total"] == exporter.metadata["total"]
+        assert m["processed"] == m["total"]
+        assert m["imported"] + m["skipped"] + m["failed"] == m["total"]
+
+    def test_ndjson_unrecognised_records_are_counted(self, tmp_path):
+        """A record type this version doesn't know still reaches the counters."""
+        path = tmp_path / "journal.ndjson"
+        path.write_text(
+            json.dumps({"server": "x"})
+            + "\n"
+            + json.dumps({"type": "SomethingFromTheFuture"})
+            + "\n"
+        )
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.process_journal(str(path))
+        assert importer.metadata["total"] == 1
+        assert importer.metadata["processed"] == 1
+        assert importer.metadata["skipped"] == 1
+
+    def test_ndjson_review_inline_images_round_trip(self, tmp_path):
+        """Inline images are bundled and the body repointed at the restored copy.
+
+        Previously the exporter downloaded them into the archive but nothing
+        mapped them back, so every local image 404'd after a server move.
+        Images carrying alt text were not even bundled.
+        """
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            buf = BytesIO()
+            Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+            name = default_storage.save(
+                "upload/1/2026/pic.png", ContentFile(buf.getvalue())
+            )
+            src = default_storage.url(name)
+            Review.update_item_review(
+                self.book1,
+                self.user1.identity,
+                "Illustrated",
+                f"before ![alt text]({src}) after",
+                visibility=0,
+            )
+
+            exporter = NdjsonExporter.create(user=self.user1)
+            exporter.run()
+            export_path = exporter.metadata["file"]
+            with zipfile.ZipFile(export_path) as zf:
+                assert any(
+                    n.startswith("attachments/") and n.endswith(".png")
+                    for n in zf.namelist()
+                )
+
+            importer = NdjsonImporter.create(
+                user=self.user2, file=export_path, visibility=0
+            )
+            importer.run()
+            assert importer.metadata["failed"] == 0
+
+            body = Review.objects.get(owner=self.user2.identity, item=self.book1).body
+            assert src not in body, "body still points at the source server's media"
+            new_src = body.split("![alt text](")[1].split(")")[0]
+            assert new_src.startswith(settings.MEDIA_URL)
+            assert default_storage.exists(new_src[len(settings.MEDIA_URL) :])
+
+    def test_ndjson_progress_round_trips(self):
+        """Reading progress survives export/import.
+
+        ShelfMemberProgress was never exported and ShelfLogEntry.metadata
+        (comment_text / rating_grade / progress_*) was dropped on both sides,
+        so a restored journal lost its whole progress history.
+        """
+        mark = Mark(self.user1.identity, self.book1)
+        mark.update(ShelfType.PROGRESS, "reading it", 7, [], 0, created_time=self.dt)
+        mark.set_progress(Note.ProgressType.PAGE, "42")
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        importer = NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+        assert importer.metadata["failed"] == 0
+
+        imported = Mark(self.user2.identity, self.book1)
+        assert imported.progress_type == Note.ProgressType.PAGE
+        assert imported.progress_value == "42"
+
+        def _logs(owner):
+            return [
+                (
+                    log.shelf_type,
+                    log.comment_text,
+                    log.rating_grade,
+                    log.progress_type,
+                    log.progress_value,
+                )
+                for log in ShelfLogEntry.objects.filter(owner=owner).order_by(
+                    "timestamp", "item_id"
+                )
+            ]
+
+        assert _logs(self.user2.identity) == _logs(self.user1.identity)
+
+    def test_ndjson_catalog_survives_bad_entries(self, tmp_path):
+        """One unparseable catalog entry must not strand every later piece.
+
+        parse_catalog only guarded json.loads, so a malformed
+        external_resources entry raised out of the loop and aborted the
+        whole catalog — every piece then failed with "Could not find item".
+        """
+        path = tmp_path / "catalog.ndjson"
+        path.write_text(
+            json.dumps({"server": "x"})
+            + "\nnot json at all\n"
+            + json.dumps(
+                {
+                    "id": "https://example.org/nowhere",
+                    "external_resources": [{"missing_url_key": 1}],
+                }
+            )
+            + "\n"
+            + json.dumps({"id": self.book1.absolute_url})
+            + "\n"
+        )
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.parse_catalog(str(path))
+        assert importer.items.get(self.book1.absolute_url) == self.book1
+
+    def test_ndjson_import_without_published_timestamp(self):
+        """created_time is not nullable; a bundle without `published` must
+        fall back to the model default instead of raising IntegrityError."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        owner = self.user2.identity
+
+        assert (
+            importer.import_comment(
+                {
+                    "content": {
+                        "withRegardTo": self.book1.absolute_url,
+                        "content": "no timestamp",
+                    }
+                }
+            )
+            == "imported"
+        )
+        assert Comment.objects.get(owner=owner, item=self.book1).created_time
+
+        assert (
+            importer.import_collection(
+                {"content": {"name": "No Timestamp"}, "items": []}
+            )
+            == "imported"
+        )
+        assert Collection.objects.get(owner=owner, title="No Timestamp").created_time
