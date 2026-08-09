@@ -460,19 +460,27 @@ class JournalIndex(Index):
     def get_doc_ids_by_owner(self, owner_id: int) -> set[str] | None:
         """Return ids of all docs owned by the identity, or None on error."""
         try:
-            r = self.write_collection.documents.export(
-                {"filter_by": f"owner_id:{owner_id}", "include_fields": "id"}
-            )
-            return {json.loads(line)["id"] for line in r.splitlines() if line}
+            return {
+                json.loads(line)["id"]
+                for line in self.export_docs(
+                    {"filter_by": f"owner_id:{owner_id}", "include_fields": "id"}
+                )
+            }
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return None
 
     def get_indexed_owner_ids(self) -> set[int] | None:
-        """Return distinct owner_id over all docs, or None on error."""
+        """Return distinct owner_id over all docs, or None on error.
+
+        This exports every doc in the collection, so it is by far the heaviest
+        call in the index; keep it to one-off maintenance, never a request path.
+        """
         try:
-            r = self.write_collection.documents.export({"include_fields": "owner_id"})
-            return {json.loads(line)["owner_id"] for line in r.splitlines() if line}
+            return {
+                json.loads(line)["owner_id"]
+                for line in self.export_docs({"include_fields": "owner_id"})
+            }
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return None

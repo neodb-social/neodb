@@ -1,6 +1,7 @@
 from argparse import RawTextHelpFormatter
 from datetime import timedelta
 from itertools import batched
+from time import sleep
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -43,7 +44,10 @@ idx-catchup:    update index for journal items edited in last X hours (use --hou
 idx-sync:       add missing docs, delete stale docs and rewrite docs still
                 referencing dead posts for each local identity, purge docs of
                 deactivated identities (use --dry-run to preview, --remote to
-                sync remote pieces and identities instead)
+                sync remote pieces and identities instead). A --remote run
+                walks every remote identity and puts sustained load on the
+                index; use --offset/--limit to spread it over several
+                invocations and --throttle to pace it.
 """
 
 _DELETED_POST_STATES = ["deleted", "deleted_fanned_out"]
@@ -63,7 +67,7 @@ _INDEXABLE_PIECE_CLASSES: list[type[Piece]] = [
 _SYNC_DELETE_CHUNK = 200
 
 # stays well under postgres's 65535 query-parameter limit
-_SYNC_OWNER_CHUNK = 10000
+_SYNC_PK_CHUNK = 10000
 
 
 class Command(SiteCommand):
@@ -143,6 +147,25 @@ class Command(SiteCommand):
             "--dry-run",
             action="store_true",
             help="report what idx-sync would change without writing to index",
+        )
+        parser.add_argument(
+            "--offset",
+            type=int,
+            default=0,
+            help="idx-sync: skip this many identities (to run in slices)",
+        )
+        parser.add_argument(
+            "--limit",
+            type=int,
+            default=0,
+            help="idx-sync: sync at most this many identities (0 for all)",
+        )
+        parser.add_argument(
+            "--throttle",
+            type=float,
+            default=0.0,
+            help="idx-sync: seconds to pause after each identity, to keep a "
+            "long run from saturating the index",
         )
 
     def integrity(self):
@@ -246,11 +269,12 @@ class Command(SiteCommand):
         if remote:
             # for remote identities, live-ness of the linked posts decides
             # which piece docs may carry a stale post reference
-            live_post_ids = set(
-                Post.objects.filter(pk__in=[v[1] for v in latest_pps.values()])
-                .exclude(state__in=_DELETED_POST_STATES)
-                .values_list("pk", flat=True)
-            )
+            for chunk in batched({v[1] for v in latest_pps.values()}, _SYNC_PK_CHUNK):
+                live_post_ids.update(
+                    Post.objects.filter(pk__in=chunk)
+                    .exclude(state__in=_DELETED_POST_STATES)
+                    .values_list("pk", flat=True)
+                )
         for piece_id in piece_ids:
             post_id = latest_pps[piece_id][1] if piece_id in latest_pps else None
             if post_id is None:
@@ -303,6 +327,24 @@ class Command(SiteCommand):
             added += index.replace_docs(index.pieces_to_docs(pieces))
         return added, deleted
 
+    def apply_slice(self, identity_ids: list[int]) -> tuple[list[int], bool]:
+        """Cut the identity list down to --offset/--limit.
+
+        A full --remote run walks every remote identity in one pass and cannot
+        be narrowed with --owner, so slicing is the only way to spread it over
+        several shorter invocations. Returns the slice and whether one was asked
+        for.
+        """
+        if not self.offset and not self.limit:
+            return identity_ids, False
+        end = self.offset + self.limit if self.limit else None
+        sliced = identity_ids[self.offset : end]
+        self.stdout.write(
+            f"syncing identities {self.offset}..{self.offset + len(sliced)} "
+            f"of {len(identity_ids)}"
+        )
+        return sliced, True
+
     def idx_sync(self, index: JournalIndex, owners: list[int], remote: bool = False):
         identities = APIdentity.objects.filter(local=not remote)
         if owners:
@@ -329,13 +371,14 @@ class Command(SiteCommand):
                 self.stdout.write(
                     self.style.WARNING(
                         "failed to list indexed owners, stale docs of "
-                        "identities without pieces may be missed"
+                        "identities without pieces may be missed, and the "
+                        "purge of deactivated identities will be skipped"
                     )
                 )
             else:
                 candidate_ids |= indexed_owner_ids
             active_ids = []
-            for chunk in batched(sorted(candidate_ids), _SYNC_OWNER_CHUNK):
+            for chunk in batched(sorted(candidate_ids), _SYNC_PK_CHUNK):
                 active_ids.extend(
                     identities.filter(active_q, pk__in=chunk).values_list(
                         "pk", flat=True
@@ -346,15 +389,33 @@ class Command(SiteCommand):
             active_ids = list(
                 identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
             )
+        active_ids, sliced = self.apply_slice(active_ids)
         inactive_ids = list(
             identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
         )
         if indexed_owner_ids is not None:
             # purging owners holding no docs would be a no-op; skip them
             inactive_ids = [i for i in inactive_ids if i in indexed_owner_ids]
+        elif remote:
+            # without that list every deactivated remote identity gets its own
+            # delete-by-filter, nearly all matching nothing; that is a long
+            # stretch of pointless load on the index, so do not start it
+            inactive_ids = []
+        if sliced and inactive_ids:
+            # the purge is over the whole estate, not the slice; running it on
+            # each slice would just repeat the same work
+            self.stdout.write(
+                self.style.WARNING(
+                    "--offset/--limit given, skipping purge of deactivated "
+                    "identities; run once without a slice to purge"
+                )
+            )
+            inactive_ids = []
         added = deleted = errors = 0
         for identity_id in tqdm(active_ids, desc="Syncing active identities"):
             r = self.sync_identity_index(index, identity_id, remote)
+            if self.throttle:
+                sleep(self.throttle)
             if r is None:
                 errors += 1
                 continue
@@ -407,6 +468,9 @@ class Command(SiteCommand):
         self.fix = fix
         self.batch_size = int(batch_size)
         self.dry_run = kwargs.get("dry_run", False)
+        self.offset = kwargs.get("offset") or 0
+        self.limit = kwargs.get("limit") or 0
+        self.throttle = kwargs.get("throttle") or 0.0
         index = JournalIndex.instance()
 
         if owner and not remote:

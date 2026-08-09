@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.utils import timezone
 
 from catalog.models import Edition
+from journal.management.commands import journal as journal_command
 from journal.models import Comment, Mark, Review, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Domain, Post
@@ -120,6 +121,32 @@ class TestIdxSync:
         assert self.doc_ids(self.identity1.pk)
         assert self.doc_ids(self.identity2.pk) == set()
 
+    def test_offset_limit_slices_run(self):
+        first, second = sorted([self.identity1.pk, self.identity2.pk])
+        self.index.delete_by_owner([first, second])
+        output = self.run_sync("--limit", "1")
+        assert "syncing identities 0..1 of 2" in output
+        assert self.doc_ids(first)
+        assert self.doc_ids(second) == set()
+        self.run_sync("--offset", "1", "--limit", "1")
+        assert self.doc_ids(second)
+
+    def test_slice_skips_purge(self):
+        self.user2.is_active = False
+        self.user2.save()
+        before = self.doc_ids(self.identity2.pk)
+        assert before
+        output = self.run_sync("--limit", "1")
+        assert "skipping purge of deactivated identities" in output
+        # the purge covers the whole estate, so a sliced run must not start it
+        assert self.doc_ids(self.identity2.pk) == before
+
+    def test_throttle_pauses_between_identities(self, monkeypatch):
+        pauses = []
+        monkeypatch.setattr(journal_command, "sleep", pauses.append)
+        self.run_sync("--throttle", "0.01")
+        assert pauses == [0.01, 0.01]
+
 
 def _make_remote_identity(username: str, domain_name: str = "remote.example"):
     domain, _ = Domain.objects.get_or_create(
@@ -220,6 +247,20 @@ class TestIdxSyncRemote:
     def test_local_sync_leaves_remote_docs(self):
         self.run_sync()
         assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+
+    def test_purge_skipped_when_indexed_owners_unavailable(self, monkeypatch):
+        before = self.doc_ids(self.owner.pk)
+        assert before
+        self.owner.deleted = timezone.now()
+        self.owner.save()
+        monkeypatch.setattr(JournalIndex, "get_indexed_owner_ids", lambda self: None)
+        output = self.run_sync("--remote")
+        assert "purge of deactivated identities will be skipped" in output
+        assert "0 deactivated identities" in output
+        # without the indexed-owner list the purge would issue one
+        # delete-by-filter per deactivated remote identity, nearly all of them
+        # matching nothing; leaving the docs is the cheaper wrong answer
+        assert self.doc_ids(self.owner.pk) == before
 
     def test_remote_dry_run(self):
         self.index.delete_by_owner([self.owner.pk])

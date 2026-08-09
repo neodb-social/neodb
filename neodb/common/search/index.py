@@ -2,7 +2,7 @@ import re
 from functools import cached_property
 from json import JSONDecodeError
 from time import sleep
-from typing import Iterable, List, Self, cast
+from typing import Iterable, Iterator, List, Self, cast
 
 import httpx
 from django.conf import settings
@@ -33,6 +33,20 @@ TYPESENSE_ERRORS = (
     httpx.HTTPError,
     JSONDecodeError,
 )
+
+# Typesense deletes by filter synchronously, and a large match set can hold up
+# every other operation on the server for minutes; batch_size bounds how much
+# it does at a time. The server default is tuned for speed, not for sharing the
+# box with live indexing, so always pass one.
+# https://typesense.org/docs/latest/api/documents.html#delete-by-query
+DELETE_BATCH_SIZE = 100
+
+# Export streams the whole matched set in a single response and is the one
+# operation here with no useful upper bound on duration. Give it a timeout of
+# its own rather than the search-sized connection_timeout_seconds; see
+# Index.export_docs().
+EXPORT_TIMEOUT_SECONDS = 600
+EXPORT_CONNECT_TIMEOUT_SECONDS = 5
 
 
 def _backtick(s: str | int) -> str:
@@ -371,14 +385,59 @@ class Index:
                 c += 1
         return c
 
-    def delete_docs(self, field: str, values: Iterable[int | str] | int | str) -> int:
+    def export_docs(self, params: dict) -> Iterator[str]:
+        """Stream the export endpoint, yielding one non-empty JSONL line at a time.
+
+        This bypasses the shared client on purpose. That client applies
+        connection_timeout_seconds -- sized for search, a few seconds -- as the
+        httpx read timeout of every request including this one, and the write
+        client retries twice with no pause in between (typesense-python reads
+        retry_interval_seconds from the config and then never sleeps on it). An
+        export that stalls once therefore re-runs the entire scan up to three
+        times back to back, with every abandoned attempt still churning on the
+        server. It also buffers the whole response into one string, which for a
+        full-collection export is hundreds of MB.
+
+        Raises the underlying error (all within TYPESENSE_ERRORS) on failure.
+        """
+        node = settings.TYPESENSE_CONNECTION["nodes"][0]
+        url = (
+            f"{node['protocol']}://{node['host']}:{node['port']}"
+            f"/collections/{self.write_collection.name}/documents/export"
+        )
+        with httpx.stream(
+            "GET",
+            url,
+            params=params,
+            headers={"X-TYPESENSE-API-KEY": settings.TYPESENSE_CONNECTION["api_key"]},
+            timeout=httpx.Timeout(
+                EXPORT_TIMEOUT_SECONDS, connect=EXPORT_CONNECT_TIMEOUT_SECONDS
+            ),
+        ) as r:
+            if r.status_code < 200 or r.status_code >= 300:
+                r.read()
+                raise TypesenseClientError(
+                    f"export failed: {r.status_code} {r.text[:200]}"
+                )
+            for line in r.iter_lines():
+                if line:
+                    yield line
+
+    def delete_docs(
+        self,
+        field: str,
+        values: Iterable[int | str] | int | str,
+        batch_size: int = DELETE_BATCH_SIZE,
+    ) -> int:
         v: str = (
             str(values)
             if isinstance(values, (str, int))
             else ("[" + ",".join(str(x) for x in values) + "]")
         )
         try:
-            r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
+            r = self.write_collection.documents.delete(
+                {"filter_by": f"{field}:{v}", "batch_size": batch_size}
+            )
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
             return 0
