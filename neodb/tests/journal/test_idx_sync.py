@@ -127,7 +127,7 @@ class TestIdxSync:
         first, second = sorted([self.identity1.pk, self.identity2.pk])
         self.index.delete_by_owner([first, second])
         output = self.run_sync("--limit", "1")
-        assert "syncing 1 of 2 candidate identities with id > 0" in output
+        assert "syncing 1 identities with id > 0" in output
         assert f"--after-id {first}" in output
         assert self.doc_ids(first)
         assert self.doc_ids(second) == set()
@@ -196,6 +196,13 @@ class TestIdxSync:
         for arg in ("--limit", "--after-id", "--throttle"):
             with pytest.raises(CommandError):
                 self.run_sync(arg, "-1")
+
+    def test_dry_run_cursor_is_marked_preview_only(self):
+        # a dry run treats every identity as successful, so the cursor it
+        # prints must not be usable to skip ahead in a real run
+        output = self.run_sync("--dry-run", "--limit", "1")
+        assert "continue previewing with --after-id" in output
+        assert "a real run must still start from --after-id 0" in output
 
     def test_non_finite_throttle_rejected(self):
         # argparse takes these as floats and they pass a bare < 0 check, then

@@ -363,13 +363,13 @@ class Command(SiteCommand):
         positional offset would then shift left and step over an identity that
         was never synced. Deactivations between slices do the same.
         """
+        # both bounds are already pushed into the candidate queries; these are
+        # the backstop for the remote path, whose per-class limits can union to
+        # more than --limit
         ids = [i for i in identity_ids if i > self.after_id]
         if self.limit:
             ids = ids[: self.limit]
-        self.stdout.write(
-            f"syncing {len(ids)} of {len(identity_ids)} candidate identities "
-            f"with id > {self.after_id}"
-        )
+        self.stdout.write(f"syncing {len(ids)} identities with id > {self.after_id}")
         return ids
 
     def idx_sync(self, index: JournalIndex, owners: list[int], remote: bool = False):
@@ -381,6 +381,9 @@ class Command(SiteCommand):
             user__isnull=True, deleted__isnull=True
         )
         sliced = bool(self.after_id or self.limit)
+        # highest identity id this slice looked at, whether or not it was
+        # active; 0 when the slice stopped early and so did not clear a range
+        scanned_to = 0
         indexed_owner_ids: set[int] | None = None
         if remote:
             # candidates: remote identities owning indexable pieces, plus
@@ -395,9 +398,20 @@ class Command(SiteCommand):
                     # scans over the piece tables, and a slice that enumerates
                     # the whole estate first is not a shorter run
                     pieces = pieces.filter(owner_id__gt=self.after_id)
-                candidate_ids.update(
-                    pieces.values_list("owner_id", flat=True).distinct()
+                owner_ids = (
+                    pieces.values_list("owner_id", flat=True)
+                    .distinct()
+                    .order_by("owner_id")
                 )
+                if self.limit:
+                    # the globally smallest --limit owner ids are contained in
+                    # the per-class smallest --limit, so bounding each scan
+                    # keeps the union small without losing any of the ids this
+                    # slice is due. Otherwise every slice would materialise and
+                    # sort the whole remaining tail, which is quadratic over a
+                    # resumed run.
+                    owner_ids = owner_ids[: self.limit]
+                candidate_ids.update(owner_ids)
             if sliced:
                 # get_indexed_owner_ids() exports the whole collection, and it
                 # would run before the slice is applied -- so N slices would
@@ -436,12 +450,20 @@ class Command(SiteCommand):
                 )
                 if self.limit and len(active_ids) >= self.limit:
                     break
+            else:
+                # no early break, so every candidate was resolved: this is how
+                # far the slice actually looked, which lets the cursor move on
+                # even when none of them turned out to be active
+                scanned_to = max(candidate_ids) if candidate_ids else 0
             active_ids.sort()
         else:
             local_q = identities.filter(active_q)
             if self.after_id:
                 local_q = local_q.filter(pk__gt=self.after_id)
-            active_ids = list(local_q.order_by("pk").values_list("pk", flat=True))
+            local_q = local_q.order_by("pk").values_list("pk", flat=True)
+            if self.limit:
+                local_q = local_q[: self.limit]
+            active_ids = list(local_q)
         if sliced:
             active_ids = self.apply_cursor(active_ids)
         # decide whether the purge runs before paying for its query: on a large
@@ -511,13 +533,31 @@ class Command(SiteCommand):
         )
         if sliced:
             if resume_id > self.after_id:
-                self.stdout.write(
-                    f"resume the next slice with --after-id {resume_id}"
-                    + (
-                        ", which stops before the first identity that errored"
-                        if not contiguous
-                        else ""
+                note = (
+                    ", which stops before the first identity that errored"
+                    if not contiguous
+                    else ""
+                )
+                if self.dry_run:
+                    # nothing was written, so this cursor only continues the
+                    # preview; a real run started from it would leave every
+                    # identity previewed here unreconciled
+                    self.stdout.write(
+                        f"continue previewing with --after-id {resume_id}{note}; "
+                        f"a real run must still start from --after-id "
+                        f"{self.after_id}, nothing was written"
                     )
+                else:
+                    self.stdout.write(
+                        f"resume the next slice with --after-id {resume_id}{note}"
+                    )
+            elif not active_ids and scanned_to > self.after_id:
+                # nothing was attempted, so nothing errored: the slice resolved
+                # only deactivated identities and the operator would otherwise
+                # be stuck rescanning the same range forever
+                self.stdout.write(
+                    f"no active identity in this slice; "
+                    f"resume with --after-id {scanned_to}"
                 )
             elif active_ids:
                 self.stdout.write(
