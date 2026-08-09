@@ -775,7 +775,7 @@ def reindex_people_20260417():
         logger.error("People index is not ready, people reindex aborted.")
         return
 
-    purged = catalog_index.delete_docs("item_class", "People")
+    purged = catalog_index.delete_docs("item_class", "People", bulk=True)
     if purged:
         logger.warning(f"Purged {purged} legacy People docs from catalog index.")
 

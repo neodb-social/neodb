@@ -455,7 +455,7 @@ class JournalIndex(Index):
         return [cls.post_to_doc(p) for p in posts]
 
     def delete_all(self):
-        return self.delete_docs("owner_id", ">0")
+        return self.delete_docs("owner_id", ">0", bulk=True)
 
     def get_doc_ids_by_owner(self, owner_id: int) -> set[str] | None:
         """Return ids of all docs owned by the identity, or None on error."""
@@ -487,8 +487,8 @@ class JournalIndex(Index):
             logger.error(f"Typesense: error {e}")
             return None
 
-    def delete_by_owner(self, owner_ids):
-        return self.delete_docs("owner_id", owner_ids)
+    def delete_by_owner(self, owner_ids, bulk: bool = False):
+        return self.delete_docs("owner_id", owner_ids, bulk=bulk)
 
     def delete_by_piece(self, piece_ids):
         return self.delete_docs("piece_id", piece_ids)

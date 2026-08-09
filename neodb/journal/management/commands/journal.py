@@ -326,7 +326,7 @@ class Command(SiteCommand):
         complete = True
         deleted = 0
         for chunk in batched(extra, _SYNC_DELETE_CHUNK):
-            n = index.delete_docs("id", chunk)
+            n = index.delete_docs("id", chunk, bulk=True)
             deleted += n
             complete = complete and n == len(chunk)
         added = 0
@@ -485,7 +485,7 @@ class Command(SiteCommand):
                     purged += len(ids)
         else:
             for chunk in batched(inactive_ids, 100):
-                purged += index.delete_by_owner(chunk)
+                purged += index.delete_by_owner(chunk, bulk=True)
         w = "would be " if self.dry_run else ""
         self.stdout.write(
             self.style.SUCCESS(
@@ -598,7 +598,7 @@ class Command(SiteCommand):
 
             case "idx-delete":
                 if owners:
-                    c = index.delete_by_owner(owners)
+                    c = index.delete_by_owner(owners, bulk=True)
                 else:
                     c = index.delete_all()
                 self.stdout.write(self.style.SUCCESS(f"deleted {c} documents."))

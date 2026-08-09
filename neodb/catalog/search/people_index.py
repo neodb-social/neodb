@@ -198,7 +198,7 @@ class PeopleIndex(Index):
         return doc
 
     def delete_all(self):
-        return self.delete_docs("id", "*")
+        return self.delete_docs("id", "*", bulk=True)
 
     def delete(self, item_ids):
         return self.delete_docs("id", item_ids)

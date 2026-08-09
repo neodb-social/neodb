@@ -47,12 +47,16 @@ DELETE_BATCH_SIZE = 100
 # each identity in turn for minutes.
 EXPORT_TIMEOUT_SECONDS = 30
 
-# Operations that answer only once the server has finished the whole job --
-# delete-by-filter and the full-collection export -- take minutes on a large
-# collection, against the few seconds the shared clients allow for search.
+# Operations that answer only once the server has finished the whole job -- a
+# bulk delete-by-filter and the full-collection export -- take minutes on a
+# large collection, against the few seconds the shared clients allow for
+# search.
 LONG_OP_TIMEOUT_SECONDS = 600
 
-EXPORT_CONNECT_TIMEOUT_SECONDS = 5
+# Connecting is not what takes a long time, so it stays short even for the long
+# operations: a host that is down must fail in seconds rather than holding the
+# caller for the full read timeout.
+CONNECT_TIMEOUT_SECONDS = 5
 
 
 def _backtick(s: str | int) -> str:
@@ -278,41 +282,16 @@ class Index:
             }
         )
 
-    @classmethod
-    def get_bulk_client(cls) -> Client:
-        """Client for writes that answer only once the server is done.
-
-        Delete-by-filter returns its count when the whole match set is gone,
-        minutes on a large collection. Under the shared write client's
-        search-sized timeout such a delete is abandoned and reissued twice with
-        no pause (typesense-python parses retry_interval_seconds and never
-        sleeps on it), so the server ends up running overlapping copies of the
-        same delete while the caller is told 0 documents went. Retries are off
-        here for the same reason: a delete that timed out is very likely still
-        running, and firing another is precisely what must not happen. A delete
-        that never lands is recoverable -- the next sync still sees the docs.
-        """
-        return Client(
-            {
-                **settings.TYPESENSE_CONNECTION,
-                "connection_timeout_seconds": LONG_OP_TIMEOUT_SECONDS,
-                "num_retries": 0,
-            }
-        )
-
     def __init__(self):
         self._read_client = self.get_client()
         self._write_client = self.get_client(for_write=True)
-        self._bulk_client = self.get_bulk_client()
 
-    def _get_collection(
-        self, for_write=False, client: Client | None = None
-    ) -> Collection:
+    def _get_collection(self, for_write=False) -> Collection:
         collection_id = self.name + ("_write" if for_write else "_read")
         cname = SiteConfig.system.index_aliases.get(
             collection_id
         ) or SiteConfig.system.index_aliases.get(self.name, self.name)
-        client = client or (self._write_client if for_write else self._read_client)
+        client = self._write_client if for_write else self._read_client
         collection = client.collections[cname]
         if not collection:
             raise KeyError(f"Typesense: collection {collection_id} not found")
@@ -327,21 +306,30 @@ class Index:
         return self._get_collection(True)
 
     @cached_property
-    def bulk_write_collection(self) -> Collection:
-        """Write collection on the long-timeout, no-retry client."""
-        return self._get_collection(True, self._bulk_client)
+    def _http_client(self) -> httpx.Client:
+        """Long-lived client for the raw-HTTP maintenance calls below.
 
-    @cached_property
-    def _export_client(self) -> httpx.Client:
-        """Long-lived client for streamed exports; see export_docs().
-
-        Held for the life of the index so a sync that exports once per identity
-        reuses the connection rather than opening a fresh socket per owner and
-        leaving each in TIME_WAIT -- over a large remote estate that is both
-        needless handshake load on the server and a way to run the client out
-        of ephemeral ports. Timeouts are per request, not on the client.
+        Used where typesense-python cannot express what is needed: it derives
+        both the connect and the read timeout from the single
+        connection_timeout_seconds, and export/bulk-delete need those to
+        differ. Held for the life of the index so a sync that calls once per
+        identity reuses the connection rather than opening a fresh socket per
+        owner and leaving each in TIME_WAIT -- over a large remote estate that
+        is both needless handshake load on the server and a way to run the
+        client out of ephemeral ports. Timeouts are per request.
         """
         return httpx.Client()
+
+    def _node_url(self, path: str) -> str:
+        node = settings.TYPESENSE_CONNECTION["nodes"][0]
+        return (
+            f"{node['protocol']}://{node['host']}:{node['port']}"
+            f"/collections/{self.write_collection.name}/{path}"
+        )
+
+    @property
+    def _api_key_header(self) -> dict[str, str]:
+        return {"X-TYPESENSE-API-KEY": settings.TYPESENSE_CONNECTION["api_key"]}
 
     @classmethod
     def get_schema(cls) -> CollectionCreateSchema:
@@ -450,17 +438,12 @@ class Index:
 
         Raises the underlying error (all within TYPESENSE_ERRORS) on failure.
         """
-        node = settings.TYPESENSE_CONNECTION["nodes"][0]
-        url = (
-            f"{node['protocol']}://{node['host']}:{node['port']}"
-            f"/collections/{self.write_collection.name}/documents/export"
-        )
-        with self._export_client.stream(
+        with self._http_client.stream(
             "GET",
-            url,
+            self._node_url("documents/export"),
             params=params,
-            headers={"X-TYPESENSE-API-KEY": settings.TYPESENSE_CONNECTION["api_key"]},
-            timeout=httpx.Timeout(timeout, connect=EXPORT_CONNECT_TIMEOUT_SECONDS),
+            headers=self._api_key_header,
+            timeout=httpx.Timeout(timeout, connect=CONNECT_TIMEOUT_SECONDS),
         ) as r:
             if r.status_code < 200 or r.status_code >= 300:
                 r.read()
@@ -471,24 +454,57 @@ class Index:
                 if line:
                     yield line
 
+    def _delete_by_filter_bulk(self, filter_by: str, batch_size: int) -> int:
+        """Delete by filter over raw HTTP, for large maintenance filters.
+
+        Delete-by-filter answers only once the whole match set is gone, minutes
+        on a large collection, so it needs a long read timeout -- but a host
+        that is down must still fail in seconds rather than hanging the caller,
+        and typesense-python derives both from one setting. Hence raw httpx.
+
+        No retry: a delete that timed out is very likely still running on the
+        server, so reissuing it piles a second copy onto an already-struggling
+        node, which is exactly what the caller was trying to avoid.
+        """
+        r = self._http_client.request(
+            "DELETE",
+            self._node_url("documents"),
+            params={"filter_by": filter_by, "batch_size": batch_size},
+            headers=self._api_key_header,
+            timeout=httpx.Timeout(
+                LONG_OP_TIMEOUT_SECONDS, connect=CONNECT_TIMEOUT_SECONDS
+            ),
+        )
+        if r.status_code < 200 or r.status_code >= 300:
+            raise TypesenseClientError(f"delete failed: {r.status_code} {r.text[:200]}")
+        return r.json().get("num_deleted", 0)
+
     def delete_docs(
         self,
         field: str,
         values: Iterable[int | str] | int | str,
         batch_size: int = DELETE_BATCH_SIZE,
+        bulk: bool = False,
     ) -> int:
+        """Delete every doc matching field:values.
+
+        Set bulk for maintenance filters that may match a large number of docs
+        (whole-collection wipes, per-owner purges, reconciliation sweeps). The
+        default path is the shared write client, which is right for the point
+        deletes on the save path: those match a doc or two, so they want the
+        short timeout and the retries rather than a ten-minute ceiling.
+        """
         v: str = (
             str(values)
             if isinstance(values, (str, int))
             else ("[" + ",".join(str(x) for x in values) + "]")
         )
+        filter_by = f"{field}:{v}"
         try:
-            # bulk client, not the shared write one: batch_size makes the
-            # server yield between batches but the response still waits for the
-            # whole filter, so a short timeout here would abandon and reissue a
-            # delete that is still running
-            r = self.bulk_write_collection.documents.delete(
-                {"filter_by": f"{field}:{v}", "batch_size": batch_size}
+            if bulk:
+                return self._delete_by_filter_bulk(filter_by, batch_size)
+            r = self.write_collection.documents.delete(
+                {"filter_by": filter_by, "batch_size": batch_size}
             )
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")

@@ -996,7 +996,7 @@ class Command(SiteCommand):
                     c += r
                 self.stdout.write(self.style.SUCCESS(f"indexed {c} of {t} docs."))
                 # Purge any People docs that were indexed before the split.
-                purged = index.delete_docs("item_class", "People")
+                purged = index.delete_docs("item_class", "People", bulk=True)
                 if purged:
                     self.stdout.write(
                         self.style.WARNING(f"purged {purged} People docs.")
