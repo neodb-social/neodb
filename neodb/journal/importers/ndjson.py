@@ -64,7 +64,7 @@ class NdjsonImporter(BaseImporter):
         """Copy a file out of the extracted bundle into media storage.
 
         Returns the stored file's media URL, which is MEDIA_URL-prefixed and
-        therefore accepted by ``renderers._normalize_image_src``. Returns
+        therefore accepted by ``renderers.normalize_image_src``. Returns
         None when the bundle carries no such file.
         """
         src = self._store_path(rel_path)
@@ -177,27 +177,37 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 created_time=published_dt,
             )
-            self.restore_progress(owner, item, data.get("progress") or {})
+            self.restore_progress(owner, item, data)
             return "imported"
         except Exception:
             logger.exception("Error importing shelf member")
             return "failed"
 
     def restore_progress(
-        self, owner: APIdentity, item: Item, progress: Dict[str, Any]
+        self, owner: APIdentity, item: Item, data: Dict[str, Any]
     ) -> None:
-        """Restore a mark's current reading progress.
+        """Restore — or clear — a mark's current reading progress.
+
+        Tri-state on the ``progress`` key, so that a newer archive in which
+        the user cleared their progress can replay that: an absent key is a
+        legacy archive that never carried progress and is left alone, a value
+        restores it, and an explicit null clears it. Only reached once the
+        archive has been found newer than the destination mark.
 
         Written straight to ``ShelfMemberProgress`` rather than through
         ``Mark.set_progress``: that would append a fresh log entry stamped
         with the import time, polluting the history the ShelfLog records
         restore separately.
         """
-        value = progress.get("value")
-        if not value:
+        if "progress" not in data:
             return
         shelfmember = ShelfMember.objects.filter(owner=owner, item=item).first()
         if not shelfmember:
+            return
+        progress = data.get("progress") or {}
+        value = progress.get("value")
+        if not value:
+            ShelfMemberProgress.objects.filter(shelf_member=shelfmember).delete()
             return
         ShelfMemberProgress.objects.update_or_create(
             shelf_member=shelfmember,
@@ -223,15 +233,19 @@ class NdjsonImporter(BaseImporter):
                 # IntegrityError and break the enclosing transaction
                 raise ValueError(f"Shelf log without timestamp: {data.get('item', '')}")
             # comment_text / rating_grade / progress_* are jsondata fields
-            # stored inside metadata. Only overwrite when the bundle carries
-            # them, so older exports don't blank what the mark import wrote.
-            metadata = data.get("metadata") or {}
+            # stored inside metadata. Keyed on presence, not truthiness: an
+            # archive that carries the key is authoritative even when it is
+            # empty, while a legacy archive without it must not blank what
+            # the mark import already wrote.
+            defaults = (
+                {"metadata": data.get("metadata") or {}} if "metadata" in data else {}
+            )
             _, created = ShelfLogEntry.objects.update_or_create(
                 owner=owner,
                 item=item,
                 shelf_type=shelf_type,
                 timestamp=timestamp_dt,
-                defaults={"metadata": metadata} if metadata else {},
+                defaults=defaults,
             )
             # return "imported" if created else "skipped"
             # count skip as success otherwise it may confuse user

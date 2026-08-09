@@ -1058,6 +1058,143 @@ class TestNdjsonExportImport:
 
         assert _logs(self.user2.identity) == _logs(self.user1.identity)
 
+    def test_ndjson_cleared_progress_round_trips(self):
+        """A newer archive in which progress was cleared clears it on import.
+
+        The exporter only emitted `progress` when a value existed, so a
+        cleared mark looked exactly like a legacy archive and the
+        destination silently kept stale progress.
+        """
+        # destination already holds progress for this item. set_progress
+        # re-dates the mark to now, so wind it back explicitly — the archive
+        # has to be the newer side for the import to touch the mark at all.
+        dest_mark = Mark(self.user2.identity, self.book1)
+        dest_mark.update(ShelfType.PROGRESS, created_time=self.dt)
+        dest_mark.set_progress(Note.ProgressType.PAGE, "10")
+        ShelfMember.objects.filter(owner=self.user2.identity, item=self.book1).update(
+            created_time=self.dt
+        )
+        assert Mark(self.user2.identity, self.book1).progress_value == "10"
+
+        # source is strictly newer and carries no progress
+        src_mark = Mark(self.user1.identity, self.book1)
+        src_mark.update(ShelfType.PROGRESS, created_time=self.dt2)
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            journal = zf.read("journal.ndjson").decode()
+        shelf_members = [
+            json.loads(line)
+            for line in journal.splitlines()[1:]
+            if json.loads(line).get("type") == "ShelfMember"
+        ]
+        # the key is present-and-null, which is what makes clearing replayable
+        assert "progress" in shelf_members[0]
+        assert shelf_members[0]["progress"] is None
+
+        importer = NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+        assert importer.metadata["failed"] == 0
+        assert Mark(self.user2.identity, self.book1).progress_value is None
+
+    def test_ndjson_legacy_archive_keeps_progress(self):
+        """A record with no `progress` key must leave existing progress alone."""
+        mark = Mark(self.user2.identity, self.book1)
+        mark.update(ShelfType.PROGRESS, created_time=self.dt)
+        mark.set_progress(Note.ProgressType.PAGE, "10")
+
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.restore_progress(self.user2.identity, self.book1, {})
+        assert Mark(self.user2.identity, self.book1).progress_value == "10"
+
+    def test_ndjson_bundles_absolute_local_media(self, tmp_path):
+        """An absolute URL on our own site is copied from storage, not fetched.
+
+        import_note records restored attachments as site_url + MEDIA_URL, so
+        a re-export saw a URL that did not start with a relative MEDIA_URL
+        and fell through to the HTTP downloader — which is_valid_url blocks
+        for an internal host, silently dropping the file from the bundle.
+        """
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            buf = BytesIO()
+            Image.new("RGB", (2, 2), "green").save(buf, format="PNG")
+            name = default_storage.save(
+                "upload/1/2026/abs.png", ContentFile(buf.getvalue())
+            )
+            absolute = settings.SITE_INFO["site_url"].rstrip("/") + default_storage.url(
+                name
+            )
+            assert not absolute.startswith(settings.MEDIA_URL)
+
+            # a note whose media is only reachable through its stored
+            # attachments JSON — exactly what import_note writes back
+            note = Note.objects.create(
+                item=self.book1,
+                owner=self.user1.identity,
+                content="see attached",
+                visibility=0,
+            )
+            note.attachments = [
+                {
+                    "type": "image",
+                    "mimetype": "image/png",
+                    "url": absolute,
+                    "preview_url": "",
+                }
+            ]
+            note.save(
+                update_fields=["attachments"],
+                post_when_save=False,
+                index_when_save=False,
+            )
+
+            exporter = NdjsonExporter.create(user=self.user1)
+            exporter.run()
+            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+                names = zf.namelist()
+                journal = zf.read("journal.ndjson").decode()
+            assert any(
+                n.startswith("attachments/") and n.endswith(".png") for n in names
+            )
+            record = next(
+                r
+                for r in (json.loads(line) for line in journal.splitlines()[1:])
+                if r.get("type") == "Note"
+            )
+            assert record["attachments"][0]["file"].startswith("attachments/")
+
+    def test_ndjson_shelf_log_empty_metadata_is_authoritative(self):
+        """An explicit empty metadata overwrites; an absent key does not."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        owner = self.user2.identity
+        stale = ShelfLogEntry.objects.create(
+            owner=owner,
+            item=self.book1,
+            shelf_type=ShelfType.COMPLETE,
+            timestamp=self.dt,
+            metadata={"comment_text": "stale", "rating_grade": 3},
+        )
+        record = {
+            "item": self.book1.absolute_url,
+            "status": ShelfType.COMPLETE,
+            "timestamp": "2021-01-01T00:00:00Z",
+        }
+
+        # legacy archive (no metadata key): leave the row alone
+        assert importer.import_shelf_log(record) == "imported"
+        stale.refresh_from_db()
+        assert stale.comment_text == "stale"
+
+        # new archive that says the entry carries nothing: overwrite
+        assert importer.import_shelf_log({**record, "metadata": {}}) == "imported"
+        stale.refresh_from_db()
+        assert stale.comment_text is None
+        assert stale.rating_grade is None
+
     def test_ndjson_catalog_survives_bad_entries(self, tmp_path):
         """One unparseable catalog entry must not strand every later piece.
 

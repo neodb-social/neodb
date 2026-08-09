@@ -26,7 +26,7 @@ from journal.models import (
     Tag,
     TagMember,
 )
-from journal.models.renderers import RE_MD_IMAGE
+from journal.models.renderers import RE_MD_IMAGE, normalize_image_src
 from takahe.models import Post
 from users.models import Task
 
@@ -86,16 +86,19 @@ class NdjsonExporter(Task):
         """Copy (local) or download (remote) an image into the bundle.
 
         Returns its archive-relative path, or None when it can't be bundled.
-        Local media is checked first: MEDIA_URL may itself be an absolute
-        ``https://`` URL, and pulling our own files back over HTTP would be
-        both wasteful and unreliable behind an internal-only media host.
+        Local media is resolved first, via the renderer's normalizer so that
+        an absolute URL on our own site (how import_note records restored
+        attachments) is recognised as local: pulling our own files back over
+        HTTP is wasteful, and is_valid_url blocks it outright when the site
+        or media host is internal.
         """
         cached = self.bundled_images.get(url)
         if cached is not None:
             return cached or None
         path = None
-        if url.startswith(settings.MEDIA_URL):
-            rel_path = url[len(settings.MEDIA_URL) :]
+        normalized = normalize_image_src(url) or url
+        if normalized.startswith(settings.MEDIA_URL):
+            rel_path = normalized[len(settings.MEDIA_URL) :]
             basename = os.path.basename(rel_path)
             if basename:
                 dest, path = self._bundle_path(basename)
@@ -106,9 +109,9 @@ class NdjsonExporter(Task):
                 except Exception:
                     logger.error(f"error copying {url} to {self.attachment_path}")
                     path = None
-        elif url.startswith("http"):
+        elif normalized.startswith("http"):
             try:
-                raw_img, ext = ProxiedImageDownloader.download_image(url, "")
+                raw_img, ext = ProxiedImageDownloader.download_image(normalized, "")
                 if raw_img:
                     dest, path = self._bundle_path(f"{uuid.uuid4()}.{ext or 'jpg'}")
                     with open(dest, "wb") as binary_file:
@@ -321,11 +324,17 @@ class NdjsonExporter(Task):
                     "metadata": m.metadata,
                 }
                 progress = progress_by_member.get(m.pk)
-                if progress and progress.progress_value:
-                    o["progress"] = {
+                # always written, null included: a later import has to tell
+                # "this mark has no progress" from "this archive predates the
+                # field", or clearing progress could never be replayed
+                o["progress"] = (
+                    {
                         "type": progress.progress_type or "",
                         "value": progress.progress_value,
                     }
+                    if progress and progress.progress_value
+                    else None
+                )
                 f.write(json.dumps(o, default=str) + "\n")
 
             for log in ShelfLogEntry.objects.filter(owner=user.identity):
