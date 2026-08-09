@@ -305,7 +305,9 @@ class Index:
         self._write_client = self.get_client(for_write=True)
         self._bulk_client = self.get_bulk_client()
 
-    def _get_collection(self, for_write=False, client: Client | None = None):
+    def _get_collection(
+        self, for_write=False, client: Client | None = None
+    ) -> Collection:
         collection_id = self.name + ("_write" if for_write else "_read")
         cname = SiteConfig.system.index_aliases.get(
             collection_id

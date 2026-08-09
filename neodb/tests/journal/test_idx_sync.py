@@ -6,6 +6,7 @@ from django.core.management.base import CommandError
 from django.utils import timezone
 
 from catalog.models import Edition
+from common.search.index import TYPESENSE_ERRORS
 from journal.management.commands import journal as journal_command
 from journal.models import Comment, Mark, Review, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
@@ -182,6 +183,14 @@ class TestIdxSync:
         output = self.run_sync("--limit", "2")
         assert "no resume cursor" in output
         assert "2 identities skipped due to index errors" in output
+
+    def test_export_docs_raises_on_error_response(self):
+        # export_docs is a generator, so the request is only made once it is
+        # iterated; a rejected export must surface as a TYPESENSE_ERRORS member
+        # so get_doc_ids_by_owner() can turn it into None rather than an
+        # empty-and-therefore-"delete-everything" result
+        with pytest.raises(TYPESENSE_ERRORS):
+            list(self.index.export_docs({"filter_by": "no_such_field:1"}))
 
     def test_negative_slice_values_rejected(self):
         for arg in ("--limit", "--after-id", "--throttle"):
