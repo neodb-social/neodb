@@ -383,6 +383,23 @@ def test_inbox_rejects_unsigned_feature_request(identity: Identity, config_syste
 
 
 @pytest.mark.django_db
+def test_inbox_rejects_feature_request_signed_by_a_non_uri_key(
+    identity: Identity, keypair, config_system
+):
+    """
+    keyId is attacker-controlled: a parseable but non-URI one must not be
+    adopted as the actor, or actor and domain lookup choke on it before any
+    signature has been checked.
+    """
+    client = Client()
+    resp = _sign_and_post(
+        client, identity, _feature_request(identity.actor_uri), keypair, "not-a-url#key"
+    )
+    assert resp.status_code == 400
+    assert InboxMessage.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_inbox_still_rejects_other_activities_without_actor(
     client, identity: Identity, remote_identity: Identity, keypair, config_system
 ):

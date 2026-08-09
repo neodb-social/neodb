@@ -840,6 +840,42 @@ def test_relay_unknown_relay_deferred(
 
 
 @pytest.mark.django_db
+def test_relay_actorless_activity_attributed_to_ld_creator(
+    client, identity, remote_identity, relay_identity, relay_keypair, keypair
+):
+    """
+    Activities that carry no actor of their own (FEP-7aa9 FeatureRequest) take
+    the signer's. Relayed, that must be the LD signature creator and not the
+    relay, otherwise the relay's HTTP signature alone would carry the request
+    through and it would be answered as if the relay had asked.
+    """
+    key_id = f"{remote_identity.actor_uri}#main-key"
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.public_key_id = key_id
+    remote_identity.save()
+
+    document = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "id": f"{remote_identity.actor_uri}feature_requests/1",
+        "type": "FeatureRequest",
+        "object": identity.actor_uri,
+        "instrument": f"{remote_identity.actor_uri}collections/1",
+    }
+    # Sign as the requester before handing it to the relay: the helper derives
+    # its LD key ID from document["actor"], which is exactly what is missing.
+    document["signature"] = LDSignature.create_signature(
+        document, keypair["private_key"], key_id
+    )
+
+    resp = _relay_sign_and_post(client, identity, document, relay_keypair)
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg is not None
+    assert msg.message["actor"] == remote_identity.actor_uri
+    assert msg.metadata is None
+
+
+@pytest.mark.django_db
 def test_deferred_relay_http_sig_verified(relay_keypair):
     """
     Deferred relay_http_sig verifies once the relay's public key becomes available.

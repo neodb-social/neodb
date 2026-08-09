@@ -61,6 +61,20 @@ def ld_signature_creator(document: dict) -> str | None:
     return urldefrag(creator).url
 
 
+def signer_actor_uri(candidate: str | None) -> str | None:
+    """
+    A signer is only usable as an actor if it names one: keyId and creator are
+    both sender-controlled, and anything without a hostname would reach actor
+    and domain lookup as garbage before a signature has been checked.
+    """
+    if not candidate:
+        return None
+    parts = urlparse(candidate)
+    if parts.scheme not in ["http", "https"] or not parts.hostname:
+        return None
+    return candidate
+
+
 class FederatedView(View):
     """
     Base class for all views requires federation
@@ -235,7 +249,14 @@ class Inbox(FederatedView):
                 if isinstance(document_type, str)
                 else False
             )
-            signer_uri = key_id_actor or ld_signature_creator(document)
+            # The LD signature creator comes first: it credits the origin,
+            # while a relayed delivery is HTTP-signed by the relay. Where the
+            # two differ this puts the request into relay_mode below, which is
+            # what makes the relay prove itself and the origin prove the
+            # document, rather than the relay's signature carrying it alone.
+            signer_uri = signer_actor_uri(
+                ld_signature_creator(document)
+            ) or signer_actor_uri(key_id_actor)
             if not implicit_actor or not signer_uri:
                 logger.warning("Inbox error: unspecified actor")
                 return HttpResponseBadRequest("Unspecified actor")
