@@ -147,6 +147,31 @@ class TestIdxSync:
         self.run_sync("--after-id", str(first), "--limit", "1")
         assert self.doc_ids(second)
 
+    def test_resume_cursor_stops_before_failed_identity(self, monkeypatch):
+        # advancing the cursor past an identity that errored would drop that
+        # owner from every later slice and leave it unreconciled for good
+        first, second = sorted([self.identity1.pk, self.identity2.pk])
+        monkeypatch.setattr(
+            JournalIndex,
+            "get_doc_ids_by_owner",
+            lambda self, owner_id: None if owner_id == first else set(),
+        )
+        output = self.run_sync("--limit", "2")
+        assert f"--after-id {first}" not in output
+        assert "no resume cursor" in output
+        assert "1 identities skipped due to index errors" in output
+
+    def test_resume_cursor_reports_partial_progress(self, monkeypatch):
+        first, second = sorted([self.identity1.pk, self.identity2.pk])
+        monkeypatch.setattr(
+            JournalIndex,
+            "get_doc_ids_by_owner",
+            lambda self, owner_id: None if owner_id == second else set(),
+        )
+        output = self.run_sync("--limit", "2")
+        assert f"--after-id {first}" in output
+        assert "stops before the first identity that errored" in output
+
     def test_slice_skips_purge(self):
         self.user2.is_active = False
         self.user2.save()

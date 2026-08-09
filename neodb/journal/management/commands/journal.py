@@ -436,13 +436,21 @@ class Command(SiteCommand):
             )
             inactive_ids = []
         added = deleted = errors = 0
+        # the resume cursor may only advance over an unbroken run of successes:
+        # moving it past an identity that errored would drop that owner from
+        # every later slice, silently leaving it unreconciled for good
+        resume_id = self.after_id
+        contiguous = True
         for identity_id in tqdm(active_ids, desc="Syncing active identities"):
             r = self.sync_identity_index(index, identity_id, remote)
             if self.throttle:
                 sleep(self.throttle)
             if r is None:
                 errors += 1
+                contiguous = False
                 continue
+            if contiguous:
+                resume_id = identity_id
             a, d = r
             added += a
             deleted += d
@@ -467,8 +475,23 @@ class Command(SiteCommand):
                 f"{len(inactive_ids)} deactivated identities, {purged} docs {w}purged."
             )
         )
-        if sliced and active_ids:
-            self.stdout.write(f"resume the next slice with --after-id {active_ids[-1]}")
+        if sliced:
+            if resume_id > self.after_id:
+                self.stdout.write(
+                    f"resume the next slice with --after-id {resume_id}"
+                    + (
+                        ", which stops before the first identity that errored"
+                        if not contiguous
+                        else ""
+                    )
+                )
+            elif active_ids:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "no resume cursor: the first identity of this slice "
+                        "errored, so rerun the same --after-id"
+                    )
+                )
         if errors:
             self.stdout.write(
                 self.style.WARNING(f"{errors} identities skipped due to index errors.")

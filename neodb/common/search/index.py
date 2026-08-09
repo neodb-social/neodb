@@ -299,6 +299,18 @@ class Index:
     def write_collection(self) -> Collection:
         return self._get_collection(True)
 
+    @cached_property
+    def _export_client(self) -> httpx.Client:
+        """Long-lived client for streamed exports; see export_docs().
+
+        Held for the life of the index so a sync that exports once per identity
+        reuses the connection rather than opening a fresh socket per owner and
+        leaving each in TIME_WAIT -- over a large remote estate that is both
+        needless handshake load on the server and a way to run the client out
+        of ephemeral ports. Timeouts are per request, not on the client.
+        """
+        return httpx.Client()
+
     @classmethod
     def get_schema(cls) -> CollectionCreateSchema:
         cname = SiteConfig.system.index_aliases.get(
@@ -411,7 +423,7 @@ class Index:
             f"{node['protocol']}://{node['host']}:{node['port']}"
             f"/collections/{self.write_collection.name}/documents/export"
         )
-        with httpx.stream(
+        with self._export_client.stream(
             "GET",
             url,
             params=params,
