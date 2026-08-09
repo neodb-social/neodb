@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2026-08-08 15:44-0400\n"
-"PO-Revision-Date: 2026-08-08 21:21+0000\n"
+"PO-Revision-Date: 2026-08-09 06:32+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/neodb/neodb/"
 "pt/>\n"
@@ -4327,8 +4327,8 @@ msgstr ""
 "discord.gg/uprvcH8gqD\">Discord</a>.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a "
-"href=\"%(login_url)s\">Clique aqui</a> para se registar ou iniciar sessão.\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%"
+"(login_url)s\">Clique aqui</a> para se registar ou iniciar sessão.\n"
 "        </p>\n"
 "        "
 
@@ -7166,8 +7166,7 @@ msgstr "A autenticação falhou"
 #, fuzzy
 #| msgid "System busy, please try again in a minute."
 msgid "Too many attempts, please try again later."
-msgstr ""
-"Sistema sobrecarregado. Por favor, tente novamente dentro de um minuto."
+msgstr "Sistema sobrecarregado. Por favor, tente novamente dentro de um minuto."
 
 #: mastodon/views/bluesky.py:40
 #, fuzzy

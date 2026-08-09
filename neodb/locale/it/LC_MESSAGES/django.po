@@ -6,12 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2026-08-08 15:44-0400\n"
-"PO-Revision-Date: 2026-08-08 21:17+0000\n"
+"PO-Revision-Date: 2026-08-09 06:32+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/"
-">\n"
+"Language-Team: Italian <https://hosted.weblate.org/projects/neodb/neodb/it/>"
+"\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -4331,8 +4331,8 @@ msgstr ""
 "href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a "
-"href=\"%(login_url)s\">Clicca qui</a> per registrarti o fare l'accesso.\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%"
+"(login_url)s\">Clicca qui</a> per registrarti o fare l'accesso.\n"
 "        </p>\n"
 "        "
 
@@ -7087,8 +7087,7 @@ msgstr "{review_title} - una recensione su {item_title}"
 #, fuzzy
 #| msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgid "may contain spoiler or triggering content"
-msgstr ""
-"riguardo {item_title}, potrebbe contenere spoiler o contenuto sensibile"
+msgstr "riguardo {item_title}, potrebbe contenere spoiler o contenuto sensibile"
 
 #: journal/views/tag.py:47 journal/views/tag.py:61
 msgid "Invalid tag"
@@ -7477,8 +7476,8 @@ msgid ""
 "boosted your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"ha condiviso la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a>\n"
+"ha condiviso la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
+"\n"
 
 #: social/templates/event/boosted_collection.html:2
 #, python-format
@@ -7561,8 +7560,8 @@ msgid ""
 "liked your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"ha apprezzato la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a>\n"
+"ha apprezzato la tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
+"\n"
 
 #: social/templates/event/liked_collection.html:2
 #, python-format
@@ -7638,8 +7637,8 @@ msgid ""
 "replied to your article <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 msgstr ""
 "\n"
-"ha risposto alla tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</"
-"a>\n"
+"ha risposto alla tua collezione <a href=\"%(piece_url)s\">%(piece_title)s</a>"
+"\n"
 
 #: social/templates/event/mentioned_collection.html:2
 #, python-format
@@ -9594,9 +9593,8 @@ msgstr ""
 "\n"
 "              %(site_name)s sta avendo successo grazie ai collaboratori e ai "
 "contributi effettuati da utenti come te. Leggi i nostri <a href=\"/pages/"
-"terms\">termini di servizio</a>, e sentiti libero di <a "
-"href=\"%(support_link)s\">contattarci</a> per qualsiasi domanda o per un "
-"feedback.\n"
+"terms\">termini di servizio</a>, e sentiti libero di <a href=\"%"
+"(support_link)s\">contattarci</a> per qualsiasi domanda o per un feedback.\n"
 "        "
 
 #: users/templates/users/welcome.html:37

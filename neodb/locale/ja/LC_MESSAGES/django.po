@@ -6,12 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: dev@neodb.social.NOSPAM\n"
 "POT-Creation-Date: 2026-08-08 15:44-0400\n"
-"PO-Revision-Date: 2026-08-08 21:13+0000\n"
+"PO-Revision-Date: 2026-08-09 06:32+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
-"Language-Team: Japanese <https://hosted.weblate.org/projects/neodb/neodb/ja/"
-">\n"
+"Language-Team: Japanese <https://hosted.weblate.org/projects/neodb/neodb/ja/>"
+"\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6618,8 +6618,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Export file expired. Please export again."
 msgid "Security check failed. Please try again."
-msgstr ""
-"エクスポートファイルの有効期限が切れました。再度エクスポートしてください。"
+msgstr "エクスポートファイルの有効期限が切れました。再度エクスポートしてください。"
 
 #: mastodon/views/bluesky.py:34 mastodon/views/bluesky.py:40
 #: mastodon/views/bluesky.py:64 mastodon/views/bluesky.py:72
@@ -7870,8 +7869,9 @@ msgid ""
 "want-to-read / currently-reading / read / did-not-finish books and their "
 "reviews will be imported."
 msgstr ""
-"Goodreadsのユーザープロフィールリンクを提出すると、読みたい、読書中、読了リス"
-"トがインポートされ、各本のレビューは本サイトの短評としてインポートされます。"
+"Goodreadsのユーザープロフィールリンクを提出すると、読みたい、読書中、読了"
+"リストがインポートされ、各本のレビューは本サイトの短評としてインポートされま"
+"す。"
 
 #: users/templates/users/data.html:134
 msgid "Import from Letterboxd"
