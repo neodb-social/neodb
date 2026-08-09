@@ -12,7 +12,7 @@ from loguru import logger
 from catalog.models import Item, item_categories
 from common.models import int_, uniq
 from common.search import Index, QueryParser, SearchResult
-from common.search.index import FULL_EXPORT_TIMEOUT_SECONDS, TYPESENSE_ERRORS
+from common.search.index import LONG_OP_TIMEOUT_SECONDS, TYPESENSE_ERRORS
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -480,7 +480,7 @@ class JournalIndex(Index):
             return {
                 json.loads(line)["owner_id"]
                 for line in self.export_docs(
-                    {"include_fields": "owner_id"}, FULL_EXPORT_TIMEOUT_SECONDS
+                    {"include_fields": "owner_id"}, LONG_OP_TIMEOUT_SECONDS
                 )
             }
         except TYPESENSE_ERRORS as e:

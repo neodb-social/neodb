@@ -41,15 +41,17 @@ TYPESENSE_ERRORS = (
 # https://typesense.org/docs/latest/api/documents.html#delete-by-query
 DELETE_BATCH_SIZE = 100
 
-# Export streams the whole matched set in a single response, so it needs a
-# timeout of its own rather than the search-sized connection_timeout_seconds;
-# see Index.export_docs(). A filtered per-owner export comes back in
-# milliseconds on a healthy server and is run once per identity in a loop, so
-# it gets the short bound: a Typesense that still accepts connections but has
-# stopped answering must not hold up each identity in turn for minutes. Only
-# the full-collection export, run once per sync, gets the long one.
+# A filtered per-owner export comes back in milliseconds on a healthy server
+# and is run once per identity in a loop, so it gets a short bound: a Typesense
+# that still accepts connections but has stopped answering must not hold up
+# each identity in turn for minutes.
 EXPORT_TIMEOUT_SECONDS = 30
-FULL_EXPORT_TIMEOUT_SECONDS = 600
+
+# Operations that answer only once the server has finished the whole job --
+# delete-by-filter and the full-collection export -- take minutes on a large
+# collection, against the few seconds the shared clients allow for search.
+LONG_OP_TIMEOUT_SECONDS = 600
+
 EXPORT_CONNECT_TIMEOUT_SECONDS = 5
 
 
@@ -276,16 +278,39 @@ class Index:
             }
         )
 
+    @classmethod
+    def get_bulk_client(cls) -> Client:
+        """Client for writes that answer only once the server is done.
+
+        Delete-by-filter returns its count when the whole match set is gone,
+        minutes on a large collection. Under the shared write client's
+        search-sized timeout such a delete is abandoned and reissued twice with
+        no pause (typesense-python parses retry_interval_seconds and never
+        sleeps on it), so the server ends up running overlapping copies of the
+        same delete while the caller is told 0 documents went. Retries are off
+        here for the same reason: a delete that timed out is very likely still
+        running, and firing another is precisely what must not happen. A delete
+        that never lands is recoverable -- the next sync still sees the docs.
+        """
+        return Client(
+            {
+                **settings.TYPESENSE_CONNECTION,
+                "connection_timeout_seconds": LONG_OP_TIMEOUT_SECONDS,
+                "num_retries": 0,
+            }
+        )
+
     def __init__(self):
         self._read_client = self.get_client()
         self._write_client = self.get_client(for_write=True)
+        self._bulk_client = self.get_bulk_client()
 
-    def _get_collection(self, for_write=False) -> Collection:
+    def _get_collection(self, for_write=False, client: Client | None = None):
         collection_id = self.name + ("_write" if for_write else "_read")
         cname = SiteConfig.system.index_aliases.get(
             collection_id
         ) or SiteConfig.system.index_aliases.get(self.name, self.name)
-        client = self._write_client if for_write else self._read_client
+        client = client or (self._write_client if for_write else self._read_client)
         collection = client.collections[cname]
         if not collection:
             raise KeyError(f"Typesense: collection {collection_id} not found")
@@ -298,6 +323,11 @@ class Index:
     @cached_property
     def write_collection(self) -> Collection:
         return self._get_collection(True)
+
+    @cached_property
+    def bulk_write_collection(self) -> Collection:
+        """Write collection on the long-timeout, no-retry client."""
+        return self._get_collection(True, self._bulk_client)
 
     @cached_property
     def _export_client(self) -> httpx.Client:
@@ -451,7 +481,11 @@ class Index:
             else ("[" + ",".join(str(x) for x in values) + "]")
         )
         try:
-            r = self.write_collection.documents.delete(
+            # bulk client, not the shared write one: batch_size makes the
+            # server yield between batches but the response still waits for the
+            # whole filter, so a short timeout here would abandon and reissue a
+            # delete that is still running
+            r = self.bulk_write_collection.documents.delete(
                 {"filter_by": f"{field}:{v}", "batch_size": batch_size}
             )
         except TYPESENSE_ERRORS as e:
