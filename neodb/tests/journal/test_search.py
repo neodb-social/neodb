@@ -131,7 +131,6 @@ class TestRemotePieceIndex:
         q = JournalQueryParser(f"type:{piece_type}", 1)
         q.filter_by_viewer(None)
         q.filter("item_id", self.book.pk)
-        q.filter("post_id", ">0")
         q.sort(["created:desc"])
         return self.index.search(q)
 
@@ -280,8 +279,9 @@ class TestRemotePieceIndex:
 
 @pytest.mark.django_db(databases="__all__")
 class TestLocalPostDeleted:
-    """A local mark whose post is deleted from a Mastodon client is kept,
-    but its index doc must stop counting toward item post listings."""
+    """A local mark whose post is deleted from a Mastodon client is kept and
+    stays searchable by its owner, but its index doc must stop referencing the
+    dead post so item post listings never try to return it."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
@@ -291,7 +291,7 @@ class TestLocalPostDeleted:
         self.user = User.register(email="pd@y.com", username="pduser")
         self.identity = self.user.identity
 
-    def test_deleted_post_stops_counting(self):
+    def test_deleted_post_is_dropped_from_doc(self):
         from takahe.ap_handlers import post_deleted
 
         mark = Mark(self.identity, self.book)
@@ -306,10 +306,9 @@ class TestLocalPostDeleted:
         q = JournalQueryParser("fine")
         q.filter_by_owner(self.identity)
         assert self.index.search(q).total == 1
-        # but item post listings no longer count it
+        # item post listings return no post for it, but still count the doc
         q = JournalQueryParser("type:mark", 1)
         q.filter_by_viewer(None)
         q.filter("item_id", self.book.pk)
-        q.filter("post_id", ">0")
         r = self.index.search(q)
-        assert r.total == len(list(r.posts)) == 0
+        assert len(list(r.posts)) == 0
