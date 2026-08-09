@@ -1,0 +1,37 @@
+{% load i18n %}
+{% if category_choices|length > 1 or request.user.is_authenticated and not collection.is_dynamic %}
+  <section class="filter">
+    {% comment %}
+    Filters are querystring params on the collection's own URL, so a plain GET
+    form is enough -- unlike _sidebar_user_mark_list.html, which needs JS to
+    rebuild a path. Submitting drops ?page, resetting to the first page.
+    {% endcomment %}
+    <form method="get" action="">
+      <fieldset role="search" style="width: 100%;">
+        {% if category_choices|length > 1 %}
+          <select name="category" onchange="this.form.submit()">
+            <option value="">{% trans "all" %}</option>
+            {% for value, label in category_choices %}
+              <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
+        {% if request.user.is_authenticated and not collection.is_dynamic %}
+          {% comment %}
+          Statuses describe the viewer's own marks, matching the mark badge on
+          each item card. Dynamic collections page through the search index,
+          which stores the owner's shelf_type, so they get no status select.
+          {% endcomment %}
+          <select name="status" onchange="this.form.submit()">
+            <option value="">{% trans "all" %}</option>
+            <option value="wishlist" {% if status == 'wishlist' %}selected{% endif %}>{% trans "wishlist" %}</option>
+            <option value="progress" {% if status == 'progress' %}selected{% endif %}>{% trans "in progress" %}</option>
+            <option value="complete" {% if status == 'complete' %}selected{% endif %}>{% trans "complete" %}</option>
+            <option value="dropped" {% if status == 'dropped' %}selected{% endif %}>{% trans "dropped" %}</option>
+            <option value="unmarked" {% if status == 'unmarked' %}selected{% endif %}>{% trans "not marked yet" %}</option>
+          </select>
+        {% endif %}
+      </fieldset>
+    </form>
+  </section>
+{% endif %}

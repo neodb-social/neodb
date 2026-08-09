@@ -9,7 +9,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from catalog.models import Item
+from catalog.models import Item, ItemCategory, item_categories
 from common.models import int_
 from common.sentry import record_activity
 from common.utils import (
@@ -240,8 +240,23 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
     per_page = get_page_size_from_request(request)
     viewer = request.user.identity if request.user.is_authenticated else None
     comment_as_note = viewer != collection.owner
+    # Unrecognized filter values are dropped rather than raising, matching
+    # profile_shelf_items: these arrive from a sidebar dropdown, and a stale
+    # or hand-edited querystring should still render the collection.
+    category = request.GET.get("category") or ""
+    if category not in item_categories():
+        category = ""
+    status = request.GET.get("status") or ""
+    # Status matches the viewer's own marks, so it needs a viewer; dynamic
+    # collections page through the index, which holds the owner's shelf_type.
+    if (
+        status not in ShelfType.values + [UNMARKED]
+        or not viewer
+        or collection.is_dynamic
+    ):
+        status = ""
     members, pages = collection.get_members_by_page(
-        page_number, per_page, viewer, comment_as_note
+        page_number, per_page, viewer, comment_as_note, category, status
     )
     pagination = PageLinksGenerator(page_number, pages, request.GET)
     follower_count = collection.likes.all().count()
@@ -261,6 +276,20 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
         and not featured_since
         and collection.trackable
     )
+    # Deferred: catalog.views pulls in users.views, which reaches back into
+    # journal.views via journal.importers, so a module-level import here is a
+    # cycle.
+    from catalog.views import visible_categories
+
+    # Offer only categories this collection actually holds, minus the ones the
+    # viewer has hidden; a single-category collection gets no category select.
+    counts = collection.item_count_by_category
+    cats = visible_categories(request)
+    category_choices = [
+        (c.value, c.label)
+        for c in ItemCategory
+        if counts.get(c.value) and c.value in cats
+    ]
     stats = {}
     if featured_since and collection.trackable:
         stats = collection.get_stats(request.user.identity)
@@ -287,6 +316,9 @@ def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
             "featured_since": featured_since,
             "editable": collection.is_editable_by(request.user),
             "quotes_count": post_quotes_count(collection.latest_post),
+            "category": category,
+            "status": status,
+            "category_choices": category_choices,
         },
     )
 

@@ -2094,8 +2094,17 @@ msgid "in progress"
 msgstr "在看"
 
 #: catalog/templates/people_works.html:63
+#: journal/templates/_sidebar_collection_filter.html:29
 msgid "complete"
 msgstr "看过"
+
+#: journal/templates/_sidebar_collection_filter.html:30
+msgid "dropped"
+msgstr "不再看"
+
+#: journal/templates/_sidebar_collection_filter.html:31
+msgid "not marked yet"
+msgstr "未标记"
 
 #: catalog/templates/performance.html:42
 msgid "production"

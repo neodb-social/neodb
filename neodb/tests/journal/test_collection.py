@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from catalog.models import Edition, ExternalResource, IdType, ItemCredit, Movie
 from journal.apis.collection import _prefetch_collection_member_items
+from journal.models import Mark, ShelfType
 from journal.models.collection import Collection
 from takahe.utils import Takahe
 from users.models import User
@@ -573,3 +574,195 @@ class TestCollectionCollaborativeEditing:
             HTTP_AUTHORIZATION=f"Bearer {token}",
         )
         assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionItemFilters:
+    """``/collection/<uuid>`` filters members by item category and by the
+    *viewing* user's own shelf status -- the same identity whose marks the item
+    cards render and whose progress the page's stats bar reports.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(email="filter_owner@test.com", username="fowner")
+        self.viewer = User.register(email="filter_viewer@test.com", username="fviewer")
+        self.book1 = Edition.objects.create(title="Filter Book 1")
+        self.book2 = Edition.objects.create(title="Filter Book 2")
+        self.movie = Movie.objects.create(title="Filter Movie")
+        self.collection = Collection(owner=self.owner.identity, title="C", brief="b")
+        self.collection.save()
+        for item in (self.book1, self.book2, self.movie):
+            self.collection.append_item(item)
+
+    def _items(self, **params):
+        members, _ = self.collection.get_members_by_page(
+            1, 20, self.viewer.identity, True, **params
+        )
+        return [m.item for m in members]
+
+    def test_no_filter_returns_all(self):
+        assert set(self._items()) == {self.book1, self.book2, self.movie}
+
+    def test_filter_by_category(self):
+        assert set(self._items(category="book")) == {self.book1, self.book2}
+        assert self._items(category="movie") == [self.movie]
+
+    def test_filter_by_viewer_shelf_status(self):
+        Mark(self.viewer.identity, self.book1).update(ShelfType.WISHLIST)
+        Mark(self.viewer.identity, self.movie).update(ShelfType.COMPLETE)
+        assert self._items(status="wishlist") == [self.book1]
+        assert self._items(status="complete") == [self.movie]
+        assert self._items(status="progress") == []
+
+    def test_filter_unmarked(self):
+        Mark(self.viewer.identity, self.book1).update(ShelfType.WISHLIST)
+        assert set(self._items(status="unmarked")) == {self.book2, self.movie}
+
+    def test_status_uses_viewer_not_owner_marks(self):
+        # The owner completed book1; the viewer marked nothing.
+        Mark(self.owner.identity, self.book1).update(ShelfType.COMPLETE)
+        assert self._items(status="complete") == []
+        assert set(self._items(status="unmarked")) == {
+            self.book1,
+            self.book2,
+            self.movie,
+        }
+
+    def test_category_and_status_combine(self):
+        Mark(self.viewer.identity, self.book1).update(ShelfType.WISHLIST)
+        Mark(self.viewer.identity, self.movie).update(ShelfType.WISHLIST)
+        assert self._items(category="book", status="wishlist") == [self.book1]
+
+    def test_status_ignored_without_viewer(self):
+        Mark(self.viewer.identity, self.book1).update(ShelfType.WISHLIST)
+        members, _ = self.collection.get_members_by_page(1, 20, None, True, "", "")
+        assert len(members) == 3
+
+    def test_filtered_page_is_paginated_over_filtered_set(self):
+        members, pages = self.collection.get_members_by_page(
+            1, 2, self.viewer.identity, True, "book"
+        )
+        # 2 books over a page size of 2 is one page, not two.
+        assert pages == 1
+        assert len(members) == 2
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionFilterView:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(email="fv_owner@test.com", username="fvowner")
+        self.viewer = User.register(email="fv_viewer@test.com", username="fvviewer")
+        self.book = Edition.objects.create(title="View Filter Book")
+        self.movie = Movie.objects.create(title="View Filter Movie")
+        self.collection = Collection(owner=self.owner.identity, title="C", brief="b")
+        self.collection.save()
+        self.collection.append_item(self.book)
+        self.collection.append_item(self.movie)
+        self.url = reverse("journal:collection_retrieve", args=[self.collection.uuid])
+
+    def _login(self):
+        client = Client()
+        client.force_login(self.viewer, backend="mastodon.auth.OAuth2Backend")
+        return client
+
+    def test_category_filter_narrows_rendered_items(self):
+        response = self._login().get(self.url, {"category": "movie"})
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "View Filter Movie" in content
+        assert "View Filter Book" not in content
+
+    def test_status_filter_narrows_rendered_items(self):
+        Mark(self.viewer.identity, self.book).update(ShelfType.WISHLIST)
+        response = self._login().get(self.url, {"status": "wishlist"})
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "View Filter Book" in content
+        assert "View Filter Movie" not in content
+
+    def test_invalid_filter_values_are_ignored(self):
+        response = self._login().get(self.url, {"category": "bogus", "status": "bogus"})
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "View Filter Book" in content
+        assert "View Filter Movie" in content
+
+    def test_anonymous_gets_no_status_filter(self):
+        response = Client().get(self.url, {"status": "wishlist"})
+        assert response.status_code == 200
+        content = response.content.decode()
+        # No viewer means no marks to filter on, so the status is dropped
+        # rather than yielding an empty list.
+        assert "View Filter Book" in content
+        assert "View Filter Movie" in content
+        assert 'name="status"' not in content
+
+    def test_sidebar_renders_both_selects_for_logged_in_viewer(self):
+        content = self._login().get(self.url).content.decode()
+        assert 'name="status"' in content
+        # Two categories present, so the category select is worth showing.
+        assert 'name="category"' in content
+
+    def test_single_category_collection_has_no_category_select(self):
+        collection = Collection(owner=self.owner.identity, title="Books", brief="b")
+        collection.save()
+        collection.append_item(Edition.objects.create(title="Only Book"))
+        url = reverse("journal:collection_retrieve", args=[collection.uuid])
+        content = self._login().get(url).content.decode()
+        assert 'name="category"' not in content
+        assert 'name="status"' in content
+
+    def test_filter_survives_pagination_links(self):
+        response = self._login().get(self.url, {"category": "book", "per_page": "1"})
+        assert response.status_code == 200
+        assert "category=book" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDynamicCollectionFilters:
+    """Dynamic collections page through the search index, so the category
+    filter is pushed into the query as an ``item_class`` filter. Status is not
+    offered there: the index stores the owner's shelf_type, not the viewer's.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        from journal.search import JournalIndex
+
+        JournalIndex.instance().delete_all()
+        self.owner = User.register(email="dyn_owner@test.com", username="dynowner")
+        self.book = Edition.objects.create(title="Dynamic Filter Book")
+        self.movie = Movie.objects.create(title="Dynamic Filter Movie")
+        Mark(self.owner.identity, self.book).update(ShelfType.WISHLIST, "keepme")
+        Mark(self.owner.identity, self.movie).update(ShelfType.WISHLIST, "keepme")
+        self.collection = Collection(
+            owner=self.owner.identity, title="Smart", brief="b", query="keepme"
+        )
+        self.collection.save()
+
+    def _items(self, **params):
+        members, _ = self.collection.get_members_by_page(
+            1, 20, self.owner.identity, False, **params
+        )
+        return [m["item"] for m in members]
+
+    def test_unfiltered_returns_both(self):
+        assert set(self._items()) == {self.book, self.movie}
+
+    def test_category_filter_applies_to_dynamic_collection(self):
+        assert self._items(category="movie") == [self.movie]
+        assert self._items(category="book") == [self.book]
+
+    def test_view_drops_status_for_dynamic_collection(self):
+        client = Client()
+        client.force_login(self.owner, backend="mastodon.auth.OAuth2Backend")
+        url = reverse("journal:collection_retrieve", args=[self.collection.uuid])
+        response = client.get(url, {"status": "complete"})
+        assert response.status_code == 200
+        content = response.content.decode()
+        # Status is ignored rather than emptying the list, and no status
+        # select is offered.
+        assert "Dynamic Filter Book" in content
+        assert 'name="status"' not in content

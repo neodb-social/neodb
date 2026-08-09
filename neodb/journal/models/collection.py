@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from loguru import logger
 
-from catalog.models import CatalogCollection, Item
+from catalog.models import CatalogCollection, Item, ItemCategory, item_categories
 from catalog.models.utils import piece_cover_path
 from catalog.search.utils import enqueue_fetch
 from common.models import jsondata
@@ -31,6 +31,9 @@ if TYPE_CHECKING:
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
 COVER_MAX_BYTES = 5 * 1024 * 1024  # matches Takahe.upload_image limit
+#: Pseudo shelf status: items the viewer has not put on any shelf. Not a
+#: ``ShelfType`` value, so it cannot collide with one.
+UNMARKED = "unmarked"
 
 
 class CollectionMember(ListMember):
@@ -227,15 +230,33 @@ class Collection(List):
         page_size: int = 20,
         viewer: APIdentity | None = None,
         comment_as_note: bool = False,
+        category: str | None = None,
+        status: str | None = None,
     ):
+        """Fetch one page of members, optionally filtered.
+
+        ``category`` is an ``ItemCategory`` value. ``status`` is a
+        ``ShelfType`` value or ``UNMARKED``, and always refers to
+        ``viewer``'s own marks -- the same identity whose marks the item
+        cards render and whose progress ``get_stats`` reports -- so it is
+        ignored without a ``viewer``. Dynamic collections page through the
+        search index, which stores the *owner's* shelf_type rather than the
+        viewer's, so ``status`` does not apply to them.
+        """
         from .comment import Comment
-        from .common import q_owned_piece_visible_to_user
+        from .common import q_item_in_category, q_owned_piece_visible_to_user
         from .mark import Mark
         from .rating import Rating
+        from .shelf import ShelfMember
 
         if self.is_dynamic:
             # Dynamic collections: use existing search-based pagination
             q = self.get_query(viewer, page=page_number)
+            if q and category:
+                q.filter(
+                    "item_class",
+                    [cls.__name__ for cls in item_categories()[ItemCategory(category)]],
+                )
             members = []
             pages = 0
             if q:
@@ -261,6 +282,24 @@ class Collection(List):
                         m["note"] = comments.get(m["item"].pk, "")
         else:
             all_members = self.ordered_members
+            if category:
+                all_members = all_members.filter(
+                    q_item_in_category(ItemCategory(category))
+                )
+            if status and viewer:
+                # Subquery rather than a materialized id list: the viewer's
+                # shelf can be far larger than this collection.
+                shelf_items = ShelfMember.objects.filter(owner=viewer)
+                if status == UNMARKED:
+                    all_members = all_members.exclude(
+                        item_id__in=shelf_items.values("item_id")
+                    )
+                else:
+                    all_members = all_members.filter(
+                        item_id__in=shelf_items.filter(
+                            parent__shelf_type=status
+                        ).values("item_id")
+                    )
             # .select_related("item") not working yet in django-polymorphic
             p = Paginator(all_members, page_size)
             members = p.get_page(page_number)

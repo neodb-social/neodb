@@ -1,5 +1,5 @@
 from .article import Article
-from .collection import Collection, CollectionMember, FeaturedCollection
+from .collection import UNMARKED, Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import (
     Content,
@@ -73,6 +73,7 @@ __all__ = [
     "Tag",
     "TagManager",
     "TagMember",
+    "UNMARKED",
     "journal_exists_for_item",
     "remove_data_by_identity",
     "reset_journal_visibility_for_user",
