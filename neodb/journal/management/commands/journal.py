@@ -46,8 +46,10 @@ idx-sync:       add missing docs, delete stale docs and rewrite docs still
                 deactivated identities (use --dry-run to preview, --remote to
                 sync remote pieces and identities instead). A --remote run
                 walks every remote identity and puts sustained load on the
-                index; use --offset/--limit to spread it over several
-                invocations and --throttle to pace it.
+                index; use --after-id/--limit to spread it over several
+                invocations and --throttle to pace it. A sliced run covers
+                only identities that still own pieces and does not purge, so
+                run once unsliced to reconcile the rest.
 """
 
 _DELETED_POST_STATES = ["deleted", "deleted_fanned_out"]
@@ -149,10 +151,10 @@ class Command(SiteCommand):
             help="report what idx-sync would change without writing to index",
         )
         parser.add_argument(
-            "--offset",
+            "--after-id",
             type=int,
             default=0,
-            help="idx-sync: skip this many identities (to run in slices)",
+            help="idx-sync: resume after this identity id (to run in slices)",
         )
         parser.add_argument(
             "--limit",
@@ -327,23 +329,28 @@ class Command(SiteCommand):
             added += index.replace_docs(index.pieces_to_docs(pieces))
         return added, deleted
 
-    def apply_slice(self, identity_ids: list[int]) -> tuple[list[int], bool]:
-        """Cut the identity list down to --offset/--limit.
+    def apply_cursor(self, identity_ids: list[int]) -> list[int]:
+        """Cut the ascending identity list down to --after-id/--limit.
 
-        A full --remote run walks every remote identity in one pass and cannot
-        be narrowed with --owner, so slicing is the only way to spread it over
-        several shorter invocations. Returns the slice and whether one was asked
-        for.
+        A --remote run walks every remote identity in one pass and cannot be
+        narrowed with --owner, so slicing is the only way to spread it over
+        several shorter invocations.
+
+        The cursor is an identity id rather than a list position because the
+        candidate list is recomputed per invocation and the run itself changes
+        it: syncing an owner whose docs were all stale leaves it with neither
+        docs nor pieces, so it drops out of the next run's candidates. A
+        positional offset would then shift left and step over an identity that
+        was never synced. Deactivations between slices do the same.
         """
-        if not self.offset and not self.limit:
-            return identity_ids, False
-        end = self.offset + self.limit if self.limit else None
-        sliced = identity_ids[self.offset : end]
+        ids = [i for i in identity_ids if i > self.after_id]
+        if self.limit:
+            ids = ids[: self.limit]
         self.stdout.write(
-            f"syncing identities {self.offset}..{self.offset + len(sliced)} "
-            f"of {len(identity_ids)}"
+            f"syncing {len(ids)} of {len(identity_ids)} candidate identities "
+            f"with id > {self.after_id}"
         )
-        return sliced, True
+        return ids
 
     def idx_sync(self, index: JournalIndex, owners: list[int], remote: bool = False):
         identities = APIdentity.objects.filter(local=not remote)
@@ -353,6 +360,7 @@ class Command(SiteCommand):
         active_q = Q(user__isnull=False, user__is_active=True) | Q(
             user__isnull=True, deleted__isnull=True
         )
+        sliced = bool(self.after_id or self.limit)
         indexed_owner_ids: set[int] | None = None
         if remote:
             # candidates: remote identities owning indexable pieces, plus
@@ -366,17 +374,32 @@ class Command(SiteCommand):
                     .values_list("owner_id", flat=True)
                     .distinct()
                 )
-            indexed_owner_ids = index.get_indexed_owner_ids()
-            if indexed_owner_ids is None:
+            if sliced:
+                # get_indexed_owner_ids() exports the whole collection, and it
+                # would run before the slice is applied -- so N slices would
+                # repeat the heaviest call N times, multiplying the very load
+                # slicing exists to spread out. A sliced run therefore covers
+                # only owners that still have pieces.
                 self.stdout.write(
                     self.style.WARNING(
-                        "failed to list indexed owners, stale docs of "
-                        "identities without pieces may be missed, and the "
-                        "purge of deactivated identities will be skipped"
+                        "sliced run: skipping the full-collection scan, so "
+                        "docs of owners with no remaining pieces are not "
+                        "reconciled; run once without --after-id/--limit to "
+                        "cover those"
                     )
                 )
             else:
-                candidate_ids |= indexed_owner_ids
+                indexed_owner_ids = index.get_indexed_owner_ids()
+                if indexed_owner_ids is None:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            "failed to list indexed owners, stale docs of "
+                            "identities without pieces may be missed, and the "
+                            "purge of deactivated identities will be skipped"
+                        )
+                    )
+                else:
+                    candidate_ids |= indexed_owner_ids
             active_ids = []
             for chunk in batched(sorted(candidate_ids), _SYNC_PK_CHUNK):
                 active_ids.extend(
@@ -389,7 +412,8 @@ class Command(SiteCommand):
             active_ids = list(
                 identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
             )
-        active_ids, sliced = self.apply_slice(active_ids)
+        if sliced:
+            active_ids = self.apply_cursor(active_ids)
         inactive_ids = list(
             identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
         )
@@ -406,8 +430,8 @@ class Command(SiteCommand):
             # each slice would just repeat the same work
             self.stdout.write(
                 self.style.WARNING(
-                    "--offset/--limit given, skipping purge of deactivated "
-                    "identities; run once without a slice to purge"
+                    "sliced run, skipping purge of deactivated identities; "
+                    "run once without --after-id/--limit to purge"
                 )
             )
             inactive_ids = []
@@ -443,6 +467,8 @@ class Command(SiteCommand):
                 f"{len(inactive_ids)} deactivated identities, {purged} docs {w}purged."
             )
         )
+        if sliced and active_ids:
+            self.stdout.write(f"resume the next slice with --after-id {active_ids[-1]}")
         if errors:
             self.stdout.write(
                 self.style.WARNING(f"{errors} identities skipped due to index errors.")
@@ -468,7 +494,7 @@ class Command(SiteCommand):
         self.fix = fix
         self.batch_size = int(batch_size)
         self.dry_run = kwargs.get("dry_run", False)
-        self.offset = kwargs.get("offset") or 0
+        self.after_id = kwargs.get("after_id") or 0
         self.limit = kwargs.get("limit") or 0
         self.throttle = kwargs.get("throttle") or 0.0
         index = JournalIndex.instance()

@@ -41,11 +41,15 @@ TYPESENSE_ERRORS = (
 # https://typesense.org/docs/latest/api/documents.html#delete-by-query
 DELETE_BATCH_SIZE = 100
 
-# Export streams the whole matched set in a single response and is the one
-# operation here with no useful upper bound on duration. Give it a timeout of
-# its own rather than the search-sized connection_timeout_seconds; see
-# Index.export_docs().
-EXPORT_TIMEOUT_SECONDS = 600
+# Export streams the whole matched set in a single response, so it needs a
+# timeout of its own rather than the search-sized connection_timeout_seconds;
+# see Index.export_docs(). A filtered per-owner export comes back in
+# milliseconds on a healthy server and is run once per identity in a loop, so
+# it gets the short bound: a Typesense that still accepts connections but has
+# stopped answering must not hold up each identity in turn for minutes. Only
+# the full-collection export, run once per sync, gets the long one.
+EXPORT_TIMEOUT_SECONDS = 30
+FULL_EXPORT_TIMEOUT_SECONDS = 600
 EXPORT_CONNECT_TIMEOUT_SECONDS = 5
 
 
@@ -385,7 +389,9 @@ class Index:
                 c += 1
         return c
 
-    def export_docs(self, params: dict) -> Iterator[str]:
+    def export_docs(
+        self, params: dict, timeout: float = EXPORT_TIMEOUT_SECONDS
+    ) -> Iterator[str]:
         """Stream the export endpoint, yielding one non-empty JSONL line at a time.
 
         This bypasses the shared client on purpose. That client applies
@@ -410,9 +416,7 @@ class Index:
             url,
             params=params,
             headers={"X-TYPESENSE-API-KEY": settings.TYPESENSE_CONNECTION["api_key"]},
-            timeout=httpx.Timeout(
-                EXPORT_TIMEOUT_SECONDS, connect=EXPORT_CONNECT_TIMEOUT_SECONDS
-            ),
+            timeout=httpx.Timeout(timeout, connect=EXPORT_CONNECT_TIMEOUT_SECONDS),
         ) as r:
             if r.status_code < 200 or r.status_code >= 300:
                 r.read()

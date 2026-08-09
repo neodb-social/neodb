@@ -121,14 +121,30 @@ class TestIdxSync:
         assert self.doc_ids(self.identity1.pk)
         assert self.doc_ids(self.identity2.pk) == set()
 
-    def test_offset_limit_slices_run(self):
+    def test_after_id_limit_slices_run(self):
         first, second = sorted([self.identity1.pk, self.identity2.pk])
         self.index.delete_by_owner([first, second])
         output = self.run_sync("--limit", "1")
-        assert "syncing identities 0..1 of 2" in output
+        assert "syncing 1 of 2 candidate identities with id > 0" in output
+        assert f"--after-id {first}" in output
         assert self.doc_ids(first)
         assert self.doc_ids(second) == set()
-        self.run_sync("--offset", "1", "--limit", "1")
+        self.run_sync("--after-id", str(first), "--limit", "1")
+        assert self.doc_ids(second)
+
+    def test_cursor_survives_shrinking_candidate_list(self):
+        # the cursor is an id, not a position, so an identity dropping out of
+        # the candidate list between slices must not shift the next slice past
+        # an identity that was never synced
+        first, second = sorted([self.identity1.pk, self.identity2.pk])
+        self.index.delete_by_owner([first, second])
+        self.run_sync("--limit", "1")
+        user = User.objects.get(identity=first)
+        user.is_active = False
+        user.save()
+        # first is gone from the candidate list now; a positional offset of 1
+        # would land past second and skip it
+        self.run_sync("--after-id", str(first), "--limit", "1")
         assert self.doc_ids(second)
 
     def test_slice_skips_purge(self):
@@ -247,6 +263,23 @@ class TestIdxSyncRemote:
     def test_local_sync_leaves_remote_docs(self):
         self.run_sync()
         assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+
+    def test_sliced_remote_run_skips_full_collection_scan(self, monkeypatch):
+        # the full scan runs before the slice would be applied, so paying it
+        # per slice would multiply the load slicing exists to spread out
+        calls = []
+        original = JournalIndex.get_indexed_owner_ids
+
+        def counted(self):
+            calls.append(1)
+            return original(self)
+
+        monkeypatch.setattr(JournalIndex, "get_indexed_owner_ids", counted)
+        output = self.run_sync("--remote", "--limit", "1")
+        assert "skipping the full-collection scan" in output
+        assert calls == []
+        self.run_sync("--remote")
+        assert calls == [1]
 
     def test_purge_skipped_when_indexed_owners_unavailable(self, monkeypatch):
         before = self.doc_ids(self.owner.pk)
