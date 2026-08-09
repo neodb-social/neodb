@@ -1,6 +1,7 @@
 from argparse import RawTextHelpFormatter
 from datetime import timedelta
 from itertools import batched
+from math import isfinite
 from time import sleep
 
 from django.core.management.base import CommandError
@@ -388,10 +389,14 @@ class Command(SiteCommand):
             # identity instead would be pointlessly slow
             candidate_ids: set[int] = set()
             for cls in _INDEXABLE_PIECE_CLASSES:
+                pieces = cls.objects.filter(local=False)
+                if self.after_id:
+                    # narrow in the query, not after it: these are six distinct
+                    # scans over the piece tables, and a slice that enumerates
+                    # the whole estate first is not a shorter run
+                    pieces = pieces.filter(owner_id__gt=self.after_id)
                 candidate_ids.update(
-                    cls.objects.filter(local=False)
-                    .values_list("owner_id", flat=True)
-                    .distinct()
+                    pieces.values_list("owner_id", flat=True).distinct()
                 )
             if sliced:
                 # get_indexed_owner_ids() exports the whole collection, and it
@@ -420,31 +425,29 @@ class Command(SiteCommand):
                 else:
                     candidate_ids |= indexed_owner_ids
             active_ids = []
+            # candidate ids ascend, so a chunk is a range: once enough active
+            # ids are in hand the rest of the estate need not be resolved at
+            # all, which is what keeps a slice cheaper than a full run
             for chunk in batched(sorted(candidate_ids), _SYNC_PK_CHUNK):
                 active_ids.extend(
                     identities.filter(active_q, pk__in=chunk).values_list(
                         "pk", flat=True
                     )
                 )
+                if self.limit and len(active_ids) >= self.limit:
+                    break
             active_ids.sort()
         else:
-            active_ids = list(
-                identities.filter(active_q).order_by("pk").values_list("pk", flat=True)
-            )
+            local_q = identities.filter(active_q)
+            if self.after_id:
+                local_q = local_q.filter(pk__gt=self.after_id)
+            active_ids = list(local_q.order_by("pk").values_list("pk", flat=True))
         if sliced:
             active_ids = self.apply_cursor(active_ids)
-        inactive_ids = list(
-            identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
-        )
-        if indexed_owner_ids is not None:
-            # purging owners holding no docs would be a no-op; skip them
-            inactive_ids = [i for i in inactive_ids if i in indexed_owner_ids]
-        elif remote:
-            # without that list every deactivated remote identity gets its own
-            # delete-by-filter, nearly all matching nothing; that is a long
-            # stretch of pointless load on the index, so do not start it
-            inactive_ids = []
-        if sliced and inactive_ids:
+        # decide whether the purge runs before paying for its query: on a large
+        # federated instance enumerating every deactivated remote identity is a
+        # full scan, and both skip branches below would throw the result away
+        if sliced:
             # the purge is over the whole estate, not the slice; running it on
             # each slice would just repeat the same work
             self.stdout.write(
@@ -454,6 +457,18 @@ class Command(SiteCommand):
                 )
             )
             inactive_ids = []
+        elif remote and indexed_owner_ids is None:
+            # warned above: without that list every deactivated remote identity
+            # gets its own delete-by-filter, nearly all matching nothing; that
+            # is a long stretch of pointless load on the index
+            inactive_ids = []
+        else:
+            inactive_ids = list(
+                identities.exclude(active_q).order_by("pk").values_list("pk", flat=True)
+            )
+            if indexed_owner_ids is not None:
+                # purging owners holding no docs would be a no-op; skip them
+                inactive_ids = [i for i in inactive_ids if i in indexed_owner_ids]
         added = deleted = errors = 0
         # the resume cursor may only advance over an unbroken run of successes:
         # moving it past an identity that errored would drop that owner from
@@ -539,13 +554,14 @@ class Command(SiteCommand):
         self.after_id = kwargs.get("after_id") or 0
         self.limit = kwargs.get("limit") or 0
         self.throttle = kwargs.get("throttle") or 0.0
-        # a negative value here fails quietly and badly: --limit -1 drops the
-        # last identity of every slice, --throttle -1 raises from sleep() only
-        # after the first identity has already been synced
-        if self.after_id < 0 or self.limit < 0 or self.throttle < 0:
-            raise CommandError(
-                "--after-id, --limit and --throttle must not be negative"
-            )
+        # these fail quietly and badly rather than up front: --limit -1 drops
+        # the last identity of every slice, and --throttle -1/nan/inf raises
+        # from sleep() only once the first identity has already been synced,
+        # leaving a partial run with no resume cursor
+        if self.after_id < 0 or self.limit < 0:
+            raise CommandError("--after-id and --limit must not be negative")
+        if not isfinite(self.throttle) or self.throttle < 0:
+            raise CommandError("--throttle must be a non-negative finite number")
         index = JournalIndex.instance()
 
         if owner and not remote:

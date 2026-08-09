@@ -197,6 +197,13 @@ class TestIdxSync:
             with pytest.raises(CommandError):
                 self.run_sync(arg, "-1")
 
+    def test_non_finite_throttle_rejected(self):
+        # argparse takes these as floats and they pass a bare < 0 check, then
+        # blow up inside sleep() after the first identity has already synced
+        for value in ("nan", "inf"):
+            with pytest.raises(CommandError):
+                self.run_sync("--throttle", value)
+
     def test_slice_skips_purge(self):
         self.user2.is_active = False
         self.user2.save()
