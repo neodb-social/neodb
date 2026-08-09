@@ -755,6 +755,35 @@ class TestDynamicCollectionFilters:
         assert self._items(category="movie") == [self.movie]
         assert self._items(category="book") == [self.book]
 
+    def test_category_filter_intersects_saved_query_constraint(self):
+        """A saved ``category:book`` query must bound the filter.
+
+        ``QueryParser.filter`` overwrites, so filtering by a category outside
+        the saved query used to redefine the collection as the owner's matching
+        items in that category -- surfacing items that were never members.
+        """
+        books_only = Collection(
+            owner=self.owner.identity,
+            title="Books only",
+            brief="b",
+            query="keepme category:book",
+        )
+        books_only.save()
+        members, _ = books_only.get_members_by_page(1, 20, self.owner.identity, False)
+        assert [m["item"] for m in members] == [self.book]
+        # Narrowing to the saved category still works.
+        members, _ = books_only.get_members_by_page(
+            1, 20, self.owner.identity, False, "book"
+        )
+        assert [m["item"] for m in members] == [self.book]
+        # Asking for a category outside the saved query yields nothing rather
+        # than leaking the owner's movies into a books-only collection.
+        members, pages = books_only.get_members_by_page(
+            1, 20, self.owner.identity, False, "movie"
+        )
+        assert list(members) == []
+        assert pages == 0
+
     def test_view_drops_status_for_dynamic_collection(self):
         client = Client()
         client.force_login(self.owner, backend="mastodon.auth.OAuth2Backend")

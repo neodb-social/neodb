@@ -253,10 +253,23 @@ class Collection(List):
             # Dynamic collections: use existing search-based pagination
             q = self.get_query(viewer, page=page_number)
             if q and category:
-                q.filter(
-                    "item_class",
-                    [cls.__name__ for cls in item_categories()[ItemCategory(category)]],
-                )
+                wanted = [
+                    cls.__name__ for cls in item_categories()[ItemCategory(category)]
+                ]
+                # The saved query may already constrain item_class (e.g.
+                # "category:book"), and QueryParser.filter() overwrites rather
+                # than narrows. Intersect so the filter can only shrink the
+                # collection, never redefine it as the owner's whole journal.
+                saved = q.filter_by.get("item_class")
+                if saved:
+                    wanted = [cls for cls in wanted if cls in saved]
+                if wanted:
+                    q.filter("item_class", wanted)
+                else:
+                    # Requested category lies outside the saved query. An empty
+                    # filter list is dropped by to_search_params, which would
+                    # match everything, so skip the search instead.
+                    q = None
             members = []
             pages = 0
             if q:
