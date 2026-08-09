@@ -1,8 +1,14 @@
+import base64
 import json
+from email.utils import format_datetime
 
 import pytest
 from core.ld import canonicalise
+from core.signatures import HttpSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 from django.test import Client
+from django.utils import timezone
 
 from users.models import (
     FeatureAuthorization,
@@ -23,14 +29,21 @@ def _enable_federation(settings):
     settings.SETUP.NO_FEDERATION = original
 
 
-def _feature_request(actor_uri: str, object_uri: str) -> dict:
-    return {
+def _feature_request(object_uri: str, actor_uri: str | None = None) -> dict:
+    """
+    A FeatureRequest as it arrives: Mastodon's FeatureRequestSerializer emits no
+    `actor` at all, so `actor_uri` here stands for what the inbox fills in from
+    the signature before handing the message on.
+    """
+    request = {
         "type": "FeatureRequest",
         "id": REQUEST_URI,
-        "actor": actor_uri,
         "object": object_uri,
         "instrument": COLLECTION_URI,
     }
+    if actor_uri:
+        request["actor"] = actor_uri
+    return request
 
 
 ### Actor policy ###
@@ -182,7 +195,7 @@ def test_handle_feature_request_accepts_when_discoverable(
     monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
 
     Identity.handle_feature_request_ap(
-        _feature_request(remote_identity.actor_uri, identity.actor_uri)
+        _feature_request(identity.actor_uri, actor_uri=remote_identity.actor_uri)
     )
 
     auth = FeatureAuthorization.objects.get(identity=identity)
@@ -218,7 +231,7 @@ def test_handle_feature_request_rejects_when_not_discoverable(
     monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
 
     Identity.handle_feature_request_ap(
-        _feature_request(remote_identity.actor_uri, identity.actor_uri)
+        _feature_request(identity.actor_uri, actor_uri=remote_identity.actor_uri)
     )
 
     assert not FeatureAuthorization.objects.filter(identity=identity).exists()
@@ -239,7 +252,9 @@ def test_handle_feature_request_ignores_remote_target(
     )
 
     Identity.handle_feature_request_ap(
-        _feature_request(remote_identity2.actor_uri, remote_identity.actor_uri)
+        _feature_request(
+            remote_identity.actor_uri, actor_uri=remote_identity2.actor_uri
+        )
     )
 
     assert not FeatureAuthorization.objects.exists()
@@ -258,7 +273,138 @@ def test_inbox_routes_feature_request(
         Identity, "signed_request", lambda self, method, uri, body=None: None
     )
     message = InboxMessage.objects.create(
-        message=_feature_request(remote_identity.actor_uri, identity.actor_uri)
+        message=_feature_request(
+            identity.actor_uri, actor_uri=remote_identity.actor_uri
+        )
     )
     assert InboxMessageStates.handle_received(message) == InboxMessageStates.processed
     assert FeatureAuthorization.objects.filter(identity=identity).exists()
+
+
+### Inbox delivery ###
+
+
+def _sign_and_post(client, identity: Identity, document: dict, keypair, key_id: str):
+    """POST document to identity's inbox, HTTP-signed by key_id."""
+    body = json.dumps(document).encode()
+    path = identity.inbox_uri.replace("https://example.com", "")
+    digest = HttpSignature.calculate_digest(body)
+    date_str = format_datetime(timezone.now(), usegmt=True)
+    headers_to_sign = ["(request-target)", "host", "date", "digest", "content-type"]
+    headers_string = "\n".join(
+        f"{h}: {v}"
+        for h, v in [
+            ("(request-target)", f"post {path}"),
+            ("host", "example.com"),
+            ("date", date_str),
+            ("digest", digest),
+            ("content-type", "application/activity+json"),
+        ]
+    )
+    private_key = serialization.load_pem_private_key(
+        keypair["private_key"].encode(), password=None
+    )
+    signature = base64.b64encode(
+        private_key.sign(headers_string.encode(), padding.PKCS1v15(), hashes.SHA256())
+    ).decode()
+    return client.post(
+        identity.inbox_uri,
+        data=body,
+        content_type="application/activity+json",
+        HTTP_HOST="example.com",
+        HTTP_DATE=date_str,
+        HTTP_DIGEST=digest,
+        HTTP_SIGNATURE=(
+            f'keyId="{key_id}",'
+            f'headers="{" ".join(headers_to_sign)}",'
+            f'signature="{signature}",'
+            f'algorithm="rsa-sha256"'
+        ),
+    )
+
+
+@pytest.mark.django_db
+def test_inbox_takes_requester_from_signature(
+    monkeypatch,
+    client,
+    identity: Identity,
+    remote_identity: Identity,
+    keypair,
+    config_system,
+):
+    """
+    The actual delivery carries no `actor`, so the inbox used to answer 400
+    "Unspecified actor" before storing anything -- and Mastodon treats 400 as
+    permanent, so nothing was ever retried. The requester is the signer.
+    """
+    identity.discoverable = True
+    identity.save()
+    key_id = f"{remote_identity.actor_uri}#main-key"
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.public_key_id = key_id
+    remote_identity.save()
+
+    sent: dict = {}
+    monkeypatch.setattr(
+        Identity,
+        "signed_request",
+        lambda self, method, uri, body=None: sent.update(uri=uri, body=body),
+    )
+
+    document = _feature_request(identity.actor_uri)
+    assert "actor" not in document
+    resp = _sign_and_post(client, identity, document, keypair, key_id)
+
+    assert resp.status_code == 202
+    message = InboxMessage.objects.get()
+    assert message.metadata is None
+    assert message.message["actor"] == remote_identity.actor_uri
+
+    assert InboxMessageStates.handle_received(message) == InboxMessageStates.processed
+    auth = FeatureAuthorization.objects.get(identity=identity)
+    assert auth.collection_uri == COLLECTION_URI
+    assert auth.request_uri == REQUEST_URI
+    assert sent["uri"] == remote_identity.inbox_uri
+    assert sent["body"]["type"] == "Accept"
+
+
+@pytest.mark.django_db
+def test_inbox_rejects_unsigned_feature_request(identity: Identity, config_system):
+    """Without a signature there is nobody to attribute the request to."""
+    client = Client()
+    resp = client.post(
+        identity.inbox_uri,
+        data=json.dumps(_feature_request(identity.actor_uri)),
+        content_type="application/activity+json",
+        HTTP_HOST="example.com",
+    )
+    assert resp.status_code == 400
+    assert InboxMessage.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_inbox_still_rejects_other_activities_without_actor(
+    client, identity: Identity, remote_identity: Identity, keypair, config_system
+):
+    """
+    Only the types that are defined without an actor may borrow the signer's:
+    everything else keeps failing closed.
+    """
+    key_id = f"{remote_identity.actor_uri}#main-key"
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.public_key_id = key_id
+    remote_identity.save()
+
+    resp = _sign_and_post(
+        client,
+        identity,
+        {
+            "type": "Follow",
+            "id": f"{remote_identity.actor_uri}activities/follow/1",
+            "object": identity.actor_uri,
+        },
+        keypair,
+        key_id,
+    )
+    assert resp.status_code == 400
+    assert InboxMessage.objects.count() == 0

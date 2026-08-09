@@ -878,6 +878,11 @@ class Identity(StatorModel):
         Handles an incoming FeatureRequest (FEP-7aa9), i.e. someone asking to
         list this identity in their featured collection ("collection" on
         Mastodon). Auto-accepts for discoverable identities, rejects otherwise.
+
+        The requester is `actor`, which the inbox fills in from the signer of
+        the delivery: on the wire a FeatureRequest carries only `object` and
+        `instrument`, its requester being implicitly the owner of that
+        collection (see IMPLICIT_ACTOR_TYPES in users.views.activitypub).
         """
         from users.models import FeatureAuthorization
 
@@ -885,6 +890,10 @@ class Identity(StatorModel):
         object_uri = get_str_or_id(data.get("object"))
         collection_uri = get_str_or_id(data.get("instrument"))
         if not actor_uri or not object_uri or not collection_uri:
+            logger.warning(
+                "Ignoring FeatureRequest %s: needs actor, object and instrument",
+                data.get("id"),
+            )
             return
         try:
             identity = cls.by_actor_uri(object_uri)

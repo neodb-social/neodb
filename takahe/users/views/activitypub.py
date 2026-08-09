@@ -30,9 +30,35 @@ from users.shortcuts import by_handle_or_404
 
 logger = logging.getLogger(__name__)
 
+# Activities whose requester is implicit rather than carried in `actor`.
+# A FEP-7aa9 FeatureRequest names only `object` (the actor to feature) and
+# `instrument` (the collection); the requester owns that collection and is
+# proven by the signature on the delivery. Mastodon's
+# ActivityPub::FeatureRequestSerializer emits id, type, object and instrument
+# and nothing else, so without this the inbox rejects every real one.
+IMPLICIT_ACTOR_TYPES = {
+    "featurerequest",
+    "https://w3id.org/fep/7aa9#featurerequest",
+}
+
 
 class HttpResponseUnauthorized(HttpResponse):
     status_code = 401
+
+
+def ld_signature_creator(document: dict) -> str | None:
+    """
+    The actor URI credited with the document's LD signature, or None when there
+    is no well-formed signature block. Malformed blocks are reported by the
+    inbox itself, so this only has to be lenient.
+    """
+    signature = document.get("signature")
+    if not isinstance(signature, dict):
+        return None
+    creator = signature.get("creator")
+    if not isinstance(creator, str):
+        return None
+    return urldefrag(creator).url
 
 
 class FederatedView(View):
@@ -183,12 +209,42 @@ class Inbox(FederatedView):
         if isinstance(document.get("object"), dict):
             document_subtype = document["object"].get("type")
 
+        # Parse the signatures before looking at the actor: for the activity
+        # types that carry no `actor`, the signer is the only statement of who
+        # sent this. The signatures themselves are checked further down.
+        http_sig_present = "Signature" in request.headers
+        ld_sig_present = "signature" in document
+        signature_details = None
+        key_id_actor = None
+        if http_sig_present:
+            try:
+                signature_details = HttpSignature.parse_signature(
+                    request.headers["signature"]
+                )
+            except VerificationFormatError as e:
+                logger.warning("Inbox error: Bad HTTP signature format: %s", e.args[0])
+                return HttpResponseBadRequest(e.args[0])
+            key_id_actor = urldefrag(signature_details["keyid"]).url
+
         # Find the Identity by the actor on the incoming item
         # This ensures that the signature used for the headers matches the actor
         # described in the payload.
         if "actor" not in document:
-            logger.warning("Inbox error: unspecified actor")
-            return HttpResponseBadRequest("Unspecified actor")
+            implicit_actor = (
+                document_type.lower() in IMPLICIT_ACTOR_TYPES
+                if isinstance(document_type, str)
+                else False
+            )
+            signer_uri = key_id_actor or ld_signature_creator(document)
+            if not implicit_actor or not signer_uri:
+                logger.warning("Inbox error: unspecified actor")
+                return HttpResponseBadRequest("Unspecified actor")
+            # Adopt the signer as the actor so blocking, signature verification
+            # and the handlers downstream all work off one notion of who sent
+            # the activity. Nothing is trusted yet: the signature is verified
+            # below exactly as it is for any other delivery, and it is that
+            # check which makes this attribution safe.
+            document["actor"] = signer_uri
 
         identity = Identity.by_actor_uri(document["actor"], create=True, transient=True)
         if (
@@ -226,28 +282,18 @@ class Inbox(FederatedView):
         ]:
             return HttpResponse(status=202)
 
-        http_sig_present = "Signature" in request.headers
-        ld_sig_present = "signature" in document
         verified = False
         ld_sig_verified = False  # True when the LD signature itself checked out
         relay_mode = False  # True when HTTP signer != document actor
         relay_http_verified = False  # True when relay HTTP sig verified immediately
         metadata = {}
 
-        # Authenticate HTTP signature if present. Parse keyId first to detect
-        # relay deliveries (where the HTTP signer differs from document["actor"]).
-        # An invalid signature is a hard rejection. For unknown signers without a
-        # cached key, pre-compute data for deferred verification.
+        # Authenticate HTTP signature if present, using the keyId parsed above to
+        # detect relay deliveries (where the HTTP signer differs from
+        # document["actor"]). An invalid signature is a hard rejection. For
+        # unknown signers without a cached key, pre-compute data for deferred
+        # verification.
         if http_sig_present:
-            try:
-                signature_details = HttpSignature.parse_signature(
-                    request.headers["signature"]
-                )
-            except VerificationFormatError as e:
-                logger.warning("Inbox error: Bad HTTP signature format: %s", e.args[0])
-                return HttpResponseBadRequest(e.args[0])
-
-            key_id_actor = urldefrag(signature_details["keyid"]).url
             relay_mode = key_id_actor != document["actor"]
             signer_identity = (
                 Identity.by_actor_uri(key_id_actor, create=True, transient=True)
