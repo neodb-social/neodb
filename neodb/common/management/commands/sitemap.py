@@ -89,7 +89,10 @@ class Command(SiteCommand):
                 f.write(Item.objects.get(pk=r["item_id"]).absolute_url + "\n")
 
         fn = settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
-        shutil.copy2(temp, fn)
+        # mkstemp() creates the file as 0600, so set the mode the web server expects
+        shutil.copyfile(temp, fn)
+        os.chmod(fn, 0o644)
+        os.remove(temp)
         url = (
             settings.SITE_INFO["site_url"]
             + settings.MEDIA_URL
