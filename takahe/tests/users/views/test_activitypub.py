@@ -65,6 +65,60 @@ def test_delete_unknown_actor(client, identity):
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    "mangle",
+    [
+        {"@context": 42},
+        {"actor": {"id": {"nested": "bad"}}},
+        {"type": {"weird": "object"}},
+        {"type": None},
+        {"type": "Delete", "object": None},
+    ],
+    ids=[
+        "bad-context",
+        "nested-actor-id",
+        "non-string-type",
+        "no-type",
+        "delete-without-object",
+    ],
+)
+def test_malformed_document_rejected(client, identity, mangle):
+    """
+    Documents that crash JSON-LD processing, name no usable type, or delete
+    nothing are rejected with 400 rather than a server error. None values
+    mean the key is dropped (canonicalise discards nulls anyway).
+    """
+    document = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "id": "https://remote.test/a/activities/1",
+        "type": "Create",
+        "actor": "https://remote.test/a/",
+        "object": {"id": "https://remote.test/a/posts/1", "type": "Note"},
+    }
+    document.update(mangle)
+    document = {k: v for k, v in document.items() if v is not None}
+    resp = client.post(
+        identity.inbox_uri, data=document, content_type="application/activity+json"
+    )
+    assert resp.status_code == 400
+    assert InboxMessage.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_invalid_utf8_body_rejected(client, identity):
+    """
+    A body that does not decode as UTF-8 is a 400; the error logging must
+    not assume it decodes either.
+    """
+    resp = client.post(
+        identity.inbox_uri,
+        data=b'{"actor": "\xff"}',
+        content_type="application/activity+json",
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.django_db
 def test_ignore_lemmy(client, identity):
     """
     Tests that message types we know we cannot handle are ignored immediately

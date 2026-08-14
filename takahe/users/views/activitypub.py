@@ -7,7 +7,7 @@ from activities.models import Post
 from activities.services import TimelineService
 from core import sentry
 from core.decorators import cache_page
-from core.ld import canonicalise, get_str_or_id
+from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -22,6 +22,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from pyld.jsonld import JsonLdError
 from takahe.neodb import __version__ as __neodb_version__
 
 from users.models import FeatureAuthorization, Identity, InboxMessage, SystemActor
@@ -214,12 +215,30 @@ class Inbox(FederatedView):
         try:
             raw_document = json.loads(request.body)
             document = canonicalise(raw_document, include_security=True, outbound=False)
-        except ValueError:
+        except ValueError, JsonLdError:
+            # pyld reports malformed JSON-LD with its own exception, and a
+            # non-UTF-8 body arrives here as UnicodeDecodeError, so the log
+            # line must not assume the body decodes either.
             logger.warning(
-                "Inbox error when parsing JSON to LDDocument: %s", request.body.decode()
+                "Inbox error when parsing JSON to LDDocument: %s",
+                request.body.decode(errors="replace"),
             )
             return HttpResponseBadRequest("Error parsing JSON")
-        document_type = document["type"]
+
+        # JSON-LD allows a list of types; adopt the first concrete one
+        # (preserving case, which the comparisons below expect) so dispatch
+        # here and in the handlers works off a single type string.
+        document_type = document.get("type")
+        if isinstance(document_type, list):
+            named = [t for t in document_type if isinstance(t, str) and t]
+            document_type = next(
+                (t for t in named if t.lower() not in GENERIC_AS_TYPES),
+                named[0] if named else None,
+            )
+        if not isinstance(document_type, str) or not document_type:
+            logger.warning("Inbox error: missing or invalid type")
+            return HttpResponseBadRequest("Missing or invalid type")
+        document["type"] = document_type
         document_subtype = None
         if isinstance(document.get("object"), dict):
             document_subtype = document["object"].get("type")
@@ -276,13 +295,14 @@ class Inbox(FederatedView):
         document["actor"] = actor_uri
 
         identity = Identity.by_actor_uri(document["actor"], create=True, transient=True)
-        if (
-            document_type == "Delete"
-            and document["actor"] == document["object"]
-            and identity._state.adding
-        ):
-            # We don't have an Identity record for the user. No-op
-            return HttpResponse(status=202)
+        if document_type == "Delete":
+            if "object" not in document:
+                # Nothing to delete, and the handlers dispatch on the object
+                logger.warning("Inbox error: Delete without object")
+                return HttpResponseBadRequest("Delete without object")
+            if document["actor"] == document["object"] and identity._state.adding:
+                # We don't have an Identity record for the user. No-op
+                return HttpResponse(status=202)
 
         # See if it's from a blocked user or domain - without calling
         # fetch_actor, which would fetch data from potentially bad actor

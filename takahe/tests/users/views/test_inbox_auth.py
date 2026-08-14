@@ -165,6 +165,25 @@ def test_actor_not_naming_a_uri_rejected(client, identity, keypair, actor):
 
 
 @pytest.mark.django_db
+def test_list_type_normalized(client, identity, remote_identity, keypair):
+    """
+    JSON-LD allows `type` to be a list of types; the first concrete one is
+    adopted so dispatch here and in the handlers sees a single string.
+    """
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.public_key_id = keypair["public_key_id"]
+    remote_identity.save()
+
+    document = _make_document(actor_uri=remote_identity.actor_uri)
+    document["type"] = ["Activity", "Create"]
+    resp = _sign_and_post(client, identity, document, keypair)
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg is not None
+    assert msg.message["type"] == "Create"
+
+
+@pytest.mark.django_db
 def test_http_sig_passes_invalid_ld_sig_ignored(
     client, identity, remote_identity, keypair
 ):
