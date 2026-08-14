@@ -806,10 +806,20 @@ class Collection(List):
         item_id = []
         item_title = []
         item_class = set()
-        for m in self.members.all():
-            item_id.append(m.item.pk)
-            item_title += m.item.to_indexable_titles()
-            item_class |= {m.item.__class__.__name__}
+        members = list(self.members.all())
+        # Item is polymorphic; per-member FK access costs two queries each
+        # (base row + subclass join). Batch-fetch through the polymorphic
+        # manager instead (Sentry: EGGPLANT-1HD).
+        items_map = {
+            i.pk: i for i in Item.objects.filter(pk__in=[m.item_id for m in members])
+        }
+        for m in members:
+            item = items_map.get(m.item_id)
+            if item is None:
+                continue
+            item_id.append(item.pk)
+            item_title += item.to_indexable_titles()
+            item_class |= {item.__class__.__name__}
             if m.note:
                 content.append(m.note)
         return {

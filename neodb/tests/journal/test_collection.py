@@ -7,7 +7,7 @@ from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from catalog.models import Edition, ExternalResource, IdType, ItemCredit, Movie
+from catalog.models import Edition, ExternalResource, IdType, Item, ItemCredit, Movie
 from journal.apis.collection import _prefetch_collection_member_items
 from journal.models import Mark, ShelfType
 from journal.models.collection import Collection
@@ -301,6 +301,39 @@ class TestCollectionEditItemsNPlusOne:
         assert len(credit_queries) <= 1, (
             f"edit_items fired {len(credit_queries)} catalog_itemcredit queries "
             f"for {len(movies)} members; expected <=1 (batched)."
+        )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionIndexDocNPlusOne:
+    """EGGPLANT-1HD: reordering members re-saves the Collection, whose index
+    doc iterated members and fetched each polymorphic item individually (two
+    queries per member). Items must be batch-fetched instead.
+    """
+
+    def test_no_per_member_item_query(self):
+        user = User.register(email="indexer@test.com", username="indexer")
+        collection = Collection(owner=user.identity, title="C", brief="b")
+        collection.save()
+        items: list[Item] = [
+            Edition.objects.create(title=f"Index Book {i}") for i in range(3)
+        ]
+        items += [Movie.objects.create(title=f"Index Movie {i}") for i in range(3)]
+        for item in items:
+            collection.append_item(item)
+
+        collection.refresh_from_db()
+        with CaptureQueriesContext(connection) as ctx:
+            doc = collection.to_indexable_doc()
+        assert sorted(doc["item_id"]) == sorted(i.pk for i in items)
+        assert set(doc["item_class"]) == {"Edition", "Movie"}
+        point_lookups = [
+            q for q in ctx.captured_queries if '"catalog_item"."id" = ' in q["sql"]
+        ]
+        assert point_lookups == [], (
+            f"to_indexable_doc fired {len(point_lookups)} per-member catalog_item "
+            f"point lookups for {len(items)} members; expected 0 (batched). "
+            f"First: {point_lookups[0]['sql'] if point_lookups else 'n/a'}"
         )
 
 
