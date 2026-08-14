@@ -175,8 +175,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return self.__class__.__name__.lower()
 
     @classmethod
-    def from_db(cls, db, field_names, values):
-        instance = super().from_db(db, field_names, values)
+    def from_db(cls, db, field_names, values, **kwargs: Any):
+        # **kwargs for compatibility with Django 6.0+ fetch_mode
+        instance = super().from_db(db, field_names, values, **kwargs)
         if "visibility" in field_names:
             # avoid hasattr(instance, "visibility") which may cause RecursionError
             instance.previous_visibility = instance.visibility
