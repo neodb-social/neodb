@@ -38,8 +38,12 @@ def _post_to_inbox(client, identity, document, extra_headers=None):
     return client.post(identity.inbox_uri, **kwargs)
 
 
-def _sign_and_post(client, identity, document, keypair):
-    """Sign a document with HTTP Signature and post it to the inbox."""
+def _sign_and_post(client, identity, document, keypair, actor_uri=None):
+    """
+    Sign a document with HTTP Signature and post it to the inbox.
+    `actor_uri` names the signer for documents that do not carry the actor as
+    a bare URI (e.g. an embedded actor object).
+    """
     body = json.dumps(document).encode()
     path = identity.inbox_uri.replace("https://example.com", "")
     digest = HttpSignature.calculate_digest(body)
@@ -69,7 +73,7 @@ def _sign_and_post(client, identity, document, keypair):
     # keyId must be derived from the document actor URI so that urldefrag(keyid)
     # matches document["actor"] and direct delivery is not mistaken for a relay.
     # Preserve the trailing slash to keep the URI identical to document["actor"].
-    actor_uri = document.get("actor", "")
+    actor_uri = actor_uri or document.get("actor", "")
     key_id = actor_uri + "#main-key" if actor_uri else keypair["public_key_id"]
     sig_header = (
         f'keyId="{key_id}",'
@@ -111,6 +115,53 @@ def test_valid_http_signature_accepted(client, identity, remote_identity, keypai
     msg = InboxMessage.objects.last()
     assert msg is not None
     assert msg.metadata is None
+
+
+@pytest.mark.django_db
+def test_embedded_actor_object_accepted(client, identity, remote_identity, keypair):
+    """
+    An `actor` delivered as an embedded object rather than a bare URI is
+    reduced to its id, and the queued message carries that URI so the
+    handlers see the same shape as any other delivery.
+    """
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.public_key_id = keypair["public_key_id"]
+    remote_identity.save()
+
+    document = _make_document(actor_uri=remote_identity.actor_uri)
+    document["actor"] = {"id": remote_identity.actor_uri, "type": "Person"}
+    resp = _sign_and_post(
+        client, identity, document, keypair, actor_uri=remote_identity.actor_uri
+    )
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg is not None
+    assert msg.message["actor"] == remote_identity.actor_uri
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "actor",
+    [
+        None,
+        "acct:someone@remote.test",
+        {"type": "Person"},
+        ["https://remote.test/a/", "https://remote.test/b/"],
+    ],
+    ids=["null", "non-http-scheme", "object-without-id", "several-actors"],
+)
+def test_actor_not_naming_a_uri_rejected(client, identity, keypair, actor):
+    """
+    An `actor` that does not name a fetchable URI is rejected outright, rather
+    than reaching identity or domain lookup as something that is not a string.
+    """
+    document = _make_document()
+    document["actor"] = actor
+    resp = _sign_and_post(
+        client, identity, document, keypair, actor_uri="https://remote.test/test-actor/"
+    )
+    assert resp.status_code == 400
+    assert InboxMessage.objects.count() == 0
 
 
 @pytest.mark.django_db

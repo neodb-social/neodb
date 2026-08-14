@@ -61,11 +61,12 @@ def ld_signature_creator(document: dict) -> str | None:
     return urldefrag(creator).url
 
 
-def signer_actor_uri(candidate: str | None) -> str | None:
+def usable_actor_uri(candidate: str | None) -> str | None:
     """
-    A signer is only usable as an actor if it names one: keyId and creator are
-    both sender-controlled, and anything without a hostname would reach actor
-    and domain lookup as garbage before a signature has been checked.
+    A candidate is only usable as an actor if it names one: the payload actor,
+    keyId and creator are all sender-controlled, and anything without a
+    hostname would reach actor and domain lookup as garbage before a signature
+    has been checked.
     """
     if not candidate:
         return None
@@ -243,7 +244,13 @@ class Inbox(FederatedView):
         # Find the Identity by the actor on the incoming item
         # This ensures that the signature used for the headers matches the actor
         # described in the payload.
-        if "actor" not in document:
+        # `actor` may arrive embedded as an object rather than a bare URI, so
+        # reduce it to the URI once here: identity lookup, relay detection,
+        # signature matching and every handler downstream expect that URI, and
+        # anything that does not name one has to be rejected before it reaches
+        # domain lookup as garbage.
+        actor_uri = usable_actor_uri(get_str_or_id(document.get("actor")))
+        if not actor_uri:
             implicit_actor = (
                 document_type.lower() in IMPLICIT_ACTOR_TYPES
                 if isinstance(document_type, str)
@@ -254,18 +261,19 @@ class Inbox(FederatedView):
             # two differ this puts the request into relay_mode below, which is
             # what makes the relay prove itself and the origin prove the
             # document, rather than the relay's signature carrying it alone.
-            signer_uri = signer_actor_uri(
+            signer_uri = usable_actor_uri(
                 ld_signature_creator(document)
-            ) or signer_actor_uri(key_id_actor)
+            ) or usable_actor_uri(key_id_actor)
             if not implicit_actor or not signer_uri:
-                logger.warning("Inbox error: unspecified actor")
+                logger.warning("Inbox error: unspecified or invalid actor")
                 return HttpResponseBadRequest("Unspecified actor")
             # Adopt the signer as the actor so blocking, signature verification
             # and the handlers downstream all work off one notion of who sent
             # the activity. Nothing is trusted yet: the signature is verified
             # below exactly as it is for any other delivery, and it is that
             # check which makes this attribution safe.
-            document["actor"] = signer_uri
+            actor_uri = signer_uri
+        document["actor"] = actor_uri
 
         identity = Identity.by_actor_uri(document["actor"], create=True, transient=True)
         if (

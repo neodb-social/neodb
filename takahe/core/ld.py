@@ -769,12 +769,15 @@ def get_list(container, key) -> list:
 
 def get_str_or_id(value: str | dict | None, key: str = "id") -> str | None:
     """
-    Given a value that could be a str or {"id": str}, return the str
+    Given a value that could be a str or {"id": str}, return the str.
+    Callers feed the result to URI lookups, so a nested value that is not
+    itself a string is no more usable than a missing one.
     """
     if isinstance(value, str):
         return value
     elif isinstance(value, dict):
-        return value.get(key)
+        nested = value.get(key)
+        return nested if isinstance(nested, str) else None
     return None
 
 
