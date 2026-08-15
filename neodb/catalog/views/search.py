@@ -78,14 +78,16 @@ def fetch(request, url, site: AbstractSite | None, is_refetch: bool = False):
     item = site.get_item(allow_rematch=False) if site else None
     if item and not is_refetch:
         return redirect(item.url)
-    if item and is_refetch:
-        item.log_action(
-            {
-                "!refetch": [url, None],
-            }
-        )
     job_id = None
-    if is_refetch or get_fetch_lock(request.user, url):
+    # A refetch goes through the same lock as any other fetch, so it cannot be
+    # used to bypass the throttle; the action is logged only when it is queued.
+    if get_fetch_lock(request.user, url):
+        if item and is_refetch:
+            item.log_action(
+                {
+                    "!refetch": [url, None],
+                }
+            )
         job_id = enqueue_fetch(url, is_refetch, request.user)
     return render(
         request,

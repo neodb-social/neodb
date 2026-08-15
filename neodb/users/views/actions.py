@@ -24,11 +24,19 @@ from .data import *
 
 
 def query_identity(request, handle):
+    from catalog.search import get_actor_fetch_lock
+
     try:
         i = APIdentity.get_by_handle(handle)
         return redirect(i.url)
     except APIdentity.DoesNotExist:
         if len(handle.split("@")) == 3:
+            # Each miss makes Takahe send a signed request to whichever domain
+            # the caller names, so this shares the per-user / anonymous fetch
+            # slot with catalog fetches. Without a slot, show the busy page
+            # instead of queueing the request.
+            if not get_actor_fetch_lock(request.user):
+                return render(request, "users/fetch_identity_pending.html", {})
             Takahe.fetch_remote_identity(handle)
             return render(
                 request, "users/fetch_identity_pending.html", {"handle": handle}

@@ -113,7 +113,21 @@ def query_index(
     return items, r.pages, r.total, r.facet_by_category, q.q
 
 
-def get_fetch_lock(user, url):
+# Hold a url briefly when its fetch is enqueued, then extend to the long TTL
+# once the fetch actually lands. A fetch that fails is therefore retryable in
+# minutes rather than hours.
+FETCH_URL_LOCK_TTL = 300
+FETCH_URL_LOCK_TTL_DONE = 7200
+
+
+def get_actor_fetch_lock(user):
+    """Claim the per-actor fetch slot.
+
+    An authenticated user gets a key of their own; every anonymous caller
+    shares one key, so unauthenticated traffic cannot outpace signed-in
+    traffic in aggregate. Every path that makes NeoDB issue an outbound
+    request on a user's behalf goes through here.
+    """
     if user and user.is_authenticated:
         _fetch_lock_key = f"_fetch_lock:{user.id}"
         _fetch_lock_ttl = 1 if settings.DEBUG else 3
@@ -123,13 +137,30 @@ def get_fetch_lock(user, url):
     if cache.get(_fetch_lock_key):
         return False
     cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)
-    # do not fetch the same url twice in 2 hours
+    return True
+
+
+def get_fetch_lock(user, url):
+    if not get_actor_fetch_lock(user):
+        return False
+    # do not fetch the same url twice while one is in flight; a successful
+    # fetch extends this via mark_fetch_completed()
     _fetch_lock_key = f"_fetch_lock:{url}"
-    _fetch_lock_ttl = 1 if settings.DEBUG else 7200
+    _fetch_lock_ttl = 1 if settings.DEBUG else FETCH_URL_LOCK_TTL
     if cache.get(_fetch_lock_key):
         return False
     cache.set(_fetch_lock_key, 1, timeout=_fetch_lock_ttl)
     return True
+
+
+def mark_fetch_completed(url):
+    """Hold the url lock for the long TTL now that the fetch has landed, so
+    the same url is not fetched again for hours."""
+    cache.set(
+        f"_fetch_lock:{url}",
+        1,
+        timeout=1 if settings.DEBUG else FETCH_URL_LOCK_TTL_DONE,
+    )
 
 
 def enqueue_fetch(url, is_refetch, user=None):
@@ -181,6 +212,8 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
                 item_url = search_by_ap_url(url, fetcher)
                 if item_url:
                     logger.info(f"fetched {url} {item_url}")
+                    if not is_refetch:
+                        mark_fetch_completed(url)
                     return item_url
                 logger.warning(f"Site not found for {url}")
                 _record_fetch_failure(url)
@@ -189,6 +222,10 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
             item = res.item if res else None
             if item:
                 logger.info(f"fetched {url} {item.url} {item}")
+                # A refetch deliberately does not extend the lock: an editor
+                # correcting bad metadata should not be locked out for hours.
+                if not is_refetch:
+                    mark_fetch_completed(url)
                 return item.url
             else:
                 logger.error(f"fetch {url} failed")
