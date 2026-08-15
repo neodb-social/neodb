@@ -382,10 +382,19 @@ class AniList(AbstractSite):
         if category not in cls.SEARCH_CATEGORIES:
             return []
         results = []
-        # Deliberately not rate-limited: search_task runs inside the interactive
-        # external-search dispatcher (asyncio.gather over every searchable
-        # site), and blocking a user's search to wait for a slot would freeze
-        # the whole result page. Same reasoning as musicbrainz.search_task.
+        # Take a slot when one is free, never wait for one: search_task runs
+        # inside the interactive external-search dispatcher (asyncio.gather over
+        # every searchable site), and blocking a user's search to wait for a
+        # slot would freeze the whole result page. Same policy as
+        # musicbrainz.search_task. Searches share the observed 30/min budget
+        # with the scrape path, so skipping keeps that accounting honest.
+        # burst=2 because AniListAnime and AniListManga are both registered
+        # search sites on this one host and both answer category=all, so they
+        # always reserve together; without the credit one of them would be
+        # refused on every such query.
+        if not await anilist_limiter().try_acquire_async(burst=2):
+            record_search_failure(cls.SITE_NAME.value, "throttled")
+            return results
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(

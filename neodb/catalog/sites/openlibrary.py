@@ -1,16 +1,101 @@
 import re
+import threading
 from datetime import datetime
 from urllib.parse import quote_plus
 
 import httpx
+from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
+from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from catalog.search import *
-from common.models import detect_language
+from common.models import SiteConfig, detect_language
 from common.models.lang import normalize_language
+
+# OpenLibrary serves 1 req/s to unidentified clients and 3 req/s to callers
+# that send an app name plus a contact address, and warns that a generic or
+# missing User-Agent may be throttled or blocked outright:
+# https://openlibrary.org/developers/api. Pace for the identified tier, which
+# `_openlibrary_user_agent` earns us whenever the operator has configured a
+# from-address.
+_OPENLIBRARY_RATE = 3.0
+
+_openlibrary_limiter: RedisRateLimiter | None = None
+_openlibrary_limiter_lock = threading.Lock()
+
+
+def openlibrary_limiter() -> RedisRateLimiter:
+    """Singleton limiter for openlibrary.org calls.
+
+    covers.openlibrary.org is a separate host and stays off this cursor, the
+    same way coverartarchive.org stays off the MusicBrainz one.
+    """
+    global _openlibrary_limiter
+    if _openlibrary_limiter is None:
+        with _openlibrary_limiter_lock:
+            if _openlibrary_limiter is None:
+                _openlibrary_limiter = RedisRateLimiter(
+                    key="ratelimit:openlibrary.org",
+                    rate=_OPENLIBRARY_RATE,
+                )
+    return _openlibrary_limiter
+
+
+def _openlibrary_user_agent() -> str:
+    """Identify this instance to OpenLibrary.
+
+    Their 3 req/s tier wants the app name and a contact email or phone.
+    NEODB_USER_AGENT already carries the name and site URL, so append the
+    operator's from-address when one is configured; without it we still send
+    an honest UA, just on the slower unidentified tier.
+    """
+    contact = (SiteConfig.system.email_from or "").strip()
+    if contact:
+        return f"{settings.NEODB_USER_AGENT} ({contact})"
+    return settings.NEODB_USER_AGENT
+
+
+def _openlibrary_api_headers() -> dict[str, str]:
+    return {
+        "User-Agent": _openlibrary_user_agent(),
+        "Accept": "application/json",
+    }
+
+
+class OpenLibraryDownloader(BasicDownloader):
+    """BasicDownloader that identifies us to OpenLibrary and throttles every
+    call through the shared Redis cursor.
+
+    Use for any openlibrary.org request. Plain BasicDownloader would send the
+    class-level browser UA, which is exactly the unidentified-client case
+    OpenLibrary reserves the right to block.
+
+    A single work scrape fans out to one work request, one per author, and up
+    to five edition pages, so these bursts are the reason the cursor exists.
+    ``rate_limit_timeout`` is separate from BasicDownloader's HTTP ``timeout``.
+    """
+
+    def __init__(
+        self,
+        url: str,
+        headers: dict | None = None,
+        timeout: float | None = None,
+        *,
+        rate_limit_timeout: float = 15.0,
+    ):
+        super().__init__(
+            url,
+            headers=_openlibrary_api_headers() if headers is None else headers,
+            timeout=timeout,
+        )
+        self._rate_limit_timeout = rate_limit_timeout
+
+    def download(self):
+        openlibrary_limiter().acquire(timeout=self._rate_limit_timeout)
+        return super().download()
 
 
 def _author_id_from_key(key: str) -> str | None:
@@ -59,7 +144,7 @@ class OpenLibrary(AbstractSite):
     def scrape(self):
         # id_value should always be an OpenLibrary book ID (OL...M format)
         api_url = f"https://openlibrary.org/books/{self.id_value}.json"
-        response = BasicDownloader(api_url).download()
+        response = OpenLibraryDownloader(api_url).download()
         book_data = response.json()
         if not book_data:
             raise ParseError(self, "no data returned")
@@ -74,7 +159,7 @@ class OpenLibrary(AbstractSite):
                 if not author_key:
                     continue
                 author_url = "https://openlibrary.org" + author_key + ".json"
-                author_json = BasicDownloader(author_url).download().json()
+                author_json = OpenLibraryDownloader(author_url).download().json()
                 author_name = author_json.get("name", "")
                 authors.append(author_name)
                 author_id = _author_id_from_key(author_key)
@@ -190,10 +275,20 @@ class OpenLibrary(AbstractSite):
         if category not in ["all", "book"]:
             return []
         results = []
+        # search.json shares the openlibrary.org quota with every scrape, so
+        # take a slot when one is free. Never wait for one: this runs in the
+        # interactive fan-out, where a wait would stall the whole result page.
+        # Dropping OpenLibrary from one page of results beats holding the page
+        # back, and beats spending quota a scrape is queued for.
+        if not await openlibrary_limiter().try_acquire_async():
+            record_search_failure(cls.SITE_NAME.value, "throttled")
+            return results
         search_url = f"https://openlibrary.org/search.json?q={quote_plus(q)}&limit={page_size}&offset={(page - 1) * page_size}&fields=key,title,author_name,first_publish_year,editions,editions.key,editions.title,editions.language"
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.get(search_url, timeout=3)
+                response = await client.get(
+                    search_url, headers=_openlibrary_api_headers(), timeout=3
+                )
                 data = response.json()
                 if "docs" in data:
                     for work in data["docs"]:
@@ -281,7 +376,7 @@ class OpenLibrary_Work(AbstractSite):
                 api_url = f"https://openlibrary.org/works/{self.id_value}/editions.json?offset={offset}"
 
             try:
-                response = BasicDownloader(api_url).download()
+                response = OpenLibraryDownloader(api_url).download()
                 data = response.json()
 
                 if "entries" not in data:
@@ -325,7 +420,7 @@ class OpenLibrary_Work(AbstractSite):
     def scrape(self):
         api_url = f"https://openlibrary.org/works/{self.id_value}.json"
 
-        response = BasicDownloader(api_url).download()
+        response = OpenLibraryDownloader(api_url).download()
         work_data = response.json()
 
         if not work_data:
@@ -342,7 +437,7 @@ class OpenLibrary_Work(AbstractSite):
                 if not author_key:
                     continue
                 author_url = "https://openlibrary.org" + author_key + ".json"
-                author_json = BasicDownloader(author_url).download().json()
+                author_json = OpenLibraryDownloader(author_url).download().json()
                 author_name = author_json.get("name", "")
                 authors.append(author_name)
                 author_id = _author_id_from_key(author_key)
@@ -432,7 +527,7 @@ class OpenLibrary_Author(AbstractSite):
 
     def scrape(self):
         api_url = f"https://openlibrary.org/authors/{self.id_value}.json"
-        response = BasicDownloader(api_url).download()
+        response = OpenLibraryDownloader(api_url).download()
         data = response.json()
         if not data:
             raise ParseError(self, "no author data")

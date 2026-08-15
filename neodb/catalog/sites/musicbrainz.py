@@ -556,13 +556,21 @@ class MusicBrainzRelease(AbstractSite):
             "Accept": "application/json",
         }
 
+        # Take a slot when one is free, but never wait for one: search_task
+        # runs inside the interactive external-search dispatcher (asyncio.gather
+        # over every searchable site), and blocking a user's search to wait for
+        # a slot would freeze the whole result page. Skipping still keeps these
+        # requests on the books, so the cursor reflects the real load we put on
+        # MB rather than silently overspending the 1 req/s guideline.
+        # burst=2 because MusicBrainzRelease and MusicBrainzArtist are both
+        # registered search sites on this one host and both answer
+        # category=all, so they always reserve together; without the credit
+        # one of them would be refused on every such query.
+        if not await musicbrainz_limiter().try_acquire_async(burst=2):
+            record_search_failure(SiteName.MusicBrainz.value, "throttled")
+            return results
         async with httpx.AsyncClient() as client:
             try:
-                # Deliberately not rate-limited: search_task runs inside the
-                # interactive external-search dispatcher (asyncio.gather over
-                # every searchable site). Blocking a user's search to wait
-                # for a slot would freeze the whole result page; we'd rather
-                # let MB return 503 here and skip MB results for this query.
                 response = await client.get(
                     api_url, params=params, headers=headers, timeout=10
                 )
@@ -888,12 +896,13 @@ class MusicBrainzArtist(AbstractSite):
             "User-Agent": settings.NEODB_USER_AGENT,
             "Accept": "application/json",
         }
+        # Same policy as the release search above, burst included: the two
+        # sibling sites reserve together on every category=all query.
+        if not await musicbrainz_limiter().try_acquire_async(burst=2):
+            record_search_failure(SiteName.MusicBrainz.value, "throttled")
+            return results
         async with httpx.AsyncClient() as client:
             try:
-                # Deliberately not rate-limited: search_task is dispatched
-                # from the interactive external-search page; blocking on a
-                # slot would stall the whole result render for every user
-                # who searches. Accept the occasional MB 503 instead.
                 response = await client.get(
                     "https://musicbrainz.org/ws/2/artist",
                     params=params,

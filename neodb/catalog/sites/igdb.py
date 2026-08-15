@@ -260,14 +260,17 @@ class IGDB(AbstractSite):
         limit = page_size
         offset = (page - 1) * limit
         q = f'fields *, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name; search "{quote_plus(q)}"; limit {limit}; offset {offset};'
+        # Shares the same 4 req/s IGDB quota as api_query, so take a slot when
+        # one is free. Never wait for one: this runs in the interactive fan-out
+        # and used to wait up to 15s, three times its own HTTP timeout, which
+        # let a bulk Steam import hold every game search on the site hostage.
+        if not await igdb_limiter().try_acquire_async():
+            record_search_failure(SiteName.IGDB.value, "throttled")
+            return []
         _wrapper = IGDBWrapper(SiteConfig.system.igdb_client_id, _igdb_access_token())
         async with httpx.AsyncClient() as client:
             rs = []
             try:
-                # Shares the same 4 req/s IGDB quota as api_query, so a bulk
-                # import running concurrently doesn't push interactive
-                # searches (or itself) over the cap.
-                await igdb_limiter().acquire_async(timeout=15.0)
                 url = IGDBWrapper._build_url("games")
                 params = _wrapper._compose_request(q)
                 response = await client.post(url, **params)
