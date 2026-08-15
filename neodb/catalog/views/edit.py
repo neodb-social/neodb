@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 from loguru import logger
 
 from common.models.lang import get_current_locales
+from common.sentry import record_catalog_edit
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item_task
 from users.models import User
@@ -91,6 +92,7 @@ def create(request, item_model):
                 form.instance.set_parent_item(parent)
             form.instance.save()
             form.instance.sync_credits_from_metadata()
+            record_catalog_edit("create", form.instance.class_name, "create")
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
@@ -161,6 +163,7 @@ def edit(request, item_path, item_uuid):
             form.instance.edited_time = timezone.now()
             form.instance.save()
             form.instance.sync_credits_from_metadata()
+            record_catalog_edit("update", form.instance.class_name, "edit")
             return redirect(form.instance.url)
         else:
             raise BadRequest(_add_error_map_detail(form.errors))
@@ -203,6 +206,7 @@ def pick_cover(request, item_path, item_uuid):
     item.cover = resource.cover
     item.edited_time = timezone.now()
     item.save()
+    record_catalog_edit("update", item.class_name, "pick_cover")
     return redirect(item.url)
 
 
@@ -219,7 +223,9 @@ def delete(request, item_path, item_uuid):
     if request.POST.get("sure", 0) != "1":
         return render(request, "catalog_delete.html", {"item": item})
     else:
+        item_type = item.class_name
         item.delete()
+        record_catalog_edit("delete", item_type, "delete")
         discord_send(
             "audit",
             f"{item.absolute_url}?skipcheck=1\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -241,6 +247,7 @@ def undelete(request, item_path, item_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     item.is_deleted = False
     item.save()
+    record_catalog_edit("update", item.class_name, "undelete")
     return redirect(item.url)
 
 
@@ -279,6 +286,7 @@ def recast(request, item_path, item_uuid):
             season.show = None
             season.save(update_fields=["show"])
     new_item = item.recast_to(model)
+    record_catalog_edit("update", new_item.class_name, "recast")
     if douban_movie_to_tvseason:
         for res in item.external_resources.filter(
             id_type__in=[IdType.IMDB, IdType.TMDB_TV]
@@ -299,7 +307,9 @@ def unlink(request):
     resource = get_object_or_404(ExternalResource, id=res_id)
     if not resource.item:
         raise BadRequest(_("Invalid parameter"))
+    item_type = resource.item.class_name
     resource.unlink_from_item()
+    record_catalog_edit("update", item_type, "unlink_resource")
     referer = request.META.get("HTTP_REFERER") or ""
     if not url_has_allowed_host_and_scheme(
         referer,
@@ -329,6 +339,7 @@ def assign_parent(request, item_path, item_uuid):
     logger.warning(f"{request.user} assign {item} to {parent_item}")
     item.set_parent_item(parent_item)
     item.save()
+    record_catalog_edit("update", item.class_name, "assign_parent")
     return redirect(item.url)
 
 
@@ -342,6 +353,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
     for s in sl:
         if not s.journal_exists():
             s.delete()
+    record_catalog_edit("delete", "tvseason", "remove_unused_seasons")
     ol = [s.pk for s in sl]
     nl = [s.pk for s in item.seasons.all()]
     discord_send(
@@ -361,6 +373,7 @@ def fetch_tvepisodes(request, item_path, item_uuid):
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
         raise BadRequest(_("TV Season with IMDB id and season number required."))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
+    record_catalog_edit("fetch", item.class_name, "fetch_tvepisodes")
     django_rq.get_queue("crawl").enqueue(
         fetch_episodes_for_season_task, item.uuid, request.user.pk
     )
@@ -390,6 +403,7 @@ def fetch_people_works(request, item_path, item_uuid):
     )
     if not resource:
         raise BadRequest(_("This person has no supported source to fetch works from."))
+    record_catalog_edit("fetch", item.class_name, "fetch_people_works")
     lock_key = f"_fetch_works_lock:{item.pk}"
     if not cache.add(lock_key, 1, timeout=people_works.FETCH_PEOPLE_WORKS_LOCK_TTL):
         messages.add_message(
@@ -433,6 +447,7 @@ def merge(request, item_path, item_uuid):
             raise BadRequest(_("Cannot merge an item to itself"))
         logger.warning(f"{request.user} merges {item} to {new_item}")
         item.merge_to(new_item)
+        record_catalog_edit("delete", item.class_name, "merge")
         django_rq.get_queue("crawl").enqueue(
             update_journal_for_merged_item_task, request.user.pk, item.uuid
         )
@@ -447,6 +462,7 @@ def merge(request, item_path, item_uuid):
         if item.merged_to_item:
             logger.warning(f"{request.user} cancels merge for {item}")
             item.merge_to(None)
+            record_catalog_edit("update", item.class_name, "merge_cancel")
         discord_send(
             "audit",
             f"{item.absolute_url}\n⬇\n(none)\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -483,6 +499,7 @@ def link_edition(request, item_path, item_uuid):
         )
     logger.warning(f"{request.user} merges {item} to {new_item}")
     item.link_to_related_book(new_item)
+    record_catalog_edit("update", item.class_name, "link_edition")
     discord_send(
         "audit",
         f"{item.absolute_url}?skipcheck=1\n⬇\n{new_item.absolute_url}\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -501,6 +518,7 @@ def unlink_works(request, item_path, item_uuid):
     if not request.user.is_staff and item.journal_exists():
         raise PermissionDenied(_("Insufficient permission"))
     item.set_parent_item(None)
+    record_catalog_edit("update", item.class_name, "unlink_works")
     discord_send(
         "audit",
         f"{item.absolute_url}?skipcheck=1\nby [@{request.user.username}]({request.user.absolute_url})",
@@ -534,6 +552,7 @@ def protect(request, item_path, item_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     item.is_protected = bool(request.POST.get("protected"))
     item.save()
+    record_catalog_edit("update", item.class_name, "protect")
     return redirect(item.url)
 
 
@@ -596,6 +615,7 @@ def add_credit(request, item_path, item_uuid):
         name=name,
         defaults={"person": person, "order": order},
     )
+    record_catalog_edit("create", item.class_name, "add_credit")
     credits = item.credits.select_related("person").all()
     return render(
         request,
@@ -617,6 +637,7 @@ def remove_credit(request, item_path, item_uuid, credit_id):
         raise PermissionDenied(_("Editing this item is restricted."))
     credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
     credit.delete()
+    record_catalog_edit("delete", item.class_name, "remove_credit")
     credits = item.credits.select_related("person").all()
     return render(
         request,
@@ -640,6 +661,7 @@ def update_credit(request, item_path, item_uuid, credit_id):
     character_name = request.POST.get("character_name", "").strip()
     credit.character_name = character_name
     credit.save()
+    record_catalog_edit("update", item.class_name, "update_credit")
     credits = item.credits.select_related("person").all()
     return render(
         request,

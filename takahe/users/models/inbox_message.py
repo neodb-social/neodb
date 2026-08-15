@@ -18,6 +18,14 @@ from stator.models import State, StateField, StateGraph, StatorModel
 logger = logging.getLogger(__name__)
 
 
+def _internal_subject(message, key: str) -> str:
+    try:
+        obj = message["object"]
+        return str(obj[key] if isinstance(obj, dict) else obj)
+    except Exception:
+        return "unknown"
+
+
 class InboxMessageStates(StateGraph):
     received = State(try_interval=300, delete_after=86400 * 3)
     processed = State(externally_progressed=True, delete_after=86400)
@@ -41,8 +49,8 @@ class InboxMessageStates(StateGraph):
             return True
         try:
             identity.fetch_actor()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Key fetch failed for %s: %s", identity.actor_uri, e)
         return bool(identity.public_key)
 
     @classmethod
@@ -305,14 +313,22 @@ class InboxMessageStates(StateGraph):
                                 elif not i.deleted:
                                     i.mark_deleted()
                             except Exception as e:
-                                print(e)
+                                logger.error(
+                                    "deleteidentity failed for %s: %s",
+                                    _internal_subject(instance.message, "actor"),
+                                    e,
+                                )
                         case "fetchidentity":
                             try:
                                 Identity.by_handle(
                                     instance.message["object"]["handle"], fetch=True
                                 )
                             except Exception as e:
-                                print(e)
+                                logger.error(
+                                    "fetchidentity failed for %s: %s",
+                                    _internal_subject(instance.message, "handle"),
+                                    e,
+                                )
                         case "fetchpost":
                             Post.handle_fetch_internal(instance.message["object"])
                         case "fetchreplies":

@@ -20,6 +20,7 @@ from typesense.types.document import MultiSearchCommonParameters, SearchResponse
 from typesense.types.multi_search import MultiSearchRequestSchema
 
 from common.models.site_config import SiteConfig
+from common.sentry import count as sentry_count
 
 # Exceptions that any Typesense network operation may raise.
 # typesense 2.x uses httpx for transport and, after exhausting node retries,
@@ -290,6 +291,13 @@ class Index:
         schema.update(cls.schema)
         return schema  # type: ignore
 
+    def _record_error(self, op: str, reason: str = "error", value: int = 1) -> None:
+        sentry_count(
+            "search.error",
+            value,
+            attributes={"index": self.name, "op": op, "reason": reason},
+        )
+
     def check(self) -> CollectionSchema:
         if not self._read_client.operations.is_healthy():
             raise ValueError("Typesense: server not healthy")
@@ -313,6 +321,7 @@ class Index:
                 wait -= 1
             if not wait:
                 logger.error("Typesense: timeout waiting for server")
+                self._record_error("init", "timeout")
                 return False
             cname = SiteConfig.system.index_aliases.get(
                 self.name + "_write"
@@ -329,6 +338,7 @@ class Index:
             logger.error("Typesense: server unknown error")
         except Exception as e:
             logger.error(f"Typesense: initialization error {e}")
+        self._record_error("init")
         return False
 
     def replace_docs(self, docs: List[dict]):
@@ -339,6 +349,7 @@ class Index:
             rs = self.write_collection.documents.import_(docs, {"action": "upsert"})
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("replace")
             return 0
         c = 0
         for r in rs:
@@ -350,6 +361,10 @@ class Index:
                     logger.error(f"Typesense: {r}")
             else:
                 c += 1
+        if c < len(docs):
+            # Partial failure: the call returned 2xx but some docs were rejected,
+            # so it is invisible unless counted separately.
+            self._record_error("replace", "rejected", len(docs) - c)
         return c
 
     def insert_docs(self, docs: List[dict]) -> int:
@@ -359,6 +374,7 @@ class Index:
             rs = self.write_collection.documents.import_(docs)
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("insert")
             return 0
         c = 0
         for r in rs:
@@ -369,6 +385,8 @@ class Index:
                     logger.error(f"Typesense: {r}")
             else:
                 c += 1
+        if c < len(docs):
+            self._record_error("insert", "rejected", len(docs) - c)
         return c
 
     def delete_docs(self, field: str, values: Iterable[int | str] | int | str) -> int:
@@ -381,6 +399,7 @@ class Index:
             r = self.write_collection.documents.delete({"filter_by": f"{field}:{v}"})
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("delete")
             return 0
         return (r or {}).get("num_deleted", 0)
 
@@ -394,6 +413,7 @@ class Index:
             )
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("patch")
 
     def get_doc(self, doc_id: int | str) -> dict | None:
         try:
@@ -403,6 +423,7 @@ class Index:
             raise
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("get")
             return None
 
     def _error_result(self, error: str) -> SearchResult:
@@ -426,6 +447,7 @@ class Index:
             )
         except TYPESENSE_ERRORS as e:
             logger.error(f"Typesense: error {e}")
+            self._record_error("search")
             return self._error_result(str(e))
         results = r.get("results") if isinstance(r, dict) else None
         if (
@@ -434,10 +456,12 @@ class Index:
             or not isinstance(results[0], dict)
         ):
             logger.error(f"Typesense: search {self.name} invalid response {r}")
+            self._record_error("search", "invalid_response")
             return self._error_result("invalid response")
         sr = self.search_result_class(self, results[0])
         if sr.error:
             logger.error(f"Typesense: search error {sr.error}")
+            self._record_error("search", "result_error")
         elif settings.DEBUG:
             logger.debug(f"Typesense: search result {sr}")
         return sr

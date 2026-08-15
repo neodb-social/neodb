@@ -563,8 +563,8 @@ class Takahe:
             actor_uri, _ = Identity.fetch_webfinger(handle)
             if actor_uri:
                 return Identity.objects.filter(actor_uri=actor_uri).first()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"webfinger lookup for {handle} failed: {e}")
         return None
 
     @staticmethod
@@ -593,8 +593,13 @@ class Takahe:
                 data = response.json()
                 identity.aliases = data.get("alsoKnownAs")
                 identity.save(update_fields=["aliases"])
-        except Exception:
-            pass
+            else:
+                # A non-200 leaves aliases stale, same as an exception would.
+                logger.error(
+                    f"refresh {identity.actor_uri} failed: HTTP {response.status_code}"
+                )
+        except Exception as e:
+            logger.error(f"refresh {identity.actor_uri} failed: {e}")
 
     @staticmethod
     def identity_get_aliases(identity_pk: int) -> list[Identity]:

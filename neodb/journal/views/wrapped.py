@@ -13,6 +13,7 @@ from django.http.response import HttpResponse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
+from loguru import logger
 
 from catalog.models import (
     AvailableItemCategory,
@@ -20,6 +21,7 @@ from catalog.models import (
     PodcastEpisode,
     item_content_types,
 )
+from common.sentry import count as sentry_count
 from common.utils import int_
 from journal.models import Comment, ShelfType
 from journal.models.common import VisibilityType
@@ -133,21 +135,28 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
         )
         classic_crosspost = user.preference.mastodon_repost_mode == 1
         if classic_crosspost and user.mastodon:
+            attrs = {"platform": "mastodon", "mode": "wrapped"}
             try:
                 user.mastodon.post(
                     comment, visibility, attachments=[("year.png", img, "image/png")]
                 )
-            except Exception:
-                pass
+                sentry_count("crosspost.success", attributes=attrs)
+            except Exception as e:
+                # Warnings aren't Sentry issues; metric keeps them trackable.
+                logger.warning(f"wrapped post to {user.mastodon} failed: {e}")
+                sentry_count("crosspost.failure", attributes=attrs)
         elif post and user.mastodon:
             user.mastodon.boost_later(post.url)
         if visibility == VisibilityType.Public and user.bluesky:
             o = EmbedObj("🧩", "", user.absolute_url)
             txt = comment.rstrip() + "\n\n##obj##"
+            attrs = {"platform": "bluesky", "mode": "wrapped"}
             try:
                 user.bluesky.post(txt, obj=o, images=[img])
-            except Exception:
-                pass
+                sentry_count("crosspost.success", attributes=attrs)
+            except Exception as e:
+                logger.warning(f"wrapped post to {user.bluesky} failed: {e}")
+                sentry_count("crosspost.failure", attributes=attrs)
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
         referer = request.META.get("HTTP_REFERER") or ""
         if not url_has_allowed_host_and_scheme(

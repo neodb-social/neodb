@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.sentry import record_catalog_edit
 from common.utils import (
     discord_send,
     get_uuid_or_404,
@@ -103,6 +104,7 @@ def verify_creator_status(request, item_path, item_uuid):
 @user_identity_required
 def verify_creator_start(request, item_path, item_uuid):
     item = _get_verifiable_item(item_uuid)
+    record_catalog_edit("verify", item.class_name, "verify_creator_start")
     if not getattr(item, "feed_url", None):
         messages.add_message(
             request, messages.ERROR, _("No feed url available for this item.")
@@ -173,6 +175,7 @@ def verify_creator_manual(request, item_path, item_uuid):
     item.log_action(
         {"!creator_verified": ["", f"{identity} (manual by @{request.user.username})"]}
     )
+    record_catalog_edit("update", item.class_name, "verify_creator")
     discord_send(
         "audit",
         f"{item.absolute_url}\nverified creator: @{identity.full_handle} (manual)\n"
@@ -203,6 +206,7 @@ def unverify_creator(request, item_path, item_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     item.log_action({"!creator_unverified": ["", str(claim.owner)]})
     claim.delete()
+    record_catalog_edit("update", item.class_name, "unverify_creator")
     discord_send(
         "audit",
         f"{item.absolute_url}\nremoved creator: @{claim.owner.full_handle}\n"

@@ -52,3 +52,20 @@ def record_activity(action: str, source: str) -> None:
     export *start* is recorded by the triggering view instead).
     """
     count("user.activity", attributes={"action": action, "source": source})
+
+
+def record_catalog_edit(action: str, item_type: str, op: str = "") -> None:
+    """Emit a `catalog.edit` counter for a user-initiated catalog change.
+
+    ``action`` is the coarse bucket (``create``/``update``/``delete``, plus
+    ``fetch``/``verify`` for the crawl and verification triggers); ``op`` names
+    the specific view so a single bucket stays breakable down. ``item_type`` is
+    ``Item.class_name``.
+
+    Call this at the view layer only. Background refresh writes items through
+    the same models, so a model-level hook could not tell the two apart.
+    """
+    count(
+        "catalog.edit",
+        attributes={"action": action, "type": item_type, "op": op or action},
+    )
