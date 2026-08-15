@@ -34,14 +34,14 @@ NeoDB has a plugin for it so users can sync progress/rating/comment/note directl
 ### Install NeoDB for KOReader
 
 #### Install from KOReader's plugin manager
-- Install [AppStore](https://github.com/omer-faruq/appstore.koplugin) or [StoreFront](https://github.com/ultimatejimmy/storefront.koplugin) for KOReader
+- Install [StoreFront](https://github.com/ultimatejimmy/storefront.koplugin) or [AppStore](https://github.com/omer-faruq/appstore.koplugin) for KOReader
 - Open the plugin manager, search for `neodb` and install it.
 
 #### Manual Install
-- Download [the latest release](https://github.com/neodb-social/neodb.koplugin/archive/main.zip)
+- Download [the latest release](https://github.com/neodb-social/neodb.koplugin/releases/latest)
 - unzip, rename the folder to `neodb.koplugin` and copy it into KOReader's `plugins` directory.
 - Restart KOReader. The plugin appears under **☰ → Tools → NeoDB**
 
 ### Post Install
-- Open any book, then **☰ → Tools → NeoDB → Sign in to NeoDB…** to scan QR code and link your NeoDB account
-- For one-gesture access, bind **NeoDB: book actions** in *Settings → Taps and gestures → Gesture manager*
+- Open menu **☰ → Tools → NeoDB → Sign in to NeoDB…** to scan QR code and link your NeoDB account
+- For quick access, bind **NeoDB: book actions** in *Settings → Taps and gestures → Gesture manager*
