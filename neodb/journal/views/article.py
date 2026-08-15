@@ -20,7 +20,12 @@ from ..forms import ArticleForm
 from ..models import Article
 from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
 from ..models.renderers import convert_leading_space_in_md
-from .common import conditional_get_for_anonymous, post_quotes_count
+from .common import (
+    conditional_get_for_anonymous,
+    piece_handle_matches,
+    post_quotes_count,
+    require_piece_handle,
+)
 
 
 def _parse_tags(raw: str) -> list[str]:
@@ -99,7 +104,7 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
     return redirect(reverse("journal:article_retrieve", args=[article.uuid]))
 
 
-def _article_last_modified(request, article_uuid: str):
+def _article_last_modified(request, article_uuid: str, user_name: str | None = None):
     # Owner-level toggles (``anonymous_viewable``, ``restricted``) don't
     # bump piece ``edited_time``, so the visibility check must run here —
     # otherwise a privacy flip would leave anonymous clients with a
@@ -111,13 +116,19 @@ def _article_last_modified(request, article_uuid: str):
     article = Article.objects.filter(uid=uid).select_related("owner").first()
     if not article or not article.is_visible_to(request.user):
         return None
+    # a handle that doesn't own the article renders 404, not a 304
+    if not piece_handle_matches(article, user_name):
+        return None
     return article.edited_time
 
 
 @require_http_methods(["GET", "HEAD"])
 @conditional_get_for_anonymous(_article_last_modified)
-def article_retrieve(request, article_uuid: str):
+def article_retrieve(request, article_uuid: str, user_name: str | None = None):
     article = get_object_or_404(Article, uid=get_uuid_or_404(article_uuid))
+    # checked before visibility so a mismatched handle cannot tell a
+    # private article apart from a missing one
+    require_piece_handle(article, user_name)
     if not article.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "HEAD":

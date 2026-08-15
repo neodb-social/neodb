@@ -26,8 +26,10 @@ from ..models import *
 from ..models.renderers import sanitize_md_images
 from .common import (
     conditional_get_for_anonymous,
+    piece_handle_matches,
     post_quotes_count,
     render_relogin,
+    require_piece_handle,
     target_identity_required,
 )
 
@@ -205,7 +207,7 @@ def collection_ap_items(request, collection_uuid):
     return _list_items_view(request, collection)
 
 
-def _collection_last_modified(request, collection_uuid):
+def _collection_last_modified(request, collection_uuid, user_name: str | None = None):
     try:
         uid = get_uuid_or_404(collection_uuid)
     except Http404:
@@ -223,17 +225,25 @@ def _collection_last_modified(request, collection_uuid):
     # flip doesn't leave anonymous clients with a cached 200.
     if not collection.is_visible_to(request.user):
         return None
+    # a handle that doesn't own the collection renders 404, not a 304
+    if not piece_handle_matches(collection, user_name):
+        return None
     return collection.edited_time
 
 
 @conditional_get_for_anonymous(_collection_last_modified)
-def collection_retrieve(request: AuthedHttpRequest, collection_uuid):
+def collection_retrieve(
+    request: AuthedHttpRequest, collection_uuid, user_name: str | None = None
+):
     # AP clients consume the Shelf envelope inline from the announcement
     # Post's ``relatedWith[0]`` (which carries the items endpoint URL in
     # its ``first``/``last`` fields); the canonical ``/collection/<uuid>/``
     # only needs to render HTML for humans. Mirrors ``article_retrieve``
     # / ``review_retrieve``.
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
+    # checked before visibility so a mismatched handle cannot tell a
+    # private collection apart from a missing one
+    require_piece_handle(collection, user_name)
     if not collection.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     page_number = int_(request.GET.get("page"), 1)

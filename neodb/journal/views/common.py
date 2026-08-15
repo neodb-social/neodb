@@ -4,11 +4,11 @@ from functools import wraps
 import filetype
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db.models import F, Min, OuterRef, Subquery
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -26,6 +26,7 @@ from common.utils import (
     get_uuid_or_404,
     target_identity_required,
 )
+from users.models.apidentity import APIdentity
 
 from ..models import (
     Mark,
@@ -89,6 +90,33 @@ def post_quotes_count(post) -> int:
         .exclude(state__in=["deleted", "deleted_fanned_out"])
         .count()
     )
+
+
+def piece_handle_matches(piece, user_name: str | None) -> bool:
+    """True when ``user_name`` addresses ``piece``'s owner, or is absent.
+
+    Articles, reviews and collections are served both at their canonical
+    ``/<type>/<uuid>`` and under the owner's profile path, so a
+    ``site.standard.publication`` ``url`` composes with the document
+    ``path`` into a URL that resolves (see
+    ``journal.models.atproto.build_document``). Serving a piece under
+    another handle would let its document claim someone else's
+    publication, so the handle has to match.
+    """
+    if user_name is None:
+        return True
+    try:
+        target = APIdentity.get_by_handle(user_name)
+    except ObjectDoesNotExist:
+        return False
+    return target.pk == piece.owner_id
+
+
+def require_piece_handle(piece, user_name: str | None) -> None:
+    """404 unless ``user_name`` addresses ``piece``'s owner; see
+    :func:`piece_handle_matches`."""
+    if not piece_handle_matches(piece, user_name):
+        raise Http404(_("Content not found"))
 
 
 def conditional_get_for_anonymous(get_timestamp):

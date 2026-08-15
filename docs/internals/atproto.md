@@ -1,13 +1,15 @@
 # NeoDB ATProto Implementation
 
-NeoDB can publish a user's marks and reviews (with ratings embedded) to their
-ATProto Personal Data Server (PDS) as structured records, in addition to
-crossposting a human-readable skeet to Bluesky. This lets other ATProto
+NeoDB can publish a user's marks, reviews and articles (with ratings embedded)
+to their ATProto Personal Data Server (PDS) as structured records, in addition
+to crossposting a human-readable skeet to Bluesky. This lets other ATProto
 applications read a user's NeoDB activity directly from their repository.
 
-The lexicon is project-owned under the `net.neodb.*` namespace (reverse of
-`neodb.net`), so it is shared by every NeoDB instance. The schema files live in
-[`docs/lexicons/net/neodb/`](../lexicons/net/neodb).
+The activity lexicon is project-owned under the `net.neodb.*` namespace
+(reverse of `neodb.net`), so it is shared by every NeoDB instance. The schema
+files live in [`docs/lexicons/net/neodb/`](../lexicons/net/neodb). Long-form
+pieces are *also* published under the [standard.site](https://standard.site/)
+lexicon; see [Long-form documents](#long-form-documents).
 
 ## How it connects
 
@@ -34,11 +36,13 @@ they re-authorize.
 
 ## Record types
 
-| Collection (NSID)   | Written from         | Purpose                                   |
-| ------------------- | -------------------- | ----------------------------------------- |
-| `net.neodb.mark`    | a shelf entry        | status (+ optional rating/comment/tags)   |
-| `net.neodb.review`  | a review             | long-form review (+ optional rating)      |
-| `net.neodb.profile` | the linked account   | verifiable link to the NeoDB identity     |
+| Collection (NSID)             | Written from         | Purpose                                   |
+| ----------------------------- | -------------------- | ----------------------------------------- |
+| `net.neodb.mark`              | a shelf entry        | status (+ optional rating/comment/tags)   |
+| `net.neodb.review`            | a review             | long-form review (+ optional rating)      |
+| `net.neodb.profile`           | the linked account   | verifiable link to the NeoDB identity     |
+| `site.standard.document`      | a review or article  | the long-form piece, for generic readers  |
+| `site.standard.publication`   | the linked account   | the owner's journal the documents belong to |
 
 ### Subject
 
@@ -104,6 +108,60 @@ rather than on crossposting; disconnecting the account removes it.
 [FEP-c390]: https://codeberg.org/fediverse/fep/src/branch/main/fep/c390/fep-c390.md
 [W3C Data Integrity]: https://www.w3.org/TR/vc-data-integrity/
 
+## Long-form documents
+
+Reviews and articles are additionally published as
+[standard.site](https://standard.site/) records: a `site.standard.document`
+carrying the piece (markdown, plaintext and cover image) and a
+`site.standard.publication` describing the owner's journal (name, summary,
+avatar and a theme matching the instance's colors).
+
+### The document -> publication link
+
+A document's `site` points at the publication record by AT-URI. Without
+that link the pair reads as a stray page rather than a publication:
+bsky.app renders the enhanced article card only when it can resolve a
+document to its publication.
+
+A document's canonical URL is the publication's `url` joined with the
+document's `path`. The publication's `url` is the owner's profile, so
+every piece is served beneath it as well:
+
+```
+publication url   https://neodb.social/users/alice
+document path                              /article/<uuid>
+canonical         https://neodb.social/users/alice/article/<uuid>
+```
+
+These user-scoped URLs render the same page as the canonical
+`/<type>/<uuid>`, which stays the `rel=canonical` target, and are not
+found when the handle does not own the piece. The crossposted skeet's
+external embed points at the user-scoped URL, so the embed, the document
+and the page all name one URL.
+
+An owner who is not publicly discoverable has no publication record; their
+documents stay loose, with `site` set to the instance URL so the same
+`path` joins to `/<type>/<uuid>`.
+
+### Discovery and verification
+
+The records name web pages, and the pages name the records back:
+
+- `/users/<handle>/.well-known/site.standard.publication` returns the
+  publication's AT-URI as plain text, served under the record's own `url`.
+- Piece pages carry `<link rel="site.standard.document">` and
+  `<link rel="site.standard.publication">` holding the matching AT-URIs.
+
+### Crosspost wiring
+
+The skeet's external embed strong-refs both records, publication first.
+The document is written before the skeet so the refs exist, then written
+again afterwards to add `bskyPostRef` pointing back at the skeet, which
+keeps off-platform comments discoverable. That second write changes the
+document's CID, so the CID in the embed goes stale by design: the refs are
+resolved by URI, and bsky.app keeps the original snapshot rather than
+re-rendering edited records.
+
 ## Record keys
 
 Every record is keyed by the mark's or review's own uuid, which is
@@ -117,6 +175,10 @@ at://<did>/net.neodb.review/<review-uuid>
 Keying by the mark/review rather than the subject item keeps the AT-URI stable
 across catalog item merges, and lets distinct items (e.g. multiple reviews of
 one work) map to distinct records.
+
+The `site.standard.*` records use [TID](https://atproto.com/specs/tid) keys instead, as that lexicon
+requires. The key is frozen on first write, so later backdating cannot
+orphan the record.
 
 Records are reconciled idempotently against the PDS: each record that should
 exist is written by key (overwriting in place on edit), and any record that

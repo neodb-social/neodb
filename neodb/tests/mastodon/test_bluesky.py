@@ -8,12 +8,16 @@ import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
+from django.test import override_settings
 
 from mastodon.models.bluesky import (
     PROFILE_NSID,
     PUBLICATION_NSID,
+    THEME_BASIC_NSID,
+    THEME_COLOR_RGB_NSID,
     BlueskyAccount,
     EmbedObj,
+    build_basic_theme,
 )
 from users.models import User
 
@@ -248,7 +252,51 @@ def test_publication_record_synced(monkeypatch):
     assert not record["url"].endswith("/")  # spec: base url without trailing slash
     assert record["name"] == identity.display_name
     assert record["preferences"] == {"showInDiscover": True}
+    assert record["basicTheme"]["$type"] == THEME_BASIC_NSID
     assert "icon" not in record  # test identity has no avatar file
+
+
+def test_basic_theme_mirrors_pico_site_color():
+    with override_settings(SITE_INFO={**settings.SITE_INFO, "site_color": "jade"}):
+        theme = build_basic_theme()
+
+    assert theme["$type"] == THEME_BASIC_NSID
+    # jade: --pico-primary #007a50 over --pico-primary-inverse #fff
+    assert theme["accent"] == {"$type": THEME_COLOR_RGB_NSID, "r": 0, "g": 122, "b": 80}
+    assert theme["accentForeground"] == {
+        "$type": THEME_COLOR_RGB_NSID,
+        "r": 255,
+        "g": 255,
+        "b": 255,
+    }
+    # --pico-background-color #fff / --pico-color #373c44, theme-independent
+    assert theme["background"] == {
+        "$type": THEME_COLOR_RGB_NSID,
+        "r": 255,
+        "g": 255,
+        "b": 255,
+    }
+    assert theme["foreground"] == {
+        "$type": THEME_COLOR_RGB_NSID,
+        "r": 55,
+        "g": 60,
+        "b": 68,
+    }
+
+
+def test_basic_theme_falls_back_to_azure_for_unknown_site_color():
+    with override_settings(
+        SITE_INFO={**settings.SITE_INFO, "site_color": "chartreuse"}
+    ):
+        theme = build_basic_theme()
+
+    # azure is the default PicoCSS theme: --pico-primary #0172ad
+    assert theme["accent"] == {
+        "$type": THEME_COLOR_RGB_NSID,
+        "r": 1,
+        "g": 114,
+        "b": 173,
+    }
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -404,6 +452,28 @@ def test_post_attaches_associated_refs():
     account.post("read ##obj##", obj=obj)
     dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
     assert "associatedRefs" not in dumped["embed"]["external"]
+
+
+def test_post_embed_prefers_the_document_canonical_url():
+    account = BlueskyAccount(uid="did:plc:poster")
+    captured: dict = {}
+    account._client = _stub_client(captured)
+    # a piece whose document hangs off a publication exposes the
+    # user-scoped url the document resolves to; the card points there so
+    # bsky.app sees one url across embed, document and page
+    obj = EmbedObj(
+        "T",
+        "desc",
+        "https://nd.test/article/x",
+        document_url="https://nd.test/users/alice/article/x",
+    )
+
+    account.post("read ##obj##", obj=obj)
+
+    dumped = captured["record"].model_dump(by_alias=True, exclude_none=True)
+    assert dumped["embed"]["external"]["uri"] == "https://nd.test/users/alice/article/x"
+    # the in-text link stays on the canonical url
+    assert "https://nd.test/article/x" in json.dumps(dumped["facets"])
 
 
 @pytest.mark.django_db(databases="__all__")

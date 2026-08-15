@@ -468,6 +468,27 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return None
         return account.publication_uri
 
+    @property
+    def atproto_document_url(self) -> str | None:
+        """Absolute user-scoped URL of this piece -- the standard.site
+        canonical URL of its ``site.standard.document`` (the publication's
+        ``url`` joined with the document ``path``).
+
+        ``None`` when the piece publishes no publication-linked document,
+        in which case that join already lands on :attr:`absolute_url` and
+        there is nothing to prefer over it. The crossposted skeet's
+        external embed points here so the embed uri, the document's
+        canonical URL and the page carrying the ``site.standard.*`` link
+        tags are one and the same, which is the shape bsky.app hydrates
+        the enhanced publication card from.
+        """
+        if not self.atproto_publication_uri:
+            return None
+        account = self.owner.user.bluesky if self.owner.user_id else None
+        if not account:
+            return None
+        return account.publication_url + self.url
+
     @classmethod
     def update_by_ap_object(
         cls,

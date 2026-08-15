@@ -57,6 +57,73 @@ PUBLICATION_NSID = "site.standard.publication"
 PUBLICATION_NAME_MAX_GRAPHEMES = 500
 PUBLICATION_DESCRIPTION_MAX_GRAPHEMES = 3000
 PUBLICATION_ICON_MAX_SIZE = 1000000
+THEME_BASIC_NSID = "site.standard.theme.basic"
+THEME_COLOR_RGB_NSID = "site.standard.theme.color#rgb"
+
+# ``--pico-primary`` / ``--pico-primary-inverse`` of the PicoCSS 2.1.1
+# stylesheet each ``site_color`` choice loads (see common_libs.html), read
+# from the light theme: standard.site publications carry a single palette,
+# not a light/dark pair. Regenerate by extracting those two custom
+# properties from ``pico.<color>.min.css`` (``pico.min.css`` for azure).
+_PICO_ACCENT = {
+    "amber": ("#876400", "#000"),
+    "azure": ("#0172ad", "#fff"),
+    "blue": ("#2060df", "#fff"),
+    "cyan": ("#047878", "#fff"),
+    "fuchsia": ("#c1208b", "#fff"),
+    "green": ("#33790f", "#fff"),
+    "grey": ("#6a6a6a", "#000"),
+    "indigo": ("#655cd6", "#fff"),
+    "jade": ("#007a50", "#fff"),
+    "lime": ("#577400", "#000"),
+    "orange": ("#bd3c13", "#fff"),
+    "pink": ("#c72259", "#fff"),
+    "pumpkin": ("#9c5900", "#000"),
+    "purple": ("#aa40bf", "#fff"),
+    "red": ("#c52f21", "#fff"),
+    "sand": ("#6e6a60", "#000"),
+    "slate": ("#5d6b89", "#fff"),
+    "violet": ("#8352c5", "#fff"),
+    "yellow": ("#756b00", "#000"),
+    "zinc": ("#646b79", "#fff"),
+}
+# ``--pico-background-color`` / ``--pico-color``; the color themes only
+# vary the primary, so these are the same for every choice above
+_PICO_BACKGROUND = "#fff"
+_PICO_FOREGROUND = "#373c44"
+
+
+def _theme_rgb(color: str) -> dict[str, typing.Any]:
+    """``site.standard.theme.color#rgb`` from a ``#rgb``/``#rrggbb`` literal."""
+    h = color.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    return {
+        "$type": THEME_COLOR_RGB_NSID,
+        "r": int(h[0:2], 16),
+        "g": int(h[2:4], 16),
+        "b": int(h[4:6], 16),
+    }
+
+
+def build_basic_theme() -> dict[str, typing.Any]:
+    """``site.standard.theme.basic`` mirroring the instance's PicoCSS theme.
+
+    Publications are per-user but every journal renders in the same
+    instance skin, so the palette is instance-wide. Apps displaying the
+    publication use it to stay visually close to the site the document
+    links back to; bsky.app tints the article card with these colors.
+    """
+    accent, accent_foreground = _PICO_ACCENT.get(
+        settings.SITE_INFO.get("site_color", "azure"), _PICO_ACCENT["azure"]
+    )
+    return {
+        "$type": THEME_BASIC_NSID,
+        "background": _theme_rgb(_PICO_BACKGROUND),
+        "foreground": _theme_rgb(_PICO_FOREGROUND),
+        "accent": _theme_rgb(accent),
+        "accentForeground": _theme_rgb(accent_foreground),
+    }
 
 
 class Bluesky:
@@ -480,6 +547,18 @@ class BlueskyAccount(SocialAccount):
     def publication_uri(self) -> str:
         return f"at://{self.uid}/{PUBLICATION_NSID}/{self.publication_rkey}"
 
+    @property
+    def publication_url(self) -> str:
+        """``url`` of the account's ``site.standard.publication``: the
+        owner's journal, i.e. their profile page, without the trailing
+        slash the spec advises against.
+
+        Document ``path`` values join onto this to form the standard.site
+        canonical URL of a piece, so it has to stay in step with the
+        user-scoped piece routes (see ``Piece.atproto_document_url``).
+        """
+        return (settings.SITE_INFO["site_url"] + self.user.identity.url).rstrip("/")
+
     def _clear_publication_icon_cache(self) -> None:
         """Forget the uploaded icon blob. Called whenever a record stops
         referencing it: the PDS may garbage-collect the blob, so a later
@@ -527,11 +606,11 @@ class BlueskyAccount(SocialAccount):
         identity = self.user.identity
         record: dict[str, typing.Any] = {
             "$type": PUBLICATION_NSID,
-            # the spec wants base urls without a trailing slash
-            "url": (settings.SITE_INFO["site_url"] + identity.url).rstrip("/"),
+            "url": self.publication_url,
             "name": (identity.display_name or identity.full_handle)[
                 :PUBLICATION_NAME_MAX_GRAPHEMES
             ],
+            "basicTheme": build_basic_theme(),
             "preferences": {"showInDiscover": True},
         }
         # summaries are stored as HTML (ProfileForm.clean_summary); html2txt
@@ -753,7 +832,12 @@ class BlueskyAccount(SocialAccount):
                 external=models.AppBskyEmbedExternal.External(
                     title=obj.display_title,
                     description=obj.brief_description,
-                    uri=obj.absolute_url,
+                    # the piece's user-scoped URL when it publishes a
+                    # publication-linked document, so the card, the
+                    # document's canonical URL and the page carrying the
+                    # standard.site link tags all agree; long-form pieces
+                    # without a publication fall back to the canonical URL
+                    uri=getattr(obj, "atproto_document_url", None) or obj.absolute_url,
                     thumb=blob_ref,
                     # standard.site records backing this card, so bsky.app
                     # renders the enhanced publication view
@@ -827,8 +911,12 @@ class BlueskyAccount(SocialAccount):
 
 
 class EmbedObj:
-    def __init__(self, title, description, uri, image=None):
+    def __init__(self, title, description, uri, image=None, document_url=None):
         self.display_title = title
         self.brief_description = description
         self.absolute_url = uri
         self.image = image
+        # the external card links here instead of ``absolute_url`` when set;
+        # named for the ``Piece`` property ``post()`` reads off pieces, so
+        # both kinds of embed object satisfy the same contract
+        self.atproto_document_url: str | None = document_url

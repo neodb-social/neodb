@@ -7,6 +7,7 @@ import pytest
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
+from django.urls import resolve
 from django.utils import timezone
 from PIL import Image
 
@@ -373,6 +374,134 @@ def test_article_atproto_document():
     # no author summary: description falls back to the body excerpt
     assert doc["description"] == article.excerpt
     assert article.atproto_document_collections() == {DOCUMENT_NSID}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_review_document_site_points_at_publication_record():
+    user = User.register(email="pubdoc@example.com", username="pubdocuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="pubdoc.example"
+    )
+    book = Edition.objects.create(title="Dune")
+    review = Review.update_item_review(book, user.identity, "Linked", "body")
+    assert review is not None
+
+    doc = review.to_atproto_document()
+
+    assert doc["site"] == account.publication_uri
+    # publication url + document path is the standard.site canonical URL;
+    # it has to resolve back to the piece, which is what the user-scoped
+    # routes exist for
+    site_url = settings.SITE_INFO["site_url"]
+    canonical = account._build_publication_record()["url"] + doc["path"]
+    assert canonical.startswith(site_url)
+    match = resolve(canonical[len(site_url) :])
+    assert match.view_name == "journal:user_review_retrieve"
+    assert match.kwargs == {
+        "user_name": user.identity.handle,
+        "review_uuid": review.uuid,
+    }
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_article_document_site_path_resolves_to_user_scoped_url():
+    user = User.register(email="pubart@example.com", username="pubartuser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="pubart.example"
+    )
+    article = Article.update_local_article(user.identity, "Linked Essay", "body")
+
+    doc = article.to_atproto_document()
+
+    assert doc["site"] == account.publication_uri
+    site_url = settings.SITE_INFO["site_url"]
+    canonical = account._build_publication_record()["url"] + doc["path"]
+    match = resolve(canonical[len(site_url) :])
+    assert match.view_name == "journal:user_article_retrieve"
+    assert match.kwargs == {
+        "user_name": user.identity.handle,
+        "article_uuid": article.uuid,
+    }
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_falls_back_to_loose_site_when_not_discoverable():
+    user = User.register(email="hiddoc@example.com", username="hiddocuser")
+    takahe_identity = user.identity.takahe_identity
+    takahe_identity.discoverable = False
+    takahe_identity.save()
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="hiddoc.example"
+    )
+    article = Article.update_local_article(user.identity, "Hidden", "body")
+
+    doc = article.to_atproto_document()
+
+    # a non-discoverable identity publishes no publication record, so the
+    # document stays loose and its path joins the instance url instead
+    assert doc["site"] == settings.SITE_INFO["site_url"].rstrip("/")
+    assert doc["site"] + doc["path"] == article.absolute_url
+    # and the display name stays withheld, like net.neodb.profile and
+    # site.standard.publication are for a non-discoverable identity
+    assert doc["contributors"] == [{"did": "did:plc:fake", "role": "author"}]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_document_url_matches_the_document_canonical_url():
+    user = User.register(email="docurl@example.com", username="docurluser")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="docurl.example"
+    )
+    article = Article.update_local_article(user.identity, "Carded", "body")
+
+    doc = article.to_atproto_document()
+
+    # the url the skeet's external embed points at is exactly the url
+    # the document record resolves to
+    assert article.atproto_document_url == account.publication_url + doc["path"]
+    assert article.atproto_document_url != article.absolute_url
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_atproto_document_url_none_for_loose_document():
+    user = User.register(email="looseurl@example.com", username="looseurluser")
+    article = Article.update_local_article(user.identity, "Plain", "body")
+
+    # no publication to join onto: the canonical url is already the
+    # piece's own, so the embed has nothing to prefer over absolute_url
+    assert article.atproto_document_url is None
+    assert article.to_atproto_document()["site"] == settings.SITE_INFO[
+        "site_url"
+    ].rstrip("/")
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_contributors_name_the_owner():
+    user = User.register(email="contrib@example.com", username="contribuser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:fake", handle="contrib.example"
+    )
+    article = Article.update_local_article(user.identity, "Credited", "body")
+
+    doc = article.to_atproto_document()
+
+    assert doc["contributors"] == [
+        {
+            "did": "did:plc:fake",
+            "role": "author",
+            "displayName": user.identity.display_name,
+        }
+    ]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_document_omits_contributors_without_account():
+    user = User.register(email="nocontrib@example.com", username="nocontribuser")
+    article = Article.update_local_article(user.identity, "Unattributed", "body")
+
+    doc = article.to_atproto_document()
+
+    assert "contributors" not in doc
 
 
 @pytest.mark.django_db(databases="__all__")

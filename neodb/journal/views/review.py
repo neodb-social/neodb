@@ -28,10 +28,16 @@ from ..models.renderers import (
     render_md,
     sanitize_md_images,
 )
-from .common import conditional_get_for_anonymous, post_quotes_count, render_list
+from .common import (
+    conditional_get_for_anonymous,
+    piece_handle_matches,
+    post_quotes_count,
+    render_list,
+    require_piece_handle,
+)
 
 
-def _review_last_modified(request, review_uuid):
+def _review_last_modified(request, review_uuid, user_name: str | None = None):
     # Visibility must be checked here: owner-level privacy toggles
     # (``anonymous_viewable``, ``restricted``) don't bump
     # ``Review.edited_time`` and would otherwise leave cached 200s
@@ -39,15 +45,21 @@ def _review_last_modified(request, review_uuid):
     piece = Review.get_by_url(review_uuid)
     if piece is None or not piece.is_visible_to(request.user):
         return None
+    # a handle that doesn't own the review renders 404, not a 304
+    if not piece_handle_matches(piece, user_name):
+        return None
     return piece.edited_time
 
 
 @require_http_methods(["GET", "HEAD"])
 @conditional_get_for_anonymous(_review_last_modified)
-def review_retrieve(request, review_uuid):
+def review_retrieve(request, review_uuid, user_name: str | None = None):
     piece = Review.get_by_url(review_uuid)
     if piece is None:
         raise Http404(_("Content not found"))
+    # checked before visibility so a mismatched handle cannot tell a
+    # private review apart from a missing one
+    require_piece_handle(piece, user_name)
     if not piece.is_visible_to(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "HEAD":

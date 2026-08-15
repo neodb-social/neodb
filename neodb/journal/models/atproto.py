@@ -50,6 +50,7 @@ RATING_MAX = 10
 # at worst a pathological description is cut inside an emoji cluster
 DOCUMENT_DESCRIPTION_MAX_GRAPHEMES = 3000
 DOCUMENT_TAG_MAX_GRAPHEMES = 128
+DOCUMENT_CONTRIBUTOR_NAME_MAX_GRAPHEMES = 100
 
 _TID_ALPHABET = "234567abcdefghijklmnopqrstuvwxyz"  # base32-sortable
 _TID_CLOCKID_BITS = 10
@@ -189,6 +190,32 @@ def build_document_rkey(piece: "Piece") -> str:
     return build_tid(piece.created_time, piece.pk or 0)
 
 
+def build_document_contributor(piece: "Piece") -> dict[str, str] | None:
+    """``site.standard.document#contributor`` naming the piece's owner as
+    author, or ``None`` when they have no linked ATProto account.
+
+    The DID is the repo the document is written to, so naming it discloses
+    nothing new; it is what lets an appview attribute the document --
+    bsky.app renders it as ``associatedProfiles`` on the card.
+
+    ``displayName`` is identity data rather than a pointer, so it follows
+    the same gate as the other identity-describing records: it is written
+    only while the identity is **publicly discoverable**, since a
+    non-discoverable owner has their ``net.neodb.profile`` and
+    ``site.standard.publication`` (which both carry the name) deleted from
+    the same world-readable repo.
+    """
+    account = piece.owner.user.bluesky if piece.owner.user_id else None
+    did = getattr(account, "uid", None)
+    if not did:
+        return None
+    contributor = {"did": did, "role": "author"}
+    name = (piece.owner.display_name or "").strip()
+    if name and piece.owner.discoverable:
+        contributor["displayName"] = name[:DOCUMENT_CONTRIBUTOR_NAME_MAX_GRAPHEMES]
+    return contributor
+
+
 def build_document(
     piece: "Piece",
     *,
@@ -200,16 +227,25 @@ def build_document(
 ) -> dict[str, Any]:
     """``site.standard.document`` record for a long-form piece.
 
-    Published as a "loose" document: ``site`` is the instance base URL and
-    ``path`` the piece's local path, so ``site + path`` reconstructs the
-    canonical NeoDB URL. The full markdown ``body`` travels in the open
-    ``content`` union (``at.markpub.markdown``) next to the plaintext
-    ``textContent``, and the crossposted skeet (when one exists) is linked
-    via ``bskyPostRef`` so off-platform comments stay discoverable.
+    ``site`` points at the owner's ``site.standard.publication`` record, so
+    consumers can resolve the publication behind the document -- bsky.app
+    needs that edge to hydrate ``embed.external.source`` and render the
+    enhanced card instead of a plain link card. ``path`` joins onto the
+    publication's ``url`` (the owner's profile) to form the piece's
+    user-scoped URL, e.g. ``user_article_retrieve``. Owners with no
+    publication record (not publicly discoverable) fall back to a "loose"
+    document rooted at the instance URL, where the same ``path`` joins to
+    the canonical ``/<type>/<uuid>``.
+
+    The full markdown ``body`` travels in the open ``content`` union
+    (``at.markpub.markdown``) next to the plaintext ``textContent``, and
+    the crossposted skeet (when one exists) is linked via ``bskyPostRef``
+    so off-platform comments stay discoverable.
     """
     record: dict[str, Any] = {
         "$type": DOCUMENT_NSID,
-        "site": settings.SITE_INFO["site_url"].rstrip("/"),
+        "site": piece.atproto_publication_uri
+        or settings.SITE_INFO["site_url"].rstrip("/"),
         "path": piece.url,
         "title": title,
         "publishedAt": format_datetime(piece.created_time),
@@ -226,6 +262,9 @@ def build_document(
         record["description"] = description[:DOCUMENT_DESCRIPTION_MAX_GRAPHEMES]
     if tags:
         record["tags"] = [t for t in tags if len(t) <= DOCUMENT_TAG_MAX_GRAPHEMES]
+    contributor = build_document_contributor(piece)
+    if contributor:
+        record["contributors"] = [contributor]
     metadata = getattr(piece, "metadata", None) or {}
     post_uri = metadata.get("bluesky_id")
     post_cid = metadata.get("bluesky_cid")

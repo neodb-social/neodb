@@ -98,6 +98,28 @@ urlpatterns = [
         collection_retrieve_redirect,
         name="collection_retrieve_redirect",
     ),
+    # Aliases of the three canonical piece pages under the owner's profile
+    # path. standard.site forms a document's canonical URL by joining the
+    # publication ``url`` (the owner's profile) with the document ``path``,
+    # so these are the URLs that join has to resolve to; the pages keep
+    # pointing ``rel=canonical`` at the ``/<type>/<uuid>`` form. The views
+    # 404 when the handle does not own the piece, otherwise a document
+    # could claim another identity's publication.
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/article/(?P<article_uuid>[A-Za-z0-9]{21,22})$",
+        article_retrieve,
+        name="user_article_retrieve",
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/review/(?P<review_uuid>[A-Za-z0-9]{21,22})$",
+        review_retrieve,
+        name="user_review_retrieve",
+    ),
+    re_path(
+        r"^users/(?P<user_name>[~A-Za-z0-9_\-.@]+)/collection/(?P<collection_uuid>[A-Za-z0-9]{21,22})$",
+        collection_retrieve,
+        name="user_collection_retrieve",
+    ),
     path("collection/create/", collection_edit, name="collection_create"),
     path(
         "collection/edit/<str:collection_uuid>", collection_edit, name="collection_edit"
