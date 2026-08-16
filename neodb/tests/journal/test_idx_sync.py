@@ -4,6 +4,7 @@ import pytest
 from django.core.management import call_command
 from django.db import connections
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
@@ -240,6 +241,17 @@ class TestShelfChangeOrphanedPost:
         old_pid, new_pid = self.transition()
         Takahe.delete_posts([old_pid])
         post_deleted(old_pid, True, None)
+        ids = self.doc_ids(self.identity.pk)
+        assert str(old_pid) not in ids
+        assert str(new_pid) in ids
+
+    def test_post_delete_view_drops_doc(self, client):
+        # the web UI delete button must run the same cleanup as the
+        # Mastodon API path, or the doc outlives the post
+        old_pid, new_pid = self.transition(comment="so far so good")
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(reverse("journal:post_delete", args=[old_pid]))
+        assert response.status_code == 200
         ids = self.doc_ids(self.identity.pk)
         assert str(old_pid) not in ids
         assert str(new_pid) in ids

@@ -93,12 +93,19 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
 @require_http_methods(["POST"])
 @login_required
 def post_delete(request: AuthedHttpRequest, post_id: int):
+    from takahe.ap_handlers import post_deleted
+
     p = Takahe.get_post(post_id)
     if not p:
         raise Http404(_("Post not found"))
     if p.author_id != request.user.identity.pk:
         raise PermissionDenied(_("Insufficient permission"))
     Takahe.delete_posts([post_id])
+    # Takahe.delete_posts() only flips the post state; run the same
+    # cleanup the Mastodon API path gets via PostService.delete(), so
+    # linked pieces and the post's index doc do not outlive the post
+    # (the delete button even promises the piece cleanup)
+    post_deleted(post_id, True, (p.type_data or {}).get("object", {}))
     return HttpResponse("<!-- DELETED -->")
 
 
