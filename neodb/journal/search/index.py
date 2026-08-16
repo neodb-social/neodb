@@ -427,7 +427,7 @@ class JournalIndex(Index):
         return [d for d in docs if d]
 
     @classmethod
-    def post_to_doc(cls, post: Post) -> dict:
+    def post_to_doc(cls, post: Post, item_map: dict[int, Item] | None = None) -> dict:
         pc = post.piece
         doc = {}
         if pc:
@@ -448,11 +448,50 @@ class JournalIndex(Index):
                 #     post.interactions.values_list("identity_id", flat=True)
                 # ),
             }
+            # A post orphaned by a shelf change (or linked only to pieces
+            # that index within another doc) still relates to an item via
+            # its ShelfLogEntry; carry the item fields so item-scoped
+            # search can reach it. piece_class stays ["Post"]: journal
+            # search excludes it to keep old marks out of piece results.
+            item = item_map.get(post.pk) if item_map is not None else post.item
+            if item:
+                doc["item_id"] = [item.pk]
+                doc["item_class"] = [item.__class__.__name__]
+                doc["item_title"] = item.to_indexable_titles()
         return doc
 
     @classmethod
+    def _items_for_posts(cls, post_ids: list[int]) -> dict[int, Item]:
+        """Batched Post.item fallback: map post id -> Item via ShelfLogEntry.
+
+        Only ShelfMember-derived posts have log entries; other posts get
+        no entry. Two queries regardless of batch size, so idx-rebuild's
+        per-batch cost stays flat.
+        """
+        from journal.models.shelf import ShelfLogEntryPost  # circular; see header
+
+        if not post_ids:
+            return {}
+        rows = list(
+            ShelfLogEntryPost.objects.filter(post_id__in=post_ids).values_list(
+                "post_id", "log_entry__item_id"
+            )
+        )
+        items = {
+            i.pk: i
+            for i in Item.objects.filter(
+                pk__in={item_id for _, item_id in rows}, is_deleted=False
+            )
+        }
+        return {
+            post_id: items[item_id] for post_id, item_id in rows if item_id in items
+        }
+
+    @classmethod
     def posts_to_docs(cls, posts: Iterable[Post]) -> list[dict]:
-        return [cls.post_to_doc(p) for p in posts]
+        posts = list(posts)
+        item_map = cls._items_for_posts([p.pk for p in posts])
+        return [cls.post_to_doc(p, item_map) for p in posts]
 
     def delete_all(self):
         return self.delete_docs("owner_id", ">0")

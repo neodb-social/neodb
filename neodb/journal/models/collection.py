@@ -201,6 +201,11 @@ class Collection(List):
         q = JournalQueryParser(self.query, **kwargs)
         q.filter_by_owner_viewer(self.owner, viewer)
         q.filter("item_id", ">0")
+        # posts orphaned by a shelf change carry item fields too; exclude
+        # them like the journal search page does so only current pieces
+        # match (r.items would dedup anyway, but total and pagination
+        # must not inflate)
+        q.exclude("piece_class", "Post")
         q.facet_by = ["item_class"]
         return q
 

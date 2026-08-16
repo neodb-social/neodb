@@ -318,8 +318,19 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         self.update_index()
 
     def clear_post_ids(self):
+        orphaned = self.all_post_ids
         PiecePost.objects.filter(piece=self).delete()
         self._invalidate_post_caches()
+        if orphaned:
+            # The unlinked posts stay on the timeline (e.g. the previous
+            # mark post after a shelf change), but update_index() is about
+            # to delete_by_piece() their docs; rewrite them as piece-less
+            # post docs first so they stay searchable. Ordering matters:
+            # with the link rows gone, the docs carry no piece_id, so the
+            # later delete cannot reach them.
+            JournalIndex.instance().replace_posts(
+                Takahe.get_posts(orphaned).filter(local=True)
+            )
 
     @cached_property
     def latest_post_id(self):

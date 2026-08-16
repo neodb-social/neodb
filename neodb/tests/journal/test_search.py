@@ -26,6 +26,8 @@ class TestSearch:
         # mark two books
         mark = Mark(self.user1.identity, self.book1)
         mark.update(ShelfType.WISHLIST, "a gentle comment", 9, ["Sci-Fi", "fic"], 0)
+        assert mark.shelfmember is not None
+        book1_wishlist_post_id = mark.shelfmember.latest_post_id
         mark = Mark(self.user1.identity, self.book2)
         mark.update(ShelfType.WISHLIST, "a gentle comment", None, ["nonfic"], 1)
 
@@ -41,7 +43,9 @@ class TestSearch:
         r = self.index.search(q)
         assert r.total == 1
 
-        # update mark and search again
+        # update mark and search again: the book2 mark still matches, and
+        # so does the previous book1 wishlist post, which stays on the
+        # timeline and therefore stays searchable as a piece-less post doc
         mark = Mark(self.user1.identity, self.book1)
         mark.update(ShelfType.PROGRESS, "an updated comment", 9, ["Sci-Fi", "fic"], 0)
 
@@ -49,18 +53,19 @@ class TestSearch:
         q = JournalQueryParser("gentle")
         q.filter_by_owner(self.user1.identity)
         r = self.index.search(q)
-        assert r.total == 1
-        assert r.posts[0].state == "new"
+        assert r.total == 2
+        assert all(p.state == "new" for p in r.posts)
 
         # delete the other mark
         mark = Mark(self.user1.identity, self.book2)
         mark.delete()
 
-        # search the marks
+        # search the marks: only the orphaned wishlist post remains
         q = JournalQueryParser("gentle")
         q.filter_by_owner(self.user1.identity)
         r = self.index.search(q)
-        assert r.total == 0
+        assert r.total == 1
+        assert r.posts[0].pk == book1_wishlist_post_id
 
     def test_search_post_visibility_for_viewer(self):
         mark = Mark(self.user1.identity, self.book1)

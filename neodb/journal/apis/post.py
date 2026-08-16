@@ -215,6 +215,10 @@ def timeline_link(
     query = JournalQueryParser("", page_size=limit)
     query.filter_by_viewer(request.user.identity)
     query.filter("item_id", item.pk)
+    # posts orphaned by a shelf change carry item fields too; keep them
+    # out to preserve pre-enrichment behavior (surfacing old mark posts
+    # here would arguably be correct, but that is a product decision)
+    query.exclude("piece_class", "Post")
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     return [

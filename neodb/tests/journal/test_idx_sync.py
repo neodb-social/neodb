@@ -2,11 +2,14 @@ from io import StringIO
 
 import pytest
 from django.core.management import call_command
+from django.db import connections
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from catalog.models import Edition
-from journal.models import Comment, Mark, Review, ShelfType
+from journal.models import Collection, Comment, Mark, Review, ShelfType
 from journal.search import JournalIndex, JournalQueryParser
+from takahe.ap_handlers import post_deleted
 from takahe.models import Domain, Post
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
@@ -119,6 +122,154 @@ class TestIdxSync:
         self.run_sync("--owner", "userx")
         assert self.doc_ids(self.identity1.pk)
         assert self.doc_ids(self.identity2.pk) == set()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestShelfChangeOrphanedPost:
+    """A shelf change unlinks the previous mark post but leaves it on the
+    timeline; its doc must survive as a piece-less post doc."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(
+            title="Hyperion",
+            localized_title=[{"lang": "en", "text": "Hyperion"}],
+        )
+        self.user = User.register(email="x@y.com", username="userx")
+        self.identity = self.user.identity
+
+    def run_sync(self, *args) -> str:
+        out = StringIO()
+        call_command("journal", "idx-sync", *args, stdout=out)
+        return out.getvalue()
+
+    def doc_ids(self, owner_id: int) -> set[str]:
+        ids = self.index.get_doc_ids_by_owner(owner_id)
+        assert ids is not None
+        return ids
+
+    def get_doc(self, doc_id: str) -> dict:
+        return self.index.write_collection.documents[doc_id].retrieve()
+
+    def transition(self, book=None, comment=None, rating=None) -> tuple[int, int]:
+        """Mark progress then complete; return (old, new) post ids."""
+        book = book or self.book
+        mark = Mark(self.identity, book)
+        mark.update(ShelfType.PROGRESS, comment, rating, [], 0)
+        assert mark.shelfmember is not None
+        old_post_id = mark.shelfmember.latest_post_id
+        mark = Mark(self.identity, book)
+        mark.update(ShelfType.COMPLETE, comment, rating, [], 0)
+        assert mark.shelfmember is not None
+        new_post_id = mark.shelfmember.latest_post_id
+        assert old_post_id and new_post_id and old_post_id != new_post_id
+        return old_post_id, new_post_id
+
+    def assert_orphan_doc(self, post_id: int):
+        doc = self.get_doc(str(post_id))
+        assert doc["piece_class"] == ["Post"]
+        assert "piece_id" not in doc
+        assert doc["item_id"] == [self.book.pk]
+        assert doc["item_class"] == ["Edition"]
+        assert "Hyperion" in doc["item_title"]
+
+    def test_shelf_change_keeps_previous_post_doc(self):
+        old_pid, new_pid = self.transition()
+        # the old post stays live on the timeline, so its doc must stay too
+        assert Takahe.get_posts([old_pid]).exists()
+        ids = self.doc_ids(self.identity.pk)
+        assert str(old_pid) in ids
+        assert str(new_pid) in ids
+        self.assert_orphan_doc(old_pid)
+        assert "ShelfMember" in self.get_doc(str(new_pid))["piece_class"]
+        # reachable from post search ("search my posts")
+        q = JournalQueryParser("Hyperion", 1)
+        q.filter_by_owner(self.identity)
+        r = self.index.search(q)
+        assert old_pid in [p.pk for p in r.posts]
+        # but still hidden from the journal search page
+        q = JournalQueryParser("Hyperion", 1)
+        q.filter_by_owner(self.identity)
+        q.exclude("piece_class", "Post")
+        r = self.index.search(q)
+        pks = [p.pk for p in r.posts]
+        assert old_pid not in pks
+        assert new_pid in pks
+
+    def test_shelf_change_with_comment(self):
+        # the old post keeps a PiecePost row to the Comment, whose
+        # to_indexable_doc() is empty; the doc must fall back to the
+        # piece-less post shape
+        old_pid, _ = self.transition(comment="so far so good")
+        self.assert_orphan_doc(old_pid)
+
+    def test_shelf_change_with_comment_and_rating(self):
+        # two sibling pieces remain linked, so post.piece resolves to None
+        old_pid, _ = self.transition(comment="so far so good", rating=8)
+        self.assert_orphan_doc(old_pid)
+
+    def test_user_path_doc_matches_batch_builder(self):
+        # the doc written on the user path must equal the one idx-sync and
+        # idx-rebuild would write, or they would fight each other
+        old_pid, _ = self.transition(comment="so far so good")
+        indexed = self.get_doc(str(old_pid))
+        built = self.index.posts_to_docs(list(Post.objects.filter(pk=old_pid)))[0]
+        assert set(indexed) == set(built)
+        for k, v in built.items():
+            assert indexed[k] == v, k
+
+    def test_idx_sync_clean_after_shelf_change(self):
+        self.transition(comment="so far so good", rating=8)
+        output = self.run_sync("--dry-run")
+        assert "0 docs would be added, 0 docs would be deleted" in output
+
+    def test_delete_orphaned_post_drops_doc(self):
+        # the linked Comment still matches in post_deleted() but rewrites
+        # nothing, so only the unconditional delete_by_post removes the doc
+        old_pid, new_pid = self.transition(comment="so far so good")
+        assert str(old_pid) in self.doc_ids(self.identity.pk)
+        Takahe.delete_posts([old_pid])
+        post_deleted(old_pid, True, None)
+        ids = self.doc_ids(self.identity.pk)
+        assert str(old_pid) not in ids
+        assert str(new_pid) in ids
+
+    def test_delete_pieceless_orphaned_post_drops_doc(self):
+        old_pid, new_pid = self.transition()
+        Takahe.delete_posts([old_pid])
+        post_deleted(old_pid, True, None)
+        ids = self.doc_ids(self.identity.pk)
+        assert str(old_pid) not in ids
+        assert str(new_pid) in ids
+
+    def test_dynamic_collection_excludes_orphaned_posts(self):
+        self.transition(comment="so far so good")
+        collection = Collection(owner=self.identity, title="dyn", query="Hyperion")
+        q = collection.get_query(self.identity)
+        assert q is not None
+        r = self.index.search(q)
+        assert r.total == 1
+        assert [i.pk for i in r.items] == [self.book.pk]
+
+    def test_posts_to_docs_constant_batch_queries(self):
+        # idx-rebuild walks millions of posts; item resolution must stay
+        # batched so the only per-post query is the post.piece lookup
+        books = [self.book] + [Edition.objects.create(title=f"Book {i}") for i in "23"]
+        orphans = [self.transition(book=book)[0] for book in books]
+
+        def build(pks):
+            return self.index.posts_to_docs(list(Post.objects.filter(pk__in=pks)))
+
+        build(orphans)  # warm up shared caches
+        with CaptureQueriesContext(connections["default"]) as one:
+            docs = build(orphans[:1])
+        assert docs[0]["item_id"]
+        with CaptureQueriesContext(connections["default"]) as three:
+            docs = build(orphans)
+        assert all(d.get("item_id") for d in docs)
+        assert len(three.captured_queries) - len(one.captured_queries) == 2
 
 
 def _make_remote_identity(username: str, domain_name: str = "remote.example"):

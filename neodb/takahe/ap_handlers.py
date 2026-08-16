@@ -228,6 +228,13 @@ def post_deleted(pk, local, post_data):
             piece.delete()
         else:
             logger.debug(f"Matched piece {piece} has newer posts, not deleting")
+    # Docs keyed by this post that nothing above rewrites (piece-less
+    # posts, or posts orphaned by a shelf change that still link a
+    # Comment/Rating indexing within its mark) must go now, or only
+    # idx-sync can collect them. Piece docs rewritten above are safe:
+    # the post is dead by this point, so those docs carry no post_id
+    # field and this filter cannot match them.
+    JournalIndex.instance().delete_by_post([pk])
 
 
 def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
