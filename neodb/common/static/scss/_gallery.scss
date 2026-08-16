@@ -57,6 +57,8 @@
     transition: all 0.2s;
     text-align: center;
     vertical-align: middle;
+    // container unit source for the square cover box below
+    container-type: inline-size;
 
     a {
       margin-top: auto;
@@ -66,7 +68,12 @@
       background: var(--pico-background-color);
       // border-radius: 5px;
       width: 100%;
-      min-height: 3rem;
+      // Keep the cover box between 1:1 and 1:2, and center the cover in it.
+      // Covers wider than tall no longer hug the bottom of the card, and
+      // very tall covers no longer stretch the whole row.
+      min-height: 100cqw;
+      max-height: 200cqw;
+      object-fit: contain;
       vertical-align: middle;
       margin: auto;
       font-size: 80%;
