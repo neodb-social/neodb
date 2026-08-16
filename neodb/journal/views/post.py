@@ -93,8 +93,6 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
 @require_http_methods(["POST"])
 @login_required
 def post_delete(request: AuthedHttpRequest, post_id: int):
-    from takahe.ap_handlers import post_deleted
-
     p = Takahe.get_post(post_id)
     if not p:
         raise Http404(_("Post not found"))
@@ -105,7 +103,7 @@ def post_delete(request: AuthedHttpRequest, post_id: int):
     # cleanup the Mastodon API path gets via PostService.delete(), so
     # linked pieces and the post's index doc do not outlive the post
     # (the delete button even promises the piece cleanup)
-    post_deleted(post_id, True, (p.type_data or {}).get("object", {}))
+    cleanup_deleted_post(post_id)
     return HttpResponse("<!-- DELETED -->")
 
 

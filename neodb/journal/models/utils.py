@@ -10,13 +10,43 @@ from users.models import APIdentity, User
 from .article import Article
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
-from .common import Content, Debris
+from .common import Content, Debris, Piece
 from .itemlist import ListMember
 from .note import Note
 from .rating import Rating
 from .review import Review
 from .shelf import ShelfLogEntry, ShelfMember
 from .tag import Tag, TagMember
+
+
+def cleanup_deleted_post(post_pk: int) -> None:
+    """Clean up journal pieces and index docs after a post is deleted.
+
+    Both deletion paths must call this: the web UI post_delete view
+    directly, and takahe's PostService.delete() via the
+    takahe.ap_handlers.post_deleted queue callback.
+    """
+    for piece in Piece.objects.filter(posts__id=post_pk):
+        if piece.local and piece.__class__ not in (Note, Article):
+            # Marks/Reviews/Comments are NeoDB-managed; keep the piece even
+            # if the user nukes the timeline post (legacy behavior), but
+            # refresh its index doc, which may reference the deleted post
+            piece.update_index()
+            continue
+        # delete piece if the deleted post is the most recent one for the piece
+        if piece.latest_post_id == post_pk:
+            logger.debug(f"Deleting piece {piece}")
+            piece.delete_index()
+            piece.delete()
+        else:
+            logger.debug(f"Matched piece {piece} has newer posts, not deleting")
+    # Docs keyed by this post that nothing above rewrites (piece-less
+    # posts, or posts orphaned by a shelf change that still link a
+    # Comment/Rating indexing within its mark) must go now, or only
+    # idx-sync can collect them. Piece docs rewritten above are safe:
+    # the post is dead by this point, so those docs carry no post_id
+    # field and this filter cannot match them.
+    JournalIndex.instance().delete_by_post([post_pk])
 
 
 def reset_journal_visibility_for_user(owner: APIdentity, visibility: int):

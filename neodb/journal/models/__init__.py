@@ -32,6 +32,7 @@ from .shelf import (
 )
 from .tag import Tag, TagManager, TagMember
 from .utils import (
+    cleanup_deleted_post,
     journal_exists_for_item,
     remove_data_by_identity,
     reset_journal_visibility_for_user,
@@ -74,6 +75,7 @@ __all__ = [
     "TagManager",
     "TagMember",
     "UNMARKED",
+    "cleanup_deleted_post",
     "journal_exists_for_item",
     "remove_data_by_identity",
     "reset_journal_visibility_for_user",

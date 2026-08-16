@@ -18,6 +18,7 @@ from journal.models import (
     Review,
     Shelf,
     ShelfMember,
+    cleanup_deleted_post,
 )
 from journal.search import JournalIndex
 from users.middlewares import activate_language_for_user
@@ -214,27 +215,7 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
 
 
 def post_deleted(pk, local, post_data):
-    for piece in Piece.objects.filter(posts__id=pk):
-        if piece.local and piece.__class__ not in (Note, Article):
-            # Marks/Reviews/Comments are NeoDB-managed; keep the piece even
-            # if the user nukes the timeline post (legacy behavior), but
-            # refresh its index doc, which may reference the deleted post
-            piece.update_index()
-            continue
-        # delete piece if the deleted post is the most recent one for the piece
-        if piece.latest_post_id == pk:
-            logger.debug(f"Deleting piece {piece}")
-            piece.delete_index()
-            piece.delete()
-        else:
-            logger.debug(f"Matched piece {piece} has newer posts, not deleting")
-    # Docs keyed by this post that nothing above rewrites (piece-less
-    # posts, or posts orphaned by a shelf change that still link a
-    # Comment/Rating indexing within its mark) must go now, or only
-    # idx-sync can collect them. Piece docs rewritten above are safe:
-    # the post is dead by this point, so those docs carry no post_id
-    # field and this filter cannot match them.
-    JournalIndex.instance().delete_by_post([pk])
+    cleanup_deleted_post(pk)
 
 
 def post_interacted(interaction_pk, interaction, post_pk, identity_pk):
