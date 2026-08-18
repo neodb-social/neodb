@@ -40,6 +40,7 @@ from ..models import (
     Rating,
     ShelfMember,
     ShelfType,
+    link_attachments_to_piece,
 )
 
 
@@ -346,6 +347,9 @@ def create_collection(request, c_in: CollectionInSchema):
     )
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    # parity with the web compose form: register the uploads embedded in the
+    # brief, so an app using /api/me/attachment/ gets them linked as documented
+    link_attachments_to_piece(c, c.brief)
     record_activity("collection", "api")
     return c
 
@@ -378,6 +382,9 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.query = q
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    # links resolve against the collection's owner, so a collaborator's own
+    # upload stays unregistered rather than being claimed for someone else
+    link_attachments_to_piece(c, c.brief)
     record_activity("collection", "api")
     return c
 

@@ -83,6 +83,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
+                "ordering": ["created_time", "pk"],
                 "indexes": [
                     models.Index(
                         fields=["owner", "created_time"],

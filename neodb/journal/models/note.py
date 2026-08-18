@@ -251,6 +251,9 @@ class Note(Content):
         backfill has not reached yet. Both shapes expose ``type`` / ``url`` /
         ``preview_url``, so templates read them identically.
         """
+        # .all() so a prefetch is honored; Attachment.Meta.ordering keeps the
+        # sequence stable, which the templates depend on (their lightbox
+        # anchors are keyed off forloop.counter)
         rows = list(self.attachment_records.all())
         if rows:
             return rows

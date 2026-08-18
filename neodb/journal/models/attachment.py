@@ -131,6 +131,12 @@ class Attachment(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        # Rows are created in the order the media appears (post order for note
+        # attachments), and note templates key their lightbox anchors off
+        # forloop.counter, so a stable sequence is required rather than
+        # cosmetic. Declared here, not as an order_by() at the read site, so a
+        # prefetch_related is honoured instead of being defeated by a re-sort.
+        ordering = ["created_time", "pk"]
         indexes = [
             models.Index(fields=["owner", "created_time"]),
         ]

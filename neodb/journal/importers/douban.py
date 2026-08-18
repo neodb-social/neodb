@@ -376,10 +376,16 @@ class DoubanImporter(Task):
             "body": content,
             "visibility": self.metadata["visibility"],
         }
+        # This is the one Review write path that bypasses update_item_review,
+        # so it has to register the images _fetch_remote_image just pulled into
+        # upload/ itself -- otherwise a Douban import (hundreds of images) is
+        # invisible to the upload registry and never reclaimed on account
+        # deletion.
         try:
-            Review.objects.update_or_create(
+            review, _ = Review.objects.update_or_create(
                 owner=self.user.identity, item=item, defaults=params
             )
+            link_attachments_to_piece(review, content)
         except Exception:
             logger.warning(f"{prefix} update multiple review {review_url}")
             r = (
@@ -389,4 +395,5 @@ class DoubanImporter(Task):
             )
             if r:
                 Review.objects.filter(pk=r.pk).update(**params)
+                link_attachments_to_piece(r, content)
         return 1

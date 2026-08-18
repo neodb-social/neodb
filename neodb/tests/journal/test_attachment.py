@@ -528,6 +528,113 @@ class TestBackfillJob:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestOrdering:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="ord@test.com", username="ord_user")
+        self.identity = self.user.identity
+        self.item = Edition.objects.create(title="D Book")
+
+    def test_attachment_list_keeps_creation_order(self):
+        """Templates key lightbox anchors off forloop.counter, so the sequence
+        has to be stable rather than whatever the DB returns."""
+        note = _save_quiet(
+            Note(owner=self.identity, item=self.item, title="n", content="c")
+        )
+        rows = [
+            Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
+            for _ in range(4)
+        ]
+        # add in a shuffled order; the read must still come back in creation order
+        note.attachment_records.add(rows[2], rows[0], rows[3], rows[1])
+        assert note.attachment_list == rows
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionApiLinking:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="colapi@test.com", username="colapi_user")
+        self.identity = self.user.identity
+
+    def test_create_and_update_link_brief_uploads(self):
+        token = _api_token(self.user)
+        bearer = f"Bearer {token}"
+        client = Client()
+        a = Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
+
+        created = client.post(
+            "/api/me/collection/",
+            data={"title": "C", "brief": f"![]({a.url})", "visibility": 0},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=bearer,
+        )
+        assert created.status_code == 200, created.content
+        uuid_ = created.json()["uuid"]
+        collection = Collection.get_by_url(uuid_)
+        assert collection is not None
+        assert list(collection.attachment_records.all()) == [a]
+
+        # and an edit that drops the image unlinks it
+        updated = client.put(
+            f"/api/me/collection/{uuid_}",
+            data={"title": "C", "brief": "no image", "visibility": 0},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=bearer,
+        )
+        assert updated.status_code == 200, updated.content
+        assert collection.attachment_records.count() == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestExporterUsesRegistry:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="exp@test.com", username="exp_user")
+        self.identity = self.user.identity
+        self.item = Edition.objects.create(title="E Book")
+
+    def test_pruned_post_note_exports_the_registered_copy(self, tmp_path):
+        """With the post pruned, the legacy JSON points at dead takahe media
+        while the registry holds our own live copy. The export must bundle
+        the copy, not the dead URL."""
+        from journal.exporters.ndjson import NdjsonExporter
+
+        note = _save_quiet(
+            Note(
+                owner=self.identity,
+                item=self.item,
+                title="n",
+                content="c",
+                attachments=[
+                    {
+                        "type": "image",
+                        "mimetype": "image/png",
+                        "url": settings.TAKAHE_MEDIA_URL
+                        + "attachments/2026/9/9/pruned.png",
+                    }
+                ],
+            )
+        )
+        a = Attachment.register(
+            self.identity, ContentFile(_png_bytes()), "png", mimetype="image/png"
+        )
+        note.attachment_records.add(a)
+        assert note.latest_post is None  # nothing posted: stands in for a prune
+
+        exporter = NdjsonExporter()
+        exporter.user = self.user
+        exporter.attachment_path = str(tmp_path)
+        exporter.bundled_images = {}
+
+        bundled = exporter._bundle_note_attachments(note)
+        assert len(bundled) == 1
+        # bundled by file, from the registry copy -- not a bare dead URL
+        assert bundled[0].get("file")
+        assert bundled[0]["mimetype"] == "image/png"
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestAccountDeletion:
     @pytest.fixture(autouse=True)
     def setup_data(self):
