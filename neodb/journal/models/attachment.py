@@ -105,14 +105,26 @@ def takahe_attachment_urls(atta: "PostAttachment") -> tuple[str, str]:
         # .url itself raises when a storage has no base_url configured
         try:
             return _abs(field.url) if field else ""
-        except Exception:
+        except Exception as e:
+            # every other degradation in this module logs; without this a
+            # storage misconfiguration would silently strip media from every
+            # note with no trace of why
+            logger.warning(
+                f"attachment url unreadable {getattr(field, 'name', '')} {e}"
+            )
             return ""
 
     file_url = _field_url(atta.file)
     thumb_url = _field_url(atta.thumbnail)
     remote = atta.remote_url or ""
-    # takahe proxies an uncached remote image rather than hotlinking it, which
-    # also keeps the viewer's IP away from the origin; preserve that choice
+    # takahe proxies an uncached remote *image* rather than hotlinking it, which
+    # keeps the viewer's IP away from the origin. The gate is deliberate and is
+    # a considered divergence from ``thumbnail_url()``, which falls back to the
+    # proxy unconditionally: the proxy view is "images only, videos should
+    # always be offloaded to remote" and raises Http404 for anything else
+    # (takahe/mediaproxy/views.py:145-156). Mirroring it for a non-image would
+    # emit a URL that 404s by design, so non-images fall through to remote --
+    # which is what that docstring says takahe intends anyway.
     proxy = _abs(f"/proxy/post_attachment/{atta.pk}/") if atta.is_image() else ""
     full = file_url or proxy or remote
     preview = thumb_url or file_url or proxy or remote

@@ -396,10 +396,17 @@ class DoubanImporter(Task):
             if review:
                 Review.objects.filter(pk=review.pk).update(**params)
         if review:
-            # Outside the try: a link failure here must not be reported as the
-            # "update multiple review" case and send us round the fallback
-            # again. ``content`` rather than ``review.body`` because the
+            # Its own try, for two reasons. Inside the one above, a link
+            # failure was reported as the "update multiple review" case and
+            # sent us round the fallback again; bare, it would abort the whole
+            # import job, since neither import_review nor its callers catch and
+            # a sheet row would take every later row down with it. The review
+            # itself is already saved, so losing a link is worth a log, not the
+            # import. ``content`` rather than ``review.body`` because the
             # fallback wrote via a queryset update, which leaves the in-memory
             # instance holding the pre-import body.
-            link_attachments_to_piece(review, content)
+            try:
+                link_attachments_to_piece(review, content)
+            except Exception as e:
+                logger.warning(f"{prefix} attachment link failed {review_url}: {e}")
         return 1

@@ -77,19 +77,29 @@ def backfill_member_progress_from_notes_20260720(batch_size: int = 1000) -> int:
     return candidates
 
 
-def _backfill_bodies_20260818(model, field: str) -> int:
+def _backfill_bodies_20260818(model, field: str, migratable: bool = False) -> int:
     """Register and link the media embedded in every ``field`` of ``model``.
 
     Only pieces whose text actually contains a markdown image are scanned, and
     only local media is registered -- an external URL in a body is not ours.
     Files are adopted in place: the bytes already live where uploads belong,
     so nothing is copied.
+
+    ``migratable`` says whether ``migrate_images`` can relocate this model's
+    legacy paths. It only reads Review and Collection, so naming it for an
+    Article would send an operator to a command that cannot help them.
     """
     pieces = model.objects.filter(**{f"{field}__contains": "!["}).select_related(
         "owner"
     )
     count = 0
-    skipped = 0
+    # Two unrelated reasons a path gets skipped, and only one is actionable: a
+    # legacy path predating the ``upload/<identity_id>/`` layout, versus a
+    # cross-owner hotlink (user B embedding user A's upload URL, which
+    # ``normalize_image_src`` permits). Counting them together would warn a
+    # perfectly healthy site about something that needs no action, every run.
+    legacy = 0
+    hotlinked = 0
     for piece in pieces.iterator(chunk_size=200):
         text = getattr(piece, field) or ""
         try:
@@ -98,19 +108,33 @@ def _backfill_bodies_20260818(model, field: str) -> int:
         except Exception as e:
             logger.warning(f"attachment backfill error on {piece}: {e}")
             continue
-        # A local image outside the owner's ``upload/<id>/`` prefix cannot be
-        # attributed safely, so it is skipped -- which on a deployment old
-        # enough to predate that convention means those files stay out of the
-        # registry, and unreclaimed on account deletion. Count them: silence
-        # here would hide the one case where ``migrate_images`` still needs to
-        # be run first.
-        skipped += sum(1 for p in resolved if not is_owned_upload(p, piece.owner_id))
+        for path in resolved:
+            if is_owned_upload(path, piece.owner_id):
+                continue
+            if path.startswith("upload/"):
+                hotlinked += 1
+            else:
+                legacy += 1
         count += 1
-    if skipped:
+    if legacy:
+        # these stay outside the registry, and so unreclaimed on account
+        # deletion, until their paths move
+        remedy = (
+            "run `neodb-manage migrate_images`, then re-run this backfill"
+            if migratable
+            else "migrate_images does not read this model, so these need moving "
+            "by hand before they can be registered"
+        )
         logger.warning(
-            f"attachment backfill skipped {skipped} {model.__name__} image(s) "
-            "outside the owner's upload/ prefix; run `neodb-manage migrate_images` "
-            "to move legacy paths, then re-run this backfill"
+            f"attachment backfill skipped {legacy} {model.__name__} image(s) "
+            f"predating the upload/<identity_id>/ layout; {remedy}"
+        )
+    if hotlinked:
+        logger.info(
+            f"attachment backfill left {hotlinked} {model.__name__} image(s) "
+            "unlinked as they belong to another user; expected, no action needed "
+            "-- claiming them would let one account's deletion break another's "
+            "page"
         )
     return count
 
@@ -164,9 +188,10 @@ def backfill_attachments_20260818() -> int:
     Article / Review / Collection bodies are adopted in place; Note media is
     copied out of takahe. See the helpers for the per-source details.
     """
+    # migrate_images reads Review and Collection only
     articles = _backfill_bodies_20260818(Article, "body")
-    reviews = _backfill_bodies_20260818(Review, "body")
-    collections = _backfill_bodies_20260818(Collection, "brief")
+    reviews = _backfill_bodies_20260818(Review, "body", migratable=True)
+    collections = _backfill_bodies_20260818(Collection, "brief", migratable=True)
     notes = _backfill_notes_20260818()
     total = articles + reviews + collections + notes
     logger.info(

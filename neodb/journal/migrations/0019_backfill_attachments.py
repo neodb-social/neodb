@@ -22,9 +22,14 @@ class Migration(migrations.Migration):
 
     Deployments old enough to hold images from before the
     ``upload/<identity_id>/`` convention should run ``neodb-manage
-    migrate_images`` first and then re-run this job: an image outside the
-    owner's own prefix cannot be attributed safely, so it is skipped (the job
-    logs a count) and would otherwise stay outside the registry.
+    migrate_images`` first and then re-run this job: such an image cannot be
+    attributed to an owner safely, so it is skipped and would otherwise stay
+    outside the registry. The job logs a count of those. Note that
+    ``migrate_images`` reads Review and Collection only, so an Article body
+    with pre-convention paths needs moving by hand.
+
+    A separate count covers images left unlinked for belonging to another user
+    (a hotlink); those are expected and need nothing done.
     """
 
     dependencies = [

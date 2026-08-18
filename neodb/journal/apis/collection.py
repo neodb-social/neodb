@@ -383,7 +383,7 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
     # A collaborator may edit this brief. Their own upload stays *unlinked*
-    # (the row exists, owned by them) because ``_is_owned_upload`` filters the
+    # (the row exists, owned by them) because ``is_owned_upload`` filters the
     # embedded paths down to the collection owner's before any lookup -- the
     # lookup itself is owner-blind, so that guard is what prevents one user's
     # file being claimed for another's collection. Consequence worth knowing:
