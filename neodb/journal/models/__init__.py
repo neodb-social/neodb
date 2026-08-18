@@ -2,6 +2,7 @@ from .article import Article
 from .attachment import (
     Attachment,
     generate_attachment_path,
+    is_owned_upload,
     link_attachments_to_piece,
 )
 from .collection import UNMARKED, Collection, CollectionMember, FeaturedCollection
@@ -59,6 +60,7 @@ __all__ = [
     "PiecePost",
     "UserOwnedObjectMixin",
     "generate_attachment_path",
+    "is_owned_upload",
     "link_attachments_to_piece",
     "VisibilityType",
     "max_visiblity_to_user",

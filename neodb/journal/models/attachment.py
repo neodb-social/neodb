@@ -505,7 +505,7 @@ class Attachment(models.Model):
         return paths
 
 
-def _is_owned_upload(path: str, owner_id: int) -> bool:
+def is_owned_upload(path: str, owner_id: int) -> bool:
     """True when ``path`` is an upload belonging to ``owner_id``.
 
     Upload paths are ``upload/<identity_id>/<year>/<uuid>.<ext>``, so the
@@ -535,9 +535,7 @@ def link_attachments_to_piece(piece: "Piece", *texts: str) -> None:
     """
     owner = piece.owner
     paths = {
-        p
-        for p in Attachment.resolve_body_paths(*texts)
-        if _is_owned_upload(p, owner.pk)
+        p for p in Attachment.resolve_body_paths(*texts) if is_owned_upload(p, owner.pk)
     }
     linked: dict[str, Attachment] = {}
     for a in piece.attachment_records.all():

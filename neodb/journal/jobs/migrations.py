@@ -12,7 +12,7 @@ from journal.models import (
     ShelfMemberProgress,
     ShelfType,
 )
-from journal.models.attachment import link_attachments_to_piece
+from journal.models.attachment import is_owned_upload, link_attachments_to_piece
 
 
 def backfill_member_progress_from_notes_20260720(batch_size: int = 1000) -> int:
@@ -89,13 +89,29 @@ def _backfill_bodies_20260818(model, field: str) -> int:
         "owner"
     )
     count = 0
+    skipped = 0
     for piece in pieces.iterator(chunk_size=200):
+        text = getattr(piece, field) or ""
         try:
-            link_attachments_to_piece(piece, getattr(piece, field) or "")
+            resolved = Attachment.resolve_body_paths(text)
+            link_attachments_to_piece(piece, text)
         except Exception as e:
             logger.warning(f"attachment backfill error on {piece}: {e}")
             continue
+        # A local image outside the owner's ``upload/<id>/`` prefix cannot be
+        # attributed safely, so it is skipped -- which on a deployment old
+        # enough to predate that convention means those files stay out of the
+        # registry, and unreclaimed on account deletion. Count them: silence
+        # here would hide the one case where ``migrate_images`` still needs to
+        # be run first.
+        skipped += sum(1 for p in resolved if not is_owned_upload(p, piece.owner_id))
         count += 1
+    if skipped:
+        logger.warning(
+            f"attachment backfill skipped {skipped} {model.__name__} image(s) "
+            "outside the owner's upload/ prefix; run `neodb-manage migrate_images` "
+            "to move legacy paths, then re-run this backfill"
+        )
     return count
 
 

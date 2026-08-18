@@ -12,6 +12,7 @@ from django.db import connection
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Edition
@@ -734,6 +735,72 @@ class TestExporterUsesRegistry:
         # bundled by file, from the registry copy -- not a bare dead URL
         assert bundled[0].get("file")
         assert bundled[0]["mimetype"] == "image/png"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDoubanImportLinking:
+    """The Douban importer is the highest-volume upload path and the only
+    Review write that bypasses update_item_review, so it registers its own
+    images. Only the network boundary is mocked -- the fetch, the storage
+    write and the linking all really run."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="db@test.com", username="db_user")
+        self.identity = self.user.identity
+        self.item = Edition.objects.create(title="Douban Book")
+
+    def test_imported_review_images_are_registered_and_linked(self):
+        from journal.importers.douban import DoubanImporter
+
+        importer = DoubanImporter.create(
+            user=self.user, visibility=0, file="unused.xlsx", mode=0
+        )
+        content = '<img src="https://img.douban.example/large/pic.jpg">'
+
+        class _StubDownload:
+            content = _png_bytes()
+
+        class _StubDownloader:
+            extention = "png"
+
+            def __init__(self, url):
+                pass
+
+            def download(self):
+                return _StubDownload()
+
+        with (
+            mock.patch.object(
+                DoubanImporter, "guess_entity_url", return_value="https://d.example/1"
+            ),
+            mock.patch.object(
+                DoubanImporter, "get_item_by_url", return_value=self.item
+            ),
+            mock.patch(
+                "journal.importers.douban.ProxiedImageDownloader", _StubDownloader
+            ),
+            # the SSRF gate resolves DNS, which a .example host fails
+            mock.patch("journal.importers.douban.is_valid_url", return_value=True),
+        ):
+            result = importer.import_review(
+                "Douban Book",
+                5,
+                "A title",
+                "https://d.example/review/1",
+                content,
+                timezone.now(),
+            )
+
+        assert result == 1
+        review = Review.objects.get(owner=self.identity, item=self.item)
+        rows = list(review.attachment_records.all())
+        assert len(rows) == 1
+        # fetched into our own storage under the importing user's prefix,
+        # and linked to the review that embeds it
+        assert _name(rows[0].file).startswith(f"upload/{self.identity.pk}/")
+        assert default_storage.exists(_name(rows[0].file))
+        assert _name(rows[0].file) in review.body
 
 
 @pytest.mark.django_db(databases="__all__")

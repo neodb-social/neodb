@@ -381,19 +381,25 @@ class DoubanImporter(Task):
         # upload/ itself -- otherwise a Douban import (hundreds of images) is
         # invisible to the upload registry and never reclaimed on account
         # deletion.
+        review = None
         try:
             review, _ = Review.objects.update_or_create(
                 owner=self.user.identity, item=item, defaults=params
             )
-            link_attachments_to_piece(review, content)
         except Exception:
             logger.warning(f"{prefix} update multiple review {review_url}")
-            r = (
+            review = (
                 Review.objects.filter(owner=self.user.identity, item=item)
                 .order_by("-created_time")
                 .first()
             )
-            if r:
-                Review.objects.filter(pk=r.pk).update(**params)
-                link_attachments_to_piece(r, content)
+            if review:
+                Review.objects.filter(pk=review.pk).update(**params)
+        if review:
+            # Outside the try: a link failure here must not be reported as the
+            # "update multiple review" case and send us round the fallback
+            # again. ``content`` rather than ``review.body`` because the
+            # fallback wrote via a queryset update, which leaves the in-memory
+            # instance holding the pre-import body.
+            link_attachments_to_piece(review, content)
         return 1

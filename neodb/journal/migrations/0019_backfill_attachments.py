@@ -19,6 +19,12 @@ class Migration(migrations.Migration):
     prefers the new rows and falls back to the JSON, so cards keep rendering
     while the job works through them; the column can be dropped in a
     follow-up once deployments have completed the backfill.
+
+    Deployments old enough to hold images from before the
+    ``upload/<identity_id>/`` convention should run ``neodb-manage
+    migrate_images`` first and then re-run this job: an image outside the
+    owner's own prefix cannot be attributed safely, so it is skipped (the job
+    logs a count) and would otherwise stay outside the registry.
     """
 
     dependencies = [
