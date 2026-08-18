@@ -477,9 +477,13 @@ class NdjsonImporter(BaseImporter):
                     existing_comment.created_time = published_dt
                 existing_comment.visibility = visibility
                 existing_comment.metadata = metadata
-                existing_comment.save()
+                # no index during import, like import_article/import_note;
+                # the mark import covers commented marks, idx-sync covers
+                # lone comments (e.g. on episodes), same as before import
+                # hooks existed
+                existing_comment.save(index_when_save=False)
                 return "imported"
-            Comment.objects.create(
+            comment = Comment(
                 owner=owner,
                 item=item,
                 text=content,
@@ -487,6 +491,7 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 **({"created_time": published_dt} if published_dt else {}),
             )
+            comment.save(index_when_save=False)
             return "imported"
         except Exception:
             logger.exception("Error importing comment")

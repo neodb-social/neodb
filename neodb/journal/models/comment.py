@@ -19,6 +19,7 @@ from .shelf import ShelfManager, ShelfType
 
 class Comment(Content):
     dedupe_content_fields = ("text",)
+    index_when_save = True
     text = models.TextField(blank=False, null=False)
 
     class Meta:
@@ -166,6 +167,24 @@ class Comment(Content):
         from .shelf import ShelfMember
 
         return ShelfMember.objects.filter(owner=self.owner, item=self.item).first()
+
+    def update_index(self):
+        # a comment with a sibling mark indexes within the mark's doc;
+        # drop any own doc left from when the comment was still lone
+        if self.sibling_shelfmember:
+            self.sibling_shelfmember.update_index()
+            super().delete_index()
+        else:
+            super().update_index()
+
+    def delete(self, *args, **kwargs):
+        sm = self.sibling_shelfmember
+        r = super().delete(*args, **kwargs)
+        if sm:
+            # the mark doc embeds this comment's text; rebuild it now
+            # that the row is gone
+            sm.update_index()
+        return r
 
     def to_indexable_doc(self) -> dict[str, Any]:
         if self.sibling_shelfmember:

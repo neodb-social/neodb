@@ -352,6 +352,12 @@ class ShelfMemberManager(PolymorphicManager):
 
 
 class ShelfMember(ListMember):
+    # NB deliberately not index_when_save: save() runs mid-flow in
+    # Mark.update before siblings and the timeline post exist, and an
+    # early doc build would cache sibling_comment/sibling_rating as None
+    # on the very instance to_post_params renders the post from.
+    # Indexing happens via explicit update_index() calls after the flow
+    # settles, and via the hooks on Comment, Rating and Tag.
     if TYPE_CHECKING:
         parent: models.ForeignKey["ShelfMember", "Shelf"]
         owner_id: int
@@ -536,6 +542,14 @@ class ShelfMember(ListMember):
         except AttributeError:
             pass
         return super().save(*args, **kwargs)
+
+    def update_index(self):
+        # always rebuild from db truth: an instance held across a longer
+        # flow (e.g. Mark.update) may have resolved and cached siblings
+        # before they were saved
+        for attr in ("sibling_comment", "sibling_rating", "mark", "_tags"):
+            self.__dict__.pop(attr, None)
+        super().update_index()
 
     @cached_property
     def sibling_comment(self) -> "Comment | None":

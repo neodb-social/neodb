@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
-from journal.models import Collection, Comment, Mark, Review, ShelfType
+from journal.models import Collection, Comment, Mark, Review, ShelfType, Tag
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.ap_handlers import post_deleted
 from takahe.models import Domain, Post
@@ -107,12 +107,14 @@ class TestIdxSync:
         assert mark.shelfmember is not None
         post_id = mark.shelfmember.latest_post_id
         assert post_id
+        doc_id = f"p{mark.shelfmember.pk}"
         before = self.doc_ids(self.identity1.pk)
+        assert doc_id in before
         Takahe.delete_posts([post_id])
         output = self.run_sync()
         assert "0 docs added, 0 docs deleted" in output
         assert self.doc_ids(self.identity1.pk) == before
-        doc = self.index.write_collection.documents[str(post_id)].retrieve()
+        doc = self.index.write_collection.documents[doc_id].retrieve()
         assert doc["post_id"] == [post_id]
 
     def test_purge_deactivated_identity(self):
@@ -172,6 +174,11 @@ class TestShelfChangeOrphanedPost:
     def get_doc(self, doc_id: str) -> dict:
         return self.index.write_collection.documents[doc_id].retrieve()
 
+    def mark_doc_id(self) -> str:
+        sm = Mark(self.identity, self.book).shelfmember
+        assert sm is not None
+        return f"p{sm.pk}"
+
     def transition(self, book=None, comment=None, rating=None) -> tuple[int, int]:
         """Mark progress then complete; return (old, new) post ids."""
         book = book or self.book
@@ -198,11 +205,14 @@ class TestShelfChangeOrphanedPost:
         old_pid, new_pid = self.transition()
         # the old post stays live on the timeline, so its doc must stay too
         assert Takahe.get_posts([old_pid]).exists()
+        doc_id = self.mark_doc_id()
         ids = self.doc_ids(self.identity.pk)
         assert str(old_pid) in ids
-        assert str(new_pid) in ids
+        # the live mark post is covered by its piece doc, not a post doc
+        assert str(new_pid) not in ids
+        assert doc_id in ids
         self.assert_orphan_doc(old_pid)
-        assert "ShelfMember" in self.get_doc(str(new_pid))["piece_class"]
+        assert "ShelfMember" in self.get_doc(doc_id)["piece_class"]
         # reachable from post search ("search my posts")
         q = JournalQueryParser("Hyperion", 1)
         q.filter_by_owner(self.identity)
@@ -229,10 +239,13 @@ class TestShelfChangeOrphanedPost:
         old_pid, _ = self.transition(comment="so far so good", rating=8)
         self.assert_orphan_doc(old_pid)
 
-    def test_user_path_doc_matches_batch_builder(self):
-        # the doc written on the user path must equal the one idx-sync and
-        # idx-rebuild would write, or they would fight each other
-        old_pid, _ = self.transition(comment="so far so good")
+    def test_covered_post_produces_no_doc(self):
+        # a live post whose piece indexes on its own must not get a post
+        # doc, or every search would return the mark twice
+        old_pid, new_pid = self.transition(comment="so far so good")
+        assert self.index.posts_to_docs(list(Post.objects.filter(pk=new_pid))) == []
+        # the orphan doc written on the user path must equal the one
+        # idx-sync and idx-rebuild would write, or they would fight
         indexed = self.get_doc(str(old_pid))
         built = self.index.posts_to_docs(list(Post.objects.filter(pk=old_pid)))[0]
         assert set(indexed) == set(built)
@@ -245,34 +258,34 @@ class TestShelfChangeOrphanedPost:
         assert "0 docs would be added, 0 docs would be deleted" in output
 
     def test_delete_orphaned_post_drops_doc(self):
-        # the linked Comment still matches in post_deleted() but rewrites
-        # nothing, so only the unconditional delete_by_post removes the doc
-        old_pid, new_pid = self.transition(comment="so far so good")
+        # the orphan's doc is removed by the trailing delete_post_doc in
+        # cleanup_deleted_post; the mark doc is keyed by piece and stays
+        old_pid, _ = self.transition(comment="so far so good")
         assert str(old_pid) in self.doc_ids(self.identity.pk)
         Takahe.delete_posts([old_pid])
         post_deleted(old_pid, True, None)
         ids = self.doc_ids(self.identity.pk)
         assert str(old_pid) not in ids
-        assert str(new_pid) in ids
+        assert self.mark_doc_id() in ids
 
     def test_delete_pieceless_orphaned_post_drops_doc(self):
-        old_pid, new_pid = self.transition()
+        old_pid, _ = self.transition()
         Takahe.delete_posts([old_pid])
         post_deleted(old_pid, True, None)
         ids = self.doc_ids(self.identity.pk)
         assert str(old_pid) not in ids
-        assert str(new_pid) in ids
+        assert self.mark_doc_id() in ids
 
     def test_post_delete_view_drops_doc(self, client):
         # the web UI delete button must run the same cleanup as the
         # Mastodon API path, or the doc outlives the post
-        old_pid, new_pid = self.transition(comment="so far so good")
+        old_pid, _ = self.transition(comment="so far so good")
         client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
         response = client.post(reverse("journal:post_delete", args=[old_pid]))
         assert response.status_code == 200
         ids = self.doc_ids(self.identity.pk)
         assert str(old_pid) not in ids
-        assert str(new_pid) in ids
+        assert self.mark_doc_id() in ids
 
     def test_dynamic_collection_excludes_orphaned_posts(self):
         self.transition(comment="so far so good")
@@ -300,6 +313,165 @@ class TestShelfChangeOrphanedPost:
             docs = build(orphans)
         assert all(d.get("item_id") for d in docs)
         assert len(three.captured_queries) - len(one.captured_queries) == 2
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMarkFamilyIndex:
+    """Comment, rating and tags index within the mark's doc; mutating
+    them outside Mark.update must refresh it."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(title="Hyperion")
+        self.user = User.register(email="x@y.com", username="userx")
+        self.identity = self.user.identity
+        mark = Mark(self.identity, self.book)
+        mark.update(ShelfType.PROGRESS, "old text", 9, ["scifi"], 0)
+        self.sm = mark.shelfmember
+        assert self.sm is not None
+        self.doc_id = f"p{self.sm.pk}"
+
+    def get_doc(self, doc_id: str) -> dict:
+        return self.index.write_collection.documents[doc_id].retrieve()
+
+    def doc_ids(self, owner_id: int) -> set[str]:
+        ids = self.index.get_doc_ids_by_owner(owner_id)
+        assert ids is not None
+        return ids
+
+    def test_comment_edit_refreshes_mark_doc(self):
+        Comment.comment_item(self.book, self.identity, "new text", 0)
+        assert self.get_doc(self.doc_id)["content"] == ["new text"]
+
+    def test_comment_delete_refreshes_mark_doc(self):
+        Comment.objects.get(owner=self.identity, item=self.book).delete()
+        doc = self.get_doc(self.doc_id)
+        assert doc["content"] == []
+        assert "Comment" not in doc["piece_class"]
+
+    def test_rating_delete_refreshes_mark_doc(self):
+        from journal.models import Rating
+
+        Rating.objects.get(owner=self.identity, item=self.book).delete()
+        assert self.get_doc(self.doc_id)["rating"] == 0
+
+    def test_tag_change_refreshes_mark_doc(self):
+        tag, _ = Tag.objects.get_or_create(owner=self.identity, title="epic")
+        tag.append_item(self.book)
+        assert "epic" in self.get_doc(self.doc_id)["tag"]
+        tag.remove_item(self.book)
+        assert "epic" not in self.get_doc(self.doc_id)["tag"]
+
+    def test_lone_comment_covers_its_post(self):
+        book2 = Edition.objects.create(title="Endymion")
+        c = Comment.comment_item(book2, self.identity, "a lone comment", 0)
+        assert c is not None
+        c.sync_to_timeline()
+        c = Comment.objects.get(pk=c.pk)
+        pid = c.latest_post_id
+        assert pid
+        # covered by the lone comment's own doc, so no post doc
+        assert self.index.posts_to_docs(list(Post.objects.filter(pk=pid))) == []
+        output = StringIO()
+        call_command("journal", "idx-sync", "--dry-run", stdout=output)
+        assert "0 docs would be added, 0 docs would be deleted" in output.getvalue()
+
+    def test_link_post_id_drops_piece_less_post_doc(self):
+        post = Post.objects.create(
+            author_id=self.identity.pk,
+            local=True,
+            object_uri="https://example.org/p/reply1",
+            content="a reply",
+            visibility=Post.Visibilities.public,
+            state="fanned_out",
+        )
+        assert (
+            self.index.insert_docs(
+                [
+                    {
+                        "id": str(post.pk),
+                        "post_id": [post.pk],
+                        "piece_class": ["Post"],
+                        "content": ["a reply"],
+                        "created": 1700000000,
+                        "owner_id": self.identity.pk,
+                        "visibility": 0,
+                    }
+                ]
+            )
+            == 1
+        )
+        book2 = Edition.objects.create(title="Endymion")
+        note = Comment(owner=self.identity, item=book2, text="from reply")
+        note.save(post_when_save=False)
+        note.link_post_id(post.pk)
+        # the piece doc covers the post now; the post doc is dropped
+        assert str(post.pk) not in self.doc_ids(self.identity.pk)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestReindexMigrationJob:
+    """The 0018 deploy migration reindexes for the p<pk> id scheme:
+    upsert new docs, delete old-scheme docs, rebuild post docs."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(title="Hyperion")
+        self.user = User.register(email="x@y.com", username="userx")
+        self.identity = self.user.identity
+
+    def doc_ids(self, owner_id: int) -> set[str]:
+        ids = self.index.get_doc_ids_by_owner(owner_id)
+        assert ids is not None
+        return ids
+
+    def test_reindex_piece_keyed_docs(self):
+        from journal.jobs.migrations import reindex_piece_keyed_docs_20260818
+
+        mark = Mark(self.identity, self.book)
+        mark.update(ShelfType.PROGRESS, "so far", None, [], 0)
+        assert mark.shelfmember is not None
+        old_pid = mark.shelfmember.latest_post_id
+        mark = Mark(self.identity, self.book)
+        mark.update(ShelfType.COMPLETE, "so far", None, [], 0)
+        sm = mark.shelfmember
+        assert sm is not None
+        new_pid = sm.latest_post_id
+        assert old_pid and new_pid
+        # replicate the pre-migration state: only an old-scheme piece doc
+        # keyed by the live mark post
+        self.index.delete_all()
+        assert (
+            self.index.insert_docs(
+                [
+                    {
+                        "id": str(new_pid),
+                        "post_id": [new_pid],
+                        "piece_id": [sm.pk],
+                        "piece_class": ["ShelfMember"],
+                        "content": ["stale"],
+                        "created": 1700000000,
+                        "owner_id": self.identity.pk,
+                        "visibility": 0,
+                    }
+                ]
+            )
+            == 1
+        )
+        assert reindex_piece_keyed_docs_20260818(batch_size=2) > 0
+        ids = self.doc_ids(self.identity.pk)
+        # piece doc under the new id; old-scheme doc gone and the covered
+        # post gets no doc of its own; the orphan post doc is rebuilt
+        assert f"p{sm.pk}" in ids
+        assert str(new_pid) not in ids
+        assert str(old_pid) in ids
+        doc = self.index.write_collection.documents[f"p{sm.pk}"].retrieve()
+        assert doc["post_id"] == [new_pid]
+        assert doc["content"] == ["so far"]
 
 
 def _make_remote_identity(username: str, domain_name: str = "remote.example"):
@@ -355,33 +527,10 @@ class TestIdxSyncRemote:
         return ids
 
     def test_add_missing_remote_docs(self):
-        assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+        assert self.doc_ids(self.owner.pk) == {f"p{self.review.pk}"}
         self.index.delete_by_owner([self.owner.pk])
         self.run_sync("--remote")
-        assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
-
-    def test_repair_dangling_doc(self):
-        # replicate the doc shape indexed before the #1761 fix: keyed by
-        # piece with no post_id, counted by item post search but never
-        # returned
-        self.index.delete_by_owner([self.owner.pk])
-        self.index.insert_docs(
-            [
-                {
-                    "id": f"p{self.review.pk}",
-                    "piece_id": [self.review.pk],
-                    "piece_class": ["Review"],
-                    "item_id": [self.book.pk],
-                    "item_class": ["Edition"],
-                    "content": ["review body"],
-                    "created": 1700000000,
-                    "owner_id": self.owner.pk,
-                    "visibility": 0,
-                }
-            ]
-        )
-        self.run_sync("--remote")
-        assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+        assert self.doc_ids(self.owner.pk) == {f"p{self.review.pk}"}
         q = JournalQueryParser("type:review", 1)
         q.filter_by_viewer(None)
         q.filter("item_id", self.book.pk)
@@ -400,7 +549,7 @@ class TestIdxSyncRemote:
 
     def test_local_sync_leaves_remote_docs(self):
         self.run_sync()
-        assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+        assert self.doc_ids(self.owner.pk) == {f"p{self.review.pk}"}
 
     def test_remote_dry_run(self):
         self.index.delete_by_owner([self.owner.pk])
@@ -417,8 +566,8 @@ class TestIdxSyncRemote:
         return r.total, len(list(r.posts))
 
     def test_remote_pruned_post_doc_left_alone(self):
-        post_pk = self.post.pk
-        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        doc_id = f"p{self.review.pk}"
+        assert self.doc_ids(self.owner.pk) == {doc_id}
         # takahe pruned the post; the doc keeps claiming its post_id
         # (accepted drift, see sync_identity_index docstring; the count
         # probe below filters on post_id, which no item query does in
@@ -428,21 +577,20 @@ class TestIdxSyncRemote:
         assert self._item_review_posts_count() == (1, 0)
         output = self.run_sync("--remote")
         assert "0 docs added, 0 docs deleted" in output
-        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        assert self.doc_ids(self.owner.pk) == {doc_id}
         assert self._item_review_posts_count() == (1, 0)
 
     def test_missing_doc_of_pruned_post_restored(self):
-        post_pk = self.post.pk
         self.post.delete()
         self.index.delete_by_owner([self.owner.pk])
         output = self.run_sync("--remote")
         assert "1 docs added, 0 docs deleted" in output
-        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        assert self.doc_ids(self.owner.pk) == {f"p{self.review.pk}"}
         # rebuilt from db truth, so it no longer claims the dead post
         assert self._item_review_posts_count() == (0, 0)
 
     def test_remote_sync_cleans_docs_of_pieceless_owner(self):
-        assert self.doc_ids(self.owner.pk) == {str(self.post.pk)}
+        assert self.doc_ids(self.owner.pk) == {f"p{self.review.pk}"}
         # queryset delete bypasses Piece.delete()'s index cleanup, leaving
         # a stale doc while the owner no longer has any piece
         Review.objects.filter(pk=self.review.pk).delete()
@@ -451,8 +599,8 @@ class TestIdxSyncRemote:
 
     def test_remote_lone_comment_refetch_updates_doc(self):
         # a comment without a sibling mark gets its own doc; a pruned then
-        # refetched post must be relinked and the doc refreshed even though
-        # Comment does not index itself on save
+        # refetched post must be relinked and the doc's post_id refreshed
+        # under the same doc id
         obj = {
             "id": "https://remote.example/comment/1",
             "type": "Comment",
@@ -471,8 +619,13 @@ class TestIdxSyncRemote:
         )
         comment = Comment.update_by_ap_object(self.owner, self.book, obj, post1)
         assert comment is not None
+        doc_id = f"p{comment.pk}"
+        # a lone remote comment indexes itself at save, before any sync
+        assert doc_id in self.doc_ids(self.owner.pk)
         self.run_sync("--remote")
-        assert str(post1.pk) in self.doc_ids(self.owner.pk)
+        assert doc_id in self.doc_ids(self.owner.pk)
+        doc = self.index.write_collection.documents[doc_id].retrieve()
+        assert doc["post_id"] == [post1.pk]
         post1.delete()
         post2 = Post.objects.create(
             author_id=self.owner.pk,
@@ -485,6 +638,6 @@ class TestIdxSyncRemote:
             state="fanned_out",
         )
         Comment.update_by_ap_object(self.owner, self.book, obj, post2)
-        ids = self.doc_ids(self.owner.pk)
-        assert str(post2.pk) in ids
-        assert str(post1.pk) not in ids
+        assert doc_id in self.doc_ids(self.owner.pk)
+        doc = self.index.write_collection.documents[doc_id].retrieve()
+        assert doc["post_id"] == [post2.pk]

@@ -48,6 +48,8 @@ def _calculate_distribution(grades: list[int], total: int) -> list[int]:
 
 
 class Rating(Content):
+    # no index_when_save: the only production writer is Mark.update,
+    # which reindexes the sibling mark once at the end of its flow
     class Meta:
         unique_together = [["owner", "item"]]
         indexes = [
@@ -57,6 +59,26 @@ class Rating(Content):
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True
     )
+
+    @property
+    def sibling_shelfmember(self):
+        from .shelf import ShelfMember
+
+        return ShelfMember.objects.filter(owner=self.owner, item=self.item).first()
+
+    def update_index(self):
+        # a rating never indexes alone; its grade lives in the sibling
+        # mark's doc
+        sm = self.sibling_shelfmember
+        if sm:
+            sm.update_index()
+
+    def delete(self, *args, **kwargs):
+        sm = self.sibling_shelfmember
+        r = super().delete(*args, **kwargs)
+        if sm:
+            sm.update_index()
+        return r
 
     @property
     def ap_object(self):
@@ -86,7 +108,9 @@ class Rating(Content):
             return p
         value = obj.get("value", 0) if obj else 0
         if not value:
-            cls.objects.filter(owner=owner, item=item).delete()
+            # instance deletes so the sibling mark doc is refreshed
+            for r in cls.objects.filter(owner=owner, item=item):
+                r.delete()
             return
         best = obj.get("best", 5)
         worst = obj.get("worst", 1)

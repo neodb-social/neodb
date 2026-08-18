@@ -175,7 +175,7 @@ class Command(SiteCommand):
             self.stdout.write(self.style.ERROR("--hour parameter is required"))
             return
         cutoff_time = timezone.now() - timedelta(hours=hours)
-        model_classes = [ShelfMember, Review, Comment, Collection, Note]
+        model_classes = _INDEXABLE_PIECE_CLASSES
         for model_cls in model_classes:
             items = model_cls.objects.filter(edited_time__gte=cutoff_time).order_by(
                 "pk"
@@ -202,27 +202,16 @@ class Command(SiteCommand):
     ) -> dict[str, tuple[str, int]]:
         """Doc ids an active identity should have in the index.
 
-        Local identities get a doc per live local post plus one per piece
-        not covered by such a post; for remote identities only pieces are
-        indexed.
+        Every indexable piece gets a "p<pk>" doc. Local identities also
+        get a doc per live local post not covered by a piece doc; remote
+        identities have no post docs.
 
         Returns a map of doc id -> (kind, pk), mirroring how
-        JournalIndex.post_to_doc() / piece_to_doc() assign doc ids: a
-        piece doc is keyed by its latest linked post id even if that post
-        is gone from db. Kind is "post" or "piece".
+        JournalIndex.piece_to_doc() / post_to_doc() assign doc ids. Kind
+        is "post" or "piece".
         """
         expected: dict[str, tuple[str, int]] = {}
-        if not remote:
-            live_posts = (
-                Post.objects.filter(local=True, author_id=identity_id)
-                .exclude(state__in=_DELETED_POST_STATES)
-                .values_list("pk", flat=True)
-            )
-            for post_id in live_posts:
-                expected[str(post_id)] = ("post", post_id)
-        piece_ids: set[int] = set()
-        # piece_id -> (piece_post_pk, post_id) of the latest linked post
-        latest_pps: dict[int, tuple[int, int]] = {}
+        covered_post_ids: set[int] = set()
         for cls in _INDEXABLE_PIECE_CLASSES:
             pieces = cls.objects.filter(owner_id=identity_id, local=not remote)
             if cls is Comment:
@@ -233,24 +222,20 @@ class Command(SiteCommand):
                     .order_by()
                 )
             # left join keeps pieces without any post
-            rows = pieces.values_list(
-                "pk", "post_relations__pk", "post_relations__post_id"
-            )
-            for piece_id, pp_pk, post_id in rows:
-                piece_ids.add(piece_id)
-                if pp_pk is not None and (
-                    piece_id not in latest_pps or pp_pk > latest_pps[piece_id][0]
-                ):
-                    latest_pps[piece_id] = (pp_pk, post_id)
-        for piece_id in piece_ids:
-            post_id = latest_pps[piece_id][1] if piece_id in latest_pps else None
-            if post_id is None:
+            rows = pieces.values_list("pk", "post_relations__post_id")
+            for piece_id, post_id in rows:
                 expected["p" + str(piece_id)] = ("piece", piece_id)
-            else:
-                # first writer wins: for local, the live post's own entry
-                # (inserted above) covers the piece; for remote, this
-                # arbitrates pieces sharing one post
-                expected.setdefault(str(post_id), ("piece", piece_id))
+                if post_id is not None:
+                    covered_post_ids.add(post_id)
+        if not remote:
+            live_posts = (
+                Post.objects.filter(local=True, author_id=identity_id)
+                .exclude(state__in=_DELETED_POST_STATES)
+                .values_list("pk", flat=True)
+            )
+            for post_id in live_posts:
+                if post_id not in covered_post_ids:
+                    expected[str(post_id)] = ("post", post_id)
         return expected
 
     def sync_identity_index(
@@ -462,55 +447,45 @@ class Command(SiteCommand):
                         .filter(q)
                         .values_list("identity", flat=True)
                     )
-                if not remote:
-                    # index all posts first
-                    posts = Post.objects.filter(local=True).exclude(
-                        state__in=["deleted", "deleted_fanned_out"]
+                if owners:
+                    self.stdout.write(
+                        self.style.SUCCESS(f"indexing for {len(owners)} users.")
                     )
-                    if owners:
-                        self.stdout.write(
-                            self.style.SUCCESS(
-                                f"indexing for {len(owners)} local users."
-                            )
-                        )
-                        posts = posts.filter(author_id__in=owners)
-                    c = 0
-                    pg = Paginator(posts.order_by("id"), self.batch_size)
-                    for p in tqdm(pg.page_range):
-                        docs = index.posts_to_docs(pg.get_page(p).object_list)
-                        c += len(docs)
-                        index.replace_docs(docs)
-                    self.stdout.write(self.style.SUCCESS(f"indexed {c} local posts."))
-                # index remaining pieces without posts
-                for cls in (
-                    [
-                        ShelfMember,
-                        Review,
-                        Collection,
-                    ]
-                    if fast
-                    else [Piece]
-                ):
+                # piece docs first, collecting the posts they reference so
+                # the posts pass can skip covered posts without a per-post
+                # piece lookup
+                covered_post_ids: set[int] = set()
+                for cls in _INDEXABLE_PIECE_CLASSES:
                     pieces = cls.objects.filter(local=not remote)
                     if owners:
                         pieces = pieces.filter(owner_id__in=owners)
                     c = 0
                     pg = Paginator(pieces.order_by("id"), self.batch_size)
                     for p in tqdm(pg.page_range):
-                        pieces = pg.get_page(p).object_list
-                        if not remote:
-                            pieces = [p for p in pieces if p.latest_post is None]
-                        docs = index.pieces_to_docs(pieces)
+                        docs = index.pieces_to_docs(pg.get_page(p).object_list)
+                        for doc in docs:
+                            covered_post_ids.update(doc.get("post_id", []))
                         c += len(docs)
                         index.replace_docs(docs)
                     self.stdout.write(
                         self.style.SUCCESS(f"indexed {c} {cls.__name__}.")
                     )
-                # posts = posts.exclude(type_data__object__has_key="relatedWith")
-                # docs = index.posts_to_docs(posts)
-                # c = len(docs)
-                # index.insert_docs(docs)
-                # self.stdout.write(self.style.SUCCESS(f"indexed {c} posts."))
+                if not remote:
+                    # piece-less post docs
+                    posts = Post.objects.filter(local=True).exclude(
+                        state__in=["deleted", "deleted_fanned_out"]
+                    )
+                    if owners:
+                        posts = posts.filter(author_id__in=owners)
+                    c = 0
+                    pg = Paginator(posts.order_by("id"), self.batch_size)
+                    for p in tqdm(pg.page_range):
+                        docs = index.posts_to_docs(
+                            pg.get_page(p).object_list, covered_post_ids
+                        )
+                        c += len(docs)
+                        index.replace_docs(docs)
+                    self.stdout.write(self.style.SUCCESS(f"indexed {c} local posts."))
 
             case "search":
                 q = JournalQueryParser("" if query == "-" else query, page_size=100)

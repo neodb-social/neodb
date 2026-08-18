@@ -294,8 +294,14 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             self.__dict__.pop(attr, None)
 
     def link_post_id(self, post_id: int):
-        PiecePost.objects.get_or_create(piece=self, post_id=post_id)
+        _, created = PiecePost.objects.get_or_create(piece=self, post_id=post_id)
         self._invalidate_post_caches()
+        if created and self.local:
+            # the post may have been indexed as a piece-less post doc
+            # before this piece claimed it (e.g. a reply later becoming a
+            # Note); this piece's doc covers it now, so drop the
+            # duplicate. Remote posts never get post docs.
+            JournalIndex.instance().delete_post_doc(post_id)
 
     def relink_post_id(self, post_id: int):
         """Link a post that arrived for an existing piece whose latest known
@@ -323,11 +329,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         self._invalidate_post_caches()
         if orphaned:
             # The unlinked posts stay on the timeline (e.g. the previous
-            # mark post after a shelf change), but update_index() is about
-            # to delete_by_piece() their docs; rewrite them as piece-less
-            # post docs first so they stay searchable. Ordering matters:
-            # with the link rows gone, the docs carry no piece_id, so the
-            # later delete cannot reach them.
+            # mark post after a shelf change); give each a piece-less
+            # post doc so they stay searchable.
             JournalIndex.instance().replace_posts(
                 Takahe.get_posts(orphaned).filter(local=True)
             )
@@ -1110,6 +1113,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         doc = index.piece_to_doc(self)
         if doc:
             try:
+                # the delete collects docs of this piece keyed under the
+                # pre-p<pk> id scheme; with stable ids the upsert alone
+                # suffices, so this can go once every deployment has run
+                # the 0018 reindex
                 index.delete_by_piece([self.pk])
                 index.replace_docs([doc])
             except Exception as e:

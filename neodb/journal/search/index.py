@@ -384,12 +384,6 @@ class JournalIndex(Index):
                 "type": "int32",
                 "sort": False,
             },
-            {
-                "name": "viewer_id",
-                "type": "int64[]",
-                "sort": False,
-                "optional": True,
-            },
         ]
     }
     search_result_class = JournalSearchResult
@@ -400,11 +394,7 @@ class JournalIndex(Index):
         if not d:
             return {}
         doc = {
-            "id": (
-                str(piece.latest_post_id)
-                if piece.latest_post_id
-                else "p" + str(piece.pk)
-            ),
+            "id": "p" + str(piece.pk),
             "piece_id": [piece.pk],
             "piece_class": [piece.__class__.__name__],
             "created": int(piece.created_time.timestamp()),
@@ -412,54 +402,55 @@ class JournalIndex(Index):
             "visibility": piece.visibility,
         }
         if piece.latest_post:
-            # fk is not enforced, so post might be deleted; a doc without
-            # post_id marks its post as dead, which cleanup_deleted_post's
-            # trailing delete_by_post relies on
+            # fk is not enforced, so post might be deleted; the field is
+            # omitted then, and post searches skip the doc
             doc["post_id"] = [piece.latest_post_id]
-            # enable this in future when we support search other users
-            # doc["viewer_id"] = list(
-            #     piece.latest_post.interactions.values_list("identity_id", flat=True)
-            # )
         doc.update(d)
         return doc
 
     @classmethod
     def pieces_to_docs(cls, pieces: "Iterable[Piece]") -> list[dict]:
+        from journal.models.common import prefetch_latest_posts  # circular
+
+        pieces = list(pieces)
+        prefetch_latest_posts(pieces)
         docs = [cls.piece_to_doc(p) for p in pieces]
         return [d for d in docs if d]
 
     @classmethod
     def post_to_doc(cls, post: Post, item_map: dict[int, Item] | None = None) -> dict:
-        pc = post.piece
-        doc = {}
-        if pc:
-            pc.latest_post = post
-            pc.latest_post_id = post.pk
-            doc = cls.piece_to_doc(pc)
-        if not doc:
-            doc = {
-                "id": str(post.pk),
-                "post_id": [post.pk],
-                "piece_class": ["Post"],
-                "content": [post.content],
-                "created": int(post.created.timestamp()),
-                "visibility": Takahe.visibility_t2n(post.visibility),
-                "owner_id": post.author_id,
-                # enable this in future when we support search other users
-                # "viewer_id": list(
-                #     post.interactions.values_list("identity_id", flat=True)
-                # ),
-            }
-            # A post orphaned by a shelf change (or linked only to pieces
-            # that index within another doc) still relates to an item via
-            # its ShelfLogEntry; carry the item fields so item-scoped
-            # search can reach it. piece_class stays ["Post"]: journal
-            # search excludes it to keep old marks out of piece results.
-            item = item_map.get(post.pk) if item_map is not None else post.item
-            if item:
-                doc["item_id"] = [item.pk]
-                doc["item_class"] = [item.__class__.__name__]
-                doc["item_title"] = item.to_indexable_titles()
+        """Doc for a post not covered by a piece doc; {} otherwise.
+
+        A post is covered when any linked piece indexes on its own: that
+        piece's doc (keyed "p<pk>") references the post, so a second doc
+        would duplicate the piece in every search. This is the same rule
+        expected_index_docs states as a query, and they must agree or
+        idx-sync fights the runtime writers.
+        """
+        from journal.models import Piece  # circular; see header
+
+        pcs = Piece.objects.filter(posts=post.pk)
+        if any(pc.to_indexable_doc() for pc in pcs):
+            return {}
+        doc = {
+            "id": str(post.pk),
+            "post_id": [post.pk],
+            "piece_class": ["Post"],
+            "content": [post.content],
+            "created": int(post.created.timestamp()),
+            "visibility": Takahe.visibility_t2n(post.visibility),
+            "owner_id": post.author_id,
+        }
+        # A post orphaned by a shelf change (or linked only to pieces
+        # that index within another doc) still relates to an item via
+        # its ShelfLogEntry; carry the item fields so item-scoped
+        # search can reach it. piece_class stays ["Post"]: journal
+        # search excludes it to keep old marks out of piece results.
+        item = item_map.get(post.pk) if item_map is not None else post.item
+        if item:
+            doc["item_id"] = [item.pk]
+            doc["item_class"] = [item.__class__.__name__]
+            doc["item_title"] = item.to_indexable_titles()
         return doc
 
     @classmethod
@@ -490,10 +481,21 @@ class JournalIndex(Index):
         }
 
     @classmethod
-    def posts_to_docs(cls, posts: Iterable[Post]) -> list[dict]:
+    def posts_to_docs(
+        cls, posts: Iterable[Post], covered_post_ids: set[int] | None = None
+    ) -> list[dict]:
+        """Docs for posts not covered by piece docs.
+
+        covered_post_ids, when given, skips those posts without the
+        per-post piece lookup; batch callers (idx-rebuild, the reindex
+        job) collect it from the piece docs they just wrote.
+        """
         posts = list(posts)
+        if covered_post_ids is not None:
+            posts = [p for p in posts if p.pk not in covered_post_ids]
         item_map = cls._items_for_posts([p.pk for p in posts])
-        return [cls.post_to_doc(p, item_map) for p in posts]
+        docs = [cls.post_to_doc(p, item_map) for p in posts]
+        return [d for d in docs if d]
 
     def delete_all(self):
         return self.delete_docs("owner_id", ">0")
@@ -524,22 +526,18 @@ class JournalIndex(Index):
     def delete_by_piece(self, piece_ids):
         return self.delete_docs("piece_id", piece_ids)
 
-    def delete_by_post(self, post_ids):
-        return self.delete_docs("post_id", post_ids)
+    def delete_post_doc(self, post_id: int):
+        """Delete the piece-less post doc of one post, if any.
+
+        Piece docs keep their dead post reference in post_id and are
+        refreshed (not deleted) when their post dies, so deletion by
+        post is only ever by doc id.
+        """
+        return self.delete_docs("id", [str(post_id)])
 
     def replace_posts(self, posts: Iterable[Post]):
         docs = self.posts_to_docs(posts)
         self.replace_docs(docs)
-
-    def replace_pieces(self, pieces: "Iterable[Piece] | QuerySet[Piece]"):
-        if isinstance(pieces, QuerySet):
-            pids = list(pieces.values_list("pk", flat=True))
-        else:
-            pids = [p.pk for p in pieces]
-        if not pids:
-            return
-        self.delete_by_piece(pids)
-        self.insert_docs(self.pieces_to_docs(pieces))
 
     def search(
         self,
