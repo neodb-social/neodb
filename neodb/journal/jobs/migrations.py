@@ -93,13 +93,16 @@ def _backfill_bodies_20260818(model, field: str, migratable: bool = False) -> in
         "owner"
     )
     count = 0
-    # Two unrelated reasons a path gets skipped, and only one is actionable: a
-    # legacy path predating the ``upload/<identity_id>/`` layout, versus a
-    # cross-owner hotlink (user B embedding user A's upload URL, which
-    # ``normalize_image_src`` permits). Counting them together would warn a
-    # perfectly healthy site about something that needs no action, every run.
+    # Two unrelated reasons a path gets skipped, and only one is actionable.
+    # The split is exactly whether the path sits under ``upload/`` at all,
+    # because that is also what decides whether ``migrate_images`` can move it:
+    # outside, it predates the layout and is migratable; inside but not the
+    # owner's, it is a cross-owner hotlink (which ``normalize_image_src``
+    # permits) or a malformed src, and in both cases migrate_images is a no-op.
+    # Counting them together would warn a healthy site, every run, about
+    # something needing no action.
     legacy = 0
-    hotlinked = 0
+    unattributable = 0
     for piece in pieces.iterator(chunk_size=200):
         text = getattr(piece, field) or ""
         try:
@@ -112,7 +115,7 @@ def _backfill_bodies_20260818(model, field: str, migratable: bool = False) -> in
             if is_owned_upload(path, piece.owner_id):
                 continue
             if path.startswith("upload/"):
-                hotlinked += 1
+                unattributable += 1
             else:
                 legacy += 1
         count += 1
@@ -129,12 +132,12 @@ def _backfill_bodies_20260818(model, field: str, migratable: bool = False) -> in
             f"attachment backfill skipped {legacy} {model.__name__} image(s) "
             f"predating the upload/<identity_id>/ layout; {remedy}"
         )
-    if hotlinked:
+    if unattributable:
         logger.info(
-            f"attachment backfill left {hotlinked} {model.__name__} image(s) "
-            "unlinked as they belong to another user; expected, no action needed "
-            "-- claiming them would let one account's deletion break another's "
-            "page"
+            f"attachment backfill left {unattributable} {model.__name__} image(s) "
+            "unlinked: they belong to another user, or the src is malformed. "
+            "Expected, no action needed -- claiming another user's upload would "
+            "let one account's deletion break another's page"
         )
     return count
 
