@@ -7,7 +7,9 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage, storages
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from PIL import Image
 
@@ -548,6 +550,27 @@ class TestOrdering:
         # add in a shuffled order; the read must still come back in creation order
         note.attachment_records.add(rows[2], rows[0], rows[3], rows[1])
         assert note.attachment_list == rows
+
+    def test_prefetch_is_honoured_by_attachment_list(self):
+        """Ordering lives in Meta, not in an order_by() at the read site --
+        a re-sort would defeat the prefetch and restore the per-card query."""
+        for i in range(3):
+            note = _save_quiet(
+                Note(owner=self.identity, item=self.item, title=f"n{i}", content="c")
+            )
+            note.attachment_records.add(
+                Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
+            )
+        notes = list(
+            Note.objects.filter(owner=self.identity).prefetch_related(
+                "attachment_records"
+            )
+        )
+        assert len(notes) == 3
+        with CaptureQueriesContext(connection) as ctx:
+            for n in notes:
+                assert len(n.attachment_list) == 1
+        assert len(ctx.captured_queries) == 0, ctx.captured_queries
 
 
 @pytest.mark.django_db(databases="__all__")
