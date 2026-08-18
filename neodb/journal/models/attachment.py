@@ -60,6 +60,23 @@ def generate_attachment_path(identity_id: int | str, ext: str) -> str:
 # takahe's own key prefixes, from ``takahe.models.upload_namer``.
 _TAKAHE_MEDIA_PREFIXES = ("attachments/", "attachment_thumbnails/")
 
+# ``source`` values are the dedupe key, and the column is varchar(500), so
+# every one is truncated at construction -- a lookup built from an untruncated
+# string could never match the row that was stored, which would make the
+# dedupe silently fail and duplicate on every pass.
+SOURCE_MAX_LENGTH = 500
+
+
+def source_for_post_attachment(pk: int) -> str:
+    """Settled ``source`` for a takahe ``PostAttachment``: copy done, or the
+    media is remote and never will be copied."""
+    return f"takahe:{pk}"[:SOURCE_MAX_LENGTH]
+
+
+def pending_source_for_post_attachment(pk: int) -> str:
+    """``source`` for local media whose copy failed and should be retried."""
+    return f"takahe-pending:{pk}"[:SOURCE_MAX_LENGTH]
+
 
 def takahe_media_path(url: str) -> str | None:
     """Storage-relative takahe path for ``url``, or ``None`` if not ours.
@@ -78,7 +95,25 @@ def takahe_media_path(url: str) -> str | None:
     """
     if not url:
         return None
-    path = urlparse(url).path if "://" in url else url
+    if "://" in url:
+        parsed = urlparse(url)
+        # The URL on a federated post attachment is remote-controlled, and a
+        # path-only match would let a crafted path claim an object in our own
+        # bucket (worst when MEDIA_URL's path is "/", which makes any path
+        # look local). Require the host to be ours before trusting the path.
+        host = parsed.hostname or ""
+        media_host = urlparse(settings.MEDIA_URL).hostname or ""
+        takahe_host = urlparse(settings.TAKAHE_MEDIA_URL).hostname or ""
+        allowed = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
+        if media_host:
+            allowed.add(media_host)
+        if takahe_host:
+            allowed.add(takahe_host)
+        if host not in allowed:
+            return None
+        path = parsed.path
+    else:
+        path = url
     for prefix in (settings.TAKAHE_MEDIA_URL, settings.MEDIA_URL):
         prefix_path = urlparse(prefix).path if prefix and "://" in prefix else prefix
         if prefix_path and path.startswith(prefix_path):
@@ -296,9 +331,12 @@ class Attachment(models.Model):
         With ``copy_file=False`` (a remote post) nothing is downloaded; the
         row records the URLs takahe already serves the media under.
         """
-        source = f"takahe:{atta.pk}"
-        existing = cls.objects.filter(owner=owner, source=source).first()
-        if existing:
+        source = source_for_post_attachment(atta.pk)
+        pending = pending_source_for_post_attachment(atta.pk)
+        existing = cls.objects.filter(owner=owner, source__in=[source, pending]).first()
+        # A settled row is one we don't need to touch again: the copy landed,
+        # or the media is remote and was never going to be copied.
+        if existing and (existing.file or not copy_file):
             return existing
         mimetype = atta.mimetype or ""
         ext_hint = mimetypes.guess_extension(mimetype) or ""
@@ -310,35 +348,51 @@ class Attachment(models.Model):
             if copy_file and atta.file
             else None
         )
+        copied_thumb = (
+            cls._copy_into_storage(
+                owner.pk, takahe_storage, atta.thumbnail.name or "", ext_hint
+            )
+            if copied and atta.thumbnail
+            else None
+        )
+        if existing:
+            # A retry of a previously failed local copy. Upgrade the pending
+            # row in place rather than adding a second one.
+            if not copied:
+                return existing
+            existing.file = copied[0]
+            existing.thumbnail = copied_thumb[0] if copied_thumb else None
+            existing.size = copied[1]
+            existing.source = source
+            existing.save(update_fields=["file", "thumbnail", "size", "source"])
+            return existing
         fields: dict[str, Any] = {
             "owner": owner,
             "mimetype": mimetype,
             "width": atta.width,
             "height": atta.height,
             "description": atta.name or "",
-            "source": source,
         }
         if not copied:
             full = atta.full_url().absolute
             if not full:
                 return None
+            # A failed copy of *local* media is not a settled outcome -- takahe
+            # hard-prunes posts, so silently giving up would forfeit the exact
+            # guarantee this copy exists for. Mark it pending so the next sync
+            # retries, rather than tagging it with the settled source and
+            # having the dedupe check treat it as done forever.
             return cls.objects.create(
                 remote_url=full[:500],
                 remote_preview_url=(atta.thumbnail_url().absolute or "")[:500],
+                source=pending if copy_file else source,
                 **fields,
             )
-        file_path, size = copied
-        copied_thumb = (
-            cls._copy_into_storage(
-                owner.pk, takahe_storage, atta.thumbnail.name or "", ext_hint
-            )
-            if atta.thumbnail
-            else None
-        )
         return cls.objects.create(
-            file=file_path,
+            file=copied[0],
             thumbnail=copied_thumb[0] if copied_thumb else None,
-            size=size,
+            size=copied[1],
+            source=source,
             **fields,
         )
 
@@ -359,7 +413,9 @@ class Attachment(models.Model):
         mimetype = entry.get("mimetype") or ""
         rel_path = takahe_media_path(url)
         if rel_path:
-            source = f"takahe-media:{rel_path}"
+            # truncated once, then used for both the lookup and the row, so the
+            # two cannot disagree
+            source = f"takahe-media:{rel_path}"[:SOURCE_MAX_LENGTH]
             existing = cls.objects.filter(owner=owner, source=source).first()
             if existing:
                 return existing
@@ -375,7 +431,7 @@ class Attachment(models.Model):
                     size=copied[1],
                     source=source,
                 )
-        source = f"url:{url}"
+        source = f"url:{url}"[:SOURCE_MAX_LENGTH]
         existing = cls.objects.filter(owner=owner, source=source).first()
         if existing:
             return existing
@@ -384,23 +440,48 @@ class Attachment(models.Model):
             remote_url=url[:500],
             remote_preview_url=(entry.get("preview_url") or "")[:500],
             mimetype=mimetype,
-            source=source[:500],
+            source=source,
         )
 
     @classmethod
     def sync_from_post(cls, piece: "Piece", post: "Post") -> list["Attachment"]:
-        """Register every attachment of ``post`` and link them to ``piece``.
+        """Reconcile ``piece``'s links against the attachments of ``post``.
 
         Returns the rows in post order so callers can rebuild a display list.
+
+        Reconciles rather than only adding. The legacy ``attachments`` JSON
+        this replaces was rebuilt from scratch on every save, so deleting an
+        image from a post through the Mastodon API made it disappear from the
+        note. Add-only would leave the row linked forever and, because
+        ``Note.attachment_list`` prefers rows once any exist, the note card
+        would keep showing an image the author removed.
+
+        Pruning is scoped to rows sourced from this post's own attachments.
+        Rows from other sources -- a web/API upload (empty ``source``), or a
+        copy the backfill made from the legacy JSON of an already-pruned post
+        (``takahe-media:``/``url:``) -- are left alone; they are not described
+        by ``post.attachments`` and unlinking them here would destroy exactly
+        the media that has no other source left.
         """
         owner = piece.owner
         attachments: list[Attachment] = []
+        current: set[str] = set()
         for atta in post.attachments.all():
+            current.add(source_for_post_attachment(atta.pk))
+            current.add(pending_source_for_post_attachment(atta.pk))
             a = cls.from_post_attachment(owner, atta, copy_file=post.local)
             if a:
                 attachments.append(a)
         if attachments:
             piece.attachment_records.add(*attachments)
+        stale = [
+            a
+            for a in piece.attachment_records.all()
+            if a.source.startswith(("takahe:", "takahe-pending:"))
+            and a.source not in current
+        ]
+        if stale:
+            piece.attachment_records.remove(*stale)
         return attachments
 
     # --- piece linkage ----------------------------------------------------

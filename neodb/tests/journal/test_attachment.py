@@ -1,6 +1,7 @@
 """Tests for the user upload registry (``journal.models.Attachment``)."""
 
 import io
+from unittest import mock
 
 import pytest
 from django.conf import settings
@@ -135,14 +136,24 @@ class TestTakaheMediaPath:
         url = settings.MEDIA_URL + "attachment_thumbnails/2026/1/2/abc.png"
         assert takahe_media_path(url) == "attachment_thumbnails/2026/1/2/abc.png"
 
-    def test_resolves_absolute_url_by_path(self):
-        url = "https://media.example" + settings.MEDIA_URL + "attachments/a/b.png"
+    def test_resolves_absolute_url_on_our_own_host(self):
+        # the NDJSON importer absolutizes note attachment URLs against the site
+        host = settings.SITE_DOMAINS[0]
+        url = f"https://{host}" + settings.MEDIA_URL + "attachments/a/b.png"
         assert takahe_media_path(url) == "attachments/a/b.png"
 
     def test_rejects_non_takahe_media(self):
         assert takahe_media_path(settings.MEDIA_URL + "upload/1/2026/x.png") is None
         assert takahe_media_path("https://elsewhere.example/x.png") is None
         assert takahe_media_path("") is None
+
+    def test_rejects_a_foreign_host_mimicking_our_media_path(self):
+        """The URL on a federated attachment is remote-controlled, so a path
+        that looks like ours must not be trusted from someone else's host."""
+        crafted = (
+            "https://evil.example" + settings.MEDIA_URL + "attachments/2026/1/2/x.png"
+        )
+        assert takahe_media_path(crafted) is None
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -449,6 +460,74 @@ class TestSyncFromPost:
         # runs on every post fetch, so a second sync must not copy again
         assert Attachment.sync_from_post(note, post) == [a]
         assert Attachment.objects.count() == 1
+
+    def test_removing_an_image_from_the_post_unlinks_it(self):
+        """The legacy JSON was rebuilt on every save, so a deleted image
+        disappeared. Rows must reconcile or the card shows it forever."""
+        note, post = self._note_with_post(local=True)
+        kept = PostAttachment.objects.create(
+            post=post,
+            author_id=self.identity.pk,
+            mimetype="image/png",
+            file=ContentFile(_png_bytes(), name="keep.png"),
+        )
+        removed = PostAttachment.objects.create(
+            post=post,
+            author_id=self.identity.pk,
+            mimetype="image/png",
+            file=ContentFile(_png_bytes(), name="drop.png"),
+        )
+        assert len(Attachment.sync_from_post(note, post)) == 2
+
+        removed.delete()  # author deletes one image via the Mastodon API
+        rows = Attachment.sync_from_post(note, post)
+        assert len(rows) == 1
+        assert rows[0].source == f"takahe:{kept.pk}"
+        assert note.attachment_list == rows
+
+    def test_reconcile_keeps_rows_from_other_sources(self):
+        """A backfilled copy of an already-pruned post's media has no other
+        source left; a post sync must not unlink it."""
+        note, post = self._note_with_post(local=True)
+        backfilled = Attachment.objects.create(
+            owner=self.identity,
+            file="upload/x/2026/backfilled.png",
+            mimetype="image/png",
+            source="takahe-media:attachments/2026/1/1/old.png",
+        )
+        uploaded = Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
+        note.attachment_records.add(backfilled, uploaded)
+
+        Attachment.sync_from_post(note, post)  # post has no attachments
+
+        assert set(note.attachment_records.all()) == {backfilled, uploaded}
+
+    def test_failed_local_copy_is_retried_not_settled(self):
+        """takahe prunes posts, so a transient copy failure must not be
+        recorded as done -- that would forfeit the copy permanently."""
+        note, post = self._note_with_post(local=True)
+        atta = PostAttachment.objects.create(
+            post=post,
+            author_id=self.identity.pk,
+            mimetype="image/png",
+            file=ContentFile(_png_bytes(), name="flaky.png"),
+            remote_url="https://takahe.example/flaky.png",
+        )
+        with mock.patch.object(Attachment, "_copy_into_storage", return_value=None):
+            rows = Attachment.sync_from_post(note, post)
+        assert len(rows) == 1
+        pending = rows[0]
+        assert not pending.file
+        assert pending.source == f"takahe-pending:{atta.pk}"
+
+        # a later sync retries and upgrades the same row in place
+        rows = Attachment.sync_from_post(note, post)
+        assert len(rows) == 1
+        assert rows[0].pk == pending.pk
+        assert rows[0].file
+        assert rows[0].source == f"takahe:{atta.pk}"
+        assert Attachment.objects.count() == 1
+        assert list(note.attachment_records.all()) == [rows[0]]
 
     def test_remote_post_media_is_not_downloaded(self):
         note, post = self._note_with_post(local=False)

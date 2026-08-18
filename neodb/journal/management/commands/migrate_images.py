@@ -10,10 +10,15 @@ from journal.models import Attachment, Collection, Review
 from journal.models.renderers import RE_MD_IMAGE
 
 
-def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
+def _migrate_image(
+    src: str, identity_id: int, created_year: str, dry_run: bool = False
+) -> str | None:
     """Migrate an old image path to the new upload/ location.
 
-    Returns new path if migrated, None if no change needed.
+    Returns new path if migrated, None if no change needed. With ``dry_run``
+    the new path is still computed and returned, so the command can report
+    what would change, but nothing is written -- neither the copied blob nor
+    the registry row.
     """
     from urllib.parse import urlparse
 
@@ -51,6 +56,9 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
     ext = rel_path.rsplit(".", 1)[-1] if "." in rel_path else "jpg"
     new_rel = f"upload/{identity_id}/{created_year}/{uuid.uuid4()}.{ext}"
 
+    if dry_run:
+        return settings.MEDIA_URL + new_rel
+
     # Copy file to new location
     with default_storage.open(rel_path) as f:
         new_rel = default_storage.save(new_rel, ContentFile(f.read()))
@@ -62,7 +70,9 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
     return settings.MEDIA_URL + new_rel
 
 
-def _process_content(text: str, identity_id: int, created_year: str) -> str | None:
+def _process_content(
+    text: str, identity_id: int, created_year: str, dry_run: bool = False
+) -> str | None:
     """Process markdown text, migrating image paths. Returns new text or None if unchanged."""
     changed = False
 
@@ -70,7 +80,7 @@ def _process_content(text: str, identity_id: int, created_year: str) -> str | No
         nonlocal changed
         alt = m.group(1)
         src = m.group(2).strip()
-        new_src = _migrate_image(src, identity_id, created_year)
+        new_src = _migrate_image(src, identity_id, created_year, dry_run)
         if new_src is not None:
             changed = True
             return f"![{alt}]({new_src})"
@@ -102,7 +112,7 @@ class Command(SiteCommand):
         self.stdout.write(f"Scanning {reviews.count()} reviews with images...\n")
         for review in tqdm(reviews, desc="Reviews"):
             year = review.created_time.strftime("%Y")
-            new_body = _process_content(review.body, review.owner_id, year)
+            new_body = _process_content(review.body, review.owner_id, year, dry_run)
             if new_body is not None:
                 review_count += 1
                 if dry_run:
@@ -118,7 +128,9 @@ class Command(SiteCommand):
         )
         for collection in tqdm(collections, desc="Collections"):
             year = collection.created_time.strftime("%Y")
-            new_brief = _process_content(collection.brief, collection.owner_id, year)
+            new_brief = _process_content(
+                collection.brief, collection.owner_id, year, dry_run
+            )
             if new_brief is not None:
                 collection_count += 1
                 if dry_run:
