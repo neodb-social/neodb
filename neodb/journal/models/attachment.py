@@ -78,6 +78,47 @@ def pending_source_for_post_attachment(pk: int) -> str:
     return f"takahe-pending:{pk}"[:SOURCE_MAX_LENGTH]
 
 
+def takahe_attachment_urls(atta: "PostAttachment") -> tuple[str, str]:
+    """``(full, preview)`` absolute URLs for a takahe attachment, never raising.
+
+    Mirrors ``PostAttachment.full_url()`` / ``thumbnail_url()`` but resolves the
+    absolute form here instead of calling them. Those wrap the value in
+    ``RelativeAbsoluteUrl``, whose constructor *raises* on a schemeless URL --
+    and schemeless is exactly what ``file.url`` is whenever ``TAKAHE_MEDIA_URL``
+    is relative, which is the settings default. ``compose.yml`` happens to set
+    an absolute one, so the breakage only shows up elsewhere (CI, and any
+    deployment leaving the default).
+
+    Reading ``.absolute`` on that path aborts ``Note.update_by_ap_object``, so
+    it would take inbound federation of every note with media down with it.
+    """
+    site = settings.SITE_INFO["site_url"].rstrip("/")
+
+    def _abs(url: str) -> str:
+        if not url:
+            return ""
+        if url.startswith(("http://", "https://")):
+            return url
+        return site + (url if url.startswith("/") else "/" + url)
+
+    def _field_url(field: Any) -> str:
+        # .url itself raises when a storage has no base_url configured
+        try:
+            return _abs(field.url) if field else ""
+        except Exception:
+            return ""
+
+    file_url = _field_url(atta.file)
+    thumb_url = _field_url(atta.thumbnail)
+    remote = atta.remote_url or ""
+    # takahe proxies an uncached remote image rather than hotlinking it, which
+    # also keeps the viewer's IP away from the origin; preserve that choice
+    proxy = _abs(f"/proxy/post_attachment/{atta.pk}/") if atta.is_image() else ""
+    full = file_url or proxy or remote
+    preview = thumb_url or file_url or proxy or remote
+    return full, preview
+
+
 def takahe_media_path(url: str) -> str | None:
     """Storage-relative takahe path for ``url``, or ``None`` if not ours.
 
@@ -374,7 +415,7 @@ class Attachment(models.Model):
             "description": atta.name or "",
         }
         if not copied:
-            full = atta.full_url().absolute
+            full, preview = takahe_attachment_urls(atta)
             if not full:
                 return None
             # A failed copy of *local* media is not a settled outcome -- takahe
@@ -384,7 +425,7 @@ class Attachment(models.Model):
             # having the dedupe check treat it as done forever.
             return cls.objects.create(
                 remote_url=full[:500],
-                remote_preview_url=(atta.thumbnail_url().absolute or "")[:500],
+                remote_preview_url=preview[:500],
                 source=pending if copy_file else source,
                 **fields,
             )

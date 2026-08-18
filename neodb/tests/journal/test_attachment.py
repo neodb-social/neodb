@@ -18,7 +18,7 @@ from PIL import Image
 from catalog.models import Edition
 from journal.jobs.migrations import backfill_attachments_20260818
 from journal.models import Article, Attachment, Collection, Note, Review
-from journal.models.attachment import takahe_media_path
+from journal.models.attachment import takahe_attachment_urls, takahe_media_path
 from journal.models.utils import remove_data_by_identity
 from takahe.models import Post, PostAttachment
 from takahe.utils import Takahe
@@ -155,6 +155,62 @@ class TestTakaheMediaPath:
             "https://evil.example" + settings.MEDIA_URL + "attachments/2026/1/2/x.png"
         )
         assert takahe_media_path(crafted) is None
+
+
+class TestTakaheAttachmentUrls:
+    """``PostAttachment.full_url()`` wraps its value in ``RelativeAbsoluteUrl``,
+    which raises on a schemeless URL -- and takahe serves schemeless URLs
+    whenever ``TAKAHE_MEDIA_URL`` is relative, the settings default. Reading
+    ``.absolute`` there aborts note ingestion, so we resolve the URLs
+    ourselves and must never raise."""
+
+    # Real (unsaved) PostAttachments rather than stubs, so the production
+    # signature stays honest and the storage plumbing is the real one.
+
+    def test_relative_urls_become_absolute(self):
+        atta = PostAttachment(
+            pk=7,
+            mimetype="image/png",
+            file="attachments/a.png",
+            thumbnail="attachment_thumbnails/a.png",
+        )
+        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
+            full, preview = takahe_attachment_urls(atta)
+        assert full.startswith("http")
+        assert full.endswith("/media/attachments/a.png")
+        assert preview.endswith("/media/attachment_thumbnails/a.png")
+
+    def test_absolute_urls_pass_through(self):
+        atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        with mock.patch.object(storages["takahe"], "base_url", "https://cdn.example/"):
+            full, preview = takahe_attachment_urls(atta)
+        assert full == "https://cdn.example/attachments/a.png"
+        # no thumbnail: preview falls back to the full file
+        assert preview == full
+
+    def test_uncached_remote_image_uses_the_proxy(self):
+        # takahe proxies rather than hotlinking, keeping the viewer's IP away
+        # from the origin; preserve that instead of exposing remote_url
+        atta = PostAttachment(
+            pk=7, mimetype="image/png", remote_url="https://far.example/a.png"
+        )
+        full, preview = takahe_attachment_urls(atta)
+        assert "/proxy/post_attachment/7/" in full
+        assert "/proxy/post_attachment/7/" in preview
+
+    def test_non_image_falls_back_to_remote_url(self):
+        atta = PostAttachment(
+            pk=7, mimetype="audio/mpeg", remote_url="https://far.example/a.mp3"
+        )
+        full, _ = takahe_attachment_urls(atta)
+        assert full == "https://far.example/a.mp3"
+
+    def test_nothing_available_yields_empty_rather_than_raising(self):
+        full, preview = takahe_attachment_urls(
+            PostAttachment(pk=7, mimetype="audio/mpeg")
+        )
+        assert full == ""
+        assert preview == ""
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -529,6 +585,43 @@ class TestSyncFromPost:
         assert rows[0].source == f"takahe:{atta.pk}"
         assert Attachment.objects.count() == 1
         assert list(note.attachment_records.all()) == [rows[0]]
+
+    def test_sync_survives_a_relative_takahe_media_url(self):
+        """Reproduces CI, where TAKAHE_MEDIA_URL is the relative default.
+        compose.yml sets an absolute one, which is why this hid locally --
+        pinning it here rather than relying on the ambient config."""
+        note, post = self._note_with_post(local=False)
+        PostAttachment.objects.create(
+            post=post,
+            author_id=self.identity.pk,
+            mimetype="image/png",
+            file=ContentFile(_png_bytes(), name="rel.png"),
+        )
+        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
+            rows = Attachment.sync_from_post(note, post)
+        assert len(rows) == 1
+        # resolved to an absolute URL rather than raising
+        assert rows[0].remote_url.startswith("http")
+        assert rows[0].remote_url.endswith("/media/attachments/rel.png") or (
+            "/media/" in rows[0].remote_url
+        )
+
+    def test_legacy_json_survives_a_relative_takahe_media_url(self):
+        """The same call existed in params_from_ap_object before this branch,
+        so note ingestion itself was already exposed to it."""
+        note, post = self._note_with_post(local=False)
+        PostAttachment.objects.create(
+            post=post,
+            author_id=self.identity.pk,
+            mimetype="image/png",
+            file=ContentFile(_png_bytes(), name="legacy.png"),
+        )
+        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
+            params = Note.params_from_ap_object(post, {"content": "x"}, None)
+        entries = params["attachments"]
+        assert len(entries) == 1
+        assert entries[0]["url"].startswith("http")
+        assert entries[0]["preview_url"].startswith("http")
 
     def test_remote_post_media_is_not_downloaded(self):
         note, post = self._note_with_post(local=False)

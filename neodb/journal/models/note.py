@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 
-from .attachment import Attachment
+from .attachment import Attachment, takahe_attachment_urls
 from .common import Content
 from .renderers import render_text
 from .shelf import ShelfMember
@@ -214,12 +214,16 @@ class Note(Content):
                     pass
         if post:
             for atta in post.attachments.all():
+                # not full_url()/thumbnail_url(): those raise on a schemeless
+                # URL, which is what takahe serves whenever TAKAHE_MEDIA_URL is
+                # relative (the settings default). See takahe_attachment_urls.
+                url, preview_url = takahe_attachment_urls(atta)
                 attachments.append(
                     {
                         "type": (atta.mimetype or "unknown").split("/")[0],
                         "mimetype": atta.mimetype,
-                        "url": atta.full_url().absolute,
-                        "preview_url": atta.thumbnail_url().absolute,
+                        "url": url,
+                        "preview_url": preview_url,
                     }
                 )
         return params
