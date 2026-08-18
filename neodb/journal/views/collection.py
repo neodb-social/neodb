@@ -23,6 +23,7 @@ from users.models import User
 
 from ..forms import *
 from ..models import *
+from ..models.attachment import link_attachments_to_piece
 from ..models.renderers import sanitize_md_images
 from .common import (
     conditional_get_for_anonymous,
@@ -643,6 +644,7 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
                 form.instance.owner = request.user.identity
             form.instance.brief = sanitize_md_images(form.instance.brief)
             form.save()
+            link_attachments_to_piece(form.instance, form.instance.brief)
             record_activity("collection", "web")
             return redirect(
                 reverse("journal:collection_retrieve", args=[form.instance.uuid])

@@ -1,4 +1,3 @@
-import uuid
 from functools import wraps
 
 import filetype
@@ -6,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.db.models import F, Min, OuterRef, Subquery
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -29,6 +27,7 @@ from common.utils import (
 from users.models.apidentity import APIdentity
 
 from ..models import (
+    Attachment,
     Mark,
     Piece,
     Rating,
@@ -40,16 +39,19 @@ from ..models import (
     q_item_in_category,
     q_owned_piece_visible_to_user,
 )
+from ..models.attachment import generate_attachment_path
 
 _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 _MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 def generate_upload_path(identity_id: int | str, ext: str) -> str:
-    """Generate a storage-relative upload path: upload/<identity_id>/<year>/<uuid>.<ext>"""
-    year = timezone.now().strftime("%Y")
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"upload/{identity_id}/{year}/{filename}"
+    """Generate a storage-relative upload path: upload/<identity_id>/<year>/<uuid>.<ext>
+
+    Retained as the historical name used by the importers; the registry's
+    ``generate_attachment_path`` is the same layout.
+    """
+    return generate_attachment_path(identity_id, ext)
 
 
 @login_required
@@ -64,10 +66,15 @@ def upload_image(request: AuthedHttpRequest) -> JsonResponse:
     if not kind or kind.mime not in _ALLOWED_IMAGE_TYPES:
         return JsonResponse({"error": "Unsupported image type"}, status=400)
     image.seek(0)
-    rel_path = generate_upload_path(request.user.identity.pk, kind.extension)
-    saved_path = default_storage.save(rel_path, ContentFile(image.read()))
-    url = default_storage.url(saved_path)
-    return JsonResponse({"data": {"filePath": url}})
+    # Register before handing the URL back, so the file is a tracked upload
+    # from the moment it can be embedded in a body.
+    attachment = Attachment.register(
+        request.user.identity,
+        ContentFile(image.read()),
+        kind.extension,
+        mimetype=kind.mime,
+    )
+    return JsonResponse({"data": {"filePath": attachment.url}})
 
 
 PAGE_SIZE = 10

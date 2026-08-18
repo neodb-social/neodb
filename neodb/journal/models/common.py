@@ -39,9 +39,12 @@ from .crosspost import CrosspostRetry
 from .mixins import UserOwnedObjectMixin
 
 if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import ManyRelatedManager
+
     from takahe.models import Post
 
     from .atproto import AtprotoRecord
+    from .attachment import Attachment
     from .itemlist import ListMember
     from .like import Like
 
@@ -153,6 +156,7 @@ def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
     if TYPE_CHECKING:
+        attachment_records: "ManyRelatedManager[Attachment, Any]"
         likes: models.QuerySet["Like"]
         metadata: models.JSONField[Any, Any]
         post_relations: models.QuerySet["PiecePost"]

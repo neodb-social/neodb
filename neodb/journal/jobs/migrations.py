@@ -2,7 +2,17 @@ from django.db.models import OuterRef, Subquery
 from loguru import logger
 
 from catalog.models import Edition, item_content_types
-from journal.models import Note, ShelfMember, ShelfMemberProgress, ShelfType
+from journal.models import (
+    Article,
+    Attachment,
+    Collection,
+    Note,
+    Review,
+    ShelfMember,
+    ShelfMemberProgress,
+    ShelfType,
+)
+from journal.models.attachment import link_attachments_to_piece
 
 
 def backfill_member_progress_from_notes_20260720(batch_size: int = 1000) -> int:
@@ -65,3 +75,87 @@ def backfill_member_progress_from_notes_20260720(batch_size: int = 1000) -> int:
         f"Backfilled current reading progress for up to {candidates} shelf members"
     )
     return candidates
+
+
+def _backfill_bodies_20260818(model, field: str) -> int:
+    """Register and link the media embedded in every ``field`` of ``model``.
+
+    Only pieces whose text actually contains a markdown image are scanned, and
+    only local media is registered -- an external URL in a body is not ours.
+    Files are adopted in place: the bytes already live where uploads belong,
+    so nothing is copied.
+    """
+    pieces = model.objects.filter(**{f"{field}__contains": "!["}).select_related(
+        "owner"
+    )
+    count = 0
+    for piece in pieces.iterator(chunk_size=200):
+        try:
+            link_attachments_to_piece(piece, getattr(piece, field) or "")
+        except Exception as e:
+            logger.warning(f"attachment backfill error on {piece}: {e}")
+            continue
+        count += 1
+    return count
+
+
+def _backfill_notes_20260818() -> int:
+    """Register the attachments of every Note that has any.
+
+    Two sources, in order of fidelity:
+
+    1. the linked takahe post, which still holds the files plus their
+       dimensions and alt text;
+    2. the note's own ``attachments`` JSON, the only thing left once takahe
+       has pruned the post.
+
+    Media on a local post is copied into our storage (takahe prunes, and the
+    copy is what keeps the note renderable); remote media is recorded as a
+    pointer, never downloaded.
+
+    The legacy JSON is deliberately not rewritten. ``Note.attachment_list``
+    prefers the rows, so the column simply stops being read -- and rewriting
+    it would mean saving Notes, which re-posts and re-indexes every one of
+    them (``Piece.save`` ignores ``update_fields`` for its side effects).
+    """
+    notes = Note.objects.exclude(attachments=[]).select_related("owner")
+    count = 0
+    for note in notes.iterator(chunk_size=200):
+        try:
+            post = note.latest_post
+            registered = Attachment.sync_from_post(note, post) if post else []
+            if not registered:
+                rows = []
+                for entry in note.attachments or []:
+                    if not isinstance(entry, dict):
+                        continue
+                    a = Attachment.from_legacy_json(note.owner, entry)
+                    if a:
+                        rows.append(a)
+                if rows:
+                    note.attachment_records.add(*rows)
+                registered = rows
+            if registered:
+                count += 1
+        except Exception as e:
+            logger.warning(f"attachment backfill error on {note}: {e}")
+    return count
+
+
+def backfill_attachments_20260818() -> int:
+    """Bring pre-existing user uploads into the attachment registry.
+
+    Article / Review / Collection bodies are adopted in place; Note media is
+    copied out of takahe. See the helpers for the per-source details.
+    """
+    articles = _backfill_bodies_20260818(Article, "body")
+    reviews = _backfill_bodies_20260818(Review, "body")
+    collections = _backfill_bodies_20260818(Collection, "brief")
+    notes = _backfill_notes_20260818()
+    total = articles + reviews + collections + notes
+    logger.info(
+        "Backfilled attachments for "
+        f"{articles} articles, {reviews} reviews, "
+        f"{collections} collections, {notes} notes"
+    )
+    return total

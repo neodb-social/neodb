@@ -6,7 +6,7 @@ from django.core.files.storage import default_storage
 from tqdm import tqdm
 
 from common.management.base import SiteCommand
-from journal.models import Collection, Review
+from journal.models import Attachment, Collection, Review
 from journal.models.renderers import RE_MD_IMAGE
 
 
@@ -53,7 +53,11 @@ def _migrate_image(src: str, identity_id: int, created_year: str) -> str | None:
 
     # Copy file to new location
     with default_storage.open(rel_path) as f:
-        default_storage.save(new_rel, ContentFile(f.read()))
+        new_rel = default_storage.save(new_rel, ContentFile(f.read()))
+
+    # Keep the upload registry pointing at the file we just moved; a row
+    # adopted at the old path would otherwise be left dangling.
+    Attachment.objects.filter(file=rel_path).update(file=new_rel)
 
     return settings.MEDIA_URL + new_rel
 

@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 
+from .attachment import Attachment
 from .common import Content
 from .renderers import render_text
 from .shelf import ShelfMember
@@ -231,7 +232,29 @@ class Note(Content):
             and owner.user.preference.mastodon_default_repost
             and owner.user.mastodon is not None
         )
-        return super().update_by_ap_object(owner, item, obj, post, crosspost)
+        note = super().update_by_ap_object(owner, item, obj, post, crosspost)
+        if note:
+            # Note media is uploaded to takahe through the Mastodon API, so
+            # this is where it enters the registry. Local media is copied into
+            # our own storage (takahe hard-prunes posts); remote media only
+            # gets a pointer row. The legacy ``attachments`` JSON that
+            # ``params_from_ap_object`` wrote is left untouched -- it stays the
+            # fallback read path until the async backfill has run everywhere.
+            Attachment.sync_from_post(note, post)
+        return note
+
+    @property
+    def attachment_list(self) -> list:
+        """Attachments to render, preferring registry rows.
+
+        Falls back to the legacy ``attachments`` JSON for notes the async
+        backfill has not reached yet. Both shapes expose ``type`` / ``url`` /
+        ``preview_url``, so templates read them identically.
+        """
+        rows = list(self.attachment_records.all())
+        if rows:
+            return rows
+        return self.attachments or []
 
     @cached_property
     def shelfmember(self) -> ShelfMember | None:
