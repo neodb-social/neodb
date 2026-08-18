@@ -412,7 +412,9 @@ class JournalIndex(Index):
             "visibility": piece.visibility,
         }
         if piece.latest_post:
-            # fk is not enforced, so post might be deleted
+            # fk is not enforced, so post might be deleted; a doc without
+            # post_id marks its post as dead, which cleanup_deleted_post's
+            # trailing delete_by_post relies on
             doc["post_id"] = [piece.latest_post_id]
             # enable this in future when we support search other users
             # doc["viewer_id"] = list(

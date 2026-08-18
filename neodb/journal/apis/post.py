@@ -174,7 +174,9 @@ def list_posts_for_item(
     query.filter("item_id", item.pk)
     # NB: no `post_id:>0` filter to align `count` with `data`: post_id has no
     # range index and millions of distinct values, so it scans the whole
-    # numeric tree and saturates Typesense (NEODB-SOCIAL-7NF)
+    # numeric tree and saturates Typesense (NEODB-SOCIAL-7NF). So `count` may
+    # exceed len(data): a doc whose post takahe pruned still counts here but
+    # resolves to no post; accepted drift, healed by refetch or idx-rebuild
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     result = {

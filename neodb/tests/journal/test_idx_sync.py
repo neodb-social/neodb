@@ -97,6 +97,24 @@ class TestIdxSync:
         self.run_sync()
         assert self.doc_ids(self.identity1.pk) == before
 
+    def test_local_pruned_post_doc_left_alone(self):
+        # the mark post dies without the post_deleted callback; the doc
+        # keeps claiming the dead post_id (accepted drift, see
+        # sync_identity_index docstring). Soft-delete here so the
+        # _DELETED_POST_STATES branch is covered; the remote twin covers
+        # the row-gone branch
+        mark = Mark(self.identity1, self.book1)
+        assert mark.shelfmember is not None
+        post_id = mark.shelfmember.latest_post_id
+        assert post_id
+        before = self.doc_ids(self.identity1.pk)
+        Takahe.delete_posts([post_id])
+        output = self.run_sync()
+        assert "0 docs added, 0 docs deleted" in output
+        assert self.doc_ids(self.identity1.pk) == before
+        doc = self.index.write_collection.documents[str(post_id)].retrieve()
+        assert doc["post_id"] == [post_id]
+
     def test_purge_deactivated_identity(self):
         assert self.doc_ids(self.identity2.pk)
         self.user2.is_active = False
@@ -398,16 +416,29 @@ class TestIdxSyncRemote:
         r = self.index.search(q)
         return r.total, len(list(r.posts))
 
-    def test_remote_sync_rewrites_doc_of_pruned_post(self):
+    def test_remote_pruned_post_doc_left_alone(self):
         post_pk = self.post.pk
         assert self.doc_ids(self.owner.pk) == {str(post_pk)}
-        # takahe pruned the post; the doc still claims post_id, so it is
-        # counted while its post can never be returned
+        # takahe pruned the post; the doc keeps claiming its post_id
+        # (accepted drift, see sync_identity_index docstring; the count
+        # probe below filters on post_id, which no item query does in
+        # production). A refetch or idx-rebuild heals the doc; sync must
+        # not rewrite it, as that can never converge
         self.post.delete()
         assert self._item_review_posts_count() == (1, 0)
-        self.run_sync("--remote")
-        # same doc id, but content rewritten without the dead post_id
+        output = self.run_sync("--remote")
+        assert "0 docs added, 0 docs deleted" in output
         assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        assert self._item_review_posts_count() == (1, 0)
+
+    def test_missing_doc_of_pruned_post_restored(self):
+        post_pk = self.post.pk
+        self.post.delete()
+        self.index.delete_by_owner([self.owner.pk])
+        output = self.run_sync("--remote")
+        assert "1 docs added, 0 docs deleted" in output
+        assert self.doc_ids(self.owner.pk) == {str(post_pk)}
+        # rebuilt from db truth, so it no longer claims the dead post
         assert self._item_review_posts_count() == (0, 0)
 
     def test_remote_sync_cleans_docs_of_pieceless_owner(self):

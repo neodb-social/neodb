@@ -120,9 +120,11 @@ def _make_remote_post(owner_pk: int, uri: str, obj: dict) -> Post:
 
 @pytest.mark.django_db(databases="__all__")
 class TestRemotePieceIndex:
-    """Regression tests for #1761: docs indexed for remote pieces must
-    reference the linked post, so that item post search returns as many
-    posts as it counts."""
+    """Regression tests for #1761: when a pruned remote post is refetched
+    under a new pk, the piece doc must be relinked to it so item post
+    search returns the post again. A doc whose post is pruned and never
+    refetched keeps claiming the dead post; that drift is accepted (see
+    sync_identity_index docstring)."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):
