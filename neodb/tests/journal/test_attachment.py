@@ -2,6 +2,7 @@
 
 import io
 from unittest import mock
+from urllib.parse import urlparse
 
 import pytest
 from django.conf import settings
@@ -147,6 +148,17 @@ class TestTakaheMediaPath:
         assert takahe_media_path(settings.MEDIA_URL + "upload/1/2026/x.png") is None
         assert takahe_media_path("https://elsewhere.example/x.png") is None
         assert takahe_media_path("") is None
+
+    def test_resolves_the_host_our_own_writer_uses(self):
+        """takahe_attachment_urls absolutizes against site_url, so the resolver
+        has to accept that host or it would reject its own output."""
+        host = urlparse(settings.SITE_INFO["site_url"]).hostname
+        url = (
+            f"https://{host}"
+            + settings.TAKAHE_MEDIA_URL.replace(f"https://{host}", "")
+            + "attachments/a/b.png"
+        )
+        assert takahe_media_path(url) == "attachments/a/b.png"
 
     def test_rejects_a_foreign_host_mimicking_our_media_path(self):
         """The URL on a federated attachment is remote-controlled, so a path

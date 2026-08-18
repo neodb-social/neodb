@@ -143,13 +143,19 @@ def takahe_media_path(url: str) -> str | None:
         # bucket (worst when MEDIA_URL's path is "/", which makes any path
         # look local). Require the host to be ours before trusting the path.
         host = parsed.hostname or ""
-        media_host = urlparse(settings.MEDIA_URL).hostname or ""
-        takahe_host = urlparse(settings.TAKAHE_MEDIA_URL).hostname or ""
         allowed = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
-        if media_host:
-            allowed.add(media_host)
-        if takahe_host:
-            allowed.add(takahe_host)
+        for candidate in (
+            settings.MEDIA_URL,
+            settings.TAKAHE_MEDIA_URL,
+            # takahe_attachment_urls absolutizes against site_url, which a
+            # deployment may point at a host outside SITE_DOMAINS; without it
+            # here the reader would reject what our own writer produced and
+            # quietly downgrade every copy to a pointer row
+            settings.SITE_INFO["site_url"],
+        ):
+            candidate_host = urlparse(candidate).hostname if candidate else ""
+            if candidate_host:
+                allowed.add(candidate_host)
         if host not in allowed:
             return None
         path = parsed.path
