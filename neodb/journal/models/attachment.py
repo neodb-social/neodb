@@ -418,6 +418,21 @@ class Attachment(models.Model):
         return paths
 
 
+def _is_owned_upload(path: str, owner_id: int) -> bool:
+    """True when ``path`` is an upload belonging to ``owner_id``.
+
+    Upload paths are ``upload/<identity_id>/<year>/<uuid>.<ext>``, so the
+    owner is readable from the path itself. Registering only the owner's own
+    files keeps a hotlink -- user B embedding the URL of user A's image, which
+    ``normalize_image_src`` happily accepts -- from claiming A's file for B.
+    Without this, deleting B's account would delete A's image, and A deleting
+    theirs would silently break B's page. Such a hotlink simply stays
+    unregistered, exactly as it was before the registry existed.
+    """
+    parts = path.split("/")
+    return len(parts) > 2 and parts[0] == "upload" and parts[1] == str(owner_id)
+
+
 def link_attachments_to_piece(piece: "Piece", *texts: str) -> None:
     """Sync ``piece``'s attachment links against the media it embeds.
 
@@ -431,7 +446,12 @@ def link_attachments_to_piece(piece: "Piece", *texts: str) -> None:
     written before the registry existed (or restored by an importer) from
     staying invisible to it.
     """
-    paths = Attachment.resolve_body_paths(*texts)
+    owner = piece.owner
+    paths = {
+        p
+        for p in Attachment.resolve_body_paths(*texts)
+        if _is_owned_upload(p, owner.pk)
+    }
     linked: dict[str, Attachment] = {}
     for a in piece.attachment_records.all():
         name = a.file.name if a.file else None
@@ -439,7 +459,7 @@ def link_attachments_to_piece(piece: "Piece", *texts: str) -> None:
             linked[name] = a
     for path in paths - set(linked):
         attachment = Attachment.objects.filter(file=path).first() or Attachment.adopt(
-            piece.owner, path
+            owner, path
         )
         if attachment:
             piece.attachment_records.add(attachment)

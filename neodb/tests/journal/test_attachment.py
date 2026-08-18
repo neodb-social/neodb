@@ -209,6 +209,20 @@ class TestLinkAttachmentsToPiece:
         assert _name(rows[0].file) == path
         assert rows[0].owner == self.identity
 
+    def test_another_users_image_is_not_claimed(self):
+        """Hotlinking someone else's upload must not register it as mine.
+
+        Otherwise deleting my account would delete their file.
+        """
+        other = User.register(email="other2@test.com", username="other2_user")
+        theirs = Attachment.register(other.identity, ContentFile(_png_bytes()), "png")
+        article = Article.update_local_article(
+            owner=self.identity, title="Hotlink", body=f"![]({theirs.url})"
+        )
+        assert article.attachment_records.count() == 0
+        assert list(theirs.pieces.all()) == []
+        assert Attachment.objects.count() == 1  # still only theirs
+
     def test_review_save_links_embedded_upload(self):
         item = Edition.objects.create(title="Reviewed Book")
         a = Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
