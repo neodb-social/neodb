@@ -59,6 +59,26 @@ class Rating(Content):
     )
 
     @property
+    def sibling_shelfmember(self):
+        from .shelf import ShelfMember
+
+        return ShelfMember.objects.filter(owner=self.owner, item=self.item).first()
+
+    def update_index(self):
+        # a rating never indexes alone; its grade lives in the sibling
+        # mark's doc
+        sm = self.sibling_shelfmember
+        if sm:
+            sm.update_index()
+
+    def delete(self, *args, **kwargs):
+        sm = self.sibling_shelfmember
+        r = super().delete(*args, **kwargs)
+        if sm:
+            sm.update_index()
+        return r
+
+    @property
     def ap_object(self):
         return {
             "id": self.absolute_url,
@@ -86,7 +106,9 @@ class Rating(Content):
             return p
         value = obj.get("value", 0) if obj else 0
         if not value:
-            cls.objects.filter(owner=owner, item=item).delete()
+            # instance deletes so the sibling mark doc is refreshed
+            for r in cls.objects.filter(owner=owner, item=item):
+                r.delete()
             return
         best = obj.get("best", 5)
         worst = obj.get("worst", 1)
@@ -282,7 +304,9 @@ class Rating(Content):
         if rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f"Invalid rating grade: {rating_grade}")
         if not rating_grade:
-            Rating.objects.filter(owner=owner, item=item).delete()
+            # instance deletes so the sibling mark doc is refreshed
+            for r in Rating.objects.filter(owner=owner, item=item):
+                r.delete()
         else:
             d: dict[str, Any] = {"grade": rating_grade, "visibility": visibility}
             if created_time:
