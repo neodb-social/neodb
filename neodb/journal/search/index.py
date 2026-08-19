@@ -384,12 +384,6 @@ class JournalIndex(Index):
                 "type": "int32",
                 "sort": False,
             },
-            {
-                "name": "viewer_id",
-                "type": "int64[]",
-                "sort": False,
-                "optional": True,
-            },
         ]
     }
     search_result_class = JournalSearchResult
@@ -416,15 +410,15 @@ class JournalIndex(Index):
             # post_id marks its post as dead, which cleanup_deleted_post's
             # trailing delete_by_post relies on
             doc["post_id"] = [piece.latest_post_id]
-            # enable this in future when we support search other users
-            # doc["viewer_id"] = list(
-            #     piece.latest_post.interactions.values_list("identity_id", flat=True)
-            # )
         doc.update(d)
         return doc
 
     @classmethod
     def pieces_to_docs(cls, pieces: "Iterable[Piece]") -> list[dict]:
+        from journal.models.common import prefetch_latest_posts  # circular
+
+        pieces = list(pieces)
+        prefetch_latest_posts(pieces)
         docs = [cls.piece_to_doc(p) for p in pieces]
         return [d for d in docs if d]
 
@@ -445,10 +439,6 @@ class JournalIndex(Index):
                 "created": int(post.created.timestamp()),
                 "visibility": Takahe.visibility_t2n(post.visibility),
                 "owner_id": post.author_id,
-                # enable this in future when we support search other users
-                # "viewer_id": list(
-                #     post.interactions.values_list("identity_id", flat=True)
-                # ),
             }
             # A post orphaned by a shelf change (or linked only to pieces
             # that index within another doc) still relates to an item via
@@ -530,16 +520,6 @@ class JournalIndex(Index):
     def replace_posts(self, posts: Iterable[Post]):
         docs = self.posts_to_docs(posts)
         self.replace_docs(docs)
-
-    def replace_pieces(self, pieces: "Iterable[Piece] | QuerySet[Piece]"):
-        if isinstance(pieces, QuerySet):
-            pids = list(pieces.values_list("pk", flat=True))
-        else:
-            pids = [p.pk for p in pieces]
-        if not pids:
-            return
-        self.delete_by_piece(pids)
-        self.insert_docs(self.pieces_to_docs(pieces))
 
     def search(
         self,

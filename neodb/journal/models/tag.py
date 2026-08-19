@@ -100,6 +100,26 @@ class Tag(List):
     def to_indexable_doc(self):
         return {}
 
+    def _refresh_mark_index(self, item: Item):
+        # the mark doc carries the owner's tag list for the item
+        from .shelf import ShelfMember
+
+        sm = ShelfMember.objects.filter(owner=self.owner, item=item).first()
+        if sm:
+            sm.update_index()
+
+    def append_item(self, item, **params):
+        member, created = super().append_item(item, **params)
+        if created:
+            self._refresh_mark_index(item)
+        return member, created
+
+    def remove_item(self, item):
+        member = self.get_member_for_item(item)
+        super().remove_item(item)
+        if member:
+            self._refresh_mark_index(item)
+
 
 class TagManager:
     @staticmethod

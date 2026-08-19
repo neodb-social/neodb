@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
-from journal.models import Collection, Comment, Mark, Review, ShelfType
+from journal.models import Collection, Comment, Mark, Rating, Review, ShelfType, Tag
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.ap_handlers import post_deleted
 from takahe.models import Domain, Post
@@ -245,8 +245,9 @@ class TestShelfChangeOrphanedPost:
         assert "0 docs would be added, 0 docs would be deleted" in output
 
     def test_delete_orphaned_post_drops_doc(self):
-        # the linked Comment still matches in post_deleted() but rewrites
-        # nothing, so only the unconditional delete_by_post removes the doc
+        # the linked Comment matched in post_deleted() refreshes the mark
+        # doc (a different doc id); only the unconditional delete_by_post
+        # removes the orphan's own doc
         old_pid, new_pid = self.transition(comment="so far so good")
         assert str(old_pid) in self.doc_ids(self.identity.pk)
         Takahe.delete_posts([old_pid])
@@ -300,6 +301,73 @@ class TestShelfChangeOrphanedPost:
             docs = build(orphans)
         assert all(d.get("item_id") for d in docs)
         assert len(three.captured_queries) - len(one.captured_queries) == 2
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMarkFamilyIndex:
+    """Comment, rating and tags index within the mark's doc; mutating
+    them outside Mark.update must refresh it."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.index = JournalIndex.instance()
+        self.index.delete_all()
+        self.book = Edition.objects.create(title="Hyperion")
+        self.user = User.register(email="x@y.com", username="userx")
+        self.identity = self.user.identity
+        mark = Mark(self.identity, self.book)
+        mark.update(ShelfType.PROGRESS, "old text", 9, ["scifi"], 0)
+        self.sm = mark.shelfmember
+        assert self.sm is not None
+        assert self.sm.latest_post_id
+        self.doc_id = str(self.sm.latest_post_id)
+
+    def get_doc(self, doc_id: str) -> dict:
+        return self.index.write_collection.documents[doc_id].retrieve()
+
+    def doc_ids(self, owner_id: int) -> set[str]:
+        ids = self.index.get_doc_ids_by_owner(owner_id)
+        assert ids is not None
+        return ids
+
+    def test_comment_edit_refreshes_mark_doc(self):
+        Comment.comment_item(self.book, self.identity, "new text", 0)
+        assert self.get_doc(self.doc_id)["content"] == ["new text"]
+
+    def test_comment_delete_refreshes_mark_doc(self):
+        Comment.objects.get(owner=self.identity, item=self.book).delete()
+        doc = self.get_doc(self.doc_id)
+        assert doc["content"] == []
+        assert "Comment" not in doc["piece_class"]
+
+    def test_rating_delete_refreshes_mark_doc(self):
+        Rating.objects.get(owner=self.identity, item=self.book).delete()
+        doc = self.get_doc(self.doc_id)
+        assert doc["rating"] == 0
+        assert "Rating" not in doc["piece_class"]
+
+    def test_tag_change_refreshes_mark_doc(self):
+        tag, _ = Tag.objects.get_or_create(owner=self.identity, title="epic")
+        tag.append_item(self.book)
+        assert "epic" in self.get_doc(self.doc_id)["tag"]
+        tag.remove_item(self.book)
+        assert "epic" not in self.get_doc(self.doc_id)["tag"]
+
+    def test_marking_then_editing_comment_drops_lone_doc(self):
+        book2 = Edition.objects.create(title="Endymion")
+        c = Comment.comment_item(book2, self.identity, "was lone", 0)
+        assert c is not None
+        # a lone comment owns its doc
+        assert f"p{c.pk}" in self.doc_ids(self.identity.pk)
+        Mark(self.identity, book2).update(ShelfType.WISHLIST, None, None, [], 0)
+        # editing the now-embedded comment refreshes the mark doc and
+        # drops the leftover lone doc
+        Comment.comment_item(book2, self.identity, "now embedded", 0)
+        ids = self.doc_ids(self.identity.pk)
+        assert f"p{c.pk}" not in ids
+        sm = Mark(self.identity, book2).shelfmember
+        assert sm is not None and sm.latest_post_id
+        assert self.get_doc(str(sm.latest_post_id))["content"] == ["now embedded"]
 
 
 def _make_remote_identity(username: str, domain_name: str = "remote.example"):

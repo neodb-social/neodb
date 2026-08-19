@@ -103,8 +103,10 @@ class TestCrosspostRetryRecording:
 
     def test_boost_failure_recorded_and_cleared(self, user, comment, monkeypatch):
         _link_mastodon(user, repost_mode=0)
+        # patch the instance, not the class: indexing on save already
+        # resolved the cached_property into the instance dict
         monkeypatch.setattr(
-            Comment,
+            comment,
             "latest_post",
             SimpleNamespace(url="https://example.org/p/1"),
         )

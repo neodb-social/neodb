@@ -175,7 +175,7 @@ class Command(SiteCommand):
             self.stdout.write(self.style.ERROR("--hour parameter is required"))
             return
         cutoff_time = timezone.now() - timedelta(hours=hours)
-        model_classes = [ShelfMember, Review, Comment, Collection, Note]
+        model_classes = _INDEXABLE_PIECE_CLASSES
         for model_cls in model_classes:
             items = model_cls.objects.filter(edited_time__gte=cutoff_time).order_by(
                 "pk"
