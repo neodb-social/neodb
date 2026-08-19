@@ -152,12 +152,13 @@ class TestTakaheMediaPath:
     def test_resolves_the_host_our_own_writer_uses(self):
         """takahe_attachment_urls absolutizes against site_url, so the resolver
         has to accept that host or it would reject its own output."""
+        # build the path portion from whichever form TAKAHE_MEDIA_URL takes;
+        # it is absolute under compose and relative by default, and its host
+        # need not match site_url's
         host = urlparse(settings.SITE_INFO["site_url"]).hostname
-        url = (
-            f"https://{host}"
-            + settings.TAKAHE_MEDIA_URL.replace(f"https://{host}", "")
-            + "attachments/a/b.png"
-        )
+        prefix = settings.TAKAHE_MEDIA_URL
+        prefix_path = urlparse(prefix).path if "://" in prefix else prefix
+        url = f"https://{host}{prefix_path}attachments/a/b.png"
         assert takahe_media_path(url) == "attachments/a/b.png"
 
     def test_rejects_a_foreign_host_mimicking_our_media_path(self):
