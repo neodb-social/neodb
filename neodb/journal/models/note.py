@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 
+from .attachment import Attachment, takahe_attachment_urls
 from .common import Content
 from .renderers import render_text
 from .shelf import ShelfMember
@@ -213,12 +214,16 @@ class Note(Content):
                     pass
         if post:
             for atta in post.attachments.all():
+                # not full_url()/thumbnail_url(): those raise on a schemeless
+                # URL, which is what takahe serves whenever TAKAHE_MEDIA_URL is
+                # relative (the settings default). See takahe_attachment_urls.
+                url, preview_url = takahe_attachment_urls(atta)
                 attachments.append(
                     {
                         "type": (atta.mimetype or "unknown").split("/")[0],
                         "mimetype": atta.mimetype,
-                        "url": atta.full_url().absolute,
-                        "preview_url": atta.thumbnail_url().absolute,
+                        "url": url,
+                        "preview_url": preview_url,
                     }
                 )
         return params
@@ -231,7 +236,32 @@ class Note(Content):
             and owner.user.preference.mastodon_default_repost
             and owner.user.mastodon is not None
         )
-        return super().update_by_ap_object(owner, item, obj, post, crosspost)
+        note = super().update_by_ap_object(owner, item, obj, post, crosspost)
+        if note:
+            # Note media is uploaded to takahe through the Mastodon API, so
+            # this is where it enters the registry. Local media is copied into
+            # our own storage (takahe hard-prunes posts); remote media only
+            # gets a pointer row. The legacy ``attachments`` JSON that
+            # ``params_from_ap_object`` wrote is left untouched -- it stays the
+            # fallback read path until the async backfill has run everywhere.
+            Attachment.sync_from_post(note, post)
+        return note
+
+    @property
+    def attachment_list(self) -> list:
+        """Attachments to render, preferring registry rows.
+
+        Falls back to the legacy ``attachments`` JSON for notes the async
+        backfill has not reached yet. Both shapes expose ``type`` / ``url`` /
+        ``preview_url``, so templates read them identically.
+        """
+        # .all() so a prefetch is honored; Attachment.Meta.ordering keeps the
+        # sequence stable, which the templates depend on (their lightbox
+        # anchors are keyed off forloop.counter)
+        rows = list(self.attachment_records.all())
+        if rows:
+            return rows
+        return self.attachments or []
 
     @cached_property
     def shelfmember(self) -> ShelfMember | None:

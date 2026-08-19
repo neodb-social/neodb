@@ -1,4 +1,5 @@
 from auditlog.context import set_actor
+from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 from loguru import logger
@@ -8,6 +9,7 @@ from journal.search import JournalIndex
 from users.models import APIdentity, User
 
 from .article import Article
+from .attachment import Attachment
 from .collection import Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
 from .common import Content, Debris, Piece
@@ -56,7 +58,38 @@ def reset_journal_visibility_for_user(owner: APIdentity, visibility: int):
     Review.objects.filter(owner=owner).update(visibility=visibility)
 
 
+def remove_uploaded_files_by_identity(owner: APIdentity) -> int:
+    """Delete an identity's uploaded blobs, not just the rows pointing at them.
+
+    Cascading the DB rows away would leave every image the user ever uploaded
+    sitting in storage forever. Covers are handled alongside the attachment
+    registry because they are uploads too, just held in an ImageField instead
+    of a registry row.
+
+    Best-effort per file: one unreadable object must not abort the rest of the
+    account deletion.
+    """
+    count = 0
+    for attachment in Attachment.objects.filter(owner=owner):
+        attachment.delete_files()
+        count += 1
+    for model in (Article, Collection):
+        for piece in model.objects.filter(owner=owner).exclude(cover=""):
+            if not piece.cover or str(piece.cover) == settings.DEFAULT_ITEM_COVER:
+                continue
+            try:
+                piece.cover.delete(save=False)
+                count += 1
+            except Exception as e:
+                logger.warning(f"{piece} cover delete error {e}")
+    return count
+
+
 def remove_data_by_identity(owner: APIdentity):
+    # Blobs first: the rows that point at them are about to be deleted, and
+    # Attachment cascades off the identity.
+    removed = remove_uploaded_files_by_identity(owner)
+    Attachment.objects.filter(owner=owner).delete()
     ShelfMember.objects.filter(owner=owner).delete()
     ShelfLogEntry.objects.filter(owner=owner).delete()
     Comment.objects.filter(owner=owner).delete()
@@ -71,7 +104,7 @@ def remove_data_by_identity(owner: APIdentity):
     Article.objects.filter(owner=owner).delete()
     index = JournalIndex.instance()
     index.delete_by_owner(owner.pk)
-    logger.info(f"removed journal data by {owner}")
+    logger.info(f"removed journal data by {owner}, {removed} uploaded files")
 
 
 def update_journal_for_merged_item_task(editing_user_id: int, legacy_item_uuid: str):

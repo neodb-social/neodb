@@ -114,7 +114,7 @@
       <div class="note-card-content tldr" _="on click toggle .tldr on me">
         {{ note.content|linebreaksbr }}
         <div class="attachments">
-          {% for attachment in note.attachments %}
+          {% for attachment in note.attachment_list %}
             {% if attachment.type == 'image' %}
               <a href="#img_{{ note.uuid }}_{{ forloop.counter }}"
                  _="on click halt the event then add .open to the next .lightbox">

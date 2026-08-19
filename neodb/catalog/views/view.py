@@ -565,7 +565,13 @@ def similar(request, item_path, item_uuid):
 def notes(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     ids = item.child_item_ids + [item.pk] + item.sibling_item_ids
-    queryset = Note.objects.filter(item_id__in=ids).order_by("-created_time")
+    # attachment_records feeds Note.attachment_list in the template; without
+    # the prefetch each card costs an extra query
+    queryset = (
+        Note.objects.filter(item_id__in=ids)
+        .prefetch_related("attachment_records")
+        .order_by("-created_time")
+    )
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
     from_note = request.GET.get("from", "")
     if from_note:

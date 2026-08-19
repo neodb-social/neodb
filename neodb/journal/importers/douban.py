@@ -376,17 +376,37 @@ class DoubanImporter(Task):
             "body": content,
             "visibility": self.metadata["visibility"],
         }
+        # This is the one Review write path that bypasses update_item_review,
+        # so it has to register the images _fetch_remote_image just pulled into
+        # upload/ itself -- otherwise a Douban import (hundreds of images) is
+        # invisible to the upload registry and never reclaimed on account
+        # deletion.
+        review = None
         try:
-            Review.objects.update_or_create(
+            review, _ = Review.objects.update_or_create(
                 owner=self.user.identity, item=item, defaults=params
             )
         except Exception:
             logger.warning(f"{prefix} update multiple review {review_url}")
-            r = (
+            review = (
                 Review.objects.filter(owner=self.user.identity, item=item)
                 .order_by("-created_time")
                 .first()
             )
-            if r:
-                Review.objects.filter(pk=r.pk).update(**params)
+            if review:
+                Review.objects.filter(pk=review.pk).update(**params)
+        if review:
+            # Its own try, for two reasons. Inside the one above, a link
+            # failure was reported as the "update multiple review" case and
+            # sent us round the fallback again; bare, it would abort the whole
+            # import job, since neither import_review nor its callers catch and
+            # a sheet row would take every later row down with it. The review
+            # itself is already saved, so losing a link is worth a log, not the
+            # import. ``content`` rather than ``review.body`` because the
+            # fallback wrote via a queryset update, which leaves the in-memory
+            # instance holding the pre-import body.
+            try:
+                link_attachments_to_piece(review, content)
+            except Exception as e:
+                logger.warning(f"{prefix} attachment link failed {review_url}: {e}")
         return 1

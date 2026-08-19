@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import os
 import re
 import tempfile
@@ -15,6 +16,7 @@ from loguru import logger
 from catalog.models import Item
 from journal.models import (
     Article,
+    Attachment,
     Collection,
     Comment,
     Mark,
@@ -28,6 +30,7 @@ from journal.models import (
     Tag,
     TagMember,
 )
+from journal.models.attachment import link_attachments_to_piece
 from journal.models.renderers import RE_MD_IMAGE
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -83,6 +86,37 @@ class NdjsonImporter(BaseImporter):
         src = self._resolve_temp_path(rel_path)
         return src if src and os.path.isfile(src) else None
 
+    def _restore_note_attachment(
+        self, owner: APIdentity, atta: Dict[str, Any]
+    ) -> Attachment | None:
+        """Restore one bundled note attachment as a registered upload.
+
+        Registering here rather than reusing ``_store_bundled_file`` keeps the
+        bytes stored once: the legacy ``attachments`` JSON entry is derived
+        from the row via ``to_json()`` instead of being built separately.
+
+        Falls back to the exporter's recorded URL when the bundle carries no
+        file (the post was pruned, or its media lives elsewhere), which keeps
+        the attachment rather than dropping it.
+        """
+        mimetype = atta.get("mimetype", "")
+        src = self._store_path(atta.get("file"))
+        if src:
+            ext = (
+                os.path.splitext(src)[1]
+                or mimetypes.guess_extension(mimetype)
+                or ".bin"
+            )
+            try:
+                with open(src, "rb") as f:
+                    return Attachment.register(owner, File(f), ext, mimetype=mimetype)
+            except Exception as e:
+                logger.warning(f"error registering note attachment {src}: {e}")
+        url = atta.get("url")
+        if not url:
+            return None
+        return Attachment.from_legacy_json(owner, {"url": url, "mimetype": mimetype})
+
     def _restore_body_images(self, body: str, data: Dict[str, Any]) -> str:
         """Repoint inline markdown images at copies restored from the bundle.
 
@@ -135,6 +169,8 @@ class NdjsonImporter(BaseImporter):
                 # when a bundle carries no published timestamp
                 **({"created_time": published_dt} if published_dt else {}),
             )
+            # register the images restored into the brief as tracked uploads
+            link_attachments_to_piece(collection, collection.brief)
             cover_src = self._store_path(data.get("cover"))
             if cover_src:
                 with open(cover_src, "rb") as f:
@@ -366,8 +402,9 @@ class NdjsonImporter(BaseImporter):
                 existing_review.visibility = visibility
                 existing_review.metadata = metadata
                 existing_review.save()
+                link_attachments_to_piece(existing_review, existing_review.body)
                 return "imported"
-            Review.objects.create(
+            review = Review.objects.create(
                 owner=owner,
                 item=item,
                 title=name,
@@ -376,6 +413,7 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 **({"created_time": published_dt} if published_dt else {}),
             )
+            link_attachments_to_piece(review, review.body)
             return "imported"
         except Exception:
             logger.exception("Error importing review")
@@ -414,29 +452,23 @@ class NdjsonImporter(BaseImporter):
                 **({"created_time": published_dt} if published_dt else {}),
             )
             note_attachments = []
+            restored: list[Attachment] = []
             for atta in data.get("attachments") or []:
                 if not isinstance(atta, dict):
                     continue
-                mimetype = atta.get("mimetype", "")
-                url = self._store_bundled_file(atta.get("file"))
-                if url:
-                    if url.startswith("/"):
-                        url = settings.SITE_INFO["site_url"].rstrip("/") + url
-                else:
-                    # the exporter could not bundle the file (post pruned or
-                    # media held elsewhere); keep its recorded URL rather
-                    # than dropping the attachment entirely
-                    url = atta.get("url")
-                if not url:
+                a = self._restore_note_attachment(owner, atta)
+                if not a:
                     continue
-                note_attachments.append(
-                    {
-                        "type": (mimetype or "unknown").split("/")[0],
-                        "mimetype": mimetype,
-                        "url": url,
-                        "preview_url": "",
-                    }
-                )
+                restored.append(a)
+                entry = a.to_json()
+                if entry["url"].startswith("/"):
+                    site = settings.SITE_INFO["site_url"].rstrip("/")
+                    entry["url"] = site + entry["url"]
+                    if entry["preview_url"].startswith("/"):
+                        entry["preview_url"] = site + entry["preview_url"]
+                note_attachments.append(entry)
+            if restored:
+                note.attachment_records.add(*restored)
             if note_attachments:
                 note.attachments = note_attachments
                 note.save(
