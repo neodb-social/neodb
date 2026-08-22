@@ -41,6 +41,7 @@ urlpatterns = [
         storygraph_download,
         name="storygraph_download",
     ),
+    path("data/import/doubak", import_doubak, name="import_doubak"),
     path("data/import/douban", import_douban, name="import_douban"),
     path("data/import/letterboxd", import_letterboxd, name="import_letterboxd"),
     path("data/import/trakt", import_trakt, name="import_trakt"),

@@ -32,6 +32,7 @@ from journal.exporters import (
 )
 from journal.importers import (
     CsvImporter,
+    DoubakImporter,
     DoubanImporter,
     GoodreadsImporter,
     LetterboxdImporter,
@@ -163,6 +164,7 @@ def data(request):
         {
             "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "import_task": DoubanImporter.latest_task(request.user),
+            "doubak_task": DoubakImporter.latest_task(request.user),
             "export_task": DoufenExporter.latest_task(request.user),
             "csv_export_task": CsvExporter.latest_task(request.user),
             "neodb_import_task": neodb_import_task,  # Use the most recent import task
@@ -200,6 +202,8 @@ def user_task_status(request, task_type: str):
             task_cls = StoryGraphImporter
         case "journal.opmlimporter":
             task_cls = OPMLImporter
+        case "journal.doubakimporter":
+            task_cls = DoubakImporter
         case "journal.doubanimporter":
             task_cls = DoubanImporter
         case "journal.steamimporter":
@@ -979,6 +983,32 @@ def storygraph_download(request):
     filename = f"{stem}-matched.csv"
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@login_required
+def import_doubak(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not DoubakImporter.validate_file(request.FILES.get("file")):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    task = DoubakImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        mode=int(request.POST.get("import_mode", 0)),
+        file=f,
+    )
+    task.enqueue()
+    record_activity("import", "web")
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required

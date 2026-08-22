@@ -1,8 +1,9 @@
 import csv
+import datetime
 import os
 import tempfile
 import zipfile
-from typing import Dict
+from typing import Dict, Optional
 
 from django.utils import timezone
 from loguru import logger
@@ -16,6 +17,31 @@ from .base import BaseImporter
 class CsvImporter(BaseImporter):
     class Meta:
         app_label = "journal"  # workaround bug in TypedModel
+
+    def should_skip_existing_mark(
+        self, mark: Mark, created_time: datetime.datetime
+    ) -> bool:
+        """Whether the mark already on the shelf wins over the row being read.
+
+        The rule is that the newer record wins. Subclasses importing an archive
+        the user may want to treat as authoritative can override this.
+        """
+        return bool(
+            mark.shelf_type and mark.created_time and mark.created_time >= created_time
+        )
+
+    def should_skip_existing_review(
+        self,
+        existing_review: Optional[Review],
+        created_time: Optional[datetime.datetime],
+    ) -> bool:
+        """Whether the existing review wins over the row being read."""
+        return bool(
+            existing_review
+            and existing_review.created_time
+            and created_time
+            and existing_review.created_time >= created_time
+        )
 
     def import_mark(self, row: Dict[str, str]) -> str:
         """Import a mark from a CSV row.
@@ -56,11 +82,7 @@ class CsvImporter(BaseImporter):
                 self.parse_datetime(row.get("timestamp", "")) or timezone.now()
             )
 
-            if (
-                mark.shelf_type
-                and mark.created_time
-                and mark.created_time >= created_time
-            ):
+            if self.should_skip_existing_mark(mark, created_time):
                 # skip if existing mark is newer
                 return "skipped"
 
@@ -113,12 +135,7 @@ class CsvImporter(BaseImporter):
                 owner=owner, item=item, title=review_title
             ).first()
             # Skip if existing review is newer or same age
-            if (
-                existing_review
-                and existing_review.created_time
-                and created_time
-                and existing_review.created_time >= created_time
-            ):
+            if self.should_skip_existing_review(existing_review, created_time):
                 logger.debug(
                     f"Skipping review import for {item.display_title}: existing review is newer or same age"
                 )

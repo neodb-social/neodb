@@ -7548,6 +7548,26 @@ msgid "Data Management"
 msgstr "数据管理"
 
 #: users/templates/users/data.html:27
+msgid "Import Marks and Reviews from Doubak"
+msgstr "导入豆备标记和评论"
+
+#: users/templates/users/data.html:31
+msgid ""
+"Select the <code>.zip</code> exported from <a href=\"https://doubak.com\" "
+"target=\"_blank\" rel=\"noopener\">Doubak</a>"
+msgstr ""
+"选择导出自 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">"
+"豆备</a> 的 <code>.zip</code> 文件"
+
+#: users/templates/users/data.html:41
+msgid "Merge: only import a record when it is newer than the existing one."
+msgstr "自动合并：仅当档案中的记录比现有记录更新时才导入（推荐）"
+
+#: users/templates/users/data.html:45
+msgid "Overwrite: import every record, replacing existing ones."
+msgstr "强制覆盖：导入档案中的每一条记录，覆盖已存在的标记和评论。"
+
+#: users/templates/users/data.html:27
 msgid "Import Marks and Reviews from Douban"
 msgstr "导入豆瓣标记和评论"
 

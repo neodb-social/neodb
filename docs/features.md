@@ -39,7 +39,7 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
     - Letterboxd watch list (ZIP export)
     - RateYourMusic album collection (CSV export)
     - Podcast subscriptions (OPML)
-    - Douban archive (via [Doufen](https://doufen.org/))
+    - Douban archive (via [Doubak](https://doubak.com/), or [Doufen](https://doufen.org/))
 
 
 ## Social

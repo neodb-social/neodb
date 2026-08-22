@@ -24,6 +24,63 @@
       <div class="grid__main">
         <article>
           <details>
+            <summary>{% trans 'Import Marks and Reviews from Doubak' %}</summary>
+            <form hx-post="{% url 'users:import_doubak' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              {% blocktrans %}Select the <code>.zip</code> exported from <a href="https://doubak.com" target="_blank" rel="noopener">Doubak</a>{% endblocktrans %}
+              <input type="file" name="file" id="doubak_zip" required accept=".zip">
+              <fieldset>
+                <legend>{% trans "Import Method" %}</legend>
+                <label for="doubak_import_mode_0">
+                  <input id="doubak_import_mode_0"
+                         type="radio"
+                         name="import_mode"
+                         value="0"
+                         checked>
+                  {% trans "Merge: only import a record when it is newer than the existing one." %}
+                </label>
+                <label for="doubak_import_mode_1">
+                  <input id="doubak_import_mode_1" type="radio" name="import_mode" value="1">
+                  {% trans "Overwrite: import every record, replacing existing ones." %}
+                </label>
+              </fieldset>
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="doubak_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="doubak_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="doubak_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="doubak_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="doubak_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="doubak_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              {% include "users/user_task_status.html" with task=doubak_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
             <form hx-post="{% url 'users:import_douban' %}"
                   enctype="multipart/form-data">

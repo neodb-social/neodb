@@ -1,4 +1,5 @@
 from .csv import CsvImporter
+from .doubak import DoubakImporter
 from .douban import DoubanImporter
 from .goodreads import GoodreadsImporter
 from .letterboxd import LetterboxdImporter
@@ -15,6 +16,7 @@ __all__ = [
     "NdjsonImporter",
     "LetterboxdImporter",
     "OPMLImporter",
+    "DoubakImporter",
     "DoubanImporter",
     "GoodreadsImporter",
     "RymImporter",

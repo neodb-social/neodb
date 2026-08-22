@@ -8047,6 +8047,24 @@ msgid "Data Management"
 msgstr "Gerenciamento de Dados"
 
 #: users/templates/users/data.html:27
+msgid "Import Marks and Reviews from Doubak"
+msgstr ""
+
+#: users/templates/users/data.html:31
+msgid ""
+"Select the <code>.zip</code> exported from <a href=\"https://doubak.com\" "
+"target=\"_blank\" rel=\"noopener\">Doubak</a>"
+msgstr ""
+
+#: users/templates/users/data.html:41
+msgid "Merge: only import a record when it is newer than the existing one."
+msgstr ""
+
+#: users/templates/users/data.html:45
+msgid "Overwrite: import every record, replacing existing ones."
+msgstr ""
+
+#: users/templates/users/data.html:27
 msgid "Import Marks and Reviews from Douban"
 msgstr "Importar Marcações e Análises do Douban"
 
