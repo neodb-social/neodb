@@ -5,6 +5,7 @@ import zipfile
 from tempfile import TemporaryDirectory
 
 import pytest
+from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 
 from catalog.models import IdType, Movie
@@ -283,3 +284,107 @@ class TestDoubakValidateFile:
 
     def test_rejects_a_missing_file(self):
         assert not DoubakImporter.validate_file(None)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDoubakProgress:
+    """The progress UI is inherited, so what is asserted here is the contract it
+    needs rather than any code of this importer's own.
+
+    ``user_task_status.html`` draws its bar only when ``metadata.total`` and
+    ``metadata.processed`` are *both* truthy, and reaches the poller through
+    ``task.type``. None of those three are written by DoubakImporter — they come
+    from ``CsvImporter.run`` and ``BaseImporter.progress``, which it does not
+    override. That is exactly why they are worth pinning: an override added
+    later would silently leave the bar at zero, and the import would still
+    finish and still report the right totals at the end.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.movie = Movie.objects.create(
+            localized_title=[{"lang": "en", "text": "Inception"}],
+            primary_lookup_id_type=IdType.IMDB,
+            primary_lookup_id_value="tt1375666",
+            director=["Christopher Nolan"],
+            release_date="2010",
+        )
+        self.user = User.register(
+            email="doubakprogress@test.com", username="doubakprogress"
+        )
+
+    def two_row_archive(self, directory: str) -> str:
+        """One mark and one review, so `total` has to sum across two files."""
+        return write_archive(
+            directory,
+            {
+                "movie_mark.csv": (
+                    MARK_HEADING,
+                    [
+                        [
+                            "Inception",
+                            "imdb:tt1375666",
+                            self.movie.url,
+                            OLD,
+                            "complete",
+                            "5",
+                            "from the archive",
+                            "archived",
+                        ]
+                    ],
+                ),
+                "movie_review.csv": (
+                    REVIEW_HEADING,
+                    [
+                        [
+                            "Inception",
+                            "imdb:tt1375666",
+                            self.movie.url,
+                            OLD,
+                            "On Inception",
+                            "the version from the archive",
+                        ]
+                    ],
+                ),
+            },
+        )
+
+    def run_import(self, directory: str) -> DoubakImporter:
+        task = DoubakImporter.create(
+            user=self.user, file=self.two_row_archive(directory)
+        )
+        task.run()
+        return task
+
+    def test_counts_every_row_across_files(self):
+        with TemporaryDirectory() as tmp:
+            task = self.run_import(tmp)
+        assert task.metadata["total"] == 2
+        assert task.metadata["processed"] == 2
+
+    def test_progress_is_saved_as_it_goes_not_only_at_the_end(self):
+        # The poller re-reads the row; counters kept only in memory would leave
+        # the bar at zero for the whole run and then jump straight to done.
+        with TemporaryDirectory() as tmp:
+            task = self.run_import(tmp)
+        stored = DoubakImporter.objects.get(pk=task.pk)
+        assert stored.metadata["processed"] == 2
+        assert stored.metadata["total"] == 2
+
+    def test_type_is_the_string_the_status_view_matches_on(self):
+        # users/views/data.py dispatches on this literal, and the template
+        # builds the poll URL from it. A mismatch redirects instead of
+        # erroring, so the bar would simply never appear.
+        with TemporaryDirectory() as tmp:
+            task = DoubakImporter.create(user=self.user, file=self.two_row_archive(tmp))
+        assert task.type == "journal.doubakimporter"
+
+    def test_status_endpoint_renders_the_bar(self, client):
+        # run() is called directly rather than through _execute, so the task is
+        # still pending — which is what the mid-run render looks like.
+        with TemporaryDirectory() as tmp:
+            task = self.run_import(tmp)
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(reverse("users:user_task_status", args=[task.type]))
+        assert response.status_code == 200
+        assert '<progress value="2" max="2">' in response.content.decode()
