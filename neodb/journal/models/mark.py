@@ -445,6 +445,7 @@ class Mark:
         else:
             shelfmember.sync_bluesky_records()
         shelfmember.update_index()
+        shelfmember.sync_to_webhooks("save")
         # auto add bookmark
         if (
             post

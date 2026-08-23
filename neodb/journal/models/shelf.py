@@ -365,6 +365,8 @@ class ShelfMember(ListMember):
         _tags: list[str]
         current_progress: "ShelfMemberProgress"
 
+    webhook_event = "mark"
+
     parent = models.ForeignKey(  # type: ignore
         "Shelf", related_name="members", on_delete=models.CASCADE
     )

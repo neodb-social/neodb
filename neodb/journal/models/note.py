@@ -29,6 +29,7 @@ _separaters = {"–", "―", "−", "—", "-"}
 class Note(Content):
     post_when_save = True
     index_when_save = True
+    webhook_event = "note"
 
     class ProgressType(models.TextChoices):
         PAGE = "page", _("Page")

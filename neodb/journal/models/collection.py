@@ -82,6 +82,7 @@ class Collection(List):
     url_path = "collection"
     post_when_save = True
     index_when_save = True
+    webhook_event = "collection"
     MEMBER_CLASS = CollectionMember
     # Nullable so remote (mirror) collections don't get a sentinel
     # ``CatalogCollection`` row. ``Collection.save`` only auto-creates and
