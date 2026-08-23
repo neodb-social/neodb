@@ -7,6 +7,12 @@ urlpatterns = [
     path("login", login, name="login"),
     path("login/proof", login_proof, name="login_proof"),
     path("register", register, name="register"),
+    path("captcha", registration_captcha, name="captcha"),
+    path(
+        "captcha/tile/<str:token>",
+        registration_captcha_tile,
+        name="captcha_tile",
+    ),
     path("fetch_refresh", fetch_refresh, name="fetch_refresh"),
     path("data", data, name="data"),
     path("info", account_info, name="info"),

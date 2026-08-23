@@ -6,20 +6,16 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from common.utils import client_ip
 from common.views import render_error
 from mastodon.models.common import SocialAccount
+from users import registration_captcha as captcha
 from users.models import User
 from users.views.account import auth_login, logout_takahe
 
-
-def client_ip(request: HttpRequest) -> str:
-    xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
-    if xff:
-        # the bundled nginx appends the peer address to any client-supplied
-        # X-Forwarded-For, so only the last entry is trustworthy; the first
-        # entry could be forged to rotate rate-limit keys
-        return xff.split(",")[-1].strip()
-    return request.META.get("REMOTE_ADDR", "")
+# client_ip moved to common.utils so users.views.account can use it too
+# (importing it back from here would be circular); re-exported for callers.
+__all__ = ["client_ip"]
 
 
 def process_verified_account(request: HttpRequest, account: SocialAccount):
@@ -56,6 +52,12 @@ def register_new_user(request: HttpRequest, account: SocialAccount):
             request, _("Registration failed"), _("User already logged in.")
         )
     request.session["verified_account"] = account.to_dict()
+    # Reset any captcha state left over from an abandoned attempt: otherwise a
+    # stale start time would expire this visitor the moment they arrive. It also
+    # means a pass cannot be carried from one verified identity to another.
+    captcha.clear(request)
+    if captcha.is_enabled():
+        return redirect(reverse("users:captcha"))
     return redirect(reverse("users:register"))
 
 

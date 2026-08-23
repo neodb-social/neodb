@@ -1,0 +1,89 @@
+.captcha-page {
+  article {
+    header {
+      text-align: center;
+    }
+  }
+
+  .captcha-pool,
+  .captcha-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 5.5rem;
+    padding: 0.5rem;
+    border: 1px dashed var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    margin-bottom: 0.5rem;
+  }
+
+  .captcha-row {
+    border-style: solid;
+  }
+
+  .captcha-row__label {
+    flex: 0 0 auto;
+    min-width: 6rem;
+    font-weight: bold;
+    color: var(--pico-muted-color);
+  }
+
+  .captcha-row__drop {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    line-height: 1;
+  }
+
+  .captcha-row__drop::before {
+    content: "+";
+  }
+
+  .captcha-tile {
+    width: 120px;
+    height: 120px;
+    padding: 0;
+    margin: 0;
+    border: 2px solid transparent;
+    border-radius: var(--pico-border-radius);
+    background: none;
+    overflow: hidden;
+    // the cover is the whole puzzle: no text selection, no long-press menu,
+    // and no native drag ghost competing with the pointer handler
+    touch-action: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    cursor: grab;
+  }
+
+  .captcha-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .captcha-tile[aria-pressed="true"] {
+    border-color: var(--pico-primary);
+  }
+
+  .captcha-tile:focus-visible {
+    outline: 2px solid var(--pico-primary-focus);
+    outline-offset: 2px;
+  }
+
+  .captcha-tile--dragging {
+    cursor: grabbing;
+    opacity: 0.85;
+    z-index: 2;
+    position: relative;
+  }
+
+  .captcha-status {
+    color: var(--pico-muted-color);
+  }
+}

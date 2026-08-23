@@ -23,6 +23,19 @@ if TYPE_CHECKING:
     from users.models import APIdentity, User
 
 
+def client_ip(request: HttpRequest) -> str:
+    """Best-effort peer address, for rate-limit keys.
+
+    The bundled nginx appends the peer address to any client-supplied
+    X-Forwarded-For, so only the last entry is trustworthy; a forged first
+    entry could otherwise be used to rotate rate-limit keys.
+    """
+    xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if xff:
+        return xff.split(",")[-1].strip()
+    return request.META.get("REMOTE_ADDR", "")
+
+
 # Characters that could let JSON serialized into an HTML <script> block break
 # out of the element (`<`, `>`, `&`) or terminate a JS string (U+2028/U+2029).
 # Mirrors the escaping Django applies in django.utils.html.json_script.

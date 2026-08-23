@@ -8,4 +8,4 @@ class UsersConfig(AppConfig):
         from . import apis  # noqa
 
         # register cron jobs
-        from users.jobs import MastodonUserSync  # noqa
+        from users.jobs import MastodonUserSync, RegistrationCaptchaPool  # noqa

@@ -8,16 +8,17 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ValidationError
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from catalog.models import ItemCategory
 from common.models import SiteConfig
-from common.sentry import record_activity
-from common.utils import AuthedHttpRequest
+from common.sentry import record_activity, record_registration_captcha
+from common.utils import AuthedHttpRequest, client_ip
 from common.validators import sanitize_next_url
 from mastodon.models import (
     Email,
@@ -30,6 +31,7 @@ from mastodon.models import (
 from takahe.models import Token
 from takahe.utils import Takahe
 
+from .. import registration_captcha as captcha
 from ..login_proof import LOGIN_PROOF_METHODS, create_login_proof_challenge
 from ..models import User
 
@@ -178,6 +180,150 @@ def _handle_new_user_registration(request, form, verified_account, email_readonl
     return render(request, "users/welcome.html")
 
 
+def _captcha_context(request: HttpRequest, challenge) -> dict:
+    tokens = list(challenge["tiles"].keys())
+    # the stored order is already shuffled; reshuffle per render so a reload
+    # cannot be diffed against the first response to infer the grouping
+    secrets.SystemRandom().shuffle(tokens)
+    return {
+        "tokens": tokens,
+        "rows": [
+            {"index": i, "value": v, "label": ItemCategory(v).label}
+            for i, v in enumerate(challenge["rows"])
+        ],
+        "nonce": challenge["nonce"],
+        "seconds_left": captcha.seconds_left(challenge),
+        "regenerations_left": captcha.regenerations_left(challenge),
+        "msg": captcha.pop_message(request),
+    }
+
+
+def _render_error(request: HttpRequest, title, message=""):
+    # common.views.render_error would be the natural call, but importing it
+    # here is circular: common.views imports catalog.views, which imports this
+    # module. register() renders the same template inline for the same reason.
+    return render(
+        request, "common/error.html", {"msg": title, "secondary_msg": message}
+    )
+
+
+def _captcha_end(request: HttpRequest, outcome: str, title, message):
+    """Drop the pending registration and send the visitor back to login.
+
+    There is no logged-in user during registration, so "logged out" means
+    flushing the session: `verified_account` goes with it, and the provider
+    round trip has to be repeated. auth_logout() is the wrong tool here, it
+    reads ?next off a GET and clears a Takahe cookie an anonymous visitor
+    does not have.
+    """
+    record_registration_captcha(outcome)
+    request.session.flush()
+    return _render_error(request, title, message)
+
+
+@require_http_methods(["GET", "POST"])
+def registration_captcha(request: HttpRequest):
+    """Sort item covers into two category rows before choosing a username."""
+    if request.user.is_authenticated:
+        return redirect(reverse("users:info"))
+    if not SocialAccount.from_dict(request.session.get("verified_account")):
+        return redirect(reverse("users:login"))
+    if not captcha.is_enabled() or captcha.has_passed(request):
+        return redirect(reverse("users:register"))
+
+    if request.method == "POST":
+        challenge = captcha.get_challenge(request)
+        if not challenge:
+            return redirect(reverse("users:captcha"))
+        if captcha.expired(challenge):
+            return _captcha_end(
+                request,
+                "expired",
+                _("Time is up"),
+                _("Please log in again to continue registration."),
+            )
+        if request.POST.get("nonce") != challenge["nonce"]:
+            # stale form: a re-post, the back button, or a double click.
+            # Costs nothing; re-render whatever is current.
+            return redirect(reverse("users:captcha"))
+
+        if request.POST.get("action") == "regenerate":
+            if captcha.regenerations_left(challenge) <= 0:
+                # no-op rather than session-ending: a stray click on a button
+                # that should already be hidden must not cost a signup
+                return redirect(reverse("users:captcha"))
+            captcha.regenerate(request)
+            record_registration_captcha("regenerated")
+            return redirect(reverse("users:captcha"))
+
+        ok, outcome, reason = captcha.verify_submission(
+            challenge,
+            request.POST.get("answer", ""),
+            request.POST.get("trace", ""),
+        )
+        if ok:
+            captcha.mark_passed(request)
+            record_registration_captcha("passed")
+            return redirect(reverse("users:register"))
+        record_registration_captcha(outcome, reason)
+        captcha.record_fail(client_ip(request))
+        if captcha.regenerations_left(challenge) <= 0:
+            return _captcha_end(
+                request,
+                "exhausted",
+                _("Verification failed"),
+                _("Please log in again to continue registration."),
+            )
+        captcha.regenerate(
+            request, msg=_("That is not quite right. Here is a new set.")
+        )
+        return redirect(reverse("users:captcha"))
+
+    challenge = captcha.get_challenge(request)
+    if not challenge:
+        if captcha.fails_exceeded(client_ip(request)):
+            record_registration_captcha("rate_limited")
+            return _render_error(
+                request,
+                _("Too many attempts"),
+                _("Please try again later."),
+            )
+        challenge = captcha.ensure_challenge(request)
+        if not challenge:
+            # the catalog cannot supply a fair quiz right now; letting people
+            # register matters more than running the check
+            captcha.mark_passed(request)
+            record_registration_captcha("fail_open")
+            return redirect(reverse("users:register"))
+        record_registration_captcha("issued")
+    elif captcha.expired(challenge):
+        return _captcha_end(
+            request,
+            "expired",
+            _("Time is up"),
+            _("Please log in again to continue registration."),
+        )
+    return render(request, "users/captcha.html", _captcha_context(request, challenge))
+
+
+@require_http_methods(["GET"])
+def registration_captcha_tile(request: HttpRequest, token: str):
+    """Serve one tile image.
+
+    The proxy exists because cover paths are `item/<category>/...`: linking the
+    real cover would spell out the answer. Unknown, stale and foreign tokens
+    all 404 identically so the response cannot be used as an oracle.
+    """
+    item = captcha.tile_item(request, token)
+    data = captcha.render_tile(item) if item else None
+    if not data:
+        raise Http404
+    response = HttpResponse(data, content_type=captcha.CAPTCHA_TILE_CONTENT_TYPE)
+    response["Cache-Control"] = "no-store, private"
+    response["Vary"] = "Cookie"
+    return response
+
+
 @require_http_methods(["GET", "POST"])
 def register(request: AuthedHttpRequest):
     """show registration page and process the submission from it"""
@@ -206,6 +352,11 @@ def register(request: AuthedHttpRequest):
         if not verified_account:
             # kick back to login if no identity verified
             return redirect(reverse("users:login"))
+        if captcha.is_enabled() and not captcha.has_passed(request):
+            # the enforcement point, not the redirect in register_new_user: this
+            # catches a POST straight to /account/register, and sits above the
+            # closed-community branch below, which creates an account outright
+            return redirect(reverse("users:captcha"))
 
     # no registration form for closed community mode
     if (
@@ -288,6 +439,9 @@ def auth_login(request, user):
     auth.login(request, user, backend="mastodon.auth.OAuth2Backend")
     request.session.pop("verified_account", None)
     request.session.pop("invite", None)
+    # a solved captcha is worth exactly one account: dropping it here is what
+    # keeps the pass from outliving the registration it authorised
+    captcha.clear(request)
     clear_preference_cache(request)
 
 

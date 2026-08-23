@@ -54,6 +54,24 @@ def record_activity(action: str, source: str) -> None:
     count("user.activity", attributes={"action": action, "source": source})
 
 
+def record_registration_captcha(outcome: str, reason: str = "") -> None:
+    """Emit a `registration.captcha` counter for one captcha outcome.
+
+    ``outcome`` is the coarse bucket (``issued``, ``passed``, ``wrong_answer``,
+    ``bad_trace``, ``expired``, ``exhausted``, ``rate_limited``, ``fail_open``).
+    For ``bad_trace``, ``reason`` names the check that rejected it, so a
+    false-positive spike is diagnosable rather than merely visible.
+
+    Attributes stay low-cardinality on purpose: never pass an IP address, item
+    id, tile token or handle. Per-address state belongs in the cache, where the
+    failure cap keeps it.
+    """
+    count(
+        "registration.captcha",
+        attributes={"outcome": outcome, "reason": reason or outcome},
+    )
+
+
 def record_catalog_edit(action: str, item_type: str, op: str = "") -> None:
     """Emit a `catalog.edit` counter for a user-initiated catalog change.
 

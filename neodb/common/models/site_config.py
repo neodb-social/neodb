@@ -12,6 +12,10 @@ from loguru import logger
 from common.config import resolve_email_settings
 from common.models.genre import DEFAULT_GENRE_CATEGORIES
 
+# Bounds for SystemOptions.registration_captcha_items; 0 disables the captcha.
+CAPTCHA_MIN_ITEMS = 4
+CAPTCHA_MAX_ITEMS = 8
+
 
 class SiteConfig(models.Model):
     """
@@ -45,6 +49,10 @@ class SiteConfig(models.Model):
         invite_only: bool = False
         enable_local_only: bool = False
         mastodon_login_whitelist: list[str] = []
+        # Number of covers shown in the registration captcha; 0 disables it.
+        registration_captcha_items: int = 0
+        # Marks an item needs before the captcha considers it recognizable.
+        min_marks_for_captcha: int = 10
 
         # Auth Options
         enable_login_mastodon: bool = True
@@ -151,6 +159,28 @@ class SiteConfig(models.Model):
         disable_cron_jobs: list[str] = []
         index_aliases: dict = {"catalog": "catalog2"}
         skip_migrations: list[str] = []
+
+        @pydantic.field_validator("registration_captcha_items")
+        @classmethod
+        def validate_registration_captcha_items(cls, value: int) -> int:
+            # One correct assignment out of 2**n - 2 plausible ones: with the
+            # three attempts the flow allows, 2 tiles pass by guessing ~87% of
+            # the time and 3 tiles ~42%, so anything below 4 is decorative.
+            if value and value < CAPTCHA_MIN_ITEMS:
+                raise ValueError(
+                    f"{value} is too few to sort: use 0 to disable the captcha,"
+                    f" or at least {CAPTCHA_MIN_ITEMS} items"
+                )
+            if value > CAPTCHA_MAX_ITEMS:
+                raise ValueError(f"at most {CAPTCHA_MAX_ITEMS} items are supported")
+            return value
+
+        @pydantic.field_validator("min_marks_for_captcha")
+        @classmethod
+        def validate_min_marks_for_captcha(cls, value: int) -> int:
+            if value < 1:
+                raise ValueError("at least 1 mark is required")
+            return value
 
         @pydantic.field_validator("language_code")
         @classmethod

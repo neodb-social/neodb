@@ -1,0 +1,247 @@
+{% load i18n %}
+{% load static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% translate "Sort every cover to continue." as str_remaining %}
+{% translate "All sorted. Select Confirm." as str_ready %}
+{% translate "Cover selected. Now choose a row." as str_selected %}
+{% translate "Time is up. Reload to try again." as str_expired %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="captcha-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Register' %}</title>
+    {% include "common_libs.html" %}
+    <meta name="robots" content="noindex">
+  </head>
+  <body>
+    <div class="container">
+      <article>
+        <header style="text-align: center;">
+          <img src="{{ site_logo }}"
+               class="logo"
+               alt="logo"
+               style="max-height: 20vh">
+        </header>
+        <h4>{% trans "One quick check" %}</h4>
+        <p id="captcha-instructions">
+          {% trans "Put every cover into the row it belongs to. Drag it, or select a cover and then select a row." %}
+        </p>
+        {% if msg %}
+          <p aria-live="polite">
+            <mark>{{ msg }}</mark>
+          </p>
+        {% endif %}
+        <div class="captcha-pool" id="captcha-pool" data-role="pool">
+          {% for token in tokens %}
+            <button type="button"
+                    class="captcha-tile"
+                    data-token="{{ token }}"
+                    aria-pressed="false"
+                    aria-label="{% trans 'Item cover' %}">
+              <img src="{% url 'users:captcha_tile' token %}"
+                   alt="{% trans 'Item cover' %}"
+                   draggable="false"
+                   width="120"
+                   height="120">
+            </button>
+          {% endfor %}
+        </div>
+        {% for row in rows %}
+          <div class="captcha-row"
+               data-role="row"
+               data-row="{{ row.index }}"
+               aria-label="{{ row.label }}">
+            <span class="captcha-row__label">{{ row.label }}</span>
+            <button type="button"
+                    class="captcha-row__drop"
+                    data-row="{{ row.index }}"
+                    aria-label="{% blocktrans with label=row.label %}Move selected cover to {{ label }}{% endblocktrans %}">
+            </button>
+          </div>
+        {% endfor %}
+        <p class="captcha-status"
+           role="status"
+           aria-live="polite"
+           id="captcha-status"></p>
+        <form action="{% url 'users:captcha' %}" method="post" id="captcha-form">
+          {% csrf_token %}
+          <input type="hidden" name="nonce" value="{{ nonce }}">
+          <input type="hidden" name="answer" id="captcha-answer" value="">
+          <input type="hidden" name="trace" id="captcha-trace" value="">
+          <div role="group">
+            <button type="submit"
+                    name="action"
+                    value="submit"
+                    id="captcha-submit"
+                    disabled>{% trans "Confirm" %}</button>
+            {% if regenerations_left %}
+              <button type="submit"
+                      name="action"
+                      value="regenerate"
+                      class="secondary"
+                      id="captcha-regenerate">
+                {% blocktrans count counter=regenerations_left %}Show me another set ({{ counter }} left){% plural %}Show me another set ({{ counter }} left){% endblocktrans %}
+              </button>
+            {% endif %}
+          </div>
+          <small>
+            <span id="captcha-timer" data-seconds="{{ seconds_left }}"></span>
+          </small>
+        </form>
+      </article>
+    </div>
+    {{ seconds_left|json_script:"captcha-seconds" }}
+    <script>
+      (function () {
+        const pool = document.getElementById('captcha-pool');
+        const rows = Array.from(document.querySelectorAll('[data-role="row"]'));
+        const tiles = Array.from(document.querySelectorAll('.captcha-tile'));
+        const answerField = document.getElementById('captcha-answer');
+        const traceField = document.getElementById('captcha-trace');
+        const submit = document.getElementById('captcha-submit');
+        const status = document.getElementById('captcha-status');
+        const timer = document.getElementById('captcha-timer');
+
+        // token -> {row, mode, points:[[x,y,t],...], duration}
+        const placed = new Map();
+        let selected = null;
+        let selectedAt = 0;
+
+        const strings = {
+          remaining: '{{ str_remaining|escapejs }}',
+          ready: '{{ str_ready|escapejs }}',
+          selected: '{{ str_selected|escapejs }}',
+          expired: '{{ str_expired|escapejs }}'
+        };
+
+        function rowContainer(index) {
+          return rows.find((r) => r.dataset.row === String(index));
+        }
+
+        function refresh() {
+          const done = placed.size === tiles.length;
+          submit.disabled = !done;
+          status.textContent = done ? strings.ready : strings.remaining;
+          const answer = {};
+          const trace = {};
+          placed.forEach((v, token) => {
+            answer[token] = v.row;
+            trace[token] = { mode: v.mode, points: v.points, duration: v.duration };
+          });
+          answerField.value = JSON.stringify(answer);
+          traceField.value = JSON.stringify(trace);
+        }
+
+        function place(tile, rowIndex, record) {
+          const token = tile.dataset.token;
+          const target = rowContainer(rowIndex);
+          if (!target) return;
+          target.appendChild(tile);
+          tile.setAttribute('aria-pressed', 'false');
+          placed.set(token, Object.assign({ row: rowIndex }, record));
+          refresh();
+        }
+
+        // --- click / keyboard route: select a cover, then select a row.
+        // Writes the same fields as the drag route, so the server sees one
+        // shape and this path needs no endpoint of its own.
+        function select(tile) {
+          if (selected) selected.setAttribute('aria-pressed', 'false');
+          selected = tile;
+          selectedAt = performance.now();
+          tile.setAttribute('aria-pressed', 'true');
+          status.textContent = strings.selected;
+        }
+
+        tiles.forEach((tile) => {
+          tile.addEventListener('click', function (ev) {
+            if (tile.dataset.dragged === '1') {
+              tile.dataset.dragged = '';
+              return;
+            }
+            ev.preventDefault();
+            select(tile);
+          });
+
+          // --- drag route: pointer events cover mouse, touch and pen in one
+          // path, and the samples they yield are the trajectory evidence.
+          tile.addEventListener('pointerdown', function (ev) {
+            if (ev.button !== 0 && ev.pointerType === 'mouse') return;
+            const points = [[ev.clientX, ev.clientY, performance.now()]];
+            const startedAt = performance.now();
+            let moved = false;
+            tile.setPointerCapture(ev.pointerId);
+            tile.classList.add('captcha-tile--dragging');
+
+            function onMove(e) {
+              if (points.length < 200) {
+                points.push([e.clientX, e.clientY, performance.now()]);
+              }
+              if (Math.abs(e.clientX - points[0][0]) > 4 || Math.abs(e.clientY - points[0][1]) > 4) {
+                moved = true;
+              }
+              tile.style.transform =
+                'translate(' + (e.clientX - points[0][0]) + 'px,' + (e.clientY - points[0][1]) + 'px)';
+            }
+
+            function onUp(e) {
+              tile.removeEventListener('pointermove', onMove);
+              tile.removeEventListener('pointerup', onUp);
+              tile.removeEventListener('pointercancel', onUp);
+              tile.classList.remove('captcha-tile--dragging');
+              tile.style.transform = '';
+              try { tile.releasePointerCapture(e.pointerId); } catch (err) {}
+              if (!moved) return;
+              tile.dataset.dragged = '1';
+              points.push([e.clientX, e.clientY, performance.now()]);
+              const dropped = document.elementFromPoint(e.clientX, e.clientY);
+              const row = dropped && dropped.closest('[data-role="row"]');
+              if (!row) return;
+              place(tile, Number(row.dataset.row), {
+                mode: 'drag',
+                points: points,
+                duration: performance.now() - startedAt
+              });
+            }
+
+            tile.addEventListener('pointermove', onMove);
+            tile.addEventListener('pointerup', onUp);
+            tile.addEventListener('pointercancel', onUp);
+          });
+        });
+
+        document.querySelectorAll('.captcha-row__drop').forEach((drop) => {
+          drop.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            if (!selected) return;
+            const dwell = performance.now() - selectedAt;
+            const tile = selected;
+            selected = null;
+            place(tile, Number(drop.dataset.row), {
+              mode: 'click',
+              points: [],
+              duration: dwell
+            });
+          });
+        });
+
+        let left = JSON.parse(document.getElementById('captcha-seconds').textContent);
+        function tick() {
+          if (left <= 0) {
+            timer.textContent = strings.expired;
+            submit.disabled = true;
+            return;
+          }
+          const m = Math.floor(left / 60);
+          const s = String(left % 60).padStart(2, '0');
+          timer.textContent = m + ':' + s;
+          left -= 1;
+          setTimeout(tick, 1000);
+        }
+        tick();
+        refresh();
+      })();
+    </script>
+  </body>
+</html>

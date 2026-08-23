@@ -16,6 +16,7 @@ from loguru import logger
 
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
 from common.models import SiteConfig
+from common.models.site_config import CAPTCHA_MAX_ITEMS
 
 
 def superuser_required(view_func):
@@ -485,7 +486,9 @@ class RecommendationSettings(SiteConfigSettingsPage):
 
 class AccessSettings(SiteConfigSettingsPage):
     section = "access"
-    options = {
+    # annotated so the mix of str/int/list option values does not narrow the
+    # inferred type; test_views_manage indexes into this dict
+    options: ClassVar[dict] = {
         "invite_only": {
             "title": _("Invite Only"),
             "help_text": _(
@@ -500,6 +503,27 @@ class AccessSettings(SiteConfigSettingsPage):
         "mastodon_login_whitelist": {
             "title": _("Mastodon Login Whitelist"),
             "help_text": _("One domain per line. Leave empty to allow any instance."),
+        },
+        "registration_captcha_items": {
+            "title": _("Registration Captcha Items"),
+            "min_value": 0,
+            "max_value": CAPTCHA_MAX_ITEMS,
+            "help_text": _(
+                "Number of item covers a new user must sort into two category "
+                "rows before choosing a username. 0 disables the captcha; "
+                "5-6 is recommended. The covers carry no title text, so this "
+                "cannot be solved with a screen reader: if you enable it, keep "
+                "another way in, such as an invite link."
+            ),
+        },
+        "min_marks_for_captcha": {
+            "title": _("Registration Captcha Minimum Marks"),
+            "min_value": 1,
+            "help_text": _(
+                "Marks an item needs before the captcha treats it as well known "
+                "enough to be recognizable. Categories with too few such items "
+                "fall back to any item."
+            ),
         },
         "enable_login_mastodon": {
             "title": _("Enable Mastodon Login"),
@@ -541,6 +565,8 @@ class AccessSettings(SiteConfigSettingsPage):
             "invite_only",
             "enable_local_only",
             "mastodon_login_whitelist",
+            "registration_captcha_items",
+            "min_marks_for_captcha",
         ],
         _("Login Methods"): [
             "enable_login_mastodon",
