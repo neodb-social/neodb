@@ -5,6 +5,7 @@ import zipfile
 from tempfile import TemporaryDirectory
 
 import pytest
+from django.conf import settings
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 
@@ -461,5 +462,7 @@ class TestImportDoubakView:
             with self.upload(tmp) as f:
                 response = client.post(reverse("users:import_doubak"), {"file": f})
         assert response.status_code == 302
-        assert reverse("users:import_doubak") not in response.url
+        # to the login page — the ?next= it carries is the import URL itself,
+        # so "the import URL is absent from the redirect" is not the check.
+        assert response.url.startswith(settings.LOGIN_URL)
         assert DoubakImporter.latest_task(self.user) is None
