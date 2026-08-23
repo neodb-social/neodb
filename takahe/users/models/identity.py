@@ -14,6 +14,7 @@ from core.json import json_from_response
 from core.ld import (
     canonicalise,
     format_ld_date,
+    get_ap_link,
     get_first_concrete_type,
     get_first_image_url,
     get_list,
@@ -47,6 +48,35 @@ from users.models.inbox_message import InboxMessage
 from users.models.system_actor import SystemActor
 
 logger = logging.getLogger(__name__)
+
+# Width of Identity's remote-sourced CharField columns (name, username,
+# profile_uri, inbox_uri, ...).
+_REMOTE_FIELD_MAX_LENGTH = 500
+
+
+def _remote_text(value, max_length: int = _REMOTE_FIELD_MAX_LENGTH) -> str | None:
+    """Clamp a remote AS text value to its column width.
+
+    JSON-LD sometimes wraps these in a language construct ({"@value": ...}) or
+    keeps several values in a list; take the first, as _natural_language_value
+    does for posts.
+    """
+    if isinstance(value, list):
+        value = value[0] if value else None
+    if isinstance(value, dict):
+        value = value.get("@value")
+    return value[:max_length] if isinstance(value, str) else None
+
+
+def _remote_uri(value, max_length: int = _REMOTE_FIELD_MAX_LENGTH) -> str | None:
+    """Coerce a remote AS URI value into something that fits its column.
+
+    ActivityStreams lets these be a bare URI or an object carrying one, and a
+    truncated URI is useless, so an over-long value is dropped rather than
+    stored broken (which would raise DataError on save).
+    """
+    uri = get_str_or_id(value)
+    return uri if uri and len(uri) <= max_length else None
 
 
 class IdentityStates(StateGraph):
@@ -1189,30 +1219,39 @@ class Identity(StatorModel):
             return False
         if "type" not in document:
             return False
-        _neodb_sync = self.username != document.get("preferredUsername")
-        self.name = document.get("name")
-        # Lemmy and some other implementations omit the top-level "url" (the
-        # actor id is the web profile). Fall back to actor_uri so the profile
-        # link is never empty.
-        self.profile_uri = document.get("url") or self.actor_uri
-        self.inbox_uri = document.get("inbox")
-        self.outbox_uri = document.get("outbox")
-        self.followers_uri = document.get("followers")
-        self.following_uri = document.get("following")
-        self.featured_collection_uri = document.get("featured")
-        self.featured_tags_uri = document.get("featuredTags")
+        # Compare the normalised username, so a list/language-wrapped value
+        # that decodes to the stored one doesn't look like a change
+        username = _remote_text(document.get("preferredUsername"))
+        _neodb_sync = self.username != username
+        self.name = _remote_text(document.get("name"))
+        # "url" may be a bare URI, an embedded Link, or an array of either
+        # (some servers advertise http/ipns/hyper/bittorrent alternates), so
+        # prefer the HTML permalink and ignore transports a browser can't
+        # follow. Lemmy and some other implementations omit it entirely (the
+        # actor id is the web profile), so fall back to actor_uri, which
+        # fetch_actor already required to be http(s), keeping the link set.
+        profile_uri, _ = get_ap_link(
+            document.get("url"), preferred_media_type="text/html"
+        )
+        if not (profile_uri or "").startswith(("http://", "https://")):
+            profile_uri = None
+        self.profile_uri = _remote_uri(profile_uri) or self.actor_uri
+        self.inbox_uri = _remote_uri(document.get("inbox"))
+        self.outbox_uri = _remote_uri(document.get("outbox"))
+        self.followers_uri = _remote_uri(document.get("followers"))
+        self.following_uri = _remote_uri(document.get("following"))
+        self.featured_collection_uri = _remote_uri(document.get("featured"))
+        self.featured_tags_uri = _remote_uri(document.get("featuredTags"))
         # JSON-LD allows a list of types (e.g. ["Person", "foaf:Person"])
         self.actor_type = (
             get_first_concrete_type(document["type"], preferred=self.ACTOR_TYPES)
             or "person"
         )
-        self.shared_inbox_uri = document.get("endpoints", {}).get("sharedInbox")
+        self.shared_inbox_uri = _remote_uri(
+            document.get("endpoints", {}).get("sharedInbox")
+        )
         self.summary = document.get("summary")
-        self.username = document.get("preferredUsername")
-        if self.username and "@value" in self.username:
-            self.username = self.username["@value"]
-        if self.username:
-            self.username = self.username
+        self.username = username
         self.manually_approves_followers = document.get("manuallyApprovesFollowers")
         self.public_key = document.get("publicKey", {}).get("publicKeyPem")
         self.public_key_id = document.get("publicKey", {}).get("id")

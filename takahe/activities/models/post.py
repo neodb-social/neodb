@@ -17,6 +17,7 @@ from core.json import json_from_response
 from core.ld import (
     canonicalise,
     format_ld_date,
+    get_ap_link,
     get_first_concrete_type,
     get_language,
     get_list,
@@ -66,55 +67,6 @@ logger = logging.getLogger(__name__)
 # Postgres truncation errors (BookWyrm Quotation objects, for example, send
 # the HTML quotation text under the `quote` key).
 _QUOTE_URI_MAX_LENGTH = 2048
-
-
-def _ap_link(value, preferred_media_type: str | None = None) -> tuple[str | None, dict]:
-    """Return one URL and its Link/Object metadata from an AS url value.
-
-    ActivityStreams permits URL values to be URI strings, embedded Link
-    objects, or arrays of either. Prefer a requested media type (normally
-    text/html for a status permalink), then fall back to the first usable
-    value. The metadata is returned as well so callers can retain dimensions
-    and media type information for icons and attachments.
-    """
-
-    candidates: list[tuple[str, dict]] = []
-
-    def collect(item, inherited: dict | None = None) -> None:
-        if isinstance(item, str):
-            candidates.append((item, inherited or {}))
-            return
-        if isinstance(item, list):
-            for child in item:
-                collect(child, inherited)
-            return
-        if not isinstance(item, dict):
-            return
-
-        # AS Link uses href; Object subclasses usually use url.
-        href = item.get("href")
-        if isinstance(href, str):
-            candidates.append((href, item))
-        nested_url = item.get("url")
-        if nested_url is not None:
-            collect(nested_url, item)
-        if not isinstance(href, str) and nested_url is None:
-            object_id = item.get("id")
-            if isinstance(object_id, str):
-                candidates.append((object_id, item))
-
-    collect(value)
-    if not candidates:
-        return None, {}
-    if preferred_media_type:
-        for url, metadata in candidates:
-            media_type = metadata.get("mediaType")
-            if (
-                isinstance(media_type, str)
-                and media_type.split(";", 1)[0].lower() == preferred_media_type
-            ):
-                return url, metadata
-    return candidates[0]
 
 
 def _natural_language_value(data: dict, key: str) -> str:
@@ -847,7 +799,7 @@ class Post(StatorModel):
         obj = self.type_data.get("object") if isinstance(self.type_data, dict) else None
         if not isinstance(obj, dict):
             return None
-        url, _ = _ap_link(obj.get("image"))
+        url, _ = get_ap_link(obj.get("image"))
         if isinstance(url, str) and url.startswith(("http://", "https://")):
             return url
         return None
@@ -1650,7 +1602,7 @@ class Post(StatorModel):
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
         if update or created:
             post.type = data["type"]
-            post.url, _ = _ap_link(data.get("url"), preferred_media_type="text/html")
+            post.url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
             post.url = post.url or data["id"]
             if post.type == cls.Types.question:
                 post.type_data = PostTypeData(root=data).root
@@ -1784,7 +1736,7 @@ class Post(StatorModel):
                 if "url" not in attachment and "href" in attachment:
                     # Links have hrefs, while other Objects have urls
                     attachment["url"] = attachment["href"]
-                attachment_url, link_metadata = _ap_link(attachment.get("url"))
+                attachment_url, link_metadata = get_ap_link(attachment.get("url"))
                 if "focalPoint" in attachment:
                     try:
                         focal_x, focal_y = attachment["focalPoint"]
@@ -2422,7 +2374,7 @@ class Post(StatorModel):
         if not card_url or not card_url.startswith(("https://", "http://")):
             return
 
-        icon_url, icon = _ap_link(data.get("icon"))
+        icon_url, icon = get_ap_link(data.get("icon"))
         if icon_url and (
             not icon_url.startswith(("https://", "http://"))
             or len(icon_url) > PreviewCard._meta.get_field("image_url").max_length

@@ -4,6 +4,7 @@ from dateutil.tz import tzutc
 
 from core.ld import (
     canonicalise,
+    get_ap_link,
     get_first_concrete_type,
     get_language,
     parse_ld_date,
@@ -178,3 +179,51 @@ def test_get_first_concrete_type():
     assert get_first_concrete_type([]) is None
     assert get_first_concrete_type([{"id": "Person"}]) is None
     assert get_first_concrete_type({"@value": "Person"}) is None
+
+
+def test_get_ap_link():
+    """
+    AS "url" can be a bare URI, an embedded Link, or an array of either
+    """
+    assert get_ap_link("https://example.com/a")[0] == "https://example.com/a"
+    assert get_ap_link({"type": "Link", "href": "https://example.com/a"})[0] == (
+        "https://example.com/a"
+    )
+    # Object subclasses carry the URI under "url" rather than "href"
+    assert get_ap_link({"type": "Image", "url": "https://example.com/a.png"})[0] == (
+        "https://example.com/a.png"
+    )
+
+    # Some servers advertise the same actor over several transports; the
+    # HTML permalink is the one worth keeping as a profile link
+    links = [
+        {
+            "type": "Link",
+            "mediaType": "application/activity+json",
+            "href": "https://example.com/actor.jsonld",
+        },
+        {
+            "type": "Link",
+            "mediaType": "text/html",
+            "href": "https://example.com/",
+        },
+        {
+            "type": "Link",
+            "mediaType": "application/activity+json",
+            "href": "ipns://example.com/actor.ipns.jsonld",
+        },
+    ]
+    url, metadata = get_ap_link(links, preferred_media_type="text/html")
+    assert url == "https://example.com/"
+    assert metadata["mediaType"] == "text/html"
+    # No preference (or no match): first usable candidate wins
+    assert get_ap_link(links)[0] == "https://example.com/actor.jsonld"
+    assert get_ap_link(links, preferred_media_type="text/plain")[0] == (
+        "https://example.com/actor.jsonld"
+    )
+
+    # Junk in, nothing out - callers fall back rather than store a stringified
+    # list in a CharField
+    assert get_ap_link(None) == (None, {})
+    assert get_ap_link([]) == (None, {})
+    assert get_ap_link({"type": "Link"}) == (None, {})

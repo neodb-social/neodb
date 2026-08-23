@@ -849,6 +849,57 @@ def get_first_image_url(data) -> str | None:
     return None
 
 
+def get_ap_link(
+    value, preferred_media_type: str | None = None
+) -> tuple[str | None, dict]:
+    """Return one URL and its Link/Object metadata from an AS url value.
+
+    ActivityStreams permits URL values to be URI strings, embedded Link
+    objects, or arrays of either. Prefer a requested media type (normally
+    text/html for a status permalink), then fall back to the first usable
+    value. The metadata is returned as well so callers can retain dimensions
+    and media type information for icons and attachments.
+    """
+
+    candidates: list[tuple[str, dict]] = []
+
+    def collect(item, inherited: dict | None = None) -> None:
+        if isinstance(item, str):
+            candidates.append((item, inherited or {}))
+            return
+        if isinstance(item, list):
+            for child in item:
+                collect(child, inherited)
+            return
+        if not isinstance(item, dict):
+            return
+
+        # AS Link uses href; Object subclasses usually use url.
+        href = item.get("href")
+        if isinstance(href, str):
+            candidates.append((href, item))
+        nested_url = item.get("url")
+        if nested_url is not None:
+            collect(nested_url, item)
+        if not isinstance(href, str) and nested_url is None:
+            object_id = item.get("id")
+            if isinstance(object_id, str):
+                candidates.append((object_id, item))
+
+    collect(value)
+    if not candidates:
+        return None, {}
+    if preferred_media_type:
+        for url, metadata in candidates:
+            media_type = metadata.get("mediaType")
+            if (
+                isinstance(media_type, str)
+                and media_type.split(";", 1)[0].lower() == preferred_media_type
+            ):
+                return url, metadata
+    return candidates[0]
+
+
 def get_value_or_map(data, key, map_key):
     """
     Retrieves a value that can either be a top level key (like "name") or
