@@ -27,9 +27,11 @@ class DoubakImporter(CsvImporter):
     defer to whatever is already on the shelf, or to replace it. ``MERGE`` keeps
     whichever record is newer; ``OVERWRITE`` applies every row in the archive.
 
-    Notes are deduplicated by content in both modes: they are appended rather
-    than replaced, so importing an identical note again would add a second copy
-    rather than overwrite anything.
+    Notes behave identically in both modes, because
+    :meth:`CsvImporter.import_note` never replaces one: a note whose content
+    already matches is skipped, and one whose content differs is added alongside
+    the existing note. There is nothing there for ``OVERWRITE`` to overwrite, so
+    it deliberately does not extend to notes.
     """
 
     class Meta:

@@ -207,8 +207,9 @@ class TestDoubakImportMode:
         assert "from the archive" in review.body
 
     def test_overwrite_does_not_duplicate_an_identical_note(self):
-        # notes are appended rather than replaced, so importing an identical one
-        # again in overwrite mode would add a second copy, not overwrite anything
+        # import_note skips a note whose content already matches and never
+        # replaces one, and overwrite mode does not change that -- so the mode
+        # has nothing to act on here, and a re-import must still add no copy
         Note.objects.create(
             item=self.movie,
             owner=self.user.identity,
