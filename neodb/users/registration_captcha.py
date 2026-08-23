@@ -266,12 +266,19 @@ def render_tile(item: Item, nonce: str) -> bytes | None:
     is the same full-bleed square with all of the cover still visible. A person
     reads a squashed poster as a poster; a bot has to classify the image.
 
-    The transform is also jittered per challenge. A fixed transform would be
+    The transform is also jittered per challenge. A fixed one would be exactly
     reproducible: the anonymous catalog search hands out an item's cover URL
-    alongside its category, so a crawler could run this exact pipeline over the
-    catalog and byte-match each tile, recovering everything the tokens hide.
-    Jitter does not stop perceptual hashing -- nothing here does -- but it does
-    stop a plain checksum join, which is the cheap version of the attack.
+    alongside its category, so a crawler could run this pipeline over the
+    catalog and match each tile by checksum, recovering everything the tokens
+    hide.
+
+    Be honest about what the jitter buys. It draws from a bounded set --
+    CAPTCHA_TILE_JITTER_PX crop insets times the quality range -- so it does
+    not make matching impossible; it multiplies the precompute an attacker
+    needs by the size of that set, and it costs nothing on our side. It does
+    not touch perceptual hashing at all, which no amount of jitter would. On a
+    flat, detail-free cover it may produce identical bytes across challenges,
+    which is fine: such a cover identifies nothing in the first place.
     """
     key = f"{_TILE_CACHE_PREFIX}_{nonce}_{item.pk}"
     data = cache.get(key)

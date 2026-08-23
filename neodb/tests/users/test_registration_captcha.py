@@ -37,6 +37,30 @@ def _with_cover(item, name: str):
     return item
 
 
+def _detailed_cover_bytes() -> bytes:
+    """A cover with real detail, for tests about the pixels themselves.
+
+    A flat colour survives cropping and rescaling unchanged, which hides any
+    transform that works by shifting the frame.
+    """
+    image = Image.new("RGB", (60, 90))
+    image.putdata(
+        [
+            ((x * 37 + y * 11) % 256, (x * 5 + y * 61) % 256, (x * 97 + y * 3) % 256)
+            for y in range(90)
+            for x in range(60)
+        ]
+    )
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=95)
+    return buffer.getvalue()
+
+
+def _with_detailed_cover(item, name: str):
+    item.cover.save(name, ContentFile(_detailed_cover_bytes()), save=True)
+    return item
+
+
 def _make_items(count: int = 4) -> None:
     for i in range(count):
         _with_cover(Movie.objects.create(title=f"Movie {i}"), f"movie{i}.jpg")
@@ -847,23 +871,30 @@ class TestReviewRegressions:
         assert response.status_code == 302
         assert response.url == CAPTCHA_URL
 
-    def test_tile_bytes_differ_between_challenges(self, client, enabled, media_root):
-        """The transform must not be reproducible from the public cover.
+    def test_tile_bytes_vary_by_challenge(self, client, enabled, media_root):
+        """One cover must not render to a single predictable byte string.
 
         The anonymous catalog search hands out an item's cover URL next to its
         category, so a fixed pipeline could be replayed over the catalog and
-        byte-matched against each tile.
+        matched against each tile by checksum.
+
+        Asserted over several challenges rather than as "these two differ":
+        the jitter draws from a bounded set of crop/quality combinations, so
+        any given pair can legitimately collide. What matters is that the
+        output is not one fixed value.
         """
-        # create the item here rather than picking an arbitrary existing one:
-        # each test gets its own MEDIA_ROOT, so another test's row would have
-        # no readable cover file
-        movie = _with_cover(Movie.objects.create(title="Jitter Subject"), "jit.jpg")
-        first = captcha.render_tile(movie, "nonce-one")
-        second = captcha.render_tile(movie, "nonce-two")
-        assert first and second
-        assert first != second
+        # a detailed cover, because cropping a few pixels off a flat colour
+        # changes nothing -- which is exactly how the two-nonce version of this
+        # test passed locally and failed on CI
+        movie = _with_detailed_cover(
+            Movie.objects.create(title="Jitter Subject"), "jit.jpg"
+        )
+        renders = {captcha.render_tile(movie, f"nonce-{i}") for i in range(8)}
+        assert None not in renders
+        assert len(renders) > 1
         # ...but stable within one challenge, so reloads stay cacheable
-        assert captcha.render_tile(movie, "nonce-one") == first
+        first = captcha.render_tile(movie, "nonce-0")
+        assert captcha.render_tile(movie, "nonce-0") == first
 
     def test_expired_challenge_serves_no_tiles(self, client, enabled):
         _verify_email(client)
