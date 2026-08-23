@@ -184,7 +184,7 @@ RQ_QUEUES = {
         "DB": _parsed_redis_url.path[1:],
         "DEFAULT_TIMEOUT": -1,
     }
-    for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron"]
+    for q in ["mastodon", "export", "import", "fetch", "crawl", "ap", "cron", "webhook"]
 }
 RQ = {
     "JOB_CLASS": "common.rq.SiteJob",

@@ -49,6 +49,12 @@ from journal.models.common import VisibilityType
 from takahe.models import InboxMessage
 from takahe.utils import Takahe
 from users.models import Task
+from users.models.webhook import (
+    Webhook,
+    clear_webhook_cache,
+    clear_webhook_failures,
+    validate_webhook_url,
+)
 
 from .account import clear_preference_cache
 
@@ -117,6 +123,28 @@ def preferences(request):
             translation.activate(lang)
             request.LANGUAGE_CODE = translation.get_language()
             request.user.save(update_fields=["language"])
+        candidates: list[str] = []
+        for line in request.POST.get("webhook_urls", "").splitlines():
+            url = line.strip()
+            if url and url not in candidates:
+                candidates.append(url)
+        webhook_max = SiteConfig.system.webhook_max_subscriptions
+        webhook_urls: list[str] = []
+        # bound the validations: each may cost a DNS lookup
+        for url in candidates[: webhook_max + 10]:
+            if len(webhook_urls) >= webhook_max:
+                break
+            if validate_webhook_url(url):
+                webhook_urls.append(url)
+        request.user.webhooks.exclude(url__in=webhook_urls).delete()
+        for url in webhook_urls:
+            # saving re-enables a webhook disabled after repeated failures
+            webhook, created = Webhook.objects.get_or_create(user=request.user, url=url)
+            if not created and webhook.disabled:
+                webhook.disabled = False
+                webhook.save(update_fields=["disabled"])
+            clear_webhook_failures(webhook.pk)
+        clear_webhook_cache(request.user.pk)
         clear_preference_cache(request)
     names = {s.SITE_NAME for s in SiteManager.get_sites_for_search()}
     names.add(FediverseInstance.SITE_NAME)
@@ -124,6 +152,7 @@ def preferences(request):
         [n for n in SiteName if n in names and n != SiteName.Unknown],
         key=lambda n: str(n.label),
     )
+    webhooks = list(request.user.webhooks.order_by("pk"))
     return render(
         request,
         "users/preferences.html",
@@ -131,6 +160,9 @@ def preferences(request):
             "enable_local_only": SiteConfig.system.enable_local_only,
             "search_sources": search_sources,
             "enable_recommendations": SiteConfig.system.enable_recommendations,
+            "webhook_max": SiteConfig.system.webhook_max_subscriptions,
+            "webhooks": webhooks,
+            "webhook_urls_text": "\n".join(w.url for w in webhooks),
         },
     )
 

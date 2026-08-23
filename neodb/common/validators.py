@@ -40,7 +40,7 @@ def _hostname_is_public(hostname: str) -> bool:
     return True
 
 
-def is_valid_url(url: str | None) -> bool:
+def is_valid_url(url: str | None, may_have_port: bool = False) -> bool:
     """Validate that a URL is well-formed, uses HTTP(S), and does not resolve
     to a private/reserved IP address (防 DNS rebinding / SSRF)."""
     if not url:
@@ -49,7 +49,7 @@ def is_valid_url(url: str | None) -> bool:
         url,
         skip_ipv6_addr=True,
         skip_ipv4_addr=True,
-        may_have_port=False,
+        may_have_port=may_have_port,
         strict_query=False,
     ):
         return False

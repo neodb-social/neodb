@@ -238,6 +238,23 @@
                   </small>
                 </fieldset>
               {% endif %}
+              {% if webhook_max > 0 %}
+                <fieldset>
+                  <label for="webhook_urls">{% trans 'Webhooks' %}</label>
+                  <textarea name="webhook_urls"
+                            id="webhook_urls"
+                            rows="2"
+                            placeholder="https://example.org/hook">{{ webhook_urls_text }}</textarea>
+                  <small>
+                    {% blocktrans %}One https URL per line, up to {{ webhook_max }}. When your marks, reviews, notes or collections change, a notification will be posted to each URL.{% endblocktrans %}
+                  </small>
+                  {% for webhook in webhooks %}
+                    {% if webhook.disabled %}
+                      <small>{% blocktrans with url=webhook.url %}{{ url }} is disabled after repeated failures; save to re-enable it.{% endblocktrans %}</small>
+                    {% endif %}
+                  {% endfor %}
+                </fieldset>
+              {% endif %}
               <input type="submit" value="{% trans 'Save' %}">
             </form>
           </details>

@@ -32,6 +32,7 @@ from common.sentry import count as sentry_count
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
+from users.models.webhook import dispatch_webhook
 
 from ..search import JournalIndex
 from .atproto import build_document_rkey
@@ -165,6 +166,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     crosspost_when_save: bool = False
     index_when_save: bool = False
     application_id_when_save: int | None = None
+    # event type sent to user webhooks; None disables webhook dispatch
+    webhook_event: str | None = None
 
     @property
     def classname(self) -> str:
@@ -199,15 +202,39 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 self.sync_to_social_accounts(update_mode)
             else:
                 self.sync_bluesky_records()
+            self.sync_to_webhooks("save")
         if index_when_save:
             self.update_index()
 
     def delete(self, *args, **kwargs):
         if self.local:
+            self.sync_to_webhooks("delete")
             self.delete_from_timeline()
             self.delete_crossposts()
         self.delete_index()
         return super().delete(*args, **kwargs)
+
+    def to_webhook_payload(self, action: str) -> dict[str, str]:
+        item = getattr(self, "item", None)
+        title = item.display_title if item else getattr(self, "title", "") or ""
+        # pieces without a page of their own (e.g. marks) link the item page
+        if self.url_path != "p":
+            url = self.absolute_url
+        else:
+            url = item.absolute_url if item else ""
+        return {
+            "type": self.webhook_event or self.classname,
+            "action": action,
+            "url": url,
+            "title": title,
+        }
+
+    def sync_to_webhooks(self, action: str) -> None:
+        if not self.local or not self.webhook_event:
+            return
+        user_id = self.owner.user_id
+        if user_id:
+            dispatch_webhook(user_id, self.to_webhook_payload(action))
 
     @property
     def uuid(self):

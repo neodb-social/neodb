@@ -39,6 +39,7 @@ class Review(Content):
     url_path = "review"
     post_when_save = True
     index_when_save = True
+    webhook_event = "review"
     dedupe_content_fields = ("title", "body")
     title = models.CharField(max_length=500, blank=False, null=False)
     body = models.TextField()

@@ -91,6 +91,7 @@ class Article(Piece):
     url_path = "article"
     post_when_save = True
     index_when_save = True
+    webhook_event = "article"
 
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
