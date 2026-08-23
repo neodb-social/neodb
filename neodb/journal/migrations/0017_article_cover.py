@@ -17,4 +17,24 @@ class Migration(migrations.Migration):
                 upload_to=catalog.models.utils.piece_cover_path,
             ),
         ),
+        migrations.CreateModel(
+            name="WordpressExporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("users.task",),
+        ),
+        migrations.CreateModel(
+            name="WordpressImporter",
+            fields=[],
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
+            bases=("journal.baseimporter",),
+        ),
     ]
