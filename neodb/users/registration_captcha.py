@@ -60,7 +60,6 @@ CAPTCHA_FAIL_OPEN_TTL = 60
 CAPTCHA_DRAW_OVERSAMPLE = 3
 # every tile is the same square and the same mime type; see render_tile
 CAPTCHA_TILE_PX = 240
-CAPTCHA_TILE_BG = (255, 255, 255)
 CAPTCHA_TILE_TTL = 600
 CAPTCHA_TILE_CONTENT_TYPE = "image/jpeg"
 
@@ -234,13 +233,23 @@ def render_tile(item: Item) -> bytes | None:
     """Render one cover to the uniform tile image, or None if it cannot be.
 
     Normalization is a security requirement, not cosmetics: cover paths are
-    ``item/<category>/...`` and the shapes differ by category (book spines,
-    square album art, 2:3 posters), so an un-normalized tile leaks the answer
-    through its dimensions and mime type just as plainly as through its URL.
+    ``item/<category>/...`` and shapes differ by category (square album art,
+    2:3 posters, tall book covers, landscape box art), so an un-normalized tile
+    leaks the answer through its dimensions and mime type just as plainly as
+    through its URL.
 
-    The cover is scaled to fit and padded rather than cropped. With no title
-    beneath it, a crop that takes the top off a book cover can leave the tile
-    unanswerable.
+    The cover is stretched to fill the square, and the alternatives were both
+    worse:
+
+    - fitting and padding keeps the shape perfectly readable. Flat bars have a
+      measurable bounding box, so a bot recovers the aspect ratio, and with it
+      the category, without looking at the picture at all.
+    - cropping to a square hides the shape too, but with no title beneath it a
+      crop that takes the top off a book cover can leave the tile unanswerable.
+
+    Stretching distorts a little and leaves no geometry to measure: every tile
+    is the same full-bleed square with all of the cover still visible. A person
+    reads a squashed poster as a poster; a bot has to classify the image.
     """
     key = f"{_TILE_CACHE_PREFIX}_{item.pk}"
     data = cache.get(key)
@@ -251,15 +260,8 @@ def render_tile(item: Item) -> bytes | None:
             raw = f.read()
         source = Image.open(io.BytesIO(raw))
         source.load()
-        source = source.convert("RGB")
-        source.thumbnail((CAPTCHA_TILE_PX, CAPTCHA_TILE_PX), Image.Resampling.LANCZOS)
-        canvas = Image.new("RGB", (CAPTCHA_TILE_PX, CAPTCHA_TILE_PX), CAPTCHA_TILE_BG)
-        canvas.paste(
-            source,
-            (
-                (CAPTCHA_TILE_PX - source.width) // 2,
-                (CAPTCHA_TILE_PX - source.height) // 2,
-            ),
+        canvas = source.convert("RGB").resize(
+            (CAPTCHA_TILE_PX, CAPTCHA_TILE_PX), Image.Resampling.LANCZOS
         )
         buffer = io.BytesIO()
         canvas.save(buffer, format="JPEG", quality=85)

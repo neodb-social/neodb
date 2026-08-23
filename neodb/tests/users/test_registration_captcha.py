@@ -23,7 +23,10 @@ REGISTER_URL = reverse("users:register")
 LOGIN_URL = reverse("users:login")
 
 
-def _cover_bytes(color: tuple[int, int, int] = (10, 120, 200)) -> bytes:
+COVER_FILL = (120, 140, 160)  # mid-tone: unmistakable against any pad colour
+
+
+def _cover_bytes(color: tuple[int, int, int] = COVER_FILL) -> bytes:
     buffer = io.BytesIO()
     Image.new("RGB", (60, 90), color).save(buffer, format="JPEG")
     return buffer.getvalue()
@@ -526,9 +529,31 @@ class TestTileProxy:
             assert "Cookie" in response["Vary"]
             image = Image.open(io.BytesIO(response.content))
             sizes.add(image.size)
-        # a 60x90 source must come back padded, not cropped or letterboxed
-        # to a different shape per category
         assert sizes == {(captcha.CAPTCHA_TILE_PX, captcha.CAPTCHA_TILE_PX)}
+
+    def test_tile_is_full_bleed_so_shape_cannot_be_measured(self, client, enabled):
+        """A non-square cover must not come back with padding bars.
+
+        Fitting-and-padding would keep every tile the same pixel size while
+        leaving the original aspect ratio trivially recoverable from the
+        bounding box of the flat bars -- and aspect ratio is close to a
+        giveaway for the category (square album art, 2:3 posters, tall book
+        covers). The cover has to reach all four edges.
+        """
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        for token in _challenge(client)["tiles"]:
+            response = client.get(reverse("users:captcha_tile", args=[token]))
+            image = Image.open(io.BytesIO(response.content)).convert("RGB")
+            w, h = image.size
+            corners = [(1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)]
+            for xy in corners:
+                pixel = image.getpixel(xy)
+                assert isinstance(pixel, tuple)
+                # the source is a solid COVER_FILL rectangle, so every corner
+                # is cover -- a padding bar would read as black or white
+                drift = max(abs(a - b) for a, b in zip(pixel, COVER_FILL))
+                assert drift < 24, f"corner {xy} is not cover: {pixel}"
 
     def test_unknown_token_404s(self, client, enabled):
         _verify_email(client)
