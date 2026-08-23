@@ -193,6 +193,7 @@ def _captcha_context(request: HttpRequest, challenge) -> dict:
         ],
         "nonce": challenge["nonce"],
         "seconds_left": captcha.seconds_left(challenge),
+        "max_trace_points": captcha.CAPTCHA_MAX_TRACE_POINTS,
         "regenerations_left": captcha.regenerations_left(challenge),
         "msg": captcha.pop_message(request),
     }
@@ -221,6 +222,13 @@ def _captcha_end(request: HttpRequest, outcome: str, title, message):
     return _render_error(request, title, message)
 
 
+def _captcha_fail_open(request: HttpRequest):
+    """Let registration through when no fair quiz can be built."""
+    captcha.mark_passed(request)
+    record_registration_captcha("fail_open")
+    return redirect(reverse("users:register"))
+
+
 @require_http_methods(["GET", "POST"])
 def registration_captcha(request: HttpRequest):
     """Sort item covers into two category rows before choosing a username."""
@@ -230,6 +238,16 @@ def registration_captcha(request: HttpRequest):
         return redirect(reverse("users:login"))
     if not captcha.is_enabled() or captcha.has_passed(request):
         return redirect(reverse("users:register"))
+    # mirror register()'s invite gate: without it an uninvited visitor can
+    # solve quizzes on an invite-only site before being turned away anyway
+    if SiteConfig.system.invite_only and not Takahe.verify_invite(
+        str(request.session.get("invite"))
+    ):
+        return _render_error(
+            request,
+            _("Authentication failed"),
+            _("Registration is for invitation only"),
+        )
 
     if request.method == "POST":
         challenge = captcha.get_challenge(request)
@@ -242,21 +260,29 @@ def registration_captcha(request: HttpRequest):
                 _("Time is up"),
                 _("Please log in again to continue registration."),
             )
+        # A stale form -- re-post, back button, double click -- costs nothing
+        # and just re-renders whatever is current.
         if request.POST.get("nonce") != challenge["nonce"]:
-            # stale form: a re-post, the back button, or a double click.
-            # Costs nothing; re-render whatever is current.
+            return redirect(reverse("users:captcha"))
+        # Then claim it atomically. Comparing the nonce and only rotating it in
+        # a later session write would let concurrent posts all pass and collapse
+        # into a single spent regeneration, which is an unlimited-guess hole.
+        # Claiming after the match check keeps junk nonces out of the cache.
+        if not captcha.claim_nonce(challenge["nonce"]):
             return redirect(reverse("users:captcha"))
 
         if request.POST.get("action") == "regenerate":
-            if captcha.regenerations_left(challenge) <= 0:
+            outcome = captcha.regenerate(request)
+            if outcome["exhausted"]:
                 # no-op rather than session-ending: a stray click on a button
                 # that should already be hidden must not cost a signup
                 return redirect(reverse("users:captcha"))
-            captcha.regenerate(request)
+            if not outcome["challenge"]:
+                return _captcha_fail_open(request)
             record_registration_captcha("regenerated")
             return redirect(reverse("users:captcha"))
 
-        ok, outcome, reason = captcha.verify_submission(
+        ok, outcome_name, reason = captcha.verify_submission(
             challenge,
             request.POST.get("answer", ""),
             request.POST.get("trace", ""),
@@ -265,18 +291,23 @@ def registration_captcha(request: HttpRequest):
             captcha.mark_passed(request)
             record_registration_captcha("passed")
             return redirect(reverse("users:register"))
-        record_registration_captcha(outcome, reason)
-        captcha.record_fail(client_ip(request))
-        if captcha.regenerations_left(challenge) <= 0:
+        record_registration_captcha(outcome_name, reason)
+        ip = client_ip(request)
+        captcha.record_fail(ip)
+        # enforce the cap here too, not only when issuing: otherwise a live
+        # challenge keeps serving attempts long past the limit
+        if captcha.regenerations_left(challenge) <= 0 or captcha.fails_exceeded(ip):
             return _captcha_end(
                 request,
                 "exhausted",
                 _("Verification failed"),
                 _("Please log in again to continue registration."),
             )
-        captcha.regenerate(
+        regenerated = captcha.regenerate(
             request, msg=_("That is not quite right. Here is a new set.")
         )
+        if not regenerated["challenge"] and not regenerated["exhausted"]:
+            return _captcha_fail_open(request)
         return redirect(reverse("users:captcha"))
 
     challenge = captcha.get_challenge(request)
@@ -292,9 +323,7 @@ def registration_captcha(request: HttpRequest):
         if not challenge:
             # the catalog cannot supply a fair quiz right now; letting people
             # register matters more than running the check
-            captcha.mark_passed(request)
-            record_registration_captcha("fail_open")
-            return redirect(reverse("users:register"))
+            return _captcha_fail_open(request)
         record_registration_captcha("issued")
     elif captcha.expired(challenge):
         return _captcha_end(
@@ -314,8 +343,8 @@ def registration_captcha_tile(request: HttpRequest, token: str):
     real cover would spell out the answer. Unknown, stale and foreign tokens
     all 404 identically so the response cannot be used as an oracle.
     """
-    item = captcha.tile_item(request, token)
-    data = captcha.render_tile(item) if item else None
+    resolved = captcha.tile_item(request, token)
+    data = captcha.render_tile(*resolved) if resolved else None
     if not data:
         raise Http404
     response = HttpResponse(data, content_type=captcha.CAPTCHA_TILE_CONTENT_TYPE)

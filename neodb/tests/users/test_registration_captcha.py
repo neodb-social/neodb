@@ -109,7 +109,12 @@ def _drop_captcha_keys() -> None:
     it makes unrelated tests fail depending on the order they run in.
     """
     delete_pattern = getattr(cache, "delete_pattern", None)
-    patterns = ("captcha_pool_*", "captcha_tile_*", "captcha_fail_open*")
+    patterns = (
+        "captcha_pool_*",
+        "captcha_tile_*",
+        "captcha_fail_open*",
+        "captcha_nonce_used*",
+    )
     if delete_pattern:
         for pattern in patterns:
             delete_pattern(pattern)
@@ -209,7 +214,7 @@ class TestSolving:
         response = _submit(client, _challenge(client))
         assert response.status_code == 302
         assert response.url == REGISTER_URL
-        assert client.session[captcha.PASSED_KEY] is True
+        assert captcha.PASSED_KEY in client.session
 
         response = client.post(REGISTER_URL, {"username": "newbie", "email": ""})
         assert response.status_code == 200
@@ -376,8 +381,15 @@ class TestTrajectory:
             token: {
                 "mode": "drag",
                 "duration": 500.0 + i,
-                # perfectly interpolated: what naive automation produces
-                "points": [[0.0, 0.0, 0.0], [10.0, 10.0, 40.0], [20.0, 20.0, 90.0]],
+                # perfectly interpolated along y=x: what naive automation
+                # produces. Long enough that the shape checks apply.
+                "points": [
+                    [0.0, 0.0, 0.0],
+                    [20.0, 20.0, 30.0],
+                    [40.0, 40.0, 71.0],
+                    [60.0, 60.0, 115.0],
+                    [100.0, 100.0, 500.0 + i],
+                ],
             }
             for i, token in enumerate(challenge["tiles"])
         }
@@ -654,23 +666,31 @@ class TestPool:
         response = client.get(CAPTCHA_URL)
         assert response.status_code == 302
         assert response.url == REGISTER_URL
-        assert client.session[captcha.PASSED_KEY] is True
+        assert captcha.PASSED_KEY in client.session
         assert client.post(REGISTER_URL, {"username": "thin", "email": ""})
         assert User.objects.filter(username="thin").exists()
 
 
 @pytest.mark.django_db(databases="__all__")
 class TestRateLimit:
-    def test_cap_blocks_new_challenges(self, client, enabled, monkeypatch):
+    def test_cap_ends_a_live_challenge(self, client, enabled, monkeypatch):
+        """The cap must bite mid-challenge, not only when issuing one.
+
+        Checking it only before issuing let a challenge that started just under
+        the limit keep serving attempts indefinitely.
+        """
         monkeypatch.setattr(captcha, "CAPTCHA_MAX_FAILS", 1)
         _verify_email(client)
         client.get(CAPTCHA_URL)
         challenge = _challenge(client)
-        _submit(client, challenge, answer=_wrong_answer(challenge))
-        # drop the live challenge so the next GET has to issue one
-        session = client.session
-        del session[captcha.SESSION_KEY]
-        session.save()
+        response = _submit(client, challenge, answer=_wrong_answer(challenge))
+        assert response.status_code == 200
+        assert "verified_account" not in client.session
+
+    def test_cap_blocks_issuing_a_new_challenge(self, client, enabled, monkeypatch):
+        monkeypatch.setattr(captcha, "CAPTCHA_MAX_FAILS", 1)
+        captcha.record_fail("127.0.0.1")
+        _verify_email(client)
         response = client.get(CAPTCHA_URL)
         assert response.status_code == 200
         assert captcha.SESSION_KEY not in client.session
@@ -691,7 +711,7 @@ class TestVerificationResetsState:
         _verify_email(client)
         client.get(CAPTCHA_URL)
         _submit(client, _challenge(client))
-        assert client.session[captcha.PASSED_KEY] is True
+        assert captcha.PASSED_KEY in client.session
 
         # a second verification must start the step over
         request = client.request().wsgi_request
@@ -745,3 +765,175 @@ class TestPoolJob:
             assert cache.get(f"captcha_pool_all_{category.value}") is not None
             assert cache.get(f"captcha_pool_popular_{category.value}") is not None
         assert len(cache.get("captcha_pool_all_movie")) == 4
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestReviewRegressions:
+    """One test per hole found in review; each fails against the old code."""
+
+    def test_nonce_claim_is_atomic(self):
+        """Only one caller may consume a given nonce.
+
+        Sequential replay is already caught by the match check, since each
+        state change rotates the nonce. The hole this guards is concurrent
+        posts: session writes are last-write-wins, so without an atomic claim
+        every racing request passes the comparison and they collapse into a
+        single spent regeneration -- unlimited parallel guesses.
+        """
+        nonce = "test-nonce-claim"
+        assert captcha.claim_nonce(nonce) is True
+        assert captcha.claim_nonce(nonce) is False
+        assert captcha.claim_nonce("") is False
+
+    def test_replayed_nonce_costs_nothing(self, client, enabled):
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        challenge = _challenge(client)
+        _submit(client, challenge, answer=_wrong_answer(challenge))
+        assert _challenge(client)["regens"] == 1
+        replay = _submit(client, challenge, answer=_wrong_answer(challenge))
+        assert replay.status_code == 302
+        assert _challenge(client)["regens"] == 1
+
+    def test_failed_rebuild_does_not_leave_a_reusable_challenge(
+        self, client, enabled, monkeypatch
+    ):
+        """A regeneration that cannot build must not keep the spent quiz.
+
+        Leaving it in the session meant its nonce could be submitted against
+        forever without ever advancing the regeneration count.
+        """
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        challenge = _challenge(client)
+        monkeypatch.setattr(captcha, "_build_challenge", lambda **kw: None)
+        response = _submit(client, challenge, answer=_wrong_answer(challenge))
+        assert response.status_code == 302
+        assert response.url == REGISTER_URL  # fell open rather than looping
+        assert captcha.SESSION_KEY not in client.session
+
+    def test_a_solved_pass_goes_stale(self, client, enabled, monkeypatch):
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        _submit(client, _challenge(client))
+        assert client.get(REGISTER_URL).status_code == 200
+        monkeypatch.setattr(captcha, "CAPTCHA_PASS_TTL", -1)
+        response = client.get(REGISTER_URL)
+        assert response.status_code == 302
+        assert response.url == CAPTCHA_URL
+
+    def test_tile_bytes_differ_between_challenges(self, client, enabled, media_root):
+        """The transform must not be reproducible from the public cover.
+
+        The anonymous catalog search hands out an item's cover URL next to its
+        category, so a fixed pipeline could be replayed over the catalog and
+        byte-matched against each tile.
+        """
+        # create the item here rather than picking an arbitrary existing one:
+        # each test gets its own MEDIA_ROOT, so another test's row would have
+        # no readable cover file
+        movie = _with_cover(Movie.objects.create(title="Jitter Subject"), "jit.jpg")
+        first = captcha.render_tile(movie, "nonce-one")
+        second = captcha.render_tile(movie, "nonce-two")
+        assert first and second
+        assert first != second
+        # ...but stable within one challenge, so reloads stay cacheable
+        assert captcha.render_tile(movie, "nonce-one") == first
+
+    def test_expired_challenge_serves_no_tiles(self, client, enabled):
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        token = next(iter(_challenge(client)["tiles"]))
+        assert (
+            client.get(reverse("users:captcha_tile", args=[token])).status_code == 200
+        )
+        session = client.session
+        challenge = session[captcha.SESSION_KEY]
+        challenge["started"] -= captcha.CAPTCHA_TTL + 1
+        session[captcha.SESSION_KEY] = challenge
+        session.save()
+        assert (
+            client.get(reverse("users:captcha_tile", args=[token])).status_code == 404
+        )
+
+    def test_split_is_chosen_from_what_the_pool_can_serve(
+        self, client, monkeypatch, media_root
+    ):
+        """Two categories with two items each must still serve four tiles.
+
+        Drawing for one randomly chosen split first would fail open on a pair
+        that had enough items all along, since only 2/2 works here.
+        """
+        _configure(monkeypatch, registration_captcha_items=4, min_marks_for_captcha=1)
+        for i in range(2):
+            _with_cover(Movie.objects.create(title=f"Only Movie {i}"), f"m{i}.jpg")
+            _with_cover(Album.objects.create(title=f"Only Album {i}"), f"a{i}.jpg")
+        for _ in range(8):
+            challenge = captcha._build_challenge(started=0, regens=0)
+            assert challenge is not None
+            counts = [0, 0]
+            for tile in challenge["tiles"].values():
+                counts[tile["row"]] += 1
+            assert counts == [2, 2]
+
+    def test_popular_pool_ranks_only_eligible_classes(self, monkeypatch, media_root):
+        """Excluded sub-items must not consume the pool limit.
+
+        Ranking first and filtering afterwards let episodes crowd out the
+        podcasts a person could actually recognize.
+        """
+        _configure(monkeypatch, registration_captcha_items=4, min_marks_for_captcha=1)
+        monkeypatch.setattr(captcha, "CAPTCHA_POOL_LIMIT", 2)
+        podcast = _with_cover(Podcast.objects.create(title="Show"), "show.jpg")
+        user = User.register(email="marks@example.org", username="marks")
+        for i in range(3):
+            episode = _with_cover(
+                PodcastEpisode.objects.create(
+                    title=f"Ep {i}", program=podcast, pub_date=timezone.now()
+                ),
+                f"ep{i}.jpg",
+            )
+            Mark(user.identity, episode).update(ShelfType.WISHLIST)
+        Mark(user.identity, podcast).update(ShelfType.WISHLIST)
+        # the three marked episodes would otherwise fill a limit of 2
+        assert captcha.build_pool(ItemCategory.Podcast, popular=True) == [podcast.pk]
+
+    def test_invite_only_gate_applies_to_the_captcha(
+        self, client, enabled, monkeypatch
+    ):
+        _configure(
+            monkeypatch,
+            registration_captcha_items=4,
+            min_marks_for_captcha=1,
+            invite_only=True,
+        )
+        _verify_email(client)
+        response = client.get(CAPTCHA_URL)
+        assert response.status_code == 200
+        assert captcha.SESSION_KEY not in client.session
+
+    def test_a_short_human_drag_is_not_called_a_bot(self, client, enabled):
+        """Three samples over a short distance must not trip the shape checks.
+
+        One intermediate point near the start-to-end line is ordinary on a
+        short drag, and two equal intervals are ordinary on a browser that
+        coarsens timer resolution.
+        """
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        challenge = _challenge(client)
+        trace = {
+            token: {
+                "mode": "drag",
+                "duration": 180.0 + i * 11,
+                "points": [
+                    [0.0, 0.0, 0.0],
+                    [6.0, 6.0, 60.0],
+                    [12.0, 12.0, 180.0 + i * 11],
+                ],
+            }
+            for i, token in enumerate(challenge["tiles"])
+        }
+        response = _submit(client, challenge, trace=trace)
+        assert response.status_code == 302
+        assert response.url == REGISTER_URL

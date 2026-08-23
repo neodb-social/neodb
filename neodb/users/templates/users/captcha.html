@@ -92,6 +92,7 @@
       </article>
     </div>
     {{ seconds_left|json_script:"captcha-seconds" }}
+    {{ max_trace_points|json_script:"captcha-max-points" }}
     <script>
       (function () {
         const pool = document.getElementById('captcha-pool');
@@ -105,6 +106,7 @@
 
         // token -> {row, mode, points:[[x,y,t],...], duration}
         const placed = new Map();
+        const maxPoints = JSON.parse(document.getElementById('captcha-max-points').textContent);
         let selected = null;
         let selectedAt = 0;
 
@@ -175,7 +177,9 @@
             tile.classList.add('captcha-tile--dragging');
 
             function onMove(e) {
-              if (points.length < 200) {
+              // leave room for the pointerup sample below: overshooting the
+              // server's cap by even one point rejects the whole submission
+              if (points.length < maxPoints - 1) {
                 points.push([e.clientX, e.clientY, performance.now()]);
               }
               if (Math.abs(e.clientX - points[0][0]) > 4 || Math.abs(e.clientY - points[0][1]) > 4) {
@@ -226,8 +230,14 @@
           });
         });
 
-        let left = JSON.parse(document.getElementById('captcha-seconds').textContent);
+        // Track an absolute deadline rather than decrementing per tick: a
+        // throttled background tab or a suspended device would otherwise leave
+        // the display behind the server clock, and the visitor submits an
+        // answer that is already expired -- which costs them the whole session.
+        const deadline = Date.now() +
+          JSON.parse(document.getElementById('captcha-seconds').textContent) * 1000;
         function tick() {
+          const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
           if (left <= 0) {
             timer.textContent = strings.expired;
             submit.disabled = true;
@@ -236,7 +246,6 @@
           const m = Math.floor(left / 60);
           const s = String(left % 60).padStart(2, '0');
           timer.textContent = m + ':' + s;
-          left -= 1;
           setTimeout(tick, 1000);
         }
         tick();

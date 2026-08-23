@@ -21,6 +21,7 @@ tests can relax them, and state lives in the session rather than in a signed
 client payload.
 """
 
+import hashlib
 import io
 import json
 import random
@@ -62,6 +63,12 @@ CAPTCHA_DRAW_OVERSAMPLE = 3
 CAPTCHA_TILE_PX = 240
 CAPTCHA_TILE_TTL = 600
 CAPTCHA_TILE_CONTENT_TYPE = "image/jpeg"
+# how long a solved pass stays good; the session cookie itself lives for months
+CAPTCHA_PASS_TTL = 30 * 60
+# per-challenge jitter, so a tile is not a checksum of a public cover
+CAPTCHA_TILE_JITTER_PX = 3
+CAPTCHA_TILE_QUALITY_MIN = 80
+CAPTCHA_TILE_QUALITY_MAX = 90
 
 SESSION_KEY = "registration_captcha"
 PASSED_KEY = "registration_captcha_passed"
@@ -69,6 +76,7 @@ PASSED_KEY = "registration_captcha_passed"
 _POPULAR_CACHE_PREFIX = "captcha_pool_popular"
 _ALL_CACHE_PREFIX = "captcha_pool_all"
 _TILE_CACHE_PREFIX = "captcha_tile"
+_NONCE_CACHE_PREFIX = "captcha_nonce_used"
 _FAIL_OPEN_CACHE_KEY = "captcha_fail_open"
 _WARN_CACHE_KEY = "captcha_fail_open_warned"
 
@@ -152,6 +160,11 @@ def build_pool(category: ItemCategory, popular: bool) -> list[int]:
     if popular:
         marked = (
             ShelfMember.objects.filter(q_item_in_category(category))
+            # narrow to eligible classes *inside* the aggregate: ranking first
+            # and filtering after lets excluded sub-items (seasons, episodes)
+            # consume the whole limit, which would drop genuinely popular
+            # items and push the draw onto obscure fallback ones
+            .filter(item__polymorphic_ctype_id__in=ctype_ids)
             .values("item_id")
             .annotate(num=Count("item_id"))
             .filter(num__gte=SiteConfig.system.min_marks_for_captcha)
@@ -199,7 +212,7 @@ def refresh_pools() -> dict[str, int]:
     return sizes
 
 
-def _draw_items(category: ItemCategory, count: int) -> list[Item]:
+def _draw_items(category: ItemCategory, count: int, nonce: str) -> list[Item]:
     """Draw `count` distinct live, covered items of a category.
 
     Samples the popular pool first and tops up from the all-items pool. Pool
@@ -224,12 +237,12 @@ def _draw_items(category: ItemCategory, count: int) -> list[Item]:
         # render eagerly: a tile that 404s later would leave the visitor an
         # unanswerable quiz and cost them a regeneration. The bytes are cached,
         # so the request that serves this tile does no extra work.
-        if item.has_cover() and render_tile(item) is not None:
+        if item.has_cover() and render_tile(item, nonce) is not None:
             chosen.append(item)
     return chosen
 
 
-def render_tile(item: Item) -> bytes | None:
+def render_tile(item: Item, nonce: str) -> bytes | None:
     """Render one cover to the uniform tile image, or None if it cannot be.
 
     Normalization is a security requirement, not cosmetics: cover paths are
@@ -250,8 +263,15 @@ def render_tile(item: Item) -> bytes | None:
     Stretching distorts a little and leaves no geometry to measure: every tile
     is the same full-bleed square with all of the cover still visible. A person
     reads a squashed poster as a poster; a bot has to classify the image.
+
+    The transform is also jittered per challenge. A fixed transform would be
+    reproducible: the anonymous catalog search hands out an item's cover URL
+    alongside its category, so a crawler could run this exact pipeline over the
+    catalog and byte-match each tile, recovering everything the tokens hide.
+    Jitter does not stop perceptual hashing -- nothing here does -- but it does
+    stop a plain checksum join, which is the cheap version of the attack.
     """
-    key = f"{_TILE_CACHE_PREFIX}_{item.pk}"
+    key = f"{_TILE_CACHE_PREFIX}_{nonce}_{item.pk}"
     data = cache.get(key)
     if data is not None:
         return data or None
@@ -260,11 +280,23 @@ def render_tile(item: Item) -> bytes | None:
             raw = f.read()
         source = Image.open(io.BytesIO(raw))
         source.load()
-        canvas = source.convert("RGB").resize(
+        source = source.convert("RGB")
+        # derive the jitter from the challenge so a reload of the same quiz is
+        # stable (and cacheable) while a different quiz renders differently
+        seed = hashlib.sha256(f"{nonce}:{item.pk}".encode()).digest()
+        inset = seed[0] % (CAPTCHA_TILE_JITTER_PX + 1)
+        quality = CAPTCHA_TILE_QUALITY_MIN + (
+            seed[1] % (CAPTCHA_TILE_QUALITY_MAX - CAPTCHA_TILE_QUALITY_MIN + 1)
+        )
+        if inset and source.width > 2 * inset and source.height > 2 * inset:
+            source = source.crop(
+                (inset, inset, source.width - inset, source.height - inset)
+            )
+        canvas = source.resize(
             (CAPTCHA_TILE_PX, CAPTCHA_TILE_PX), Image.Resampling.LANCZOS
         )
         buffer = io.BytesIO()
-        canvas.save(buffer, format="JPEG", quality=85)
+        canvas.save(buffer, format="JPEG", quality=quality)
         data = buffer.getvalue()
     except Exception as e:
         # vector covers and unreadable files are simply not usable as tiles;
@@ -291,15 +323,30 @@ def _build_challenge(started: int, regens: int) -> Challenge | None:
         return None
     categories = eligible_categories()
     random.shuffle(categories)
+    # minted up front so the eager tile render below warms the same cache key
+    # the tile requests will use
+    nonce = secrets.token_urlsafe(16)
 
     for i, first in enumerate(categories):
         for second in categories[i + 1 :]:
-            # split the total between the two rows, at least one each
-            a = random.randint(1, total - 1)
-            counts = {first: a, second: total - a}
-            drawn = {c: _draw_items(c, n) for c, n in counts.items()}
-            if any(len(drawn[c]) < n for c, n in counts.items()):
+            # Draw as many as either row could possibly need, then pick from
+            # the splits the draw can actually support. Drawing for one random
+            # split instead would fail open on a pair that had enough items all
+            # along: two categories with two items each can only serve a 2/2
+            # split, so a 1/3 draw would spuriously give up.
+            available = {c: _draw_items(c, total - 1, nonce) for c in (first, second)}
+            feasible = [
+                a
+                for a in range(1, total)
+                if a <= len(available[first]) and total - a <= len(available[second])
+            ]
+            if not feasible:
                 continue
+            a = random.choice(feasible)
+            drawn = {
+                first: available[first][:a],
+                second: available[second][: total - a],
+            }
             rows = [first.value, second.value]
             # shuffle before assigning tokens: drawing per category would
             # otherwise leave the tiles grouped by row in insertion order,
@@ -315,7 +362,7 @@ def _build_challenge(started: int, regens: int) -> Challenge | None:
             }
             return {
                 "started": started,
-                "nonce": secrets.token_urlsafe(16),
+                "nonce": nonce,
                 "regens": regens,
                 "rows": rows,
                 "tiles": tiles,
@@ -356,26 +403,57 @@ def ensure_challenge(request: HttpRequest) -> Challenge | None:
     return challenge
 
 
-def regenerate(request: HttpRequest, msg: str | None = None) -> Challenge | None:
+class Regenerated(TypedDict):
+    """Outcome of a regeneration attempt.
+
+    ``challenge`` is None when the catalog could not build a fresh quiz, which
+    the caller must treat as fail-open rather than as "try again": leaving the
+    spent challenge in the session would let its nonce be submitted against
+    indefinitely without ever consuming a regeneration.
+    """
+
+    challenge: Challenge | None
+    exhausted: bool
+
+
+def regenerate(request: HttpRequest, msg: str | None = None) -> Regenerated:
     """Spend one regeneration and issue a fresh quiz.
 
-    Returns None when none are left; the caller ends the session. The time
-    budget is deliberately carried over: it covers the whole step.
+    The time budget is deliberately carried over: it covers the whole step.
     """
     current = get_challenge(request)
     if not current:
-        return ensure_challenge(request)
+        return {"challenge": ensure_challenge(request), "exhausted": False}
     if current["regens"] >= CAPTCHA_MAX_REGENERATIONS:
-        return None
+        return {"challenge": None, "exhausted": True}
     challenge = _build_challenge(
         started=current["started"], regens=current["regens"] + 1
     )
     if not challenge:
+        # drop the spent challenge: a stale nonce left in the session is an
+        # unlimited-guess oracle, since submissions against it never advance
+        # the regeneration count
+        request.session.pop(SESSION_KEY, None)
+        request.session.modified = True
         _fail_open("not enough covered items in two categories")
-        return None
+        return {"challenge": None, "exhausted": False}
     challenge["msg"] = msg
     _store(request, challenge)
-    return challenge
+    return {"challenge": challenge, "exhausted": False}
+
+
+def claim_nonce(nonce: str) -> bool:
+    """Atomically consume a challenge nonce; False if already used.
+
+    Session writes are last-write-wins, so comparing the nonce and then
+    rotating it in a later write lets concurrent posts each pass the check and
+    collapse into a single spent regeneration -- effectively unlimited parallel
+    guesses. cache.add is atomic, which is the same guard login_proof uses for
+    solution replay.
+    """
+    if not nonce:
+        return False
+    return cache.add(f"{_NONCE_CACHE_PREFIX}:{nonce}", True, timeout=CAPTCHA_TTL)
 
 
 def regenerations_left(challenge: Challenge) -> int:
@@ -401,15 +479,22 @@ def pop_message(request: HttpRequest) -> str | None:
     return msg
 
 
-def tile_item(request: HttpRequest, token: str) -> Item | None:
-    """Resolve a tile token against the *current* challenge only."""
+def tile_item(request: HttpRequest, token: str) -> tuple[Item, str] | None:
+    """Resolve a tile token against the *current, live* challenge only.
+
+    Returns the item and the challenge nonce, which keys the rendered bytes.
+    An expired challenge serves nothing: its state lingers in the session
+    until some captcha-page request replaces it, and there is no reason to
+    keep answering for it.
+    """
     challenge = get_challenge(request)
-    if not challenge:
+    if not challenge or expired(challenge):
         return None
     tile = challenge["tiles"].get(token)
     if not tile:
         return None
-    return Item.objects.filter(pk=tile["pk"]).first()
+    item = Item.objects.filter(pk=tile["pk"]).first()
+    return (item, challenge["nonce"]) if item else None
 
 
 def check_answer(challenge: Challenge, answer: Any) -> bool:
@@ -432,11 +517,24 @@ def clear(request: HttpRequest) -> None:
 
 def mark_passed(request: HttpRequest) -> None:
     request.session.pop(SESSION_KEY, None)
-    request.session[PASSED_KEY] = True
+    request.session[PASSED_KEY] = _now()
 
 
 def has_passed(request: HttpRequest) -> bool:
-    return bool(request.session.get(PASSED_KEY))
+    """True while a solved pass is still fresh.
+
+    The pass is stamped rather than a bare flag: the session cookie lives for
+    months, and a solve parked for that long has nothing to do with the
+    five-minute budget it was earned under. It still buys exactly one account
+    either way, since auth_login consumes it.
+    """
+    at = request.session.get(PASSED_KEY)
+    if at is True:
+        # a pass stored by an older build, before this was stamped
+        return True
+    if not isinstance(at, int):
+        return False
+    return _now() - at <= CAPTCHA_PASS_TTL
 
 
 # --- interaction telemetry -------------------------------------------------
@@ -453,7 +551,12 @@ CAPTCHA_MAX_TRACE_POINTS = 200
 CAPTCHA_MIN_DRAG_POINTS = 3
 CAPTCHA_MIN_DRAG_MS = 100.0
 CAPTCHA_MIN_CLICK_MS = 80.0
-CAPTCHA_MIN_TOTAL_MS = 1500.0
+# A brisk but genuine sort of four tiles can finish inside a second and a half,
+# so this floor only rules out submissions with essentially no interaction.
+CAPTCHA_MIN_TOTAL_MS = 700.0
+# shape checks need enough of a path to mean anything; see _check_entry
+CAPTCHA_SHAPE_MIN_POINTS = 5
+CAPTCHA_SHAPE_MIN_SPAN_PX = 30.0
 CAPTCHA_MIN_DEVIATION_PX = 0.5
 
 TRACE_MODES = frozenset({"drag", "click"})
@@ -519,11 +622,24 @@ def _check_entry(entry: Any) -> tuple[bool, str, float]:
         return False, "too_few_samples", duration
     if duration < CAPTCHA_MIN_DRAG_MS:
         return False, "dwell", duration
-    intervals = [b - a for a, b in pairwise(times)]
-    if len(intervals) > 1 and len(set(intervals)) <= 1:
-        return False, "uniform_intervals", duration
-    if _max_perpendicular_deviation(points) <= CAPTCHA_MIN_DEVIATION_PX:
-        return False, "collinear", duration
+
+    # Both shape checks below need enough samples to say anything. On a short
+    # drag with three points, one intermediate sample sitting near the
+    # start-to-end line is ordinary, and two intervals coming out equal is
+    # ordinary too on a browser that coarsens timer resolution. Judging those
+    # would reject people, so only apply them once the path is long enough to
+    # carry a real signal.
+    if len(points) >= CAPTCHA_SHAPE_MIN_POINTS:
+        intervals = [b - a for a, b in pairwise(times)]
+        if len(set(intervals)) <= 1:
+            return False, "uniform_intervals", duration
+        (x0, y0, _), (x1, y1, _) = points[0], points[-1]
+        span = ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
+        if (
+            span >= CAPTCHA_SHAPE_MIN_SPAN_PX
+            and _max_perpendicular_deviation(points) <= CAPTCHA_MIN_DEVIATION_PX
+        ):
+            return False, "collinear", duration
     return True, "", duration
 
 
