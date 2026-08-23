@@ -146,10 +146,6 @@ class Mark:
                 "-created_time"
             )
         )
-        # post_ids = PiecePost.objects.filter(
-        #     piece__note__owner_id=self.owner.pk, piece__note__item_id=self.item.pk
-        # ).values_list("post_id", flat=True)
-        # return Takahe.get_posts(list(post_ids))
 
     @property
     def created_time(self) -> datetime | None:

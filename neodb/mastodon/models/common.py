@@ -58,14 +58,6 @@ class SocialAccount(TypedModel):
     last_refresh = models.DateTimeField(default=None, null=True)
     last_reachable = models.DateTimeField(default=None, null=True)
 
-    # sync_profile = jsondata.BooleanField(
-    #     json_field_name="preference_data", default=True
-    # )
-    # sync_graph = jsondata.BooleanField(json_field_name="preference_data", default=True)
-    # sync_timeline = jsondata.BooleanField(
-    #     json_field_name="preference_data", default=True
-    # )
-
     class Meta:
         indexes = [
             models.Index(fields=["type", "handle"], name="index_social_type_handle"),

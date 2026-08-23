@@ -101,11 +101,6 @@ def _EditForm(item_model):
                             "text": "",
                         }
                     self.initial["localized_description"] = [d]
-                # if (
-                #     "language" in self.Meta.fields
-                #     and self.initial["language"]
-                # ):
-                #     if isinstance(self.initial["language"], str):
 
         def canonicalize_credit_initials(self):
             """Display-only: replace credit names with /person|organization/<uuid>

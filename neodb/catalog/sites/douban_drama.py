@@ -164,12 +164,6 @@ class DoubanDrama(AbstractSite):
                 "//div[@class='meta']//dl//dt[text()='类型：']/following-sibling::dd[@itemprop='genre']/text()",
             )
         ]
-        # data["version"] = [
-        #     s.strip()
-        #     for s in self.query_list(h,
-        #         "//dl//dt[text()='版本：']/following-sibling::dd[@class='titles']/a//text()"
-        #     )
-        # ]
         data["director"] = [
             s.strip()
             for s in self.query_list(

@@ -1001,14 +1001,6 @@ class ShelfManager:
         else:
             return qs
 
-    # def get_items_on_shelf(self, item_category, shelf_type):
-    #     shelf = (
-    #         self.owner.shelf_set.all()
-    #         .filter(item_category=item_category, shelf_type=shelf_type)
-    #         .first()
-    #     )
-    #     return shelf.members.all().order_by
-
     @classmethod
     def get_labels_for_category(cls, item_category: ItemCategory):
         return [(n[1], n[2]) for n in _SHELF_LABELS if n[0] == item_category]

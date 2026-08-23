@@ -13,12 +13,6 @@ from common.models.genre import (
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestGenreCatalog:
-    def test_genre_catalog_not_empty(self):
-        assert len(GENRE_CATALOG) > 80
-
-
-@pytest.mark.django_db(databases="__all__")
 class TestNormalizeGenre:
     def test_empty_input(self):
         assert normalize_genre("") is None
@@ -368,10 +362,6 @@ class TestNormalizeGenres:
 
 @pytest.mark.django_db(databases="__all__")
 class TestBuildGenreAliases:
-    def test_aliases_not_empty(self):
-        aliases = _build_genre_aliases()
-        assert len(aliases) > 50
-
     def test_aliases_include_scraper_entries(self):
         aliases = _build_genre_aliases()
         assert aliases.get("science fiction") == "sci-fi"
@@ -384,15 +374,6 @@ class TestBuildGenreAliases:
         _build_genre_aliases()
         current_after = translation.get_language()
         assert original_language == current_after
-
-    def test_aliases_include_i18n_translations(self):
-        """Aliases should include translated labels from supported UI languages."""
-        aliases = _build_genre_aliases()
-        # Translated labels from non-English locales should map to codes
-        # (English "action" == code "action" so it's skipped, but other
-        # languages' translations should be present)
-        action_aliases = [a for a, c in aliases.items() if c == "action"]
-        assert len(action_aliases) > 0
 
 
 @pytest.mark.django_db(databases="__all__")

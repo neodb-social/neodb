@@ -196,12 +196,6 @@ class AvailableItemCategory(models.TextChoices):
     Performance = "performance", _("Performance")
 
 
-# class SubItemType(models.TextChoices):
-#     Season = "season", _("season")
-#     Episode = "episode", _("episode")
-#     Version = "production", _("production")
-
-
 class LocalizedLabelSchema(Schema):
     lang: str
     text: str

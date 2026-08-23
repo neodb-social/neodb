@@ -1,15 +1,4 @@
-"""Tests for NeoDB-specific AP object handling in Takahe Post.
-
-Verifies that the relatedWith/tag extensions used by NeoDB journal entries
-are:
-1. Correctly included when serializing outgoing AP JSON (to_ap / to_create_ap)
-2. Correctly stored when parsing incoming AP JSON that contains relatedWith
-   (by_ap) so that no data is stripped or changed
-3. Exposed via the ext_neodb field in the Mastodon-compatible API
-
-These fields carry journal piece metadata (ShelfMember Status, Review, Rating,
-Note, Comment) between NeoDB instances.
-"""
+"""NeoDB ``relatedWith`` and tag extensions on Takahe posts."""
 
 import pytest
 

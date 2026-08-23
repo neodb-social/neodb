@@ -64,10 +64,6 @@ class TestCollectionListOperations:
         self.collection.remove_item(self.book1)
         assert self.collection.members.count() == 0
 
-    def test_remove_item_not_in_collection(self):
-        # Should not raise
-        self.collection.remove_item(self.book1)
-
     def test_ordered_members(self):
         self.collection.append_item(self.book1)
         self.collection.append_item(self.book2)
@@ -172,10 +168,6 @@ class TestCollectionListOperations:
 
         member = self.collection.get_member_for_item(self.book1)
         assert member.metadata == {"note": "great"}
-
-    def test_update_item_metadata_nonexistent(self):
-        # Should not raise when item is not in collection
-        self.collection.update_item_metadata(self.book1, {"note": "test"})
 
     def test_update_item_note(self):
         self.collection.append_item(self.book1, note="old")

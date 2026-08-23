@@ -59,14 +59,3 @@ class Command(SiteCommand):
                     )
                     for i, cat in items:
                         c.append_item(i)
-
-        # top10 = list(
-        #     Comment.objects.filter(
-        #         created_time__year=2023, item__polymorphic_ctype=mapping[PodcastEpisode]
-        #     )
-        #     .values(i=F("item__podcastepisode__program_id"))
-        #     .annotate(c=Count("i"))
-        #     .order_by("-c")[:15]
-        # )
-        # items = [Item.objects.get(pk=i["i"]) for i in top10]
-        # _ = [print(i.title, i.absolute_url) for i in items]

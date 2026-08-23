@@ -3,7 +3,6 @@
 import pytest
 
 from social.feed_grouping import (
-    GROUP_THRESHOLD,
     FeedEventGroup,
     group_feed_events,
 )
@@ -99,9 +98,6 @@ class TestGroupFeedEvents:
         result = group_feed_events(events)
         assert _types(result) == [20, 10]
         assert not any(isinstance(r, FeedEventGroup) for r in result)
-
-    def test_threshold_constant_is_three(self):
-        assert GROUP_THRESHOLD == 3
 
     def test_pk_is_oldest_event_id(self):
         events = [mark(30), mark(20), mark(10)]

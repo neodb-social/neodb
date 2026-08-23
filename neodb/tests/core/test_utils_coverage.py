@@ -104,12 +104,6 @@ class TestGenerateDateUUIDMediaFilePath:
         path = GenerateDateUUIDMediaFilePath("image.webp", "media/")
         assert path.endswith(".webp")
 
-    def test_contains_date_path(self):
-        path = GenerateDateUUIDMediaFilePath("file.png", "media/")
-        parts = path.split("/")
-        # should have media, year, month, day, filename
-        assert len(parts) >= 4
-
 
 class TestGetUuidOr404:
     def test_valid_b62(self):

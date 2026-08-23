@@ -142,10 +142,6 @@ def q_piece_in_home_feed_of_user(viewing_user: User):
 
 def q_item_in_category(item_category: ItemCategory | AvailableItemCategory):
     classes = item_categories()[ItemCategory(item_category)]
-    # q = Q(item__instance_of=classes[0])
-    # for cls in classes[1:]:
-    #     q = q | Q(instance_of=cls)
-    # return q
     ct = item_content_types()
     contenttype_ids = [ct[cls] for cls in classes]
     return Q(item__polymorphic_ctype__in=contenttype_ids)

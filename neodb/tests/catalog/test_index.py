@@ -535,13 +535,6 @@ class TestCatalogSearch:
         assert self.book2.pk in found_items
         assert self.book3.pk in found_items
 
-        # FIXME: more than one people should be AND
-        # parser = CatalogQueryParser('people:"Coppola" people:"Marlon Brando"', 1, 20)
-        # results = CatalogIndex.instance().search(parser)
-        # found_items = [item.pk for item in results.items]
-        # assert len(found_items) == 1
-        # assert self.movie1.pk in found_items
-
     def test_search_by_company_publisher(self):
         """Test searching catalog by publishing house name"""
         # Create query parser for publisher search

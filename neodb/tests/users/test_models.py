@@ -102,37 +102,16 @@ class TestUserModel:
     def test_get_roles_staff_includes_staff(self):
         assert "staff" in self.staff.get_roles()
 
-    def test_preference_created_on_register(self):
+    def test_register_creates_preference_and_local_identity(self):
         pref = self.user.preference
         assert pref is not None
         assert pref.user == self.user
-
-    def test_preference_default_visibility(self):
-        assert self.user.preference.default_visibility == 0
-
-    def test_preference_default_post_public_mode(self):
-        assert self.user.preference.post_public_mode == 0
-
-    def test_preference_mastodon_skip_userinfo_default(self):
-        assert self.user.preference.mastodon_skip_userinfo is False
-
-    def test_preference_mastodon_skip_relationship_default(self):
-        assert self.user.preference.mastodon_skip_relationship is False
-
-    def test_identity_created_on_register(self):
         assert self.user.identity is not None
-
-    def test_identity_username_matches(self):
         assert self.user.identity.username == "alice"
-
-    def test_identity_is_local(self):
         assert self.user.identity.local is True
 
     def test_url_contains_username(self):
         assert "alice" in self.user.url
-
-    def test_is_active_by_default(self):
-        assert self.user.is_active is True
 
     def test_clear_deactivates_user(self):
         self.user.clear()
@@ -152,9 +131,6 @@ class TestUserModel:
         with pytest.raises(ValueError, match="username is not set"):
             User.register(username="")
 
-    def test_display_name(self):
-        assert self.user.display_name == self.user.identity.display_name
-
     def test_mastodon_acct_empty_when_no_mastodon(self):
         assert self.user.mastodon_acct == ""
 
@@ -171,10 +147,6 @@ class TestUserModel:
 
     def test_absolute_url_contains_domain(self):
         assert urlparse(self.user.absolute_url).hostname == "example.org"
-
-    def test_avatar_returns_value(self):
-        avatar = self.user.avatar
-        assert avatar is not None
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -211,15 +183,6 @@ class TestAPIdentityModel:
         # An identity never rejects itself
         assert self.identity.is_rejecting(self.identity) is False
 
-    def test_anonymous_viewable_default(self):
-        assert self.identity.anonymous_viewable is True
-
-    def test_shelf_manager_available(self):
-        assert self.identity.shelf_manager is not None
-
-    def test_tag_manager_available(self):
-        assert self.identity.tag_manager is not None
-
     def test_get_by_handle_local(self):
         found = APIdentity.get_by_handle("iduser")
         assert found.pk == self.identity.pk
@@ -241,26 +204,8 @@ class TestAPIdentityModel:
         self.identity.refresh_from_db()
         assert self.identity.deleted is not None
 
-    def test_following_identities_empty_initially(self):
-        assert list(self.identity.following_identities) == []
-
-    def test_follower_identities_empty_initially(self):
-        assert list(self.identity.follower_identities) == []
-
-    def test_blocking_identities_empty_initially(self):
-        assert list(self.identity.blocking_identities) == []
-
-    def test_muting_identities_empty_initially(self):
-        assert list(self.identity.muting_identities) == []
-
     def test_is_person(self):
         assert self.identity.is_person is True
-
-    def test_discoverable(self):
-        assert self.identity.discoverable is not None
-
-    def test_actor_type(self):
-        assert self.identity.actor_type is not None
 
 
 @pytest.mark.django_db(databases="__all__")

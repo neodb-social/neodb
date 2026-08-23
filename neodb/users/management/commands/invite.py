@@ -13,10 +13,6 @@ class Command(SiteCommand):
             "--create",
             action="store_true",
         )
-        # parser.add_argument(
-        #     "--revoke",
-        #     action="store_true",
-        # )
 
     def handle(self, *args, **options):
         if options["create"]:

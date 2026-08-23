@@ -872,78 +872,27 @@ class WikiData(AbstractSite):
 
     def _extract_game_metadata(self, entity_data, data):
         """Extract Game-specific metadata"""
-        # Existing model fields
         data.metadata["release_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
-        # data.metadata["developer"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P178
-        # )
-        # data.metadata["publisher"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P123
-        # )
-        # data.metadata["platform"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P400
-        # )
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["designer"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P287
-        # )
         data.metadata["artist"] = []  # No direct Wikidata property for artist
         data.metadata["official_site"] = self._extract_url(
             entity_data, WikidataProperties.P856
         )
 
-        # Additional properties (as comments for future implementation)
-        # data.metadata["composer"] = self._extract_string_list(entity_data, WikidataProperties.P86)
-        # data.metadata["game_mode"] = self._extract_string_list(entity_data, WikidataProperties.P404)
-        # data.metadata["software_engine"] = self._extract_string_list(entity_data, WikidataProperties.P408)
-        # data.metadata["distribution_format"] = self._extract_string_list(entity_data, WikidataProperties.P437)
-        # data.metadata["distributed_by"] = self._extract_string_list(entity_data, WikidataProperties.P750)
-        # data.metadata["influenced_by"] = self._extract_string_list(entity_data, WikidataProperties.P2860)
-        # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
-        # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
-
     def _extract_podcast_metadata(self, entity_data, data):
         """Extract Podcast-specific metadata"""
-        # Existing model fields
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["host"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P371
-        # )
-        # data.metadata["language"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P364
-        # ) or self._extract_string_list(entity_data, WikidataProperties.P407)
         data.metadata["official_site"] = self._extract_url(
             entity_data, WikidataProperties.P856
         )
-
-        # Additional properties (as comments for future implementation)
-        # data.metadata["first_episode_date"] = self._extract_date(entity_data, WikidataProperties.P577)
-        # data.metadata["last_episode_date"] = self._extract_date(entity_data, WikidataProperties.P582)
-        # data.metadata["creator"] = self._extract_string_list(entity_data, WikidataProperties.P170)
-        # data.metadata["episode_count"] = self._extract_property_value(entity_data, WikidataProperties.P1113)
-        # data.metadata["original_broadcaster"] = self._extract_string_list(entity_data, WikidataProperties.P449)
-        # data.metadata["number_of_seasons"] = self._extract_property_value(entity_data, WikidataProperties.P2437)
-        # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
-        # data.metadata["main_subject"] = self._extract_string_list(entity_data, WikidataProperties.P921)
 
         # RSS feed URL
         feed_url = self._extract_url(entity_data, WikidataProperties.P953)
         if feed_url:
             data.lookup_ids["rss"] = feed_url
 
-        # External podcast IDs
-        # data.metadata["apple_podcasts_id"] = self._extract_property_value(entity_data, WikidataProperties.P5842)
-        # data.metadata["spotify_show_id"] = self._extract_property_value(entity_data, WikidataProperties.P5831)
-
     def _extract_podcast_episode_metadata(self, entity_data, data):
         """Extract PodcastEpisode-specific metadata"""
-        # Existing model fields
         data.metadata["pub_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
@@ -956,97 +905,24 @@ class WikiData(AbstractSite):
         )
         data.metadata["link"] = self._extract_url(entity_data, WikidataProperties.P856)
 
-        # Additional properties (as comments for future implementation)
-        # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
-        # data.metadata["episode_number"] = self._extract_property_value(entity_data, WikidataProperties.P433)
-        # data.metadata["presenter"] = self._extract_string_list(entity_data, WikidataProperties.P371)
-        # data.metadata["guest"] = self._extract_string_list(entity_data, WikidataProperties.P453)
-        # data.metadata["main_subject"] = self._extract_string_list(entity_data, WikidataProperties.P921)
-        # data.metadata["set_in_period"] = self._extract_property_value(entity_data, WikidataProperties.P2408)
-        # data.metadata["characters"] = self._extract_string_list(entity_data, WikidataProperties.P674)
-
     def _extract_performance_metadata(self, entity_data, data):
         """Extract Performance-specific metadata"""
-        # Existing model fields
         data.metadata["opening_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
         data.metadata["closing_date"] = self._extract_date(
             entity_data, WikidataProperties.P582
         )
-        # data.metadata["language"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P364
-        # ) or self._extract_string_list(entity_data, WikidataProperties.P407)
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["playwright"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P50
-        # )
-        # data.metadata["composer"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P86
-        # )
-        # data.metadata["director"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P57
-        # )
-        # data.metadata["choreographer"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P1809
-        # )
-        # data.metadata["orig_creator"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P170
-        # )
         data.metadata["official_site"] = self._extract_url(
             entity_data, WikidataProperties.P856
         )
-
-        # Cast/Actor (simplified - would need role extraction for full support)
-        # cast_members = self._extract_string_list(entity_data, WikidataProperties.P161)
-        # data.metadata["actor"] = [{"name": name, "role": None} for name in cast_members]
-
-        # Performer (separate from actors)
-        # data.metadata["performer"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P175
-        # )
-
-        # Additional properties (as comments for future implementation)
-        # data.metadata["location"] = self._extract_string_list(entity_data, WikidataProperties.P276)
-        # data.metadata["troupe"] = self._extract_string_list(entity_data, WikidataProperties.P710)
-        # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
-        # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
-        # data.metadata["narrator"] = self._extract_string_list(entity_data, WikidataProperties.P2438)
-        # data.metadata["musical_conductor"] = self._extract_string_list(entity_data, WikidataProperties.P3300)
-        # data.metadata["lighting_designer"] = self._extract_string_list(entity_data, WikidataProperties.P5030)
-        # data.metadata["sound_designer"] = self._extract_string_list(entity_data, WikidataProperties.P5028)
-        # data.metadata["costume_designer"] = self._extract_string_list(entity_data, WikidataProperties.P5029)
-        # data.metadata["set_designer"] = self._extract_string_list(entity_data, WikidataProperties.P2515)
-
-        # Crew (combine various designers into crew list)
-        crew = []
-        # Could add lighting, sound, costume, set designers to crew here
-        data.metadata["crew"] = crew
+        data.metadata["crew"] = []
 
     def _extract_movie_metadata(self, entity_data, data):
         """Extract Movie-specific metadata"""
-        # Basic movie metadata
         data.metadata["release_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
-        # data.metadata["director"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P57
-        # )
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["language"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P364
-        # ) or self._extract_string_list(entity_data, WikidataProperties.P407)
-
-        # Additional properties
-        # data.metadata["cast"] = self._extract_string_list(entity_data, WikidataProperties.P161)
-        # data.metadata["producer"] = self._extract_string_list(entity_data, WikidataProperties.P272)
-        # data.metadata["composer"] = self._extract_string_list(entity_data, WikidataProperties.P86)
-        # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
-        # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
 
     def _extract_tv_show_metadata(self, entity_data, data):
         """Extract TVShow-specific metadata"""
@@ -1056,24 +932,12 @@ class WikiData(AbstractSite):
         data.metadata["last_air_date"] = self._extract_date(
             entity_data, WikidataProperties.P582
         )
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["language"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P364
-        # ) or self._extract_string_list(entity_data, WikidataProperties.P407)
         data.metadata["number_of_episodes"] = self._extract_property_value(
             entity_data, WikidataProperties.P1113
         )
         data.metadata["number_of_seasons"] = self._extract_property_value(
             entity_data, WikidataProperties.P2437
         )
-
-        # Additional properties
-        # data.metadata["creator"] = self._extract_string_list(entity_data, WikidataProperties.P170)
-        # data.metadata["cast"] = self._extract_string_list(entity_data, WikidataProperties.P161)
-        # data.metadata["original_broadcaster"] = self._extract_string_list(entity_data, WikidataProperties.P449)
-        # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
 
     def _extract_tv_season_metadata(self, entity_data, data):
         """Extract TVSeason-specific metadata"""
@@ -1086,12 +950,6 @@ class WikiData(AbstractSite):
         data.metadata["number_of_episodes"] = self._extract_property_value(
             entity_data, WikidataProperties.P1113
         )
-        # data.metadata["part_of_series"] = self._extract_property_value(
-        #     entity_data, WikidataProperties.P179
-        # )
-
-        # Additional properties
-        # data.metadata["season_number"] = self._extract_property_value(entity_data, WikidataProperties.P2437)
 
     def _extract_tv_episode_metadata(self, entity_data, data):
         """Extract TVEpisode-specific metadata"""
@@ -1101,35 +959,13 @@ class WikiData(AbstractSite):
         data.metadata["episode_number"] = self._extract_property_value(
             entity_data, WikidataProperties.P433
         )
-        # data.metadata["part_of_series"] = self._extract_property_value(
-        #     entity_data, WikidataProperties.P179
-        # )
         data.metadata["length"] = self._extract_duration(entity_data)
-
-        # Additional properties
-        # data.metadata["director"] = self._extract_string_list(entity_data, WikidataProperties.P57)
-        # data.metadata["cast"] = self._extract_string_list(entity_data, WikidataProperties.P161)
 
     def _extract_work_metadata(self, entity_data, data):
         """Extract Work (Book/Literary work)-specific metadata"""
         data.metadata["publication_date"] = self._extract_date(
             entity_data, WikidataProperties.P577
         )
-        # data.metadata["author"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P50
-        # )
-        # data.metadata["genre"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P136
-        # )
-        # data.metadata["language"] = self._extract_string_list(
-        #     entity_data, WikidataProperties.P364
-        # ) or self._extract_string_list(entity_data, WikidataProperties.P407)
-
-        # Additional properties
-        # data.metadata["publisher"] = self._extract_string_list(entity_data, WikidataProperties.P123)
-        # data.metadata["country_of_origin"] = self._extract_string_list(entity_data, WikidataProperties.P495)
-        # data.metadata["based_on"] = self._extract_string_list(entity_data, WikidataProperties.P144)
-        # data.metadata["part_of_series"] = self._extract_property_value(entity_data, WikidataProperties.P179)
 
     _ORGANIZATION_TYPES = {
         WikidataTypes.BUSINESS_ENTERPRISE,

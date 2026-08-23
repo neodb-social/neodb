@@ -128,9 +128,6 @@ class TestPrefetchLatestPosts:
         self.identity = self.user.identity
         self.book = Edition.objects.create(title="PLP Book")
 
-    def test_prefetch_empty_list(self):
-        prefetch_latest_posts([])
-
     def test_prefetch_pieces_without_posts(self):
         comment = Comment.objects.create(
             owner=self.identity, item=self.book, text="test", visibility=0

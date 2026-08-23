@@ -50,11 +50,6 @@ class BooksTW(AbstractSite):
         )
         isbn = isbn_elem[0].strip().split("：", 1)[1].strip() if isbn_elem else None
 
-        # isbn_elem = content.xpath(
-        #     "//div[@class='bd']/ul/li[starts-with(text(),'EISBN')]/text()"
-        # )
-        # eisbn = isbn_elem[0].strip().split("：", 1)[1].strip() if isbn_elem else None
-
         title = content.xpath("string(//h1)")
         if not title:
             raise ParseError(self, "title")

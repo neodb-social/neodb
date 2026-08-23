@@ -31,13 +31,6 @@ class TestSpotify:
         assert site.url == t_url
         assert site.id_value == t_id_value
 
-        # This errors too often in GitHub actions
-        # t_url2 = "https://spotify.link/poyfZyBo6Cb"
-        # t_id_value2 = "3yu2aNKeWTxqCjqoIH4HDU"
-        # site = SiteManager.get_site_by_url(t_url2)
-        # assert site is not None
-        # assert site.id_value == t_id_value2
-
     @use_local_response
     def test_scrape_web(self):
         t_url = "https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP"

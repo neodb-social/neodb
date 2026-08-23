@@ -1,12 +1,3 @@
-"""Tests for ap_object creation/parsing in journal models.
-
-Verifies that:
-- ap_object properties return correct structure for each model type
-- get_ap_data() wraps ap_object correctly for post creation
-- Syncing to timeline creates correct type_data in Takahe posts
-- update_by_ap_object() correctly parses ap_objects (round-trip)
-"""
-
 from unittest.mock import MagicMock
 
 import pytest

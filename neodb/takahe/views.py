@@ -25,19 +25,6 @@ def auth_login(request):
     session["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
     session_key: str = session._get_session_key()  # type: ignore
 
-    # if SESSION_ENGINE = "django.contrib.sessions.backends.db" in Takahe
-    # sess = request.session._session
-    # sess["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
-    # logger.info(f"session: {sess}")
-    # TakaheSession.objects.update_or_create(
-    #     session_key=request.session.session_key,
-    #     defaults={
-    #         "session_data": request.session.encode(sess),
-    #         "expire_date": request.session.get_expiry_date(),
-    #     },
-    # )
-    # session_key = request.session.session_key
-
     redirect_url = request.GET.get("next") or ""
     if not url_has_allowed_host_and_scheme(
         redirect_url,

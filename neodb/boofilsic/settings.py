@@ -214,11 +214,6 @@ if _parsed_search_url.scheme == "typesense":
         "connection_timeout_seconds": 4,
     }
     TYPESENSE_INDEX_NAME = _parsed_search_url.path[1:]
-# elif _parsed_search_url.scheme == "meilisearch":
-#     SEARCH_BACKEND = 'MEILISEARCH'
-#     MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
-#     MEILISEARCH_KEY =  _parsed_search_url.password
-
 EMAIL_URL = env("NEODB_EMAIL_URL")
 DEFAULT_FROM_EMAIL = env("NEODB_EMAIL_FROM")
 EMAIL_URL_ENV = EMAIL_URL
@@ -680,18 +675,6 @@ SEARCH_INDEX_NEW_ONLY = False
 INDEX_ALIASES: dict = env("INDEX_ALIASES")
 
 DOWNLOADER_SAVEDIR = env("NEODB_DOWNLOADER_SAVE_DIR", default="")
-
-# MAINTENANCE_MODE = False
-# MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
-# MAINTENANCE_MODE_IGNORE_SUPERUSER = True
-# MAINTENANCE_MODE_IGNORE_ANONYMOUS_USER = True
-# MAINTENANCE_MODE_IGNORE_URLS = (r"^/users/connect/", r"^/users/OAuth2_login/")
-
-# SILKY_AUTHENTICATION = True  # User must login
-# SILKY_AUTHORISATION = True  # User must have permissions
-# SILKY_PERMISSIONS = lambda user: user.is_superuser
-# SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # If response body>1024 bytes, ignore
-# SILKY_INTERCEPT_PERCENT = 10
 
 NINJA_PAGINATION_PER_PAGE = 20
 

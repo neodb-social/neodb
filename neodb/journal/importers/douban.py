@@ -150,10 +150,6 @@ class DoubanImporter(Task):
                 )
             )
         return v[0][0]
-        # for sheet in self.mark_data.values():
-        #     for cells in sheet:
-        #         if cells[0] == title and cells[5] == rating:
-        #             return cells[3]
 
     def run(self):
         logger.info(f"{self.user} import start")

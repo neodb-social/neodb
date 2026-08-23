@@ -327,7 +327,3 @@ class ThreadsAccount(SocialAccount):
         if not media_id:
             raise RequestAborted()
         return {"id": media_id}
-        # if media_id:
-        #     d = Threads.get_single(self.access_token, media_id)
-        #     if d:
-        #         return {"id": media_id, "url": d["permalink"]}

@@ -55,11 +55,6 @@ class Account(Schema):
     suspended: bool = False
     limited: bool = False
     created_at: str
-    # last_status_at: str | None = Field(...)
-    # statuses_count: int | None
-    # followers_count: int | None
-    # following_count: int | None
-    # source: dict | None = None
 
 
 class MediaAttachment(Schema):

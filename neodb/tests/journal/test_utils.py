@@ -17,12 +17,6 @@ from users.models import User
 
 @pytest.mark.django_db(databases="__all__")
 class TestUpdateJournalForMergedItem:
-    """
-    Tests for update_journal_for_merged_item utility, ensuring journal pieces
-    (shelf entries, comments, ratings, tags) are moved from a merged legacy item
-    to its new item, and duplicates can be removed.
-    """
-
     @pytest.fixture(autouse=True)
     def setup_data(self):
         # create a user and two catalog items (legacy and new)

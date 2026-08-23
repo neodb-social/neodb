@@ -174,14 +174,6 @@ class FediverseInstance(AbstractSite):
                 logger.error(f"FediverseInstance: {self.url} incompatible url {u}")
                 continue
             ids[site.ID_TYPE] = site.id_value
-            # data["prematched_resources"].append(
-            #     {
-            #         "model": data["preferred_model"],
-            #         "id_type": site.ID_TYPE,
-            #         "id_value": site.id_value,
-            #         "url": site.url,
-            #     }
-            # )
         for k, v in self.id_type_mapping.items():
             d = data.get(k)
             if d:

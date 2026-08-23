@@ -112,12 +112,6 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
         instance.set_lookup_id(self.id_type, value)
 
 
-# class ItemId(models.Model):
-#     item = models.ForeignKey('Item', models.CASCADE)
-#     id_type = models.CharField(_("Id Type"), blank=False, choices=IdType.choices, max_length=50)
-#     id_value = models.CharField(_("ID Value"), blank=False, max_length=1000)
-
-
 class CreditRole(models.TextChoices):
     # Person roles
     Author = "author", _("author")
@@ -205,15 +199,6 @@ class ItemCredit(models.Model):
     def __str__(self):
         linked = f" -> {self.person}" if self.person else ""
         return f"{self.name} ({self.role}) on {self.item}{linked}"
-
-
-# def check_source_id(sid):
-#     if not sid:
-#         return True
-#     s = sid.split(':')
-#     if len(s) < 2:
-#         return False
-#     return sid[0] in IdType.values()
 
 
 class ExternalResourceSchema(Schema):
@@ -1099,16 +1084,6 @@ class Item(PolymorphicModel):
 
     def _normalize_languages(self):
         changed = False
-        # for field_name in ("localized_title", "localized_description"):
-        #     original_list = getattr(self, field_name)
-        #     new_list = [
-        #         {normalize_language(x["lang"]) or "x": x["text"]}
-        #         for x in original_list
-        #         if "lang" in x and "text" in x
-        #     ]
-        #     if original_list != new_list:
-        #         setattr(self, field_name, new_list)
-        #         changed = True
         if hasattr(self, "language"):  # normalize language list
             language = normalize_languages(self.language)
             if self.language != language:

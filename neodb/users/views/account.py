@@ -309,13 +309,9 @@ def auth_logout(request):
 
 
 def initiate_user_deletion(user):
-    # for deletion initiated by local user in neodb:
-    # 1. clear user data
-    # 2. neodb send DeleteIdentity to Takahe
-    # 3. takahe delete identity and send identity_deleted to neodb
-    # 4. identity_deleted clear user (if not yet) and identity data
-    # for deletion initiated by remote/local identity in takahe:
-    # just 3 & 4
+    # Local deletion clears NeoDB, asks Takahe to delete, then lets the
+    # identity_deleted callback finish cleanup. Takahe-initiated deletion
+    # enters at the callback step.
     user.clear()
     r = Takahe.request_delete_identity(user.identity.pk)
     if not r:

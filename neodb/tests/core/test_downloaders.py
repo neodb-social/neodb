@@ -171,13 +171,11 @@ class TestScraperResponse:
         resp = ScraperResponse(
             "https://example.com", b"<html><body><p>test</p></body></html>"
         )
-        tree = resp.html()
-        assert tree is not None
+        assert resp.html().xpath("string(//p)") == "test"
 
     def test_xml_method(self):
         resp = ScraperResponse("https://example.com", b"<root><item>test</item></root>")
-        tree = resp.xml()
-        assert tree is not None
+        assert resp.xml().findtext("item") == "test"
 
 
 class TestImageDownloaderMimeNormalization:

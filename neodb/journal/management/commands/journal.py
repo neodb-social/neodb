@@ -506,11 +506,6 @@ class Command(SiteCommand):
                     self.stdout.write(
                         self.style.SUCCESS(f"indexed {c} {cls.__name__}.")
                     )
-                # posts = posts.exclude(type_data__object__has_key="relatedWith")
-                # docs = index.posts_to_docs(posts)
-                # c = len(docs)
-                # index.insert_docs(docs)
-                # self.stdout.write(self.style.SUCCESS(f"indexed {c} posts."))
 
             case "search":
                 q = JournalQueryParser("" if query == "-" else query, page_size=100)

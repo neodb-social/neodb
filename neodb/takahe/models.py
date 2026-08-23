@@ -36,14 +36,6 @@ if TYPE_CHECKING:
     from django_stubs_ext.db.models.manager import RelatedManager
 
 
-# class TakaheSession(models.Model):
-#     session_key = models.CharField(_("session key"), max_length=40, primary_key=True)
-#     session_data = models.TextField(_("session data"))
-#     expire_date = models.DateTimeField(_("expire date"), db_index=True)
-
-#     class Meta:
-#         db_table = "django_session"
-
 DATETIME_MS_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
@@ -1046,16 +1038,6 @@ class PostQuerySet(models.QuerySet):
             query = query.not_blocked_by(identity, include_muted=include_muted)
         return query
 
-    # def tagged_with(self, hashtag: str | Hashtag):
-    #     if isinstance(hashtag, str):
-    #         tag_q = models.Q(hashtags__contains=hashtag)
-    #     else:
-    #         tag_q = models.Q(hashtags__contains=hashtag.hashtag)
-    #         if hashtag.aliases:
-    #             for alias in hashtag.aliases:
-    #                 tag_q |= models.Q(hashtags__contains=alias)
-    #     return self.filter(tag_q)
-
 
 class PostManager(models.Manager):
     def get_queryset(self):
@@ -1917,10 +1899,7 @@ class FanOut(models.Model):
     state = models.CharField(max_length=100, default="outdated")
     state_changed = models.DateTimeField(auto_now_add=True)
 
-    # The user this event is targeted at
-    # We always need this, but if there is a shared inbox URL on the user
-    # we'll deliver to that and won't have fanouts for anyone else with the
-    # same one.
+    # The target user; shared-inbox delivery deduplicates other users there.
     identity = models.ForeignKey(
         "takahe.Identity",
         on_delete=models.CASCADE,

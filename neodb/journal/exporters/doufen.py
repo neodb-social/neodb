@@ -333,9 +333,3 @@ class DoufenExporter(Task):
         self.metadata["file"] = filename
         self.message = "Export complete."
         self.save()
-        # user.preference.export_status["marks_pending"] = False
-        # user.preference.export_status["marks_file"] = filename
-        # user.preference.export_status["marks_date"] = datetime.now().strftime(
-        #     "%Y-%m-%d %H:%M"
-        # )
-        # user.preference.save(update_fields=["export_status"])

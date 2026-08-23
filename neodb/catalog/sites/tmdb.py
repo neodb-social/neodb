@@ -187,16 +187,6 @@ class TMDB_Movie(AbstractSite):
             c["iso_3166_1"] for c in res_data.get("production_countries") or []
         ]
 
-        # other_info = {}
-        # other_info['TMDB评分'] = res_data['vote_average']
-        # other_info['分级'] = res_data['contentRating']
-        # other_info['Metacritic评分'] = res_data['metacriticRating']
-        # other_info['奖项'] = res_data['awards']
-        # other_info['TMDB_ID'] = id
-        # if is_series:
-        #     other_info["Seasons"] = res_data["number_of_seasons"]
-        #     other_info["Episodes"] = res_data["number_of_episodes"]
-
         # TODO: use GET /configuration to get base url
         img_url = (
             ("https://image.tmdb.org/t/p/original/" + res_data["poster_path"])
@@ -364,9 +354,6 @@ class TMDB_TV(AbstractSite):
                         "title": person.get("name") or "",
                     }
                 )
-        # other_info = {}
-        # other_info["Seasons"] = res_data["number_of_seasons"]
-        # other_info["Episodes"] = res_data["number_of_episodes"]
         # TODO: use GET /configuration to get base url
         img_url = (
             ("https://image.tmdb.org/t/p/original/" + res_data["poster_path"])

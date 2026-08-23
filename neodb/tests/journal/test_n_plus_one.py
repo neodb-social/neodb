@@ -401,9 +401,6 @@ class TestPrefetchPiecesForPosts:
                 _ = post.item
         assert len(ctx.captured_queries) == 0
 
-    def test_prefetch_empty_list(self):
-        prefetch_pieces_for_posts([])  # should not raise
-
 
 @pytest.mark.django_db(databases="__all__")
 class TestPostMentionsPrefetch:

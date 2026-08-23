@@ -94,32 +94,6 @@ class TestShelf:
         assert log == ["wishlist", "progress"]
         assert len(Mark(user.identity, book1).all_post_ids) == 2
 
-        # theses tests are not relevant anymore, bc we don't use log to track metadata changes
-        # last_log = log.last()
-        # assert last_log.metadata if last_log else 42 == {"progress": 1}
-        # Mark(user.identity, book1).update(ShelfType.PROGRESS, metadata={"progress": 1})
-        # time.sleep(0.001)
-        # log = shelf_manager.get_log_for_item(book1)
-        # assert log.count() == 3
-        # last_log = log.last()
-        # assert last_log.metadata if last_log else 42 == {"progress": 1}
-        # Mark(user.identity, book1).update(ShelfType.PROGRESS, metadata={"progress": 10})
-        # time.sleep(0.001)
-        # log = shelf_manager.get_log_for_item(book1)
-        # assert log.count() == 4
-        # last_log = log.last()
-        # assert last_log.metadata if last_log else 42 == {"progress": 10}
-        # shelf_manager.move_item(book1, ShelfType.PROGRESS)
-        # time.sleep(0.001)
-        # log = shelf_manager.get_log_for_item(book1)
-        # assert log.count() == 4
-        # last_log = log.last()
-        # assert last_log.metadata if last_log else 42 == {"progress": 10}
-        # shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 90})
-        # time.sleep(0.001)
-        # log = shelf_manager.get_log_for_item(book1)
-        # assert log.count() == 5
-
         assert Mark(user.identity, book1).visibility == 0
         assert len(Mark(user.identity, book1).current_post_ids) == 1
         Mark(user.identity, book1).update(
@@ -339,11 +313,6 @@ class TestDebris:
 
 @pytest.mark.django_db(databases="__all__")
 class TestNote:
-    # @pytest.fixture(autouse=True)
-    # def setup_data(self):
-    #     self.book1 = Edition.objects.create(title="Hyperion")
-    #     self.user1 = User.register(email="test@test", username="test")
-
     def test_parse(self):
         c0 = "test \n - \n"
         c, t, v = Note.strip_footer(c0)

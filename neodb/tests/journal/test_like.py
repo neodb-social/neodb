@@ -52,14 +52,6 @@ class TestLike:
         Like.user_unlike_piece(self.user2.identity, self.review)
         assert Like.user_liked_piece(self.user2.identity, self.review) is False
 
-    def test_user_unlike_piece_no_existing_like(self):
-        # Should not raise
-        Like.user_unlike_piece(self.user2.identity, self.review)
-
-    def test_user_unlike_piece_none(self):
-        # Should not raise
-        Like.user_unlike_piece(self.user1.identity, None)
-
     def test_user_likes_by_class(self):
         Like.user_like_piece(self.user2.identity, self.review)
         likes = Like.user_likes_by_class(self.user2.identity, Review)

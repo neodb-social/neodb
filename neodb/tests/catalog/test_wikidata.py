@@ -25,16 +25,8 @@ from catalog.models import (
 from catalog.sites.wikidata import WikiData, WikidataProperties, WikidataTypes
 
 
-# Helper functions for testing entity type mapping
 def assert_entity_type_mapping(entity_id, entity_type_id, expected_model):
-    """Helper function to test Wikidata entity type mapping
-
-    Args:
-        entity_id: The Wikidata entity ID (e.g., Q184843)
-        entity_type_id: The Wikidata type ID to test (e.g., WikidataTypes.FILM)
-        expected_model: The expected NeoDB model class (e.g., Movie)
-    """
-    # Create mock entity data
+    """Assert the model selected for one Wikidata entity type."""
     entity_data = {
         "id": entity_id,
         "claims": {
@@ -57,23 +49,13 @@ def assert_entity_type_mapping(entity_id, entity_type_id, expected_model):
         },
     }
 
-    # Initialize WikiData and test
     wiki_site = WikiData(url=f"https://www.wikidata.org/wiki/{entity_id}")
     model = wiki_site._determine_entity_type(entity_data)
-
-    # Assert the expected model
     assert model == expected_model
 
 
 def assert_entity_with_multiple_types(entity_id, entity_type_ids, expected_model):
-    """Helper function to test Wikidata entity with multiple types
-
-    Args:
-        entity_id: The Wikidata entity ID (e.g., Q53235)
-        entity_type_ids: List of Wikidata type IDs (e.g., [WikidataTypes.TV_EPISODE, WikidataTypes.TV_SPECIAL])
-        expected_model: The expected NeoDB model class (e.g., Movie)
-    """
-    # Create mock entity data with multiple types
+    """Assert the model selected for an entity with multiple types."""
     claims = []
     for type_id in entity_type_ids:
         claims.append(
@@ -98,25 +80,13 @@ def assert_entity_with_multiple_types(entity_id, entity_type_ids, expected_model
         "claims": {WikidataProperties.P31: claims},
     }
 
-    # Initialize WikiData and test
     wiki_site = WikiData(url=f"https://www.wikidata.org/wiki/{entity_id}")
     model = wiki_site._determine_entity_type(entity_data)
-
-    # Assert the expected model
     assert model == expected_model
 
 
 def create_parent_type_entity(entity_id, instance_type_id, parent_type_id):
-    """Create an entity with a direct parent type
-
-    Args:
-        entity_id: The entity ID
-        instance_type_id: The instance type ID
-        parent_type_id: The parent type ID
-
-    Returns:
-        Entity data dictionary with both instance and parent types
-    """
+    """Create an entity with a direct parent type."""
     return {
         "id": entity_id,
         "claims": {
@@ -157,15 +127,7 @@ def create_parent_type_entity(entity_id, instance_type_id, parent_type_id):
 
 
 def create_v1_api_entity(entity_id, type_ids):
-    """Create an entity with v1 API format
-
-    Args:
-        entity_id: The entity ID
-        type_ids: List of type IDs or single type ID
-
-    Returns:
-        Entity data dictionary in v1 API format
-    """
+    """Create an entity in the Wikidata v1 API shape."""
     if isinstance(type_ids, str):
         type_ids = [type_ids]
 
@@ -693,11 +655,6 @@ class TestWikiData:
             == "https://commons.wikimedia.org/wiki/Special:FilePath/The.Matrix.glmatrix.1.png?width=1000"
         )
         assert content.metadata["release_date"] == "1999-03-31"
-        # assert "Q9545711" in content.metadata["director"]  # Lana Wachowski ID
-        # assert "Q9544977" in content.metadata["director"]  # Lilly Wachowski ID
-        # assert "Q471839" in content.metadata["genre"]  # Science fiction film
-        # assert "Q188473" in content.metadata["genre"]  # Action film
-        # assert "Q1860" in content.metadata["language"]  # English
         assert content.lookup_ids.get(IdType.IMDB) == "tt0133093"
         assert content.lookup_ids.get(IdType.TMDB_Movie) == "603"
         assert content.lookup_ids.get(IdType.DoubanMovie) == "1291843"
@@ -719,11 +676,6 @@ class TestWikiData:
         assert content.metadata["title"] == "Cyberpunk 2077"
         assert content.metadata["preferred_model"] == "Game"
         assert content.metadata["release_date"] == "2020-12-10"
-        # assert "Q1172164" in content.metadata["developer"]  # CD Projekt Red
-        # assert "Q1172164" in content.metadata["publisher"]
-        # assert "Q5014725" in content.metadata["platform"]  # Windows
-        # assert "Q13361286" in content.metadata["platform"]  # PlayStation 4
-        # assert "Q1422746" in content.metadata["genre"]  # Action RPG
         assert content.metadata["official_site"] == "https://www.cyberpunk.net"
         assert content.lookup_ids.get(IdType.Steam) == "1091500"
         assert content.lookup_ids.get(IdType.DoubanGame) == "25931998"
