@@ -24,7 +24,12 @@ from catalog.sites import FediverseInstance
 from common.models import SiteConfig
 from common.sentry import record_activity
 from common.utils import GenerateDateUUIDMediaFilePath
-from journal.exporters import CsvExporter, DoufenExporter, NdjsonExporter
+from journal.exporters import (
+    CsvExporter,
+    DoufenExporter,
+    NdjsonExporter,
+    WordpressExporter,
+)
 from journal.importers import (
     CsvImporter,
     DoubanImporter,
@@ -36,6 +41,7 @@ from journal.importers import (
     SteamImporter,
     StoryGraphImporter,
     TraktImporter,
+    WordpressImporter,
 )
 from journal.importers.rym import update_row_in_matched_file
 from journal.models import CrosspostRetry, Piece, ShelfType
@@ -167,6 +173,8 @@ def data(request):
             "storygraph_task": StoryGraphImporter.latest_task(request.user),
             "steam_task": SteamImporter.latest_task(request.user),
             "trakt_task": TraktImporter.latest_task(request.user),
+            "wordpress_import_task": WordpressImporter.latest_task(request.user),
+            "wordpress_export_task": WordpressExporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
         },
@@ -200,6 +208,10 @@ def user_task_status(request, task_type: str):
             task_cls = TraktImporter
         case "journal.rymimporter":
             task_cls = RymImporter
+        case "journal.wordpressimporter":
+            task_cls = WordpressImporter
+        case "journal.wordpressexporter":
+            task_cls = WordpressExporter
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
@@ -231,11 +243,18 @@ def user_task_status(request, task_type: str):
 
 @login_required
 def user_task_download(request, task_type: str):
+    # WXR is served as a bare .xml: WordPress's importer takes the XML file
+    # directly, so zipping it would only make the user unpack it first.
     match task_type:
         case "journal.csvexporter":
             task_cls = CsvExporter
+            extension, content_type = "zip", "application/zip"
         case "journal.ndjsonexporter":
             task_cls = NdjsonExporter
+            extension, content_type = "zip", "application/zip"
+        case "journal.wordpressexporter":
+            task_cls = WordpressExporter
+            extension, content_type = "xml", "application/xml"
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
@@ -246,8 +265,10 @@ def user_task_download(request, task_type: str):
     response["X-Accel-Redirect"] = (
         settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
     )
-    response["Content-Type"] = "application/zip"
-    response["Content-Disposition"] = f'attachment; filename="{task.filename}.zip"'
+    response["Content-Type"] = content_type
+    response["Content-Disposition"] = (
+        f'attachment; filename="{task.filename}.{extension}"'
+    )
     return response
 
 
@@ -327,6 +348,52 @@ def export_ndjson(request):
             reverse("users:user_task_status", args=("journal.ndjsonexporter",))
         )
     return redirect(reverse("users:data"))
+
+
+@login_required
+def export_wordpress(request):
+    if request.method == "POST":
+        task = WordpressExporter.latest_task(request.user)
+        if (
+            task
+            and task.state not in [Task.States.complete, Task.States.failed]
+            and task.created_time > (timezone.now() - datetime.timedelta(hours=1))
+        ):
+            messages.add_message(
+                request, messages.INFO, _("Recent export still in progress.")
+            )
+            return redirect(reverse("users:data"))
+        WordpressExporter.create(request.user).enqueue()
+        record_activity("export", "web")
+        return redirect(
+            reverse("users:user_task_status", args=("journal.wordpressexporter",))
+        )
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_wordpress(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not WordpressImporter.validate_file(request.FILES.get("file")):
+        raise BadRequest(_("Invalid file."))
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x.xml", settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in request.FILES["file"].chunks():
+            destination.write(chunk)
+    task = WordpressImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        file=f,
+    )
+    task.enqueue()
+    record_activity("import", "web")
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
 @login_required

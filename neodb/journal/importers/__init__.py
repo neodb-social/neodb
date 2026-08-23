@@ -8,6 +8,7 @@ from .rym import RymImporter
 from .steam import SteamImporter
 from .storygraph import StoryGraphImporter
 from .trakt import TraktImporter
+from .wordpress import WordpressImporter
 
 __all__ = [
     "CsvImporter",
@@ -20,4 +21,5 @@ __all__ = [
     "SteamImporter",
     "StoryGraphImporter",
     "TraktImporter",
+    "WordpressImporter",
 ]

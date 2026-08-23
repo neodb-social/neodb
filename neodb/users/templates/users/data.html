@@ -493,6 +493,70 @@
         </article>
         <article>
           <details>
+            <summary>{% trans 'Import and Export Articles (WordPress)' %}</summary>
+            <ul>
+              <li>
+                {% trans 'Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those.' %}
+              </li>
+              <li>
+                {% trans 'Article title, body, excerpt, tags, dates and featured image are exchanged. Comments and custom fields are ignored.' %}
+              </li>
+              <li>
+                {% trans 'The body is converted between Markdown and HTML, so formatting is kept but the text is not character-for-character identical.' %}
+              </li>
+            </ul>
+            <form hx-post="{% url 'users:export_wordpress' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="submit"
+                     value="{% trans 'Export articles in WordPress format' %}" />
+              {% include "users/user_task_status.html" with task=wordpress_export_task %}
+            </form>
+            <hr>
+            <form hx-post="{% url 'users:import_wordpress' %}"
+                  enctype="multipart/form-data">
+              {% csrf_token %}
+              {% blocktrans %}In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below.{% endblocktrans %}
+              <input type="file" name="file" required accept=".xml">
+              <p>
+                {% trans 'Only published posts use the visibility below. Drafts, pending, private and password-protected posts are always imported as mentioned-only, so nothing unpublished becomes public.' %}
+              </p>
+              <p>
+                {% trans 'Visibility' %}:
+                <br>
+                <label for="wp_visibility_0">
+                  <input type="radio"
+                         name="visibility"
+                         value="0"
+                         required=""
+                         id="wp_visibility_0"
+                         checked>
+                  {% trans 'Public' %}
+                </label>
+                <label for="wp_visibility_1">
+                  <input type="radio"
+                         name="visibility"
+                         value="1"
+                         required=""
+                         id="wp_visibility_1">
+                  {% trans 'Followers Only' %}
+                </label>
+                <label for="wp_visibility_2">
+                  <input type="radio"
+                         name="visibility"
+                         value="2"
+                         required=""
+                         id="wp_visibility_2">
+                  {% trans 'Mentioned Only' %}
+                </label>
+              </p>
+              <input type="submit" value="{% trans 'Import' %}" />
+              {% include "users/user_task_status.html" with task=wordpress_import_task %}
+            </form>
+          </details>
+        </article>
+        <article>
+          <details>
             <summary>{% trans 'View Annual Summary' %}</summary>
             <div class="tag-list">
               {% for year in years %}
