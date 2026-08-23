@@ -95,8 +95,10 @@ class List(Piece):
 
     def append_item(self, item, **params):
         """
-        named metadata fields should be specified directly, not in metadata dict!
-        e.g. collection.append_item(item, note="abc") works, but collection.append_item(item, metadata={"note":"abc"}) doesn't
+        jsondata fields may be passed either way: named directly
+        (``append_item(item, note="abc")``) or inside the JSON column
+        (``append_item(item, metadata={"note": "abc"})``). Passing both sets
+        the same key twice and the named value wins.
         """
         if item is None:
             raise ValueError("item is None")

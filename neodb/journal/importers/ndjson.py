@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import re
@@ -44,6 +45,86 @@ class NdjsonImporter(BaseImporter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.items = {}
+
+    @classmethod
+    def validate_file(cls, uploaded_file) -> bool:
+        """Reject anything that is not a NeoDB NDJSON archive.
+
+        ``import_neodb`` picks the importer from a client-supplied
+        ``format_type`` field, so without this an arbitrary upload only fails
+        later in the worker, as an opaque task failure.
+        """
+        try:
+            if not zipfile.is_zipfile(uploaded_file):
+                return False
+            uploaded_file.seek(0)
+            with zipfile.ZipFile(uploaded_file, "r") as z:
+                # exactly the path run() opens: a nested
+                # "some-folder/journal.ndjson" is not something it can read
+                return "journal.ndjson" in z.namelist()
+        except Exception:
+            return False
+        finally:
+            try:
+                uploaded_file.seek(0)
+            except Exception:
+                pass
+
+    def _archive_updated(
+        self, content_data: Dict[str, Any]
+    ) -> datetime.datetime | None:
+        """The archive's last-edit stamp, or None when it carries none.
+
+        ``ap_object`` writes ``updated`` from ``edited_time``. Deliberately no
+        fallback to ``published``: the two are compared against different
+        columns, so the choice belongs in ``_is_current``.
+        """
+        return self.parse_datetime(content_data.get("updated"))
+
+    def _is_current(
+        self,
+        existing: Any,
+        updated_dt: datetime.datetime | None,
+        published_dt: datetime.datetime | None,
+    ) -> bool:
+        """True when the destination row is already at least as new.
+
+        Prefers ``edited_time`` vs the archive's ``updated``: editing a piece
+        bumps only ``edited_time``, so comparing ``created_time`` reports every
+        edited record as "not newer" and silently keeps the stale copy.
+
+        A bundle with no ``updated`` gets the original ``created_time`` vs
+        ``published`` comparison instead. Mixing the two would be worse than
+        either: the destination's ``edited_time`` is a local ``auto_now`` stamp
+        with nothing in such a bundle to compare against, so every record
+        would read as current and nothing would ever import.
+        """
+        if existing is None:
+            return False
+        if updated_dt:
+            edited = getattr(existing, "edited_time", None)
+            return bool(edited and edited >= updated_dt)
+        if published_dt:
+            created = getattr(existing, "created_time", None)
+            return bool(created and created >= published_dt)
+        return False
+
+    def _restore_edited_time(
+        self, piece: Any, updated_dt: datetime.datetime | None
+    ) -> None:
+        """Persist the archive's ``updated`` stamp onto a saved piece.
+
+        ``Content.edited_time`` is ``auto_now`` (and
+        ``Article.update_local_article`` assigns its own), so the value has to
+        be written past the model the way ``List.apply_ap_envelope`` does.
+        Without it the destination row is stamped with the import time, and an
+        edit made between two imports compares as older than that stamp and is
+        dropped.
+        """
+        if not updated_dt or piece is None or piece.pk is None:
+            return
+        type(piece).objects.filter(pk=piece.pk).update(edited_time=updated_dt)
+        piece.edited_time = updated_dt
 
     def _resolve_temp_path(self, rel_path: str | None) -> str | None:
         """Resolve a path relative to self.temp_dir, rejecting traversal.
@@ -117,24 +198,46 @@ class NdjsonImporter(BaseImporter):
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             name = content_data.get("name", "")
             content = content_data.get("content", "")
-            if Collection.objects.filter(
+            # TODO: identity is (owner, title, created_time), so a collection
+            # renamed on the source re-imports as a second collection rather
+            # than updating this one.
+            existing = Collection.objects.filter(
                 owner=owner, title=name, created_time=published_dt
-            ).exists():
+            ).first()
+            if existing and self._is_current(existing, updated_dt, published_dt):
                 return "skipped"
-            collection = Collection.objects.create(
-                owner=owner,
-                title=name,
-                brief=self._restore_body_images(content, data),
-                visibility=visibility,
-                metadata=data.get("metadata") or {},
-                collaborative=data.get("collaborative", 0),
-                query=data.get("query"),
-                # created_time is not nullable; let the model default stand
-                # when a bundle carries no published timestamp
-                **({"created_time": published_dt} if published_dt else {}),
-            )
+            # after the staleness check, never before: this copies each bundled
+            # image into media storage, so a no-op re-import would otherwise
+            # leave behind a fresh copy of every inline image
+            brief = self._restore_body_images(content, data)
+            if existing:
+                # a newer archive edits the collection in place; creating a
+                # second row would leave the user with a duplicate they then
+                # have to reconcile by hand
+                existing.title = name
+                existing.brief = brief
+                existing.visibility = visibility
+                existing.metadata = data.get("metadata") or {}
+                existing.collaborative = data.get("collaborative", 0)
+                existing.query = data.get("query")
+                existing.save()
+                collection = existing
+            else:
+                collection = Collection.objects.create(
+                    owner=owner,
+                    title=name,
+                    brief=brief,
+                    visibility=visibility,
+                    metadata=data.get("metadata") or {},
+                    collaborative=data.get("collaborative", 0),
+                    query=data.get("query"),
+                    # created_time is not nullable; let the model default stand
+                    # when a bundle carries no published timestamp
+                    **({"created_time": published_dt} if published_dt else {}),
+                )
             cover_src = self._store_path(data.get("cover"))
             if cover_src:
                 with open(cover_src, "rb") as f:
@@ -142,6 +245,7 @@ class NdjsonImporter(BaseImporter):
                         os.path.basename(cover_src), File(f), save=True
                     )
             item_data = data.get("items", [])
+            members_changed = False
             for item_entry in item_data:
                 item_url = item_entry.get("item")
                 if not item_url:
@@ -150,7 +254,26 @@ class NdjsonImporter(BaseImporter):
                 if not item:
                     logger.warning(f"Could not find item for collection: {item_url}")
                     continue
-                collection.append_item(item, metadata=item_entry.get("metadata", {}))
+                metadata = item_entry.get("metadata", {})
+                member, created = collection.append_item(item, metadata=metadata)
+                if not created and member and member.metadata != metadata:
+                    # append_item is a no-op for an item already on the list,
+                    # so a per-item note edited on the source would not replay
+                    member.metadata = metadata
+                    member.save(update_fields=["metadata"])
+                    members_changed = True
+            # TODO: members removed on the source are not removed here -- a
+            # re-import only adds and updates, never deletes. A member note
+            # edited on its own also does not replay: it leaves the parent
+            # collection's edited_time untouched, so the record is judged
+            # current and skipped before this loop is reached.
+            self._restore_edited_time(collection, updated_dt)
+            if members_changed:
+                # the collection's index doc embeds its members' notes, and
+                # saving a member does not reindex the parent -- only the
+                # list_add / list_remove signals do, and a note-only edit
+                # fires neither
+                collection.update_index()
             return "imported"
         except Exception:
             logger.exception("Error importing collection")
@@ -164,12 +287,13 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             shelf_type = content_data.get("status", ShelfType.WISHLIST)
             mark = Mark(owner, item)
-            if mark.created_time and published_dt and mark.created_time >= published_dt:
+            if self._is_current(mark.shelfmember, updated_dt, published_dt):
                 return "skipped"
             mark.update(
                 shelf_type=shelf_type,
@@ -178,6 +302,7 @@ class NdjsonImporter(BaseImporter):
                 created_time=published_dt,
             )
             self.restore_progress(owner, item, data)
+            self._restore_edited_time(mark.shelfmember, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing shelf member")
@@ -225,7 +350,9 @@ class NdjsonImporter(BaseImporter):
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             owner = self.user.identity
             shelf_type = data.get("status", ShelfType.WISHLIST)
-            # posts = data.get("posts", [])  # TODO but will be tricky
+            # TODO: data["posts"] carries the source post ids for this entry;
+            # relinking them needs the posts themselves, which import_post does
+            # not restore yet.
             timestamp = data.get("timestamp")
             timestamp_dt = self.parse_datetime(timestamp) if timestamp else None
             if not timestamp_dt:
@@ -256,7 +383,9 @@ class NdjsonImporter(BaseImporter):
 
     def import_post(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a post from NDJSON data."""
-        # TODO
+        # TODO: not implemented. The exporter bundles plain posts (and their
+        # attachments) but they are dropped here, so a migration loses the
+        # user's non-journal posts.
         return "skipped"
 
     def import_article(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
@@ -267,6 +396,7 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {}) or {}
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             title = (content_data.get("name") or "")[:500]
             source = content_data.get("source") or {}
             if source.get("mediaType") == "text/markdown" and source.get("content"):
@@ -283,9 +413,13 @@ class NdjsonImporter(BaseImporter):
                     name = (t.get("name") or "").lstrip("#")
                     if name:
                         tags.append(name)
-            if Article.objects.filter(
+            # TODO: identity is (owner, title, created_time), so an article
+            # retitled on the source re-imports as a second article rather than
+            # updating this one.
+            existing = Article.objects.filter(
                 owner=owner, title=title, created_time=published_dt
-            ).exists():
+            ).first()
+            if existing and self._is_current(existing, updated_dt, published_dt):
                 return "skipped"
             body = self._restore_body_images(body, data)
             # Restore the bundled featured image (if any) as part of the
@@ -298,6 +432,8 @@ class NdjsonImporter(BaseImporter):
                 cover_fh = open(cover_src, "rb")
                 cover_arg = File(cover_fh, name=os.path.basename(cover_src))
             try:
+                # ``article=existing`` edits in place: a newer archive of an
+                # article already here must not land as a second copy
                 article = Article.update_local_article(
                     owner=owner,
                     title=title,
@@ -305,8 +441,10 @@ class NdjsonImporter(BaseImporter):
                     summary=summary,
                     sensitive=sensitive,
                     visibility=visibility,
+                    language=data.get("language") or "",
                     tags=tags,
                     cover=cover_arg,
+                    article=existing,
                 )
             finally:
                 if cover_fh is not None:
@@ -330,6 +468,7 @@ class NdjsonImporter(BaseImporter):
                     post_when_save=False,
                     index_when_save=False,
                 )
+            self._restore_edited_time(article, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing article")
@@ -343,20 +482,20 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             name = content_data.get("name", "")
             content = content_data.get("content", "")
+            # TODO: identity is (owner, item, title), so a review retitled on
+            # the source re-imports as a second review rather than updating
+            # this one.
             existing_review = Review.objects.filter(
                 owner=owner, item=item, title=name
             ).first()
             if existing_review:
-                if (
-                    existing_review.created_time
-                    and published_dt
-                    and existing_review.created_time >= published_dt
-                ):
+                if self._is_current(existing_review, updated_dt, published_dt):
                     return "skipped"
                 # a newer export updates the existing review in place;
                 # creating another row would duplicate (owner, item, title)
@@ -366,8 +505,9 @@ class NdjsonImporter(BaseImporter):
                 existing_review.visibility = visibility
                 existing_review.metadata = metadata
                 existing_review.save()
+                self._restore_edited_time(existing_review, updated_dt)
                 return "imported"
-            Review.objects.create(
+            review = Review.objects.create(
                 owner=owner,
                 item=item,
                 title=name,
@@ -376,6 +516,7 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 **({"created_time": published_dt} if published_dt else {}),
             )
+            self._restore_edited_time(review, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing review")
@@ -388,31 +529,49 @@ class NdjsonImporter(BaseImporter):
             visibility = data.get("visibility", self.metadata.get("visibility", 0))
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
-            if Note.objects.filter(
-                owner=owner, item=item, created_time=published_dt
-            ).exists():
-                return "skipped"
             title = content_data.get("title", "")
             content = content_data.get("content", "")
             sensitive = content_data.get("sensitive", False)
             progress = content_data.get("progress", {})
             progress_type = progress.get("type", "")
             progress_value = progress.get("value", "")
-            note = Note.objects.create(
-                item=item,
-                owner=owner,
-                title=title,
-                content=content,
-                sensitive=sensitive,
-                progress_type=progress_type,
-                progress_value=progress_value,
-                visibility=visibility,
-                metadata=data.get("metadata") or {},
-                **({"created_time": published_dt} if published_dt else {}),
-            )
+            # a user may hold several notes on one item, so created_time is
+            # what identifies this one
+            existing = Note.objects.filter(
+                owner=owner, item=item, created_time=published_dt
+            ).first()
+            if existing:
+                if self._is_current(existing, updated_dt, published_dt):
+                    return "skipped"
+                existing.title = title
+                existing.content = content
+                existing.sensitive = sensitive
+                existing.progress_type = progress_type
+                existing.progress_value = progress_value
+                existing.visibility = visibility
+                existing.metadata = data.get("metadata") or {}
+                existing.save()
+                note = existing
+            else:
+                note = Note.objects.create(
+                    item=item,
+                    owner=owner,
+                    title=title,
+                    content=content,
+                    sensitive=sensitive,
+                    progress_type=progress_type,
+                    progress_value=progress_value,
+                    visibility=visibility,
+                    metadata=data.get("metadata") or {},
+                    **({"created_time": published_dt} if published_dt else {}),
+                )
+            # TODO: the restored files are recorded on Note.attachments but
+            # never uploaded to Takahe, so the timeline post for an imported
+            # note carries no media.
             note_attachments = []
             for atta in data.get("attachments") or []:
                 if not isinstance(atta, dict):
@@ -444,6 +603,7 @@ class NdjsonImporter(BaseImporter):
                     post_when_save=False,
                     index_when_save=False,
                 )
+            self._restore_edited_time(note, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing note")
@@ -457,17 +617,14 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             content = content_data.get("content", "")
             existing_comment = Comment.objects.filter(owner=owner, item=item).first()
             if existing_comment:
-                if (
-                    existing_comment.created_time
-                    and published_dt
-                    and existing_comment.created_time >= published_dt
-                ):
+                if self._is_current(existing_comment, updated_dt, published_dt):
                     return "skipped"
                 # a newer export updates the existing comment in place;
                 # creating another row would duplicate (owner, item),
@@ -482,6 +639,7 @@ class NdjsonImporter(BaseImporter):
                 # lone comments (e.g. on episodes), same as before import
                 # hooks existed
                 existing_comment.save(index_when_save=False)
+                self._restore_edited_time(existing_comment, updated_dt)
                 return "imported"
             comment = Comment(
                 owner=owner,
@@ -492,6 +650,7 @@ class NdjsonImporter(BaseImporter):
                 **({"created_time": published_dt} if published_dt else {}),
             )
             comment.save(index_when_save=False)
+            self._restore_edited_time(comment, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing comment")
@@ -505,6 +664,7 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
+            updated_dt = self._archive_updated(content_data)
             item = self.items.get(content_data.get("withRegardTo", ""))
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
@@ -515,11 +675,7 @@ class NdjsonImporter(BaseImporter):
                 return "skipped"
             existing_rating = Rating.objects.filter(owner=owner, item=item).first()
             if existing_rating:
-                if (
-                    existing_rating.created_time
-                    and published_dt
-                    and existing_rating.created_time >= published_dt
-                ):
+                if self._is_current(existing_rating, updated_dt, published_dt):
                     return "skipped"
                 # (owner, item) is unique on Rating: inserting a second row
                 # raises IntegrityError, which marks the surrounding
@@ -530,8 +686,9 @@ class NdjsonImporter(BaseImporter):
                 existing_rating.visibility = visibility
                 existing_rating.metadata = metadata
                 existing_rating.save()
+                self._restore_edited_time(existing_rating, updated_dt)
                 return "imported"
-            Rating.objects.create(
+            rating = Rating.objects.create(
                 owner=owner,
                 item=item,
                 grade=rating_grade,
@@ -539,6 +696,7 @@ class NdjsonImporter(BaseImporter):
                 metadata=metadata,
                 **({"created_time": published_dt} if published_dt else {}),
             )
+            self._restore_edited_time(rating, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing rating")
@@ -576,14 +734,19 @@ class NdjsonImporter(BaseImporter):
             if not item:
                 raise KeyError(f"Could not find item: {data.get('item', '')}")
             tag_title = Tag.cleanup_title(content_data.get("tag", ""))
+            # created_time is not nullable, so only pass it when the bundle
+            # carries one; inserting NULL raises IntegrityError, which marks
+            # the surrounding transaction for rollback and fails every later
+            # record too
+            created_time = {"created_time": published_dt} if published_dt else {}
             tag, _ = Tag.objects.get_or_create(
                 owner=owner,
                 title=tag_title,
                 defaults={
-                    "created_time": published_dt,
                     "visibility": visibility,
                     "pinned": False,
                     "metadata": metadata,
+                    **created_time,
                 },
             )
             _, created = TagMember.objects.update_or_create(
@@ -591,10 +754,10 @@ class NdjsonImporter(BaseImporter):
                 item=item,
                 parent=tag,
                 defaults={
-                    "created_time": published_dt,
                     "visibility": visibility,
                     "metadata": metadata,
                     "position": 0,
+                    **created_time,
                 },
             )
             return "imported" if created else "skipped"
@@ -691,6 +854,10 @@ class NdjsonImporter(BaseImporter):
                         u = i.get("id")
                         if not u:
                             continue
+                        # TODO: the entry itself is not kept, so an item
+                        # that cannot be resolved (source server gone, no
+                        # external ids) fails every record referencing it
+                        # instead of being rebuilt from the bundled data.
                         # self.catalog_items[u] = i
                         item_count += 1
                         links = [u] + [
@@ -719,7 +886,12 @@ class NdjsonImporter(BaseImporter):
         return {}
 
     def process_actor(self, file_path: str) -> None:
-        """Process the actor.ndjson file to update user identity information."""
+        """Process the actor.ndjson file to update user identity information.
+
+        TODO: only name and summary are restored. The bundle also carries the
+        identity's ``metadata`` (profile fields) and key pair, and carries
+        neither avatar nor header; see NdjsonExporter's actor.ndjson block.
+        """
         logger.debug(f"Processing actor data from {file_path}")
         try:
             with open(file_path, "r") as jsonfile:

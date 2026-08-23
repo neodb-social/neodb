@@ -1097,6 +1097,11 @@ def import_neodb(request):
             importer = NdjsonImporter
         else:
             raise BadRequest("Invalid file.")
+        # format_type is chosen client-side, so the file itself still has to be
+        # checked; otherwise a bad upload only surfaces as an opaque failure of
+        # the background task
+        if not importer.validate_file(request.FILES["file"]):
+            raise BadRequest(_("Invalid file."))
         f = (
             settings.MEDIA_ROOT
             + "/"

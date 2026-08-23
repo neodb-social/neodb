@@ -12,10 +12,48 @@ from journal.models import Mark, Note, Review
 
 from .base import BaseImporter
 
+# The members run() reads, and therefore the only ones worth accepting.
+_CSV_CATEGORIES = [
+    ItemCategory.Movie,
+    ItemCategory.TV,
+    ItemCategory.Music,
+    ItemCategory.Book,
+    ItemCategory.Game,
+    ItemCategory.Podcast,
+    ItemCategory.Performance,
+]
+_CSV_FILE_TYPES = ["mark", "review", "note"]
+_CSV_MEMBER_NAMES = frozenset(
+    f"{category}_{file_type}.csv"
+    for category in _CSV_CATEGORIES
+    for file_type in _CSV_FILE_TYPES
+)
+
 
 class CsvImporter(BaseImporter):
     class Meta:
         app_label = "journal"  # workaround bug in TypedModel
+
+    @classmethod
+    def validate_file(cls, uploaded_file) -> bool:
+        """Reject anything that is not a NeoDB CSV archive.
+
+        Keyed on the same member names run() reads, so an archive that would
+        import zero rows and still report success is rejected up front.
+        """
+        try:
+            if not zipfile.is_zipfile(uploaded_file):
+                return False
+            uploaded_file.seek(0)
+            with zipfile.ZipFile(uploaded_file, "r") as z:
+                return not _CSV_MEMBER_NAMES.isdisjoint(z.namelist())
+        except Exception:
+            return False
+        finally:
+            try:
+                uploaded_file.seek(0)
+            except Exception:
+                pass
 
     def import_mark(self, row: Dict[str, str]) -> str:
         """Import a mark from a CSV row.
@@ -238,16 +276,8 @@ class CsvImporter(BaseImporter):
                 total_rows = 0
                 csv_files = []
 
-                for category in [
-                    ItemCategory.Movie,
-                    ItemCategory.TV,
-                    ItemCategory.Music,
-                    ItemCategory.Book,
-                    ItemCategory.Game,
-                    ItemCategory.Podcast,
-                    ItemCategory.Performance,
-                ]:
-                    for file_type in ["mark", "review", "note"]:
+                for category in _CSV_CATEGORIES:
+                    for file_type in _CSV_FILE_TYPES:
                         file_path = os.path.join(
                             tmpdirname, f"{category}_{file_type}.csv"
                         )

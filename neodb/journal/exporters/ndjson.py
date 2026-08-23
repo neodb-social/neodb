@@ -257,6 +257,7 @@ class NdjsonExporter(Task):
                     "content": art.ap_object,
                     "visibility": art.visibility,
                     "metadata": art.metadata,
+                    "language": art.language,
                     "cover": self._bundle_cover(art.cover),
                 }
                 images = self._bundle_body_images(art.body)
@@ -287,6 +288,9 @@ class NdjsonExporter(Task):
 
             for t in Tag.objects.filter(owner=user.identity):
                 total += 1
+                # TODO: created_time is not carried, so an imported tag is
+                # re-dated to the import; FeaturedCollection (the pinned
+                # collection slot on the profile) is not exported at all.
                 o = {
                     "type": "Tag",
                     "name": t.title,
@@ -351,9 +355,14 @@ class NdjsonExporter(Task):
                 }
                 f.write(json.dumps(o, default=str) + "\n")
 
-            posts = Post.objects.filter(author_id=user.identity.pk).exclude(
-                type_data__has_key="object"
+            posts = (
+                Post.objects.not_hidden()
+                .filter(author_id=user.identity.pk)
+                .exclude(type_data__has_key="object")
             )
+            # TODO: NdjsonImporter.import_post is still a stub, so these
+            # records (and the attachments bundled for them) round-trip out of
+            # a site but are dropped on the way back in.
             for p in posts:
                 total += 1
                 o = {"type": "post", "post": p.to_mastodon_json()}
@@ -373,6 +382,14 @@ class NdjsonExporter(Task):
         with open(actor_file, "w") as f:
             f.write(json.dumps(self.get_header()) + "\n")
             takahe_identity = self.user.identity.takahe_identity
+            # The key pair is exported on purpose: it is what lets a user
+            # re-establish this same actor when rebuilding their own site.
+            # Treat the archive as a secret accordingly -- it is served from
+            # MEDIA_ROOT, so anyone holding the download URL holds the key.
+            # TODO: avatar (icon), header (image), discoverable, indexable and
+            # manually_approves_followers are not carried, and process_actor
+            # restores only name/summary -- `metadata` (profile fields) is
+            # written here but ignored on import.
             identity_data = {
                 "type": "Identity",
                 "username": takahe_identity.username,

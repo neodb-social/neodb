@@ -25,9 +25,10 @@ from catalog.models import (
     TVShow,
 )
 from journal.exporters import NdjsonExporter
-from journal.importers import NdjsonImporter
+from journal.importers import CsvImporter, NdjsonImporter
 from journal.models import *
 from journal.models.common import Debris
+from journal.search import JournalIndex
 from takahe.utils import Takahe
 from users.models import User
 
@@ -1247,3 +1248,327 @@ class TestNdjsonExportImport:
             == "imported"
         )
         assert Collection.objects.get(owner=owner, title="No Timestamp").created_time
+
+    # --- edits replay on re-import -------------------------------------
+
+    def _roundtrip(self, source_user, dest_user):
+        """Export ``source_user`` and import it into ``dest_user``."""
+        exporter = NdjsonExporter.create(user=source_user)
+        exporter.run()
+        importer = NdjsonImporter.create(
+            user=dest_user, file=exporter.metadata["file"], visibility=0
+        )
+        importer.run()
+        return importer
+
+    def test_ndjson_edit_replays_on_reimport(self):
+        """An edit bumps only edited_time, so a created_time comparison reports
+        every edited record as "not newer" and silently keeps the stale copy."""
+        owner1 = self.user1.identity
+        owner2 = self.user2.identity
+        review = Review.objects.create(
+            owner=owner1, item=self.book1, title="T", body="original", visibility=0
+        )
+        comment = Comment.objects.create(
+            owner=owner1, item=self.book2, text="original", visibility=0
+        )
+        rating = Rating.objects.create(
+            owner=owner1, item=self.movie1, grade=5, visibility=0
+        )
+        self._roundtrip(self.user1, self.user2)
+        assert Review.objects.get(owner=owner2, item=self.book1).body == "original"
+        assert Comment.objects.get(owner=owner2, item=self.book2).text == "original"
+        assert Rating.objects.get(owner=owner2, item=self.movie1).grade == 5
+
+        # edit on the source: created_time is untouched, edited_time moves.
+        # the title is part of the review's identity, so it stays put here --
+        # a retitle is covered separately.
+        review.body = "edited"
+        review.save()
+        comment.text = "edited"
+        comment.save()
+        rating.grade = 9
+        rating.save()
+
+        self._roundtrip(self.user1, self.user2)
+        assert Review.objects.filter(owner=owner2, item=self.book1).count() == 1
+        assert Review.objects.get(owner=owner2, item=self.book1).body == "edited"
+        assert Comment.objects.get(owner=owner2, item=self.book2).text == "edited"
+        assert Rating.objects.get(owner=owner2, item=self.movie1).grade == 9
+
+    def test_ndjson_note_and_collection_edits_replay_on_reimport(self):
+        owner1 = self.user1.identity
+        owner2 = self.user2.identity
+        note = Note.objects.create(
+            owner=owner1,
+            item=self.book1,
+            title="N",
+            content="original",
+            visibility=0,
+            created_time=self.dt,
+        )
+        collection = Collection.objects.create(
+            owner=owner1, title="C", brief="original", visibility=0
+        )
+        collection.append_item(self.book1, metadata={"note": "original"})
+        self._roundtrip(self.user1, self.user2)
+        assert Note.objects.get(owner=owner2, item=self.book1).content == "original"
+        assert Collection.objects.get(owner=owner2, title="C").brief == "original"
+
+        note.content = "edited"
+        note.save()
+        collection.brief = "edited"
+        collection.save()
+        member = collection.get_member_for_item(self.book1)
+        member.note = "edited"
+        member.save()
+
+        self._roundtrip(self.user1, self.user2)
+        assert Note.objects.filter(owner=owner2, item=self.book1).count() == 1
+        assert Note.objects.get(owner=owner2, item=self.book1).content == "edited"
+        assert Collection.objects.filter(owner=owner2).count() == 1
+        c2 = Collection.objects.get(owner=owner2)
+        assert c2.brief == "edited"
+        # per-item notes replay too; append_item alone is a no-op for a member
+        # already on the list
+        assert c2.get_member_for_item(self.book1).note == "edited"
+
+    def test_ndjson_article_edit_and_language_round_trip(self):
+        owner1 = self.user1.identity
+        owner2 = self.user2.identity
+        article = Article.update_local_article(
+            owner=owner1, title="A", body="original", language="fr", visibility=0
+        )
+        self._roundtrip(self.user1, self.user2)
+        imported = Article.objects.get(owner=owner2)
+        assert imported.body == "original"
+        # language is not part of ap_object, so it rides the NDJSON envelope
+        assert imported.language == "fr"
+
+        # edit through the real edit path: Article.edited_time is not
+        # auto_now, and update_local_article is what advances it
+        Article.update_local_article(
+            owner=owner1,
+            title="A",
+            body="edited",
+            language="fr",
+            visibility=0,
+            article=article,
+        )
+
+        self._roundtrip(self.user1, self.user2)
+        assert Article.objects.filter(owner=owner2).count() == 1
+        assert Article.objects.get(owner=owner2).body == "edited"
+
+    def test_ndjson_unedited_reimport_still_skips(self):
+        """The staleness guard must not turn every re-import into a rewrite."""
+        owner2 = self.user2.identity
+        Review.objects.create(
+            owner=self.user1.identity,
+            item=self.book1,
+            title="T",
+            body="original",
+            visibility=0,
+        )
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        path = exporter.metadata["file"]
+        NdjsonImporter.create(user=self.user2, file=path, visibility=0).run()
+        importer = NdjsonImporter.create(user=self.user2, file=path, visibility=0)
+        importer.run()
+        assert Review.objects.filter(owner=owner2, item=self.book1).count() == 1
+        assert importer.metadata["skipped"] >= 1
+
+    # --- other fixes --------------------------------------------------
+
+    def test_ndjson_export_excludes_deleted_posts(self):
+        """Takahe keeps deleted rows for up to 24h, so an unfiltered query
+        bundles posts the user already deleted."""
+        post = Takahe.post(
+            self.user1.identity.pk, "a plain post", Takahe.Visibilities.public
+        )
+        assert post
+        deleted = Takahe.post(
+            self.user1.identity.pk, "a deleted post", Takahe.Visibilities.public
+        )
+        assert deleted
+        Takahe.delete_posts([deleted.pk])
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        with zipfile.ZipFile(exporter.metadata["file"]) as z:
+            lines = z.read("journal.ndjson").decode().strip().split("\n")
+        posts = [
+            json.loads(ln) for ln in lines[1:] if json.loads(ln).get("type") == "post"
+        ]
+        contents = " ".join(p["post"].get("content", "") for p in posts)
+        assert "a plain post" in contents
+        assert "a deleted post" not in contents
+
+    def test_ndjson_tag_member_without_published_timestamp(self):
+        """created_time is not nullable; passing None raises IntegrityError and
+        poisons the transaction for every later record."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        assert (
+            importer.import_tag_member(
+                {"content": {"withRegardTo": self.book1.absolute_url, "tag": "notime"}}
+            )
+            == "imported"
+        )
+        tag = Tag.objects.get(owner=self.user2.identity, title="notime")
+        assert tag.created_time
+        assert TagMember.objects.get(owner=self.user2.identity, parent=tag).created_time
+
+    def test_ndjson_validate_file(self):
+        """format_type is chosen client-side, so the file itself is checked."""
+        assert not NdjsonImporter.validate_file(
+            SimpleUploadedFile("x.zip", b"not a zip at all")
+        )
+        buf = BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("marks.csv", "a,b\n")
+        assert not NdjsonImporter.validate_file(
+            SimpleUploadedFile("x.zip", buf.getvalue())
+        )
+        buf = BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("journal.ndjson", '{"server": "x"}\n')
+        f = SimpleUploadedFile("x.zip", buf.getvalue())
+        assert NdjsonImporter.validate_file(f)
+        # left rewound so the view can still write the upload out
+        assert f.tell() == 0
+
+    def test_ndjson_retitle_reimports_as_a_second_row(self):
+        """Known limitation: the title is part of a Review's / Collection's /
+        Article's identity here, so a retitle on the source cannot be told
+        apart from a new piece and lands as a second row. Keying on
+        created_time instead would resolve the retitle but silently overwrite a
+        genuinely different piece that shares a timestamp, which is worse."""
+        owner1 = self.user1.identity
+        owner2 = self.user2.identity
+        review = Review.objects.create(
+            owner=owner1, item=self.book1, title="T", body="body", visibility=0
+        )
+        self._roundtrip(self.user1, self.user2)
+        assert Review.objects.filter(owner=owner2, item=self.book1).count() == 1
+
+        review.title = "T-renamed"
+        review.save()
+        self._roundtrip(self.user1, self.user2)
+        assert Review.objects.filter(owner=owner2, item=self.book1).count() == 2
+
+    # --- codex review follow-ups ---------------------------------------
+
+    def test_ndjson_skipped_collection_does_not_restore_images(self, tmp_path):
+        """A no-op re-import must not copy bundled images into storage again.
+
+        Restoring the body writes each image into media storage, so doing it
+        before the staleness check left a fresh copy behind on every re-import
+        of an unchanged collection.
+        """
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            buf = BytesIO()
+            Image.new("RGB", (2, 2), "blue").save(buf, format="PNG")
+            name = default_storage.save(
+                "upload/1/2026/coll.png", ContentFile(buf.getvalue())
+            )
+            src = default_storage.url(name)
+            Collection.objects.create(
+                owner=self.user1.identity,
+                title="Illustrated Collection",
+                brief=f"before ![alt]({src}) after",
+                visibility=0,
+            )
+            exporter = NdjsonExporter.create(user=self.user1)
+            exporter.run()
+            path = exporter.metadata["file"]
+
+            def stored_uploads():
+                return sorted(default_storage.listdir("upload")[0])
+
+            NdjsonImporter.create(user=self.user2, file=path, visibility=0).run()
+            after_first = stored_uploads()
+            # second import is a no-op: nothing new may be written
+            importer = NdjsonImporter.create(user=self.user2, file=path, visibility=0)
+            importer.run()
+            assert stored_uploads() == after_first
+            assert (
+                Collection.objects.filter(
+                    owner=self.user2.identity, title="Illustrated Collection"
+                ).count()
+                == 1
+            )
+
+    def test_ndjson_member_note_edit_reindexes_collection(self):
+        """The collection's index doc embeds member notes, and saving a member
+        does not reindex its parent -- only list_add / list_remove do, via
+        signal, and a note edit fires neither.
+
+        The brief is edited alongside the note because a member note on its own
+        leaves the collection's edited_time untouched, so the record is judged
+        current and skipped before the member loop runs.
+        """
+        index = JournalIndex.instance()
+        index.delete_all()
+        owner1 = self.user1.identity
+        collection = Collection.objects.create(
+            owner=owner1, title="Indexed", brief="b", visibility=0
+        )
+        collection.append_item(self.book1, metadata={"note": "first note"})
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        NdjsonImporter.create(
+            user=self.user2, file=exporter.metadata["file"], visibility=0
+        ).run()
+
+        member = collection.get_member_for_item(self.book1)
+        member.note = "second note"
+        member.save()
+        collection.brief = "b2"
+        collection.save()
+        exporter2 = NdjsonExporter.create(user=self.user1)
+        exporter2.run()
+        NdjsonImporter.create(
+            user=self.user2, file=exporter2.metadata["file"], visibility=0
+        ).run()
+
+        dest = Collection.objects.get(owner=self.user2.identity, title="Indexed")
+        assert dest.get_member_for_item(self.book1).note == "second note"
+        # assert against the stored document, not to_indexable_doc(), which
+        # recomputes from the database and so cannot see a stale index
+        # same id piece_to_doc builds: the post id when the piece has one
+        doc_id = str(dest.latest_post_id) if dest.latest_post_id else f"p{dest.pk}"
+        stored = index.get_doc(doc_id)
+        assert stored, "collection has no index document"
+        assert "second note" in stored["content"]
+        assert "first note" not in stored["content"]
+
+    def test_validate_file_matches_what_the_importers_read(self):
+        """Validation keys on the member paths run() actually opens, so an
+        archive that would fail (or import nothing) is rejected up front."""
+
+        def zipped(*names):
+            buf = BytesIO()
+            with zipfile.ZipFile(buf, "w") as z:
+                for n in names:
+                    z.writestr(n, "x")
+            return SimpleUploadedFile("x.zip", buf.getvalue())
+
+        # ndjson: run() opens <tempdir>/journal.ndjson, nothing nested
+        assert NdjsonImporter.validate_file(zipped("journal.ndjson"))
+        assert not NdjsonImporter.validate_file(zipped("nested/journal.ndjson"))
+
+        # and the validator must accept what our own exporter produces
+        exporter = NdjsonExporter.create(user=self.user1)
+        exporter.run()
+        with open(exporter.metadata["file"], "rb") as f:
+            assert NdjsonImporter.validate_file(
+                SimpleUploadedFile("export.zip", f.read())
+            )
+
+        # csv: run() reads only <category>_{mark,review,note}.csv at the root
+        assert CsvImporter.validate_file(zipped("movie_mark.csv"))
+        assert CsvImporter.validate_file(zipped("book_review.csv"))
+        assert not CsvImporter.validate_file(zipped("foo.csv"))
+        assert not CsvImporter.validate_file(zipped("nested/movie_mark.csv"))
