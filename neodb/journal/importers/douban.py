@@ -39,6 +39,18 @@ def _fetch_remote_image(url, identity_id):
 
 
 class DoubanImporter(Task):
+    """Import Douban marks and reviews from a Doufen ``.xlsx`` workbook.
+
+    Named for where the data came from, not for what produced the file: Douban
+    has no export of its own, so the workbook this reads is the one written by
+    Doufen (https://doufen.org) — the same format :class:`DoufenExporter`
+    writes. That is why the upload form is headed "Import from Douban" while
+    the file hint says "exported from Doufen".
+
+    Not to be confused with :class:`DoubakImporter`, which also carries Douban
+    data but reads a zip of CSVs produced by a different tool.
+    """
+
     class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 

@@ -12,6 +12,11 @@ from .csv import CsvImporter
 class DoubakImporter(CsvImporter):
     """Import a Douban archive produced by Doubak.
 
+    Three similar names meet here, so to be explicit: this carries **Douban**
+    data, captured by **Doubak**, and is unrelated to :class:`DoubanImporter`,
+    which reads a **Doufen** workbook. Same source account, different tools,
+    different file formats.
+
     Doubak (https://doubak.com) captures a Douban account in the user's own
     browser and writes the same ``<category>_<type>.csv`` layout that NeoDB
     exports, so the rows themselves are parsed by :class:`CsvImporter` and
