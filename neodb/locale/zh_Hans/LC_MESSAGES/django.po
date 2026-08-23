@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 11:41-0400\n"
+"POT-Creation-Date: 2026-08-23 15:40-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1620,7 +1620,7 @@ msgstr "确定移除你的创作者验证吗？移除后任何人都可以再次
 msgid "Remove my verification"
 msgstr "移除我的验证"
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:303
+#: catalog/templates/_verify_status.html:31 users/views/account.py:309
 msgid "Verification failed"
 msgstr "验证失败"
 
@@ -6413,6 +6413,7 @@ msgstr ""
 "{code}"
 
 #: mastodon/models/email.py:74 users/templates/users/captcha.html:13
+#: users/templates/users/captcha_solved.html:9
 #: users/templates/users/login.html:20 users/templates/users/register.html:9
 #: users/templates/users/welcome.html:10
 msgid "Register"
@@ -6491,7 +6492,7 @@ msgstr "安全检查失败，请重试。"
 #: mastodon/views/mastodon.py:77 mastodon/views/mastodon.py:87
 #: mastodon/views/mastodon.py:94 mastodon/views/threads.py:55
 #: mastodon/views/threads.py:63 mastodon/views/threads.py:69
-#: users/views/account.py:248 users/views/account.py:367
+#: users/views/account.py:254 users/views/account.py:373
 msgid "Authentication failed"
 msgstr "认证失败"
 
@@ -6519,7 +6520,7 @@ msgstr "Bluesky返回了无效的账号数据。"
 msgid "Invalid user."
 msgstr "无效用户。"
 
-#: mastodon/views/common.py:52 users/views/account.py:408
+#: mastodon/views/common.py:52 users/views/account.py:414
 msgid "Registration failed"
 msgstr "注册失败"
 
@@ -7603,6 +7604,21 @@ msgid "Show me another set (%(counter)s left)"
 msgid_plural "Show me another set (%(counter)s left)"
 msgstr[0] "换一组（还剩 %(counter)s 次）"
 
+#: users/templates/users/captcha_solved.html:30
+msgid "Nicely sorted"
+msgstr "归类得很好"
+
+#: users/templates/users/captcha_solved.html:31
+msgid "That is all we needed. Let's get you a username."
+msgstr "这就够了，接下来选个用户名吧。"
+
+#: users/templates/users/captcha_solved.html:34
+#: users/templates/users/login.html:63
+#: users/templates/users/verify_email.html:25
+#: users/templates/users/welcome.html:51
+msgid "Continue"
+msgstr "继续"
+
 #: users/templates/users/crossposts.html:19
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr "设置通行密钥，快速安全地登录。"
@@ -7848,12 +7864,6 @@ msgstr "登录"
 #: users/templates/users/login.html:58
 msgid "logo"
 msgstr "图标"
-
-#: users/templates/users/login.html:63
-#: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:51
-msgid "Continue"
-msgstr "继续"
 
 #: users/templates/users/login.html:127
 msgid "Sign in with a passkey saved on this device or in your password manager."
@@ -8481,44 +8491,44 @@ msgstr "用户名已被使用"
 msgid "This email address is already in use."
 msgstr "此电子邮件地址已被使用"
 
-#: users/views/account.py:249 users/views/account.py:368
+#: users/views/account.py:255 users/views/account.py:374
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/views/account.py:260 users/views/account.py:332
+#: users/views/account.py:266 users/views/account.py:338
 msgid "Time is up"
 msgstr "时间已到"
 
-#: users/views/account.py:261 users/views/account.py:304
-#: users/views/account.py:333
+#: users/views/account.py:267 users/views/account.py:310
+#: users/views/account.py:339
 msgid "Please log in again to continue registration."
 msgstr "请重新登录以继续注册。"
 
-#: users/views/account.py:307
+#: users/views/account.py:313
 msgid "That is not quite right. Here is a new set."
 msgstr "不太对，换一组新的。"
 
-#: users/views/account.py:319
+#: users/views/account.py:325
 msgid "Too many attempts"
 msgstr "尝试次数过多"
 
-#: users/views/account.py:320
+#: users/views/account.py:326
 msgid "Please try again later."
 msgstr "请稍后再试。"
 
-#: users/views/account.py:409
+#: users/views/account.py:415
 msgid "Username already taken. Please try again."
 msgstr "用户名已被使用，请重试。"
 
-#: users/views/account.py:439
+#: users/views/account.py:445
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
 
-#: users/views/account.py:520
+#: users/views/account.py:526
 msgid "Account is being deleted."
 msgstr "账户删除进行中。"
 
-#: users/views/account.py:523
+#: users/views/account.py:529
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 

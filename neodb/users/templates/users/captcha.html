@@ -125,6 +125,7 @@
           const done = placed.size === tiles.length;
           submit.disabled = !done;
           status.textContent = done ? strings.ready : strings.remaining;
+          document.documentElement.classList.toggle('captcha-ready', done);
           const answer = {};
           const trace = {};
           placed.forEach((v, token) => {
@@ -135,6 +136,14 @@
           traceField.value = JSON.stringify(trace);
         }
 
+        // restart an animation by removing the class, forcing a reflow, and
+        // adding it back; otherwise a second landing in the same row is silent
+        function replay(el, cls) {
+          el.classList.remove(cls);
+          void el.offsetWidth;
+          el.classList.add(cls);
+        }
+
         function place(tile, rowIndex, record) {
           const token = tile.dataset.token;
           const target = rowContainer(rowIndex);
@@ -142,6 +151,8 @@
           target.appendChild(tile);
           tile.setAttribute('aria-pressed', 'false');
           placed.set(token, Object.assign({ row: rowIndex }, record));
+          replay(tile, 'captcha-tile--landed');
+          replay(target, 'captcha-row--took');
           refresh();
         }
 

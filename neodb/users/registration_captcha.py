@@ -72,6 +72,8 @@ CAPTCHA_TILE_QUALITY_MAX = 90
 
 SESSION_KEY = "registration_captcha"
 PASSED_KEY = "registration_captcha_passed"
+# one-shot: set when a quiz is solved, consumed by the page that celebrates it
+CELEBRATE_KEY = "registration_captcha_solved"
 
 _POPULAR_CACHE_PREFIX = "captcha_pool_popular"
 _ALL_CACHE_PREFIX = "captcha_pool_all"
@@ -513,11 +515,27 @@ def check_answer(challenge: Challenge, answer: Any) -> bool:
 def clear(request: HttpRequest) -> None:
     request.session.pop(SESSION_KEY, None)
     request.session.pop(PASSED_KEY, None)
+    request.session.pop(CELEBRATE_KEY, None)
 
 
-def mark_passed(request: HttpRequest) -> None:
+def mark_passed(request: HttpRequest, celebrate: bool = False) -> None:
     request.session.pop(SESSION_KEY, None)
     request.session[PASSED_KEY] = _now()
+    if celebrate:
+        request.session[CELEBRATE_KEY] = True
+
+
+def pop_celebration(request: HttpRequest) -> bool:
+    """Consume the one-shot 'you just solved it' marker.
+
+    One-shot so a reload or a back-button visit does not replay the moment,
+    and so a fail-open pass -- which the visitor never earned -- does not get
+    congratulated.
+    """
+    if not request.session.pop(CELEBRATE_KEY, False):
+        return False
+    request.session.modified = True
+    return True
 
 
 def has_passed(request: HttpRequest) -> bool:

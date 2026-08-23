@@ -1,0 +1,53 @@
+{% load i18n %}
+{% load static %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="captcha-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans 'Register' %}</title>
+    {% include "common_libs.html" %}
+    <meta name="robots" content="noindex">
+  </head>
+  <body>
+    <div class="container">
+      <article>
+        <header style="text-align: center;">
+          <img src="{{ site_logo }}"
+               class="logo"
+               alt="logo"
+               style="max-height: 20vh">
+        </header>
+        <div class="captcha-solved" role="status">
+          <svg class="captcha-solved__mark"
+               viewBox="0 0 52 52"
+               aria-hidden="true"
+               focusable="false">
+            <circle class="captcha-solved__circle" cx="26" cy="26" r="23" />
+            <path class="captcha-solved__tick" d="M14 27 L22 35 L38 18" />
+          </svg>
+          <h4>{% trans "Nicely sorted" %}</h4>
+          <p>{% trans "That is all we needed. Let's get you a username." %}</p>
+          <a href="{% url 'users:register' %}" role="button" id="captcha-continue">{% trans "Continue" %}</a>
+        </div>
+      </article>
+    </div>
+    <script>
+      (function () {
+        const link = document.getElementById('captcha-continue');
+        if (!link) return;
+        // Let the mark finish drawing, then move on by itself. The link is
+        // real, so clicking it skips ahead and a no-JS visitor is never stuck;
+        // reduced-motion goes straight through without the flourish.
+        const reduced = window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+          window.location = link.href;
+          return;
+        }
+        setTimeout(function () { window.location = link.href; }, 1500);
+      })();
+    </script>
+  </body>
+</html>

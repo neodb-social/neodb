@@ -236,7 +236,13 @@ def registration_captcha(request: HttpRequest):
         return redirect(reverse("users:info"))
     if not SocialAccount.from_dict(request.session.get("verified_account")):
         return redirect(reverse("users:login"))
-    if not captcha.is_enabled() or captcha.has_passed(request):
+    if not captcha.is_enabled():
+        return redirect(reverse("users:register"))
+    if captcha.has_passed(request):
+        # the moment the answer is accepted, shown once on the page they were
+        # working on rather than as a silent redirect
+        if captcha.pop_celebration(request):
+            return render(request, "users/captcha_solved.html")
         return redirect(reverse("users:register"))
     # mirror register()'s invite gate: without it an uninvited visitor can
     # solve quizzes on an invite-only site before being turned away anyway
@@ -288,9 +294,9 @@ def registration_captcha(request: HttpRequest):
             request.POST.get("trace", ""),
         )
         if ok:
-            captcha.mark_passed(request)
+            captcha.mark_passed(request, celebrate=True)
             record_registration_captcha("passed")
-            return redirect(reverse("users:register"))
+            return redirect(reverse("users:captcha"))
         record_registration_captcha(outcome_name, reason)
         ip = client_ip(request)
         captcha.record_fail(ip)

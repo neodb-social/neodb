@@ -86,4 +86,109 @@
   .captcha-status {
     color: var(--pico-muted-color);
   }
+
+  // a tile that has landed gets a short settle, and the row it landed in
+  // acknowledges it. Small, but it is the difference between the sort feeling
+  // mechanical and feeling like the pieces click into place.
+  .captcha-tile--landed {
+    animation: captcha-settle 260ms cubic-bezier(0.22, 1.4, 0.4, 1);
+  }
+
+  .captcha-row--took {
+    animation: captcha-took 420ms ease-out;
+  }
+
+  // every cover placed: nudge attention to the button that finishes the job
+  .captcha-ready #captcha-submit {
+    animation: captcha-ready 520ms ease-out;
+  }
+
+  .captcha-solved {
+    text-align: center;
+    padding: 1rem 0 0.5rem;
+  }
+
+  .captcha-solved__mark {
+    width: 5.5rem;
+    height: 5.5rem;
+    display: block;
+    margin: 0 auto 0.5rem;
+  }
+
+  .captcha-solved__circle,
+  .captcha-solved__tick {
+    fill: none;
+    stroke: var(--pico-primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .captcha-solved__circle {
+    stroke-dasharray: 145;
+    stroke-dashoffset: 145;
+    animation: captcha-draw 420ms ease-out forwards;
+    opacity: 0.5;
+  }
+
+  .captcha-solved__tick {
+    stroke-width: 4;
+    stroke-dasharray: 44;
+    stroke-dashoffset: 44;
+    animation: captcha-draw 320ms 300ms ease-out forwards;
+  }
+
+  @keyframes captcha-settle {
+    0% {
+      transform: scale(0.86);
+    }
+    60% {
+      transform: scale(1.06);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes captcha-took {
+    0% {
+      border-color: var(--pico-primary);
+    }
+    100% {
+      border-color: var(--pico-muted-border-color);
+    }
+  }
+
+  @keyframes captcha-ready {
+    0% {
+      transform: translateY(0.25rem);
+      opacity: 0.75;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes captcha-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  // Motion here is decoration, never information: every state it marks is
+  // also stated in text or by position.
+  @media (prefers-reduced-motion: reduce) {
+    .captcha-tile--landed,
+    .captcha-row--took,
+    .captcha-ready #captcha-submit {
+      animation: none;
+    }
+
+    .captcha-solved__circle,
+    .captcha-solved__tick {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
 }

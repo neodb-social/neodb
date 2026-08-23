@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 11:41-0400\n"
+"POT-Creation-Date: 2026-08-23 15:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1621,7 +1621,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:303
+#: catalog/templates/_verify_status.html:31 users/views/account.py:309
 msgid "Verification failed"
 msgstr ""
 
@@ -6345,6 +6345,7 @@ msgid ""
 msgstr ""
 
 #: mastodon/models/email.py:74 users/templates/users/captcha.html:13
+#: users/templates/users/captcha_solved.html:9
 #: users/templates/users/login.html:20 users/templates/users/register.html:9
 #: users/templates/users/welcome.html:10
 msgid "Register"
@@ -6417,7 +6418,7 @@ msgstr ""
 #: mastodon/views/mastodon.py:77 mastodon/views/mastodon.py:87
 #: mastodon/views/mastodon.py:94 mastodon/views/threads.py:55
 #: mastodon/views/threads.py:63 mastodon/views/threads.py:69
-#: users/views/account.py:248 users/views/account.py:367
+#: users/views/account.py:254 users/views/account.py:373
 msgid "Authentication failed"
 msgstr ""
 
@@ -6445,7 +6446,7 @@ msgstr ""
 msgid "Invalid user."
 msgstr ""
 
-#: mastodon/views/common.py:52 users/views/account.py:408
+#: mastodon/views/common.py:52 users/views/account.py:414
 msgid "Registration failed"
 msgstr ""
 
@@ -7490,6 +7491,21 @@ msgid_plural "Show me another set (%(counter)s left)"
 msgstr[0] ""
 msgstr[1] ""
 
+#: users/templates/users/captcha_solved.html:30
+msgid "Nicely sorted"
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:31
+msgid "That is all we needed. Let's get you a username."
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:34
+#: users/templates/users/login.html:63
+#: users/templates/users/verify_email.html:25
+#: users/templates/users/welcome.html:51
+msgid "Continue"
+msgstr ""
+
 #: users/templates/users/crossposts.html:19
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr ""
@@ -7734,12 +7750,6 @@ msgstr ""
 
 #: users/templates/users/login.html:58
 msgid "logo"
-msgstr ""
-
-#: users/templates/users/login.html:63
-#: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:51
-msgid "Continue"
 msgstr ""
 
 #: users/templates/users/login.html:127
@@ -8362,44 +8372,44 @@ msgstr ""
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:249 users/views/account.py:368
+#: users/views/account.py:255 users/views/account.py:374
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:260 users/views/account.py:332
+#: users/views/account.py:266 users/views/account.py:338
 msgid "Time is up"
 msgstr ""
 
-#: users/views/account.py:261 users/views/account.py:304
-#: users/views/account.py:333
+#: users/views/account.py:267 users/views/account.py:310
+#: users/views/account.py:339
 msgid "Please log in again to continue registration."
 msgstr ""
 
-#: users/views/account.py:307
+#: users/views/account.py:313
 msgid "That is not quite right. Here is a new set."
 msgstr ""
 
-#: users/views/account.py:319
+#: users/views/account.py:325
 msgid "Too many attempts"
 msgstr ""
 
-#: users/views/account.py:320
+#: users/views/account.py:326
 msgid "Please try again later."
 msgstr ""
 
-#: users/views/account.py:409
+#: users/views/account.py:415
 msgid "Username already taken. Please try again."
 msgstr ""
 
-#: users/views/account.py:439
+#: users/views/account.py:445
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:520
+#: users/views/account.py:526
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:523
+#: users/views/account.py:529
 msgid "Account mismatch."
 msgstr ""
 

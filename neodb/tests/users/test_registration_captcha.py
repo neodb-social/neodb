@@ -93,6 +93,18 @@ def _submit(client: Client, challenge: captcha.Challenge, answer=None, trace=Non
     )
 
 
+def _solve(client: Client, challenge: captcha.Challenge, trace=None):
+    """Submit a correct answer and walk through the success page.
+
+    Passing lands on the captcha route, which shows the solved state once and
+    then hands over to the username form.
+    """
+    response = _submit(client, challenge, trace=trace)
+    assert response.status_code == 302
+    assert response.url == CAPTCHA_URL
+    return client.get(CAPTCHA_URL)
+
+
 def _wrong_answer(challenge: captcha.Challenge) -> dict:
     # flip one tile into the other row
     answer = _correct_answer(challenge)
@@ -211,19 +223,38 @@ class TestSolving:
     def test_happy_path(self, client, enabled):
         _verify_email(client)
         assert client.get(CAPTCHA_URL).status_code == 200
-        response = _submit(client, _challenge(client))
-        assert response.status_code == 302
-        assert response.url == REGISTER_URL
+        solved = _solve(client, _challenge(client))
+        assert solved.status_code == 200
+        assert b"captcha-solved" in solved.content
         assert captcha.PASSED_KEY in client.session
 
         response = client.post(REGISTER_URL, {"username": "newbie", "email": ""})
         assert response.status_code == 200
         assert User.objects.filter(username="newbie").exists()
 
+    def test_success_page_is_shown_once(self, client, enabled):
+        """The moment is one-shot: a reload must not replay it."""
+        _verify_email(client)
+        client.get(CAPTCHA_URL)
+        _solve(client, _challenge(client))
+        again = client.get(CAPTCHA_URL)
+        assert again.status_code == 302
+        assert again.url == REGISTER_URL
+
+    def test_fail_open_is_not_congratulated(self, client, monkeypatch, media_root):
+        """A pass nobody earned skips the celebration."""
+        _configure(monkeypatch, registration_captcha_items=4, min_marks_for_captcha=1)
+        _with_cover(Movie.objects.create(title="Lonely One"), "lonely1.jpg")
+        _verify_email(client)
+        response = client.get(CAPTCHA_URL)
+        assert response.status_code == 302
+        assert response.url == REGISTER_URL
+        assert captcha.CELEBRATE_KEY not in client.session
+
     def test_passing_clears_captcha_keys_on_login(self, client, enabled):
         _verify_email(client)
         client.get(CAPTCHA_URL)
-        _submit(client, _challenge(client))
+        _solve(client, _challenge(client))
         client.post(REGISTER_URL, {"username": "cleared", "email": ""})
         assert captcha.PASSED_KEY not in client.session
         assert captcha.SESSION_KEY not in client.session
@@ -297,9 +328,7 @@ class TestFailureBudget:
             _submit(client, challenge, answer=_wrong_answer(challenge))
         challenge = _challenge(client)
         assert captcha.regenerations_left(challenge) == 0
-        response = _submit(client, challenge)
-        assert response.status_code == 302
-        assert response.url == REGISTER_URL
+        assert _solve(client, challenge).status_code == 200
 
     def test_regenerate_with_none_left_is_a_no_op(self, client, enabled):
         _verify_email(client)
@@ -456,9 +485,7 @@ class TestTrajectory:
             token: {"mode": "drag", "duration": 0.0, "points": [[0.0, 0.0, 0.0]]}
             for token in challenge["tiles"]
         }
-        response = _submit(client, challenge, trace=trace)
-        assert response.status_code == 302
-        assert response.url == REGISTER_URL
+        assert _solve(client, challenge, trace=trace).status_code == 200
 
     def test_click_mode_passes_above_the_dwell_floor(self, client, enabled):
         _verify_email(client)
@@ -468,9 +495,7 @@ class TestTrajectory:
             token: {"mode": "click", "duration": 500.0 + i * 20, "points": []}
             for i, token in enumerate(challenge["tiles"])
         }
-        response = _submit(client, challenge, trace=trace)
-        assert response.status_code == 302
-        assert response.url == REGISTER_URL
+        assert _solve(client, challenge, trace=trace).status_code == 200
 
     def test_click_mode_fails_below_the_dwell_floor(self, client, enabled):
         _verify_email(client)
@@ -815,7 +840,7 @@ class TestReviewRegressions:
     def test_a_solved_pass_goes_stale(self, client, enabled, monkeypatch):
         _verify_email(client)
         client.get(CAPTCHA_URL)
-        _submit(client, _challenge(client))
+        _solve(client, _challenge(client))
         assert client.get(REGISTER_URL).status_code == 200
         monkeypatch.setattr(captcha, "CAPTCHA_PASS_TTL", -1)
         response = client.get(REGISTER_URL)
@@ -934,6 +959,4 @@ class TestReviewRegressions:
             }
             for i, token in enumerate(challenge["tiles"])
         }
-        response = _submit(client, challenge, trace=trace)
-        assert response.status_code == 302
-        assert response.url == REGISTER_URL
+        assert _solve(client, challenge, trace=trace).status_code == 200
