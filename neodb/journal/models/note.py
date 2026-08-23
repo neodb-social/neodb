@@ -42,6 +42,7 @@ class Note(Content):
     # default, so an ordinary save never touches media the Mastodon API put
     # on the post.
     post_media_from_records: bool = False
+    webhook_event = "note"
 
     class ProgressType(models.TextChoices):
         PAGE = "page", _("Page")

@@ -52,7 +52,9 @@ def _hostname_is_public(hostname: str) -> bool:
     return _resolve_hostname(hostname) is True
 
 
-def _url_host_and_scheme(url: str | None) -> tuple[str, str] | None:
+def _url_host_and_scheme(
+    url: str | None, may_have_port: bool = False
+) -> tuple[str, str] | None:
     """(hostname, scheme) of a well-formed URL, or None. Resolver not consulted."""
     if not url:
         return None
@@ -60,7 +62,7 @@ def _url_host_and_scheme(url: str | None) -> tuple[str, str] | None:
         url,
         skip_ipv6_addr=True,
         skip_ipv4_addr=True,
-        may_have_port=False,
+        may_have_port=may_have_port,
         strict_query=False,
     ):
         return None
@@ -71,10 +73,10 @@ def _url_host_and_scheme(url: str | None) -> tuple[str, str] | None:
     return hostname, parsed.scheme
 
 
-def is_valid_url(url: str | None) -> bool:
+def is_valid_url(url: str | None, may_have_port: bool = False) -> bool:
     """Validate that a URL is well-formed, uses HTTP(S), and does not resolve
     to a private/reserved IP address (DNS rebinding / SSRF)."""
-    parts = _url_host_and_scheme(url)
+    parts = _url_host_and_scheme(url, may_have_port)
     if not parts:
         return False
     return _hostname_is_public(parts[0])
