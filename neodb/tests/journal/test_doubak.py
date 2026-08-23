@@ -388,3 +388,78 @@ class TestDoubakProgress:
         response = client.get(reverse("users:user_task_status", args=[task.type]))
         assert response.status_code == 200
         assert '<progress value="2" max="2">' in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestImportDoubakView:
+    """The upload form, posted the way the browser posts it.
+
+    The form fields are named in a template and read by string in a view, with
+    nothing between them to catch a mismatch: a renamed field silently becomes
+    ``request.POST.get("import_mode", 0)`` → MERGE, so an OVERWRITE upload would
+    quietly do a merge instead. The field names below are therefore copied from
+    ``users/data.html``, not chosen here.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="doubakview@test.com", username="doubakview")
+
+    def upload(self, directory: str):
+        path = write_archive(directory, {"movie_mark.csv": (MARK_HEADING, [])})
+        return open(path, "rb")
+
+    def post(self, client, directory: str, **fields):
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with self.upload(directory) as f:
+            return client.post(reverse("users:import_doubak"), {"file": f, **fields})
+
+    def test_import_mode_reaches_the_task(self, client):
+        with TemporaryDirectory() as tmp:
+            response = self.post(client, tmp, import_mode=1, visibility=0)
+        task = DoubakImporter.latest_task(self.user)
+        assert task is not None
+        assert task.metadata["mode"] == DoubakImporter.OVERWRITE
+        assert task.overwrite
+        assert response.status_code == 302
+        assert response.url == reverse("users:user_task_status", args=[task.type])
+
+    def test_omitting_import_mode_merges(self, client):
+        # The view defaults the field rather than requiring it, so a form that
+        # stopped sending it would import as MERGE rather than fail loudly.
+        with TemporaryDirectory() as tmp:
+            self.post(client, tmp, visibility=0)
+        task = DoubakImporter.latest_task(self.user)
+        assert task.metadata["mode"] == DoubakImporter.MERGE
+
+    def test_visibility_reaches_the_task(self, client):
+        with TemporaryDirectory() as tmp:
+            self.post(client, tmp, import_mode=0, visibility=2)
+        assert DoubakImporter.latest_task(self.user).metadata["visibility"] == 2
+
+    def test_a_zip_without_a_recognised_csv_is_rejected(self, client):
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "other.zip")
+            with zipfile.ZipFile(path, "w") as zipref:
+                zipref.writestr("journal.ndjson", "{}")
+            with open(path, "rb") as f:
+                response = client.post(reverse("users:import_doubak"), {"file": f})
+        assert response.status_code == 400
+        # and no half-created task left behind
+        assert DoubakImporter.latest_task(self.user) is None
+
+    def test_get_redirects_instead_of_importing(self, client):
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(reverse("users:import_doubak"))
+        assert response.status_code == 302
+        assert response.url == reverse("users:data")
+        assert DoubakImporter.latest_task(self.user) is None
+
+    def test_anonymous_upload_is_refused(self, client):
+        with TemporaryDirectory() as tmp:
+            with self.upload(tmp) as f:
+                response = client.post(reverse("users:import_doubak"), {"file": f})
+        assert response.status_code == 302
+        assert reverse("users:import_doubak") not in response.url
+        assert DoubakImporter.latest_task(self.user) is None
