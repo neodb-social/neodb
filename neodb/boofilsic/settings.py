@@ -435,11 +435,34 @@ AUTHENTICATION_BACKENDS = [
 
 LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")
 
+
+def _hide_client_error_traceback(record: logging.LogRecord) -> bool:
+    """Keep the one-line record for a 4xx response, but drop its traceback.
+
+    Django logs PermissionDenied and BadRequest through log_response() with
+    exc_info set, so each client error prints a stack trace that tells no more
+    than the message. Records without a status_code, and 5xx, keep the trace.
+    """
+    if getattr(record, "status_code", 500) < 500:
+        record.exc_info = None
+        record.exc_text = None
+    return True
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "hide_client_error_traceback": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": _hide_client_error_traceback,
+        },
+    },
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
+        "console": {
+            "class": "logging.StreamHandler",
+            "filters": ["hide_client_error_traceback"],
+        },
         "null": {"class": "logging.NullHandler"},
     },
     "loggers": {
