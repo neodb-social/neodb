@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 22:51-0400\n"
+"POT-Creation-Date: 2026-08-23 15:40-0400\n"
 "PO-Revision-Date: 2026-08-09 06:32+0000\n"
 "Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
@@ -1786,7 +1786,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr "從收藏單中移除"
 
-#: catalog/templates/_verify_status.html:31
+#: catalog/templates/_verify_status.html:31 users/views/account.py:309
 #, fuzzy
 #| msgid "Verification Code"
 msgid "Verification failed"
@@ -1860,12 +1860,12 @@ msgid "Item has been marked by users."
 msgstr "條目已被用戶標記過"
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:92 common/views_manage.py:51
 msgid "Yes"
 msgstr "是"
 
 #: catalog/templates/catalog_delete.html:49
-#: catalog/templates/catalog_merge.html:93 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:93 common/views_manage.py:51
 msgid "No"
 msgstr "否"
 
@@ -1990,8 +1990,8 @@ msgid ""
 "Questions or issues with creator verification? Let the site moderators know."
 msgstr ""
 
-#: catalog/templates/discover.html:28 common/views_manage.py:144
-#: common/views_manage.py:352 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:28 common/views_manage.py:145
+#: common/views_manage.py:353 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr "發現"
 
@@ -2501,7 +2501,7 @@ msgstr ""
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: catalog/views/verify.py:164 common/utils.py:109 common/utils.py:150
+#: catalog/views/verify.py:164 common/utils.py:122 common/utils.py:163
 #: journal/views/article.py:186 journal/views/review.py:182
 #: users/views/actions.py:45 users/views/actions.py:131
 msgid "User not found"
@@ -4325,7 +4325,7 @@ msgstr "源代碼"
 msgid "Registration"
 msgstr "註冊失敗"
 
-#: common/templates/common/about.html:35 common/views_manage.py:490
+#: common/templates/common/about.html:35 common/views_manage.py:493
 #, fuzzy
 #| msgid "Mentioned Only"
 msgid "Invite Only"
@@ -4337,7 +4337,7 @@ msgstr "自己和提到的人"
 msgid "Open Registration"
 msgstr "註冊失敗"
 
-#: common/templates/common/about.html:40 common/views_manage.py:532
+#: common/templates/common/about.html:40 common/views_manage.py:556
 #, fuzzy
 #| msgid "Preferences"
 msgid "Preferred Languages"
@@ -4405,7 +4405,7 @@ msgstr ""
 msgid "Or type barcode / ISBN manually"
 msgstr ""
 
-#: common/templates/common/scan.html:60 common/views_manage.py:602
+#: common/templates/common/scan.html:60 common/views_manage.py:628
 #, fuzzy
 #| msgid "Search results"
 msgid "Search"
@@ -4479,840 +4479,864 @@ msgstr ""
 msgid "unavailable"
 msgstr ""
 
-#: common/utils.py:113 common/utils.py:154 users/views/actions.py:134
+#: common/utils.py:126 common/utils.py:167 users/views/actions.py:134
 msgid "User no longer exists"
 msgstr "用戶不存在了"
 
-#: common/utils.py:120 common/utils.py:122 common/utils.py:125
-#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:499
+#: common/utils.py:133 common/utils.py:135 common/utils.py:138
+#: common/utils.py:174 common/utils.py:178 journal/views/profile.py:499
 msgid "Access denied"
 msgstr "訪問被拒絕"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:204
+#: common/utils.py:141 common/utils.py:143 journal/views/article.py:204
 #: journal/views/profile.py:540 journal/views/review.py:200
 msgid "Login required"
 msgstr "登入後訪問"
 
-#: common/views_manage.py:143 common/views_manage.py:294
+#: common/views_manage.py:144 common/views_manage.py:295
 #, fuzzy
 #| msgid "reading"
 msgid "Branding"
 msgstr "在讀"
 
-#: common/views_manage.py:145
+#: common/views_manage.py:146
 #, fuzzy
 #| msgid "comments"
 msgid "Recommendations"
 msgstr "短評"
 
-#: common/views_manage.py:146
+#: common/views_manage.py:147
 #, fuzzy
 #| msgid "Accept"
 msgid "Access"
 msgstr "接受"
 
-#: common/views_manage.py:147 common/views_manage.py:597
+#: common/views_manage.py:148 common/views_manage.py:623
 #, fuzzy
 #| msgid "duration"
 msgid "Federation"
 msgstr "時長"
 
-#: common/views_manage.py:148
+#: common/views_manage.py:149
 msgid "Catalog"
 msgstr ""
 
-#: common/views_manage.py:149
+#: common/views_manage.py:150
 msgid "API Keys"
 msgstr ""
 
-#: common/views_manage.py:150
+#: common/views_manage.py:151
 #, fuzzy
 #| msgid "Download"
 msgid "Downloader"
 msgstr "下載"
 
-#: common/views_manage.py:151 common/views_manage.py:302
+#: common/views_manage.py:152 common/views_manage.py:303
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr ""
 
-#: common/views_manage.py:201
+#: common/views_manage.py:202
 #, fuzzy
 #| msgid "Invalid user."
 msgid "Invalid value."
 msgstr "無效用戶。"
 
-#: common/views_manage.py:205
+#: common/views_manage.py:206
 msgid "Invalid configuration. Please check your input."
 msgstr ""
 
-#: common/views_manage.py:210
+#: common/views_manage.py:211
 #, fuzzy
 #| msgid "Settings saved."
 msgid "Settings have been saved."
 msgstr "設定已儲存"
 
-#: common/views_manage.py:230
+#: common/views_manage.py:231
 msgid "Site Name"
 msgstr ""
 
-#: common/views_manage.py:233
+#: common/views_manage.py:234
 #, fuzzy
 #| msgid "Title and Description"
 msgid "Site Description"
 msgstr "標題和描述"
 
-#: common/views_manage.py:234
+#: common/views_manage.py:235
 msgid "Short description shown in metadata and about page."
 msgstr ""
 
-#: common/views_manage.py:237
+#: common/views_manage.py:238
 msgid "Site Logo URL"
 msgstr ""
 
-#: common/views_manage.py:238
+#: common/views_manage.py:239
 msgid "URL path to the site logo image."
 msgstr ""
 
-#: common/views_manage.py:241
+#: common/views_manage.py:242
 msgid "Site Icon URL"
 msgstr ""
 
-#: common/views_manage.py:242
+#: common/views_manage.py:243
 msgid "URL path to the site icon/favicon."
 msgstr ""
 
-#: common/views_manage.py:245
+#: common/views_manage.py:246
 msgid "Default User Avatar URL"
 msgstr ""
 
-#: common/views_manage.py:246
+#: common/views_manage.py:247
 msgid "URL path to the default user avatar."
 msgstr ""
 
-#: common/views_manage.py:249
+#: common/views_manage.py:250
 msgid "Site Color Theme"
 msgstr ""
 
-#: common/views_manage.py:250
+#: common/views_manage.py:251
 msgid "PicoCSS color theme."
 msgstr ""
 
-#: common/views_manage.py:275
+#: common/views_manage.py:276
 #, fuzzy
 #| msgid "Production"
 msgid "Site Introduction"
 msgstr "上演"
 
-#: common/views_manage.py:276
+#: common/views_manage.py:277
 msgid "URL path for the intro/welcome sidebar page."
 msgstr ""
 
-#: common/views_manage.py:279
+#: common/views_manage.py:280
 msgid "Custom HTML Head"
 msgstr ""
 
-#: common/views_manage.py:280
+#: common/views_manage.py:281
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr ""
 
-#: common/views_manage.py:284
+#: common/views_manage.py:285
 msgid "Footer Links"
 msgstr ""
 
-#: common/views_manage.py:285
+#: common/views_manage.py:286
 msgid "Link title mapped to URL."
 msgstr ""
 
-#: common/views_manage.py:314
+#: common/views_manage.py:315
 msgid "Minimum Marks for Discover"
 msgstr ""
 
-#: common/views_manage.py:316
+#: common/views_manage.py:317
 msgid "Number of marks required for an item to appear in discover."
 msgstr ""
 
-#: common/views_manage.py:321
+#: common/views_manage.py:322
 msgid "Update Interval (minutes)"
 msgstr ""
 
-#: common/views_manage.py:322
+#: common/views_manage.py:323
 msgid "How often to refresh the popular items list."
 msgstr ""
 
-#: common/views_manage.py:326
+#: common/views_manage.py:327
 #, fuzzy
 #| msgid "filter by rating range"
 msgid "Filter by Preferred Languages"
 msgstr "篩選評分範圍"
 
-#: common/views_manage.py:327
+#: common/views_manage.py:328
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
-#: common/views_manage.py:330
+#: common/views_manage.py:331
 #, fuzzy
 #| msgid "show all"
 msgid "Show Local Only"
 msgstr "顯示全部"
 
-#: common/views_manage.py:332
+#: common/views_manage.py:333
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
-#: common/views_manage.py:336
+#: common/views_manage.py:337
 #, fuzzy
 #| msgid "Popular Tags"
 msgid "Show Popular Posts"
 msgstr "熱門標籤"
 
-#: common/views_manage.py:337
+#: common/views_manage.py:338
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
-#: common/views_manage.py:340
+#: common/views_manage.py:341
 #, fuzzy
 #| msgid "Popular Tags"
 msgid "Show Popular Tags"
 msgstr "熱門標籤"
 
-#: common/views_manage.py:341
+#: common/views_manage.py:342
 msgid "Show popular public tags on the discover page."
 msgstr ""
 
-#: common/views_manage.py:344
+#: common/views_manage.py:345
 #, fuzzy
 #| msgid "Spotify Podcast"
 msgid "Show Verified Podcasts"
 msgstr "Spotify播客"
 
-#: common/views_manage.py:346
+#: common/views_manage.py:347
 msgid ""
 "Show a shelf of recent episodes from podcasts with a verified creator on the "
 "discover page."
 msgstr ""
 
-#: common/views_manage.py:385
+#: common/views_manage.py:386
 msgid "Enable Recommendations"
 msgstr ""
 
-#: common/views_manage.py:387
+#: common/views_manage.py:388
 msgid ""
 "Master switch. When off, all recommendation surfaces are hidden and the cron "
 "jobs are not scheduled."
 msgstr ""
 
-#: common/views_manage.py:392
+#: common/views_manage.py:393
 msgid "Source Item Mark Threshold"
 msgstr ""
 
-#: common/views_manage.py:394
+#: common/views_manage.py:395
 msgid ""
 "Minimum public marks an item needs before similarity rows are built for it."
 msgstr ""
 
-#: common/views_manage.py:400
+#: common/views_manage.py:401
 msgid "Target Item Mark Threshold"
 msgstr ""
 
-#: common/views_manage.py:402
+#: common/views_manage.py:403
 msgid ""
 "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr ""
 
-#: common/views_manage.py:408
+#: common/views_manage.py:409
 msgid "Top-K Similar Items per Source"
 msgstr ""
 
-#: common/views_manage.py:409
+#: common/views_manage.py:410
 msgid "Number of similar items stored per source item."
 msgstr ""
 
-#: common/views_manage.py:413
+#: common/views_manage.py:414
 msgid "Top-N Recommendations per User"
 msgstr ""
 
-#: common/views_manage.py:414
+#: common/views_manage.py:415
 msgid "Number of personalised rows stored per user."
 msgstr ""
 
-#: common/views_manage.py:418
+#: common/views_manage.py:419
 msgid "Dampen Heavy Shelvers"
 msgstr ""
 
-#: common/views_manage.py:420
+#: common/views_manage.py:421
 msgid ""
 "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-"
 "shelvers in similarity scoring."
 msgstr ""
 
-#: common/views_manage.py:425
+#: common/views_manage.py:426
 msgid "Per-User Mark Cap (training)"
 msgstr ""
 
-#: common/views_manage.py:427
+#: common/views_manage.py:428
 msgid ""
 "Truncate each user's contribution to their N most recent marks when building "
 "the similarity matrix."
 msgstr ""
 
-#: common/views_manage.py:433
+#: common/views_manage.py:434
 msgid "Active-User Window (days)"
 msgstr ""
 
-#: common/views_manage.py:435
+#: common/views_manage.py:436
 msgid ""
 "Refresh personalised recommendations for users with at least one public mark "
 "in the last N days."
 msgstr ""
 
-#: common/views_manage.py:441
+#: common/views_manage.py:442
 msgid "Per-User Seed Cap (serving)"
 msgstr ""
 
-#: common/views_manage.py:443
+#: common/views_manage.py:444
 msgid ""
 "Number of recent marks used as seeds when scoring personalised "
 "recommendations for one user."
 msgstr ""
 
-#: common/views_manage.py:449
+#: common/views_manage.py:450
 msgid "Lazy Refresh TTL (days)"
 msgstr ""
 
-#: common/views_manage.py:451
+#: common/views_manage.py:452
 msgid ""
 "How long cached on-demand recommendations are valid before the next request "
 "triggers a refresh."
 msgstr ""
 
-#: common/views_manage.py:457
+#: common/views_manage.py:458
 msgid "Circles Window (days)"
 msgstr ""
 
-#: common/views_manage.py:459
+#: common/views_manage.py:460
 msgid ""
 "Look back N days when finding items recently marked by people the viewer "
 "follows."
 msgstr ""
 
-#: common/views_manage.py:466
+#: common/views_manage.py:467
 msgid "Master Switch"
 msgstr ""
 
-#: common/views_manage.py:469
+#: common/views_manage.py:470
 msgid "Similarity Builder"
 msgstr ""
 
-#: common/views_manage.py:476
+#: common/views_manage.py:477
 #, fuzzy
 #| msgid "Personal"
 msgid "Personalisation"
 msgstr "個人"
 
-#: common/views_manage.py:492
+#: common/views_manage.py:495
 msgid ""
 "Require an invite token to register. Invite tokens can be generated with "
 "neodb-manage invite --create."
 msgstr ""
 
-#: common/views_manage.py:497
+#: common/views_manage.py:500
 msgid "Enable Local-Only Posting"
 msgstr ""
 
-#: common/views_manage.py:498
+#: common/views_manage.py:501
 msgid "Allow users to create posts visible only to local users."
 msgstr ""
 
-#: common/views_manage.py:501
+#: common/views_manage.py:504
 msgid "Mastodon Login Whitelist"
 msgstr ""
 
-#: common/views_manage.py:502
+#: common/views_manage.py:505
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
-#: common/views_manage.py:505
+#: common/views_manage.py:508
+#, fuzzy
+#| msgid "Registration failed"
+msgid "Registration Captcha Items"
+msgstr "註冊失敗"
+
+#: common/views_manage.py:512
+msgid ""
+"Number of item covers a new user must sort into two category rows before "
+"choosing a username. 0 disables the captcha; 5-6 is recommended. The covers "
+"carry no title text, so this cannot be solved with a screen reader: if you "
+"enable it, keep another way in, such as an invite link."
+msgstr ""
+
+#: common/views_manage.py:520
+msgid "Registration Captcha Minimum Marks"
+msgstr ""
+
+#: common/views_manage.py:523
+msgid ""
+"Marks an item needs before the captcha treats it as well known enough to be "
+"recognizable. Categories with too few such items fall back to any item."
+msgstr ""
+
+#: common/views_manage.py:529
 msgid "Enable Mastodon Login"
 msgstr ""
 
-#: common/views_manage.py:508
+#: common/views_manage.py:532
 #, fuzzy
 #| msgid "Bluesky Login ID"
 msgid "Enable Bluesky Login"
 msgstr "Bluesky 登入名"
 
-#: common/views_manage.py:511
+#: common/views_manage.py:535
 msgid "Enable Threads Login"
 msgstr ""
 
-#: common/views_manage.py:514
+#: common/views_manage.py:538
 #, fuzzy
 #| msgid "Email"
 msgid "Email URL"
 msgstr "電子郵件"
 
-#: common/views_manage.py:516
+#: common/views_manage.py:540
 msgid "Email backend URL for login codes, such as an SMTP or Anymail URL."
 msgstr ""
 
-#: common/views_manage.py:520
+#: common/views_manage.py:544
 #, fuzzy
 #| msgid "Email"
 msgid "Email From"
 msgstr "電子郵件"
 
-#: common/views_manage.py:521
+#: common/views_manage.py:545
 msgid "Sender name and address for outgoing email."
 msgstr ""
 
-#: common/views_manage.py:524
+#: common/views_manage.py:548
 #, fuzzy
 #| msgid "Language"
 msgid "Default Language"
 msgstr "語言"
 
-#: common/views_manage.py:527
+#: common/views_manage.py:551
 msgid ""
 "Interface language for visitors and for users who have not chosen one "
 "themselves."
 msgstr ""
 
-#: common/views_manage.py:534
+#: common/views_manage.py:558
 msgid ""
 "Language codes, one per line (e.g. en, zh, ja). First language is the "
 "default."
 msgstr ""
 
-#: common/views_manage.py:540
+#: common/views_manage.py:564
 msgid "Access Control"
 msgstr ""
 
-#: common/views_manage.py:545
+#: common/views_manage.py:571
 #, fuzzy
 #| msgid "Import Method"
 msgid "Login Methods"
 msgstr "匯入方式"
 
-#: common/views_manage.py:550 mastodon/models/common.py:28
+#: common/views_manage.py:576 mastodon/models/common.py:28
 #: users/templates/users/account.html:45 users/templates/users/account.html:55
 #: users/templates/users/login.html:76
 msgid "Email"
 msgstr "電子郵件"
 
-#: common/views_manage.py:554
+#: common/views_manage.py:580
 msgid "Localization"
 msgstr ""
 
-#: common/views_manage.py:565
+#: common/views_manage.py:591
 msgid "Disable Default Relay"
 msgstr ""
 
-#: common/views_manage.py:567
+#: common/views_manage.py:593
 msgid ""
 "Disable relay.neodb.net federation for sharing public ratings across "
 "instances."
 msgstr ""
 
-#: common/views_manage.py:572
+#: common/views_manage.py:598
 msgid "Fanout Limit (days)"
 msgstr ""
 
-#: common/views_manage.py:573
+#: common/views_manage.py:599
 msgid "Posts older than this many days will not be fanned out."
 msgstr ""
 
-#: common/views_manage.py:577
+#: common/views_manage.py:603
 msgid "Remote Prune Horizon (days)"
 msgstr ""
 
-#: common/views_manage.py:579
+#: common/views_manage.py:605
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
-#: common/views_manage.py:584
+#: common/views_manage.py:610
 #, fuzzy
 #| msgid "Search results"
 msgid "Search Sites"
 msgstr "搜索結果"
 
-#: common/views_manage.py:585
+#: common/views_manage.py:611
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:588
+#: common/views_manage.py:614
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:589
+#: common/views_manage.py:615
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:592
+#: common/views_manage.py:618
 #, fuzzy
 #| msgid "Add tv series"
 msgid "Hidden Categories"
 msgstr "添加電視劇集"
 
-#: common/views_manage.py:593
+#: common/views_manage.py:619
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:614
+#: common/views_manage.py:640
 #, fuzzy
 #| msgid "Spotify Album"
 msgid "Spotify API Key"
 msgstr "Spotify專輯"
 
-#: common/views_manage.py:615
+#: common/views_manage.py:641
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:618
+#: common/views_manage.py:644
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:619
+#: common/views_manage.py:645
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:622
+#: common/views_manage.py:648
 #, fuzzy
 #| msgid "Google Books"
 msgid "Google Books API Key"
 msgstr "谷歌圖書"
 
-#: common/views_manage.py:623
+#: common/views_manage.py:649
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:626
+#: common/views_manage.py:652
 #, fuzzy
 #| msgid "Discogs"
 msgid "Discogs API Key"
 msgstr "Discogs"
 
-#: common/views_manage.py:628
+#: common/views_manage.py:654
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:632
+#: common/views_manage.py:658
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:659
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:636
+#: common/views_manage.py:662
 #, fuzzy
 #| msgid "client secret"
 msgid "IGDB Client Secret"
 msgstr "實例應用Client Secret"
 
-#: common/views_manage.py:639
+#: common/views_manage.py:665
 msgid "BoardGameGeek API Token"
 msgstr ""
 
-#: common/views_manage.py:641
+#: common/views_manage.py:667
 msgid ""
 "Bearer token from https://boardgamegeek.com/applications (see https://"
 "boardgamegeek.com/using_the_xml_api#toc9)."
 msgstr ""
 
-#: common/views_manage.py:646 users/templates/users/steam_import.html:26
+#: common/views_manage.py:672 users/templates/users/steam_import.html:26
 #, fuzzy
 #| msgid "Steam Game"
 msgid "Steam API Key"
 msgstr "Steam遊戲"
 
-#: common/views_manage.py:648
+#: common/views_manage.py:674
 msgid ""
 "https://steamcommunity.com/dev - fallback key for Steam importer. Users can "
 "provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:653
+#: common/views_manage.py:679
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:654
+#: common/views_manage.py:680
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:657
+#: common/views_manage.py:683
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:660
+#: common/views_manage.py:686
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:663
+#: common/views_manage.py:689
 #, fuzzy
 #| msgid "Threads"
 msgid "Threads App ID"
 msgstr "Threads"
 
-#: common/views_manage.py:664
+#: common/views_manage.py:690
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:667
+#: common/views_manage.py:693
 #, fuzzy
 #| msgid "Threads.net"
 msgid "Threads App Secret"
 msgstr "Threads.net"
 
-#: common/views_manage.py:670
+#: common/views_manage.py:696
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:672
+#: common/views_manage.py:698
 msgid ""
 "Webhook URLs keyed by channel (default, report, audit, suggest, system). All "
 "channels must be Discord forum or media channels (thread mode) because "
 "notifications are posted as threads."
 msgstr ""
 
-#: common/views_manage.py:689
+#: common/views_manage.py:715
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:699
+#: common/views_manage.py:725
 #, fuzzy
 #| msgid "translator"
 msgid "Translation"
 msgstr "譯者"
 
-#: common/views_manage.py:704
+#: common/views_manage.py:730
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:708 social/templates/feed.html:27
+#: common/views_manage.py:734 social/templates/feed.html:27
 #: social/templates/notification.html:35
 msgid "Notifications"
 msgstr "通知"
 
-#: common/views_manage.py:718
+#: common/views_manage.py:744
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:719
+#: common/views_manage.py:745
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:722
+#: common/views_manage.py:748
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:723
+#: common/views_manage.py:749
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:726
+#: common/views_manage.py:752
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:729
+#: common/views_manage.py:755
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:732
+#: common/views_manage.py:758
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:735
+#: common/views_manage.py:761
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:738
+#: common/views_manage.py:764
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:741
+#: common/views_manage.py:767
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:742
+#: common/views_manage.py:768
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:745
+#: common/views_manage.py:771
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:749
+#: common/views_manage.py:775
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:753
+#: common/views_manage.py:779
 #, fuzzy
 #| msgid "series"
 msgid "Retries"
 msgstr "叢書"
 
-#: common/views_manage.py:758
+#: common/views_manage.py:784
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:763
+#: common/views_manage.py:789
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:770
+#: common/views_manage.py:796
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:782
+#: common/views_manage.py:808
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:783
+#: common/views_manage.py:809
 #, fuzzy
 #| msgid "site domain name"
 msgid "One domain per line."
 msgstr "站點域名"
 
-#: common/views_manage.py:786
+#: common/views_manage.py:812
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:787
+#: common/views_manage.py:813
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:790
+#: common/views_manage.py:816
 msgid "Mastodon API Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:792
+#: common/views_manage.py:818
 msgid ""
 "Timeout for requests to Mastodon instances and remote fediverse servers."
 msgstr ""
 
-#: common/views_manage.py:798
+#: common/views_manage.py:824
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:799
+#: common/views_manage.py:825
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:802
+#: common/views_manage.py:828
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:803
+#: common/views_manage.py:829
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:813
+#: common/views_manage.py:839
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:815
+#: common/views_manage.py:841
 msgid ""
 "Delete import/export tasks and their files after this many days. Set to 0 to "
 "disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:821
+#: common/views_manage.py:847
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:823
+#: common/views_manage.py:849
 msgid ""
 "Post-migration job keys to skip, one per line (e.g. normalize_genre). "
 "Checked by the worker at dequeue time; skipped jobs log a warning and notify "
 "the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:829
+#: common/views_manage.py:855
 msgid "ATProto OAuth Client Key"
 msgstr ""
 
-#: common/views_manage.py:831
+#: common/views_manage.py:857
 msgid ""
 "Private key (JWK) identifying this site to ATProto authorization servers. "
 "Auto-generated on first Bluesky login; clear to regenerate."
 msgstr ""
 
-#: common/views_manage.py:838
+#: common/views_manage.py:864
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:841
+#: common/views_manage.py:867
 #, fuzzy
 #| msgid "optional"
 msgid "Operational"
 msgstr "可選"
 
-#: common/views_manage.py:857
+#: common/views_manage.py:883
 msgid "Movie Genres"
 msgstr ""
 
-#: common/views_manage.py:859
+#: common/views_manage.py:885
 msgid ""
 "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to "
 "use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:864
+#: common/views_manage.py:890
 msgid "TV Genres"
 msgstr ""
 
-#: common/views_manage.py:866
+#: common/views_manage.py:892
 msgid ""
 "Genre codes offered in the TV edit dropdown, one per line. Leave empty to "
 "use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:871
+#: common/views_manage.py:897
 msgid "Music Genres"
 msgstr ""
 
-#: common/views_manage.py:873
+#: common/views_manage.py:899
 msgid ""
 "Genre codes offered in the Music edit dropdown, one per line. Leave empty to "
 "use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:878
+#: common/views_manage.py:904
 msgid "Game Genres"
 msgstr ""
 
-#: common/views_manage.py:880
+#: common/views_manage.py:906
 msgid ""
 "Genre codes offered in the Game edit dropdown, one per line. Leave empty to "
 "use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:885
+#: common/views_manage.py:911
 #, fuzzy
 #| msgid "Podcast"
 msgid "Podcast Genres"
 msgstr "播客"
 
-#: common/views_manage.py:887
+#: common/views_manage.py:913
 msgid ""
 "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty "
 "to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:892
+#: common/views_manage.py:918
 #, fuzzy
 #| msgid "Performance"
 msgid "Performance Genres"
 msgstr "演出"
 
-#: common/views_manage.py:894
+#: common/views_manage.py:920
 msgid ""
 "Genre codes offered in the Performance edit dropdown, one per line. Leave "
 "empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:900
+#: common/views_manage.py:926
 msgid "Genres by Category"
 msgstr ""
 
@@ -6138,7 +6162,7 @@ msgstr "正在關注的用戶"
 msgid "started following {item}"
 msgstr "在玩 {item}"
 
-#: journal/models/shelf.py:907
+#: journal/models/shelf.py:921
 msgid "removed mark"
 msgstr "移除標記"
 
@@ -7112,8 +7136,10 @@ msgstr ""
 "\n"
 "{code}"
 
-#: mastodon/models/email.py:74 users/templates/users/login.html:20
-#: users/templates/users/register.html:9 users/templates/users/welcome.html:10
+#: mastodon/models/email.py:74 users/templates/users/captcha.html:13
+#: users/templates/users/captcha_solved.html:9
+#: users/templates/users/login.html:20 users/templates/users/register.html:9
+#: users/templates/users/welcome.html:10
 msgid "Register"
 msgstr "註冊"
 
@@ -7192,12 +7218,12 @@ msgstr "匯出文件已失效，請重新匯出"
 
 #: mastodon/views/bluesky.py:34 mastodon/views/bluesky.py:40
 #: mastodon/views/bluesky.py:64 mastodon/views/bluesky.py:72
-#: mastodon/views/bluesky.py:78 mastodon/views/common.py:40
+#: mastodon/views/bluesky.py:78 mastodon/views/common.py:36
 #: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:70
 #: mastodon/views/mastodon.py:77 mastodon/views/mastodon.py:87
 #: mastodon/views/mastodon.py:94 mastodon/views/threads.py:55
 #: mastodon/views/threads.py:63 mastodon/views/threads.py:69
-#: users/views/account.py:192
+#: users/views/account.py:254 users/views/account.py:373
 msgid "Authentication failed"
 msgstr "認證失敗"
 
@@ -7229,51 +7255,51 @@ msgstr "聯邦實例返回信息無效"
 msgid "Invalid account data from Bluesky."
 msgstr "Bluesky返回了無效的帳號數據。"
 
-#: mastodon/views/common.py:40 mastodon/views/common.py:105
+#: mastodon/views/common.py:36 mastodon/views/common.py:107
 msgid "Invalid user."
 msgstr "無效用戶。"
 
-#: mastodon/views/common.py:56 users/views/account.py:228
+#: mastodon/views/common.py:52 users/views/account.py:414
 msgid "Registration failed"
 msgstr "註冊失敗"
 
-#: mastodon/views/common.py:56
+#: mastodon/views/common.py:52
 msgid "User already logged in."
 msgstr "用戶已經登入了。"
 
-#: mastodon/views/common.py:68
+#: mastodon/views/common.py:70
 #, python-brace-format
 msgid "Continue login as {handle}."
 msgstr "繼續以 {handle} 登入。"
 
-#: mastodon/views/common.py:74
+#: mastodon/views/common.py:76
 msgid "Unable to update login information"
 msgstr "無法更新登入信息"
 
-#: mastodon/views/common.py:75
+#: mastodon/views/common.py:77
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
 msgstr "身份 {handle}  已被其它帳號使用。"
 
-#: mastodon/views/common.py:91
+#: mastodon/views/common.py:93
 #, python-brace-format
 msgid "Login information updated as {handle}."
 msgstr "登入信息已更新爲{handle}。"
 
-#: mastodon/views/common.py:101 mastodon/views/common.py:105
-#: mastodon/views/common.py:114
+#: mastodon/views/common.py:103 mastodon/views/common.py:107
+#: mastodon/views/common.py:116
 msgid "Disconnect identity failed"
 msgstr "未能取消身份關聯"
 
-#: mastodon/views/common.py:101
+#: mastodon/views/common.py:103
 msgid "Identity not found."
 msgstr "身份未找到"
 
-#: mastodon/views/common.py:115
+#: mastodon/views/common.py:117
 msgid "You cannot disconnect last login identity."
 msgstr "無法取消唯一的登入用身份。"
 
-#: mastodon/views/common.py:124
+#: mastodon/views/common.py:126
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
 msgstr "{handle} 的登入信息已移除。"
@@ -7700,6 +7726,36 @@ msgstr ""
 #: social/templates/single_post.html:29
 msgid "Poll"
 msgstr ""
+
+#: takahe/models.py:453
+msgid "Display Name"
+msgstr "暱稱"
+
+#: takahe/models.py:455
+msgid "Bio"
+msgstr "簡介"
+
+#: takahe/models.py:457
+msgid "Manually approve new followers"
+msgstr "手工審覈關注者"
+
+#: takahe/models.py:461
+#, fuzzy
+#| msgid "Include profile and posts in discovery"
+msgid "Include profile, marks and posts in discovery"
+msgstr "允許個人資料和帖文包含在發現中"
+
+#: takahe/models.py:464
+msgid "Include posts in search results"
+msgstr "允許個人帖文包含在搜索結果中"
+
+#: takahe/models.py:482
+msgid "Profile picture"
+msgstr "頭像"
+
+#: takahe/models.py:489
+msgid "Header picture"
+msgstr "背景圖片"
 
 #: users/models/task.py:22
 msgid "Started"
@@ -8418,6 +8474,70 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
+#: users/templates/users/captcha.html:4
+msgid "Sort every cover to continue."
+msgstr ""
+
+#: users/templates/users/captcha.html:5
+msgid "All sorted. Select Confirm."
+msgstr ""
+
+#: users/templates/users/captcha.html:6
+msgid "Cover selected. Now choose a row."
+msgstr ""
+
+#: users/templates/users/captcha.html:7
+msgid "Time is up. Reload to try again."
+msgstr ""
+
+#: users/templates/users/captcha.html:26
+msgid "One quick check"
+msgstr ""
+
+#: users/templates/users/captcha.html:28
+msgid ""
+"Put every cover into the row it belongs to. Drag it, or select a cover and "
+"then select a row."
+msgstr ""
+
+#: users/templates/users/captcha.html:41 users/templates/users/captcha.html:43
+#, fuzzy
+#| msgid "cover"
+msgid "Item cover"
+msgstr "封面"
+
+#: users/templates/users/captcha.html:59
+#, python-format
+msgid "Move selected cover to %(label)s"
+msgstr ""
+
+#: users/templates/users/captcha.html:77
+#, fuzzy
+#| msgid "Import"
+msgid "Confirm"
+msgstr "匯入"
+
+#: users/templates/users/captcha.html:84
+#, python-format
+msgid "Show me another set (%(counter)s left)"
+msgid_plural "Show me another set (%(counter)s left)"
+msgstr[0] ""
+
+#: users/templates/users/captcha_solved.html:30
+msgid "Nicely sorted"
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:31
+msgid "That is all we needed. Let's get you a username."
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:34
+#: users/templates/users/login.html:63
+#: users/templates/users/verify_email.html:25
+#: users/templates/users/welcome.html:51
+msgid "Continue"
+msgstr "繼續"
+
 #: users/templates/users/crossposts.html:19
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr ""
@@ -8738,12 +8858,6 @@ msgstr "登入"
 #: users/templates/users/login.html:58
 msgid "logo"
 msgstr ""
-
-#: users/templates/users/login.html:63
-#: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:51
-msgid "Continue"
-msgstr "繼續"
 
 #: users/templates/users/login.html:127
 msgid ""
@@ -9493,31 +9607,56 @@ msgstr ""
 msgid "Passkey created"
 msgstr ""
 
-#: users/views/account.py:122
+#: users/views/account.py:124
 msgid "This username is already in use."
 msgstr "用戶名已被使用"
 
-#: users/views/account.py:133
+#: users/views/account.py:135
 msgid "This email address is already in use."
 msgstr "此電子郵件地址已被使用"
 
-#: users/views/account.py:193
+#: users/views/account.py:255 users/views/account.py:374
 msgid "Registration is for invitation only"
 msgstr "本站僅限邀請註冊"
 
-#: users/views/account.py:229
+#: users/views/account.py:266 users/views/account.py:338
+#, fuzzy
+#| msgid "Timestamp"
+msgid "Time is up"
+msgstr "時間戳"
+
+#: users/views/account.py:267 users/views/account.py:310
+#: users/views/account.py:339
+msgid "Please log in again to continue registration."
+msgstr ""
+
+#: users/views/account.py:313
+msgid "That is not quite right. Here is a new set."
+msgstr ""
+
+#: users/views/account.py:325
+msgid "Too many attempts"
+msgstr ""
+
+#: users/views/account.py:326
+#, fuzzy
+#| msgid "System busy, please try again in a minute."
+msgid "Please try again later."
+msgstr "系統繁忙，請稍等幾秒鐘再搜索。"
+
+#: users/views/account.py:415
 msgid "Username already taken. Please try again."
 msgstr ""
 
-#: users/views/account.py:259
+#: users/views/account.py:445
 msgid "Valid username required"
 msgstr "請輸入有效的用戶名"
 
-#: users/views/account.py:337
+#: users/views/account.py:526
 msgid "Account is being deleted."
 msgstr "帳號刪除進行中。"
 
-#: users/views/account.py:340
+#: users/views/account.py:529
 msgid "Account mismatch."
 msgstr "帳號資訊不符合。"
 
@@ -9710,29 +9849,6 @@ msgstr "用戶不存在"
 #| msgid "Login required"
 msgid "Name is required"
 msgstr "登入後訪問"
-
-#~ msgid "Display Name"
-#~ msgstr "暱稱"
-
-#~ msgid "Bio"
-#~ msgstr "簡介"
-
-#~ msgid "Manually approve new followers"
-#~ msgstr "手工審覈關注者"
-
-#, fuzzy
-#~| msgid "Include profile and posts in discovery"
-#~ msgid "Include profile, marks and posts in discovery"
-#~ msgstr "允許個人資料和帖文包含在發現中"
-
-#~ msgid "Include posts in search results"
-#~ msgstr "允許個人帖文包含在搜索結果中"
-
-#~ msgid "Profile picture"
-#~ msgstr "頭像"
-
-#~ msgid "Header picture"
-#~ msgstr "背景圖片"
 
 #~ msgid "FanFic"
 #~ msgstr "網文"

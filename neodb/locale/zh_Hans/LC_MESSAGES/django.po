@@ -8,8 +8,10 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-23 15:40-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
-"Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
-"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
+"Last-Translator: reducedradius "
+"<137701630+flytothehighest@users.noreply.github.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/neodb/neodb/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1064,8 +1066,12 @@ msgid "region"
 msgstr "地区"
 
 #: catalog/templates/_fetch_failed.html:4
-msgid "Unable to fetch from the link, please check again. Some sites may require login for certain links, please manually create them here."
-msgstr "无法加载条目，请确认链接正确。部分网站可能删除条目或隐藏条目为仅登录可见，欢迎在本站手工添加这些条目。"
+msgid ""
+"Unable to fetch from the link, please check again. Some sites may require "
+"login for certain links, please manually create them here."
+msgstr ""
+"无法加载条目，请确认链接正确。部分网站可能删除条目或隐藏条目为仅登录可见，欢"
+"迎在本站手工添加这些条目。"
 
 #: catalog/templates/_item_card_metadata_album.html:7
 #: catalog/templates/_item_card_metadata_edition.html:7
@@ -1372,16 +1378,24 @@ msgid "Fetch all"
 msgstr "批量获取"
 
 #: catalog/templates/_sidebar_edit.html:172
-msgid "Due to differences in how Douban, IMDB, and TMDB handle season data, a small number of TV shows and animations may not return correct results. Please manually verify and clean up after updating."
-msgstr "因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更新后请手工确认和清理。"
+msgid ""
+"Due to differences in how Douban, IMDB, and TMDB handle season data, a small "
+"number of TV shows and animations may not return correct results. Please "
+"manually verify and clean up after updating."
+msgstr ""
+"因豆瓣/IMDB/TMDB之间对分季处理的差异，少量剧集和动画可能无法返回正确结果，更"
+"新后请手工确认和清理。"
 
 #: catalog/templates/_sidebar_edit.html:173
 msgid "Up to 250 episodes will be fetched for a season."
 msgstr "每季最多获取 250 集。"
 
 #: catalog/templates/_sidebar_edit.html:176
-msgid "To fetch all episodes, season numbers and IMDB information are required. If filling this out is inconvenient, you can also manually create sub-entries."
-msgstr "批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。"
+msgid ""
+"To fetch all episodes, season numbers and IMDB information are required. If "
+"filling this out is inconvenient, you can also manually create sub-entries."
+msgstr ""
+"批量获取单集子条目需要本季序号和IMDB信息，不便填写也可以手工创建子条目。"
 
 #: catalog/templates/_sidebar_edit.html:182
 #: catalog/templates/_sidebar_edit.html:194
@@ -1506,7 +1520,8 @@ msgid "other"
 msgstr "其它"
 
 #: catalog/templates/_sidebar_edit.html:357
-msgid "To suggest merging or association, please include the URL of the target item"
+msgid ""
+"To suggest merging or association, please include the URL of the target item"
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
 #: catalog/templates/_sidebar_edit.html:358
@@ -1515,8 +1530,20 @@ msgid "submit"
 msgstr "提交"
 
 #: catalog/templates/_sidebar_edit.html:359
-msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
-msgstr "本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
+msgid ""
+"As a user of this community, you may edit some metadata of items on this "
+"site. If you are unsure whether your edits are appropriate or are unable to "
+"make a certain change, you can make suggestions here. Moderators will "
+"consider each suggestion, although there is no guarantee that they will "
+"always be fully adopted; suggestions may also be viewed or discussed by "
+"other community users. If you have suggestions that are not related to a "
+"specific item, please contact us. Thank you for your support and "
+"contribution."
+msgstr ""
+"本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当"
+"或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建"
+"议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体"
+"条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
 
 #: catalog/templates/_sidebar_search.html:5
 #: journal/templates/_sidebar_search_journal.html:4
@@ -1613,7 +1640,9 @@ msgid "matched"
 msgstr "匹配"
 
 #: catalog/templates/_verify_status.html:21
-msgid "Sure to remove your creator verification? Anyone will be able to edit this item again."
+msgid ""
+"Sure to remove your creator verification? Anyone will be able to edit this "
+"item again."
 msgstr "确定移除你的创作者验证吗？移除后任何人都可以再次编辑此条目。"
 
 #: catalog/templates/_verify_status.html:26
@@ -1729,15 +1758,21 @@ msgid "This operation cannot be undone. Sure to merge?"
 msgstr "本操作不可撤销。确认合并吗？"
 
 #: catalog/templates/catalog_verify.html:21
-msgid "If you are a creator of this podcast, you may verify the ownership, so that only you (and other verified creators) can edit its metadata on this site."
-msgstr "如果你是此播客的创作者，可以验证所有权；验证后只有你（以及其他已验证创作者）能在本站编辑其元数据。"
+msgid ""
+"If you are a creator of this podcast, you may verify the ownership, so that "
+"only you (and other verified creators) can edit its metadata on this site."
+msgstr ""
+"如果你是此播客的创作者，可以验证所有权；验证后只有你（以及其他已验证创作者）"
+"能在本站编辑其元数据。"
 
 #: catalog/templates/catalog_verify.html:22
 msgid "Your recent episodes may also occasionally be featured in discovery."
 msgstr "你最近的单集有时也可能在发现页中获得推荐。"
 
 #: catalog/templates/catalog_verify.html:24
-msgid "To verify, prove you control one of the following identifiers of your account (click to copy):"
+msgid ""
+"To verify, prove you control one of the following identifiers of your "
+"account (click to copy):"
 msgstr "要进行验证，请证明你拥有以下任一账号标识（点击可复制）："
 
 #: catalog/templates/catalog_verify.html:30
@@ -1748,11 +1783,22 @@ msgid "copied"
 msgstr "已复制"
 
 #: catalog/templates/catalog_verify.html:35
-msgid "You can prove this in a few ways, then start verification: add one of the identifiers above to the podcast feed's description; add a <code>rel=\"me\"</code> link back to one of them on the web page your feed links to (the link verification Mastodon uses); or point your feed's website at your Bluesky handle's own domain."
-msgstr "你可以通过以下几种方式来证明，然后开始验证：将上述任一标识添加到播客订阅源的简介中；在订阅源所指向的网页上，添加一个指回上述任一标识的 <code>rel=\"me\"</code> 链接（与 Mastodon 所用的链接验证方式相同）；或让订阅源的网站使用你的 Bluesky handle 所在的域名。"
+msgid ""
+"You can prove this in a few ways, then start verification: add one of the "
+"identifiers above to the podcast feed's description; add a <code>rel=\"me\"</"
+"code> link back to one of them on the web page your feed links to (the link "
+"verification Mastodon uses); or point your feed's website at your Bluesky "
+"handle's own domain."
+msgstr ""
+"你可以通过以下几种方式来证明，然后开始验证：将上述任一标识添加到播客订阅源的"
+"简介中；在订阅源所指向的网页上，添加一个指回上述任一标识的 <code>rel=\"me\"</"
+"code> 链接（与 Mastodon 所用的链接验证方式相同）；或让订阅源的网站使用你的 "
+"Bluesky handle 所在的域名。"
 
 #: catalog/templates/catalog_verify.html:44
-msgid "For example, add this rel=me link to the web page your feed links to (click to copy):"
+msgid ""
+"For example, add this rel=me link to the web page your feed links to (click "
+"to copy):"
 msgstr "例如，在订阅源所指向的网页中添加如下 rel=me 链接（点击可复制）："
 
 #: catalog/templates/catalog_verify.html:50
@@ -1760,7 +1806,9 @@ msgid "or, in the page's head:"
 msgstr "或者，放在网页的 head 中："
 
 #: catalog/templates/catalog_verify.html:57
-msgid "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):"
+msgid ""
+"Can't edit the website? Just add a line like this to your feed's description "
+"instead (click to copy):"
 msgstr "改不了网站？也可以直接在订阅源的简介里加上这样一句（点击可复制）："
 
 #: catalog/templates/catalog_verify.html:62
@@ -1768,8 +1816,13 @@ msgid "Welcome to follow me on the Fediverse:"
 msgstr "欢迎在联邦宇宙关注我："
 
 #: catalog/templates/catalog_verify.html:66
-msgid "NeoDB does not re-check this periodically at the moment, but we recommend you keep it so that your audience can discover and connect with you in distributed social media."
-msgstr "NeoDB 目前不会定期重新检查，但我们建议保留它，以便你的听众能在分布式社交媒体上发现并关注你。"
+msgid ""
+"NeoDB does not re-check this periodically at the moment, but we recommend "
+"you keep it so that your audience can discover and connect with you in "
+"distributed social media."
+msgstr ""
+"NeoDB 目前不会定期重新检查，但我们建议保留它，以便你的听众能在分布式社交媒体"
+"上发现并关注你。"
 
 #: catalog/templates/catalog_verify.html:72
 msgid "Verified creators"
@@ -1796,7 +1849,8 @@ msgid "Send feedback"
 msgstr "发送反馈"
 
 #: catalog/templates/catalog_verify.html:115
-msgid "Questions or issues with creator verification? Let the site moderators know."
+msgid ""
+"Questions or issues with creator verification? Let the site moderators know."
 msgstr "对创作者验证有疑问或遇到问题？请告知站点管理员。"
 
 #: catalog/templates/discover.html:28 common/views_manage.py:145
@@ -1903,7 +1957,9 @@ msgid "Borrow or Buy"
 msgstr "借阅或购买"
 
 #: catalog/templates/external_search_results.html:10
-msgid "Some items were found from other websites and instances, click their title to save them locally."
+msgid ""
+"Some items were found from other websites and instances, click their title "
+"to save them locally."
 msgstr "找到了一些来自其它网站可能相关的条目，点击标题可添加到本站。"
 
 #: catalog/templates/fetch_pending.html:13
@@ -2132,8 +2188,13 @@ msgid "No items matching your search query."
 msgstr "无站内条目匹配。"
 
 #: catalog/templates/search_results.html:34
-msgid "If you have URL from one of these sites, please put the full URL (e.g. <code>https://www.imdb.com/title/tt2513074/</code>) to the search box and press Enter."
-msgstr "如果你在以下网站找到了相关条目，也可以把链接(如 <code>https://movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。"
+msgid ""
+"If you have URL from one of these sites, please put the full URL (e.g. "
+"<code>https://www.imdb.com/title/tt2513074/</code>) to the search box and "
+"press Enter."
+msgstr ""
+"如果你在以下网站找到了相关条目，也可以把链接(如 <code>https://"
+"movie.douban.com/subject/1309046/</code> )输入到搜索栏中提交保存到本站。"
 
 #: catalog/templates/search_results.html:48
 msgid "Searching from other sites"
@@ -3671,16 +3732,22 @@ msgid "VCD"
 msgstr "VCD"
 
 #: common/templates/400.html:23
-msgid "You may have submitted invalid data, or the content may have been deleted by the author."
+msgid ""
+"You may have submitted invalid data, or the content may have been deleted by "
+"the author."
 msgstr "您可能提交了无效的数据，或者相关内容已被作者删除。"
 
 #: common/templates/400.html:25 common/templates/403.html:24
 #: common/templates/404.html:24
-msgid "If you believe this is our mistake, please contact us through the link at the bottom of the page."
+msgid ""
+"If you believe this is our mistake, please contact us through the link at "
+"the bottom of the page."
 msgstr "如果您确信这是我们的错误，请通过页面底部的链接联系我们。"
 
 #: common/templates/403.html:22
-msgid "Author may require you to log in before accessing this content, or you do not have permission to view it."
+msgid ""
+"Author may require you to log in before accessing this content, or you do "
+"not have permission to view it."
 msgstr "作者可能希望您登录后访问，或者您没有权限查看此内容。"
 
 #: common/templates/404.html:20
@@ -3688,7 +3755,9 @@ msgid "Something is missing"
 msgstr "未找到所需内容"
 
 #: common/templates/404.html:22
-msgid "You may have visited an incorrect URL, or the content you are looking for has been deleted by the author."
+msgid ""
+"You may have visited an incorrect URL, or the content you are looking for "
+"has been deleted by the author."
 msgstr "您可能访问了错误的网址，或者相关内容已被作者删除。"
 
 #: common/templates/404.html:26
@@ -3696,11 +3765,15 @@ msgid "Go to Home"
 msgstr "前往主页"
 
 #: common/templates/500.html:22
-msgid "An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human."
+msgid ""
+"An internal error occurred. If this error occurs repeatedly, it will be "
+"recorded and handled by a human."
 msgstr "发生了一个内部错误，如果这个错误多次出现，后台会记录并会由人工处理。"
 
 #: common/templates/500.html:24
-msgid "If you have an urgent situation or any questions, please contact us through the link at the bottom of the page."
+msgid ""
+"If you have an urgent situation or any questions, please contact us through "
+"the link at the bottom of the page."
 msgstr "如果您有紧急情况或任何疑问，请通过页面底部的链接联系我们。"
 
 #: common/templates/_footer.html:6
@@ -3717,8 +3790,13 @@ msgstr "关于"
 
 #: common/templates/_footer.html:12 users/templates/users/login.html:265
 #, python-format
-msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
-msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
+msgid ""
+"You are visiting an alternative domain for %(site_name)s, please always use "
+"<a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if "
+"possible."
+msgstr ""
+"这是%(site_name)s的临时镜像，请尽可能使用<a "
+"href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"
 
 #: common/templates/_header.html:19 common/templates/_header.html:164
 msgid "title, creator, ISBN, item url, @user, @user@instance"
@@ -3802,8 +3880,12 @@ msgid "Sign up or Login"
 msgstr "注册或登录"
 
 #: common/templates/_header.html:160
-msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
-msgstr "搜索你的评论或条目，可加过滤条件如 category:tv status:complete rating:8..10 date:2021-09-11..2022-02"
+msgid ""
+"title or content  category:tv  status:complete  rating:8..10  "
+"date:2021-09-11..2022-02"
+msgstr ""
+"搜索你的评论或条目，可加过滤条件如 category:tv status:complete rating:8..10 "
+"date:2021-09-11..2022-02"
 
 #: common/templates/_header.html:162
 msgid "name of a person or company"
@@ -3872,44 +3954,73 @@ msgid ""
 "\n"
 "        <h3>Welcome 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is committed to creating a free, open, and interconnected space for collecting and reviewing books, movies, music, games, and podcasts. Here, you can manage your collections, share your thoughts, discover new content, and connect with others.\n"
+"          <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s is "
+"committed to creating a free, open, and interconnected space for collecting "
+"and reviewing books, movies, music, games, and podcasts. Here, you can "
+"manage your collections, share your thoughts, discover new content, and "
+"connect with others.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-globe\"></i> &nbsp; The best way to log in to %(site_name)s is through a Fediverse (a distributed social network, including Mastodon/Pleroma/etc) instance account. If you haven’t registered yet, you can <a href=\"https://joinmastodon.org/en/servers\" target=\"_blank\">choose a Fediverse instance and sign up</a>.\n"
+"          <i class=\"fa-solid fa-globe\"></i> &nbsp; The best way to log in "
+"to %(site_name)s is through a Fediverse (a distributed social network, "
+"including Mastodon/Pleroma/etc) instance account. If you haven’t registered "
+"yet, you can <a href=\"https://joinmastodon.org/en/servers\" "
+"target=\"_blank\">choose a Fediverse instance and sign up</a>.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-brands fa-bluesky\"></i> &nbsp; Another way to log in is through a Bluesky (another distributed social network, also called ATProto) account. If you haven’t registered yet, you may <a href=\"https://bsky.app\" target=\"_blank\">sign up via bsky.app</a>.\n"
+"          <i class=\"fa-brands fa-bluesky\"></i> &nbsp; Another way to log "
+"in is through a Bluesky (another distributed social network, also called "
+"ATProto) account. If you haven’t registered yet, you may <a href=\"https://"
+"bsky.app\" target=\"_blank\">sign up via bsky.app</a>.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; If you’re not ready to join either Fediverse or Bluesky, that’s perfectly fine. You can create an account here using your email address, and link it to the Fediverse and Bluesky in settings whenever you’re ready.\n"
+"          <i class=\"fa-solid fa-envelope\"></i> &nbsp; If you’re not ready "
+"to join either Fediverse or Bluesky, that’s perfectly fine. You can create "
+"an account here using your email address, and link it to the Fediverse and "
+"Bluesky in settings whenever you’re ready.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; If you have any questions or suggestions, please feel free to contact us via <a href=\"https://mastodon.social/@neodb\">Fediverse</a> or <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>.\n"
+"          <i class=\"fa-solid fa-circle-question\"></i> &nbsp; If you have "
+"any questions or suggestions, please feel free to contact us via <a "
+"href=\"https://mastodon.social/@neodb\">Fediverse</a> or <a href=\"https://"
+"discord.gg/uprvcH8gqD\">Discord</a>.\n"
 "        </p>\n"
 "        <p>\n"
-"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">Click here</a> to register or log in.\n"
+"          <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a "
+"href=\"%(login_url)s\">Click here</a> to register or log in.\n"
 "        </p>\n"
 "        "
 msgstr ""
 "\n"
 "        <h3>欢迎 🙋🏻‍♀️ 🙋🏻 🙋🏻‍♂️</h3>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这里管理收藏、记录想法，以及发现新的内容和朋友。\n"
+"  <i class=\"fa-solid fa-puzzle-piece\"></i> &nbsp; %(site_name)s 致力于提供"
+"一个涵盖书籍、影视、音乐、游戏、播客的自由开放互联的收藏评论空间。 你可以在这"
+"里管理收藏、记录想法，以及发现新的内容和朋友。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式是通过联邦宇宙（一种分布式社交网络，包括 Mastodon/Pleroma 等）实例账户。如果你还没有注册过，可先 <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例并注册</a>。\n"
+"  <i class=\"fa-solid fa-globe\"></i> &nbsp; 登录%(site_name)s的最佳方式是通"
+"过联邦宇宙（一种分布式社交网络，包括 Mastodon/Pleroma 等）实例账户。如果你还"
+"没有注册过，可先 <a href=\"https://joinmastodon.org/zh/servers\" "
+"target=\"_blank\">选择实例并注册</a>。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过 Bluesky（另一个分布式社交网络，也叫 ATProto）。如果你还没有注册过，可先<a href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n"
+"  <i class=\"fa-brands fa-bluesky\"></i> &nbsp; 另一种登录方式是通过 Bluesky"
+"（另一个分布式社交网络，也叫 ATProto）。如果你还没有注册过，可先<a "
+"href=\"https://bsky.app\" target=\"_blank\">在bsky.app注册</a>。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙或蓝天也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
+"  <i class=\"fa-solid fa-envelope\"></i> &nbsp; 如果还没准备好注册联邦宇宙或"
+"蓝天也没问题，你可以在登录页面选择电子邮件注册，未来再连接到联邦宇宙。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a> 或 <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
+"  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，"
+"欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a> 或 <a "
+"href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">单击这里</a>注册或登录。\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">单"
+"击这里</a>注册或登录。\n"
 "</p>\n"
 "        "
 
@@ -3988,8 +4099,12 @@ msgid "Error"
 msgstr "错误"
 
 #: common/templates/common/scan.html:45
-msgid "Point the camera at a book ISBN or product barcode (EAN / UPC). You will be redirected to the search once a code is detected."
-msgstr "将摄像头对准图书 ISBN 或商品条形码（EAN / UPC），检测到编码后将自动跳转到搜索。"
+msgid ""
+"Point the camera at a book ISBN or product barcode (EAN / UPC). You will be "
+"redirected to the search once a code is detected."
+msgstr ""
+"将摄像头对准图书 ISBN 或商品条形码（EAN / UPC），检测到编码后将自动跳转到搜"
+"索。"
 
 #: common/templates/common/scan.html:50
 msgid "Requesting camera access..."
@@ -4247,7 +4362,9 @@ msgid "Show Verified Podcasts"
 msgstr "显示已验证播客"
 
 #: common/views_manage.py:347
-msgid "Show a shelf of recent episodes from podcasts with a verified creator on the discover page."
+msgid ""
+"Show a shelf of recent episodes from podcasts with a verified creator on the "
+"discover page."
 msgstr "在发现页显示一个货架，展示拥有已验证创作者的播客的最新单集。"
 
 #: common/views_manage.py:386
@@ -4255,15 +4372,19 @@ msgid "Enable Recommendations"
 msgstr "启用推荐"
 
 #: common/views_manage.py:388
-msgid "Master switch. When off, all recommendation surfaces are hidden and the cron jobs are not scheduled."
-msgstr "推荐功能总开关。关闭时，所有推荐界面都会被隐藏，相关定时任务也不会被调度。"
+msgid ""
+"Master switch. When off, all recommendation surfaces are hidden and the cron "
+"jobs are not scheduled."
+msgstr ""
+"推荐功能总开关。关闭时，所有推荐界面都会被隐藏，相关定时任务也不会被调度。"
 
 #: common/views_manage.py:393
 msgid "Source Item Mark Threshold"
 msgstr "源条目标记阈值"
 
 #: common/views_manage.py:395
-msgid "Minimum public marks an item needs before similarity rows are built for it."
+msgid ""
+"Minimum public marks an item needs before similarity rows are built for it."
 msgstr "为某条目构建相似条目所需的最少公开标记数。"
 
 #: common/views_manage.py:401
@@ -4271,7 +4392,8 @@ msgid "Target Item Mark Threshold"
 msgstr "目标条目标记阈值"
 
 #: common/views_manage.py:403
-msgid "Minimum public marks an item needs to be eligible as a recommendation target."
+msgid ""
+"Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr "条目作为推荐目标所需的最少公开标记数。"
 
 #: common/views_manage.py:409
@@ -4295,15 +4417,21 @@ msgid "Dampen Heavy Shelvers"
 msgstr "抑制高频标记用户"
 
 #: common/views_manage.py:421
-msgid "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-shelvers in similarity scoring."
-msgstr "对每位用户的贡献按 1/sqrt(n_marks) 加权，以削弱超大量标记用户对相似度评分的影响。"
+msgid ""
+"Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-"
+"shelvers in similarity scoring."
+msgstr ""
+"对每位用户的贡献按 1/sqrt(n_marks) 加权，以削弱超大量标记用户对相似度评分的影"
+"响。"
 
 #: common/views_manage.py:426
 msgid "Per-User Mark Cap (training)"
 msgstr "每用户标记上限（训练）"
 
 #: common/views_manage.py:428
-msgid "Truncate each user's contribution to their N most recent marks when building the similarity matrix."
+msgid ""
+"Truncate each user's contribution to their N most recent marks when building "
+"the similarity matrix."
 msgstr "构建相似度矩阵时，仅截取每位用户最近的 N 条标记。"
 
 #: common/views_manage.py:434
@@ -4311,7 +4439,9 @@ msgid "Active-User Window (days)"
 msgstr "活跃用户窗口（天）"
 
 #: common/views_manage.py:436
-msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
+msgid ""
+"Refresh personalised recommendations for users with at least one public mark "
+"in the last N days."
 msgstr "为最近 N 天内至少有一条公开标记的用户刷新个性化推荐。"
 
 #: common/views_manage.py:442
@@ -4319,7 +4449,9 @@ msgid "Per-User Seed Cap (serving)"
 msgstr "每用户种子标记上限（投递）"
 
 #: common/views_manage.py:444
-msgid "Number of recent marks used as seeds when scoring personalised recommendations for one user."
+msgid ""
+"Number of recent marks used as seeds when scoring personalised "
+"recommendations for one user."
 msgstr "为单个用户计算个性化推荐时，用作种子的最近标记数量。"
 
 #: common/views_manage.py:450
@@ -4327,7 +4459,9 @@ msgid "Lazy Refresh TTL (days)"
 msgstr "懒刷新 TTL（天）"
 
 #: common/views_manage.py:452
-msgid "How long cached on-demand recommendations are valid before the next request triggers a refresh."
+msgid ""
+"How long cached on-demand recommendations are valid before the next request "
+"triggers a refresh."
 msgstr "按需推荐缓存的有效期，过期后下一次请求会触发刷新。"
 
 #: common/views_manage.py:458
@@ -4335,7 +4469,9 @@ msgid "Circles Window (days)"
 msgstr "好友圈窗口（天）"
 
 #: common/views_manage.py:460
-msgid "Look back N days when finding items recently marked by people the viewer follows."
+msgid ""
+"Look back N days when finding items recently marked by people the viewer "
+"follows."
 msgstr "回溯 N 天，查找浏览者关注的用户最近标记过的条目。"
 
 #: common/views_manage.py:467
@@ -4351,7 +4487,9 @@ msgid "Personalisation"
 msgstr "个性化"
 
 #: common/views_manage.py:495
-msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
+msgid ""
+"Require an invite token to register. Invite tokens can be generated with "
+"neodb-manage invite --create."
 msgstr "注册需要邀请令牌。可使用 neodb-manage invite --create 生成邀请令牌。"
 
 #: common/views_manage.py:500
@@ -4375,16 +4513,27 @@ msgid "Registration Captcha Items"
 msgstr "注册验证封面数量"
 
 #: common/views_manage.py:512
-msgid "Number of item covers a new user must sort into two category rows before choosing a username. 0 disables the captcha; 5-6 is recommended. The covers carry no title text, so this cannot be solved with a screen reader: if you enable it, keep another way in, such as an invite link."
-msgstr "新用户在选择用户名之前，需要归类到两个分类行中的条目封面数量。设为 0 则关闭此验证；建议 5 到 6 个。封面不显示标题文字，因此无法通过屏幕阅读器完成：如果启用，请同时保留其他注册途径，例如邀请链接。"
+msgid ""
+"Number of item covers a new user must sort into two category rows before "
+"choosing a username. 0 disables the captcha; 5-6 is recommended. The covers "
+"carry no title text, so this cannot be solved with a screen reader: if you "
+"enable it, keep another way in, such as an invite link."
+msgstr ""
+"新用户在选择用户名之前，需要归类到两个分类行中的条目封面数量。设为 0 则关闭此"
+"验证；建议 5 到 6 个。封面不显示标题文字，因此无法通过屏幕阅读器完成：如果启"
+"用，请同时保留其他注册途径，例如邀请链接。"
 
 #: common/views_manage.py:520
 msgid "Registration Captcha Minimum Marks"
 msgstr "注册验证最少标记数"
 
 #: common/views_manage.py:523
-msgid "Marks an item needs before the captcha treats it as well known enough to be recognizable. Categories with too few such items fall back to any item."
-msgstr "一个条目需要多少标记，验证才认为它足够知名、可被辨认。此类条目过少的分类会改为从全部条目中选取。"
+msgid ""
+"Marks an item needs before the captcha treats it as well known enough to be "
+"recognizable. Categories with too few such items fall back to any item."
+msgstr ""
+"一个条目需要多少标记，验证才认为它足够知名、可被辨认。此类条目过少的分类会改"
+"为从全部条目中选取。"
 
 #: common/views_manage.py:529
 msgid "Enable Mastodon Login"
@@ -4419,11 +4568,15 @@ msgid "Default Language"
 msgstr "默认语言"
 
 #: common/views_manage.py:551
-msgid "Interface language for visitors and for users who have not chosen one themselves."
+msgid ""
+"Interface language for visitors and for users who have not chosen one "
+"themselves."
 msgstr "访客以及未自行选择语言的用户所使用的界面语言。"
 
 #: common/views_manage.py:558
-msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
+msgid ""
+"Language codes, one per line (e.g. en, zh, ja). First language is the "
+"default."
 msgstr "语言代码，每行一个（如 en、zh、ja）。第一个为默认语言。"
 
 #: common/views_manage.py:564
@@ -4449,7 +4602,9 @@ msgid "Disable Default Relay"
 msgstr "禁用默认中继"
 
 #: common/views_manage.py:593
-msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
+msgid ""
+"Disable relay.neodb.net federation for sharing public ratings across "
+"instances."
 msgstr "禁用 relay.neodb.net 联邦中继（用于跨实例共享公开评分）。"
 
 #: common/views_manage.py:598
@@ -4541,16 +4696,24 @@ msgid "BoardGameGeek API Token"
 msgstr "BoardGameGeek API 令牌"
 
 #: common/views_manage.py:667
-msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
-msgstr "来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://boardgamegeek.com/using_the_xml_api#toc9）。"
+msgid ""
+"Bearer token from https://boardgamegeek.com/applications (see https://"
+"boardgamegeek.com/using_the_xml_api#toc9)."
+msgstr ""
+"来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://"
+"boardgamegeek.com/using_the_xml_api#toc9）。"
 
 #: common/views_manage.py:672 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Steam API 密钥"
 
 #: common/views_manage.py:674
-msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
-msgstr "https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自己的密钥。"
+msgid ""
+"https://steamcommunity.com/dev - fallback key for Steam importer. Users can "
+"provide their own key when importing."
+msgstr ""
+"https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自"
+"己的密钥。"
 
 #: common/views_manage.py:679
 msgid "DeepL API Key"
@@ -4585,8 +4748,13 @@ msgid "Discord Webhooks"
 msgstr "Discord Webhook"
 
 #: common/views_manage.py:698
-msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
-msgstr "按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
+msgid ""
+"Webhook URLs keyed by channel (default, report, audit, suggest, system). All "
+"channels must be Discord forum or media channels (thread mode) because "
+"notifications are posted as threads."
+msgstr ""
+"按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道"
+"必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
 
 #: common/views_manage.py:715
 msgid "Catalog APIs"
@@ -4694,7 +4862,8 @@ msgid "Mastodon API Timeout (seconds)"
 msgstr "Mastodon API 超时（秒）"
 
 #: common/views_manage.py:818
-msgid "Timeout for requests to Mastodon instances and remote fediverse servers."
+msgid ""
+"Timeout for requests to Mastodon instances and remote fediverse servers."
 msgstr "请求 Mastodon 实例及远程联邦宇宙服务器的超时时间。"
 
 #: common/views_manage.py:824
@@ -4718,7 +4887,9 @@ msgid "Task Cleanup (days)"
 msgstr "任务清理（天）"
 
 #: common/views_manage.py:841
-msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
+msgid ""
+"Delete import/export tasks and their files after this many days. Set to 0 to "
+"disable cleanup."
 msgstr "在此天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
 
 #: common/views_manage.py:847
@@ -4726,16 +4897,25 @@ msgid "Skip Migration Jobs"
 msgstr "跳过迁移任务"
 
 #: common/views_manage.py:849
-msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
-msgstr "要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被跳过的任务会记录警告并通知 Discord system 频道。"
+msgid ""
+"Post-migration job keys to skip, one per line (e.g. normalize_genre). "
+"Checked by the worker at dequeue time; skipped jobs log a warning and notify "
+"the Discord system channel."
+msgstr ""
+"要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被"
+"跳过的任务会记录警告并通知 Discord system 频道。"
 
 #: common/views_manage.py:855
 msgid "ATProto OAuth Client Key"
 msgstr "ATProto OAuth 客户端密钥"
 
 #: common/views_manage.py:857
-msgid "Private key (JWK) identifying this site to ATProto authorization servers. Auto-generated on first Bluesky login; clear to regenerate."
-msgstr "用于向 ATProto 授权服务器标识本站点的私钥（JWK 格式）。首次 Bluesky 登录时自动生成；清空后将重新生成。"
+msgid ""
+"Private key (JWK) identifying this site to ATProto authorization servers. "
+"Auto-generated on first Bluesky login; clear to regenerate."
+msgstr ""
+"用于向 ATProto 授权服务器标识本站点的私钥（JWK 格式）。首次 Bluesky 登录时自"
+"动生成；清空后将重新生成。"
 
 #: common/views_manage.py:864
 msgid "Domains"
@@ -4750,7 +4930,9 @@ msgid "Movie Genres"
 msgstr "电影类型"
 
 #: common/views_manage.py:885
-msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the Movie edit dropdown, one per line. Leave empty to "
+"use the built-in default."
 msgstr "电影编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:890
@@ -4758,7 +4940,9 @@ msgid "TV Genres"
 msgstr "剧集类型"
 
 #: common/views_manage.py:892
-msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the TV edit dropdown, one per line. Leave empty to "
+"use the built-in default."
 msgstr "剧集编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:897
@@ -4766,7 +4950,9 @@ msgid "Music Genres"
 msgstr "音乐类型"
 
 #: common/views_manage.py:899
-msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the Music edit dropdown, one per line. Leave empty to "
+"use the built-in default."
 msgstr "音乐编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:904
@@ -4774,7 +4960,9 @@ msgid "Game Genres"
 msgstr "游戏类型"
 
 #: common/views_manage.py:906
-msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the Game edit dropdown, one per line. Leave empty to "
+"use the built-in default."
 msgstr "游戏编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:911
@@ -4782,7 +4970,9 @@ msgid "Podcast Genres"
 msgstr "播客类型"
 
 #: common/views_manage.py:913
-msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the Podcast edit dropdown, one per line. Leave empty "
+"to use the built-in default."
 msgstr "播客编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:918
@@ -4790,7 +4980,9 @@ msgid "Performance Genres"
 msgstr "演出类型"
 
 #: common/views_manage.py:920
-msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
+msgid ""
+"Genre codes offered in the Performance edit dropdown, one per line. Leave "
+"empty to use the built-in default."
 msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
 #: common/views_manage.py:926
@@ -4798,8 +4990,12 @@ msgid "Genres by Category"
 msgstr "按分类设置类型"
 
 #: journal/forms.py:12
-msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
-msgstr "提示： 善用 >!文字!< 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间轴。"
+msgid ""
+"Tips: use >!text!< for spoilers; some instances may not be able to show "
+"posts longer than 360 charactors."
+msgstr ""
+"提示： 善用 >!文字!< 标记可隐藏剧透； 超过360字可能无法分享到联邦宇宙实例时间"
+"轴。"
 
 #: journal/forms.py:29 journal/forms.py:31 journal/forms.py:80
 #: journal/forms.py:83 journal/forms.py:153
@@ -4898,7 +5094,8 @@ msgstr "{username} 的播客订阅"
 
 #: journal/importers/rym.py:168 journal/importers/storygraph.py:128
 #, python-brace-format
-msgid "Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
+msgid ""
+"Matching: {done}/{total} — {local} local, {ext} external, {none} unmatched"
 msgstr "匹配中：{done}/{total} — 本地 {local}，外部 {ext}，未匹配 {none}"
 
 #: journal/importers/rym.py:178 journal/importers/storygraph.py:138
@@ -4917,7 +5114,8 @@ msgstr "匹配文件丢失，无法导入。"
 
 #: journal/importers/rym.py:376 journal/importers/storygraph.py:412
 #, python-brace-format
-msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
+msgid ""
+"Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
 #: journal/models/article.py:212 journal/views/article.py:218
@@ -5026,7 +5224,9 @@ msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
 #: journal/models/common.py:790
-msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
+msgid ""
+"A recent post was not posted to Bluesky, please login NeoDB using ATProto "
+"again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
 #: journal/models/common.py:987
@@ -5626,7 +5826,9 @@ msgstr "评论"
 
 #: journal/templates/_list_item.html:133
 #, python-format
-msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
+msgid ""
+"%(dups)s item(s) are from the same work or have the same identifier, click "
+"here to display:"
 msgstr "还有%(dups)s个属于同一作品或可能重复的条目，点击显示。"
 
 #: journal/templates/_sidebar_collection_filter.html:32
@@ -5957,7 +6159,8 @@ msgid ""
 "Content Cell  | Content Cell\n"
 "Content Cell  | Content Cell\n"
 "\n"
-"Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/"
+"Wikipedia-logo-v2.svg)\n"
 "\n"
 msgstr ""
 "\n"
@@ -5984,7 +6187,8 @@ msgstr ""
 ">! 多行\n"
 ">! 剧透\n"
 "\n"
-"引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg)\n"
+"引用外部图片 ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-"
+"logo-v2.svg)\n"
 "\n"
 "上传图片可拖拽图片文件到编辑框，或从剪贴板粘贴\n"
 "\n"
@@ -6031,7 +6235,9 @@ msgid "Are you sure to delete this entire content?"
 msgstr "确认删除这则内容吗？"
 
 #: journal/templates/piece_delete.html:24
-msgid "By deleting it, you will also lose track of others' comments and feedbacks to your content."
+msgid ""
+"By deleting it, you will also lose track of others' comments and feedbacks "
+"to your content."
 msgstr "删除后你将无法追溯其他用户对此内容曾经作出的回应和互动。"
 
 #: journal/templates/piece_delete.html:25
@@ -6145,8 +6351,12 @@ msgid "Personal"
 msgstr "个人"
 
 #: journal/templates/tag_edit.html:52
-msgid "Personal tags are not included in public index. However, if you use this tag when marking an item publicly, it might still be visible to others."
-msgstr "个人标签不被包括在条目的公共索引中，但如果公开标记一个条目时使用这个标签仍会被别人看到。"
+msgid ""
+"Personal tags are not included in public index. However, if you use this tag "
+"when marking an item publicly, it might still be visible to others."
+msgstr ""
+"个人标签不被包括在条目的公共索引中，但如果公开标记一个条目时使用这个标签仍会"
+"被别人看到。"
 
 #: journal/templates/tag_edit.html:55
 msgid "Delete this tag"
@@ -6378,11 +6588,14 @@ msgstr "Bluesky"
 msgid ""
 "\n"
 "\n"
-"If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
+"If you did not mean to register or login, please ignore this email. If you "
+"are concerned with your account security, please change the email linked "
+"with your account, or contact us."
 msgstr ""
 "\n"
 "\n"
-"如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件；如果你确信账号存在安全风险，请更改注册邮件地址或与我们联系。"
+"如果你没有打算用此电子邮件地址注册或登录本站，请忽略此邮件；如果你确信账号存"
+"在安全风险，请更改注册邮件地址或与我们联系。"
 
 #: mastodon/models/email.py:64 mastodon/models/email.py:69
 msgid "Verification Code"
@@ -6424,14 +6637,17 @@ msgstr "注册"
 msgid ""
 "There is no account registered with this email address yet: {email}\n"
 "\n"
-"If you already have an account with us, just login and add this email to you account.\n"
+"If you already have an account with us, just login and add this email to you "
+"account.\n"
 "\n"
-"If you prefer to register a new account with this email, please use this verification code: {code}"
+"If you prefer to register a new account with this email, please use this "
+"verification code: {code}"
 msgstr ""
 "你好，\n"
 "本站没有与{email}关联的账号。你希望注册一个新账号吗？\n"
 "\n"
-"如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
+"如果你已注册过本站或某个联邦宇宙（长毛象）实例，不必重新注册，只要用联邦宇宙"
+"身份登录本站，再关联这个电子邮件地址，即可通过邮件登录。\n"
 "\n"
 "如果你确认要使用电子邮件新注册账号，请输入如下验证码： {code}"
 
@@ -6627,7 +6843,9 @@ msgstr "数据删除已完成"
 
 #: mastodon/views/threads.py:149
 #, python-brace-format
-msgid "Data linked to your Threads account has been deleted. Confirmation code: {code}"
+msgid ""
+"Data linked to your Threads account has been deleted. Confirmation code: "
+"{code}"
 msgstr "与你的 Threads 账号关联的数据已被删除。确认码：{code}"
 
 #: social/templates/_article_teaser.html:10
@@ -6732,10 +6950,12 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"boosted your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"转播了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/boosted_shelfmember.html:3
 #, python-format
@@ -6807,10 +7027,12 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"liked your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"赞了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/liked_shelfmember.html:3
 #, python-format
@@ -6874,10 +7096,12 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
+"replied to your review <a href=\"%(piece_url)s\">%(piece_title)s</a> on <a "
+"href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 "\n"
-"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a href=\"%(piece_url)s\">%(piece_title)s</a>\n"
+"回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的评论 <a "
+"href=\"%(piece_url)s\">%(piece_title)s</a>\n"
 
 #: social/templates/event/mentioned_shelfmember.html:3
 #, python-format
@@ -6903,8 +7127,15 @@ msgstr "没有符合条件的动态。"
 
 #: social/templates/feed_events.html:33
 #, python-format
-msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
-msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
+msgid ""
+"Find and mark some books/movies/podcasts/games, <a "
+"href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/"
+"Douban, follow some fellow %(site_name)s users on the fediverse, so their "
+"recent activities and yours will show up here."
+msgstr ""
+"搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\">导入你的豆瓣、"
+"Letterboxd或Goodreads记录</a>，去联邦宇宙（长毛象）关注一些正在使"
+"用%(site_name)s的用户，这里就会显示你和她们的近期动态。"
 
 #: social/templates/notification.html:58
 msgid "mention"
@@ -6985,7 +7216,9 @@ msgid "Complete"
 msgstr "完成"
 
 #: users/models/user.py:69
-msgid "Enter a valid username. This value may contain only unaccented lowercase a-z and uppercase A-Z letters, numbers, and _ characters."
+msgid ""
+"Enter a valid username. This value may contain only unaccented lowercase a-z "
+"and uppercase A-Z letters, numbers, and _ characters."
 msgstr "输入用户名，限英文字母数字下划线，最多30个字符。"
 
 #: users/models/user.py:130
@@ -7127,8 +7360,12 @@ msgid "Cancel import"
 msgstr "取消导入"
 
 #: users/templates/users/_rym_section.html:29
-msgid "On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file."
-msgstr "在 RateYourMusic 个人资料页面，使用 <b>Export your music catalog</b> 选项将你的收藏导出为 CSV 文件。"
+msgid ""
+"On RateYourMusic, go to your profile and use the <b>Export your music "
+"catalog</b> option to download your library as a CSV file."
+msgstr ""
+"在 RateYourMusic 个人资料页面，使用 <b>Export your music catalog</b> 选项将你"
+"的收藏导出为 CSV 文件。"
 
 #: users/templates/users/_rym_section.html:31
 #: users/templates/users/_storygraph_section.html:33
@@ -7136,13 +7373,24 @@ msgid "Upload the downloaded CSV file below."
 msgstr "在下方上传下载到的 CSV 文件。"
 
 #: users/templates/users/_rym_section.html:33
-msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
-msgstr "专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
+msgid ""
+"Albums are matched by title + artist (and year if present) — first against "
+"the local catalog, then MusicBrainz, then Spotify. After auto-matching, "
+"you'll preview the matches in a table, edit any link or shelf status, and "
+"confirm the import."
+msgstr ""
+"专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然"
+"后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，"
+"编辑链接或标记状态，再确认导入。"
 
 #: users/templates/users/_rym_section.html:36
 #: users/templates/users/_storygraph_section.html:38
-msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
-msgstr "你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配项。"
+msgid ""
+"You can also re-upload a previously-downloaded matched CSV — the existing "
+"<code>link</code> column will be honoured as the default match."
+msgstr ""
+"你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配"
+"项。"
 
 #: users/templates/users/_rym_section.html:40
 #: users/templates/users/_storygraph_section.html:42
@@ -7168,12 +7416,25 @@ msgid "Cancel the StoryGraph import? Progress will be discarded."
 msgstr "取消 StoryGraph 导入？进度将被丢弃。"
 
 #: users/templates/users/_storygraph_section.html:31
-msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
-msgstr "在 StoryGraph，点击 <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 将书库下载为 CSV 文件。"
+msgid ""
+"On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" "
+"target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to "
+"download your library as a CSV file."
+msgstr ""
+"在 StoryGraph，点击 <a href=\"https://app.thestorygraph.com/user-export\" "
+"target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 将书库下载"
+"为 CSV 文件。"
 
 #: users/templates/users/_storygraph_section.html:35
-msgid "Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
-msgstr "图书将按 ISBN 进行匹配——优先查询本地条目库，然后是 Google Books 和 OpenLibrary——如无结果则按标题加作者搜索。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
+msgid ""
+"Books are matched by ISBN — first against the local catalog, then Google "
+"Books and OpenLibrary — with a title + author search as fallback. After auto-"
+"matching, you'll preview the matches in a table, edit any link or shelf "
+"status, and confirm the import."
+msgstr ""
+"图书将按 ISBN 进行匹配——优先查询本地条目库，然后是 Google Books 和 "
+"OpenLibrary——如无结果则按标题加作者搜索。自动匹配完成后，可以在表格中预览匹配"
+"结果，编辑链接或标记状态，再确认导入。"
 
 #: users/templates/users/account.html:11
 msgid "Account Information"
@@ -7184,7 +7445,9 @@ msgid "Display name, avatar and other information"
 msgstr "昵称、头像与其它个人信息"
 
 #: users/templates/users/account.html:23
-msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
+msgid ""
+"Updating profile information here will turn off automatic sync of display "
+"name, bio and avatar from your Mastodon instance. Sure to continue?"
 msgstr "在这里更新个人资料会停止从关联实例自动同步昵称等个人信息，确定继续吗？"
 
 #: users/templates/users/account.html:26
@@ -7197,11 +7460,18 @@ msgstr "电子邮件地址"
 
 #: users/templates/users/account.html:59 users/templates/users/register.html:47
 #, python-format
-msgid "Please click the confirmation link in the email sent to %(pending_email)s; if you haven't received it for more than a few minutes, please input and save again."
-msgstr "当前待确认的电子邮件地址为%(pending_email)s，请查收邮件并点击确认链接；如长时间未收到可重新输入并保存。"
+msgid ""
+"Please click the confirmation link in the email sent to %(pending_email)s; "
+"if you haven't received it for more than a few minutes, please input and "
+"save again."
+msgstr ""
+"当前待确认的电子邮件地址为%(pending_email)s，请查收邮件并点击确认链接；如长时"
+"间未收到可重新输入并保存。"
 
 #: users/templates/users/account.html:61 users/templates/users/register.html:50
-msgid "Email is recommended as a backup login method, if you log in via a Fediverse instance"
+msgid ""
+"Email is recommended as a backup login method, if you log in via a Fediverse "
+"instance"
 msgstr "推荐输入电子邮件地址作为备用登录方式。"
 
 #: users/templates/users/account.html:73 users/templates/users/login.html:84
@@ -7219,15 +7489,24 @@ msgid "Last updated"
 msgstr "最近更新"
 
 #: users/templates/users/account.html:92
-msgid "If you have not yet registered with any Federated instance, you may <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an instance</a> and register."
-msgstr "如果你还没有在任何联邦宇宙实例注册过，可先 <a href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">选择实例</a> 并注册。"
+msgid ""
+"If you have not yet registered with any Federated instance, you may <a "
+"href=\"https://joinmastodon.org/zh/servers\" target=\"_blank\">choose an "
+"instance</a> and register."
+msgstr ""
+"如果你还没有在任何联邦宇宙实例注册过，可先 <a href=\"https://"
+"joinmastodon.org/zh/servers\" target=\"_blank\">选择实例</a> 并注册。"
 
 #: users/templates/users/account.html:97
-msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
+msgid ""
+"To associate with another federated identity, please enter the domain name "
+"of the instance where the new identity is located."
 msgstr "如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名"
 
 #: users/templates/users/account.html:99
-msgid "If you have registered with a Federated instance, please enter the instance domain name."
+msgid ""
+"If you have registered with a Federated instance, please enter the instance "
+"domain name."
 msgstr "如果你已经注册过联邦宇宙实例，请输入实例域名"
 
 #: users/templates/users/account.html:104
@@ -7239,17 +7518,26 @@ msgid "Go to target instance and authorize with the identity"
 msgstr "登录实例并关联"
 
 #: users/templates/users/account.html:113
-msgid "After replacing the association, you may use the new Fediverse identity to log in and control data visibility. Existing data such as tags, comments, and collections will not be affected."
-msgstr "替换关联后可使用新的联邦宇宙身份来登录本站和控制数据可见性，已有的标记评论收藏单等数据不受影响。"
+msgid ""
+"After replacing the association, you may use the new Fediverse identity to "
+"log in and control data visibility. Existing data such as tags, comments, "
+"and collections will not be affected."
+msgstr ""
+"替换关联后可使用新的联邦宇宙身份来登录本站和控制数据可见性，已有的标记评论收"
+"藏单等数据不受影响。"
 
 #: users/templates/users/account.html:115
-msgid "Once associated with Fediverse identity, you can discover more users and use the full features of this site."
+msgid ""
+"Once associated with Fediverse identity, you can discover more users and use "
+"the full features of this site."
 msgstr "关联联邦宇宙身份后可发现更多用户，并使用本站完整功能。"
 
 #: users/templates/users/account.html:123
 #: users/templates/users/account.html:160
 #: users/templates/users/account.html:206
-msgid "Once disconnected, you will no longer be able login with this identity. Are you sure to continue?"
+msgid ""
+"Once disconnected, you will no longer be able login with this identity. Are "
+"you sure to continue?"
 msgstr "取消关联后将无法使用这个身份登录本站，确认继续吗？"
 
 #: users/templates/users/account.html:126
@@ -7352,8 +7640,13 @@ msgid "Save sync settings"
 msgstr "保存同步设置"
 
 #: users/templates/users/account.html:297
-msgid "New follow, mute and blocks in the associated identity may be automatically imported; removal has to be done manually."
-msgstr "本站会按照以上设置每天自动导入你在联邦宇宙实例等社交网络中新增的关注、屏蔽和隐藏列表；如果你在联邦宇宙实例中关注的用户加入了本站，你会自动关注她；如果你在联邦宇宙实例中取消了关注、屏蔽或隐藏，本站不会自动取消，但你可以手动移除。"
+msgid ""
+"New follow, mute and blocks in the associated identity may be automatically "
+"imported; removal has to be done manually."
+msgstr ""
+"本站会按照以上设置每天自动导入你在联邦宇宙实例等社交网络中新增的关注、屏蔽和"
+"隐藏列表；如果你在联邦宇宙实例中关注的用户加入了本站，你会自动关注她；如果你"
+"在联邦宇宙实例中取消了关注、屏蔽或隐藏，本站不会自动取消，但你可以手动移除。"
 
 #: users/templates/users/account.html:304
 msgid "Click button below to start sync now."
@@ -7389,12 +7682,19 @@ msgid "Log out everywhere"
 msgstr "在所有设备上登出"
 
 #: users/templates/users/account.html:365
-msgid "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?"
-msgstr "这将使你在所有浏览器和设备（包括当前设备）上登出，并撤销所有API令牌。继续吗？"
+msgid ""
+"This will log you out of all browsers and devices (including the current "
+"one), and revoke all API tokens. Continue?"
+msgstr ""
+"这将使你在所有浏览器和设备（包括当前设备）上登出，并撤销所有API令牌。继续吗？"
 
 #: users/templates/users/account.html:368
-msgid "If you notice any suspicious activity or have logged in on a shared computer, you can log out of all sessions and revoke all API tokens."
-msgstr "如果你留意到任何可疑活动，或者曾在公共电脑上登录过，可以选择在所有设备上登出并撤销所有API令牌。"
+msgid ""
+"If you notice any suspicious activity or have logged in on a shared "
+"computer, you can log out of all sessions and revoke all API tokens."
+msgstr ""
+"如果你留意到任何可疑活动，或者曾在公共电脑上登录过，可以选择在所有设备上登出"
+"并撤销所有API令牌。"
 
 #: users/templates/users/account.html:378
 msgid "Authorized Apps"
@@ -7482,7 +7782,9 @@ msgid "Migrate Account"
 msgstr "迁移账号"
 
 #: users/templates/users/account.html:488
-msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
+msgid ""
+"Linking an email to your account is highly recommended before migrating from "
+"another Fediverse instance."
 msgstr "建议关联电子邮件后再从其他实例迁入。"
 
 #: users/templates/users/account.html:491
@@ -7502,8 +7804,12 @@ msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
 #: users/templates/users/account.html:507
-msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
-msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除"
+msgid ""
+"Enter full <code>username@instance.social</code> or <code>email@domain.com</"
+"code> to confirm deletion."
+msgstr ""
+"输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确"
+"认删除"
 
 #: users/templates/users/account.html:517
 msgid "Once deleted, account data cannot be recovered."
@@ -7554,7 +7860,9 @@ msgid "Token Created"
 msgstr "令牌已创建"
 
 #: users/templates/users/authorized_app_created.html:22
-msgid "Your new personal access token has been created. Copy it now -- you will not be able to see it again."
+msgid ""
+"Your new personal access token has been created. Copy it now -- you will not "
+"be able to see it again."
 msgstr "你的个人访问令牌已创建。请立即复制，之后将无法再次查看。"
 
 #: users/templates/users/authorized_app_created.html:25
@@ -7582,8 +7890,11 @@ msgid "One quick check"
 msgstr "简单验证一下"
 
 #: users/templates/users/captcha.html:28
-msgid "Put every cover into the row it belongs to. Drag it, or select a cover and then select a row."
-msgstr "请把每个封面放进它所属的分类行。可以直接拖动，也可以先选中封面再选择分类行。"
+msgid ""
+"Put every cover into the row it belongs to. Drag it, or select a cover and "
+"then select a row."
+msgstr ""
+"请把每个封面放进它所属的分类行。可以直接拖动，也可以先选中封面再选择分类行。"
 
 #: users/templates/users/captcha.html:41 users/templates/users/captcha.html:43
 msgid "Item cover"
@@ -7632,8 +7943,13 @@ msgid "Failed Crossposts"
 msgstr "转发失败记录"
 
 #: users/templates/users/crossposts.html:42
-msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
-msgstr "这些帖文未能转发到你关联的社交账户。如有需要，请重新授权账户后再重试。极少数情况下，重试可能产生重复帖文。"
+msgid ""
+"These posts could not be crossposted to your linked social accounts. Re-"
+"authorize the account if needed, then retry. In rare cases retrying may "
+"create a duplicate post."
+msgstr ""
+"这些帖文未能转发到你关联的社交账户。如有需要，请重新授权账户后再重试。极少数"
+"情况下，重试可能产生重复帖文。"
 
 #: users/templates/users/crossposts.html:48
 msgid "Time"
@@ -7656,23 +7972,35 @@ msgid "Import Marks and Reviews from Douban"
 msgstr "导入豆瓣标记和评论"
 
 #: users/templates/users/data.html:31
-msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
-msgstr "选择导出自 <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆坟</a> 的 <code>.xlsx</code> 文件"
+msgid ""
+"Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" "
+"target=\"_blank\" rel=\"noopener\">Doufen</a>"
+msgstr ""
+"选择导出自 <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">"
+"豆坟</a> 的 <code>.xlsx</code> 文件"
 
 #: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
 msgstr "导入方式"
 
 #: users/templates/users/data.html:37
-msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
-msgstr "自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）"
+msgid ""
+"Merge: only update when status changes from wishlist to in-progress, or from "
+"in-progress to complete."
+msgstr ""
+"自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评"
+"论（推荐）"
 
 #: users/templates/users/data.html:41
 msgid "Overwrite: update all imported status."
-msgstr "强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改动。"
+msgstr ""
+"强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改"
+"动。"
 
 #: users/templates/users/data.html:74
-msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
+msgid ""
+"Another import is in progress, starting a new import may cause issues, sure "
+"to import?"
 msgstr "短期重复上传可能有无法预期的效果，确定现在上传导入吗？"
 
 #: users/templates/users/data.html:74
@@ -7684,15 +8012,24 @@ msgid "Import from Goodreads"
 msgstr "从Goodreads导入"
 
 #: users/templates/users/data.html:87
-msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
-msgstr "在 Goodreads，点击 <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> 将书库下载为 CSV 文件。"
+msgid ""
+"On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" "
+"target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download "
+"your library as a CSV file."
+msgstr ""
+"在 Goodreads，点击 <a href=\"https://www.goodreads.com/review/import\" "
+"target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> 将书库下载为 "
+"CSV 文件。"
 
 #: users/templates/users/data.html:90
-msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file below."
+msgid ""
+"Upload the downloaded <code>goodreads_library_export.csv</code> file below."
 msgstr "在下方上传下载的 <code>goodreads_library_export.csv</code> 文件。"
 
 #: users/templates/users/data.html:93
-msgid "want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
+msgid ""
+"want-to-read / currently-reading / read / did-not-finish books and their "
+"reviews will be imported."
 msgstr "将导入想读、在读、已读和放弃的书籍及其评论。"
 
 #: users/templates/users/data.html:134
@@ -7700,32 +8037,60 @@ msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
 
 #: users/templates/users/data.html:140
-msgid "on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA"
-msgstr "在 letterboxd.com 网站，点击 <a href=\"https://letterboxd.com/settings/data/\" target=\"_blank\" rel=\"noopener\">Settings 中的 DATA</a>；或在其 App 中，进入 Settings 后点击 Advanced Settings，再点击 EXPORT YOUR DATA"
+msgid ""
+"on letterboxd.com, click <a href=\"https://letterboxd.com/settings/data/\" "
+"target=\"_blank\" rel=\"noopener\">DATA in Settings</a>; or in its app, tap "
+"Advanced Settings in Settings, tap EXPORT YOUR DATA"
+msgstr ""
+"在 letterboxd.com 网站，点击 <a href=\"https://letterboxd.com/settings/data/"
+"\" target=\"_blank\" rel=\"noopener\">Settings 中的 DATA</a>；或在其 App 中，"
+"进入 Settings 后点击 Advanced Settings，再点击 EXPORT YOUR DATA"
 
 #: users/templates/users/data.html:143
-msgid "download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip"
-msgstr "下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</code> 的文件，请勿解压"
+msgid ""
+"download file with name like <code>letterboxd-username-2018-03-11-07-52-"
+"utc.zip</code>, do not unzip"
+msgstr ""
+"下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</code> 的文"
+"件，请勿解压"
 
 #: users/templates/users/data.html:146
-msgid "the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
-msgstr "zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
+msgid ""
+"the following files in the zip file will be processed: <code>reviews.csv</"
+"code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</"
+"code> <code>lists/*.csv</code>"
+msgstr ""
+"zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</"
+"code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</"
+"code>"
 
 #: users/templates/users/data.html:149
-msgid "exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
-msgstr "导出文件不含片单的公开、不公开或私密状态，因此所有导入的标记、评论和收藏单都将以下方选择的可见性创建"
+msgid ""
+"exported file does not indicate whether a list is private, unlisted or "
+"public, so all imported marks, reviews and collections will be created with "
+"the visibility selected below"
+msgstr ""
+"导出文件不含片单的公开、不公开或私密状态，因此所有导入的标记、评论和收藏单都"
+"将以下方选择的可见性创建"
 
 #: users/templates/users/data.html:184 users/templates/users/data.html:235
 msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
+msgstr ""
+"导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
 #: users/templates/users/data.html:191
 msgid "Import from Trakt"
 msgstr "导入Trakt标记"
 
 #: users/templates/users/data.html:197
-msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
-msgstr "在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链接出现。"
+msgid ""
+"On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" "
+"rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait "
+"for the download link to appear."
+msgstr ""
+"在<a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" "
+"rel=\"noopener\">Trakt设置 - 数据</a>页面，点击<b>Export now</b>，等待下载链"
+"接出现。"
 
 #: users/templates/users/data.html:200
 msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
@@ -7765,8 +8130,12 @@ msgid "Import NeoDB Archive"
 msgstr "导入NeoDB备份"
 
 #: users/templates/users/data.html:312
-msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
-msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</code>压缩包。"
+msgid ""
+"Upload a <code>.zip</code> file containing <code>.csv</code> or "
+"<code>.ndjson</code> files exported from NeoDB."
+msgstr ""
+"上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</"
+"code>压缩包。"
 
 #: users/templates/users/data.html:314
 msgid "Existing data may be overwritten."
@@ -7817,15 +8186,25 @@ msgid "Import and Export Articles (WordPress)"
 msgstr "导入和导出文章（WordPress）"
 
 #: users/templates/users/data.html:499
-msgid "Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those."
-msgstr "文章以 WXR 格式的 WordPress 文章交换，WordPress 和大多数博客工具都可以读写该格式。不包含标记、评论和笔记，这些请使用上面的 NeoDB 存档。"
+msgid ""
+"Your articles are exchanged as WordPress posts in the WXR format, which "
+"WordPress and most blogging tools can read and write. Marks, reviews and "
+"notes are not included: use the NeoDB archive above for those."
+msgstr ""
+"文章以 WXR 格式的 WordPress 文章交换，WordPress 和大多数博客工具都可以读写该"
+"格式。不包含标记、评论和笔记，这些请使用上面的 NeoDB 存档。"
 
 #: users/templates/users/data.html:502
-msgid "Article title, body, excerpt, tags, dates and featured image are exchanged. Comments and custom fields are ignored."
-msgstr "交换文章的标题、正文、摘要、标签、日期和特色图片。评论和自定义字段会被忽略。"
+msgid ""
+"Article title, body, excerpt, tags, dates and featured image are exchanged. "
+"Comments and custom fields are ignored."
+msgstr ""
+"交换文章的标题、正文、摘要、标签、日期和特色图片。评论和自定义字段会被忽略。"
 
 #: users/templates/users/data.html:505
-msgid "The body is converted between Markdown and HTML, so formatting is kept but the text is not character-for-character identical."
+msgid ""
+"The body is converted between Markdown and HTML, so formatting is kept but "
+"the text is not character-for-character identical."
 msgstr "正文在 Markdown 和 HTML 之间转换，格式会保留，但文本不是逐字符相同的。"
 
 #: users/templates/users/data.html:512
@@ -7833,19 +8212,30 @@ msgid "Export articles in WordPress format"
 msgstr "以 WordPress 格式导出文章"
 
 #: users/templates/users/data.html:519
-msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
-msgstr "在 WordPress 中，进入 <b>工具</b> - <b>导出</b> - <b>文章</b> 下载 <code>.xml</code> 文件，然后在下面上传。"
+msgid ""
+"In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download "
+"an <code>.xml</code> file, then upload it below."
+msgstr ""
+"在 WordPress 中，进入 <b>工具</b> - <b>导出</b> - <b>文章</b> 下载 "
+"<code>.xml</code> 文件，然后在下面上传。"
 
 #: users/templates/users/data.html:522
-msgid "Only published posts use the visibility below. Drafts, pending, private and password-protected posts are always imported as mentioned-only, so nothing unpublished becomes public."
-msgstr "只有已发布的文章使用下面的可见性。草稿、待审、私密和密码保护的文章总是以仅提及的可见性导入，因此未发布的内容不会变为公开。"
+msgid ""
+"Only published posts use the visibility below. Drafts, pending, private and "
+"password-protected posts are always imported as mentioned-only, so nothing "
+"unpublished becomes public."
+msgstr ""
+"只有已发布的文章使用下面的可见性。草稿、待审、私密和密码保护的文章总是以仅提"
+"及的可见性导入，因此未发布的内容不会变为公开。"
 
 #: users/templates/users/data.html:560
 msgid "View Annual Summary"
 msgstr "查看年度小结"
 
 #: users/templates/users/fetch_identity_failed.html:4
-msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
+msgid ""
+"Unable to find the user, please check your spelling; or the server may be "
+"busy, please try again later."
 msgstr "无法找到用户，请确认拼写正确；也可能服务器正忙，请稍后再尝试。"
 
 #: users/templates/users/fetch_identity_pending.html:13
@@ -7866,7 +8256,8 @@ msgid "logo"
 msgstr "图标"
 
 #: users/templates/users/login.html:127
-msgid "Sign in with a passkey saved on this device or in your password manager."
+msgid ""
+"Sign in with a passkey saved on this device or in your password manager."
 msgstr "使用保存在此设备或密码管理器中的通行密钥登录。"
 
 #: users/templates/users/login.html:132
@@ -7886,24 +8277,40 @@ msgid "Domain of your instance, e.g. mastodon.social"
 msgstr "实例域名(不含@和@之前的部分)，如mastodon.social"
 
 #: users/templates/users/login.html:177
-msgid "Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
-msgstr "请输入你的实例域名(不含@和@之前的部分)；如果你的联邦账号是<i>@neodb@mastodon.social</i>，只需要在此输入<i>mastodon.social</i>。"
+msgid ""
+"Please enter domain of your instance; e.g. if your id is "
+"<i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>."
+msgstr ""
+"请输入你的实例域名(不含@和@之前的部分)；如果你的联邦账号是"
+"<i>@neodb@mastodon.social</i>，只需要在此输入<i>mastodon.social</i>。"
 
 #: users/templates/users/login.html:182 users/templates/users/login.html:246
 msgid "Authorize via Fediverse instance"
 msgstr "去联邦实例授权注册或登录"
 
 #: users/templates/users/login.html:187
-msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
-msgstr "如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其它平台注册登录，未来再作关联。"
+msgid ""
+"If you don't have a <a href=\"https://joinmastodon.org/servers\" "
+"target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or "
+"login with Email first, and link it with Fediverse (Mastodon) later in "
+"account settings."
+msgstr ""
+"如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" "
+"target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其它平台注册登录，未"
+"来再作关联。"
 
 #: users/templates/users/login.html:200
 msgid "Authorize via Threads"
 msgstr "去Threads授权注册或登录"
 
 #: users/templates/users/login.html:221
-msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one."
-msgstr "请输入你的ATProto用户标识（例如neodb.bsky.social，不包含开头的@），不要输入电子邮件地址。如果你最近更改过标识，请使用最新的那一个。"
+msgid ""
+"Please input your ATProto handle (e.g. neodb.bsky.social, without the "
+"leading @), do not use email. If you changed handle recently, just use the "
+"latest one."
+msgstr ""
+"请输入你的ATProto用户标识（例如neodb.bsky.social，不包含开头的@），不要输入电"
+"子邮件地址。如果你最近更改过标识，请使用最新的那一个。"
 
 #: users/templates/users/login.html:224
 msgid "Authorize via ATProto server"
@@ -7911,15 +8318,22 @@ msgstr "去 ATProto 服务器授权注册或登录"
 
 #: users/templates/users/login.html:231
 #, python-format
-msgid "Please choose one to register or login %(site_name)s. Have more than one of these identities? Don't worry, you may link them in account settings once logged in."
-msgstr "请选择一种方式注册或登录 %(site_name)s。如果你有多个社交身份，登录后可在账号设置中添加绑定。"
+msgid ""
+"Please choose one to register or login %(site_name)s. Have more than one of "
+"these identities? Don't worry, you may link them in account settings once "
+"logged in."
+msgstr ""
+"请选择一种方式注册或登录 %(site_name)s。如果你有多个社交身份，登录后可在账号"
+"设置中添加绑定。"
 
 #: users/templates/users/login.html:255
 msgid "Valid invitation code, please login or register."
 msgstr "邀请链接有效，可注册新用户"
 
 #: users/templates/users/login.html:257
-msgid "Please use invitation link to register a new account; existing user may login."
+msgid ""
+"Please use invitation link to register a new account; existing user may "
+"login."
 msgstr "本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册"
 
 #: users/templates/users/login.html:259
@@ -7931,8 +8345,13 @@ msgid "Loading timed out, please check your network (VPN) settings."
 msgstr "部分模块加载超时，请检查网络（翻墙）设置。"
 
 #: users/templates/users/login.html:273
-msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
-msgstr "继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/terms/\">协议</a>，及使用cookie提供必要功能"
+msgid ""
+"Continue using this site implies consent to our <a href=\"/pages/rules/"
+"\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using "
+"cookies to provide necessary functionality."
+msgstr ""
+"继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/"
+"terms/\">协议</a>，及使用cookie提供必要功能"
 
 #: users/templates/users/login.html:287
 msgid "Domain of your instance (excl. @)"
@@ -7944,8 +8363,12 @@ msgid "Migrate Here"
 msgstr "迁入账号"
 
 #: users/templates/users/migrate_in.html:22
-msgid "To move another account to this one, first add it as an alias here, and then go to the server where it is hosted and initiate the move."
-msgstr "要将其他账号迁移到此账号，请先在此处添加别名，然后前往该账号所在的服务器发起迁移。"
+msgid ""
+"To move another account to this one, first add it as an alias here, and then "
+"go to the server where it is hosted and initiate the move."
+msgstr ""
+"要将其他账号迁移到此账号，请先在此处添加别名，然后前往该账号所在的服务器发起"
+"迁移。"
 
 #: users/templates/users/migrate_in.html:27
 msgid "Account to alias"
@@ -7986,11 +8409,18 @@ msgstr "取消迁移"
 
 #: users/templates/users/migrate_out.html:46
 #, python-format
-msgid "To migrate to another account, first add <code>@%(handle)s</code> as an alias on the target server, and then type the target account below to start the migration."
-msgstr "要迁移到其他账号，请先在目标服务器上将 <code>@%(handle)s</code> 添加为别名，然后在下方输入目标账号以开始迁移。"
+msgid ""
+"To migrate to another account, first add <code>@%(handle)s</code> as an "
+"alias on the target server, and then type the target account below to start "
+"the migration."
+msgstr ""
+"要迁移到其他账号，请先在目标服务器上将 <code>@%(handle)s</code> 添加为别名，"
+"然后在下方输入目标账号以开始迁移。"
 
 #: users/templates/users/migrate_out.html:50
-msgid "Are you sure you want to migrate your account? Your followers will be moved to the target account."
+msgid ""
+"Are you sure you want to migrate your account? Your followers will be moved "
+"to the target account."
 msgstr "确定要迁移你的账号吗？你的关注者将被迁移到目标账号。"
 
 #: users/templates/users/migrate_out.html:53
@@ -8036,7 +8466,9 @@ msgstr "发表时默认转发到社交网络时间轴"
 
 #: users/templates/users/preferences.html:111
 #: users/templates/users/register.html:88
-msgid "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account."
+msgid ""
+"If a Mastodon account is linked with this identity, boosting a post will "
+"also make the same post boosted with that Mastodon account."
 msgstr "在网站上点击转播帖文时用关联的联邦账号再次转播"
 
 #: users/templates/users/preferences.html:115
@@ -8052,13 +8484,19 @@ msgid "Create a new post"
 msgstr "另发新帖文"
 
 #: users/templates/users/preferences.html:130
-msgid "this method is less optimal, may generate duplicated posts and miss reactions."
+msgid ""
+"this method is less optimal, may generate duplicated posts and miss "
+"reactions."
 msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、点赞不会被记录"
 
 #: users/templates/users/preferences.html:140
 #: users/templates/users/register.html:97
-msgid "Always publish my public marks, reviews and articles as data records to my PDS."
-msgstr "始终将公开的标记、评论和文章作为数据记录发布到我的个人数据服务器；转发开关仅控制是否发布Bluesky时间轴帖文"
+msgid ""
+"Always publish my public marks, reviews and articles as data records to my "
+"PDS."
+msgstr ""
+"始终将公开的标记、评论和文章作为数据记录发布到我的个人数据服务器；转发开关仅"
+"控制是否发布Bluesky时间轴帖文"
 
 #: users/templates/users/preferences.html:145
 msgid "Append tags when posting to timeline"
@@ -8077,8 +8515,16 @@ msgid "Automatic bookmark for these categories"
 msgstr "以下类型自动加入书签"
 
 #: users/templates/users/preferences.html:175
-msgid "When start to read/watch/play/... an item in these categories, a bookmark will be created automatically. Bookmarks can be viewed and managed in most <a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon compatible apps</a>; your replies to these posts will automatically become notes for the item."
-msgstr "将这些类型的条目标记为在读/在看/在玩/...时，自动把相应帖文添加为书签。这些书签帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">应用程序</a>查看和管理，你对这些帖文的回复会自动成为该条目的笔记。"
+msgid ""
+"When start to read/watch/play/... an item in these categories, a bookmark "
+"will be created automatically. Bookmarks can be viewed and managed in most "
+"<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">Mastodon "
+"compatible apps</a>; your replies to these posts will automatically become "
+"notes for the item."
+msgstr ""
+"将这些类型的条目标记为在读/在看/在玩/...时，自动把相应帖文添加为书签。这些书"
+"签帖文可使用<a href=\"https://joinmastodon.org/apps\" target=\"_blank\">应用"
+"程序</a>查看和管理，你对这些帖文的回复会自动成为该条目的笔记。"
 
 #: users/templates/users/preferences.html:183
 msgid "Turn replies to my own catalog item posts into notes for the item"
@@ -8097,8 +8543,12 @@ msgid "Profile visible to anonymous web visitors and search engines"
 msgstr "匿名访客和搜索引擎可以查看你的个人主页"
 
 #: users/templates/users/preferences.html:217
-msgid "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting"
-msgstr "此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本人"
+msgid ""
+"this option limits web visits only; to limit fediverse visibility, choose "
+"followers only or mentioned only when posting"
+msgstr ""
+"此选项仅针对网页访客，如果不希望被联邦网络用户看到请在发表时选择仅关注者或本"
+"人"
 
 #: users/templates/users/preferences.html:225
 msgid "Show your name on item page if you recently edited it"
@@ -8109,8 +8559,24 @@ msgid "Do not show me item recommendations"
 msgstr "不向我展示条目推荐"
 
 #: users/templates/users/preferences.html:237
-msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
-msgstr "推荐仅基于公开标记在本服务器批量计算生成。你的私密标记与仅关注者可见的标记不会被用作任何人的推荐信号；本功能也不会与任何第三方共享你的数据。当你公开分享标记并保持个人资料可被发现时，你的标记会帮助本服务器与联邦宇宙中的其他人发现他们可能喜欢的内容——正是这种自愿的分享让本功能对每个人都有价值。如果你不希望参与贡献，请在账户页面取消勾选「允许个人资料、标记和帖文包含在发现中」；该设置会通过 ActivityPub 发布，其他服务器也会据此将你排除在他们的发现功能之外。"
+msgid ""
+"Recommendations are generated only from public marks, processed in batch on "
+"this server. Your private and follower-only marks are never used as a signal "
+"for anyone, and we never share your data with third parties for this "
+"feature. When you share marks publicly and keep your profile discoverable, "
+"your marks help others here and across the Fediverse find things they might "
+"enjoy -- that voluntary contribution is what makes the feature work for "
+"everyone. If you'd rather not contribute, uncheck \"Include profile, marks "
+"and posts in discovery\" on your account page; this setting is published "
+"over ActivityPub, so other servers will also stop including you in their "
+"discovery features."
+msgstr ""
+"推荐仅基于公开标记在本服务器批量计算生成。你的私密标记与仅关注者可见的标记不"
+"会被用作任何人的推荐信号；本功能也不会与任何第三方共享你的数据。当你公开分享"
+"标记并保持个人资料可被发现时，你的标记会帮助本服务器与联邦宇宙中的其他人发现"
+"他们可能喜欢的内容——正是这种自愿的分享让本功能对每个人都有价值。如果你不希望"
+"参与贡献，请在账户页面取消勾选「允许个人资料、标记和帖文包含在发现中」；该设"
+"置会通过 ActivityPub 发布，其他服务器也会据此将你排除在他们的发现功能之外。"
 
 #: users/templates/users/profile_actions.html:12
 msgid "click to unblock"
@@ -8210,11 +8676,15 @@ msgid "2-30 alphabets, numbers or underscore, can't be changed once saved"
 msgstr "2-30个字符，限英文字母数字下划线，保存后不可更改"
 
 #: users/templates/users/register.html:72
-msgid "Use display name, bio and avatar from the social network you authenticated with"
+msgid ""
+"Use display name, bio and avatar from the social network you authenticated "
+"with"
 msgstr "自动同步用户昵称等基本信息"
 
 #: users/templates/users/register.html:80
-msgid "Add follow, mute and block list from the social network you authenticated with"
+msgid ""
+"Add follow, mute and block list from the social network you authenticated "
+"with"
 msgstr "自动导入新增的关注、屏蔽和隐藏列表"
 
 #: users/templates/users/register.html:104
@@ -8247,11 +8717,13 @@ msgstr "审阅 RateYourMusic 匹配结果"
 #, python-format
 msgid ""
 "\n"
-"              Matched %(local)s locally, %(external)s externally, %(unmatched)s unmatched out of %(total)s rows.\n"
+"              Matched %(local)s locally, %(external)s externally, "
+"%(unmatched)s unmatched out of %(total)s rows.\n"
 "            "
 msgstr ""
 "\n"
-"              共 %(total)s 行，本地匹配 %(local)s 条，外部匹配 %(external)s 条，%(unmatched)s 条未匹配。\n"
+"              共 %(total)s 行，本地匹配 %(local)s 条，外部匹配 %(external)s "
+"条，%(unmatched)s 条未匹配。\n"
 "            "
 
 #: users/templates/users/rym_import.html:45
@@ -8367,7 +8839,9 @@ msgid "Played"
 msgstr "玩过"
 
 #: users/templates/users/steam_import.html:90
-msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
+msgid ""
+"Games in wishlist; or purchased in library but never played, mark date will "
+"be set as today"
 msgstr "愿望清单中的游戏；以及游戏库中从未打开过的游戏"
 
 #: users/templates/users/steam_import.html:91
@@ -8407,11 +8881,15 @@ msgid "Comma-separated Steam AppIDs"
 msgstr "以逗号分隔的Steam AppID列表"
 
 #: users/templates/users/steam_import.html:121
-msgid "Allow reverse override of status (e.g. playing -> want to, or played -> playing)"
+msgid ""
+"Allow reverse override of status (e.g. playing -> want to, or played -> "
+"playing)"
 msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过->在玩）"
 
 #: users/templates/users/steam_import.html:139
-msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
+msgid ""
+"To import from Steam, your game details must be visible to public in Steam "
+"privacy settings."
 msgstr "Steam资料必须公开可见才能导入"
 
 #: users/templates/users/storygraph_import.html:9
@@ -8456,19 +8934,31 @@ msgstr "欢迎"
 #, python-format
 msgid ""
 "\n"
-"              %(site_name)s is flourishing because of collaborations and contributions from users like you. Please read our <a href=\"/pages/rules\">rules</a>, and feel free to <a href=\"%(support_link)s\">contact us</a> if you have any question or feedback.\n"
+"              %(site_name)s is flourishing because of collaborations and "
+"contributions from users like you. Please read our <a href=\"/pages/"
+"rules\">rules</a>, and feel free to <a href=\"%(support_link)s\">contact us</"
+"a> if you have any question or feedback.\n"
 "        "
 msgstr ""
 "\n"
-"              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！\n"
+"              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图"
+"添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严"
+"肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/"
+"pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用"
+"过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感"
+"谢理解和支持！\n"
 "        "
 
 #: users/templates/users/welcome.html:37
-msgid "Set up a passkey to sign in quickly next time using your fingerprint, face, or screen lock."
+msgid ""
+"Set up a passkey to sign in quickly next time using your fingerprint, face, "
+"or screen lock."
 msgstr "设置通行密钥，下次可以使用指纹、面容或屏幕锁快速登录。"
 
 #: users/templates/users/welcome.html:39
-msgid "Creating a passkey is highly recommended, as the website or email you use to create this account may not be always available."
+msgid ""
+"Creating a passkey is highly recommended, as the website or email you use to "
+"create this account may not be always available."
 msgstr "强烈建议创建通行密钥，因为你用来注册此账户的第三方网站或邮箱可能失效。"
 
 #: users/templates/users/welcome.html:43
@@ -8668,7 +9158,8 @@ msgstr "CSV 文件中未找到有效条目。"
 
 #: users/views/data.py:1402
 #, python-brace-format
-msgid "Import of {count} entries received. They will be processed in the background."
+msgid ""
+"Import of {count} entries received. They will be processed in the background."
 msgstr "已接收 {count} 条导入数据，将在后台处理。"
 
 #: users/views/webauthn.py:103

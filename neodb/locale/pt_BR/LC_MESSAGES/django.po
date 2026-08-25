@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 22:51-0400\n"
+"POT-Creation-Date: 2026-08-23 15:40-0400\n"
 "PO-Revision-Date: 2026-08-14 19:05+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
@@ -1668,7 +1668,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr "Remover minha verificação"
 
-#: catalog/templates/_verify_status.html:31
+#: catalog/templates/_verify_status.html:31 users/views/account.py:309
 msgid "Verification failed"
 msgstr "Falha na verificação"
 
@@ -1736,12 +1736,12 @@ msgid "Item has been marked by users."
 msgstr "O item foi marcado por usuários."
 
 #: catalog/templates/catalog_delete.html:48
-#: catalog/templates/catalog_merge.html:92 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:92 common/views_manage.py:51
 msgid "Yes"
 msgstr "Sim"
 
 #: catalog/templates/catalog_delete.html:49
-#: catalog/templates/catalog_merge.html:93 common/views_manage.py:50
+#: catalog/templates/catalog_merge.html:93 common/views_manage.py:51
 msgid "No"
 msgstr "Não"
 
@@ -1887,8 +1887,8 @@ msgstr ""
 "Dúvidas ou problemas com a verificação de criador? Avise os moderadores do "
 "site."
 
-#: catalog/templates/discover.html:28 common/views_manage.py:144
-#: common/views_manage.py:352 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:28 common/views_manage.py:145
+#: common/views_manage.py:353 users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr "Descobrir"
 
@@ -2386,7 +2386,7 @@ msgstr "A verificação já está em andamento."
 msgid "Please wait a moment before trying again."
 msgstr "Aguarde um instante antes de tentar novamente."
 
-#: catalog/views/verify.py:164 common/utils.py:109 common/utils.py:150
+#: catalog/views/verify.py:164 common/utils.py:122 common/utils.py:163
 #: journal/views/article.py:186 journal/views/review.py:182
 #: users/views/actions.py:45 users/views/actions.py:131
 msgid "User not found"
@@ -4109,7 +4109,7 @@ msgstr "Código-Fonte"
 msgid "Registration"
 msgstr "Registro"
 
-#: common/templates/common/about.html:35 common/views_manage.py:490
+#: common/templates/common/about.html:35 common/views_manage.py:493
 msgid "Invite Only"
 msgstr "Somente por Convite"
 
@@ -4117,7 +4117,7 @@ msgstr "Somente por Convite"
 msgid "Open Registration"
 msgstr "Registro Aberto"
 
-#: common/templates/common/about.html:40 common/views_manage.py:532
+#: common/templates/common/about.html:40 common/views_manage.py:556
 msgid "Preferred Languages"
 msgstr "Idiomas Preferidos"
 
@@ -4179,7 +4179,7 @@ msgstr "Solicitando acesso à câmera..."
 msgid "Or type barcode / ISBN manually"
 msgstr "Ou digite o código de barras / ISBN manualmente"
 
-#: common/templates/common/scan.html:60 common/views_manage.py:602
+#: common/templates/common/scan.html:60 common/views_manage.py:628
 msgid "Search"
 msgstr "Buscar"
 
@@ -4247,188 +4247,188 @@ msgstr "você"
 msgid "unavailable"
 msgstr "indisponível"
 
-#: common/utils.py:113 common/utils.py:154 users/views/actions.py:134
+#: common/utils.py:126 common/utils.py:167 users/views/actions.py:134
 msgid "User no longer exists"
 msgstr "Usuário não existe mais"
 
-#: common/utils.py:120 common/utils.py:122 common/utils.py:125
-#: common/utils.py:161 common/utils.py:165 journal/views/profile.py:499
+#: common/utils.py:133 common/utils.py:135 common/utils.py:138
+#: common/utils.py:174 common/utils.py:178 journal/views/profile.py:499
 msgid "Access denied"
 msgstr "Acesso negado"
 
-#: common/utils.py:128 common/utils.py:130 journal/views/article.py:204
+#: common/utils.py:141 common/utils.py:143 journal/views/article.py:204
 #: journal/views/profile.py:540 journal/views/review.py:200
 msgid "Login required"
 msgstr "Login obrigatório"
 
-#: common/views_manage.py:143 common/views_manage.py:294
+#: common/views_manage.py:144 common/views_manage.py:295
 msgid "Branding"
 msgstr "Identidade Visual"
 
-#: common/views_manage.py:145
+#: common/views_manage.py:146
 msgid "Recommendations"
 msgstr "Recomendações"
 
-#: common/views_manage.py:146
+#: common/views_manage.py:147
 msgid "Access"
 msgstr "Acesso"
 
-#: common/views_manage.py:147 common/views_manage.py:597
+#: common/views_manage.py:148 common/views_manage.py:623
 msgid "Federation"
 msgstr "Federação"
 
-#: common/views_manage.py:148
+#: common/views_manage.py:149
 msgid "Catalog"
 msgstr "Catálogo"
 
-#: common/views_manage.py:149
+#: common/views_manage.py:150
 msgid "API Keys"
 msgstr "Chaves de API"
 
-#: common/views_manage.py:150
+#: common/views_manage.py:151
 msgid "Downloader"
 msgstr "Downloader"
 
-#: common/views_manage.py:151 common/views_manage.py:302
+#: common/views_manage.py:152 common/views_manage.py:303
 #: users/templates/users/steam_import.html:113
 msgid "Advanced"
 msgstr "Avançado"
 
-#: common/views_manage.py:201
+#: common/views_manage.py:202
 msgid "Invalid value."
 msgstr "Valor inválido."
 
-#: common/views_manage.py:205
+#: common/views_manage.py:206
 msgid "Invalid configuration. Please check your input."
 msgstr "Configuração inválida. Verifique sua entrada."
 
-#: common/views_manage.py:210
+#: common/views_manage.py:211
 msgid "Settings have been saved."
 msgstr "As configurações foram salvas."
 
-#: common/views_manage.py:230
+#: common/views_manage.py:231
 msgid "Site Name"
 msgstr "Nome do Site"
 
-#: common/views_manage.py:233
+#: common/views_manage.py:234
 msgid "Site Description"
 msgstr "Descrição do Site"
 
-#: common/views_manage.py:234
+#: common/views_manage.py:235
 msgid "Short description shown in metadata and about page."
 msgstr "Breve descrição exibida nos metadados e na página sobre."
 
-#: common/views_manage.py:237
+#: common/views_manage.py:238
 msgid "Site Logo URL"
 msgstr "URL do Logotipo do Site"
 
-#: common/views_manage.py:238
+#: common/views_manage.py:239
 msgid "URL path to the site logo image."
 msgstr "Caminho de URL para a imagem do logotipo do site."
 
-#: common/views_manage.py:241
+#: common/views_manage.py:242
 msgid "Site Icon URL"
 msgstr "URL do Ícone do Site"
 
-#: common/views_manage.py:242
+#: common/views_manage.py:243
 msgid "URL path to the site icon/favicon."
 msgstr "Caminho de URL para o ícone/favicon do site."
 
-#: common/views_manage.py:245
+#: common/views_manage.py:246
 msgid "Default User Avatar URL"
 msgstr "URL do Avatar Padrão do Usuário"
 
-#: common/views_manage.py:246
+#: common/views_manage.py:247
 msgid "URL path to the default user avatar."
 msgstr "Caminho de URL para o avatar padrão do usuário."
 
-#: common/views_manage.py:249
+#: common/views_manage.py:250
 msgid "Site Color Theme"
 msgstr "Tema de Cores do Site"
 
-#: common/views_manage.py:250
+#: common/views_manage.py:251
 msgid "PicoCSS color theme."
 msgstr "Tema de cores do PicoCSS."
 
-#: common/views_manage.py:275
+#: common/views_manage.py:276
 msgid "Site Introduction"
 msgstr "Introdução do Site"
 
-#: common/views_manage.py:276
+#: common/views_manage.py:277
 msgid "URL path for the intro/welcome sidebar page."
 msgstr "Caminho de URL para a página lateral de introdução/boas-vindas."
 
-#: common/views_manage.py:279
+#: common/views_manage.py:280
 msgid "Custom HTML Head"
 msgstr "HTML Personalizado do Cabeçalho"
 
-#: common/views_manage.py:280
+#: common/views_manage.py:281
 msgid "Extra HTML injected into the <head> of all pages."
 msgstr "HTML extra injetado no <head> de todas as páginas."
 
-#: common/views_manage.py:284
+#: common/views_manage.py:285
 msgid "Footer Links"
 msgstr "Links do Rodapé"
 
-#: common/views_manage.py:285
+#: common/views_manage.py:286
 msgid "Link title mapped to URL."
 msgstr "Título do link mapeado para a URL."
 
-#: common/views_manage.py:314
+#: common/views_manage.py:315
 msgid "Minimum Marks for Discover"
 msgstr "Marcações Mínimas para Descoberta"
 
-#: common/views_manage.py:316
+#: common/views_manage.py:317
 msgid "Number of marks required for an item to appear in discover."
 msgstr ""
 "Número de marcações necessárias para que um item apareça na descoberta."
 
-#: common/views_manage.py:321
+#: common/views_manage.py:322
 msgid "Update Interval (minutes)"
 msgstr "Intervalo de Atualização (minutos)"
 
-#: common/views_manage.py:322
+#: common/views_manage.py:323
 msgid "How often to refresh the popular items list."
 msgstr "Com que frequência atualizar a lista de itens populares."
 
-#: common/views_manage.py:326
+#: common/views_manage.py:327
 msgid "Filter by Preferred Languages"
 msgstr "Filtrar por Idiomas Preferidos"
 
-#: common/views_manage.py:327
+#: common/views_manage.py:328
 msgid "Only show items with titles in the preferred languages."
 msgstr "Mostrar apenas itens com títulos nos idiomas preferidos."
 
-#: common/views_manage.py:330
+#: common/views_manage.py:331
 msgid "Show Local Only"
 msgstr "Mostrar Apenas Local"
 
-#: common/views_manage.py:332
+#: common/views_manage.py:333
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 "Mostrar apenas itens marcados por usuários locais, e não por toda a rede."
 
-#: common/views_manage.py:336
+#: common/views_manage.py:337
 msgid "Show Popular Posts"
 msgstr "Mostrar Publicações Populares"
 
-#: common/views_manage.py:337
+#: common/views_manage.py:338
 msgid "Show popular public posts instead of recent ones."
 msgstr "Mostrar publicações públicas populares em vez das mais recentes."
 
-#: common/views_manage.py:340
+#: common/views_manage.py:341
 msgid "Show Popular Tags"
 msgstr "Mostrar Etiquetas Populares"
 
-#: common/views_manage.py:341
+#: common/views_manage.py:342
 msgid "Show popular public tags on the discover page."
 msgstr "Mostrar etiquetas públicas populares na página de descoberta."
 
-#: common/views_manage.py:344
+#: common/views_manage.py:345
 msgid "Show Verified Podcasts"
 msgstr "Mostrar Podcasts Verificados"
 
-#: common/views_manage.py:346
+#: common/views_manage.py:347
 msgid ""
 "Show a shelf of recent episodes from podcasts with a verified creator on the "
 "discover page."
@@ -4436,11 +4436,11 @@ msgstr ""
 "Mostrar uma prateleira com episódios recentes de podcasts com criador "
 "verificado na página de descoberta."
 
-#: common/views_manage.py:385
+#: common/views_manage.py:386
 msgid "Enable Recommendations"
 msgstr "Ativar Recomendações"
 
-#: common/views_manage.py:387
+#: common/views_manage.py:388
 msgid ""
 "Master switch. When off, all recommendation surfaces are hidden and the cron "
 "jobs are not scheduled."
@@ -4448,49 +4448,49 @@ msgstr ""
 "Interruptor principal. Quando desativado, todas as seções de recomendação "
 "ficam ocultas e as tarefas agendadas (cron jobs) não são executadas."
 
-#: common/views_manage.py:392
+#: common/views_manage.py:393
 msgid "Source Item Mark Threshold"
 msgstr "Limite de Marcações do Item de Origem"
 
-#: common/views_manage.py:394
+#: common/views_manage.py:395
 msgid ""
 "Minimum public marks an item needs before similarity rows are built for it."
 msgstr ""
 "Número mínimo de marcações públicas que um item precisa ter antes que as "
 "linhas de similaridade sejam geradas para ele."
 
-#: common/views_manage.py:400
+#: common/views_manage.py:401
 msgid "Target Item Mark Threshold"
 msgstr "Limite de Marcações do Item de Destino"
 
-#: common/views_manage.py:402
+#: common/views_manage.py:403
 msgid ""
 "Minimum public marks an item needs to be eligible as a recommendation target."
 msgstr ""
 "Número mínimo de marcações públicas que um item precisa ter para ser "
 "elegível como alvo de recomendação."
 
-#: common/views_manage.py:408
+#: common/views_manage.py:409
 msgid "Top-K Similar Items per Source"
 msgstr "Top-K Itens Semelhantes por Origem"
 
-#: common/views_manage.py:409
+#: common/views_manage.py:410
 msgid "Number of similar items stored per source item."
 msgstr "Número de itens semelhantes armazenados por item de origem."
 
-#: common/views_manage.py:413
+#: common/views_manage.py:414
 msgid "Top-N Recommendations per User"
 msgstr "Top-N Recomendações por Usuário"
 
-#: common/views_manage.py:414
+#: common/views_manage.py:415
 msgid "Number of personalised rows stored per user."
 msgstr "Número de linhas personalizadas armazenadas por usuário."
 
-#: common/views_manage.py:418
+#: common/views_manage.py:419
 msgid "Dampen Heavy Shelvers"
 msgstr "Atenuar Usuários com Muitas Marcações"
 
-#: common/views_manage.py:420
+#: common/views_manage.py:421
 msgid ""
 "Weight each user's contribution by 1/sqrt(n_marks) to neutralise mega-"
 "shelvers in similarity scoring."
@@ -4499,11 +4499,11 @@ msgstr ""
 "neutralizar o efeito de usuários com um volume muito alto de marcações no "
 "cálculo de similaridade."
 
-#: common/views_manage.py:425
+#: common/views_manage.py:426
 msgid "Per-User Mark Cap (training)"
 msgstr "Limite de Marcações por Usuário (treinamento)"
 
-#: common/views_manage.py:427
+#: common/views_manage.py:428
 msgid ""
 "Truncate each user's contribution to their N most recent marks when building "
 "the similarity matrix."
@@ -4511,11 +4511,11 @@ msgstr ""
 "Trunca a contribuição de cada usuário para suas N marcações mais recentes ao "
 "construir a matriz de similaridade."
 
-#: common/views_manage.py:433
+#: common/views_manage.py:434
 msgid "Active-User Window (days)"
 msgstr "Janela de Usuário Ativo (dias)"
 
-#: common/views_manage.py:435
+#: common/views_manage.py:436
 msgid ""
 "Refresh personalised recommendations for users with at least one public mark "
 "in the last N days."
@@ -4523,11 +4523,11 @@ msgstr ""
 "Atualiza as recomendações personalizadas para usuários com pelo menos uma "
 "marcação pública nos últimos N dias."
 
-#: common/views_manage.py:441
+#: common/views_manage.py:442
 msgid "Per-User Seed Cap (serving)"
 msgstr "Limite de Itens-Semente por Usuário (exibição)"
 
-#: common/views_manage.py:443
+#: common/views_manage.py:444
 msgid ""
 "Number of recent marks used as seeds when scoring personalised "
 "recommendations for one user."
@@ -4535,11 +4535,11 @@ msgstr ""
 "Número de marcações recentes usadas como sementes ao pontuar recomendações "
 "personalizadas para um usuário."
 
-#: common/views_manage.py:449
+#: common/views_manage.py:450
 msgid "Lazy Refresh TTL (days)"
 msgstr "TTL de Atualização Sob Demanda (dias)"
 
-#: common/views_manage.py:451
+#: common/views_manage.py:452
 msgid ""
 "How long cached on-demand recommendations are valid before the next request "
 "triggers a refresh."
@@ -4547,11 +4547,11 @@ msgstr ""
 "Por quanto tempo as recomendações em cache geradas sob demanda permanecem "
 "válidas antes que a próxima solicitação acione uma atualização."
 
-#: common/views_manage.py:457
+#: common/views_manage.py:458
 msgid "Circles Window (days)"
 msgstr "Janela de Círculos (dias)"
 
-#: common/views_manage.py:459
+#: common/views_manage.py:460
 msgid ""
 "Look back N days when finding items recently marked by people the viewer "
 "follows."
@@ -4559,19 +4559,19 @@ msgstr ""
 "Retroceder N dias ao buscar itens marcados recentemente por pessoas que o "
 "usuário segue."
 
-#: common/views_manage.py:466
+#: common/views_manage.py:467
 msgid "Master Switch"
 msgstr "Interruptor Principal"
 
-#: common/views_manage.py:469
+#: common/views_manage.py:470
 msgid "Similarity Builder"
 msgstr "Construtor de Similaridade"
 
-#: common/views_manage.py:476
+#: common/views_manage.py:477
 msgid "Personalisation"
 msgstr "Personalização"
 
-#: common/views_manage.py:492
+#: common/views_manage.py:495
 msgid ""
 "Require an invite token to register. Invite tokens can be generated with "
 "neodb-manage invite --create."
@@ -4579,59 +4579,83 @@ msgstr ""
 "Exigir um token de convite para se registrar. Tokens de convite podem ser "
 "gerados com neodb-manage invite --create."
 
-#: common/views_manage.py:497
+#: common/views_manage.py:500
 msgid "Enable Local-Only Posting"
 msgstr "Ativar Publicação Somente Local"
 
-#: common/views_manage.py:498
+#: common/views_manage.py:501
 msgid "Allow users to create posts visible only to local users."
 msgstr ""
 "Permitir que os usuários criem publicações visíveis apenas para usuários "
 "locais."
 
-#: common/views_manage.py:501
+#: common/views_manage.py:504
 msgid "Mastodon Login Whitelist"
 msgstr "Lista de Permissões de Login via Mastodon"
 
-#: common/views_manage.py:502
+#: common/views_manage.py:505
 msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 "Um domínio por linha. Deixe em branco para permitir qualquer instância."
 
-#: common/views_manage.py:505
+#: common/views_manage.py:508
+#, fuzzy
+#| msgid "Registration failed"
+msgid "Registration Captcha Items"
+msgstr "Falha no cadastro"
+
+#: common/views_manage.py:512
+msgid ""
+"Number of item covers a new user must sort into two category rows before "
+"choosing a username. 0 disables the captcha; 5-6 is recommended. The covers "
+"carry no title text, so this cannot be solved with a screen reader: if you "
+"enable it, keep another way in, such as an invite link."
+msgstr ""
+
+#: common/views_manage.py:520
+msgid "Registration Captcha Minimum Marks"
+msgstr ""
+
+#: common/views_manage.py:523
+msgid ""
+"Marks an item needs before the captcha treats it as well known enough to be "
+"recognizable. Categories with too few such items fall back to any item."
+msgstr ""
+
+#: common/views_manage.py:529
 msgid "Enable Mastodon Login"
 msgstr "Ativar Login via Mastodon"
 
-#: common/views_manage.py:508
+#: common/views_manage.py:532
 msgid "Enable Bluesky Login"
 msgstr "Ativar Login via Bluesky"
 
-#: common/views_manage.py:511
+#: common/views_manage.py:535
 msgid "Enable Threads Login"
 msgstr "Ativar Login via Threads"
 
-#: common/views_manage.py:514
+#: common/views_manage.py:538
 msgid "Email URL"
 msgstr "URL de E-mail"
 
-#: common/views_manage.py:516
+#: common/views_manage.py:540
 msgid "Email backend URL for login codes, such as an SMTP or Anymail URL."
 msgstr ""
 "URL do backend de e-mail para códigos de login, como uma URL SMTP ou Anymail."
 
-#: common/views_manage.py:520
+#: common/views_manage.py:544
 msgid "Email From"
 msgstr "E-mail do Remetente"
 
-#: common/views_manage.py:521
+#: common/views_manage.py:545
 msgid "Sender name and address for outgoing email."
 msgstr "Nome e endereço do remetente para e-mails enviados."
 
-#: common/views_manage.py:524
+#: common/views_manage.py:548
 msgid "Default Language"
 msgstr "Idioma Padrão"
 
-#: common/views_manage.py:527
+#: common/views_manage.py:551
 msgid ""
 "Interface language for visitors and for users who have not chosen one "
 "themselves."
@@ -4639,7 +4663,7 @@ msgstr ""
 "Idioma da interface para visitantes e para usuários que ainda não escolheram "
 "um idioma próprio."
 
-#: common/views_manage.py:534
+#: common/views_manage.py:558
 msgid ""
 "Language codes, one per line (e.g. en, zh, ja). First language is the "
 "default."
@@ -4647,29 +4671,29 @@ msgstr ""
 "Códigos de idioma, um por linha (por exemplo, en, zh, ja). O primeiro idioma "
 "é o padrão."
 
-#: common/views_manage.py:540
+#: common/views_manage.py:564
 msgid "Access Control"
 msgstr "Controle de Acesso"
 
-#: common/views_manage.py:545
+#: common/views_manage.py:571
 msgid "Login Methods"
 msgstr "Métodos de Login"
 
-#: common/views_manage.py:550 mastodon/models/common.py:28
+#: common/views_manage.py:576 mastodon/models/common.py:28
 #: users/templates/users/account.html:45 users/templates/users/account.html:55
 #: users/templates/users/login.html:76
 msgid "Email"
 msgstr "Email"
 
-#: common/views_manage.py:554
+#: common/views_manage.py:580
 msgid "Localization"
 msgstr "Localização"
 
-#: common/views_manage.py:565
+#: common/views_manage.py:591
 msgid "Disable Default Relay"
 msgstr "Desativar Relay Padrão"
 
-#: common/views_manage.py:567
+#: common/views_manage.py:593
 msgid ""
 "Disable relay.neodb.net federation for sharing public ratings across "
 "instances."
@@ -4677,96 +4701,96 @@ msgstr ""
 "Desativar a federação relay.neodb.net usada para compartilhar avaliações "
 "públicas entre instâncias."
 
-#: common/views_manage.py:572
+#: common/views_manage.py:598
 msgid "Fanout Limit (days)"
 msgstr "Limite de Distribuição (dias)"
 
-#: common/views_manage.py:573
+#: common/views_manage.py:599
 msgid "Posts older than this many days will not be fanned out."
 msgstr ""
 "Publicações mais antigas que este número de dias não serão distribuídas."
 
-#: common/views_manage.py:577
+#: common/views_manage.py:603
 msgid "Remote Prune Horizon (days)"
 msgstr "Horizonte de Remoção Remota (dias)"
 
-#: common/views_manage.py:579
+#: common/views_manage.py:605
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr "Perfis remotos inativos por esse número de dias serão removidos."
 
-#: common/views_manage.py:584
+#: common/views_manage.py:610
 msgid "Search Sites"
 msgstr "Sites de Busca"
 
-#: common/views_manage.py:585
+#: common/views_manage.py:611
 msgid "External search sites to include, one per line."
 msgstr "Sites de busca externos a incluir, um por linha."
 
-#: common/views_manage.py:588
+#: common/views_manage.py:614
 msgid "Federated Search Peers"
 msgstr "Pares de Busca Federada"
 
-#: common/views_manage.py:589
+#: common/views_manage.py:615
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr "Instâncias parceiras do NeoDB para busca federada, uma por linha."
 
-#: common/views_manage.py:592
+#: common/views_manage.py:618
 msgid "Hidden Categories"
 msgstr "Categorias Ocultas"
 
-#: common/views_manage.py:593
+#: common/views_manage.py:619
 msgid "Category values to hide from the catalog, one per line."
 msgstr "Valores de categoria a ocultar do catálogo, um por linha."
 
-#: common/views_manage.py:614
+#: common/views_manage.py:640
 msgid "Spotify API Key"
 msgstr "Chave de API do Spotify"
 
-#: common/views_manage.py:615
+#: common/views_manage.py:641
 msgid "https://developer.spotify.com/"
 msgstr "https://developer.spotify.com/"
 
-#: common/views_manage.py:618
+#: common/views_manage.py:644
 msgid "TMDB API Key"
 msgstr "Chave de API do TMDB"
 
-#: common/views_manage.py:619
+#: common/views_manage.py:645
 msgid "https://developer.themoviedb.org/"
 msgstr "https://developer.themoviedb.org/"
 
-#: common/views_manage.py:622
+#: common/views_manage.py:648
 msgid "Google Books API Key"
 msgstr "Chave de API do Google Books"
 
-#: common/views_manage.py:623
+#: common/views_manage.py:649
 msgid "https://developers.google.com/books/"
 msgstr "https://developers.google.com/books/"
 
-#: common/views_manage.py:626
+#: common/views_manage.py:652
 msgid "Discogs API Key"
 msgstr "Chave de API do Discogs"
 
-#: common/views_manage.py:628
+#: common/views_manage.py:654
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr "Token de acesso pessoal em https://www.discogs.com/settings/developers"
 
-#: common/views_manage.py:632
+#: common/views_manage.py:658
 msgid "IGDB Client ID"
 msgstr "ID do Cliente IGDB"
 
-#: common/views_manage.py:633
+#: common/views_manage.py:659
 msgid "https://api-docs.igdb.com/"
 msgstr "https://api-docs.igdb.com/"
 
-#: common/views_manage.py:636
+#: common/views_manage.py:662
 msgid "IGDB Client Secret"
 msgstr "Segredo do Cliente IGDB"
 
-#: common/views_manage.py:639
+#: common/views_manage.py:665
 msgid "BoardGameGeek API Token"
 msgstr "Token de API do BoardGameGeek"
 
-#: common/views_manage.py:641
+#: common/views_manage.py:667
 msgid ""
 "Bearer token from https://boardgamegeek.com/applications (see https://"
 "boardgamegeek.com/using_the_xml_api#toc9)."
@@ -4774,11 +4798,11 @@ msgstr ""
 "Token de portador (bearer token) obtido em https://boardgamegeek.com/"
 "applications (consulte https://boardgamegeek.com/using_the_xml_api#toc9)."
 
-#: common/views_manage.py:646 users/templates/users/steam_import.html:26
+#: common/views_manage.py:672 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Chave de API da Steam"
 
-#: common/views_manage.py:648
+#: common/views_manage.py:674
 msgid ""
 "https://steamcommunity.com/dev - fallback key for Steam importer. Users can "
 "provide their own key when importing."
@@ -4787,39 +4811,39 @@ msgstr ""
 "importador da Steam. Os usuários podem fornecer sua própria chave ao "
 "importar."
 
-#: common/views_manage.py:653
+#: common/views_manage.py:679
 msgid "DeepL API Key"
 msgstr "Chave de API do DeepL"
 
-#: common/views_manage.py:654
+#: common/views_manage.py:680
 msgid "For translation features."
 msgstr "Para os recursos de tradução."
 
-#: common/views_manage.py:657
+#: common/views_manage.py:683
 msgid "LibreTranslate API URL"
 msgstr "URL da API do LibreTranslate"
 
-#: common/views_manage.py:660
+#: common/views_manage.py:686
 msgid "LibreTranslate API Key"
 msgstr "Chave de API do LibreTranslate"
 
-#: common/views_manage.py:663
+#: common/views_manage.py:689
 msgid "Threads App ID"
 msgstr "ID do Aplicativo Threads"
 
-#: common/views_manage.py:664
+#: common/views_manage.py:690
 msgid "OAuth app ID for Threads login."
 msgstr "ID do aplicativo OAuth para login via Threads."
 
-#: common/views_manage.py:667
+#: common/views_manage.py:693
 msgid "Threads App Secret"
 msgstr "Segredo do Aplicativo Threads"
 
-#: common/views_manage.py:670
+#: common/views_manage.py:696
 msgid "Discord Webhooks"
 msgstr "Webhooks do Discord"
 
-#: common/views_manage.py:672
+#: common/views_manage.py:698
 msgid ""
 "Webhook URLs keyed by channel (default, report, audit, suggest, system). All "
 "channels must be Discord forum or media channels (thread mode) because "
@@ -4829,142 +4853,142 @@ msgstr ""
 "system). Todos os canais devem ser fóruns do Discord ou canais de mídia "
 "(modo de tópicos), pois as notificações são publicadas como tópicos."
 
-#: common/views_manage.py:689
+#: common/views_manage.py:715
 msgid "Catalog APIs"
 msgstr "APIs de Catálogo"
 
-#: common/views_manage.py:699
+#: common/views_manage.py:725
 msgid "Translation"
 msgstr "Tradução"
 
-#: common/views_manage.py:704
+#: common/views_manage.py:730
 msgid "Third-Party Login"
 msgstr "Login com Terceiros"
 
-#: common/views_manage.py:708 social/templates/feed.html:27
+#: common/views_manage.py:734 social/templates/feed.html:27
 #: social/templates/notification.html:35
 msgid "Notifications"
 msgstr "Notificações"
 
-#: common/views_manage.py:718
+#: common/views_manage.py:744
 msgid "Scraping Providers"
 msgstr "Provedores de Coleta de Dados"
 
-#: common/views_manage.py:719
+#: common/views_manage.py:745
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 "Lista de provedores separados por vírgula, a serem tentados na ordem "
 "indicada."
 
-#: common/views_manage.py:722
+#: common/views_manage.py:748
 msgid "Proxy List"
 msgstr "Lista de Proxies"
 
-#: common/views_manage.py:723
+#: common/views_manage.py:749
 msgid "One per line, format: http://server?url=__URL__"
 msgstr "Um por linha, no formato: http://server?url=__URL__"
 
-#: common/views_manage.py:726
+#: common/views_manage.py:752
 msgid "Backup Proxy"
 msgstr "Proxy de Backup"
 
-#: common/views_manage.py:729
+#: common/views_manage.py:755
 msgid "Scrapfly API Key"
 msgstr "Chave de API do Scrapfly"
 
-#: common/views_manage.py:732
+#: common/views_manage.py:758
 msgid "Decodo Base64 Auth Token"
 msgstr "Token de Autenticação Base64 do Decodo"
 
-#: common/views_manage.py:735
+#: common/views_manage.py:761
 msgid "ScraperAPI Key"
 msgstr "Chave de API do ScraperAPI"
 
-#: common/views_manage.py:738
+#: common/views_manage.py:764
 msgid "ScrapingBee API Key"
 msgstr "Chave de API do ScrapingBee"
 
-#: common/views_manage.py:741
+#: common/views_manage.py:767
 msgid "Custom Scraper URL"
 msgstr "URL de Coletor Personalizado"
 
-#: common/views_manage.py:742
+#: common/views_manage.py:768
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr "URL com os marcadores __URL__ e __SELECTOR__."
 
-#: common/views_manage.py:745
+#: common/views_manage.py:771
 msgid "Request Timeout (seconds)"
 msgstr "Tempo Limite de Requisição (segundos)"
 
-#: common/views_manage.py:749
+#: common/views_manage.py:775
 msgid "Cache Timeout (seconds)"
 msgstr "Tempo Limite de Cache (segundos)"
 
-#: common/views_manage.py:753
+#: common/views_manage.py:779
 msgid "Retries"
 msgstr "Tentativas"
 
-#: common/views_manage.py:758
+#: common/views_manage.py:784
 msgid "Providers"
 msgstr "Provedores"
 
-#: common/views_manage.py:763
+#: common/views_manage.py:789
 msgid "Provider Keys"
 msgstr "Chaves de Provedor"
 
-#: common/views_manage.py:770
+#: common/views_manage.py:796
 msgid "Timeouts"
 msgstr "Tempos Limite"
 
-#: common/views_manage.py:782
+#: common/views_manage.py:808
 msgid "Alternative Domains"
 msgstr "Domínios Alternativos"
 
-#: common/views_manage.py:783
+#: common/views_manage.py:809
 msgid "One domain per line."
 msgstr "Um domínio por linha."
 
-#: common/views_manage.py:786
+#: common/views_manage.py:812
 msgid "Mastodon Client Scope"
 msgstr "Escopo do Cliente Mastodon"
 
-#: common/views_manage.py:787
+#: common/views_manage.py:813
 msgid "OAuth scope when creating Mastodon apps."
 msgstr "Escopo OAuth ao criar aplicativos Mastodon."
 
-#: common/views_manage.py:790
+#: common/views_manage.py:816
 msgid "Mastodon API Timeout (seconds)"
 msgstr "Tempo Limite da API do Mastodon (segundos)"
 
-#: common/views_manage.py:792
+#: common/views_manage.py:818
 msgid ""
 "Timeout for requests to Mastodon instances and remote fediverse servers."
 msgstr ""
 "Tempo limite para requisições a instâncias do Mastodon e servidores remotos "
 "do fediverse."
 
-#: common/views_manage.py:798
+#: common/views_manage.py:824
 msgid "Disable Cron Jobs"
 msgstr "Desativar Tarefas Agendadas (Cron Jobs)"
 
-#: common/views_manage.py:799
+#: common/views_manage.py:825
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 "Nomes das tarefas a desativar, um por linha. Use * para desativar todas."
 
-#: common/views_manage.py:802
+#: common/views_manage.py:828
 msgid "Index Aliases"
 msgstr "Aliases de Índice"
 
-#: common/views_manage.py:803
+#: common/views_manage.py:829
 msgid "Map index names to their aliases."
 msgstr "Mapear nomes de índices para seus aliases."
 
-#: common/views_manage.py:813
+#: common/views_manage.py:839
 msgid "Task Cleanup (days)"
 msgstr "Limpeza de Tarefas (dias)"
 
-#: common/views_manage.py:815
+#: common/views_manage.py:841
 msgid ""
 "Delete import/export tasks and their files after this many days. Set to 0 to "
 "disable cleanup."
@@ -4972,11 +4996,11 @@ msgstr ""
 "Excluir tarefas de importação/exportação e seus arquivos após este número de "
 "dias. Defina como 0 para desativar a limpeza."
 
-#: common/views_manage.py:821
+#: common/views_manage.py:847
 msgid "Skip Migration Jobs"
 msgstr "Ignorar Tarefas de Migração"
 
-#: common/views_manage.py:823
+#: common/views_manage.py:849
 msgid ""
 "Post-migration job keys to skip, one per line (e.g. normalize_genre). "
 "Checked by the worker at dequeue time; skipped jobs log a warning and notify "
@@ -4986,11 +5010,11 @@ msgstr ""
 "normalize_genre). Verificado pelo worker no momento da retirada da fila; "
 "tarefas ignoradas registram um aviso e notificam o canal system do Discord."
 
-#: common/views_manage.py:829
+#: common/views_manage.py:855
 msgid "ATProto OAuth Client Key"
 msgstr "Chave do Cliente OAuth ATProto"
 
-#: common/views_manage.py:831
+#: common/views_manage.py:857
 msgid ""
 "Private key (JWK) identifying this site to ATProto authorization servers. "
 "Auto-generated on first Bluesky login; clear to regenerate."
@@ -4999,19 +5023,19 @@ msgstr ""
 "ATProto. Gerada automaticamente no primeiro login via Bluesky; apague para "
 "gerar novamente."
 
-#: common/views_manage.py:838
+#: common/views_manage.py:864
 msgid "Domains"
 msgstr "Domínios"
 
-#: common/views_manage.py:841
+#: common/views_manage.py:867
 msgid "Operational"
 msgstr "Operacional"
 
-#: common/views_manage.py:857
+#: common/views_manage.py:883
 msgid "Movie Genres"
 msgstr "Gêneros de Filmes"
 
-#: common/views_manage.py:859
+#: common/views_manage.py:885
 msgid ""
 "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to "
 "use the built-in default."
@@ -5019,11 +5043,11 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de Filme, um por "
 "linha. Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:864
+#: common/views_manage.py:890
 msgid "TV Genres"
 msgstr "Gêneros de TV"
 
-#: common/views_manage.py:866
+#: common/views_manage.py:892
 msgid ""
 "Genre codes offered in the TV edit dropdown, one per line. Leave empty to "
 "use the built-in default."
@@ -5031,11 +5055,11 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de TV, um por linha. "
 "Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:871
+#: common/views_manage.py:897
 msgid "Music Genres"
 msgstr "Gêneros Musicais"
 
-#: common/views_manage.py:873
+#: common/views_manage.py:899
 msgid ""
 "Genre codes offered in the Music edit dropdown, one per line. Leave empty to "
 "use the built-in default."
@@ -5043,11 +5067,11 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de Música, um por "
 "linha. Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:878
+#: common/views_manage.py:904
 msgid "Game Genres"
 msgstr "Gêneros de Jogos"
 
-#: common/views_manage.py:880
+#: common/views_manage.py:906
 msgid ""
 "Genre codes offered in the Game edit dropdown, one per line. Leave empty to "
 "use the built-in default."
@@ -5055,11 +5079,11 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de Jogo, um por "
 "linha. Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:885
+#: common/views_manage.py:911
 msgid "Podcast Genres"
 msgstr "Gêneros de Podcast"
 
-#: common/views_manage.py:887
+#: common/views_manage.py:913
 msgid ""
 "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty "
 "to use the built-in default."
@@ -5067,11 +5091,11 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de Podcast, um por "
 "linha. Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:892
+#: common/views_manage.py:918
 msgid "Performance Genres"
 msgstr "Gêneros de Espetáculo"
 
-#: common/views_manage.py:894
+#: common/views_manage.py:920
 msgid ""
 "Genre codes offered in the Performance edit dropdown, one per line. Leave "
 "empty to use the built-in default."
@@ -5079,7 +5103,7 @@ msgstr ""
 "Códigos de gênero oferecidos no menu suspenso de edição de Espetáculo, um "
 "por linha. Deixe em branco para usar o padrão integrado."
 
-#: common/views_manage.py:900
+#: common/views_manage.py:926
 msgid "Genres by Category"
 msgstr "Gêneros por Categoria"
 
@@ -5890,7 +5914,7 @@ msgstr "pessoas seguidas"
 msgid "started following {item}"
 msgstr "começou a seguir {item}"
 
-#: journal/models/shelf.py:907
+#: journal/models/shelf.py:921
 msgid "removed mark"
 msgstr "marcação removida"
 
@@ -6748,8 +6772,10 @@ msgstr ""
 "\n"
 "{code}"
 
-#: mastodon/models/email.py:74 users/templates/users/login.html:20
-#: users/templates/users/register.html:9 users/templates/users/welcome.html:10
+#: mastodon/models/email.py:74 users/templates/users/captcha.html:13
+#: users/templates/users/captcha_solved.html:9
+#: users/templates/users/login.html:20 users/templates/users/register.html:9
+#: users/templates/users/welcome.html:10
 msgid "Register"
 msgstr "Cadastrar"
 
@@ -6824,12 +6850,12 @@ msgstr "Falha na verificação de segurança. Tente novamente."
 
 #: mastodon/views/bluesky.py:34 mastodon/views/bluesky.py:40
 #: mastodon/views/bluesky.py:64 mastodon/views/bluesky.py:72
-#: mastodon/views/bluesky.py:78 mastodon/views/common.py:40
+#: mastodon/views/bluesky.py:78 mastodon/views/common.py:36
 #: mastodon/views/mastodon.py:62 mastodon/views/mastodon.py:70
 #: mastodon/views/mastodon.py:77 mastodon/views/mastodon.py:87
 #: mastodon/views/mastodon.py:94 mastodon/views/threads.py:55
 #: mastodon/views/threads.py:63 mastodon/views/threads.py:69
-#: users/views/account.py:192
+#: users/views/account.py:254 users/views/account.py:373
 msgid "Authentication failed"
 msgstr "Falha na autenticação"
 
@@ -6853,51 +6879,51 @@ msgstr "Resposta inválida do servidor de autorização ATProto."
 msgid "Invalid account data from Bluesky."
 msgstr "Dados de conta inválidos do Bluesky."
 
-#: mastodon/views/common.py:40 mastodon/views/common.py:105
+#: mastodon/views/common.py:36 mastodon/views/common.py:107
 msgid "Invalid user."
 msgstr "Usuário inválido."
 
-#: mastodon/views/common.py:56 users/views/account.py:228
+#: mastodon/views/common.py:52 users/views/account.py:414
 msgid "Registration failed"
 msgstr "Falha no cadastro"
 
-#: mastodon/views/common.py:56
+#: mastodon/views/common.py:52
 msgid "User already logged in."
 msgstr "Usuário já está conectado."
 
-#: mastodon/views/common.py:68
+#: mastodon/views/common.py:70
 #, python-brace-format
 msgid "Continue login as {handle}."
 msgstr "Continuar login como {handle}."
 
-#: mastodon/views/common.py:74
+#: mastodon/views/common.py:76
 msgid "Unable to update login information"
 msgstr "Não foi possível atualizar as informações de login"
 
-#: mastodon/views/common.py:75
+#: mastodon/views/common.py:77
 #, python-brace-format
 msgid "Identity {handle} in use by a different user."
 msgstr "A identidade {handle} está em uso por outro usuário."
 
-#: mastodon/views/common.py:91
+#: mastodon/views/common.py:93
 #, python-brace-format
 msgid "Login information updated as {handle}."
 msgstr "Informações de login atualizadas como {handle}."
 
-#: mastodon/views/common.py:101 mastodon/views/common.py:105
-#: mastodon/views/common.py:114
+#: mastodon/views/common.py:103 mastodon/views/common.py:107
+#: mastodon/views/common.py:116
 msgid "Disconnect identity failed"
 msgstr "Falha ao desconectar a identidade"
 
-#: mastodon/views/common.py:101
+#: mastodon/views/common.py:103
 msgid "Identity not found."
 msgstr "Identidade não encontrada."
 
-#: mastodon/views/common.py:115
+#: mastodon/views/common.py:117
 msgid "You cannot disconnect last login identity."
 msgstr "Você não pode desconectar a última identidade de login."
 
-#: mastodon/views/common.py:124
+#: mastodon/views/common.py:126
 #, python-brace-format
 msgid "Login information about {handle} has been removed."
 msgstr "As informações de login de {handle} foram removidas."
@@ -7306,6 +7332,34 @@ msgstr "Artigo"
 #: social/templates/single_post.html:29
 msgid "Poll"
 msgstr "Enquete"
+
+#: takahe/models.py:453
+msgid "Display Name"
+msgstr "Nome de Exibição"
+
+#: takahe/models.py:455
+msgid "Bio"
+msgstr "Bio"
+
+#: takahe/models.py:457
+msgid "Manually approve new followers"
+msgstr "Aprovar manualmente novos seguidores"
+
+#: takahe/models.py:461
+msgid "Include profile, marks and posts in discovery"
+msgstr "Incluir perfil, marcações e publicações na descoberta"
+
+#: takahe/models.py:464
+msgid "Include posts in search results"
+msgstr "Incluir publicações nos resultados de pesquisa"
+
+#: takahe/models.py:482
+msgid "Profile picture"
+msgstr "Foto de perfil"
+
+#: takahe/models.py:489
+msgid "Header picture"
+msgstr "Imagem de cabeçalho"
 
 #: users/models/task.py:22
 msgid "Started"
@@ -8000,6 +8054,71 @@ msgstr ""
 msgid "Token"
 msgstr "Token"
 
+#: users/templates/users/captcha.html:4
+msgid "Sort every cover to continue."
+msgstr ""
+
+#: users/templates/users/captcha.html:5
+msgid "All sorted. Select Confirm."
+msgstr ""
+
+#: users/templates/users/captcha.html:6
+msgid "Cover selected. Now choose a row."
+msgstr ""
+
+#: users/templates/users/captcha.html:7
+msgid "Time is up. Reload to try again."
+msgstr ""
+
+#: users/templates/users/captcha.html:26
+msgid "One quick check"
+msgstr ""
+
+#: users/templates/users/captcha.html:28
+msgid ""
+"Put every cover into the row it belongs to. Drag it, or select a cover and "
+"then select a row."
+msgstr ""
+
+#: users/templates/users/captcha.html:41 users/templates/users/captcha.html:43
+#, fuzzy
+#| msgid "cover"
+msgid "Item cover"
+msgstr "capa"
+
+#: users/templates/users/captcha.html:59
+#, python-format
+msgid "Move selected cover to %(label)s"
+msgstr ""
+
+#: users/templates/users/captcha.html:77
+#, fuzzy
+#| msgid "Confirm Import"
+msgid "Confirm"
+msgstr "Confirmar Importação"
+
+#: users/templates/users/captcha.html:84
+#, python-format
+msgid "Show me another set (%(counter)s left)"
+msgid_plural "Show me another set (%(counter)s left)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: users/templates/users/captcha_solved.html:30
+msgid "Nicely sorted"
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:31
+msgid "That is all we needed. Let's get you a username."
+msgstr ""
+
+#: users/templates/users/captcha_solved.html:34
+#: users/templates/users/login.html:63
+#: users/templates/users/verify_email.html:25
+#: users/templates/users/welcome.html:51
+msgid "Continue"
+msgstr "Continuar"
+
 #: users/templates/users/crossposts.html:19
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr ""
@@ -8332,12 +8451,6 @@ msgstr "Entrar"
 #: users/templates/users/login.html:58
 msgid "logo"
 msgstr "logo"
-
-#: users/templates/users/login.html:63
-#: users/templates/users/verify_email.html:25
-#: users/templates/users/welcome.html:51
-msgid "Continue"
-msgstr "Continuar"
 
 #: users/templates/users/login.html:127
 msgid ""
@@ -9101,31 +9214,56 @@ msgstr "Talvez mais tarde"
 msgid "Passkey created"
 msgstr "Chave de acesso criada"
 
-#: users/views/account.py:122
+#: users/views/account.py:124
 msgid "This username is already in use."
 msgstr "Este nome de usuário já está em uso."
 
-#: users/views/account.py:133
+#: users/views/account.py:135
 msgid "This email address is already in use."
 msgstr "Este endereço de e-mail já está em uso."
 
-#: users/views/account.py:193
+#: users/views/account.py:255 users/views/account.py:374
 msgid "Registration is for invitation only"
 msgstr "O cadastro é apenas por convite"
 
-#: users/views/account.py:229
+#: users/views/account.py:266 users/views/account.py:338
+#, fuzzy
+#| msgid "Timestamp"
+msgid "Time is up"
+msgstr "Marcação de tempo"
+
+#: users/views/account.py:267 users/views/account.py:310
+#: users/views/account.py:339
+msgid "Please log in again to continue registration."
+msgstr ""
+
+#: users/views/account.py:313
+msgid "That is not quite right. Here is a new set."
+msgstr ""
+
+#: users/views/account.py:325
+msgid "Too many attempts"
+msgstr ""
+
+#: users/views/account.py:326
+#, fuzzy
+#| msgid "Too many attempts, please try again later."
+msgid "Please try again later."
+msgstr "Muitas tentativas, tente novamente mais tarde."
+
+#: users/views/account.py:415
 msgid "Username already taken. Please try again."
 msgstr "Nome de usuário já está em uso. Tente novamente."
 
-#: users/views/account.py:259
+#: users/views/account.py:445
 msgid "Valid username required"
 msgstr "Nome de usuário válido obrigatório"
 
-#: users/views/account.py:337
+#: users/views/account.py:526
 msgid "Account is being deleted."
 msgstr "A conta está sendo excluída."
 
-#: users/views/account.py:340
+#: users/views/account.py:529
 msgid "Account mismatch."
 msgstr "Incompatibilidade de conta."
 
@@ -9299,27 +9437,6 @@ msgstr "Chave de acesso não encontrada"
 #: users/views/webauthn.py:244
 msgid "Name is required"
 msgstr "O nome é obrigatório"
-
-#~ msgid "Display Name"
-#~ msgstr "Nome de Exibição"
-
-#~ msgid "Bio"
-#~ msgstr "Bio"
-
-#~ msgid "Manually approve new followers"
-#~ msgstr "Aprovar manualmente novos seguidores"
-
-#~ msgid "Include profile, marks and posts in discovery"
-#~ msgstr "Incluir perfil, marcações e publicações na descoberta"
-
-#~ msgid "Include posts in search results"
-#~ msgstr "Incluir publicações nos resultados de pesquisa"
-
-#~ msgid "Profile picture"
-#~ msgstr "Foto de perfil"
-
-#~ msgid "Header picture"
-#~ msgstr "Imagem de cabeçalho"
 
 #~ msgid "FanFic"
 #~ msgstr "FanFic"
