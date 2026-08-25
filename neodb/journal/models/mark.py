@@ -142,9 +142,10 @@ class Mark:
     @cached_property
     def notes(self) -> list[Note]:
         return list(
-            Note.objects.filter(owner=self.owner, item=self.item).order_by(
-                "-created_time"
-            )
+            Note.objects.filter(owner=self.owner, item=self.item)
+            # attachment_records feeds Note.attachment_list in the template
+            .prefetch_related("attachment_records")
+            .order_by("-created_time")
         )
 
     @property

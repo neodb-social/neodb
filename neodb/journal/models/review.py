@@ -26,6 +26,7 @@ from .atproto import (
     build_updated_at,
     format_datetime,
 )
+from .attachment import link_attachments_to_piece
 from .common import Content
 from .rating import Rating
 from .renderers import has_spoiler, render_md, render_post_with_macro, render_rating
@@ -275,6 +276,8 @@ class Review(Content):
         review.crosspost_when_save = share_to_mastodon
         review.application_id_when_save = application_id
         review.save()
+        # see Article.update_local_article: local-author path only
+        link_attachments_to_piece(review, review.body or "")
         return review
 
     def to_indexable_doc(self) -> dict[str, Any]:

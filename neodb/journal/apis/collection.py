@@ -40,6 +40,7 @@ from ..models import (
     Rating,
     ShelfMember,
     ShelfType,
+    link_attachments_to_piece,
 )
 
 
@@ -346,6 +347,9 @@ def create_collection(request, c_in: CollectionInSchema):
     )
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    # parity with the web compose form: register the uploads embedded in the
+    # brief, so an app using /api/me/attachment/ gets them linked as documented
+    link_attachments_to_piece(c, c.brief)
     record_activity("collection", "api")
     return c
 
@@ -378,6 +382,15 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     c.query = q
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
+    # A collaborator may edit this brief. Their own upload stays *unlinked*
+    # (the row exists, owned by them) because ``is_owned_upload`` filters the
+    # embedded paths down to the collection owner's before any lookup -- the
+    # lookup itself is owner-blind, so that guard is what prevents one user's
+    # file being claimed for another's collection. Consequence worth knowing:
+    # such an image is recorded nowhere as a dependency, so deleting the
+    # collaborator's account reclaims it and the collection renders it broken,
+    # same as before the registry existed.
+    link_attachments_to_piece(c, c.brief)
     record_activity("collection", "api")
     return c
 

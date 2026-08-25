@@ -42,7 +42,7 @@ def _hostname_is_public(hostname: str) -> bool:
 
 def is_valid_url(url: str | None) -> bool:
     """Validate that a URL is well-formed, uses HTTP(S), and does not resolve
-    to a private/reserved IP address (防 DNS rebinding / SSRF)."""
+    to a private/reserved IP address (DNS rebinding / SSRF)."""
     if not url:
         return False
     if not _url_validate(

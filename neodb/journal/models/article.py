@@ -19,6 +19,7 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .atproto import DOCUMENT_NSID, build_document
+from .attachment import link_attachments_to_piece
 from .common import Piece, VisibilityType
 from .renderers import render_md, sanitize_md_images
 from .tag import Tag as TagModel
@@ -490,4 +491,8 @@ class Article(Piece):
         article.crosspost_when_save = share_to_mastodon
         article.application_id_when_save = application_id
         article.save()
+        # Register/link the uploads embedded in the body. Local-author path
+        # only: inbound federation goes through update_by_ap_object, where the
+        # images belong to the origin server.
+        link_attachments_to_piece(article, article.body)
         return article

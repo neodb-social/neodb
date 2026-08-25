@@ -187,19 +187,47 @@ class NdjsonExporter(Task):
             attachments.append({"file": path, "mimetype": a.mimetype})
         return attachments
 
-    def _bundle_note_attachments(self, note: Note) -> list[dict[str, str]]:
-        """Attachment records for a Note.
+    def _bundle_registered_attachments(self, note: Note) -> list[dict[str, str]]:
+        """Bundle a Note's registered uploads (``journal.Attachment`` rows).
 
-        Preferred source is the linked post, which holds the actual files.
-        Takahe prunes posts though, so fall back to the Note's own stored
-        ``attachments`` JSON rather than dropping the media silently; the
-        file is bundled too when its URL still resolves to local storage.
+        Rows are the only source that survives takahe pruning the post: the
+        registry holds NeoDB's own copy of the media under ``upload/``, while
+        the legacy JSON still points at the takahe file that died with the
+        post. Pointer rows (remote media we never downloaded) carry a URL
+        only, so they export like the legacy entries did.
+        """
+        attachments = []
+        for a in note.attachment_records.all():
+            url = a.url
+            if not url:
+                continue
+            entry = {"mimetype": a.mimetype or "", "url": url}
+            path = self._save_image(url)
+            if path:
+                entry["file"] = path
+            attachments.append(entry)
+        return attachments
+
+    def _bundle_note_attachments(self, note: Note) -> list[dict[str, str]]:
+        """Attachment records for a Note, in descending order of fidelity.
+
+        1. the linked post, which holds the original files;
+        2. the upload registry, which holds our own copy of them -- the only
+           source left once takahe has pruned the post;
+        3. the legacy ``attachments`` JSON, for notes the async backfill has
+           not reached yet.
+
+        Trying the registry before the JSON matters: a pruned post leaves the
+        JSON pointing at takahe media that no longer exists, which would
+        export as a URL with no file and restore as a dead link.
         """
         if note.latest_post:
             attachments = self._bundle_post_attachments(note.latest_post)
             if attachments:
                 return attachments
-        attachments = []
+        attachments = self._bundle_registered_attachments(note)
+        if attachments:
+            return attachments
         for a in note.attachments or []:
             url = a.get("url")
             if not url:
