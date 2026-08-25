@@ -703,6 +703,10 @@ if _SENTRY_DSN:
     from sentry_sdk.integrations.loguru import LoguruIntegration
 
     ignore_logger("podcastparser")
+    # A bad Host header is a client error, not a bug. The null handler in
+    # LOGGING does not keep it out of Sentry: the SDK patches
+    # Logger.callHandlers, so it sees the record even when no handler does.
+    ignore_logger("django.security.DisallowedHost")
 
     sentry_env = sys.argv[0].split("/")[-1]
     if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
