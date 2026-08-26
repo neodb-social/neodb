@@ -16,6 +16,18 @@
       let body = response ? response : `Request error: ${event.detail.xhr.statusText}`;
       alert(body);
     });
+    // A cross-reference to a collapsed <details> scrolls to it and leaves it
+    // shut, so the destination lands as nothing but its own title. Browsers
+    // that expand on fragment navigation only open the *ancestors* of the
+    // target, which is no help when the id is on the <details> itself --
+    // hence closest(), so this holds wherever the id ends up sitting.
+    const openLinkedSection = () => {
+      const el = document.getElementById(location.hash.slice(1));
+      const details = el && el.closest('details');
+      if (details) details.open = true;
+    };
+    window.addEventListener('hashchange', openLinkedSection);
+    document.addEventListener('DOMContentLoaded', openLinkedSection);
     </script>
   </head>
   <body>
@@ -29,6 +41,9 @@
                   enctype="multipart/form-data">
               {% csrf_token %}
               {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
+              <p>
+                {% blocktrans %}A Douban archive exported by <a href="https://doubak.com" target="_blank" rel="noopener">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href="#import-neodb-archive">Import NeoDB Archive</a> below.{% endblocktrans %}
+              </p>
               <input type="file" name="file" id="excel" required accept=".xlsx">
               <fieldset>
                 <legend>{% trans "Import Method" %}</legend>
@@ -302,7 +317,7 @@
           </details>
         </article>
         <article>
-          <details>
+          <details id="import-neodb-archive">
             <summary>{% trans 'Import NeoDB Archive' %}</summary>
             <form hx-post="{% url 'users:import_neodb' %}"
                   enctype="multipart/form-data">
@@ -310,6 +325,9 @@
               <ul>
                 <li>
                   {% trans 'Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB.' %}
+                </li>
+                <li>
+                  {% blocktrans %}A Douban archive exported by <a href="https://doubak.com" target="_blank" rel="noopener">Doubak</a> is in the same format and is imported here.{% endblocktrans %}
                 </li>
                 <li>{% trans 'Existing data may be overwritten.' %}</li>
               </ul>

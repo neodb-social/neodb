@@ -7546,6 +7546,10 @@ msgstr ""
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
+#: users/templates/users/data.html:45
+msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
+msgstr ""
+
 #: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
 msgstr ""
@@ -7653,6 +7657,10 @@ msgstr ""
 
 #: users/templates/users/data.html:312
 msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB."
+msgstr ""
+
+#: users/templates/users/data.html:330
+msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in the same format and is imported here."
 msgstr ""
 
 #: users/templates/users/data.html:314

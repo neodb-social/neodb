@@ -7979,6 +7979,17 @@ msgstr ""
 "选择导出自 <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">"
 "豆坟</a> 的 <code>.xlsx</code> 文件"
 
+#: users/templates/users/data.html:45
+msgid ""
+"A Douban archive exported by <a href=\"https://doubak.com\" "
+"target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON "
+"format instead; upload it under <a "
+"href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
+msgstr ""
+"由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆备 "
+"Doubak</a> 导出的豆瓣档案是 NeoDB 自己的 NDJSON 格式，请用下方的<a "
+"href=\"#import-neodb-archive\">导入NeoDB备份</a>上传。"
+
 #: users/templates/users/data.html:34 users/templates/users/data.html:256
 msgid "Import Method"
 msgstr "导入方式"
@@ -8136,6 +8147,15 @@ msgid ""
 msgstr ""
 "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文件<code>.zip</"
 "code>压缩包。"
+
+#: users/templates/users/data.html:330
+msgid ""
+"A Douban archive exported by <a href=\"https://doubak.com\" "
+"target=\"_blank\" rel=\"noopener\">Doubak</a> is in the same format and "
+"is imported here."
+msgstr ""
+"由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆备 "
+"Doubak</a> 导出的豆瓣档案是同一种格式，也在这里导入。"
 
 #: users/templates/users/data.html:314
 msgid "Existing data may be overwritten."
