@@ -14,7 +14,7 @@ The following external sites are supported for importing catalog items.
 | Board Game Geek | Game | |
 | BooksTW 博客來 | Book (Edition) | |
 | Discogs | Music (Album) | |
-| Douban 豆瓣 | Book (Edition, Work) · Music (Album) · Movie · TV (Show, Season, Episode) · Game · Performance (Performance, Production) | Yes — upload [Doufen](https://doufen.org) archive |
+| Douban 豆瓣 | Book (Edition, Work) · Music (Album) · Movie · TV (Show, Season, Episode) · Game · Performance (Performance, Production) | Yes — upload [Doubak](https://doubak.com) or [Doufen](https://doufen.org) archive |
 | Goodreads | Book (Edition, Work) | Yes — upload CSV export |
 | Google Books | Book (Edition) | |
 | IGDB | Game | |
