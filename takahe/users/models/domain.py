@@ -6,6 +6,7 @@ from functools import cached_property
 from typing import Optional
 
 import httpx
+import idna
 import pydantic
 import urlman
 from django.conf import settings
@@ -219,7 +220,15 @@ class Domain(StatorModel):
                 )
             except httpx.HTTPError:
                 pass
-            except ssl.SSLCertVerificationError, ssl.SSLError, UnicodeDecodeError:
+            except (
+                ssl.SSLCertVerificationError,
+                ssl.SSLError,
+                UnicodeDecodeError,
+                idna.IDNAError,
+            ):
+                # idna.IDNAError: host is valid DNS but invalid IDNA2008 (e.g.
+                # an emoji domain), so it can never be fetched. httpx raises it
+                # raw from httpx.URL.host, outside the httpx.HTTPError tree.
                 return None
             else:
                 try:
@@ -245,6 +254,7 @@ class Domain(StatorModel):
                 httpx.HTTPError,
                 ssl.SSLCertVerificationError,
                 UnicodeDecodeError,
+                idna.IDNAError,
             ) as ex:
                 response = getattr(ex, "response", None)
                 if (

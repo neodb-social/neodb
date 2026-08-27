@@ -1,10 +1,12 @@
 import base64
 import time
 
+import httpx
 import pytest
 from django.test.client import RequestFactory
 from pytest_httpx import HTTPXMock
 
+from core.files import check_url_safety
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -280,3 +282,43 @@ def test_verify_request_malformed_date_header(keypair):
     )
     with pytest.raises(VerificationFormatError, match="Invalid Date header"):
         HttpSignature.verify_request(request, keypair["public_key"])
+
+
+# Valid DNS and resolvable in a browser, but idna rejects the emoji codepoint.
+# xn--4t8h is the punycode for a single pager emoji.
+EMOJI_PUNYCODE_URI = "https://xn--4t8h.example/users/test-actor"
+
+
+@pytest.fixture
+def _enable_federation(settings):
+    original = settings.SETUP.NO_FEDERATION
+    settings.SETUP.NO_FEDERATION = False
+    yield
+    settings.SETUP.NO_FEDERATION = original
+
+
+def test_signed_request_invalid_idna_host(keypair, monkeypatch, _enable_federation):
+    """
+    A host that is valid DNS but invalid IDNA2008 must surface inside the
+    httpx.RequestError tree.
+
+    httpx decodes punycode lazily in httpx.URL.host, and the SSRF hook is the
+    first thing to read it, so httpx never gets to wrap the idna error. Every
+    caller of signed_request guards on httpx.RequestError, so a raw idna error
+    -- or a bare httpx.HTTPError, which is RequestError's *parent* -- escapes
+    their handling and reaches Stator.
+    """
+    # conftest's autouse _bypass_ssrf_check stubs the hook out for every test;
+    # restore it, since reading request.url.host is what raises in production.
+    monkeypatch.setattr("core.signatures.check_url_safety", check_url_safety)
+
+    with pytest.raises(httpx.RequestError) as exc_info:
+        HttpSignature.signed_request(
+            uri=EMOJI_PUNYCODE_URI,
+            body=None,
+            private_key=keypair["private_key"],
+            key_id=keypair["public_key_id"],
+            method="get",
+        )
+    assert isinstance(exc_info.value, httpx.ConnectError)
+    assert "Invalid IDNA host" in str(exc_info.value)

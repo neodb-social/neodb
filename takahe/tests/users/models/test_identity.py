@@ -2,6 +2,7 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
+from core.files import check_url_safety
 from core.models import Config
 from users.models import Domain, Identity, User
 from users.views.identity import CreateIdentity
@@ -637,3 +638,26 @@ def test_default_icon_migration(identity_factory, domain):
     remote.refresh_from_db()
     assert remote.icon_uri == "https://remote.example/s/img/avatar.svg"
     assert remote.state == "updated"
+
+
+def test_fetch_actor_invalid_idna_host(config_system, monkeypatch, settings):
+    """
+    An actor on a domain that is valid DNS but invalid IDNA2008 -- an emoji
+    domain -- is simply unfetchable, so fetch_actor reports failure instead of
+    letting a raw idna error escape to Stator. This kept the deferred signature
+    verification in users.models.inbox_message logging it as an error on every
+    retry (NEODB-SOCIAL-7VE / 7VF).
+    """
+    original = settings.SETUP.NO_FEDERATION
+    settings.SETUP.NO_FEDERATION = False
+    # conftest's autouse _bypass_ssrf_check stubs the hook out for every test;
+    # restore it, since reading request.url.host is what raises in production.
+    monkeypatch.setattr("core.signatures.check_url_safety", check_url_safety)
+    try:
+        identity = Identity(
+            actor_uri="https://xn--4t8h.example/users/test-actor",
+            local=False,
+        )
+        assert identity.fetch_actor() is False
+    finally:
+        settings.SETUP.NO_FEDERATION = original
