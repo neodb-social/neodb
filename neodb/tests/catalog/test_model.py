@@ -257,8 +257,8 @@ class TestCreditDisplayNameLocalization:
     Regression: a Douban-sourced movie froze the director credit name in
     Chinese, so the movie page rendered Chinese even for English viewers, while
     the person page (which localizes live) showed English. The item detail API
-    had the same split (upstream #1760) and now attaches too, so ``api_credits``
-    must hold the same credit objects ``role_credits`` does.
+    had the same split and now attaches too, so ``api_credits`` must hold the
+    same credit objects ``role_credits`` does.
     """
 
     def _linked_movie(self, n: int = 1) -> Movie:
