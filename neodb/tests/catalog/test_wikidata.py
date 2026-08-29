@@ -8,7 +8,11 @@ from urllib.parse import urlparse
 import pytest
 
 from catalog.common import ParseError
-from catalog.common.downloaders import use_local_response
+from catalog.common.downloaders import (
+    BasicDownloader,
+    DownloadError,
+    use_local_response,
+)
 from catalog.models import (
     Game,
     IdType,
@@ -22,7 +26,20 @@ from catalog.models import (
     TVShow,
     Work,
 )
-from catalog.sites.wikidata import WikiData, WikidataProperties, WikidataTypes
+from catalog.sites.wikidata import (
+    _PARENT_TYPE_CACHE,
+    WikiData,
+    WikidataProperties,
+    WikidataTypes,
+)
+
+
+@pytest.fixture(autouse=True)
+def clear_parent_type_cache():
+    """Subclass graphs mocked by one test must not leak into the next."""
+    _PARENT_TYPE_CACHE.clear()
+    yield
+    _PARENT_TYPE_CACHE.clear()
 
 
 def v1_statement(content, rank: str = "normal") -> dict:
@@ -216,6 +233,35 @@ def test_nearest_ancestor_wins():
     site = site_for("Q999995")
     with patch.object(site, "_fetch_entity_by_id", side_effect=graph.get):
         assert site._determine_entity_type(entity_data) == TVShow
+
+
+def test_nearest_ancestor_across_branches_wins():
+    """An ancestor one hop above an instance class beats one two hops up."""
+    entity_data = entity("Q999990", instance_of=["Q12352"], subclass_of=["Q12353"])
+    graph = {
+        "Q12352": v1_payload("Q12352", subclass_of=[WikidataTypes.FILM]),
+        "Q12353": v1_payload("Q12353", subclass_of=["Q12354"]),
+        "Q12354": v1_payload("Q12354", subclass_of=[WikidataTypes.NOVEL]),
+    }
+
+    site = site_for("Q999990")
+    with patch.object(site, "_fetch_entity_by_id", side_effect=graph.get):
+        assert site._determine_entity_type(entity_data) == Movie
+
+
+def test_classification_survives_fetch_failure():
+    """An unreachable class is skipped, not fatal, so other branches still match."""
+    entity_data = entity("Q999991", instance_of=["Q12350", "Q12351"])
+    graph = {"Q12351": v1_payload("Q12351", subclass_of=[WikidataTypes.FILM])}
+
+    def fetch(entity_id):
+        if entity_id == "Q12350":
+            raise DownloadError(BasicDownloader(WikiData.id_to_url(entity_id)))
+        return graph.get(entity_id)
+
+    site = site_for("Q999991")
+    with patch.object(site, "_fetch_entity_by_id", side_effect=fetch):
+        assert site._determine_entity_type(entity_data) == Movie
 
 
 # Group 4: Statement normalization tests

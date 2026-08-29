@@ -16,11 +16,12 @@ from catalog.common import (
     SiteManager,
     SiteName,
 )
-from catalog.common.downloaders import BasicDownloader
+from catalog.common.downloaders import BasicDownloader, DownloadError
 from catalog.models import (
     Album,
     Edition,
     Game,
+    Item,
     Movie,
     People,
     Performance,
@@ -278,6 +279,9 @@ def _get_preferred_languages():
 
 WIKIDATA_PREFERRED_LANGS = _get_preferred_languages()
 
+# 'subclass of' values per class QID; the same classes recur across imports
+_PARENT_TYPE_CACHE: dict[str, list[str]] = {}
+
 
 @SiteManager.register
 class WikiData(AbstractSite):
@@ -378,6 +382,9 @@ class WikiData(AbstractSite):
     # subclass graph: they sit above nearly every creative type, so matching
     # them there turns any unmapped work into a book.
     AMBIGUOUS_ANCESTOR_TYPES = frozenset({WikidataTypes.CREATIVE_WORK})
+
+    # Levels of 'subclass of' to walk when no direct type matches
+    MAX_DEPTH = 3
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -487,15 +494,8 @@ class WikiData(AbstractSite):
         """Extract the QIDs of a wikibase-item property, e.g. P31 or P279"""
         return self._extract_property_values(entity_data, property_id)
 
-    def _determine_model_from_entity_types(self, entity_types, entity_id):
-        """Map entity types to appropriate model using a mapping dictionary with prioritization
-
-        Special case: TV_SPECIAL takes precedence over other types when an entity has multiple types.
-        """
-        if not entity_types:
-            return None
-
-        # Check priority types first
+    def _match_entity_types(self, entity_types: list[str]) -> type[Item] | None:
+        """Map entity types to a model, letting priority types win over order"""
         for priority_type in self.PRIORITY_TYPES:
             if (
                 priority_type in entity_types
@@ -503,130 +503,101 @@ class WikiData(AbstractSite):
             ):
                 return self.TYPE_TO_MODEL_MAP[priority_type]
 
-        # Look for any matching type
         for entity_type in entity_types:
-            if entity_type in self.TYPE_TO_MODEL_MAP:
-                return self.TYPE_TO_MODEL_MAP[entity_type]
+            model = self.TYPE_TO_MODEL_MAP.get(entity_type)
+            if model:
+                return model
 
         return None
 
-    def _fetch_parent_types(self, entity_data):
-        """Fetch the parent types (subclass of) values from entity data"""
-        return self._extract_entity_types(entity_data, WikidataProperties.P279)
-
-    def _fetch_parent_types_with_api(
-        self, entity_types: list[str], max_depth: int = 1
-    ) -> list[str]:
-        """Fetch parent types (subclass of) for given entity types using API calls
-
-        Walks the subclass graph one level at a time, so the result is ordered
-        from the nearest ancestors to the furthest and is stable across runs.
-
-        Args:
-            entity_types: List of entity type IDs to look up
-            max_depth: Maximum number of levels to walk up
-
-        Returns:
-            List of parent type IDs, nearest first, without duplicates
-        """
-        parent_types: dict[str, None] = {}
-        visited: set[str] = set()
-        frontier = list(entity_types)
-
-        for _ in range(max_depth):
-            if not frontier:
-                break
-            next_frontier: list[str] = []
-            for entity_type in frontier:
-                if entity_type in visited:
-                    continue
-                visited.add(entity_type)
-
-                # Fetch entity data for this type via API
-                type_entity_data = self._fetch_entity_by_id(entity_type)
-                if not type_entity_data:
-                    continue
-
-                # Extract subclass of values
-                for parent_type in self._extract_entity_types(
-                    self._normalize_entity(type_entity_data), WikidataProperties.P279
-                ):
-                    parent_types.setdefault(parent_type)
-                    next_frontier.append(parent_type)
-            frontier = next_frontier
-
-        return list(parent_types)
-
-    def _drop_ambiguous_types(self, entity_types: list[str]) -> list[str]:
-        """Drop classes that are too generic to identify a category"""
-        return [t for t in entity_types if t not in self.AMBIGUOUS_ANCESTOR_TYPES]
-
-    def _determine_entity_type(self, entity_data):
-        """Determine the type of entity and appropriate model based on properties
-
-        Uses a multi-level approach to determine the appropriate model:
-        1. Direct 'instance of' (P31) values
-        2. Direct 'subclass of' (P279) values from the entity
-        3. Parent types of instance classes via API lookup (when needed)
-        4. Recursive parent lookup up to a configurable depth
-        """
-        # Extract 'instance of' (P31) values
-        instance_of_values = self._extract_entity_types(
-            entity_data, WikidataProperties.P31
+    def _match_ancestor_types(self, entity_types: list[str]) -> type[Item] | None:
+        """Map ancestor types, ignoring the ones too generic to tell a category"""
+        return self._match_entity_types(
+            [t for t in entity_types if t not in self.AMBIGUOUS_ANCESTOR_TYPES]
         )
 
-        if not instance_of_values:
+    def _fetch_parent_types(self, class_id: str) -> list[str]:
+        """Fetch the 'subclass of' values of a class item
+
+        A class that cannot be fetched is skipped rather than fatal, and is not
+        cached, so a later import may still resolve it.
+        """
+        cached = _PARENT_TYPE_CACHE.get(class_id)
+        if cached is not None:
+            return cached
+
+        try:
+            entity_data = self._fetch_entity_by_id(class_id)
+        except DownloadError as e:
+            logger.warning(f"Unable to fetch Wikidata class {class_id}: {e}")
+            return []
+        if not entity_data:
+            return []
+
+        parent_types = self._extract_entity_types(
+            self._normalize_entity(entity_data), WikidataProperties.P279
+        )
+        _PARENT_TYPE_CACHE[class_id] = parent_types
+        return parent_types
+
+    def _walk_ancestor_types(
+        self, instance_of: list[str], subclass_of: list[str]
+    ) -> type[Item] | None:
+        """Find the nearest mapped ancestor, walking 'subclass of' level by level
+
+        The entity's own 'subclass of' values are the first candidates; its
+        'instance of' values only seed the walk, having already failed to match.
+        The nearest level wins, and within a level the priority types do.
+        """
+        model = self._match_ancestor_types(subclass_of)
+        if model:
+            return model
+
+        frontier = subclass_of + [t for t in instance_of if t not in subclass_of]
+        visited = set(frontier)
+        for _ in range(self.MAX_DEPTH):
+            parent_types: list[str] = []
+            for class_id in frontier:
+                for parent_type in self._fetch_parent_types(class_id):
+                    if parent_type not in visited:
+                        visited.add(parent_type)
+                        parent_types.append(parent_type)
+            if not parent_types:
+                return None
+            model = self._match_ancestor_types(parent_types)
+            if model:
+                return model
+            frontier = parent_types
+
+        return None
+
+    def _determine_entity_type(self, entity_data: dict) -> type[Item]:
+        """Determine the model for an entity from its type properties
+
+        Direct 'instance of' (P31) values decide first, ambiguous ones included;
+        failing that, the subclass graph above the entity is walked up to its
+        nearest mapped ancestor.
+        """
+        instance_of = self._extract_entity_types(entity_data, WikidataProperties.P31)
+        if not instance_of:
             raise ParseError(
                 self, f"Entity {self.id_value} has no 'instance of' (P31) properties"
             )
 
-        # Try to determine model based on instance of values
-        model = self._determine_model_from_entity_types(
-            instance_of_values, self.id_value
+        model = self._match_entity_types(instance_of) or self._walk_ancestor_types(
+            instance_of,
+            self._extract_entity_types(entity_data, WikidataProperties.P279),
         )
         if model:
             return model
 
-        # If no model found from instance_of, try to look up direct parent classes
-        direct_parent_types = self._fetch_parent_types(entity_data)
-        if direct_parent_types:
-            parent_model = self._determine_model_from_entity_types(
-                self._drop_ambiguous_types(direct_parent_types), self.id_value
-            )
-            if parent_model:
-                return parent_model
-
-        # If still no match, try to fetch parent types of instance classes via API
-        # This handles the case where an entity is an instance of a class that is a subclass of a known type
-        instance_parent_types = self._fetch_parent_types_with_api(
-            instance_of_values, max_depth=2
-        )
-        if instance_parent_types:
-            instance_parent_model = self._determine_model_from_entity_types(
-                self._drop_ambiguous_types(instance_parent_types), self.id_value
-            )
-            if instance_parent_model:
-                return instance_parent_model
-
-        # If we still don't have a match, try recursive parent lookup on direct parent types
-        if direct_parent_types:
-            recursive_parent_types = self._fetch_parent_types_with_api(
-                direct_parent_types, max_depth=3
-            )
-            if recursive_parent_types:
-                recursive_model = self._determine_model_from_entity_types(
-                    self._drop_ambiguous_types(recursive_parent_types), self.id_value
-                )
-                if recursive_model:
-                    return recursive_model
-
         logger.error(
-            f"Entity has unsupported type(s): {', '.join(instance_of_values)}",
+            f"Entity has unsupported type(s): {', '.join(instance_of)}",
             extra={"qid": self.id_value},
         )
         raise ParseError(
             self,
-            f"Entity has unsupported type(s): {', '.join(instance_of_values)}",
+            f"Entity has unsupported type(s): {', '.join(instance_of)}",
         )
 
     def _extract_cover_image(self, entity_data: dict) -> str | None:
