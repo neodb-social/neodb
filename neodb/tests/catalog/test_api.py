@@ -438,6 +438,80 @@ def test_item_credit_endpoints_include_linked_and_name_only_credits(live_server)
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
+def test_item_api_localizes_credit_names(live_server):
+    """credits[].name follows the request language, as /api/people/{uuid} does.
+
+    Credit rows freeze ``name`` at sync time (under the source's locale), so an
+    English reader used to get a localized title next to a Chinese director
+    (upstream #1760). Credits with no linked person stay frozen -- there is
+    nothing to localize them from.
+    """
+    zh_name = "沃什·威斯特摩兰"
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(
+            title="Obsession",
+            localized_title=[{"lang": "en", "text": "Obsession"}],
+        )
+        person = People.objects.create(
+            localized_name=[
+                {"lang": "zh-cn", "text": zh_name},
+                {"lang": "en", "text": "Wash Westmoreland"},
+            ],
+            people_type="person",
+        )
+        ItemCredit.objects.create(
+            item=movie, person=person, role="director", name=zh_name
+        )
+        ItemCredit.objects.create(item=movie, role="actor", name="Name Only Actor")
+
+    def credit_names(lang: str) -> dict[str, str]:
+        response = requests.get(
+            f"{live_server.url}/api/movie/{movie.uuid}",
+            headers={"Accept-Language": lang},
+            timeout=5,
+        )
+        assert response.status_code == 200
+        return {c["role"]: c["name"] for c in response.json()["credits"]}
+
+    assert credit_names("en")["director"] == "Wash Westmoreland"
+    assert credit_names("zh-Hans")["director"] == zh_name
+    assert credit_names("en")["actor"] == "Name Only Actor"
+
+    # ap_object (activity+json, and the payload catalog backups store) is
+    # canonical: it keeps the frozen snapshot whatever the reader asks for.
+    response = requests.get(
+        f"{live_server.url}{movie.url}",
+        headers={"Accept": "application/activity+json", "Accept-Language": "en"},
+        timeout=5,
+    )
+    assert response.status_code == 200
+    ap_credits = {c["role"]: c["name"] for c in response.json()["credits"]}
+    assert ap_credits["director"] == zh_name
+
+    # The credit listing endpoint localizes too: its name used to disagree with
+    # the person.display_name embedded in the same object.
+    response = requests.get(
+        f"{live_server.url}/api/catalog/movie/{movie.uuid}/credit/?lang=en",
+        timeout=5,
+    )
+    assert response.status_code == 200
+    listed = {c["role"]: c for c in response.json()["data"]}
+    assert listed["director"]["name"] == "Wash Westmoreland"
+    assert listed["director"]["person"]["display_name"] == "Wash Westmoreland"
+    assert listed["actor"]["name"] == "Name Only Actor"
+
+    # ... and so does the person's work listing.
+    response = requests.get(
+        f"{live_server.url}/api/people/{person.uuid}/work/",
+        headers={"Accept-Language": "en"},
+        timeout=5,
+    )
+    assert response.status_code == 200
+    works = {entry["item"]["uuid"]: entry for entry in response.json()["data"]}
+    assert [c["name"] for c in works[movie.uuid]["credits"]] == ["Wash Westmoreland"]
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_people_work_endpoint_groups_all_credits_by_item(live_server):
     with patch("catalog.models.item.Item.update_index"):
         person = People.objects.create(

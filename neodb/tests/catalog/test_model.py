@@ -256,7 +256,9 @@ class TestCreditDisplayNameLocalization:
 
     Regression: a Douban-sourced movie froze the director credit name in
     Chinese, so the movie page rendered Chinese even for English viewers, while
-    the person page (which localizes live) showed English.
+    the person page (which localizes live) showed English. The item detail API
+    had the same split (upstream #1760) and now attaches too, so ``api_credits``
+    must hold the same credit objects ``role_credits`` does.
     """
 
     def _linked_movie(self, n: int = 1) -> Movie:
@@ -304,8 +306,8 @@ class TestCreditDisplayNameLocalization:
             assert self._localized_director(m).display_name == "吉尔莫·德尔·托罗"
 
     def test_without_attach_display_name_is_frozen_and_issues_no_query(self):
-        # Surfaces that don't call attach (cards/lists/API) keep the snapshot,
-        # and display_name must never trigger a query on its own.
+        # Surfaces that don't call attach (cards/lists) keep the snapshot, and
+        # display_name must never trigger a query on its own.
         base = self._linked_movie()
         with translation.override("en"):
             m = Movie.objects.get(pk=base.pk)
@@ -314,6 +316,30 @@ class TestCreditDisplayNameLocalization:
             with CaptureQueriesContext(connection) as ctx:
                 assert credit.display_name == "吉尔莫·德尔·托罗"
             assert len(ctx) == 0
+
+    def test_attach_reaches_api_credits(self):
+        # api_credits feeds CreditSchema.name; it must share objects with
+        # role_credits (which attach walks), prefetched or not.
+        base = self._linked_movie()
+        with translation.override("en"):
+            m = Movie.objects.get(pk=base.pk)
+            Item.attach_localized_credit_names([m])
+            assert [c.display_name for c in m.api_credits] == ["Guillermo del Toro"]
+            m = Movie.objects.get(pk=base.pk)
+            prefetch_related_objects([m], Item.credits_prefetch())
+            Item.attach_localized_credit_names([m])
+            assert [c.display_name for c in m.api_credits] == ["Guillermo del Toro"]
+
+    def test_ap_object_keeps_snapshot(self):
+        # ap_object never attaches, so the activity+json / backup payload keeps
+        # the frozen name whatever the active language is.
+        base = self._linked_movie()
+        for lang in ("en", "zh-hans"):
+            with translation.override(lang):
+                m = Movie.objects.get(pk=base.pk)
+                assert [c["name"] for c in m.ap_object["credits"]] == [
+                    "吉尔莫·德尔·托罗"
+                ]
 
     def test_credit_names_by_role_stays_canonical(self):
         # ap_object / backups / schema.org / import matching must not localize.

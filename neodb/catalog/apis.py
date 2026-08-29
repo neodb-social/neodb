@@ -106,7 +106,8 @@ class ItemSummarySchema(Schema):
 
 class CreditDetailSchema(Schema):
     role: str
-    name: str
+    # Localized like person.display_name below, via attach_localized_names.
+    name: str = Field(alias="display_name")
     character_name: str
     person: PeopleSummarySchema | None
 
@@ -119,7 +120,7 @@ class CreditListSchema(Schema):
 
 class PeopleWorkCreditSchema(Schema):
     role: str
-    name: str
+    name: str = Field(alias="display_name")
     character_name: str
 
 
@@ -464,6 +465,13 @@ def _get_item(cls, uuid, response):
     # Public tags are returned for single-item lookups; aggregate for this item
     # only (list endpoints no longer attach tags -- NEODB-SOCIAL-7KW).
     item.tags = TagManager.indexable_tags_for_item(item)
+    if cls is not People:
+        # Item detail responses embed credits (BaseSchema.credits). Prefetch
+        # them without the heavy person metadata, then localize the names in one
+        # bounded query so they follow the request locale like the rest of the
+        # response, as the HTML item page does. PeopleSchema has no credits.
+        prefetch_related_objects([item], Item.credits_prefetch())
+        Item.attach_localized_credit_names([item])
     return item
 
 
@@ -521,10 +529,13 @@ def get_item_credits(
         PAGE_SIZE,
     )
     credit_page = paginator.get_page(page)
+    credits = list(credit_page.object_list)
+    # Follow the request locale, like the embedded person.display_name does.
+    ItemCredit.attach_localized_names(credits)
     return Status(
         200,
         {
-            "data": list(credit_page.object_list),
+            "data": credits,
             "pages": paginator.num_pages,
             "count": paginator.count,
         },
@@ -569,9 +580,15 @@ def get_people_works(request, uuid: str, response: HttpResponse, page: int = 1):
     Item.prefetch_edition_works(items)
 
     credits_by_item: dict[int, list[ItemCredit]] = {}
-    for credit in ItemCredit.objects.filter(
-        person=item, item_id__in=[work.pk for work in items]
-    ).order_by("item_id", "role", "order", "pk"):
+    work_credits = list(
+        ItemCredit.objects.filter(
+            person=item, item_id__in=[work.pk for work in items]
+        ).order_by("item_id", "role", "order", "pk")
+    )
+    # Follow the request locale; these all credit the person being looked up,
+    # whose /api/people/{uuid} name is localized too.
+    ItemCredit.attach_localized_names(work_credits)
+    for credit in work_credits:
         credits_by_item.setdefault(credit.item_id, []).append(credit)
 
     data = [
