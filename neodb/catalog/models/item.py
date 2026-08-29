@@ -569,13 +569,6 @@ class Item(PolymorphicModel):
 
     @staticmethod
     def _pick_localized_text(entries: list[dict[str, str]]) -> str | None:
-        """First non-empty text among ``entries`` for the most preferred locale.
-
-        Every entry of a locale is scanned, not just the first one: entries
-        accrete from multiple external resources (and from the edit form, which
-        seeds an empty one), so an empty or placeholder entry must not mask a
-        later one for the same language.
-        """
         for loc in get_current_locales():
             for t in entries:
                 if t["lang"] == loc and t.get("text"):
