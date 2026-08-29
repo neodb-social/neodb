@@ -138,6 +138,18 @@ def create_v1_api_entity(entity_id, type_ids):
     return {"id": entity_id, "statements": {WikidataProperties.P31: statements}}
 
 
+def create_v1_type_entity(entity_id, parent_type_ids):
+    """Create a class item in the v1 API shape, carrying 'subclass of' values."""
+    return {
+        "id": entity_id,
+        "statements": {
+            WikidataProperties.P279: [
+                {"value": {"id": parent_type_id}} for parent_type_id in parent_type_ids
+            ]
+        },
+    }
+
+
 # Group 1: Basic entity type detection tests
 def test_basic_entity_type_detection():
     """Test model detection for common entity types using the helper function"""
@@ -402,6 +414,53 @@ def test_recursive_parent_type_lookup():
 
         # Should identify as Podcast from recursive parent lookup
         assert model == Podcast
+
+
+def test_ambiguous_ancestor_does_not_map_to_book():
+    """A type whose only mapped ancestor is 'creative work' stays unsupported.
+
+    Regression for radio shows: 'radio series' (Q14623351) is not mapped, and
+    walking up its subclass graph reaches 'creative work', which used to turn
+    every such entity into a book Work.
+    """
+    radio_series = "Q14623351"
+    radio_program = "Q1555508"
+    series_of_creative_works = "Q7725310"
+
+    entity_data = create_v1_api_entity("Q2388264", radio_series)
+    graph = {
+        radio_series: create_v1_type_entity(
+            radio_series, [radio_program, series_of_creative_works]
+        ),
+        radio_program: create_v1_type_entity(
+            radio_program, ["Q11578774", "Q11033", "Q110879422", "Q119649004"]
+        ),
+        series_of_creative_works: create_v1_type_entity(
+            series_of_creative_works, ["Q17489659", WikidataTypes.CREATIVE_WORK]
+        ),
+    }
+
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q2388264")
+    with patch.object(wiki_site, "_fetch_entity_by_id", side_effect=graph.get):
+        with pytest.raises(ParseError):
+            wiki_site._determine_entity_type(entity_data)
+
+    # 'creative work' is still honoured as a direct 'instance of' value
+    assert_entity_type_mapping("Q999996", WikidataTypes.CREATIVE_WORK, Work)
+
+
+def test_nearest_ancestor_wins():
+    """The closest mapped ancestor decides the model, and does so every run."""
+    entity_data = create_v1_api_entity("Q999995", "Q12348")
+    graph = {
+        # one hop up: TV series; two hops up: novel
+        "Q12348": create_v1_type_entity("Q12348", [WikidataTypes.TV_SERIES, "Q12349"]),
+        "Q12349": create_v1_type_entity("Q12349", [WikidataTypes.NOVEL]),
+    }
+
+    wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999995")
+    with patch.object(wiki_site, "_fetch_entity_by_id", side_effect=graph.get):
+        assert wiki_site._determine_entity_type(entity_data) == TVShow
 
 
 # Group 4: V1 API format tests

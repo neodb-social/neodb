@@ -373,6 +373,12 @@ class WikiData(AbstractSite):
     # Types that have priority over all others
     PRIORITY_TYPES = [WikidataTypes.TV_SPECIAL]
 
+    # Classes too generic to identify a category on their own. They still count
+    # as a direct 'instance of' value, but are ignored while walking up the
+    # subclass graph: they sit above nearly every creative type, so matching
+    # them there turns any unmapped work into a book.
+    AMBIGUOUS_ANCESTOR_TYPES = frozenset({WikidataTypes.CREATIVE_WORK})
+
     @classmethod
     def id_to_url(cls, id_value):
         """Convert a Wikidata ID to URL"""
@@ -634,53 +640,52 @@ class WikiData(AbstractSite):
         """Fetch the parent types (subclass of) values from entity data"""
         return self._extract_entity_types(entity_data, WikidataProperties.P279)
 
-    def _fetch_parent_types_with_api(self, entity_types, max_depth=1, current_depth=0):
+    def _fetch_parent_types_with_api(
+        self, entity_types: list[str], max_depth: int = 1
+    ) -> list[str]:
         """Fetch parent types (subclass of) for given entity types using API calls
 
-        This makes API calls to Wikidata for each entity type to find their parent classes.
-        Supports recursive lookup up to max_depth levels.
+        Walks the subclass graph one level at a time, so the result is ordered
+        from the nearest ancestors to the furthest and is stable across runs.
 
         Args:
             entity_types: List of entity type IDs to look up
-            max_depth: Maximum recursion depth for parent lookup
-            current_depth: Current recursion depth (internal use)
+            max_depth: Maximum number of levels to walk up
 
         Returns:
-            List of parent type IDs
+            List of parent type IDs, nearest first, without duplicates
         """
-        if not entity_types or current_depth >= max_depth:
-            return []
+        parent_types: dict[str, None] = {}
+        visited: set[str] = set()
+        frontier = list(entity_types)
 
-        parent_types = []
-        # Use a set to avoid duplicate API calls
-        processed_types = set()
+        for _ in range(max_depth):
+            if not frontier:
+                break
+            next_frontier: list[str] = []
+            for entity_type in frontier:
+                if entity_type in visited:
+                    continue
+                visited.add(entity_type)
 
-        for entity_type in entity_types:
-            if entity_type in processed_types:
-                continue
+                # Fetch entity data for this type via API
+                type_entity_data = self._fetch_entity_by_id(entity_type)
+                if not type_entity_data:
+                    continue
 
-            processed_types.add(entity_type)
+                # Extract subclass of values
+                for parent_type in self._extract_entity_types(
+                    type_entity_data, WikidataProperties.P279
+                ):
+                    parent_types.setdefault(parent_type)
+                    next_frontier.append(parent_type)
+            frontier = next_frontier
 
-            # Fetch entity data for this type via API
-            type_entity_data = self._fetch_entity_by_id(entity_type)
-            if not type_entity_data:
-                continue
+        return list(parent_types)
 
-            # Extract subclass of values
-            direct_parent_types = self._extract_entity_types(
-                type_entity_data, WikidataProperties.P279
-            )
-            parent_types.extend(direct_parent_types)
-
-            # Recursively fetch parent types of parent types if needed
-            if current_depth < max_depth - 1 and direct_parent_types:
-                recursive_parent_types = self._fetch_parent_types_with_api(
-                    direct_parent_types, max_depth, current_depth + 1
-                )
-                parent_types.extend(recursive_parent_types)
-
-        # Return unique parent types
-        return list(set(parent_types))
+    def _drop_ambiguous_types(self, entity_types: list[str]) -> list[str]:
+        """Drop classes that are too generic to identify a category"""
+        return [t for t in entity_types if t not in self.AMBIGUOUS_ANCESTOR_TYPES]
 
     def _determine_entity_type(self, entity_data):
         """Determine the type of entity and appropriate model based on properties
@@ -712,7 +717,7 @@ class WikiData(AbstractSite):
         direct_parent_types = self._fetch_parent_types(entity_data)
         if direct_parent_types:
             parent_model = self._determine_model_from_entity_types(
-                direct_parent_types, self.id_value
+                self._drop_ambiguous_types(direct_parent_types), self.id_value
             )
             if parent_model:
                 return parent_model
@@ -724,7 +729,7 @@ class WikiData(AbstractSite):
         )
         if instance_parent_types:
             instance_parent_model = self._determine_model_from_entity_types(
-                instance_parent_types, self.id_value
+                self._drop_ambiguous_types(instance_parent_types), self.id_value
             )
             if instance_parent_model:
                 return instance_parent_model
@@ -736,7 +741,7 @@ class WikiData(AbstractSite):
             )
             if recursive_parent_types:
                 recursive_model = self._determine_model_from_entity_types(
-                    recursive_parent_types, self.id_value
+                    self._drop_ambiguous_types(recursive_parent_types), self.id_value
                 )
                 if recursive_model:
                     return recursive_model
