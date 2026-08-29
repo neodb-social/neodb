@@ -1080,13 +1080,9 @@ class Item(PolymorphicModel):
     def _demote_wikidata_descriptions(self, override_resources=None) -> bool:
         """Move Wikidata-sourced entries to the end of ``localized_description``.
 
-        Wikidata descriptions are short disambiguators ("2009 visual novel
-        game"), not synopses. ``localized_description`` accretes entries from
-        every external resource, and ``get_localized_description()`` returns the
-        first non-empty one for the locale, so a Wikidata entry that merged
-        before a richer source would win (#1806). Matching against the stored
-        Wikidata resource metadata makes this independent of fetch order; the
-        entries are kept, so a Wikidata-only item still shows its blurb.
+        Wikidata descriptions are short disambiguators, not synopses, and must
+        not outrank a richer source that merged later (#1806). Matching on the
+        stored resource metadata keeps this independent of fetch order.
         """
         if not getattr(self, "localized_description", None):
             return False
