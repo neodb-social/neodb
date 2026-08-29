@@ -132,8 +132,11 @@ def test_basic_entity_type_detection():
     assert_entity_type_mapping("Q2743", WikidataTypes.MUSICAL, Performance)
     assert_entity_type_mapping("Q1344", WikidataTypes.OPERA, Performance)
 
-    # People test
+    # People tests
     assert_entity_type_mapping("Q42", WikidataTypes.HUMAN, People)
+    assert_entity_type_mapping("Q182950", WikidataTypes.ANIMATION_STUDIO, People)
+    assert_entity_type_mapping("Q126399", WikidataTypes.FILM_STUDIO, People)
+    assert_entity_type_mapping("Q1146254", WikidataTypes.THEATER_COMPANY, People)
 
 
 # Group 2: Multiple entity type tests

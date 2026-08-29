@@ -94,9 +94,9 @@ class WikidataTypes:
     FILM_PRODUCTION_COMPANY = "Q1762059"  # Film production company
     VIDEO_GAME_DEVELOPER = "Q210167"  # Video game developer
     VIDEO_GAME_PUBLISHER = "Q1137109"  # Video game publisher
-    ANIMATION_STUDIO = "Q17313235"  # Animation studio
-    FILM_STUDIO = "Q1660723"  # Film studio
-    THEATER_COMPANY = "Q3529889"  # Theater company
+    ANIMATION_STUDIO = "Q1107679"  # animation studio
+    FILM_STUDIO = "Q375336"  # film studio
+    THEATER_COMPANY = "Q742421"  # theatre company
 
 
 # Wikidata Properties NeoDB reads; IdTypeMapping keys stay raw strings
@@ -313,13 +313,16 @@ class WikiData(AbstractSite):
             values = []
             preferred = []
             for statement in raw:
-                value = statement["value"]
+                value = statement.get("value")
                 rank = statement.get("rank")
-                if value.get("type") != "value" or rank == "deprecated":
+                if not isinstance(value, dict) or value.get("type") != "value":
+                    continue
+                content = value.get("content")
+                if content is None or rank == "deprecated":
                     continue
                 if rank == "preferred":
-                    preferred.append(value["content"])
-                values.append(value["content"])
+                    preferred.append(content)
+                values.append(content)
             if values:
                 statements[property_id] = preferred or values
         return {
@@ -367,7 +370,7 @@ class WikiData(AbstractSite):
     def _extract_date(self, entity_data: dict, property_id: str) -> str | None:
         """Extract a date from a time property"""
         value = self._extract_property_value(entity_data, property_id)
-        if not isinstance(value, dict):
+        if not isinstance(value, dict) or not isinstance(value.get("time"), str):
             return None
         # Wikidata time format: +YYYY-MM-DDTHH:MM:SSZ
         return self._f_date(value["time"].removeprefix("+").split("T")[0])
@@ -387,7 +390,7 @@ class WikiData(AbstractSite):
     def _extract_duration(self, entity_data: dict) -> int | None:
         """Extract duration in seconds from P2047"""
         value = self._extract_property_value(entity_data, WikidataProperties.DURATION)
-        if not isinstance(value, dict):
+        if not isinstance(value, dict) or "amount" not in value:
             return None
         # Wikidata stores duration as a quantity with a unit URI;
         # films are usually expressed in minutes
