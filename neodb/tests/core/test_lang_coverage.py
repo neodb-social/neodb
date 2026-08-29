@@ -8,7 +8,11 @@ import catalog.models.common as catalog_common
 import catalog.sites.tmdb as tmdb
 import common.models.lang as lang
 from catalog.common.downloaders import BasicDownloader
-from common.models.lang import get_current_locales, localize_number
+from common.models.lang import (
+    get_current_locales,
+    localize_number,
+    localized_label_text,
+)
 
 
 class TestLocalizeNumber:
@@ -191,3 +195,26 @@ class TestLanguageCacheRefresh:
 
         assert one_of[0]["const"] == "ja"
         assert one_of[-1] == {"title": "Other", "type": "string"}
+
+
+class TestLocalizedLabelText:
+    """An empty entry must not mask a later one for the same language;
+    label lists accrete from several external resources (#1806)."""
+
+    def test_empty_entry_does_not_mask_later_entry(self):
+        labels = [
+            {"lang": "en", "text": ""},
+            {"lang": "en", "text": "Real Name"},
+        ]
+        assert localized_label_text(labels, ["en"]) == "Real Name"
+
+    def test_falls_through_to_next_locale(self):
+        labels = [{"lang": "en", "text": "Real Name"}]
+        assert localized_label_text(labels, ["fr", "en"]) == "Real Name"
+
+    def test_none_when_no_locale_matches(self):
+        labels = [{"lang": "en", "text": ""}]
+        assert localized_label_text(labels, ["en"]) is None
+
+    def test_none_for_empty_list(self):
+        assert localized_label_text([], ["en"]) is None

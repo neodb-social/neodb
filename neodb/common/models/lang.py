@@ -440,17 +440,21 @@ def get_current_locales() -> list[str]:
 def localized_label_text(
     labels: list[dict] | None, locales: list[str] | None = None
 ) -> str | None:
-    """First matching ``text`` from a ``[{lang, text}]`` label list for the
+    """First non-empty ``text`` from a ``[{lang, text}]`` label list for the
     given locale preference (defaults to the request's ``get_current_locales``).
+
+    Every entry of a locale is scanned: lists accrete from multiple external
+    resources (and the edit form seeds an empty one), so an empty entry must
+    not mask a later one for the same language.
     """
     if not labels:
         return None
     if locales is None:
         locales = get_current_locales()
     for loc in locales:
-        v = next((t.get("text") for t in labels if t.get("lang") == loc), None)
-        if v:
-            return v
+        for t in labels:
+            if t.get("lang") == loc and t.get("text"):
+                return t["text"]
     return None
 
 
