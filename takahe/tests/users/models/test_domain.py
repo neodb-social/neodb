@@ -55,10 +55,8 @@ def test_recursive_block():
 
 def test_fetch_nodeinfo_invalid_idna_host():
     """
-    A domain that is valid DNS but invalid IDNA2008 -- an emoji domain -- can
-    never be fetched. httpx raises a raw idna.IDNAError from httpx.URL.host,
-    outside the httpx.HTTPError tree, so it used to escape to Stator instead of
-    being treated as an unreachable domain.
+    An unencodable host raises from httpx.URL.host while the request is built,
+    outside the httpx.HTTPError tree, so it used to escape to Stator.
     """
 
     assert Domain(domain="xn--4t8h.example").fetch_nodeinfo() is None

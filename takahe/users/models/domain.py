@@ -226,9 +226,7 @@ class Domain(StatorModel):
                 UnicodeDecodeError,
                 idna.IDNAError,
             ):
-                # idna.IDNAError: host is valid DNS but invalid IDNA2008 (e.g.
-                # an emoji domain), so it can never be fetched. httpx raises it
-                # raw from httpx.URL.host, outside the httpx.HTTPError tree.
+                # idna.IDNAError: non-IDNA2008 host, raised from httpx.URL.host.
                 return None
             else:
                 try:

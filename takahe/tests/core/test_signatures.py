@@ -284,8 +284,7 @@ def test_verify_request_malformed_date_header(keypair):
         HttpSignature.verify_request(request, keypair["public_key"])
 
 
-# Valid DNS and resolvable in a browser, but idna rejects the emoji codepoint.
-# xn--4t8h is the punycode for a single pager emoji.
+# xn--4t8h is punycode for a pager emoji: valid DNS, invalid IDNA2008.
 EMOJI_PUNYCODE_URI = "https://xn--4t8h.example/users/test-actor"
 
 
@@ -299,17 +298,11 @@ def _enable_federation(settings):
 
 def test_signed_request_invalid_idna_host(keypair, monkeypatch, _enable_federation):
     """
-    A host that is valid DNS but invalid IDNA2008 must surface inside the
-    httpx.RequestError tree.
-
-    httpx decodes punycode lazily in httpx.URL.host, and the SSRF hook is the
-    first thing to read it, so httpx never gets to wrap the idna error. Every
-    caller of signed_request guards on httpx.RequestError, so a raw idna error
-    -- or a bare httpx.HTTPError, which is RequestError's *parent* -- escapes
-    their handling and reaches Stator.
+    An unencodable host must stay inside the httpx.RequestError tree every
+    caller guards on. A raw idna error, or a bare httpx.HTTPError (which is
+    RequestError's parent), escapes them and reaches Stator.
     """
-    # conftest's autouse _bypass_ssrf_check stubs the hook out for every test;
-    # restore it, since reading request.url.host is what raises in production.
+    # The autouse _bypass_ssrf_check stubs out the hook that reads url.host.
     monkeypatch.setattr("core.signatures.check_url_safety", check_url_safety)
 
     with pytest.raises(httpx.RequestError) as exc_info:

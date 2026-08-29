@@ -642,16 +642,13 @@ def test_default_icon_migration(identity_factory, domain):
 
 def test_fetch_actor_invalid_idna_host(config_system, monkeypatch, settings):
     """
-    An actor on a domain that is valid DNS but invalid IDNA2008 -- an emoji
-    domain -- is simply unfetchable, so fetch_actor reports failure instead of
-    letting a raw idna error escape to Stator. This kept the deferred signature
-    verification in users.models.inbox_message logging it as an error on every
-    retry (NEODB-SOCIAL-7VE / 7VF).
+    An actor on an unencodable host is unfetchable, so fetch_actor reports
+    failure instead of letting a raw idna error escape to Stator, which had
+    inbox_message logging an error on every retry (NEODB-SOCIAL-7VE / 7VF).
     """
     original = settings.SETUP.NO_FEDERATION
     settings.SETUP.NO_FEDERATION = False
-    # conftest's autouse _bypass_ssrf_check stubs the hook out for every test;
-    # restore it, since reading request.url.host is what raises in production.
+    # The autouse _bypass_ssrf_check stubs out the hook that reads url.host.
     monkeypatch.setattr("core.signatures.check_url_safety", check_url_safety)
     try:
         identity = Identity(

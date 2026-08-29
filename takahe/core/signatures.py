@@ -346,13 +346,8 @@ class HttpSignature:
                 logger.info("Invalid cert on %s %s", uri, invalid_cert)
                 raise SSLCertVerificationError(invalid_cert) from invalid_cert
             except idna.IDNAError as ex:
-                # httpx IDNA-decodes punycode lazily in httpx.URL.host, which
-                # check_url_safety above is the first to read, so a host that is
-                # valid DNS but invalid IDNA2008 -- an emoji domain such as
-                # xn--4t8h.example -- surfaces as a raw idna error rather than
-                # anything httpx-shaped. Such a host can never be reached, so
-                # report it the way httpx reports one it cannot resolve; every
-                # caller already handles httpx.RequestError.
+                # Emoji and other non-IDNA2008 hosts raise from httpx.URL.host,
+                # outside the httpx.HTTPError tree; they are simply unreachable.
                 raise httpx.ConnectError(f"Invalid IDNA host: {ex}") from None
             except SSRFAttemptError:
                 logger.warning("SSRF blocked on %s %s", method, uri)
