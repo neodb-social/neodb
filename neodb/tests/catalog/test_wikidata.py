@@ -356,6 +356,62 @@ def test_edge_cases_and_errors():
             site._determine_entity_type(entity("Q123456", instance_of=["Q123"]))
 
 
+# Group 6: Scrape behaviour tests
+def test_scrape_accepts_redirected_payload():
+    """A merged QID redirects; the target's content is kept under the old QID."""
+    site = site_for("Q999989")
+    payload = v1_payload(
+        "Q83495", instance_of=[WikidataTypes.FILM], labels={"en": "The Matrix"}
+    )
+
+    with patch("catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS", ["en"]):
+        with patch.object(site, "_fetch_entity_by_id", return_value=payload):
+            content = site.scrape()
+
+    assert content.metadata["title"] == "The Matrix"
+    assert content.metadata["preferred_model"] == "Movie"
+
+
+def test_scrape_rejects_payload_without_id():
+    """A payload that is not an entity is still a parse error."""
+    site = site_for("Q999989")
+    with patch.object(site, "_fetch_entity_by_id", return_value={"error": "not-found"}):
+        with pytest.raises(ParseError):
+            site.scrape()
+
+
+def test_title_falls_back_outside_preferred_languages():
+    """Without a preferred-language label, English wins, then any other label."""
+    site = site_for("Q999988")
+
+    def scrape_with_labels(labels):
+        payload = v1_payload("Q999988", instance_of=[WikidataTypes.FILM], labels=labels)
+        with patch("catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS", ["zh"]):
+            with patch.object(site, "_fetch_entity_by_id", return_value=payload):
+                return site.scrape()
+
+    content = scrape_with_labels({"fr": "Matrice", "en": "The Matrix"})
+    assert content.metadata["title"] == "The Matrix"
+    assert content.metadata["localized_title"] == [{"lang": "en", "text": "The Matrix"}]
+
+    content = scrape_with_labels({"fr": "Matrice"})
+    assert content.metadata["title"] == "Matrice"
+    assert content.metadata["localized_title"] == [{"lang": "fr", "text": "Matrice"}]
+
+    content = scrape_with_labels({})
+    assert content.metadata["title"] == "Q999988"
+    assert content.metadata["localized_title"] == []
+
+
+def test_sparql_string_escaping():
+    """An external ID cannot break out of the SPARQL literal it is placed in."""
+    assert WikiData._escape_sparql_string("tt0133093") == "tt0133093"
+    assert WikiData._escape_sparql_string('a"b') == 'a\\"b'
+    assert WikiData._escape_sparql_string("a\\b") == "a\\\\b"
+    # backslashes are escaped before quotes, so an escaped quote stays escaped
+    assert WikiData._escape_sparql_string('\\"') == '\\\\\\"'
+
+
 def test_preferred_model_in_metadata():
     """Test preferred model is included in metadata"""
     wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")

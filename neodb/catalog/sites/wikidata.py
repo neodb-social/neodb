@@ -609,18 +609,28 @@ class WikiData(AbstractSite):
         # Special:FilePath redirects to the Commons image at the requested width
         return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width=1000"
 
+    def _fallback_label(self, entity_data: dict) -> dict[str, str]:
+        """Pick one label outside the preferred languages, English first"""
+        labels = entity_data["labels"]
+        lang = "en" if "en" in labels else next(iter(labels), None)
+        return {lang: labels[lang]} if lang else {}
+
     def scrape(self) -> ResourceContent:
         if not self.id_value or not self.id_value.startswith("Q"):
             raise ParseError(self, "QID")
         entity_data = self._fetch_entity_by_id(self.id_value)
 
-        if not isinstance(entity_data, dict) or entity_data.get("id") != self.id_value:
+        if not isinstance(entity_data, dict) or not entity_data.get("id"):
             raise ParseError(self, "json")
+        if entity_data["id"] != self.id_value:
+            # a merged QID redirects to the item it was merged into; that
+            # payload is what this QID means now
+            logger.info(f"{self.id_value} redirected to {entity_data['id']}")
         entity_data = self._normalize_entity(entity_data)
 
         # Extract labels (titles)
-        labels = self._extract_labels(entity_data)
-        title = next(iter(labels.values())) if labels else self.id_value
+        labels = self._extract_labels(entity_data) or self._fallback_label(entity_data)
+        title = next(iter(labels.values()), self.id_value)
 
         # Extract descriptions
         descriptions = self._extract_descriptions(entity_data)
@@ -650,58 +660,42 @@ class WikiData(AbstractSite):
 
         # Determine entity type for model
         model = self._determine_entity_type(entity_data)
-        self.DEFAULT_MODEL = model
-
-        # Add preferred_model to metadata
-        if model:
-            data.metadata["preferred_model"] = model.__name__
+        data.metadata["preferred_model"] = model.__name__
 
         # Extract model-specific metadata
-        if model == Game:
-            self._extract_game_metadata(entity_data, data)
-        elif model == Podcast:
-            self._extract_podcast_metadata(entity_data, data)
-        elif model == PodcastEpisode:
-            self._extract_podcast_episode_metadata(entity_data, data)
-        elif model == Performance:
-            self._extract_performance_metadata(entity_data, data)
-        elif model == Movie:
-            self._extract_movie_metadata(entity_data, data)
-        elif model == TVShow:
-            self._extract_tv_show_metadata(entity_data, data)
-        elif model == TVSeason:
-            self._extract_tv_season_metadata(entity_data, data)
-        elif model == TVEpisode:
-            self._extract_tv_episode_metadata(entity_data, data)
-        elif model == Work:
-            self._extract_work_metadata(entity_data, data)
-        elif model == People:
-            self._extract_people_metadata(entity_data, data)
+        extractor = {
+            Game: self._extract_game_metadata,
+            Podcast: self._extract_podcast_metadata,
+            PodcastEpisode: self._extract_podcast_episode_metadata,
+            Performance: self._extract_performance_metadata,
+            Movie: self._extract_movie_metadata,
+            TVShow: self._extract_tv_show_metadata,
+            TVSeason: self._extract_tv_season_metadata,
+            TVEpisode: self._extract_tv_episode_metadata,
+            Work: self._extract_work_metadata,
+            People: self._extract_people_metadata,
+        }.get(model)
+        if extractor:
+            extractor(entity_data, data)
 
-        resources = self._extract_external_ids(entity_data)
-        prematched_resources = []
-        for res in resources:
+        for res in self._extract_external_ids(entity_data):
             try:
                 site_cls = SiteManager.get_site_cls_by_id_type(res["id_type"])
-                if (
-                    model == site_cls.DEFAULT_MODEL
-                    or model in site_cls.MATCHABLE_MODELS
-                ):
-                    prematched_resources.append(res)
-                    data.lookup_ids[res["id_type"]] = res["id_value"]
-                else:
-                    logger.warning(
-                        f"IdType {res['id_type']} does not match Model {model}, skipping",
-                        extra={
-                            "id_type": self.ID_TYPE,
-                            "id_value": self.id_value,
-                            "prematched": res,
-                        },
-                    )
-            except Exception:
+            except ValueError:
                 # No registered site for this IdType; still store the lookup ID
                 data.lookup_ids[res["id_type"]] = res["id_value"]
-        # data.metadata["prematched_resources"] = prematched_resources
+                continue
+            if model == site_cls.DEFAULT_MODEL or model in site_cls.MATCHABLE_MODELS:
+                data.lookup_ids[res["id_type"]] = res["id_value"]
+            else:
+                logger.warning(
+                    f"IdType {res['id_type']} does not match Model {model}, skipping",
+                    extra={
+                        "id_type": self.ID_TYPE,
+                        "id_value": self.id_value,
+                        "resource": res,
+                    },
+                )
         return data
 
     def _extract_game_metadata(self, entity_data, data):
@@ -723,7 +717,7 @@ class WikiData(AbstractSite):
         # RSS feed URL
         feed_url = self._extract_url(entity_data, WikidataProperties.P953)
         if feed_url:
-            data.lookup_ids["rss"] = feed_url
+            data.lookup_ids[IdType.RSS] = feed_url
 
     def _extract_podcast_episode_metadata(self, entity_data, data):
         """Extract PodcastEpisode-specific metadata"""
@@ -834,21 +828,20 @@ class WikiData(AbstractSite):
             entity_data, WikidataProperties.P856
         )
 
-    def get_wikipedia_pages(self, entity_data=None):
+    def get_wikipedia_pages(self) -> list[dict[str, str]]:
         """Fetch all Wikipedia pages for this Wikidata entity
 
-        Returns a dictionary of language codes to Wikipedia page URLs.
+        Returns one {"lang", "url", "title"} dict per Wikipedia sitelink.
 
-        Example: {
-            "en": "https://en.wikipedia.org/wiki/The_Matrix",
-            "zh": "https://zh.wikipedia.org/wiki/黑客帝国",
+        Example: [
+            {"lang": "en", "url": "https://en.wikipedia.org/wiki/The_Matrix",
+             "title": "The Matrix"},
             ...
-        }
+        ]
         """
-        if not entity_data and not self.id_value:
-            return {}
-
         entity_id = self.id_value
+        if not entity_id:
+            return []
 
         try:
             # Use Wikidata API to get all sitelinks (Wikipedia pages)
@@ -859,12 +852,12 @@ class WikiData(AbstractSite):
 
             if "entities" not in data or entity_id not in data["entities"]:
                 logger.warning(f"No entity data found for {entity_id}")
-                return {}
+                return []
 
             entity = data["entities"][entity_id]
             if "sitelinks" not in entity:
                 logger.warning(f"No sitelinks found for {entity_id}")
-                return {}
+                return []
 
             # Extract Wikipedia pages
             wiki_pages = []
@@ -883,7 +876,7 @@ class WikiData(AbstractSite):
                 f"Error fetching Wikipedia pages: {e}",
                 extra={"QID": entity_id, "exception": e},
             )
-            return {}
+            return []
 
     def _extract_external_ids(self, entity_data: dict) -> list[dict]:
         """Extract common external identifiers to lookup_ids"""
@@ -896,6 +889,11 @@ class WikiData(AbstractSite):
                 id_type = OpenLibrary.guess_id_type(value)
             resources.append({"id_type": id_type, "id_value": value})
         return resources
+
+    @staticmethod
+    def _escape_sparql_string(value: str) -> str:
+        """Escape a value for use inside a double-quoted SPARQL literal"""
+        return value.replace("\\", "\\\\").replace('"', '\\"')
 
     @classmethod
     def lookup_qid_by_external_id(cls, id_type: IdType, id_value: str) -> str | None:
@@ -936,7 +934,7 @@ class WikiData(AbstractSite):
             # Use SPARQL query to find entity with this external ID
             sparql_query = f"""
             SELECT ?item WHERE {{
-                ?item wdt:{property_id} "{id_value}".
+                ?item wdt:{property_id} "{cls._escape_sparql_string(id_value)}".
             }}
             LIMIT 1
             """
