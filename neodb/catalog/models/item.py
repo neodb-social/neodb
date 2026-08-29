@@ -876,8 +876,8 @@ class Item(PolymorphicModel):
 
         Collects every item's credits into one ``ItemCredit.attach_localized_names``
         call. For display surfaces -- the item detail page and API -- after
-        credits are loaded; canonical outputs (ap_object, backups, schema.org,
-        import matching) never call it and keep the snapshot.
+        credits are loaded; canonical outputs (ap_object, backups, import
+        matching) never call it and keep the snapshot.
         """
         credits: list[ItemCredit] = []
         for it in items:
@@ -1388,13 +1388,12 @@ class Item(PolymorphicModel):
     def credit_names_by_role(self, role: str) -> list[str]:
         """Return credit names as list[str] from the credits table.
 
-        Uses the stored ``name`` snapshot (not the localized display name):
-        this feeds canonical/locale-independent surfaces -- ActivityPub
-        ``ap_object``, catalog backups, schema.org markup and StoryGraph
-        import matching. Localization happens only at the HTML display layer
-        via ``ItemCredit.display_name``.
+        Follows ``display_name``, so the per-role schema fields and the
+        schema.org markup match the localized ``credits`` beside them wherever
+        the request attached. Callers that never attach -- ``ap_object``,
+        catalog backups, StoryGraph import matching -- keep the snapshot.
         """
-        return [c.name for c in self.role_credits.get(role, [])]
+        return [c.display_name for c in self.role_credits.get(role, [])]
 
     @cached_property
     def role_credits(self) -> dict[str, list["ItemCredit"]]:

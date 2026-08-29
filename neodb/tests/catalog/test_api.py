@@ -462,18 +462,23 @@ def test_item_api_localizes_credit_names(live_server):
         )
         ItemCredit.objects.create(item=movie, role="actor", name="Name Only Actor")
 
-    def credit_names(lang: str) -> dict[str, str]:
+    def detail(lang: str) -> dict:
         response = requests.get(
             f"{live_server.url}/api/movie/{movie.uuid}",
             headers={"Accept-Language": lang},
             timeout=5,
         )
         assert response.status_code == 200
-        return {c["role"]: c["name"] for c in response.json()["credits"]}
+        payload = response.json()
+        payload["credit_names"] = {c["role"]: c["name"] for c in payload["credits"]}
+        return payload
 
-    assert credit_names("en")["director"] == "Wash Westmoreland"
-    assert credit_names("zh-Hans")["director"] == zh_name
-    assert credit_names("en")["actor"] == "Name Only Actor"
+    assert detail("en")["credit_names"]["director"] == "Wash Westmoreland"
+    assert detail("zh-Hans")["credit_names"]["director"] == zh_name
+    assert detail("en")["credit_names"]["actor"] == "Name Only Actor"
+    # The per-role field must agree with credits[] in the same payload.
+    assert detail("en")["director"] == ["Wash Westmoreland"]
+    assert detail("zh-Hans")["director"] == [zh_name]
 
     # ap_object (activity+json, and the payload catalog backups store) is
     # canonical: it keeps the frozen snapshot whatever the reader asks for.
@@ -483,8 +488,9 @@ def test_item_api_localizes_credit_names(live_server):
         timeout=5,
     )
     assert response.status_code == 200
-    ap_credits = {c["role"]: c["name"] for c in response.json()["credits"]}
-    assert ap_credits["director"] == zh_name
+    ap = response.json()
+    assert {c["role"]: c["name"] for c in ap["credits"]}["director"] == zh_name
+    assert ap["director"] == [zh_name]
 
     # The credit listing endpoint localizes too: its name used to disagree with
     # the person.display_name embedded in the same object.

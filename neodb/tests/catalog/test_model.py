@@ -250,9 +250,8 @@ class TestCreditDisplayNameLocalization:
     display once Item.attach_localized_credit_names has run, instead of the
     snapshot frozen at sync time. attach_localized_credit_names fetches only the
     localized_name JSON sub-key in one bounded query -- never the heavy person
-    metadata blob (EGGPLANT-1EF) and never a per-credit query. Canonical
-    surfaces (credit_names_by_role, which feeds ap_object / backups / schema.org
-    / import matching) always keep the snapshot.
+    metadata blob (EGGPLANT-1EF) and never a per-credit query. Surfaces that
+    never attach (ap_object, backups, import matching) keep the snapshot.
 
     Regression: a Douban-sourced movie froze the director credit name in
     Chinese, so the movie page rendered Chinese even for English viewers, while
@@ -339,13 +338,25 @@ class TestCreditDisplayNameLocalization:
                     "吉尔莫·德尔·托罗"
                 ]
 
-    def test_credit_names_by_role_stays_canonical(self):
-        # ap_object / backups / schema.org / import matching must not localize.
+    def test_credit_names_by_role_without_attach_stays_canonical(self):
+        # ap_object / backups / import matching never attach: no localization.
         base = self._linked_movie()
         for lang in ("en", "zh-hans"):
             with translation.override(lang):
                 m = Movie.objects.get(pk=base.pk)
                 assert m.credit_names_by_role("director") == ["吉尔莫·德尔·托罗"]
+
+    def test_credit_names_by_role_follows_attach(self):
+        # The per-role schema fields and schema.org markup must agree with the
+        # localized credits beside them.
+        base = self._linked_movie()
+        with translation.override("en"):
+            m = Movie.objects.get(pk=base.pk)
+            Item.attach_localized_credit_names([m])
+            assert m.credit_names_by_role("director") == ["Guillermo del Toro"]
+            assert m.to_schema_org()["director"] == [
+                {"@type": "Person", "name": "Guillermo del Toro"}
+            ]
 
     def test_attach_uses_single_query_regardless_of_cast_size(self):
         # One bounded query for all credited people -- flat, not an N+1, and it
