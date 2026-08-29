@@ -448,7 +448,7 @@ def trending_verified_podcasts(request, page: int = 1):
     )
 
 
-def _get_item(cls, uuid, response):
+def _get_item(cls, uuid, response, attach_credits: bool = True):
     item = Item.get_by_url(uuid)
     if not item:
         return Status(404, {"message": "Item not found"})
@@ -465,7 +465,7 @@ def _get_item(cls, uuid, response):
     # Public tags are returned for single-item lookups; aggregate for this item
     # only (list endpoints no longer attach tags -- NEODB-SOCIAL-7KW).
     item.tags = TagManager.indexable_tags_for_item(item)
-    if cls is not People:  # PeopleSchema has no credits
+    if attach_credits and cls is not People:  # PeopleSchema has no credits
         # Credit names follow the request locale, as on the HTML item page.
         prefetch_related_objects([item], Item.credits_prefetch())
         Item.attach_localized_credit_names([item])
@@ -614,7 +614,8 @@ def get_book(request, uuid: str, response: HttpResponse):
 )
 @paginate(PageNumberPagination)
 def get_sibling_editions_for_book(request, uuid: str, response: HttpResponse):
-    i = _get_item(Edition, uuid, response)
+    # Only the siblings are serialized, so skip this edition's credit load.
+    i = _get_item(Edition, uuid, response, attach_credits=False)
     if not isinstance(i, Edition):
         return Edition.objects.none()
     return i.sibling_items
@@ -689,7 +690,8 @@ def get_podcast_episode(request, uuid: str, response: HttpResponse):
 def get_episodes_in_podcast(
     request, uuid: str, response: HttpResponse, page: int = 1, guid: str | None = None
 ):
-    podcast = _get_item(Podcast, uuid, response)
+    # Only the episodes are serialized, so skip the podcast's credit load.
+    podcast = _get_item(Podcast, uuid, response, attach_credits=False)
     if not isinstance(podcast, Podcast):
         return podcast
     episodes = podcast.child_items.filter(is_deleted=False, merged_to_item=None)
