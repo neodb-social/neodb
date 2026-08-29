@@ -99,116 +99,21 @@ class WikidataTypes:
     THEATER_COMPANY = "Q3529889"  # Theater company
 
 
-# Wikidata Properties for metadata extraction
+# Wikidata Properties NeoDB reads; IdTypeMapping keys stay raw strings
 class WikidataProperties:
-    # Core properties
-    P18 = "P18"  # image
-    P31 = "P31"  # instance of
-    P154 = "P154"  # logo image
-    P279 = "P279"  # subclass of
-    P2716 = "P2716"  # collage image
-    P3383 = "P3383"  # film poster
-
-    # Common metadata
-    P50 = "P50"  # author
-    P57 = "P57"  # director
-    P86 = "P86"  # composer
-    P136 = "P136"  # genre
-    P144 = "P144"  # based on
-    P161 = "P161"  # cast member
-    P170 = "P170"  # creator
-    P175 = "P175"  # performer
-    P178 = "P178"  # developer
-    P179 = "P179"  # part of the series
-    P272 = "P272"  # production company
-    P275 = "P275"  # copyright license
-    P276 = "P276"  # location
-    P287 = "P287"  # designed by
-    P291 = "P291"  # place of publication
-    P364 = "P364"  # original language
-    P371 = "P371"  # presenter
-    P400 = "P400"  # platform
-    P404 = "P404"  # game mode
-    P407 = "P407"  # language of work
-    P408 = "P408"  # software engine
-    P433 = "P433"  # issue/episode number
-    P437 = "P437"  # distribution format
-    P449 = "P449"  # original broadcaster
-    P453 = "P453"  # guest
-    P495 = "P495"  # country of origin
-    P571 = "P571"  # inception
-    P577 = "P577"  # publication date
-    P580 = "P580"  # start time
-    P582 = "P582"  # end time
-    P674 = "P674"  # characters
-    P710 = "P710"  # participant
-    P750 = "P750"  # distributed by
-    P856 = "P856"  # official website
-    P921 = "P921"  # main subject
-    P953 = "P953"  # full work available at URL
-    P1113 = "P1113"  # number of episodes
-    P1476 = "P1476"  # title
-    P1809 = "P1809"  # choreographer
-    P2047 = "P2047"  # duration
-    P2408 = "P2408"  # set in period
-    P2437 = "P2437"  # season
-    P2438 = "P2438"  # narrator
-    P2515 = "P2515"  # set designer
-    P2860 = "P2860"  # cites work
-    P3300 = "P3300"  # musical conductor
-    P5028 = "P5028"  # sound designer
-    P5029 = "P5029"  # costume designer
-    P5030 = "P5030"  # lighting designer
-
-    # Person-specific properties
-    P569 = "P569"  # date of birth
-    P570 = "P570"  # date of death
-
-    # External identifiers
-    P123 = "P123"  # publisher
-    P212 = "P212"  # ISBN-13
-    P345 = "P345"  # IMDb ID
-    P436 = "P436"  # MusicBrainz release group ID
-    P675 = "P675"  # Google Books ID
-    P957 = "P957"  # ISBN-10
-    P1712 = "P1712"  # Metacritic ID
-    P1733 = "P1733"  # Steam application ID
-    P1954 = "P1954"  # Discogs master ID
-    P2002 = "P2002"  # Twitter username
-    P2003 = "P2003"  # Instagram username
-    P2013 = "P2013"  # Facebook ID
-    P2206 = "P2206"  # Discogs release ID
-    P2339 = "P2339"  # BoardGameGeek ID
-    P2397 = "P2397"  # YouTube channel ID
-    P2969 = "P2969"  # Goodreads edition ID
-    P4529 = "P4529"  # Douban film ID
-    P4947 = "P4947"  # TMDb movie ID
-    P4983 = "P4983"  # TMDb TV series ID
-    P5732 = "P5732"  # Bangumi subject ID
-    P5794 = "P5794"  # IGDB game ID
-    P11688 = "P11688"  # MobyGames game ID
-    P5831 = "P5831"  # Spotify show ID
-    P5842 = "P5842"  # Apple Podcasts podcast ID
-    P6442 = "P6442"  # Douban book version/edition ID
-    P6443 = "P6443"  # Douban drama ID
-    P6444 = "P6444"  # Douban game ID
-    P8383 = "P8383"  # Goodreads work ID
-    P8419 = "P8419"  # Archive of Our Own tag
-    P10319 = "P10319"  # Douban book works ID
-    P648 = "P648"  # Open Library ID
-    P4300 = "P4300"  # YouTube playlist ID (YouTube Music album)
-    P8729 = "P8729"  # AniList anime ID
-    P8731 = "P8731"  # AniList manga ID
-    P4086 = "P4086"  # MyAnimeList anime ID
-    P4087 = "P4087"  # MyAnimeList manga ID
-
-    # Person-specific external identifiers
-    P4985 = "P4985"  # TMDb person ID
-    P2963 = "P2963"  # Goodreads author ID
-    P1902 = "P1902"  # Spotify artist ID
-    P9650 = "P9650"  # IGDB company ID
-    P12836 = "P12836"  # Douban personage ID
-    P434 = "P434"  # MusicBrainz artist ID
+    IMAGE = "P18"
+    INSTANCE_OF = "P31"
+    SUBCLASS_OF = "P279"
+    ISSUE_NUMBER = "P433"  # issue or episode number
+    DATE_OF_BIRTH = "P569"
+    DATE_OF_DEATH = "P570"
+    PUBLICATION_DATE = "P577"
+    END_TIME = "P582"
+    OFFICIAL_WEBSITE = "P856"
+    WORK_AVAILABLE_AT_URL = "P953"
+    NUMBER_OF_EPISODES = "P1113"
+    DURATION = "P2047"
+    NUMBER_OF_SEASONS = "P2437"
 
     IdTypeMapping = {
         "P345": IdType.IMDB,
@@ -481,7 +386,7 @@ class WikiData(AbstractSite):
 
     def _extract_duration(self, entity_data: dict) -> int | None:
         """Extract duration in seconds from P2047"""
-        value = self._extract_property_value(entity_data, WikidataProperties.P2047)
+        value = self._extract_property_value(entity_data, WikidataProperties.DURATION)
         if not isinstance(value, dict):
             return None
         # Wikidata stores duration as a quantity with a unit URI;
@@ -535,7 +440,7 @@ class WikiData(AbstractSite):
             return []
 
         parent_types = self._extract_entity_types(
-            self._normalize_entity(entity_data), WikidataProperties.P279
+            self._normalize_entity(entity_data), WikidataProperties.SUBCLASS_OF
         )
         _PARENT_TYPE_CACHE[class_id] = parent_types
         return parent_types
@@ -578,7 +483,9 @@ class WikiData(AbstractSite):
         failing that, the subclass graph above the entity is walked up to its
         nearest mapped ancestor.
         """
-        instance_of = self._extract_entity_types(entity_data, WikidataProperties.P31)
+        instance_of = self._extract_entity_types(
+            entity_data, WikidataProperties.INSTANCE_OF
+        )
         if not instance_of:
             raise ParseError(
                 self, f"Entity {self.id_value} has no 'instance of' (P31) properties"
@@ -586,7 +493,7 @@ class WikiData(AbstractSite):
 
         model = self._match_entity_types(instance_of) or self._walk_ancestor_types(
             instance_of,
-            self._extract_entity_types(entity_data, WikidataProperties.P279),
+            self._extract_entity_types(entity_data, WikidataProperties.SUBCLASS_OF),
         )
         if model:
             return model
@@ -602,7 +509,7 @@ class WikiData(AbstractSite):
 
     def _extract_cover_image(self, entity_data: dict) -> str | None:
         """Extract cover image URL from P18 (image) property"""
-        filename = self._extract_property_value(entity_data, WikidataProperties.P18)
+        filename = self._extract_property_value(entity_data, WikidataProperties.IMAGE)
         if not isinstance(filename, str):
             return None
 
@@ -701,98 +608,102 @@ class WikiData(AbstractSite):
     def _extract_game_metadata(self, entity_data, data):
         """Extract Game-specific metadata"""
         data.metadata["release_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["artist"] = []  # No direct Wikidata property for artist
         data.metadata["official_site"] = self._extract_url(
-            entity_data, WikidataProperties.P856
+            entity_data, WikidataProperties.OFFICIAL_WEBSITE
         )
 
     def _extract_podcast_metadata(self, entity_data, data):
         """Extract Podcast-specific metadata"""
         data.metadata["official_site"] = self._extract_url(
-            entity_data, WikidataProperties.P856
+            entity_data, WikidataProperties.OFFICIAL_WEBSITE
         )
 
         # RSS feed URL
-        feed_url = self._extract_url(entity_data, WikidataProperties.P953)
+        feed_url = self._extract_url(
+            entity_data, WikidataProperties.WORK_AVAILABLE_AT_URL
+        )
         if feed_url:
             data.lookup_ids[IdType.RSS] = feed_url
 
     def _extract_podcast_episode_metadata(self, entity_data, data):
         """Extract PodcastEpisode-specific metadata"""
         data.metadata["pub_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["length"] = self._extract_duration(entity_data)
         data.metadata["guid"] = self._extract_property_value(
-            entity_data, WikidataProperties.P433
+            entity_data, WikidataProperties.ISSUE_NUMBER
         )
         data.metadata["media_url"] = self._extract_url(
-            entity_data, WikidataProperties.P953
+            entity_data, WikidataProperties.WORK_AVAILABLE_AT_URL
         )
-        data.metadata["link"] = self._extract_url(entity_data, WikidataProperties.P856)
+        data.metadata["link"] = self._extract_url(
+            entity_data, WikidataProperties.OFFICIAL_WEBSITE
+        )
 
     def _extract_performance_metadata(self, entity_data, data):
         """Extract Performance-specific metadata"""
         data.metadata["opening_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["closing_date"] = self._extract_date(
-            entity_data, WikidataProperties.P582
+            entity_data, WikidataProperties.END_TIME
         )
         data.metadata["official_site"] = self._extract_url(
-            entity_data, WikidataProperties.P856
+            entity_data, WikidataProperties.OFFICIAL_WEBSITE
         )
         data.metadata["crew"] = []
 
     def _extract_movie_metadata(self, entity_data, data):
         """Extract Movie-specific metadata"""
         data.metadata["release_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
 
     def _extract_tv_show_metadata(self, entity_data, data):
         """Extract TVShow-specific metadata"""
         data.metadata["first_air_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["last_air_date"] = self._extract_date(
-            entity_data, WikidataProperties.P582
+            entity_data, WikidataProperties.END_TIME
         )
         data.metadata["number_of_episodes"] = self._extract_property_value(
-            entity_data, WikidataProperties.P1113
+            entity_data, WikidataProperties.NUMBER_OF_EPISODES
         )
         data.metadata["number_of_seasons"] = self._extract_property_value(
-            entity_data, WikidataProperties.P2437
+            entity_data, WikidataProperties.NUMBER_OF_SEASONS
         )
 
     def _extract_tv_season_metadata(self, entity_data, data):
         """Extract TVSeason-specific metadata"""
         data.metadata["first_air_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["last_air_date"] = self._extract_date(
-            entity_data, WikidataProperties.P582
+            entity_data, WikidataProperties.END_TIME
         )
         data.metadata["number_of_episodes"] = self._extract_property_value(
-            entity_data, WikidataProperties.P1113
+            entity_data, WikidataProperties.NUMBER_OF_EPISODES
         )
 
     def _extract_tv_episode_metadata(self, entity_data, data):
         """Extract TVEpisode-specific metadata"""
         data.metadata["air_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
         data.metadata["episode_number"] = self._extract_property_value(
-            entity_data, WikidataProperties.P433
+            entity_data, WikidataProperties.ISSUE_NUMBER
         )
         data.metadata["length"] = self._extract_duration(entity_data)
 
     def _extract_work_metadata(self, entity_data, data):
         """Extract Work (Book/Literary work)-specific metadata"""
         data.metadata["publication_date"] = self._extract_date(
-            entity_data, WikidataProperties.P577
+            entity_data, WikidataProperties.PUBLICATION_DATE
         )
 
     _ORGANIZATION_TYPES = {
@@ -814,18 +725,18 @@ class WikiData(AbstractSite):
         data.metadata["localized_bio"] = data.metadata.pop("localized_description", [])
         # Determine people_type from entity types
         instance_types = set(
-            self._extract_entity_types(entity_data, WikidataProperties.P31)
+            self._extract_entity_types(entity_data, WikidataProperties.INSTANCE_OF)
         )
         if instance_types & self._ORGANIZATION_TYPES:
             data.metadata["people_type"] = "organization"
         data.metadata["birth_date"] = self._extract_date(
-            entity_data, WikidataProperties.P569
+            entity_data, WikidataProperties.DATE_OF_BIRTH
         )
         data.metadata["death_date"] = self._extract_date(
-            entity_data, WikidataProperties.P570
+            entity_data, WikidataProperties.DATE_OF_DEATH
         )
         data.metadata["official_site"] = self._extract_url(
-            entity_data, WikidataProperties.P856
+            entity_data, WikidataProperties.OFFICIAL_WEBSITE
         )
 
     def get_wikipedia_pages(self) -> list[dict[str, str]]:

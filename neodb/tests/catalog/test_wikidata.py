@@ -58,9 +58,9 @@ def v1_payload(
     """A raw v1 payload, as _fetch_entity_by_id returns it."""
     stmts = {}
     if instance_of:
-        stmts[WikidataProperties.P31] = [v1_statement(q) for q in instance_of]
+        stmts[WikidataProperties.INSTANCE_OF] = [v1_statement(q) for q in instance_of]
     if subclass_of:
-        stmts[WikidataProperties.P279] = [v1_statement(q) for q in subclass_of]
+        stmts[WikidataProperties.SUBCLASS_OF] = [v1_statement(q) for q in subclass_of]
     stmts.update(statements or {})
     return {
         "id": entity_id,
@@ -274,8 +274,12 @@ def test_entity_types_and_parent_types():
     )
 
     site = site_for("Q999999")
-    instance_types = site._extract_entity_types(entity_data, WikidataProperties.P31)
-    parent_types = site._extract_entity_types(entity_data, WikidataProperties.P279)
+    instance_types = site._extract_entity_types(
+        entity_data, WikidataProperties.INSTANCE_OF
+    )
+    parent_types = site._extract_entity_types(
+        entity_data, WikidataProperties.SUBCLASS_OF
+    )
     with patch.object(site, "_fetch_entity_by_id", side_effect={}.get):
         model = site._determine_entity_type(entity_data)
 
@@ -290,7 +294,7 @@ def test_deprecated_rank_is_ignored():
         v1_payload(
             "Q999994",
             statements={
-                WikidataProperties.P31: [
+                WikidataProperties.INSTANCE_OF: [
                     v1_statement(WikidataTypes.FILM, rank="deprecated"),
                     v1_statement(WikidataTypes.TV_SERIES),
                 ]
@@ -307,7 +311,7 @@ def test_preferred_rank_wins():
         v1_payload(
             "Q999993",
             statements={
-                WikidataProperties.P577: [
+                WikidataProperties.PUBLICATION_DATE: [
                     v1_statement({"time": "+1999-03-31T00:00:00Z"}),
                     v1_statement({"time": "+2003-05-15T00:00:00Z"}, rank="preferred"),
                 ]
@@ -316,8 +320,18 @@ def test_preferred_rank_wins():
     )
 
     site = site_for("Q999993")
-    assert site._extract_date(entity_data, WikidataProperties.P577) == "2003-05-15"
-    assert len(site._extract_property_values(entity_data, WikidataProperties.P577)) == 1
+    assert (
+        site._extract_date(entity_data, WikidataProperties.PUBLICATION_DATE)
+        == "2003-05-15"
+    )
+    assert (
+        len(
+            site._extract_property_values(
+                entity_data, WikidataProperties.PUBLICATION_DATE
+            )
+        )
+        == 1
+    )
 
 
 def test_valueless_statements_are_dropped():
@@ -326,7 +340,7 @@ def test_valueless_statements_are_dropped():
         v1_payload(
             "Q999992",
             statements={
-                WikidataProperties.P856: [
+                WikidataProperties.OFFICIAL_WEBSITE: [
                     {"rank": "normal", "value": {"type": "somevalue"}},
                     v1_statement("https://example.org"),
                 ]
@@ -334,7 +348,9 @@ def test_valueless_statements_are_dropped():
         )
     )
 
-    url = site_for("Q999992")._extract_url(entity_data, WikidataProperties.P856)
+    url = site_for("Q999992")._extract_url(
+        entity_data, WikidataProperties.OFFICIAL_WEBSITE
+    )
     assert url == "https://example.org"
 
 
