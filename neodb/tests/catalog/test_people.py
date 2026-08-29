@@ -763,18 +763,19 @@ class TestDisplayFallback:
             WikidataTypes.VIDEO_GAME_DEVELOPER,
             WikidataTypes.FILM_PRODUCTION_COMPANY,
         ]:
-            entity_data = {
-                "id": "Q999",
-                "claims": {
-                    "P31": [
-                        {
-                            "mainsnak": {
-                                "datavalue": {"value": {"id": org_type}},
+            entity_data = WikiData._normalize_entity(
+                {
+                    "id": "Q999",
+                    "statements": {
+                        "P31": [
+                            {
+                                "rank": "normal",
+                                "value": {"type": "value", "content": org_type},
                             }
-                        }
-                    ]
-                },
-            }
+                        ]
+                    },
+                }
+            )
             wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q999")
             model = wiki_site._determine_entity_type(entity_data)
             assert model == People, f"{org_type} should map to People"

@@ -388,126 +388,62 @@ class WikiData(AbstractSite):
         api_url = f"https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{entity_id}"
         return BasicDownloader(api_url).download().json()
 
-    def _extract_labels(self, entity_data):
+    @staticmethod
+    def _normalize_entity(entity_data: dict) -> dict:
+        """Flatten a REST v1 payload, keeping best-rank statement values only
+
+        Statements are reduced to {property_id: [content, ...]}. Statements
+        without a value (novalue/somevalue) and deprecated ones are dropped; a
+        property holding any preferred-rank statement keeps only those.
+        """
+        statements: dict[str, list] = {}
+        for property_id, raw in (entity_data.get("statements") or {}).items():
+            values = []
+            preferred = []
+            for statement in raw:
+                value = statement["value"]
+                rank = statement.get("rank")
+                if value.get("type") != "value" or rank == "deprecated":
+                    continue
+                if rank == "preferred":
+                    preferred.append(value["content"])
+                values.append(value["content"])
+            if values:
+                statements[property_id] = preferred or values
+        return {
+            "id": entity_data.get("id"),
+            "type": entity_data.get("type", "item"),
+            "labels": entity_data.get("labels") or {},
+            "descriptions": entity_data.get("descriptions") or {},
+            "statements": statements,
+        }
+
+    def _extract_labels(self, entity_data: dict) -> dict[str, str]:
         """Extract labels only in preferred languages"""
-        labels = {}
+        labels = entity_data["labels"]
+        return {
+            lang: labels[lang] for lang in WIKIDATA_PREFERRED_LANGS if lang in labels
+        }
 
-        if not entity_data or "labels" not in entity_data:
-            return labels
-
-        # Only extract labels in preferred languages
-        for lang in WIKIDATA_PREFERRED_LANGS:
-            if lang in entity_data["labels"]:
-                label_data = entity_data["labels"][lang]
-                # Handle both v0 and v1 API formats
-                if isinstance(label_data, dict) and "value" in label_data:
-                    # v0 API format: {"en": {"value": "Douglas Adams", "language": "en"}}
-                    labels[lang] = label_data["value"]
-                else:
-                    # v1 API format: {"en": "Douglas Adams"}
-                    labels[lang] = label_data
-
-        return labels
-
-    def _extract_descriptions(self, entity_data):
+    def _extract_descriptions(self, entity_data: dict) -> list[dict[str, str]]:
         """Extract descriptions only in preferred languages"""
-        descriptions = []
+        descriptions = entity_data["descriptions"]
+        return [
+            {"lang": lang, "text": descriptions[lang]}
+            for lang in WIKIDATA_PREFERRED_LANGS
+            if lang in descriptions
+        ]
 
-        if not entity_data or "descriptions" not in entity_data:
-            return descriptions
+    def _extract_property_values(self, entity_data: dict, property_id: str) -> list:
+        """Extract all values of a property"""
+        return entity_data["statements"].get(property_id, [])
 
-        # Extract descriptions only for preferred languages
-        for lang in WIKIDATA_PREFERRED_LANGS:
-            if lang in entity_data["descriptions"]:
-                desc_data = entity_data["descriptions"][lang]
-                # Handle both v0 and v1 API formats
-                if isinstance(desc_data, dict) and "value" in desc_data:
-                    # v0 API format: {"en": {"value": "English writer", "language": "en"}}
-                    text = desc_data["value"]
-                else:
-                    # v1 API format: {"en": "English writer"}
-                    text = desc_data
-
-                descriptions.append({"lang": lang, "text": text})
-
-        return descriptions
-
-    def _extract_property_value(self, entity_data, property_id):
-        """Extract a property value from entity data"""
-        if not entity_data:
-            return None
-
-        # v1 API uses "statements" instead of "claims"
-        claims_key = "statements" if "statements" in entity_data else "claims"
-
-        if claims_key not in entity_data or property_id not in entity_data[claims_key]:
-            return None
-
-        claims = entity_data[claims_key][property_id]
-        if not claims:
-            return None
-
-        # Just get the first value for now - could be expanded for multiple values
-        claim = claims[0]
-
-        # v1 API has a different structure
-        if "value" in claim:
-            return claim["value"]
-
-        # v0 API structure
-        if "mainsnak" not in claim or "datavalue" not in claim["mainsnak"]:
-            return None
-
-        return claim["mainsnak"]["datavalue"].get("value")
-
-    def _extract_property_values(self, entity_data, property_id):
-        """Extract all property values from entity data (returns list)"""
-        if not entity_data:
-            return []
-
-        # v1 API uses "statements" instead of "claims"
-        claims_key = "statements" if "statements" in entity_data else "claims"
-
-        if claims_key not in entity_data or property_id not in entity_data[claims_key]:
-            return []
-
-        claims = entity_data[claims_key][property_id]
-        if not claims:
-            return []
-
-        values = []
-        for claim in claims:
-            # v1 API has a different structure
-            if "value" in claim:
-                values.append(claim["value"])
-            # v0 API structure
-            elif "mainsnak" in claim and "datavalue" in claim["mainsnak"]:
-                value = claim["mainsnak"]["datavalue"].get("value")
-                if value:
-                    values.append(value)
-
-        return values
-
-    def _extract_string_list(self, entity_data, property_id):
-        """Extract a list of strings from property values"""
+    def _extract_property_value(
+        self, entity_data: dict, property_id: str
+    ) -> str | dict | None:
+        """Extract the first value of a property"""
         values = self._extract_property_values(entity_data, property_id)
-        result = []
-        for value in values:
-            if isinstance(value, str):
-                result.append(value)
-            elif isinstance(value, dict):
-                # Handle entity references
-                if "id" in value:
-                    # Could resolve entity labels here if needed
-                    result.append(value["id"])
-                    logger.warning(
-                        f"QID not supported {property_id}:{value['id']} for {self.id_value}"
-                    )
-                elif "text" in value:
-                    result.append(value["text"])
-                elif "content" in value:
-                    result.append(value["content"])
-        return result
+        return values[0] if values else None
 
     def _f_date(self, d: str) -> str:
         # Wikidata pads unknown parts with 00 ("2010-00-00" = year
@@ -516,46 +452,18 @@ class WikiData(AbstractSite):
             d = d[:-3]
         return d
 
-    def _extract_date(self, entity_data, property_id):
-        """Extract a date from property value"""
+    def _extract_date(self, entity_data: dict, property_id: str) -> str | None:
+        """Extract a date from a time property"""
         value = self._extract_property_value(entity_data, property_id)
-        if not value:
+        if not isinstance(value, dict):
             return None
-        if "content" in value:
-            value = value["content"]
-        if isinstance(value, dict):
-            # Handle time values
-            if "time" in value:
-                # Wikidata time format: +YYYY-MM-DDTHH:MM:SSZ
-                time_str = value["time"]
-                # Extract just the date part
-                if time_str.startswith("+"):
-                    time_str = time_str[1:]
-                if "T" in time_str:
-                    return self._f_date(time_str.split("T")[0])
-                return self._f_date(time_str)
-        elif isinstance(value, str):
-            # Already a string date
-            return self._f_date(value)
+        # Wikidata time format: +YYYY-MM-DDTHH:MM:SSZ
+        return self._f_date(value["time"].removeprefix("+").split("T")[0])
 
-        return None
-
-    def _extract_url(self, entity_data, property_id):
-        """Extract a URL from property value"""
+    def _extract_url(self, entity_data: dict, property_id: str) -> str | None:
+        """Extract a URL from a url or string property"""
         value = self._extract_property_value(entity_data, property_id)
-        if not value:
-            return None
-
-        if isinstance(value, str):
-            return value
-        elif isinstance(value, dict):
-            # Handle different formats
-            if "text" in value:
-                return value["text"]
-            elif "content" in value:
-                return value["content"]
-
-        return None
+        return value if isinstance(value, str) else None
 
     # units of P2047 quantities -> factor to seconds
     _DURATION_UNIT_FACTORS = {
@@ -564,54 +472,20 @@ class WikiData(AbstractSite):
         "Q25235": 3600,  # hour
     }
 
-    def _extract_duration(self, entity_data):
+    def _extract_duration(self, entity_data: dict) -> int | None:
         """Extract duration in seconds from P2047"""
         value = self._extract_property_value(entity_data, WikidataProperties.P2047)
-        if not value:
+        if not isinstance(value, dict):
             return None
+        # Wikidata stores duration as a quantity with a unit URI;
+        # films are usually expressed in minutes
+        unit = str(value.get("unit") or "").split("/")[-1]
+        factor = self._DURATION_UNIT_FACTORS.get(unit, 60)
+        return int(float(value["amount"]) * factor)
 
-        if isinstance(value, dict):
-            # Wikidata stores duration as a quantity with a unit URI;
-            # films are usually expressed in minutes
-            if "amount" in value:
-                unit = str(value.get("unit") or "").split("/")[-1]
-                factor = self._DURATION_UNIT_FACTORS.get(unit, 60)
-                return int(float(value["amount"]) * factor)
-        elif isinstance(value, (int, float)):
-            # unit unknown; assume minutes like most film data
-            return int(value) * 60
-
-        return None
-
-    def _extract_entity_types(self, entity_data, property_id):
-        """Extract entity types (instance of or subclass of) from a property"""
-        type_values = []
-
-        # Get the appropriate key based on API version
-        claims_key = "statements" if "statements" in entity_data else "claims"
-
-        # Check if the property exists
-        if claims_key in entity_data and property_id in entity_data[claims_key]:
-            claims = entity_data[claims_key][property_id]
-            # Extract all values
-            for claim in claims:
-                # Handle different API formats (v0 vs v1)
-                if "value" in claim:
-                    # v1 API format
-                    if isinstance(claim["value"], dict):
-                        if "id" in claim["value"]:
-                            type_values.append(claim["value"]["id"])
-                        elif "content" in claim["value"]:
-                            type_values.append(claim["value"]["content"])
-                elif "mainsnak" in claim and "datavalue" in claim["mainsnak"]:
-                    # v0 API format
-                    datavalue = claim["mainsnak"]["datavalue"]
-                    if isinstance(
-                        datavalue.get("value"), dict
-                    ) and "id" in datavalue.get("value", {}):
-                        type_values.append(datavalue["value"]["id"])
-
-        return type_values
+    def _extract_entity_types(self, entity_data: dict, property_id: str) -> list[str]:
+        """Extract the QIDs of a wikibase-item property, e.g. P31 or P279"""
+        return self._extract_property_values(entity_data, property_id)
 
     def _determine_model_from_entity_types(self, entity_types, entity_id):
         """Map entity types to appropriate model using a mapping dictionary with prioritization
@@ -675,7 +549,7 @@ class WikiData(AbstractSite):
 
                 # Extract subclass of values
                 for parent_type in self._extract_entity_types(
-                    type_entity_data, WikidataProperties.P279
+                    self._normalize_entity(type_entity_data), WikidataProperties.P279
                 ):
                     parent_types.setdefault(parent_type)
                     next_frontier.append(parent_type)
@@ -755,30 +629,13 @@ class WikiData(AbstractSite):
             f"Entity has unsupported type(s): {', '.join(instance_of_values)}",
         )
 
-    def _extract_cover_image(self, entity_data):
+    def _extract_cover_image(self, entity_data: dict) -> str | None:
         """Extract cover image URL from P18 (image) property"""
-        if not entity_data:
+        filename = self._extract_property_value(entity_data, WikidataProperties.P18)
+        if not isinstance(filename, str):
             return None
 
-        # P18 is the Wikidata property for images
-        image_value = self._extract_property_value(entity_data, "P18")
-        if not image_value:
-            return None
-
-        # Extract the filename - handle different API versions
-        if isinstance(image_value, dict):
-            # v0 API format may have nested structure
-            filename = image_value.get("text", None) or image_value.get("content", None)
-        else:
-            # v1 API might return the filename directly as string
-            filename = image_value
-
-        if not filename:
-            return None
-
-        # For Commons images, we need to construct the URL from the filename
-        # Format: https://commons.wikimedia.org/wiki/Special:FilePath/{filename}?width=1000
-        # This special URL will redirect to the actual image with the specified width
+        # Special:FilePath redirects to the Commons image at the requested width
         return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(filename)}?width=1000"
 
     def scrape(self) -> ResourceContent:
@@ -788,6 +645,7 @@ class WikiData(AbstractSite):
 
         if not isinstance(entity_data, dict) or entity_data.get("id") != self.id_value:
             raise ParseError(self, "json")
+        entity_data = self._normalize_entity(entity_data)
 
         # Extract labels (titles)
         labels = self._extract_labels(entity_data)
@@ -1056,18 +914,16 @@ class WikiData(AbstractSite):
             )
             return {}
 
-    def _extract_external_ids(self, entity_data):
+    def _extract_external_ids(self, entity_data: dict) -> list[dict]:
         """Extract common external identifiers to lookup_ids"""
         resources = []
         for property_id, id_type in WikidataProperties.IdTypeMapping.items():
             value = self._extract_property_value(entity_data, property_id)
-            if value:
-                # Handle both v0 and v1 API formats
-                if isinstance(value, dict):
-                    value = value.get("content") or value.get("text")
-                if id_type in [IdType.OpenLibrary, IdType.OpenLibrary_Work]:
-                    id_type = OpenLibrary.guess_id_type(value)
-                resources.append({"id_type": id_type, "id_value": value})
+            if not value:
+                continue
+            if id_type in [IdType.OpenLibrary, IdType.OpenLibrary_Work]:
+                id_type = OpenLibrary.guess_id_type(value)
+            resources.append({"id_type": id_type, "id_value": value})
         return resources
 
     @classmethod
