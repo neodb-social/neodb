@@ -441,10 +441,8 @@ def test_item_credit_endpoints_include_linked_and_name_only_credits(live_server)
 def test_item_api_localizes_credit_names(live_server):
     """credits[].name follows the request language, as /api/people/{uuid} does.
 
-    Credit rows freeze ``name`` at sync time (under the source's locale), so an
-    English reader used to get a localized title next to a Chinese director.
-    Credits with no linked person stay frozen -- there is nothing to localize
-    them from.
+    Names frozen at sync time gave an English reader a localized title next to
+    a Chinese director. Credits with no linked person stay frozen.
     """
     zh_name = "沃什·威斯特摩兰"
     with patch("catalog.models.item.Item.update_index"):

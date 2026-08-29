@@ -187,13 +187,10 @@ class ItemCredit(models.Model):
     def display_name(self) -> str:
         """Request-localized name for display, else the stored snapshot.
 
-        ``name`` is frozen at sync time (under the source's locale). The
-        localized value is populated only when ``attach_localized_names`` (or
-        ``Item.attach_localized_credit_names``) has run for this render -- the
-        item detail page and the item/credit API reads; otherwise this returns
-        ``name``. This property never issues a query on its own -- it reads an
-        attribute set by that bounded batch helper, so card/list surfaces that
-        skip it pay nothing and keep the snapshot.
+        ``name`` is frozen at sync time, under the source's locale. The
+        localized value is set by ``attach_localized_names``, which the item
+        detail page and the item/credit API reads call; this never queries on
+        its own, so card/list surfaces that skip it keep the snapshot.
         """
         return self._localized_name or self.name
 
@@ -201,17 +198,10 @@ class ItemCredit(models.Model):
     def attach_localized_names(credits: "Iterable[ItemCredit]") -> None:
         """Attach request-localized display names to ``credits``, in one query.
 
-        Credit rows store ``name`` as a snapshot frozen at sync time (under the
-        source's locale), so an English viewer could see a Chinese director. The
-        linked ``People`` carries a localized name, but it lives in the heavy,
-        deliberately-deferred person ``metadata`` JSON (EGGPLANT-1EF), so we
-        must not select it via ``Item.credits_prefetch``. Instead fetch only the
-        ``localized_name`` sub-key for every credited person in ONE bounded
-        query (flat regardless of how many credits) and stash the localized
-        string on each credit; ``display_name`` then prefers it over ``name``.
-
-        Credits with no linked person keep their snapshot -- there is nothing
-        else to localize from.
+        The linked ``People``'s localized name lives in the heavy, deliberately
+        deferred person ``metadata`` JSON (EGGPLANT-1EF), so fetch only that
+        sub-key for all credited people at once instead of selecting it through
+        ``Item.credits_prefetch``. Credits with no person keep their snapshot.
         """
         from .people import People
 
@@ -242,10 +232,8 @@ class ExternalResourceSchema(Schema):
 
 class CreditSchema(Schema):
     role: str
-    # Follows the request locale on API reads, which call
-    # Item.attach_localized_credit_names; falls back to the stored snapshot
-    # everywhere else, so ap_object (served as activity+json) and catalog
-    # backups -- which never attach -- stay locale-independent.
+    # Localized on API reads, which attach; ap_object and backups never
+    # attach, so they keep the snapshot and stay locale-independent.
     name: str = Field(alias="display_name")
     character_name: str = ""
     person_url: str | None = Field(None, alias="person_api_url")
@@ -886,15 +874,10 @@ class Item(PolymorphicModel):
     def attach_localized_credit_names(items: "Iterable[Item]") -> None:
         """Attach request-localized display names to each item's credits.
 
-        Thin wrapper over ``ItemCredit.attach_localized_names`` (still one
-        bounded query for all items) that collects the credits of every item.
-        ``role_credits`` and ``api_credits`` share one list of credit objects,
-        so both the templates and the API schema see the localized names.
-
-        Call this on display surfaces after credits are loaded: the item detail
-        page and the item detail API. Surfaces that skip it keep the stored
-        snapshot -- and canonical outputs (ap_object, backups, schema.org,
-        import matching) always do.
+        Collects every item's credits into one ``ItemCredit.attach_localized_names``
+        call. For display surfaces -- the item detail page and API -- after
+        credits are loaded; canonical outputs (ap_object, backups, schema.org,
+        import matching) never call it and keep the snapshot.
         """
         credits: list[ItemCredit] = []
         for it in items:
@@ -1395,11 +1378,10 @@ class Item(PolymorphicModel):
     def api_credits(self) -> list["ItemCredit"]:
         """Credits for API serialization.
 
-        Flattens ``role_credits`` rather than re-reading the relation: both must
-        hold the SAME credit objects, otherwise ``attach_localized_credit_names``
-        (which walks ``role_credits``) would localize objects the API schema
-        never serializes. Credits are stored ordered by ``role``, ``order``, so
-        flattening the per-role groups keeps that order.
+        Flattens ``role_credits`` (same ordering: credits are stored by
+        ``role``, ``order``) rather than re-reading the relation, so both hold
+        the same objects and ``attach_localized_credit_names``, which walks
+        ``role_credits``, reaches what the API serializes.
         """
         return [c for group in self.role_credits.values() for c in group]
 

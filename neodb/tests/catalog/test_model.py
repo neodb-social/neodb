@@ -256,9 +256,8 @@ class TestCreditDisplayNameLocalization:
 
     Regression: a Douban-sourced movie froze the director credit name in
     Chinese, so the movie page rendered Chinese even for English viewers, while
-    the person page (which localizes live) showed English. The item detail API
-    had the same split and now attaches too, so ``api_credits`` must hold the
-    same credit objects ``role_credits`` does.
+    the person page (which localizes live) showed English. The API reads attach
+    too, so ``api_credits`` must hold the same objects ``role_credits`` does.
     """
 
     def _linked_movie(self, n: int = 1) -> Movie:
@@ -318,8 +317,8 @@ class TestCreditDisplayNameLocalization:
             assert len(ctx) == 0
 
     def test_attach_reaches_api_credits(self):
-        # api_credits feeds CreditSchema.name; it must share objects with
-        # role_credits (which attach walks), prefetched or not.
+        # api_credits feeds CreditSchema.name, so it must share objects with
+        # role_credits, prefetched or not.
         base = self._linked_movie()
         with translation.override("en"):
             m = Movie.objects.get(pk=base.pk)
@@ -331,8 +330,7 @@ class TestCreditDisplayNameLocalization:
             assert [c.display_name for c in m.api_credits] == ["Guillermo del Toro"]
 
     def test_ap_object_keeps_snapshot(self):
-        # ap_object never attaches, so the activity+json / backup payload keeps
-        # the frozen name whatever the active language is.
+        # ap_object never attaches: activity+json and backups keep the snapshot.
         base = self._linked_movie()
         for lang in ("en", "zh-hans"):
             with translation.override(lang):
