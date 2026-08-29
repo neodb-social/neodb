@@ -567,25 +567,27 @@ class Item(PolymorphicModel):
     def class_name(self) -> str:
         return self.__class__.__name__.lower()
 
+    @staticmethod
+    def _pick_localized_text(entries: list[dict[str, str]]) -> str | None:
+        """First non-empty text among ``entries`` for the most preferred locale.
+
+        Every entry of a locale is scanned, not just the first one: entries
+        accrete from multiple external resources (and from the edit form, which
+        seeds an empty one), so an empty or placeholder entry must not mask a
+        later one for the same language.
+        """
+        for loc in get_current_locales():
+            for t in entries:
+                if t["lang"] == loc and t.get("text"):
+                    return t["text"]
+
     def get_localized_title(self) -> str | None:
         if self.localized_title:
-            locales = get_current_locales()
-            for loc in locales:
-                v = next(
-                    filter(lambda t: t["lang"] == loc, self.localized_title), {}
-                ).get("text")
-                if v:
-                    return v
+            return self._pick_localized_text(self.localized_title)
 
     def get_localized_description(self) -> str | None:
         if self.localized_description:
-            locales = get_current_locales()
-            for loc in locales:
-                v = next(
-                    filter(lambda t: t["lang"] == loc, self.localized_description), {}
-                ).get("text")
-                if v:
-                    return v
+            return self._pick_localized_text(self.localized_description)
 
     @cached_property
     def display_resources(self) -> "list[ExternalResource]":
@@ -1082,6 +1084,39 @@ class Item(PolymorphicModel):
             return True
         return False
 
+    def _demote_wikidata_descriptions(self, override_resources=None) -> bool:
+        """Move Wikidata-sourced entries to the end of ``localized_description``.
+
+        Wikidata descriptions are short disambiguators ("2009 visual novel
+        game"), not synopses. ``localized_description`` accretes entries from
+        every external resource, and ``get_localized_description()`` returns the
+        first non-empty one for the locale, so a Wikidata entry that merged
+        before a richer source would win (#1806). Matching against the stored
+        Wikidata resource metadata makes this independent of fetch order; the
+        entries are kept, so a Wikidata-only item still shows its blurb.
+        """
+        if not getattr(self, "localized_description", None):
+            return False
+        resources = override_resources or self.external_resources.all()
+        wikidata = {
+            (d.get("lang"), d.get("text"))
+            for res in resources
+            if res.id_type == IdType.WikiData
+            for d in (res.metadata or {}).get("localized_description") or []
+        }
+        if not wikidata:
+            return False
+        kept = []
+        demoted = []
+        for d in self.localized_description:
+            target = demoted if (d.get("lang"), d.get("text")) in wikidata else kept
+            target.append(d)
+        reordered = kept + demoted
+        if reordered == self.localized_description:
+            return False
+        self.localized_description = reordered
+        return True
+
     def _normalize_languages(self):
         changed = False
         if hasattr(self, "language"):  # normalize language list
@@ -1149,6 +1184,7 @@ class Item(PolymorphicModel):
         r |= self._normalize_music_formats()
         r |= self._normalize_platforms()
         r |= self._normalize_release_date()
+        r |= self._demote_wikidata_descriptions(override_resources)
         return r
 
     def merge_data_from_external_resource(
