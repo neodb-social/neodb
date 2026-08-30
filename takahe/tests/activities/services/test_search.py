@@ -3,6 +3,7 @@ import pytest
 
 from activities.models import Post
 from activities.services.search import SearchService
+from stator.exceptions import TryAgainLater
 from users.models import Identity
 from users.models.system_actor import SystemActor
 
@@ -179,3 +180,85 @@ def test_search_url_handles_list_type(monkeypatch, config_system):
     assert SearchService(url, None).search_url() is None
     # Routed to the identity branch, not dropped as an unknown type
     assert captured["uri"] == url
+
+
+@pytest.mark.django_db
+def test_search_url_handles_try_again_later_from_post(monkeypatch, config_system):
+    """A post whose author cannot be fetched yet must yield no result.
+
+    Regression: ``TryAgainLater`` subclasses ``BaseException``, so it slipped
+    past every ``except Exception`` and escaped the search view as a 500.
+    """
+    url = "https://social.example/notes/1"
+    response = httpx.Response(
+        200,
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "id": url,
+            "type": "Note",
+            "attributedTo": "https://social.example/users/test",
+            "content": "<p>Hello</p>",
+        },
+        request=httpx.Request("GET", url),
+    )
+
+    def fake_signed_request(self, method, uri, body=None):
+        return response
+
+    monkeypatch.setattr(SystemActor, "signed_request", fake_signed_request)
+
+    def fake_by_object_uri(cls, uri, fetch=False, fetch_as=None):
+        raise TryAgainLater()
+
+    monkeypatch.setattr(Post, "by_object_uri", classmethod(fake_by_object_uri))
+
+    assert SearchService(url, None).search_url() is None
+
+
+@pytest.mark.django_db
+def test_search_url_handles_try_again_later_from_identity(monkeypatch, config_system):
+    """An actor URL whose refresh times out must yield no result rather than
+    escaping the search view as a 500."""
+    url = "https://social.example/users/test"
+    response = httpx.Response(
+        200,
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "id": url,
+            "type": "Person",
+            "inbox": f"{url}/inbox",
+            "preferredUsername": "test",
+        },
+        request=httpx.Request("GET", url),
+    )
+
+    def fake_signed_request(self, method, uri, body=None):
+        return response
+
+    monkeypatch.setattr(SystemActor, "signed_request", fake_signed_request)
+
+    def fake_by_actor_uri(cls, uri, create=False):
+        raise TryAgainLater()
+
+    monkeypatch.setattr(Identity, "by_actor_uri", classmethod(fake_by_actor_uri))
+
+    assert SearchService(url, None).search_url() is None
+
+
+@pytest.mark.django_db
+def test_search_identities_handle_handles_try_again_later(
+    monkeypatch, identity, config_system
+):
+    """A WebFinger lookup that times out must not fail the whole search."""
+
+    def fake_by_username_and_domain(cls, username, domain, fetch=False, local=False):
+        raise TryAgainLater()
+
+    monkeypatch.setattr(
+        Identity, "by_username_and_domain", classmethod(fake_by_username_and_domain)
+    )
+
+    service = SearchService("nobody@remote.example", identity)
+    assert service.search_identities_handle() == []

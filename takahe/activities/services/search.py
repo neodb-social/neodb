@@ -1,11 +1,16 @@
+import logging
+
 import httpx
 from core.files import SSRFAttemptError
 from core.json import find_ap_alternate, json_from_response
 from core.ld import canonicalise, get_first_concrete_type
+from stator.exceptions import TryAgainLater
 from users.models.system_actor import SystemActor
 
 from activities.models import Hashtag, Post
 from users.models import Domain, Identity, IdentityStates
+
+logger = logging.getLogger(__name__)
 
 
 class SearchService:
@@ -50,12 +55,19 @@ class SearchService:
                     results.add(identity)
             if not results and self.identity is not None:
                 # Allow authenticated users to fetch remote
-                prio_result = Identity.by_username_and_domain(
-                    username, domain_instance or domain, fetch=True
-                )
-                if prio_result:
-                    if prio_result.state == IdentityStates.outdated:
-                        prio_result.fetch_actor()
+                try:
+                    prio_result = Identity.by_username_and_domain(
+                        username, domain_instance or domain, fetch=True
+                    )
+                    if prio_result:
+                        if prio_result.state == IdentityStates.outdated:
+                            prio_result.fetch_actor()
+                except TryAgainLater:
+                    # The remote is slow or rate-limiting us. Stator will
+                    # retry in the background; return what we have locally
+                    # rather than failing the whole search.
+                    logger.info("Timed out fetching identity for %r", self.query)
+                    prio_result = None
 
         else:
             prio_result = Identity.objects.filter(local=True, username=handle).first()
@@ -127,9 +139,13 @@ class SearchService:
         # Is it an identity?
         if type in Identity.ACTOR_TYPES:
             # Try and retrieve the profile by actor URI
-            identity = Identity.by_actor_uri(document["id"], create=True)
-            if identity and identity.state == IdentityStates.outdated:
-                identity.fetch_actor()
+            try:
+                identity = Identity.by_actor_uri(document["id"], create=True)
+                if identity and identity.state == IdentityStates.outdated:
+                    identity.fetch_actor()
+            except TryAgainLater:
+                logger.info("Timed out fetching identity at %r", uri)
+                return None
             return identity
 
         # Is it a post?
@@ -141,6 +157,12 @@ class SearchService:
                     document["id"], fetch=True, fetch_as=self.identity
                 )
             except Post.DoesNotExist:
+                return None
+            except TryAgainLater:
+                # Raised when the post's author cannot be fetched yet.
+                # TryAgainLater is a BaseException, so it would otherwise
+                # escape the view and turn the search into a 500.
+                logger.info("Timed out fetching post at %r", uri)
                 return None
 
         # Dunno what it is
