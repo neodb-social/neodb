@@ -1254,11 +1254,20 @@ class TestNdjsonExportImport:
                 {"url": "https://gone-rebuild.invalid/movie/aabbcc"}
             ],
         }
+        before = Movie.objects.count()
         importer = self._parse_catalog(tmp_path, entry)
         item = importer.items[entry["id"]]
         assert isinstance(item, Movie)
         assert item.display_title == "A Lost Film"
         assert item.director == ["Someone"]
+        assert Movie.objects.count() == before + 1
+
+        # reimporting the same archive must land on the item it built, not a
+        # second copy: the dead url still fails every lookup get_item_by_info_
+        # and_links does, so the rebuild runs again and has to converge
+        again = self._parse_catalog(tmp_path, entry)
+        assert again.items[entry["id"]] == item
+        assert Movie.objects.count() == before + 1
 
     def test_ndjson_catalog_rebuild_matches_existing_item_by_id(self, tmp_path):
         """The bundled ids dedup against this catalog instead of duplicating.
