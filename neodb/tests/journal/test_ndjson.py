@@ -1241,9 +1241,8 @@ class TestNdjsonExportImport:
     def test_ndjson_catalog_rebuilds_item_from_bundled_metadata(self, tmp_path):
         """Every link failed, so the bundled entry itself becomes the item.
 
-        The archive already carries each item's full metadata; without this,
-        a source server that is gone (the .invalid host below never resolves)
-        stranded every journal record referencing its items.
+        A gone source server (the .invalid host never resolves) used to
+        strand every journal record referencing its items.
         """
         entry = {
             "id": "https://gone-rebuild.invalid/movie/aabbcc",
@@ -1264,9 +1263,8 @@ class TestNdjsonExportImport:
         assert item.director == ["Someone"]
         assert Movie.objects.count() == before + 1
 
-        # reimporting the same archive must land on the item it built, not a
-        # second copy: the dead url still fails every lookup get_item_by_info_
-        # and_links does, so the rebuild runs again and has to converge
+        # the dead url still fails every lookup, so reimporting rebuilds
+        # again and has to land on the same item
         again = self._parse_catalog(tmp_path, entry)
         assert again.items[entry["id"]] == item
         assert Movie.objects.count() == before + 1
@@ -1274,9 +1272,8 @@ class TestNdjsonExportImport:
     def test_ndjson_catalog_rebuild_matches_existing_item_by_id(self, tmp_path):
         """The bundled ids dedup against this catalog instead of duplicating.
 
-        parse_catalog passes no info string, so a bundled isbn/imdb used to be
-        ignored entirely. Routed through the resource's lookup ids, an item
-        already here is matched.
+        parse_catalog passed no info string, so a bundled isbn/imdb used to
+        be ignored entirely.
         """
         before = Edition.objects.count()
         entry = {
@@ -1293,11 +1290,8 @@ class TestNdjsonExportImport:
     def test_ndjson_catalog_rebuild_never_edits_an_existing_item(self):
         """An archive must not rewrite catalog items it merely matches.
 
-        Reaching match_and_link_item would merge the bundled metadata into
-        whatever it matched -- appending to localized_title, filling empty
-        fields, setting a missing cover -- on an item the importing user does
-        not own and may not be allowed to edit at all: is_protected is
-        enforced on the edit form, not on this path.
+        match_and_link_item would merge the bundled metadata into whatever it
+        matched, and is_protected guards the edit form, not this path.
         """
         self.movie1.is_protected = True
         self.movie1.save()
@@ -1324,8 +1318,8 @@ class TestNdjsonExportImport:
     def test_ndjson_catalog_rebuild_skips_blocked_peers(self, tmp_path):
         """An archive is not a way around a defederated instance.
 
-        Building the site directly skips FediverseInstance.validate_url_
-        fallback, which is where the blocked-peer list is enforced.
+        Building the site directly skips validate_url_fallback, where the
+        blocked-peer list is enforced.
         """
         before = Movie.objects.count()
         entry = {
@@ -1345,11 +1339,9 @@ class TestNdjsonExportImport:
     ):
         """A failure part-way through the build must not leave a half-built item.
 
-        create_from_external_resource saves the Item and only then validates
-        it against the AP schema and syncs credits, so anything raising after
-        that save stranded an item-less row -- one more per reimport, since
-        the rebuild swallows the error. sync_credits_from_metadata stands in
-        here for any of those post-save steps.
+        The Item is saved before it is validated, so anything raising after
+        that stranded an item-less row, one more per reimport. The patched
+        sync_credits_from_metadata stands in for any such post-save step.
         """
         before = Movie.objects.count()
         resources_before = ExternalResource.objects.count()

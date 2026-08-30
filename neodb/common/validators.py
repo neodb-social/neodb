@@ -22,9 +22,8 @@ def _resolve_hostname(hostname: str) -> bool | None:
     """Tri-state resolution of `hostname`.
 
     True when it resolves only to public IPs, False when any answer is
-    private/reserved, and None when the resolver gives no answer at all.
-    The last is what separates "points inside our network" from "does not
-    exist any more", which callers weigh differently.
+    private/reserved, None when the resolver answers not at all -- which
+    callers weigh differently from "points inside our network".
     """
     cached = _host_cache.get(hostname)
     if cached is not None:
@@ -82,17 +81,13 @@ def is_valid_url(url: str | None) -> bool:
 def is_storable_url(url: str | None) -> bool:
     """Like `is_valid_url`, but a host the resolver cannot find is admitted.
 
-    For URLs that are recorded rather than fetched -- the origin URL of an
-    item rebuilt from a backup, whose server may no longer exist. A dead
-    hostname is unreachable, not internal, so rejecting it would throw away
-    exactly the data this is for. Literal private IPs and hostnames that do
-    resolve into private space are still rejected.
+    For URLs recorded rather than fetched -- the origin URL of an item
+    rebuilt from a backup, whose server may no longer exist. A dead hostname
+    is unreachable, not internal; private IPs are still rejected, and http(s)
+    is required here though `is_valid_url` also accepts ftp.
 
-    Admission here is not authorization to fetch: anything that later
-    dereferences the URL must gate on `is_valid_url` itself.
-
-    The http(s) restriction is enforced here, unlike in `is_valid_url`, whose
-    underlying validator also accepts ftp and whose callers predate this.
+    Admission is not authorization to fetch: whatever later dereferences the
+    URL must gate on `is_valid_url` itself.
     """
     parts = _url_host_and_scheme(url)
     if not parts:

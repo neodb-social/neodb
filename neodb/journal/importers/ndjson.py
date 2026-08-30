@@ -888,9 +888,8 @@ class NdjsonImporter(BaseImporter):
     def _catalog_localized_title(data: Dict[str, Any]) -> list[dict[str, str]] | None:
         """The entry's localized_title, or one synthesized from its title.
 
-        Returns None when the entry names the item nowhere: display_title
-        would be blank, and Item.create_from_external_resource validates
-        against the AP schema, so a nameless item cannot be built.
+        None when the entry names the item nowhere: the AP schema validation
+        in create_from_external_resource rejects a nameless item.
         """
         titles = [
             {"lang": t["lang"], "text": t["text"]}
@@ -926,31 +925,22 @@ class NdjsonImporter(BaseImporter):
         """Build a catalog item out of the metadata bundled in catalog.ndjson.
 
         Last resort, once every link in the entry has failed to resolve. The
-        bundled entry is the same payload FediverseInstance would have
-        downloaded from the source server, so it is replayed through that same
-        path with the fetch skipped. Its isbn/imdb/barcode become the
-        resource's lookup ids, so an item already in this catalog is matched
-        rather than duplicated.
-
-        Returns None when the entry is too thin to build from, leaving the
-        caller's "could not find item" behaviour unchanged.
+        entry is the same payload FediverseInstance would have downloaded, so
+        it is replayed through that path with the fetch skipped. None when the
+        entry is too thin to build from, leaving the caller unchanged.
         """
         url = data.get("id")
-        # is_storable_url, not is_valid_url: the server being unreachable --
-        # its hostname no longer resolving included -- is the case this whole
-        # fallback exists for. Nothing here dereferences the url.
+        # is_storable_url: a hostname that no longer resolves is the case this
+        # exists for, and nothing here dereferences the url
         if not isinstance(url, str) or not is_storable_url(url):
             logger.debug(f"Catalog entry has no usable id: {data.get('id')!r}")
             return None
         if FediverseInstance.is_local_item_url(url):
-            # a local url that get_item_by_info_and_links could not resolve is
-            # a deleted or never-existing item, not something to recreate: an
-            # ExternalResource of our own site would be rejected anyway
+            # unresolved local url means deleted, not missing
             logger.debug(f"Not recreating local item {url}")
             return None
-        # both checks FediverseInstance.validate_url_fallback would have made.
-        # Building the site directly skips that, and an archive must not be a
-        # way to seed this catalog from an instance the admin has defederated.
+        # checks validate_url_fallback would have made; building the site
+        # directly skips it
         host = urlparse(url).hostname or ""
         if host in Takahe.get_blocked_peers():
             logger.debug(f"Not recreating item from blocked peer {host}")
@@ -967,28 +957,19 @@ class NdjsonImporter(BaseImporter):
             return None
         data = dict(data, localized_title=titles)
         try:
-            # atomic: create_from_external_resource saves the Item before
-            # validating it against the AP schema, so metadata of the wrong
-            # shape (a str where a list belongs) leaves an item-less Item and
-            # ExternalResource behind, one more per reimport, once the except
-            # below swallows the error.
+            # atomic: the Item is saved before it is validated, so a later
+            # raise would strand an item-less row, one more per reimport
             with transaction.atomic():
                 site = FediverseInstance(url=url)
                 content = site.content_from_json(data, detect_redirection=False)
-                # Stop at an item that already exists. Going on would reach
-                # match_and_link_item, which merges the archive's metadata
-                # into whatever it matched -- filling empty fields, appending
-                # to localized_title/description, setting a missing cover --
-                # on an item this user does not own and may not even be
-                # allowed to edit (is_protected is enforced on the edit form,
-                # not here). Creating what is missing is the job; rewriting
-                # what is already here is not.
+                # going on would reach match_and_link_item, merging this into
+                # a shared item the uploader may not be allowed to edit
                 existing = self._existing_item_for_ids(content.lookup_ids)
                 if existing:
                     logger.debug(f"Catalog entry {url} matches existing {existing}")
                     return existing
-                # get_resource_ready creates and links the item itself; asking
-                # the site for it again would re-run the match for nothing
+                # get_resource_ready links the item itself; asking again would
+                # re-run the match for nothing
                 resource = site.get_resource_ready(preloaded_content=content)
                 item = resource.item if resource else None
         except Exception:
@@ -1021,10 +1002,8 @@ class NdjsonImporter(BaseImporter):
                             for r in i.get("external_resources") or []
                             if isinstance(r, dict) and r.get("url")
                         ]
-                        # the bundled ids let an item already in this catalog
-                        # be matched here, before the rebuild below, which
-                        # would merge the archive's metadata into it on the
-                        # way past
+                        # bundled ids, so an item already here is matched by
+                        # the ordinary lookup
                         info = " ".join(
                             f"{k}:{i[k]}"
                             for k in ("isbn", "imdb")
@@ -1032,9 +1011,8 @@ class NdjsonImporter(BaseImporter):
                         )
                         item = self.get_item_by_info_and_links("", info, links)
                         if not item:
-                            # every link failed: the source server may be gone
-                            # or offline. Rebuild from the bundled entry rather
-                            # than failing every record that references it.
+                            # every link failed, so rebuild from the bundled
+                            # entry rather than failing every record for it
                             item = self.create_item_from_catalog_data(i)
                         self.items[u] = item
                     except Exception:

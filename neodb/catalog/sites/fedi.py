@@ -150,11 +150,10 @@ class FediverseInstance(AbstractSite):
     ) -> ResourceContent:
         """Build a ResourceContent from an item payload already in hand.
 
-        Split out of scrape() so a caller that already holds the payload --
-        the catalog.ndjson of a NeoDB backup -- can build the item without
-        going back to the origin server, which may be unreachable or gone.
-        That caller turns ``detect_redirection`` off: its external links have
-        already been tried and failed, so each HEAD only adds a timeout.
+        Split out of scrape() so a caller holding the payload -- the
+        catalog.ndjson of a backup -- can build the item without the origin
+        server, which may be gone. Such a caller turns ``detect_redirection``
+        off: its links already failed, so each HEAD only adds a timeout.
         """
         img_url = data.get("cover_image_url")
         raw_img, img_ext = (
@@ -168,8 +167,7 @@ class FediverseInstance(AbstractSite):
         model_cls = self.supported_types.get(data["preferred_model"].lower())
         if not model_cls:
             raise ParseError(self, "preferred_model")
-        # `or []`: external_resources is nullable in the item schema, so a
-        # literal null is representable in a payload we are handed
+        # `or []`: external_resources is nullable in the item schema
         for ext in data.get("external_resources") or []:
             u = ext.get("url") if isinstance(ext, dict) else None
             if not u or self.is_local_item_url(u):
