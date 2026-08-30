@@ -145,8 +145,17 @@ class FediverseInstance(AbstractSite):
             raise ValueError(f"ID mismatch: {j.get('id')} != {url}")
         return j
 
-    def scrape(self):
-        data = self.get_json_from_url(self.url)
+    def content_from_json(
+        self, data: dict, detect_redirection: bool = True
+    ) -> ResourceContent:
+        """Build a ResourceContent from an item payload already in hand.
+
+        Split out of scrape() so a caller that already holds the payload --
+        the catalog.ndjson of a NeoDB backup -- can build the item without
+        going back to the origin server, which may be unreachable or gone.
+        That caller turns ``detect_redirection`` off: its external links have
+        already been tried and failed, so each HEAD only adds a timeout.
+        """
         img_url = data.get("cover_image_url")
         raw_img, img_ext = (
             BasicImageDownloader.download_image(img_url, None, headers={})
@@ -160,10 +169,10 @@ class FediverseInstance(AbstractSite):
         if not model_cls:
             raise ParseError(self, "preferred_model")
         for ext in data.get("external_resources", []):
-            u = ext.get("url")
+            u = ext.get("url") if isinstance(ext, dict) else None
             if not u or self.is_local_item_url(u):
                 continue
-            site = SiteManager.get_site_by_url(u)
+            site = SiteManager.get_site_by_url(u, detect_redirection=detect_redirection)
             if not site:
                 logger.error(f"FediverseInstance: {self.url} unsupported url {u}")
                 continue
@@ -185,6 +194,10 @@ class FediverseInstance(AbstractSite):
             lookup_ids=ids,
         )
         return d
+
+    def scrape(self):
+        data = self.get_json_from_url(self.url)
+        return self.content_from_json(data)
 
     @classmethod
     async def peer_search_task(cls, host, q, page, category=None, page_size=5):

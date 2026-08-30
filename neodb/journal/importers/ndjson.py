@@ -15,6 +15,9 @@ from django.utils import timezone
 from loguru import logger
 
 from catalog.models import Item
+from catalog.sites.fedi import FediverseInstance
+from common.models.lang import detect_language
+from common.validators import is_storable_url
 from journal.models import (
     Article,
     Attachment,
@@ -879,6 +882,77 @@ class NdjsonImporter(BaseImporter):
             f"Imported {self.metadata['imported']}, skipped {self.metadata['skipped']}, failed {self.metadata['failed']}"
         )
 
+    @staticmethod
+    def _catalog_localized_title(data: Dict[str, Any]) -> list[dict[str, str]] | None:
+        """The entry's localized_title, or one synthesized from its title.
+
+        Returns None when the entry names the item nowhere: display_title
+        would be blank, and Item.create_from_external_resource validates
+        against the AP schema, so a nameless item cannot be built.
+        """
+        titles = [
+            {"lang": t["lang"], "text": t["text"]}
+            for t in data.get("localized_title") or []
+            if isinstance(t, dict) and t.get("lang") and t.get("text")
+        ]
+        if titles:
+            return titles
+        title = data.get("title") or data.get("display_title")
+        if isinstance(title, str) and title.strip():
+            return [{"lang": detect_language(title), "text": title.strip()}]
+        return None
+
+    def create_item_from_catalog_data(self, data: Dict[str, Any]) -> Item | None:
+        """Build a catalog item out of the metadata bundled in catalog.ndjson.
+
+        Last resort, once every link in the entry has failed to resolve. The
+        bundled entry is the same payload FediverseInstance would have
+        downloaded from the source server, so it is replayed through that same
+        path with the fetch skipped. Its isbn/imdb/barcode become the
+        resource's lookup ids, so an item already in this catalog is matched
+        rather than duplicated.
+
+        Returns None when the entry is too thin to build from, leaving the
+        caller's "could not find item" behaviour unchanged.
+        """
+        url = data.get("id")
+        # is_storable_url, not is_valid_url: the server being unreachable --
+        # its hostname no longer resolving included -- is the case this whole
+        # fallback exists for. Nothing here dereferences the url.
+        if not isinstance(url, str) or not is_storable_url(url):
+            logger.debug(f"Catalog entry has no usable id: {data.get('id')!r}")
+            return None
+        if FediverseInstance.is_local_item_url(url):
+            # a local url that get_item_by_info_and_links could not resolve is
+            # a deleted or never-existing item, not something to recreate: an
+            # ExternalResource of our own site would be rejected anyway
+            logger.debug(f"Not recreating local item {url}")
+            return None
+        typ = data.get("type")
+        if not isinstance(typ, str) or typ.lower() not in (
+            FediverseInstance.supported_types
+        ):
+            logger.debug(f"Catalog entry {url} has unsupported type {typ!r}")
+            return None
+        titles = self._catalog_localized_title(data)
+        if not titles:
+            logger.debug(f"Catalog entry {url} has no title")
+            return None
+        data = dict(data, localized_title=titles)
+        try:
+            site = FediverseInstance(url=url)
+            content = site.content_from_json(data, detect_redirection=False)
+            site.get_resource_ready(preloaded_content=content)
+            item = site.get_item()
+        except Exception:
+            logger.exception(f"Error creating item from catalog data for {url}")
+            return None
+        if item:
+            logger.info(f"Created {item} from bundled catalog metadata")
+        else:
+            logger.error(f"Unable to create item from catalog data for {url}")
+        return item
+
     def parse_catalog(self, file_path: str) -> None:
         """Parse the catalog.ndjson file and build item lookup tables."""
         logger.debug(f"Parsing catalog file: {file_path}")
@@ -894,18 +968,19 @@ class NdjsonImporter(BaseImporter):
                         u = i.get("id")
                         if not u:
                             continue
-                        # TODO: the entry itself is not kept, so an item
-                        # that cannot be resolved (source server gone, no
-                        # external ids) fails every record referencing it
-                        # instead of being rebuilt from the bundled data.
-                        # self.catalog_items[u] = i
                         item_count += 1
                         links = [u] + [
                             r["url"]
                             for r in i.get("external_resources") or []
                             if isinstance(r, dict) and r.get("url")
                         ]
-                        self.items[u] = self.get_item_by_info_and_links("", "", links)
+                        item = self.get_item_by_info_and_links("", "", links)
+                        if not item:
+                            # every link failed: the source server may be gone
+                            # or offline. Rebuild from the bundled entry rather
+                            # than failing every record that references it.
+                            item = self.create_item_from_catalog_data(i)
+                        self.items[u] = item
                     except Exception:
                         logger.exception("Error processing catalog item")
             logger.info(f"Loaded {item_count} items from catalog")
