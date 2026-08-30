@@ -14,6 +14,7 @@ from catalog.common.downloaders import (
     use_local_response,
 )
 from catalog.models import (
+    Album,
     Game,
     IdType,
     Movie,
@@ -120,6 +121,12 @@ def test_basic_entity_type_detection():
 
     # Game test
     assert_entity_type_mapping("Q7889", WikidataTypes.VIDEO_GAME, Game)
+
+    # Album tests
+    assert_entity_type_mapping("Q173643", WikidataTypes.MUSIC_ALBUM, Album)
+    assert_entity_type_mapping("Q76606947", WikidataTypes.MUSIC_SINGLE, Album)
+    assert_entity_type_mapping("Q912288", WikidataTypes.MUSIC_EP, Album)
+    assert_entity_type_mapping("Q5653487", WikidataTypes.VIDEO_ALBUM, Album)
 
     # Podcast tests
     assert_entity_type_mapping("Q24634210", WikidataTypes.PODCAST_SHOW, Podcast)
@@ -250,6 +257,20 @@ def test_nearest_ancestor_across_branches_wins():
     site = site_for("Q999990")
     with patch.object(site, "_fetch_entity_by_id", side_effect=graph.get):
         assert site._determine_entity_type(entity_data) == Movie
+
+
+def test_release_group_umbrella_covers_subtypes():
+    """Release classes off the mapped umbrellas classify as Album via the walk."""
+    # mini album (Q107154516) -> release group (Q108346082) -> Album
+    entity_data = entity("Q999989", instance_of=["Q107154516"])
+    graph = {
+        "Q107154516": v1_payload(
+            "Q107154516", subclass_of=[WikidataTypes.MUSIC_RELEASE_GROUP]
+        ),
+    }
+    site = site_for("Q999989")
+    with patch.object(site, "_fetch_entity_by_id", side_effect=graph.get):
+        assert site._determine_entity_type(entity_data) == Album
 
 
 def test_classification_survives_fetch_failure():
@@ -536,6 +557,27 @@ class TestWikiData:
         alt_url = "https://www.wikidata.org/entity/Q83495"
         site2 = WikiData(url=alt_url)
         assert site2.id_value == "Q83495"
+
+    @use_local_response
+    def test_scrape_album(self):
+        site = WikiData(url="https://www.wikidata.org/wiki/Q173643")
+        content = site.scrape()
+        assert content.metadata["title"] == "Abbey Road"
+        assert content.metadata["preferred_model"] == "Album"
+        assert content.metadata["release_date"] == "1969-09-26"
+        assert content.metadata["length"] == 2844
+        assert content.metadata["album_type"] == ["album"]
+        assert content.metadata["artist"] == []
+        assert content.metadata["cover_image_url"] == (
+            "https://commons.wikimedia.org/wiki/Special:FilePath/"
+            "The%20Beatles%20Abbey%20Road%20album%20cover.jpg?width=1000"
+        )
+        assert (
+            content.lookup_ids[IdType.MusicBrainz_ReleaseGroup]
+            == "9162580e-5df4-32de-80cc-f45a8d8a9b1d"
+        )
+        assert content.lookup_ids[IdType.Discogs_Master] == "24047"
+        assert content.lookup_ids[IdType.Spotify_Album] == "0ETFjACtuP2ADo6LFhL6HN"
 
     @patch(
         "catalog.sites.wikidata.WIKIDATA_PREFERRED_LANGS",

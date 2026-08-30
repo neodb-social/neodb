@@ -92,6 +92,12 @@ The NeoDB category follows from the model.
 | Q131436 | board game | Game | game |
 | Q3244175 | tabletop game | Game | game |
 | Q1196126 | video game console emulator | Game | game |
+| Q482994 | album | Album | music |
+| Q134556 | single | Album | music |
+| Q169930 | extended play | Album | music |
+| Q10590726 | video album | Album | music |
+| Q108346082 | release group | Album | music |
+| Q2031291 | musical release | Album | music |
 | Q24634210 | podcast show | Podcast | podcast |
 | Q61855877 | podcast episode | PodcastEpisode | podcast |
 | Q25379 | play | Performance | performance |
@@ -107,6 +113,13 @@ The NeoDB category follows from the model.
 | Q196600 | media franchise | Work | book |
 | Q17537576 | creative work | Work | book |
 | Q3331189 | version, edition or translation | Edition | book |
+
+Q108346082 (release group) and Q2031291 (musical release) are umbrella
+classes: their subclasses (mini album, single album, demo, album release, and
+the other release-level classes) classify as Album through the subclass walk.
+Album subtypes such as live album or compilation album subclass Q482994 and
+are covered the same way. In practice most albums carry plain Q482994 as P31,
+whatever their subtype.
 
 Priority types
 --------------
@@ -163,11 +176,14 @@ until the labels were checked against the live API.
 Known limits
 ------------
 
-- Q1107 (anime) and Q134556 (single) have constants but no mapping. Anime is
-  too broad to pick a model; music singles have no matching NeoDB model.
-- Album is in `MATCHABLE_MODELS` but not in the type map. A Wikidata resource
-  can attach to an existing Album item through shared external identifiers
-  (MusicBrainz, Discogs, Spotify), but classification never creates one.
+- Q1107 (anime) has a constant but no mapping; it is too broad to pick a
+  model.
+- Compositions are not releases. Q7366 (song) and the musical-work classes
+  stay unmapped because NeoDB has no Song model. An entity typed as both
+  single and song classifies as Album through the single class.
+- Q10590726 (video album) is also a subclass of film on Wikidata. A few dozen
+  entities carry both P31 values; for those, the first mapped statement in
+  payload order decides between Album and Movie.
 - Radio series (Q14623351) and radio program (Q1555508) are deliberately
   unmapped. NeoDB has no radio category, and mapping them elsewhere would be a
   product decision. Importing one fails with the unsupported-type error.

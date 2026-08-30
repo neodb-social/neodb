@@ -55,7 +55,12 @@ class WikidataTypes:
     TV_PROGRAM = "Q15416"  # Television program
     TV_MINISERIES = "Q1259759"  # Miniseries/Limited series
     TV_FILM = "Q506240"  # Television film/TV movie
-    MUSIC_SINGLE = "Q134556"
+    MUSIC_ALBUM = "Q482994"  # album
+    MUSIC_SINGLE = "Q134556"  # single
+    MUSIC_EP = "Q169930"  # extended play
+    VIDEO_ALBUM = "Q10590726"  # video album
+    MUSIC_RELEASE_GROUP = "Q108346082"  # release group
+    MUSICAL_RELEASE = "Q2031291"  # musical release
     MEDIA_FRANCHISE = "Q196600"  # Media franchise/series
     GAME = "Q11410"
     VIDEO_GAME = "Q7889"  # Video game
@@ -262,6 +267,12 @@ class WikiData(AbstractSite):
         WikidataTypes.BOARD_GAME: Game,
         WikidataTypes.TABLETOP_GAME: Game,
         WikidataTypes.GAME_EMULATOR: Game,
+        WikidataTypes.MUSIC_ALBUM: Album,
+        WikidataTypes.MUSIC_SINGLE: Album,
+        WikidataTypes.MUSIC_EP: Album,
+        WikidataTypes.VIDEO_ALBUM: Album,
+        WikidataTypes.MUSIC_RELEASE_GROUP: Album,
+        WikidataTypes.MUSICAL_RELEASE: Album,
         WikidataTypes.PODCAST_SHOW: Podcast,
         WikidataTypes.PODCAST_EPISODE: PodcastEpisode,
         WikidataTypes.PLAY: Performance,
@@ -574,6 +585,7 @@ class WikiData(AbstractSite):
 
         # Extract model-specific metadata
         extractor = {
+            Album: self._extract_album_metadata,
             Game: self._extract_game_metadata,
             Podcast: self._extract_podcast_metadata,
             PodcastEpisode: self._extract_podcast_episode_metadata,
@@ -607,6 +619,41 @@ class WikiData(AbstractSite):
                     },
                 )
         return data
+
+    # P31 class -> Album.album_type slug (ALBUM_TYPE_CATALOG)
+    _ALBUM_TYPE_BY_CLASS = {
+        WikidataTypes.MUSIC_ALBUM: "album",
+        WikidataTypes.MUSIC_SINGLE: "single",
+        WikidataTypes.MUSIC_EP: "ep",
+        "Q208569": "album",  # studio album
+        "Q209939": "live",  # live album
+        "Q222910": "compilation",  # compilation album
+        "Q723849": "compilation",  # greatest hits album
+        "Q4176708": "soundtrack",  # soundtrack album
+        "Q1892995": "mixtape",  # mixtape
+        "Q963099": "remix",  # remix album
+        "Q220935": "demo",  # demo
+        "Q107154516": "ep",  # mini album
+        "Q106042566": "single",  # single album
+    }
+
+    def _extract_album_metadata(self, entity_data, data):
+        """Extract Album-specific metadata"""
+        data.metadata["release_date"] = self._extract_date(
+            entity_data, WikidataProperties.PUBLICATION_DATE
+        )
+        data.metadata["length"] = self._extract_duration(entity_data)
+        types = self._extract_entity_types(entity_data, WikidataProperties.INSTANCE_OF)
+        data.metadata["album_type"] = list(
+            dict.fromkeys(
+                self._ALBUM_TYPE_BY_CLASS[t]
+                for t in types
+                if t in self._ALBUM_TYPE_BY_CLASS
+            )
+        )
+        # performer, record label and genre are entity references,
+        # unusable until labels are resolved
+        data.metadata["artist"] = []
 
     def _extract_game_metadata(self, entity_data, data):
         """Extract Game-specific metadata"""
