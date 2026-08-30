@@ -168,7 +168,9 @@ class FediverseInstance(AbstractSite):
         model_cls = self.supported_types.get(data["preferred_model"].lower())
         if not model_cls:
             raise ParseError(self, "preferred_model")
-        for ext in data.get("external_resources", []):
+        # `or []`: external_resources is nullable in the item schema, so a
+        # literal null is representable in a payload we are handed
+        for ext in data.get("external_resources") or []:
             u = ext.get("url") if isinstance(ext, dict) else None
             if not u or self.is_local_item_url(u):
                 continue

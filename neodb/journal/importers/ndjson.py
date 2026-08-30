@@ -7,10 +7,12 @@ import tempfile
 import uuid
 import zipfile
 from typing import Any, Callable, Dict
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.db import transaction
 from django.utils import timezone
 from loguru import logger
 
@@ -928,6 +930,13 @@ class NdjsonImporter(BaseImporter):
             # ExternalResource of our own site would be rejected anyway
             logger.debug(f"Not recreating local item {url}")
             return None
+        # both checks FediverseInstance.validate_url_fallback would have made.
+        # Building the site directly skips that, and an archive must not be a
+        # way to seed this catalog from an instance the admin has defederated.
+        host = urlparse(url).hostname or ""
+        if host in Takahe.get_blocked_peers():
+            logger.debug(f"Not recreating item from blocked peer {host}")
+            return None
         typ = data.get("type")
         if not isinstance(typ, str) or typ.lower() not in (
             FediverseInstance.supported_types
@@ -940,10 +949,18 @@ class NdjsonImporter(BaseImporter):
             return None
         data = dict(data, localized_title=titles)
         try:
-            site = FediverseInstance(url=url)
-            content = site.content_from_json(data, detect_redirection=False)
-            site.get_resource_ready(preloaded_content=content)
-            item = site.get_item()
+            # atomic: create_from_external_resource saves the Item before
+            # validating it against the AP schema, so metadata of the wrong
+            # shape (a str where a list belongs) leaves an item-less Item and
+            # ExternalResource behind, one more per reimport, once the except
+            # below swallows the error.
+            with transaction.atomic():
+                site = FediverseInstance(url=url)
+                content = site.content_from_json(data, detect_redirection=False)
+                # get_resource_ready creates and links the item itself; asking
+                # the site for it again would re-run the match for nothing
+                resource = site.get_resource_ready(preloaded_content=content)
+                item = resource.item if resource else None
         except Exception:
             logger.exception(f"Error creating item from catalog data for {url}")
             return None
@@ -974,7 +991,16 @@ class NdjsonImporter(BaseImporter):
                             for r in i.get("external_resources") or []
                             if isinstance(r, dict) and r.get("url")
                         ]
-                        item = self.get_item_by_info_and_links("", "", links)
+                        # the bundled ids let an item already in this catalog
+                        # be matched here, before the rebuild below, which
+                        # would merge the archive's metadata into it on the
+                        # way past
+                        info = " ".join(
+                            f"{k}:{i[k]}"
+                            for k in ("isbn", "imdb")
+                            if isinstance(i.get(k), str) and i[k]
+                        )
+                        item = self.get_item_by_info_and_links("", info, links)
                         if not item:
                             # every link failed: the source server may be gone
                             # or offline. Rebuild from the bundled entry rather

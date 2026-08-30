@@ -3,6 +3,7 @@ import os
 import zipfile
 from io import BytesIO
 from tempfile import TemporaryDirectory
+from unittest import mock
 
 import pytest
 from django.conf import settings
@@ -16,6 +17,7 @@ from PIL import Image
 
 from catalog.models import (
     Edition,
+    ExternalResource,
     IdType,
     Movie,
     Podcast,
@@ -1287,6 +1289,51 @@ class TestNdjsonExportImport:
         importer = self._parse_catalog(tmp_path, entry)
         assert importer.items[entry["id"]] == self.book1
         assert Edition.objects.count() == before
+
+    def test_ndjson_catalog_rebuild_skips_blocked_peers(self, tmp_path):
+        """An archive is not a way around a defederated instance.
+
+        Building the site directly skips FediverseInstance.validate_url_
+        fallback, which is where the blocked-peer list is enforced.
+        """
+        before = Movie.objects.count()
+        entry = {
+            "id": "https://blocked-peer.invalid/movie/x",
+            "type": "Movie",
+            "localized_title": [{"lang": "en", "text": "From A Blocked Peer"}],
+        }
+        with mock.patch.object(
+            Takahe, "get_blocked_peers", return_value=["blocked-peer.invalid"]
+        ):
+            importer = self._parse_catalog(tmp_path, entry)
+        assert importer.items[entry["id"]] is None
+        assert Movie.objects.count() == before
+
+    def test_ndjson_catalog_rebuild_leaves_nothing_behind_on_bad_metadata(
+        self, tmp_path
+    ):
+        """A failure part-way through the build must not leave a half-built item.
+
+        create_from_external_resource saves the Item and only then validates
+        it against the AP schema and syncs credits, so anything raising after
+        that save stranded an item-less row -- one more per reimport, since
+        the rebuild swallows the error. sync_credits_from_metadata stands in
+        here for any of those post-save steps.
+        """
+        before = Movie.objects.count()
+        resources_before = ExternalResource.objects.count()
+        entry = {
+            "id": "https://gone-badshape.invalid/movie/x",
+            "type": "Movie",
+            "localized_title": [{"lang": "en", "text": "Malformed"}],
+        }
+        with mock.patch.object(
+            Movie, "sync_credits_from_metadata", side_effect=ValueError("boom")
+        ):
+            importer = self._parse_catalog(tmp_path, entry)
+        assert importer.items[entry["id"]] is None
+        assert Movie.objects.count() == before
+        assert ExternalResource.objects.count() == resources_before
 
     def test_ndjson_catalog_rebuild_needs_sufficient_metadata(self, tmp_path):
         """Entries too thin to build from stay unresolved rather than half-built."""
