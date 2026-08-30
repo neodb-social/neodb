@@ -1,4 +1,3 @@
-import re
 from datetime import timedelta
 from typing import Literal
 
@@ -22,7 +21,6 @@ from activities.models.post_types import (
 )
 from activities.services import PostService
 from core import sentry
-from users.models import Identity
 from api import schemas
 from api.decorators import scope_required
 from api.pagination import MastodonPaginator, PaginatingApiResponse, PaginationResult
@@ -162,30 +160,6 @@ def _resolve_owned_attachments(
     return attachments
 
 
-def _extract_quote_from_trailing_url(
-    text: str, identity: "Identity | None" = None
-) -> tuple["Post | None", str]:
-    """
-    Detect a trailing URL in the status text that matches a known post
-    visible to the given identity.
-    Returns (quote_post, cleaned_text) if found, or (None, original_text).
-    """
-    match = re.search(r"(^|\n)(https?://\S+)\s*$", text)
-    if not match:
-        return None, text
-    url = match.group(2)
-    # Look up by object_uri first (unique index), then fall back to url.
-    # Avoids an OR query that causes a full table scan on large tables.
-    base_qs = Post.objects.not_hidden().visible_to(identity, include_replies=True)
-    post = base_qs.filter(object_uri=url).first()
-    if post is None:
-        post = base_qs.filter(url=url).first()
-    if not post:
-        return None, text
-    cleaned = text[: match.start(2)].rstrip("\n ")
-    return post, cleaned
-
-
 @scope_required("write:statuses")
 @api_view.post
 def post_status(request, details: PostStatusSchema) -> schemas.Status:
@@ -215,6 +189,8 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
             reply_post = Post.objects.get(pk=details.in_reply_to_id)
         except Post.DoesNotExist:
             pass
+    # Quoting is explicit only: the client must pass quoted_status_id
+    # (Mastodon 4.5+) or its quote_id alias. URLs in the text stay text.
     quote_post = None
     quote_id = details.quoted_status_id or details.quote_id
     if quote_id:
@@ -224,12 +200,9 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
             .filter(pk=quote_id)
             .first()
         )
-    # If no explicit quote ID, detect a trailing URL that matches a known post
+        if quote_post is None:
+            raise ApiError(404, "Quoted status not found")
     status_text = details.status or ""
-    if not quote_post and status_text:
-        quote_post, status_text = _extract_quote_from_trailing_url(
-            status_text, request.identity
-        )
     # Enforce: quoting post visibility must not exceed quoted post visibility
     visibility = visibility_map[details.visibility]
     if quote_post:

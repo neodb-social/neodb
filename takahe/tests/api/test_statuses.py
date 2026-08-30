@@ -220,6 +220,34 @@ def test_post_status_with_quote(api_client, identity):
 
 
 @pytest.mark.django_db
+def test_post_status_trailing_url_is_not_a_quote(api_client, identity):
+    """A trailing post URL stays plain text; quoting is explicit only."""
+    original = Post.create_local(author=identity, content="Original post")
+    status_id = api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={"status": f"Look at this\n{original.object_uri}"},
+    ).json()["id"]
+    response = api_client.get(f"/api/v1/statuses/{status_id}").json()
+    assert response["quote"] is None
+    assert (
+        original.object_uri
+        in api_client.get(f"/api/v1/statuses/{status_id}/source").json()["text"]
+    )
+
+
+@pytest.mark.django_db
+def test_post_status_with_unknown_quote_id(api_client, identity):
+    """An unresolvable quoted_status_id is an error, not a silent no-op."""
+    response = api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={"status": "Quoting nothing", "quoted_status_id": "123456789"},
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_get_quotes_of_status(api_client, identity):
     """List quotes of a status."""
     original = Post.create_local(author=identity, content="Original post")
