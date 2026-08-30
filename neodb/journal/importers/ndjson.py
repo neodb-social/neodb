@@ -16,7 +16,7 @@ from django.db import transaction
 from django.utils import timezone
 from loguru import logger
 
-from catalog.models import Item
+from catalog.models import ExternalResource, Item
 from catalog.sites.fedi import FediverseInstance
 from common.models.lang import detect_language
 from common.validators import is_storable_url
@@ -904,6 +904,24 @@ class NdjsonImporter(BaseImporter):
             return [{"lang": detect_language(title), "text": title.strip()}]
         return None
 
+    @staticmethod
+    def _existing_item_for_ids(lookup_ids: Dict[str, str]) -> Item | None:
+        """An item already in this catalog carrying any of these ids."""
+        for id_type, id_value in lookup_ids.items():
+            if not id_value:
+                continue
+            resource = ExternalResource.objects.filter(
+                id_type=id_type, id_value=id_value
+            ).first()
+            if resource and resource.item and not resource.item.is_deleted:
+                return resource.item
+            item = Item.objects.filter(
+                primary_lookup_id_type=id_type, primary_lookup_id_value=id_value
+            ).first()
+            if item and not item.is_deleted:
+                return item
+        return None
+
     def create_item_from_catalog_data(self, data: Dict[str, Any]) -> Item | None:
         """Build a catalog item out of the metadata bundled in catalog.ndjson.
 
@@ -957,6 +975,18 @@ class NdjsonImporter(BaseImporter):
             with transaction.atomic():
                 site = FediverseInstance(url=url)
                 content = site.content_from_json(data, detect_redirection=False)
+                # Stop at an item that already exists. Going on would reach
+                # match_and_link_item, which merges the archive's metadata
+                # into whatever it matched -- filling empty fields, appending
+                # to localized_title/description, setting a missing cover --
+                # on an item this user does not own and may not even be
+                # allowed to edit (is_protected is enforced on the edit form,
+                # not here). Creating what is missing is the job; rewriting
+                # what is already here is not.
+                existing = self._existing_item_for_ids(content.lookup_ids)
+                if existing:
+                    logger.debug(f"Catalog entry {url} matches existing {existing}")
+                    return existing
                 # get_resource_ready creates and links the item itself; asking
                 # the site for it again would re-run the match for nothing
                 resource = site.get_resource_ready(preloaded_content=content)

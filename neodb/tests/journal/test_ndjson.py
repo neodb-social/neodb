@@ -1290,6 +1290,37 @@ class TestNdjsonExportImport:
         assert importer.items[entry["id"]] == self.book1
         assert Edition.objects.count() == before
 
+    def test_ndjson_catalog_rebuild_never_edits_an_existing_item(self):
+        """An archive must not rewrite catalog items it merely matches.
+
+        Reaching match_and_link_item would merge the bundled metadata into
+        whatever it matched -- appending to localized_title, filling empty
+        fields, setting a missing cover -- on an item the importing user does
+        not own and may not be allowed to edit at all: is_protected is
+        enforced on the edit form, not on this path.
+        """
+        self.movie1.is_protected = True
+        self.movie1.save()
+        titles_before = list(self.movie1.localized_title)
+        descriptions_before = list(self.movie1.localized_description)
+        before = Movie.objects.count()
+
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        item = importer.create_item_from_catalog_data(
+            {
+                "id": "https://gone-merge.invalid/movie/x",
+                "type": "Movie",
+                "imdb": self.movie1.imdb,
+                "localized_title": [{"lang": "en", "text": "Bogus Injected Title"}],
+                "localized_description": [{"lang": "en", "text": "Injected."}],
+            }
+        )
+        assert item == self.movie1
+        assert Movie.objects.count() == before
+        self.movie1.refresh_from_db()
+        assert self.movie1.localized_title == titles_before
+        assert self.movie1.localized_description == descriptions_before
+
     def test_ndjson_catalog_rebuild_skips_blocked_peers(self, tmp_path):
         """An archive is not a way around a defederated instance.
 
