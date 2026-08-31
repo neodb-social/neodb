@@ -850,7 +850,7 @@ class MastodonAccount(SocialAccount):
             return False
         self.last_reachable = timezone.now()
         if save:
-            self.save_fields(["last_reachable"])
+            self.save_fields("last_reachable")
         return True
 
     def refresh(self, save=True):
@@ -877,7 +877,7 @@ class MastodonAccount(SocialAccount):
             self.handle = handle
         self.account_data = mastodon_account
         if save:
-            self.save_fields(["uid", "handle", "account_data", "last_refresh"])
+            self.save_fields("uid", "handle", "account_data", "last_refresh")
         return True
 
     def refresh_graph(self, save=True):
@@ -888,15 +888,13 @@ class MastodonAccount(SocialAccount):
         self.domain_blocks = self.get_related_accounts("domain_blocks")
         if save:
             self.save_fields(
-                ["followers", "following", "mutes", "blocks", "domain_blocks"]
+                "followers", "following", "mutes", "blocks", "domain_blocks"
             )
         return True
 
     def sync_graph(self):
-        if self.pk is None:
-            # disconnected mid-sync; the in-memory graph is stale, do not
-            # import follows/blocks/mutes for an account the user just removed
-            return 0
+        if not self.pk:
+            return 0  # disconnected mid-sync; the in-memory graph is stale
         c = 0
 
         def get_identity_ids(accts: list):

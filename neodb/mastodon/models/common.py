@@ -106,21 +106,18 @@ class SocialAccount(TypedModel):
     def from_dict(cls, d: dict | None):
         return cls(**d) if d else None
 
-    def save_fields(self, update_fields: list[str]) -> bool:
-        """Write some fields back, tolerating the row being deleted meanwhile.
+    def save_fields(self, *fields: str) -> bool:
+        """Write fields back, tolerating a row deleted mid-sync.
 
-        A sync job holds this instance across minutes of network calls, so the
-        user may disconnect the account before it writes back. Updating by
-        queryset reports that as a 0 row count; save() would raise instead.
+        A queryset update reports the deleted row as 0 rows; save() would raise.
         """
-        if self.pk is None:
+        if not self.pk:
             return False
-        values = {name: getattr(self, name) for name in update_fields}
+        values = {f: getattr(self, f) for f in fields}
         if type(self).objects.filter(pk=self.pk).update(**values):
             return True
         logger.debug(f"{self} deleted while syncing, update discarded")
-        # drop the pk (as instance.delete() would) so later saves no-op
-        self.pk = None
+        self.pk = None  # as instance.delete() would, so later saves no-op
         return False
 
     def check_alive(self) -> bool:
@@ -227,19 +224,16 @@ class SocialAccount(TypedModel):
         # state independently to avoid blocking healthy accounts on the domain.
         self._record_domain_success()
         refreshed = self.refresh()
-        # a refresh that hit a revoked token also fails, so check for the row
-        # first: the account circuit-breaker keys are keyed on pk, and a
-        # deleted account must not record failures under a stale key
-        if self.pk is not None:
-            if not refreshed:
-                logger.warning(f"{self} refresh failed")
-                self._record_account_failure()
-                self._emit_sync_result("fail_refresh")
-                return False
-            if not skip_graph:
-                self.refresh_graph()
-        if self.pk is None:
+        if refreshed and not skip_graph and self.pk:
+            self.refresh_graph()
+        if not self.pk:
+            # disconnected mid-sync; account failure state is keyed on pk
             self._emit_sync_result("skip_deleted")
+            return False
+        if not refreshed:
+            logger.warning(f"{self} refresh failed")
+            self._record_account_failure()
+            self._emit_sync_result("fail_refresh")
             return False
         logger.debug(f"{self} refreshed")
         self._record_account_success()

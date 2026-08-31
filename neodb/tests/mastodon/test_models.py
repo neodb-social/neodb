@@ -174,19 +174,19 @@ class TestSocialAccountSaveFields:
 
     def test_save_fields_persists_normally(self):
         self.account.handle = "renamed@social.example"
-        assert self.account.save_fields(["handle"]) is True
+        assert self.account.save_fields("handle") is True
         self.account.refresh_from_db()
         assert self.account.handle == "renamed@social.example"
 
     def test_save_fields_tolerates_concurrent_delete(self):
         MastodonAccount.objects.filter(pk=self.account.pk).delete()
         self.account.handle = "gone@social.example"
-        assert self.account.save_fields(["handle"]) is False
+        assert self.account.save_fields("handle") is False
         assert self.account.pk is None
 
     def test_save_fields_noop_once_pk_cleared(self):
         self.account.pk = None
-        assert self.account.save_fields(["handle"]) is False
+        assert self.account.save_fields("handle") is False
 
     def test_save_fields_propagates_real_database_errors(self):
         MastodonAccount.objects.create(
@@ -197,7 +197,7 @@ class TestSocialAccountSaveFields:
         )
         self.account.handle = "taken@social.example"
         with pytest.raises(IntegrityError):
-            self.account.save_fields(["handle"])
+            self.account.save_fields("handle")
 
     def test_refresh_graph_tolerates_concurrent_delete(self):
         with patch.object(MastodonAccount, "get_related_accounts", return_value=[]):
@@ -228,7 +228,7 @@ class TestSocialAccountSaveFields:
     def test_sync_does_not_record_failure_for_deleted_account(self):
         def _refresh():
             MastodonAccount.objects.filter(pk=self.account.pk).delete()
-            self.account.save_fields(["last_refresh"])
+            self.account.save_fields("last_refresh")
             return False
 
         with (
@@ -245,7 +245,7 @@ class TestSocialAccountSaveFields:
         def _refresh():
             MastodonAccount.objects.filter(pk=self.account.pk).delete()
             self.account.last_refresh = timezone.now()
-            self.account.save_fields(["last_refresh"])
+            self.account.save_fields("last_refresh")
             return True
 
         with (
