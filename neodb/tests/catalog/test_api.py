@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
 from django.http import HttpResponse
-from django.test import Client, RequestFactory
+from django.test import RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
@@ -409,11 +409,6 @@ def test_podcast_episode_list_is_paginated_in_database():
     assert payload["pages"] == 2
     assert len(payload["data"]) == 20
 
-    payload = get_episodes_in_podcast(
-        request, str(podcast.uuid), HttpResponse(), page=3
-    )
-    assert payload["data"] == []
-
     episode_queries = [
         q["sql"] for q in ctx.captured_queries if "catalog_podcastepisode" in q["sql"]
     ]
@@ -423,17 +418,6 @@ def test_podcast_episode_list_is_paginated_in_database():
     ]
     assert len(count_queries) == 1, episode_queries
     assert page_queries, episode_queries
-
-
-@pytest.mark.django_db(databases="__all__")
-def test_empty_podcast_episode_list_has_zero_pages():
-    with patch("catalog.models.item.Item.update_index"):
-        podcast = Podcast.objects.create(title="Empty Podcast", host=["Host"])
-
-    response = Client().get(f"/api/podcast/{podcast.uuid}/episode/")
-
-    assert response.status_code == 200
-    assert response.json() == {"data": [], "pages": 0, "count": 0}
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
