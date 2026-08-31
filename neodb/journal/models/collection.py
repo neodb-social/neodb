@@ -225,8 +225,8 @@ class Collection(List):
 
     def _flush_member_updates(self) -> None:
         # Re-post the lightweight AP collection envelope, but never build the
-        # full search document in the request/import worker. The delayed job
-        # coalesces rapid edits and materializes the members once.
+        # full search document in the request/import worker. Bulk import
+        # contexts collapse member edits before this background job is queued.
         self.save(index_when_save=False)
         piece_id = self.pk
         transaction.on_commit(

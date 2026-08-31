@@ -1,16 +1,16 @@
 import json
 import re
 from collections.abc import Iterable
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import cached_property, reduce
 from random import sample
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import django_rq
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
-from django_redis import get_redis_connection
 from loguru import logger
+from rq import Retry
 
 from catalog.models import Item, item_categories
 from common.models import int_, uniq
@@ -30,74 +30,13 @@ if TYPE_CHECKING:
 # inline ``from journal.models import …`` calls below are deliberate
 # circular-import workarounds, not laziness.
 
-_PENDING_PIECE_INDEX_KEY = "pending_journal_piece_index_ids"
-_PENDING_PIECE_INDEX_QUEUE = "import"
-_PENDING_PIECE_INDEX_LOCK_KEY = "pending_journal_piece_index_scheduled"
-_PENDING_PIECE_INDEX_LOCK_TTL = 60 * 60
+_PIECE_INDEX_QUEUE = "import"
+_PIECE_INDEX_RETRY_INTERVALS = [30, 120, 300]
 
 
-def _schedule_journal_piece_index_task(delay_seconds: int = 2) -> None:
-    """Ensure exactly one pending-set drain is scheduled at a time.
-
-    A Redis lock is used instead of a fixed RQ job id. RQ retains started /
-    finished job ids, and reusing one while its worker is running can reject
-    the replacement job and strand ids added near the end of a drain.
-    """
-    conn = get_redis_connection("default")
-    scheduled = conn.set(
-        _PENDING_PIECE_INDEX_LOCK_KEY,
-        "1",
-        nx=True,
-        ex=_PENDING_PIECE_INDEX_LOCK_TTL,
-    )
-    if not scheduled:
-        return
-    try:
-        django_rq.get_queue(_PENDING_PIECE_INDEX_QUEUE).enqueue_in(
-            timedelta(seconds=delay_seconds),
-            _update_journal_piece_index_task,
-        )
-    except Exception:
-        # Let a subsequent mutation retry scheduling immediately.
-        conn.delete(_PENDING_PIECE_INDEX_LOCK_KEY)
-        raise
-
-
-def _update_journal_piece_index_task():
-    conn = get_redis_connection("default")
-    updated = 0
-    retry_delay = 2
-    try:
-        index = JournalIndex.instance()
-        piece_ids = cast(list[bytes], conn.spop(_PENDING_PIECE_INDEX_KEY, 1000))
-        while piece_ids:
-            ids = [int(i) for i in piece_ids]
-            try:
-                index.replace_pieces(ids)
-            except Exception:
-                # SPOP claims work before Typesense sees it. Put a failed
-                # chunk back so a transient index outage cannot lose updates.
-                conn.sadd(_PENDING_PIECE_INDEX_KEY, *ids)
-                retry_delay = 30
-                raise
-            updated += len(ids)
-            # Keep the scheduling lock alive during an unusually large drain.
-            conn.expire(
-                _PENDING_PIECE_INDEX_LOCK_KEY,
-                _PENDING_PIECE_INDEX_LOCK_TTL,
-            )
-            piece_ids = cast(list[bytes], conn.spop(_PENDING_PIECE_INDEX_KEY, 1000))
-    finally:
-        # Delete before SCARD. A producer racing after this deletion either
-        # acquires the lock itself, or its id is visible to our SCARD and we
-        # acquire it below; in both cases another drain is guaranteed.
-        conn.delete(_PENDING_PIECE_INDEX_LOCK_KEY)
-        if conn.scard(_PENDING_PIECE_INDEX_KEY):
-            try:
-                _schedule_journal_piece_index_task(retry_delay)
-            except Exception as e:  # noqa: BLE001 - preserve original failure
-                logger.error(f"Unable to reschedule journal index update: {e}")
-    logger.info(f"Journal index updated for {updated} pieces")
+def _update_journal_piece_index_task(piece_ids: list[int]) -> None:
+    JournalIndex.instance().replace_pieces(piece_ids)
+    logger.info(f"Journal index updated for {len(piece_ids)} pieces")
 
 
 def _get_item_ids(doc):
@@ -597,11 +536,14 @@ class JournalIndex(Index):
 
     @classmethod
     def enqueue_replace_pieces(cls, piece_ids: list[int]):
-        """Coalesce repeated piece changes into one delayed index refresh."""
+        """Refresh pieces in the import worker, retrying transient failures."""
         if not piece_ids:
             return
-        get_redis_connection("default").sadd(_PENDING_PIECE_INDEX_KEY, *piece_ids)
-        _schedule_journal_piece_index_task()
+        django_rq.get_queue(_PIECE_INDEX_QUEUE).enqueue(
+            _update_journal_piece_index_task,
+            piece_ids,
+            retry=Retry(max=3, interval=_PIECE_INDEX_RETRY_INTERVALS),
+        )
 
     def delete_by_post(self, post_ids):
         return self.delete_docs("post_id", post_ids)
