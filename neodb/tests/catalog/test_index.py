@@ -1,3 +1,4 @@
+import re
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,6 +10,11 @@ from catalog.search.index import (
     CatalogQueryParser,
     _cat_to_class,
 )
+
+
+def _outside_quotes(filter_by: str) -> str:
+    """Drop every backtick-quoted span, leaving only what Typesense parses."""
+    return re.sub(r"`[^`]*`", "", filter_by)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -228,6 +234,27 @@ class TestCatalogQueryParser:
 
         assert parser.q == "Tolkien"
         assert "lookup_id:=`9780618640157`" in parser.filter_by.get("_", [])
+
+    def test_backtick_in_filter_value_cannot_unbalance_parens(self):
+        """A backtick plus a paren used to reach Typesense as filter grammar.
+
+        Typesense ignores a backslash-escaped backtick while it balances
+        parentheses, so `sci`fi(x` produced "unbalanced parentheses".
+        """
+        parser = CatalogQueryParser("dune genre:sci`fi(x", 1, 20)
+        filter_by = parser.to_search_params()["filter_by"]
+
+        assert parser.q == "dune"
+        assert "\\`" not in filter_by
+        assert _outside_quotes(filter_by) == "genre:"
+
+    def test_filter_value_cannot_inject_boolean_clause(self):
+        """Operators in a filter value must stay inside the quoted value."""
+        parser = CatalogQueryParser('genre:"zzz` || language:`en"', 1, 20)
+        filter_by = parser.to_search_params()["filter_by"]
+
+        assert "||" not in _outside_quotes(filter_by)
+        assert "language" not in _outside_quotes(filter_by)
 
 
 @pytest.mark.django_db(databases="__all__")

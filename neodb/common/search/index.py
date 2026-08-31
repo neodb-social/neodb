@@ -37,8 +37,14 @@ TYPESENSE_ERRORS = (
 
 
 def _backtick(s: str | int) -> str:
-    """Escape a string with backticks for Typesense filter syntax"""
-    return str(s) if isinstance(s, int) else f"`{str(s).replace('`', '\\`')}`"
+    """Quote a value for Typesense filter syntax.
+
+    Typesense ignores a backslash-escaped backtick in the pass that balances
+    parentheses and splits on && / ||, so an escaped backtick still ends the
+    quoted value there and leaks the rest of it into the filter grammar.
+    Drop the backtick instead of escaping it.
+    """
+    return str(s) if isinstance(s, int) else f"`{str(s).replace('`', ' ')}`"
 
 
 class QueryParser:
