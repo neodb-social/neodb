@@ -893,6 +893,10 @@ class MastodonAccount(SocialAccount):
         return True
 
     def sync_graph(self):
+        if self.pk is None:
+            # disconnected mid-sync; the in-memory graph is stale, do not
+            # import follows/blocks/mutes for an account the user just removed
+            return 0
         c = 0
 
         def get_identity_ids(accts: list):

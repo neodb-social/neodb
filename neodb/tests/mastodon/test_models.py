@@ -205,6 +205,42 @@ class TestSocialAccountSaveFields:
             self.account.refresh_graph()
         assert self.account.pk is None
 
+    def test_sync_graph_skips_deleted_account(self):
+        # sync_accounts() runs a second pass over the same instances, so a
+        # stale graph must not be imported for an account the user removed
+        other = MastodonAccount.objects.create(
+            handle="friend@social.example",
+            user=User.register(username="racefriend"),
+            domain="social.example",
+            uid="77777",
+        )
+        self.account.following = [other.handle]
+
+        with patch("mastodon.models.mastodon.Takahe.follow") as follow:
+            assert self.account.sync_graph() == 1
+            follow.assert_called_once()
+
+            follow.reset_mock()
+            self.account.pk = None
+            assert self.account.sync_graph() == 0
+            follow.assert_not_called()
+
+    def test_sync_does_not_record_failure_for_deleted_account(self):
+        def _refresh():
+            MastodonAccount.objects.filter(pk=self.account.pk).delete()
+            self.account.save_fields(["last_refresh"])
+            return False
+
+        with (
+            patch.object(MastodonAccount, "check_alive", return_value=True),
+            patch.object(MastodonAccount, "refresh", side_effect=_refresh),
+            patch.object(MastodonAccount, "_record_account_failure") as record_fail,
+            patch.object(MastodonAccount, "_emit_sync_result") as emit,
+        ):
+            assert self.account.sync() is False
+        record_fail.assert_not_called()
+        assert emit.call_args.args == ("skip_deleted",)
+
     def test_sync_stops_and_skips_graph_when_deleted_mid_sync(self):
         def _refresh():
             MastodonAccount.objects.filter(pk=self.account.pk).delete()

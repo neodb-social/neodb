@@ -226,15 +226,19 @@ class SocialAccount(TypedModel):
         # this account's refresh ends up succeeding, so clear domain-level fail
         # state independently to avoid blocking healthy accounts on the domain.
         self._record_domain_success()
-        if not self.refresh():
-            logger.warning(f"{self} refresh failed")
-            self._record_account_failure()
-            self._emit_sync_result("fail_refresh")
-            return False
-        if self.pk is not None and not skip_graph:
-            self.refresh_graph()
+        refreshed = self.refresh()
+        # a refresh that hit a revoked token also fails, so check for the row
+        # first: the account circuit-breaker keys are keyed on pk, and a
+        # deleted account must not record failures under a stale key
+        if self.pk is not None:
+            if not refreshed:
+                logger.warning(f"{self} refresh failed")
+                self._record_account_failure()
+                self._emit_sync_result("fail_refresh")
+                return False
+            if not skip_graph:
+                self.refresh_graph()
         if self.pk is None:
-            # deleted mid-sync; the account circuit-breaker keys are keyed on pk
             self._emit_sync_result("skip_deleted")
             return False
         logger.debug(f"{self} refreshed")
