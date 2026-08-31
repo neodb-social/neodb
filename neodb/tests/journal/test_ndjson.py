@@ -1741,9 +1741,14 @@ class TestNdjsonExportImport:
         collection.save()
         exporter2 = NdjsonExporter.create(user=self.user1)
         exporter2.run()
-        NdjsonImporter.create(
-            user=self.user2, file=exporter2.metadata["file"], visibility=0
-        ).run()
+        with mock.patch.object(Collection, "sync_to_timeline") as sync_collection:
+            NdjsonImporter.create(
+                user=self.user2, file=exporter2.metadata["file"], visibility=0
+            ).run()
+
+        # Re-saving the changed collection body updates its AP envelope once.
+        # Replaying an embedded member note must not trigger a second post.
+        assert sync_collection.call_count == 1
 
         dest = Collection.objects.get(owner=self.user2.identity, title="Indexed")
         assert dest.get_member_for_item(self.book1).note == "second note"

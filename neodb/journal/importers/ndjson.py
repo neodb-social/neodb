@@ -306,7 +306,6 @@ class NdjsonImporter(BaseImporter):
                         # so a per-item note edited on the source would not replay
                         member.metadata = metadata
                         member.save(update_fields=["metadata"])
-                        collection.member_set_changed()
                         member_notes_changed = True
             # TODO: members removed on the source are not removed here -- a
             # re-import only adds and updates, never deletes. A member note
