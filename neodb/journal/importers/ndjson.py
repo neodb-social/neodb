@@ -287,34 +287,37 @@ class NdjsonImporter(BaseImporter):
                         os.path.basename(cover_src), File(f), save=True
                     )
             item_data = data.get("items", [])
-            members_changed = False
-            for item_entry in item_data:
-                item_url = item_entry.get("item")
-                if not item_url:
-                    continue
-                item = self.items.get(item_url)
-                if not item:
-                    logger.warning(f"Could not find item for collection: {item_url}")
-                    continue
-                metadata = item_entry.get("metadata", {})
-                member, created = collection.append_item(item, metadata=metadata)
-                if not created and member and member.metadata != metadata:
-                    # append_item is a no-op for an item already on the list,
-                    # so a per-item note edited on the source would not replay
-                    member.metadata = metadata
-                    member.save(update_fields=["metadata"])
-                    members_changed = True
+            member_notes_changed = False
+            with collection.defer_member_updates():
+                for item_entry in item_data:
+                    item_url = item_entry.get("item")
+                    if not item_url:
+                        continue
+                    item = self.items.get(item_url)
+                    if not item:
+                        logger.warning(
+                            f"Could not find item for collection: {item_url}"
+                        )
+                        continue
+                    metadata = item_entry.get("metadata", {})
+                    member, created = collection.append_item(item, metadata=metadata)
+                    if not created and member and member.metadata != metadata:
+                        # append_item is a no-op for an item already on the list,
+                        # so a per-item note edited on the source would not replay
+                        member.metadata = metadata
+                        member.save(update_fields=["metadata"])
+                        collection.member_set_changed()
+                        member_notes_changed = True
             # TODO: members removed on the source are not removed here -- a
             # re-import only adds and updates, never deletes. A member note
             # edited on its own also does not replay: it leaves the parent
             # collection's edited_time untouched, so the record is judged
             # current and skipped before this loop is reached.
             self._restore_edited_time(collection, updated_dt)
-            if members_changed:
-                # the collection's index doc embeds its members' notes, and
-                # saving a member does not reindex the parent -- only the
-                # list_add / list_remove signals do, and a note-only edit
-                # fires neither
+            if member_notes_changed:
+                # NDJSON tasks promise their restored state is searchable when
+                # run() returns. Keep the one final refresh synchronous for a
+                # note-only edit; member additions remain coalesced and async.
                 collection.update_index()
             return "imported"
         except Exception:

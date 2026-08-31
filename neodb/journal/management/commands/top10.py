@@ -57,5 +57,6 @@ class Command(SiteCommand):
                         brief="*根据用户标记数统计*",
                         defaults={"visibility": 2},
                     )
-                    for i, cat in items:
-                        c.append_item(i)
+                    with c.defer_member_updates():
+                        for i, cat in items:
+                            c.append_item(i)

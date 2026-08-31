@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from catalog.common.downloaders import use_local_response
@@ -28,7 +30,16 @@ class TestTraktImporter:
     def test_trakt_import(self):
         zip_path = "test_data/trakt-export-test.zip"
         task = TraktImporter.create(self.user, visibility=0, file=zip_path)
-        task.run()
+        with (
+            patch(
+                "journal.models.collection.JournalIndex.enqueue_replace_pieces"
+            ) as enqueue_collection_index,
+            patch(
+                "journal.models.collection.transaction.on_commit",
+                side_effect=lambda callback, **kwargs: callback(),
+            ),
+        ):
+            task.run()
 
         # Verify basic completion
         assert task.metadata["failed"] == 0, (
@@ -74,6 +85,7 @@ class TestTraktImporter:
         first_member = members[0]
         assert isinstance(first_member, CollectionMember)
         assert first_member.note == "Great movie"
+        enqueue_collection_index.assert_called_once_with([collection.pk])
 
     @use_local_response
     def test_trakt_import_list_visibility(self):

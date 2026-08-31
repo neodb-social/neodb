@@ -1,11 +1,17 @@
+from datetime import timedelta
 from unittest.mock import ANY, patch
 
 import pytest
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.db import connection
+from django.http import HttpResponse
+from django.test import Client, RequestFactory
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
+from catalog.apis import get_episodes_in_podcast
 from catalog.models import (
     Album,
     Edition,
@@ -377,6 +383,57 @@ def test_podcast_episode_list_endpoint(live_server):
     payload = response.json()
     assert payload["count"] == 1
     assert payload["data"][0]["uuid"] == episode1.uuid
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_podcast_episode_list_is_paginated_in_database():
+    """The endpoint must not materialize every episode before slicing."""
+    now = timezone.now()
+    with patch("catalog.models.item.Item.update_index"):
+        podcast = Podcast.objects.create(title="Large Podcast", host=["Host"])
+        for i in range(25):
+            PodcastEpisode.objects.create(
+                title=f"Episode {i}",
+                program=podcast,
+                guid=f"large-episode-{i}",
+                pub_date=now - timedelta(days=i),
+            )
+
+    request = RequestFactory().get(f"/api/podcast/{podcast.uuid}/episode/")
+    with CaptureQueriesContext(connection) as ctx:
+        payload = get_episodes_in_podcast(
+            request, str(podcast.uuid), HttpResponse(), page=1
+        )
+
+    assert payload["count"] == 25
+    assert payload["pages"] == 2
+    assert len(payload["data"]) == 20
+
+    payload = get_episodes_in_podcast(
+        request, str(podcast.uuid), HttpResponse(), page=3
+    )
+    assert payload["data"] == []
+
+    episode_queries = [
+        q["sql"] for q in ctx.captured_queries if "catalog_podcastepisode" in q["sql"]
+    ]
+    count_queries = [q for q in episode_queries if "COUNT(" in q.upper()]
+    page_queries = [
+        q for q in episode_queries if "COUNT(" not in q.upper() and "LIMIT 20" in q
+    ]
+    assert len(count_queries) == 1, episode_queries
+    assert page_queries, episode_queries
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_empty_podcast_episode_list_has_zero_pages():
+    with patch("catalog.models.item.Item.update_index"):
+        podcast = Podcast.objects.create(title="Empty Podcast", host=["Host"])
+
+    response = Client().get(f"/api/podcast/{podcast.uuid}/episode/")
+
+    assert response.status_code == 200
+    assert response.json() == {"data": [], "pages": 0, "count": 0}
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)

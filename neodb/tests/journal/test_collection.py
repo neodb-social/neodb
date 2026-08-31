@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
@@ -57,6 +58,51 @@ class TestCollectionListOperations:
         assert m1.position == 1
         assert m2.position == 2
         assert m3.position == 3
+
+    def test_member_change_queues_full_index_rebuild(
+        self, django_capture_on_commit_callbacks
+    ):
+        with (
+            patch.object(self.collection, "update_index") as update_index,
+            patch(
+                "journal.models.collection.JournalIndex.enqueue_replace_pieces"
+            ) as enqueue,
+            django_capture_on_commit_callbacks(execute=True),
+        ):
+            self.collection.append_item(self.book1)
+
+        update_index.assert_not_called()
+        enqueue.assert_called_once_with([self.collection.pk])
+
+    def test_deferred_member_updates_flush_once(self):
+        with (
+            patch.object(self.collection, "_flush_member_updates") as flush,
+            self.collection.defer_member_updates(),
+        ):
+            self.collection.append_item(self.book1)
+            self.collection.append_item(self.book2)
+            self.collection.append_item(self.book3)
+
+        flush.assert_called_once_with()
+
+    def test_deferred_appends_only_find_last_position_once(self):
+        with (
+            patch("journal.models.collection.JournalIndex.enqueue_replace_pieces"),
+            CaptureQueriesContext(connection) as ctx,
+            self.collection.defer_member_updates(),
+        ):
+            self.collection.append_item(self.book1)
+            self.collection.append_item(self.book2)
+            self.collection.append_item(self.book3)
+
+        last_position_queries = [
+            q["sql"]
+            for q in ctx.captured_queries
+            if "journal_collectionmember" in q["sql"]
+            and 'ORDER BY "journal_collectionmember"."position" DESC' in q["sql"]
+            and "LIMIT 1" in q["sql"]
+        ]
+        assert len(last_position_queries) == 1, last_position_queries
 
     def test_remove_item(self):
         self.collection.append_item(self.book1)

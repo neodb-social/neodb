@@ -1,5 +1,7 @@
 import mimetypes
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
@@ -194,6 +196,44 @@ class Collection(List):
         # and federates the updated member state.
         list_add.send(sender=self.__class__, instance=self, item=item, member=member)
         return member
+
+    @contextmanager
+    def defer_member_updates(self) -> Iterator[None]:
+        """Collapse many member mutations into one federation/index update."""
+        depth = getattr(self, "_defer_member_updates_depth", 0)
+        if depth == 0:
+            # ``List.append_item`` normally asks the database for the last
+            # member on every append. Cache it within bulk imports so growing
+            # a collection stays O(N), even without a position index.
+            self._append_position_cache = None
+        self._defer_member_updates_depth = depth + 1
+        try:
+            yield
+        finally:
+            self._defer_member_updates_depth -= 1
+            if self._defer_member_updates_depth == 0:
+                self.__dict__.pop("_append_position_cache", None)
+                if getattr(self, "_member_updates_pending", False):
+                    self._member_updates_pending = False
+                    self._flush_member_updates()
+
+    def member_set_changed(self) -> None:
+        if getattr(self, "_defer_member_updates_depth", 0):
+            self._member_updates_pending = True
+            return
+        self._flush_member_updates()
+
+    def _flush_member_updates(self) -> None:
+        # Re-post the lightweight AP collection envelope, but never build the
+        # full search document in the request/import worker. The delayed job
+        # coalesces rapid edits and materializes the members once.
+        self.save(index_when_save=False)
+        piece_id = self.pk
+        transaction.on_commit(
+            lambda: JournalIndex.enqueue_replace_pieces([piece_id]),
+            using=self._state.db,
+            robust=True,
+        )
 
     def get_query(self, viewer, **kwargs):
         if not self.is_dynamic:
@@ -851,7 +891,7 @@ def _collection_member_changed(sender, instance, item, member, **kwargs):
         return
     if not instance.local:
         return
-    instance.save()
+    instance.member_set_changed()
 
 
 class FeaturedCollection(Piece):

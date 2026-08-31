@@ -2,6 +2,7 @@ import csv
 import os
 import tempfile
 import zipfile
+from contextlib import ExitStack
 from datetime import timedelta
 from random import randint
 
@@ -177,29 +178,31 @@ class LetterboxdImporter(Task):
             )
             line_no = 0
             collection = None
-            for row in reader:
-                line_no += 1
-                if line_no == 1:
-                    if row["pos"] != "Letterboxd list export v7":
-                        logger.error(
-                            f"Unknown list format: {row['pos']}, skipping {fn}"
+            with ExitStack() as member_updates:
+                for row in reader:
+                    line_no += 1
+                    if line_no == 1:
+                        if row["pos"] != "Letterboxd list export v7":
+                            logger.error(
+                                f"Unknown list format: {row['pos']}, skipping {fn}"
+                            )
+                            break
+                    elif line_no == 3:
+                        collection = Collection.objects.create(
+                            title=row["name"] or "no name",
+                            brief=row["desc"] or "",
+                            owner=self.user.identity,
                         )
-                        break
-                elif line_no == 3:
-                    collection = Collection.objects.create(
-                        title=row["name"] or "no name",
-                        brief=row["desc"] or "",
-                        owner=self.user.identity,
-                    )
-                elif line_no > 4 and collection:
-                    url = row["url"]
-                    item = self.get_item_by_url(url)
-                    if item:
-                        collection.append_item(item, note=row["desc"])
-                        self.progress(1)
-                    else:
-                        logger.error(f"Unable to get item for {url}")
-                        self.progress(-1, url)
+                        member_updates.enter_context(collection.defer_member_updates())
+                    elif line_no > 4 and collection:
+                        url = row["url"]
+                        item = self.get_item_by_url(url)
+                        if item:
+                            collection.append_item(item, note=row["desc"])
+                            self.progress(1)
+                        else:
+                            logger.error(f"Unable to get item for {url}")
+                            self.progress(-1, url)
 
     def run(self):
         uris = set()

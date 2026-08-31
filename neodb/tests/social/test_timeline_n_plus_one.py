@@ -49,6 +49,36 @@ class TestTimelineDataNPlusOne:
             + "; ".join(q["sql"][:120] for q in individual_piecepost)
         )
 
+    def test_main_query_matches_undismissed_ordering_index(self):
+        """The feed predicate must match Takahe's partial identity/-id index."""
+        with CaptureQueriesContext(connections["takahe"]) as ctx:
+            response = self.client.get("/timeline/data")
+        assert response.status_code == 200
+        timeline_queries = [
+            q["sql"]
+            for q in ctx.captured_queries
+            if 'FROM "activities_timelineevent"' in q["sql"]
+            and "ORDER BY" in q["sql"]
+            and "LIMIT 10" in q["sql"]
+        ]
+        assert timeline_queries
+        where_clause = timeline_queries[0].split("WHERE", 1)[1]
+        assert 'NOT "activities_timelineevent"."dismissed"' in where_clause
+
+    def test_sidebar_unread_count_is_bounded(self):
+        """Sidebar rendering must issue a bounded ID read, never COUNT(*)."""
+        with CaptureQueriesContext(connections["takahe"]) as ctx:
+            response = self.client.get("/timeline/")
+        assert response.status_code == 200
+        unread_queries = [
+            q["sql"]
+            for q in ctx.captured_queries
+            if 'FROM "activities_timelineevent"' in q["sql"] and "seen" in q["sql"]
+        ]
+        assert unread_queries
+        assert all("COUNT(" not in q.upper() for q in unread_queries)
+        assert any("LIMIT 100" in q for q in unread_queries)
+
     def test_no_per_post_domain_queries(self):
         """Author domain should be select_related, not queried per post."""
         with CaptureQueriesContext(connections["takahe"]) as ctx:

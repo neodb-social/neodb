@@ -347,23 +347,24 @@ class TraktImporter(Task):
                 visibility=visibility,
             )
 
-            for entry in list_entries:
-                result = self._get_media(entry)
-                if not result:
-                    continue
-                media_type, media = result
-                ids = media.get("ids", {})
-                label = self._item_label(entry)
-                item = self._find_item(media_type, ids)
-                if item:
-                    note = entry.get("notes") or ""
-                    collection.append_item(item, note=note)
-                    self.progress(1)
-                else:
-                    logger.warning(
-                        f"Trakt import: could not find item for list entry {label}"
-                    )
-                    self.progress(-1, label)
+            with collection.defer_member_updates():
+                for entry in list_entries:
+                    result = self._get_media(entry)
+                    if not result:
+                        continue
+                    media_type, media = result
+                    ids = media.get("ids", {})
+                    label = self._item_label(entry)
+                    item = self._find_item(media_type, ids)
+                    if item:
+                        note = entry.get("notes") or ""
+                        collection.append_item(item, note=note)
+                        self.progress(1)
+                    else:
+                        logger.warning(
+                            f"Trakt import: could not find item for list entry {label}"
+                        )
+                        self.progress(-1, label)
 
     def run(self) -> None:
         filename = self.metadata["file"]

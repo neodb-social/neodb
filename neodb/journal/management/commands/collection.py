@@ -59,7 +59,8 @@ class Command(SiteCommand):
             title=data["title"],
             brief=data["brief"],
         )
-        for item in data["items"]:
-            i = Item.get_by_url(item["url"])
-            collection.append_item(i, note=item["note"])
-            self.stderr.write(self.style.SUCCESS(f"Added {i}"))
+        with collection.defer_member_updates():
+            for item in data["items"]:
+                i = Item.get_by_url(item["url"])
+                collection.append_item(i, note=item["note"])
+                self.stderr.write(self.style.SUCCESS(f"Added {i}"))

@@ -1,3 +1,5 @@
+from contextlib import nullcontext
+
 import listparser
 from django.utils.translation import gettext as _
 from loguru import logger
@@ -50,34 +52,38 @@ class OPMLImporter(Task):
                     title=title,
                     visibility=self.metadata["visibility"],
                 )
-            for feed in feeds:
-                logger.info(f"{self.user} import {feed.url}")
-                try:
-                    res = RSS(feed.url).get_resource_ready()
-                except Exception:
-                    res = None
-                if not res or not res.item:
-                    logger.warning(f"{self.user} feed error {feed.url}")
-                    self.metadata["failed"] += 1
-                    continue
-                item = res.item
-                if self.metadata["mode"] == 0:
-                    mark = Mark(self.user.identity, item)
-                    if mark.shelfmember:
-                        logger.info(f"{self.user} marked, skip {feed.url}")
-                        self.metadata["skipped"] += 1
-                    else:
+            member_updates = (
+                collection.defer_member_updates() if collection else nullcontext()
+            )
+            with member_updates:
+                for feed in feeds:
+                    logger.info(f"{self.user} import {feed.url}")
+                    try:
+                        res = RSS(feed.url).get_resource_ready()
+                    except Exception:
+                        res = None
+                    if not res or not res.item:
+                        logger.warning(f"{self.user} feed error {feed.url}")
+                        self.metadata["failed"] += 1
+                        continue
+                    item = res.item
+                    if self.metadata["mode"] == 0:
+                        mark = Mark(self.user.identity, item)
+                        if mark.shelfmember:
+                            logger.info(f"{self.user} marked, skip {feed.url}")
+                            self.metadata["skipped"] += 1
+                        else:
+                            self.metadata["imported"] += 1
+                            mark.update(
+                                ShelfType.PROGRESS,
+                                None,
+                                None,
+                                visibility=self.metadata["visibility"],
+                            )
+                    elif self.metadata["mode"] == 1 and collection:
                         self.metadata["imported"] += 1
-                        mark.update(
-                            ShelfType.PROGRESS,
-                            None,
-                            None,
-                            visibility=self.metadata["visibility"],
-                        )
-                elif self.metadata["mode"] == 1 and collection:
-                    self.metadata["imported"] += 1
-                    collection.append_item(item)
-                self.metadata["processed"] += 1
-                self.save(update_fields=["metadata"])
+                        collection.append_item(item)
+                    self.metadata["processed"] += 1
+                    self.save(update_fields=["metadata"])
         self.message = f"{self.metadata['imported']} feeds imported, {self.metadata['skipped']} skipped, {self.metadata['failed']} failed."
         self.save(update_fields=["message"])

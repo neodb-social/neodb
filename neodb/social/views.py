@@ -19,6 +19,7 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 PAGE_SIZE = 10
+MAX_UNREAD_DISPLAY = 99
 _all_notification_types = [
     "liked",
     "boosted",
@@ -74,10 +75,15 @@ def _sidebar_context(user):
             )[:10]
         ]
     )
-    unread = (
+    unread_ids = list(
         Takahe.get_events(user.identity.pk, _all_notification_types)
-        .filter(seen=False)
-        .count()
+        .filter(seen=False, dismissed=False)
+        .values_list("pk", flat=True)[: MAX_UNREAD_DISPLAY + 1]
+    )
+    unread = (
+        f"{MAX_UNREAD_DISPLAY}+"
+        if len(unread_ids) > MAX_UNREAD_DISPLAY
+        else len(unread_ids)
     )
     return {
         "unread": unread,
@@ -164,6 +170,7 @@ def data(request):
     events = TimelineEvent.objects.filter(
         identity_id=identity_id,
         type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
+        dismissed=False,
     )
     match typ:
         case 1:

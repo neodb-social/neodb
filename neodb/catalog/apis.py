@@ -694,13 +694,33 @@ def get_episodes_in_podcast(
     podcast = _get_item(Podcast, uuid, response, attach_credits=False)
     if not isinstance(podcast, Podcast):
         return podcast
-    episodes = podcast.child_items.filter(is_deleted=False, merged_to_item=None)
+    episodes = podcast.child_items.filter(
+        is_deleted=False, merged_to_item=None
+    ).select_related("program")
     if guid:
         episodes = episodes.filter(guid=guid)
+    episodes = episodes.order_by("-pub_date", "-pk")
+    # Keep the old endpoint semantics for invalid/out-of-range pages: return
+    # an empty data list (rather than Paginator.get_page() silently repeating
+    # the last page). ``allow_empty_first_page=False`` also preserves pages=0
+    # for a podcast with no episodes.
+    paginator = Paginator(episodes, PAGE_SIZE, allow_empty_first_page=False)
+    episode_items = (
+        list(paginator.page(page).object_list)
+        if 1 <= page <= paginator.num_pages
+        else []
+    )
+    prefetch_related_objects(
+        episode_items,
+        Item.external_resources_prefetch(),
+        Item.credits_prefetch(),
+    )
+    Item.attach_localized_credit_names(episode_items)
+    Rating.attach_to_items(episode_items)
     r = {
-        "data": list(episodes)[(page - 1) * PAGE_SIZE : page * PAGE_SIZE],
-        "pages": (episodes.count() + PAGE_SIZE - 1) // PAGE_SIZE,
-        "count": episodes.count(),
+        "data": episode_items,
+        "pages": paginator.num_pages,
+        "count": paginator.count,
     }
     return r
 

@@ -105,15 +105,23 @@ class List(Piece):
         member = self.get_member_for_item(item)
         if member:
             return member, False
-        ml = self.ordered_members
+        use_position_cache = "_append_position_cache" in self.__dict__
+        append_position_cache = self.__dict__.get("_append_position_cache")
+        if not use_position_cache:
+            last_member = self.ordered_members.last()
+            position = last_member.position + 1 if last_member else 1
+        else:
+            if append_position_cache is None:
+                last_member = self.ordered_members.last()
+                append_position_cache = last_member.position if last_member else 0
+            position = append_position_cache + 1
         p = {"parent": self}
         p.update(params)
-        lm = ml.last()
         try:
             with transaction.atomic():
                 member = self.MEMBER_CLASS.objects.create(
                     owner=self.owner,
-                    position=lm.position + 1 if lm else 1,
+                    position=position,
                     item=item,
                     **p,
                 )
@@ -126,16 +134,18 @@ class List(Piece):
             if existing is None:
                 raise
             return existing, False
+        if use_position_cache:
+            self._append_position_cache = position
         list_add.send(sender=self.__class__, instance=self, item=item, member=member)
         return member, True
 
     def remove_item(self, item):
         member = self.get_member_for_item(item)
         if member:
+            member.delete()
             list_remove.send(
                 sender=self.__class__, instance=self, item=item, member=member
             )
-            member.delete()
 
     def update_member_order(self, ordered_member_ids):
         position_by_id = {pk: i + 1 for i, pk in enumerate(ordered_member_ids)}
