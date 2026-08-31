@@ -280,7 +280,7 @@ class ThreadsAccount(SocialAccount):
         self.last_reachable = timezone.now()
         self.token_expires_at = self.last_reachable + timedelta(seconds=expire)
         if save:
-            self.save(update_fields=["access_data", "last_reachable"])
+            self.save_fields(["access_data", "last_reachable"])
         return True
 
     def refresh(self, save=True) -> bool:
@@ -301,7 +301,7 @@ class ThreadsAccount(SocialAccount):
         self.account_data = data
         self.last_refresh = timezone.now()
         if save:
-            self.save(update_fields=["account_data", "handle", "last_refresh"])
+            self.save_fields(["account_data", "handle", "last_refresh"])
         return True
 
     def post(

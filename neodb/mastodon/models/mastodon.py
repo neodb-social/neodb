@@ -850,7 +850,7 @@ class MastodonAccount(SocialAccount):
             return False
         self.last_reachable = timezone.now()
         if save:
-            self.save(update_fields=["last_reachable"])
+            self.save_fields(["last_reachable"])
         return True
 
     def refresh(self, save=True):
@@ -877,7 +877,7 @@ class MastodonAccount(SocialAccount):
             self.handle = handle
         self.account_data = mastodon_account
         if save:
-            self.save(update_fields=["uid", "handle", "account_data", "last_refresh"])
+            self.save_fields(["uid", "handle", "account_data", "last_refresh"])
         return True
 
     def refresh_graph(self, save=True):
@@ -887,14 +887,8 @@ class MastodonAccount(SocialAccount):
         self.blocks = self.get_related_accounts("blocks")
         self.domain_blocks = self.get_related_accounts("domain_blocks")
         if save:
-            self.save(
-                update_fields=[
-                    "followers",
-                    "following",
-                    "mutes",
-                    "blocks",
-                    "domain_blocks",
-                ]
+            self.save_fields(
+                ["followers", "following", "mutes", "blocks", "domain_blocks"]
             )
         return True
 

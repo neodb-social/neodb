@@ -2,6 +2,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
+from django.db import IntegrityError
+from django.utils import timezone
 
 from mastodon.models import MastodonAccount, MastodonApplication, Platform
 from mastodon.models.mastodon import (
@@ -153,6 +155,70 @@ class TestMastodonAccount:
         # MastodonAccount.check_alive() uses network, but sync skips via sleep_hours logic
         result = self.account.sync(skip_graph=True, sleep_hours=24)
         assert result is False
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSocialAccountSaveFields:
+    """A sync job holds the instance across network calls, so the user may
+    disconnect the account before it writes back (NEODB-SOCIAL-7QM)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(username="raceuser")
+        self.account = MastodonAccount.objects.create(
+            handle="raceuser@social.example",
+            user=self.user,
+            domain="social.example",
+            uid="54321",
+        )
+
+    def test_save_fields_persists_normally(self):
+        self.account.handle = "renamed@social.example"
+        assert self.account.save_fields(["handle"]) is True
+        self.account.refresh_from_db()
+        assert self.account.handle == "renamed@social.example"
+
+    def test_save_fields_tolerates_concurrent_delete(self):
+        MastodonAccount.objects.filter(pk=self.account.pk).delete()
+        self.account.handle = "gone@social.example"
+        assert self.account.save_fields(["handle"]) is False
+        assert self.account.pk is None
+
+    def test_save_fields_noop_once_pk_cleared(self):
+        self.account.pk = None
+        assert self.account.save_fields(["handle"]) is False
+
+    def test_save_fields_propagates_real_database_errors(self):
+        MastodonAccount.objects.create(
+            handle="taken@social.example",
+            user=User.register(username="raceuser2"),
+            domain="social.example",
+            uid="99999",
+        )
+        self.account.handle = "taken@social.example"
+        with pytest.raises(IntegrityError):
+            self.account.save_fields(["handle"])
+
+    def test_refresh_graph_tolerates_concurrent_delete(self):
+        with patch.object(MastodonAccount, "get_related_accounts", return_value=[]):
+            MastodonAccount.objects.filter(pk=self.account.pk).delete()
+            self.account.refresh_graph()
+        assert self.account.pk is None
+
+    def test_sync_stops_and_skips_graph_when_deleted_mid_sync(self):
+        def _refresh():
+            MastodonAccount.objects.filter(pk=self.account.pk).delete()
+            self.account.last_refresh = timezone.now()
+            self.account.save_fields(["last_refresh"])
+            return True
+
+        with (
+            patch.object(MastodonAccount, "check_alive", return_value=True),
+            patch.object(MastodonAccount, "refresh", side_effect=_refresh),
+            patch.object(MastodonAccount, "refresh_graph") as refresh_graph,
+        ):
+            assert self.account.sync() is False
+        refresh_graph.assert_not_called()
 
 
 class TestDetectConfigurations:

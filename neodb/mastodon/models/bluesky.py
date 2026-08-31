@@ -293,8 +293,8 @@ class BlueskyAccount(SocialAccount):
     def _set_oauth(self, session: dict, save: bool = False) -> None:
         self._oauth_cache = session
         self.oauth_session = json.dumps(session)
-        if save and self.pk:
-            self.save(update_fields=["access_data"])
+        if save:
+            self.save_fields(["access_data"])
 
     def get_dpop_jwk(self) -> dict:
         return self._get_oauth().get("dpop_jwk") or {}
@@ -371,8 +371,7 @@ class BlueskyAccount(SocialAccount):
             session_string = session.export()
             if session_string != self.session_string:
                 self.session_string = session_string
-                if self.pk:
-                    self.save(update_fields=["access_data"])
+                self.save_fields(["access_data"])
 
     @cached_property
     def _client(self):
@@ -423,13 +422,7 @@ class BlueskyAccount(SocialAccount):
             self.base_url = resolved_pds
         self.last_reachable = timezone.now()
         if save:
-            self.save(
-                update_fields=[
-                    "access_data",
-                    "handle",
-                    "last_reachable",
-                ]
-            )
+            self.save_fields(["access_data", "handle", "last_reachable"])
         return True
 
     def refresh(self, save=True, did_check=True):
@@ -454,14 +447,7 @@ class BlueskyAccount(SocialAccount):
         }
         self.last_refresh = timezone.now()
         if save:
-            self.save(
-                update_fields=[
-                    "access_data",
-                    "account_data",
-                    "last_refresh",
-                    "handle",
-                ]
-            )
+            self.save_fields(["access_data", "account_data", "last_refresh", "handle"])
         self.sync_profile_record()
         self.sync_publication_record()
         return True
@@ -566,8 +552,7 @@ class BlueskyAccount(SocialAccount):
         if self.publication_icon_hash or self.publication_icon_blob:
             self.publication_icon_hash = ""
             self.publication_icon_blob = ""
-            if self.pk:
-                self.save(update_fields=["access_data"])
+            self.save_fields(["access_data"])
 
     def _publication_icon(self) -> dict[str, typing.Any] | None:
         """Blob ref for the identity's avatar, uploaded at most once per
@@ -593,8 +578,7 @@ class BlueskyAccount(SocialAccount):
         blob = self._client.upload_blob(data).blob.model_dump(by_alias=True)
         self.publication_icon_hash = digest
         self.publication_icon_blob = json.dumps(blob)
-        if self.pk:
-            self.save(update_fields=["access_data"])
+        self.save_fields(["access_data"])
         return blob
 
     def _build_publication_record(self) -> dict[str, typing.Any]:
@@ -739,13 +723,7 @@ class BlueskyAccount(SocialAccount):
             logger.warning(f"{self} refresh_graph error: {e}")
             return False
         if save:
-            self.save(
-                update_fields=[
-                    "followers",
-                    "following",
-                    "mutes",
-                ]
-            )
+            self.save_fields(["followers", "following", "mutes"])
         return True
 
     def sync_graph(self):

@@ -106,6 +106,23 @@ class SocialAccount(TypedModel):
     def from_dict(cls, d: dict | None):
         return cls(**d) if d else None
 
+    def save_fields(self, update_fields: list[str]) -> bool:
+        """Write some fields back, tolerating the row being deleted meanwhile.
+
+        A sync job holds this instance across minutes of network calls, so the
+        user may disconnect the account before it writes back. Updating by
+        queryset reports that as a 0 row count; save() would raise instead.
+        """
+        if self.pk is None:
+            return False
+        values = {name: getattr(self, name) for name in update_fields}
+        if type(self).objects.filter(pk=self.pk).update(**values):
+            return True
+        logger.debug(f"{self} deleted while syncing, update discarded")
+        # drop the pk (as instance.delete() would) so later saves no-op
+        self.pk = None
+        return False
+
     def check_alive(self) -> bool:
         return False
 
@@ -214,8 +231,12 @@ class SocialAccount(TypedModel):
             self._record_account_failure()
             self._emit_sync_result("fail_refresh")
             return False
-        if not skip_graph:
+        if self.pk is not None and not skip_graph:
             self.refresh_graph()
+        if self.pk is None:
+            # deleted mid-sync; the account circuit-breaker keys are keyed on pk
+            self._emit_sync_result("skip_deleted")
+            return False
         logger.debug(f"{self} refreshed")
         self._record_account_success()
         self._emit_sync_result("ok")
