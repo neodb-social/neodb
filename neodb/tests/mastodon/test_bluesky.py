@@ -230,6 +230,38 @@ def test_on_disconnect_cleans_records_after_row_delete(monkeypatch):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_refresh_stops_republishing_records_after_row_delete(monkeypatch):
+    user = User.register(email="race@example.com", username="raceblue")
+    account = BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:race", handle="race.example"
+    )
+    published: list = []
+    account.__dict__["_client"] = SimpleNamespace(
+        me=SimpleNamespace(handle="race.example")
+    )
+    monkeypatch.setattr(
+        BlueskyAccount, "sync_profile_record", lambda self: published.append("profile")
+    )
+    monkeypatch.setattr(
+        BlueskyAccount,
+        "sync_publication_record",
+        lambda self: published.append("publication"),
+    )
+
+    assert account.refresh(did_check=False) is True
+    assert published == ["profile", "publication"]
+
+    # a concurrent disconnect drops the row while the next sync is in flight;
+    # on_disconnect() is purging these records, so refresh must not rewrite them
+    BlueskyAccount.objects.filter(pk=account.pk).delete()
+    published.clear()
+
+    assert account.refresh(did_check=False) is True
+    assert account.pk is None
+    assert published == []
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_publication_record_synced(monkeypatch):
     user = User.register(email="pub@example.com", username="pubuser")
     account = BlueskyAccount.objects.create(

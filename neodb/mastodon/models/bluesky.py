@@ -448,6 +448,10 @@ class BlueskyAccount(SocialAccount):
         self.last_refresh = timezone.now()
         if save:
             self.save_fields(["access_data", "account_data", "last_refresh", "handle"])
+            if self.pk is None:
+                # disconnected mid-sync; on_disconnect() is purging the PDS
+                # records, so do not republish them here
+                return True
         self.sync_profile_record()
         self.sync_publication_record()
         return True
