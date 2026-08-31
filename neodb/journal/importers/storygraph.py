@@ -52,8 +52,9 @@ def _titles_match(a: str, b: str) -> bool:
     return bool(a) and bool(b) and (a in b or b in a)
 
 
-def _escape_quotes(s: str) -> str:
-    return s.replace('"', '\\"')
+def _strip_quotes(s: str) -> str:
+    # QueryParser has no escape syntax, so a quote would truncate the value
+    return s.replace('"', " ")
 
 
 def _parse_collect_date(raw: str | None) -> datetime.datetime | None:
@@ -306,9 +307,9 @@ class StoryGraphImporter(Task):
     @classmethod
     def _match_via_local_index(cls, title: str, authors: str) -> Item | None:
         first_author = _first_author(authors)
-        q = f'"{_escape_quotes(title)}"'
+        q = f'"{_strip_quotes(title)}"'
         if first_author:
-            q += f' people:"{_escape_quotes(first_author)}"'
+            q += f' people:"{_strip_quotes(first_author)}"'
         q += " category:book"
         try:
             parser = CatalogQueryParser(q, page=1, page_size=5)

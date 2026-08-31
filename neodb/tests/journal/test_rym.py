@@ -4,11 +4,13 @@ import io
 import pytest
 
 from catalog.models import Album
+from catalog.search.index import CatalogQueryParser
 from journal.importers.rym import (
     RymCancelled,
     RymImporter,
     _bbcode_to_md,
     _row_artist,
+    _strip_quotes,
     update_row_in_matched_file,
 )
 from journal.models import Mark, ShelfType
@@ -482,3 +484,13 @@ class TestExternalSearchFieldQueries:
 
         q = Spotify.build_field_query("X", "Y", "abcd")
         assert "year:" not in q
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_artist_with_quotes_survives_query_parsing():
+    """A quote in the artist used to truncate the parsed filter value."""
+    artist = 'Bruce "The Boss" Springsteen'
+    q = f'"{_strip_quotes("Born to Run")}" people:"{_strip_quotes(artist)}" category:music'
+    parser = CatalogQueryParser(q, page=1, page_size=5)
+
+    assert parser.filter_by["people"] == ["bruce  the boss  springsteen"]

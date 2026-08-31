@@ -283,9 +283,9 @@ class RymImporter(Task):
     def _local_match(self, title: str, artist: str, year: str | None) -> Item | None:
         if not title:
             return None
-        q = f'"{_escape_quotes(title)}"'
+        q = f'"{_strip_quotes(title)}"'
         if artist:
-            q += f' people:"{_escape_quotes(artist)}"'
+            q += f' people:"{_strip_quotes(artist)}"'
         if year:
             q += f" year:{year}"
         q += " category:music"
@@ -476,8 +476,9 @@ class RymImporter(Task):
         return os.path.join(out_dir, f"{stem}-matched.csv")
 
 
-def _escape_quotes(s: str) -> str:
-    return s.replace('"', '\\"')
+def _strip_quotes(s: str) -> str:
+    # QueryParser has no escape syntax, so a quote would truncate the value
+    return s.replace('"', " ")
 
 
 def int_or_zero(v) -> int:

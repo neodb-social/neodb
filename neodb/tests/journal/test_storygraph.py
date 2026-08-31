@@ -8,7 +8,9 @@ from django.utils import timezone
 
 from catalog.common.downloaders import set_mock_mode, use_local_response
 from catalog.models import Edition, ExternalResource, IdType
+from catalog.search.index import CatalogQueryParser
 from journal.importers import StoryGraphImporter
+from journal.importers.storygraph import _strip_quotes
 from journal.models import Mark, ShelfType
 from users.models import User
 
@@ -233,3 +235,17 @@ class TestStoryGraphImporter:
             "Fantastic Mr Fox", "Roald Dahl"
         )
         assert url == "https://openlibrary.org/books/OL7353617M"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_author_with_quotes_survives_query_parsing():
+    """CatalogQueryParser has no escape syntax, so a quote must be dropped.
+
+    Escaping it as a backslash-quote left the regex capturing a truncated
+    author name that also ended in a stray backslash.
+    """
+    author = 'Ellen "Nellie" Bly'
+    q = f'"{_strip_quotes("Ten Days")}" people:"{_strip_quotes(author)}" category:book'
+    parser = CatalogQueryParser(q, page=1, page_size=5)
+
+    assert parser.filter_by["people"] == ["ellen  nellie  bly"]
