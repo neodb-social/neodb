@@ -23,6 +23,7 @@ from mastodon.models import (
     BlueskyAccount,
     EmailAccount,
     MastodonAccount,
+    ManagedVinylHubCommunityAccount,
     SocialAccount,
     ThreadsAccount,
 )
@@ -161,7 +162,11 @@ class User(AbstractUser):
 
     @cached_property
     def mastodon(self) -> "MastodonAccount | None":
-        return MastodonAccount.objects.filter(user=self).first()
+        return (
+            MastodonAccount.objects.filter(user=self)
+            .exclude(type=ManagedVinylHubCommunityAccount._typedmodels_type)
+            .first()
+        )
 
     @cached_property
     def threads(self) -> "ThreadsAccount | None":

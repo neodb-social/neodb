@@ -497,14 +497,22 @@ def auth_logout(request):
     return logout_takahe(redirect(redirect_url))
 
 
-def initiate_user_deletion(user):
-    # Local deletion clears NeoDB, asks Takahe to delete, then lets the
-    # identity_deleted callback finish cleanup. Takahe-initiated deletion
-    # enters at the callback step.
+def _complete_native_user_deletion(user):
+    """Run the existing NeoDB/Takahē deletion after owner-routed cleanup."""
     user.clear()
     r = Takahe.request_delete_identity(user.identity.pk)
     if not r:
         django_rq.get_queue("mastodon").enqueue(user.identity.clear)
+
+
+def initiate_user_deletion(user):
+    # Managed Community deletion must finish before user.clear(), because
+    # user.clear() removes SocialAccount rows and therefore the protected
+    # managed credential needed by the owner edge.
+    from users.managed_community import begin_managed_community_deletion
+
+    if begin_managed_community_deletion(user):
+        _complete_native_user_deletion(user)
 
 
 @require_http_methods(["POST"])

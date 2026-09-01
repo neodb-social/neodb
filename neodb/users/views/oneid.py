@@ -2,7 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
-from users.managed_identity import login_managed_identity, resolve_managed_identity
+from users.managed_community import bootstrap_managed_identity
+from users.managed_identity import login_managed_identity
 from users.oneid import (
     OneIDClient,
     OneIDConfigurationError,
@@ -34,8 +35,6 @@ def oneid_callback(request):
     except OneIDProviderError:
         return JsonResponse({"error": "oneid_unavailable"}, status=503)
 
-    resolution = resolve_managed_identity(identity)
-    if resolution.bootstrap_required:
-        return JsonResponse({"status": "bootstrap_required"}, status=409)
+    bootstrap_managed_identity(identity)
     login_managed_identity(request, identity)
     return redirect("/")

@@ -59,6 +59,7 @@ def claim_due_dispatches(
     limit: int = 100,
     now: datetime | None = None,
     lease_duration: timedelta = DEFAULT_LEASE_DURATION,
+    responsibility_prefix: str | None = None,
 ) -> list[DispatchLease]:
     """Atomically lease due rows, with PostgreSQL duplicate-worker safety."""
 
@@ -70,7 +71,7 @@ def claim_due_dispatches(
     now = now or timezone.now()
     leases: list[DispatchLease] = []
     with transaction.atomic():
-        rows = list(
+        queryset = (
             DurableDispatch.objects.select_for_update(skip_locked=True)
             .filter(
                 state=DurableDispatch.State.READY,
@@ -78,8 +79,12 @@ def claim_due_dispatches(
                 lease_expires_at__isnull=True,
             )
             .filter(attempt_count__lt=models.F("max_attempts"))
-            .order_by("next_attempt_at", "id")[:limit]
         )
+        if responsibility_prefix is not None:
+            queryset = queryset.filter(
+                responsibility_ref__startswith=responsibility_prefix
+            )
+        rows = list(queryset.order_by("next_attempt_at", "id")[:limit])
         for dispatch in rows:
             token = uuid4().hex
             dispatch.state = DurableDispatch.State.CLAIMED
@@ -108,7 +113,12 @@ def claim_due_dispatches(
     return leases
 
 
-def recover_expired_claims(*, now: datetime | None = None, limit: int = 100) -> int:
+def recover_expired_claims(
+    *,
+    now: datetime | None = None,
+    limit: int = 100,
+    responsibility_prefix: str | None = None,
+) -> int:
     """Move abandoned claims to owner observation, never to blind retry."""
 
     if limit < 1:
@@ -116,14 +126,15 @@ def recover_expired_claims(*, now: datetime | None = None, limit: int = 100) -> 
     now = now or timezone.now()
     recovered = 0
     with transaction.atomic():
-        rows = list(
-            DurableDispatch.objects.select_for_update(skip_locked=True)
-            .filter(
-                state=DurableDispatch.State.CLAIMED,
-                lease_expires_at__lte=now,
-            )
-            .order_by("lease_expires_at", "id")[:limit]
+        queryset = DurableDispatch.objects.select_for_update(skip_locked=True).filter(
+            state=DurableDispatch.State.CLAIMED,
+            lease_expires_at__lte=now,
         )
+        if responsibility_prefix is not None:
+            queryset = queryset.filter(
+                responsibility_ref__startswith=responsibility_prefix
+            )
+        rows = list(queryset.order_by("lease_expires_at", "id")[:limit])
         for dispatch in rows:
             dispatch.state = DurableDispatch.State.OBSERVATION
             dispatch.next_attempt_at = None
@@ -158,6 +169,7 @@ def reconcile_due_dispatches(
     limit: int = 100,
     now: datetime | None = None,
     lease_duration: timedelta = DEFAULT_LEASE_DURATION,
+    responsibility_prefix: str | None = None,
 ) -> ReconciliationResult:
     """Claim due rows and let the domain owner enqueue its own RQ job.
 
@@ -171,6 +183,7 @@ def reconcile_due_dispatches(
         limit=limit,
         now=now,
         lease_duration=lease_duration,
+        responsibility_prefix=responsibility_prefix,
     )
     dispatched = 0
     enqueue_errors = 0
