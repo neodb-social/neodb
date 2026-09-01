@@ -7,6 +7,7 @@ from .attachment import (
 )
 from .collection import UNMARKED, Collection, CollectionMember, FeaturedCollection
 from .comment import Comment
+from .cabinet import CollectionItem
 from .common import (
     Content,
     Piece,
@@ -51,6 +52,7 @@ __all__ = [
     "Attachment",
     "Collection",
     "CollectionMember",
+    "CollectionItem",
     "Content",
     "FeaturedCollection",
     "Comment",

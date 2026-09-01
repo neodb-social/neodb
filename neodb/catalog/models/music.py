@@ -1,6 +1,9 @@
+from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ninja import Field
 
+from catalog.core import CatalogRef
 from common.models import (
     coerce_album_duration,
     duration_to_seconds,
@@ -152,6 +155,52 @@ class Album(Item):
     disc_count = jsondata.IntegerField(
         _("number of discs"), blank=True, default="", max_length=500
     )
+    core_catalog_ref = models.CharField(
+        _("Core catalog reference"),
+        max_length=100,
+        null=True,
+        blank=True,
+        default=None,
+        db_index=True,
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=["core_catalog_ref"],
+                condition=models.Q(core_catalog_ref__isnull=False),
+                name="unique_album_core_catalog_ref",
+            ),
+        )
+
+    def save(self, *args, **kwargs):
+        if self.core_catalog_ref == "":
+            self.core_catalog_ref = None
+        if self.core_catalog_ref is not None:
+            try:
+                ref = CatalogRef.parse(self.core_catalog_ref)
+            except (TypeError, ValueError) as error:
+                raise ValidationError(
+                    {"core_catalog_ref": "Invalid Core catalog reference"}
+                ) from error
+            if ref.entity_type != "release":
+                raise ValidationError(
+                    {"core_catalog_ref": "Core catalog reference must be a release"}
+                )
+            self.core_catalog_ref = str(ref)
+
+        if self.pk is not None:
+            previous_ref = (
+                type(self)
+                .objects.filter(pk=self.pk)
+                .values_list("core_catalog_ref", flat=True)
+                .first()
+            )
+            if previous_ref is not None and previous_ref != self.core_catalog_ref:
+                raise ValidationError(
+                    {"core_catalog_ref": "Core catalog reference is immutable"}
+                )
+        return super().save(*args, **kwargs)
 
     @property
     def display_album_types(self) -> list[str]:

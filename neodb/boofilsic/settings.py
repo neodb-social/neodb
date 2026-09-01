@@ -195,6 +195,10 @@ for _db in DATABASES.values():
     _db["CONN_MAX_AGE"] = env("NEODB_DB_CONN_MAX_AGE")
     _db["CONN_HEALTH_CHECKS"] = True
 REDIS_URL = env("NEODB_REDIS_URL")
+# Read-only Product boundary to the Vinyl Catalog Core HTTP service.
+VINYL_CATALOG_CORE_URL: str = env("VINYL_CATALOG_CORE_URL")
+VINYL_CATALOG_CORE_CONNECT_TIMEOUT: float = env("VINYL_CATALOG_CORE_CONNECT_TIMEOUT")
+VINYL_CATALOG_CORE_READ_TIMEOUT: float = env("VINYL_CATALOG_CORE_READ_TIMEOUT")
 CACHES = {"default": env.cache_url("NEODB_REDIS_URL")}
 _parsed_redis_url: parse.ParseResult = env.url("NEODB_REDIS_URL")
 RQ_QUEUES = {
