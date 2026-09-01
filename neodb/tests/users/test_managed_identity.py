@@ -100,6 +100,15 @@ def _metadata() -> dict:
 _SESSION_KEY = "oneid_oidc"
 
 
+def _claim_updates_at_execution(updates):
+    updates = updates.copy()
+    if "nbf_offset" in updates:
+        now = int(time.time())
+        updates["nbf"] = now + updates.pop("nbf_offset")
+        assert updates["nbf"] > now
+    return updates
+
+
 def _claims(pending, **updates):
     result = {
         "iss": ISSUER,
@@ -174,7 +183,7 @@ def test_authorization_code_pkce_and_valid_identity(monkeypatch):
         {"iss": "https://other.example.test"},
         {"aud": "other-client"},
         {"exp": 1},
-        {"nbf": int(time.time()) + 300},
+        {"nbf_offset": 300},
         {"sub": ""},
     ],
     ids=[
@@ -209,7 +218,15 @@ def test_invalid_claims_fail_closed(monkeypatch, updates):
         del data, kwargs
         calls["post"] += 1
         return _response(
-            "POST", url, 200, {"id_token": _id_token(key, _claims(pending, **updates))}
+            "POST",
+            url,
+            200,
+            {
+                "id_token": _id_token(
+                    key,
+                    _claims(pending, **_claim_updates_at_execution(updates)),
+                )
+            },
         )
 
     monkeypatch.setattr(httpx, "post", fake_post)
