@@ -70,6 +70,10 @@ env = environ.FileAwareEnv(
     # Search backend, in one of these formats:
     # typesense://user:insecure@127.0.0.1:8108/catalog
     NEODB_SEARCH_URL=(str, ""),
+    # Optional read-only Vinyl Catalog Core HTTP service boundary
+    VINYL_CATALOG_CORE_URL=(str, ""),
+    VINYL_CATALOG_CORE_CONNECT_TIMEOUT=(float, 2.0),
+    VINYL_CATALOG_CORE_READ_TIMEOUT=(float, 5.0),
     # EMAIL CONFIGURATION, in one of these formats:
     # "smtp://<username>:<password>@<host>:<port>"
     # "smtp+tls://<username>:<password>@<host>:<port>"
