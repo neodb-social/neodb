@@ -7,6 +7,8 @@ class CommonConfig(AppConfig):
     name = "common"
 
     def ready(self):
+        from . import jobs as _durable_jobs  # noqa: F401
+
         post_migrate.connect(self.setup, sender=self)
 
     def setup(self, **kwargs):
