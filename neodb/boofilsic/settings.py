@@ -148,6 +148,19 @@ env = environ.FileAwareEnv(
     THREADS_APP_SECRET=(str, ""),
     NEODB_ENABLE_LOGIN_BLUESKY=(bool, False),
     NEODB_ENABLE_LOGIN_THREADS=(bool, False),
+    # Optional OneID/IDSEC OIDC configuration. Provider endpoints come from
+    # the configured discovery document; no provider-specific names are
+    # assumed here.
+    NEODB_ONEID_ISSUER=(str, ""),
+    NEODB_ONEID_CLIENT_ID=(str, ""),
+    NEODB_ONEID_CLIENT_SECRET=(str, ""),
+    NEODB_ONEID_DISCOVERY_URL=(str, ""),
+    NEODB_ONEID_REDIRECT_URI=(str, ""),
+    NEODB_ONEID_SCOPE=(str, "openid"),
+    NEODB_ONEID_SUBJECT_CLAIM=(str, "sub"),
+    NEODB_ONEID_ACCEPTED_SOURCE_ATTRIBUTES=(list, []),
+    NEODB_ONEID_CLOCK_SKEW=(int, 60),
+    NEODB_ONEID_HTTP_TIMEOUT=(float, 10.0),
     # SSL only, better be True for production security
     SSL_ONLY=(bool, False),
     NEODB_SENTRY_DSN=(str, ""),
@@ -232,6 +245,19 @@ THREADS_APP_SECRET = env("THREADS_APP_SECRET")
 
 ENABLE_LOGIN_BLUESKY = env("NEODB_ENABLE_LOGIN_BLUESKY")
 ENABLE_LOGIN_THREADS = env("NEODB_ENABLE_LOGIN_THREADS")
+
+ONEID_ISSUER: str = env("NEODB_ONEID_ISSUER")
+ONEID_CLIENT_ID: str = env("NEODB_ONEID_CLIENT_ID")
+ONEID_CLIENT_SECRET: str = env("NEODB_ONEID_CLIENT_SECRET")
+ONEID_DISCOVERY_URL: str = env("NEODB_ONEID_DISCOVERY_URL")
+ONEID_REDIRECT_URI: str = env("NEODB_ONEID_REDIRECT_URI")
+ONEID_SCOPE: str = env("NEODB_ONEID_SCOPE")
+ONEID_SUBJECT_CLAIM: str = env("NEODB_ONEID_SUBJECT_CLAIM")
+ONEID_ACCEPTED_SOURCE_ATTRIBUTES: list[str] = env(
+    "NEODB_ONEID_ACCEPTED_SOURCE_ATTRIBUTES"
+)
+ONEID_CLOCK_SKEW: int = env("NEODB_ONEID_CLOCK_SKEW")
+ONEID_HTTP_TIMEOUT: float = env("NEODB_ONEID_HTTP_TIMEOUT")
 
 SITE_DOMAIN: str = env("NEODB_SITE_DOMAIN").lower()
 SITE_INFO = {
