@@ -1,6 +1,8 @@
 import json
+import os
+from collections.abc import Callable
 from functools import partial
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import pydantic
 from django import forms
@@ -10,11 +12,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from django_jsonform.forms.fields import JSONFormField
 from loguru import logger
 
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
+from common.config import format_config_value
 from common.models import SiteConfig
 from common.models.site_config import CAPTCHA_MAX_ITEMS
 
@@ -23,6 +26,87 @@ def superuser_required(view_func):
     return user_passes_test(
         lambda u: getattr(u, "is_superuser", False), login_url="/account/login"
     )(view_func)
+
+
+MANAGE_NAV_SECTIONS = [
+    ("branding", _("Branding"), "common:manage_branding"),
+    ("discover", _("Discover"), "common:manage_discover"),
+    ("recommendations", _("Recommendations"), "common:manage_recommendations"),
+    ("access", _("Access"), "common:manage_access"),
+    ("federation", _("Federation"), "common:manage_federation"),
+    ("catalog", _("Catalog"), "common:manage_catalog"),
+    ("api_keys", _("API Keys"), "common:manage_api_keys"),
+    ("downloader", _("Downloader"), "common:manage_downloader"),
+    ("advanced", _("Advanced"), "common:manage_advanced"),
+    ("environment", _("Environment"), "common:manage_environment"),
+]
+
+# Environment variables whose value only seeds a SiteConfig field. The field is
+# shown on one of the settings pages above, so these are not listed on the
+# Environment page. Every other env var read by boofilsic.settings must appear
+# in EnvironmentSettings.groups; a test enforces the partition.
+ENV_VARS_WITH_SITE_SETTING: dict[str, str] = {
+    "NEODB_SITE_NAME": "site_name",
+    "NEODB_SITE_LOGO": "site_logo",
+    "NEODB_SITE_ICON": "site_icon",
+    "NEODB_USER_ICON": "user_icon",
+    "NEODB_SITE_COLOR": "site_color",
+    "NEODB_SITE_INTRO": "site_intro",
+    "NEODB_SITE_HEAD": "site_head",
+    "NEODB_SITE_DESCRIPTION": "site_description",
+    "NEODB_SITE_LINKS": "site_links",
+    "NEODB_ALTERNATIVE_DOMAINS": "alternative_domains",
+    "NEODB_PREFERRED_LANGUAGES": "preferred_languages",
+    "NEODB_INVITE_ONLY": "invite_only",
+    "NEODB_ENABLE_LOCAL_ONLY": "enable_local_only",
+    "NEODB_LOGIN_MASTODON_WHITELIST": "mastodon_login_whitelist",
+    "NEODB_LOGIN_MASTODON_TIMEOUT": "mastodon_timeout",
+    "NEODB_MASTODON_CLIENT_SCOPE": "mastodon_client_scope",
+    "NEODB_ENABLE_LOGIN_BLUESKY": "enable_login_bluesky",
+    "NEODB_ENABLE_LOGIN_THREADS": "enable_login_threads",
+    "NEODB_EMAIL_URL": "email_url",
+    "NEODB_EMAIL_FROM": "email_from",
+    "NEODB_MIN_MARKS_FOR_DISCOVER": "min_marks_for_discover",
+    "NEODB_DISCOVER_UPDATE_INTERVAL": "discover_update_interval",
+    "NEODB_DISCOVER_FILTER_LANGUAGE": "discover_filter_language",
+    "NEODB_DISCOVER_SHOW_LOCAL_ONLY": "discover_show_local_only",
+    "NEODB_DISCOVER_SHOW_POPULAR_POSTS": "discover_show_popular_posts",
+    "NEODB_DISCOVER_SHOW_POPULAR_TAGS": "discover_show_popular_tags",
+    "NEODB_DISABLE_DEFAULT_RELAY": "disable_default_relay",
+    "NEODB_FANOUT_LIMIT_DAYS": "fanout_limit_days",
+    "TAKAHE_REMOTE_PRUNE_HORIZON": "remote_prune_horizon",
+    "NEODB_SEARCH_SITES": "search_sites",
+    "NEODB_SEARCH_PEERS": "search_peers",
+    "NEODB_HIDDEN_CATEGORIES": "hidden_categories",
+    "SPOTIFY_API_KEY": "spotify_api_key",
+    "TMDB_API_V3_KEY": "tmdb_api_key",
+    "GOOGLE_API_KEY": "google_api_key",
+    "DISCOGS_API_KEY": "discogs_api_key",
+    "IGDB_API_CLIENT_ID": "igdb_client_id",
+    "IGDB_API_CLIENT_SECRET": "igdb_client_secret",
+    "BGG_API_TOKEN": "bgg_api_token",
+    "STEAM_API_KEY": "steam_api_key",
+    "DEEPL_API_KEY": "deepl_api_key",
+    "LT_API_URL": "lt_api_url",
+    "LT_API_KEY": "lt_api_key",
+    "THREADS_APP_ID": "threads_app_id",
+    "THREADS_APP_SECRET": "threads_app_secret",
+    "DISCORD_WEBHOOKS": "discord_webhooks",
+    "NEODB_DOWNLOADER_PROXY_LIST": "downloader_proxy_list",
+    "NEODB_DOWNLOADER_BACKUP_PROXY": "downloader_backup_proxy",
+    "NEODB_DOWNLOADER_PROVIDERS": "downloader_providers",
+    "NEODB_DOWNLOADER_SCRAPFLY_KEY": "downloader_scrapfly_key",
+    "NEODB_DOWNLOADER_DECODO_TOKEN": "downloader_decodo_token",
+    "NEODB_DOWNLOADER_SCRAPERAPI_KEY": "downloader_scraperapi_key",
+    "NEODB_DOWNLOADER_SCRAPINGBEE_KEY": "downloader_scrapingbee_key",
+    "NEODB_DOWNLOADER_CUSTOMSCRAPER_URL": "downloader_customscraper_url",
+    "NEODB_DOWNLOADER_REQUEST_TIMEOUT": "downloader_request_timeout",
+    "NEODB_DOWNLOADER_CACHE_TIMEOUT": "downloader_cache_timeout",
+    "NEODB_DOWNLOADER_RETRIES": "downloader_retries",
+    "NEODB_DISABLE_CRON_JOBS": "disable_cron_jobs",
+    "INDEX_ALIASES": "index_aliases",
+    "SKIP_MIGRATIONS": "skip_migrations",
+}
 
 
 @method_decorator(login_required, name="dispatch")
@@ -140,17 +224,7 @@ class SiteConfigSettingsPage(FormView):
         context["fieldsets"] = {}
         for title, fields in self.layout.items():
             context["fieldsets"][title] = [context["form"][field] for field in fields]
-        context["nav_sections"] = [
-            ("branding", _("Branding"), "common:manage_branding"),
-            ("discover", _("Discover"), "common:manage_discover"),
-            ("recommendations", _("Recommendations"), "common:manage_recommendations"),
-            ("access", _("Access"), "common:manage_access"),
-            ("federation", _("Federation"), "common:manage_federation"),
-            ("catalog", _("Catalog"), "common:manage_catalog"),
-            ("api_keys", _("API Keys"), "common:manage_api_keys"),
-            ("downloader", _("Downloader"), "common:manage_downloader"),
-            ("advanced", _("Advanced"), "common:manage_advanced"),
-        ]
+        context["nav_sections"] = MANAGE_NAV_SECTIONS
         return context
 
     def _convert_value(self, key: str, raw_value: object) -> object:
@@ -932,6 +1006,103 @@ class CatalogSettings(SiteConfigSettingsPage):
             "genres_performance",
         ],
     }
+
+
+def _database_url(alias: str) -> str:
+    """Connection URL of a configured database, rebuilt without its password."""
+    db = settings.DATABASES[alias]
+    scheme = db["ENGINE"].rsplit(".", 1)[-1].replace("postgresql", "postgres")
+    user = f"{db['USER']}@" if db.get("USER") else ""
+    port = f":{db['PORT']}" if db.get("PORT") else ""
+    return f"{scheme}://{user}{db.get('HOST', '')}{port}/{db.get('NAME', '')}"
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
+class EnvironmentSettings(TemplateView):
+    """
+    Read-only view of the settings that come from environment variables and
+    have no SiteConfig counterpart, so the manage pages together show every
+    active setting. Passwords and keys are masked before display.
+    """
+
+    template_name = "manage/environment.html"
+    section = "environment"
+    # group title -> [(env var, getter of the effective value from settings)]
+    groups: ClassVar[dict[Any, list[tuple[str, Callable[[], object]]]]] = {
+        _("Site"): [
+            ("NEODB_SITE_DOMAIN", lambda: settings.SITE_DOMAIN),
+            ("NEODB_SITE_URL", lambda: settings.SITE_INFO["site_url"]),
+            ("NEODB_DEBUG", lambda: settings.DEBUG),
+            ("SSL_ONLY", lambda: settings.SSL_ONLY),
+            ("NEODB_TIMEZONE", lambda: settings.TIME_ZONE),
+            ("NEODB_LOG_LEVEL", lambda: settings.LOG_LEVEL),
+            ("NEODB_ADMIN_HANDLES", lambda: settings.ADMIN_HANDLES),
+            ("NEODB_EXTRA_APPS", lambda: settings.EXTRA_APPS),
+        ],
+        _("Database and Services"): [
+            ("NEODB_DB_URL", lambda: _database_url("default")),
+            ("TAKAHE_DB_URL", lambda: _database_url("takahe")),
+            (
+                "NEODB_DB_CONN_MAX_AGE",
+                lambda: settings.DATABASES["default"]["CONN_MAX_AGE"],
+            ),
+            ("NEODB_REDIS_URL", lambda: settings.REDIS_URL),
+            ("NEODB_SEARCH_URL", lambda: settings.SEARCH_URL),
+        ],
+        _("Media and Files"): [
+            ("MEDIA_BACKEND", lambda: settings.MEDIA_BACKEND),
+            ("NEODB_MEDIA_ROOT", lambda: settings.MEDIA_ROOT),
+            ("NEODB_MEDIA_URL", lambda: settings.MEDIA_URL),
+            ("TAKAHE_MEDIA_ROOT", lambda: settings.TAKAHE_MEDIA_ROOT),
+            ("TAKAHE_MEDIA_URL", lambda: settings.TAKAHE_MEDIA_URL),
+            ("NEODB_STATIC_ROOT", lambda: settings.STATIC_ROOT),
+            ("NEODB_DOWNLOADER_SAVE_DIR", lambda: settings.DOWNLOADER_SAVEDIR),
+        ],
+        _("Monitoring"): [
+            ("NEODB_SENTRY_DSN", lambda: settings.SENTRY_DSN),
+            ("NEODB_SENTRY_SAMPLE_RATE", lambda: settings.SENTRY_SAMPLE_RATE),
+        ],
+        _("Security"): [
+            ("NEODB_SECRET_KEY", lambda: settings.SECRET_KEY),
+        ],
+    }
+
+    @classmethod
+    def env_var_names(cls) -> set[str]:
+        return {name for entries in cls.groups.values() for name, _getter in entries}
+
+    @staticmethod
+    def _is_set(name: str) -> bool:
+        # FileAwareEnv also accepts the value from a file named by VAR_FILE
+        return name in os.environ or f"{name}_FILE" in os.environ
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["section"] = self.section
+        context["nav_sections"] = MANAGE_NAV_SECTIONS
+        context["groups"] = {
+            title: [
+                {
+                    "name": name,
+                    "value": format_config_value(name, getter()),
+                    "is_default": not self._is_set(name),
+                }
+                for name, getter in entries
+            ]
+            for title, entries in self.groups.items()
+        }
+        # Variables this process received that boofilsic.settings never reads,
+        # e.g. what docker compose forwards for Takahe. Shown raw, masked.
+        known = self.env_var_names() | set(ENV_VARS_WITH_SITE_SETTING)
+        context["other_vars"] = [
+            {"name": name, "value": format_config_value(name, value)}
+            for name, value in sorted(os.environ.items())
+            if name.startswith(("NEODB_", "TAKAHE_"))
+            and name not in known
+            and name.removesuffix("_FILE") not in known
+        ]
+        return context
 
 
 @login_required

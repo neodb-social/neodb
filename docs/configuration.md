@@ -25,6 +25,7 @@ Most configuration settings can be managed through the web-based Site Settings p
  - **API Keys** - Spotify, TMDB, Google Books, Discogs, IGDB, Steam, DeepL, LibreTranslate, Threads, Discord webhooks
  - **Downloader** - scraping providers, proxy list, provider API keys, timeouts
  - **Advanced** - alternative domains, Mastodon client scope, cron jobs, index aliases
+ - **Environment** - read-only view of the settings that come from `.env` and cannot be changed in the UI (see below), plus any other `NEODB_*` and `TAKAHE_*` variables the process received. Passwords and keys are masked.
 
 Settings configured in the UI take effect immediately (within 30 seconds) without restarting the server. Values set in the UI override `.env` values. If a setting has not been configured in the UI, the `.env` value is used as fallback.
 
@@ -39,7 +40,7 @@ Before creating the first admin, configure `NEODB_EMAIL_URL` and `NEODB_EMAIL_FR
 
 ## Settings that must remain in `.env`
 
-These settings require infrastructure access or process restart and cannot be managed from the UI:
+These settings require infrastructure access or process restart and cannot be managed from the UI. Those that reach the application process are shown, with credentials masked, in Site Settings > Environment; `NEODB_DATA`, `NEODB_PORT` and `NEODB_IMAGE` are consumed by Docker Compose itself and do not appear there.
 
  - `NEODB_SECRET_KEY` - Django secret key
  - `NEODB_SITE_DOMAIN` - primary domain (identity-critical)

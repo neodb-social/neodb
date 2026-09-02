@@ -191,7 +191,8 @@ RQ = {
     "JOB_CLASS": "common.rq.SiteJob",
 }
 
-_parsed_search_url: parse.ParseResult = env.url("NEODB_SEARCH_URL")
+SEARCH_URL: str = env("NEODB_SEARCH_URL")
+_parsed_search_url: parse.ParseResult = parse.urlparse(SEARCH_URL)
 SEARCH_BACKEND = None
 TYPESENSE_CONNECTION = {}
 if _parsed_search_url.scheme == "typesense":
@@ -386,7 +387,8 @@ INSTALLED_APPS += [
     "legacy.apps.LegacyConfig",
 ]
 
-for app in env("NEODB_EXTRA_APPS"):
+EXTRA_APPS: list[str] = env("NEODB_EXTRA_APPS")
+for app in EXTRA_APPS:
     INSTALLED_APPS.append(app)
 
 MIDDLEWARE = [
@@ -724,9 +726,9 @@ DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
-_SENTRY_DSN: str = env("NEODB_SENTRY_DSN")
-if _SENTRY_DSN:
-    _SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")
+SENTRY_DSN: str = env("NEODB_SENTRY_DSN")
+SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")
+if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
@@ -742,7 +744,7 @@ if _SENTRY_DSN:
     if len(sys.argv) > 1 and sentry_env in ("manage.py", "django-admin"):
         sentry_env = sys.argv[1]
     sentry_sdk.init(
-        dsn=_SENTRY_DSN,
+        dsn=SENTRY_DSN,
         environment=sentry_env or "unknown",
         integrations=[
             DjangoIntegration(),
@@ -750,7 +752,7 @@ if _SENTRY_DSN:
         ],
         release=NEODB_VERSION,
         send_default_pii=True,
-        traces_sample_rate=_SENTRY_SAMPLE_RATE,
+        traces_sample_rate=SENTRY_SAMPLE_RATE,
         _experiments={"enable_logs": True},
     )
 

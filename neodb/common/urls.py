@@ -9,6 +9,7 @@ from .views_manage import (
     CatalogSettings,
     DiscoverSettings,
     DownloaderSettings,
+    EnvironmentSettings,
     FederationSettings,
     RecommendationSettings,
     manage_root,
@@ -78,5 +79,10 @@ urlpatterns = [
         "manage/advanced/",
         AdvancedSettings.as_view(),
         name="manage_advanced",
+    ),
+    path(
+        "manage/environment/",
+        EnvironmentSettings.as_view(),
+        name="manage_environment",
     ),
 ]

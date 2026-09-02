@@ -1,0 +1,61 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% block manage_content %}
+  <div class="manage-form">
+    <p class="help-text">
+      {% trans "These settings come from environment variables and cannot be changed here. Edit .env and restart the server to change them. Passwords and keys are hidden." %}
+    </p>
+    {% for title, rows in groups.items %}
+      <div class="field-group">
+        <legend>{{ title }}</legend>
+        <table class="env-table">
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>
+                  <code>{{ row.name }}</code>
+                </td>
+                <td>
+                  {% if row.value %}
+                    <code>{{ row.value }}</code>
+                  {% else %}
+                    <small>{% trans "(empty)" %}</small>
+                  {% endif %}
+                  {% if row.is_default %}
+                    <small class="env-default">{% trans "default" %}</small>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+    {% if other_vars %}
+      <div class="field-group">
+        <legend>{% trans "Other Environment Variables" %}</legend>
+        <p class="help-text">
+          {% trans "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe." %}
+        </p>
+        <table class="env-table">
+          <tbody>
+            {% for row in other_vars %}
+              <tr>
+                <td>
+                  <code>{{ row.name }}</code>
+                </td>
+                <td>
+                  {% if row.value %}
+                    <code>{{ row.value }}</code>
+                  {% else %}
+                    <small>{% trans "(empty)" %}</small>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

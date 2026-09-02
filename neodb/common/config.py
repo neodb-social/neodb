@@ -1,7 +1,59 @@
+import json
+import re
 from urllib import parse
 
 import environ
 from django.core.exceptions import ImproperlyConfigured
+
+# Variable names that hold a credential outright, e.g. NEODB_SECRET_KEY,
+# PGPASSWORD, TAKAHE_STATOR_TOKEN, TAKAHE_VAPID_PRIVATE_KEY.
+_SECRET_NAME_RE = re.compile(r"SECRET|PASSWORD|PASSWD|TOKEN|_KEY(_|$)")
+_SECRET_PARAM_RE = re.compile(r"key|token|secret|pass|pwd|auth|credential|sig", re.I)
+MASK = "********"
+
+
+def mask_secret(name: str, value: str) -> str:
+    """Hide credentials in a setting value before it is shown to an admin.
+
+    The whole value is hidden when the variable name says it is a secret,
+    unless the name marks it PUBLIC. A URL keeps its username, host and path
+    but loses the password and sensitive query parameters; a DSN loses the
+    whole userinfo, because Sentry puts the key in the username slot.
+    """
+    if not value:
+        return value
+    upper = name.upper()
+    if _SECRET_NAME_RE.search(upper) and "PUBLIC" not in upper:
+        return MASK
+    if "://" not in value:
+        return value
+    parts = parse.urlsplit(value)
+    netloc = parts.netloc
+    if "@" in netloc:
+        userinfo, host = netloc.rsplit("@", 1)
+        if "DSN" in upper:
+            userinfo = MASK
+        elif ":" in userinfo:
+            userinfo = f"{userinfo.split(':', 1)[0]}:{MASK}"
+        netloc = f"{userinfo}@{host}"
+    # Work on the raw query so the original encoding of kept values survives.
+    pairs = []
+    for pair in parts.query.split("&") if parts.query else []:
+        key = pair.partition("=")[0]
+        pairs.append(f"{key}={MASK}" if _SECRET_PARAM_RE.search(key) else pair)
+    query = "&".join(pairs)
+    return parse.urlunsplit((parts.scheme, netloc, parts.path, query, parts.fragment))
+
+
+def format_config_value(name: str, value: object) -> str:
+    """Render a setting for display, with credentials masked."""
+    if value is None:
+        return ""
+    if isinstance(value, list | tuple):
+        return ", ".join(mask_secret(name, str(v)) for v in value)
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=False)
+    return mask_secret(name, str(value))
 
 
 def resolve_email_settings(email_url: object, debug: bool) -> dict[str, object]:

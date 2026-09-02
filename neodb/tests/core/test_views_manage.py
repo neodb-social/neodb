@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from typing import Any
 
 import pydantic
@@ -9,10 +11,17 @@ from django.utils import translation
 from django.utils.translation import trans_real
 
 from boofilsic import settings as boofilsic_settings
-from common.config import resolve_email_settings
+from common.config import (
+    MASK,
+    format_config_value,
+    mask_secret,
+    resolve_email_settings,
+)
 from common.models import SiteConfig
 from users.middlewares import activate_language_for_user
+from users.models import User
 from common.views_manage import (
+    ENV_VARS_WITH_SITE_SETTING,
     AccessSettings,
     AdvancedSettings,
     APIKeysSettings,
@@ -20,6 +29,7 @@ from common.views_manage import (
     CatalogSettings,
     DiscoverSettings,
     DownloaderSettings,
+    EnvironmentSettings,
     FederationSettings,
     RecommendationSettings,
 )
@@ -516,3 +526,130 @@ class TestEnvDefaultsIsolation:
                 SiteConfig._apply_to_settings(old_system)
             else:
                 SiteConfig.reload()
+
+
+class TestEnvironmentCoverage:
+    """Every env var read by boofilsic.settings is visible on some manage page."""
+
+    @staticmethod
+    def _env_vars_read_by_settings() -> set[str]:
+        source = Path(boofilsic_settings.__file__).read_text()
+        names = set(re.findall(r'\benv(?:\.\w+)?\(\s*"([A-Z0-9_]+)"', source))
+        return names | set(boofilsic_settings.env.scheme)
+
+    def test_every_env_var_is_covered(self) -> None:
+        env_vars = self._env_vars_read_by_settings()
+        shown = EnvironmentSettings.env_var_names()
+        seeded = set(ENV_VARS_WITH_SITE_SETTING)
+
+        assert not shown & seeded, f"Env vars listed twice: {shown & seeded}"
+        missing = env_vars - shown - seeded
+        assert not missing, (
+            f"Env vars read by settings but not visible in the manage UI: {missing}."
+            " Add them to EnvironmentSettings.groups, or to"
+            " ENV_VARS_WITH_SITE_SETTING if a SiteConfig field shows them."
+        )
+        stale = (shown | seeded) - env_vars
+        assert not stale, f"Manage UI lists env vars that settings never reads: {stale}"
+
+    def test_seeded_fields_exist(self) -> None:
+        fields = set(SiteConfig.SystemOptions.model_fields)
+        stale = {k: v for k, v in ENV_VARS_WITH_SITE_SETTING.items() if v not in fields}
+        assert not stale, (
+            f"ENV_VARS_WITH_SITE_SETTING points at unknown fields: {stale}"
+        )
+
+
+class TestMaskSecret:
+    @pytest.mark.parametrize(
+        ("name", "value", "expected"),
+        [
+            ("NEODB_SECRET_KEY", "abc", MASK),
+            ("TAKAHE_VAPID_PRIVATE_KEY", "abc", MASK),
+            ("TAKAHE_VAPID_PUBLIC_KEY", "abc", "abc"),
+            ("PGPASSWORD", "abc", MASK),
+            ("TAKAHE_STATOR_TOKEN", "abc", MASK),
+            (
+                "NEODB_DB_URL",
+                "postgres://neodb:pw@db:5432/neodb",
+                f"postgres://neodb:{MASK}@db:5432/neodb",
+            ),
+            ("NEODB_REDIS_URL", "redis://redis:6379/0", "redis://redis:6379/0"),
+            (
+                "NEODB_SENTRY_DSN",
+                "https://k3y@o1.ingest.sentry.io/2",
+                f"https://{MASK}@o1.ingest.sentry.io/2",
+            ),
+            (
+                "MEDIA_BACKEND",
+                "s3://ak:sk@minio:9000/media?region=eu&secret_key=y",
+                f"s3://ak:{MASK}@minio:9000/media?region=eu&secret_key={MASK}",
+            ),
+            ("NEODB_SITE_DOMAIN", "example.org", "example.org"),
+            ("NEODB_SEARCH_URL", "", ""),
+        ],
+    )
+    def test_mask(self, name: str, value: str, expected: str) -> None:
+        assert mask_secret(name, value) == expected
+
+    def test_format_non_string_values(self) -> None:
+        assert format_config_value("NEODB_DEBUG", True) == "True"
+        assert format_config_value("NEODB_ADMIN_HANDLES", ["a", "b"]) == "a, b"
+        assert format_config_value("NEODB_SENTRY_SAMPLE_RATE", 0.5) == "0.5"
+        assert format_config_value("NEODB_EXTRA_APPS", None) == ""
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEnvironmentPage:
+    @staticmethod
+    def _login(client: Any, superuser: bool) -> None:
+        user = User.register(username="admin" if superuser else "bob")
+        if superuser:
+            user.is_superuser = True
+            user.save(update_fields=["is_superuser"])
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    def test_shows_settings_with_secrets_masked(
+        self, client: Any, monkeypatch: pytest.MonkeyPatch, settings: Any
+    ) -> None:
+        settings.SECRET_KEY = "top-secret-key-value"
+        monkeypatch.setenv("TAKAHE_STATOR_TOKEN", "stator-secret-token")
+        monkeypatch.setenv("TAKAHE_MAIN_DOMAIN", "fedi.example.org")
+        self._login(client, superuser=True)
+
+        response = client.get("/manage/environment/")
+
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "NEODB_SITE_DOMAIN" in html
+        assert settings.SITE_DOMAIN in html
+        assert "NEODB_SECRET_KEY" in html
+        assert "top-secret-key-value" not in html
+        # variables this process has that settings does not read are listed raw
+        assert "TAKAHE_MAIN_DOMAIN" in html
+        assert "fedi.example.org" in html
+        assert "TAKAHE_STATOR_TOKEN" in html
+        assert "stator-secret-token" not in html
+        for alias in ("default", "takahe"):
+            password = settings.DATABASES[alias].get("PASSWORD")
+            if password:
+                assert password not in html
+
+    def test_requires_superuser(self, client: Any) -> None:
+        self._login(client, superuser=False)
+
+        response = client.get("/manage/environment/")
+
+        assert response.status_code == 302
+
+    def test_form_pages_render_through_shared_base(self, client: Any) -> None:
+        # Branding has a JSONFormField, so this also covers form.media in base
+        self._login(client, superuser=True)
+
+        response = client.get("/manage/branding/")
+
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert 'class="manage-form"' in html
+        assert 'type="submit"' in html
+        assert "/manage/environment/" in html
