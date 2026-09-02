@@ -1433,6 +1433,33 @@ class TestNdjsonExportImport:
         assert item is not None
         assert Mark(self.user2.identity, item).shelf_type == ShelfType.COMPLETE
 
+    def test_ndjson_unresolved_item_warns_with_the_url(self):
+        """An item the catalog could not resolve is a data condition.
+
+        It used to raise KeyError, so a deleted item was reported as an
+        error with a traceback -- and the message named ``data["item"]``,
+        a key these records do not carry, so it read "Could not find item: "
+        with nothing after it.
+        """
+        url = "https://gone-review.invalid/podcast/xyz"
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {url: None}
+        records = []
+        sink = logger.add(lambda m: records.append(m.record), level="WARNING")
+        try:
+            review = importer.import_review(
+                {"type": "Review", "content": {"withRegardTo": url, "content": "x"}}
+            )
+            # shelf logs name the item at the top level, not in ``content``
+            log = importer.import_shelf_log({"type": "ShelfLog", "item": url})
+        finally:
+            logger.remove(sink)
+        assert review == "failed"
+        assert log == "failed"
+        assert [r["level"].name for r in records] == ["WARNING", "WARNING"]
+        assert all(url in r["message"] for r in records)
+        assert [r["exception"] for r in records] == [None, None]
+
     def test_ndjson_import_without_published_timestamp(self):
         """created_time is not nullable; a bundle without `published` must
         fall back to the model default instead of raising IntegrityError."""

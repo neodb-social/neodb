@@ -230,6 +230,21 @@ class NdjsonImporter(BaseImporter):
 
         return RE_MD_IMAGE.sub(_replace, body)
 
+    def _lookup_item(self, data: Dict[str, Any], url: str) -> Item | None:
+        """The catalog item a journal record refers to, or None.
+
+        A missing item is a data condition, not a defect: the item may have
+        been deleted since the export, or its catalog entry may have resolved
+        to nothing. The record is counted as failed and the import goes on,
+        so this warns with the url rather than raising.
+        """
+        item = self.items.get(url)
+        if not item:
+            logger.warning(
+                f"Item not found for {data.get('type') or 'record'}: {url or '(none)'}"
+            )
+        return item
+
     def import_collection(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a collection from NDJSON data."""
         try:
@@ -332,9 +347,9 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             shelf_type = content_data.get("status", ShelfType.WISHLIST)
             mark = Mark(owner, item)
             if self._is_current(mark.shelfmember, updated_dt, published_dt):
@@ -389,9 +404,9 @@ class NdjsonImporter(BaseImporter):
     def import_shelf_log(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a shelf log entry from NDJSON data."""
         try:
-            item = self.items.get(data.get("item", ""))
+            item = self._lookup_item(data, data.get("item", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             owner = self.user.identity
             shelf_type = data.get("status", ShelfType.WISHLIST)
             # TODO: data["posts"] carries the source post ids for this entry;
@@ -527,9 +542,9 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             name = content_data.get("name", "")
             content = content_data.get("content", "")
             # TODO: identity is (owner, item, title), so a review retitled on
@@ -576,9 +591,9 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             title = content_data.get("title", "")
             content = content_data.get("content", "")
             sensitive = content_data.get("sensitive", False)
@@ -665,9 +680,9 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             content = content_data.get("content", "")
             existing_comment = Comment.objects.filter(owner=owner, item=item).first()
             if existing_comment:
@@ -712,9 +727,9 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             rating_grade = int(float(content_data.get("value") or 0))
             if not rating_grade:
                 # a rating with no grade carries nothing to restore, and
@@ -777,9 +792,9 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item = self._lookup_item(data, content_data.get("withRegardTo", ""))
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                return "failed"
             tag_title = Tag.cleanup_title(content_data.get("tag", ""))
             # created_time is not nullable, so only pass it when the bundle
             # carries one; inserting NULL raises IntegrityError, which marks
