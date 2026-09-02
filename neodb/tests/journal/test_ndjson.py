@@ -1454,6 +1454,27 @@ class TestNdjsonExportImport:
         assert all(url in r["message"] for r in records)
         assert [r["exception"] for r in records] == [None, None]
 
+    def test_ndjson_unresolved_item_still_counts_as_failed(self, tmp_path):
+        """Warning instead of raising must not hide the record from the user:
+        task.message is what user_task_status.html renders."""
+        url = "https://gone-count.invalid/podcast/xyz"
+        path = tmp_path / "journal.ndjson"
+        path.write_text(
+            json.dumps({"server": "x"})
+            + "\n"
+            + json.dumps(
+                {"type": "Review", "content": {"withRegardTo": url, "content": "x"}}
+            )
+            + "\n"
+        )
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.process_journal(str(path))
+        assert importer.metadata["total"] == 1
+        assert importer.metadata["processed"] == 1
+        assert importer.metadata["failed"] == 1
+        assert importer.metadata["imported"] == 0
+        assert "1 failed" in importer.message
+
     def test_ndjson_import_without_published_timestamp(self):
         """created_time is not nullable; a bundle without `published` must
         fall back to the model default instead of raising IntegrityError."""
