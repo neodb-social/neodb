@@ -204,23 +204,28 @@ class SiteConfig(models.Model):
 
     @classmethod
     def _env_defaults(cls) -> dict:
-        """Read current env-var-derived values from django settings as fallbacks."""
+        """Read env-var-derived values from django settings as fallbacks.
+
+        _apply_to_settings() overwrites SITE_INFO and MASTODON_TIMEOUT with the
+        effective values, so the *_ENV snapshots taken at startup are read
+        instead. set_system() relies on these being the untouched env values.
+        """
+        site_info = getattr(settings, "SITE_INFO_ENV", settings.SITE_INFO)
         return {
             # Branding
-            "site_name": settings.SITE_INFO.get("site_name", ""),
-            "site_logo": settings.SITE_INFO.get("site_logo", "/s/img/logo.svg"),
-            "site_icon": settings.SITE_INFO.get("site_icon", "/s/img/icon.png"),
-            "user_icon": settings.SITE_INFO.get("user_icon", "/s/img/avatar.png"),
-            "site_color": settings.SITE_INFO.get("site_color", "azure"),
-            "site_intro": settings.SITE_INFO.get("site_intro", ""),
-            "site_head": settings.SITE_INFO.get("site_head", ""),
-            "site_description": settings.SITE_INFO.get(
+            "site_name": site_info.get("site_name", ""),
+            "site_logo": site_info.get("site_logo", "/s/img/logo.svg"),
+            "site_icon": site_info.get("site_icon", "/s/img/icon.png"),
+            "user_icon": site_info.get("user_icon", "/s/img/avatar.png"),
+            "site_color": site_info.get("site_color", "azure"),
+            "site_intro": site_info.get("site_intro", ""),
+            "site_head": site_info.get("site_head", ""),
+            "site_description": site_info.get(
                 "site_description",
                 "reviews about book, film, music, podcast and game.",
             ),
             "site_links": {
-                item["title"]: item["url"]
-                for item in settings.SITE_INFO.get("site_links", [])
+                item["title"]: item["url"] for item in site_info.get("site_links", [])
             },
             # Access Control
             "invite_only": getattr(settings, "INVITE_ONLY", False),
@@ -328,7 +333,11 @@ class SiteConfig(models.Model):
             # Advanced / Operational
             "alternative_domains": list(getattr(settings, "ALTERNATIVE_DOMAINS", [])),
             "mastodon_client_scope": getattr(settings, "MASTODON_CLIENT_SCOPE", ""),
-            "mastodon_timeout": getattr(settings, "MASTODON_TIMEOUT", 5),
+            "mastodon_timeout": getattr(
+                settings,
+                "MASTODON_TIMEOUT_ENV",
+                getattr(settings, "MASTODON_TIMEOUT", 5),
+            ),
             "disable_cron_jobs": list(getattr(settings, "DISABLE_CRON_JOBS", [])),
             "index_aliases": dict(
                 getattr(settings, "INDEX_ALIASES", {"catalog": "catalog2"})

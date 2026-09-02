@@ -462,3 +462,57 @@ class TestLanguageCodeApply:
         finally:
             translation.deactivate()
             trans_real._default = None  # ty: ignore[unresolved-attribute]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEnvDefaultsIsolation:
+    """Env fallbacks must not follow the DB values applied to django settings.
+
+    set_system() drops any value equal to its env fallback. If the fallbacks
+    tracked the effective values instead, re-saving a settings page would
+    delete the stored overrides, which then vanish on the next restart (#1828).
+    """
+
+    def test_apply_to_settings_does_not_change_env_defaults(self) -> None:
+        old_system = getattr(SiteConfig, "system", None)
+        before = SiteConfig._env_defaults()
+        try:
+            changed = SiteConfig.load_system().model_copy(
+                update={
+                    "site_name": "Changed Name",
+                    "site_color": "red",
+                    "site_links": {"Changed": "https://example.org"},
+                    "mastodon_timeout": 99,
+                }
+            )
+            SiteConfig._apply_to_settings(changed)
+
+            assert SiteConfig._env_defaults() == before
+        finally:
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+            else:
+                SiteConfig.reload()
+
+    def test_resaving_branding_keeps_stored_values(self) -> None:
+        old_system = getattr(SiteConfig, "system", None)
+        try:
+            SiteConfig.set_system(site_name="Changed Name", mastodon_timeout=99)
+            SiteConfig.reload()
+            # The form posts every field of the page, unchanged ones included.
+            SiteConfig.set_system(
+                site_name="Changed Name", site_color="red", mastodon_timeout=99
+            )
+
+            data = SiteConfig.objects.get(pk=1).data
+            assert data["site_name"] == "Changed Name"
+            assert data["site_color"] == "red"
+            assert data["mastodon_timeout"] == 99
+        finally:
+            SiteConfig.objects.filter(pk=1).delete()
+            if old_system is not None:
+                SiteConfig.system = old_system
+                SiteConfig._apply_to_settings(old_system)
+            else:
+                SiteConfig.reload()

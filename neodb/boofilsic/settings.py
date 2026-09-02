@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 import sys
@@ -249,6 +250,10 @@ SITE_INFO = {
     "enable_login_email": ENABLE_LOGIN_EMAIL,
     "enable_login_atproto": ENABLE_LOGIN_BLUESKY,
 }
+# SiteConfig overwrites the branding entries of SITE_INFO at runtime; keep the
+# env-derived values so they stay available as the fallback when no DB override
+# is set.
+SITE_INFO_ENV = copy.deepcopy(SITE_INFO)
 
 INVITE_ONLY = env("NEODB_INVITE_ONLY")
 ADMIN_HANDLES: list[str] = env("NEODB_ADMIN_HANDLES")
@@ -274,6 +279,8 @@ ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=5)
+# SiteConfig overwrites MASTODON_TIMEOUT at runtime; see SITE_INFO_ENV above.
+MASTODON_TIMEOUT_ENV = MASTODON_TIMEOUT
 THREADS_TIMEOUT = 30  # Threads is really slow when publishing post
 TAKAHE_REMOTE_TIMEOUT = MASTODON_TIMEOUT
 
