@@ -986,7 +986,6 @@ class ShelfManager:
     def get_latest_members(
         self, shelf_type: ShelfType, item_category: ItemCategory | None = None
     ):
-        # -id breaks ties so paginated callers do not drop or repeat rows
         qs = self.shelf_list[shelf_type].members.all().order_by("-created_time", "-id")
         if item_category:
             return qs.filter(q_item_in_category(item_category))
