@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
 from django.core.exceptions import FieldError
-from django.db.models import DEFERRED, fields
+from django.db.models import DEFERRED, Model, fields
+from django.db.models.signals import class_prepared
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
 from django_jsonform.forms.fields import ArrayFormField as DJANGO_ArrayFormField
@@ -25,12 +26,15 @@ from django_jsonform.models.fields import JSONField as DJANGO_JSONField
 
 class Patched_DJANGO_JSONField(DJANGO_JSONField):
     def formfield(self, **kwargs):
-        schema = getattr(self.model, self.attname + "_schema", self.schema)
+        # render against the class the field is attached to; JSONFieldMixin
+        # may point model at the multi-table parent holding the JSON column
+        model = getattr(self, "attached_model", None) or self.model
+        schema = getattr(model, self.attname + "_schema", self.schema)
         return super().formfield(
             **{
                 "form_class": DJANGO_JSONFormField,
                 "schema": schema,
-                "model_name": self.model.__name__,
+                "model_name": model.__name__,
                 "file_handler": self.file_handler,
                 **kwargs,
             }
@@ -153,11 +157,15 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
 
     def __init__(self, *args, **kwargs):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
+        # the class this field is attached to; ``model`` may instead point at
+        # the multi-table parent that holds the JSON column
+        self.attached_model: type[Model] | None = None
         super(JSONFieldMixin, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self: "fields.Field", cls, name, private_only=False):
         self.set_attributes_from_name(name)
         self.model = cls
+        self.attached_model = cls  # ty: ignore[unresolved-attribute]
         self.concrete = False
         self.column = None
         cls._meta.add_field(self, private=True)
@@ -174,6 +182,27 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
             )
 
         self.column = self.json_field_name  # type: ignore
+        # parent links of a child model are wired after its own fields are
+        # contributed, so the JSON column owner is resolved once the class is ready
+        class_prepared.connect(
+            self._bind_json_column_model,  # ty: ignore[unresolved-attribute]
+            sender=cls,
+            weak=False,
+        )
+
+    def _bind_json_column_model(self, sender, **kwargs):
+        """Point ``model`` at the model whose table holds the JSON column.
+
+        Django copies private fields into every multi-table child, and the ORM
+        picks the table to join from ``field.model``. Left at the child, a
+        lookup on ``Movie.orig_title`` reads ``catalog_movie.metadata``, but the
+        column only exists on ``catalog_item``.
+        """
+        class_prepared.disconnect(self._bind_json_column_model, sender=sender)
+        json_field = sender._meta.get_field(self.json_field_name)
+        if json_field.model._meta.concrete_model is not sender._meta.concrete_model:
+            self.model = json_field.model
+            self.__dict__.pop("cached_col", None)
 
     def get_lookup(self, lookup_name):
         # Always return None, to make get_transform been called

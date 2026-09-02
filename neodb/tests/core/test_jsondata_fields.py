@@ -4,14 +4,18 @@ from datetime import timezone as dt_tz
 import pytest
 from django.utils import timezone
 
+from catalog.models import Item, Movie, People, PeopleType
 from common.models.jsondata import (
     DateField,
     DateTimeField,
     EncryptedTextField,
+    JSONField,
+    JSONFieldMixin,
     TimeField,
     decrypt_str,
     encrypt_str,
 )
+from mastodon.models import MastodonAccount
 
 
 class TestEncryptDecrypt:
@@ -178,3 +182,78 @@ class TestTimeField:
     def test_from_json_with_empty_string(self):
         result = self.field.from_json("")
         assert result is None
+
+
+class TestChildModelFieldBinding:
+    """Virtual fields on a multi-table child point at the JSON column's model."""
+
+    def test_model_is_json_column_owner(self):
+        assert Item._meta.get_field("localized_title").model is Item
+        assert Movie._meta.get_field("localized_title").model is Item
+        orig_title = Movie._meta.get_field("orig_title")
+        assert isinstance(orig_title, JSONFieldMixin)
+        assert orig_title.model is Item
+        assert orig_title.attached_model is Movie
+
+    def test_proxy_model_is_unchanged(self):
+        field = MastodonAccount._meta.get_field("access_token")
+        assert isinstance(field, JSONFieldMixin)
+        assert field.model is MastodonAccount
+        assert field.attached_model is MastodonAccount
+
+    def test_formfield_uses_attached_model(self):
+        field = Movie._meta.get_field("localized_title")
+        assert isinstance(field, JSONField)
+        formfield = field.formfield()
+        assert formfield is not None
+        assert getattr(formfield.widget, "model_name") == "Movie"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestChildModelLookups:
+    """Lookups on virtual fields of Item subclasses must join catalog_item."""
+
+    def _movies(self):
+        movie = Movie.objects.create(
+            title="Movie A",
+            orig_title="Orig A",
+            localized_title=[{"lang": "en", "text": "Movie A"}],
+        )
+        other = Movie.objects.create(
+            title="Movie B",
+            orig_title="Orig B",
+            localized_title=[{"lang": "en", "text": "Movie B"}],
+        )
+        return movie, other
+
+    def test_field_declared_on_child(self):
+        movie, _ = self._movies()
+        assert list(Movie.objects.filter(orig_title="Orig A")) == [movie]
+
+    def test_field_inherited_from_parent(self):
+        movie, other = self._movies()
+        qs = Movie.objects.filter(
+            is_deleted=False,
+            merged_to_item__isnull=True,
+            localized_title__contains=[{"text": "Movie A"}],
+        ).exclude(pk=other.pk)[:5]
+        assert list(qs) == [movie]
+
+    def test_count_and_values_join_parent(self):
+        movie, _ = self._movies()
+        qs = Movie.objects.filter(orig_title="Orig A")
+        assert qs.count() == 1
+        assert list(qs.values_list("pk", flat=True)) == [movie.pk]
+
+    def test_base_model_lookup(self):
+        movie, _ = self._movies()
+        qs = Item.objects.filter(localized_title__contains=[{"text": "Movie A"}])
+        assert list(qs) == [movie]
+
+    def test_people_localized_name(self):
+        person = People.objects.create(
+            people_type=PeopleType.PERSON,
+            localized_name=[{"lang": "en", "text": "Some One"}],
+        )
+        qs = People.objects.filter(localized_name__contains=[{"text": "Some One"}])
+        assert list(qs) == [person]
