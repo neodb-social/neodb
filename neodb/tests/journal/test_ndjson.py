@@ -1434,13 +1434,8 @@ class TestNdjsonExportImport:
         assert Mark(self.user2.identity, item).shelf_type == ShelfType.COMPLETE
 
     def test_ndjson_unresolved_item_warns_with_the_url(self):
-        """An item the catalog could not resolve is a data condition.
-
-        It used to raise KeyError, so a deleted item was reported as an
-        error with a traceback -- and the message named ``data["item"]``,
-        a key these records do not carry, so it read "Could not find item: "
-        with nothing after it.
-        """
+        """Used to raise KeyError, reported as an error naming ``data["item"]``
+        -- a key these records lack, so it read "Could not find item: "."""
         url = "https://gone-review.invalid/podcast/xyz"
         importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
         importer.items = {url: None}
@@ -1450,7 +1445,6 @@ class TestNdjsonExportImport:
             review = importer.import_review(
                 {"type": "Review", "content": {"withRegardTo": url, "content": "x"}}
             )
-            # shelf logs name the item at the top level, not in ``content``
             log = importer.import_shelf_log({"type": "ShelfLog", "item": url})
         finally:
             logger.remove(sink)

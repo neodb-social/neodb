@@ -231,13 +231,8 @@ class NdjsonImporter(BaseImporter):
         return RE_MD_IMAGE.sub(_replace, body)
 
     def _lookup_item(self, data: Dict[str, Any], url: str) -> Item | None:
-        """The catalog item a journal record refers to, or None.
-
-        A missing item is a data condition, not a defect: the item may have
-        been deleted since the export, or its catalog entry may have resolved
-        to nothing. The record is counted as failed and the import goes on,
-        so this warns with the url rather than raising.
-        """
+        """None when the item was deleted after the export, or its catalog
+        entry resolved to nothing -- expected, so the record fails quietly."""
         item = self.items.get(url)
         if not item:
             logger.warning(
