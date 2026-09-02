@@ -1,7 +1,11 @@
 import pytest
+from django.db import connection
+from django.test import Client
+from django.test.utils import CaptureQueriesContext
 
 from catalog.models import Edition, Game, IdType, ItemCategory, Movie, TVShow
 from journal.models.common import q_owned_piece_visible_to_user
+from journal.models.mark import Mark
 from journal.models.review import Review
 from journal.models.shelf import ShelfManager, ShelfMember, ShelfType
 from users.models import User
@@ -159,3 +163,39 @@ class TestShelfManager:
         assert stats2[ItemCategory.Book]["reviewed"] == 1
         assert stats2[ItemCategory.Movie]["reviewed"] == 1
         assert stats2[ItemCategory.Game]["reviewed"] == 0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestShelfOrdering:
+    """Bulk-imported marks share created_time, so ordering by it alone lets
+    LIMIT/OFFSET pages drop or repeat rows. Every paged shelf query must
+    carry a unique tiebreaker."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="sort@example.com", username="sortuser")
+        self.book = Edition.objects.create(title="Sort Book")
+        Mark(self.user.identity, self.book).update(ShelfType.COMPLETE, None, None)
+
+    def test_latest_members_ordering_is_total(self):
+        qs = ShelfManager(self.user.identity).get_latest_members(ShelfType.COMPLETE)
+        assert qs.query.order_by == ("-created_time", "-id")
+
+    def test_shelf_list_ordering_is_total(self):
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(f"/users/{self.user.username}/complete/book/")
+        assert response.status_code == 200
+        paged = [
+            q["sql"].split("ORDER BY")[-1]
+            for q in ctx.captured_queries
+            if "journal_shelfmember" in q["sql"]
+            and "ORDER BY" in q["sql"]
+            and "LIMIT" in q["sql"]
+        ]
+        assert paged
+        for order_by in paged:
+            assert "created_time" in order_by
+            # ShelfMember inherits from Piece, so its pk column is piece_ptr_id
+            assert "piece_ptr_id" in order_by

@@ -246,7 +246,9 @@ def render_list(
             rating_grade=Subquery(rating.values("grade"))
         ).order_by(F("rating_grade").desc(nulls_last=True), "id")
     else:
-        queryset = queryset.order_by("-created_time")
+        # -id breaks ties: imported marks often share created_time, and an
+        # incomplete order lets LIMIT/OFFSET pages drop or repeat rows
+        queryset = queryset.order_by("-created_time", "-id")
     if year:
         year = int(year)
         queryset = queryset.filter(created_time__year=year)
