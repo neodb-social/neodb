@@ -216,7 +216,12 @@ def delete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
-    if not request.user.is_staff and item.journal_exists():
+    # no staff override: deleting an in-use item strands every piece pointing
+    # at it. Item.clear() nulls the lookup ids and detaches the external
+    # resources, so such a piece can be exported but never re-imported -- the
+    # NDJSON importer has nothing left to match on and will not rebuild a
+    # local url. Merge instead; it keeps the pieces reachable.
+    if item.journal_exists():
         raise PermissionDenied(_("Item in use."))
     if not item.is_deletable():
         raise PermissionDenied(_("Item cannot be deleted."))

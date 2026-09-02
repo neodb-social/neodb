@@ -268,7 +268,7 @@
                  value="{% trans 'merge to another item' %}">
         </form>
       </details>
-      {% if item.is_deletable %}
+      {% if item.is_deletable and not item.journal_exists %}
         <details>
           <summary>{% trans 'Delete' %}</summary>
           <form method="post"
