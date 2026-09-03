@@ -8,10 +8,12 @@ from hashlib import sha256
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from cryptography.fernet import Fernet, MultiFernet
+from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import FieldError
 from django.db.models import DEFERRED, Model, fields
 from django.db.models.signals import class_prepared
+from django.dispatch import receiver
 from django.utils import dateparse, timezone
 from django.utils.encoding import force_bytes
 from django_jsonform.forms.fields import ArrayFormField as DJANGO_ArrayFormField
@@ -22,23 +24,6 @@ from django_jsonform.forms.fields import JSONFormField as DJANGO_JSONFormField
 # from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import ArrayField as DJANGO_ArrayField
 from django_jsonform.models.fields import JSONField as DJANGO_JSONField
-
-
-class Patched_DJANGO_JSONField(DJANGO_JSONField):
-    def formfield(self, **kwargs):
-        # render against the class the field is attached to; JSONFieldMixin
-        # may point model at the multi-table parent holding the JSON column
-        model = getattr(self, "attached_model", None) or self.model
-        schema = getattr(model, self.attname + "_schema", self.schema)
-        return super().formfield(
-            **{
-                "form_class": DJANGO_JSONFormField,
-                "schema": schema,
-                "model_name": model.__name__,
-                "file_handler": self.file_handler,
-                **kwargs,
-            }
-        )
 
 
 def _get_crypter():
@@ -157,10 +142,19 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
 
     def __init__(self, *args, **kwargs):
         self.json_field_name = kwargs.pop("json_field_name", "metadata")
-        # the class this field is attached to; ``model`` may instead point at
-        # the multi-table parent that holds the JSON column
         self.attached_model: type[Model] | None = None
         super(JSONFieldMixin, self).__init__(*args, **kwargs)
+
+    def __reduce__(self):
+        # Field.__reduce__ reloads by ``model``, which for a multi-table child
+        # is the parent and does not know child-declared fields
+        if self.attached_model is None:
+            return super().__reduce__()
+        return _load_attached_field, (
+            self.attached_model._meta.app_label,
+            self.attached_model._meta.object_name,
+            self.name,  # ty: ignore[unresolved-attribute]
+        )
 
     def contribute_to_class(self: "fields.Field", cls, name, private_only=False):
         self.set_attributes_from_name(name)
@@ -182,23 +176,18 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
             )
 
         self.column = self.json_field_name  # type: ignore
-        # parent links of a child model are wired after its own fields are
-        # contributed, so the JSON column owner is resolved once the class is ready
-        class_prepared.connect(
-            self._bind_json_column_model,  # ty: ignore[unresolved-attribute]
-            sender=cls,
-            weak=False,
-        )
 
-    def _bind_json_column_model(self, sender, **kwargs):
+    def bind_json_column_model(self, sender: type[Model]) -> None:
         """Point ``model`` at the model whose table holds the JSON column.
 
         Django copies private fields into every multi-table child, and the ORM
         picks the table to join from ``field.model``. Left at the child, a
         lookup on ``Movie.orig_title`` reads ``catalog_movie.metadata``, but the
-        column only exists on ``catalog_item``.
+        column only exists on ``catalog_item``. Rebind only when the concrete
+        table differs, the same test ``Query.names_to_path`` makes; proxies
+        share the table and keep ``model``. Runs from ``class_prepared``
+        because child-declared fields are contributed before parent links.
         """
-        class_prepared.disconnect(self._bind_json_column_model, sender=sender)
         json_field = sender._meta.get_field(self.json_field_name)
         if json_field.model._meta.concrete_model is not sender._meta.concrete_model:
             self.model = json_field.model
@@ -247,6 +236,19 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
         if self.has_default() and "initial" not in kwargs:
             kwargs["initial"] = self.default
         return super().formfield(**kwargs)  # type: ignore
+
+
+def _load_attached_field(
+    app_label: str, model_name: str, field_name: str
+) -> "fields.Field":
+    return apps.get_model(app_label, model_name)._meta.get_field(field_name)
+
+
+@receiver(class_prepared)
+def _bind_json_column_models(sender: type[Model], **kwargs: Any) -> None:
+    for field in sender._meta.private_fields:
+        if isinstance(field, JSONFieldMixin):
+            field.bind_json_column_model(sender)
 
 
 class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):  # ty: ignore[invalid-method-override]
@@ -401,8 +403,17 @@ class ArrayField(JSONFieldMixin[list[Any] | None, list[Any]], DJANGO_ArrayField)
         return []
 
 
-class JSONField(JSONFieldMixin[Any, Any], Patched_DJANGO_JSONField):
-    pass
+class JSONField(JSONFieldMixin[Any, Any], DJANGO_JSONField):
+    def formfield(self, **kwargs: Any):
+        # render against the attached class, not the JSON column owner
+        model = self.attached_model or self.model
+        kwargs.setdefault("form_class", DJANGO_JSONFormField)
+        kwargs.setdefault(
+            "schema", getattr(model, self.attname + "_schema", self.schema)
+        )
+        kwargs.setdefault("model_name", model.__name__)
+        kwargs.setdefault("file_handler", self.file_handler)
+        return super().formfield(**kwargs)
 
 
 class DurationField(JSONFieldMixin[Any, Any], fields.DurationField):

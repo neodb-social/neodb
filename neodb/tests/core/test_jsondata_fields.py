@@ -1,3 +1,4 @@
+import pickle
 from datetime import date, datetime, time
 from datetime import timezone as dt_tz
 
@@ -207,6 +208,13 @@ class TestChildModelFieldBinding:
         formfield = field.formfield()
         assert formfield is not None
         assert getattr(formfield.widget, "model_name") == "Movie"
+
+    def test_pickle_reloads_attached_copy(self):
+        for name in ("orig_title", "localized_title"):
+            field = Movie._meta.get_field(name)
+            assert pickle.loads(pickle.dumps(field)) is field
+        query = Movie.objects.values("orig_title").query
+        assert str(pickle.loads(pickle.dumps(query))) == str(query)
 
 
 @pytest.mark.django_db(databases="__all__")
