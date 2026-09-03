@@ -218,7 +218,7 @@ class SiteConfigSettingsPage(FormView):
                 initial[key] = value
         return initial
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["section"] = self.section
         context["fieldsets"] = {}
@@ -1008,15 +1008,6 @@ class CatalogSettings(SiteConfigSettingsPage):
     }
 
 
-def _database_url(alias: str) -> str:
-    """Connection URL of a configured database, rebuilt without its password."""
-    db = settings.DATABASES[alias]
-    scheme = db["ENGINE"].rsplit(".", 1)[-1].replace("postgresql", "postgres")
-    user = f"{db['USER']}@" if db.get("USER") else ""
-    port = f":{db['PORT']}" if db.get("PORT") else ""
-    return f"{scheme}://{user}{db.get('HOST', '')}{port}/{db.get('NAME', '')}"
-
-
 @method_decorator(login_required, name="dispatch")
 @method_decorator(superuser_required, name="dispatch")
 class EnvironmentSettings(TemplateView):
@@ -1041,8 +1032,8 @@ class EnvironmentSettings(TemplateView):
             ("NEODB_EXTRA_APPS", lambda: settings.EXTRA_APPS),
         ],
         _("Database and Services"): [
-            ("NEODB_DB_URL", lambda: _database_url("default")),
-            ("TAKAHE_DB_URL", lambda: _database_url("takahe")),
+            ("NEODB_DB_URL", lambda: settings.DB_URL),
+            ("TAKAHE_DB_URL", lambda: settings.TAKAHE_DB_URL),
             (
                 "NEODB_DB_CONN_MAX_AGE",
                 lambda: settings.DATABASES["default"]["CONN_MAX_AGE"],
@@ -1072,36 +1063,50 @@ class EnvironmentSettings(TemplateView):
     def env_var_names(cls) -> set[str]:
         return {name for entries in cls.groups.values() for name, _getter in entries}
 
+    other_title = _("Other Environment Variables")
+    other_help = _(
+        "Present in the environment of this process but not read by NeoDB "
+        "settings. They are used by Docker Compose or by Takahe."
+    )
+
     @staticmethod
     def _is_set(name: str) -> bool:
         # FileAwareEnv also accepts the value from a file named by VAR_FILE
         return name in os.environ or f"{name}_FILE" in os.environ
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["section"] = self.section
         context["nav_sections"] = MANAGE_NAV_SECTIONS
-        context["groups"] = {
-            title: [
-                {
-                    "name": name,
-                    "value": format_config_value(name, getter()),
-                    "is_default": not self._is_set(name),
-                }
-                for name, getter in entries
-            ]
+        groups = [
+            {
+                "title": title,
+                "rows": [
+                    {
+                        "name": name,
+                        "value": format_config_value(name, getter()),
+                        "is_default": not self._is_set(name),
+                    }
+                    for name, getter in entries
+                ],
+            }
             for title, entries in self.groups.items()
-        }
+        ]
         # Variables this process received that boofilsic.settings never reads,
         # e.g. what docker compose forwards for Takahe. Shown raw, masked.
         known = self.env_var_names() | set(ENV_VARS_WITH_SITE_SETTING)
-        context["other_vars"] = [
+        other_rows = [
             {"name": name, "value": format_config_value(name, value)}
             for name, value in sorted(os.environ.items())
             if name.startswith(("NEODB_", "TAKAHE_"))
             and name not in known
             and name.removesuffix("_FILE") not in known
         ]
+        if other_rows:
+            groups.append(
+                {"title": self.other_title, "help": self.other_help, "rows": other_rows}
+            )
+        context["groups"] = groups
         return context
 
 

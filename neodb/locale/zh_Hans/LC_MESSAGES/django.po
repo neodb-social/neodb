@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 19:05-0400\n"
+"POT-Creation-Date: 2026-09-02 23:03-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -17,44 +17,44 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 2026.9.dev0\n"
 
-#: boofilsic/settings.py:499 common/models/lang.py:230
+#: boofilsic/settings.py:506 common/models/lang.py:230
 msgid "English"
 msgstr "英语"
 
-#: boofilsic/settings.py:500 common/models/lang.py:77
+#: boofilsic/settings.py:507 common/models/lang.py:77
 msgid "Danish"
 msgstr "丹麦语"
 
-#: boofilsic/settings.py:501 common/models/lang.py:78
+#: boofilsic/settings.py:508 common/models/lang.py:78
 msgid "German"
 msgstr "德语"
 
-#: boofilsic/settings.py:502 common/models/lang.py:183
+#: boofilsic/settings.py:509 common/models/lang.py:183
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: boofilsic/settings.py:503 common/models/lang.py:87
+#: boofilsic/settings.py:510 common/models/lang.py:87
 msgid "French"
 msgstr "法语"
 
-#: boofilsic/settings.py:504 common/models/lang.py:112
+#: boofilsic/settings.py:511 common/models/lang.py:112
 msgid "Italian"
 msgstr "意大利语"
 
-#: boofilsic/settings.py:505 common/models/lang.py:166
+#: boofilsic/settings.py:512 common/models/lang.py:166
 #: common/models/lang.py:305
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: boofilsic/settings.py:506
+#: boofilsic/settings.py:513
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: boofilsic/settings.py:507 common/models/lang.py:316
+#: boofilsic/settings.py:514 common/models/lang.py:316
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: boofilsic/settings.py:508 common/models/lang.py:317
+#: boofilsic/settings.py:515 common/models/lang.py:317
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
@@ -4047,22 +4047,13 @@ msgstr "数据库管理"
 msgid "These settings come from environment variables and cannot be changed here. Edit .env and restart the server to change them. Passwords and keys are hidden."
 msgstr "这些设置来自环境变量，无法在此修改。如需更改，请编辑 .env 并重启服务器。密码和密钥已隐藏。"
 
-#: common/templates/manage/environment.html:22
-#: common/templates/manage/environment.html:51
+#: common/templates/manage/environment.html:23
 msgid "(empty)"
 msgstr "（空）"
 
-#: common/templates/manage/environment.html:25
+#: common/templates/manage/environment.html:26
 msgid "default"
 msgstr "默认值"
-
-#: common/templates/manage/environment.html:36
-msgid "Other Environment Variables"
-msgstr "其他环境变量"
-
-#: common/templates/manage/environment.html:38
-msgid "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe."
-msgstr "存在于本进程的环境中，但 NeoDB 设置并不读取，由 Docker Compose 或 Takahe 使用。"
 
 #: common/templatetags/duration.py:59
 msgid "just now"
@@ -4822,25 +4813,33 @@ msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则
 msgid "Genres by Category"
 msgstr "按分类设置类型"
 
-#: common/views_manage.py:1033
+#: common/views_manage.py:1024
 msgid "Site"
 msgstr "站点"
 
-#: common/views_manage.py:1043
+#: common/views_manage.py:1034
 msgid "Database and Services"
 msgstr "数据库与服务"
 
-#: common/views_manage.py:1053
+#: common/views_manage.py:1044
 msgid "Media and Files"
 msgstr "媒体与文件"
 
-#: common/views_manage.py:1062
+#: common/views_manage.py:1053
 msgid "Monitoring"
 msgstr "监控"
 
-#: common/views_manage.py:1066
+#: common/views_manage.py:1057
 msgid "Security"
 msgstr "安全"
+
+#: common/views_manage.py:1066
+msgid "Other Environment Variables"
+msgstr "其他环境变量"
+
+#: common/views_manage.py:1068
+msgid "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe."
+msgstr "存在于本进程的环境中，但 NeoDB 设置并不读取，由 Docker Compose 或 Takahe 使用。"
 
 #: journal/forms.py:12
 msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."

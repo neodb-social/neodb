@@ -5,12 +5,13 @@
     <p class="help-text">
       {% trans "These settings come from environment variables and cannot be changed here. Edit .env and restart the server to change them. Passwords and keys are hidden." %}
     </p>
-    {% for title, rows in groups.items %}
+    {% for group in groups %}
       <div class="field-group">
-        <legend>{{ title }}</legend>
+        <legend>{{ group.title }}</legend>
+        {% if group.help %}<p class="help-text">{{ group.help }}</p>{% endif %}
         <table class="env-table">
           <tbody>
-            {% for row in rows %}
+            {% for row in group.rows %}
               <tr>
                 <td>
                   <code>{{ row.name }}</code>
@@ -31,31 +32,5 @@
         </table>
       </div>
     {% endfor %}
-    {% if other_vars %}
-      <div class="field-group">
-        <legend>{% trans "Other Environment Variables" %}</legend>
-        <p class="help-text">
-          {% trans "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe." %}
-        </p>
-        <table class="env-table">
-          <tbody>
-            {% for row in other_vars %}
-              <tr>
-                <td>
-                  <code>{{ row.name }}</code>
-                </td>
-                <td>
-                  {% if row.value %}
-                    <code>{{ row.value }}</code>
-                  {% else %}
-                    <small>{% trans "(empty)" %}</small>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% endif %}
   </div>
 {% endblock %}

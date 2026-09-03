@@ -163,6 +163,9 @@ env = environ.FileAwareEnv(
 
 SECRET_KEY = env("NEODB_SECRET_KEY")
 DEBUG: bool = env("NEODB_DEBUG")
+# raw connection strings, kept for the read-only Environment settings page
+DB_URL: str = env("NEODB_DB_URL")
+TAKAHE_DB_URL: str = env("TAKAHE_DB_URL")
 DATABASES = {
     "takahe": env.db_url("TAKAHE_DB_URL"),
     "default": env.db_url("NEODB_DB_URL"),
@@ -443,6 +446,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")
+
+# hide credentials inside URL-valued settings (DB_URL, REDIS_URL, ...) on the
+# DEBUG technical 500 page; Django's default filter only matches by name
+DEFAULT_EXCEPTION_REPORTER_FILTER = "common.config.ConfigExceptionReporterFilter"
 
 
 def _hide_client_error_traceback(record: logging.LogRecord) -> bool:
@@ -727,7 +734,8 @@ DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
 SENTRY_DSN: str = env("NEODB_SENTRY_DSN")
-SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE")
+# only cast when Sentry is on: a blank value must not break startup without it
+SENTRY_SAMPLE_RATE: float = env("NEODB_SENTRY_SAMPLE_RATE") if SENTRY_DSN else 0.0
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration

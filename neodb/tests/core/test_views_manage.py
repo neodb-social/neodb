@@ -13,6 +13,7 @@ from django.utils.translation import trans_real
 from boofilsic import settings as boofilsic_settings
 from common.config import (
     MASK,
+    ConfigExceptionReporterFilter,
     format_config_value,
     mask_secret,
     resolve_email_settings,
@@ -483,19 +484,47 @@ class TestEnvDefaultsIsolation:
     delete the stored overrides, which then vanish on the next restart (#1828).
     """
 
+    @staticmethod
+    def _changed_options() -> SiteConfig.SystemOptions:
+        """Every field set to a value that differs from the current config."""
+        current = SiteConfig.load_system()
+        values: dict[str, Any] = {}
+        for field in SiteConfig.SystemOptions.model_fields:
+            value = getattr(current, field)
+            if field == "email_url":
+                values[field] = "smtp://user:pw@mail.example.org:587"
+            elif field == "language_code":
+                values[field] = next(
+                    code for code in settings.SUPPORTED_UI_LANGUAGES if code != value
+                )
+            elif field == "preferred_languages":
+                values[field] = [
+                    *value,
+                    next(c for c in ("fr", "de", "ja", "ko") if c not in value),
+                ]
+            elif isinstance(value, bool):
+                values[field] = not value
+            elif isinstance(value, int | float):
+                values[field] = value + 1
+            elif isinstance(value, str):
+                values[field] = f"{value}-changed"
+            elif isinstance(value, list):
+                values[field] = [*value, "changed"]
+            elif isinstance(value, dict):
+                values[field] = {**value, "changed": "changed"}
+            else:
+                raise AssertionError(f"unhandled type for {field}: {type(value)}")
+        # validators would reject some perturbed values and are irrelevant here
+        return SiteConfig.SystemOptions.model_construct(**values)
+
     def test_apply_to_settings_does_not_change_env_defaults(self) -> None:
+        # Exhaustive on purpose: a new `settings.X = opts.x` line in
+        # _apply_to_settings for an attribute _env_defaults reads would bring
+        # the bug back for that field, so every field is perturbed.
         old_system = getattr(SiteConfig, "system", None)
         before = SiteConfig._env_defaults()
         try:
-            changed = SiteConfig.load_system().model_copy(
-                update={
-                    "site_name": "Changed Name",
-                    "site_color": "red",
-                    "site_links": {"Changed": "https://example.org"},
-                    "mastodon_timeout": 99,
-                }
-            )
-            SiteConfig._apply_to_settings(changed)
+            SiteConfig._apply_to_settings(self._changed_options())
 
             assert SiteConfig._env_defaults() == before
         finally:
@@ -587,6 +616,23 @@ class TestMaskSecret:
             ),
             ("NEODB_SITE_DOMAIN", "example.org", "example.org"),
             ("NEODB_SEARCH_URL", "", ""),
+            # names the query regex catches but the old name regex did not
+            ("TAKAHE_SENDGRID_APIKEY", "abc", MASK),
+            ("NEODB_PROXY_PASS", "abc", MASK),
+            # unknown scheme: the key sits in the host slot
+            ("TAKAHE_EMAIL_SERVER", "sendgrid://SG.abc123", f"sendgrid://{MASK}"),
+            (
+                "TAKAHE_EMAIL_SERVER",
+                "anymail://mailgun?API_KEY=x&domain=d",
+                f"anymail://mailgun?API_KEY={MASK}&domain=d",
+            ),
+            (
+                "TAKAHE_MEDIA_URL",
+                "https://cdn.example.org/m/",
+                "https://cdn.example.org/m/",
+            ),
+            # unparsable URL (unbalanced bracket) must not raise
+            ("TAKAHE_MEDIA_URL", "https://[cdn.example.org/m/", MASK),
         ],
     )
     def test_mask(self, name: str, value: str, expected: str) -> None:
@@ -597,6 +643,26 @@ class TestMaskSecret:
         assert format_config_value("NEODB_ADMIN_HANDLES", ["a", "b"]) == "a, b"
         assert format_config_value("NEODB_SENTRY_SAMPLE_RATE", 0.5) == "0.5"
         assert format_config_value("NEODB_EXTRA_APPS", None) == ""
+        assert (
+            format_config_value("TYPESENSE", {"api_key": "k", "host": "h"})
+            == f'{{"api_key": "{MASK}", "host": "h"}}'
+        )
+
+    def test_debug_page_filter_masks_url_settings(self) -> None:
+        from django.views.debug import get_default_exception_reporter_filter
+
+        reporter_filter = get_default_exception_reporter_filter()
+
+        assert isinstance(reporter_filter, ConfigExceptionReporterFilter)
+        assert (
+            reporter_filter.cleanse_setting("DB_URL", "postgres://u:pw@db/neodb")
+            == f"postgres://u:{MASK}@db/neodb"
+        )
+        assert reporter_filter.cleanse_setting("DEBUG", True) is True
+        # Django's own name-based hiding still applies first
+        assert reporter_filter.cleanse_setting("SECRET_KEY", "x") == (
+            reporter_filter.cleansed_substitute
+        )
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -630,6 +696,9 @@ class TestEnvironmentPage:
         assert "fedi.example.org" in html
         assert "TAKAHE_STATOR_TOKEN" in html
         assert "stator-secret-token" not in html
+        # the raw connection strings are shown, with the password masked
+        assert mask_secret("NEODB_DB_URL", settings.DB_URL) in html
+        assert mask_secret("TAKAHE_DB_URL", settings.TAKAHE_DB_URL) in html
         for alias in ("default", "takahe"):
             password = settings.DATABASES[alias].get("PASSWORD")
             if password:
