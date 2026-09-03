@@ -17,7 +17,7 @@ from django_jsonform.forms.fields import JSONFormField
 from loguru import logger
 
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
-from common.config import format_config_value
+from common.config import hide_secret
 from common.models import SiteConfig
 from common.models.site_config import CAPTCHA_MAX_ITEMS
 
@@ -1084,7 +1084,7 @@ class EnvironmentSettings(TemplateView):
                 "rows": [
                     {
                         "name": name,
-                        "value": format_config_value(name, getter()),
+                        "value": hide_secret(name, getter()),
                         "is_default": not self._is_set(name),
                     }
                     for name, getter in entries
@@ -1096,7 +1096,7 @@ class EnvironmentSettings(TemplateView):
         # e.g. what docker compose forwards for Takahe. Shown raw, masked.
         known = self.env_var_names() | set(ENV_VARS_WITH_SITE_SETTING)
         other_rows = [
-            {"name": name, "value": format_config_value(name, value)}
+            {"name": name, "value": hide_secret(name, value)}
             for name, value in sorted(os.environ.items())
             if name.startswith(("NEODB_", "TAKAHE_"))
             and name not in known

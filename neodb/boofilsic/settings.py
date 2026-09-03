@@ -436,10 +436,6 @@ AUTHENTICATION_BACKENDS = [
 
 LOG_LEVEL = env("NEODB_LOG_LEVEL", default="DEBUG" if DEBUG else "INFO")
 
-# hide credentials inside URL-valued settings (DB_URL, REDIS_URL, ...) on the
-# DEBUG technical 500 page; Django's default filter only matches by name
-DEFAULT_EXCEPTION_REPORTER_FILTER = "common.config.ConfigExceptionReporterFilter"
-
 
 def _hide_client_error_traceback(record: logging.LogRecord) -> bool:
     """Keep the one-line record for a 4xx response, but drop its traceback.

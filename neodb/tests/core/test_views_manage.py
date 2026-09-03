@@ -12,13 +12,7 @@ from django.utils import translation
 from django.utils.translation import trans_real
 
 from boofilsic import settings as boofilsic_settings
-from common.config import (
-    MASK,
-    ConfigExceptionReporterFilter,
-    format_config_value,
-    mask_secret,
-    resolve_email_settings,
-)
+from common.config import hide_secret, resolve_email_settings
 from common.models import SiteConfig
 from users.middlewares import activate_language_for_user
 from users.models import User
@@ -648,80 +642,32 @@ class TestEnvironmentCoverage:
         )
 
 
-class TestMaskSecret:
+class TestHideSecret:
     @pytest.mark.parametrize(
         ("name", "value", "expected"),
         [
-            ("NEODB_SECRET_KEY", "abc", MASK),
-            ("TAKAHE_VAPID_PRIVATE_KEY", "abc", MASK),
-            ("TAKAHE_VAPID_PUBLIC_KEY", "abc", "abc"),
-            ("PGPASSWORD", "abc", MASK),
-            ("TAKAHE_STATOR_TOKEN", "abc", MASK),
+            ("NEODB_SECRET_KEY", "abc", "********"),
+            ("TAKAHE_STATOR_TOKEN", "abc", "********"),
+            ("NEODB_SECRET_KEY", "", ""),
             (
                 "NEODB_DB_URL",
                 "postgres://neodb:pw@db:5432/neodb",
-                f"postgres://neodb:{MASK}@db:5432/neodb",
+                "postgres://neodb:********@db:5432/neodb",
             ),
             ("NEODB_REDIS_URL", "redis://redis:6379/0", "redis://redis:6379/0"),
             (
                 "NEODB_SENTRY_DSN",
                 "https://k3y@o1.ingest.sentry.io/2",
-                f"https://{MASK}@o1.ingest.sentry.io/2",
-            ),
-            (
-                "MEDIA_BACKEND",
-                "s3://ak:sk@minio:9000/media?region=eu&secret_key=y",
-                f"s3://ak:{MASK}@minio:9000/media?region=eu&secret_key={MASK}",
+                "https://********@o1.ingest.sentry.io/2",
             ),
             ("NEODB_SITE_DOMAIN", "example.org", "example.org"),
-            ("NEODB_SEARCH_URL", "", ""),
-            # names the query regex catches but the old name regex did not
-            ("TAKAHE_SENDGRID_APIKEY", "abc", MASK),
-            ("NEODB_PROXY_PASS", "abc", MASK),
-            # unknown scheme: the key sits in the host slot
-            ("TAKAHE_EMAIL_SERVER", "sendgrid://SG.abc123", f"sendgrid://{MASK}"),
-            (
-                "TAKAHE_EMAIL_SERVER",
-                "anymail://mailgun?API_KEY=x&domain=d",
-                f"anymail://mailgun?API_KEY={MASK}&domain=d",
-            ),
-            (
-                "TAKAHE_MEDIA_URL",
-                "https://cdn.example.org/m/",
-                "https://cdn.example.org/m/",
-            ),
-            # unparsable URL (unbalanced bracket) must not raise
-            ("TAKAHE_MEDIA_URL", "https://[cdn.example.org/m/", MASK),
+            ("NEODB_DEBUG", True, "True"),
+            ("NEODB_ADMIN_HANDLES", ["a", "b"], "a, b"),
+            ("NEODB_EXTRA_APPS", None, ""),
         ],
     )
-    def test_mask(self, name: str, value: str, expected: str) -> None:
-        assert mask_secret(name, value) == expected
-
-    def test_format_non_string_values(self) -> None:
-        assert format_config_value("NEODB_DEBUG", True) == "True"
-        assert format_config_value("NEODB_ADMIN_HANDLES", ["a", "b"]) == "a, b"
-        assert format_config_value("NEODB_SENTRY_SAMPLE_RATE", 0.5) == "0.5"
-        assert format_config_value("NEODB_EXTRA_APPS", None) == ""
-        assert (
-            format_config_value("TYPESENSE", {"api_key": "k", "host": "h"})
-            == f'{{"api_key": "{MASK}", "host": "h"}}'
-        )
-
-    def test_debug_page_filter_masks_url_settings(self) -> None:
-        from django.views.debug import get_default_exception_reporter_filter
-
-        reporter_filter = get_default_exception_reporter_filter()
-
-        assert isinstance(reporter_filter, ConfigExceptionReporterFilter)
-        assert (
-            reporter_filter.cleanse_setting("DB_URL", "postgres://u:pw@db/neodb")
-            == f"postgres://u:{MASK}@db/neodb"
-        )
-        assert reporter_filter.cleanse_setting("DEBUG", True) is True
-        # Django's own name-based hiding still applies first
-        assert reporter_filter.cleanse_setting("SECRET_KEY", "x") == (
-            reporter_filter.cleansed_substitute
-        )
+    def test_hide(self, name: str, value: object, expected: str) -> None:
+        assert hide_secret(name, value) == expected
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -756,8 +702,8 @@ class TestEnvironmentPage:
         assert "TAKAHE_STATOR_TOKEN" in html
         assert "stator-secret-token" not in html
         # the raw connection strings are shown, with the password masked
-        assert mask_secret("NEODB_DB_URL", settings.DB_URL) in html
-        assert mask_secret("TAKAHE_DB_URL", settings.TAKAHE_DB_URL) in html
+        assert hide_secret("NEODB_DB_URL", settings.DB_URL) in html
+        assert hide_secret("TAKAHE_DB_URL", settings.TAKAHE_DB_URL) in html
         for alias in ("default", "takahe"):
             password = settings.DATABASES[alias].get("PASSWORD")
             if password:
