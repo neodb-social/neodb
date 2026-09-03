@@ -24,6 +24,7 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
 )
 
+from common.models import SiteConfig
 from common.sentry import count as sentry_count
 from common.validators import get_safe_redirect_url
 from users.login_proof import verify_login_proof
@@ -57,7 +58,7 @@ def passkey_register_options(request):
     ]
     options = generate_registration_options(
         rp_id=_get_rp_id(),
-        rp_name=settings.SITE_INFO.get("site_name", "NeoDB"),
+        rp_name=SiteConfig.system.site_name,
         user_id=WebAuthnCredential.get_webauthn_user_id(user),
         user_name=user.username,
         user_display_name=user.display_name or user.username,

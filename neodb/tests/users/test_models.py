@@ -4,6 +4,7 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from catalog.models import Edition
+from common.models import SiteConfig
 from journal.models import Mark, ShelfType
 from users.models import APIdentity, User
 from users.models.user import UsernameValidator
@@ -243,7 +244,7 @@ class TestRemoteAPIdentity:
 
     def test_avatar_falls_back_to_default_when_no_icon(self):
         identity = self._make_remote(icon_uri="")
-        assert identity.avatar == self.settings.SITE_INFO["user_icon"]
+        assert identity.avatar == SiteConfig.system.user_icon
 
     def test_avatar_uses_proxy_when_icon_present(self):
         identity = self._make_remote(

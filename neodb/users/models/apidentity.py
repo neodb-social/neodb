@@ -7,6 +7,7 @@ from django.db.models.functions import Upper
 from django.utils import timezone
 from loguru import logger
 
+from common.models import SiteConfig
 from mastodon.models.mastodon import MastodonAccount
 from takahe.utils import Takahe
 
@@ -157,14 +158,14 @@ class APIdentity(models.Model):
             return (
                 self.takahe_identity.icon.url
                 if self.takahe_identity.icon
-                else self.takahe_identity.icon_uri or settings.SITE_INFO["user_icon"]
+                else self.takahe_identity.icon_uri or SiteConfig.system.user_icon
             )
         elif self.takahe_identity.icon_uri:
             return f"/proxy/identity_icon/{self.pk}/"
         else:
             # Remote identity without an avatar: the icon proxy would 404, so
             # fall back to the default user icon instead of a broken image.
-            return settings.SITE_INFO["user_icon"]
+            return SiteConfig.system.user_icon
 
     @property
     def url(self):

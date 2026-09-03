@@ -13,6 +13,8 @@ from django.utils.dateparse import parse_datetime
 from loguru import logger
 from PIL import Image
 
+from common.models import SiteConfig
+
 from .models import *
 
 if TYPE_CHECKING:
@@ -586,7 +588,7 @@ class Takahe:
                     "Accept": "application/activity+json",
                     "User-Agent": settings.TAKAHE_USER_AGENT,
                 },
-                timeout=settings.TAKAHE_REMOTE_TIMEOUT,
+                timeout=SiteConfig.system.mastodon_timeout,
                 follow_redirects=True,
             )
             if response.status_code == 200:

@@ -610,7 +610,7 @@ class Identity(models.Model):
         if not is_valid_url(host_meta_url):
             return f"https://{domain}/.well-known/webfinger?resource={{uri}}"
         with httpx.Client(
-            timeout=settings.TAKAHE_REMOTE_TIMEOUT,
+            timeout=SiteConfig.system.mastodon_timeout,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
@@ -652,7 +652,7 @@ class Identity(models.Model):
         if not is_valid_url(resolved_webfinger_url):
             return None, None
         with httpx.Client(
-            timeout=settings.TAKAHE_REMOTE_TIMEOUT,
+            timeout=SiteConfig.system.mastodon_timeout,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
         ) as client:
             try:
@@ -817,7 +817,7 @@ class Identity(models.Model):
                 self.icon.url
                 if self.icon
                 else self.icon_uri
-                or (settings.SITE_INFO["site_url"] + settings.SITE_INFO["user_icon"])
+                or (settings.SITE_INFO["site_url"] + SiteConfig.system.user_icon)
             )
         else:
             return f"/proxy/identity_icon/{self.pk}/"

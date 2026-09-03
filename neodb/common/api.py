@@ -3,12 +3,14 @@ from typing import Any, List
 from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
+from django.utils.functional import lazy
 from loguru import logger
 from ninja import NinjaAPI, Schema, Status
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
 from ninja.security import HttpBearer
 
 from catalog.models import Item
+from common.models import SiteConfig
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity
 
@@ -109,11 +111,23 @@ class PageNumberPagination(NinjaPageNumberPagination):
         }
 
 
+def _site_name() -> str:
+    SiteConfig.ensure_loaded()
+    return SiteConfig.system.site_name
+
+
+def _api_description() -> str:
+    site_url = settings.SITE_INFO["site_url"]
+    return f"{_site_name()} API <hr/><a href='{site_url}'>Learn more</a>"
+
+
 api = NinjaAPI(
     auth=OAuthAccessTokenAuth(),
-    title=f"{settings.SITE_INFO['site_name']} API",
+    # lazy strings: the site name is a runtime SiteConfig value, and this module
+    # is imported before any request has loaded the config
+    title=lazy(lambda: f"{_site_name()} API", str)(),
     version="1.0.0",
-    description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.SITE_INFO['site_url']}'>Learn more</a>",
+    description=lazy(_api_description, str)(),
 )
 
 NOT_FOUND = Status(404, {"message": "Not found"})

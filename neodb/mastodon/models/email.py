@@ -9,6 +9,8 @@ from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from loguru import logger
 
+from common.models import SiteConfig
+
 from .common import SocialAccount
 
 _code_ttl = 60 * 15
@@ -58,7 +60,7 @@ class Email:
         footer = _(
             "\n\nIf you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
         )
-        site = settings.SITE_INFO["site_name"]
+        site = SiteConfig.system.site_name
         match action:
             case "verify":
                 subject = f"{site} - {_('Verification Code')} - {code}"

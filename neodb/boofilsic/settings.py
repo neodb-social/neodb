@@ -1,4 +1,3 @@
-import copy
 import logging
 import os
 import sys
@@ -251,13 +250,7 @@ SITE_INFO = {
     "cdn_url": "https://cdn.jsdelivr.net" if DEBUG else "/jsdelivr",
     # "cdn_url": "https://cdn.jsdelivr.net",
     # "cdn_url": "https://fastly.jsdelivr.net",
-    "enable_login_email": ENABLE_LOGIN_EMAIL,
-    "enable_login_atproto": ENABLE_LOGIN_BLUESKY,
 }
-# SiteConfig overwrites the branding entries of SITE_INFO at runtime; keep the
-# env-derived values so they stay available as the fallback when no DB override
-# is set.
-SITE_INFO_ENV = copy.deepcopy(SITE_INFO)
 
 INVITE_ONLY = env("NEODB_INVITE_ONLY")
 ADMIN_HANDLES: list[str] = env("NEODB_ADMIN_HANDLES")
@@ -282,11 +275,9 @@ MASTODON_ALLOW_ANY_SITE = len(MASTODON_ALLOWED_SITES) == 0
 ENABLE_LOCAL_ONLY = env("NEODB_ENABLE_LOCAL_ONLY")
 
 # Timeout of requests to Mastodon, in seconds
+# env fallback for SiteConfig.mastodon_timeout, read via SiteConfig.system at runtime
 MASTODON_TIMEOUT = env("NEODB_LOGIN_MASTODON_TIMEOUT", default=5)
-# SiteConfig overwrites MASTODON_TIMEOUT at runtime; see SITE_INFO_ENV above.
-MASTODON_TIMEOUT_ENV = MASTODON_TIMEOUT
 THREADS_TIMEOUT = 30  # Threads is really slow when publishing post
-TAKAHE_REMOTE_TIMEOUT = MASTODON_TIMEOUT
 
 NEODB_USER_AGENT = f"NeoDB/{NEODB_VERSION} (+{SITE_INFO.get('site_url', 'undefined')})"
 TAKAHE_USER_AGENT = NEODB_USER_AGENT
@@ -319,8 +310,6 @@ BGG_API_TOKEN = env("BGG_API_TOKEN")
 DEEPL_API_KEY = env("DEEPL_API_KEY")
 LT_API_URL = env("LT_API_URL").rstrip("/")
 LT_API_KEY = env("LT_API_KEY")
-
-SITE_INFO["translate_enabled"] = bool(DEEPL_API_KEY) or bool(LT_API_URL)
 
 DOWNLOADER_PROXY_LIST = env("NEODB_DOWNLOADER_PROXY_LIST")
 DOWNLOADER_BACKUP_PROXY = env("NEODB_DOWNLOADER_BACKUP_PROXY", default="")

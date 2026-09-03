@@ -40,8 +40,9 @@ class Setup:
         domain = settings.SITE_INFO["site_domain"]
         if not domain:
             raise ValueError("Panic: site_domain is not set!")
-        icon = settings.SITE_INFO["site_logo"]
-        name = settings.SITE_INFO["site_name"]
+        SiteConfig.ensure_loaded()
+        icon = SiteConfig.system.site_logo
+        name = SiteConfig.system.site_name
         service_domain = settings.SITE_INFO.get("site_service_domain")
 
         if not TakaheDomain.objects.filter(domain=domain).exists():

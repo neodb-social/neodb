@@ -22,7 +22,7 @@ from django.urls import reverse
 from django.utils import timezone
 from loguru import logger
 
-from common.models import jsondata
+from common.models import SiteConfig, jsondata
 from takahe.utils import Takahe
 
 from .bluesky_oauth import (
@@ -115,7 +115,7 @@ def build_basic_theme() -> dict[str, typing.Any]:
     links back to; bsky.app tints the article card with these colors.
     """
     accent, accent_foreground = _PICO_ACCENT.get(
-        settings.SITE_INFO.get("site_color", "azure"), _PICO_ACCENT["azure"]
+        SiteConfig.system.site_color, _PICO_ACCENT["azure"]
     )
     return {
         "$type": THEME_BASIC_NSID,

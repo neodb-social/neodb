@@ -42,8 +42,8 @@ class TootVisibilityEnum(StrEnum):
 
 
 def _request(method: str, url: str, **kwargs: typing.Any) -> requests.Response:
-    # timeout resolved at call time so SiteConfig can override it at runtime
-    kwargs.setdefault("timeout", settings.MASTODON_TIMEOUT)
+    # resolved at call time so a runtime SiteConfig change applies at once
+    kwargs.setdefault("timeout", SiteConfig.system.mastodon_timeout)
     return requests.request(method, url, **kwargs)
 
 
@@ -287,7 +287,7 @@ def create_app(domain_name, server_version):
     if not is_valid_url(url):
         raise ValueError(f"Invalid instance domain {domain_name}")
     payload = {
-        "client_name": settings.SITE_INFO["site_name"],
+        "client_name": SiteConfig.system.site_name,
         "scopes": _get_scopes(server_version),
         "redirect_uris": _get_redirect_uris(server_version),
         "website": settings.SITE_INFO["site_url"],
@@ -418,9 +418,7 @@ def verify_client(mast_app):
     headers = {"User-Agent": USER_AGENT}
     url = "https://" + (mast_app.api_domain or mast_app.domain_name) + API_OBTAIN_TOKEN
     try:
-        response = post(
-            url, data=payload, headers=headers, timeout=settings.MASTODON_TIMEOUT
-        )
+        response = post(url, data=payload, headers=headers)
     except Exception as e:
         logger.warning(f"Error {url} {e}")
         return False

@@ -8,7 +8,8 @@ import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
-from django.test import override_settings
+
+from common.models import SiteConfig
 
 from mastodon.models.bluesky import (
     PROFILE_NSID,
@@ -288,9 +289,13 @@ def test_publication_record_synced(monkeypatch):
     assert "icon" not in record  # test identity has no avatar file
 
 
-def test_basic_theme_mirrors_pico_site_color():
-    with override_settings(SITE_INFO={**settings.SITE_INFO, "site_color": "jade"}):
-        theme = build_basic_theme()
+def test_basic_theme_mirrors_pico_site_color(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(
+        SiteConfig,
+        "system",
+        SiteConfig.system.model_copy(update={"site_color": "jade"}),
+    )
+    theme = build_basic_theme()
 
     assert theme["$type"] == THEME_BASIC_NSID
     # jade: --pico-primary #007a50 over --pico-primary-inverse #fff
@@ -316,11 +321,15 @@ def test_basic_theme_mirrors_pico_site_color():
     }
 
 
-def test_basic_theme_falls_back_to_azure_for_unknown_site_color():
-    with override_settings(
-        SITE_INFO={**settings.SITE_INFO, "site_color": "chartreuse"}
-    ):
-        theme = build_basic_theme()
+def test_basic_theme_falls_back_to_azure_for_unknown_site_color(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(
+        SiteConfig,
+        "system",
+        SiteConfig.system.model_copy(update={"site_color": "chartreuse"}),
+    )
+    theme = build_basic_theme()
 
     # azure is the default PicoCSS theme: --pico-primary #0172ad
     assert theme["accent"] == {

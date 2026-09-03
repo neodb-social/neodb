@@ -195,9 +195,7 @@ class User(AbstractUser):
 
     @property
     def avatar(self):
-        return (
-            self.identity.avatar if self.identity else settings.SITE_INFO["user_icon"]
-        )
+        return self.identity.avatar if self.identity else SiteConfig.system.user_icon
 
     @property
     def url(self):

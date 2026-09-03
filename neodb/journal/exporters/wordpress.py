@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from lxml import etree
 
+from common.models import SiteConfig
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Article
 from users.models import Task
@@ -200,7 +201,7 @@ class WordpressExporter(Task):
         site_url = settings.SITE_INFO["site_url"].rstrip("/")
         root = etree.Element("rss", nsmap=_NS, attrib={"version": "2.0"})
         channel = etree.SubElement(root, "channel")
-        _sub(channel, "title").text = settings.SITE_INFO["site_name"]
+        _sub(channel, "title").text = SiteConfig.system.site_name
         _sub(channel, "link").text = site_url
         _sub(channel, "description").text = self.user.display_name or ""
         _sub(channel, "pubDate").text = format_datetime(timezone.now())

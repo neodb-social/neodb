@@ -264,7 +264,7 @@ class TestEmailSettingsApply:
             assert settings.EMAIL_BACKEND == expected_backend
             assert settings.DEFAULT_FROM_EMAIL == "NeoDB Test <test@example.org>"
             assert settings.ENABLE_LOGIN_EMAIL is enabled
-            assert settings.SITE_INFO["enable_login_email"] is enabled
+            assert settings.ENABLE_LOGIN_EMAIL is enabled
         finally:
             SiteConfig.objects.filter(pk=1).delete()
             if old_system is not None:
@@ -339,21 +339,30 @@ class TestConvertValueSimple:
 
 @pytest.mark.django_db(databases="__all__")
 class TestMastodonTimeoutApply:
-    """DB-stored mastodon_timeout must reach django settings on reload."""
+    """The Mastodon client sends the DB-stored mastodon_timeout after a reload."""
 
-    def test_db_value_applies_to_settings(self):
-        old_mastodon = settings.MASTODON_TIMEOUT
-        old_takahe = settings.TAKAHE_REMOTE_TIMEOUT
+    def test_db_value_is_used_by_requests(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from mastodon.models import mastodon as mastodon_module
+
+        seen: dict[str, Any] = {}
+
+        def fake_request(method: str, url: str, **kwargs: Any) -> None:
+            seen.update(kwargs)
+
+        monkeypatch.setattr(mastodon_module.requests, "request", fake_request)
         old_system = getattr(SiteConfig, "system", None)
         try:
             SiteConfig.set_system(mastodon_timeout=17)
             SiteConfig.reload()
+
+            mastodon_module.get("https://mastodon.example/api/v1/instance")
+
             assert SiteConfig.system.mastodon_timeout == 17
-            assert settings.MASTODON_TIMEOUT == 17
-            assert settings.TAKAHE_REMOTE_TIMEOUT == 17
+            assert seen["timeout"] == 17
         finally:
-            settings.MASTODON_TIMEOUT = old_mastodon
-            settings.TAKAHE_REMOTE_TIMEOUT = old_takahe
+            SiteConfig.objects.filter(pk=1).delete()
             if old_system is not None:
                 SiteConfig.system = old_system
 

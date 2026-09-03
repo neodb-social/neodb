@@ -7,6 +7,8 @@ def site_info(request):
     context = dict(
         settings.SITE_INFO
     )  # static fields (site_url, site_domain, cdn_url, etc.)
+    # derived from the effective email config by SiteConfig._apply_to_settings
+    context["enable_login_email"] = settings.ENABLE_LOGIN_EMAIL
     if hasattr(SiteConfig, "system"):
         opts = SiteConfig.system
         context["site_name"] = opts.site_name
