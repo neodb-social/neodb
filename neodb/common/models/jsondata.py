@@ -138,6 +138,10 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
     """
     Override django.db.model.fields.Field.contribute_to_class
     to make a field always private, and register custom access descriptor
+
+    Only filter lookups are rewritten to a JSON key expression. values(),
+    order_by() and update() use the raw column and act on the whole JSON
+    object; read and write these fields through the model instance instead.
     """
 
     def __init__(self, *args, **kwargs):
