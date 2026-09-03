@@ -19,6 +19,7 @@ from catalog.common.downloaders import (
     get_mock_mode,
 )
 from catalog.models import IdType, Podcast, PodcastEpisode, SiteName
+from common.models import SiteConfig
 from common.models.lang import detect_language
 from common.validators import is_valid_url
 from journal.models.renderers import html_to_text
@@ -100,7 +101,7 @@ class RSS(AbstractSite):
         feed, _e, _m, status = RSS.fetch_feed_with_metadata(url)
         if status != 200 or feed is None:
             return None
-        cache.set(cache_key, feed, timeout=settings.DOWNLOADER_CACHE_TIMEOUT)
+        cache.set(cache_key, feed, timeout=SiteConfig.system.downloader_cache_timeout)
         return feed
 
     @classmethod

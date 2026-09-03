@@ -1,3 +1,4 @@
+import inspect
 import re
 from pathlib import Path
 from typing import Any
@@ -564,6 +565,55 @@ class TestEnvDefaultsIsolation:
                 SiteConfig._apply_to_settings(old_system)
             else:
                 SiteConfig.reload()
+
+
+class TestSiteConfigReaders:
+    """Application code reads SiteConfig fields through SiteConfig.system.
+
+    A Django setting that only seeds a SiteConfig field holds the .env value,
+    so reading it directly ignores the value set in the UI. Settings that
+    _apply_to_settings() keeps in sync (Django consumes those) are exempt.
+    """
+
+    # (path relative to the neodb package, setting): documented exceptions
+    ALLOWED = {
+        # initial value of a module-level list that _apply_to_settings rewrites
+        ("common/models/lang.py", "PREFERRED_LANGUAGES"),
+    }
+    SKIP_PATHS = ("tests/", "boofilsic/settings.py", "common/models/site_config.py")
+
+    def test_no_direct_reads_of_seed_settings(self) -> None:
+        seeds = inspect.getsource(SiteConfig._env_defaults)
+        synced = set(
+            re.findall(
+                r"settings\.(\w+)\s*=", inspect.getsource(SiteConfig._apply_to_settings)
+            )
+        )
+        patterns = {
+            name: rf"\bsettings\.{name}\b"
+            for name in set(re.findall(r'getattr\(\s*settings,\s*"(\w+)"', seeds))
+            - synced
+        }
+        patterns |= {
+            f"SITE_INFO[{key}]": rf'settings\.SITE_INFO(\["{key}"\]|\.get\(\s*"{key}")'
+            for key in re.findall(r'site_info\.get\(\s*"(\w+)"', seeds)
+        }
+
+        root = Path(boofilsic_settings.__file__).resolve().parent.parent
+        offenders = []
+        for path in sorted(root.rglob("*.py")):
+            rel = path.relative_to(root).as_posix()
+            if rel.startswith(self.SKIP_PATHS) or "/migrations/" in rel:
+                continue
+            text = path.read_text()
+            for name, pattern in patterns.items():
+                if (rel, name) not in self.ALLOWED and re.search(pattern, text):
+                    offenders.append(f"{rel}: settings.{name}")
+
+        assert not offenders, (
+            "Read these through SiteConfig.system instead, or add them to"
+            f" TestSiteConfigReaders.ALLOWED with a reason: {offenders}"
+        )
 
 
 class TestEnvironmentCoverage:

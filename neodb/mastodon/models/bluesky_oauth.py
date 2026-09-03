@@ -119,7 +119,7 @@ def get_redirect_uri() -> str:
 def get_client_metadata() -> dict:
     return {
         "client_id": get_client_id(),
-        "client_name": settings.SITE_INFO["site_name"],
+        "client_name": SiteConfig.system.site_name,
         "client_uri": settings.SITE_INFO["site_url"],
         "redirect_uris": [get_redirect_uri()],
         "grant_types": ["authorization_code", "refresh_token"],

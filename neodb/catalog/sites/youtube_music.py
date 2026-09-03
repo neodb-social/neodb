@@ -16,13 +16,12 @@ Scraping strategy:
 import re
 
 import requests
-from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import get_mock_mode
 from catalog.models import *
-from common.models import normalize_album_types, parse_duration_text
+from common.models import SiteConfig, normalize_album_types, parse_duration_text
 from common.models.lang import detect_language
 
 _INNERTUBE_URL = "https://music.youtube.com/youtubei/v1/browse"
@@ -49,7 +48,7 @@ def _innertube_browse(browse_id: str) -> dict:
         _INNERTUBE_URL,
         json={"browseId": browse_id, "context": _INNERTUBE_CONTEXT},
         headers=_INNERTUBE_HEADERS,
-        timeout=settings.DOWNLOADER_REQUEST_TIMEOUT,
+        timeout=SiteConfig.system.downloader_request_timeout,
     )
     resp.raise_for_status()
     return resp.json()

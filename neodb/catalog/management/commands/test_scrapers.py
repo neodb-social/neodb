@@ -1,13 +1,12 @@
 import sys
 
-from django.conf import settings
-
 from catalog.common.downloaders import (
     RESPONSE_OK,
     RESPONSE_QUOTA_EXCEEDED,
     ScrapDownloader,
 )
 from common.management.base import SiteCommand
+from common.models import SiteConfig
 
 
 class Command(SiteCommand):
@@ -41,17 +40,17 @@ class Command(SiteCommand):
         timeout = options["timeout"]
 
         # Get list of configured providers
-        providers_str = settings.DOWNLOADER_PROVIDERS
+        providers_str = SiteConfig.system.downloader_providers
         if not providers_str:
             self.stdout.write(
-                self.style.ERROR("No providers configured in DOWNLOADER_PROVIDERS")
+                self.style.ERROR("No providers configured (Site Settings > Downloader)")
             )
             return
 
         providers = [p.strip() for p in providers_str.split(",") if p.strip()]
 
         # Add custom provider if configured
-        if settings.DOWNLOADER_CUSTOMSCRAPER_URL:
+        if SiteConfig.system.downloader_customscraper_url:
             if "custom" not in providers:
                 providers.append("custom")
 

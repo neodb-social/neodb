@@ -15,6 +15,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
 from catalog.search.index import CatalogIndex, CatalogQueryParser
+from common.models import SiteConfig
 from journal.models import *
 from users.models import Task
 
@@ -258,7 +259,7 @@ class StoryGraphImporter(Task):
                 return url, "openlibrary"
 
         # StoryGraph book page; importing it needs a JS-rendering scrape provider
-        if sg_uid and settings.DOWNLOADER_PROVIDERS:
+        if sg_uid and SiteConfig.system.downloader_providers:
             return f"https://app.thestorygraph.com/books/{sg_uid}", "storygraph"
 
         # title + author matching, local catalog index first then external
