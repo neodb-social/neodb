@@ -29,7 +29,7 @@ from catalog.models import (
     item_content_types,
 )
 from common.sentry import count as sentry_count
-from mastodon.models.bluesky_oauth import OAuthError
+from mastodon.models.bluesky_oauth import OAuthError, OAuthRejectedError
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
@@ -786,11 +786,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             OAuthError,
         ) as e:
             error_message = str(e)
-            # an OAuthError here means the stored session could not be
+            # an OAuthRejectedError means the stored session could not be
             # refreshed (rotated away, revoked or expired refresh token), so
-            # only a new authorization can restore crossposting
+            # only a new authorization can restore crossposting; a plain
+            # OAuthError is a transport failure that a retry may fix
             if (
-                isinstance(e, (exceptions.UnauthorizedError, OAuthError))
+                isinstance(e, (exceptions.UnauthorizedError, OAuthRejectedError))
                 or "ExpiredToken" in error_message
             ):
                 # re-authorize if ATProto token is expired

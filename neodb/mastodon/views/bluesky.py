@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
+from loguru import logger
 
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
@@ -64,6 +65,15 @@ def bluesky_login(request: HttpRequest):
     try:
         login_url = Bluesky.generate_auth_url(username, request)
     except Exception as e:
+        if request.method == "GET":
+            # the stored handle no longer resolves, most likely renamed while
+            # the token was dead, since sync() stops refreshing it once the
+            # account circuit opens: offer the login form so the owner can
+            # correct the handle instead of dead-ending on an error page. No
+            # fail_key either, a handle read from the database is not probing
+            logger.warning(f"ATProto reauthorization for {username} failed: {e}")
+            query = urlencode({"method": "bluesky", "username": username})
+            return redirect(f"{reverse('users:login')}?{query}")
         try:
             cache.incr(fail_key)
         except ValueError:

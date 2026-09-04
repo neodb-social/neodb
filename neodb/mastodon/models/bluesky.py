@@ -28,6 +28,7 @@ from takahe.utils import Takahe
 from .bluesky_oauth import (
     DpopRequest,
     OAuthError,
+    OAuthRejectedError,
     fetch_authserver_metadata,
     fetch_pds_authserver,
     generate_dpop_jwk,
@@ -312,7 +313,7 @@ class BlueskyAccount(SocialAccount):
     def get_access_token(self, force_refresh: bool = False) -> str:
         session = self._get_oauth()
         if not session.get("access_token"):
-            raise OAuthError("no OAuth session for this account")
+            raise OAuthRejectedError("no OAuth session for this account")
         if (
             force_refresh
             or int(session.get("expires_at") or 0) < time.time() + _TOKEN_EXPIRY_MARGIN
@@ -349,7 +350,9 @@ class BlueskyAccount(SocialAccount):
             ):
                 return  # already refreshed by another worker
             if not session.get("refresh_token"):
-                raise OAuthError("OAuth session expired, re-authorization needed")
+                raise OAuthRejectedError(
+                    "OAuth session expired, re-authorization needed"
+                )
             tokens, nonce = refresh_token_request(
                 session["token_endpoint"],
                 session["issuer"],

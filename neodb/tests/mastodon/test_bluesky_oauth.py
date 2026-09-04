@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
 from django.conf import settings
+from django.core.cache import cache
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -22,6 +23,7 @@ from mastodon.models.bluesky_oauth import (
     SCOPE,
     DpopRequest,
     OAuthError,
+    OAuthRejectedError,
     dpop_proof,
     generate_dpop_jwk,
     public_jwk,
@@ -135,10 +137,26 @@ def test_authserver_post_error_raises(monkeypatch):
             400, json={"error": "invalid_grant"}
         ),
     )
-    with pytest.raises(OAuthError):
+    # a refused grant is final, callers use it to ask for re-authorization
+    with pytest.raises(OAuthRejectedError):
         bluesky_oauth._authserver_post(
             "https://auth.example/token", {}, generate_dpop_jwk(), ""
         )
+
+
+def test_authserver_post_server_error_stays_retriable(monkeypatch):
+    monkeypatch.setattr(
+        bluesky_oauth.httpx,
+        "post",
+        lambda url, data=None, headers=None, timeout=None: httpx.Response(
+            503, text="upstream unavailable"
+        ),
+    )
+    with pytest.raises(OAuthError) as caught:
+        bluesky_oauth._authserver_post(
+            "https://auth.example/token", {}, generate_dpop_jwk(), ""
+        )
+    assert not isinstance(caught.value, OAuthRejectedError)
 
 
 @pytest.fixture
@@ -601,6 +619,30 @@ def test_reauthorize_uses_linked_handle_not_url(client, monkeypatch):
 
     assert response.status_code == 302
     assert calls == ["alice.test"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reauthorize_falls_back_to_form_on_unresolvable_handle(client, monkeypatch):
+    # the handle can be renamed while the token is dead, and sync() stops
+    # refreshing it then, so the stored one must not be a dead end
+    _link_bluesky(client, monkeypatch)
+
+    def unresolvable(handle, request):
+        raise OAuthError(f"handle {handle} not found")
+
+    monkeypatch.setattr(Bluesky, "generate_auth_url", unresolvable)
+    fail_key = "bluesky_login_fails_127.0.0.1"
+    cache.delete(fail_key)
+
+    response = client.get(reverse("mastodon:bluesky_login"))
+
+    assert response.status_code == 302
+    assert (
+        response.url == reverse("users:login") + "?method=bluesky&username=alice.test"
+    )
+    # re-authorizing an identity read from the database is not probing, so
+    # the per-IP cap must not be spent on it
+    assert not cache.get(fail_key)
 
 
 @pytest.mark.django_db(databases="__all__")
