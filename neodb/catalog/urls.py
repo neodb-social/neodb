@@ -118,6 +118,13 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/undelete$",
+        undelete,
+        name="undelete",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + r")/(?P<item_uuid>[A-Za-z0-9]{21,22})/assign_parent$",
         assign_parent,
         name="assign_parent",

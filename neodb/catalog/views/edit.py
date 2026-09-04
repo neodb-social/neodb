@@ -247,9 +247,17 @@ def undelete(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not request.user.is_staff:
         raise PermissionDenied(_("Insufficient permission"))
+    if not item.is_deleted:
+        raise BadRequest(_("Item is not deleted"))
     item.is_deleted = False
     item.save()
     record_catalog_edit("update", item.class_name, "undelete")
+    discord_send(
+        "audit",
+        f"{item.absolute_url}\nby [@{request.user.username}]({request.user.absolute_url})",
+        thread_name=f"[undelete] {item.display_title}",
+        username=f"@{request.user.username}",
+    )
     return redirect(item.url)
 
 

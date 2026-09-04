@@ -67,6 +67,48 @@ class TestItemDeleteInUse:
         item.refresh_from_db()
         assert item.is_deleted
 
+    def test_staff_can_undelete(self):
+        item = _podcast()
+        item.delete()
+        client = Client()
+        _login(client, is_staff=True)
+
+        response = client.post(f"{item.url}/undelete")
+        assert response.status_code == 302
+        item.refresh_from_db()
+        assert not item.is_deleted
+
+    def test_non_staff_cannot_undelete(self):
+        item = _podcast()
+        item.delete()
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{item.url}/undelete")
+        assert response.status_code == 403
+        item.refresh_from_db()
+        assert item.is_deleted
+
+    def test_undelete_rejects_live_item(self):
+        item = _podcast()
+        client = Client()
+        _login(client, is_staff=True)
+
+        response = client.post(f"{item.url}/undelete")
+        assert response.status_code == 400
+
+    def test_sidebar_offers_undelete_only_for_deleted_item(self):
+        item = _podcast()
+        client = Client()
+        _login(client, is_staff=True)
+
+        content = client.get(f"{item.url}/edit").content.decode()
+        assert f"{item.url}/undelete" not in content
+        item.delete()
+        content = client.get(f"{item.url}/edit").content.decode()
+        assert f"{item.url}/undelete" in content
+        assert f"{item.url}/delete" not in content
+
     def test_sidebar_offers_merge_but_not_delete_for_item_in_use(self):
         """Staff must not be shown a button that can only 403. Merge stays,
         since it keeps the pieces reachable."""
