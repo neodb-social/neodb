@@ -767,3 +767,44 @@ def test_article_cover_url_none_for_non_article():
         type_data={"object": {"image": "https://remote.test/x.jpg"}},
     )
     assert post.article_cover_url is None
+
+
+@pytest.mark.django_db
+def test_public_replies_uris(identity, other_identity, config_system, monkeypatch):
+    """
+    The batched replies lookup must match what to_ap() emits per post:
+    public and unlisted replies only, oldest first, capped per parent.
+    """
+    parents = [Post.create_local(identity, f"<p>Parent {i}</p>") for i in range(2)]
+    replies = {
+        parent.object_uri: [
+            Post.create_local(other_identity, f"<p>Reply {j}</p>", reply_to=parent)
+            for j in range(3)
+        ]
+        for parent in parents
+    }
+    Post.create_local(
+        other_identity,
+        "<p>Private</p>",
+        visibility=Post.Visibilities.followers,
+        reply_to=parents[0],
+    )
+    deleted = Post.create_local(other_identity, "<p>Deleted</p>", reply_to=parents[1])
+    deleted.transition_perform(PostStates.deleted)
+    orphan = Post.create_local(identity, "<p>No replies</p>")
+
+    result = Post.public_replies_uris(parents + [orphan])
+    assert result == {
+        parents[0].object_uri: [r.object_uri for r in replies[parents[0].object_uri]],
+        parents[1].object_uri: [r.object_uri for r in replies[parents[1].object_uri]],
+        orphan.object_uri: [],
+    }
+    for parent in parents:
+        single = Post.objects.get(pk=parent.pk).to_ap()["replies"]["first"]["items"]
+        assert single == result[parent.object_uri]
+
+    monkeypatch.setattr(Post, "REPLIES_COLLECTION_PAGE_SIZE", 2)
+    capped = Post.public_replies_uris(parents)
+    for parent in parents:
+        assert capped[parent.object_uri] == result[parent.object_uri][:2]
+    assert Post.public_replies_uris([]) == {}

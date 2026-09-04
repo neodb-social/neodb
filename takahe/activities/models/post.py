@@ -32,6 +32,7 @@ from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector
 from django.db import models, transaction
+from django.db.models.functions import RowNumber
 from django.db.models.signals import post_delete, post_save
 from django.db.utils import IntegrityError
 from django.template import loader
@@ -1173,9 +1174,49 @@ class Post(StatorModel):
 
     ### ActivityPub (outbound) ###
 
-    def to_ap(self) -> dict:
+    REPLIES_COLLECTION_PAGE_SIZE = 50
+
+    @classmethod
+    def public_replies_uris(cls, posts: Iterable["Post"]) -> dict[str, list[str]]:
+        """
+        Returns the first page of public reply URIs for each post, keyed by
+        the post's object_uri, in a single query. Feed the result to to_ap()
+        when serialising many posts.
+        """
+        uris = [post.object_uri for post in posts if post.object_uri]
+        result: dict[str, list[str]] = {uri: [] for uri in uris}
+        if not uris:
+            return result
+        rows = (
+            cls.objects.filter(
+                in_reply_to__in=uris,
+                visibility__in=[
+                    cls.Visibilities.public,
+                    cls.Visibilities.unlisted,
+                ],
+            )
+            .not_hidden()
+            .annotate(
+                reply_index=models.Window(
+                    RowNumber(),
+                    partition_by=models.F("in_reply_to"),
+                    order_by=models.F("published").asc(),
+                )
+            )
+            .filter(reply_index__lte=cls.REPLIES_COLLECTION_PAGE_SIZE)
+            .order_by("in_reply_to", "published")
+            .values_list("in_reply_to", "object_uri")
+        )
+        for parent_uri, reply_uri in rows:
+            result[parent_uri].append(reply_uri)
+        return result
+
+    def to_ap(self, replies_uris: list[str] | None = None) -> dict:
         """
         Returns the AP JSON for this object
+
+        replies_uris is the post's entry from public_replies_uris(); when
+        omitted it is queried here.
         """
         self.author.ensure_uris()
         value = {
@@ -1279,6 +1320,8 @@ class Post(StatorModel):
         if self.local and self.object_uri:
             replies_uri = self.object_uri + "replies/"
             replies_count = self.stats.get("replies", 0) if self.stats else 0
+            if replies_uris is None:
+                replies_uris = self.public_replies_uris([self])[self.object_uri]
             value["replies"] = {
                 "id": replies_uri,
                 "type": "Collection",
@@ -1286,18 +1329,7 @@ class Post(StatorModel):
                 "first": {
                     "type": "CollectionPage",
                     "partOf": replies_uri,
-                    "items": list(
-                        Post.objects.filter(
-                            in_reply_to=self.object_uri,
-                            visibility__in=[
-                                Post.Visibilities.public,
-                                Post.Visibilities.unlisted,
-                            ],
-                        )
-                        .not_hidden()
-                        .order_by("published")
-                        .values_list("object_uri", flat=True)[:50]
-                    ),
+                    "items": list(replies_uris),
                 },
             }
         # Remove fields if they're empty

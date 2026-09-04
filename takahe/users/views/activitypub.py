@@ -569,13 +569,21 @@ class Outbox(FederatedView):
         if not self.identity.local:
             raise Http404("Not a local identity")
         # Return an ordered collection with the most recent 10 public posts
-        posts = list(self.identity.posts.not_hidden().public()[:10])
+        posts = list(
+            self.identity.posts.not_hidden()
+            .public()
+            .prefetch_related("mentions", "emojis", "attachments")[:10]
+        )
+        replies = Post.public_replies_uris(posts)
         return JsonResponse(
             canonicalise(
                 {
                     "type": "OrderedCollection",
                     "totalItems": len(posts),
-                    "orderedItems": [post.to_ap() for post in posts],
+                    "orderedItems": [
+                        post.to_ap(replies_uris=replies.get(post.object_uri, []))
+                        for post in posts
+                    ],
                 }
             ),
             content_type="application/activity+json",
@@ -597,13 +605,17 @@ class FeaturedCollection(FederatedView):
         if not self.identity.local:
             raise Http404("Not a local identity")
         posts = list(TimelineService(self.identity).identity_pinned())
+        replies = Post.public_replies_uris(posts)
         return JsonResponse(
             canonicalise(
                 {
                     "type": "OrderedCollection",
                     "id": self.identity.actor_uri + "collections/featured/",
                     "totalItems": len(posts),
-                    "orderedItems": [post.to_ap() for post in posts],
+                    "orderedItems": [
+                        post.to_ap(replies_uris=replies.get(post.object_uri, []))
+                        for post in posts
+                    ],
                 }
             ),
             content_type="application/activity+json",

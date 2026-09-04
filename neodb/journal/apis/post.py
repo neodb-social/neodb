@@ -1,5 +1,6 @@
 from typing import List, Literal, Union
 
+from django.db.models import Prefetch, QuerySet
 from django.http import HttpResponse
 from ninja import Field, Schema
 
@@ -14,9 +15,21 @@ from common.api import (
     resolve_item_for_read,
 )
 from journal.search import JournalIndex, JournalQueryParser
+from takahe.models import Identity
 
 TIMELINE_LINK_MAX_LIMIT = 40
 TIMELINE_LINK_DEFAULT_LIMIT = 20
+
+
+def _with_status_relations(posts: QuerySet) -> QuerySet:
+    """Load every relation Post.to_mastodon_json reads, so a page of posts costs a fixed number of queries."""
+    return posts.select_related(
+        "author", "author__domain", "application"
+    ).prefetch_related(
+        "attachments",
+        "emojis",
+        Prefetch("mentions", queryset=Identity.objects.select_related("domain")),
+    )
 
 
 class CustomEmoji(Schema):
@@ -175,12 +188,7 @@ def list_posts_for_item(
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
     result = {
-        "data": [
-            p.to_mastodon_json()
-            for p in r.posts.prefetch_related("attachments", "author").select_related(
-                "application"
-            )
-        ],
+        "data": [p.to_mastodon_json() for p in _with_status_relations(r.posts)],
         "pages": r.pages,
         "count": r.total,
     }
@@ -218,9 +226,4 @@ def timeline_link(
     query.exclude("piece_class", "Post")
     query.sort(["created:desc"])
     r = JournalIndex.instance().search(query)
-    return [
-        p.to_mastodon_json()
-        for p in r.posts.prefetch_related(
-            "attachments", "author", "mentions", "emojis"
-        ).select_related("application")
-    ]
+    return [p.to_mastodon_json() for p in _with_status_relations(r.posts)]

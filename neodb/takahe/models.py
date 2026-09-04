@@ -1814,12 +1814,13 @@ class Post(models.Model):
         language = self.language
         if self.language == "":
             language = None
+        content = self.safe_content_remote()
         value = {
             "id": str(self.pk),
             "uri": self.object_uri,
             "created_at": format_ld_date(self.published),
             "account": self.author.to_mastodon_json(),
-            "content": self.safe_content_remote(),
+            "content": content,
             "language": language,
             "visibility": visibility_mapping[self.visibility],
             "sensitive": self.sensitive,
@@ -1859,7 +1860,7 @@ class Post(models.Model):
             "reblog": None,
             "poll": None,  # self.type_data.to_mastodon_json(self, identity) if isinstance(self.type_data, QuestionData) else None,
             "card": card.to_mastodon_json() if card else None,
-            "text": self.safe_content_remote(),
+            "text": content,
             "edited_at": format_ld_date(self.edited) if self.edited else None,
             "application": self.application.to_mastodon_status_json()
             if self.application

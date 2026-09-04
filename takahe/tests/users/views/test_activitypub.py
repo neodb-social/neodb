@@ -1,4 +1,7 @@
 import pytest
+from activities.models import Post
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from users.models import InboxMessage
 
@@ -166,3 +169,42 @@ def test_ignore_lemmy(client, identity):
     )
     assert num_inbox_messages == InboxMessage.objects.count()
     assert resp.status_code == 202
+
+
+@pytest.mark.django_db
+def test_outbox_bounded_queries(client, identity, other_identity, config_system):
+    """
+    The outbox serialises many posts: relations must be prefetched and the
+    replies collections loaded in one query rather than one per post.
+    """
+    parent = Post.create_local(identity, "<p>Hello @other@example.com</p>")
+    for i in range(4):
+        Post.create_local(identity, f"<p>Post {i}</p>")
+    reply = Post.create_local(other_identity, "<p>Reply</p>", reply_to=parent)
+    Post.create_local(
+        other_identity,
+        "<p>Private reply</p>",
+        visibility=Post.Visibilities.followers,
+        reply_to=parent,
+    )
+
+    with CaptureQueriesContext(connection) as ctx:
+        response = client.get(
+            "/@test@example.com/outbox/", HTTP_ACCEPT="application/ld+json"
+        )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["totalItems"] == 5
+    by_id = {item["id"]: item for item in data["orderedItems"]}
+    # canonicalise() compacts a one-item list to a bare string
+    assert by_id[parent.object_uri]["replies"]["first"]["items"] == reply.object_uri
+    assert "https://example.com/@other@example.com/" in by_id[parent.object_uri]["cc"]
+
+    sql = [q["sql"] for q in ctx.captured_queries]
+    for fragment in (
+        '"activities_post_mentions"',
+        '"activities_post_emojis"',
+        '"activities_postattachment"',
+        '"in_reply_to" IN',
+    ):
+        assert sum(fragment in s for s in sql) <= 1, fragment
