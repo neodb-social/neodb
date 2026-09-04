@@ -1,4 +1,4 @@
-from typing import List, Literal, Union
+from typing import Literal, Union
 
 from django.db.models import Prefetch, QuerySet
 from django.http import HttpResponse
@@ -7,7 +7,6 @@ from ninja import Field, Schema
 from catalog.models import Item
 from common.api import (
     INVALID_PAGE,
-    OAuthAccessTokenAuth,
     OptionalOAuthAccessTokenAuth,
     RedirectedResult,
     Result,
@@ -133,7 +132,7 @@ class Post(Schema):
 
 
 class PaginatedPostList(Schema):
-    data: List[Post]
+    data: list[Post]
     pages: int
     count: int
 
@@ -148,6 +147,7 @@ PostTypes = {"mark", "comment", "review", "collection", "note"}
         302: RedirectedResult,
         400: Result,
         401: Result,
+        403: Result,
         404: Result,
     },
     tags=["catalog"],
@@ -195,11 +195,14 @@ def list_posts_for_item(
     return result
 
 
+# The one versioned path in an otherwise unversioned API: it fills in a
+# timeline Mastodon defines but takahe does not serve, so it has to keep
+# Mastodon's own path and its bare-list, `limit`-based contract.
 @api.get(
     "/v1/timelines/link",
-    response={200: list[Post]},
+    response={200: list[Post], 401: Result},
     tags=["mastodon"],
-    auth=OAuthAccessTokenAuth(),
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 def timeline_link(
     request,
@@ -211,14 +214,16 @@ def timeline_link(
 
     Returns posts visible to the requesting user that are about the catalog item
     identified by `url`, which may be a NeoDB item URL or an external resource
-    URL (e.g. a Douban or Goodreads page).
+    URL (e.g. a Douban or Goodreads page). Anonymous callers see public posts.
     """
     limit = min(max(1, limit), TIMELINE_LINK_MAX_LIMIT)
     item = Item.get_by_remote_url(url)
     if not item:
         return []
     query = JournalQueryParser("", page_size=limit)
-    query.filter_by_viewer(request.user.identity)
+    query.filter_by_viewer(
+        request.user.identity if request.user.is_authenticated else None
+    )
     query.filter("item_id", item.pk)
     # posts orphaned by a shelf change carry item fields too; keep them
     # out to preserve pre-enrichment behavior (surfacing old mark posts

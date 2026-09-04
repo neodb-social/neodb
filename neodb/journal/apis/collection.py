@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List
+from typing import Any
 
 from django import forms
 from django.conf import settings
@@ -17,10 +17,13 @@ from ninja.pagination import paginate
 
 from catalog.models import Item, ItemSchema
 from common.api import (
+    INVALID_PAGE,
     OptionalOAuthAccessTokenAuth,
     PageNumberPagination,
     RedirectedResult,
     Result,
+    deprecated_field,
+    renamed_field,
     api,
 )
 from common.sentry import record_activity
@@ -68,7 +71,7 @@ class CollectionPageNumberPagination(PageNumberPagination):
         return val
 
 
-def _prefetch_collection_owners(collections: List[Collection]) -> None:
+def _prefetch_collection_owners(collections: list[Collection]) -> None:
     """Batch-load takahe identities so owner (``UserIdentitySchema``)
     serialization (display_name/avatar) does not fire a cross-db query per
     collection.
@@ -79,6 +82,7 @@ def _prefetch_collection_owners(collections: List[Collection]) -> None:
 
 
 class CollectionSchema(Schema):
+    id: str = Field(alias="absolute_url")
     uuid: str
     url: str
     api_url: str
@@ -86,7 +90,9 @@ class CollectionSchema(Schema):
     post_id: int | None = Field(alias="latest_post_id")
     created_time: datetime
     title: str
-    brief: str
+    # brief is deprecated, use description instead (as in ItemSchema)
+    brief: str = Field(deprecated=True)
+    description: str = Field(alias="brief")
     cover_image_url: str | None
     cover: str = Field(deprecated=True)
     html_content: str
@@ -98,7 +104,8 @@ class CollectionSchema(Schema):
 
 class CollectionInSchema(Schema):
     title: str
-    brief: str
+    description: str = renamed_field("description", "brief")
+    brief: str | None = deprecated_field()
     visibility: int = Field(ge=0, le=2)
     query: str | None = None
 
@@ -169,6 +176,24 @@ class CollectionItemPageNumberPagination(PageNumberPagination):
         return val
 
 
+class CollectionListSchema(Schema):
+    data: list[CollectionSchema]
+    pages: int
+    count: int
+
+
+class CollectionItemResult(Result):
+    """``Result``, as every other collection write returns.
+
+    ``item``/``note`` are the pre-``Result`` body of
+    ``PUT /me/collection/{uuid}/item/{item_uuid}``, kept so clients reading
+    them keep working; re-fetch the item list instead.
+    """
+
+    item: ItemSchema | None = Field(None, deprecated=True)
+    note: str = Field("", deprecated=True)
+
+
 class CollectionItemInSchema(Schema):
     item_uuid: str
     note: str
@@ -192,7 +217,7 @@ class FeaturedCollectionStatsSchema(Schema):
 
 @api.get(
     "/me/collection/",
-    response={200: List[CollectionSchema], 401: Result, 403: Result},
+    response={200: list[CollectionSchema], 401: Result, 403: Result},
     tags=["collection"],
 )
 @paginate(CollectionPageNumberPagination)
@@ -208,17 +233,15 @@ def list_user_collections(request):
 
 @api.get(
     "/user/{handle}/collection/",
-    response={200: List[CollectionSchema], 401: Result, 404: Result},
+    response={200: list[CollectionSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
-    auth=OptionalOAuthAccessTokenAuth(),
 )
 @paginate(CollectionPageNumberPagination)
 def list_collections_of_user(request, handle: str):
     """
     Get collections created by a specific user
 
-    Only collections visible to the requesting identity are returned;
-    anonymous access is allowed if the user's profile is anonymous viewable.
+    Only collections visible to the requesting identity are returned.
     """
     try:
         target = APIdentity.get_by_handle(handle)
@@ -232,30 +255,26 @@ def list_collections_of_user(request, handle: str):
 
 @api.get(
     "/user/{handle}/collection/liked/",
-    response={200: List[CollectionSchema], 401: Result, 404: Result},
+    response={200: list[CollectionSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
-    auth=OptionalOAuthAccessTokenAuth(),
 )
 @paginate(CollectionPageNumberPagination)
 def list_liked_collections_of_user(request, handle: str):
     """
     Get collections liked by a specific user
 
-    Only collections visible to the requesting identity are returned;
-    anonymous access is allowed if the user's profile is anonymous viewable.
+    Only collections visible to the requesting identity are returned.
     """
     try:
         target = APIdentity.get_by_handle(handle)
     except APIdentity.DoesNotExist:
         raise Http404("User not found")
-    viewer = request.user.identity if request.user.is_authenticated else None
+    viewer = request.user.identity
     # gate on the target like the created-collections endpoint above:
     # hide the list rather than 403, so it's indistinguishable from empty
     if target.restricted:
         return Collection.objects.none()
-    if viewer is None and not target.anonymous_viewable:
-        return Collection.objects.none()
-    if viewer and viewer != target and viewer.is_blocked_by(target):
+    if viewer != target and viewer.is_blocked_by(target):
         return Collection.objects.none()
     queryset = Collection.objects.filter(
         interactions__identity=target,
@@ -304,7 +323,7 @@ def get_collection(request, collection_uuid: str):
 
 @api.get(
     "/collection/{collection_uuid}/item/",
-    response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
+    response={200: list[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
@@ -328,20 +347,21 @@ def collection_list_items(request, collection_uuid: str):
 
 @api.post(
     "/me/collection/",
-    response={200: CollectionSchema, 401: Result, 403: Result, 404: Result},
+    response={200: CollectionSchema, 401: Result, 403: Result},
     tags=["collection"],
 )
 def create_collection(request, c_in: CollectionInSchema):
     """
     Create collection.
 
-    `title`, `brief` (markdown formatted) and `visibility` are required;
+    `title`, `description` (markdown formatted) and `visibility` are required;
+    `brief` is accepted as a deprecated alias of `description`.
     """
     q = (c_in.query or "").strip() or None
     c = Collection(
         owner=request.user.identity,
         title=c_in.title,
-        brief=c_in.brief,
+        brief=c_in.description,
         visibility=c_in.visibility,
         query=q,
     )
@@ -377,7 +397,7 @@ def update_collection(request, collection_uuid: str, c_in: CollectionInSchema):
     ):
         return Status(403, {"message": "Only owner can change visibility or query"})
     c.title = c_in.title
-    c.brief = c_in.brief
+    c.brief = c_in.description
     c.visibility = c_in.visibility
     c.query = q
     c.application_id_when_save = getattr(request, "application_id", None)
@@ -481,7 +501,7 @@ def delete_collection(request, collection_uuid: str):
 
 @api.get(
     "/me/collection/{collection_uuid}/item/",
-    response={200: List[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
+    response={200: list[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
 )
 @paginate(CollectionItemPageNumberPagination)
@@ -538,7 +558,7 @@ def collection_add_item(
 
 @api.put(
     "/me/collection/{collection_uuid}/item/{item_uuid}",
-    response={200: CollectionItemSchema, 401: Result, 403: Result, 404: Result},
+    response={200: CollectionItemResult, 401: Result, 403: Result, 404: Result},
     tags=["collection"],
 )
 def collection_update_item(
@@ -552,7 +572,7 @@ def collection_update_item(
 
     The item must already be in the collection; 404 is returned otherwise
     (position is preserved, unlike remove + re-add). Set `note` to an empty
-    string to clear it. Returns the updated member.
+    string to clear it.
     """
     c = Collection.get_by_url(collection_uuid)
     if not c:
@@ -569,7 +589,9 @@ def collection_update_item(
     member = c.update_item_note(item, collection_item.note)
     if not member:
         return Status(404, {"message": "Item not in collection"})
-    return member
+    return Status(
+        200, {"message": "OK", "item": member.item, "note": member.note or ""}
+    )
 
 
 @api.post(
@@ -642,7 +664,7 @@ def collection_delete_item(request, collection_uuid: str, item_uuid: str):
 
 @api.get(
     "/item/{item_uuid}/collection/",
-    response={200: List[CollectionSchema], 401: Result, 404: Result},
+    response={200: list[CollectionSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
@@ -701,13 +723,23 @@ def collection_unset_featured(request, collection_uuid: str):
 
 @api.get(
     "/me/collection/featured/",
-    response={200: list[CollectionSchema], 401: Result, 403: Result},
+    response={
+        200: list[CollectionSchema] | CollectionListSchema,
+        400: Result,
+        401: Result,
+        403: Result,
+    },
     tags=["featured collection"],
 )
-def list_featured_collections(request):
+def list_featured_collections(request, page: int | None = None):
     """
     List featured collections for current user.
+
+    Omitting `page` returns a bare list; that shape is deprecated, pass `page`
+    to get the `{data, pages, count}` envelope the other list endpoints use.
     """
+    if page is not None and page < 1:
+        return INVALID_PAGE
     collections = list(
         Collection.objects.filter(featured_by=request.user.identity)
         .filter(q_piece_visible_to_user(request.user))
@@ -715,7 +747,20 @@ def list_featured_collections(request):
     )
     Collection.attach_item_count_by_category(collections)
     _prefetch_collection_owners(collections)
-    return collections
+    if page is None:
+        return collections
+    # page_size is set in __init__, so read it off an instance
+    page_size = CollectionPageNumberPagination().page_size
+    count = len(collections)
+    offset = (page - 1) * page_size
+    return Status(
+        200,
+        {
+            "data": collections[offset : offset + page_size],
+            "pages": (count + page_size - 1) // page_size,
+            "count": count,
+        },
+    )
 
 
 @api.get(

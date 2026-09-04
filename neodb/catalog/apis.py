@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List
 from urllib.parse import urlparse
 
 from django.core.cache import cache
@@ -10,7 +9,14 @@ from django.utils import timezone
 from ninja import Field, Schema, Status
 from ninja.pagination import paginate
 
-from common.api import PageNumberPagination, RedirectedResult, Result, api
+from common.api import (
+    NO_DATA,
+    OptionalOAuthAccessTokenAuth,
+    PageNumberPagination,
+    RedirectedResult,
+    Result,
+    api,
+)
 from journal.models.mark import Mark
 from journal.models.rating import Rating
 from journal.models.tag import TagManager
@@ -54,7 +60,7 @@ PAGE_SIZE = 20
 
 
 class SearchResult(Schema):
-    data: List[
+    data: list[
         EditionSchema
         | TVShowSchema
         | TVSeasonSchema
@@ -71,13 +77,13 @@ class SearchResult(Schema):
 
 
 class EpisodeList(Schema):
-    data: List[PodcastEpisodeSchema]
+    data: list[PodcastEpisodeSchema]
     pages: int
     count: int
 
 
 class PodcastList(Schema):
-    data: List[PodcastSchema]
+    data: list[PodcastSchema]
     pages: int
     count: int
 
@@ -88,7 +94,9 @@ class PeopleSummarySchema(Schema):
     url: str
     api_url: str
     people_type: str
-    display_name: str
+    # display_name is deprecated, use name instead (as in PeopleSchema)
+    display_name: str = Field(deprecated=True)
+    name: str = Field(alias="display_name")
     cover_image_url: str | None
 
 
@@ -100,7 +108,9 @@ class ItemSummarySchema(Schema):
     api_url: str
     category: str
     parent_uuid: str | None
-    display_title: str
+    # display_title is deprecated, use title instead (as in BaseSchema)
+    display_title: str = Field(deprecated=True)
+    title: str = Field(alias="display_title")
     cover_image_url: str | None
 
 
@@ -200,7 +210,7 @@ _CANONICAL_CREDIT_ITEM_TYPES: dict[type[Item], CreditItemType] = {
 
 class Gallery(Schema):
     name: str
-    items: List[ItemSchema]
+    items: list[ItemSchema]
 
 
 @api.get(
@@ -448,18 +458,25 @@ def trending_verified_podcasts(request, page: int = 1):
     )
 
 
-def _get_item(cls, uuid, response, attach_credits: bool = True):
+def _get_item(cls, uuid, response, attach_credits: bool = True, subresource: str = ""):
+    """Resolve the item a catalog read is about, redirecting merged/recast ones.
+
+    `subresource` is appended to the redirect target, so a route under an item
+    ("/sibling/", "/episode/") points at the same subresource of the item it
+    redirects to rather than at that item's detail route, which would answer
+    with a different shape than the caller asked for.
+    """
     item = Item.get_by_url(uuid)
     if not item:
         return Status(404, {"message": "Item not found"})
     if item.merged_to_item:
-        response["Location"] = item.merged_to_item.api_url
-        return Status(
-            302, {"message": "Item merged", "url": item.merged_to_item.api_url}
-        )
+        url = f"{item.merged_to_item.api_url}{subresource}"
+        response["Location"] = url
+        return Status(302, {"message": "Item merged", "url": url})
     if item.is_deleted:
         return Status(404, {"message": "Item not found"})
     if item.__class__ != cls:
+        # a recast item may not have this subresource, so point at its detail
         response["Location"] = item.api_url
         return Status(302, {"message": "Item recasted", "url": item.api_url})
     # Public tags are returned for single-item lookups; aggregate for this item
@@ -473,17 +490,17 @@ def _get_item(cls, uuid, response, attach_credits: bool = True):
 
 
 @api.get(
-    "/people/{uuid}",
+    "/people/{people_uuid}",
     response={200: PeopleSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_people(request, uuid: str, response: HttpResponse):
-    return _get_item(People, uuid, response)
+def get_people(request, people_uuid: str, response: HttpResponse):
+    return _get_item(People, people_uuid, response)
 
 
 @api.get(
-    "/catalog/{item_type}/{uuid}/credit/",
+    "/catalog/{item_type}/{item_uuid}/credit/",
     response={200: CreditListSchema, 302: RedirectedResult, 404: Result},
     summary="List all credits for a catalog item",
     auth=None,
@@ -492,11 +509,11 @@ def get_people(request, uuid: str, response: HttpResponse):
 def get_item_credits(
     request,
     item_type: CreditItemType,
-    uuid: str,
+    item_uuid: str,
     response: HttpResponse,
     page: int = 1,
 ):
-    item = Item.get_by_url(uuid)
+    item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted:
         return Status(404, {"message": "Item not found"})
     expected_cls = _CREDIT_ITEM_MODELS[item_type]
@@ -540,20 +557,20 @@ def get_item_credits(
 
 
 @api.get(
-    "/people/{uuid}/work/",
+    "/people/{people_uuid}/work/",
     response={200: PeopleWorkListSchema, 302: RedirectedResult, 404: Result},
     summary="List all catalog works credited to a person or organization",
     auth=None,
     tags=["catalog"],
 )
-def get_people_works(request, uuid: str, response: HttpResponse, page: int = 1):
-    item = Item.get_by_url(uuid)
+def get_people_works(request, people_uuid: str, response: HttpResponse, page: int = 1):
+    item = Item.get_by_url(people_uuid)
     if not item or item.is_deleted:
-        return Status(404, {"message": "People not found"})
+        return Status(404, {"message": "Item not found"})
     if item.merged_to_item:
         url = f"{item.merged_to_item.api_url}/work/"
         response["Location"] = url
-        return Status(302, {"message": "People merged", "url": url})
+        return Status(302, {"message": "Item merged", "url": url})
     if item.__class__ is not People:
         response["Location"] = item.api_url
         return Status(302, {"message": "Item recasted", "url": item.api_url})
@@ -582,7 +599,7 @@ def get_people_works(request, uuid: str, response: HttpResponse, page: int = 1):
             person=item, item_id__in=[work.pk for work in items]
         ).order_by("item_id", "role", "order", "pk")
     )
-    # Follow the request locale, as /api/people/{uuid} does for this person.
+    # Follow the request locale, as /api/people/{people_uuid} does for this person.
     ItemCredit.attach_localized_names(work_credits)
     for credit in work_credits:
         credits_by_item.setdefault(credit.item_id, []).append(credit)
@@ -597,101 +614,115 @@ def get_people_works(request, uuid: str, response: HttpResponse, page: int = 1):
 
 
 @api.get(
-    "/book/{uuid}",
+    "/book/{item_uuid}",
     response={200: EditionSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_book(request, uuid: str, response: HttpResponse):
-    return _get_item(Edition, uuid, response)
+def get_book(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Edition, item_uuid, response)
 
 
 @api.get(
-    "/book/{uuid}/sibling/",
-    response={200: List[EditionSchema]},
+    "/book/{item_uuid}/sibling/",
+    response={
+        200: list[EditionSchema],
+        302: RedirectedResult,
+        404: Result,
+    },
     auth=None,
     tags=["catalog"],
 )
 @paginate(PageNumberPagination)
-def get_sibling_editions_for_book(request, uuid: str, response: HttpResponse):
+def get_sibling_editions_for_book(request, item_uuid: str, response: HttpResponse):
     # Only the siblings are serialized, so skip this edition's credit load.
-    i = _get_item(Edition, uuid, response, attach_credits=False)
+    i = _get_item(
+        Edition, item_uuid, response, attach_credits=False, subresource="/sibling/"
+    )
     if not isinstance(i, Edition):
-        return Edition.objects.none()
+        # Hand the 302/404 back rather than an empty page; ninja unwraps it
+        # before paginating and PageNumberPagination passes the payload through.
+        return i
     return i.sibling_items
 
 
 @api.get(
-    "/movie/{uuid}",
+    "/movie/{item_uuid}",
     response={200: MovieSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_movie(request, uuid: str, response: HttpResponse):
-    return _get_item(Movie, uuid, response)
+def get_movie(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Movie, item_uuid, response)
 
 
 @api.get(
-    "/tv/{uuid}",
+    "/tv/{item_uuid}",
     response={200: TVShowSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_tv_show(request, uuid: str, response: HttpResponse):
-    return _get_item(TVShow, uuid, response)
+def get_tv_show(request, item_uuid: str, response: HttpResponse):
+    return _get_item(TVShow, item_uuid, response)
 
 
 @api.get(
-    "/tv/season/{uuid}",
+    "/tv/season/{item_uuid}",
     response={200: TVSeasonSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_tv_season(request, uuid: str, response: HttpResponse):
-    return _get_item(TVSeason, uuid, response)
+def get_tv_season(request, item_uuid: str, response: HttpResponse):
+    return _get_item(TVSeason, item_uuid, response)
 
 
 @api.get(
-    "/tv/episode/{uuid}",
+    "/tv/episode/{item_uuid}",
     response={200: TVEpisodeSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_tv_episode(request, uuid: str, response: HttpResponse):
-    return _get_item(TVEpisode, uuid, response)
+def get_tv_episode(request, item_uuid: str, response: HttpResponse):
+    return _get_item(TVEpisode, item_uuid, response)
 
 
 @api.get(
-    "/podcast/{uuid}",
+    "/podcast/{item_uuid}",
     response={200: PodcastSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_podcast(request, uuid: str, response: HttpResponse):
-    return _get_item(Podcast, uuid, response)
+def get_podcast(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Podcast, item_uuid, response)
 
 
 @api.get(
-    "/podcast/episode/{uuid}",
+    "/podcast/episode/{item_uuid}",
     response={200: PodcastEpisodeSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_podcast_episode(request, uuid: str, response: HttpResponse):
-    return _get_item(PodcastEpisode, uuid, response)
+def get_podcast_episode(request, item_uuid: str, response: HttpResponse):
+    return _get_item(PodcastEpisode, item_uuid, response)
 
 
 @api.get(
-    "/podcast/{uuid}/episode/",
+    "/podcast/{item_uuid}/episode/",
     response={200: EpisodeList, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
 def get_episodes_in_podcast(
-    request, uuid: str, response: HttpResponse, page: int = 1, guid: str | None = None
+    request,
+    item_uuid: str,
+    response: HttpResponse,
+    page: int = 1,
+    guid: str | None = None,
 ):
     # Only the episodes are serialized, so skip the podcast's credit load.
-    podcast = _get_item(Podcast, uuid, response, attach_credits=False)
+    podcast = _get_item(
+        Podcast, item_uuid, response, attach_credits=False, subresource="/episode/"
+    )
     if not isinstance(podcast, Podcast):
         return podcast
     episodes = podcast.child_items.filter(
@@ -718,47 +749,48 @@ def get_episodes_in_podcast(
 
 
 @api.get(
-    "/album/{uuid}",
+    "/album/{item_uuid}",
     response={200: AlbumSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_album(request, uuid: str, response: HttpResponse):
-    return _get_item(Album, uuid, response)
+def get_album(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Album, item_uuid, response)
 
 
 @api.get(
-    "/game/{uuid}",
+    "/game/{item_uuid}",
     response={200: GameSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_game(request, uuid: str, response: HttpResponse):
-    return _get_item(Game, uuid, response)
+def get_game(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Game, item_uuid, response)
 
 
 @api.get(
-    "/performance/{uuid}",
+    "/performance/{item_uuid}",
     response={200: PerformanceSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_performance(request, uuid: str, response: HttpResponse):
-    return _get_item(Performance, uuid, response)
+def get_performance(request, item_uuid: str, response: HttpResponse):
+    return _get_item(Performance, item_uuid, response)
 
 
 @api.get(
-    "/performance/production/{uuid}",
+    "/performance/production/{item_uuid}",
     response={200: PerformanceProductionSchema, 302: RedirectedResult, 404: Result},
     auth=None,
     tags=["catalog"],
 )
-def get_performance_production(request, uuid: str, response: HttpResponse):
-    return _get_item(PerformanceProduction, uuid, response)
+def get_performance_production(request, item_uuid: str, response: HttpResponse):
+    return _get_item(PerformanceProduction, item_uuid, response)
 
 
 class RecommendationResult(Schema):
-    data: List[ItemSchema]
+    data: list[ItemSchema]
+    pages: int
     count: int
 
 
@@ -789,21 +821,25 @@ def _prepare_reco_items(request, items: list) -> None:
 
 
 @api.get(
-    "/catalog/item/{uuid}/similar",
-    response={200: RecommendationResult, 404: Result},
+    "/catalog/item/{item_uuid}/similar",
+    response={200: RecommendationResult, 401: Result, 404: Result},
     summary="Items similar to the given item",
+    # optional rather than auth=None: the body reads request.user for the
+    # viewer's opt-out, their shelved items and their mark state, so a token
+    # has to keep being honoured even though anonymous callers are allowed
+    auth=OptionalOAuthAccessTokenAuth(),
     tags=["recommendation"],
 )
-def similar_for_item(request, uuid: str, limit: int = 10):
+def similar_for_item(request, item_uuid: str, limit: int = 10):
     if not can_show_reco(request.user, "similar_items"):
-        return Status(200, {"data": [], "count": 0})
-    item = Item.get_by_url(uuid)
+        return Status(200, NO_DATA)
+    item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted:
         return Status(404, {"message": "Item not found"})
     target = item.merged_to_item or item
     items = similar_items(target, request.user, limit=min(max(limit, 1), 50))
     _prepare_reco_items(request, items)
-    return Status(200, {"data": items, "count": len(items)})
+    return Status(200, {"data": items, "pages": 1 if items else 0, "count": len(items)})
 
 
 @api.get(
@@ -819,7 +855,7 @@ def me_recommendations(request, limit: int = 30):
         can_show_reco(request.user, "for_you")
         or can_show_reco(request.user, "from_circles")
     ):
-        return Status(200, {"data": [], "count": 0})
+        return Status(200, NO_DATA)
     items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
     _prepare_reco_items(request, items)
-    return Status(200, {"data": items, "count": len(items)})
+    return Status(200, {"data": items, "pages": 1 if items else 0, "count": len(items)})

@@ -1,5 +1,3 @@
-from typing import List
-
 from django.core.cache import cache
 from django.http import Http404
 from ninja import Field, Schema, Status
@@ -20,6 +18,9 @@ class TagSchema(Schema):
 
 class TagInSchema(Schema):
     title: str
+    # Bounded like every other visibility field, but a tag has only two
+    # states: there is no followers-only tag, so 1 is stored as 2 (private)
+    # rather than rejected. See _tag_visibility().
     visibility: int = Field(ge=0, le=2)
 
 
@@ -31,9 +32,18 @@ class TagItemInSchema(Schema):
     item_uuid: str
 
 
+def _tag_visibility(visibility: int) -> int:
+    """Collapse the requested visibility to the two a tag can hold.
+
+    Tags are public (0) or private (2); followers-only tags do not exist, so
+    1 is stored as private rather than rejected.
+    """
+    return 2 if visibility else 0
+
+
 @api.get(
     "/me/tag/",
-    response={200: List[TagSchema], 401: Result, 403: Result},
+    response={200: list[TagSchema], 401: Result, 403: Result},
     tags=["tag"],
 )
 @paginate(PageNumberPagination)
@@ -68,17 +78,19 @@ def get_tag(request, tag_uuid: str):
 
 @api.post(
     "/me/tag/",
-    response={200: TagSchema, 401: Result, 403: Result, 404: Result},
+    response={200: TagSchema, 401: Result, 403: Result},
     tags=["tag"],
 )
 def create_tag(request, t_in: TagInSchema):
     """
     Create tag.
 
-    `title` is required, `visibility` can only be 0 or 2; if tag with same title exists, existing tag will be returned.
+    `title` is required. `visibility` is only 0 (public) or 2 (private); 1 is
+    accepted but stored as 2. If a tag with the same title exists, the
+    existing tag is returned.
     """
     title = Tag.cleanup_title(t_in.title)
-    visibility = 2 if t_in.visibility else 0
+    visibility = _tag_visibility(t_in.visibility)
     tag, created = Tag.objects.get_or_create(
         owner=request.user.identity,
         title=title,
@@ -107,7 +119,7 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
     if tag.owner != request.user.identity:
         return Status(403, {"message": "Not owner"})
     title = Tag.cleanup_title(t_in.title)
-    visibility = 2 if t_in.visibility else 0
+    visibility = _tag_visibility(t_in.visibility)
     if title != tag.title:
         try:
             tag.title = title
@@ -138,7 +150,7 @@ def delete_tag(request, tag_uuid: str):
 
 @api.get(
     "/me/tag/{tag_uuid}/item/",
-    response={200: List[TagItemSchema], 401: Result, 403: Result, 404: Result},
+    response={200: list[TagItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["tag"],
 )
 @paginate(PageNumberPagination)

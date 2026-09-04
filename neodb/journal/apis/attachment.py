@@ -9,7 +9,6 @@ upload first, embed second.
 
 import uuid
 from datetime import datetime
-from typing import List
 
 from django import forms
 from ninja import File, Form, Schema, Status
@@ -41,7 +40,7 @@ class AttachmentSchema(Schema):
 
 @api.get(
     "/me/attachment/",
-    response={200: List[AttachmentSchema], 401: Result, 403: Result},
+    response={200: list[AttachmentSchema], 401: Result, 403: Result},
     tags=["attachment"],
 )
 @paginate(PageNumberPagination)

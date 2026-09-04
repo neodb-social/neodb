@@ -4,7 +4,7 @@ from django.conf import settings
 from ninja import Schema, Status
 from ninja.schema import Field
 
-from common.api import NOT_FOUND, Result, api
+from common.api import NOT_FOUND, OptionalOAuthAccessTokenAuth, Result, api
 from mastodon.models import SocialAccount
 from users.models import APIdentity
 
@@ -111,19 +111,30 @@ def preference(request):
     "/user/{handle}",
     response={200: UserSchema, 401: Result, 403: Result, 404: Result},
     tags=["user"],
+    auth=OptionalOAuthAccessTokenAuth(),
 )
 def user(request, handle: str):
     """
     Get user's basic info
 
     More detailed info can be fetched from Mastodon API
+
+    Anonymous access is allowed, unless the identity has opted out of being
+    viewed without login. Everything under `/user/{handle}` still needs a
+    token.
     """
     try:
         target = APIdentity.get_by_handle(handle)
     except APIdentity.DoesNotExist:
         return NOT_FOUND
-    viewer = request.user.identity
-    if target.is_blocking(viewer) or target.is_blocked_by(viewer):
+    viewer = request.user.identity if request.user.is_authenticated else None
+    if not viewer:
+        # same gate as the web profile page and the piece queries: an identity
+        # that opted out of anonymous viewing is not served to a token-less
+        # caller either
+        if not target.anonymous_viewable:
+            return Status(401, {"message": "Login required"})
+    elif target.is_blocking(viewer) or target.is_blocked_by(viewer):
         return Status(403, {"message": "unavailable"})
     return Status(
         200,

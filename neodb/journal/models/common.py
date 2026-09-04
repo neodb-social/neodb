@@ -228,7 +228,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def api_url(self):
-        return f"/api/{self.url}" if self.url_path else None
+        # url is already rooted, so no separator here (it used to emit
+        # "/api//review/x"); same form as Item.api_url
+        return f"/api{self.url}" if self.url_path else None
 
     @property
     def like_count(self):

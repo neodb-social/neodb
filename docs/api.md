@@ -77,5 +77,16 @@ curl -H "Authorization: Bearer ACCESS_TOKEN" -X GET https://neodb.social/api/me
 and the response will be returned accordingly:
 
 ```
-{"url": "https://neodb.social/users/xxx/", "external_acct": "xxx@yyy.zzz", "display_name": "XYZ", "avatar": "https://yyy.zzz/xxx.gif"}
+{
+	"username": "xxx",
+	"url": "/users/xxx/",
+	"display_name": "XYZ",
+	"avatar": "https://neodb.social/xxx.gif",
+	"external_acct": "xxx@yyy.zzz",
+	"external_accounts": [{"platform": "mastodon", "handle": "xxx@yyy.zzz", "url": "https://yyy.zzz/@xxx"}],
+	"roles": []
+}
 ```
+
+`url` is relative to the site; `external_acct` is deprecated in favour of
+`external_accounts`.

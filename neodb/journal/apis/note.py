@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import List
+from typing import Any
 
-from django.http import HttpResponse
+from django.db.models import QuerySet
+from django.http import HttpRequest, HttpResponse
 from ninja import Field, Schema
 from ninja.pagination import paginate
 
@@ -17,14 +18,20 @@ from common.api import (
     resolve_item_for_write,
 )
 from common.sentry import record_activity
+from takahe.utils import Takahe
+from users.apis import UserIdentitySchema
 
 from ..models import Note
 
 
 class NoteSchema(Schema):
     uuid: str
+    # No url/id here: a note has no page of its own, so it keeps the `Piece`
+    # default url_path and Piece.url/absolute_url point at nothing.
+    api_url: str
     post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
+    owner: UserIdentitySchema
     title: str | None
     content: str
     sensitive: bool = False
@@ -32,6 +39,11 @@ class NoteSchema(Schema):
     progress_value: str | None = None
     visibility: int = Field(ge=0, le=2)
     created_time: datetime
+
+    @staticmethod
+    def resolve_api_url(obj: Note) -> str:
+        # the owner-scoped route is the one that resolves (PUT / DELETE)
+        return f"/api/me/note/{obj.uuid}"
 
 
 class NoteInSchema(Schema):
@@ -44,10 +56,32 @@ class NoteInSchema(Schema):
     post_to_fediverse: bool = False
 
 
+class NotePageNumberPagination(PageNumberPagination):
+    """Pagination that batch-loads takahe identities after slicing.
+
+    ``select_related("owner")`` hands each row its own ``APIdentity``, so
+    ``NoteSchema.owner`` would resolve display_name/avatar with one cross-db
+    lookup per row.
+    """
+
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ):
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        data = val.get("data")
+        if data:
+            Takahe.prefetch_takahe_identities([n.owner for n in data])
+        return val
+
+
 @api.get(
     "/me/note/item/{item_uuid}/",
     response={
-        200: List[NoteSchema],
+        200: list[NoteSchema],
         302: RedirectedResult,
         401: Result,
         403: Result,
@@ -55,7 +89,7 @@ class NoteInSchema(Schema):
     },
     tags=["note"],
 )
-@paginate(PageNumberPagination)
+@paginate(NotePageNumberPagination)
 def list_notes_for_item(request, item_uuid: str, response: HttpResponse):
     """
     List notes by current user for an item
@@ -67,7 +101,9 @@ def list_notes_for_item(request, item_uuid: str, response: HttpResponse):
     )
     if not item:
         return redirect
-    queryset = Note.objects.filter(owner=request.user.identity, item=item)
+    queryset = Note.objects.filter(
+        owner=request.user.identity, item=item
+    ).select_related("owner")
     return queryset.prefetch_related("item")
 
 

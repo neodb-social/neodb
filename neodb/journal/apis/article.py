@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List
+from typing import Any
 
 from django import forms
 from django.conf import settings
@@ -15,9 +15,13 @@ from common.api import (
     OptionalOAuthAccessTokenAuth,
     PageNumberPagination,
     Result,
+    deprecated_field,
+    renamed_field,
     api,
 )
 from common.sentry import record_activity
+from takahe.utils import Takahe
+from users.apis import UserIdentitySchema
 
 from ..models import Article
 from ..models.collection import COVER_MAX_BYTES
@@ -25,14 +29,18 @@ from ..models.common import prefetch_latest_posts
 
 
 class ArticleSchema(Schema):
+    id: str = Field(alias="absolute_url")
     uuid: str
     url: str
     api_url: str
     visibility: int = Field(ge=0, le=2)
     post_id: int | None = Field(alias="latest_post_id")
+    owner: UserIdentitySchema
     created_time: datetime
     title: str
-    body: str
+    # body is deprecated, use content instead (as in NoteSchema)
+    body: str = Field(deprecated=True)
+    content: str = Field(alias="body")
     summary: str
     sensitive: bool = False
     language: str = ""
@@ -44,9 +52,10 @@ class ArticleSchema(Schema):
 class ArticleInSchema(Schema):
     # title/language are bounded to the model's CharField limits so over-long
     # input returns a clean 422 instead of an uncaught DB DataError (500).
-    # body/summary are unbounded TextFields, so no cap here.
+    # content/summary are unbounded TextFields, so no cap here.
     title: str = Field(max_length=500)
-    body: str
+    content: str = renamed_field("content", "body")
+    body: str | None = deprecated_field()
     summary: str = ""
     sensitive: bool = False
     visibility: int = Field(ge=0, le=2)
@@ -61,7 +70,7 @@ class ArticlePageNumberPagination(PageNumberPagination):
     Plain ``PageNumberPagination`` serializes each Article one at a time, and
     ``ArticleSchema.post_id`` (``latest_post_id``) would then trigger its own
     ``PiecePost`` query per row (N+1). This hook resolves the whole page's
-    latest posts in one batched query.
+    latest posts in one batched query, and the same for ``owner``.
     """
 
     def paginate_queryset(
@@ -74,13 +83,15 @@ class ArticlePageNumberPagination(PageNumberPagination):
         val = super().paginate_queryset(queryset, pagination, request, **params)
         data = val.get("data")
         if data:
-            prefetch_latest_posts(list(data))
+            articles = list(data)
+            prefetch_latest_posts(articles)
+            Takahe.prefetch_takahe_identities([a.owner for a in articles])
         return val
 
 
 @api.get(
     "/me/article/",
-    response={200: List[ArticleSchema], 401: Result, 403: Result},
+    response={200: list[ArticleSchema], 401: Result, 403: Result},
     tags=["article"],
 )
 @paginate(ArticlePageNumberPagination)
@@ -88,7 +99,11 @@ def list_articles(request):
     """
     Get articles by current user
     """
-    return Article.objects.filter(owner=request.user.identity).order_by("-created_time")
+    return (
+        Article.objects.filter(owner=request.user.identity)
+        .select_related("owner")
+        .order_by("-created_time")
+    )
 
 
 @api.get(
@@ -118,14 +133,16 @@ def create_article(request, a_in: ArticleInSchema):
     """
     Create an article for current user.
 
-    `title` and `body` (markdown formatted) are required; `visibility` is
+    `title` and `content` (markdown formatted) are required; `visibility` is
     required (0: public, 1: followers only, 2: private). `language` defaults
     to the user's preferred language when omitted.
+
+    `body` is accepted as a deprecated alias of `content`.
     """
     article = Article.update_local_article(
         owner=request.user.identity,
         title=a_in.title,
-        body=a_in.body,
+        body=a_in.content,
         summary=a_in.summary,
         sensitive=a_in.sensitive,
         visibility=a_in.visibility,
@@ -153,7 +170,7 @@ def update_article(request, article_uuid: str, a_in: ArticleInSchema):
     article = Article.update_local_article(
         owner=request.user.identity,
         title=a_in.title,
-        body=a_in.body,
+        body=a_in.content,
         summary=a_in.summary,
         sensitive=a_in.sensitive,
         visibility=a_in.visibility,

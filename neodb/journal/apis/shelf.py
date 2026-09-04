@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, List
+from typing import Any
 
 from django.core.cache import cache
 from django.db.models import QuerySet, prefetch_related_objects
@@ -31,6 +31,8 @@ from journal.models.common import (
 )
 from journal.models.rating import Rating
 from journal.models.shelf import ShelfMember
+from takahe.utils import Takahe
+from users.apis import UserIdentitySchema
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -62,6 +64,9 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     # Batch-fetch latest_post_id for all members to avoid N+1 queries
     # when MarkSchema accesses latest_post_id
     prefetch_latest_posts(members)
+    # select_related("owner") gives each row its own APIdentity instance, so
+    # MarkSchema.owner would fire a takahe lookup per row without this.
+    Takahe.prefetch_takahe_identities([m.owner for m in members])
     # Batch-fetch user's tags for MarkSchema.tags
     owner = members[0].owner
     item_ids = [m.item_id for m in members]
@@ -89,6 +94,10 @@ class MarkSchema(Schema):
     visibility: int = Field(ge=0, le=2)
     post_id: int | None = Field(alias="latest_post_id")
     item: ItemSchema
+    # No uuid/url/api_url/id here, unlike the other content schemas: a mark is
+    # not individually addressable (ShelfMember keeps the `Piece` default
+    # url_path, which resolves to nothing), it is addressed by its item.
+    owner: UserIdentitySchema
     created_time: datetime.datetime
     comment_text: str | None
     rating_grade: int | None = Field(ge=1, le=10)
@@ -165,7 +174,7 @@ def get_user_calendar_data(request, handle: str):
 
 @api.get(
     "/user/{handle}/shelf/{type}",
-    response={200: List[MarkSchema], 401: Result, 403: Result, 404: Result},
+    response={200: list[MarkSchema], 401: Result, 403: Result, 404: Result},
     tags=["shelf"],
 )
 @paginate(ShelfPageNumberPagination)
@@ -199,7 +208,7 @@ def list_marks_on_user_shelf(
 
 @api.get(
     "/me/shelf/{type}",
-    response={200: List[MarkSchema], 401: Result, 403: Result},
+    response={200: list[MarkSchema], 401: Result, 403: Result},
     tags=["shelf"],
 )
 @paginate(ShelfPageNumberPagination)
@@ -353,7 +362,7 @@ def delete_item_progress(request, item_uuid: str, response: HttpResponse):
 
 @api.get(
     "/me/shelf/items/{item_uuids}",
-    response={200: List[MarkSchema], 401: Result},
+    response={200: list[MarkSchema], 401: Result, 403: Result, 404: Result},
     tags=["shelf"],
 )
 def get_marks_by_item_list(request, item_uuids: str, response: HttpResponse):
@@ -424,16 +433,27 @@ def mark_item(request, item_uuid: str, mark: MarkInSchema, response: HttpRespons
 
 @api.delete(
     "/me/shelf/item/{item_uuid}",
-    response={200: Result, 401: Result, 403: Result, 404: Result},
+    response={
+        200: Result,
+        307: RedirectedResult,
+        401: Result,
+        403: Result,
+        404: Result,
+    },
     tags=["shelf"],
 )
-def delete_mark(request, item_uuid: str):
+def delete_mark(request, item_uuid: str, response: HttpResponse):
     """
     Remove a holding mark about an item for current user, unlike the web behavior, this does not clean up tags.
+
+    If the item was merged into another one, HTTP 307 is returned; repeat the
+    request against the returned url.
     """
-    item = Item.get_by_url(item_uuid)
+    item, redirect = resolve_item_for_write(
+        item_uuid, "/api/me/shelf/item/{uuid}", response
+    )
     if not item:
-        return Status(404, {"message": "Item not found"})
+        return redirect
     m = Mark(request.user.identity, item)
     m.delete(keep_tags=True)
     return Status(200, {"message": "OK"})
@@ -442,9 +462,10 @@ def delete_mark(request, item_uuid: str):
 @api.get(
     "/me/shelf/item/{item_uuid}/logs",
     response={
-        200: List[MarkLogSchema],
+        200: list[MarkLogSchema],
         302: RedirectedResult,
         401: Result,
+        403: Result,
         404: Result,
     },
     tags=["shelf"],

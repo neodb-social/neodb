@@ -1487,3 +1487,48 @@ class TestItemPostsApiPrefetch:
             assert sum(table in s for s in sql) <= 1, table
         # the author domain rides along on the post query via select_related
         assert [s for s in sql if 'FROM "users_domain"' in s] == []
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestOwnerIdentityPrefetchOnApiLists:
+    """MarkSchema.owner and friends must not cost a lookup per row.
+
+    ``select_related("owner")`` gives every row its own ``APIdentity``, so the
+    prefetch has to prime all of them, not just the first seen for a pk.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="ownerpf@example.com", username="ownerpfuser")
+        for i in range(5):
+            book = Edition.objects.create(title=f"Owner Prefetch Book {i}")
+            Mark(self.user.identity, book).update(
+                ShelfType.WISHLIST, f"c{i}", None, [], 0
+            )
+        app = Takahe.get_or_create_app(
+            "Owner Prefetch Tests",
+            "https://example.org",
+            "https://example.org/callback",
+            owner_pk=self.user.identity.pk,
+        )
+        self.token = Takahe.refresh_token(app, self.user.identity.pk, self.user.pk)
+
+    def test_shelf_api_no_per_row_identity_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connections["takahe"]) as ctx:
+            response = client.get(
+                "/api/me/shelf/wishlist",
+                HTTP_AUTHORIZATION=f"Bearer {self.token}",
+            )
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["count"] == 5
+        assert all(m["owner"]["username"] == "ownerpfuser" for m in payload["data"])
+        single_identity = [
+            q
+            for q in ctx.captured_queries
+            if "users_identity" in q["sql"]
+            and 'WHERE "users_identity"."id" =' in q["sql"]
+        ]
+        # one is the auth lookup; a per-row miss would add five more
+        assert len(single_identity) <= 1, single_identity

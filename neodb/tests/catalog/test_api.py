@@ -27,6 +27,10 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
+from catalog.models.recommendation import ItemSimilarity
+from common.models import SiteConfig
+from takahe.utils import Takahe
+from users.models import User
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
@@ -587,3 +591,129 @@ def test_people_work_endpoint_groups_all_credits_by_item(live_server):
         "director",
     }
     assert [credit["role"] for credit in works[book.uuid]["credits"]] == ["author"]
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_book_sibling_endpoint_reports_unknown_and_merged(live_server):
+    """The status _get_item builds must survive pagination, not become a 200."""
+    with patch("catalog.models.item.Item.update_index"):
+        merged = Edition.objects.create(title="Merged Edition")
+        target = Edition.objects.create(title="Target Edition")
+        merged.merge_to(target)
+
+    response = requests.get(
+        f"{live_server.url}/api/book/{'0' * 22}/sibling/", timeout=5
+    )
+    assert response.status_code == 404
+    assert response.json()["message"] == "Item not found"
+
+    response = requests.get(
+        f"{live_server.url}/api/book/{merged.uuid}/sibling/",
+        timeout=5,
+        allow_redirects=False,
+    )
+    assert response.status_code == 302
+    # the sibling list of the target, not its detail route, which would answer
+    # a single object to a request for a list
+    assert response.headers["Location"] == f"{target.api_url}/sibling/"
+    assert response.json()["url"] == f"{target.api_url}/sibling/"
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_people_work_endpoint_404_matches_other_catalog_routes(live_server):
+    response = requests.get(f"{live_server.url}/api/people/{'0' * 22}/work/", timeout=5)
+    assert response.status_code == 404
+    assert response.json()["message"] == "Item not found"
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_summary_schemas_carry_the_current_field_names(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Summary Person"}]
+        )
+        movie = Movie.objects.create(
+            title="Summary Movie",
+            localized_title=[{"lang": "en", "text": "Summary Movie"}],
+        )
+        ItemCredit.objects.create(
+            item=movie, person=person, role="director", name="Summary Person"
+        )
+
+    payload = requests.get(
+        f"{live_server.url}/api/people/{person.uuid}/work/", timeout=5
+    ).json()
+    item = payload["data"][0]["item"]
+    assert item["title"] == item["display_title"] == "Summary Movie"
+
+    payload = requests.get(
+        f"{live_server.url}/api/catalog/movie/{movie.uuid}/credit/", timeout=5
+    ).json()
+    summary = payload["data"][0]["person"]
+    assert summary["name"] == summary["display_name"] == "Summary Person"
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_similar_items_endpoint_is_public_and_paged(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Similar Seed")
+
+    response = requests.get(
+        f"{live_server.url}/api/catalog/item/{movie.uuid}/similar", timeout=5
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    # same envelope as every other list route
+    assert set(payload) == {"data", "pages", "count"}
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_similar_items_endpoint_honours_the_viewers_opt_out(live_server):
+    """Public, but a token still has to be read: auth=None would make the
+    caller anonymous and hand back recommendations they turned off."""
+    with patch("catalog.models.item.Item.update_index"):
+        movie = Movie.objects.create(title="Opt Out Seed")
+        other = Movie.objects.create(title="Opt Out Similar")
+    ItemSimilarity.objects.create(source=movie, target=other, score=1.0)
+    SiteConfig.set_system(enable_recommendations=True)
+    SiteConfig.reload()
+
+    user = User.register(email="optout@example.com", username="optoutuser")
+    app = Takahe.get_or_create_app(
+        "Similar Opt Out Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    url = f"{live_server.url}/api/catalog/item/{movie.uuid}/similar"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    payload = requests.get(url, headers=headers, timeout=5).json()
+    assert [i["uuid"] for i in payload["data"]] == [other.uuid]
+
+    user.preference.disable_recommendations = True
+    user.preference.save(update_fields=["disable_recommendations"])
+
+    payload = requests.get(url, headers=headers, timeout=5).json()
+    assert payload == {"data": [], "pages": 0, "count": 0}
+
+    # the anonymous surface is unaffected by that user's preference
+    payload = requests.get(url, timeout=5).json()
+    assert [i["uuid"] for i in payload["data"]] == [other.uuid]
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+def test_podcast_episode_list_redirects_to_the_same_subresource(live_server):
+    with patch("catalog.models.item.Item.update_index"):
+        merged = Podcast.objects.create(title="Merged Show")
+        target = Podcast.objects.create(title="Target Show")
+        merged.merge_to(target)
+
+    response = requests.get(
+        f"{live_server.url}/api/podcast/{merged.uuid}/episode/",
+        timeout=5,
+        allow_redirects=False,
+    )
+    assert response.status_code == 302
+    assert response.headers["Location"] == f"{target.api_url}/episode/"
