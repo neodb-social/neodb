@@ -692,6 +692,15 @@ class FederationSettings(SiteConfigSettingsPage):
             "title": _("Hidden Categories"),
             "help_text": _("Category values to hide from the catalog, one per line."),
         },
+        "guest_search_max_pages": {
+            "title": _("Guest Search Page Limit"),
+            "help_text": _(
+                "Visitors who are not logged in cannot open search result pages "
+                "beyond this one. Lower it to keep crawlers out of deep "
+                "pagination, which is expensive to serve."
+            ),
+            "min_value": 1,
+        },
     }
     layout = {
         _("Federation"): [
@@ -703,6 +712,7 @@ class FederationSettings(SiteConfigSettingsPage):
             "search_sites",
             "search_peers",
             "hidden_categories",
+            "guest_search_max_pages",
         ],
     }
 

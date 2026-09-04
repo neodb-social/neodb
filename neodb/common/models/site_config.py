@@ -99,6 +99,8 @@ class SiteConfig(models.Model):
         search_sites: list[str] = []
         search_peers: list[str] = []
         hidden_categories: list[str] = []
+        # Highest search result page an anonymous visitor may open.
+        guest_search_max_pages: int = 100
 
         # Catalog genres: slugs offered in each category's edit dropdown.
         # Empty list falls back to the in-code default (DEFAULT_GENRE_CATEGORIES).

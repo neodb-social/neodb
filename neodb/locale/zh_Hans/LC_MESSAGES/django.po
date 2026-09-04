@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 11:50-0400\n"
+"POT-Creation-Date: 2026-09-04 14:24-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -496,7 +496,7 @@ msgstr "MyAnimeList漫画"
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:157 catalog/templates/_sidebar_edit.html:299
+#: catalog/models/common.py:157 catalog/templates/_sidebar_edit.html:297
 msgid "Work"
 msgstr "作品"
 
@@ -1270,7 +1270,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:490 catalog/views/edit.py:500
 #: catalog/views/edit.py:527 catalog/views/edit.py:592
 #: catalog/views/edit.py:647 catalog/views/edit.py:669
-#: catalog/views/search.py:367
+#: catalog/views/search.py:389
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1432,7 +1432,7 @@ msgid "URL of target item, or empty if undo merge"
 msgstr "目标条目URL，留空则取消现有合并"
 
 #: catalog/templates/_sidebar_edit.html:268
-#: catalog/templates/_sidebar_edit.html:361
+#: catalog/templates/_sidebar_edit.html:359
 msgid "merge to another item"
 msgstr "合并到另一条目"
 
@@ -1449,81 +1449,81 @@ msgid "Delete"
 msgstr "删除"
 
 #: catalog/templates/_sidebar_edit.html:283
-#: catalog/templates/_sidebar_edit.html:289
+#: catalog/templates/_sidebar_edit.html:287
 msgid "Undo delete"
 msgstr "撤销删除"
 
-#: catalog/templates/_sidebar_edit.html:290
+#: catalog/templates/_sidebar_edit.html:288
 msgid "Links to external sites and parent item were removed on delete and will not be restored."
 msgstr "删除时已移除的外部站点链接和父条目不会被恢复。"
 
-#: catalog/templates/_sidebar_edit.html:300
+#: catalog/templates/_sidebar_edit.html:298
 msgid "This edition belongs to the following work"
 msgstr "这个图书版本属于以下作品"
 
-#: catalog/templates/_sidebar_edit.html:305
+#: catalog/templates/_sidebar_edit.html:303
 msgid "Sure to unlink?"
 msgstr "确认取消关联吗？"
 
-#: catalog/templates/_sidebar_edit.html:311
+#: catalog/templates/_sidebar_edit.html:309
 msgid "Unlink from work"
 msgstr "取消关联到上述著作"
 
-#: catalog/templates/_sidebar_edit.html:317
+#: catalog/templates/_sidebar_edit.html:315
 msgid "Link"
 msgstr "关联"
 
-#: catalog/templates/_sidebar_edit.html:328
+#: catalog/templates/_sidebar_edit.html:326
 msgid "Link to another edition from same work"
 msgstr "关联到同一著作的另一本书"
 
-#: catalog/templates/_sidebar_edit.html:337
+#: catalog/templates/_sidebar_edit.html:335
 msgid "Restriction"
 msgstr "限制"
 
-#: catalog/templates/_sidebar_edit.html:350
+#: catalog/templates/_sidebar_edit.html:348
 #: journal/templates/collection_update_item_note.html:4
 msgid "Update"
 msgstr "更新"
 
-#: catalog/templates/_sidebar_edit.html:355
+#: catalog/templates/_sidebar_edit.html:353
 msgid "Suggest Edits"
 msgstr "修改建议"
 
-#: catalog/templates/_sidebar_edit.html:360
+#: catalog/templates/_sidebar_edit.html:358
 msgid "proposed action"
 msgstr "请选择建议类型..."
 
-#: catalog/templates/_sidebar_edit.html:362
+#: catalog/templates/_sidebar_edit.html:360
 msgid "link to another item"
 msgstr "关联到另一条目"
 
-#: catalog/templates/_sidebar_edit.html:363
+#: catalog/templates/_sidebar_edit.html:361
 msgid "change item category"
 msgstr "更改条目类型"
 
-#: catalog/templates/_sidebar_edit.html:364
+#: catalog/templates/_sidebar_edit.html:362
 msgid "change item metadata"
 msgstr "更正条目信息"
 
-#: catalog/templates/_sidebar_edit.html:365
+#: catalog/templates/_sidebar_edit.html:363
 msgid "remove item"
 msgstr "删除条目"
 
-#: catalog/templates/_sidebar_edit.html:366
+#: catalog/templates/_sidebar_edit.html:364
 msgid "other"
 msgstr "其它"
 
-#: catalog/templates/_sidebar_edit.html:370
+#: catalog/templates/_sidebar_edit.html:368
 msgid "To suggest merging or association, please include the URL of the target item"
 msgstr "建议详情。如提议合并或关联，请包含目标条目网址"
 
-#: catalog/templates/_sidebar_edit.html:371
+#: catalog/templates/_sidebar_edit.html:369
 #: catalog/templates/catalog_verify.html:116
 msgid "submit"
 msgstr "提交"
 
-#: catalog/templates/_sidebar_edit.html:372
+#: catalog/templates/_sidebar_edit.html:370
 msgid "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution."
 msgstr "本站由用户共同维护，用户可自主修改部分条目信息。当你不确定自己的修改是否得当或不能做出某种修改时，可在此处向管理员提出建议。管理员会认真考虑处理每一条建议，虽然不保证总是完全采纳；建议也可能被社区其他用户查看或讨论。如果有与具体条目不相关的建议，请访问讨论区或联系我们的社交账号。感谢你的支持和贡献。"
 
@@ -2264,15 +2264,19 @@ msgstr "无法关联到一个已经被合并或删除的条目"
 msgid "Cannot link items other than editions"
 msgstr "无法关联到非图书类的条目"
 
-#: catalog/views/search.py:96
+#: catalog/views/search.py:108
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:359
+#: catalog/views/search.py:276 catalog/views/search.py:331
+msgid "Page not found"
+msgstr "页面不存在"
+
+#: catalog/views/search.py:381
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:362
+#: catalog/views/search.py:384
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -4012,7 +4016,7 @@ msgstr "正在请求摄像头权限…"
 msgid "Or type barcode / ISBN manually"
 msgstr "或手动输入条形码 / ISBN"
 
-#: common/templates/common/scan.html:60 common/views_manage.py:702
+#: common/templates/common/scan.html:60 common/views_manage.py:711
 msgid "Search"
 msgstr "搜索"
 
@@ -4118,7 +4122,7 @@ msgstr "推荐"
 msgid "Access"
 msgstr "访问"
 
-#: common/views_manage.py:36 common/views_manage.py:697
+#: common/views_manage.py:36 common/views_manage.py:706
 msgid "Federation"
 msgstr "联邦"
 
@@ -4521,336 +4525,344 @@ msgstr "隐藏的分类"
 msgid "Category values to hide from the catalog, one per line."
 msgstr "在目录中隐藏的分类值，每行一个。"
 
-#: common/views_manage.py:714
+#: common/views_manage.py:696
+msgid "Guest Search Page Limit"
+msgstr "访客搜索页数上限"
+
+#: common/views_manage.py:698
+msgid "Visitors who are not logged in cannot open search result pages beyond this one. Lower it to keep crawlers out of deep pagination, which is expensive to serve."
+msgstr "未登录的访客无法打开超出此页的搜索结果页。深层分页的服务开销很大，降低此值可以阻止爬虫抓取。"
+
+#: common/views_manage.py:724
 msgid "Spotify API Key"
 msgstr "Spotify API 密钥"
 
-#: common/views_manage.py:715
+#: common/views_manage.py:725
 msgid "https://developer.spotify.com/"
 msgstr "https://developer.spotify.com/"
 
-#: common/views_manage.py:718
+#: common/views_manage.py:728
 msgid "TMDB API Key"
 msgstr "TMDB API 密钥"
 
-#: common/views_manage.py:719
+#: common/views_manage.py:729
 msgid "https://developer.themoviedb.org/"
 msgstr "https://developer.themoviedb.org/"
 
-#: common/views_manage.py:722
+#: common/views_manage.py:732
 msgid "Google Books API Key"
 msgstr "Google Books API 密钥"
 
-#: common/views_manage.py:723
+#: common/views_manage.py:733
 msgid "https://developers.google.com/books/"
 msgstr "https://developers.google.com/books/"
 
-#: common/views_manage.py:726
+#: common/views_manage.py:736
 msgid "Discogs API Key"
 msgstr "Discogs API 密钥"
 
-#: common/views_manage.py:728
+#: common/views_manage.py:738
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr "来自 https://www.discogs.com/settings/developers 的个人访问令牌"
 
-#: common/views_manage.py:732
+#: common/views_manage.py:742
 msgid "IGDB Client ID"
 msgstr "IGDB 客户端 ID"
 
-#: common/views_manage.py:733
+#: common/views_manage.py:743
 msgid "https://api-docs.igdb.com/"
 msgstr "https://api-docs.igdb.com/"
 
-#: common/views_manage.py:736
+#: common/views_manage.py:746
 msgid "IGDB Client Secret"
 msgstr "IGDB 客户端密钥"
 
-#: common/views_manage.py:739
+#: common/views_manage.py:749
 msgid "BoardGameGeek API Token"
 msgstr "BoardGameGeek API 令牌"
 
-#: common/views_manage.py:741
+#: common/views_manage.py:751
 msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
 msgstr "来自 https://boardgamegeek.com/applications 的 Bearer 令牌（参见 https://boardgamegeek.com/using_the_xml_api#toc9）。"
 
-#: common/views_manage.py:746 users/templates/users/steam_import.html:26
+#: common/views_manage.py:756 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr "Steam API 密钥"
 
-#: common/views_manage.py:748
+#: common/views_manage.py:758
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr "https://steamcommunity.com/dev - Steam 导入器的备用密钥。用户可在导入时提供自己的密钥。"
 
-#: common/views_manage.py:753
+#: common/views_manage.py:763
 msgid "DeepL API Key"
 msgstr "DeepL API 密钥"
 
-#: common/views_manage.py:754
+#: common/views_manage.py:764
 msgid "For translation features."
 msgstr "用于翻译功能。"
 
-#: common/views_manage.py:757
+#: common/views_manage.py:767
 msgid "LibreTranslate API URL"
 msgstr "LibreTranslate API URL"
 
-#: common/views_manage.py:760
+#: common/views_manage.py:770
 msgid "LibreTranslate API Key"
 msgstr "LibreTranslate API 密钥"
 
-#: common/views_manage.py:763
+#: common/views_manage.py:773
 msgid "Threads App ID"
 msgstr "Threads 应用 ID"
 
-#: common/views_manage.py:764
+#: common/views_manage.py:774
 msgid "OAuth app ID for Threads login."
 msgstr "用于 Threads 登录的 OAuth 应用 ID。"
 
-#: common/views_manage.py:767
+#: common/views_manage.py:777
 msgid "Threads App Secret"
 msgstr "Threads 应用密钥"
 
-#: common/views_manage.py:770
+#: common/views_manage.py:780
 msgid "Discord Webhooks"
 msgstr "Discord Webhook"
 
-#: common/views_manage.py:772
+#: common/views_manage.py:782
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr "按频道（default、report、audit、suggest、system）映射的 Webhook URL。所有频道必须是 Discord 论坛或媒体频道（线程模式），因为通知以线程形式发布。"
 
-#: common/views_manage.py:789
+#: common/views_manage.py:799
 msgid "Catalog APIs"
 msgstr "目录 API"
 
-#: common/views_manage.py:799
+#: common/views_manage.py:809
 msgid "Translation"
 msgstr "翻译"
 
-#: common/views_manage.py:804
+#: common/views_manage.py:814
 msgid "Third-Party Login"
 msgstr "第三方登录"
 
-#: common/views_manage.py:808 social/templates/feed.html:27
+#: common/views_manage.py:818 social/templates/feed.html:27
 #: social/templates/notification.html:35
 msgid "Notifications"
 msgstr "通知"
 
-#: common/views_manage.py:818
+#: common/views_manage.py:828
 msgid "Scraping Providers"
 msgstr "抓取服务"
 
-#: common/views_manage.py:819
+#: common/views_manage.py:829
 msgid "Comma-separated list of providers to try in order."
 msgstr "按顺序尝试的服务列表，以逗号分隔。"
 
-#: common/views_manage.py:822
+#: common/views_manage.py:832
 msgid "Proxy List"
 msgstr "代理列表"
 
-#: common/views_manage.py:823
+#: common/views_manage.py:833
 msgid "One per line, format: http://server?url=__URL__"
 msgstr "每行一个，格式：http://server?url=__URL__"
 
-#: common/views_manage.py:826
+#: common/views_manage.py:836
 msgid "Backup Proxy"
 msgstr "备用代理"
 
-#: common/views_manage.py:829
+#: common/views_manage.py:839
 msgid "Scrapfly API Key"
 msgstr "Scrapfly API 密钥"
 
-#: common/views_manage.py:832
+#: common/views_manage.py:842
 msgid "Decodo Base64 Auth Token"
 msgstr "Decodo Base64 鉴权令牌"
 
-#: common/views_manage.py:835
+#: common/views_manage.py:845
 msgid "ScraperAPI Key"
 msgstr "ScraperAPI 密钥"
 
-#: common/views_manage.py:838
+#: common/views_manage.py:848
 msgid "ScrapingBee API Key"
 msgstr "ScrapingBee API 密钥"
 
-#: common/views_manage.py:841
+#: common/views_manage.py:851
 msgid "Custom Scraper URL"
 msgstr "自定义抓取器 URL"
 
-#: common/views_manage.py:842
+#: common/views_manage.py:852
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr "包含 __URL__ 和 __SELECTOR__ 占位符的 URL。"
 
-#: common/views_manage.py:845
+#: common/views_manage.py:855
 msgid "Request Timeout (seconds)"
 msgstr "请求超时（秒）"
 
-#: common/views_manage.py:849
+#: common/views_manage.py:859
 msgid "Cache Timeout (seconds)"
 msgstr "缓存超时（秒）"
 
-#: common/views_manage.py:853
+#: common/views_manage.py:863
 msgid "Retries"
 msgstr "重试次数"
 
-#: common/views_manage.py:858
+#: common/views_manage.py:868
 msgid "Providers"
 msgstr "服务"
 
-#: common/views_manage.py:863
+#: common/views_manage.py:873
 msgid "Provider Keys"
 msgstr "服务密钥"
 
-#: common/views_manage.py:870
+#: common/views_manage.py:880
 msgid "Timeouts"
 msgstr "超时设置"
 
-#: common/views_manage.py:882
+#: common/views_manage.py:892
 msgid "Alternative Domains"
 msgstr "备用域名"
 
-#: common/views_manage.py:883
+#: common/views_manage.py:893
 msgid "One domain per line."
 msgstr "每行一个域名。"
 
-#: common/views_manage.py:886
+#: common/views_manage.py:896
 msgid "Mastodon Client Scope"
 msgstr "Mastodon 客户端授权范围"
 
-#: common/views_manage.py:887
+#: common/views_manage.py:897
 msgid "OAuth scope when creating Mastodon apps."
 msgstr "创建 Mastodon 应用时使用的 OAuth 授权范围。"
 
-#: common/views_manage.py:890
+#: common/views_manage.py:900
 msgid "Mastodon API Timeout (seconds)"
 msgstr "Mastodon API 超时（秒）"
 
-#: common/views_manage.py:892
+#: common/views_manage.py:902
 msgid "Timeout for requests to Mastodon instances and remote fediverse servers."
 msgstr "请求 Mastodon 实例及远程联邦宇宙服务器的超时时间。"
 
-#: common/views_manage.py:898
+#: common/views_manage.py:908
 msgid "Disable Cron Jobs"
 msgstr "禁用定时任务"
 
-#: common/views_manage.py:899
+#: common/views_manage.py:909
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr "要禁用的任务名，每行一个。使用 * 禁用所有任务。"
 
-#: common/views_manage.py:902
+#: common/views_manage.py:912
 msgid "Index Aliases"
 msgstr "索引别名"
 
-#: common/views_manage.py:903
+#: common/views_manage.py:913
 msgid "Map index names to their aliases."
 msgstr "索引名称到别名的映射。"
 
-#: common/views_manage.py:913
+#: common/views_manage.py:923
 msgid "Task Cleanup (days)"
 msgstr "任务清理（天）"
 
-#: common/views_manage.py:915
+#: common/views_manage.py:925
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr "在此天数后删除导入/导出任务及其文件。设为 0 则禁用清理。"
 
-#: common/views_manage.py:921
+#: common/views_manage.py:931
 msgid "Skip Migration Jobs"
 msgstr "跳过迁移任务"
 
-#: common/views_manage.py:923
+#: common/views_manage.py:933
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr "要跳过的迁移后任务键，每行一个（如 normalize_genre）。worker 在出队时检查；被跳过的任务会记录警告并通知 Discord system 频道。"
 
-#: common/views_manage.py:929
+#: common/views_manage.py:939
 msgid "ATProto OAuth Client Key"
 msgstr "ATProto OAuth 客户端密钥"
 
-#: common/views_manage.py:931
+#: common/views_manage.py:941
 msgid "Private key (JWK) identifying this site to ATProto authorization servers. Auto-generated on first Bluesky login; clear to regenerate."
 msgstr "用于向 ATProto 授权服务器标识本站点的私钥（JWK 格式）。首次 Bluesky 登录时自动生成；清空后将重新生成。"
 
-#: common/views_manage.py:938
+#: common/views_manage.py:948
 msgid "Domains"
 msgstr "域名"
 
-#: common/views_manage.py:941
+#: common/views_manage.py:951
 msgid "Operational"
 msgstr "运维"
 
-#: common/views_manage.py:957
+#: common/views_manage.py:967
 msgid "Movie Genres"
 msgstr "电影类型"
 
-#: common/views_manage.py:959
+#: common/views_manage.py:969
 msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "电影编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:964
+#: common/views_manage.py:974
 msgid "TV Genres"
 msgstr "剧集类型"
 
-#: common/views_manage.py:966
+#: common/views_manage.py:976
 msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "剧集编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:971
+#: common/views_manage.py:981
 msgid "Music Genres"
 msgstr "音乐类型"
 
-#: common/views_manage.py:973
+#: common/views_manage.py:983
 msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "音乐编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:978
+#: common/views_manage.py:988
 msgid "Game Genres"
 msgstr "游戏类型"
 
-#: common/views_manage.py:980
+#: common/views_manage.py:990
 msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "游戏编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:985
+#: common/views_manage.py:995
 msgid "Podcast Genres"
 msgstr "播客类型"
 
-#: common/views_manage.py:987
+#: common/views_manage.py:997
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "播客编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:992
+#: common/views_manage.py:1002
 msgid "Performance Genres"
 msgstr "演出类型"
 
-#: common/views_manage.py:994
+#: common/views_manage.py:1004
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr "演出编辑下拉框中可选的类型代码，每行一个。留空则使用内置默认值。"
 
-#: common/views_manage.py:1000
+#: common/views_manage.py:1010
 msgid "Genres by Category"
 msgstr "按分类设置类型"
 
-#: common/views_manage.py:1024
+#: common/views_manage.py:1034
 msgid "Site"
 msgstr "站点"
 
-#: common/views_manage.py:1034
+#: common/views_manage.py:1044
 msgid "Database and Services"
 msgstr "数据库与服务"
 
-#: common/views_manage.py:1044
+#: common/views_manage.py:1054
 msgid "Media and Files"
 msgstr "媒体与文件"
 
-#: common/views_manage.py:1053
+#: common/views_manage.py:1063
 msgid "Monitoring"
 msgstr "监控"
 
-#: common/views_manage.py:1057
+#: common/views_manage.py:1067
 msgid "Security"
 msgstr "安全"
 
-#: common/views_manage.py:1066
+#: common/views_manage.py:1076
 msgid "Other Environment Variables"
 msgstr "其他环境变量"
 
-#: common/views_manage.py:1068
+#: common/views_manage.py:1078
 msgid "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe."
 msgstr "存在于本进程的环境中，但 NeoDB 设置并不读取，由 Docker Compose 或 Takahe 使用。"
 

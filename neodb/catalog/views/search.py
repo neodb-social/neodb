@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import prefetch_related_objects
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -41,6 +42,17 @@ from ..search import (
     get_fetch_lock,
     query_index,
 )
+
+
+def guest_page_limit(request) -> int:
+    """Last result page an anonymous visitor may open, 0 when uncapped.
+
+    Deep pagination is expensive to serve, so crawlers are held to the
+    configured page while signed-in users keep the full result set.
+    """
+    if request.user.is_authenticated:
+        return 0
+    return SiteConfig.system.guest_search_max_pages
 
 
 def default_visible_categories() -> list[ItemCategory]:
@@ -259,10 +271,15 @@ def search(request):
         if request.user.is_authenticated
         else None
     )
+    page_limit = guest_page_limit(request)
+    if page_limit and p > page_limit:
+        raise Http404(_("Page not found"))
     per_page = get_page_size_from_request(request)
     items, num_pages, __, by_cat, q = query_index(
         keywords, categories, p, exclude_categories=excl, per_page=per_page
     )
+    if page_limit:
+        num_pages = min(num_pages, page_limit)
     # Include duplicates attached as `dupe_to`: the template renders them
     # via a nested {% include '_list_item.html' %} loop, so they need the
     # same prefetches/attachments to avoid N+1 in templates.
@@ -309,6 +326,9 @@ def people_search(request):
     url_response = resolve_url_query(request, keywords)
     if url_response is not None:
         return url_response
+    page_limit = guest_page_limit(request)
+    if page_limit and p > page_limit:
+        raise Http404(_("Page not found"))
     parser = PeopleQueryParser(
         keywords, page=p, page_size=per_page, people_type=people_type
     )
@@ -318,6 +338,8 @@ def people_search(request):
     search_error = result is not None and bool(result.error)
     items = [] if result is None or search_error else result.items
     num_pages = 0 if result is None or search_error else result.pages
+    if page_limit:
+        num_pages = min(num_pages, page_limit)
     return render(
         request,
         "search_results_people.html",
