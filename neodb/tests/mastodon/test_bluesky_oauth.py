@@ -27,6 +27,7 @@ from mastodon.models.bluesky_oauth import (
     public_jwk,
     sign_jwt,
 )
+from users.models import User
 
 
 def _b64url_decode(data: str) -> bytes:
@@ -523,8 +524,6 @@ def test_account_force_refresh_rotates_unexpired_token(monkeypatch):
 def test_oauth_callback_persists_tokens_even_if_refresh_fails(
     client, monkeypatch, bluesky_enabled
 ):
-    from users.models import User
-
     user = User.register(email="cb@example.com", username="cbuser")
     account = BlueskyAccount.objects.create(
         user=user, domain="-", uid="did:plc:alice", handle="alice.test"
@@ -558,3 +557,73 @@ def test_oauth_callback_persists_tokens_even_if_refresh_fails(
     stored = BlueskyAccount.objects.get(pk=account.pk)._get_oauth()
     assert stored["access_token"] == "fresh"
     assert stored["refresh_token"] == "rt-2"
+
+
+def _link_bluesky(client, monkeypatch, handle: str = "alice.test") -> list[str]:
+    """Log a client in with a linked ATProto identity and stub out the
+    authorization request; returns the handles it is called with."""
+    user = User.register(email="reauth@example.com", username="reauthuser")
+    BlueskyAccount.objects.create(
+        user=user, domain="-", uid="did:plc:alice", handle=handle
+    )
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    calls = []
+    monkeypatch.setattr(
+        Bluesky,
+        "generate_auth_url",
+        lambda handle, request: (
+            calls.append(handle) or "https://auth.example/authorize?req=1"
+        ),
+    )
+    return calls
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reauthorize_starts_flow_for_linked_identity(client, monkeypatch):
+    # no bluesky_enabled fixture: re-authorizing an identity a user already
+    # linked does not depend on the site-wide login switch
+    calls = _link_bluesky(client, monkeypatch)
+
+    response = client.get(reverse("mastodon:bluesky_login"))
+
+    assert response.status_code == 302
+    assert response.url == "https://auth.example/authorize?req=1"
+    assert calls == ["alice.test"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reauthorize_uses_linked_handle_not_url(client, monkeypatch):
+    calls = _link_bluesky(client, monkeypatch)
+
+    response = client.get(
+        reverse("mastodon:bluesky_login"), {"username": "mallory.test"}
+    )
+
+    assert response.status_code == 302
+    assert calls == ["alice.test"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reauthorize_without_linked_identity_is_refused(client, monkeypatch):
+    user = User.register(email="nolink@example.com", username="nolinkuser")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    monkeypatch.setattr(
+        Bluesky, "generate_auth_url", lambda handle, request: "https://auth.example/"
+    )
+
+    response = client.get(
+        reverse("mastodon:bluesky_login"), {"username": "mallory.test"}
+    )
+
+    assert response.status_code == 200
+    assert b"Authentication failed" in response.content
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_reauthorize_sends_logged_out_visitor_to_login_form(client, bluesky_enabled):
+    response = client.get(reverse("mastodon:bluesky_login"), {"username": "alice.test"})
+
+    assert response.status_code == 302
+    assert (
+        response.url == reverse("users:login") + "?method=bluesky&username=alice.test"
+    )

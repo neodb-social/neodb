@@ -275,9 +275,11 @@ class BlueskyAccount(SocialAccount):
     _oauth_cache: dict | None = None
 
     def get_reauthorize_url(self) -> str:
-        url = reverse("users:login") + "?method=bluesky"
+        # a GET starts the authorization flow for the logged-in owner right
+        # away; a logged-out visitor is sent on to the prefilled login form
+        url = reverse("mastodon:bluesky_login")
         if self.handle:
-            url += "&username=" + quote(self.handle)
+            url += "?username=" + quote(self.handle)
         return url
 
     def _get_oauth(self) -> dict:

@@ -118,13 +118,13 @@ class TestLoginMethodSelection:
 
 @pytest.mark.django_db(databases="__all__")
 class TestReauthorizeUrl:
-    def test_bluesky_points_to_bluesky_login_form(self):
+    def test_bluesky_points_to_authorization_start(self):
         user = User.register(email="reauth@example.com", username="reauthuser")
         account = BlueskyAccount.objects.create(
             handle="reauth.bsky.social", user=user, domain="bsky.social", uid="1"
         )
-        assert account.get_reauthorize_url() == reverse("users:login") + (
-            "?method=bluesky&username=reauth.bsky.social"
+        assert account.get_reauthorize_url() == reverse("mastodon:bluesky_login") + (
+            "?username=reauth.bsky.social"
         )
 
     def test_mastodon_points_to_oauth_flow(self):

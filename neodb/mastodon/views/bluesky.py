@@ -1,7 +1,10 @@
+from urllib.parse import urlencode
+
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -10,7 +13,7 @@ from common.sentry import count as sentry_count
 from common.views import render_error
 from users.login_proof import verify_login_proof
 
-from ..models import Bluesky
+from ..models import Bluesky, BlueskyAccount
 from ..models.bluesky_oauth import get_client_metadata
 from .common import client_ip, disconnect_identity, process_verified_account
 
@@ -20,10 +23,29 @@ _MAX_AUTH_FAILS = 10
 _AUTH_FAIL_TTL = 60 * 60
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def bluesky_login(request: HttpRequest):
     if not request.user.is_authenticated and not SiteConfig.system.enable_login_bluesky:
         return render_error(request, _("Bluesky login is disabled."))
+    if request.method == "GET":
+        # a re-authorization link, e.g. from a failed crosspost: start the
+        # flow right away for the identity already linked to the logged-in
+        # user, or hand a logged-out visitor the prefilled login form
+        if not request.user.is_authenticated:
+            query = urlencode(
+                {"method": "bluesky", "username": request.GET.get("username", "")}
+            )
+            return redirect(f"{reverse('users:login')}?{query}")
+        # the handle comes from the linked account, never from the URL:
+        # linking another identity stays a POST from account settings
+        account = BlueskyAccount.objects.filter(user=request.user).first()
+        if not account:
+            return render_error(
+                request, _("Authentication failed"), _("Identity not found.")
+            )
+        username = account.handle
+    else:
+        username = request.POST.get("username", "")
     if not verify_login_proof(request, "bluesky"):
         return render_error(request, _("Security check failed. Please try again."))
     sentry_count("login.attempt", attributes={"type": "bluesky"})
@@ -34,7 +56,7 @@ def bluesky_login(request: HttpRequest):
             _("Authentication failed"),
             _("Too many attempts, please try again later."),
         )
-    username = request.POST.get("username", "").strip().lstrip("@")
+    username = username.strip().lstrip("@")
     if not username:
         return render_error(
             request, _("Authentication failed"), _("ATProto handle is required.")
