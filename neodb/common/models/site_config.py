@@ -184,6 +184,12 @@ class SiteConfig(models.Model):
                 raise ValueError("at least 1 mark is required")
             return value
 
+        @pydantic.field_validator("guest_search_max_pages")
+        @classmethod
+        def validate_guest_search_max_pages(cls, value: int) -> int:
+            # 0 would read as "uncapped" where the limit is applied
+            return max(1, value)
+
         @pydantic.field_validator("language_code")
         @classmethod
         def validate_language_code(cls, value: str) -> str:

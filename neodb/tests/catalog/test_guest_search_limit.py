@@ -53,6 +53,14 @@ class TestGuestSearchPageLimit:
         assert response.status_code == 200
         assert response.context["pagination"].end_page > LIMIT
 
+    @pytest.mark.parametrize("stored", [0, -1])
+    def test_below_one_means_one(self, stored):
+        SiteConfig.set_system(guest_search_max_pages=stored)
+        SiteConfig.reload()
+        assert SiteConfig.system.guest_search_max_pages == 1
+        response, __ = self._guest_get("/search?q=book&page=2")
+        assert response.status_code == 404
+
     def test_guest_blocked_on_people_search(self):
         response = Client().get(f"/search?c=people&q=tolkien&page={LIMIT + 1}")
         assert response.status_code == 404
