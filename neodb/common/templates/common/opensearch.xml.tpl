@@ -3,6 +3,6 @@
 <ShortName>{{ site_name }}</ShortName>
 <Description>{% trans 'book, movie, tv music, game, podcast and etc' %}</Description>
 <InputEncoding>UTF-8</InputEncoding>
-<Image type="image/png" width="128" height="128">{{site_url}}{{ site_icon }}</Image>
+<Image type="image/png" width="512" height="512">{{site_url}}{{ site_icon }}</Image>
 <Url type="text/html" template="{{site_url}}{% url 'common:search' %}?q={searchTerms}"/>
 </OpenSearchDescription>

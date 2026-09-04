@@ -9,9 +9,9 @@
   "display": "standalone",
   "icons": [
     {
-      "src": "{{site_url}}{{ site_icon }}",
+      "src": "{{ site_icon }}",
       "type": "image/png",
-      "sizes": "128x128",
+      "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],

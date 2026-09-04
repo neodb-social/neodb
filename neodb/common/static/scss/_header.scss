@@ -117,20 +117,6 @@ body {
         max-height: calc(1rem * var(--pico-line-height) + var(--pico-form-element-spacing-vertical) * 2 - var(--pico-nav-link-spacing-horizontal) * 2);
       }
 
-      /* Dark color scheme (Auto) */
-      /* Automatically enabled if user has Dark mode enabled */
-      @media only screen and (prefers-color-scheme: dark) {
-        .nav-logo img {
-          filter: brightness(100%) grayscale(100%) invert(20%);
-        }
-      }
-
-      /* Dark color scheme (Forced) */
-      /* Enabled if forced with data-theme="dark" */
-      .nav-logo img [data-theme="dark"] {
-        filter: brightness(100%) grayscale(100%) invert(20%);
-      }
-
       .unhide {
         display: unset !important;
       }

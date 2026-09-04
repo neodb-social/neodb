@@ -21,3 +21,14 @@
 @import '_post.scss';
 @import '_l10n.scss';
 @import '_lightbox.scss';
+
+// Keep the symbol's colors and use a muted wordmark on dark backgrounds.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) img[src="/s/img/logo.svg"] {
+    content: url("../img/logo-dark.svg");
+  }
+}
+
+:root[data-theme="dark"] img[src="/s/img/logo.svg"] {
+  content: url("../img/logo-dark.svg");
+}

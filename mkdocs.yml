@@ -1,4 +1,4 @@
-site_name: 🧩 NeoDB
+site_name: NeoDB
 site_url: https://neodb.net
 repo_url: http://github.com/neodb-social/neodb
 edit_uri: blob/main/docs/
@@ -17,7 +17,7 @@ nav:
   - api.md
   - origin.md
 theme:
-  favicon: assets/favicon.png
+  favicon: assets/favicon-32.png
   logo: assets/logo.svg
   name: material
   font:
