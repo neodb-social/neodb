@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from catalog.common import ParseError, SiteManager, use_local_response
-from catalog.models import Edition, IdType, Movie, TVSeason
+from catalog.common import DownloadError, SiteManager, use_local_response
+from catalog.models import Edition, IdType, ItemCategory, Movie, TVSeason
 from catalog.sites.anilist import AniListAnime
 from common.models import SiteConfig
 from catalog.sites.myanimelist import (
@@ -123,8 +123,33 @@ class TestUnconfigured:
         )
         site = SiteManager.get_site_by_url("https://myanimelist.net/anime/1735")
         assert site is not None
-        with pytest.raises(ParseError, match="Client ID"):
+        # DownloadError, so the linked-resource fetch after an AniList import
+        # logs a warning rather than an internal error
+        with pytest.raises(DownloadError, match="Client ID"):
             site.scrape()
+
+
+class TestSearchCategory:
+    def test_single_category_searches_drop_the_other_type(self):
+        wanted = MyAnimeListAnime._wanted
+        assert wanted("movie", ItemCategory.Movie)
+        assert not wanted("movie", ItemCategory.TV)
+        assert wanted("tv", ItemCategory.TV)
+        assert not wanted("tv", ItemCategory.Movie)
+        for cat in ("all", "movietv"):
+            assert wanted(cat, ItemCategory.Movie) and wanted(cat, ItemCategory.TV)
+
+    def test_media_type_dispatch(self):
+        assert MyAnimeListAnime._search_category({"media_type": "movie"}) == (
+            ItemCategory.Movie
+        )
+        assert MyAnimeListAnime._search_category({"media_type": "music"}) == (
+            ItemCategory.Movie
+        )
+        for t in ("tv", "ova", "ona", "special", None):
+            assert MyAnimeListAnime._search_category({"media_type": t}) == (
+                ItemCategory.TV
+            )
 
 
 @pytest.mark.django_db(databases="__all__")
