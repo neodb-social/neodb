@@ -70,6 +70,9 @@ class QuestionData(BasePostDataType):
             options = data.pop("anyOf", None)
             if not options:
                 options = data.pop("oneOf", None)
+            # JSON-LD allows a lone value in place of a one-element list
+            if isinstance(options, dict):
+                options = [options]
             data["options"] = options
         # Some servers signal a finished poll with a boolean `closed`
         # rather than a datetime (Mastodon treats any truthy value as
