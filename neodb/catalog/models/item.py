@@ -21,6 +21,7 @@ from polymorphic.models import PolymorphicModel
 
 from common.models import (
     get_current_locales,
+    get_default_locales,
     jsondata,
     normalize_album_types,
     normalize_countries,
@@ -661,6 +662,15 @@ class Item(PolymorphicModel):
             "id": str(self.pk),
             "item_id": [self.pk],
             "item_class": self.__class__.__name__,
+            # Stored but not indexed: lets search suggestions render a row
+            # without a database round trip. The title is resolved in the site
+            # default language, so it does not depend on who saved the item.
+            "uuid": self.uuid,
+            "display_title": localized_label_text(
+                self.localized_title, get_default_locales()
+            )
+            or self.display_title,
+            "cover": (self.cover.name or "") if self.has_cover() else "",
             "title": self.to_indexable_titles(),
             # Aggregate public tags here (at index time, async) rather than on
             # every page render; read paths reuse this indexed value.

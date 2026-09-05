@@ -1,0 +1,18 @@
+{% load i18n %}
+<ul role="listbox" aria-label="{% trans 'Suggestions' %}">
+  {% for s in suggestions %}
+    <li role="option">
+      <a href="{{ s.url }}">
+        {% if s.cover_url %}
+          <img src="{{ s.cover_url }}" alt="" loading="lazy" />
+        {% else %}
+          <span class="cover"></span>
+        {% endif %}
+        <span class="title">{{ s.title }}
+          {% if s.matched %}<small>{{ s.matched }}</small>{% endif %}
+        </span>
+        <small class="category">{{ s.category }}</small>
+      </a>
+    </li>
+  {% endfor %}
+</ul>

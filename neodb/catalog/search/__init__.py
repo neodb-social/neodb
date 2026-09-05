@@ -1,6 +1,7 @@
 from .external import ExternalSearchResultItem, ExternalSources
 from .index import CatalogIndex, CatalogQueryParser, CatalogSearchResult
 from .people_index import PeopleIndex, PeopleQueryParser, PeopleSearchResult
+from .suggest import Suggestion, suggest_items, suggest_people
 from .utils import (
     enqueue_fetch,
     get_actor_fetch_lock,
@@ -18,6 +19,9 @@ __all__ = [
     "PeopleQueryParser",
     "PeopleSearchResult",
     "query_index",
+    "Suggestion",
+    "suggest_items",
+    "suggest_people",
     "get_actor_fetch_lock",
     "get_fetch_lock",
     "mark_fetch_completed",

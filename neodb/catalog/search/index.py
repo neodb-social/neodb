@@ -173,6 +173,15 @@ class CatalogIndex(Index):
                 "type": "string",
                 "facet": True,
             },
+            # stored for search suggestions, never searched
+            {"name": "uuid", "type": "string", "index": False, "optional": True},
+            {
+                "name": "display_title",
+                "type": "string",
+                "index": False,
+                "optional": True,
+            },
+            {"name": "cover", "type": "string", "index": False, "optional": True},
             {
                 "name": "date",
                 "type": "int32[]",  # as YYYYMMDD, MM/DD can be 00

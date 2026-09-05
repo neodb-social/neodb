@@ -1,5 +1,7 @@
 from django.urls import path, re_path
 
+from catalog.views import search_suggest
+
 from .views import *
 from .views_manage import (
     AccessSettings,
@@ -19,6 +21,7 @@ app_name = "common"
 urlpatterns = [
     path("", home),
     path("search", search, name="search"),
+    path("search/suggest", search_suggest, name="search_suggest"),
     path("scan/", scan, name="scan"),
     path("home/", home, name="home"),
     path("site/share", share, name="share"),

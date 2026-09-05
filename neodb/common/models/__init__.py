@@ -36,6 +36,7 @@ from .lang import (
     SITE_PREFERRED_LOCALES,
     detect_language,
     get_current_locales,
+    get_default_locales,
     refresh_language_caches,
     register_language_cache_refresh,
 )
@@ -86,6 +87,7 @@ __all__ = [
     "format_duration",
     "genre_choices_for",
     "get_current_locales",
+    "get_default_locales",
     "get_genre_categories",
     "normalize_album_types",
     "normalize_countries",

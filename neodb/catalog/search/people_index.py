@@ -8,6 +8,7 @@ from django_redis import get_redis_connection
 from loguru import logger
 from rq.job import Job
 
+from common.models.lang import get_default_locales, localized_label_text
 from common.search import Index, QueryParser, SearchResult
 
 if TYPE_CHECKING:
@@ -122,6 +123,15 @@ class PeopleIndex(Index):
                 "type": "string",
                 "facet": True,
             },
+            # stored for search suggestions, never searched
+            {"name": "uuid", "type": "string", "index": False, "optional": True},
+            {
+                "name": "display_name",
+                "type": "string",
+                "index": False,
+                "optional": True,
+            },
+            {"name": "cover", "type": "string", "index": False, "optional": True},
             {
                 "name": "name",
                 "locale": "zh",
@@ -184,6 +194,12 @@ class PeopleIndex(Index):
             "id": str(person.pk),
             "item_id": [person.pk],
             "people_type": person.people_type,
+            "uuid": person.uuid,
+            "display_name": localized_label_text(
+                person.localized_name, get_default_locales()
+            )
+            or names[0],
+            "cover": (person.cover.name or "") if person.has_cover() else "",
             "name": names,
             "credit_count": credit_count,
         }

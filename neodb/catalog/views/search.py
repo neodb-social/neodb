@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import prefetch_related_objects
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -41,6 +41,8 @@ from ..search import (
     enqueue_fetch,
     get_fetch_lock,
     query_index,
+    suggest_items,
+    suggest_people,
 )
 
 
@@ -227,24 +229,56 @@ def visible_categories(request):
     return vc
 
 
+def search_categories(request, category: str) -> tuple[list[ItemCategory], bool]:
+    """Categories to search for the ``c`` parameter, and whether it named a
+    single category (so result cards can drop the category label)."""
+    if category == "all" or not category:
+        return visible_categories(request), False
+    if category == "movietv":
+        return [ItemCategory.Movie, ItemCategory.TV], False
+    try:
+        return [ItemCategory(category)], True
+    except ValueError:
+        return visible_categories(request), False
+
+
+def hidden_categories(request) -> list[ItemCategory] | None:
+    if request.user.is_authenticated:
+        return request.user.preference.hidden_categories
+    return None
+
+
+def search_suggest(request):
+    """Typeahead rows for the header search box, as an HTML fragment.
+
+    Deliberately not behind ``user_identity_required``: a redirect would be
+    swapped into the dropdown by htmx. An empty 200 clears it.
+    """
+    category = request.GET.get("c", default="all").strip().lower()
+    keywords = request.GET.get("q", default="").strip()
+    if (
+        not keywords
+        or category in ("journal", "timeline")
+        or re.match(r"^[@＠]|^https?://", keywords)
+    ):
+        return HttpResponse("")
+    if category == "people":
+        suggestions = suggest_people(keywords)
+    else:
+        categories, __ = search_categories(request, category)
+        suggestions = suggest_items(keywords, categories, hidden_categories(request))
+    if not suggestions:
+        return HttpResponse("")
+    return render(request, "_search_suggest.html", {"suggestions": suggestions})
+
+
 @user_identity_required
 def search(request):
     category = request.GET.get("c", default="all").strip().lower()
     keywords = request.GET.get("q", default="").strip()
     if re.match(r"^[@＠]", keywords):
         return query_identity(request, keywords.replace("＠", "@"))
-    hide_category = False
-    if category == "all" or not category:
-        category = None
-        categories = visible_categories(request)
-    elif category == "movietv":
-        categories = [ItemCategory.Movie, ItemCategory.TV]
-    else:
-        try:
-            categories = [ItemCategory(category)]
-            hide_category = True
-        except Exception:
-            categories = visible_categories(request)
+    categories, hide_category = search_categories(request, category)
     tag = request.GET.get("tag", default="").strip()
     tag = Tag.deep_cleanup_title(tag, default="")
     p = int_(request.GET.get("page", default="1"), 1)
@@ -266,11 +300,7 @@ def search(request):
     if tag:
         redir = reverse("common:search") + f'?q=tag:"{tag}"'
         return redirect(redir)
-    excl = (
-        request.user.preference.hidden_categories
-        if request.user.is_authenticated
-        else None
-    )
+    excl = hidden_categories(request)
     page_limit = guest_page_limit(request)
     if page_limit and p > page_limit:
         raise Http404(_("Page not found"))

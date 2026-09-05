@@ -15,6 +15,87 @@ body {
         margin-bottom: 0px;
       }
 
+      .nav-search li {
+        position: relative;
+      }
+
+      #search-suggest {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        font-weight: normal;
+
+        &:empty {
+          display: none;
+        }
+
+        ul {
+          display: block;
+          min-width: 0;
+          max-height: 60vh;
+          overflow-y: auto;
+          margin: 0;
+          padding: calc(var(--pico-spacing) / 4) 0;
+          list-style: none;
+          background-color: var(--pico-dropdown-background-color);
+          border: var(--pico-border-width) solid var(--pico-dropdown-border-color);
+          border-radius: var(--pico-border-radius);
+          box-shadow: var(--pico-dropdown-box-shadow);
+        }
+
+        li {
+          display: block;
+          padding: 0;
+          width: 100%;
+        }
+
+        a {
+          display: flex;
+          align-items: center;
+          gap: calc(var(--pico-spacing) / 2);
+          margin: 0;
+          padding: calc(var(--pico-spacing) / 4) calc(var(--pico-spacing) / 2);
+          color: var(--pico-dropdown-color);
+          text-decoration: none;
+
+          &:hover,
+          &:focus {
+            background-color: var(--pico-dropdown-hover-background-color);
+            outline: none;
+          }
+        }
+
+        img,
+        .cover {
+          flex: none;
+          width: 2rem;
+          height: 2.6rem;
+          object-fit: cover;
+          border-radius: 2px;
+          background-color: var(--pico-muted-border-color);
+        }
+
+        .title {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          small {
+            color: var(--pico-muted-color);
+            margin-left: 0.5em;
+          }
+        }
+
+        .category {
+          flex: none;
+          color: var(--pico-muted-color);
+        }
+      }
+
       details.dropdown summary:not([role]) {
         border-color: transparent;
         background-color: transparent;

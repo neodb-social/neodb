@@ -11,15 +11,24 @@
       </li>
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
-      <li>
+      <li _="on focusout if not me.contains(event.relatedTarget) set #search-suggest's innerHTML to '' end">
         <form role="search" method="get" action="{% url 'common:search' %}">
           <input type="search"
                  name="q"
                  id="q"
                  placeholder="{% trans 'title, creator, ISBN, item url, @user, @user@instance' %}"
                  class="search"
+                 autocomplete="off"
+                 aria-controls="search-suggest"
+                 hx-get="{% url 'common:search_suggest' %}"
+                 hx-trigger="input changed delay:200ms"
+                 hx-include="[name='c']"
+                 hx-sync="this:replace"
+                 hx-target="#search-suggest"
+                 hx-swap="innerHTML"
+                 _="on keydown[key is 'Escape'] set #search-suggest's innerHTML to '' end on keydown[key is 'ArrowDown'] set a to first <a/> in #search-suggest then if a then halt the event's default then call a.focus() end end"
                  value="{{ request.GET.q|default:'' }}" />
-          <select name="c">
+          <select name="c" _="on change set #search-suggest's innerHTML to ''">
             {% visible_categories as cats %}
             <option value="all">{% trans 'All Items' %}</option>
             {% if 'book' in cats %}
@@ -55,102 +64,105 @@
           </select>
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>
-      </li>
-    </ul>
-    <ul class="nav-links">
-      <li class="small-only">
-        <a class="nav-link-search"
-           _="on click toggle .unhide on .nav-search then call #q.focus()"
-           href="#">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <i class="fa-solid fa-magnifying-glass-chart"></i>
-        </a>
-      </li>
-      <li class="small-only">
-        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">
-          <i class="fa-regular fa-compass"></i>
-          <i class="fa-solid fa-compass"></i>
-        </a>
-      </li>
-      <li class="small-only">
-        <a class="nav-link-feed" href="{% url 'social:feed' %}">
-          <i class="fa-regular fa-newspaper"></i>
-          <i class="fa-solid fa-newspaper"></i>
-          <span class="notification-dot"></span>
-        </a>
-      </li>
-      <li class="small-only">
-        <a class="nav-link-home" href="{% url 'common:me' %}">
-          <i class="fa-regular fa-house"></i>
-          <i class="fa-solid fa-house"></i>
-        </a>
-      </li>
-      <li class="large-only">
-        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
-      </li>
-      <li class="large-only">
-        <a class="nav-link-feed" href="{% url 'social:feed' %}">
-          {% trans 'Feed' %}
-          <span class="notification-dot"></span>
-        </a>
-      </li>
-      <li class="large-only">
-        <a class="nav-link-home" href="{% url 'common:me' %}">{% trans 'Home' %}</a>
-      </li>
-    </ul>
-    <ul class="nav-dropdown">
-      <li>
-        <details class="dropdown">
-          <summary aria-haspopup="listbox">
-            <span class="avatar">
-              <img alt=""
-                   title="{% if request.user.is_authenticated %}{{ request.user.username }}{% else %}{% endif %}"
-                   src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{{ user_icon }}{% endif %}" />
-            </span>
-            <span class="pending-dot"></span>
-          </summary>
-          <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
+        <div id="search-suggest"
+             _="on mousedown halt the event's default end on keydown[key is 'Escape'] call #q.focus() then set my innerHTML to '' end on keydown[key is 'ArrowDown'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i + 1 < links.length then call links[i + 1].focus() end end on keydown[key is 'ArrowUp'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i > 0 then call links[i - 1].focus() else call #q.focus() end end">
+      </div>
+    </li>
+  </ul>
+  <ul class="nav-links">
+    <li class="small-only">
+      <a class="nav-link-search"
+         _="on click toggle .unhide on .nav-search then call #q.focus()"
+         href="#">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+      </a>
+    </li>
+    <li class="small-only">
+      <a class="nav-link-discover" href="{% url 'catalog:discover' %}">
+        <i class="fa-regular fa-compass"></i>
+        <i class="fa-solid fa-compass"></i>
+      </a>
+    </li>
+    <li class="small-only">
+      <a class="nav-link-feed" href="{% url 'social:feed' %}">
+        <i class="fa-regular fa-newspaper"></i>
+        <i class="fa-solid fa-newspaper"></i>
+        <span class="notification-dot"></span>
+      </a>
+    </li>
+    <li class="small-only">
+      <a class="nav-link-home" href="{% url 'common:me' %}">
+        <i class="fa-regular fa-house"></i>
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    <li class="large-only">
+      <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
+    </li>
+    <li class="large-only">
+      <a class="nav-link-feed" href="{% url 'social:feed' %}">
+        {% trans 'Feed' %}
+        <span class="notification-dot"></span>
+      </a>
+    </li>
+    <li class="large-only">
+      <a class="nav-link-home" href="{% url 'common:me' %}">{% trans 'Home' %}</a>
+    </li>
+  </ul>
+  <ul class="nav-dropdown">
+    <li>
+      <details class="dropdown">
+        <summary aria-haspopup="listbox">
+          <span class="avatar">
+            <img alt=""
+                 title="{% if request.user.is_authenticated %}{{ request.user.username }}{% else %}{% endif %}"
+                 src="{% if request.user.is_authenticated %}{{ request.user.avatar }}{% else %}{{ user_icon }}{% endif %}" />
+          </span>
+          <span class="pending-dot"></span>
+        </summary>
+        <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
+          <li>
+            <a href="{% url 'common:scan' %}">{% trans 'Scan Barcode' %}</a>
+          </li>
+          {% if request.user.is_authenticated %}
             <li>
-              <a href="{% url 'common:scan' %}">{% trans 'Scan Barcode' %}</a>
+              <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
+              <span class="notification-dot"></span>
             </li>
-            {% if request.user.is_authenticated %}
+            <li id="pending-menu" style="display:none">
+              <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans 'Pending' %}</a>
+            </li>
+            <li>
+              <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
+            </li>
+            <li>
+              <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+            </li>
+            <li>
+              <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
+            </li>
+            {% if request.user.is_superuser %}
               <li>
-                <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
-                <span class="notification-dot"></span>
-              </li>
-              <li id="pending-menu" style="display:none">
-                <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans 'Pending' %}</a>
-              </li>
-              <li>
-                <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
-              </li>
-              <li>
-                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
-              </li>
-              <li>
-                <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
-              </li>
-              {% if request.user.is_superuser %}
-                <li>
-                  <a href="{% url 'common:manage' %}">{% trans 'Manage' %}</a>
-                </li>
-              {% endif %}
-              <li>
-                <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
-              </li>
-            {% else %}
-              <li>
-                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
-              </li>
-              <li>
-                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+                <a href="{% url 'common:manage' %}">{% trans 'Manage' %}</a>
               </li>
             {% endif %}
-          </ul>
-        </details>
-      </li>
-    </ul>
-  </nav>
+            <li>
+              <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
+            </li>
+          {% else %}
+            <li>
+              <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
+            </li>
+            <li>
+              <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+            </li>
+          {% endif %}
+        </ul>
+      </details>
+    </li>
+  </ul>
+</nav>
 </header>
 {% if request.user.is_authenticated %}
   <script>
