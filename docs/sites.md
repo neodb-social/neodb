@@ -22,8 +22,10 @@ The following external sites are supported for importing catalog items.
 | itch.io | Game | |
 | jjwxc 晋江文学城 | Book (Edition) | |
 | Letterboxd | *(link in archive is mapped to TMDB)* | Yes — upload exported archive |
+| MangaUpdates | Book (Edition) | |
 | MobyGames | Game | |
 | MusicBrainz | Music (Album) | |
+| MyAnimeList | Movie · TV (Season) · Book (Edition) | |
 | OpenLibrary | Book (Edition, Work) | |
 | Qidian 起点 | Book (Edition) | |
 | RateYourMusic | Music (Album) | Yes — upload CSV export |

@@ -133,6 +133,8 @@ env = environ.FileAwareEnv(
     IGDB_API_CLIENT_SECRET=(str, ""),
     # BoardGameGeek - bearer token from https://boardgamegeek.com/using_the_xml_api#toc9
     BGG_API_TOKEN=(str, ""),
+    # MyAnimeList - client id of an app registered at https://myanimelist.net/apiconfig
+    MAL_API_CLIENT_ID=(str, "TESTONLY"),
     # DeepL
     DEEPL_API_KEY=(str, ""),
     # LibreTranslate
@@ -307,6 +309,7 @@ DISCOGS_API_KEY = env("DISCOGS_API_KEY")
 IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
 BGG_API_TOKEN = env("BGG_API_TOKEN")
+MAL_API_CLIENT_ID = env("MAL_API_CLIENT_ID")
 DEEPL_API_KEY = env("DEEPL_API_KEY")
 LT_API_URL = env("LT_API_URL").rstrip("/")
 LT_API_KEY = env("LT_API_KEY")

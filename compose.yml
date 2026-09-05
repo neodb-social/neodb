@@ -94,6 +94,7 @@ x-shared:
       DISCOGS_API_KEY:
       IGDB_API_CLIENT_ID:
       IGDB_API_CLIENT_SECRET:
+      MAL_API_CLIENT_ID:
       DEEPL_API_KEY:
       LT_API_URL:
       LT_API_KEY:

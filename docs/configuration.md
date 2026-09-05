@@ -342,6 +342,7 @@ The following settings can still be set in `.env` for bootstrap or backward-comp
  - `DISCOGS_API_KEY`
  - `IGDB_API_CLIENT_ID`, `IGDB_API_CLIENT_SECRET`
  - `BGG_API_TOKEN`
+ - `MAL_API_CLIENT_ID` - client id of an app registered at https://myanimelist.net/apiconfig, required for MyAnimeList
  - `STEAM_API_KEY`
 
 ### Scraping providers
