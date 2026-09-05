@@ -22,8 +22,10 @@ from .igdb import IGDB
 from .imdb import IMDB
 from .itch import Itch
 from .jjwxc import JJWXC
+from .mangaupdates import MangaUpdates
 from .mobygames import MobyGames
 from .musicbrainz import MusicBrainzRelease, MusicBrainzReleaseGroup
+from .myanimelist import MyAnimeListAnime, MyAnimeListManga
 from .openlibrary import OpenLibrary, OpenLibrary_Work
 from .qidian import Qidian
 from .rateyourmusic import RateYourMusic
@@ -68,6 +70,9 @@ __all__ = [
     "IMDB",
     "Itch",
     "JJWXC",
+    "MangaUpdates",
+    "MyAnimeListAnime",
+    "MyAnimeListManga",
     "Qidian",
     "RateYourMusic",
     "Readmoo",
