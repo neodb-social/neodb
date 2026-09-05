@@ -243,6 +243,39 @@ class TestIndexedDocs:
         assert doc["display_title"] in ("三体", "The Three-Body Problem")
         assert doc["cover"] == ""
 
+    def test_season_doc_keeps_show_title(self):
+        from catalog.models import TVSeason, TVShow
+
+        show = TVShow.objects.create(
+            localized_title=[{"lang": "en", "text": "Example Show"}]
+        )
+        season = TVSeason.objects.create(
+            localized_title=[{"lang": "en", "text": "Season 2"}],
+            show=show,
+            season_number=2,
+        )
+        assert "Example Show" in season.to_indexable_doc()["display_title"]
+
+    def test_default_display_title_ignores_request_language(self):
+        from django.utils import translation
+
+        with translation.override("zh-hans"):
+            # saving indexes the item, which resolves the default-language
+            # title; that must not poison the request-language cache
+            book = Edition.objects.create(
+                localized_title=[
+                    {"lang": "en", "text": "English Title"},
+                    {"lang": "zh-cn", "text": "中文标题"},
+                ]
+            )
+            assert book.display_title == "中文标题"
+            stored = book.default_display_title()
+            # the request-language cache is untouched
+            assert book.display_title == "中文标题"
+        with translation.override("en"):
+            expected = Edition.objects.get(pk=book.pk).display_title
+        assert stored == expected
+
     def test_people_doc_has_suggestion_fields(self):
         person = People.objects.create(
             localized_name=[{"lang": "en", "text": "Liu Cixin"}],

@@ -13,15 +13,15 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import IntegrityError, connection, models, transaction
 from django.db.models import Q, QuerySet, prefetch_related_objects
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
 from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
 from common.models import (
+    SITE_DEFAULT_LANGUAGE,
     get_current_locales,
-    get_default_locales,
     jsondata,
     normalize_album_types,
     normalize_countries,
@@ -617,6 +617,22 @@ class Item(PolymorphicModel):
             self.localized_title[0]["text"] if self.localized_title else ""
         )
 
+    def default_display_title(self) -> str:
+        """``display_title`` as composed by the concrete class (a season keeps
+        its show name), resolved in the site default language rather than the
+        active request language, so the value is stable when stored."""
+        # display_title (and display_name on People) are cached per instance
+        # in the language they were first read in; keep that cache intact
+        keys = ("display_title", "display_name")
+        cached = {k: self.__dict__.pop(k) for k in keys if k in self.__dict__}
+        try:
+            with translation.override(SITE_DEFAULT_LANGUAGE):
+                return self.display_title
+        finally:
+            for k in keys:
+                self.__dict__.pop(k, None)
+            self.__dict__.update(cached)
+
     @cached_property
     def additional_title(self) -> list[str]:
         title = self.display_title
@@ -666,10 +682,7 @@ class Item(PolymorphicModel):
             # without a database round trip. The title is resolved in the site
             # default language, so it does not depend on who saved the item.
             "uuid": self.uuid,
-            "display_title": localized_label_text(
-                self.localized_title, get_default_locales()
-            )
-            or self.display_title,
+            "display_title": self.default_display_title(),
             "cover": (self.cover.name or "") if self.has_cover() else "",
             "title": self.to_indexable_titles(),
             # Aggregate public tags here (at index time, async) rather than on

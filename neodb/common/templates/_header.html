@@ -11,7 +11,7 @@
       </li>
     </ul>
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
-      <li _="on focusout if not me.contains(event.relatedTarget) set #search-suggest's innerHTML to '' end">
+      <li _="on focusout if not me.contains(event.relatedTarget) send htmx:abort to #q then set #search-suggest's innerHTML to '' end">
         <form role="search" method="get" action="{% url 'common:search' %}">
           <input type="search"
                  name="q"
@@ -26,9 +26,10 @@
                  hx-sync="this:replace"
                  hx-target="#search-suggest"
                  hx-swap="innerHTML"
-                 _="on keydown[key is 'Escape'] set #search-suggest's innerHTML to '' end on keydown[key is 'ArrowDown'] set a to first <a/> in #search-suggest then if a then halt the event's default then call a.focus() end end"
+                 _="on keydown[key is 'Escape'] send htmx:abort to #q then set #search-suggest's innerHTML to '' end on keydown[key is 'ArrowDown'] set a to first <a/> in #search-suggest then if a then halt the event's default then call a.focus() end end"
                  value="{{ request.GET.q|default:'' }}" />
-          <select name="c" _="on change set #search-suggest's innerHTML to ''">
+          <select name="c"
+                  _="on change send htmx:abort to #q then set #search-suggest's innerHTML to ''">
             {% visible_categories as cats %}
             <option value="all">{% trans 'All Items' %}</option>
             {% if 'book' in cats %}
@@ -65,7 +66,7 @@
           <input type="submit" value="&#xf002;" class="fa-solid" />
         </form>
         <div id="search-suggest"
-             _="on mousedown halt the event's default end on keydown[key is 'Escape'] call #q.focus() then set my innerHTML to '' end on keydown[key is 'ArrowDown'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i + 1 < links.length then call links[i + 1].focus() end end on keydown[key is 'ArrowUp'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i > 0 then call links[i - 1].focus() else call #q.focus() end end">
+             _="on mousedown halt the event's default end on keydown[key is 'Escape'] call #q.focus() then send htmx:abort to #q then set my innerHTML to '' end on keydown[key is 'ArrowDown'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i + 1 < links.length then call links[i + 1].focus() end end on keydown[key is 'ArrowUp'] halt the event's default then set links to <a/> in me then set i to links.indexOf(target) then if i > 0 then call links[i - 1].focus() else call #q.focus() end end">
       </div>
     </li>
   </ul>

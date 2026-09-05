@@ -437,13 +437,6 @@ def get_current_locales() -> list[str]:
     return locales
 
 
-def get_default_locales() -> list[str]:
-    """Locale preference of the site default language, independent of the
-    active request language. Use it for values stored outside a request."""
-    with translation.override(SITE_DEFAULT_LANGUAGE):
-        return get_current_locales()
-
-
 def localized_label_text(
     labels: list[dict] | None, locales: list[str] | None = None
 ) -> str | None:
