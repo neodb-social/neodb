@@ -600,10 +600,12 @@ class NdjsonImporter(BaseImporter):
                 existing.progress_value = progress_value
                 existing.visibility = visibility
                 existing.metadata = data.get("metadata") or {}
-                existing.save()
+                # post after the media below is registered, so the timeline
+                # post carries it; the final save runs the hook
+                existing.save(post_when_save=False)
                 note = existing
             else:
-                note = Note.objects.create(
+                note = Note(
                     item=item,
                     owner=owner,
                     title=title,
@@ -615,9 +617,7 @@ class NdjsonImporter(BaseImporter):
                     metadata=data.get("metadata") or {},
                     **({"created_time": published_dt} if published_dt else {}),
                 )
-            # TODO: the restored files are recorded on Note.attachments but
-            # never uploaded to Takahe, so the timeline post for an imported
-            # note carries no media.
+                note.save(post_when_save=False)
             note_attachments = []
             restored: list[Attachment] = []
             for atta in data.get("attachments") or []:
@@ -645,11 +645,9 @@ class NdjsonImporter(BaseImporter):
                 note.attachment_records.set(restored)
             if note_attachments:
                 note.attachments = note_attachments
-                note.save(
-                    update_fields=["attachments"],
-                    post_when_save=False,
-                    index_when_save=False,
-                )
+            # the deferred timeline post: Note.to_post_params uploads the
+            # freshly registered rows onto it
+            note.save(update_fields=["attachments"], index_when_save=False)
             self._restore_edited_time(note, updated_dt)
             return "imported"
         except Exception:
