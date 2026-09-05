@@ -21,6 +21,7 @@ from django.conf import settings
 from loguru import logger
 
 from catalog.common import *
+from catalog.common.downloaders import DownloadError
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import (
     Edition,
@@ -166,15 +167,16 @@ class MyAnimeList(AbstractSite):
     def _fetch(self) -> dict[str, Any]:
         if not self.id_value:
             raise ParseError(self, "id")
-        # Fail with the cause rather than the API's bare 400.
+        downloader = RetryDownloader(self.api_url(self.id_value), headers=_headers())
+        # Name the cause rather than surface the API's bare 400. A
+        # DownloadError, not a ParseError, because AniList imports schedule a
+        # MAL lookup through fetch_linked_resources on every instance, and
+        # only DownloadError is treated there as an expected failure.
         if not _client_id() and not get_mock_mode():
-            raise ParseError(self, "MyAnimeList Client ID is not configured")
+            downloader.response_type = RESPONSE_INVALID_CONTENT
+            raise DownloadError(downloader, "MyAnimeList Client ID is not configured")
         mal_limiter().acquire(timeout=30.0)
-        node = (
-            RetryDownloader(self.api_url(self.id_value), headers=_headers())
-            .download()
-            .json()
-        )
+        node = downloader.download().json()
         if not node.get("id") or not node.get("title"):
             raise ParseError(self, "title")
         return node
@@ -213,6 +215,16 @@ class MyAnimeList(AbstractSite):
     def _search_category(cls, node: dict[str, Any]) -> ItemCategory:
         raise NotImplementedError
 
+    @staticmethod
+    def _wanted(category: str, item_category: ItemCategory) -> bool:
+        """The anime endpoint mixes series and films; keep only what a
+        movie-only or tv-only search asked for."""
+        if category == "movie":
+            return item_category == ItemCategory.Movie
+        if category == "tv":
+            return item_category == ItemCategory.TV
+        return True
+
     @classmethod
     async def search_task(
         cls, q: str, page: int, category: str, page_size: int
@@ -247,6 +259,9 @@ class MyAnimeList(AbstractSite):
                     titles = _titles(node)
                     if not titles or not node.get("id"):
                         continue
+                    item_category = cls._search_category(node)
+                    if not cls._wanted(category, item_category):
+                        continue
                     year, _ = _year_month(node.get("start_date"))
                     subtitle = " · ".join(
                         str(x) for x in (node.get("media_type"), year) if x
@@ -254,7 +269,7 @@ class MyAnimeList(AbstractSite):
                     picture = node.get("main_picture") or {}
                     results.append(
                         ExternalSearchResultItem(
-                            category=cls._search_category(node),
+                            category=item_category,
                             source_site=cls.SITE_NAME,
                             source_url=cls.id_to_url(node["id"]),
                             title=next(iter(titles)),
