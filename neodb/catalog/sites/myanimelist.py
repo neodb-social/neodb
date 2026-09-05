@@ -2,8 +2,9 @@
 MyAnimeList (https://myanimelist.net)
 
 Uses the official API v2, which serves public data to any app registered at
-https://myanimelist.net/apiconfig through the X-MAL-CLIENT-ID header; set
-MAL_API_CLIENT_ID. Anime maps to TVSeason/Movie and manga (light novels
+https://myanimelist.net/apiconfig through the X-MAL-CLIENT-ID header. The id
+comes from the MyAnimeList Client ID site setting (MAL_API_CLIENT_ID seeds
+it); without one the site is inert. Anime maps to TVSeason/Movie and manga (light novels
 included) to Edition, the same dispatch anilist.py uses. v2 exposes no staff
 for anime, so anime carry their studios but no director credit.
 
@@ -30,6 +31,7 @@ from catalog.models import (
     TVSeason,
 )
 from catalog.search import ExternalSearchResultItem, record_search_failure
+from common.models import SiteConfig
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
 
@@ -58,11 +60,15 @@ def mal_limiter() -> RedisRateLimiter:
     return _limiter
 
 
+def _client_id() -> str:
+    return SiteConfig.system.mal_client_id
+
+
 def _headers() -> dict[str, str]:
     return {
         "User-Agent": settings.NEODB_USER_AGENT,
         "Accept": "application/json",
-        "X-MAL-CLIENT-ID": settings.MAL_API_CLIENT_ID,
+        "X-MAL-CLIENT-ID": _client_id(),
     }
 
 
@@ -160,6 +166,9 @@ class MyAnimeList(AbstractSite):
     def _fetch(self) -> dict[str, Any]:
         if not self.id_value:
             raise ParseError(self, "id")
+        # Fail with the cause rather than the API's bare 400.
+        if not _client_id() and not get_mock_mode():
+            raise ParseError(self, "MyAnimeList Client ID is not configured")
         mal_limiter().acquire(timeout=30.0)
         node = (
             RetryDownloader(self.api_url(self.id_value), headers=_headers())
@@ -208,7 +217,9 @@ class MyAnimeList(AbstractSite):
     async def search_task(
         cls, q: str, page: int, category: str, page_size: int
     ) -> list[ExternalSearchResultItem]:
-        if category not in cls.SEARCH_CATEGORIES:
+        # Silent when unconfigured: every search fans out here, and an
+        # instance without a client id must not log an error each time.
+        if category not in cls.SEARCH_CATEGORIES or not _client_id():
             return []
         results: list[ExternalSearchResultItem] = []
         # Take a slot only when one is free; the interactive dispatcher must not
