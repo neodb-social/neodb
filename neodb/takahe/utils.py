@@ -1,10 +1,12 @@
 import io
+import mimetypes
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 from blurhash_rs import blurhash_encode
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.db.models import QuerySet
@@ -715,6 +717,31 @@ class Takahe:
             blurhash=hash,
         )
         attachment.save()
+        return attachment
+
+    @staticmethod
+    def upload_attachment(
+        author_pk: int,
+        filename: str,
+        content: File,
+        mimetype: str,
+        description: str = "",
+    ) -> PostAttachment:
+        """Store non-image media (audio/video) as a post attachment.
+
+        Mirrors the non-image branch of takahe's Mastodon media upload: no
+        thumbnail or blurhash, and the stored name keeps an extension so the
+        web server serves it with the right Content-Type.
+        """
+        attachment = PostAttachment.objects.create(
+            mimetype=mimetype,
+            name=description or None,
+            state="fetched",
+            author_id=author_pk,
+        )
+        if "." not in filename.rsplit("/", 1)[-1]:
+            filename += mimetypes.guess_extension(mimetype) or ""
+        attachment.file.save(filename or "attachment", content)
         return attachment
 
     @staticmethod

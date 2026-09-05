@@ -1,16 +1,28 @@
+import mimetypes
+import os
 import re
 from functools import cached_property
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from loguru import logger
 
 from catalog.models import Item
+from takahe.utils import Takahe
 
-from .attachment import Attachment, takahe_attachment_urls
+from .attachment import (
+    Attachment,
+    pending_source_for_post_attachment,
+    source_for_post_attachment,
+    takahe_attachment_urls,
+)
 from .common import Content
 from .renderers import render_text
 from .shelf import ShelfMember
+
+if TYPE_CHECKING:
+    from takahe.models import PostAttachment
 
 _progress = re.compile(
     r"(.*\s)?(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))(\s|\.|#)*(?P<value>([\d\:\.\-]+))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
@@ -30,6 +42,11 @@ _separaters = {"–", "―", "−", "—", "-"}
 class Note(Content):
     post_when_save = True
     index_when_save = True
+    # Set by the NDJSON importer before the save that posts: the registry
+    # rows then describe the post's media exactly, including "none". Off by
+    # default, so an ordinary save never touches media the Mastodon API put
+    # on the post.
+    post_media_from_records: bool = False
 
     class ProgressType(models.TextChoices):
         PAGE = "page", _("Page")
@@ -291,17 +308,73 @@ class Note(Content):
                 params["attachments"] = attachments
         return params
 
+    def _upload_attachment(self, a: Attachment) -> "PostAttachment | None":
+        filename = os.path.basename(a.file.name or "") or "attachment"
+        mimetype = a.mimetype or mimetypes.guess_type(filename)[0] or ""
+        try:
+            with a.file.open("rb") as f:
+                if mimetype.startswith("image/"):
+                    pa = Takahe.upload_image(
+                        self.owner.pk, filename, f.read(), mimetype, a.description
+                    )
+                else:
+                    pa = Takahe.upload_attachment(
+                        self.owner.pk, filename, f, mimetype, a.description
+                    )
+        except Exception as e:
+            logger.warning(f"error uploading note attachment {a}: {e}")
+            return None
+        # settle the row: never uploaded twice, and sync_from_post dedupes
+        # onto it instead of copying the media back a second time
+        a.source = source_for_post_attachment(pa.pk)
+        a.save(update_fields=["source"])
+        return pa
+
+    def _build_post_attachments(self) -> list | None:
+        """Takahe attachments matching the registry rows, or None to keep.
+
+        A note composed through the Mastodon API gets its media the other way
+        round: the post carries it first and ``Attachment.sync_from_post``
+        mirrors it into rows, so this only runs when the importer has flagged
+        the rows as authoritative. Rows already on the post are kept, files
+        not on it are uploaded, and post media no row describes (a previous
+        import, or media the archive no longer has) is dropped -- an empty
+        list clears the post. Pointer rows have no file and cannot be posted.
+        """
+        if not self.post_media_from_records:
+            return None
+        post = self.latest_post
+        on_post: dict[str, "PostAttachment"] = {}
+        for pa in post.attachments.all() if post else []:
+            # both source forms sync_from_post writes
+            on_post[source_for_post_attachment(pa.pk)] = pa
+            on_post[pending_source_for_post_attachment(pa.pk)] = pa
+        attachments = []
+        for a in self.attachment_records.all():
+            if a.source in on_post:
+                attachments.append(on_post[a.source])
+            elif a.file:
+                pa = self._upload_attachment(a)
+                if pa:
+                    attachments.append(pa)
+        return attachments
+
     def to_post_params(self):
         footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
         post = self.shelfmember.latest_post if self.shelfmember else None
-        return {
+        params = {
             "summary": self.title,
             "content": self.content,
             "append_content": footer,
             "sensitive": self.sensitive,
             "reply_to_pk": post.pk if post else None,
-            # not passing "attachments" so it won't change
         }
+        # "attachments" is passed only on an import, so an ordinary edit
+        # leaves the post's media unchanged
+        attachments = self._build_post_attachments()
+        if attachments is not None:
+            params["attachments"] = attachments
+        return params
 
     @classmethod
     def strip_footer(cls, content: str) -> tuple[str, str | None, str | None]:
