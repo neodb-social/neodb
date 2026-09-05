@@ -139,16 +139,17 @@ class TestScrape:
         m = site.resource.metadata
         assert m["preferred_model"] == "TVSeason"
         assert m["episode_count"] == 500
-        assert m["single_episode_length"] == 1380  # already seconds
+        assert m["single_episode_length"] == 1389  # already seconds
         assert m["release_date"] == "2007-02-15"
-        assert m["producer"] == ["Pierrot"]
+        assert m["producer"] == ["Studio Pierrot"]
         assert "director" not in m  # v2 exposes no staff
         assert "Shounen" in m["genre"]
         by_text = {t["text"]: t["lang"] for t in m["localized_title"]}
-        assert by_text["Naruto: Shippuden"] == "en"
+        assert by_text["Naruto Shippuden"] == "en"
         assert by_text["Naruto: Shippuuden"] == "x"
-        assert by_text["NARUTO -ナルト- 疾風伝"] == "ja"
-        assert m["orig_title"] == "NARUTO -ナルト- 疾風伝"
+        assert by_text["-ナルト- 疾風伝"] == "ja"
+        assert by_text["Naruto Hurricane Chronicles"] == "x"
+        assert m["orig_title"] == "-ナルト- 疾風伝"
         assert "[Written by MAL Rewrite]" in m["brief"]
         assert isinstance(site.resource.item, TVSeason)
 
@@ -160,7 +161,7 @@ class TestScrape:
         assert site.resource is not None
         m = site.resource.metadata
         assert m["preferred_model"] == "Movie"
-        assert m["length"] == 7460
+        assert m["length"] == 7475
         assert "episode_count" not in m
         assert m["release_date"] == "2001-07-20"
         assert m["producer"] == ["Studio Ghibli"]
