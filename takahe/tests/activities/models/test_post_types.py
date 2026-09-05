@@ -82,6 +82,14 @@ def test_question_post(config_system, identity, remote_identity, httpx_mock):
     assert question_data.options[1].votes == 1
 
 
+def test_question_single_option_object():
+    question = PostTypeData(
+        root={"type": "Question", "anyOf": {"name": "A", "type": "Note"}}
+    ).root
+    assert isinstance(question, QuestionData)
+    assert [o.name for o in question.options] == ["A"]
+
+
 def test_question_closed_datetime_marks_expired():
     question = PostTypeData(
         root={
