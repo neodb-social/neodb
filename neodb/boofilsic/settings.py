@@ -134,7 +134,7 @@ env = environ.FileAwareEnv(
     # BoardGameGeek - bearer token from https://boardgamegeek.com/using_the_xml_api#toc9
     BGG_API_TOKEN=(str, ""),
     # MyAnimeList - client id of an app registered at https://myanimelist.net/apiconfig
-    MAL_API_CLIENT_ID=(str, "TESTONLY"),
+    MAL_API_CLIENT_ID=(str, ""),
     # DeepL
     DEEPL_API_KEY=(str, ""),
     # LibreTranslate

@@ -1,8 +1,11 @@
+import asyncio
+
 import pytest
 
-from catalog.common import SiteManager, use_local_response
+from catalog.common import ParseError, SiteManager, use_local_response
 from catalog.models import Edition, IdType, Movie, TVSeason
 from catalog.sites.anilist import AniListAnime
+from common.models import SiteConfig
 from catalog.sites.myanimelist import (
     MyAnimeListAnime,
     MyAnimeListManga,
@@ -102,6 +105,26 @@ class TestAuthors:
             ]
         }
         assert _author_names(node) == ["Masashi Kishimoto", "CLAMP"]
+
+
+class TestUnconfigured:
+    """The test SystemOptions carry no client id, as a fresh instance does."""
+
+    def test_search_is_silent(self, monkeypatch):
+        monkeypatch.setattr(
+            SiteConfig, "system", SiteConfig.SystemOptions(mal_client_id="")
+        )
+        assert asyncio.run(MyAnimeListAnime.search_task("naruto", 1, "all", 10)) == []
+        assert asyncio.run(MyAnimeListManga.search_task("naruto", 1, "book", 10)) == []
+
+    def test_fetch_names_the_missing_setting(self, monkeypatch):
+        monkeypatch.setattr(
+            SiteConfig, "system", SiteConfig.SystemOptions(mal_client_id="")
+        )
+        site = SiteManager.get_site_by_url("https://myanimelist.net/anime/1735")
+        assert site is not None
+        with pytest.raises(ParseError, match="Client ID"):
+            site.scrape()
 
 
 @pytest.mark.django_db(databases="__all__")

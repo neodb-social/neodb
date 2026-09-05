@@ -85,6 +85,7 @@ ENV_VARS_WITH_SITE_SETTING: dict[str, str] = {
     "IGDB_API_CLIENT_ID": "igdb_client_id",
     "IGDB_API_CLIENT_SECRET": "igdb_client_secret",
     "BGG_API_TOKEN": "bgg_api_token",
+    "MAL_API_CLIENT_ID": "mal_client_id",
     "STEAM_API_KEY": "steam_api_key",
     "DEEPL_API_KEY": "deepl_api_key",
     "LT_API_URL": "lt_api_url",
@@ -752,6 +753,13 @@ class APIKeysSettings(SiteConfigSettingsPage):
                 "(see https://boardgamegeek.com/using_the_xml_api#toc9)."
             ),
         },
+        "mal_client_id": {
+            "title": _("MyAnimeList Client ID"),
+            "help_text": _(
+                "Client ID of an app registered at https://myanimelist.net/apiconfig. "
+                "MyAnimeList is disabled when empty."
+            ),
+        },
         "steam_api_key": {
             "title": _("Steam API Key"),
             "help_text": _(
@@ -804,6 +812,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
             "igdb_client_id",
             "igdb_client_secret",
             "bgg_api_token",
+            "mal_client_id",
             "steam_api_key",
         ],
         _("Translation"): [
