@@ -149,10 +149,9 @@ class WikidataProperties:
         "P4300": IdType.YouTubeMusic,  # YouTube playlist ID (YouTube Music album)
         "P8729": IdType.AniList_Anime,
         "P8731": IdType.AniList_Manga,
-        # No MyAnimeList fetcher exists; these are carried for dedupe so a
-        # future MAL integration lands on existing items.
         "P4086": IdType.MAL_Anime,
         "P4087": IdType.MAL_Manga,
+        "P11149": IdType.MangaUpdates,
         # Person-specific
         "P4985": IdType.TMDB_Person,
         "P2963": IdType.Goodreads_Author,

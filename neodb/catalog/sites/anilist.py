@@ -6,8 +6,8 @@ client registration. Anime maps to TVSeason/Movie, manga (including light
 novels) maps to Edition, following the type dispatch bangumi.py already uses.
 
 AniList also returns `idMal` on virtually every entry, which is stored as a
-lookup id so a future MyAnimeList integration (and Wikidata's P4086/P4087)
-lands on existing items instead of creating duplicates.
+lookup id so myanimelist.py (and Wikidata's P4086/P4087) lands on existing
+items instead of creating duplicates.
 """
 
 import re
