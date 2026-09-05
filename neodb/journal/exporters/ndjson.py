@@ -15,6 +15,7 @@ from catalog.common import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import (
     Article,
+    Attachment,
     Collection,
     Comment,
     Note,
@@ -25,6 +26,10 @@ from journal.models import (
     ShelfMemberProgress,
     Tag,
     TagMember,
+)
+from journal.models.attachment import (
+    pending_source_for_post_attachment,
+    source_for_post_attachment,
 )
 from journal.models.renderers import RE_MD_IMAGE, normalize_image_src
 from takahe.models import Post
@@ -187,7 +192,9 @@ class NdjsonExporter(Task):
             attachments.append({"file": path, "mimetype": a.mimetype})
         return attachments
 
-    def _bundle_registered_attachments(self, note: Note) -> list[dict[str, str]]:
+    def _bundle_registered_attachments(
+        self, rows: list[Attachment]
+    ) -> list[dict[str, str]]:
         """Bundle a Note's registered uploads (``journal.Attachment`` rows).
 
         Rows are the only source that survives takahe pruning the post: the
@@ -197,7 +204,7 @@ class NdjsonExporter(Task):
         only, so they export like the legacy entries did.
         """
         attachments = []
-        for a in note.attachment_records.all():
+        for a in rows:
             url = a.url
             if not url:
                 continue
@@ -220,12 +227,23 @@ class NdjsonExporter(Task):
         Trying the registry before the JSON matters: a pruned post leaves the
         JSON pointing at takahe media that no longer exists, which would
         export as a URL with no file and restore as a dead link.
+
+        The post and the registry are merged rather than either/or: a note
+        restored from an archive can hold pointer rows (remote media never
+        downloaded) that could not be put on its post, and those must not
+        vanish from the next export just because the post carries the rest.
         """
+        rows = list(note.attachment_records.all())
         if note.latest_post:
             attachments = self._bundle_post_attachments(note.latest_post)
             if attachments:
-                return attachments
-        attachments = self._bundle_registered_attachments(note)
+                on_post: set[str] = set()
+                for pa in note.latest_post.attachments.all():
+                    on_post.add(source_for_post_attachment(pa.pk))
+                    on_post.add(pending_source_for_post_attachment(pa.pk))
+                extra = [a for a in rows if a.source not in on_post]
+                return attachments + self._bundle_registered_attachments(extra)
+        attachments = self._bundle_registered_attachments(rows)
         if attachments:
             return attachments
         for a in note.attachments or []:

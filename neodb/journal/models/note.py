@@ -42,6 +42,11 @@ _separaters = {"–", "―", "−", "—", "-"}
 class Note(Content):
     post_when_save = True
     index_when_save = True
+    # Set by the NDJSON importer before the save that posts: the registry
+    # rows then describe the post's media exactly, including "none". Off by
+    # default, so an ordinary save never touches media the Mastodon API put
+    # on the post.
+    post_media_from_records: bool = False
 
     class ProgressType(models.TextChoices):
         PAGE = "page", _("Page")
@@ -326,17 +331,17 @@ class Note(Content):
         return pa
 
     def _build_post_attachments(self) -> list | None:
-        """Takahe attachments for registry rows not yet on the note's post.
+        """Takahe attachments matching the registry rows, or None to keep.
 
         A note composed through the Mastodon API gets its media the other way
         round: the post carries it first and ``Attachment.sync_from_post``
-        mirrors it into rows stamped with a ``takahe:`` source. Only rows
-        without a source -- files the NDJSON importer restored -- are
-        uploaded here. Returns None when there is nothing to upload so the
-        post's media is left untouched (``edit_local`` treats None as "keep").
+        mirrors it into rows, so this only runs when the importer has flagged
+        the rows as authoritative. Rows already on the post are kept, files
+        not on it are uploaded, and post media no row describes (a previous
+        import, or media the archive no longer has) is dropped -- an empty
+        list clears the post. Pointer rows have no file and cannot be posted.
         """
-        rows = [a for a in self.attachment_records.all() if a.file]
-        if all(a.source for a in rows):
+        if not self.post_media_from_records:
             return None
         post = self.latest_post
         on_post: dict[str, "PostAttachment"] = {}
@@ -344,17 +349,15 @@ class Note(Content):
             # both source forms sync_from_post writes
             on_post[source_for_post_attachment(pa.pk)] = pa
             on_post[pending_source_for_post_attachment(pa.pk)] = pa
-        # the rows are authoritative here: media the current rows do not
-        # describe (e.g. left from a previous import) is dropped from the post
         attachments = []
-        for a in rows:
+        for a in self.attachment_records.all():
             if a.source in on_post:
                 attachments.append(on_post[a.source])
-            elif not a.source:
+            elif a.file:
                 pa = self._upload_attachment(a)
                 if pa:
                     attachments.append(pa)
-        return attachments or None
+        return attachments
 
     def to_post_params(self):
         footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
@@ -366,8 +369,8 @@ class Note(Content):
             "sensitive": self.sensitive,
             "reply_to_pk": post.pk if post else None,
         }
-        # "attachments" is passed only when there is media to add, so an
-        # ordinary edit leaves the post's media unchanged
+        # "attachments" is passed only on an import, so an ordinary edit
+        # leaves the post's media unchanged
         attachments = self._build_post_attachments()
         if attachments is not None:
             params["attachments"] = attachments

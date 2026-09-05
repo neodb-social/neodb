@@ -600,9 +600,10 @@ class NdjsonImporter(BaseImporter):
                 existing.progress_value = progress_value
                 existing.visibility = visibility
                 existing.metadata = data.get("metadata") or {}
-                # post after the media below is registered, so the timeline
-                # post carries it; the final save runs the hook
-                existing.save(post_when_save=False)
+                # post and index after the media below is registered, so the
+                # timeline post carries it and the index doc has the post id;
+                # the final save runs both hooks
+                existing.save(post_when_save=False, index_when_save=False)
                 note = existing
             else:
                 note = Note(
@@ -617,7 +618,7 @@ class NdjsonImporter(BaseImporter):
                     metadata=data.get("metadata") or {},
                     **({"created_time": published_dt} if published_dt else {}),
                 )
-                note.save(post_when_save=False)
+                note.save(post_when_save=False, index_when_save=False)
             note_attachments = []
             restored: list[Attachment] = []
             for atta in data.get("attachments") or []:
@@ -638,16 +639,17 @@ class NdjsonImporter(BaseImporter):
             # each import registers freshly copied files, so adding would grow
             # the note's media on every re-import of an edited record -- and
             # attachment_list prefers rows, so it would render the duplicates.
-            # The archive is authoritative for the note's media; an imported
-            # note's post carries no attachments (to_post_params omits them),
-            # so there are no takahe-synced rows here to displace.
+            # The archive is authoritative for the note's media, the legacy
+            # JSON included: attachment_list falls back to it once the rows
+            # are gone, so a stale copy would resurrect removed media.
             if restored or note.attachment_records.exists():
                 note.attachment_records.set(restored)
-            if note_attachments:
-                note.attachments = note_attachments
-            # the deferred timeline post: Note.to_post_params uploads the
-            # freshly registered rows onto it
-            note.save(update_fields=["attachments"], index_when_save=False)
+            note.attachments = note_attachments
+            # the deferred timeline post and index: Note.to_post_params puts
+            # exactly the restored rows on the post (clearing media the
+            # archive no longer has), then the index doc gets the post id
+            note.post_media_from_records = True
+            note.save(update_fields=["attachments"])
             self._restore_edited_time(note, updated_dt)
             return "imported"
         except Exception:

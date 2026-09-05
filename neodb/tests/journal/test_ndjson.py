@@ -1601,6 +1601,9 @@ class TestNdjsonExportImport:
             assert rows[0].source == source_for_post_attachment(attached[0].pk)
             assert Attachment.sync_from_post(imported, post) == rows
             assert imported.attachment_records.count() == 1
+            # indexed after the post exists, so status search can find it
+            stored = JournalIndex.instance().get_doc(str(post.pk))
+            assert stored and stored["post_id"] == [post.pk]
 
             # an unchanged archive is a no-op for the media too
             importer = NdjsonImporter.create(user=self.user2, file=path, visibility=0)
@@ -1623,6 +1626,59 @@ class TestNdjsonExportImport:
             assert len(replaced) == 1
             assert replaced[0].pk != attached[0].pk
 
+            # media removed at the source is removed from the post and the
+            # legacy JSON fallback, so nothing resurrects it
+            note.attachment_records.clear()
+            note.content = "media gone"
+            note.save()
+            self._roundtrip(self.user1, self.user2)
+            imported = Note.objects.get(owner=owner2, item=self.book1)
+            assert imported.content == "media gone"
+            assert imported.attachment_list == []
+            post = imported.latest_post
+            assert post is not None
+            assert post.attachments.count() == 0
+
+    def test_ndjson_export_keeps_pointer_rows_beside_post_media(self, tmp_path):
+        """A restored note can hold a pointer row (remote media never
+        downloaded) that cannot go on its post; the next export must carry it
+        alongside the post's media instead of hiding it behind the post."""
+        owner2 = self.user2.identity
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            self._note_with_media("", "image/png", "png")
+            self._roundtrip(self.user1, self.user2)
+            imported = Note.objects.get(owner=owner2, item=self.book1)
+            post = imported.latest_post
+            assert post is not None and post.attachments.count() == 1
+            pointer = Attachment.from_legacy_json(
+                owner2,
+                {
+                    "url": "https://media.example.org/remote.png",
+                    "mimetype": "image/png",
+                },
+            )
+            assert pointer is not None
+            imported.attachment_records.add(pointer)
+
+            exporter = NdjsonExporter.create(user=self.user2)
+            with mock.patch(
+                "journal.exporters.ndjson.ProxiedImageDownloader.download_image",
+                return_value=(None, ""),
+            ):
+                exporter.run()
+            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+                journal = zf.read("journal.ndjson").decode()
+            record = next(
+                r
+                for r in (json.loads(line) for line in journal.splitlines()[1:])
+                if r.get("type") == "Note"
+            )
+            entries = record["attachments"]
+            assert len(entries) == 2
+            assert entries[0]["file"].startswith("attachments/")
+            assert entries[1]["url"] == "https://media.example.org/remote.png"
+            assert "file" not in entries[1]
+
     def test_ndjson_imported_note_non_image_media(self, tmp_path):
         owner2 = self.user2.identity
         with override_settings(MEDIA_ROOT=str(tmp_path)):
@@ -1638,18 +1694,20 @@ class TestNdjsonExportImport:
             assert not attached[0].thumbnail
 
     def test_note_post_params_leave_api_media_alone(self):
-        """Rows mirrored from a post (``takahe:`` source) are never re-uploaded,
-        and a note without media passes no ``attachments`` at all."""
+        """Without the importer's flag a save never passes ``attachments``, so
+        media the Mastodon API put on the post stays as it is. With the flag,
+        the rows are the truth, including "none"."""
         owner1 = self.user1.identity
         note = Note.objects.create(
             owner=owner1, item=self.book1, content="plain", visibility=0
         )
         assert "attachments" not in note.to_post_params()
         a = Attachment.register(owner1, ContentFile(b"x"), "png", mimetype="image/png")
-        a.source = source_for_post_attachment(999999)
-        a.save(update_fields=["source"])
         note.attachment_records.add(a)
         assert "attachments" not in note.to_post_params()
+        note.attachment_records.clear()
+        note.post_media_from_records = True
+        assert note.to_post_params()["attachments"] == []
 
     def test_ndjson_article_edit_and_language_round_trip(self):
         owner1 = self.user1.identity
