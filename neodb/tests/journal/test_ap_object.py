@@ -406,6 +406,32 @@ class TestPostTypeData:
         assert related[0]["content"] == "Notes without progress"
         assert "progress" not in related[0]
 
+    def test_note_title_does_not_make_post_sensitive(self):
+        note = Note.objects.create(
+            item=self.book,
+            owner=self.identity,
+            title="Chapter one",
+            content="Plain note",
+            visibility=0,
+        )
+        post = Takahe.get_post(note.latest_post_id)
+        assert post is not None
+        assert post.summary == "Chapter one"
+        assert post.sensitive is False
+
+        note.sensitive = True
+        note.save()
+        post = Takahe.get_post(note.latest_post_id)
+        assert post is not None
+        assert post.sensitive is True
+
+        note.sensitive = False
+        note.save()
+        post = Takahe.get_post(note.latest_post_id)
+        assert post is not None
+        assert post.summary == "Chapter one"
+        assert post.sensitive is False
+
     def test_note_post_type_data_with_progress(self):
         note = Note.objects.create(
             item=self.book,

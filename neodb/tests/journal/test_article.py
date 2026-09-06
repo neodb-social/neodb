@@ -144,6 +144,32 @@ class TestArticleModel:
         # No relatedWith on standalone article
         assert "relatedWith" not in post.type_data["object"]
 
+    def test_article_summary_does_not_make_post_sensitive(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Teaser",
+            body="Body",
+            summary="hand-written teaser",
+            visibility=0,
+        )
+        post = Takahe.get_post(article.latest_post_id)
+        assert post is not None
+        assert post.summary == "hand-written teaser"
+        assert post.sensitive is False
+
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Teaser",
+            body="Body",
+            summary="hand-written teaser",
+            sensitive=True,
+            visibility=0,
+            article=article,
+        )
+        post = Takahe.get_post(article.latest_post_id)
+        assert post is not None
+        assert post.sensitive is True
+
     def test_article_edit_reuses_post(self):
         article = Article.update_local_article(
             owner=self.identity,

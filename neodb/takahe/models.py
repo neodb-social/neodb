@@ -1445,7 +1445,7 @@ class Post(models.Model):
                 "author": author,
                 "content": content,
                 "summary": summary or None,
-                "sensitive": bool(summary) or sensitive,
+                "sensitive": sensitive,
                 "local": True,
                 "visibility": visibility,
                 "hashtags": hashtags,
@@ -1522,7 +1522,7 @@ class Post(models.Model):
                 or None
             )
             self.summary = summary or None
-            self.sensitive = bool(summary) if sensitive is None else sensitive
+            self.sensitive = bool(sensitive)
             self.edited = edited or timezone.now()
             self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
