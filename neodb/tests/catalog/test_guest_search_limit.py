@@ -1,6 +1,8 @@
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 import pytest
+from django.conf import settings
 from django.test import Client
 
 from common.models import SiteConfig
@@ -9,6 +11,13 @@ from users.models import User
 LIMIT = 3
 # items, num_pages, count, facets, q
 EMPTY_RESULT = ([], 500, 0, {}, "book")
+
+
+def assert_login_redirect(response, target: str) -> None:
+    assert response.status_code == 302
+    location = urlparse(response.url)
+    assert location.path == settings.LOGIN_URL
+    assert parse_qs(location.query)["next"] == [target]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -30,9 +39,10 @@ class TestGuestSearchPageLimit:
         ) as mocked:
             return Client().get(url), mocked
 
-    def test_guest_blocked_past_limit(self):
-        response, mocked = self._guest_get(f"/search?q=book&page={LIMIT + 1}")
-        assert response.status_code == 404
+    def test_guest_sent_to_login_past_limit(self):
+        url = f"/search?q=book&page={LIMIT + 1}"
+        response, mocked = self._guest_get(url)
+        assert_login_redirect(response, url)
         # the gate must come before the index is queried, or it saves nothing
         mocked.assert_not_called()
 
@@ -40,9 +50,9 @@ class TestGuestSearchPageLimit:
         response, __ = self._guest_get(f"/search?q=book&page={LIMIT}")
         assert response.status_code == 200
 
-    def test_guest_pagination_stops_at_limit(self):
+    def test_guest_pagination_shows_pages_past_limit(self):
         response, __ = self._guest_get("/search?q=book&page=1")
-        assert response.context["pagination"].end_page == LIMIT
+        assert response.context["pagination"].end_page > LIMIT
 
     def test_user_not_limited(self):
         user = User.register(email="pager@example.com", username="pager")
@@ -59,8 +69,9 @@ class TestGuestSearchPageLimit:
         SiteConfig.reload()
         assert SiteConfig.system.guest_search_max_pages == 1
         response, __ = self._guest_get("/search?q=book&page=2")
-        assert response.status_code == 404
+        assert_login_redirect(response, "/search?q=book&page=2")
 
-    def test_guest_blocked_on_people_search(self):
-        response = Client().get(f"/search?c=people&q=tolkien&page={LIMIT + 1}")
-        assert response.status_code == 404
+    def test_guest_sent_to_login_on_people_search(self):
+        url = f"/search?c=people&q=tolkien&page={LIMIT + 1}"
+        response = Client().get(url)
+        assert_login_redirect(response, url)
