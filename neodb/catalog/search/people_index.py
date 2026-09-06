@@ -122,15 +122,6 @@ class PeopleIndex(Index):
                 "type": "string",
                 "facet": True,
             },
-            # stored for search suggestions, never searched
-            {"name": "uuid", "type": "string", "index": False, "optional": True},
-            {
-                "name": "display_name",
-                "type": "string",
-                "index": False,
-                "optional": True,
-            },
-            {"name": "cover", "type": "string", "index": False, "optional": True},
             {
                 "name": "name",
                 "locale": "zh",
@@ -193,9 +184,6 @@ class PeopleIndex(Index):
             "id": str(person.pk),
             "item_id": [person.pk],
             "people_type": person.people_type,
-            "uuid": person.uuid,
-            "display_name": person.default_display_title() or names[0],
-            "cover": (person.cover.name or "") if person.has_cover() else "",
             "name": names,
             "credit_count": credit_count,
         }

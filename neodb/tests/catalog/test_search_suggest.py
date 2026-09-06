@@ -1,4 +1,4 @@
-"""Search suggestions render straight from index hits, without loading items."""
+"""Search suggestions render from index hits plus one flat query for links."""
 
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
@@ -8,7 +8,7 @@ from django.db import connection
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 
-from catalog.models import Edition, Movie, People, PeopleType
+from catalog.models import Edition, Movie, People, PeopleType, TVSeason, TVShow
 from catalog.search import PeopleIndex, suggest_items, suggest_people
 from catalog.search.index import CatalogIndex, CatalogSearchResult
 from catalog.search.people_index import PeopleSearchResult
@@ -17,6 +17,7 @@ from catalog.search.suggest import (
     CatalogSuggestParser,
     PeopleSuggestParser,
     _cover_url,
+    _titles,
 )
 
 
@@ -52,8 +53,7 @@ class TestSuggestParsers:
         assert params["search_cutoff_ms"] == 50
         assert "facet_by" not in params
         assert f"bucket_size:{SUGGEST_LIMIT}" in params["sort_by"]
-        for f in ("uuid", "display_title", "cover", "item_class"):
-            assert f in params["include_fields"]
+        assert params["include_fields"] == "id, item_class, title"
 
     def test_catalog_category_filter(self):
         from catalog.models import ItemCategory
@@ -68,101 +68,125 @@ class TestSuggestParsers:
         params = PeopleSuggestParser("liu", page_size=SUGGEST_LIMIT).to_search_params()
         assert params["query_by"] == "name, lookup_id"
         assert "facet_by" not in params
-        for f in ("uuid", "display_name", "cover", "people_type"):
-            assert f in params["include_fields"]
+        assert params["include_fields"] == "id, people_type, name"
+
+    def test_suggest_fields_are_all_indexed(self):
+        """The suggestion path must not need a field the schema lacks."""
+        for schema, parser in (
+            (CatalogIndex.schema, CatalogSuggestParser),
+            (PeopleIndex.schema, PeopleSuggestParser),
+        ):
+            declared = {f["name"] for f in schema["fields"]} | {"id"}
+            wanted = {
+                f.strip()
+                for f in parser.default_search_params["include_fields"].split(",")
+            }
+            assert wanted <= declared
+
+
+class TestTitleChoice:
+    def test_prefers_the_title_the_query_matched(self):
+        titles = ["The Three-Body Problem", "三体"]
+        assert _titles("三", titles) == ("三体", "The Three-Body Problem")
+        assert _titles("thr", titles) == ("The Three-Body Problem", "三体")
+
+    def test_falls_back_to_the_first_title(self):
+        assert _titles("zzz", ["Only One"]) == ("Only One", "")
+
+    def test_no_titles(self):
+        assert _titles("q", []) == ("", "")
+        assert _titles("q", ["", ""]) == ("", "")
 
 
 @pytest.mark.django_db(databases="__all__")
 class TestSuggestItems:
-    def test_rows_from_index_only(self):
+    def test_rows_need_one_query(self):
+        book = Edition.objects.create(
+            localized_title=[{"lang": "en", "text": "The Three-Body Problem"}]
+        )
+        movie = Movie.objects.create(
+            localized_title=[{"lang": "en", "text": "Three Colors: Blue"}]
+        )
         docs = [
             {
-                "id": "1",
+                "id": str(book.pk),
                 "item_class": "Edition",
-                "uuid": "abc",
-                "display_title": "The Three-Body Problem",
                 "title": ["The Three-Body Problem", "三体"],
-                "cover": "",
             },
             {
-                "id": "2",
-                "item_class": "TVSeason",
-                "uuid": "def",
-                "display_title": "Three Colors",
-                "title": ["Three Colors"],
-                "cover": "item/x.jpg",
+                "id": str(movie.pk),
+                "item_class": "Movie",
+                "title": ["Three Colors: Blue"],
             },
         ]
         patcher, index = _patch_catalog(docs)
         with patcher, CaptureQueriesContext(connection) as ctx:
             rows = suggest_items("thr")
-        assert len(ctx.captured_queries) == 0
-        assert [r.url for r in rows] == ["/book/abc", "/tv/season/def"]
+        # one flat query for the whole page of hits, no polymorphic descent
+        assert len(ctx.captured_queries) == 1
+        assert [r.url for r in rows] == [book.url, movie.url]
         assert rows[0].title == "The Three-Body Problem"
+        assert rows[0].alt_title == "三体"
         assert rows[0].category == "Book"
         assert rows[0].cover_url is None
-        assert rows[0].matched == ""
-        assert rows[1].category == "TV"
-        assert rows[1].cover_url and rows[1].cover_url.endswith("item/x.jpg")
+        assert rows[1].category == "Movie"
         index.search.assert_called_once()
 
-    def test_matched_alt_title(self):
+    def test_season_links_to_the_season(self):
+        show = TVShow.objects.create(
+            localized_title=[{"lang": "en", "text": "Example Show"}]
+        )
+        season = TVSeason.objects.create(
+            localized_title=[{"lang": "en", "text": "Season 2"}],
+            show=show,
+            season_number=2,
+        )
+        # a season indexes its show's titles too (Item.to_indexable_titles)
         docs = [
             {
-                "id": "1",
-                "item_class": "Edition",
-                "uuid": "abc",
-                "display_title": "The Three-Body Problem",
-                "title": ["The Three-Body Problem", "三体"],
+                "id": str(season.pk),
+                "item_class": "TVSeason",
+                "title": season.to_indexable_titles(),
             }
         ]
         patcher, __ = _patch_catalog(docs)
         with patcher:
-            rows = suggest_items("三")
-        assert rows[0].matched == "三体"
+            rows = suggest_items("example")
+        assert rows[0].url == season.url
+        assert rows[0].category == "TV"
+        assert "Example Show" in (rows[0].title, rows[0].alt_title)
 
-    def test_stale_doc_falls_back_to_db(self):
-        book = Edition.objects.create(
-            localized_title=[{"lang": "en", "text": "Old Book"}]
+    def test_gone_deleted_and_merged_rows_are_dropped(self):
+        kept = Movie.objects.create(localized_title=[{"lang": "en", "text": "Kept"}])
+        deleted = Movie.objects.create(
+            localized_title=[{"lang": "en", "text": "Deleted"}], is_deleted=True
         )
-        movie = Movie.objects.create(
-            localized_title=[{"lang": "en", "text": "Old Movie"}]
+        merged = Movie.objects.create(
+            localized_title=[{"lang": "en", "text": "Merged"}], merged_to_item=kept
         )
         docs = [
-            {"id": str(movie.pk), "item_class": "Movie", "title": ["Old Movie"]},
-            {
-                "id": "999999",
-                "item_class": "Movie",
-                "uuid": "gone",
-                "display_title": "Fresh",
-                "title": ["Fresh"],
-            },
-            {"id": str(book.pk), "item_class": "Edition", "title": ["Old Book"]},
+            {"id": str(deleted.pk), "item_class": "Movie", "title": ["Deleted"]},
+            {"id": str(kept.pk), "item_class": "Movie", "title": ["Kept"]},
+            {"id": str(merged.pk), "item_class": "Movie", "title": ["Merged"]},
+            {"id": "999999", "item_class": "Movie", "title": ["Gone"]},
         ]
         patcher, __ = _patch_catalog(docs)
-        with patcher, CaptureQueriesContext(connection) as ctx:
-            rows = suggest_items("old")
-        # one polymorphic lookup for both stale hits (base row, one query per
-        # concrete class, content type), hit order preserved
-        assert len(ctx.captured_queries) <= 4
-        assert [r.url for r in rows] == [movie.url, "/movie/gone", book.url]
-        assert rows[0].title == "Old Movie"
-        assert rows[0].category == "Movie"
-        assert rows[2].category == "Book"
-
-    def test_stale_doc_missing_in_db_is_dropped(self):
-        docs = [{"id": "999999", "item_class": "Movie", "title": ["x"]}]
-        patcher, __ = _patch_catalog(docs)
         with patcher:
-            assert suggest_items("old") == []
+            rows = suggest_items("ept")
+        assert [r.url for r in rows] == [kept.url]
 
-    def test_unknown_class_falls_back_to_db(self):
+    def test_unknown_class_is_dropped(self):
         book = Edition.objects.create(localized_title=[{"lang": "en", "text": "B"}])
-        docs = [{"id": str(book.pk), "item_class": "Nope", "uuid": "x"}]
+        docs = [{"id": str(book.pk), "item_class": "Nope", "title": ["B"]}]
         patcher, __ = _patch_catalog(docs)
         with patcher:
-            rows = suggest_items("bb")
-        assert [r.url for r in rows] == [book.url]
+            assert suggest_items("bb") == []
+
+    def test_no_hits_skips_the_query(self):
+        patcher, __ = _patch_catalog([])
+        with patcher, CaptureQueriesContext(connection) as ctx:
+            assert suggest_items("thr") == []
+        assert len(ctx.captured_queries) == 0
 
     @pytest.mark.parametrize("q", ["", "a", "x" * 101])
     def test_short_or_long_query_skips_index(self, q):
@@ -188,138 +212,69 @@ class TestSuggestItems:
 
 @pytest.mark.django_db(databases="__all__")
 class TestSuggestPeople:
-    def test_rows_from_index_only(self):
-        docs = [
-            {
-                "id": "1",
-                "people_type": "person",
-                "uuid": "p1",
-                "display_name": "Liu Cixin",
-                "name": ["Liu Cixin", "刘慈欣"],
-            },
-            {
-                "id": "2",
-                "people_type": "organization",
-                "uuid": "o1",
-                "display_name": "Tor Books",
-                "name": ["Tor Books"],
-            },
-        ]
-        patcher, __ = _patch_people(docs)
-        with patcher, CaptureQueriesContext(connection) as ctx:
-            rows = suggest_people("刘")
-        assert len(ctx.captured_queries) == 0
-        assert [r.url for r in rows] == ["/person/p1", "/organization/o1"]
-        assert rows[0].category == "Person"
-        assert rows[0].matched == "刘慈欣"
-        assert rows[1].category == "Organization"
-
-    def test_stale_doc_falls_back_to_db(self):
-        org = People.objects.create(
-            localized_name=[{"lang": "en", "text": "Tor"}],
-            people_type=PeopleType.ORGANIZATION,
-        )
-        docs = [{"id": str(org.pk), "people_type": "organization", "name": ["Tor"]}]
-        patcher, __ = _patch_people(docs)
-        with patcher:
-            rows = suggest_people("tor")
-        assert rows[0].url == org.url
-        assert rows[0].url.startswith("/organization/")
-        assert rows[0].title == "Tor"
-        assert rows[0].category == "Organization"
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestIndexedDocs:
-    def test_item_doc_has_suggestion_fields(self):
-        book = Edition.objects.create(
-            localized_title=[
-                {"lang": "zh-cn", "text": "三体"},
-                {"lang": "en", "text": "The Three-Body Problem"},
-            ]
-        )
-        doc = book.to_indexable_doc()
-        assert doc["uuid"] == book.uuid
-        assert doc["display_title"] in ("三体", "The Three-Body Problem")
-        assert doc["cover"] == ""
-
-    def test_season_doc_keeps_show_title(self):
-        from catalog.models import TVSeason, TVShow
-
-        show = TVShow.objects.create(
-            localized_title=[{"lang": "en", "text": "Example Show"}]
-        )
-        season = TVSeason.objects.create(
-            localized_title=[{"lang": "en", "text": "Season 2"}],
-            show=show,
-            season_number=2,
-        )
-        assert "Example Show" in season.to_indexable_doc()["display_title"]
-
-    def test_default_display_title_ignores_request_language(self):
-        from django.utils import translation
-
-        with translation.override("zh-hans"):
-            # saving indexes the item, which resolves the default-language
-            # title; that must not poison the request-language cache
-            book = Edition.objects.create(
-                localized_title=[
-                    {"lang": "en", "text": "English Title"},
-                    {"lang": "zh-cn", "text": "中文标题"},
-                ]
-            )
-            assert book.display_title == "中文标题"
-            stored = book.default_display_title()
-            # the request-language cache is untouched
-            assert book.display_title == "中文标题"
-        with translation.override("en"):
-            expected = Edition.objects.get(pk=book.pk).display_title
-        assert stored == expected
-
-    def test_people_doc_has_suggestion_fields(self):
+    def test_person_and_organization_urls(self):
         person = People.objects.create(
             localized_name=[{"lang": "en", "text": "Liu Cixin"}],
             people_type=PeopleType.PERSON,
         )
-        doc = PeopleIndex.person_to_doc(person)
-        assert doc["uuid"] == person.uuid
-        assert doc["display_name"] == "Liu Cixin"
-        assert doc["cover"] == ""
+        org = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Tor Books"}],
+            people_type=PeopleType.ORGANIZATION,
+        )
+        docs = [
+            {
+                "id": str(person.pk),
+                "people_type": "person",
+                "name": ["Liu Cixin", "刘慈欣"],
+            },
+            {"id": str(org.pk), "people_type": "organization", "name": ["Tor Books"]},
+        ]
+        patcher, __ = _patch_people(docs)
+        with patcher, CaptureQueriesContext(connection) as ctx:
+            rows = suggest_people("liu")
+        assert len(ctx.captured_queries) == 1
+        assert [r.url for r in rows] == [person.url, org.url]
+        assert rows[0].url.startswith("/person/")
+        assert rows[0].category == "Person"
+        assert rows[0].alt_title == "刘慈欣"
+        assert rows[1].url.startswith("/organization/")
+        assert rows[1].category == "Organization"
 
-    def test_schema_marks_fields_unindexed(self):
-        for schema in (CatalogIndex.schema, PeopleIndex.schema):
-            by_name = {f["name"]: f for f in schema["fields"]}
-            for name in ("uuid", "cover"):
-                assert by_name[name]["index"] is False
-                assert by_name[name]["optional"] is True
+    def test_gone_row_is_dropped(self):
+        docs = [{"id": "999999", "people_type": "person", "name": ["Gone"]}]
+        patcher, __ = _patch_people(docs)
+        with patcher:
+            assert suggest_people("gone") == []
 
 
 def test_cover_url():
     assert _cover_url("") is None
-    assert _cover_url(None) is None
     url = _cover_url("item/x.jpg")
     assert url and url.startswith("http") and url.endswith("item/x.jpg")
 
 
 @pytest.mark.django_db(databases="__all__")
 class TestSearchSuggestView:
-    ROW = [
-        {
-            "id": "1",
-            "item_class": "Edition",
-            "uuid": "abc",
-            "display_title": "The Three-Body Problem",
-            "title": ["The Three-Body Problem", "三体"],
-        }
-    ]
+    @pytest.fixture(autouse=True)
+    def an_item(self):
+        self.book = Edition.objects.create(
+            localized_title=[{"lang": "en", "text": "The Three-Body Problem"}]
+        )
+        self.docs = [
+            {
+                "id": str(self.book.pk),
+                "item_class": "Edition",
+                "title": ["The Three-Body Problem"],
+            }
+        ]
 
     def test_renders_rows(self):
-        patcher, __ = _patch_catalog(self.ROW)
+        patcher, __ = _patch_catalog(self.docs)
         with patcher:
             resp = Client().get("/search/suggest?q=thr")
         assert resp.status_code == 200
         body = resp.content.decode()
-        assert 'href="/book/abc"' in body
+        assert f'href="{self.book.url}"' in body
         assert "The Three-Body Problem" in body
         assert "Book" in body
 
@@ -341,7 +296,7 @@ class TestSearchSuggestView:
         ],
     )
     def test_short_circuits_skip_index(self, query):
-        patcher, index = _patch_catalog(self.ROW)
+        patcher, index = _patch_catalog(self.docs)
         with patcher:
             resp = Client().get(f"/search/suggest?{query}")
         assert resp.status_code == 200
@@ -349,26 +304,22 @@ class TestSearchSuggestView:
         index.search.assert_not_called()
 
     def test_people_category_uses_people_index(self):
-        cpatch, cindex = _patch_catalog(self.ROW)
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Liu Cixin"}],
+            people_type=PeopleType.PERSON,
+        )
+        cpatch, cindex = _patch_catalog(self.docs)
         ppatch, pindex = _patch_people(
-            [
-                {
-                    "id": "1",
-                    "people_type": "person",
-                    "uuid": "p1",
-                    "display_name": "Liu Cixin",
-                    "name": ["Liu Cixin"],
-                }
-            ]
+            [{"id": str(person.pk), "people_type": "person", "name": ["Liu Cixin"]}]
         )
         with cpatch, ppatch:
             resp = Client().get("/search/suggest?q=liu&c=people")
-        assert 'href="/person/p1"' in resp.content.decode()
+        assert f'href="{person.url}"' in resp.content.decode()
         cindex.search.assert_not_called()
         pindex.search.assert_called_once()
 
     def test_single_category_filters(self):
-        patcher, index = _patch_catalog(self.ROW)
+        patcher, index = _patch_catalog(self.docs)
         with patcher:
             Client().get("/search/suggest?q=thr&c=book")
         q = index.search.call_args.args[0]
