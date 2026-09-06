@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import zipfile
@@ -11,7 +12,9 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
-from django.test import override_settings
+from django.test import Client, override_settings
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from loguru import logger
 from PIL import Image
@@ -33,7 +36,7 @@ from journal.models import *
 from journal.models.common import Debris
 from journal.search import JournalIndex
 from takahe.utils import Takahe
-from users.models import User
+from users.models import Task, User
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -1711,6 +1714,57 @@ class TestNdjsonExportImport:
         assert NdjsonImporter.validate_file(f)
         # left rewound so the view can still write the upload out
         assert f.tell() == 0
+
+    def test_ndjson_import_view_refuses_a_second_concurrent_import(self):
+        """One archive import at a time per user.
+
+        The only previous warning was a client-side confirm whose condition
+        tested a Task.status that does not exist, so it never matched.
+        """
+        buf = BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("journal.ndjson", '{"server": "x"}\n')
+        archive = buf.getvalue()
+        client = Client()
+        client.force_login(self.user2, backend="mastodon.auth.OAuth2Backend")
+
+        def post():
+            with mock.patch.object(NdjsonImporter, "enqueue"):
+                return client.post(
+                    reverse("users:import_neodb"),
+                    {
+                        "format_type": "ndjson",
+                        "visibility": "0",
+                        "file": SimpleUploadedFile("x.zip", archive),
+                    },
+                )
+
+        post()
+        assert NdjsonImporter.objects.filter(user=self.user2).count() == 1
+        running = NdjsonImporter.latest_task(self.user2)
+        assert running is not None
+        running.state = Task.States.started
+        running.save()
+
+        post()
+        assert NdjsonImporter.objects.filter(user=self.user2).count() == 1
+
+        # the window runs from the last progress write, not from the start
+        long_ago = timezone.now() - datetime.timedelta(hours=4)
+        NdjsonImporter.objects.filter(pk=running.pk).update(created_time=long_ago)
+        post()
+        assert NdjsonImporter.objects.filter(user=self.user2).count() == 1
+
+        # a dead worker stops writing progress, and must not lock the user out
+        NdjsonImporter.objects.filter(pk=running.pk).update(edited_time=long_ago)
+        post()
+        assert NdjsonImporter.objects.filter(user=self.user2).count() == 2
+
+        NdjsonImporter.objects.filter(user=self.user2).update(
+            state=Task.States.complete
+        )
+        post()
+        assert NdjsonImporter.objects.filter(user=self.user2).count() == 3
 
     def test_ndjson_retitle_reimports_as_a_second_row(self):
         """Known limitation: the title is part of a Review's / Collection's /

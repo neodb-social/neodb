@@ -59,7 +59,10 @@ class BaseImporter(Task):
             f"{self.metadata['skipped']} skipped, "
             f"{self.metadata['failed']} failed"
         )
-        self.save(update_fields=["metadata", "message"])
+        # edited_time is auto_now, which Django writes only when
+        # update_fields names it; a running task must stay distinguishable
+        # from one whose worker died
+        self.save(update_fields=["metadata", "message", "edited_time"])
 
     def run(self) -> None:
         raise NotImplementedError

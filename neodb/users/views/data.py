@@ -48,7 +48,7 @@ from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import VisibilityType
 from takahe.models import InboxMessage
 from takahe.utils import Takahe
-from users.models import Task
+from users.models import Task, User
 
 from .account import clear_preference_cache
 
@@ -1083,6 +1083,29 @@ def import_opml(request):
     return redirect(reverse("users:user_task_status", args=(task.type,)))
 
 
+def _neodb_import_in_progress(user: User) -> bool:
+    """Whether an archive import of either format is still running for user.
+
+    Both formats write the same journal, so a CSV import racing an NDJSON one
+    is as harmful as two of a kind.
+
+    Counted from ``edited_time``, not ``created_time`` as the export guards
+    do: an archive can take much longer than an hour to import. Each record
+    restamps it via ``BaseImporter.progress``, so only a task whose worker
+    died goes stale and stops locking the user out.
+    """
+    cutoff = timezone.now() - datetime.timedelta(hours=1)
+    for cls in (NdjsonImporter, CsvImporter):
+        task = cls.latest_task(user)
+        if (
+            task
+            and task.state not in [Task.States.complete, Task.States.failed]
+            and task.edited_time > cutoff
+        ):
+            return True
+    return False
+
+
 @login_required
 def import_neodb(request):
     if request.method == "POST":
@@ -1097,6 +1120,14 @@ def import_neodb(request):
             importer = NdjsonImporter
         else:
             raise BadRequest("Invalid file.")
+        # two concurrent imports both read the same (owner, item) as absent
+        # and both insert it, which breaks the unique constraint on
+        # Rating/ShelfMember and duplicates rows for the types without one
+        if _neodb_import_in_progress(request.user):
+            messages.add_message(
+                request, messages.INFO, _("Import in progress, please wait")
+            )
+            return redirect(reverse("users:data"))
         # format_type is chosen client-side, so the file itself still has to be
         # checked; otherwise a bad upload only surfaces as an opaque failure of
         # the background task
