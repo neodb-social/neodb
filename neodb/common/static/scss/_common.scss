@@ -20,10 +20,9 @@
   margin-bottom: var(--pico-typography-spacing-vertical);
 }
 
-// Compact timeline-teaser layout shared by review / article / post-only
-// article cards. Replaces inline ``style="margin-bottom:0.2em"`` /
-// ``style="margin:0 0 0.4em 0"`` that used to live on each template.
-.review-teaser,
+// Compact timeline-teaser layout for article cards. Replaces inline
+// ``style="margin-bottom:0.2em"`` / ``style="margin:0 0 0.4em 0"`` that used
+// to live on each template.
 .article-teaser {
   h4 {
     margin-bottom: 0.2em;
@@ -112,11 +111,6 @@
   }
 }
 
-
-.longlist {
-  max-height: 60vh;
-  overflow-y: scroll;
-}
 
 .hidden {
   display: none;
@@ -215,12 +209,6 @@ span.invisible {
 .hint {
   color: var(--pico-muted-color);
   opacity: 0.5;
-}
-
-.oneline {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .handler {
