@@ -1,7 +1,7 @@
 import re
 from datetime import timedelta
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from django.core.cache import cache
 from django.core.validators import RegexValidator
@@ -121,24 +121,42 @@ class Tag(List):
             self._refresh_mark_index(item)
 
 
+INDEXABLE_TAGS_PER_ITEM = 20
+
+
 class TagManager:
     @staticmethod
-    def indexable_tags_for_item(item):
-        tags = (
-            item.tag_set.all()
-            .filter(visibility=0)
-            .values("title")
-            .annotate(frequency=Count("owner"))
-            .order_by("-frequency")[:20]
+    def _clean_tag_titles(titles: "Iterable[str]") -> list[str]:
+        return sorted(
+            {t for t in map(Tag.deep_cleanup_title, titles) if t and t != "_"}
         )
-        tag_titles = sorted(
-            [
-                t
-                for t in set(map(lambda t: Tag.deep_cleanup_title(t["title"]), tags))
-                if t and t != "_"
-            ]
+
+    @staticmethod
+    def indexable_tags_for_item(item) -> list[str]:
+        return TagManager.indexable_tags_for_items([item.pk])[item.pk]
+
+    @staticmethod
+    def indexable_tags_for_items(item_ids: "Iterable[int]") -> dict[int, list[str]]:
+        """Public tag titles for indexing, for many items in one query.
+
+        The returned map holds an entry for every id, so a caller can tell an
+        item with no public tag from an item that was not asked for.
+        """
+        ids = list(item_ids)
+        if not ids:
+            return {}
+        by_item: dict[int, list[str]] = {i: [] for i in ids}
+        rows = (
+            TagMember.objects.filter(item_id__in=ids, parent__visibility=0)
+            .values("item_id", "parent__title")
+            .annotate(frequency=Count("parent__owner"))
+            .order_by("item_id", "-frequency")
         )
-        return tag_titles
+        for row in rows:
+            titles = by_item[row["item_id"]]
+            if len(titles) < INDEXABLE_TAGS_PER_ITEM:
+                titles.append(row["parent__title"])
+        return {i: TagManager._clean_tag_titles(t) for i, t in by_item.items()}
 
     @staticmethod
     def tag_item_for_owner(

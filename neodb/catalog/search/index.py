@@ -245,7 +245,11 @@ class CatalogIndex(Index):
 
     @classmethod
     def items_to_docs(cls, items: "Iterable[Item]") -> list[dict]:
-        docs = [i.to_indexable_doc() for i in items]
+        from catalog.models import Item
+
+        item_list = list(items)
+        Item.prepare_indexable_batch(item_list)
+        docs = [i.to_indexable_doc() for i in item_list]
         return [d for d in docs if d]
 
     def delete_all(self):
@@ -257,12 +261,10 @@ class CatalogIndex(Index):
     def replace_items(self, item_ids):
         from catalog.models import Item
 
-        items = Item.objects.filter(pk__in=item_ids)
-        docs = [
-            i.to_indexable_doc()
-            for i in items
-            if not i.is_deleted and not i.merged_to_item_id
-        ]
+        items = list(Item.objects.filter(pk__in=item_ids))
+        indexable = [i for i in items if not i.is_deleted and not i.merged_to_item_id]
+        Item.prepare_indexable_batch(indexable)
+        docs = [i.to_indexable_doc() for i in indexable]
         if docs:
             self.replace_docs(docs)
         if len(docs) < len(item_ids):

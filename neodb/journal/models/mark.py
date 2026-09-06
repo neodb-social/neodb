@@ -4,7 +4,8 @@ from functools import cached_property
 from typing import Any, Iterable, Sequence
 
 from django.db import IntegrityError, transaction
-from django.db.models import F, QuerySet
+from django.db.models import Count, F, Q, QuerySet
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -31,6 +32,14 @@ from .shelf import (
     ShelfMember,
     ShelfType,
 )
+
+
+#: Item types whose mark count also counts marks on their child items, mapped
+#: to the path that leads from a child's ``ShelfMember`` row to its parent id.
+ROLLED_UP_MARK_COUNT_TYPES = {
+    "Podcast": "item__podcastepisode__program_id",
+    "TVSeason": "item__tvepisode__season_id",
+}
 
 
 class Mark:
@@ -608,7 +617,7 @@ class Mark:
 
     @staticmethod
     def get_mark_count_for_item(item: Item) -> int:
-        if item.get_type() in ["Podcast", "TVSeason"]:
+        if item.get_type() in ROLLED_UP_MARK_COUNT_TYPES:
             return (
                 ShelfMember.objects.filter(item_id__in=item.child_item_ids + [item.pk])
                 .values("owner_id")
@@ -617,3 +626,49 @@ class Mark:
             )
         else:
             return ShelfMember.objects.filter(item=item).count()
+
+    @staticmethod
+    def get_mark_count_for_items(items: "Iterable[Item]") -> dict[int, int]:
+        """Mark count for many items, in a constant number of queries.
+
+        Same counts as ``get_mark_count_for_item``: rows for a plain item, and
+        owners over the item and its children for the types that roll their
+        children up. The returned map holds an entry for every item.
+        """
+        item_list = list(items)
+        counts: dict[int, int] = {i.pk: 0 for i in item_list}
+        rolled_up: dict[str, list[int]] = {t: [] for t in ROLLED_UP_MARK_COUNT_TYPES}
+        plain_ids: list[int] = []
+        for i in item_list:
+            item_type = i.get_type()
+            if item_type in rolled_up:
+                rolled_up[item_type].append(i.pk)
+            else:
+                plain_ids.append(i.pk)
+        if plain_ids:
+            rows = (
+                ShelfMember.objects.filter(item_id__in=plain_ids)
+                .values("item_id")
+                .annotate(n=Count("id"))
+            )
+            for row in rows:
+                counts[row["item_id"]] = row["n"]
+        for item_type, root_ids in rolled_up.items():
+            if not root_ids:
+                continue
+            # A mark on a child rolls up to its parent, so map every row back
+            # to its root before counting owners. The join is a reverse
+            # one-to-one, so a row on a root itself yields NULL and falls back
+            # to its own item id.
+            parent_field = ROLLED_UP_MARK_COUNT_TYPES[item_type]
+            rows = (
+                ShelfMember.objects.filter(
+                    Q(item_id__in=root_ids) | Q(**{f"{parent_field}__in": root_ids})
+                )
+                .annotate(root_id=Coalesce(F(parent_field), F("item_id")))
+                .values("root_id")
+                .annotate(n=Count("owner_id", distinct=True))
+            )
+            for row in rows:
+                counts[row["root_id"]] = row["n"]
+        return counts

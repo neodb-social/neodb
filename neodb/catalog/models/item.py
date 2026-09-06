@@ -296,6 +296,10 @@ class Item(PolymorphicModel):
     # discover surfaces so they neither render nor trigger the per-item tag
     # aggregation that was the NEODB-SOCIAL-7KW slow query.
     tags: list[str] | None = None
+    #: Values ``to_indexable_doc`` would otherwise query per item, filled in by
+    #: ``prepare_indexable_batch``; not DB fields. None means "not batched".
+    _indexable_tags: list[str] | None = None
+    _indexable_mark_count: int | None = None
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
@@ -659,6 +663,12 @@ class Item(PolymorphicModel):
                 company.extend(names)
             else:
                 people.extend(names)
+        tags = self._indexable_tags
+        if tags is None:
+            tags = TagManager.indexable_tags_for_item(self)
+        mark_count = self._indexable_mark_count
+        if mark_count is None:
+            mark_count = self.mark_count
         doc = {
             "id": str(self.pk),
             "item_id": [self.pk],
@@ -666,8 +676,8 @@ class Item(PolymorphicModel):
             "title": self.to_indexable_titles(),
             # Aggregate public tags here (at index time, async) rather than on
             # every page render; read paths reuse this indexed value.
-            "tag": TagManager.indexable_tags_for_item(self),
-            "mark_count": self.mark_count,
+            "tag": tags,
+            "mark_count": mark_count,
             "language": getattr(self, "language", None) or [],
             "people": people,
             "company": company,
@@ -827,6 +837,26 @@ class Item(PolymorphicModel):
             prefetch_related_objects(podcastepisodes, "program")
         if performanceproductions:
             prefetch_related_objects(performanceproductions, "show")
+
+    @staticmethod
+    def prepare_indexable_batch(items: "list[Item]") -> None:
+        """Load everything ``to_indexable_doc`` needs for a batch of items.
+
+        Without this each item costs one query for its credits, one for its
+        public tags, one for its mark count, and for a TVSeason one more for
+        the parent title (Sentry: NEODB-SOCIAL-7W5).
+        """
+        from journal.models import Mark, TagManager
+
+        if not items:
+            return
+        prefetch_related_objects(items, Item.credits_prefetch())
+        Item.prefetch_parent_items(items)
+        tags = TagManager.indexable_tags_for_items([i.pk for i in items])
+        mark_counts = Mark.get_mark_count_for_items(items)
+        for i in items:
+            i._indexable_tags = tags.get(i.pk, [])
+            i._indexable_mark_count = mark_counts.get(i.pk, 0)
 
     @staticmethod
     def credits_prefetch() -> models.Prefetch:

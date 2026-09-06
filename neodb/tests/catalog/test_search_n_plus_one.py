@@ -6,10 +6,24 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 
-from catalog.models import Edition, ExternalResource, IdType, Item, TVSeason, TVShow
+from catalog.models import (
+    Edition,
+    ExternalResource,
+    IdType,
+    Item,
+    ItemCredit,
+    Podcast,
+    PodcastEpisode,
+    TVEpisode,
+    TVSeason,
+    TVShow,
+)
 from catalog.search.index import CatalogIndex, CatalogSearchResult
 from catalog.search.utils import query_index
+from journal.models import Mark, ShelfType, TagManager
+from users.models import User
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -231,3 +245,142 @@ class TestSearchExternalResourcesSlim:
                 "search external_resources prefetch still selects "
                 f"other_lookup_ids: {q['sql']}"
             )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCatalogIndexBatchNoNPlusOne:
+    """NEODB-SOCIAL-7W5: ``CatalogIndex.replace_items`` built every document on
+    its own, so each item in the batch cost one query for its credits, one for
+    its public tags and one for its mark count, plus one for the parent title
+    of a TVSeason. Batch them, so the count stays flat as the batch grows.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(email="idxn1a@test.com", username="idxn1a").identity
+        self.other = User.register(email="idxn1b@test.com", username="idxn1b").identity
+
+    def _make_editions(self, count: int, prefix: str) -> list[Edition]:
+        editions = []
+        for n in range(count):
+            edition = Edition.objects.create(title=f"{prefix} {n}")
+            ItemCredit.objects.create(item=edition, role="author", name=f"Author {n}")
+            Mark(self.owner, edition).update(
+                ShelfType.COMPLETE, visibility=0, tags=["sci-fi", "read"]
+            )
+            editions.append(edition)
+        return editions
+
+    @staticmethod
+    def _replace_items(item_ids: list[int]):
+        """Run ``replace_items`` against a mocked index, returning the queries.
+
+        Only ``replace_docs``/``delete_docs`` reach Typesense, so a mock stands
+        in for ``self`` and the database work under test runs unchanged.
+        """
+        index = MagicMock(spec=CatalogIndex)
+        with CaptureQueriesContext(connection) as ctx:
+            CatalogIndex.replace_items(index, item_ids)
+        return index, ctx.captured_queries
+
+    def test_query_count_does_not_grow_with_batch_size(self):
+        # Same class mix in both batches: a polymorphic load costs one query
+        # per concrete class, which would otherwise mask the difference.
+        small = self._make_editions(2, "Small")
+        large = self._make_editions(6, "Large")
+
+        index_small, q_small = self._replace_items([i.pk for i in small])
+        index_large, q_large = self._replace_items([i.pk for i in large])
+
+        # Sanity: each batch produced one document per item.
+        assert len(index_small.replace_docs.call_args[0][0]) == 2
+        assert len(index_large.replace_docs.call_args[0][0]) == 6
+
+        assert len(q_large) == len(q_small), (
+            f"replace_items fired {len(q_large)} queries for 6 items but only "
+            f"{len(q_small)} for 2, so it still scales with the batch. Extra "
+            f"SQL: {[q['sql'] for q in q_large][len(q_small) :]}"
+        )
+
+    def test_batched_docs_match_the_per_item_values(self):
+        tagged = Edition.objects.create(title="Tagged")
+        Mark(self.owner, tagged).update(
+            ShelfType.COMPLETE, visibility=0, tags=["sci-fi"]
+        )
+        Mark(self.other, tagged).update(
+            ShelfType.COMPLETE, visibility=0, tags=["sci-fi", "epic"]
+        )
+        bare = Edition.objects.create(title="Bare")
+        show = TVShow.objects.create(
+            localized_title=[{"lang": "en", "text": "Batched Show"}]
+        )
+        season = TVSeason.objects.create(
+            localized_title=[{"lang": "en", "text": "Batched Show Season 1"}], show=show
+        )
+        episode = TVEpisode.objects.create(season=season, episode_number=1)
+        # The season rolls its episodes up, so this counts two distinct owners.
+        Mark(self.owner, season).update(ShelfType.COMPLETE, visibility=0)
+        Mark(self.other, episode).update(ShelfType.COMPLETE, visibility=0)
+        podcast = Podcast.objects.create(
+            localized_title=[{"lang": "en", "text": "Batched Podcast"}],
+            primary_lookup_id_type=IdType.RSS,
+            primary_lookup_id_value="https://example.com/batched.xml",
+        )
+        podcast_episode = PodcastEpisode.objects.create(
+            localized_title=[{"lang": "en", "text": "Batched Episode"}],
+            program=podcast,
+            guid="batched-guid",
+            pub_date=timezone.now(),
+        )
+        # The same owner on both, so the rollup must not double count.
+        Mark(self.owner, podcast).update(ShelfType.COMPLETE, visibility=0)
+        Mark(self.owner, podcast_episode).update(ShelfType.COMPLETE, visibility=0)
+
+        items = [tagged, bare, season, podcast]
+        expected = {
+            i.pk: (
+                TagManager.indexable_tags_for_item(i),
+                Mark.get_mark_count_for_item(i),
+            )
+            for i in items
+        }
+        # Sanity: the batch covers tags, no tags at all, and a child rollup.
+        assert len(expected[tagged.pk][0]) == 2
+        assert expected[tagged.pk][1] == 2
+        assert expected[bare.pk] == ([], 0)
+        assert expected[season.pk][1] == 2
+        assert expected[podcast.pk][1] == 1
+
+        index, _ = self._replace_items([i.pk for i in items])
+        docs = {int(d["id"]): d for d in index.replace_docs.call_args[0][0]}
+        for pk, (tags, mark_count) in expected.items():
+            assert docs[pk]["tag"] == tags
+            assert docs[pk]["mark_count"] == mark_count
+
+    def test_season_title_includes_the_show_without_a_per_item_lookup(self):
+        show = TVShow.objects.create(
+            localized_title=[{"lang": "en", "text": "Parent Show"}]
+        )
+        seasons = [
+            TVSeason.objects.create(
+                localized_title=[{"lang": "en", "text": f"Parent Show Season {n}"}],
+                show=show,
+            )
+            for n in range(1, 4)
+        ]
+
+        index, queries = self._replace_items([s.pk for s in seasons])
+        docs = index.replace_docs.call_args[0][0]
+        assert all("Parent Show" in d["title"] for d in docs)
+
+        # The N+1 signature is Django's ``.get()`` on the show FK; the
+        # polymorphic batch load uses ``IN (...)`` and no LIMIT.
+        offending = [
+            q
+            for q in queries
+            if 'FROM "catalog_tvshow"' in q["sql"] and "LIMIT 21" in q["sql"]
+        ]
+        assert offending == [], (
+            f"replace_items fired {len(offending)} per-season catalog_tvshow "
+            "FK lookup(s); expected 0."
+        )
