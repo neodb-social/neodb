@@ -85,6 +85,7 @@
 
   #item-title h1 {
     margin: 0;
+    display: inline;
   }
 
   h1 small {
@@ -95,6 +96,7 @@
 
   #item-cover {
     align-items: stretch;
+    text-align: center;
   }
 
   #item-cover img {
@@ -131,15 +133,6 @@
     text-align: center;
   }
 
-  #item-cover {
-    text-align: center;
-  }
-
-
-  #item-title h1 {
-    display: inline;
-  }
-
   #item-cover,
   #item-primary-action,
   #item-primary-mark {
@@ -157,10 +150,6 @@
   }
 
   @media (max-width: 768px) {
-    #item-cover {
-      margin: 1rem 0;
-    }
-
     #item-primary-action,
     #item-primary-mark {
       margin-bottom: 1rem 0;
@@ -188,6 +177,7 @@
 
     #item-cover {
       order: -3;
+      margin: 1rem 0;
     }
 
     #item-primary-action {

@@ -136,13 +136,8 @@
 }
 
 .tag-input {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: start;
-  -ms-flex-pack: start;
   justify-content: flex-start;
-  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   border-bottom: 0.1rem solid #ccc;
   padding-bottom: 2px;
@@ -158,7 +153,6 @@
   margin: 4px;
   border-radius: .4rem;
   line-height: 1em;
-  -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
   height: min-content;
 }
@@ -176,7 +170,6 @@
   height: 100%;
   cursor: pointer;
   border-radius: 0 2px 2px 0;
-  -webkit-transition: background 0.2s;
   transition: background 0.2s;
 }
 

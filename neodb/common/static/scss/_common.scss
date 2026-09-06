@@ -310,7 +310,6 @@ form img {
 
   img {
     max-width: unset;
-    border-radius: 50%;
     height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);
     width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 2 - var(--pico-border-width) * 2);
     border: 2px solid var(--pico-form-element-background-color);
@@ -322,7 +321,6 @@ form img {
 .avatar a img:hover {
   transition: ease-out 0.2s;
   border: 2px solid var(--pico-primary);
-  -webkit-transition: ease-out 0.2s;
 }
 
 .multi-fields {

@@ -65,29 +65,16 @@
     text-align: left;
     font-size: 1rem;
     color: var(--pico-muted-color);
-    transition: all 0.1s ease-in-out;
     border-radius: 0.35rem;
-    --background-color: rgba(255, 255, 255, 1);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: all 0.2s ease;
   }
 
-  .autoComplete_wrapper>ul>li::selection {
-    --color: rgba(#ffffff, 0);
-    --background-color: rgba(#ffffff, 0);
-  }
-
   .autoComplete_wrapper>ul>li mark {
     background-color: transparent;
-    --color: rgba(255, 122, 122, 1);
     font-weight: bold;
-  }
-
-  .autoComplete_wrapper>ul>li mark::selection {
-    --color: rgba(#ffffff, 0);
-    --background-color: rgba(#ffffff, 0);
   }
 
   .autoComplete_wrapper>ul>li:hover {
