@@ -14,7 +14,6 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -39,6 +38,7 @@ from ..models import (
 )
 from ..models.people import People
 from ..sites import IMDB
+from common.validators import get_safe_redirect_url
 
 logger = logging.getLogger(__name__)
 
@@ -442,13 +442,9 @@ def unlink(request):
     if not resource.item:
         raise BadRequest(_("Invalid parameter"))
     # the confirmation page carries the original referer in `next`
-    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        next_url,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        next_url = "/"
+    next_url = get_safe_redirect_url(
+        request.POST.get("next") or request.META.get("HTTP_REFERER")
+    )
     if not _is_confirmed(request):
         return _confirm(
             request,

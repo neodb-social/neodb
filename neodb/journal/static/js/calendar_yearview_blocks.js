@@ -15,6 +15,22 @@
             };
         }
 
+        // Every value interpolated into the SVG markup below goes through this
+        // first: the plugin builds its chart as an HTML string, so an unescaped
+        // option value would be parsed as markup.
+        var escapeAttrMap = {
+            '&': '&amp;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '<': '&lt;',
+            '>': '&gt;'
+        };
+        var escapeAttr = function (s) {
+            return String(s).replace(/[&"'<>]/g, function (ch) {
+                return escapeAttrMap[ch];
+            });
+        };
+
         // If the number less than 10, add a zero before it
         var prettyNumber = function (number) {
             return number < 10 ? '0' + number.toString() : number = number.toString();
@@ -88,13 +104,6 @@
 
                     var items = [];
                     var legend = '', items_str = '';
-                    var escapeAttr = function (s) {
-                        return String(s)
-                            .replaceAll('&', '&amp;')
-                            .replaceAll('"', '&quot;')
-                            .replaceAll('<', '&lt;')
-                            .replaceAll('>', '&gt;');
-                    };
                     if (obj_timestamp[data_date]) {
                         if (obj_timestamp[data_date].items) {
                             items = obj_timestamp[data_date].items;
@@ -106,28 +115,28 @@
                     }
 
                     var item_name = items[0]?items[0]:false;
-                    var color = settings.colors[item_name]?settings.colors[item_name]:settings.colors['default'];
+                    var color = escapeAttr(settings.colors[item_name]?settings.colors[item_name]:settings.colors['default']);
 
                     // Fill a square for the 1st item
                     item_html += '<rect class="day" ' + (items.length<2 ? 'rx="2" ry="2"' : '') + ' width="11" height="11" y="' + y + '" fill="' + color + match_today + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                     if (items.length === 2) { // Fill a trangle for the 2nd
                         var item_name_1 = items[1]?items[1]:false;
-                        var color_1 = settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default'];
+                        var color_1 = escapeAttr(settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default']);
                         item_html += '<polygon points="' + 0 + ',' + (y+11) + ' ' + 0 + ',' + y + ' ' + 11 + ',' + y + '" fill="' + color_1 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                     } else if (items.length === 3) { // Fill 2 rectangles for 2nd and 3rd
                         var item_name_1 = items[1]?items[1]:false;
-                        var color_1 = settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default'];
+                        var color_1 = escapeAttr(settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default']);
                         var item_name_2 = items[2]?items[2]:false;
-                        var color_2 = settings.colors[item_name_2]?settings.colors[item_name_2]:settings.colors['default'];
+                        var color_2 = escapeAttr(settings.colors[item_name_2]?settings.colors[item_name_2]:settings.colors['default']);
                         item_html += '<polygon points="' + 0 + ',' + (y+8) + ' ' + 0 + ',' + y + ' ' + 11 + ',' + y + ' ' + 11 + ',' + (y+8) + '" fill="' + color_1 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                         item_html += '<polygon points="' + 0 + ',' + (y+4) + ' ' + 0 + ',' + y + ' ' + 11 + ',' + y + ' ' + 11 + ',' + (y+4) + '" fill="' + color_2 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                     } else if (items.length === 4) { // Fill 3 cubes for 2nd, 3rd and 4th
                         var item_name_1 = items[1]?items[1]:false;
-                        var color_1 = settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default'];
+                        var color_1 = escapeAttr(settings.colors[item_name_1]?settings.colors[item_name_1]:settings.colors['default']);
                         var item_name_2 = items[2]?items[2]:false;
-                        var color_2 = settings.colors[item_name_2]?settings.colors[item_name_2]:settings.colors['default'];
+                        var color_2 = escapeAttr(settings.colors[item_name_2]?settings.colors[item_name_2]:settings.colors['default']);
                         var item_name_3 = items[3]?items[3]:false;
-                        var color_3 = settings.colors[item_name_3]?settings.colors[item_name_3]:settings.colors['default'];
+                        var color_3 = escapeAttr(settings.colors[item_name_3]?settings.colors[item_name_3]:settings.colors['default']);
                         item_html += '<polygon points="' + 0 + ',' + (y+11) + ' ' + 0 + ',' + (y+6) + ' ' + 6 + ',' + (y+6) + ' ' + 6 + ',' + (y+11) + '" fill="' + color_1 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                         item_html += '<polygon points="' + 0 + ',' + (y+6) + ' ' + 0 + ',' + y + ' ' + 6 + ',' + y + ' ' + 6 + ',' + (y+6) + '" fill="' + color_2 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
                         item_html += '<polygon points="' + 6 + ',' + (y+6) + ' ' + 6 + ',' + y + ' ' + 11 + ',' + y + ' ' + 11 + ',' + (y+6) + '" fill="' + color_3 + '" data-items="' + items_str + '" data-legend="' + legend + '" data-date="' + data_date + '"/>';
@@ -153,20 +162,20 @@
             // Add labels for Months
             for (var i = 0; i < month_position.length; i++) {
                 var item = month_position[i];
-                var month_name = item.month_index ? settings.month_names[item.month_index] : end_year;
+                var month_name = escapeAttr(item.month_index ? settings.month_names[item.month_index] : end_year);
                 loop_html += '<text x="' + item.x + '" y="-5" class="month">' + month_name + '</text>';
             }
 
             // Add labels for Weekdays
             if (settings.start_monday === true) {
-                loop_html += '<text text-anchor="middle" class="wday" dx="-12" dy="11">{0}</text>'.formatString(settings.day_names[0]) +
-                    '<text text-anchor="middle" class="wday" dx="-12" dy="36">{0}</text>'.formatString(settings.day_names[1]) +
-                    '<text text-anchor="middle" class="wday" dx="-12" dy="61">{0}</text>'.formatString(settings.day_names[2]) +
-                    '<text text-anchor="middle" class="wday" dx="-12" dy="86">{0}</text>'.formatString(settings.day_names[3]);
+                loop_html += '<text text-anchor="middle" class="wday" dx="-12" dy="11">{0}</text>'.formatString(escapeAttr(settings.day_names[0])) +
+                    '<text text-anchor="middle" class="wday" dx="-12" dy="36">{0}</text>'.formatString(escapeAttr(settings.day_names[1])) +
+                    '<text text-anchor="middle" class="wday" dx="-12" dy="61">{0}</text>'.formatString(escapeAttr(settings.day_names[2])) +
+                    '<text text-anchor="middle" class="wday" dx="-12" dy="86">{0}</text>'.formatString(escapeAttr(settings.day_names[3]));
             } else {
-                loop_html += '<text text-anchor="middle" class="wday" dx="-10" dy="22">{0}</text>'.formatString(settings.day_names[0]) +
-                    '<text text-anchor="middle" class="wday" dx="-10" dy="48">{0}</text>'.formatString(settings.day_names[1]) +
-                    '<text text-anchor="middle" class="wday" dx="-10" dy="74">{0}</text>'.formatString(settings.day_names[2]);
+                loop_html += '<text text-anchor="middle" class="wday" dx="-10" dy="22">{0}</text>'.formatString(escapeAttr(settings.day_names[0])) +
+                    '<text text-anchor="middle" class="wday" dx="-10" dy="48">{0}</text>'.formatString(escapeAttr(settings.day_names[1])) +
+                    '<text text-anchor="middle" class="wday" dx="-10" dy="74">{0}</text>'.formatString(escapeAttr(settings.day_names[2]));
             }
 
             // Fixed size with width= 721 and height = 110

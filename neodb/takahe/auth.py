@@ -198,8 +198,10 @@ def http_signature_required(view_func: Callable) -> Callable:
             # read it via ``getattr`` or a typed shim.
             setattr(request, "signed_identity", verify_http_signature(request))
         except _SigError as e:
+            # the reason stays in our log; the response body is fixed so a
+            # caller cannot probe internals through it
             logger.info(f"HTTP signature rejected: {e}")
-            return HttpResponse(str(e), status=401, content_type="text/plain")
+            return HttpResponse("Bad signature", status=401, content_type="text/plain")
         return view_func(request, *args, **kwargs)
 
     return wrapped

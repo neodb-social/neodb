@@ -169,7 +169,9 @@ _MEDIA_FORMAT_ALIASES: dict[str, str] = {
     "录像带": "vcd",
 }
 
-_RE_SPLIT = re.compile(r"\s*[/,;，、；]\s*")
+# split on the delimiter alone and strip afterwards; surrounding `\s*` makes
+# the match ambiguous and costs quadratic time on runs of whitespace
+_RE_SPLIT = re.compile(r"[/,;，、；]")
 
 
 def _normalize_values(
@@ -194,7 +196,7 @@ def _normalize_values(
         else:
             # split compound values ("Album, EP") only when the whole
             # string does not match, then map each part
-            parts = [p for p in _RE_SPLIT.split(v) if p]
+            parts = [s for p in _RE_SPLIT.split(v) if (s := p.strip())]
             if len(parts) > 1:
                 result.extend(_normalize_values(parts, codes, aliases))
             else:

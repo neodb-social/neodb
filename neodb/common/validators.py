@@ -112,17 +112,45 @@ def is_safe_url(url: str | None, allowed_hosts: set[str] | None = None) -> bool:
 
 
 def get_safe_redirect_url(url: str | None, default: str = "/") -> str:
-    """Return the URL if safe, otherwise return the default."""
-    if url and is_safe_url(url):
-        return url
-    return default
+    """Return the URL if safe, otherwise return the default.
+
+    The three helpers below each call the Django check inline and return the
+    checked value straight from its guarded branch, rather than sharing one
+    implementation. That shape is what marks the result as sanitized for taint
+    analysis; delegating to a wrapper, or negating the check and reassigning
+    the variable, leaves callers reported as open redirects.
+    """
+    if not url:
+        return default
+    if not url_has_allowed_host_and_scheme(
+        url,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        return default
+    return url
 
 
 def sanitize_next_url(url: str | None) -> str | None:
     """Return the URL if safe for redirect, otherwise return None."""
-    return url if is_safe_url(url) else None
+    if not url:
+        return None
+    if not url_has_allowed_host_and_scheme(
+        url,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        return None
+    return url
 
 
 def get_safe_referer_url(request: HttpRequest, default: str = "/") -> str:
     """Get HTTP_REFERER if it's safe, otherwise return default."""
-    return get_safe_redirect_url(request.META.get("HTTP_REFERER", ""), default)
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        return default
+    return referer

@@ -11,18 +11,20 @@ The site API keys for Google Books, IGDB and TMDB must be configured, or
 those categories fail to scrape.
 """
 
+import logging
 import time
 from typing import Any
 
 import django_rq
 from django.core.management.base import CommandParser
-from loguru import logger
 from rq import Worker
 
 from catalog.common import SiteManager
 from catalog.common.downloaders import DownloadError
 from catalog.sites import *  # noqa: F403
 from common.management.base import SiteCommand
+
+logger = logging.getLogger(__name__)
 
 # Queues the ingest fans out onto. get_resource_ready() puts related
 # resources (seasons, people) on "crawl", and those jobs enqueue more of

@@ -13,6 +13,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_http_methods
 
 from common.models import SiteConfig
+from common.validators import get_safe_redirect_url
 from common.utils import (
     CustomPaginator,
     PageLinksGenerator,
@@ -63,7 +64,9 @@ def retrieve_by_uuid(request, item_uid):
 
 
 def retrieve_redirect(request, item_path, item_uuid):
-    return redirect(f"/{item_path}/{item_uuid}", permanent=True)
+    # both parts are already constrained by the route regex; the check stops a
+    # "//host" path from being read back as a protocol-relative URL
+    return redirect(get_safe_redirect_url(f"/{item_path}/{item_uuid}"), permanent=True)
 
 
 @require_http_methods(["GET", "HEAD"])
@@ -189,7 +192,7 @@ def people_works(request, item_path, item_uuid, role):
     if final.is_deleted:
         raise Http404(_("Item no longer exists"))
     if final is not item:
-        return redirect(f"{final.url}/works/{role}")
+        return redirect(get_safe_redirect_url(f"{final.url}/works/{role}"))
     role_label = credit_role_label(role)
 
     # All roles this person has, for the role filter dropdown. Read from

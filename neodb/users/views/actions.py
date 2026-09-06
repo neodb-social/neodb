@@ -1,12 +1,10 @@
 import json
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 
 from common.config import *
@@ -21,6 +19,7 @@ from takahe.utils import Takahe
 from ..models import APIdentity
 from .account import *
 from .data import *
+from common.validators import get_safe_referer_url
 
 
 def query_identity(request, handle):
@@ -183,13 +182,7 @@ def set_layout(request: AuthedHttpRequest):
 @require_http_methods(["POST"])
 def mark_announcements_read(request: AuthedHttpRequest):
     Takahe.mark_announcements_seen(request.user)
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 

@@ -11,7 +11,6 @@ from django.core.exceptions import BadRequest, ValidationError
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -19,7 +18,10 @@ from catalog.models import ItemCategory
 from common.models import SiteConfig
 from common.sentry import record_activity, record_registration_captcha
 from common.utils import AuthedHttpRequest, client_ip
-from common.validators import sanitize_next_url
+from common.validators import (
+    get_safe_redirect_url,
+    sanitize_next_url,
+)
 from mastodon.models import (
     Email,
     EmailAccount,
@@ -487,13 +489,7 @@ def logout_takahe(response: HttpResponse):
 
 def auth_logout(request):
     auth.logout(request)
-    redirect_url = request.GET.get("next") or ""
-    if not url_has_allowed_host_and_scheme(
-        redirect_url,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        redirect_url = "/"
+    redirect_url = get_safe_redirect_url(request.GET.get("next"))
     return logout_takahe(redirect(redirect_url))
 
 

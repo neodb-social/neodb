@@ -120,12 +120,22 @@ class Threads:
         short_token = data.get("access_token")
         user_id = data.get("user_id")
 
-        # exchange for a 60-days token
-        url = f"https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret={SiteConfig.system.threads_app_secret}&access_token={short_token}"
+        # exchange for a 60-days token. The app secret and the token travel as
+        # params rather than inside the URL string, so neither the endpoint we
+        # log nor a requests exception (which quotes the full request URL)
+        # carries them; for the same reason only the exception type is logged.
+        url = "https://graph.threads.net/access_token"
         try:
-            response = get(url)
+            response = get(
+                url,
+                params={
+                    "grant_type": "th_exchange_token",
+                    "client_secret": SiteConfig.system.threads_app_secret,
+                    "access_token": short_token,
+                },
+            )
         except Exception as e:
-            logger.warning(f"Error {url} {e}")
+            logger.warning(f"Error {url} {type(e).__name__}")
             return None, None, None
         if response.status_code != 200:
             logger.warning(f"Error {url} {response.status_code}")
@@ -138,11 +148,13 @@ class Threads:
 
     @staticmethod
     def refresh_token(token: str) -> tuple[str, int] | tuple[None, None]:
-        url = f"https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token={token}"
+        url = "https://graph.threads.net/refresh_access_token"
         try:
-            response = get(url)
+            response = get(
+                url, params={"grant_type": "th_refresh_token", "access_token": token}
+            )
         except Exception as e:
-            logger.warning(f"Error {url} {e}")
+            logger.warning(f"Error {url} {type(e).__name__}")
             return None, None
         if response.status_code != 200:
             logger.warning(f"Error {url} {response.status_code}")
@@ -157,11 +169,17 @@ class Threads:
     def get_profile(
         token: str, user_id: str | None = None
     ) -> dict[str, str | int] | None:
-        url = f"https://graph.threads.net/v1.0/{user_id or 'me'}?fields=id,username,threads_profile_picture_url,threads_biography&access_token={token}"
+        url = f"https://graph.threads.net/v1.0/{user_id or 'me'}"
         try:
-            response = get(url)
+            response = get(
+                url,
+                params={
+                    "fields": "id,username,threads_profile_picture_url,threads_biography",
+                    "access_token": token,
+                },
+            )
         except Exception as e:
-            logger.warning(f"Error {url} {e}")
+            logger.warning(f"Error {url} {type(e).__name__}")
             return None
         if response.status_code != 200:
             logger.warning(f"Error {url} {response.status_code}")

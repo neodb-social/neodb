@@ -7,7 +7,6 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseBase, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -19,6 +18,7 @@ from common.utils import AuthedHttpRequest, get_uuid_or_404
 from ..forms import CommentForm, MarkForm
 from ..models import Comment, Mark, ShelfManager, ShelfType
 from .common import render_list, render_relogin
+from common.validators import get_safe_referer_url
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +28,7 @@ _checkmark = "✔️".encode("utf-8")
 
 
 def _redirect_back(request: AuthedHttpRequest) -> HttpResponseRedirect:
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 
@@ -278,13 +272,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
             if not comment:
                 raise Http404(_("Content not found"))
             comment.delete()
-            referer = request.META.get("HTTP_REFERER") or ""
-            if not url_has_allowed_host_and_scheme(
-                referer,
-                allowed_hosts=set(settings.SITE_DOMAINS),
-                require_https=settings.SSL_ONLY,
-            ):
-                referer = "/"
+            referer = get_safe_referer_url(request)
             return HttpResponseRedirect(referer)
         form = CommentForm(request.POST)
         if not form.is_valid():
@@ -315,13 +303,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
         if share_to_mastodon:
             comment.sync_to_social_accounts(update_mode)
         comment.update_index()
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
+        referer = get_safe_referer_url(request)
         return HttpResponseRedirect(referer)
 
 

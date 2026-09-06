@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -20,6 +19,7 @@ from users.models import APIdentity
 from ..forms import *
 from ..models import *
 from .common import conditional_get_for_anonymous
+from common.validators import get_safe_referer_url
 
 logger = logging.getLogger(__name__)
 
@@ -372,13 +372,7 @@ def post_compose(request: AuthedHttpRequest):
         attachments=attachments if attachments else None,
     )
     record_activity("post", "web")
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 
@@ -431,13 +425,7 @@ def post_edit(request: AuthedHttpRequest, post_id: int):
         post_pk=post.pk,
     )
     record_activity("post", "web")
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 

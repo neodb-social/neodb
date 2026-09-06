@@ -5,7 +5,6 @@ from django.core.exceptions import DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
 
 from boofilsic import __version__
 from catalog.views import people_search as catalog_people_search, discover
@@ -17,6 +16,7 @@ from takahe.utils import Takahe
 from users.models.user import User
 
 from .api import api
+from .validators import get_safe_redirect_url
 from .models import SiteConfig
 
 
@@ -80,13 +80,10 @@ def home(request):
 
 
 def ap_redirect(request, uri):
-    redirect_to = request.get_full_path().replace("/~neodb~/", "/")
-    if not url_has_allowed_host_and_scheme(
-        redirect_to,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        redirect_to = "/"
+    # a path of "/~neodb~//host" would collapse into a protocol-relative URL
+    redirect_to = get_safe_redirect_url(
+        request.get_full_path().replace("/~neodb~/", "/")
+    )
     return redirect(redirect_to)
 
 

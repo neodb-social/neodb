@@ -1,11 +1,11 @@
-from django.conf import settings
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.signing import b62_encode
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
@@ -18,6 +18,7 @@ from common.utils import (
     get_page_size_from_request,
     get_uuid_or_404,
 )
+from common.validators import get_safe_referer_url
 from takahe.auth import _SigError, verify_http_signature
 from users.models import User
 
@@ -33,6 +34,8 @@ from .common import (
     require_piece_handle,
     target_identity_required,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -61,13 +64,7 @@ def add_to_collection(request: AuthedHttpRequest, item_uuid):
         collection = Collection.objects.get(owner=request.user.identity, id=cid)
         collection.append_item(item, note=request.POST.get("note"))
         record_activity("collection", "web")
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
+        referer = get_safe_referer_url(request)
         return HttpResponseRedirect(referer)
 
 
@@ -125,8 +122,10 @@ def _resolve_signed_viewer(request):
     try:
         return verify_http_signature(request), None
     except _SigError as e:
+        # reason to the log only, so the body cannot be used to probe internals
+        logger.info(f"HTTP signature rejected: {e}")
         return None, HttpResponse(
-            f"Bad signature: {e}", status=401, content_type="text/plain"
+            "Bad signature", status=401, content_type="text/plain"
         )
 
 
@@ -343,13 +342,7 @@ def collection_add_featured(request: AuthedHttpRequest, collection_uuid):
     FeaturedCollection.objects.update_or_create(
         owner=request.user.identity, target=collection
     )
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 
@@ -364,13 +357,7 @@ def collection_remove_featured(request: AuthedHttpRequest, collection_uuid):
     ).first()
     if fc:
         fc.delete()
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = "/"
+    referer = get_safe_referer_url(request)
     return HttpResponseRedirect(referer)
 
 
@@ -404,13 +391,7 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             ) or ""
             if not share_collection(collection, comment, user, visibility, link):
                 return render_relogin(request)
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
+        referer = get_safe_referer_url(request)
         return HttpResponseRedirect(referer)
 
 

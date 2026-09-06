@@ -1,17 +1,16 @@
 from django import forms
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item
 from common.forms import NeoModelForm
 from common.sentry import record_activity
+from common.validators import get_safe_referer_url
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
 from ..models import Mark, Note, ShelfType
@@ -87,14 +86,7 @@ class NoteForm(NeoModelForm):
 
 
 def _return_url(request: AuthedHttpRequest) -> str:
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        return "/"
-    return referer
+    return get_safe_referer_url(request)
 
 
 @login_required

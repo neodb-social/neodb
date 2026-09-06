@@ -1,7 +1,6 @@
 from functools import wraps
 
 import filetype
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.files.base import ContentFile
@@ -11,7 +10,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.cache import patch_cache_control, patch_vary_headers
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import last_modified, require_http_methods
 
@@ -41,6 +39,7 @@ from ..models import (
     q_owned_piece_visible_to_user,
 )
 from ..models.attachment import generate_attachment_path
+from common.validators import get_safe_redirect_url
 
 _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 _MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -300,13 +299,7 @@ def render_list(
 @require_http_methods(["GET", "POST"])
 def piece_delete(request, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
-    return_url = request.GET.get("return_url") or ""
-    if not url_has_allowed_host_and_scheme(
-        return_url,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        return_url = "/"
+    return_url = get_safe_redirect_url(request.GET.get("return_url"))
     if not piece.is_deletable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":

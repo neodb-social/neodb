@@ -4,14 +4,12 @@ import datetime
 import logging
 from typing import Any
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, F
 from django.db.models.functions import ExtractMonth
 from django.http import HttpRequest, HttpResponseRedirect
 from django.http.response import HttpResponse
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
@@ -28,6 +26,7 @@ from journal.models.common import VisibilityType
 from mastodon.models.bluesky import EmbedObj
 from takahe.utils import Takahe
 from users.models import User
+from common.validators import get_safe_referer_url
 
 logger = logging.getLogger(__name__)
 
@@ -160,11 +159,5 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
                 logger.warning(f"wrapped post to {user.bluesky} failed: {e}")
                 sentry_count("crosspost.failure", attributes=attrs)
         messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
+        referer = get_safe_referer_url(request)
         return HttpResponseRedirect(referer)

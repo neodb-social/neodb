@@ -118,7 +118,8 @@ class SocialAccount(TypedModel):
         values = {f: getattr(self, f) for f in fields}
         if type(self).objects.filter(pk=self.pk).update(**values):
             return True
-        logger.debug(f"{self} deleted while syncing, update discarded")
+        # identify the row by pk/type only: `self` also holds access tokens
+        logger.debug(f"({self.pk}){self.type} deleted while syncing, update discarded")
         self.pk = None  # as instance.delete() would, so later saves no-op
         return False
 

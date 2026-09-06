@@ -5,7 +5,7 @@ import time
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Tuple, Union, cast
-from urllib.parse import quote, urlencode, urlparse
+from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
 
 import filetype
 import httpx
@@ -31,6 +31,42 @@ RESPONSE_CENSORSHIP = -3  # censored, try sth special if possible
 RESPONSE_QUOTA_EXCEEDED = -4
 
 _mock_mode = False
+
+# query parameters that carry a credential; several sites (Google Books, Steam,
+# TMDB) pass their API key this way, so a downloader URL must never reach a log
+# or an error message verbatim
+_SECRET_QUERY_KEYS = frozenset(
+    {
+        "key",
+        "api_key",
+        "apikey",
+        "access_token",
+        "token",
+        "client_secret",
+        "secret",
+        "password",
+        "sig",
+        "signature",
+    }
+)
+
+
+def redact_url(url: str | None) -> str:
+    """Return `url` with the value of any credential-bearing query parameter
+    replaced, leaving the rest intact so logs stay useful."""
+    if not url:
+        return ""
+    try:
+        parts = urlparse(url)
+    except ValueError:
+        return "<malformed url>"
+    if not parts.query:
+        return url
+    redacted = [
+        (k, "***" if k.lower() in _SECRET_QUERY_KEYS else v)
+        for k, v in parse_qsl(parts.query, keep_blank_values=True)
+    ]
+    return urlunparse(parts._replace(query=urlencode(redacted, safe="*")))
 
 
 def use_local_response(func):
@@ -75,7 +111,7 @@ class MockResponse:
             self.content = b"Error: response file not found"
             self.status_code = 404
             if ".jpg" not in self.url:
-                logger.warning(f"invalid mock response path for {url}")
+                logger.warning(f"invalid mock response path for {redact_url(url)}")
             return
         try:
             self.content = candidate.read_bytes()
@@ -84,7 +120,9 @@ class MockResponse:
             self.content = b"Error: response file not found"
             self.status_code = 404
             if ".jpg" not in self.url:
-                logger.warning(f"local response not found for {url} at {candidate}")
+                logger.warning(
+                    f"local response not found for {redact_url(url)} at {candidate}"
+                )
 
     @property
     def text(self):
@@ -181,7 +219,8 @@ class DownloadError(Exception):
         else:
             error = "Unknown Error"
         self.message = (
-            f"Download Failed: {error}{', ' + msg if msg else ''}, url: {self.url}"
+            f"Download Failed: {error}{', ' + msg if msg else ''}, "
+            f"url: {redact_url(self.url)}"
         )
         super().__init__(self.message)
 
@@ -455,7 +494,7 @@ class ImageDownloaderMixin:
                 if file_type is None or not (file_type.mime or "").startswith("image/"):
                     logger.error(
                         f"Unsupported image type: {content_type}",
-                        extra={"url": response.url},
+                        extra={"url": redact_url(response.url)},
                     )
                     return RESPONSE_NETWORK_ERROR
                 self.extention = file_type.extension
@@ -465,7 +504,8 @@ class ImageDownloaderMixin:
                 return RESPONSE_OK
             except Exception as e:
                 logger.error(
-                    f"Invalid downloaded image {e}", extra={"url": response.url}
+                    f"Invalid downloaded image {e}",
+                    extra={"url": redact_url(response.url)},
                 )
                 return RESPONSE_NETWORK_ERROR
         if response and response.status_code >= 400 and response.status_code < 500:

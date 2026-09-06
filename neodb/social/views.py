@@ -1,11 +1,9 @@
 from typing import Any, cast
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
@@ -17,6 +15,7 @@ from social.feed_grouping import FeedEvent, group_feed_events
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity
+from common.validators import get_safe_referer_url
 
 PAGE_SIZE = 10
 MAX_UNREAD_DISPLAY = 99
@@ -226,13 +225,7 @@ def dismiss_notification(request):
     Takahe.get_events(request.user.identity.pk, _all_notification_types).update(
         seen=True
     )
-    referer = request.META.get("HTTP_REFERER") or ""
-    if not url_has_allowed_host_and_scheme(
-        referer,
-        allowed_hosts=set(settings.SITE_DOMAINS),
-        require_https=settings.SSL_ONLY,
-    ):
-        referer = reverse("social:notification")
+    referer = get_safe_referer_url(request, reverse("social:notification"))
     return redirect(referer)
 
 
