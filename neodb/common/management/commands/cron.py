@@ -1,7 +1,9 @@
-from loguru import logger
+import logging
 
 from common.management.base import SiteCommand
 from common.models import JobManager
+
+logger = logging.getLogger(__name__)
 
 # @JobManager.register
 # class DummyJob(BaseJob):

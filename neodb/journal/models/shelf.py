@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
@@ -6,7 +7,6 @@ from django.conf import settings
 from django.db import connection, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from polymorphic.models import ContentType, PolymorphicManager
 
 from catalog.models import Item, ItemCategory, item_categories
@@ -26,6 +26,8 @@ from .atproto import (
 from .common import q_item_in_category
 from .itemlist import List, ListMember
 from .renderers import render_post_with_macro, render_rating, render_spoiler_text
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from .comment import Comment

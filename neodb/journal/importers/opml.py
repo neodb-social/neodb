@@ -1,14 +1,16 @@
+import logging
 from contextlib import nullcontext
 
 import listparser
 from django.utils.translation import gettext as _
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.sites.rss import RSS
 from journal.models import *
 from users.models.task import Task
+
+logger = logging.getLogger(__name__)
 
 
 class OPMLImporter(Task):

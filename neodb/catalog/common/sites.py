@@ -8,6 +8,7 @@ ResourceContent persists as an ExternalResource which may link to an Item
 """
 
 import json
+import logging
 import re
 from dataclasses import dataclass, field
 from hashlib import md5
@@ -17,7 +18,6 @@ import django_rq
 import requests
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
-from loguru import logger
 
 from common.models import SiteConfig
 from common.models.misc import uniq
@@ -27,6 +27,8 @@ from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
 from .downloaders import DownloadError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

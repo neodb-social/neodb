@@ -1,4 +1,5 @@
 import ipaddress
+import logging
 import socket
 from urllib.parse import urlparse
 
@@ -6,8 +7,9 @@ from cachetools import TTLCache
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.http import url_has_allowed_host_and_scheme
-from loguru import logger
 from validators import url as _url_validate
+
+logger = logging.getLogger(__name__)
 
 # In-process TTL cache for hostname → public-IP resolution. Avoids paying the
 # DNS roundtrip twice when validating then fetching the same remote, and stays

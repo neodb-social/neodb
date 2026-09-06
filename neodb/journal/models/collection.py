@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 import re
 from collections.abc import Iterator
@@ -13,7 +14,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
-from loguru import logger
 
 from catalog.models import CatalogCollection, Item, ItemCategory, item_categories
 from catalog.models.utils import piece_cover_path
@@ -27,6 +27,8 @@ from users.models import APIdentity, User
 from .common import Piece
 from .itemlist import AP_PAGE_SIZE, List, ListMember, list_add, list_remove
 from .renderers import render_md, render_text
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser

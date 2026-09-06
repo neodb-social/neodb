@@ -13,16 +13,18 @@ Scraping strategy:
   Mock mode: reads fixture keyed to self.url (contains the MPREb_ browse response).
 """
 
+import logging
 import re
 
 import requests
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import get_mock_mode
 from catalog.models import *
 from common.models import SiteConfig, normalize_album_types, parse_duration_text
 from common.models.lang import detect_language
+
+logger = logging.getLogger(__name__)
 
 _INNERTUBE_URL = "https://music.youtube.com/youtubei/v1/browse"
 _INNERTUBE_HEADERS = {

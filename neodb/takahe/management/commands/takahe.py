@@ -1,4 +1,4 @@
-from loguru import logger
+import logging
 from tqdm import tqdm
 
 from catalog.common import *
@@ -6,6 +6,8 @@ from catalog.models import *
 from common.management.base import SiteCommand
 from takahe.utils import *
 from users.models import User as NeoUser
+
+logger = logging.getLogger(__name__)
 
 
 class Command(SiteCommand):

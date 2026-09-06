@@ -25,6 +25,7 @@ column can be dropped once every deployment's backfill has completed.
 """
 
 import hashlib
+import logging
 import mimetypes
 import os
 import uuid
@@ -36,11 +37,12 @@ from django.core.files.base import File
 from django.core.files.storage import Storage, default_storage, storages
 from django.db import models
 from django.utils import timezone
-from loguru import logger
 
 from users.models import APIdentity
 
 from .renderers import RE_MD_IMAGE, normalize_image_src
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from takahe.models import Post, PostAttachment

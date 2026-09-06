@@ -4,6 +4,7 @@ Access: DEBUG=True allows anyone, otherwise requires superuser.
 """
 
 import json
+import logging
 import time
 import traceback
 
@@ -11,7 +12,6 @@ from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from .common import (
     BasicDownloader,
@@ -21,19 +21,21 @@ from .common import (
     SiteManager,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def _debug_payload(error: str, logs: list[str]) -> dict:
     """Return error payload, including traceback only when DEBUG is on.
 
-    In production we always log the traceback server-side via loguru so
-    operators can investigate, but never expose it in the HTTP response.
+    In production we always log the traceback server-side so operators can
+    investigate, but never expose it in the HTTP response.
     """
     payload: dict = {"error": error, "logs": logs}
     tb = traceback.format_exc()
     if settings.DEBUG:
         payload["traceback"] = tb
     else:
-        logger.error("scraper_debug error: {} {}", error, tb)
+        logger.error("scraper_debug error: %s %s", error, tb)
     return payload
 
 

@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import datetime
 from typing import cast
@@ -6,7 +7,6 @@ from urllib.parse import quote_plus
 
 import httpx
 from django.utils.timezone import make_aware
-from loguru import logger
 from lxml import html
 from lxml.html import HtmlElement
 
@@ -23,6 +23,8 @@ from catalog.models.utils import binding_to_format, detect_isbn_asin
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import detect_language
 from journal.models.renderers import html_to_text
+
+logger = logging.getLogger(__name__)
 
 
 class GoodreadsDownloader(RetryDownloader):

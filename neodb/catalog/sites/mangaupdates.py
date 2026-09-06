@@ -10,19 +10,21 @@ the numeric form, ``int(slug, 36)``. Legacy ``series.html?id=N`` numbers are a
 different id space that the API no longer serves, so they are not matched.
 """
 
+import logging
 import re
 import threading
 from typing import Any
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import Edition, IdType, ItemCategory, SiteName
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language, normalize_languages
+
+logger = logging.getLogger(__name__)
 
 _API_URL = "https://api.mangaupdates.com/v1"
 

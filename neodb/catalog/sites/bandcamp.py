@@ -7,7 +7,6 @@ from typing import cast
 import dateparser
 import dns.resolver
 import httpx
-from loguru import logger
 from lxml import html
 from lxml.html import HtmlElement
 
@@ -166,10 +165,10 @@ class Bandcamp(AbstractSite):
                         )
                     )
             except httpx.ReadTimeout:
-                logger.warning("Bandcamp search timeout", extra={"query": q})
+                _logger.warning("Bandcamp search timeout", extra={"query": q})
                 record_search_failure(SiteName.Bandcamp.value, "timeout")
             except Exception as e:
-                logger.error(
+                _logger.error(
                     "Bandcamp search error", extra={"query": q, "exception": e}
                 )
                 record_search_failure(SiteName.Bandcamp.value, "error")

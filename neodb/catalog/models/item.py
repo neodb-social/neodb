@@ -1,3 +1,4 @@
+import logging
 import re
 import uuid
 from enum import Enum
@@ -15,7 +16,6 @@ from django.db import IntegrityError, connection, models, transaction
 from django.db.models import Q, QuerySet, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from ninja import Field, Schema
 from polymorphic.models import PolymorphicModel
 
@@ -44,6 +44,8 @@ from .common import (
     SiteName,
 )
 from .utils import item_cover_path, resource_cover_path
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser

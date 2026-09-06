@@ -1,7 +1,7 @@
+import logging
 from time import sleep
 from typing import Any
 
-from loguru import logger
 
 from catalog.models import Item
 from common.sentry import count as sentry_count
@@ -26,6 +26,8 @@ from users.models.apidentity import APIdentity
 
 from .models import Identity, Post, Report, TimelineEvent
 from .utils import Takahe
+
+logger = logging.getLogger(__name__)
 
 _supported_ap_catalog_item_types = [
     "Edition",

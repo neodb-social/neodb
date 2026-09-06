@@ -6,6 +6,7 @@ Three surfaces, all visibility- and pref-gated by Preference.show_recommendation
 - from_your_circles(viewer): recent shelves from followees
 """
 
+import logging
 from collections import defaultdict
 from datetime import timedelta
 from heapq import nlargest
@@ -14,7 +15,6 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Count, QuerySet
 from django.utils import timezone
-from loguru import logger
 
 from common.models import SiteConfig
 from journal.models import ShelfMember, q_piece_visible_to_user
@@ -31,6 +31,8 @@ from .models import (
     Work,
     item_content_types,
 )
+
+logger = logging.getLogger(__name__)
 
 # Item classes that should never appear as recommendation targets.
 # - TVShow: container; users typically mark TVSeasons

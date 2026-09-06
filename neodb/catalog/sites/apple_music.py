@@ -9,10 +9,10 @@ Scraping the website directly.
 """
 
 import json
+import logging
 from datetime import timedelta
 
 from django.utils.dateparse import parse_duration
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -23,6 +23,8 @@ from common.models.lang import (
 from common.models.misc import uniq
 
 from .douban import *
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

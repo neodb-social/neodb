@@ -1,3 +1,4 @@
+import logging
 import re
 from urllib.parse import urlencode
 
@@ -6,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from loguru import logger
+
+logger = logging.getLogger(__name__)
 
 STEAM_OPENID_URL = "https://steamcommunity.com/openid/login"
 STEAM_ID_RE = re.compile(r"https://steamcommunity\.com/openid/id/(\d+)")

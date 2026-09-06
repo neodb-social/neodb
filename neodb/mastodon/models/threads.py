@@ -1,4 +1,5 @@
 import functools
+import logging
 import re
 import secrets
 import typing
@@ -11,12 +12,13 @@ from django.core.exceptions import RequestAborted
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
-from loguru import logger
 
 from common.models import SiteConfig, jsondata
 from takahe.utils import Takahe
 
 from .common import SocialAccount
+
+logger = logging.getLogger(__name__)
 
 if typing.TYPE_CHECKING:
     from catalog.models import Item

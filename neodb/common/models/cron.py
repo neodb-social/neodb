@@ -1,11 +1,13 @@
+import logging
 from datetime import timedelta
 
 import django_rq
-from loguru import logger
 from rq.job import Job
 from rq.registry import ScheduledJobRegistry
 
 from common.models.site_config import SiteConfig
+
+logger = logging.getLogger(__name__)
 
 
 class BaseJob:

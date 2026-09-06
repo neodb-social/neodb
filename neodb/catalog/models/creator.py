@@ -1,11 +1,13 @@
+import logging
 import re
 from typing import TYPE_CHECKING, Iterable
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 
 from .item import Item
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser

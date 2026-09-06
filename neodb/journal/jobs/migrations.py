@@ -1,5 +1,5 @@
+import logging
 from django.db.models import OuterRef, Subquery
-from loguru import logger
 
 from catalog.models import Edition, item_content_types
 from journal.models import (
@@ -13,6 +13,8 @@ from journal.models import (
     ShelfType,
 )
 from journal.models.attachment import is_owned_upload, link_attachments_to_piece
+
+logger = logging.getLogger(__name__)
 
 
 def backfill_member_progress_from_notes_20260720(batch_size: int = 1000) -> int:

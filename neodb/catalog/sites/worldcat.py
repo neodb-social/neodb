@@ -1,13 +1,15 @@
 import json
+import logging
 import re
 
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from common.models import detect_language
 from common.models.lang import normalize_language
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

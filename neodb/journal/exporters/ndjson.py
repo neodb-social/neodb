@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 import tempfile
@@ -9,7 +10,6 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db.models.fields.files import ImageFieldFile
 from django.utils import timezone
-from loguru import logger
 
 from catalog.common import ProxiedImageDownloader
 from common.utils import GenerateDateUUIDMediaFilePath
@@ -29,6 +29,8 @@ from journal.models import (
 from journal.models.renderers import RE_MD_IMAGE, normalize_image_src
 from takahe.models import Post
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 # Content subclasses carried on the journal stream, in the order they are
 # written. Enumerated rather than walked via ``Content.__subclasses__()``:

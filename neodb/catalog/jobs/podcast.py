@@ -1,3 +1,4 @@
+import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -5,11 +6,12 @@ from datetime import timedelta
 from django.db import close_old_connections, connections
 from django.db.models import Max
 from django.utils import timezone
-from loguru import logger
 
 from catalog.models import IdType, Podcast, PodcastEpisode
 from catalog.sites import RSS
 from common.models import BaseJob, JobManager
+
+logger = logging.getLogger(__name__)
 
 FRESH_DELAY = timedelta(hours=2)
 MID_DELAY = timedelta(hours=12)

@@ -25,12 +25,12 @@ For now, we follow Douban convention, but keep an eye on it in case it breaks it
 
 """
 
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from ninja import Field, Schema
 
 from common.models import (
@@ -62,6 +62,8 @@ from .item import (
 )
 from .people import PeopleRole
 from .utils import normalize_legacy_video_metadata
+
+logger = logging.getLogger(__name__)
 
 
 class _TVCreditResolverMixin(Schema):

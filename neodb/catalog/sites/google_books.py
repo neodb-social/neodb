@@ -1,14 +1,16 @@
+import logging
 import re
 from urllib.parse import quote_plus
 
 import httpx
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import isbn_10_to_13
 from catalog.search import *
 from common.models import SiteConfig, detect_language
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

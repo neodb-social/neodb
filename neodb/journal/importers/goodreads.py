@@ -1,10 +1,10 @@
 import csv
+import logging
 from datetime import datetime
 
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
-from loguru import logger
 from markdownify import markdownify as md
 
 from catalog.common import *
@@ -13,6 +13,8 @@ from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
 from journal.models import *
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 SHELF_MAP = {
     "read": ShelfType.COMPLETE,

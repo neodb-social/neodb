@@ -1,9 +1,11 @@
+import logging
 import time
 
 from django.urls import reverse
-from loguru import logger
 
 from users.models import APIdentity
+
+logger = logging.getLogger(__name__)
 
 
 def _get_local_url_for_ap_identity(uri):

@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import json
+import logging
 import re
 import secrets
 import time
@@ -20,7 +21,6 @@ from django.core.cache import cache
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
-from loguru import logger
 
 from common.models import SiteConfig, jsondata
 from takahe.utils import Takahe
@@ -38,6 +38,8 @@ from .bluesky_oauth import (
     send_par,
 )
 from .common import SocialAccount
+
+logger = logging.getLogger(__name__)
 
 if typing.TYPE_CHECKING:
     from catalog.models import Item

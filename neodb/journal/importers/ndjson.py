@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -14,7 +15,6 @@ from django.core.files import File
 from django.core.files.storage import default_storage
 from django.db import IntegrityError, transaction
 from django.utils import timezone
-from loguru import logger
 
 from catalog.models import ExternalResource, Item
 from catalog.sites.fedi import FediverseInstance
@@ -42,6 +42,8 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .base import BaseImporter
+
+logger = logging.getLogger(__name__)
 
 
 class NdjsonImporter(BaseImporter):

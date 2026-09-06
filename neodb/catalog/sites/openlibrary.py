@@ -1,3 +1,4 @@
+import logging
 import re
 import threading
 from datetime import datetime
@@ -5,7 +6,6 @@ from urllib.parse import quote_plus
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.rate_limit import RedisRateLimiter
@@ -14,6 +14,8 @@ from catalog.models.utils import detect_isbn_asin, isbn_10_to_13
 from catalog.search import *
 from common.models import SiteConfig, detect_language
 from common.models.lang import normalize_language
+
+logger = logging.getLogger(__name__)
 
 # OpenLibrary serves 1 req/s to unidentified clients and 3 req/s to callers
 # that send an app name plus a contact address, and warns that a generic or

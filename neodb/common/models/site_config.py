@@ -1,4 +1,5 @@
 import functools
+import logging
 from typing import ClassVar
 
 import pydantic
@@ -7,10 +8,11 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.utils import DatabaseError, ProgrammingError
 from django.utils.translation import trans_real
-from loguru import logger
 
 from common.config import resolve_email_settings
 from common.models.genre import DEFAULT_GENRE_CATEGORIES
+
+logger = logging.getLogger(__name__)
 
 # Bounds for SystemOptions.registration_captcha_items; 0 disables the captcha.
 CAPTCHA_MIN_ITEMS = 4

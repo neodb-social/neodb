@@ -31,14 +31,16 @@ Failure modes are advisory rather than fatal:
 from __future__ import annotations
 
 import asyncio
+import logging
 import threading
 import time
 from typing import TYPE_CHECKING
 
 import django_rq
-from loguru import logger
 
 from .downloaders import get_mock_mode
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from redis.client import Script

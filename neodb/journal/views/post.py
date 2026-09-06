@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
@@ -6,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.models.lang import LOCALE_CHOICES, translate
 from common.models.misc import int_
@@ -20,6 +20,8 @@ from users.models import APIdentity
 from ..forms import *
 from ..models import *
 from .common import conditional_get_for_anonymous
+
+logger = logging.getLogger(__name__)
 
 
 def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> int:

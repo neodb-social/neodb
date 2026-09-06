@@ -1,16 +1,18 @@
 import csv
+import logging
 import os
 import tempfile
 import zipfile
 from typing import Dict
 
 from django.utils import timezone
-from loguru import logger
 
 from catalog.models import ItemCategory
 from journal.models import Mark, Note, Review
 
 from .base import BaseImporter
+
+logger = logging.getLogger(__name__)
 
 # The members run() reads, and therefore the only ones worth accepting.
 _CSV_CATEGORIES = [

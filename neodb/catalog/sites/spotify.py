@@ -9,7 +9,6 @@ import dateparser
 import httpx
 import requests
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -182,12 +181,14 @@ class Spotify(AbstractSite):
                             )
                         )
                 else:
-                    logger.warning(f"Spotify search '{q}' no results found.")
+                    _logger.warning(f"Spotify search '{q}' no results found.")
             except httpx.ReadTimeout:
-                logger.warning("Spotify search timeout", extra={"query": q})
+                _logger.warning("Spotify search timeout", extra={"query": q})
                 record_search_failure(SiteName.Spotify.value, "timeout")
             except Exception as e:
-                logger.error("Spotify search error", extra={"query": q, "exception": e})
+                _logger.error(
+                    "Spotify search error", extra={"query": q, "exception": e}
+                )
                 record_search_failure(SiteName.Spotify.value, "error")
         return results
 
@@ -256,10 +257,10 @@ class Spotify(AbstractSite):
                         )
                     )
             except httpx.ReadTimeout:
-                logger.warning("Spotify field search timeout", extra={"query": q})
+                _logger.warning("Spotify field search timeout", extra={"query": q})
                 record_search_failure(SiteName.Spotify.value, "timeout")
             except Exception as e:
-                logger.error(
+                _logger.error(
                     "Spotify field search error", extra={"query": q, "exception": e}
                 )
                 record_search_failure(SiteName.Spotify.value, "error")

@@ -4,7 +4,6 @@ from typing import Any
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import (
@@ -170,10 +169,12 @@ class Bangumi(AbstractSite):
                             )
                         )
             except httpx.ReadTimeout:
-                logger.warning("Bangumi search timeout", extra={"query": q})
+                _logger.warning("Bangumi search timeout", extra={"query": q})
                 record_search_failure(cls.SITE_NAME.value, "timeout")
             except Exception as e:
-                logger.error("Bangumi search error", extra={"query": q, "exception": e})
+                _logger.error(
+                    "Bangumi search error", extra={"query": q, "exception": e}
+                )
                 record_search_failure(cls.SITE_NAME.value, "error")
         return results
 

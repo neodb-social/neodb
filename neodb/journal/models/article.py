@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 import re
 from typing import Any
@@ -10,7 +11,6 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.html import strip_tags
 from django.utils.translation import gettext as _
-from loguru import logger
 from markdownify import markdownify as md
 
 from catalog.models.utils import piece_cover_path
@@ -23,6 +23,8 @@ from .attachment import link_attachments_to_piece
 from .common import Piece, VisibilityType
 from .renderers import render_md, sanitize_md_images
 from .tag import Tag as TagModel
+
+logger = logging.getLogger(__name__)
 
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
 

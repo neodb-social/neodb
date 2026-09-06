@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from collections.abc import Iterable
 from datetime import datetime
@@ -9,7 +10,6 @@ from typing import TYPE_CHECKING
 import django_rq
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
-from loguru import logger
 from rq import Retry
 
 from catalog.models import Item, item_categories
@@ -20,6 +20,8 @@ from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from journal.models import Piece

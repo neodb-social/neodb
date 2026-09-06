@@ -1,3 +1,4 @@
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
@@ -7,7 +8,6 @@ import django_rq
 from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 
 from catalog.models import Item, ItemCategory
 from catalog.models.item import item_content_types
@@ -17,6 +17,8 @@ from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .common import Piece, VisibilityType
+
+logger = logging.getLogger(__name__)
 
 list_add = django.dispatch.Signal()
 list_remove = django.dispatch.Signal()

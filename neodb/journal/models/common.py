@@ -1,3 +1,4 @@
+import logging
 import re
 import uuid
 from abc import abstractmethod
@@ -17,7 +18,6 @@ from django.db import models
 from django.db.models import CharField, Q, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from polymorphic.models import PolymorphicModel
 from user_messages import api as messages
 
@@ -38,6 +38,8 @@ from ..search import JournalIndex
 from .atproto import build_document_rkey
 from .crosspost import CrosspostRetry
 from .mixins import UserOwnedObjectMixin
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from django.db.models.fields.related_descriptors import ManyRelatedManager

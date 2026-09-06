@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any
 
 import django_rq
@@ -16,7 +17,6 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.models.lang import get_current_locales
 from common.sentry import record_catalog_edit
@@ -39,6 +39,8 @@ from ..models import (
 )
 from ..models.people import People
 from ..sites import IMDB
+
+logger = logging.getLogger(__name__)
 
 fetch_works_for_person_task = people_works.fetch_works_for_person_task
 

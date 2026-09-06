@@ -1,13 +1,15 @@
+import logging
 import re
 from typing import cast
 from urllib.parse import urljoin
 
-from loguru import logger
 from lxml import html
 
 from catalog.common import *
 from catalog.common.downloaders import DownloadError
 from common.management.base import SiteCommand
+
+logger = logging.getLogger(__name__)
 
 
 class Command(SiteCommand):

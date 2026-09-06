@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import timedelta
 from functools import cached_property
@@ -16,7 +17,6 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 
 from common.models import SiteConfig
 from mastodon.models import (
@@ -27,6 +27,8 @@ from mastodon.models import (
     ThreadsAccount,
 )
 from takahe.utils import Takahe
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from .apidentity import APIdentity

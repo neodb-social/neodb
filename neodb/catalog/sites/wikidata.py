@@ -4,9 +4,9 @@ Wikidata API integration
 Uses the Wikidata REST API: https://www.wikidata.org/wiki/Wikidata:REST_API
 """
 
+import logging
 from urllib.parse import quote, urlencode
 
-from loguru import logger
 
 from catalog.common import (
     AbstractSite,
@@ -34,6 +34,8 @@ from catalog.models import (
 )
 from catalog.sites.openlibrary import OpenLibrary
 from common.models.lang import SITE_PREFERRED_LANGUAGES
+
+logger = logging.getLogger(__name__)
 
 
 # Wikidata Entity IDs for classification

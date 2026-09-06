@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 import time
 from io import BytesIO, StringIO
@@ -11,7 +12,6 @@ import httpx
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from loguru import logger
 from lxml import etree, html
 from PIL import Image
 from requests import Response
@@ -21,6 +21,8 @@ from common.models import SiteConfig, register_language_cache_refresh
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
 from common.validators import is_valid_url
+
+logger = logging.getLogger(__name__)
 
 RESPONSE_OK = 0  # response is ready for pasring
 RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry

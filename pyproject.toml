@@ -34,7 +34,6 @@ dependencies = [
     "igdb-api-v4>=0.3.3",
     "lingua-language-detector>=2.2.0",
     "listparser>=0.20",
-    "loguru>=0.7.2",
     "lxml>=6.1.1",
     "markdownify>=0.13.1",
     "mistune>=3.0.2",

@@ -1,3 +1,4 @@
+import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -6,11 +7,12 @@ from functools import partial
 from django.db import close_old_connections, connections
 from django.db.models import F
 from django.utils import timezone
-from loguru import logger
 
 from common.models import BaseJob, JobManager
 from common.sentry import count as sentry_count
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 _NON_EMAIL_ACCOUNT_TYPES = [
     "mastodon.mastodonaccount",

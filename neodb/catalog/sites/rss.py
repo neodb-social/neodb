@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.validators import URLValidator
 from django.utils.timezone import make_aware
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import (
@@ -205,11 +204,11 @@ class RSS(AbstractSite):
     def scrape_additional_data(self):
         feed = self.parse_feed_from_url(self.url)
         if not feed:
-            logger.warning(f"unable to parse RSS {self.url}")
+            _logger.warning(f"unable to parse RSS {self.url}")
             return False
         item = self.get_item()
         if not item:
-            logger.warning(f"item for RSS {self.url} not found")
+            _logger.warning(f"item for RSS {self.url} not found")
             return False
         self.update_episodes_from_feed(item, feed)
         return True

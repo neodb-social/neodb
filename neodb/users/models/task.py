@@ -1,16 +1,18 @@
+import logging
 from typing import Self
 
 import django_rq
 from auditlog.context import set_actor
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from typedmodels.models import TypedModel
 from user_messages import api as msg
 
 from users.middlewares import activate_language_for_user
 
 from .user import User
+
+logger = logging.getLogger(__name__)
 
 
 class Task(TypedModel):

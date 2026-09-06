@@ -1,11 +1,13 @@
+import logging
 from datetime import timedelta
 
 from django.core.cache import cache
-from loguru import logger
 
 from catalog.models import item_categories
 from catalog.views import visible_categories
 from common.models import BaseJob, JobManager
+
+logger = logging.getLogger(__name__)
 
 
 @JobManager.register

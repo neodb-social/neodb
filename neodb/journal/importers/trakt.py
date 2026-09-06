@@ -1,16 +1,18 @@
 import json
+import logging
 import os
 import tempfile
 import zipfile
 
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 
 from catalog.common.sites import SiteManager
 from catalog.models import IdType, Item
 from catalog.models.tv import TVShow
 from journal.models import Collection, Mark, ShelfType
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 
 class TraktImporter(Task):

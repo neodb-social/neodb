@@ -1,3 +1,4 @@
+import logging
 import secrets
 
 import django_rq
@@ -7,11 +8,12 @@ from django.core.mail import send_mail
 from django.core.signing import b62_encode
 from django.http import HttpRequest
 from django.utils.translation import gettext as _
-from loguru import logger
 
 from common.models import SiteConfig
 
 from .common import SocialAccount
+
+logger = logging.getLogger(__name__)
 
 _code_ttl = 60 * 15
 

@@ -1,10 +1,10 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Iterable, List, Optional, TypedDict
 
 import pytz
 import requests
 from django.utils import timezone
-from loguru import logger
 from requests import RequestException
 
 from catalog.common.downloaders import DownloadError
@@ -16,6 +16,8 @@ from journal.models.mark import Mark
 from journal.models.shelf import ShelfType
 
 from .base import BaseImporter
+
+logger = logging.getLogger(__name__)
 
 # with reference to
 # - https://developer.valvesoftware.com/wiki/Steam_Web_API

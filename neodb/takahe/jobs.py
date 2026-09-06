@@ -1,12 +1,14 @@
+import logging
 from datetime import timedelta
 
 from django.core.cache import cache
 from django.utils import timezone
-from loguru import logger
 
 from common.models import BaseJob, JobManager
 from journal.models import Comment, Review, ShelfMember
 from takahe.models import Domain, Identity, Post
+
+logger = logging.getLogger(__name__)
 
 
 @JobManager.register

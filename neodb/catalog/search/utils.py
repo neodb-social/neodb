@@ -1,11 +1,11 @@
 import hashlib
 
 import django_rq
+import logging
 from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import prefetch_related_objects
-from loguru import logger
 from rq.job import Job
 
 from catalog.common import (
@@ -20,6 +20,8 @@ from users.models import User
 
 from ..models import Edition, Item, TVSeason
 from .index import CatalogIndex, CatalogQueryParser
+
+logger = logging.getLogger(__name__)
 
 
 def query_index(

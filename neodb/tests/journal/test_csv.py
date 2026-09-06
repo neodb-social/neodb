@@ -1,17 +1,19 @@
 import csv
+import logging
 import os
 import zipfile
 from tempfile import TemporaryDirectory
 
 import pytest
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 
 from catalog.models import Edition, IdType, Movie, TVEpisode, TVSeason, TVShow
 from journal.exporters import CsvExporter
 from journal.importers import CsvImporter
 from journal.models import *
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.django_db(databases="__all__")

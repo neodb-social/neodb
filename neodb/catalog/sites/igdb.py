@@ -6,6 +6,7 @@ use (e.g. "portal-2") as id, which is different from real id in IGDB API
 
 import datetime
 import json
+import logging
 import threading
 import time
 from urllib.parse import quote_plus
@@ -15,7 +16,6 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from igdb.wrapper import IGDBWrapper
-from loguru import logger
 
 from common.models import normalize_game_platforms
 
@@ -24,6 +24,8 @@ from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
+
+logger = logging.getLogger(__name__)
 
 _cache_key = "igdb_access_token"
 

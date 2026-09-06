@@ -1,10 +1,10 @@
+import logging
 import re
 from urllib.parse import quote_plus, urlparse
 
 import httpx
 from django.conf import settings
 from django.core.validators import URLValidator
-from loguru import logger
 
 from catalog.common import (
     AbstractSite,
@@ -33,6 +33,8 @@ from catalog.models import (
 )
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 
@@ -5,7 +6,6 @@ import openpyxl
 import pytz
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from loguru import logger
 from markdownify import markdownify as md
 
 from catalog.common import *
@@ -17,6 +17,8 @@ from common.validators import is_valid_url
 from journal.models import *
 from journal.views.common import generate_upload_path
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 _tz_sh = pytz.timezone("Asia/Shanghai")
 

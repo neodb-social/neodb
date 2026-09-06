@@ -1,3 +1,4 @@
+import logging
 import time
 from datetime import timedelta
 from typing import Any
@@ -7,7 +8,6 @@ from django.core.cache import cache
 from django.db.models import Count, Exists, F, OuterRef, Q
 from django.db.models.query import prefetch_related_objects
 from django.utils import timezone
-from loguru import logger
 
 from catalog.models import *
 from catalog.sites.fedi import FediverseInstance
@@ -23,6 +23,8 @@ from journal.models import (
 )
 from takahe.models import Identity
 from takahe.utils import Post
+
+logger = logging.getLogger(__name__)
 
 MAX_ITEMS_PER_PERIOD = 12
 MAX_DAYS_FOR_PERIOD = 96

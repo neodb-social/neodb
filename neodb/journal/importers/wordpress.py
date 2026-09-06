@@ -1,9 +1,9 @@
 import datetime
+import logging
 from email.utils import parsedate_to_datetime
 from typing import Any
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from loguru import logger
 from lxml import etree
 from markdownify import markdownify as md
 
@@ -11,6 +11,8 @@ from catalog.common.downloaders import BasicImageDownloader
 from journal.models import Article
 
 from .base import BaseImporter
+
+logger = logging.getLogger(__name__)
 
 _NS = {
     "excerpt": "http://wordpress.org/export/1.2/excerpt/",

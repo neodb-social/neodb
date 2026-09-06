@@ -463,9 +463,16 @@ LOGGING = {
             "callback": _hide_client_error_traceback,
         },
     },
+    "formatters": {
+        "console": {
+            "format": "{asctime} | {levelname:<8} | {name}:{funcName}:{lineno} - {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "console",
             "filters": ["hide_client_error_traceback"],
         },
         "null": {"class": "logging.NullHandler"},
@@ -729,7 +736,6 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
-    from sentry_sdk.integrations.loguru import LoguruIntegration
 
     ignore_logger("podcastparser")
     # A bad Host header is a client error, not a bug. The null handler in
@@ -745,7 +751,6 @@ if SENTRY_DSN:
         environment=sentry_env or "unknown",
         integrations=[
             DjangoIntegration(),
-            LoguruIntegration(event_format="{name}:{function}:{line} - {message}"),
         ],
         release=NEODB_VERSION,
         send_default_pii=True,

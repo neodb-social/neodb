@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import zipfile
 from io import BytesIO
@@ -16,7 +17,6 @@ from django.test import Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 from PIL import Image
 
 from catalog.models import (
@@ -37,6 +37,8 @@ from journal.models.common import Debris
 from journal.search import JournalIndex
 from takahe.utils import Takahe
 from users.models import Task, User
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.django_db(databases="__all__")

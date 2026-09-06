@@ -10,6 +10,7 @@ lookup id so myanimelist.py (and Wikidata's P4086/P4087) lands on existing
 items instead of creating duplicates.
 """
 
+import logging
 import re
 import threading
 from collections import OrderedDict
@@ -19,7 +20,6 @@ from typing import Any, cast
 import httpx
 import requests
 from django.conf import settings
-from loguru import logger
 from requests.exceptions import RequestException
 
 from catalog.common import *
@@ -36,6 +36,8 @@ from catalog.models import (
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models.lang import detect_language
 from journal.models.renderers import html_to_text
+
+logger = logging.getLogger(__name__)
 
 _API_URL = "https://graphql.anilist.co"
 

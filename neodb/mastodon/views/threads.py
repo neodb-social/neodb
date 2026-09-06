@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import re
 
 from django.contrib.auth.decorators import login_required
@@ -11,7 +12,6 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
@@ -20,6 +20,8 @@ from users.login_proof import verify_login_proof
 
 from ..models import Threads, ThreadsAccount
 from .common import disconnect_identity, process_verified_account
+
+logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["POST"])

@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
@@ -7,7 +8,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
@@ -17,6 +17,8 @@ from users.login_proof import verify_login_proof
 from ..models import Bluesky, BlueskyAccount
 from ..models.bluesky_oauth import get_client_metadata
 from .common import client_ip, disconnect_identity, process_verified_account
+
+logger = logging.getLogger(__name__)
 
 # Cap failed authorization starts per client IP so the server cannot be
 # used to relay identity probing against ATProto handles.

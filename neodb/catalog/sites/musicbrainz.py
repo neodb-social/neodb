@@ -12,7 +12,6 @@ from typing import Any, Dict, List
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.rate_limit import RedisRateLimiter
@@ -211,7 +210,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
             downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
         except Exception as e:
-            logger.error(f"Failed to fetch MusicBrainz data: {e}")
+            _logger.error(f"Failed to fetch MusicBrainz data: {e}")
             raise ParseError(self, f"Failed to fetch data from MusicBrainz API: {e}")
 
         return self._parse_release_group_data(response_data)
@@ -288,7 +287,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
                     cover_image_url = self._get_cover_art_url(release_id)
                     isrc = _extract_first_isrc(release_data)
             except Exception as e:
-                logger.warning(f"Failed to get detailed release info: {e}")
+                _logger.warning(f"Failed to get detailed release info: {e}")
 
         metadata = {
             "title": title,
@@ -357,7 +356,7 @@ class MusicBrainzReleaseGroup(AbstractSite):
                 # If no front cover found, use first image
                 return cover_data["images"][0].get("image", "")
         except Exception as e:
-            logger.debug(f"No cover art found for release {release_id}: {e}")
+            _logger.debug(f"No cover art found for release {release_id}: {e}")
 
         return None
 
@@ -400,7 +399,7 @@ class MusicBrainzRelease(AbstractSite):
             downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
         except Exception as e:
-            logger.error(f"Failed to fetch MusicBrainz release data: {e}")
+            _logger.error(f"Failed to fetch MusicBrainz release data: {e}")
             raise ParseError(self, f"Failed to fetch data from MusicBrainz API: {e}")
 
         return self._parse_release_data(response_data)
@@ -524,7 +523,7 @@ class MusicBrainzRelease(AbstractSite):
                 # If no front cover found, use first image
                 return cover_data["images"][0].get("image", "")
         except Exception as e:
-            logger.debug(f"No cover art found for release {release_id}: {e}")
+            _logger.debug(f"No cover art found for release {release_id}: {e}")
 
         return None
 
@@ -616,17 +615,19 @@ class MusicBrainzRelease(AbstractSite):
                         )
 
             except httpx.TimeoutException:
-                logger.warning("MusicBrainz release search timeout", extra={"query": q})
+                _logger.warning(
+                    "MusicBrainz release search timeout", extra={"query": q}
+                )
                 record_search_failure(SiteName.MusicBrainz.value, "timeout")
             except httpx.HTTPError as e:
                 # MusicBrainz 503s and transport errors are transient -> warn.
-                logger.warning(
+                _logger.warning(
                     "MusicBrainz release search error",
                     extra={"query": q, "exception": e},
                 )
                 record_search_failure(SiteName.MusicBrainz.value, "error")
             except Exception as e:
-                logger.error(
+                _logger.error(
                     "MusicBrainz release search error",
                     extra={"query": q, "exception": e},
                 )
@@ -686,11 +687,11 @@ class MusicBrainzRelease(AbstractSite):
                 response.raise_for_status()
                 data = response.json()
             except httpx.TimeoutException:
-                logger.warning("MusicBrainz field search timeout", extra={"query": q})
+                _logger.warning("MusicBrainz field search timeout", extra={"query": q})
                 record_search_failure(SiteName.MusicBrainz.value, "timeout")
                 return results
             except Exception as e:
-                logger.error(
+                _logger.error(
                     "MusicBrainz field search error",
                     extra={"query": q, "exception": e},
                 )
@@ -768,7 +769,7 @@ class MusicBrainzArtist(AbstractSite):
             )
             data = downloader.download().json()
         except Exception as e:
-            logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
+            _logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
             raise ParseError(
                 self, f"Failed to fetch data from MusicBrainz API: {e}"
             ) from e
@@ -912,19 +913,19 @@ class MusicBrainzArtist(AbstractSite):
                 response.raise_for_status()
                 data = response.json()
             except httpx.TimeoutException:
-                logger.warning("MusicBrainz artist search timeout", extra={"query": q})
+                _logger.warning("MusicBrainz artist search timeout", extra={"query": q})
                 record_search_failure(SiteName.MusicBrainz.value, "timeout")
                 return results
             except httpx.HTTPError as e:
                 # MusicBrainz 503s and transport errors are transient -> warn.
-                logger.warning(
+                _logger.warning(
                     "MusicBrainz artist search error",
                     extra={"query": q, "exception": e},
                 )
                 record_search_failure(SiteName.MusicBrainz.value, "error")
                 return results
             except Exception as e:
-                logger.error(
+                _logger.error(
                     "MusicBrainz artist search error",
                     extra={"query": q, "exception": e},
                 )

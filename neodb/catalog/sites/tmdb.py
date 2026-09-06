@@ -16,7 +16,6 @@ from urllib.parse import quote_plus
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -272,12 +271,12 @@ class TMDB_Movie(AbstractSite):
                                 )
                             )
                 else:
-                    logger.warning(f"TMDB search '{q}' no results found.")
+                    _logger.warning(f"TMDB search '{q}' no results found.")
             except httpx.ReadTimeout:
-                logger.warning("TMDb search timeout", extra={"query": q})
+                _logger.warning("TMDb search timeout", extra={"query": q})
                 record_search_failure(SiteName.TMDB.value, "timeout")
             except Exception as e:
-                logger.error("TMDb search error", extra={"query": q, "exception": e})
+                _logger.error("TMDb search error", extra={"query": q, "exception": e})
                 record_search_failure(SiteName.TMDB.value, "error")
         return results[offset : offset + page_size]
 
@@ -696,10 +695,12 @@ class TMDB_Person(AbstractSite):
         try:
             data = BasicDownloader(api_url).download().json()
         except Exception as e:
-            logger.error(f"TMDB combined_credits fetch failed for {self.id_value}: {e}")
+            _logger.error(
+                f"TMDB combined_credits fetch failed for {self.id_value}: {e}"
+            )
             return []
         if not isinstance(data, dict):
-            logger.error(
+            _logger.error(
                 f"TMDB combined_credits response is invalid for {self.id_value}"
             )
             return []

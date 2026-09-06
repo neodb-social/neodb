@@ -1,6 +1,7 @@
 import copy
 import csv
 import datetime
+import logging
 import os
 import shutil
 
@@ -16,7 +17,6 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from catalog.common import SiteManager
 from catalog.models import Item, SiteName
@@ -51,6 +51,8 @@ from takahe.utils import Takahe
 from users.models import Task, User
 
 from .account import clear_preference_cache
+
+logger = logging.getLogger(__name__)
 
 
 def preferences(request):

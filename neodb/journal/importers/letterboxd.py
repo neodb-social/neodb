@@ -1,4 +1,5 @@
 import csv
+import logging
 import os
 import tempfile
 import zipfile
@@ -9,7 +10,6 @@ from random import randint
 import pytz
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext as _
-from loguru import logger
 from markdownify import markdownify as md
 
 from catalog.common import *
@@ -17,6 +17,8 @@ from catalog.common.downloaders import *
 from catalog.models import *
 from journal.models import *
 from users.models import *
+
+logger = logging.getLogger(__name__)
 
 _tz_sh = pytz.timezone("Asia/Shanghai")
 

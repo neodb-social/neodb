@@ -1,7 +1,7 @@
+import logging
 import re
 from urllib.parse import urlencode
 
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import BasicDownloader
@@ -9,6 +9,8 @@ from catalog.models import *
 from common.models.lang import detect_language
 
 from .douban import DoubanDownloader
+
+logger = logging.getLogger(__name__)
 
 DOUBAN_PERSONAGE_WORKS_PAGE_SIZE = 100
 

@@ -1,13 +1,15 @@
+import logging
 from urllib.parse import quote_plus
 
 import httpx
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
 from catalog.search import *
 
 from .rss import RSS
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

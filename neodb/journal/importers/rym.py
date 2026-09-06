@@ -2,6 +2,7 @@ import asyncio
 import csv
 import datetime
 import fcntl
+import logging
 import os
 import re
 import tempfile
@@ -10,7 +11,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
-from loguru import logger
 
 from catalog.common import SiteManager
 from catalog.models import Album, Item
@@ -20,6 +20,8 @@ from catalog.sites.spotify import Spotify
 from common.models import SiteConfig
 from journal.models import Mark, Review, ShelfType
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 RYM_HEADER_PREFIX = "RYM Album,"
 OWNERSHIP_TO_SHELF = {

@@ -1,4 +1,5 @@
 import io
+import logging
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -10,12 +11,13 @@ from django.core.signing import b62_encode
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 from PIL import Image
 
 from common.models import SiteConfig
 
 from .models import *
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from users.models import User as NeoUser

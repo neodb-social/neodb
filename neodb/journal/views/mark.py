@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.conf import settings
@@ -9,7 +10,6 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 
 from catalog.models import *
 from common.models.lang import translate
@@ -19,6 +19,8 @@ from common.utils import AuthedHttpRequest, get_uuid_or_404
 from ..forms import CommentForm, MarkForm
 from ..models import Comment, Mark, ShelfManager, ShelfType
 from .common import render_list, render_relogin
+
+logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 10
 

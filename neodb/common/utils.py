@@ -1,5 +1,6 @@
 import functools
 import json
+import logging
 import uuid
 from typing import TYPE_CHECKING
 
@@ -13,11 +14,12 @@ from django.db.models.fields.files import FieldFile
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from loguru import logger
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 from .models import int_
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from users.models import APIdentity, User

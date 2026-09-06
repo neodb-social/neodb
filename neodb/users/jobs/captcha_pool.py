@@ -1,9 +1,11 @@
+import logging
 from datetime import timedelta
 
-from loguru import logger
 
 from common.models import BaseJob, JobManager
 from users.registration_captcha import is_enabled, refresh_pools
+
+logger = logging.getLogger(__name__)
 
 
 @JobManager.register

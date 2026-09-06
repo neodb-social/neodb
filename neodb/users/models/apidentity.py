@@ -1,3 +1,4 @@
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
@@ -5,7 +6,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models.functions import Upper
 from django.utils import timezone
-from loguru import logger
 
 from common.models import SiteConfig
 from mastodon.models.mastodon import MastodonAccount
@@ -13,6 +13,8 @@ from takahe.utils import Takahe
 
 from .preference import Preference
 from .user import User
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from catalog.models import VerifiedCreator

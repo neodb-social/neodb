@@ -1,11 +1,13 @@
+import logging
 from datetime import timedelta
 
 from django.db.models import Q
 from django.utils import timezone
-from loguru import logger
 
 from common.models import BaseJob, JobManager
 from mastodon.models import MastodonApplication, detect_server_info
+
+logger = logging.getLogger(__name__)
 
 
 @JobManager.register

@@ -1,10 +1,10 @@
+import logging
 from typing import Any
 
 from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.utils.functional import lazy
-from loguru import logger
 from ninja import Field, NinjaAPI, Schema, Status
 from pydantic import AliasChoices
 from ninja.pagination import PageNumberPagination as NinjaPageNumberPagination
@@ -14,6 +14,8 @@ from catalog.models import Item
 from common.models import SiteConfig
 from takahe.utils import Takahe
 from users.models.apidentity import APIdentity
+
+logger = logging.getLogger(__name__)
 
 PERMITTED_WRITE_METHODS = ["PUT", "POST", "DELETE", "PATCH"]
 PERMITTED_READ_METHODS = ["GET", "HEAD", "OPTIONS"]

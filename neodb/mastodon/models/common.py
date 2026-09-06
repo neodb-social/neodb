@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.core.cache import cache
@@ -5,10 +6,11 @@ from django.db import models
 from django.db.models.functions import Lower, Upper
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from typedmodels.models import TypedModel
 
 from common.sentry import count as sentry_count
+
+logger = logging.getLogger(__name__)
 
 # Domain-level circuit breaker — covers webfinger / check_alive failures
 # (i.e. the instance itself is unreachable).

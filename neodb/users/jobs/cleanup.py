@@ -1,13 +1,15 @@
+import logging
 import os
 import shutil
 from datetime import timedelta
 
 from django.utils import timezone
-from loguru import logger
 
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import CrosspostRetry
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 _TASK_FILE_KEYS = ("file", "matched_file")
 

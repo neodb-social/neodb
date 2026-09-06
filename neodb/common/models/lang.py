@@ -22,6 +22,7 @@ https://en.wikipedia.org/wiki/IETF_language_tag
 """
 
 import hashlib
+import logging
 import re
 from collections.abc import Callable
 from typing import Any
@@ -38,9 +39,10 @@ from lingua import (
     LanguageDetector,
     LanguageDetectorBuilder,
 )
-from loguru import logger
 
 from common.models.site_config import SiteConfig
+
+logger = logging.getLogger(__name__)
 
 FALLBACK_LANGUAGE = "en"
 # Copy: SiteConfig rewrites this list in place, and settings.PREFERRED_LANGUAGES

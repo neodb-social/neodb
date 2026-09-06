@@ -19,6 +19,7 @@ unknown signer, stale Date, malformed base64) is rejected outright.
 
 import base64
 import binascii
+import logging
 import re
 import time
 from email.utils import formatdate
@@ -33,10 +34,11 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.utils.http import parse_http_date
-from loguru import logger
 
 from takahe.models import Config, Identity
 from takahe.utils import Takahe
+
+logger = logging.getLogger(__name__)
 
 _DATE_SKEW_LIMIT = 300
 _REQUIRED_HEADERS = ("(request-target)", "host", "date")

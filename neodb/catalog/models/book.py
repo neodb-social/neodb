@@ -18,13 +18,13 @@ work data seems asymmetric (a book links to a work, but may not listed in that w
 """
 
 import ast
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from ninja import Field
 
 from common.models import normalize_price, uniq
@@ -49,6 +49,8 @@ from .item import (
 )
 from .people import PeopleRole
 from .utils import *
+
+logger = logging.getLogger(__name__)
 
 
 def _coerce_legacy_string_list(value) -> list[str]:

@@ -1,8 +1,8 @@
+import logging
 from auditlog.context import set_actor
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
-from loguru import logger
 
 from catalog.models import Item
 from journal.search import JournalIndex
@@ -19,6 +19,8 @@ from .rating import Rating
 from .review import Review
 from .shelf import ShelfLogEntry, ShelfMember
 from .tag import Tag, TagMember
+
+logger = logging.getLogger(__name__)
 
 
 def cleanup_deleted_post(post_pk: int) -> None:

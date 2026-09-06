@@ -24,6 +24,7 @@ client payload.
 import hashlib
 import io
 import json
+import logging
 import random
 import secrets
 from itertools import pairwise
@@ -34,7 +35,6 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.http import HttpRequest
 from django.utils import timezone
-from loguru import logger
 from PIL import Image
 
 from catalog.models import (
@@ -50,6 +50,8 @@ from catalog.models import (
 )
 from common.models import SiteConfig
 from journal.models import ShelfMember, q_item_in_category
+
+logger = logging.getLogger(__name__)
 
 CAPTCHA_TTL = 5 * 60
 CAPTCHA_MAX_REGENERATIONS = 2

@@ -1,9 +1,9 @@
+import logging
 from urllib.parse import urlparse
 
 import django_rq
 from django.db import transaction
 from django.utils import timezone
-from loguru import logger
 
 from common.utils import discord_send
 from common.validators import is_valid_url
@@ -16,6 +16,8 @@ from ..models import (
     match_creator_identity,
     resolve_creator_identity,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def enqueue_creator_verification(claim: VerifiedCreator, user: User) -> None:

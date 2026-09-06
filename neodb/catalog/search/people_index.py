@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, Iterable, cast
@@ -5,10 +6,11 @@ from typing import TYPE_CHECKING, Iterable, cast
 import django_rq
 from django.db.models import Count
 from django_redis import get_redis_connection
-from loguru import logger
 from rq.job import Job
 
 from common.search import Index, QueryParser, SearchResult
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from catalog.models import People

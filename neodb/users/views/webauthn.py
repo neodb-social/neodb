@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import time
 
 from django.conf import settings
@@ -9,7 +10,6 @@ from django.http import HttpResponseBadRequest, JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
-from loguru import logger
 from webauthn import (
     generate_authentication_options,
     generate_registration_options,
@@ -31,6 +31,8 @@ from users.login_proof import verify_login_proof
 
 from ..models import WebAuthnCredential
 from .account import auth_login
+
+logger = logging.getLogger(__name__)
 
 _VALID_TRANSPORTS = {"usb", "nfc", "ble", "hybrid", "internal"}
 _CHALLENGE_TIMEOUT = 300  # 5 minutes

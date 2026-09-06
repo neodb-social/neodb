@@ -1,4 +1,5 @@
 import importlib
+import logging
 import re
 import time
 import traceback
@@ -10,12 +11,13 @@ import django_rq
 from discord import Object, SyncWebhook
 from django.db import connection, models
 from django.utils import timezone
-from loguru import logger
 from rq.job import Job
 from tqdm import tqdm
 
 from common.models.site_config import SiteConfig
 from common.sentry import count as sentry_count
+
+logger = logging.getLogger(__name__)
 
 _CHAIN_KEY = "neodb:migration_enqueue:last_job_id"
 _CHAIN_TTL = 7 * 24 * 3600
@@ -464,7 +466,7 @@ def fix_missing_cover_20250821(days=0):
             i.cover = p.cover
             i.save()
             updated += 1
-    logger.success(f"{updated} items with missing covers has been fixed.")
+    logger.info(f"{updated} items with missing covers has been fixed.")
 
 
 def populate_credits_20260412(start_pk=0, batch_size=1000):
@@ -529,7 +531,7 @@ def populate_credits_20260412(start_pk=0, batch_size=1000):
         ItemCredit.objects.bulk_create(pending)
         created += len(pending)
 
-    logger.success(f"Credits: {created} created, last pk: {last_pk}")
+    logger.info(f"Credits: {created} created, last pk: {last_pk}")
 
 
 def populate_credits_extra_20260415(batch_size=1000):
@@ -629,7 +631,7 @@ def populate_credits_extra_20260415(batch_size=1000):
         logger.info(f"{model_cls.__name__}: {created} credits created")
         total_created += created
 
-    logger.success(f"Total credits created: {total_created}")
+    logger.info(f"Total credits created: {total_created}")
 
 
 def backfill_credits_from_relations_20260719(start_pk=0, batch_size=1000):
@@ -718,7 +720,7 @@ def backfill_credits_from_relations_20260719(start_pk=0, batch_size=1000):
         "migration",
         attributes={"name": "catalog.backfill_credits_from_relations.end"},
     )
-    logger.success(
+    logger.info(
         f"Backfill complete: {created} created, {skipped} already present, "
         f"{no_name} skipped (person has no name); {total} relations scanned."
     )
@@ -749,7 +751,7 @@ def link_credits_20260412():
             linked += 1
         elif len(matches) > 1:
             ambiguous += 1
-    logger.success(f"Linked: {linked}, ambiguous: {ambiguous}, total: {total}")
+    logger.info(f"Linked: {linked}, ambiguous: {ambiguous}, total: {total}")
 
 
 def reindex_people_20260417():
@@ -792,7 +794,7 @@ def reindex_people_20260417():
         docs = people_index.people_to_docs(pg.get_page(p).object_list)
         indexed += people_index.replace_docs(docs)
         seen += len(docs)
-    logger.success(f"People reindex complete: {indexed} of {seen} docs indexed.")
+    logger.info(f"People reindex complete: {indexed} of {seen} docs indexed.")
 
 
 def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None:
@@ -914,7 +916,7 @@ def edition_normalize_publisher_imprint_20260428(batch_size: int = 1000) -> None
                 pbar.update(1)
 
     deleted, _ = ItemCredit.objects.filter(role="imprint").delete()
-    logger.success(
+    logger.info(
         f"Edition publisher/imprint normalization: {converted} updated, "
         f"{deleted} orphan imprint credits deleted"
     )

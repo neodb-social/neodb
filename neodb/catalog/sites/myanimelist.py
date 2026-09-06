@@ -12,13 +12,13 @@ AniList (idMal) and Wikidata (P4086/P4087) already file MAL ids as lookup
 ids, so a fetch here lands on the item they created rather than a duplicate.
 """
 
+import logging
 import threading
 from collections import OrderedDict
 from typing import Any
 
 import httpx
 from django.conf import settings
-from loguru import logger
 
 from catalog.common import *
 from catalog.common.downloaders import DownloadError
@@ -39,6 +39,8 @@ from journal.models.renderers import html_to_text
 # Shared title-language policy: romaji is assigned, never detected, and no two
 # titles claim one language.
 from .anilist import _UNKNOWN_LANG, _localized
+
+logger = logging.getLogger(__name__)
 
 _API_URL = "https://api.myanimelist.net/v2"
 

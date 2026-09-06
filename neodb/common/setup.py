@@ -1,6 +1,6 @@
+import logging
 from django.conf import settings
 from django.core.checks import Error, Warning
-from loguru import logger
 
 from catalog.search import CatalogIndex, PeopleIndex
 from common.models import JobManager, SiteConfig
@@ -10,6 +10,8 @@ from takahe.models import Domain as TakaheDomain
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Relay as TakaheRelay
 from takahe.utils import Takahe
+
+logger = logging.getLogger(__name__)
 
 
 class Setup:

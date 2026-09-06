@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 import time
 import uuid
 from datetime import timedelta
@@ -13,7 +12,6 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.utils import timezone
-from loguru import logger
 from tqdm import tqdm
 
 from catalog.common.sites import SiteManager
@@ -33,6 +31,8 @@ from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
 from common.management.base import SiteCommand
 from common.models import detect_language, uniq
+
+logger = logging.getLogger(__name__)
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
 _HELP_TEXT = """
@@ -150,10 +150,8 @@ class Command(SiteCommand):
         parser.add_argument(
             "--log-level",
             choices=[
-                "TRACE",
                 "DEBUG",
                 "INFO",
-                "SUCCESS",
                 "WARNING",
                 "ERROR",
                 "CRITICAL",
@@ -910,8 +908,7 @@ class Command(SiteCommand):
         self.fix = options["fix"]
 
         log_level = options.get("log_level", "INFO")
-        logger.remove()
-        logger.add(sys.stderr, level=log_level)
+        logging.getLogger().setLevel(log_level)
         logging.getLogger("rq").setLevel(logging.WARNING)
 
         index = CatalogIndex.instance()

@@ -23,14 +23,16 @@ servers could otherwise drive the worker into excessive DB cost).
 from __future__ import annotations
 
 import importlib
+import logging
 from datetime import timedelta
 from typing import Any
 
 import django_rq
-from loguru import logger
 
 from common.validators import is_valid_url
 from takahe.auth import sign_get
+
+logger = logging.getLogger(__name__)
 
 MAX_FETCH_ATTEMPTS = 3
 RETRY_DELAY = timedelta(minutes=5)

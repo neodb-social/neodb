@@ -1,4 +1,5 @@
 import functools
+import logging
 import random
 import re
 import secrets
@@ -20,7 +21,6 @@ from django.utils import timezone
 
 # from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 
 from common.models import SiteConfig, jsondata
 from common.sentry import count as sentry_count
@@ -28,6 +28,8 @@ from common.validators import is_valid_url
 from takahe.utils import Takahe
 
 from .common import SocialAccount
+
+logger = logging.getLogger(__name__)
 
 if typing.TYPE_CHECKING:
     from catalog.models import Item

@@ -1,7 +1,7 @@
 import json
+import logging
 import re
 
-from loguru import logger
 
 from catalog.common import *
 from catalog.models import *
@@ -15,6 +15,8 @@ from common.models.misc import int_
 
 from .douban import DoubanDownloader, DoubanSearcher, extract_people_links_from_anchors
 from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
+
+logger = logging.getLogger(__name__)
 
 
 @SiteManager.register

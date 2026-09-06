@@ -1,6 +1,7 @@
 import base64
 import calendar
 import datetime
+import logging
 from typing import Any
 
 from django.conf import settings
@@ -13,7 +14,6 @@ from django.http.response import HttpResponse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
-from loguru import logger
 
 from catalog.models import (
     AvailableItemCategory,
@@ -28,6 +28,8 @@ from journal.models.common import VisibilityType
 from mastodon.models.bluesky import EmbedObj
 from takahe.utils import Takahe
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 _type_emoji = {
     "movie": "🎬",

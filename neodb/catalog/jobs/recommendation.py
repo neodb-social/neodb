@@ -1,3 +1,4 @@
+import logging
 import math
 from collections import defaultdict
 from datetime import timedelta
@@ -6,7 +7,6 @@ import numpy as np
 from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
-from loguru import logger
 from scipy.sparse import csr_matrix
 
 from catalog.models import (
@@ -26,6 +26,8 @@ from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import ShelfMember
 from takahe.models import Identity as TakaheIdentity
 from users.models import APIdentity
+
+logger = logging.getLogger(__name__)
 
 
 def _non_discoverable_identity_ids() -> set[int]:

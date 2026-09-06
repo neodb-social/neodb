@@ -1,3 +1,4 @@
+import logging
 import re
 from functools import cached_property
 from json import JSONDecodeError
@@ -6,7 +7,6 @@ from typing import Iterable, List, Self, cast
 
 import httpx
 from django.conf import settings
-from loguru import logger
 from requests import RequestException
 from typesense.exceptions import ObjectNotFound, TypesenseClientError
 from typesense.sync.client import Client
@@ -21,6 +21,8 @@ from typesense.types.multi_search import MultiSearchRequestSchema
 
 from common.models.site_config import SiteConfig
 from common.sentry import count as sentry_count
+
+logger = logging.getLogger(__name__)
 
 # Exceptions that any Typesense network operation may raise.
 # typesense 2.x uses httpx for transport and, after exhausting node retries,

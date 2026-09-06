@@ -1,14 +1,16 @@
 import datetime
+import logging
 from typing import Dict, List, Literal, Optional
 
 from django.conf import settings
 from django.utils.dateparse import parse_datetime
-from loguru import logger
 
 from catalog.common.sites import SiteManager
 from catalog.models import Edition, IdType, Item, SiteName
 from journal.models import ShelfType
 from users.models import Task
+
+logger = logging.getLogger(__name__)
 
 _PREFERRED_SITES = [
     SiteName.Fediverse,

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from collections.abc import Callable
 from functools import partial
@@ -14,12 +15,13 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
 from django_jsonform.forms.fields import JSONFormField
-from loguru import logger
 
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
 from common.config import hide_secret
 from common.models import SiteConfig
 from common.models.site_config import CAPTCHA_MAX_ITEMS
+
+logger = logging.getLogger(__name__)
 
 
 def superuser_required(view_func):
