@@ -11,7 +11,6 @@ dependencies = [
     "django>=5.2,<5.3",
     "django-anymail[mailgun,amazon-ses,sendgrid,mailjet,postal,mandrill,mailersend,brevo]>=13.0",
     "django-auditlog>=3.0.0",
-    "django-bleach>=3.1.0",
     "django-compressor",
     "django-cors-headers",
     "django-environ>=0.11.2",

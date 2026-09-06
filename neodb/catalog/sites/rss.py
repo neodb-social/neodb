@@ -4,7 +4,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime
 
-import bleach
+import nh3
 import podcastparser
 from django.conf import settings
 from django.core.cache import cache
@@ -184,7 +184,7 @@ class RSS(AbstractSite):
                 guid=guid,
                 defaults={
                     "title": episode["title"],
-                    "brief": bleach.clean(episode.get("description") or "", strip=True),
+                    "brief": nh3.clean(episode.get("description") or "", tags=set()),
                     "description_html": episode.get("description_html"),
                     "cover_url": episode.get("episode_art_url"),
                     "media_url": media_url,

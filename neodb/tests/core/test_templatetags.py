@@ -11,6 +11,7 @@ from common.templatetags.duration import (
     relative_uri,
 )
 from common.templatetags.highlight import highlight
+from common.templatetags.sanitize import sanitize
 from common.templatetags.strip_scheme import strip_scheme
 from common.templatetags.truncate import truncate
 
@@ -228,3 +229,30 @@ class TestTruncate:
     def test_exact_length(self):
         result = truncate("hello", "5")
         assert result == "hello"
+
+
+class TestSanitize:
+    def test_script_removed(self):
+        assert "<script>" not in sanitize("<p>hi</p><script>alert(1)</script>", "p")
+
+    def test_allowed_tags_kept(self):
+        assert sanitize("<p>hi<br></p>", "p,br") == "<p>hi<br></p>"
+
+    def test_disallowed_tag_unwrapped(self):
+        # nh3 drops the tag but keeps its text, unlike escaping it
+        assert sanitize("<div><p>hi</p></div>", "p") == "<p>hi</p>"
+
+    def test_event_handler_removed(self):
+        assert "onclick" not in sanitize('<a href="#" onclick="x()">hi</a>', "a")
+
+    def test_none_is_empty_not_the_string_none(self):
+        assert sanitize(None, "p") == ""
+
+    def test_empty_string(self):
+        assert sanitize("", "p") == ""
+
+    def test_no_tag_argument_uses_nh3_defaults(self):
+        assert sanitize("<p>hi</p>") == "<p>hi</p>"
+
+    def test_result_is_safe(self):
+        assert isinstance(sanitize("<p>hi</p>", "p"), SafeString)

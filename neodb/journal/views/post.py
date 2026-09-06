@@ -12,7 +12,7 @@ from common.models.lang import LOCALE_CHOICES, translate
 from common.models.misc import int_
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
-from journal.models.renderers import bleach_post_content
+from journal.models.renderers import sanitize_post_content
 from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -272,7 +272,7 @@ def post_translate(request, post_id: int):
     owner = APIdentity.by_takahe_identity(post.author)
     if not owner or _can_view_post(post, owner, viewer) != 1:
         raise PermissionDenied(_("Insufficient permission"))
-    text = bleach_post_content(post.content)
+    text = sanitize_post_content(post.content)
     text = translate(text, request.user.language, post.language)
     return HttpResponse(text)
 

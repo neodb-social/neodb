@@ -215,5 +215,5 @@ def render_spoiler_text(text, item):
 _post_allowed_tags = set(["a", "p", "span", "br", "div", "img"])
 
 
-def bleach_post_content(text):
+def sanitize_post_content(text: str) -> str:
     return nh3.clean(text, tags=_post_allowed_tags)

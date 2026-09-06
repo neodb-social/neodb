@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load bleach_tags %}
+{% load sanitize %}
 {% trans 'followed you' %}
 <div>
   <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>
@@ -9,5 +9,5 @@
         onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ event.identity.full_handle }}</code>
 </div>
 <blockquote class="tldr" _="on click toggle .tldr on me">
-  {{ event.identity.summary|bleach:"a,p,span,br"|default:"" }}
+  {{ event.identity.summary|sanitize:"a,p,span,br"|default:"" }}
 </blockquote>

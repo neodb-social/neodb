@@ -358,7 +358,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.postgres",
     "django_rq",
-    "django_bleach",
     "django_jsonform",
     "tz_detect",
     "sass_processor",
@@ -681,9 +680,6 @@ LOGIN_URL = "/account/login"
 
 ADMIN_ENABLED = DEBUG
 ADMIN_URL = "neodb-admin"
-
-BLEACH_STRIP_COMMENTS = True
-BLEACH_STRIP_TAGS = True
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
