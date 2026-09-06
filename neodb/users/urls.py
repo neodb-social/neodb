@@ -65,6 +65,7 @@ urlpatterns = [
     path("data/import/steam/config", steam_import_page, name="steam_import_page"),
     path("data/import/neodb", import_neodb, name="import_neodb"),
     path("data/import/wordpress", import_wordpress, name="import_wordpress"),
+    path("data/import/twitter", import_twitter, name="import_twitter"),
     path("data/export/reviews", export_reviews, name="export_reviews"),
     path("data/export/marks", export_marks, name="export_marks"),
     path("data/export/csv", export_csv, name="export_csv"),

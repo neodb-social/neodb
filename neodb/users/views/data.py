@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import shutil
+import zipfile
 
 import django_rq
 from django.conf import settings
@@ -41,6 +42,7 @@ from journal.importers import (
     SteamImporter,
     StoryGraphImporter,
     TraktImporter,
+    TwitterImporter,
     WordpressImporter,
 )
 from journal.importers.rym import update_row_in_matched_file
@@ -176,6 +178,7 @@ def data(request):
             "steam_task": SteamImporter.latest_task(request.user),
             "trakt_task": TraktImporter.latest_task(request.user),
             "wordpress_import_task": WordpressImporter.latest_task(request.user),
+            "twitter_task": TwitterImporter.latest_task(request.user),
             "wordpress_export_task": WordpressExporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
@@ -212,6 +215,8 @@ def user_task_status(request, task_type: str):
             task_cls = RymImporter
         case "journal.wordpressimporter":
             task_cls = WordpressImporter
+        case "journal.twitterimporter":
+            task_cls = TwitterImporter
         case "journal.wordpressexporter":
             task_cls = WordpressExporter
         case _:
@@ -389,6 +394,34 @@ def import_wordpress(request):
         for chunk in request.FILES["file"].chunks():
             destination.write(chunk)
     task = WordpressImporter.create(
+        request.user,
+        visibility=int(request.POST.get("visibility", 0)),
+        file=f,
+    )
+    task.enqueue()
+    record_activity("import", "web")
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
+
+
+@login_required
+def import_twitter(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    upload = request.FILES.get("file")
+    if not TwitterImporter.validate_file(upload):
+        raise BadRequest(_("Invalid file."))
+    ext = ".zip" if zipfile.is_zipfile(upload) else ".js"
+    upload.seek(0)
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("x" + ext, settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in upload.chunks():
+            destination.write(chunk)
+    task = TwitterImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
         file=f,
