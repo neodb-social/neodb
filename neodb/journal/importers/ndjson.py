@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import default_storage
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from loguru import logger
 
@@ -721,29 +721,38 @@ class NdjsonImporter(BaseImporter):
                 # Rating.update_item_rating treats it as a deletion
                 return "skipped"
             existing_rating = Rating.objects.filter(owner=owner, item=item).first()
-            if existing_rating:
-                if self._is_current(existing_rating, updated_dt, published_dt):
-                    return "skipped"
-                # (owner, item) is unique on Rating: inserting a second row
-                # raises IntegrityError, which marks the surrounding
-                # transaction for rollback and fails every later record too
-                existing_rating.grade = rating_grade
-                if published_dt:
-                    existing_rating.created_time = published_dt
-                existing_rating.visibility = visibility
-                existing_rating.metadata = metadata
-                existing_rating.save()
-                self._restore_edited_time(existing_rating, updated_dt)
-                return "imported"
-            rating = Rating.objects.create(
-                owner=owner,
-                item=item,
-                grade=rating_grade,
-                visibility=visibility,
-                metadata=metadata,
-                **({"created_time": published_dt} if published_dt else {}),
-            )
-            self._restore_edited_time(rating, updated_dt)
+            if not existing_rating:
+                try:
+                    # (owner, item) is unique, and a concurrent import can
+                    # insert the row between the lookup and here; the
+                    # savepoint keeps that from breaking later records too
+                    with transaction.atomic():
+                        rating = Rating.objects.create(
+                            owner=owner,
+                            item=item,
+                            grade=rating_grade,
+                            visibility=visibility,
+                            metadata=metadata,
+                            **({"created_time": published_dt} if published_dt else {}),
+                        )
+                except IntegrityError:
+                    existing_rating = Rating.objects.filter(
+                        owner=owner, item=item
+                    ).first()
+                    if not existing_rating:
+                        raise  # not the race; still a failed record
+                else:
+                    self._restore_edited_time(rating, updated_dt)
+                    return "imported"
+            if self._is_current(existing_rating, updated_dt, published_dt):
+                return "skipped"
+            existing_rating.grade = rating_grade
+            if published_dt:
+                existing_rating.created_time = published_dt
+            existing_rating.visibility = visibility
+            existing_rating.metadata = metadata
+            existing_rating.save()
+            self._restore_edited_time(existing_rating, updated_dt)
             return "imported"
         except Exception:
             logger.exception("Error importing rating")

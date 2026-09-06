@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError
 from django.test import override_settings
 from django.utils.dateparse import parse_datetime
 from loguru import logger
@@ -902,6 +903,66 @@ class TestNdjsonExportImport:
         assert rating.created_time == self.dt2
         # the transaction is still usable — the old failure poisoned it
         assert Rating.objects.filter(owner=owner).count() == 1
+
+    def test_ndjson_rating_recovers_when_lookup_misses_existing_row(self):
+        """A rating created after the lookup is updated, not re-inserted.
+
+        The blinded first lookup stands in for the row a concurrent import
+        commits in that window (NEODB-SOCIAL-7WA).
+        """
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        owner = self.user2.identity
+        Rating.objects.create(
+            item=self.book1, owner=owner, grade=5, visibility=0, created_time=self.dt
+        )
+        original_filter = Rating.objects.filter
+        lookups = []
+
+        def blind_first_lookup(*args, **kwargs):
+            lookups.append(kwargs)
+            if len(lookups) == 1:
+                return Rating.objects.none()
+            return original_filter(*args, **kwargs)
+
+        with mock.patch.object(Rating.objects, "filter", blind_first_lookup):
+            result = importer.import_rating(
+                {
+                    "visibility": 0,
+                    "content": {
+                        "withRegardTo": self.book1.absolute_url,
+                        "value": 9,
+                        "published": "2021-02-01T00:00:00Z",
+                    },
+                }
+            )
+        assert result == "imported"
+        rating = Rating.objects.get(owner=owner, item=self.book1)
+        assert rating.grade == 9
+        assert rating.created_time == self.dt2
+        assert Rating.objects.filter(owner=owner).count() == 1
+        # the savepoint rollback leaves later records importable
+        Rating.objects.create(item=self.book2, owner=owner, grade=3, visibility=0)
+        assert Rating.objects.filter(owner=owner).count() == 2
+
+    def test_ndjson_rating_reports_failure_when_row_stays_missing(self):
+        """An IntegrityError that is not the race is still a failed record."""
+        importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
+        importer.items = {self.book1.absolute_url: self.book1}
+        with mock.patch.object(
+            Rating.objects, "create", side_effect=IntegrityError("nope")
+        ):
+            result = importer.import_rating(
+                {
+                    "visibility": 0,
+                    "content": {
+                        "withRegardTo": self.book1.absolute_url,
+                        "value": 9,
+                        "published": "2021-02-01T00:00:00Z",
+                    },
+                }
+            )
+        assert result == "failed"
 
     def test_ndjson_every_exported_type_has_an_importer(self):
         """The two sides must agree on every record type name.
