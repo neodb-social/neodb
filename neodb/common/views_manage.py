@@ -33,6 +33,7 @@ def superuser_required(view_func):
 MANAGE_NAV_SECTIONS = [
     ("branding", _("Branding"), "common:manage_branding"),
     ("discover", _("Discover"), "common:manage_discover"),
+    ("feed", _("Feed"), "common:manage_feed"),
     ("recommendations", _("Recommendations"), "common:manage_recommendations"),
     ("access", _("Access"), "common:manage_access"),
     ("federation", _("Federation"), "common:manage_federation"),
@@ -435,6 +436,29 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_show_popular_posts",
             "discover_show_popular_tags",
             "discover_show_verified_podcasts",
+        ],
+    }
+
+
+class FeedSettings(SiteConfigSettingsPage):
+    section = "feed"
+    options = {
+        "feed_show_world": {
+            "title": _("Show World Timeline"),
+            "help_text": _(
+                "Offer a tab with public posts from this site and every server "
+                "it federates with."
+            ),
+        },
+        "feed_show_local": {
+            "title": _("Show Local Timeline"),
+            "help_text": _("Offer a tab with public posts from this site only."),
+        },
+    }
+    layout = {
+        _("Timelines"): [
+            "feed_show_world",
+            "feed_show_local",
         ],
     }
 

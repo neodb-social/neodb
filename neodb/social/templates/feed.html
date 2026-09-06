@@ -9,7 +9,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Activities from those you follow' %}</title>
+    <title>{{ site_name }} - {{ feed_title }}</title>
     {% include "common_libs.html" %}
     <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
     <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
@@ -36,12 +36,34 @@
               </a>
             </span>
           </span>
-          <span class="large-only">{% trans 'Activities from those you follow' %}&nbsp;&nbsp;</span>
+          <span class="large-only">{% trans 'Activities' %}&nbsp;&nbsp;</span>
           <small>
-            {% if feed_type == 1 %}
-              <a href="{% url 'social:feed' %}">{% trans "all" %}</a> | {% trans "what they read/watch/..." %}
+            {% if show_world_feed %}
+              {% if feed_type == 3 %}
+                {% trans "world" %}
+              {% else %}
+                <a href="{% url 'social:world' %}">{% trans "world" %}</a>
+              {% endif %}
+              |
+            {% endif %}
+            {% if show_local_feed %}
+              {% if feed_type == 2 %}
+                {% trans "local" %}
+              {% else %}
+                <a href="{% url 'social:local' %}">{% trans "local" %}</a>
+              {% endif %}
+              |
+            {% endif %}
+            {% if feed_type == 0 %}
+              {% trans "those you follow" %}
             {% else %}
-              {% trans "all" %} | <a href="{% url 'social:focus' %}">{% trans "what they read/watch/..." %}</a>
+              <a href="{% url 'social:feed' %}">{% trans "those you follow" %}</a>
+            {% endif %}
+            |
+            {% if feed_type == 1 %}
+              {% trans "what they read/watch/..." %}
+            {% else %}
+              <a href="{% url 'social:focus' %}">{% trans "what they read/watch/..." %}</a>
             {% endif %}
           </small>
         </h5>

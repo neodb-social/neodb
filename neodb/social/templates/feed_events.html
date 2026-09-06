@@ -27,6 +27,8 @@
       {% trans 'nothing more.' %}
     {% elif request.GET.q %}
       {% trans 'no matching activities.' %}
+    {% elif feed_type == 2 or feed_type == 3 %}
+      {% trans 'no public activities yet.' %}
     {% else %}
       {% url 'users:data' as import_url %}
       {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}

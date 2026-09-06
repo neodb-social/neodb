@@ -27,12 +27,14 @@ from common.views_manage import (
     DownloaderSettings,
     EnvironmentSettings,
     FederationSettings,
+    FeedSettings,
     RecommendationSettings,
 )
 
 ALL_SETTINGS_PAGES = [
     BrandingSettings,
     DiscoverSettings,
+    FeedSettings,
     RecommendationSettings,
     AccessSettings,
     FederationSettings,

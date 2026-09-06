@@ -13,6 +13,7 @@ from .views_manage import (
     DownloaderSettings,
     EnvironmentSettings,
     FederationSettings,
+    FeedSettings,
     RecommendationSettings,
     manage_root,
 )
@@ -47,6 +48,11 @@ urlpatterns = [
         "manage/discover/",
         DiscoverSettings.as_view(),
         name="manage_discover",
+    ),
+    path(
+        "manage/feed/",
+        FeedSettings.as_view(),
+        name="manage_feed",
     ),
     path(
         "manage/recommendations/",

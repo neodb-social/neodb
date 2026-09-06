@@ -72,6 +72,11 @@ class SiteConfig(models.Model):
         discover_show_popular_tags: bool = False
         discover_show_verified_podcasts: bool = False
 
+        # Feed: extra timelines offered next to the home feed, off by default
+        # because a public timeline exposes every local and federated post.
+        feed_show_world: bool = False
+        feed_show_local: bool = False
+
         # Recommendations (off by default; test-enabled users can preview)
         enable_recommendations: bool = False
         reco_min_source_marks: int = 3

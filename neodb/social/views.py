@@ -1,12 +1,17 @@
+from enum import IntEnum
 from typing import Any, cast
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import QuerySet
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
+from common.models import SiteConfig
 from common.models.misc import int_
 from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import prefetch_pieces_for_posts
@@ -30,6 +35,53 @@ _urgent_notification_types = [
     "mentioned",
     "follow_requested",
 ]
+
+
+class FeedType(IntEnum):
+    """Which timeline the home feed shows. Values are part of the ``?typ=``
+    query string of ``social:data``, so they must stay stable."""
+
+    following = 0
+    focus = 1  # marks and reviews from those you follow
+    local = 2
+    world = 3
+
+
+# Public timelines are opt-in per site; the switch lives in Manage > Feed.
+_PUBLIC_FEED_OPTIONS = {
+    FeedType.local: "feed_show_local",
+    FeedType.world: "feed_show_world",
+}
+
+_FEED_TITLES = {
+    FeedType.following: _("Activities from those you follow"),
+    FeedType.focus: _("Activities from those you follow"),
+    FeedType.local: _("Activities on this site"),
+    FeedType.world: _("Activities from the fediverse"),
+}
+
+
+def _feed_enabled(typ: int) -> bool:
+    option = _PUBLIC_FEED_OPTIONS.get(cast(FeedType, typ))
+    return getattr(SiteConfig.system, option) if option else True
+
+
+def _public_posts(typ: int, identity: APIdentity) -> QuerySet[Post]:
+    """Public posts for the local or world timeline, newest first.
+
+    Ordered by id rather than published time, because the HTMX cursor pages
+    with ``id__lt``; the two must agree or rows are skipped or repeated.
+    """
+    posts = (
+        Post.objects.not_hidden()
+        .public()
+        .not_restricted()
+        .exclude(author__discoverable=False)
+        .not_blocked_by(identity.takahe_identity)
+    )
+    if typ == FeedType.local:
+        posts = posts.filter(local=True)
+    return posts.order_by("-id")
 
 
 def _sidebar_context(user):
@@ -113,15 +165,28 @@ def _add_interaction_to_events(events, identity_id):
 
 @require_http_methods(["GET"])
 @login_required
-def feed(request, typ=0):
+def feed(request, typ=FeedType.following):
+    if not _feed_enabled(typ):
+        raise Http404
     user = request.user
     data = _sidebar_context(user)
     data["feed_type"] = typ
+    data["feed_title"] = _FEED_TITLES.get(typ, _FEED_TITLES[FeedType.following])
+    data["show_local_feed"] = SiteConfig.system.feed_show_local
+    data["show_world_feed"] = SiteConfig.system.feed_show_world
     return render(request, "feed.html", data)
 
 
 def focus(request):
-    return feed(request, typ=1)
+    return feed(request, typ=FeedType.focus)
+
+
+def local(request):
+    return feed(request, typ=FeedType.local)
+
+
+def world(request):
+    return feed(request, typ=FeedType.world)
 
 
 @require_http_methods(["GET"])
@@ -145,7 +210,7 @@ def search_data(request):
     if q:
         r = index.search(q)
         events = [
-            SearchResultEvent(p)
+            PostEvent(p)
             for p in r.posts.select_related("author", "preview_card")
             .prefetch_related("attachments", "mentions")
             .order_by("-id")
@@ -160,12 +225,38 @@ def search_data(request):
     )
 
 
+def _public_data(request, typ: int, since_id: int, identity_id: int):
+    posts = _public_posts(typ, request.user.identity)
+    if since_id:
+        posts = posts.filter(id__lt=since_id)
+    post_list = list(
+        posts.select_related(
+            "author",
+            "author__domain",
+            "preview_card",
+        ).prefetch_related("attachments", "mentions", "emojis")[:PAGE_SIZE]
+    )
+    events = [PostEvent(p) for p in post_list]
+    _add_interaction_to_events(events, identity_id)
+    prefetch_pieces_for_posts(post_list, request.user.identity)
+    grouped = group_feed_events(cast(list[FeedEvent], events))
+    return render(
+        request,
+        "feed_events.html",
+        {"feed_type": typ, "events": grouped},
+    )
+
+
 @login_required
 @require_http_methods(["GET"])
 def data(request):
     since_id = int_(request.GET.get("last", 0))
     typ = int_(request.GET.get("typ", 0))
+    if not _feed_enabled(typ):
+        raise Http404
     identity_id = request.user.identity.pk
+    if typ in _PUBLIC_FEED_OPTIONS:
+        return _public_data(request, typ, since_id, identity_id)
     events = TimelineEvent.objects.filter(
         identity_id=identity_id,
         type__in=[TimelineEvent.Types.post, TimelineEvent.Types.boost],
@@ -250,14 +341,29 @@ class NotificationEvent:
             self.template += "_" + cls
 
 
-class SearchResultEvent:
+class PostEvent:
+    """A bare post dressed up as a timeline event.
+
+    Search results and the public timelines read posts directly, with no
+    ``TimelineEvent`` row behind them. Duck-types the attributes that
+    ``feed_events.html`` and ``social.feed_grouping`` expect, so both render
+    through the same template as the home feed. ``pk`` is the post id, which
+    is what the HTMX cursor pages on.
+    """
+
+    is_group = False
+
     def __init__(self, post: Post):
         self.type = "post"
         self.subject_post = post
         self.subject_post_id = post.id
+        self.id = post.id
+        self.pk = post.id
         self.created = post.created
         self.published = post.published
         self.identity = post.author
+        self.subject_identity = post.author
+        self.subject_identity_id = post.author_id
 
 
 @login_required
