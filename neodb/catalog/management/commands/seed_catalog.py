@@ -282,6 +282,17 @@ class Command(SiteCommand):
         if site is None:
             self.stdout.write(self.style.ERROR(f"  no site for {url}"))
             return False, False
+        # A transient cover download failure is sticky, because the resource
+        # is marked ready and a later run would skip scraping it. Re-scrape
+        # those so re-running the command repairs a missing cover.
+        existing = site.get_resource()
+        if (
+            not force
+            and existing.pk
+            and existing.item
+            and not existing.item.has_cover()
+        ):
+            force = True
         try:
             resource = site.get_resource_ready(ignore_existing_content=force)
         except DownloadError as e:
