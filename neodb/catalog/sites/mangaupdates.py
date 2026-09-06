@@ -136,15 +136,25 @@ def _title_lang(title: str) -> str:
 class MangaUpdates(AbstractSite):
     SITE_NAME = SiteName.MangaUpdates
     ID_TYPE = IdType.MangaUpdates
+    # Either case is matched, so an uppercase slug cannot truncate at its
+    # first uppercase letter and yield another series ("7Z3YQQK" -> "7").
     URL_PATTERNS = [
-        r"\w+://(?:www\.)?mangaupdates\.com/series/([0-9a-z]+)",
+        r"\w+://(?:www\.)?mangaupdates\.com/series/([0-9A-Za-z]+)",
     ]
     WIKI_PROPERTY_ID = "P11149"
     DEFAULT_MODEL = Edition
 
     @classmethod
     def id_to_url(cls, id_value):
-        return f"https://www.mangaupdates.com/series/{id_value}"
+        # Slugs are lowercase base36. Canonicalizing here keeps a differently
+        # cased id (a hand-edited Wikidata P11149 value) on the same resource,
+        # because get_resource() looks the url up first.
+        return f"https://www.mangaupdates.com/series/{str(id_value).lower()}"
+
+    @classmethod
+    def url_to_id(cls, url: str):
+        id_value = super().url_to_id(url)
+        return id_value.lower() if id_value else None
 
     @classmethod
     def api_url(cls, id_value: str) -> str:
@@ -153,12 +163,14 @@ class MangaUpdates(AbstractSite):
     def scrape(self) -> ResourceContent:
         if not self.id_value:
             raise ParseError(self, "id")
+        try:
+            api_url = self.api_url(self.id_value)
+        except ValueError:
+            # An id that reached us as a bare string rather than through a URL
+            # (Wikidata P11149, or hand-typed) need not be base36 at all.
+            raise ParseError(self, "id")
         mangaupdates_limiter().acquire(timeout=30.0)
-        series = (
-            RetryDownloader(self.api_url(self.id_value), headers=_HEADERS)
-            .download()
-            .json()
-        )
+        series = RetryDownloader(api_url, headers=_HEADERS).download().json()
         title = (series.get("title") or "").strip()
         if not title:
             raise ParseError(self, "title")

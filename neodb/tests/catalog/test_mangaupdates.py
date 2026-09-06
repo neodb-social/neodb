@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from catalog.common import SiteManager, use_local_response
+from catalog.common import ParseError, SiteManager, use_local_response
 from catalog.models import Edition, IdType
 from catalog.sites.mangaupdates import (
     MangaUpdates,
@@ -45,6 +45,21 @@ class TestUrl:
         assert MangaUpdates.api_url(NARUTO) == (
             "https://api.mangaupdates.com/v1/series/17360452316"
         )
+
+    def test_a_differently_cased_slug_is_the_same_series(self):
+        # base36 is case-insensitive, so "7Z3YQQK" is the same id; without
+        # matching uppercase the pattern would stop at "7" and name another
+        # series, and without lowercasing it would take a second resource row
+        url = "https://www.mangaupdates.com/series/7Z3YQQK/naruto"
+        assert MangaUpdates.validate_url(url)
+        assert MangaUpdates.url_to_id(url) == NARUTO
+        assert MangaUpdates.id_to_url("7Z3YQQK") == MangaUpdates.id_to_url(NARUTO)
+
+    def test_an_id_that_is_not_base36_is_a_parse_error(self):
+        # P11149 is free text on Wikidata, so the value may be anything
+        site = MangaUpdates(id_value="7z3yqqk/naruto")
+        with pytest.raises(ParseError):
+            site.scrape()
 
 
 class TestDescription:
