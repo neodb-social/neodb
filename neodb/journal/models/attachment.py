@@ -19,18 +19,16 @@ renderable afterwards). Media on remote posts is never downloaded; it gets
 a pointer row carrying the URLs takahe already serves it under, mirroring
 how takahe's own ``PostAttachment`` represents media it has not cached.
 
-The legacy ``Note.attachments`` JSON is still the fallback read path while
-the async backfill runs; :attr:`Note.attachment_list` prefers rows and the
-column can be dropped once every deployment's backfill has completed.
+The legacy ``Note.attachments`` JSON is deprecated: nothing reads or writes
+it except the backfill in ``journal.jobs.migrations``, which also holds the
+helpers for it. The column can be dropped in a later release.
 """
 
-import hashlib
 import logging
 import mimetypes
 import os
 import uuid
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.files.base import File
@@ -38,6 +36,7 @@ from django.core.files.storage import Storage, default_storage, storages
 from django.db import models
 from django.utils import timezone
 
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .renderers import RE_MD_IMAGE, normalize_image_src
@@ -60,9 +59,6 @@ def generate_attachment_path(identity_id: int | str, ext: str) -> str:
     return f"upload/{identity_id}/{year}/{uuid.uuid4()}.{ext.lstrip('.')}"
 
 
-# takahe's own key prefixes, from ``takahe.models.upload_namer``.
-_TAKAHE_MEDIA_PREFIXES = ("attachments/", "attachment_thumbnails/")
-
 # ``source`` values are the dedupe key, and the column is varchar(500), so
 # every one is truncated at construction -- a lookup built from an untruncated
 # string could never match the row that was stored, which would make the
@@ -72,23 +68,9 @@ SOURCE_MAX_LENGTH = 500
 # takahe's PostAttachment.remote_url is varchar(2500) in the real schema
 # (activities migration 0020), even though neodb/takahe/models.py still
 # mirrors it as 500. Matching the real column matters: truncating a longer
-# remote URL would store a broken one, and Note.attachment_list prefers these
-# rows over the intact legacy JSON, so the note's media would break.
+# remote URL would store a broken one, and these rows are what the note
+# renders, so its media would break.
 REMOTE_URL_MAX_LENGTH = 2500
-
-
-def bounded_source(prefix: str, value: str) -> str:
-    """A ``source`` key for ``value`` that stays unique once bounded.
-
-    Truncating the value to fit the column silently merges any two values
-    sharing a prefix -- and a remote URL runs to 2500 characters against a
-    500-character column, so two different URLs would collide and the second
-    lookup would return, and render, the first one's media. Keep a readable
-    head for debugging and let a digest of the whole value carry uniqueness.
-    """
-    digest = hashlib.sha256(value.encode("utf-8", "replace")).hexdigest()[:32]
-    head = value[:200]
-    return f"{prefix}:{head}:{digest}"[:SOURCE_MAX_LENGTH]
 
 
 def source_for_post_attachment(pk: int) -> str:
@@ -153,57 +135,6 @@ def takahe_attachment_urls(atta: "PostAttachment") -> tuple[str, str]:
     full = file_url or proxy or remote
     preview = thumb_url or file_url or proxy or remote
     return full, preview
-
-
-def takahe_media_path(url: str) -> str | None:
-    """Storage-relative takahe path for ``url``, or ``None`` if not ours.
-
-    Note attachment URLs recorded in the legacy JSON point at takahe's media.
-    Resolving them back to a storage path lets the backfill copy the bytes for
-    notes whose post takahe has since pruned -- the only source left for them.
-
-    Works under both storage layouts, which differ more than they look:
-    locally takahe has its own FileSystemStorage served under
-    ``TAKAHE_MEDIA_URL``, while on S3 ``default`` and ``takahe`` are the *same*
-    backend on one bucket with one base URL, so ``TAKAHE_MEDIA_URL`` does not
-    appear in the URL at all. What identifies the file either way is takahe's
-    own key prefix, so match on that after stripping whichever mount the URL
-    came through.
-    """
-    if not url:
-        return None
-    if "://" in url:
-        parsed = urlparse(url)
-        # The URL on a federated post attachment is remote-controlled, and a
-        # path-only match would let a crafted path claim an object in our own
-        # bucket (worst when MEDIA_URL's path is "/", which makes any path
-        # look local). Require the host to be ours before trusting the path.
-        host = parsed.hostname or ""
-        allowed = set(getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN]))
-        for candidate in (
-            settings.MEDIA_URL,
-            settings.TAKAHE_MEDIA_URL,
-            # takahe_attachment_urls absolutizes against site_url, which a
-            # deployment may point at a host outside SITE_DOMAINS; without it
-            # here the reader would reject what our own writer produced and
-            # quietly downgrade every copy to a pointer row
-            settings.SITE_INFO["site_url"],
-        ):
-            candidate_host = urlparse(candidate).hostname if candidate else ""
-            if candidate_host:
-                allowed.add(candidate_host)
-        if host not in allowed:
-            return None
-        path = parsed.path
-    else:
-        path = url
-    for prefix in (settings.TAKAHE_MEDIA_URL, settings.MEDIA_URL):
-        prefix_path = urlparse(prefix).path if prefix and "://" in prefix else prefix
-        if prefix_path and path.startswith(prefix_path):
-            rel = path[len(prefix_path) :]
-            if rel.startswith(_TAKAHE_MEDIA_PREFIXES):
-                return rel
-    return None
 
 
 class Attachment(models.Model):
@@ -322,6 +253,36 @@ class Attachment(models.Model):
             "url": self.url,
             "preview_url": self.preview_url,
         }
+
+    def to_post_attachment(self) -> "PostAttachment | None":
+        """Upload this row's file to takahe as a post attachment.
+
+        Stamps ``source`` with the new attachment's id, so the row is never
+        uploaded twice and ``sync_from_post`` later dedupes onto it instead of
+        copying the media back. Returns None for a pointer row (no file) or a
+        failed upload, which is logged rather than raised so a caller building
+        a post never aborts over one file.
+        """
+        if not self.file:
+            return None
+        filename = os.path.basename(self.file.name or "") or "attachment"
+        mimetype = self.mimetype or mimetypes.guess_type(filename)[0] or ""
+        try:
+            with self.file.open("rb") as f:
+                if mimetype.startswith("image/"):
+                    pa = Takahe.upload_image(
+                        self.owner_id, filename, f.read(), mimetype, self.description
+                    )
+                else:
+                    pa = Takahe.upload_attachment(
+                        self.owner_id, filename, f, mimetype, self.description
+                    )
+        except Exception as e:
+            logger.warning(f"error uploading attachment {self}: {e}")
+            return None
+        self.source = source_for_post_attachment(pa.pk)
+        self.save(update_fields=["source"])
+        return pa
 
     def clear_cover_references(self) -> int:
         """Reset any cover naming this file back to the default.
@@ -473,7 +434,7 @@ class Attachment(models.Model):
     # --- takahe media -----------------------------------------------------
 
     @classmethod
-    def _copy_into_storage(
+    def copy_into_storage(
         cls, owner_id: int, storage: Storage, name: str, ext_hint: str = ""
     ) -> tuple[str, int] | None:
         """Copy a takahe file into our storage as ``(new_path, size)``.
@@ -529,14 +490,14 @@ class Attachment(models.Model):
         ext_hint = mimetypes.guess_extension(mimetype) or ""
         takahe_storage = storages["takahe"]
         copied = (
-            cls._copy_into_storage(
+            cls.copy_into_storage(
                 owner.pk, takahe_storage, atta.file.name or "", ext_hint
             )
             if copy_file and atta.file
             else None
         )
         copied_thumb = (
-            cls._copy_into_storage(
+            cls.copy_into_storage(
                 owner.pk, takahe_storage, atta.thumbnail.name or "", ext_hint
             )
             if copied and atta.thumbnail
@@ -584,64 +545,25 @@ class Attachment(models.Model):
         )
 
     @classmethod
-    def from_legacy_json(
-        cls, owner: APIdentity, entry: dict[str, Any]
+    def pointer_for_url(
+        cls, owner: APIdentity, url: str, mimetype: str = "", preview_url: str = ""
     ) -> "Attachment | None":
-        """Register a legacy ``Note.attachments`` JSON entry.
+        """A row for media we hold no file of, deduped on the URL.
 
-        The only path available for notes whose post takahe has already
-        pruned: the JSON URL is all that is left. A URL that resolves into
-        takahe's own media store is copied; anything else (a proxy URL for
-        remote media, or an off-site URL) becomes a pointer row.
+        Used when an archive entry carries a URL but no file, so the note keeps
+        the attachment rather than dropping it.
         """
-        url = (entry.get("url") or "").strip()
+        url = (url or "").strip()[:REMOTE_URL_MAX_LENGTH]
         if not url:
             return None
-        mimetype = entry.get("mimetype") or ""
-        # both keys are derived up front: a failed copy below falls through to
-        # the pointer branch, and a later rerun has to recognise the row it
-        # left behind rather than adding a second one for the same media
-        url_source = bounded_source("url", url)
-        rel_path = takahe_media_path(url)
-        if rel_path:
-            source = bounded_source("takahe-media", rel_path)
-            existing = cls.objects.filter(
-                owner=owner, source__in=[source, url_source]
-            ).first()
-            if existing and existing.file:
-                return existing
-            ext_hint = mimetypes.guess_extension(mimetype) or ""
-            copied = cls._copy_into_storage(
-                owner.pk, storages["takahe"], rel_path, ext_hint
-            )
-            if copied and existing:
-                # a pointer left by an earlier failed copy: upgrade it in place,
-                # or the note would render this attachment twice
-                existing.file = copied[0]
-                existing.size = copied[1]
-                existing.source = source
-                existing.save(update_fields=["file", "size", "source"])
-                return existing
-            if copied:
-                return cls.objects.create(
-                    owner=owner,
-                    file=copied[0],
-                    mimetype=mimetype,
-                    size=copied[1],
-                    source=source,
-                )
-            if existing:
-                return existing
-        source = url_source
-        existing = cls.objects.filter(owner=owner, source=source).first()
+        existing = cls.objects.filter(owner=owner, remote_url=url, file="").first()
         if existing:
             return existing
         return cls.objects.create(
             owner=owner,
-            remote_url=url[:REMOTE_URL_MAX_LENGTH],
-            remote_preview_url=(entry.get("preview_url") or "")[:REMOTE_URL_MAX_LENGTH],
-            mimetype=mimetype,
-            source=source,
+            remote_url=url,
+            remote_preview_url=(preview_url or "")[:REMOTE_URL_MAX_LENGTH],
+            mimetype=mimetype or "",
         )
 
     @classmethod

@@ -1187,10 +1187,11 @@ class TestNdjsonExportImport:
     def test_ndjson_bundles_absolute_local_media(self, tmp_path):
         """An absolute URL on our own site is copied from storage, not fetched.
 
-        import_note records restored attachments as site_url + MEDIA_URL, so
-        a re-export saw a URL that did not start with a relative MEDIA_URL
-        and fell through to the HTTP downloader — which is_valid_url blocks
-        for an internal host, silently dropping the file from the bundle.
+        A pointer row can hold an absolute URL on our own site (older imports
+        wrote them that way). A re-export saw a URL that did not start with a
+        relative MEDIA_URL and fell through to the HTTP downloader — which
+        is_valid_url blocks for an internal host, silently dropping the file
+        from the bundle.
         """
         with override_settings(MEDIA_ROOT=str(tmp_path)):
             buf = BytesIO()
@@ -1203,27 +1204,17 @@ class TestNdjsonExportImport:
             )
             assert not absolute.startswith(settings.MEDIA_URL)
 
-            # a note whose media is only reachable through its stored
-            # attachments JSON — exactly what import_note writes back
             note = Note.objects.create(
                 item=self.book1,
                 owner=self.user1.identity,
                 content="see attached",
                 visibility=0,
             )
-            note.attachments = [
-                {
-                    "type": "image",
-                    "mimetype": "image/png",
-                    "url": absolute,
-                    "preview_url": "",
-                }
-            ]
-            note.save(
-                update_fields=["attachments"],
-                post_when_save=False,
-                index_when_save=False,
+            pointer = Attachment.pointer_for_url(
+                self.user1.identity, absolute, "image/png"
             )
+            assert pointer is not None and not pointer.file
+            note.attachment_records.add(pointer)
 
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
@@ -1716,12 +1707,8 @@ class TestNdjsonExportImport:
             imported = Note.objects.get(owner=owner2, item=self.book1)
             post = imported.latest_post
             assert post is not None and post.attachments.count() == 1
-            pointer = Attachment.from_legacy_json(
-                owner2,
-                {
-                    "url": "https://media.example.org/remote.png",
-                    "mimetype": "image/png",
-                },
+            pointer = Attachment.pointer_for_url(
+                owner2, "https://media.example.org/remote.png", "image/png"
             )
             assert pointer is not None
             imported.attachment_records.add(pointer)

@@ -17,9 +17,13 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Edition
-from journal.jobs.migrations import backfill_attachments_20260818
+from journal.jobs.migrations import (
+    backfill_attachments_20260818,
+    register_legacy_attachment,
+    takahe_media_path,
+)
 from journal.models import Article, Attachment, Collection, Note, Review
-from journal.models.attachment import takahe_attachment_urls, takahe_media_path
+from journal.models.attachment import takahe_attachment_urls
 from journal.models.utils import remove_data_by_identity
 from takahe.models import Post, PostAttachment
 from takahe.utils import Takahe
@@ -530,20 +534,11 @@ class TestNoteAttachments:
             )
         )
 
-    def test_attachment_list_falls_back_to_legacy_json(self):
-        legacy = [
-            {
-                "type": "image",
-                "mimetype": "image/png",
-                "url": "/media/attachments/2026/1/2/a.png",
-                "preview_url": "/media/attachment_thumbnails/2026/1/2/a.png",
-            }
-        ]
-        note = self._note(legacy)
-        assert note.attachment_list == legacy
-
-    def test_attachment_list_prefers_registry_rows(self):
+    def test_attachment_list_ignores_deprecated_json(self):
+        """The legacy column is deprecated: rows are the only thing rendered,
+        and a note holding nothing but stale JSON renders no media."""
         note = self._note([{"type": "image", "mimetype": "", "url": "/legacy.png"}])
+        assert note.attachment_list == []
         a = Attachment.register(self.identity, ContentFile(_png_bytes()), "png")
         note.attachment_records.add(a)
         assert note.attachment_list == [a]
@@ -553,7 +548,7 @@ class TestNoteAttachments:
             "attachments/2026/1/2/copied.png", ContentFile(_png_bytes())
         )
         entry = {"mimetype": "image/png", "url": settings.TAKAHE_MEDIA_URL + rel}
-        a = Attachment.from_legacy_json(self.identity, entry)
+        a = register_legacy_attachment(self.identity, entry)
         assert a is not None
         assert a.file
         # a real copy into our own storage, not a pointer at takahe's
@@ -561,7 +556,7 @@ class TestNoteAttachments:
         assert default_storage.exists(_name(a.file))
         assert a.size > 0
         # deduped on source, so a second pass does not copy again
-        again = Attachment.from_legacy_json(self.identity, entry)
+        again = register_legacy_attachment(self.identity, entry)
         assert again is not None and again.pk == a.pk
 
     def test_recovered_copy_upgrades_the_fallback_pointer(self):
@@ -573,33 +568,34 @@ class TestNoteAttachments:
         )
         entry = {"mimetype": "image/png", "url": settings.TAKAHE_MEDIA_URL + rel}
 
-        with mock.patch.object(Attachment, "_copy_into_storage", return_value=None):
-            pointer = Attachment.from_legacy_json(self.identity, entry)
+        with mock.patch.object(Attachment, "copy_into_storage", return_value=None):
+            pointer = register_legacy_attachment(self.identity, entry)
         assert pointer is not None
         assert not pointer.file
         assert Attachment.objects.count() == 1
 
-        recovered = Attachment.from_legacy_json(self.identity, entry)
+        recovered = register_legacy_attachment(self.identity, entry)
         assert recovered is not None
         assert recovered.pk == pointer.pk
         assert recovered.file
         assert Attachment.objects.count() == 1
 
     def test_long_urls_sharing_a_prefix_stay_distinct(self):
-        """The source key is bounded to fit the column; truncating a 2500-char
-        URL would merge two distinct ones and render the wrong media."""
+        """Pointer rows dedupe on the full URL, so two long URLs sharing a
+        prefix stay two rows, and the same URL twice stays one."""
         shared = "https://far.example/" + ("c" * 600)
-        first = Attachment.from_legacy_json(
+        first = register_legacy_attachment(
             self.identity, {"url": shared + "/one.png", "mimetype": "image/png"}
         )
-        second = Attachment.from_legacy_json(
+        second = register_legacy_attachment(
             self.identity, {"url": shared + "/two.png", "mimetype": "image/png"}
         )
         assert first is not None and second is not None
         assert first.pk != second.pk
-        assert first.source != second.source
         assert first.remote_url.endswith("/one.png")
         assert second.remote_url.endswith("/two.png")
+        again = Attachment.pointer_for_url(self.identity, shared + "/one.png")
+        assert again is not None and again.pk == first.pk
 
     def test_from_legacy_json_keeps_remote_url_as_pointer(self):
         entry = {
@@ -607,7 +603,7 @@ class TestNoteAttachments:
             "url": "https://remote.example/x.png",
             "preview_url": "https://remote.example/t.png",
         }
-        a = Attachment.from_legacy_json(self.identity, entry)
+        a = register_legacy_attachment(self.identity, entry)
         assert a is not None
         assert not a.file
         assert a.remote_url == "https://remote.example/x.png"
@@ -759,7 +755,7 @@ class TestSyncFromPost:
             file=ContentFile(_png_bytes(), name="flaky.png"),
             remote_url="https://takahe.example/flaky.png",
         )
-        with mock.patch.object(Attachment, "_copy_into_storage", return_value=None):
+        with mock.patch.object(Attachment, "copy_into_storage", return_value=None):
             rows = Attachment.sync_from_post(note, post)
         assert len(rows) == 1
         pending = rows[0]
@@ -795,23 +791,6 @@ class TestSyncFromPost:
             "/media/" in rows[0].remote_url
         )
 
-    def test_legacy_json_survives_a_relative_takahe_media_url(self):
-        """The same call existed in params_from_ap_object before this branch,
-        so note ingestion itself was already exposed to it."""
-        note, post = self._note_with_post(local=False)
-        PostAttachment.objects.create(
-            post=post,
-            author_id=self.identity.pk,
-            mimetype="image/png",
-            file=ContentFile(_png_bytes(), name="legacy.png"),
-        )
-        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
-            params = Note.params_from_ap_object(post, {"content": "x"}, None)
-        entries = params["attachments"]
-        assert len(entries) == 1
-        assert entries[0]["url"].startswith("http")
-        assert entries[0]["preview_url"].startswith("http")
-
     def test_long_remote_url_is_not_truncated(self):
         """takahe stores remote_url as varchar(2500); truncating at 500 would
         persist a broken URL, and attachment_list prefers rows over the intact
@@ -827,7 +806,7 @@ class TestSyncFromPost:
 
     def test_long_legacy_url_survives_registration(self):
         long_url = "https://far.example/" + ("b" * 1200) + ".png"
-        a = Attachment.from_legacy_json(
+        a = register_legacy_attachment(
             self.identity, {"url": long_url, "mimetype": "image/png"}
         )
         assert a is not None

@@ -27,10 +27,6 @@ from journal.models import (
     Tag,
     TagMember,
 )
-from journal.models.attachment import (
-    pending_source_for_post_attachment,
-    source_for_post_attachment,
-)
 from journal.models.renderers import RE_MD_IMAGE, normalize_image_src
 from takahe.models import Post
 from users.models import Task
@@ -218,46 +214,13 @@ class NdjsonExporter(Task):
         return attachments
 
     def _bundle_note_attachments(self, note: Note) -> list[dict[str, str]]:
-        """Attachment records for a Note, in descending order of fidelity.
+        """Attachment records for a Note, from the upload registry.
 
-        1. the linked post, which holds the original files;
-        2. the upload registry, which holds our own copy of them -- the only
-           source left once takahe has pruned the post;
-        3. the legacy ``attachments`` JSON, for notes the async backfill has
-           not reached yet.
-
-        Trying the registry before the JSON matters: a pruned post leaves the
-        JSON pointing at takahe media that no longer exists, which would
-        export as a URL with no file and restore as a dead link.
-
-        The post and the registry are merged rather than either/or: a note
-        restored from an archive can hold pointer rows (remote media never
-        downloaded) that could not be put on its post, and those must not
-        vanish from the next export just because the post carries the rest.
+        The registry is the one source for note media: it holds our own copy
+        of what was posted (the only thing left once takahe has pruned the
+        post) and a pointer row for remote media that was never downloaded.
         """
-        rows = list(note.attachment_records.all())
-        if note.latest_post:
-            attachments = self._bundle_post_attachments(note.latest_post)
-            if attachments:
-                on_post: set[str] = set()
-                for pa in note.latest_post.attachments.all():
-                    on_post.add(source_for_post_attachment(pa.pk))
-                    on_post.add(pending_source_for_post_attachment(pa.pk))
-                extra = [a for a in rows if a.source not in on_post]
-                return attachments + self._bundle_registered_attachments(extra)
-        attachments = self._bundle_registered_attachments(rows)
-        if attachments:
-            return attachments
-        for a in note.attachments or []:
-            url = a.get("url")
-            if not url:
-                continue
-            entry = {"mimetype": a.get("mimetype", ""), "url": url}
-            path = self._save_image(url)
-            if path:
-                entry["file"] = path
-            attachments.append(entry)
-        return attachments
+        return self._bundle_registered_attachments(list(note.attachment_records.all()))
 
     def run(self):
         self.ref_items = []

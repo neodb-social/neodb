@@ -10,7 +10,6 @@ import zipfile
 from typing import Any, Callable, Dict
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.db import IntegrityError, transaction
@@ -179,13 +178,9 @@ class NdjsonImporter(BaseImporter):
     ) -> Attachment | None:
         """Restore one bundled note attachment as a registered upload.
 
-        Registering here rather than reusing ``_store_bundled_file`` keeps the
-        bytes stored once: the legacy ``attachments`` JSON entry is derived
-        from the row via ``to_json()`` instead of being built separately.
-
-        Falls back to the exporter's recorded URL when the bundle carries no
-        file (the post was pruned, or its media lives elsewhere), which keeps
-        the attachment rather than dropping it.
+        Falls back to a pointer row on the exporter's recorded URL when the
+        bundle carries no file (the source never downloaded the media), which
+        keeps the attachment rather than dropping it.
         """
         mimetype = atta.get("mimetype", "")
         src = self._store_path(atta.get("file"))
@@ -203,7 +198,7 @@ class NdjsonImporter(BaseImporter):
         url = atta.get("url")
         if not url:
             return None
-        return Attachment.from_legacy_json(owner, {"url": url, "mimetype": mimetype})
+        return Attachment.pointer_for_url(owner, url, mimetype)
 
     def _restore_body_images(self, body: str, data: Dict[str, Any]) -> str:
         """Repoint inline markdown images at copies restored from the bundle.
@@ -621,37 +616,24 @@ class NdjsonImporter(BaseImporter):
                     **({"created_time": published_dt} if published_dt else {}),
                 )
                 note.save(post_when_save=False, index_when_save=False)
-            note_attachments = []
             restored: list[Attachment] = []
             for atta in data.get("attachments") or []:
                 if not isinstance(atta, dict):
                     continue
                 a = self._restore_note_attachment(owner, atta)
-                if not a:
-                    continue
-                restored.append(a)
-                entry = a.to_json()
-                if entry["url"].startswith("/"):
-                    site = settings.SITE_INFO["site_url"].rstrip("/")
-                    entry["url"] = site + entry["url"]
-                    if entry["preview_url"].startswith("/"):
-                        entry["preview_url"] = site + entry["preview_url"]
-                note_attachments.append(entry)
+                if a:
+                    restored.append(a)
             # set, not add: this path now updates an existing note in place, and
             # each import registers freshly copied files, so adding would grow
-            # the note's media on every re-import of an edited record -- and
-            # attachment_list prefers rows, so it would render the duplicates.
-            # The archive is authoritative for the note's media, the legacy
-            # JSON included: attachment_list falls back to it once the rows
-            # are gone, so a stale copy would resurrect removed media.
+            # the note's media on every re-import of an edited record. The
+            # archive is authoritative for the note's media.
             if restored or note.attachment_records.exists():
                 note.attachment_records.set(restored)
-            note.attachments = note_attachments
             # the deferred timeline post and index: Note.to_post_params puts
             # exactly the restored rows on the post (clearing media the
             # archive no longer has), then the index doc gets the post id
             note.post_media_from_records = True
-            note.save(update_fields=["attachments"])
+            note.save()
             self._restore_edited_time(note, updated_dt)
             return "imported"
         except Exception:

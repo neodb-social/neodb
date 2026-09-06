@@ -1,6 +1,3 @@
-import logging
-import mimetypes
-import os
 import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, override
@@ -9,13 +6,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
-from takahe.utils import Takahe
 
 from .attachment import (
     Attachment,
     pending_source_for_post_attachment,
     source_for_post_attachment,
-    takahe_attachment_urls,
 )
 from .common import Content
 from .renderers import render_text
@@ -23,8 +18,6 @@ from .shelf import ShelfMember
 
 if TYPE_CHECKING:
     from takahe.models import PostAttachment
-
-logger = logging.getLogger(__name__)
 
 _progress = re.compile(
     r"(.*\s)?(?P<prefix>(p|pg|page|ch|chapter|pt|part|e|ep|episode|trk|track|cycle))(\s|\.|#)*(?P<value>([\d\:\.\-]+))\s*(?P<postfix>(%))?(\s|\n|\.|。)?$",
@@ -65,6 +58,10 @@ class Note(Content):
     title = models.TextField(blank=True, null=True, default=None)
     content = models.TextField(blank=False, null=False)
     sensitive = models.BooleanField(default=False, null=False)
+    # Deprecated. Media lives in the ``Attachment`` registry (see
+    # ``attachment_records`` / ``attachment_list``); nothing writes this
+    # column any more and only the backfill in ``journal.jobs.migrations``
+    # reads it. Kept until a later release drops it.
     attachments = models.JSONField(default=list)
     progress_type = models.CharField(
         max_length=50,
@@ -217,12 +214,12 @@ class Note(Content):
     @classmethod
     def params_from_ap_object(cls, post, obj, piece):
         content: str = obj.get("content", "").strip()
-        attachments: list[dict[str, object]] = []
+        # media is not a field here: update_by_ap_object mirrors the post's
+        # attachments into the registry after the save
         params: dict[str, object] = {
             "title": cls.title_from_ap_object(obj, post.summary),
             "content": content,
             "sensitive": obj.get("sensitive", post.sensitive),
-            "attachments": attachments,
         }
         if post.local:
             # for local post, strip footer and detect progress from content
@@ -242,20 +239,6 @@ class Note(Content):
                     params["progress_type"] = Note.ProgressType(t)
                 except ValueError:
                     pass
-        if post:
-            for atta in post.attachments.all():
-                # not full_url()/thumbnail_url(): those raise on a schemeless
-                # URL, which is what takahe serves whenever TAKAHE_MEDIA_URL is
-                # relative (the settings default). See takahe_attachment_urls.
-                url, preview_url = takahe_attachment_urls(atta)
-                attachments.append(
-                    {
-                        "type": (atta.mimetype or "unknown").split("/")[0],
-                        "mimetype": atta.mimetype,
-                        "url": url,
-                        "preview_url": preview_url,
-                    }
-                )
         return params
 
     @override
@@ -277,27 +260,17 @@ class Note(Content):
             # Note media is uploaded to takahe through the Mastodon API, so
             # this is where it enters the registry. Local media is copied into
             # our own storage (takahe hard-prunes posts); remote media only
-            # gets a pointer row. The legacy ``attachments`` JSON that
-            # ``params_from_ap_object`` wrote is left untouched -- it stays the
-            # fallback read path until the async backfill has run everywhere.
+            # gets a pointer row.
             Attachment.sync_from_post(note, post)
         return note
 
     @property
-    def attachment_list(self) -> list:
-        """Attachments to render, preferring registry rows.
-
-        Falls back to the legacy ``attachments`` JSON for notes the async
-        backfill has not reached yet. Both shapes expose ``type`` / ``url`` /
-        ``preview_url``, so templates read them identically.
-        """
+    def attachment_list(self) -> list[Attachment]:
+        """Registry rows to render, in creation order."""
         # .all() so a prefetch is honored; Attachment.Meta.ordering keeps the
         # sequence stable, which the templates depend on (their lightbox
         # anchors are keyed off forloop.counter)
-        rows = list(self.attachment_records.all())
-        if rows:
-            return rows
-        return self.attachments or []
+        return list(self.attachment_records.all())
 
     @cached_property
     def shelfmember(self) -> ShelfMember | None:
@@ -320,28 +293,6 @@ class Note(Content):
             if attachments:
                 params["attachments"] = attachments
         return params
-
-    def _upload_attachment(self, a: Attachment) -> "PostAttachment | None":
-        filename = os.path.basename(a.file.name or "") or "attachment"
-        mimetype = a.mimetype or mimetypes.guess_type(filename)[0] or ""
-        try:
-            with a.file.open("rb") as f:
-                if mimetype.startswith("image/"):
-                    pa = Takahe.upload_image(
-                        self.owner.pk, filename, f.read(), mimetype, a.description
-                    )
-                else:
-                    pa = Takahe.upload_attachment(
-                        self.owner.pk, filename, f, mimetype, a.description
-                    )
-        except Exception as e:
-            logger.warning(f"error uploading note attachment {a}: {e}")
-            return None
-        # settle the row: never uploaded twice, and sync_from_post dedupes
-        # onto it instead of copying the media back a second time
-        a.source = source_for_post_attachment(pa.pk)
-        a.save(update_fields=["source"])
-        return pa
 
     def _build_post_attachments(self) -> list | None:
         """Takahe attachments matching the registry rows, or None to keep.
@@ -366,8 +317,8 @@ class Note(Content):
         for a in self.attachment_records.all():
             if a.source in on_post:
                 attachments.append(on_post[a.source])
-            elif a.file:
-                pa = self._upload_attachment(a)
+            else:
+                pa = a.to_post_attachment()
                 if pa:
                     attachments.append(pa)
         return attachments
