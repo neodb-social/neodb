@@ -86,6 +86,10 @@ class DoubanDownloader(ScrapDownloader):
             content = response.content.decode("utf-8")
             if content.find("关于豆瓣") == -1 and content.find("豆瓣评分") == -1:
                 return RESPONSE_NETWORK_ERROR
+            elif content.find("豆瓣(手机版)") != -1:
+                # Douban redirects a mobile user agent to m.douban.com, whose
+                # markup none of the parsers understand; retry another provider.
+                return RESPONSE_NETWORK_ERROR
             elif (
                 content.find("<title>页面不存在</title>") != -1
                 or content.find("呃... 你想访问的条目豆瓣不收录。") != -1

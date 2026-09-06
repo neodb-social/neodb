@@ -6,6 +6,7 @@ from loguru import logger
 from lxml import html
 
 from catalog.common import *
+from catalog.common.downloaders import DownloadError
 from common.management.base import SiteCommand
 
 
@@ -44,7 +45,18 @@ class Command(SiteCommand):
                             if u not in history:
                                 history.append(u)
                                 logger.info(f"Fetching {u}")
-                                site.get_resource_ready()
+                                try:
+                                    site.get_resource_ready()
+                                except DownloadError as e:
+                                    # Expected third-party failure -> warn, and
+                                    # keep crawling the rest of the queue.
+                                    logger.warning(
+                                        f"unable to fetch {u}", extra={"exception": e}
+                                    )
+                                except Exception as e:
+                                    logger.error(
+                                        f"error fetching {u}", extra={"exception": e}
+                                    )
                         else:
                             logger.warning(f"unable to parse {u}")
                     elif pattern and u.find(pattern) >= 0:

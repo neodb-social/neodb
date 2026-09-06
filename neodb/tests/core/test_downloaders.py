@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from PIL import Image
 
 from catalog.common.downloaders import (
+    RESPONSE_CENSORSHIP,
     RESPONSE_INVALID_CONTENT,
     RESPONSE_NETWORK_ERROR,
     RESPONSE_OK,
@@ -15,6 +16,7 @@ from catalog.common.downloaders import (
     ScraperResponse,
     get_mock_file,
 )
+from catalog.sites.douban import DoubanDownloader
 
 
 def _jpeg_bytes() -> bytes:
@@ -98,6 +100,36 @@ class TestBasicDownloaderValidateResponse:
         resp = MagicMock()
         resp.status_code = 301
         assert dl.validate_response(resp) == RESPONSE_INVALID_CONTENT
+
+
+class TestDoubanDownloaderValidateResponse:
+    def _resp(self, body: str) -> ScraperResponse:
+        return ScraperResponse(
+            "https://music.douban.com/subject/38557218/", body.encode("utf-8")
+        )
+
+    def test_desktop_page(self):
+        dl = DoubanDownloader("https://music.douban.com/subject/38557218/")
+        body = '<meta property="og:site_name" content="豆瓣" /><h1><span>x</span></h1>豆瓣评分'
+        assert dl.validate_response(self._resp(body)) == RESPONSE_OK
+
+    def test_mobile_page_retried(self):
+        # m.douban.com markup has no //h1/span, so parsing it raises ParseError;
+        # reject it as a network error to try the next provider instead.
+        dl = DoubanDownloader("https://music.douban.com/subject/38557218/")
+        body = '<meta property="og:site_name" content="豆瓣(手机版)" /><h1 class="title">x</h1>豆瓣评分'
+        assert dl.validate_response(self._resp(body)) == RESPONSE_NETWORK_ERROR
+
+    def test_unrelated_page(self):
+        dl = DoubanDownloader("https://music.douban.com/subject/38557218/")
+        assert (
+            dl.validate_response(self._resp("<html></html>")) == RESPONSE_NETWORK_ERROR
+        )
+
+    def test_removed_page(self):
+        dl = DoubanDownloader("https://music.douban.com/subject/38557218/")
+        body = "豆瓣评分<title>页面不存在</title>"
+        assert dl.validate_response(self._resp(body)) == RESPONSE_CENSORSHIP
 
 
 class TestDownloadError:
