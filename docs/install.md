@@ -92,5 +92,17 @@ docker compose --profile production run --rm shell neodb-manage user --super adm
 
 Take a look at [Manage Accounts](accounts.md) for more information.
 
+## Add sample catalog items (optional)
+
+A new instance has an empty catalog. To fill it with a small set of well known books, albums, games, films and TV shows:
+
+```
+docker compose --profile production run --rm shell neodb-manage seed_catalog --wait
+```
+
+This fetches 90 items and takes several minutes. `--wait` holds until the queued jobs for related items, such as seasons and people, are done. Use `--type book,album,game,movie,tv` to load one category only, and `--force` to fetch everything again. The command is safe to run more than one time.
+
+Each category needs the API key for its source in `.env`: `GOOGLE_API_KEY` for books, `IGDB_API_CLIENT_ID` and `IGDB_API_CLIENT_SECRET` for games, and `TMDB_API_V3_KEY` for films and TV shows. See [Configuration](configuration.md) for these keys. Albums come from MusicBrainz and need no key.
+
 ## What now?
 Now your instance should be ready to serve. More tweaks are available, see [Configuration](configuration.md) for options.
