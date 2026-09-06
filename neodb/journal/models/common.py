@@ -1184,10 +1184,16 @@ def prefetch_latest_posts(pieces: Sequence["Piece"]) -> None:
         piece.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
 
 
-def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
-    """Batch-prefetch piece and item for a list of Post objects to avoid N+1 queries."""
+def prefetch_pieces_for_posts(
+    posts: list["Post"], viewer: APIdentity | None = None
+) -> None:
+    """
+    Batch-prefetch piece and item for a list of Post objects to avoid N+1 queries.
+    With a viewer, also attach the viewer's own Mark to each item as ``item.mark``
+    so the bookmark action can render its state without a query per post.
+    """
     from catalog.models import Item
-    from journal.models import ShelfMember
+    from journal.models import Mark, ShelfMember
 
     if not posts:
         return
@@ -1250,6 +1256,17 @@ def prefetch_pieces_for_posts(posts: list["Post"]) -> None:
             items,
             Item.external_resources_prefetch(with_metadata=True),
         )
+        if viewer:
+            marks = {}
+            for item in items:
+                m = Mark(viewer, item)
+                m.shelfmember = None
+                marks[item.pk] = m
+                item.mark = m
+            for sm in ShelfMember.objects.filter(
+                owner=viewer, item_id__in=items_by_id
+            ).select_related("parent"):
+                marks[sm.item_id].shelfmember = sm
 
 
 class PieceInteraction(models.Model):

@@ -4,6 +4,11 @@
   [type=radio] {
     margin-inline-end: .1em;
   }
+
+  .mark-form-error {
+    color: var(--pico-del-color);
+    margin-bottom: var(--pico-spacing);
+  }
 }
 
 .note-edit-buttons {

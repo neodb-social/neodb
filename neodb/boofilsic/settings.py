@@ -398,6 +398,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "common.middleware.IdentityMiddleware",
+    "common.middleware.HtmxLoginRedirectMiddleware",
     # "django.middleware.locale.LocaleMiddleware",
     "users.middlewares.LanguageMiddleware",
     "common.middleware.SafeTimezoneMiddleware",

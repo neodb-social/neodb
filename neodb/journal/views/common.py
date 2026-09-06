@@ -20,6 +20,7 @@ from common.models.misc import int_
 from common.utils import (
     AuthedHttpRequest,
     CustomPaginator,
+    HTTPResponseHXRedirect,
     PageLinksGenerator,
     get_uuid_or_404,
     target_identity_required,
@@ -171,13 +172,16 @@ def conditional_get_for_anonymous(get_timestamp):
 
 
 def render_relogin(request):
+    login_url = reverse("mastodon:login") + "?domain=" + request.user.mastodon.domain
+    if request.headers.get("HX-Request"):
+        # the error page relies on a meta refresh, which an htmx swap cannot
+        # run, so send the browser straight to the re-authentication step
+        return HTTPResponseHXRedirect(login_url)
     return render(
         request,
         "common/error.html",
         {
-            "url": reverse("mastodon:login")
-            + "?domain="
-            + request.user.mastodon.domain,
+            "url": login_url,
             "msg": _("Data saved but unable to crosspost to Fediverse instance."),
             "secondary_msg": _(
                 "Redirecting to your Fediverse instance now to re-authenticate."

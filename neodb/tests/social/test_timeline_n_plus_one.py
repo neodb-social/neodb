@@ -49,6 +49,20 @@ class TestTimelineDataNPlusOne:
             + "; ".join(q["sql"][:120] for q in individual_piecepost)
         )
 
+    def test_no_per_post_viewer_mark_queries(self):
+        """The bookmark icon state must come from one batched ShelfMember query."""
+        with CaptureQueriesContext(connections["default"]) as ctx:
+            response = self.client.get("/timeline/data")
+        assert response.status_code == 200
+        assert response.content.decode().count("data-mark-item=") == NUM_ITEMS
+        # a per-post lookup filters on one item ("item_id" = %s), the batch on IN
+        per_post = [
+            q["sql"]
+            for q in ctx.captured_queries
+            if '"journal_shelfmember"."item_id" =' in q["sql"]
+        ]
+        assert per_post == []
+
     def test_main_query_matches_undismissed_ordering_index(self):
         """The feed predicate must match Takahe's partial identity/-id index."""
         with CaptureQueriesContext(connections["takahe"]) as ctx:

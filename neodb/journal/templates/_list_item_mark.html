@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load user_actions %}
+{% load duration %}
+{# the viewer's own mark details on a list card; the mark dialog swaps this in place after saving #}
+<div {% if request.user.is_authenticated and mark.owner.pk == request.user.identity.pk %}data-mark-detail="{{ item.uuid }}"{% endif %}
+     {% if oob %}hx-swap-oob="outerHTML:[data-mark-detail='{{ item.uuid }}']"{% endif %}>
+  {% if mark.shelf %}
+    <section>
+      <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
+      <span class="action inline">
+        <span class="timestamp">{{ mark.created_time|date }} {{ mark.status_label }}</span>
+      </span>
+      {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+      <span>{{ mark.comment.html|safe }}</span>
+      {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
+    </section>
+  {% endif %}
+  {% if mark.tags %}
+    <section>
+      <span class="tag-list">
+        {% for tag in mark.tags %}
+          {% if forloop.counter <= 5 %}
+            <span>
+              <a href="{% url 'common:search' %}?c=journal&amp;q=tag:&quot;{{ tag }}&quot;">{{ tag }}</a>
+            </span>
+          {% endif %}
+        {% endfor %}
+      </span>
+    </section>
+  {% endif %}
+</div>

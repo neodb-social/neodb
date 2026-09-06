@@ -3,7 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseBase, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -25,6 +25,79 @@ PAGE_SIZE = 10
 _checkmark = "✔️".encode("utf-8")
 
 
+def _redirect_back(request: AuthedHttpRequest) -> HttpResponseRedirect:
+    referer = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts=set(settings.SITE_DOMAINS),
+        require_https=settings.SSL_ONLY,
+    ):
+        referer = "/"
+    return HttpResponseRedirect(referer)
+
+
+def _mark_saved_response(request: AuthedHttpRequest, item: Item) -> HttpResponseBase:
+    """
+    After the mark dialog saves or deletes: a plain form submit goes back to
+    the referer as before. An htmx submit from an item page reloads it, while
+    an inline one (timeline, list cards) closes the dialog and refreshes the
+    bookmark icons of that item in place.
+    """
+    if not request.headers.get("HX-Request"):
+        return _redirect_back(request)
+    if not request.POST.get("inline"):
+        response = HttpResponse(status=204)
+        response["HX-Refresh"] = "true"
+        return response
+    response = HttpResponse(_mark_oob_content(request, item))
+    response["HX-Trigger"] = "close_dialog"
+    return response
+
+
+def _mark_oob_content(request: AuthedHttpRequest, item: Item) -> bytes:
+    """
+    Out-of-band fragments that refresh every card of ``item`` on the page:
+    the bookmark action and, on list cards, the viewer's mark details.
+    """
+    mark = Mark(request.user.identity, item)
+    context = {"item": item, "mark": mark, "oob": True}
+    return (
+        render(request, "action_mark_item.html", context).content
+        + render(request, "_list_item_mark.html", context).content
+    )
+
+
+def _mark_error_response(
+    request: AuthedHttpRequest,
+    msg: str,
+    secondary_msg: str = "",
+    saved_item: Item | None = None,
+) -> HttpResponse:
+    """
+    Show a message inside the open mark dialog, keeping it open. When the
+    mark was saved anyway, also refresh the bookmark icons of that item.
+    """
+    response = render(
+        request,
+        "_mark_form_error.html",
+        {"msg": msg, "secondary_msg": secondary_msg},
+    )
+    if saved_item:
+        response.content += _mark_oob_content(request, saved_item)
+    response["HX-Retarget"] = "#mark-form-error"
+    response["HX-Reswap"] = "innerHTML"
+    return response
+
+
+def _form_error_text(form: MarkForm) -> str:
+    parts = []
+    for field, errors in form.errors.items():
+        label = form.fields[field].label if field in form.fields else ""
+        text = " ".join(str(e) for e in errors)
+        parts.append(f"{label}: {text}" if label else text)
+    return "; ".join(parts)
+
+
 @login_required
 @require_http_methods(["POST"])
 def wish(request: AuthedHttpRequest, item_uuid):
@@ -36,14 +109,7 @@ def wish(request: AuthedHttpRequest, item_uuid):
         )
     record_activity("mark", "web")
     if request.GET.get("back"):
-        referer = request.META.get("HTTP_REFERER") or ""
-        if not url_has_allowed_host_and_scheme(
-            referer,
-            allowed_hosts=set(settings.SITE_DOMAINS),
-            require_https=settings.SSL_ONLY,
-        ):
-            referer = "/"
-        return HttpResponseRedirect(referer)
+        return _redirect_back(request)
     return HttpResponse(_checkmark)
 
 
@@ -100,6 +166,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
             {
                 "item": item,
                 "mark": mark,
+                "inline": bool(request.GET.get("inline")),
                 "form": MarkForm(
                     initial={
                         "text": mark.comment_text or "",
@@ -118,14 +185,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
     else:
         if request.POST.get("delete", default=False):
             mark.delete()
-            referer = request.META.get("HTTP_REFERER") or ""
-            if not url_has_allowed_host_and_scheme(
-                referer,
-                allowed_hosts=set(settings.SITE_DOMAINS),
-                require_https=settings.SSL_ONLY,
-            ):
-                referer = "/"
-            return HttpResponseRedirect(referer)
+            return _mark_saved_response(request, item)
         else:
             form = MarkForm(request.POST)
             if form.is_valid():
@@ -151,30 +211,22 @@ def mark(request: AuthedHttpRequest, item_uuid):
                         if str(e) == "422"
                         else str(e)
                     )
+                    msg = _("Data saved but unable to crosspost to Fediverse instance.")
+                    if request.headers.get("HX-Request"):
+                        return _mark_error_response(request, msg, err, item)
                     return render(
                         request,
                         "common/error.html",
-                        {
-                            "msg": _(
-                                "Data saved but unable to crosspost to Fediverse instance."
-                            ),
-                            "secondary_msg": err,
-                        },
+                        {"msg": msg, "secondary_msg": err},
                     )
                 record_activity("mark", "web")
-                referer = request.META.get("HTTP_REFERER") or ""
-                if not url_has_allowed_host_and_scheme(
-                    referer,
-                    allowed_hosts=set(settings.SITE_DOMAINS),
-                    require_https=settings.SSL_ONLY,
-                ):
-                    referer = "/"
-                return HttpResponseRedirect(referer)
+                return _mark_saved_response(request, item)
             else:
-                # In a real app we'd handle form errors better, but preserving existing behavior of falling through or erroring
-                # For now, let's just log and redirect or error if really invalid.
-                # The original code didn't strictly validate structure, just tried to cast things.
                 logger.warning(f"Mark form invalid: {form.errors}")
+                if request.headers.get("HX-Request"):
+                    return _mark_error_response(
+                        request, _("Invalid input"), _form_error_text(form)
+                    )
                 raise BadRequest(_("Invalid input"))
 
 

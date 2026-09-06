@@ -29,24 +29,7 @@
         </a>
       </span>
     {% elif request.user.is_authenticated and item.class_name != 'collection' %}
-      <span>
-        {% if not mark.shelf_type %}
-          <a title="{% trans "add mark" %}"
-             hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
-             hx-target="body"
-             hx-swap="beforeend">
-            <i class="fa-regular fa-bookmark"></i>
-          </a>
-        {% else %}
-          <a class="activated"
-             title="{% trans "update mark" %}"
-             hx-get="{% url 'journal:mark' item.uuid %}"
-             hx-target="body"
-             hx-swap="beforeend">
-            <i class="fa-solid fa-bookmark"></i>
-          </a>
-        {% endif %}
-      </span>
+      {% include "action_mark_item.html" with item=item mark=mark %}
     {% endif %}
   </span>
   {% include "_item_card.html" with item=item %}
@@ -80,18 +63,7 @@
         </section>
       {% endif %}
       {% if not collection_edit %}
-        {% if mark.shelf %}
-          <section>
-            <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
-            <span class="action inline">
-              <span class="timestamp">{{ mark.created_time|date }} {{ mark.status_label }}</span>
-              {% comment %} <a href="{{mark.owner.url }}" title="@{{ mark.owner.handle }}">{{ mark.owner.display_name }}</a> {% endcomment %}
-            </span>
-            {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-            <span>{{ mark.comment.html|safe }}</span>
-            {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
-          </section>
-        {% endif %}
+        {% include "_list_item_mark.html" with item=item mark=mark %}
         {% if mark.review %}
           <section>
             <div class="action">{% include "action_open_post.html" with post=mark.review.latest_post %}</div>
@@ -107,19 +79,6 @@
               {% endif %}
             </span>
             {% if mark.review.latest_post %}<div id="replies_{{ mark.review.latest_post.pk }}"></div>{% endif %}
-          </section>
-        {% endif %}
-        {% if mark.tags %}
-          <section>
-            <span class="tag-list">
-              {% for tag in mark.tags %}
-                {% if forloop.counter <= 5 %}
-                  <span>
-                    <a href="{% url 'common:search' %}?c=journal&amp;q=tag:&quot;{{ tag }}&quot;">{{ tag }}</a>
-                  </span>
-                {% endif %}
-              {% endfor %}
-            </span>
           </section>
         {% endif %}
       {% endif %}

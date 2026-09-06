@@ -101,6 +101,235 @@ def test_mark_editor_embeds_recent_and_popular_tags(client):
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_mark_dialog_inline_flag_and_htmx_forms(client):
+    user = User.register(email="mark-inline@example.com", username="markinline")
+    book = Edition.objects.create(title="Inline Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    html = client.get(url).content.decode()
+    assert f'hx-post="{url}"' in html
+    assert 'name="inline"' not in html
+
+    html = client.get(f"{url}?inline=1&shelf_type=wishlist").content.decode()
+    assert 'name="inline" value="1"' in html
+
+
+def _mark_post_data(**extra):
+    data = {
+        "status": "complete",
+        "rating_grade": "8",
+        "text": "great",
+        "visibility": "0",
+        "tags": "",
+        "mark_date": "",
+    }
+    data.update(extra)
+    return data
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_plain_post_redirects_back(client):
+    user = User.register(email="mark-plain@example.com", username="markplain")
+    book = Edition.objects.create(title="Plain Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.post(
+        reverse("journal:mark", args=[book.uuid]),
+        _mark_post_data(),
+        HTTP_REFERER="/timeline/",
+    )
+    assert response.status_code == 302
+    assert response["Location"] == "/timeline/"
+    assert Mark(user.identity, book).shelf_type == ShelfType.COMPLETE
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_from_item_page_refreshes(client):
+    user = User.register(email="mark-page@example.com", username="markpage")
+    book = Edition.objects.create(title="Page Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.post(
+        reverse("journal:mark", args=[book.uuid]),
+        _mark_post_data(),
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 204
+    assert response["HX-Refresh"] == "true"
+    assert Mark(user.identity, book).shelf_type == ShelfType.COMPLETE
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_inline_closes_dialog_and_swaps_icon(client):
+    user = User.register(email="mark-oob@example.com", username="markoob")
+    book = Edition.objects.create(title="OOB Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    response = client.post(url, _mark_post_data(inline="1"), HTTP_HX_REQUEST="true")
+    assert response.status_code == 200
+    assert response["HX-Trigger"] == "close_dialog"
+    assert "HX-Refresh" not in response
+    html = response.content.decode()
+    assert f"hx-swap-oob=\"outerHTML:[data-mark-item='{book.uuid}']\"" in html
+    assert f'data-mark-item="{book.uuid}"' in html
+    assert "fa-solid fa-bookmark" in html
+    assert f'hx-get="{url}?inline=1"' in html
+    # list cards get their mark details refreshed too
+    assert f"hx-swap-oob=\"outerHTML:[data-mark-detail='{book.uuid}']\"" in html
+    assert "great" in html
+    assert Mark(user.identity, book).shelf_type == ShelfType.COMPLETE
+
+    response = client.post(url, {"delete": "1", "inline": "1"}, HTTP_HX_REQUEST="true")
+    assert response.status_code == 200
+    assert response["HX-Trigger"] == "close_dialog"
+    html = response.content.decode()
+    assert "fa-regular fa-bookmark" in html
+    assert f'hx-get="{url}?shelf_type=wishlist&amp;inline=1"' in html
+    assert Mark(user.identity, book).shelf_type is None
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_crosspost_failure_shows_error_page_over_htmx(client, monkeypatch):
+    user = User.register(email="mark-xpost@example.com", username="markxpost")
+    book = Edition.objects.create(title="Crosspost Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    def fail(*args, **kwargs):
+        raise ValueError("422")
+
+    monkeypatch.setattr(Mark, "update", fail)
+    response = client.post(
+        reverse("journal:mark", args=[book.uuid]),
+        _mark_post_data(inline="1"),
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    assert response["HX-Retarget"] == "#mark-form-error"
+    assert response["HX-Reswap"] == "innerHTML"
+    assert "HX-Trigger" not in response
+    html = response.content.decode()
+    assert "Data saved but unable to crosspost" in html
+    assert "Content too long" in html
+    assert f"hx-swap-oob=\"outerHTML:[data-mark-item='{book.uuid}']\"" in html
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_invalid_input_shows_error_in_dialog(client):
+    user = User.register(email="mark-invalid@example.com", username="markinvalid")
+    book = Edition.objects.create(title="Invalid Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    response = client.post(
+        url, _mark_post_data(inline="1", visibility="9"), HTTP_HX_REQUEST="true"
+    )
+    assert response.status_code == 200
+    assert response["HX-Retarget"] == "#mark-form-error"
+    html = response.content.decode()
+    assert "Invalid input" in html
+    assert "hx-swap-oob" not in html
+    assert Mark(user.identity, book).shelf_type is None
+
+    response = client.post(url, _mark_post_data(visibility="9"))
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_htmx_post_without_session_redirects_to_login(client):
+    book = Edition.objects.create(title="Anonymous Book")
+    response = client.post(
+        reverse("journal:mark", args=[book.uuid]),
+        _mark_post_data(inline="1"),
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    assert response["HX-Redirect"].startswith("/account/login")
+    assert "Location" not in response
+
+    response = client.post(
+        reverse("journal:mark", args=[book.uuid]), _mark_post_data(inline="1")
+    )
+    assert response.status_code == 302
+    assert response["Location"].startswith("/account/login")
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_list_card_mark_details_are_swappable_for_viewer(client):
+    user = User.register(email="mark-card@example.com", username="markcard")
+    other = User.register(email="mark-card2@example.com", username="markcard2")
+    book = Edition.objects.create(title="Card Book")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "mine", 7, ["x"], 0)
+    Mark(other.identity, book).update(ShelfType.COMPLETE, "theirs", 6, ["y"], 0)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    own = client.get(
+        reverse(
+            "journal:user_mark_list",
+            kwargs={
+                "user_name": user.identity.handle,
+                "shelf_type": "complete",
+                "item_category": "book",
+            },
+        )
+    ).content.decode()
+    assert f'data-mark-detail="{book.uuid}"' in own
+    assert "mine" in own
+
+    theirs = client.get(
+        reverse(
+            "journal:user_mark_list",
+            kwargs={
+                "user_name": other.identity.handle,
+                "shelf_type": "complete",
+                "item_category": "book",
+            },
+        )
+    ).content.decode()
+    assert "data-mark-detail=" not in theirs
+    assert "theirs" in theirs
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_timeline_bookmark_reflects_viewer_mark(client):
+    user = User.register(email="mark-feed@example.com", username="markfeed")
+    other = User.register(email="mark-feed2@example.com", username="markfeed2")
+    marked = Edition.objects.create(title="Marked Feed Book")
+    unmarked = Edition.objects.create(title="Unmarked Feed Book")
+    Mark(other.identity, marked).update(ShelfType.COMPLETE, "a", 8, visibility=0)
+    Mark(other.identity, unmarked).update(ShelfType.COMPLETE, "b", 8, visibility=0)
+    Mark(user.identity, marked).update(ShelfType.WISHLIST, visibility=0)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    marked_url = reverse("journal:mark", args=[marked.uuid])
+    unmarked_url = reverse("journal:mark", args=[unmarked.uuid])
+
+    # own timeline shows own post with a solid icon
+    html = client.get(reverse("social:data")).content.decode()
+    assert f'data-mark-item="{marked.uuid}"' in html
+    assert f'hx-get="{marked_url}?inline=1"' in html
+
+    # another user's post renders the viewer's state, not the author's
+    shelfmember = Mark(other.identity, unmarked).shelfmember
+    assert shelfmember is not None and shelfmember.latest_post is not None
+    post_url = reverse(
+        "journal:post_view",
+        kwargs={
+            "handle": other.identity.handle,
+            "post_pk": shelfmember.latest_post.pk,
+        },
+    )
+    html = client.get(post_url).content.decode()
+    assert f'data-mark-item="{unmarked.uuid}"' in html
+    assert f'hx-get="{unmarked_url}?shelf_type=wishlist&amp;inline=1"' in html
+    assert "fa-solid fa-bookmark" not in html
+
+    # anonymous viewer gets a hollow icon that is not a refresh target
+    client.logout()
+    html = client.get(post_url).content.decode()
+    assert "data-mark-item=" not in html
+    assert "fa-regular fa-bookmark" in html
+
+
+@pytest.mark.django_db(databases="__all__")
 def test_tag_suggestions_endpoint_is_gone(client):
     user = User.register(email="gone@example.com", username="goneuser")
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")

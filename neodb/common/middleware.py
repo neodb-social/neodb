@@ -1,6 +1,7 @@
 import time
 
 import pytz
+from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
@@ -96,6 +97,25 @@ class SafeTimezoneMiddleware(MiddlewareMixin):
                 timezone.deactivate()
         else:
             timezone.deactivate()
+
+
+class HtmxLoginRedirectMiddleware(MiddlewareMixin):
+    """
+    htmx follows a login redirect transparently and swaps the login page into
+    the target, or drops it when the target swaps nothing, so an expired
+    session fails silently. Tell htmx to navigate to the login page instead.
+    """
+
+    def process_response(self, request, response):
+        if (
+            response.status_code in (301, 302)
+            and request.headers.get("HX-Request")
+            and response.get("Location", "").startswith(settings.LOGIN_URL)
+        ):
+            response["HX-Redirect"] = response["Location"]
+            response.status_code = 200
+            del response["Location"]
+        return response
 
 
 class IdentityMiddleware(MiddlewareMixin):

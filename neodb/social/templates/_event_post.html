@@ -47,12 +47,7 @@
                      {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
                      data-position="{{ piece.metadata.position | default:0 }}"><i class="fa-solid fa-circle-play"></i></a>
                 {% else %}
-                  <a title="{% trans "mark" %}"
-                     hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist"
-                     hx-target="body"
-                     hx-swap="beforeend">
-                    <i class="fa-regular fa-bookmark"></i>
-                  </a>
+                  {% include "action_mark_item.html" with item=item mark=None %}
                 {% endif %}
               </span>
             {% endif %}

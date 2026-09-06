@@ -17,8 +17,12 @@
       <strong>{% trans "Mark" %} - {{ item.display_title }}</strong>
     </header>
     <div>
-      <form method="post" action="{% url 'journal:mark' item.uuid %}">
+      <form method="post"
+            action="{% url 'journal:mark' item.uuid %}"
+            hx-post="{% url 'journal:mark' item.uuid %}"
+            hx-swap="none">
         {% csrf_token %}
+        {% if inline %}<input type="hidden" name="inline" value="1">{% endif %}
         {% if shelf_statuses %}
           <input type="hidden"
                  id="mark-status"
@@ -135,14 +139,18 @@
           </fieldset>
         </div>
       </div>
+      <div id="mark-form-error"></div>
     </form>
     <div>
       {% if mark.id %}
         <form id="mark_delete"
               action="{% url 'journal:mark' mark.item.uuid %}"
+              hx-post="{% url 'journal:mark' mark.item.uuid %}"
+              hx-swap="none"
               method="post">
           {% csrf_token %}
           <input type="hidden" name="delete" value="1">
+          {% if inline %}<input type="hidden" name="inline" value="1">{% endif %}
           <a>
             <button class="secondary"
                     onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">

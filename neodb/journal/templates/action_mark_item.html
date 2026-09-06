@@ -1,0 +1,25 @@
+{% load i18n %}
+{% load user_actions %}
+{% if not mark %}
+  {% get_mark_for_item item as mark %}
+{% endif %}
+{# data-mark-item marks this as the viewer's own state, so a save from the mark dialog can refresh it in place #}
+<span {% if request.user.is_authenticated and mark.owner.pk == request.user.identity.pk %}data-mark-item="{{ item.uuid }}"{% endif %}
+      {% if oob %}hx-swap-oob="outerHTML:[data-mark-item='{{ item.uuid }}']"{% endif %}>
+  {% if not mark.shelf_type %}
+    <a title="{% trans "add mark" %}"
+       hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&amp;inline=1"
+       hx-target="body"
+       hx-swap="beforeend">
+      <i class="fa-regular fa-bookmark"></i>
+    </a>
+  {% else %}
+    <a class="activated"
+       title="{% trans "update mark" %}"
+       hx-get="{% url 'journal:mark' item.uuid %}?inline=1"
+       hx-target="body"
+       hx-swap="beforeend">
+      <i class="fa-solid fa-bookmark"></i>
+    </a>
+  {% endif %}
+</span>

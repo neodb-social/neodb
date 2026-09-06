@@ -201,7 +201,9 @@ def data(request):
         .order_by("-id")[:PAGE_SIZE]
     )
     _add_interaction_to_events(events, identity_id)
-    prefetch_pieces_for_posts([e.subject_post for e in events if e.subject_post_id])
+    prefetch_pieces_for_posts(
+        [e.subject_post for e in events if e.subject_post_id], request.user.identity
+    )
     # events are TimelineEvent rows; the type checker can't see Django's implicit
     # id/_id attributes that FeedEvent declares, so assert the shape at this boundary.
     grouped = group_feed_events(cast(list[FeedEvent], events))
