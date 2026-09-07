@@ -1374,7 +1374,17 @@ class Item(PolymorphicModel):
         for order, (name, character, person) in enumerate(desired):
             candidates = existing_by_key.get(_key(name, person.pk if person else None))
             if candidates:
-                credit = candidates.pop(0)
+                # Prefer the row already carrying this character, so one person
+                # credited under two characters keeps both rows intact.
+                idx = next(
+                    (
+                        i
+                        for i, c in enumerate(candidates)
+                        if (c.character_name or "") == character
+                    ),
+                    0,
+                )
+                credit = candidates.pop(idx)
                 used_pks.add(credit.pk)
                 update_fields = []
                 if credit.order != order:

@@ -1,7 +1,7 @@
 import pytest
 
 from catalog.common.migrations import resync_duplicate_credits_20260907
-from catalog.models import CreditRole, ItemCredit, Movie
+from catalog.models import CreditRole, ItemCredit, Movie, Performance
 from catalog.models.people import People
 
 
@@ -70,3 +70,42 @@ class TestResyncDuplicateCredits:
         assert clean.director == ["Carol"]
         assert clean.credits.count() == 1
         assert clean.edited_time == clean_edited
+
+    def test_distinct_characters_of_one_person_survive(self):
+        person = self._person("Star")
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [{"name": person.url, "role": "Villain"}]
+        perf.save()
+        hero = ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Hero",
+            person=person,
+            order=0,
+        )
+        villain = ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Villain",
+            person=person,
+            order=1,
+        )
+
+        resync_duplicate_credits_20260907()
+
+        rows = {c.pk: c.character_name for c in perf.credits.all()}
+        assert rows == {hero.pk: "Hero", villain.pk: "Villain"}
+
+    def test_legacy_unlinked_rows_differing_by_whitespace(self):
+        m = self._movie(["Alice"])
+        for i, name in enumerate(["Alice", "Alice "]):
+            ItemCredit.objects.create(
+                item=m, role=CreditRole.Director, name=name, order=i
+            )
+
+        resync_duplicate_credits_20260907()
+
+        assert [c.name for c in m.credits.all()] == ["Alice"]

@@ -248,6 +248,34 @@ class TestSyncCreditsFromMetadata:
         assert [c.pk for c in credits] == [credit.pk]
         assert credits[0].name == "Alice"
 
+    def test_reconcile_prefers_row_with_same_character(self):
+        person = People.objects.create(people_type="person", title="Star")
+        person.localized_name = [{"lang": "en", "text": "Star"}]
+        person.save()
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [{"name": person.url, "role": "Villain"}]
+        perf.save()
+        ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Hero",
+            person=person,
+            order=0,
+        )
+        villain = ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Villain",
+            person=person,
+            order=1,
+        )
+        perf.sync_credits_from_metadata()
+        rows = list(perf.credits.filter(role=CreditRole.Actor))
+        assert [(c.pk, c.character_name) for c in rows] == [(villain.pk, "Villain")]
+
     def test_same_person_two_characters_rows_stable(self):
         person = People.objects.create(people_type="person", title="Star")
         person.localized_name = [{"lang": "en", "text": "Star"}]

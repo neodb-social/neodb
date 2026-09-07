@@ -10,6 +10,7 @@ from time import sleep
 import django_rq
 from discord import Object, SyncWebhook
 from django.db import connection, models
+from django.db.models.functions import Trim
 from django.utils import timezone
 from rq.job import Job
 from tqdm import tqdm
@@ -1082,8 +1083,10 @@ def resync_duplicate_credits_20260907(
         .annotate(n=models.Count("pk"))
         .filter(n__gt=1)
     )
+    # Legacy rows may carry whitespace; group by the stripped name.
     dup_name = (
-        ItemCredit.objects.values("item_id", "role", "name")
+        ItemCredit.objects.annotate(stripped=Trim("name"))
+        .values("item_id", "role", "stripped")
         .annotate(n=models.Count("pk"))
         .filter(n__gt=1)
     )
