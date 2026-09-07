@@ -185,6 +185,27 @@ class TestTwitterImport:
         assert second.in_reply_to == first.object_uri
         assert second.state == "fanned_out"
 
+    def test_thread_posted_in_one_second(self, tmp_path):
+        when = "Mon Aug 08 15:14:12 +0000 2022"
+        archive = _zip(
+            [
+                _tweet("3000", "first part of a thread", when),
+                _tweet("3001", "second part of a thread", when, reply_to="3000"),
+            ]
+        )
+        task = self._run(archive, tmp_path)
+        assert task.metadata["imported"] == 2
+        first, second = list(self._posts().order_by("id"))
+        assert "first part" in first.content
+        assert second.in_reply_to == first.object_uri
+        assert first.published == parse_datetime("2022-08-08T15:14:12Z")
+        assert (
+            first.published < second.published < parse_datetime("2022-08-08T15:14:13Z")
+        )
+        task = self._run(archive, tmp_path)
+        assert task.metadata["skipped"] == 2
+        assert self._posts().count() == 2
+
     def test_reply_to_other_is_plain_post(self, tmp_path):
         self._run(_zip([_tweet(text="@other yes", reply_to="42")]), tmp_path)
         post = self._posts().get()

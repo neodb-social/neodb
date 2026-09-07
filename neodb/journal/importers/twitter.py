@@ -31,6 +31,7 @@ _MAX_JS_SIZE = 512 * 1024 * 1024
 _MAX_MEDIA_SIZE = 5 * 1024 * 1024  # Takahe.upload_image refuses larger files
 
 _HANDLE = re.compile(r"(?<![\w/])@([A-Za-z0-9_]{1,15})\b")
+_SPACES = re.compile(r"\s+")
 _INDEX_BATCH = 200
 
 
@@ -77,6 +78,11 @@ def _note_matches(tweet: dict, note: dict) -> bool:
     text = text.strip().rstrip("…").rstrip()
     full = html.unescape(note.get("core", {}).get("text", ""))
     return bool(text) and full.startswith(text[:50])
+
+
+def _fingerprint(text: str) -> str:
+    """Enough of a body to tell two same-second posts apart."""
+    return _SPACES.sub(" ", text).strip()[:40]
 
 
 def _neutralise_handles(text: str) -> str:
@@ -218,35 +224,47 @@ class TwitterImporter(BaseImporter):
                 logger.warning(f"skipping media {filename}: {e}")
         return attachments
 
-    def _existing_post(self, published: datetime.datetime) -> Post | None:
+    def _existing_post(self, published: datetime.datetime, content: str) -> Post | None:
         """Posts carry no source id, so an imported tweet is recognised by its
-        author and its publish second, which Twitter records exactly."""
-        return Post.objects.filter(
-            author_id=self.user.identity.pk, local=True, published=published
-        ).first()
+        author, its publish second (which Twitter records exactly) and the
+        start of its text: a thread posted at once shares one second."""
+        wanted = _fingerprint(content)
+        second = published.replace(microsecond=0)
+        posts = Post.objects.filter(
+            author_id=self.user.identity.pk,
+            local=True,
+            published__gte=second,
+            published__lt=second + datetime.timedelta(seconds=1),
+        )
+        for post in posts:
+            if _fingerprint(post.content_plain_text) == wanted:
+                return post
+        return None
 
     def import_tweet(
         self,
         tweet: dict,
         note: dict | None,
-        parent_time: datetime.datetime | None,
+        published: datetime.datetime | None,
+        parent: tuple[datetime.datetime, str] | None,
         media: dict[str, str],
     ) -> tuple[BaseImporter.ImportResult, Post | None]:
+        """``parent`` is the publish time and body of the tweet this one
+        replies to, when that tweet is the user's own."""
         try:
             text = tweet.get("full_text") or tweet.get("text") or ""
             if text.startswith("RT @") or "retweeted_status" in tweet:
                 return "skipped", None
-            published = _parse_tweet_time(tweet.get("created_at", ""))
             if not published:
                 logger.warning(f"tweet {tweet.get('id_str')} has no valid date")
                 return "failed", None
-            if self._existing_post(published):
-                return "skipped", None
             content = self._content(tweet, note)
             if not content and not self._media(tweet):
                 return "skipped", None
+            if self._existing_post(published, content):
+                return "skipped", None
             tweet_id = str(tweet.get("id_str") or tweet.get("id") or "")
-            reply_to = self._existing_post(parent_time) if parent_time else None
+            reply_to = self._existing_post(*parent) if parent else None
             lang = tweet.get("lang") or ""
             with transaction.atomic(using="takahe"):
                 post = Takahe.post(
@@ -284,12 +302,24 @@ class TwitterImporter(BaseImporter):
         tweets, notes, media = self._load(self.metadata["file"])
         tweets = [t.get("tweet", t) for t in tweets]
         tweets.sort(key=lambda t: int(t.get("id_str") or t.get("id") or 0))
-        times = {
-            str(t.get("id_str") or t.get("id")): _parse_tweet_time(
-                t.get("created_at", "")
-            )
-            for t in tweets
-        }
+        by_id = {str(t.get("id_str") or t.get("id")): t for t in tweets}
+        # Twitter records seconds only. A thread posted at once shares one
+        # second, so tweets in the same second get millisecond offsets in id
+        # order: post ids and timelines then keep the thread order. The extra
+        # half millisecond survives the float truncation in the id generator.
+        published_of: dict[str, datetime.datetime | None] = {}
+        last: datetime.datetime | None = None
+        offset = 0
+        for tweet_id, t in by_id.items():
+            created = _parse_tweet_time(t.get("created_at", ""))
+            if created and created == last:
+                offset += 1
+                created = created + datetime.timedelta(
+                    milliseconds=offset, microseconds=500
+                )
+            else:
+                last, offset = created, 0
+            published_of[tweet_id] = created
         # note tweets carry no tweet id; they are created in the same second
         # as the truncated tweet they belong to
         notes_by_time: dict[datetime.datetime, dict] = {}
@@ -299,21 +329,30 @@ class TwitterImporter(BaseImporter):
             if created:
                 notes_by_time[created] = n
 
+        def note_for(tweet: dict) -> dict | None:
+            created = _parse_tweet_time(tweet.get("created_at", ""))
+            note = notes_by_time.get(created) if created else None
+            return note if note and _note_matches(tweet, note) else None
+
+        def parent_of(tweet: dict) -> tuple[datetime.datetime, str] | None:
+            parent_id = tweet.get("in_reply_to_status_id_str") or tweet.get(
+                "in_reply_to_status_id"
+            )
+            parent = by_id.get(str(parent_id)) if parent_id else None
+            published = published_of.get(str(parent_id)) if parent else None
+            if not parent or not published:
+                return None
+            return published, self._content(parent, note_for(parent))
+
         self.metadata["total"] = len(tweets)
         self.message = f"found {len(tweets)} tweets to import"
         self.save(update_fields=["metadata", "message"])
 
         pending: list[Post] = []
-        for tweet in tweets:
-            created = _parse_tweet_time(tweet.get("created_at", ""))
-            note = notes_by_time.get(created) if created else None
-            if note and not _note_matches(tweet, note):
-                note = None
-            parent = tweet.get("in_reply_to_status_id_str") or tweet.get(
-                "in_reply_to_status_id"
+        for tweet_id, tweet in by_id.items():
+            result, post = self.import_tweet(
+                tweet, note_for(tweet), published_of[tweet_id], parent_of(tweet), media
             )
-            parent_time = times.get(str(parent)) if parent else None
-            result, post = self.import_tweet(tweet, note, parent_time, media)
             self.progress(result)
             if post:
                 pending.append(post)
