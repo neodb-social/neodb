@@ -30,13 +30,13 @@
                      onclick="this.select()">
             </label>
             <p>
-              <b>{{ new_token.application.name }}</b> -- {{ new_token.scopes }}
+              <b>{{ new_token.application.name }}</b> -- {{ new_token.scopes|join:" " }}
             </p>
           </details>
         </article>
         <article>
           <p>
-            <a href="{% url 'users:preferences' %}">{% trans "Back to Preferences" %}</a>
+            <a href="{% url 'users:info' %}">{% trans "Back to Account" %}</a>
           </p>
         </article>
       </div>
