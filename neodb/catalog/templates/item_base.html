@@ -56,22 +56,7 @@
             {% if item.year %}({{ item.year }}){% endif %}
           </small>
         </h1>
-        <span class="site-list">
-          {% for res in item.display_resources %}
-            {% if res.site_name == 'wikidata' %}
-              <a href="{{ res.url }}"
-                 class="{{ res.site_name }}"
-                 hx-get="{% url 'catalog:wikipedia_pages' item.url_path item.uuid res.id_value %}"
-                 hx-target="body"
-                 hx-swap="beforeend"
-                 rel="noopener noreferrer">{{ res.site_label }}</a>
-            {% else %}
-              <a href="{{ res.url }}"
-                 class="{{ res.site_name }}"
-                 rel="noopener noreferrer">{{ res.site_label }}</a>
-            {% endif %}
-          {% endfor %}
-        </span>
+        {% include "_site_labels.html" with resources=item.display_resources wikipedia=True %}
       </div>
       <div id="item-cover" class="left">
         <img src="{{ item.cover_image_url|default:item.cover.url|default:item.default_cover_image_url|relative_uri }}"

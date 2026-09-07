@@ -15,6 +15,22 @@
     white-space: nowrap;
   }
 
+  // "+N" chip; labels past the third stay hidden until it is clicked
+  .more {
+    cursor: pointer;
+    color: var(--pico-muted-color);
+    border-color: var(--pico-muted-border-color);
+    border-style: dashed;
+  }
+
+  &.collapsed .extra {
+    display: none;
+  }
+
+  &:not(.collapsed) .more {
+    display: none;
+  }
+
   .ao3 {
     border: none;
     color: white;
@@ -179,5 +195,76 @@
     background-color: #E1DCC5;
     border-color: #D3CCB0;
     font-weight: normal;
+  }
+
+  .bibliotekdk {
+    color: white;
+    background-color: #3333FF;
+    border: none;
+  }
+
+  .eReolen {
+    color: white;
+    background-color: #B81B40;
+    border: none;
+  }
+
+  .apple_podcast {
+    background: linear-gradient(135deg, #B150E2, #872EC4);
+    color: white;
+    border: none;
+  }
+
+  .worldcat {
+    color: white;
+    background-color: #1074C3;
+    border: none;
+  }
+
+  .mobygames {
+    color: #FFFFFF;
+    background-color: #07576D;
+    border: none;
+    font-weight: bold;
+  }
+
+  .storygraph {
+    color: #FFFFFF;
+    background-color: #2AB5C0;
+    border: none;
+    font-weight: bold;
+  }
+
+  .yt_music {
+    color: white;
+    background-color: #FF0000;
+    border: none;
+  }
+
+  .rateyourmusic {
+    color: #84C5FB;
+    background-color: #152238;
+    border: none;
+    font-weight: bold;
+  }
+
+  .anilist {
+    color: #FFFFFF;
+    background-color: #02A9FF;
+    border: none;
+    font-weight: bold;
+  }
+
+  .myanimelist {
+    color: white;
+    background-color: #2E51A2;
+    border: none;
+  }
+
+  .mangaupdates {
+    color: #FFFFFF;
+    background-color: #FF8C15;
+    border: none;
+    font-weight: bold;
   }
 }

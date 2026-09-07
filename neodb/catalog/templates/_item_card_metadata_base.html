@@ -13,13 +13,7 @@
     <small>
       {% if item.year %}({{ item.year }}){% endif %}
       {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
-      <span class="site-list">
-        {% for res in item.external_resources.all %}
-          <a href="{{ res.url }}"
-             class="{{ res.site_name }}"
-             rel="noopener noreferrer">{{ res.site_label }}</a>
-        {% endfor %}
-      </span>
+      {% include "_site_labels.html" with resources=item.external_resources.all %}
     </small>
   </h5>
   <small>
