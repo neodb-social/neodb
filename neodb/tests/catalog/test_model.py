@@ -225,6 +225,34 @@ class TestSyncCreditsFromMetadata:
         credits = list(m.credits.filter(role=CreditRole.Director))
         assert [c.pk for c in credits] == [credit.pk]
 
+    def test_stored_credit_name_beats_another_persons_alias(self):
+        p1 = People.objects.create(people_type="person", title="Alice")
+        p1.localized_name = [{"lang": "en", "text": "Alice"}]
+        p1.save()
+        p2 = People.objects.create(people_type="person", title="Bob")
+        p2.localized_name = [
+            {"lang": "en", "text": "Bob"},
+            {"lang": "en", "text": "Alice"},
+        ]
+        p2.save()
+        m = self._make_movie()
+        m.director = ["Alice", "Bob"]
+        m.save()
+        alice = ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="Alice", person=p1, order=0
+        )
+        bob = ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="Bob", person=p2, order=1
+        )
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [p1.url, p2.url]
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert [(c.pk, c.person_id) for c in credits] == [
+            (alice.pk, p1.pk),
+            (bob.pk, p2.pk),
+        ]
+
     def test_alias_shared_by_two_linked_people_stays_plain(self):
         names = [{"lang": "en", "text": "Alice"}, {"lang": "fr", "text": "Alicia"}]
         p1 = People.objects.create(people_type="person", title="Alice")

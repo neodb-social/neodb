@@ -148,24 +148,27 @@ def _canonicalize_credit_entries(
     collapse to one person or one name for the same character are dropped,
     e.g. a refetch merging "Name " into an already stripped "Name".
     """
-    # Legacy rows may carry whitespace; compare stripped everywhere.
+    # Legacy rows may carry whitespace; compare stripped everywhere. Stored
+    # credit names are authoritative; localized aliases only fill the gaps,
+    # and an alias shared by two linked people is skipped.
     linked_by_name: dict[str, People] = {}
-    ambiguous: set[str] = set()
     for c in existing:
         if c.person:
             linked_by_name.setdefault(c.name.strip(), c.person)
+    aliases: dict[str, People] = {}
+    ambiguous: set[str] = set()
     for c in existing:
         if not c.person:
             continue
         for alias in c.person.localized_name or []:
             text = (alias.get("text") or "").strip() if isinstance(alias, dict) else ""
-            if not text:
+            if not text or text in linked_by_name:
                 continue
-            known = linked_by_name.setdefault(text, c.person)
-            if known.pk != c.person.pk:
+            if aliases.setdefault(text, c.person).pk != c.person.pk:
                 ambiguous.add(text)
-    for text in ambiguous:
-        linked_by_name.pop(text, None)
+    for text, person in aliases.items():
+        if text not in ambiguous:
+            linked_by_name[text] = person
     new_values: list[str | dict] = []
     desired: list[tuple[str, str, People | None]] = []
     seen: set[tuple[str | int, str]] = set()
