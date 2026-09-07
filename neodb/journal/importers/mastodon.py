@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
 
+from common.models.lang import normalize_language
 from journal.search.index import JournalIndex
 from takahe.html import FediverseHtmlParser
 from takahe.models import Hashtag, Post
@@ -40,16 +41,6 @@ _PUBLIC = {
     "https://www.w3.org/ns/activitystreams#Public",
     "as:Public",
     "Public",
-}
-# Takahe's visibility values are not ordered by restriction, so the stricter
-# of two is picked by rank. local_only sits with unlisted: it hides a post
-# from other servers, not from this site.
-_VISIBILITY_RANK = {
-    Takahe.Visibilities.public: 0,
-    Takahe.Visibilities.local_only: 1,
-    Takahe.Visibilities.unlisted: 1,
-    Takahe.Visibilities.followers: 2,
-    Takahe.Visibilities.mentioned: 3,
 }
 
 _SPACES = re.compile(r"\s+")
@@ -233,7 +224,6 @@ class MastodonImporter(BaseImporter):
         app_label = "journal"  # workaround bug in TypedModel
 
     _zip: zipfile.ZipFile | None = None
-    _default_visibility: Takahe.Visibilities = Takahe.Visibilities.public
     _followers: str = ""
 
     @classmethod
@@ -316,25 +306,22 @@ class MastodonImporter(BaseImporter):
 
     def _visibility(self, item: dict, note: dict | None) -> Takahe.Visibilities:
         """Read the visibility off the audience the way Mastodon itself does
-        (``ActivityPub::Parser::StatusParser#visibility``), then keep whichever
-        of that and the account's own default is stricter."""
+        (``ActivityPub::Parser::StatusParser#visibility``). The archive is the
+        only source: the posting default of the account is not applied, so a
+        post keeps the reach it had, and a direct message stays direct."""
         source = note if note is not None else item
         to = _as_list(source.get("to")) or _as_list(item.get("to"))
         cc = _as_list(source.get("cc")) or _as_list(item.get("cc"))
         if any(a in _PUBLIC for a in to):
-            visibility = Takahe.Visibilities.public
-        elif any(a in _PUBLIC for a in cc):
-            visibility = Takahe.Visibilities.unlisted
-        elif (self._followers and self._followers in to) or (
+            return Takahe.Visibilities.public
+        if any(a in _PUBLIC for a in cc):
+            return Takahe.Visibilities.unlisted
+        # a bare outbox has no actor.json to name the followers collection
+        if (self._followers and self._followers in to) or (
             not self._followers and any(a.endswith("/followers") for a in to)
         ):
-            visibility = Takahe.Visibilities.followers
-        else:
-            visibility = Takahe.Visibilities.mentioned
-        default = self._default_visibility
-        if _VISIBILITY_RANK[default] >= _VISIBILITY_RANK[visibility]:
-            return default
-        return visibility
+            return Takahe.Visibilities.followers
+        return Takahe.Visibilities.mentioned
 
     @staticmethod
     def _content(note: dict) -> str:
@@ -353,12 +340,18 @@ class MastodonImporter(BaseImporter):
 
     @staticmethod
     def _language(note: dict) -> str:
+        """``contentMap`` is keyed by the language of the status, which can
+        name a region (``zh-CN``). Posts of this site carry a macrolanguage,
+        the way ``User.macrolanguage`` gives it."""
         content_map = note.get("contentMap")
+        lang = ""
         if isinstance(content_map, dict):
-            for lang in content_map:
-                if isinstance(lang, str) and lang:
-                    return lang
-        return ""
+            for key in content_map:
+                if isinstance(key, str) and key:
+                    lang = normalize_language(key) or ""
+                    break
+        lang = lang.split("-")[0]
+        return "" if lang == "und" else lang
 
     def _attachments(self, note: dict, media: dict[str, str]):
         attachments = []
@@ -453,9 +446,6 @@ class MastodonImporter(BaseImporter):
     # ---- run --------------------------------------------------------------
 
     def run(self) -> None:
-        self._default_visibility = Takahe.visibility_n2t(
-            0, self.user.preference.post_public_mode
-        )
         items, media = self._load(self.metadata["file"])
         activities = self._plan(items)
 

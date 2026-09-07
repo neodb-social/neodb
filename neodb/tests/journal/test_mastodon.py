@@ -1,3 +1,4 @@
+import datetime
 import json
 import zipfile
 from io import BytesIO
@@ -5,6 +6,7 @@ from io import BytesIO
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from PIL import Image
 
@@ -159,6 +161,13 @@ class TestMastodonImport:
         assert post.visibility == Post.Visibilities.public
         assert FanOut.objects.filter(subject_post=post).count() == 0
 
+    def test_recent_post_is_also_quiet(self, tmp_path):
+        recent = timezone.now() - datetime.timedelta(hours=1)
+        self._run(_zip([_note(published=recent.isoformat())]), tmp_path)
+        post = self._posts().get()
+        assert post.state == "fanned_out"
+        assert FanOut.objects.filter(subject_post=post).count() == 0
+
     def test_bare_outbox_file(self, tmp_path):
         task = self._run(_outbox([_note()]), tmp_path, ext="json")
         assert task.metadata["imported"] == 1
@@ -257,7 +266,9 @@ class TestMastodonImport:
         assert task.metadata["imported"] == 1
         assert self._posts().get().visibility == Post.Visibilities.followers
 
-    def test_account_default_visibility_is_a_floor(self, tmp_path):
+    def test_account_default_does_not_change_visibility(self, tmp_path):
+        # only the archive decides: a public post is not demoted to the
+        # posting default of the account
         self.user.preference.post_public_mode = 1  # unlisted
         self.user.preference.save(update_fields=["post_public_mode"])
         self._run(
@@ -270,8 +281,7 @@ class TestMastodonImport:
             tmp_path,
         )
         public, direct = list(self._posts())
-        assert public.visibility == Post.Visibilities.unlisted
-        # a direct message is stricter than the default and stays direct
+        assert public.visibility == Post.Visibilities.public
         assert direct.visibility == Post.Visibilities.mentioned
 
     def test_self_reply_threaded(self, tmp_path):
@@ -417,7 +427,7 @@ class TestMastodonImport:
         post = self._posts().get()
         assert post.summary == "spoilers"
         assert post.sensitive
-        assert post.language == "zh-CN"
+        assert post.language == "zh"
 
     def test_poll_options_listed(self, tmp_path):
         note = _note(
