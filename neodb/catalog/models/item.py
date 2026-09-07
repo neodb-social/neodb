@@ -141,14 +141,31 @@ def _canonicalize_credit_entries(
 ) -> "tuple[list[str | dict], list[tuple[str, str, People | None]]]":
     """Return the jsondata values to store and the credits they describe.
 
-    A value resolves to a People by URL, or through an existing credit of
-    the same stripped name that is already linked. Resolved values are
-    rewritten to ``person.url``; others are stripped. Entries that collapse
-    to one person or one name for the same character are dropped, e.g. a
-    refetch merging "Name " into an already stripped "Name".
+    A value resolves to a People by URL, or by name through the people already
+    linked in this role: the stored credit name, or any of the person's
+    localized names when that alias is unambiguous among them. Resolved
+    values are rewritten to ``person.url``; others are stripped. Entries that
+    collapse to one person or one name for the same character are dropped,
+    e.g. a refetch merging "Name " into an already stripped "Name".
     """
     # Legacy rows may carry whitespace; compare stripped everywhere.
-    linked_by_name = {c.name.strip(): c.person for c in existing if c.person}
+    linked_by_name: dict[str, People] = {}
+    ambiguous: set[str] = set()
+    for c in existing:
+        if c.person:
+            linked_by_name.setdefault(c.name.strip(), c.person)
+    for c in existing:
+        if not c.person:
+            continue
+        for alias in c.person.localized_name or []:
+            text = (alias.get("text") or "").strip() if isinstance(alias, dict) else ""
+            if not text:
+                continue
+            known = linked_by_name.setdefault(text, c.person)
+            if known.pk != c.person.pk:
+                ambiguous.add(text)
+    for text in ambiguous:
+        linked_by_name.pop(text, None)
     new_values: list[str | dict] = []
     desired: list[tuple[str, str, People | None]] = []
     seen: set[tuple[str | int, str]] = set()

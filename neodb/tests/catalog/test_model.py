@@ -204,6 +204,45 @@ class TestSyncCreditsFromMetadata:
         credits = list(m.credits.filter(role=CreditRole.Director))
         assert [(c.pk, c.name) for c in credits] == [(legacy.pk, "Alice")]
 
+    def test_alias_of_linked_person_resolves_after_overwrite(self):
+        person = People.objects.create(people_type="person", title="Alice")
+        person.localized_name = [
+            {"lang": "en", "text": "Alice"},
+            {"lang": "zh-cn", "text": "爱丽丝"},
+        ]
+        person.save()
+        m = self._make_movie()
+        m.director = [person.url]
+        m.save()
+        m.sync_credits_from_metadata()
+        credit = m.credits.get(role=CreditRole.Director)
+        # an overwrite refetch supplies a different localized name
+        m.director = ["爱丽丝"]
+        m.save()
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [person.url]
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert [c.pk for c in credits] == [credit.pk]
+
+    def test_alias_shared_by_two_linked_people_stays_plain(self):
+        names = [{"lang": "en", "text": "Alice"}, {"lang": "fr", "text": "Alicia"}]
+        p1 = People.objects.create(people_type="person", title="Alice")
+        p1.localized_name = names
+        p1.save()
+        p2 = People.objects.create(people_type="person", title="Alice")
+        p2.localized_name = names
+        p2.save()
+        m = self._make_movie()
+        m.director = [p1.url, p2.url, "Alicia"]
+        m.save()
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [p1.url, p2.url, "Alicia"]
+        assert (
+            m.credits.filter(role=CreditRole.Director, person__isnull=True).count() == 1
+        )
+
     def test_refetch_merge_of_unstripped_name_does_not_duplicate(self):
         """A stored stripped name merged with the scraper's unstripped copy
         (uniq is exact-match) must collapse to one entry and one credit."""
