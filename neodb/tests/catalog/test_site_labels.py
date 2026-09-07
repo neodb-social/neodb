@@ -2,8 +2,11 @@ import re
 
 import pytest
 from django.test import Client
+from django.urls import reverse
 
-from catalog.models import Edition, ExternalResource, IdType
+from catalog.models import Edition, ExternalResource, IdType, ItemCategory, SiteName
+from catalog.search.external import ExternalSearchResultItem, ExternalSources
+from users.models import User
 
 
 def _edition_with_resources(title: str, id_types: list[IdType]) -> Edition:
@@ -82,3 +85,42 @@ def test_labels_order_priority_sites_first_and_fediverse_last():
         "fedi extra",
         "more",
     ]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_external_search_results_render_site_labels(monkeypatch):
+    """Results not saved locally carry a stand-in resource, not a plain dict."""
+    results = [
+        ExternalSearchResultItem(
+            ItemCategory.Movie,
+            SiteName.TMDB,
+            "https://www.themoviedb.org/movie/1",
+            "Ext Movie",
+            "",
+            "brief",
+            "",
+        ),
+        ExternalSearchResultItem(
+            ItemCategory.Movie,
+            "peer.example",
+            "https://peer.example/movies/2",
+            "Peer Movie",
+            "",
+            "brief",
+            "",
+        ),
+    ]
+    monkeypatch.setattr(
+        ExternalSources, "search", classmethod(lambda cls, *a, **kw: results)
+    )
+    user = User.register(email="ext@example.com", username="extuser")
+    client = Client()
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    response = client.get(reverse("catalog:external_search"), {"q": "movie"})
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert '<a href="https://www.themoviedb.org/movie/1"' in html
+    assert 'class="tmdb"' in html
+    assert ">TMDB</a>" in html
+    assert 'class="fedi"' in html
+    assert ">peer.example</a>" in html

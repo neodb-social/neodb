@@ -1,16 +1,35 @@
 import asyncio
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from django.core.cache import cache
 
 from catalog.models import ItemCategory, SiteName
 
+if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
+
+
+@dataclass
+class ExternalSearchResource:
+    """Stand-in for the ExternalResource of an item not saved locally yet.
+
+    Carries what _site_labels.html and ExternalResource.sort_for_display read.
+    """
+
+    url: str
+    site_name: SiteName
+    site_label: "StrOrPromise"
+    pk: int | None = None
+    id_value: str = ""
+
 
 class ExternalSearchResultItem:
     def __init__(
         self,
         category: ItemCategory | None,
-        source_site: SiteName,
+        source_site: "SiteName | str",
         source_url: str,
         title: str,
         subtitle: str,
@@ -19,14 +38,13 @@ class ExternalSearchResultItem:
     ):
         self.class_name = "base"
         self.category = category
+        if isinstance(source_site, SiteName):
+            site_name, site_label = source_site, source_site.label
+        else:
+            # federated search passes the peer's hostname as its source site
+            site_name, site_label = SiteName.Fediverse, source_site
         self.external_resources = {
-            "all": [
-                {
-                    "url": source_url,
-                    "site_name": source_site,
-                    "site_label": source_site,
-                }
-            ]
+            "all": [ExternalSearchResource(source_url, site_name, site_label)]
         }
         self.source_site = source_site
         self.source_url = source_url
