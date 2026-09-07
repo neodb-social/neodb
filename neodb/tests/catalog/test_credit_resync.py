@@ -31,6 +31,14 @@ class TestResyncDuplicateCredits:
                 person=person,
                 order=i,
             )
+        # Relation-only credit with no metadata counterpart must survive.
+        ItemCredit.objects.create(
+            item=dup_person,
+            role=CreditRole.Actor,
+            name="Backfilled",
+            person=self._person("Backfilled"),
+            order=0,
+        )
         dup_name = self._movie(["Bob", "Bob "])
         for i in range(2):
             ItemCredit.objects.create(
@@ -41,16 +49,18 @@ class TestResyncDuplicateCredits:
         clean_edited = Movie.objects.get(pk=clean.pk).edited_time
 
         resync_duplicate_credits_20260907(batch_size=1, dry_run=True)
-        assert dup_person.credits.count() == 2
+        assert dup_person.credits.count() == 3
         assert dup_name.credits.count() == 2
 
         resync_duplicate_credits_20260907(batch_size=1)
 
         dup_person = Movie.objects.get(pk=dup_person.pk)
         assert dup_person.director == [person.url]
-        credits = list(dup_person.credits.all())
-        assert len(credits) == 1
-        assert credits[0].person == person
+        directors = list(dup_person.credits.filter(role=CreditRole.Director))
+        assert len(directors) == 1
+        assert directors[0].person == person
+        assert dup_person.actor == []
+        assert dup_person.credits.filter(role=CreditRole.Actor).count() == 1
 
         dup_name = Movie.objects.get(pk=dup_name.pk)
         assert dup_name.director == ["Bob"]
