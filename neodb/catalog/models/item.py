@@ -1238,8 +1238,9 @@ class Item(PolymorphicModel):
         when the raw value is a /people|person|organization/<uuid> reference
         or when an existing ItemCredit for the same name is already linked.
         When a People is resolved, the jsondata entry is rewritten to the
-        canonical ``person.url`` form so subsequent edits show a link. When
-        ``prune`` is true, ItemCredit rows no longer present are deleted.
+        canonical ``person.url`` form so subsequent edits show a link; other
+        entries are stripped of surrounding whitespace. When ``prune`` is
+        true, ItemCredit rows no longer present are deleted.
         """
         from .people import People
 
@@ -1312,8 +1313,6 @@ class Item(PolymorphicModel):
                     person = linked_by_name[raw_name]
                     display = person.display_name or raw_name
                 canonical = person.url if person else raw_name
-                if canonical != raw_name:
-                    metadata_changed = True
                 if isinstance(value, dict):
                     new_values.append({**value, "name": canonical})
                 else:
@@ -1324,8 +1323,10 @@ class Item(PolymorphicModel):
                 new_value = new_values[0] if new_values else ""
                 if new_value != original:
                     setattr(self, field_name, new_value)
+                    metadata_changed = True
             elif new_values != values:
                 setattr(self, field_name, new_values)
+                metadata_changed = True
 
             existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
             for c in existing:

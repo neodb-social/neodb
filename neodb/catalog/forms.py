@@ -120,10 +120,11 @@ def _EditForm(item_model):
             credits = instance.credits.filter(
                 role__in=roles_in_form, person__isnull=False
             ).select_related("person")
+            # Credit names are stored stripped; raw jsondata values may not be.
             linked: dict[tuple[str, str], str] = {}
             for c in credits:
                 if c.person:
-                    linked[(c.role, c.name)] = c.person.url
+                    linked[(c.role, c.name.strip())] = c.person.url
             if not linked:
                 return
             for field_name, role in mapping.items():
@@ -137,11 +138,11 @@ def _EditForm(item_model):
                 new_values: list[str | dict] = []
                 for v in iter_values:
                     if isinstance(v, dict):
-                        name = v.get("name") or ""
+                        name = (v.get("name") or "").strip()
                         canonical = linked.get((role, name))
                         new_values.append({**v, "name": canonical} if canonical else v)
                     else:
-                        name = str(v or "")
+                        name = str(v or "").strip()
                         canonical = linked.get((role, name))
                         new_values.append(canonical if canonical else v)
                 if scalar_field:

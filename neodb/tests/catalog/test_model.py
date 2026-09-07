@@ -163,6 +163,59 @@ class TestSyncCreditsFromMetadata:
         perf.refresh_from_db()
         assert perf.actor == [{"name": person.url, "role": "Hero"}]
 
+    def test_strips_whitespace_and_persists_jsondata(self):
+        m = self._make_movie()
+        m.director = ["Alice ", " Bob"]
+        m.save()
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == ["Alice", "Bob"]
+        assert [c.name for c in m.credits.filter(role=CreditRole.Director)] == [
+            "Alice",
+            "Bob",
+        ]
+
+    def test_edit_form_links_credit_despite_whitespace(self):
+        """Regression: a scraper left a trailing space in jsondata, the
+        credit was stored stripped and later linked to a People by
+        _link_credits, so the editor showed the plain name."""
+        from catalog.forms import CatalogForms
+
+        person = People.objects.create(people_type="person", title="Alice")
+        person.localized_name = [{"lang": "en", "text": "Alice"}]
+        person.save()
+        m = self._make_movie()
+        m.director = ["Alice "]
+        m.save()
+        ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="Alice", person=person, order=0
+        )
+        form = CatalogForms["Movie"](instance=m)
+        assert form.initial["director"] == [person.url]
+        m.refresh_from_db()
+        assert m.director == ["Alice "]
+
+    def test_edit_form_links_dict_credit_despite_whitespace(self):
+        from catalog.forms import CatalogForms
+
+        person = People.objects.create(people_type="person", title="Star")
+        person.localized_name = [{"lang": "en", "text": "Star"}]
+        person.save()
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [{"name": "Star ", "role": "Hero"}]
+        perf.save()
+        ItemCredit.objects.create(
+            item=perf,
+            role=CreditRole.Actor,
+            name="Star",
+            character_name="Hero",
+            person=person,
+            order=0,
+        )
+        form = CatalogForms["Performance"](instance=perf)
+        assert form.initial["actor"] == [{"name": person.url, "role": "Hero"}]
+
     def test_unmanaged_role_credits_preserved(self):
         m = self._make_movie()
         ItemCredit.objects.create(
