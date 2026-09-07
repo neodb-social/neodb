@@ -176,6 +176,23 @@ class TestSyncCreditsFromMetadata:
             "Bob",
         ]
 
+    def test_legacy_unstripped_linked_credit_keeps_link(self):
+        person = People.objects.create(people_type="person", title="Alice")
+        person.localized_name = [{"lang": "en", "text": "Alice"}]
+        person.save()
+        m = self._make_movie()
+        m.director = ["Alice"]
+        m.save()
+        legacy = ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="Alice ", person=person, order=0
+        )
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [person.url]
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert [c.pk for c in credits] == [legacy.pk]
+        assert credits[0].person == person
+
     def test_refetch_merge_of_unstripped_name_does_not_duplicate(self):
         """A stored stripped name merged with the scraper's unstripped copy
         (uniq is exact-match) must collapse to one entry and one credit."""

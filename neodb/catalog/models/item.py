@@ -1294,7 +1294,8 @@ class Item(PolymorphicModel):
                 values = [original]
 
             existing = credits_by_role.get(credit_role, [])
-            linked_by_name = {c.name: c.person for c in existing if c.person}
+            # Legacy rows may carry whitespace; compare stripped everywhere.
+            linked_by_name = {c.name.strip(): c.person for c in existing if c.person}
 
             desired: list[tuple[str, str, People | None]] = []
             new_values: list[str | dict] = []
@@ -1339,7 +1340,7 @@ class Item(PolymorphicModel):
 
             existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
             for c in existing:
-                key = (c.name, c.person.pk if c.person else None)
+                key = (c.name.strip(), c.person.pk if c.person else None)
                 existing_by_key.setdefault(key, c)
 
             used_pks: set[int] = set()
