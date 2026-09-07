@@ -34,6 +34,20 @@ class TestDoubanMovie:
         assert isinstance(site.resource.item, Movie)
         assert site.resource.item.imdb == "tt1375666"
 
+    @use_local_response
+    def test_scrape_strips_credit_whitespace(self):
+        site = SiteManager.get_site_by_url("https://movie.douban.com/subject/37667644/")
+        assert site is not None
+        site.get_resource_ready()
+        assert site.resource is not None
+        assert site.resource.metadata["director"] == ["杨力州"]
+        assert site.resource.metadata["actor"] == ["龔鈺祺", "王彩樺"]
+        assert site.resource.metadata["playwright"] == []
+        item = site.resource.item
+        assert isinstance(item, Movie)
+        assert item.director == ["杨力州"]
+        assert [c.name for c in item.credits.filter(role="director")] == ["杨力州"]
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestTMDBMovie:

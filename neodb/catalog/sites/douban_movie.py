@@ -93,21 +93,19 @@ class DoubanMovie(AbstractSite):
             content,
             "//div[@id='info']//span[text()='导演']/following-sibling::span[1]/a/text()",
         )
-        director = director_elem
+        director = [d.strip()[:200] for d in director_elem if d.strip()]
 
         playwright_elem = self.query_list(
             content,
             "//div[@id='info']//span[text()='编剧']/following-sibling::span[1]/a/text()",
         )
-        playwright = (
-            list(map(lambda a: a[:200], playwright_elem)) if playwright_elem else []
-        )
+        playwright = [p.strip()[:200] for p in playwright_elem if p.strip()]
 
         actor_elem = self.query_list(
             content,
             "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()",
         )
-        actor = list(map(lambda a: a[:200], actor_elem)) if actor_elem else None
+        actor = [a.strip()[:200] for a in actor_elem if a.strip()] or None
 
         # Extract personage IDs for auto-fetching People
         related_people = _extract_personage_links(content)
