@@ -427,7 +427,7 @@ class TestMastodonImport:
         post = self._posts().get()
         assert post.summary == "spoilers"
         assert post.sensitive
-        assert post.language == "zh"
+        assert post.language == "zh-cn"
 
     def test_poll_options_listed(self, tmp_path):
         note = _note(

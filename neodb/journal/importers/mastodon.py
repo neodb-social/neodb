@@ -340,9 +340,10 @@ class MastodonImporter(BaseImporter):
 
     @staticmethod
     def _language(note: dict) -> str:
-        """``contentMap`` is keyed by the language of the status, which can
-        name a region (``zh-CN``). Posts of this site carry a macrolanguage,
-        the way ``User.macrolanguage`` gives it."""
+        """``contentMap`` is keyed by the language of the status, which can name
+        a region (``zh-CN``). The region is kept, the way the NeoDB and Twitter
+        importers keep what their archive recorded; only the case is normalised,
+        because that is the form this site stores."""
         content_map = note.get("contentMap")
         lang = ""
         if isinstance(content_map, dict):
@@ -350,7 +351,6 @@ class MastodonImporter(BaseImporter):
                 if isinstance(key, str) and key:
                     lang = normalize_language(key) or ""
                     break
-        lang = lang.split("-")[0]
         return "" if lang == "und" else lang
 
     def _attachments(self, note: dict, media: dict[str, str]):
