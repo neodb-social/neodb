@@ -13,7 +13,7 @@
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
       <li _="on focusout if not me.contains(event.relatedTarget) set #q's @data-dismissed to 'true' then send htmx:abort to #q then set #search-suggest's innerHTML to '' end">
         <form role="search" method="get" action="{% url 'common:search' %}">
-          {# An IME keeps its composition buffer in the input value and `input` fires on every pinyin keystroke with isComposing set, so one CJK title used to send a request per keystroke (NEODB-SOCIAL-7WD). Composing keystrokes get a long debounce so a run of them sends nothing, but Android autocorrects every latin word through a composition session, so they must still fire once the typist pauses. compositionend covers the browsers that fire the committed `input` first. The three specs share one debounce timer and one `changed` value, so a commit still sends one request. #}
+          {# An IME keeps its composition buffer in the input value and `input` fires on every pinyin keystroke with isComposing set, so one CJK title used to send a request per keystroke (NEODB-SOCIAL-7WD). Composing keystrokes get a long debounce so a run of them sends nothing, but Android autocorrects every latin word through a composition session, so they must still fire once the typist pauses. compositionend covers the browsers that fire the committed `input` first. Do not add a `changed` guard: htmx remembers its last value per trigger spec, so a value only the composing spec saw stays invisible to the other two, and clearing an IME-entered query then compares '' against '' and is dropped, stranding stale rows under an empty box. The specs do share one debounce timer, so a commit still sends a single request. #}
           <input type="search"
                  name="q"
                  id="q"
@@ -22,7 +22,7 @@
                  autocomplete="off"
                  aria-controls="search-suggest"
                  hx-get="{% url 'common:search_suggest' %}"
-                 hx-trigger="input[!event.isComposing] changed delay:300ms, input[event.isComposing] changed delay:1000ms, compositionend changed delay:300ms"
+                 hx-trigger="input[!event.isComposing] delay:300ms, input[event.isComposing] delay:1000ms, compositionend delay:300ms"
                  hx-include="[name='c']"
                  hx-sync="this:replace"
                  hx-target="#search-suggest"
