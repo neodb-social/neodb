@@ -255,6 +255,11 @@ class TestTakaheAttachmentUrls:
     # Real (unsaved) PostAttachments rather than stubs, so the production
     # signature stays honest and the storage plumbing is the real one.
 
+    # Patch atta.file.storage, not storages["takahe"]: the field resolved its
+    # storage callable once at import, and any override_settings of STORAGES,
+    # STATIC_ROOT or STATIC_URL empties the handler cache, after which
+    # storages["takahe"] hands out a second instance the field never reads.
+
     def test_relative_urls_become_absolute(self):
         atta = PostAttachment(
             pk=7,
@@ -262,7 +267,7 @@ class TestTakaheAttachmentUrls:
             file="attachments/a.png",
             thumbnail="attachment_thumbnails/a.png",
         )
-        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
+        with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             full, preview = takahe_attachment_urls(atta)
         assert full.startswith("http")
         assert full.endswith("/media/attachments/a.png")
@@ -270,7 +275,7 @@ class TestTakaheAttachmentUrls:
 
     def test_absolute_urls_pass_through(self):
         atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
-        with mock.patch.object(storages["takahe"], "base_url", "https://cdn.example/"):
+        with mock.patch.object(atta.file.storage, "base_url", "https://cdn.example/"):
             full, preview = takahe_attachment_urls(atta)
         assert full == "https://cdn.example/attachments/a.png"
         # no thumbnail: preview falls back to the full file
@@ -777,13 +782,13 @@ class TestSyncFromPost:
         compose.yml sets an absolute one, which is why this hid locally --
         pinning it here rather than relying on the ambient config."""
         note, post = self._note_with_post(local=False)
-        PostAttachment.objects.create(
+        atta = PostAttachment.objects.create(
             post=post,
             author_id=self.identity.pk,
             mimetype="image/png",
             file=ContentFile(_png_bytes(), name="rel.png"),
         )
-        with mock.patch.object(storages["takahe"], "base_url", "/media/"):
+        with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             rows = Attachment.sync_from_post(note, post)
         assert len(rows) == 1
         # resolved to an absolute URL rather than raising
