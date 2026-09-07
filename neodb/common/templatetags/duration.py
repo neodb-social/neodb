@@ -6,7 +6,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from catalog.models import item_categories
+from catalog.models import ExternalResource, item_categories
 from catalog.views import visible_categories as _visible_categories
 from common.models.country import country_display_name
 from common.models.duration import format_duration
@@ -90,6 +90,11 @@ def rating_star(value):
 @stringfilter
 def relative_uri(value: str) -> str:
     return str(value).replace(settings.SITE_INFO["site_url"], "") if value else value
+
+
+@register.filter
+def site_order(resources):
+    return ExternalResource.sort_for_display(resources)
 
 
 @register.filter

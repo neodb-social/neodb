@@ -1592,6 +1592,26 @@ class ExternalResource(models.Model):
     def __str__(self):
         return f"{self.pk}:{self.id_type}:{self.id_value or ''} ({self.url})"
 
+    # label order: these sites first, Fediverse last, others keep creation order
+    DISPLAY_PRIORITY: dict[SiteName, int] = {
+        SiteName.WikiData: 0,
+        SiteName.IMDB: 1,
+        SiteName.TMDB: 2,
+        SiteName.IGDB: 3,
+        SiteName.MusicBrainz: 4,
+        SiteName.GoogleBooks: 5,
+        SiteName.Fediverse: 99,
+    }
+
+    @classmethod
+    def sort_for_display(
+        cls, resources: "Iterable[ExternalResource]"
+    ) -> "list[ExternalResource]":
+        return sorted(
+            resources,
+            key=lambda r: (cls.DISPLAY_PRIORITY.get(r.site_name, 10), r.pk or 0),
+        )
+
     def has_cover(self) -> bool:
         return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
 
