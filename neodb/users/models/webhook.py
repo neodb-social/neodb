@@ -138,12 +138,9 @@ def _resolve_public_ip(hostname: str) -> str | None:
     ips = [str(sockaddr[0]) for _, _, _, _, sockaddr in results]
     for ip in ips:
         addr = ipaddress.ip_address(ip)
-        if (
-            addr.is_private
-            or addr.is_reserved
-            or addr.is_loopback
-            or addr.is_link_local
-        ):
+        # is_global also rejects shared address space (100.64.0.0/10) and
+        # multicast, which the private/reserved/loopback predicates admit
+        if not addr.is_global or addr.is_multicast:
             return None
     return ips[0] if ips else None
 
@@ -184,7 +181,8 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
         return resp.is_success
 
 
-def _has_live_token(identity_id: int | None, application_id: int) -> bool:
+def has_live_token(identity_id: int | None, application_id: int) -> bool:
+    """Whether the application still holds an unrevoked token for the identity."""
     return Token.objects.filter(
         identity_id=identity_id, application_id=application_id, revoked__isnull=True
     ).exists()
@@ -203,7 +201,7 @@ def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
     timeout = (SiteConfig.system.webhook_timeout or 1000) / 1000
     webhooks = Webhook.objects.filter(user_id=user_id, disabled=False).order_by("pk")
     for webhook in webhooks:
-        if not _has_live_token(identity_id, webhook.application_id):
+        if not has_live_token(identity_id, webhook.application_id):
             logger.info(f"webhook {webhook.pk} dropped: application has no token")
             remove_webhook(user_id, webhook.application_id)
             continue
@@ -215,7 +213,8 @@ def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
         if ok:
             clear_webhook_failures(webhook.pk)
         elif _bump_failures(webhook.pk) > _FAIL_LIMIT:
-            Webhook.objects.filter(pk=webhook.pk).update(disabled=True)
+            # url filter: a webhook replaced meanwhile keeps its fresh start
+            Webhook.objects.filter(pk=webhook.pk, url=webhook.url).update(disabled=True)
             clear_webhook_cache(user_id)
             clear_webhook_failures(webhook.pk)
             logger.warning(

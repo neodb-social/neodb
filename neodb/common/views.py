@@ -17,6 +17,7 @@ from takahe.utils import Takahe
 from users.models.user import User
 from users.models.webhook import (
     Webhook,
+    has_live_token,
     remove_webhook,
     set_webhook,
     validate_webhook_url,
@@ -190,15 +191,19 @@ def console(request):
         request.user.is_authenticated and request.user.is_superuser
     )
     webhook = None
+    has_token = False
     if request.user.is_authenticated:
+        app_id = _dev_console_app().pk
         webhook = Webhook.objects.filter(
-            user=request.user, application_id=_dev_console_app().pk
+            user=request.user, application_id=app_id
         ).first()
+        has_token = has_live_token(request.user.identity.pk, app_id)
     context = {
         "version": settings.NEODB_VERSION,
         "api": api,
         "token": token,
         "webhook": webhook,
+        "has_token": has_token,
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
         "show_debug_tools": show_debug_tools,
     }
@@ -213,6 +218,9 @@ def console_webhook(request):
     app = _dev_console_app()
     if not url:
         remove_webhook(request.user.pk, app.pk)
+    elif not has_live_token(request.user.identity.pk, app.pk):
+        # delivery drops webhooks of apps without a token; refuse up front
+        raise BadRequest("Generate a test access token first")
     elif validate_webhook_url(url):
         set_webhook(request.user, app.pk, url)
     else:

@@ -59,6 +59,7 @@ class OAuthAccessTokenAuth(HttpBearer):
         request.user = user
         request.identity_id = tk.identity_id
         request.application_id = tk.application_id
+        request.token_scopes = tk.scopes
         return True
 
 

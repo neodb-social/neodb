@@ -247,6 +247,22 @@ class TestDeliver:
         assert webhook.disabled is True
         assert has_active_webhook(user.pk) is False
 
+    def test_replaced_webhook_not_disabled_by_stale_failure(
+        self, user, token, webhook, monkeypatch
+    ):
+        def failing_post(url, payload, timeout):
+            # the user replaces the URL while this delivery is in flight
+            set_webhook(user, token.application.pk, "https://hook.example.org/new")
+            return False
+
+        monkeypatch.setattr("users.models.webhook._post_webhook", failing_post)
+        for _ in range(_FAIL_LIMIT):
+            _bump_failures(webhook.pk)
+        _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
+        webhook.refresh_from_db()
+        assert webhook.url == "https://hook.example.org/new"
+        assert webhook.disabled is False
+
     def test_disabled_webhook_skipped(self, user, webhook, monkeypatch):
         webhook.disabled = True
         webhook.save(update_fields=["disabled"])
@@ -329,6 +345,18 @@ class TestPostWebhook:
         assert seen == []
 
     @override_settings(DEBUG=False)
+    @pytest.mark.parametrize(
+        "ip", ["100.64.0.1", "169.254.169.254", "127.0.0.1", "224.0.0.1", "fe80::1"]
+    )
+    def test_post_refuses_non_global_addresses(self, monkeypatch, ip):
+        seen = []
+        self._mock_client(monkeypatch, lambda request: seen.append(request))
+        with patch("socket.getaddrinfo", return_value=_make_addr_info(ip)):
+            ok = _post_webhook("https://shared.example.com/cb", {"type": "ping"}, 1.0)
+        assert ok is False
+        assert seen == []
+
+    @override_settings(DEBUG=False)
     def test_post_reports_http_error(self, monkeypatch):
         self._mock_client(monkeypatch, lambda request: httpx.Response(500))
         with patch("socket.getaddrinfo", return_value=_make_addr_info("93.184.216.34")):
@@ -403,6 +431,44 @@ class TestWebhookApi:
 
     def test_requires_token(self, client):
         assert client.get(_WEBHOOK_API).status_code == 401
+        r = client.put(
+            _WEBHOOK_API,
+            data='{"url": "https://x.y/"}',
+            content_type="application/json",
+        )
+        assert r.status_code == 401
+        assert client.delete(_WEBHOOK_API).status_code == 401
+
+    def test_read_only_token_cannot_write(self, user, client):
+        ro = Takahe.create_personal_token(user.identity.pk, user.pk, "ro", "read")
+        r = _api(client, "put", ro, {"url": "https://hook.example.org/ro"})
+        assert r.status_code == 401
+        assert _api(client, "delete", ro).status_code == 401
+
+    def test_write_only_token_cannot_subscribe(self, user, client):
+        # payloads disclose what changed, so write alone is not enough
+        wo = Takahe.create_personal_token(user.identity.pk, user.pk, "wo", "write")
+        wo.scopes = "write"
+        wo.save(update_fields=["scopes"])
+        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
+        assert r.status_code == 403
+        assert not Webhook.objects.exists()
+
+    def test_shared_application_isolated_per_user(self, user, client):
+        other = User.register(email="wh2@example.com", username="whuser2")
+        app = Takahe.get_or_create_app("shared", "", "", 0, client_id="app-shared-x")
+        t1 = Takahe.get_token(Takahe.refresh_token(app, user.identity.pk, user.pk))
+        t2 = Takahe.get_token(Takahe.refresh_token(app, other.identity.pk, other.pk))
+        assert t1 and t2
+        r = _api(client, "put", t1, {"url": "https://hook.example.org/u1"})
+        assert r.status_code == 200
+        assert _api(client, "get", t2).status_code == 404
+        _api(client, "put", t2, {"url": "https://hook.example.org/u2"})
+        assert Webhook.objects.get(user=user).url == "https://hook.example.org/u1"
+        assert Webhook.objects.get(user=other).url == "https://hook.example.org/u2"
+        assert _api(client, "delete", t2).status_code == 200
+        assert Webhook.objects.filter(user=user).exists()
+        clear_webhook_cache(other.pk)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -412,7 +478,24 @@ class TestWebViews:
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
         return client
 
-    def test_console_sets_and_clears_dev_webhook(self, user, logged_in, monkeypatch):
+    @pytest.fixture
+    def dev_token(self, user):
+        app = Takahe.get_or_create_app("", "", "", 0, client_id="app-00000000000-dev")
+        return Takahe.refresh_token(app, user.identity.pk, user.pk)
+
+    def test_console_requires_dev_token(self, user, logged_in, monkeypatch):
+        monkeypatch.setattr("common.views.validate_webhook_url", lambda url: True)
+        r = logged_in.post(
+            reverse("common:developer_webhook"), {"url": "https://hook.example.org/c"}
+        )
+        assert r.status_code == 400
+        assert user.webhooks.count() == 0
+        html = logged_in.get(reverse("common:developer")).content.decode()
+        assert "Generate a token first" in html
+
+    def test_console_sets_and_clears_dev_webhook(
+        self, user, logged_in, dev_token, monkeypatch
+    ):
         monkeypatch.setattr("common.views.validate_webhook_url", lambda url: True)
         r = logged_in.post(
             reverse("common:developer_webhook"), {"url": "https://hook.example.org/c"}
@@ -432,7 +515,7 @@ class TestWebViews:
         assert r.status_code == 302
         assert user.webhooks.count() == 0
 
-    def test_console_rejects_invalid_url(self, user, logged_in, monkeypatch):
+    def test_console_rejects_invalid_url(self, user, logged_in, dev_token, monkeypatch):
         monkeypatch.setattr("common.views.validate_webhook_url", lambda url: False)
         r = logged_in.post(
             reverse("common:developer_webhook"), {"url": "https://bad.example/"}
@@ -451,6 +534,12 @@ class TestWebViews:
         assert f'data-tooltip="{webhook.url}"' in html
         assert html.count("data-tooltip=") == 1
         assert other.application.name in html
+
+    def test_account_page_escapes_url(self, user, logged_in, token):
+        set_webhook(user, token.application.pk, 'https://h.example/"><b>x')
+        html = logged_in.get(reverse("users:info")).content.decode()
+        assert '"><b>x' not in html
+        assert "&quot;&gt;&lt;b&gt;x" in html
 
     def test_account_page_marks_disabled(self, user, logged_in, webhook):
         webhook.disabled = True

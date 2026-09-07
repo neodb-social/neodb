@@ -89,9 +89,9 @@
                  name="url"
                  placeholder="https://example.org/hook"
                  value="{{ webhook.url | default:'' }}"
-                 {% if not request.user.is_authenticated %}disabled{% endif %}>
+                 {% if not has_token %}disabled{% endif %}>
           <input type="submit"
-                 {% if request.user.is_authenticated %}value="Save"{% else %}value="Login to set" disabled{% endif %} />
+                 {% if has_token %}value="Save"{% elif request.user.is_authenticated %}value="Generate a token first" disabled{% else %}value="Login to set" disabled{% endif %} />
         </form>
         <p>
           {% if webhook.disabled %}

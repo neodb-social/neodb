@@ -142,7 +142,7 @@ def get_webhook(request):
 
 @api.put(
     "/me/webhook",
-    response={200: WebhookSchema, 400: Result, 401: Result},
+    response={200: WebhookSchema, 400: Result, 401: Result, 403: Result},
     summary="Set this application's webhook for the current user",
     tags=["user"],
 )
@@ -150,7 +150,11 @@ def put_webhook(request, w_in: WebhookInSchema):
     """
     Register or replace the webhook URL. Only https URLs resolving to public
     addresses are accepted. Setting it again re-enables a disabled webhook.
+    Requires the `read` scope as well, since payloads disclose what changed.
     """
+    # scopes is a list or a space separated string depending on the issuer
+    if "read" not in getattr(request, "token_scopes", ""):
+        return Status(403, {"message": "read scope required"})
     url = w_in.url.strip()
     if not validate_webhook_url(url):
         return Status(400, {"message": "Invalid webhook URL"})

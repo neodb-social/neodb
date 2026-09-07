@@ -1319,16 +1319,19 @@ class Takahe:
 
     @staticmethod
     def refresh_token(app: Application, owner_pk: int, user_pk) -> str:
-        tk = Token.objects.filter(application=app, identity_id=owner_pk).first()
-        if tk:
-            tk.delete()
-        return Token.objects.create(
-            application=app,
-            identity_id=owner_pk,
-            user_id=user_pk,
-            scopes=["read", "write"],
-            token=secrets.token_urlsafe(43),
-        ).token
+        # atomic, so the app never appears token-less to a concurrent reader
+        # (webhook delivery drops webhooks of apps without a token)
+        with transaction.atomic(using="takahe"):
+            tk = Token.objects.filter(application=app, identity_id=owner_pk).first()
+            if tk:
+                tk.delete()
+            return Token.objects.create(
+                application=app,
+                identity_id=owner_pk,
+                user_id=user_pk,
+                scopes=["read", "write"],
+                token=secrets.token_urlsafe(43),
+            ).token
 
     @staticmethod
     def get_token(token: str) -> Token | None:
