@@ -9,8 +9,9 @@ from mastodon.models import SocialAccount
 from users.models import APIdentity, Webhook
 from users.models.webhook import (
     MAX_WEBHOOKS_PER_USER,
-    can_add_webhook,
+    WebhookLimitReached,
     remove_webhook,
+    scope_set,
     set_webhook,
     validate_webhook_url,
 )
@@ -159,17 +160,18 @@ def put_webhook(request, w_in: WebhookInSchema):
     Requires the `read` scope as well, since payloads disclose what changed.
     A user can have at most 5 webhooks across applications.
     """
-    # scopes is a list or a space separated string depending on the issuer
-    if "read" not in getattr(request, "token_scopes", ""):
+    if "read" not in scope_set(getattr(request, "token_scopes", None)):
         return Status(403, {"message": "read scope required"})
-    if not can_add_webhook(request.user.pk, request.application_id):
-        return Status(
-            403, {"message": f"At most {MAX_WEBHOOKS_PER_USER} webhooks per user"}
-        )
     url = w_in.url.strip()
     if not validate_webhook_url(url):
         return Status(400, {"message": "Invalid webhook URL"})
-    return Status(200, set_webhook(request.user, request.application_id, url))
+    try:
+        webhook = set_webhook(request.user, request.application_id, url)
+    except WebhookLimitReached:
+        return Status(
+            403, {"message": f"At most {MAX_WEBHOOKS_PER_USER} webhooks per user"}
+        )
+    return Status(200, webhook)
 
 
 @api.delete(

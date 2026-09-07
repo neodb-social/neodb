@@ -105,7 +105,10 @@ curl -H "Authorization: Bearer ACCESS_TOKEN" -X PUT -H "Content-Type: applicatio
 `DELETE /api/me/webhook` removes it. Setting it needs a token with both
 `read` and `write` scopes. Only https URLs resolving to public addresses are
 accepted, and a user can have at most 5 webhooks across applications.
-Revoking the application's access also removes its webhook.
+Once the application holds no token with `read` scope for the user any more
+(revoked from the account page, via `/oauth/revoke`, or by logging out
+everywhere), its webhook is removed, at the latest when the next change
+would have been delivered.
 
 When the user's marks, reviews, notes, collections or articles change,
 a small JSON payload is POSTed to the URL, once per change:
@@ -117,7 +120,8 @@ a small JSON payload is POSTed to the URL, once per change:
 `type` is one of `mark`, `review`, `note`, `collection`, `article`; `action`
 is `save` or `delete`. The payload is a trigger only: fetch the details via
 the API. Delivery is one attempt, without retry or signature. After 100
-consecutive failures the webhook is disabled until it is set again.
+consecutive failures (counted over a week) the webhook is disabled until it
+is set again.
 
 Users can see which of their authorized applications have a webhook on the
 account page, and set one for the Dev Console token on the developer page.

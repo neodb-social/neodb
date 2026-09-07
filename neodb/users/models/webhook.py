@@ -25,6 +25,20 @@ _URL_MAX_LENGTH = 1000
 MAX_WEBHOOKS_PER_USER = 5
 
 
+class WebhookLimitReached(Exception):
+    """The user already has MAX_WEBHOOKS_PER_USER webhooks for other apps."""
+
+
+def scope_set(scopes: object) -> set[str]:
+    """Token scopes are a list or a space separated string depending on the
+    issuer; normalise so membership checks are exact either way."""
+    if isinstance(scopes, str):
+        return set(scopes.split())
+    if isinstance(scopes, list | tuple | set):
+        return {str(s) for s in scopes}
+    return set()
+
+
 class Webhook(models.Model):
     """One URL per (user, application) receiving fire-and-forget POSTs on
     the user's journal changes. `application_id` is a takahe Application pk,
@@ -78,25 +92,26 @@ def clear_webhook_failures(pk: int) -> None:
     cache.delete(_FAIL_CACHE_KEY.format(pk))
 
 
-def can_add_webhook(user_id: int, application_id: int) -> bool:
-    """Whether a webhook for this application fits under the per-user cap;
-    replacing an existing one always does."""
-    return (
-        Webhook.objects.filter(user_id=user_id)
-        .exclude(application_id=application_id)
-        .count()
-        < MAX_WEBHOOKS_PER_USER
-    )
-
-
 def set_webhook(user: User, application_id: int, url: str) -> Webhook:
     """Create or replace the webhook of an application for a user; saving
-    re-enables one that was disabled after repeated failures."""
-    webhook, created = Webhook.objects.update_or_create(
-        user=user,
-        application_id=application_id,
-        defaults={"url": url, "disabled": False},
-    )
+    re-enables one that was disabled after repeated failures. Adding one
+    for a new application raises WebhookLimitReached beyond the per-user cap;
+    replacing an existing one always works."""
+    with transaction.atomic():
+        # lock the user row so concurrent adds for different apps serialise
+        # on the count; the unique constraint alone only covers one app
+        list(User.objects.select_for_update().filter(pk=user.pk).only("id"))
+        webhooks = Webhook.objects.filter(user_id=user.pk)
+        if (
+            not webhooks.filter(application_id=application_id).exists()
+            and webhooks.count() >= MAX_WEBHOOKS_PER_USER
+        ):
+            raise WebhookLimitReached()
+        webhook, created = Webhook.objects.update_or_create(
+            user=user,
+            application_id=application_id,
+            defaults={"url": url, "disabled": False},
+        )
     clear_webhook_failures(webhook.pk)
     clear_webhook_cache(user.pk)
     return webhook
@@ -194,30 +209,35 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
 
 
 def has_live_token(identity_id: int | None, application_id: int) -> bool:
-    """Whether the application still holds an unrevoked token for the identity."""
+    """Whether the application still holds an unrevoked token with the read
+    scope for the identity: payloads disclose what changed, so a surviving
+    write-only token is not enough."""
     if identity_id is None:
         return False
-    return Token.objects.filter(
+    scopes = Token.objects.filter(
         identity_id=identity_id, application_id=application_id, revoked__isnull=True
-    ).exists()
+    ).values_list("scopes", flat=True)
+    return any("read" in scope_set(s) for s in scopes)
 
 
 def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
     """rq job: POST payload to each active webhook of the user, fire and
     forget: no retry, failures only logged. A webhook whose application no
-    longer holds a token for the user is dropped instead of called, so
-    revoking an app anywhere also stops its webhook."""
+    longer holds a read token for the user is dropped instead of called
+    (disabled ones too, so they stop taking a slot), so revoking an app
+    anywhere also stops its webhook."""
     user = User.objects.filter(pk=user_id).select_related("identity").first()
     if not user:
         return
     identity = getattr(user, "identity", None)
     identity_id = identity.pk if identity else None
     timeout = (SiteConfig.system.webhook_timeout or 1000) / 1000
-    webhooks = Webhook.objects.filter(user_id=user_id, disabled=False).order_by("pk")
-    for webhook in webhooks:
+    for webhook in Webhook.objects.filter(user_id=user_id).order_by("pk"):
         if not has_live_token(identity_id, webhook.application_id):
             logger.info(f"webhook {webhook.pk} dropped: application has no token")
             remove_webhook(user_id, webhook.application_id)
+            continue
+        if webhook.disabled:
             continue
         try:
             ok = _post_webhook(webhook.url, payload, timeout)
@@ -226,7 +246,7 @@ def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
             logger.warning(f"webhook {webhook.pk} delivery failed: {e}")
         if ok:
             clear_webhook_failures(webhook.pk)
-        elif _bump_failures(webhook.pk) > _FAIL_LIMIT:
+        elif _bump_failures(webhook.pk) >= _FAIL_LIMIT:
             # url filter: a webhook replaced meanwhile keeps its fresh start
             Webhook.objects.filter(pk=webhook.pk, url=webhook.url).update(disabled=True)
             clear_webhook_cache(user_id)

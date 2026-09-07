@@ -7,6 +7,7 @@ import httpx
 import pytest
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from catalog.models import Edition
 from common.validators import _host_cache
@@ -25,6 +26,7 @@ from users.models.webhook import (
     dispatch_webhook,
     has_active_webhook,
     remove_webhook,
+    scope_set,
     set_webhook,
     validate_webhook_url,
 )
@@ -289,6 +291,56 @@ class TestDeliver:
         assert not Webhook.objects.filter(pk=webhook.pk).exists()
         assert has_active_webhook(user.pk) is False
 
+    def test_oauth_revoked_token_dropped(self, user, token, webhook, monkeypatch):
+        # /oauth/revoke only stamps `revoked`, it does not delete the row
+        token.revoked = timezone.now()
+        token.save(update_fields=["revoked"])
+        called = []
+        monkeypatch.setattr(
+            "users.models.webhook._post_webhook",
+            lambda url, payload, timeout: called.append(url) or True,
+        )
+        _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
+        assert called == []
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+
+    def test_surviving_write_only_token_not_enough(
+        self, user, token, webhook, monkeypatch
+    ):
+        Token.objects.create(
+            application=token.application,
+            user_id=token.user_id,
+            identity_id=token.identity_id,
+            token="wo-" + token.token,
+            scopes=["write"],
+        )
+        token.delete()
+        called = []
+        monkeypatch.setattr(
+            "users.models.webhook._post_webhook",
+            lambda url, payload, timeout: called.append(url) or True,
+        )
+        _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
+        assert called == []
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+
+    def test_disabled_webhook_of_revoked_app_dropped(
+        self, user, token, webhook, monkeypatch
+    ):
+        # a disabled row must not keep taking a slot once the app is gone
+        webhook.disabled = True
+        webhook.save(update_fields=["disabled"])
+        token.delete()
+        called = []
+        monkeypatch.setattr(
+            "users.models.webhook._post_webhook",
+            lambda url, payload, timeout: called.append(url) or True,
+        )
+        _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
+        assert called == []
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+        assert has_active_webhook(user.pk) is False
+
     def test_each_application_called_once(self, user, token, webhook, monkeypatch):
         other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
         set_webhook(user, other.application.pk, "https://hook.example.org/b")
@@ -432,9 +484,12 @@ class TestWebhookApi:
 
     def test_per_user_cap(self, user, client, token, webhook):
         tokens = [
-            Takahe.create_personal_token(user.identity.pk, user.pk, f"t{i}", "write")
+            Takahe.create_personal_token(user.identity.pk, user.pk, f"t{i}", "read")
             for i in range(MAX_WEBHOOKS_PER_USER)
         ]
+        for t in tokens:
+            t.scopes = ["read", "write"]
+            t.save(update_fields=["scopes"])
         # webhook fixture already holds one slot
         for t in tokens[:-1]:
             r = _api(client, "put", t, {"url": f"https://hook.example.org/{t.pk}"})
@@ -450,6 +505,39 @@ class TestWebhookApi:
         assert _api(client, "delete", tokens[0]).status_code == 200
         r = _api(client, "put", tokens[-1], {"url": "https://hook.example.org/x"})
         assert r.status_code == 200
+
+    def test_replacement_allowed_over_cap(self, user, client, token, webhook):
+        # rows beyond the cap can only predate it; replacing must still work
+        for i in range(MAX_WEBHOOKS_PER_USER + 1):
+            Webhook.objects.create(
+                user=user, application_id=100000 + i, url=f"https://h.example/{i}"
+            )
+        r = _api(client, "put", token, {"url": "https://hook.example.org/again"})
+        assert r.status_code == 200
+        webhook.refresh_from_db()
+        assert webhook.url == "https://hook.example.org/again"
+
+    def test_cap_independent_per_user(self, user, client, token, webhook):
+        other = User.register(email="wh3@example.com", username="whuser3")
+        for i in range(MAX_WEBHOOKS_PER_USER):
+            Webhook.objects.create(
+                user=other, application_id=200000 + i, url=f"https://h.example/{i}"
+            )
+        t = Takahe.create_personal_token(user.identity.pk, user.pk, "mine", "write")
+        r = _api(client, "put", t, {"url": "https://hook.example.org/mine"})
+        assert r.status_code == 200
+
+    def test_write_only_list_scopes_rejected(self, user, client):
+        wo = Takahe.create_personal_token(user.identity.pk, user.pk, "wo", "write")
+        wo.scopes = ["write", "push"]
+        wo.save(update_fields=["scopes"])
+        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
+        assert r.status_code == 403
+        # a scope merely containing the substring does not count either
+        wo.scopes = "readonly write"
+        wo.save(update_fields=["scopes"])
+        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
+        assert r.status_code == 403
 
     def test_requires_token(self, client):
         assert client.get(_WEBHOOK_API).status_code == 401
@@ -537,6 +625,18 @@ class TestWebViews:
         assert r.status_code == 302
         assert user.webhooks.count() == 0
 
+    def test_console_enforces_cap(self, user, logged_in, dev_token, monkeypatch):
+        monkeypatch.setattr("common.views.validate_webhook_url", lambda url: True)
+        for i in range(MAX_WEBHOOKS_PER_USER):
+            Webhook.objects.create(
+                user=user, application_id=300000 + i, url=f"https://h.example/{i}"
+            )
+        r = logged_in.post(
+            reverse("common:developer_webhook"), {"url": "https://hook.example.org/c"}
+        )
+        assert r.status_code == 400
+        assert user.webhooks.count() == MAX_WEBHOOKS_PER_USER
+
     def test_console_rejects_invalid_url(self, user, logged_in, dev_token, monkeypatch):
         monkeypatch.setattr("common.views.validate_webhook_url", lambda url: False)
         r = logged_in.post(
@@ -590,3 +690,11 @@ class TestWebViews:
         set_webhook(user, other.application.pk, "https://hook.example.org/b")
         remove_webhook(user.pk)
         assert user.webhooks.count() == 0
+
+
+class TestScopeSet:
+    def test_string_and_list_forms(self):
+        assert scope_set("read write push") == {"read", "write", "push"}
+        assert scope_set(["read", "write"]) == {"read", "write"}
+        assert scope_set(None) == set()
+        assert "read" not in scope_set("readonly write")

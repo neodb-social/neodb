@@ -16,7 +16,9 @@ from takahe.models import Domain
 from takahe.utils import Takahe
 from users.models.user import User
 from users.models.webhook import (
+    MAX_WEBHOOKS_PER_USER,
     Webhook,
+    WebhookLimitReached,
     has_live_token,
     remove_webhook,
     set_webhook,
@@ -222,7 +224,10 @@ def console_webhook(request):
         # delivery drops webhooks of apps without a token; refuse up front
         raise BadRequest("Generate a test access token first")
     elif validate_webhook_url(url):
-        set_webhook(request.user, app.pk, url)
+        try:
+            set_webhook(request.user, app.pk, url)
+        except WebhookLimitReached:
+            raise BadRequest(f"At most {MAX_WEBHOOKS_PER_USER} webhooks per user")
     else:
         raise BadRequest("Invalid webhook URL")
     return redirect(reverse("common:developer"))
