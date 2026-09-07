@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 12:32-0400\n"
+"POT-Creation-Date: 2026-09-07 13:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -822,12 +822,12 @@ msgid "character name"
 msgstr ""
 
 #: catalog/models/item.py:310 catalog/models/item.py:342
-#: journal/models/collection.py:100
+#: journal/models/collection.py:101
 msgid "title"
 msgstr ""
 
 #: catalog/models/item.py:311 catalog/models/item.py:350
-#: journal/models/collection.py:101
+#: journal/models/collection.py:102
 msgid "description"
 msgstr ""
 
@@ -1671,7 +1671,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:311
+#: catalog/templates/_verify_status.html:31 users/views/account.py:312
 msgid "Verification failed"
 msgstr ""
 
@@ -2358,7 +2358,7 @@ msgstr ""
 msgid "Please wait a moment before trying again."
 msgstr ""
 
-#: catalog/views/verify.py:164 common/utils.py:146 common/utils.py:187
+#: catalog/views/verify.py:164 common/utils.py:148 common/utils.py:189
 #: journal/views/article.py:186 journal/views/review.py:182
 #: users/views/actions.py:44 users/views/actions.py:130
 msgid "User not found"
@@ -4133,16 +4133,16 @@ msgstr ""
 msgid "unavailable"
 msgstr ""
 
-#: common/utils.py:150 common/utils.py:191 users/views/actions.py:133
+#: common/utils.py:152 common/utils.py:193 users/views/actions.py:133
 msgid "User no longer exists"
 msgstr ""
 
-#: common/utils.py:157 common/utils.py:159 common/utils.py:162
-#: common/utils.py:198 common/utils.py:202 journal/views/profile.py:499
+#: common/utils.py:159 common/utils.py:161 common/utils.py:164
+#: common/utils.py:200 common/utils.py:204 journal/views/profile.py:499
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:165 common/utils.py:167 journal/views/article.py:204
+#: common/utils.py:167 common/utils.py:169 journal/views/article.py:204
 #: journal/views/profile.py:540 journal/views/review.py:200
 msgid "Login required"
 msgstr ""
@@ -4855,91 +4855,99 @@ msgstr ""
 msgid "Private key (JWK) identifying this site to ATProto authorization servers. Auto-generated on first Bluesky login; clear to regenerate."
 msgstr ""
 
+#: common/views_manage.py:992
+msgid "Webhook Timeout (milliseconds)"
+msgstr ""
+
 #: common/views_manage.py:993
+msgid "Timeout for delivering webhook requests to applications."
+msgstr ""
+
+#: common/views_manage.py:998
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:996
+#: common/views_manage.py:1001
 msgid "Operational"
 msgstr ""
 
-#: common/views_manage.py:1012
+#: common/views_manage.py:1018
 msgid "Movie Genres"
 msgstr ""
 
-#: common/views_manage.py:1014
+#: common/views_manage.py:1020
 msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1019
+#: common/views_manage.py:1025
 msgid "TV Genres"
 msgstr ""
 
-#: common/views_manage.py:1021
+#: common/views_manage.py:1027
 msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1026
+#: common/views_manage.py:1032
 msgid "Music Genres"
 msgstr ""
 
-#: common/views_manage.py:1028
+#: common/views_manage.py:1034
 msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1033
+#: common/views_manage.py:1039
 msgid "Game Genres"
 msgstr ""
 
-#: common/views_manage.py:1035
+#: common/views_manage.py:1041
 msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1040
+#: common/views_manage.py:1046
 msgid "Podcast Genres"
 msgstr ""
 
-#: common/views_manage.py:1042
+#: common/views_manage.py:1048
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1047
+#: common/views_manage.py:1053
 msgid "Performance Genres"
 msgstr ""
 
-#: common/views_manage.py:1049
+#: common/views_manage.py:1055
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1055
+#: common/views_manage.py:1061
 msgid "Genres by Category"
 msgstr ""
 
-#: common/views_manage.py:1079
+#: common/views_manage.py:1085
 msgid "Site"
 msgstr ""
 
-#: common/views_manage.py:1089
+#: common/views_manage.py:1095
 msgid "Database and Services"
 msgstr ""
 
-#: common/views_manage.py:1099
+#: common/views_manage.py:1105
 msgid "Media and Files"
 msgstr ""
 
-#: common/views_manage.py:1108
+#: common/views_manage.py:1114
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:1112
+#: common/views_manage.py:1118
 msgid "Security"
 msgstr ""
 
-#: common/views_manage.py:1121
+#: common/views_manage.py:1127
 msgid "Other Environment Variables"
 msgstr ""
 
-#: common/views_manage.py:1123
+#: common/views_manage.py:1129
 msgid "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe."
 msgstr ""
 
@@ -5066,7 +5074,7 @@ msgstr ""
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/models/article.py:223 journal/views/article.py:218
+#: journal/models/article.py:224 journal/views/article.py:218
 msgid "(may contain sensitive content)"
 msgstr ""
 
@@ -5078,67 +5086,67 @@ msgstr ""
 msgid "note"
 msgstr ""
 
-#: journal/models/collection.py:115
+#: journal/models/collection.py:116
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:574 journal/templatetags/collection.py:35
+#: journal/models/collection.py:575 journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:579 journal/templatetags/collection.py:43
+#: journal/models/collection.py:580 journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:584 journal/templatetags/collection.py:51
+#: journal/models/collection.py:585 journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:589 journal/templatetags/collection.py:59
+#: journal/models/collection.py:590 journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:594 journal/templatetags/collection.py:67
+#: journal/models/collection.py:595 journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:599 journal/templatetags/collection.py:75
+#: journal/models/collection.py:600 journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:605 journal/templatetags/collection.py:83
+#: journal/models/collection.py:606 journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:613 journal/templatetags/collection.py:91
+#: journal/models/collection.py:614 journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/common.py:56 journal/templates/action_open_post.html:15
+#: journal/models/common.py:59 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/mark.html:88
 #: journal/templates/post_compose.html:58 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:43 users/templates/users/data.html:69
@@ -5153,7 +5161,7 @@ msgstr[1] ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:57 journal/templates/action_open_post.html:9
+#: journal/models/common.py:60 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/mark.html:95
 #: journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:49 users/templates/users/data.html:77
@@ -5168,7 +5176,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:58 journal/templates/collection_share.html:57
+#: journal/models/common.py:61 journal/templates/collection_share.html:57
 #: journal/templates/mark.html:102 journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:55 users/templates/users/data.html:85
 #: users/templates/users/data.html:138 users/templates/users/data.html:195
@@ -5182,27 +5190,27 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:806
+#: journal/models/common.py:842
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:1003
+#: journal/models/common.py:1039
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:1036
+#: journal/models/common.py:1072
 msgid "A recent post was not boosted on Mastodon."
 msgstr ""
 
-#: journal/models/common.py:1046
+#: journal/models/common.py:1082
 msgid "Original post no longer exists."
 msgstr ""
 
-#: journal/models/common.py:1060
+#: journal/models/common.py:1096
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:1069
+#: journal/models/common.py:1105
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -5218,81 +5226,81 @@ msgstr ""
 msgid "Retrying"
 msgstr ""
 
-#: journal/models/mark.py:475
+#: journal/models/mark.py:477
 msgid "Please mark the item before setting progress."
 msgstr ""
 
-#: journal/models/mark.py:479
+#: journal/models/mark.py:481
 msgid "Progress must be 500 characters or fewer."
 msgstr ""
 
-#: journal/models/mark.py:486
+#: journal/models/mark.py:488
 msgid "Invalid progress type."
 msgstr ""
 
-#: journal/models/mark.py:488
+#: journal/models/mark.py:490
 msgid "Invalid progress type for this item."
 msgstr ""
 
-#: journal/models/note.py:47 users/templates/users/rym_import.html:73
+#: journal/models/note.py:48 users/templates/users/rym_import.html:73
 #: users/templates/users/storygraph_import.html:73
 msgid "Page"
 msgstr ""
 
-#: journal/models/note.py:48
+#: journal/models/note.py:49
 msgid "Chapter"
 msgstr ""
 
-#: journal/models/note.py:51
+#: journal/models/note.py:52
 msgid "Part"
 msgstr ""
 
-#: journal/models/note.py:52
+#: journal/models/note.py:53
 msgid "Episode"
 msgstr ""
 
-#: journal/models/note.py:53
+#: journal/models/note.py:54
 msgid "Track"
 msgstr ""
 
-#: journal/models/note.py:54
+#: journal/models/note.py:55
 msgid "Cycle"
 msgstr ""
 
-#: journal/models/note.py:55
+#: journal/models/note.py:56
 msgid "Timestamp"
 msgstr ""
 
-#: journal/models/note.py:56
+#: journal/models/note.py:57
 msgid "Percentage"
-msgstr ""
-
-#: journal/models/note.py:77
-#, python-brace-format
-msgid "Page {value}"
 msgstr ""
 
 #: journal/models/note.py:78
 #, python-brace-format
-msgid "Chapter {value}"
+msgid "Page {value}"
 msgstr ""
 
-#: journal/models/note.py:81
+#: journal/models/note.py:79
 #, python-brace-format
-msgid "Part {value}"
+msgid "Chapter {value}"
 msgstr ""
 
 #: journal/models/note.py:82
 #, python-brace-format
-msgid "Episode {value}"
+msgid "Part {value}"
 msgstr ""
 
 #: journal/models/note.py:83
 #, python-brace-format
-msgid "Track {value}"
+msgid "Episode {value}"
 msgstr ""
 
 #: journal/models/note.py:84
+#, python-brace-format
+msgid "Track {value}"
+msgstr ""
+
+#: journal/models/note.py:85
 #, python-brace-format
 msgid "Cycle {value}"
 msgstr ""
@@ -5302,12 +5310,12 @@ msgstr ""
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr ""
 
-#: journal/models/review.py:79
+#: journal/models/review.py:80
 #, python-brace-format
 msgid "a review of {title}"
 msgstr ""
 
-#: journal/models/review.py:81
+#: journal/models/review.py:82
 msgid "(may contain spoilers)"
 msgstr ""
 
@@ -5734,7 +5742,7 @@ msgstr ""
 msgid "started following {item}"
 msgstr ""
 
-#: journal/models/shelf.py:923
+#: journal/models/shelf.py:925
 msgid "removed mark"
 msgstr ""
 
@@ -6274,12 +6282,12 @@ msgid "Liked Collections"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:507
-#: users/templates/users/account.html:443
+#: users/templates/users/account.html:455
 msgid "Following"
 msgstr ""
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:511
-#: users/templates/users/account.html:452
+#: users/templates/users/account.html:464
 msgid "Followers"
 msgstr ""
 
@@ -6582,8 +6590,8 @@ msgstr ""
 #: mastodon/views/mastodon.py:70 mastodon/views/mastodon.py:77
 #: mastodon/views/mastodon.py:87 mastodon/views/mastodon.py:94
 #: mastodon/views/threads.py:57 mastodon/views/threads.py:65
-#: mastodon/views/threads.py:71 users/views/account.py:256
-#: users/views/account.py:375
+#: mastodon/views/threads.py:71 users/views/account.py:257
+#: users/views/account.py:376
 msgid "Authentication failed"
 msgstr ""
 
@@ -6621,7 +6629,7 @@ msgstr ""
 msgid "Invalid user."
 msgstr ""
 
-#: mastodon/views/common.py:52 users/views/account.py:416
+#: mastodon/views/common.py:52 users/views/account.py:417
 msgid "Registration failed"
 msgstr ""
 
@@ -7488,53 +7496,65 @@ msgstr ""
 msgid "Scopes"
 msgstr ""
 
-#: users/templates/users/account.html:398
+#: users/templates/users/account.html:386
+msgid "Webhook"
+msgstr ""
+
+#: users/templates/users/account.html:400
+msgid "disabled"
+msgstr ""
+
+#: users/templates/users/account.html:402
+msgid "active"
+msgstr ""
+
+#: users/templates/users/account.html:410
 msgid "Revoke access for this application?"
 msgstr ""
 
-#: users/templates/users/account.html:401
+#: users/templates/users/account.html:413
 msgid "Revoke"
 msgstr ""
 
-#: users/templates/users/account.html:409
+#: users/templates/users/account.html:421
 msgid "No authorized applications."
 msgstr ""
 
-#: users/templates/users/account.html:412
+#: users/templates/users/account.html:424
 #: users/templates/users/authorized_app_create.html:9
 #: users/templates/users/authorized_app_create.html:19
 msgid "Create Personal Token"
 msgstr ""
 
-#: users/templates/users/account.html:418
+#: users/templates/users/account.html:430
 msgid "Import/Export Social Graph"
 msgstr ""
 
-#: users/templates/users/account.html:419
+#: users/templates/users/account.html:431
 msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr ""
 
-#: users/templates/users/account.html:425
+#: users/templates/users/account.html:437
 msgid "Import type"
 msgstr ""
 
-#: users/templates/users/account.html:427
+#: users/templates/users/account.html:439
 msgid "Following list"
 msgstr ""
 
-#: users/templates/users/account.html:428
+#: users/templates/users/account.html:440
 msgid "Block list"
 msgstr ""
 
-#: users/templates/users/account.html:429
+#: users/templates/users/account.html:441
 msgid "Mute list"
 msgstr ""
 
-#: users/templates/users/account.html:433
+#: users/templates/users/account.html:445
 msgid "CSV file"
 msgstr ""
 
-#: users/templates/users/account.html:436 users/templates/users/data.html:89
+#: users/templates/users/account.html:448 users/templates/users/data.html:89
 #: users/templates/users/data.html:141 users/templates/users/data.html:198
 #: users/templates/users/data.html:249 users/templates/users/data.html:313
 #: users/templates/users/data.html:376 users/templates/users/data.html:553
@@ -7543,66 +7563,66 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: users/templates/users/account.html:447
-#: users/templates/users/account.html:456
-#: users/templates/users/account.html:465
-#: users/templates/users/account.html:474
+#: users/templates/users/account.html:459
+#: users/templates/users/account.html:468
+#: users/templates/users/account.html:477
+#: users/templates/users/account.html:486
 msgid "Download CSV"
 msgstr ""
 
-#: users/templates/users/account.html:461
+#: users/templates/users/account.html:473
 msgid "Blocks"
 msgstr ""
 
-#: users/templates/users/account.html:470
+#: users/templates/users/account.html:482
 msgid "Mutes"
 msgstr ""
 
-#: users/templates/users/account.html:484
+#: users/templates/users/account.html:496
 msgid "Migrate Account"
 msgstr ""
 
-#: users/templates/users/account.html:488
+#: users/templates/users/account.html:500
 msgid "Linking an email to your account is highly recommended before migrating from another Fediverse instance."
 msgstr ""
 
-#: users/templates/users/account.html:491
+#: users/templates/users/account.html:503
 msgid "Migrate another account here"
 msgstr ""
 
-#: users/templates/users/account.html:494
+#: users/templates/users/account.html:506
 msgid "Migrate to another account"
 msgstr ""
 
-#: users/templates/users/account.html:501
+#: users/templates/users/account.html:513
 msgid "Delete Account"
 msgstr ""
 
-#: users/templates/users/account.html:504
+#: users/templates/users/account.html:516
 msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr ""
 
-#: users/templates/users/account.html:507
+#: users/templates/users/account.html:519
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgstr ""
 
-#: users/templates/users/account.html:517
+#: users/templates/users/account.html:529
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:520
+#: users/templates/users/account.html:532
 msgid "Task in progress, can't delete now."
 msgstr ""
 
-#: users/templates/users/account.html:524
+#: users/templates/users/account.html:536
 msgid "Permanently Delete"
 msgstr ""
 
-#: users/templates/users/account.html:565
+#: users/templates/users/account.html:577
 msgid "Delete this passkey?"
 msgstr ""
 
-#: users/templates/users/account.html:585
+#: users/templates/users/account.html:597
 msgid "Rename passkey:"
 msgstr ""
 
@@ -7624,9 +7644,7 @@ msgstr ""
 
 #: users/templates/users/authorized_app_create.html:48
 #: users/templates/users/authorized_app_created.html:39
-#: users/templates/users/migrate_in.html:70
-#: users/templates/users/migrate_out.html:67
-msgid "Back to Preferences"
+msgid "Back to Account"
 msgstr ""
 
 #: users/templates/users/authorized_app_created.html:9
@@ -7761,7 +7779,7 @@ msgstr ""
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
 msgstr ""
 
-#: users/templates/users/data.html:89 users/views/data.py:1164
+#: users/templates/users/data.html:89 users/views/data.py:1165
 msgid "Import in progress, please wait"
 msgstr ""
 
@@ -8055,6 +8073,11 @@ msgstr ""
 
 #: users/templates/users/migrate_in.html:64
 msgid "No aliases configured."
+msgstr ""
+
+#: users/templates/users/migrate_in.html:70
+#: users/templates/users/migrate_out.html:67
+msgid "Back to Preferences"
 msgstr ""
 
 #: users/templates/users/migrate_out.html:9
@@ -8563,191 +8586,191 @@ msgstr ""
 msgid "Passkey created"
 msgstr ""
 
-#: users/views/account.py:126
+#: users/views/account.py:127
 msgid "This username is already in use."
 msgstr ""
 
-#: users/views/account.py:137
+#: users/views/account.py:138
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:257 users/views/account.py:376
+#: users/views/account.py:258 users/views/account.py:377
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:268 users/views/account.py:340
+#: users/views/account.py:269 users/views/account.py:341
 msgid "Time is up"
 msgstr ""
 
-#: users/views/account.py:269 users/views/account.py:312
-#: users/views/account.py:341
+#: users/views/account.py:270 users/views/account.py:313
+#: users/views/account.py:342
 msgid "Please log in again to continue registration."
 msgstr ""
 
-#: users/views/account.py:315
+#: users/views/account.py:316
 msgid "That is not quite right. Here is a new set."
 msgstr ""
 
-#: users/views/account.py:327
+#: users/views/account.py:328
 msgid "Too many attempts"
 msgstr ""
 
-#: users/views/account.py:328
+#: users/views/account.py:329
 msgid "Please try again later."
 msgstr ""
 
-#: users/views/account.py:417
+#: users/views/account.py:418
 msgid "Username already taken. Please try again."
 msgstr ""
 
-#: users/views/account.py:447
+#: users/views/account.py:448
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:518
+#: users/views/account.py:519
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:521
+#: users/views/account.py:522
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:270 users/views/data.py:302
+#: users/views/data.py:271 users/views/data.py:303
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:296
+#: users/views/data.py:297
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:314
+#: users/views/data.py:315
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:329 users/views/data.py:350 users/views/data.py:371
+#: users/views/data.py:330 users/views/data.py:351 users/views/data.py:372
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:387 users/views/data.py:413 users/views/data.py:549
-#: users/views/data.py:583 users/views/data.py:808 users/views/data.py:1025
-#: users/views/data.py:1051 users/views/data.py:1076 users/views/data.py:1101
-#: users/views/data.py:1171
+#: users/views/data.py:388 users/views/data.py:414 users/views/data.py:550
+#: users/views/data.py:584 users/views/data.py:809 users/views/data.py:1026
+#: users/views/data.py:1052 users/views/data.py:1077 users/views/data.py:1102
+#: users/views/data.py:1172
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:439
+#: users/views/data.py:440
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:453
+#: users/views/data.py:454
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:508
+#: users/views/data.py:509
 msgid "Account no longer linked."
 msgstr ""
 
-#: users/views/data.py:511
+#: users/views/data.py:512
 msgid "Content is no longer public."
 msgstr ""
 
-#: users/views/data.py:539
+#: users/views/data.py:540
 msgid "Retry did not complete, please try again."
 msgstr ""
 
-#: users/views/data.py:619 users/views/data.py:844
+#: users/views/data.py:620 users/views/data.py:845
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:644 users/views/data.py:873
+#: users/views/data.py:645 users/views/data.py:874
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:664
+#: users/views/data.py:665
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:672 users/views/data.py:782 users/views/data.py:903
-#: users/views/data.py:1008
+#: users/views/data.py:673 users/views/data.py:783 users/views/data.py:904
+#: users/views/data.py:1009
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:768 users/views/data.py:994
+#: users/views/data.py:769 users/views/data.py:995
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:778 users/views/data.py:1004
+#: users/views/data.py:779 users/views/data.py:1005
 msgid "No matched file available."
 msgstr ""
 
-#: users/views/data.py:895
+#: users/views/data.py:896
 msgid "No StoryGraph import to preview."
 msgstr ""
 
-#: users/views/data.py:1260
+#: users/views/data.py:1261
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:1282
+#: users/views/data.py:1285
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:1298
+#: users/views/data.py:1301
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:1303
+#: users/views/data.py:1306
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:1313 users/views/data.py:1364
+#: users/views/data.py:1316 users/views/data.py:1367
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:1320
+#: users/views/data.py:1323
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:1325
+#: users/views/data.py:1328
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:1351
+#: users/views/data.py:1354
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:1356
+#: users/views/data.py:1359
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:1369
+#: users/views/data.py:1372
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:1380
+#: users/views/data.py:1383
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:1386
+#: users/views/data.py:1389
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:1444
+#: users/views/data.py:1447
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1460
+#: users/views/data.py:1463
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1464
+#: users/views/data.py:1467
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1474
+#: users/views/data.py:1477
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

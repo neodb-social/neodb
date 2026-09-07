@@ -12,7 +12,7 @@ def queue_job(apps: object, schema_editor: object) -> None:
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("users", "0018_webhook"),
+        ("users", "0019_webhook"),
     ]
 
     operations = [
