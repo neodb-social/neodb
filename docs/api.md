@@ -103,9 +103,9 @@ curl -H "Authorization: Bearer ACCESS_TOKEN" -X PUT -H "Content-Type: applicatio
 
 `GET /api/me/webhook` returns the current URL and whether it is disabled,
 `DELETE /api/me/webhook` removes it. Setting it needs a token with both
-`read` and `write` scopes. Only https URLs resolving to public addresses are
+`write` and `push` scopes. Only https URLs resolving to public addresses are
 accepted, and a user can have at most 5 webhooks across applications.
-Once the application holds no token with `read` scope for the user any more
+Once the application holds no token with `push` scope for the user any more
 (revoked from the account page, via `/oauth/revoke`, or by logging out
 everywhere), its webhook is removed, at the latest when the next change
 would have been delivered.

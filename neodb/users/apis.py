@@ -157,11 +157,11 @@ def put_webhook(request, w_in: WebhookInSchema):
     """
     Register or replace the webhook URL. Only https URLs resolving to public
     addresses are accepted. Setting it again re-enables a disabled webhook.
-    Requires the `read` scope as well, since payloads disclose what changed.
-    A user can have at most 5 webhooks across applications.
+    Requires the `push` scope as well; a user can have at most 5 webhooks
+    across applications.
     """
-    if "read" not in scope_set(getattr(request, "token_scopes", None)):
-        return Status(403, {"message": "read scope required"})
+    if "push" not in scope_set(getattr(request, "token_scopes", None)):
+        return Status(403, {"message": "push scope required"})
     url = w_in.url.strip()
     if not validate_webhook_url(url):
         return Status(400, {"message": "Invalid webhook URL"})

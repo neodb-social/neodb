@@ -15,6 +15,7 @@ from common.validators import _host_cache
 from journal.models import Collection, Mark, Note, Review, ShelfType
 from takahe.models import Token
 from takahe.utils import Takahe
+from users.jobs.migrations import normalize_token_scopes_20260907
 from users.models import User, Webhook
 from users.models.webhook import (
     MAX_WEBHOOKS_PER_USER,
@@ -391,15 +392,15 @@ class TestDeliver:
         assert called == []
         assert not Webhook.objects.filter(pk=webhook.pk).exists()
 
-    def test_surviving_write_only_token_not_enough(
+    def test_surviving_token_without_push_not_enough(
         self, user, token, webhook, monkeypatch
     ):
         Token.objects.create(
             application=token.application,
             user_id=token.user_id,
             identity_id=token.identity_id,
-            token="wo-" + token.token,
-            scopes=["write"],
+            token="np-" + token.token,
+            scopes=["read", "write"],
         )
         token.delete()
         called = []
@@ -429,7 +430,7 @@ class TestDeliver:
         assert has_active_webhook(user.pk) is False
 
     def test_each_application_called_once(self, user, token, webhook, monkeypatch):
-        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "write")
         set_webhook(user, other.application.pk, "https://hook.example.org/b")
         called = []
         monkeypatch.setattr(
@@ -576,7 +577,7 @@ class TestWebhookApi:
             for i in range(MAX_WEBHOOKS_PER_USER)
         ]
         for t in tokens:
-            t.scopes = ["read", "write"]
+            t.scopes = ["read", "write", "push"]
             t.save(update_fields=["scopes"])
         # webhook fixture already holds one slot
         for t in tokens[:-1]:
@@ -615,16 +616,11 @@ class TestWebhookApi:
         r = _api(client, "put", t, {"url": "https://hook.example.org/mine"})
         assert r.status_code == 200
 
-    def test_write_only_list_scopes_rejected(self, user, client):
-        wo = Takahe.create_personal_token(user.identity.pk, user.pk, "wo", "write")
-        wo.scopes = ["write", "push"]
-        wo.save(update_fields=["scopes"])
-        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
-        assert r.status_code == 403
-        # a scope merely containing the substring does not count either
-        wo.scopes = "readonly write"
-        wo.save(update_fields=["scopes"])
-        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
+    def test_scope_substring_does_not_count(self, user, client):
+        t = Takahe.create_personal_token(user.identity.pk, user.pk, "t", "write")
+        t.scopes = "read write pushy"
+        t.save(update_fields=["scopes"])
+        r = _api(client, "put", t, {"url": "https://hook.example.org/t"})
         assert r.status_code == 403
 
     def test_requires_token(self, client):
@@ -643,14 +639,24 @@ class TestWebhookApi:
         assert r.status_code == 401
         assert _api(client, "delete", ro).status_code == 401
 
-    def test_write_only_token_cannot_subscribe(self, user, client):
-        # payloads disclose what changed, so write alone is not enough
-        wo = Takahe.create_personal_token(user.identity.pk, user.pk, "wo", "write")
-        wo.scopes = "write"
-        wo.save(update_fields=["scopes"])
-        r = _api(client, "put", wo, {"url": "https://hook.example.org/wo"})
+    def test_token_without_push_cannot_subscribe(self, user, client):
+        # webhooks are push notifications: read and write alone are not enough
+        rw = Takahe.create_personal_token(user.identity.pk, user.pk, "rw", "write")
+        rw.scopes = ["read", "write"]
+        rw.save(update_fields=["scopes"])
+        r = _api(client, "put", rw, {"url": "https://hook.example.org/rw"})
         assert r.status_code == 403
+        assert r.json()["message"] == "push scope required"
         assert not Webhook.objects.exists()
+        # legacy string form of the same scopes is treated alike
+        rw.scopes = "read write"
+        rw.save(update_fields=["scopes"])
+        r = _api(client, "put", rw, {"url": "https://hook.example.org/rw"})
+        assert r.status_code == 403
+        rw.scopes = "read write push"
+        rw.save(update_fields=["scopes"])
+        r = _api(client, "put", rw, {"url": "https://hook.example.org/rw"})
+        assert r.status_code == 200
 
     def test_shared_application_isolated_per_user(self, user, client):
         other = User.register(email="wh2@example.com", username="whuser2")
@@ -728,7 +734,7 @@ class TestWebViews:
     def test_console_ping(
         self, user, logged_in, token, webhook, queue, django_capture_on_commit_callbacks
     ):
-        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "write")
         set_webhook(user, other.application.pk, "https://hook.example.org/b")
         with django_capture_on_commit_callbacks(execute=True):
             r = logged_in.post(reverse("common:developer_webhook_ping"))
@@ -811,3 +817,39 @@ class TestScopeSet:
         assert scope_set(["read", "write"]) == {"read", "write"}
         assert scope_set(None) == set()
         assert "read" not in scope_set("readonly write")
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTokenScopeFormat:
+    def test_neodb_minted_tokens_store_lists(self, user):
+        t = Takahe.create_personal_token(user.identity.pk, user.pk, "w", "write")
+        assert t.scopes == ["read", "write", "push"]
+        t = Takahe.create_personal_token(user.identity.pk, user.pk, "r", "read")
+        assert t.scopes == ["read"]
+        app = Takahe.get_or_create_app("", "", "", 0, client_id="app-00000000000-dev")
+        dev = Takahe.get_token(Takahe.refresh_token(app, user.identity.pk, user.pk))
+        assert dev and dev.scopes == ["read", "write", "push"]
+
+    def test_normalize_legacy_string_scopes(self, user):
+        legacy = Takahe.create_personal_token(user.identity.pk, user.pk, "l", "write")
+        legacy.scopes = "read write push"
+        legacy.save(update_fields=["scopes"])
+        fine = Takahe.create_personal_token(user.identity.pk, user.pk, "f", "read")
+        assert normalize_token_scopes_20260907() == 1
+        legacy.refresh_from_db()
+        fine.refresh_from_db()
+        assert legacy.scopes == ["read", "write", "push"]
+        assert fine.scopes == ["read"]
+        assert normalize_token_scopes_20260907() == 0
+
+    def test_account_page_renders_scopes_as_text(self, user, client):
+        t = Takahe.create_personal_token(user.identity.pk, user.pk, "w", "write")
+        legacy = Takahe.create_personal_token(user.identity.pk, user.pk, "l", "read")
+        legacy.scopes = "read"
+        legacy.save(update_fields=["scopes"])
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        html = client.get(reverse("users:info")).content.decode()
+        assert "<td>read write push</td>" in html
+        assert "<td>read</td>" in html
+        assert "[" not in html.split("Authorized Apps")[1].split("</table>")[0]
+        assert t.pk

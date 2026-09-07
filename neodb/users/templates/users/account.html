@@ -391,7 +391,7 @@
                   {% for token in tokens %}
                     <tr>
                       <td>{{ token.application.name }}</td>
-                      <td>{{ token.scopes }}</td>
+                      <td>{{ token.scope_text }}</td>
                       <td>{{ token.created }}</td>
                       <td>
                         {% if token.webhook %}

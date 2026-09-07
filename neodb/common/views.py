@@ -259,7 +259,7 @@ def oauth_protected_resource(request):
         "token_endpoint": f"{base_url}/oauth/token",
         "revocation_endpoint": f"{base_url}/oauth/revoke",
         "token_types_supported": ["bearer"],
-        "scopes_supported": ["read", "write"],
+        "scopes_supported": ["read", "write", "push"],
         "resource_server": {
             "name": SiteConfig.system.site_name,
             "description": SiteConfig.system.site_description,
@@ -296,7 +296,7 @@ def oauth_authorization_server(request):
         # Supported response types
         "response_types_supported": ["code"],
         # Supported scopes
-        "scopes_supported": ["read", "write"],
+        "scopes_supported": ["read", "write", "push"],
         # Token endpoint authentication methods
         "token_endpoint_auth_methods_supported": [
             "client_secret_basic",

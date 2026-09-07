@@ -13,6 +13,7 @@ from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models.task import Task
 from users.models.webauthn import WebAuthnCredential
+from users.models.webhook import scope_list
 
 
 class ProfileForm(forms.ModelForm):
@@ -45,6 +46,7 @@ def account_info(request):
     for token in tokens:
         # takahe rows cannot join neodb rows: attach for the template
         setattr(token, "webhook", webhooks.get(token.application_id))
+        setattr(token, "scope_text", " ".join(scope_list(token.scopes)))
     return render(
         request,
         "users/account.html",

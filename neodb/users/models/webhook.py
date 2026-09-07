@@ -31,14 +31,19 @@ class WebhookLimitReached(Exception):
     """The user already has MAX_WEBHOOKS_PER_USER webhooks for other apps."""
 
 
-def scope_set(scopes: object) -> set[str]:
-    """Token scopes are a list or a space separated string depending on the
-    issuer; normalise so membership checks are exact either way."""
+def scope_list(scopes: object) -> list[str]:
+    """Token scopes as a list. Takahe stores a JSON list; a space separated
+    string is the legacy form of tokens minted by neodb before 2026-09, which
+    a migration job rewrites, so tolerate it here meanwhile."""
     if isinstance(scopes, str):
-        return set(scopes.split())
+        return scopes.split()
     if isinstance(scopes, list | tuple | set):
-        return {str(s) for s in scopes}
-    return set()
+        return [str(s) for s in scopes]
+    return []
+
+
+def scope_set(scopes: object) -> set[str]:
+    return set(scope_list(scopes))
 
 
 class Webhook(models.Model):
@@ -235,21 +240,21 @@ def _post_webhook(url: str, payload: dict, timeout: float) -> bool:
 
 
 def has_live_token(identity_id: int | None, application_id: int) -> bool:
-    """Whether the application still holds an unrevoked token with the read
-    scope for the identity: payloads disclose what changed, so a surviving
-    write-only token is not enough."""
+    """Whether the application still holds an unrevoked token with the push
+    scope for the identity; webhooks are push notifications, so a surviving
+    token without it is not enough."""
     if identity_id is None:
         return False
     scopes = Token.objects.filter(
         identity_id=identity_id, application_id=application_id, revoked__isnull=True
     ).values_list("scopes", flat=True)
-    return any("read" in scope_set(s) for s in scopes)
+    return any("push" in scope_set(s) for s in scopes)
 
 
 def _deliver_webhook(user_id: int, payload: dict) -> None:
     """rq job: POST payload to each active webhook of the user, fire and
     forget: no retry, failures only logged. A webhook whose application no
-    longer holds a read token for the user is dropped instead of called
+    longer holds a push token for the user is dropped instead of called
     (disabled ones too, so they stop taking a slot), so revoking an app
     anywhere also stops its webhook."""
     user = User.objects.filter(pk=user_id).select_related("identity").first()

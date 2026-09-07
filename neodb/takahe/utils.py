@@ -628,7 +628,8 @@ class Takahe:
     ) -> Token:
         import secrets as sec
 
-        scopes = "read write push" if scope == "write" else "read"
+        # a list, as takahe's OAuth flow stores it (`scope.split()`)
+        scopes = ["read", "write", "push"] if scope == "write" else ["read"]
         app = Application.objects.create(
             client_id=sec.token_urlsafe(32),
             client_secret=sec.token_urlsafe(32),
@@ -1329,7 +1330,7 @@ class Takahe:
                 application=app,
                 identity_id=owner_pk,
                 user_id=user_pk,
-                scopes=["read", "write"],
+                scopes=["read", "write", "push"],
                 token=secrets.token_urlsafe(43),
             ).token
 
