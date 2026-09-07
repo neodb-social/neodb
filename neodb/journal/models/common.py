@@ -220,12 +220,18 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             self.update_index()
 
     def delete(self, *args, **kwargs):
-        if self.local:
-            self.sync_to_webhooks("delete")
+        local = self.local
+        if local:
             self.delete_from_timeline()
             self.delete_crossposts()
         self.delete_index()
-        return super().delete(*args, **kwargs)
+        result = super().delete(*args, **kwargs)
+        # after the row is gone: without an enclosing transaction the
+        # on_commit hook fires at once, and a receiver polling the API on a
+        # "delete" must not still find the piece
+        if local:
+            self.sync_to_webhooks("delete")
+        return result
 
     def to_webhook_change(self, action: str) -> dict[str, Any]:
         """One entry of the webhook `changes` list. `object` is the API
