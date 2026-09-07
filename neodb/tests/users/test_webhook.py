@@ -15,6 +15,7 @@ from takahe.models import Token
 from takahe.utils import Takahe
 from users.models import User, Webhook
 from users.models.webhook import (
+    MAX_WEBHOOKS_PER_USER,
     _bump_failures,
     _deliver_webhook,
     _FAIL_LIMIT,
@@ -428,6 +429,27 @@ class TestWebhookApi:
         assert user.webhooks.count() == 2
         assert _api(client, "delete", other).status_code == 200
         assert list(user.webhooks.values_list("url", flat=True)) == [webhook.url]
+
+    def test_per_user_cap(self, user, client, token, webhook):
+        tokens = [
+            Takahe.create_personal_token(user.identity.pk, user.pk, f"t{i}", "write")
+            for i in range(MAX_WEBHOOKS_PER_USER)
+        ]
+        # webhook fixture already holds one slot
+        for t in tokens[:-1]:
+            r = _api(client, "put", t, {"url": f"https://hook.example.org/{t.pk}"})
+            assert r.status_code == 200
+        r = _api(client, "put", tokens[-1], {"url": "https://hook.example.org/x"})
+        assert r.status_code == 403
+        assert user.webhooks.count() == MAX_WEBHOOKS_PER_USER
+        # replacing an existing one is still allowed at the cap
+        r = _api(client, "put", token, {"url": "https://hook.example.org/again"})
+        assert r.status_code == 200
+        assert user.webhooks.count() == MAX_WEBHOOKS_PER_USER
+        # freeing a slot lets the rejected app in
+        assert _api(client, "delete", tokens[0]).status_code == 200
+        r = _api(client, "put", tokens[-1], {"url": "https://hook.example.org/x"})
+        assert r.status_code == 200
 
     def test_requires_token(self, client):
         assert client.get(_WEBHOOK_API).status_code == 401

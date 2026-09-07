@@ -22,6 +22,7 @@ _FAIL_CACHE_KEY = "webhook_fail:{}"
 _FAIL_LIMIT = 100
 _FAIL_WINDOW = 7 * 24 * 3600
 _URL_MAX_LENGTH = 1000
+MAX_WEBHOOKS_PER_USER = 5
 
 
 class Webhook(models.Model):
@@ -75,6 +76,17 @@ def clear_webhook_cache(user_id: int) -> None:
 
 def clear_webhook_failures(pk: int) -> None:
     cache.delete(_FAIL_CACHE_KEY.format(pk))
+
+
+def can_add_webhook(user_id: int, application_id: int) -> bool:
+    """Whether a webhook for this application fits under the per-user cap;
+    replacing an existing one always does."""
+    return (
+        Webhook.objects.filter(user_id=user_id)
+        .exclude(application_id=application_id)
+        .count()
+        < MAX_WEBHOOKS_PER_USER
+    )
 
 
 def set_webhook(user: User, application_id: int, url: str) -> Webhook:

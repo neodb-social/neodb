@@ -7,7 +7,13 @@ from ninja.schema import Field
 from common.api import NOT_FOUND, OK, OptionalOAuthAccessTokenAuth, Result, api
 from mastodon.models import SocialAccount
 from users.models import APIdentity, Webhook
-from users.models.webhook import remove_webhook, set_webhook, validate_webhook_url
+from users.models.webhook import (
+    MAX_WEBHOOKS_PER_USER,
+    can_add_webhook,
+    remove_webhook,
+    set_webhook,
+    validate_webhook_url,
+)
 
 
 class TokenSchema(Schema):
@@ -151,10 +157,15 @@ def put_webhook(request, w_in: WebhookInSchema):
     Register or replace the webhook URL. Only https URLs resolving to public
     addresses are accepted. Setting it again re-enables a disabled webhook.
     Requires the `read` scope as well, since payloads disclose what changed.
+    A user can have at most 5 webhooks across applications.
     """
     # scopes is a list or a space separated string depending on the issuer
     if "read" not in getattr(request, "token_scopes", ""):
         return Status(403, {"message": "read scope required"})
+    if not can_add_webhook(request.user.pk, request.application_id):
+        return Status(
+            403, {"message": f"At most {MAX_WEBHOOKS_PER_USER} webhooks per user"}
+        )
     url = w_in.url.strip()
     if not validate_webhook_url(url):
         return Status(400, {"message": "Invalid webhook URL"})
