@@ -652,6 +652,13 @@ class AccessSettings(SiteConfigSettingsPage):
                 "tweets become local posts that are never federated."
             ),
         },
+        "enable_import_mastodon": {
+            "title": _("Enable Mastodon Archive Import"),
+            "help_text": _(
+                "Show the Mastodon archive import on the data page. Imported "
+                "posts become local posts that are never federated."
+            ),
+        },
         "language_code": {
             "title": _("Default Language"),
             "choices": list(settings.LANGUAGES),
@@ -687,6 +694,7 @@ class AccessSettings(SiteConfigSettingsPage):
         ],
         _("Data Import"): [
             "enable_import_twitter",
+            "enable_import_mastodon",
         ],
         _("Localization"): [
             "language_code",

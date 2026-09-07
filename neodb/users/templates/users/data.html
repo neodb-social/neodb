@@ -609,6 +609,31 @@
             </details>
           </article>
         {% endif %}
+        {% if enable_import_mastodon %}
+          <article>
+            <details>
+              <summary>{% trans 'Import Mastodon Archive' %}</summary>
+              <form hx-post="{% url 'users:import_mastodon' %}"
+                    enctype="multipart/form-data">
+                {% csrf_token %}
+                <ul>
+                  <li>
+                    {% blocktrans %}On your Mastodon server, go to <b>Preferences</b> - <b>Import and export</b> - <b>Request your archive</b>. Upload the <code>.zip</code> you receive, or only the <code>outbox.json</code> file inside it if the archive is larger than 100 MB (photos are then not imported).{% endblocktrans %}
+                  </li>
+                  <li>
+                    {% trans 'Each post is imported with its original date, text, links, photos, content warning and visibility, so a followers-only post or a direct message stays that way. Replies to your own posts are kept as a thread. A boost becomes a short post that links to the original post. Videos, favourites and bookmarks are skipped.' %}
+                  </li>
+                  <li>
+                    {% trans 'Imported posts are only visible on this site and are never sent to other servers or to followers. Posts that were imported before are skipped, so the same archive can be uploaded again.' %}
+                  </li>
+                </ul>
+                <input type="file" name="file" required accept=".zip,.json">
+                <input type="submit" value="{% trans 'Import' %}" />
+                {% include "users/user_task_status.html" with task=mastodon_import_task %}
+              </form>
+            </details>
+          </article>
+        {% endif %}
         <article>
           <details>
             <summary>{% trans 'View Annual Summary' %}</summary>

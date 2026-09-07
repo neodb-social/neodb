@@ -2,6 +2,7 @@ from .csv import CsvImporter
 from .douban import DoubanImporter
 from .goodreads import GoodreadsImporter
 from .letterboxd import LetterboxdImporter
+from .mastodon import MastodonImporter
 from .ndjson import NdjsonImporter
 from .opml import OPMLImporter
 from .rym import RymImporter
@@ -15,6 +16,7 @@ __all__ = [
     "CsvImporter",
     "NdjsonImporter",
     "LetterboxdImporter",
+    "MastodonImporter",
     "OPMLImporter",
     "DoubanImporter",
     "GoodreadsImporter",

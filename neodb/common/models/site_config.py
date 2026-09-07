@@ -66,6 +66,7 @@ class SiteConfig(models.Model):
         # Data import: shows the section on the data page, the endpoint
         # itself is not gated
         enable_import_twitter: bool = False
+        enable_import_mastodon: bool = False
 
         # Discover
         min_marks_for_discover: int = 1

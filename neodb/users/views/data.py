@@ -36,6 +36,7 @@ from journal.importers import (
     DoubanImporter,
     GoodreadsImporter,
     LetterboxdImporter,
+    MastodonImporter,
     NdjsonImporter,
     OPMLImporter,
     RymImporter,
@@ -181,6 +182,8 @@ def data(request):
             "wordpress_import_task": WordpressImporter.latest_task(request.user),
             "twitter_task": TwitterImporter.latest_task(request.user),
             "enable_import_twitter": SiteConfig.system.enable_import_twitter,
+            "mastodon_import_task": MastodonImporter.latest_task(request.user),
+            "enable_import_mastodon": SiteConfig.system.enable_import_mastodon,
             "wordpress_export_task": WordpressExporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,
@@ -219,6 +222,8 @@ def user_task_status(request, task_type: str):
             task_cls = WordpressImporter
         case "journal.twitterimporter":
             task_cls = TwitterImporter
+        case "journal.mastodonimporter":
+            task_cls = MastodonImporter
         case "journal.wordpressexporter":
             task_cls = WordpressExporter
         case _:
@@ -428,6 +433,30 @@ def import_twitter(request):
         visibility=int(request.POST.get("visibility", 0)),
         file=f,
     )
+    task.enqueue()
+    record_activity("import", "web")
+    return redirect(reverse("users:user_task_status", args=(task.type,)))
+
+
+@login_required
+def import_mastodon(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    upload = request.FILES.get("file")
+    if not MastodonImporter.validate_file(upload):
+        raise BadRequest(_("Invalid file."))
+    ext = ".zip" if zipfile.is_zipfile(upload) else ".json"
+    upload.seek(0)
+    f = (
+        settings.MEDIA_ROOT
+        + "/"
+        + GenerateDateUUIDMediaFilePath("mastodon" + ext, settings.SYNC_FILE_PATH_ROOT)
+    )
+    os.makedirs(os.path.dirname(f), exist_ok=True)
+    with open(f, "wb+") as destination:
+        for chunk in upload.chunks():
+            destination.write(chunk)
+    task = MastodonImporter.create(request.user, file=f)
     task.enqueue()
     record_activity("import", "web")
     return redirect(reverse("users:user_task_status", args=(task.type,)))
