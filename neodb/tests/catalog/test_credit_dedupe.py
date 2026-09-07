@@ -1,8 +1,11 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from catalog.common.migrations import dedupe_credits_20260907
 from catalog.models import CreditRole, ItemCredit, Movie, Performance
 from catalog.models.people import People
+from catalog.search import CatalogIndex
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -150,3 +153,20 @@ class TestDedupeCredits:
         dedupe_credits_20260907()
 
         assert m.credits.count() == 2
+
+    def test_reindexes_only_affected_items(self):
+        dup = self._movie(["Bob"])
+        self._credit(dup, CreditRole.Director, "Bob", order=0)
+        self._credit(dup, CreditRole.Director, "Bob", order=1)
+        clean = self._movie(["Carol"])
+        clean.sync_credits_from_metadata()
+
+        index = MagicMock(spec=CatalogIndex)
+        index.initialize_collection.return_value = True
+        with patch.object(CatalogIndex, "instance", return_value=index):
+            dedupe_credits_20260907()
+
+        index.items_to_docs.assert_called_once()
+        reindexed = list(index.items_to_docs.call_args.args[0])
+        assert [i.pk for i in reindexed] == [dup.pk]
+        index.replace_docs.assert_called_once_with(index.items_to_docs.return_value)

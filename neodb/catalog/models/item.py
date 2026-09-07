@@ -149,22 +149,27 @@ def _canonicalize_credit_entries(
     e.g. a refetch merging "Name " into an already stripped "Name".
     """
     # Legacy rows may carry whitespace; compare stripped everywhere. Stored
-    # credit names are authoritative; localized aliases only fill the gaps,
-    # and an alias shared by two linked people is skipped.
+    # credit names are authoritative; localized aliases of the people linked
+    # here, existing or arriving by URL in this sync, only fill the gaps, and
+    # an alias shared by two of them is skipped.
     linked_by_name: dict[str, People] = {}
     for c in existing:
         if c.person:
             linked_by_name.setdefault(c.name.strip(), c.person)
+    people: dict[int, People] = {c.person.pk: c.person for c in existing if c.person}
+    for entry in entries:
+        uid = _extract_people_uid(entry.name)
+        incoming = people_by_uid.get(uid) if uid else None
+        if incoming is not None:
+            people.setdefault(incoming.pk, incoming)
     aliases: dict[str, People] = {}
     ambiguous: set[str] = set()
-    for c in existing:
-        if not c.person:
-            continue
-        for alias in c.person.localized_name or []:
+    for person in people.values():
+        for alias in person.localized_name or []:
             text = (alias.get("text") or "").strip() if isinstance(alias, dict) else ""
             if not text or text in linked_by_name:
                 continue
-            if aliases.setdefault(text, c.person).pk != c.person.pk:
+            if aliases.setdefault(text, person).pk != person.pk:
                 ambiguous.add(text)
     for text, person in aliases.items():
         if text not in ambiguous:

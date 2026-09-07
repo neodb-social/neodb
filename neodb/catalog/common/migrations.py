@@ -1067,6 +1067,7 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
     such as those from backfill_credits_from_relations_20260719.
     """
     from catalog.models import Item, ItemCredit
+    from catalog.search import CatalogIndex
 
     def _canonicalize(item: Item, credits: list[ItemCredit], stale: list[int]) -> bool:
         people: dict[tuple[str, str], set[str]] = {}
@@ -1151,6 +1152,10 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
     logger.warning(f"dedupe_credits: {len(ordered)} items with candidate duplicates")
     if dry_run:
         return
+    index = CatalogIndex.instance()
+    if not index.initialize_collection(max_wait=30):
+        logger.error("Index is not ready, migration aborted.")
+        return
     sentry_count("migration", attributes={"name": "catalog.dedupe_credits.start"})
     removed = 0
     with tqdm(total=len(ordered), desc="dedupe_credits") as pbar:
@@ -1175,6 +1180,9 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
                 stale = [pk for pks in stale_by_item.values() for pk in pks]
                 ItemCredit.objects.filter(pk__in=stale).delete()
                 removed += len(stale)
+                # search docs carry credit names; rebuild them from fresh rows
+                items = Item.objects.filter(pk__in=list(stale_by_item))
+                index.replace_docs(index.items_to_docs(items))
             pbar.update(len(chunk))
             sentry_count(
                 "migration", len(chunk), attributes={"name": "catalog.dedupe_credits"}

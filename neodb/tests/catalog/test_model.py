@@ -253,6 +253,32 @@ class TestSyncCreditsFromMetadata:
             (bob.pk, p2.pk),
         ]
 
+    def test_alias_shared_with_incoming_person_stays_plain(self):
+        p1 = People.objects.create(people_type="person", title="Alice")
+        p1.localized_name = [
+            {"lang": "en", "text": "Alice"},
+            {"lang": "fr", "text": "Alicia"},
+        ]
+        p1.save()
+        p2 = People.objects.create(people_type="person", title="Bob")
+        p2.localized_name = [
+            {"lang": "en", "text": "Bob"},
+            {"lang": "fr", "text": "Alicia"},
+        ]
+        p2.save()
+        m = self._make_movie()
+        m.director = [p1.url]
+        m.save()
+        m.sync_credits_from_metadata()
+        # one edit adds Bob by URL and a plain "Alicia" that fits both
+        m.director = [p1.url, p2.url, "Alicia"]
+        m.save()
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [p1.url, p2.url, "Alicia"]
+        rows = list(m.credits.filter(role=CreditRole.Director))
+        assert [r.person_id for r in rows] == [p1.pk, p2.pk, None]
+
     def test_alias_shared_by_two_linked_people_stays_plain(self):
         names = [{"lang": "en", "text": "Alice"}, {"lang": "fr", "text": "Alicia"}]
         p1 = People.objects.create(people_type="person", title="Alice")
