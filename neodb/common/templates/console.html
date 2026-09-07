@@ -100,7 +100,8 @@
           {% endif %}
           When your marks, reviews, notes, collections or articles change, a JSON document with
           <code>{"version": 1, "username": ..., "changes": [{"type": "mark", "action": "update", "object": {...}}]}</code>
-          is POSTed to this URL; <code>object</code> is the API response for the piece. See the API docs for details.
+          is POSTed to this URL; <code>object</code> is the API response for the piece.
+          See <a href="https://neodb.net/api/" target="_blank" rel="noopener">API documentation</a> for the JSON schema.
           Leave it empty and save to remove it.
           Each application can set its own webhook for your account via
           <code>PUT /api/me/webhook</code>; this one belongs to the Dev Console token above.
