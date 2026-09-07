@@ -1,14 +1,14 @@
 {% load duration %}
 {% comment %}
 resources: ExternalResource list; wikipedia: enable the WikiData popup
-Labels past the fourth are hidden behind a +N chip until clicked.
+Up to four labels render in full; from five on, only three plus a +N chip.
 {% endcomment %}
 {% with resources=resources|site_order %}
   {% with count=resources|length %}
     <span class="site-list{% if count > 4 %} collapsed{% endif %}">
       {% for res in resources %}
         <a href="{{ res.url }}"
-           class="{{ res.site_name }}{% if forloop.counter > 4 %} extra{% endif %}"
+           class="{{ res.site_name }}{% if count > 4 and forloop.counter > 3 %} extra{% endif %}"
            {% if wikipedia and res.site_name == 'wikidata' %} hx-get="{% url 'catalog:wikipedia_pages' item.url_path item.uuid res.id_value %}" hx-target="body" hx-swap="beforeend" {% endif %}
            rel="noopener noreferrer">{{ res.site_label }}</a>
       {% endfor %}
@@ -16,7 +16,7 @@ Labels past the fourth are hidden behind a +N chip until clicked.
         <a class="more"
            role="button"
            tabindex="0"
-           _="on click or keyup[key=='Enter'] remove .collapsed from the closest .site-list">+{{ count|add:"-4" }}</a>
+           _="on click or keyup[key=='Enter'] remove .collapsed from the closest .site-list">+{{ count|add:"-3" }}</a>
       {% endif %}
     </span>
   {% endwith %}

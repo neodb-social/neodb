@@ -30,7 +30,7 @@ def _label_classes(html: str) -> list[str]:
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_collapses_labels_past_four():
+def test_item_page_collapses_to_three_from_five_labels():
     item = _edition_with_resources(
         "many",
         [
@@ -44,8 +44,8 @@ def test_item_page_collapses_labels_past_four():
     )
     html = Client().get(item.url).content.decode()
     assert 'class="site-list collapsed"' in html
-    assert html.count(' extra"') == 2
-    assert ">+2</a>" in html
+    assert html.count(' extra"') == 3
+    assert ">+3</a>" in html
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -78,7 +78,7 @@ def test_labels_order_priority_sites_first_and_fediverse_last():
         "wikidata",
         "googlebooks",
         "bookstw",
-        "douban",
+        "douban extra",
         "fedi extra",
         "more",
     ]

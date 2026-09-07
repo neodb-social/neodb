@@ -15,7 +15,7 @@
     white-space: nowrap;
   }
 
-  // "+N" chip; labels past the fourth stay hidden until it is clicked
+  // "+N" chip; with five or more labels, those past the third hide until clicked
   .more {
     cursor: pointer;
     color: var(--pico-muted-color);
