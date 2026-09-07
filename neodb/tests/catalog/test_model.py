@@ -228,6 +228,42 @@ class TestSyncCreditsFromMetadata:
         assert len(credits) == 1
         assert credits[0].person == person
 
+    def test_linked_credit_reused_across_locales(self):
+        person = People.objects.create(people_type="person", title="Alice")
+        person.localized_name = [
+            {"lang": "en", "text": "Alice"},
+            {"lang": "zh-cn", "text": "爱丽丝"},
+        ]
+        person.save()
+        m = self._make_movie()
+        m.director = [person.url]
+        m.save()
+        with translation.override("en"):
+            m.sync_credits_from_metadata()
+        credit = m.credits.get(role=CreditRole.Director)
+        assert credit.name == "Alice"
+        with translation.override("zh-hans"):
+            m.sync_credits_from_metadata()
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert [c.pk for c in credits] == [credit.pk]
+        assert credits[0].name == "Alice"
+
+    def test_same_person_two_characters_rows_stable(self):
+        person = People.objects.create(people_type="person", title="Star")
+        person.localized_name = [{"lang": "en", "text": "Star"}]
+        person.save()
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [
+            {"name": person.url, "role": "Hero"},
+            {"name": person.url, "role": "Villain"},
+        ]
+        perf.save()
+        perf.sync_credits_from_metadata()
+        pks = sorted(perf.credits.values_list("pk", flat=True))
+        perf.sync_credits_from_metadata()
+        assert sorted(perf.credits.values_list("pk", flat=True)) == pks
+
     def test_actor_same_person_different_characters_kept(self):
         person = People.objects.create(people_type="person", title="Star")
         person.localized_name = [{"lang": "en", "text": "Star"}]

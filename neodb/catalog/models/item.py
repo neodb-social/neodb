@@ -1357,16 +1357,24 @@ class Item(PolymorphicModel):
         existing: "list[ItemCredit]",
         prune: bool,
     ) -> None:
-        """Make the ItemCredit rows of ``role`` match ``desired`` in order,
-        reusing a row with the same stripped name and person where one exists."""
-        existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
+        """Make the ItemCredit rows of ``role`` match ``desired`` in order.
+
+        A linked row is reused by person, so its stored name snapshot survives
+        a sync under another locale; an unlinked row is reused by stripped name.
+        """
+
+        def _key(name: str, person_id: int | None) -> tuple[str, int | None]:
+            return ("", person_id) if person_id else (name.strip(), None)
+
+        existing_by_key: dict[tuple[str, int | None], list[ItemCredit]] = {}
         for c in existing:
-            existing_by_key.setdefault((c.name.strip(), c.person_id), c)
+            existing_by_key.setdefault(_key(c.name, c.person_id), []).append(c)
 
         used_pks: set[int] = set()
         for order, (name, character, person) in enumerate(desired):
-            credit = existing_by_key.get((name, person.pk if person else None))
-            if credit is not None and credit.pk not in used_pks:
+            candidates = existing_by_key.get(_key(name, person.pk if person else None))
+            if candidates:
+                credit = candidates.pop(0)
                 used_pks.add(credit.pk)
                 update_fields = []
                 if credit.order != order:
