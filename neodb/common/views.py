@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.core.exceptions import DisallowedHost
+from django.core.exceptions import BadRequest, DisallowedHost
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from boofilsic import __version__
 from catalog.views import people_search as catalog_people_search, discover
@@ -14,6 +15,12 @@ from social.views import search as timeline_search
 from takahe.models import Domain
 from takahe.utils import Takahe
 from users.models.user import User
+from users.models.webhook import (
+    Webhook,
+    remove_webhook,
+    set_webhook,
+    validate_webhook_url,
+)
 
 from .api import api
 from .validators import get_safe_redirect_url
@@ -162,30 +169,55 @@ def error_500(request, exception=None):
     return _error_response(request, 500, exception, "something wrong")
 
 
+def _dev_console_app():
+    return Takahe.get_or_create_app(
+        "Dev Console",
+        settings.SITE_INFO["site_url"],
+        "",
+        owner_pk=0,
+        client_id="app-00000000000-dev",
+    )
+
+
 def console(request):
     token = None
     if request.method == "POST":
         if not request.user.is_authenticated:
             return redirect(reverse("users:login"))
-        app = Takahe.get_or_create_app(
-            "Dev Console",
-            settings.SITE_INFO["site_url"],
-            "",
-            owner_pk=0,
-            client_id="app-00000000000-dev",
-        )
+        app = _dev_console_app()
         token = Takahe.refresh_token(app, request.user.identity.pk, request.user.pk)
     show_debug_tools = settings.DEBUG or (
         request.user.is_authenticated and request.user.is_superuser
     )
+    webhook = None
+    if request.user.is_authenticated:
+        webhook = Webhook.objects.filter(
+            user=request.user, application_id=_dev_console_app().pk
+        ).first()
     context = {
         "version": settings.NEODB_VERSION,
         "api": api,
         "token": token,
+        "webhook": webhook,
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
         "show_debug_tools": show_debug_tools,
     }
     return render(request, "console.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def console_webhook(request):
+    """Set or clear the webhook of the Dev Console app for the current user."""
+    url = request.POST.get("url", "").strip()
+    app = _dev_console_app()
+    if not url:
+        remove_webhook(request.user.pk, app.pk)
+    elif validate_webhook_url(url):
+        set_webhook(request.user, app.pk, url)
+    else:
+        raise BadRequest("Invalid webhook URL")
+    return redirect(reverse("common:developer"))
 
 
 def oauth_protected_resource(request):

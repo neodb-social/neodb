@@ -36,6 +36,7 @@ from takahe.utils import Takahe
 from .. import registration_captcha as captcha
 from ..login_proof import LOGIN_PROOF_METHODS, create_login_proof_challenge
 from ..models import User
+from ..models.webhook import remove_webhook
 
 
 @require_http_methods(["GET"])
@@ -541,5 +542,6 @@ def logout_everywhere(request):
     identity = getattr(user, "identity", None)
     if identity:
         Token.objects.filter(identity_id=identity.pk, revoked__isnull=True).delete()
+    remove_webhook(user.pk)
 
     return auth_logout(request)

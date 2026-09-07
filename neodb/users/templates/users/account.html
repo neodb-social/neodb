@@ -383,6 +383,7 @@
                     <th>{% trans "Application" %}</th>
                     <th>{% trans "Scopes" %}</th>
                     <th>{% trans "Created" %}</th>
+                    <th>{% trans "Webhook" %}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -392,6 +393,17 @@
                       <td>{{ token.application.name }}</td>
                       <td>{{ token.scopes }}</td>
                       <td>{{ token.created }}</td>
+                      <td>
+                        {% if token.webhook %}
+                          <span data-tooltip="{{ token.webhook.url }}" data-placement="left">
+                            {% if token.webhook.disabled %}
+                              {% trans "disabled" %}
+                            {% else %}
+                              {% trans "active" %}
+                            {% endif %}
+                          </span>
+                        {% endif %}
+                      </td>
                       <td>
                         <form action="{% url 'users:authorized_app_revoke' %}"
                               method="post"

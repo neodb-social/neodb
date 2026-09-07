@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
+                ("application_id", models.IntegerField(db_index=True)),
                 ("url", models.URLField(max_length=1000)),
                 ("disabled", models.BooleanField(default=False)),
                 ("created_time", models.DateTimeField(auto_now_add=True)),
@@ -39,7 +40,8 @@ class Migration(migrations.Migration):
             options={
                 "constraints": [
                     models.UniqueConstraint(
-                        fields=("user", "url"), name="unique_user_webhook_url"
+                        fields=("user", "application_id"),
+                        name="unique_user_app_webhook",
                     )
                 ],
             },

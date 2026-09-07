@@ -1,5 +1,5 @@
+import json
 import socket
-from importlib import import_module
 from unittest.mock import patch
 
 import django_rq
@@ -9,9 +9,10 @@ from django.test import override_settings
 from django.urls import reverse
 
 from catalog.models import Edition
-from common.models import SiteConfig
 from common.validators import _host_cache
 from journal.models import Collection, Mark, Note, ShelfType
+from takahe.models import Token
+from takahe.utils import Takahe
 from users.models import User, Webhook
 from users.models.webhook import (
     _bump_failures,
@@ -22,8 +23,12 @@ from users.models.webhook import (
     clear_webhook_failures,
     dispatch_webhook,
     has_active_webhook,
+    remove_webhook,
+    set_webhook,
     validate_webhook_url,
 )
+
+_WEBHOOK_API = "/api/me/webhook"
 
 
 @pytest.fixture
@@ -35,13 +40,26 @@ def user():
 
 
 @pytest.fixture
-def webhook(user):
-    w = Webhook.objects.create(user=user, url="https://hook.example.org/x")
-    clear_webhook_cache(user.pk)
+def token(user):
+    # a personal token: its own Application, held only by this user
+    return Takahe.create_personal_token(user.identity.pk, user.pk, "hook app", "write")
+
+
+@pytest.fixture
+def webhook(user, token):
+    w = set_webhook(user, token.application.pk, "https://hook.example.org/x")
     clear_webhook_failures(w.pk)
     yield w
     clear_webhook_failures(w.pk)
     clear_webhook_cache(user.pk)
+
+
+def _api(client, method: str, token: Token, data: dict | None = None):
+    kwargs = {"HTTP_AUTHORIZATION": f"Bearer {token.token}"}
+    if data is not None:
+        kwargs["data"] = json.dumps(data)
+        kwargs["content_type"] = "application/json"
+    return getattr(client, method)(_WEBHOOK_API, **kwargs)
 
 
 @pytest.fixture
@@ -179,25 +197,6 @@ class TestDispatch:
             Mark(user.identity, book).update(ShelfType.WISHLIST)
         assert queue.jobs == []
 
-    def test_limit_zero_disables_dispatch(
-        self,
-        user,
-        book,
-        webhook,
-        queue,
-        monkeypatch,
-        django_capture_on_commit_callbacks,
-    ):
-        monkeypatch.setattr(
-            SiteConfig,
-            "system",
-            SiteConfig.system.model_copy(update={"webhook_max_subscriptions": 0}),
-        )
-        assert has_active_webhook(user.pk) is False
-        with django_capture_on_commit_callbacks(execute=True):
-            Mark(user.identity, book).update(ShelfType.WISHLIST)
-        assert queue.jobs == []
-
     def test_dispatch_helper_gates_on_cache(
         self, user, webhook, queue, django_capture_on_commit_callbacks
     ):
@@ -259,19 +258,30 @@ class TestDeliver:
         _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
         assert called == []
 
-    def test_delivery_honors_lowered_limit(self, user, webhook, monkeypatch):
+    def test_revoked_application_dropped(self, user, token, webhook, monkeypatch):
+        # token gone through any path (Mastodon API, logout everywhere...):
+        # delivery removes the webhook instead of calling it
+        token.delete()
         called = []
         monkeypatch.setattr(
             "users.models.webhook._post_webhook",
             lambda url, payload, timeout: called.append(url) or True,
         )
-        monkeypatch.setattr(
-            SiteConfig,
-            "system",
-            SiteConfig.system.model_copy(update={"webhook_max_subscriptions": 0}),
-        )
         _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
         assert called == []
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+        assert has_active_webhook(user.pk) is False
+
+    def test_each_application_called_once(self, user, token, webhook, monkeypatch):
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
+        set_webhook(user, other.application.pk, "https://hook.example.org/b")
+        called = []
+        monkeypatch.setattr(
+            "users.models.webhook._post_webhook",
+            lambda url, payload, timeout: called.append(url) or True,
+        )
+        _deliver_webhook(user.pk, {"type": "mark", "action": "save"})
+        assert called == ["https://hook.example.org/x", "https://hook.example.org/b"]
 
 
 class TestPostWebhook:
@@ -340,60 +350,132 @@ class TestPostWebhook:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestPreferencesView:
-    def _post_prefs(self, client, user, webhook_urls: str):
-        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-        return client.post(reverse("users:preferences"), {"webhook_urls": webhook_urls})
-
-    @pytest.fixture
-    def data_views(self):
-        # ``users.views.data`` the module is shadowed by the ``data`` view
-        # function re-exported from the views package
-        return import_module("users.views.data")
-
-    def test_add_webhook(self, user, client, monkeypatch, data_views):
-        monkeypatch.setattr(data_views, "validate_webhook_url", lambda url: True)
-        self._post_prefs(client, user, "https://hook.example.org/a\n")
-        urls = list(user.webhooks.values_list("url", flat=True))
-        assert urls == ["https://hook.example.org/a"]
-
-    def test_cap_and_invalid_dropped(self, user, client, monkeypatch, data_views):
+class TestWebhookApi:
+    @pytest.fixture(autouse=True)
+    def _accept_any_url(self, monkeypatch):
         monkeypatch.setattr(
-            data_views,
-            "validate_webhook_url",
-            lambda url: url.startswith("https://"),
+            "users.apis.validate_webhook_url", lambda url: url.startswith("https://")
         )
-        assert SiteConfig.system.webhook_max_subscriptions == 1
-        self._post_prefs(
-            client,
-            user,
-            "not-a-url\nhttps://hook.example.org/a\nhttps://hook.example.org/b",
-        )
-        urls = list(user.webhooks.values_list("url", flat=True))
-        assert urls == ["https://hook.example.org/a"]
 
-    def test_validation_work_is_bounded(self, user, client, monkeypatch, data_views):
-        checked = []
+    def test_get_without_webhook(self, client, token):
+        assert _api(client, "get", token).status_code == 404
 
-        def fake_validate(url):
-            checked.append(url)
-            return False
+    def test_put_get_delete(self, user, client, token):
+        r = _api(client, "put", token, {"url": " https://hook.example.org/api "})
+        assert r.status_code == 200
+        assert r.json() == {"url": "https://hook.example.org/api", "disabled": False}
+        webhook = Webhook.objects.get(user=user, application_id=token.application_id)
+        assert webhook.url == "https://hook.example.org/api"
+        assert has_active_webhook(user.pk) is True
 
-        monkeypatch.setattr(data_views, "validate_webhook_url", fake_validate)
-        lines = "\n".join(f"https://h{i}.example.org/cb" for i in range(500))
-        self._post_prefs(client, user, lines)
-        max_n = SiteConfig.system.webhook_max_subscriptions
-        assert len(checked) <= max_n + 10
-        assert user.webhooks.count() == 0
+        r = _api(client, "get", token)
+        assert r.status_code == 200
+        assert r.json()["url"] == "https://hook.example.org/api"
 
-    def test_remove_and_reenable(self, user, webhook, client, monkeypatch, data_views):
-        monkeypatch.setattr(data_views, "validate_webhook_url", lambda url: True)
+        assert _api(client, "delete", token).status_code == 200
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+        assert has_active_webhook(user.pk) is False
+
+    def test_put_replaces_and_reenables(self, user, client, token, webhook):
         webhook.disabled = True
         webhook.save(update_fields=["disabled"])
         _bump_failures(webhook.pk)
-        self._post_prefs(client, user, webhook.url)
+        r = _api(client, "put", token, {"url": "https://hook.example.org/new"})
+        assert r.status_code == 200
         webhook.refresh_from_db()
+        assert webhook.url == "https://hook.example.org/new"
         assert webhook.disabled is False
         assert _bump_failures(webhook.pk) == 1  # counter was cleared
-        self._post_prefs(client, user, "")
+        assert user.webhooks.count() == 1
+
+    def test_put_invalid_url(self, client, token):
+        r = _api(client, "put", token, {"url": "http://hook.example.org/plain"})
+        assert r.status_code == 400
+        assert not Webhook.objects.exists()
+
+    def test_scoped_to_token_application(self, user, client, token, webhook):
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "write")
+        assert _api(client, "get", other).status_code == 404
+        _api(client, "put", other, {"url": "https://hook.example.org/b"})
+        assert user.webhooks.count() == 2
+        assert _api(client, "delete", other).status_code == 200
+        assert list(user.webhooks.values_list("url", flat=True)) == [webhook.url]
+
+    def test_requires_token(self, client):
+        assert client.get(_WEBHOOK_API).status_code == 401
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestWebViews:
+    @pytest.fixture
+    def logged_in(self, client, user):
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        return client
+
+    def test_console_sets_and_clears_dev_webhook(self, user, logged_in, monkeypatch):
+        monkeypatch.setattr("common.views.validate_webhook_url", lambda url: True)
+        r = logged_in.post(
+            reverse("common:developer_webhook"), {"url": "https://hook.example.org/c"}
+        )
+        assert r.status_code == 302
+        webhook = user.webhooks.get()
+        assert webhook.url == "https://hook.example.org/c"
+        assert (
+            Takahe.get_or_create_app("", "", "", 0, client_id="app-00000000000-dev").pk
+            == webhook.application_id
+        )
+
+        r = logged_in.get(reverse("common:developer"))
+        assert "https://hook.example.org/c" in r.content.decode()
+
+        r = logged_in.post(reverse("common:developer_webhook"), {"url": ""})
+        assert r.status_code == 302
+        assert user.webhooks.count() == 0
+
+    def test_console_rejects_invalid_url(self, user, logged_in, monkeypatch):
+        monkeypatch.setattr("common.views.validate_webhook_url", lambda url: False)
+        r = logged_in.post(
+            reverse("common:developer_webhook"), {"url": "https://bad.example/"}
+        )
+        assert r.status_code == 400
+        assert user.webhooks.count() == 0
+
+    def test_console_requires_login(self, client):
+        r = client.post(reverse("common:developer_webhook"), {"url": "https://x.y/"})
+        assert r.status_code == 302
+        assert not Webhook.objects.exists()
+
+    def test_account_page_shows_webhook_url(self, user, logged_in, token, webhook):
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "plain", "read")
+        html = logged_in.get(reverse("users:info")).content.decode()
+        assert f'data-tooltip="{webhook.url}"' in html
+        assert html.count("data-tooltip=") == 1
+        assert other.application.name in html
+
+    def test_account_page_marks_disabled(self, user, logged_in, webhook):
+        webhook.disabled = True
+        webhook.save(update_fields=["disabled"])
+        html = logged_in.get(reverse("users:info")).content.decode()
+        assert f'data-tooltip="{webhook.url}"' in html
+        assert "disabled" in html
+
+    def test_revoke_app_removes_webhook(self, user, logged_in, token, webhook):
+        _bump_failures(webhook.pk)
+        r = logged_in.post(
+            reverse("users:authorized_app_revoke"), {"token_id": token.pk}
+        )
+        assert r.status_code == 302
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+        assert has_active_webhook(user.pk) is False
+        assert _bump_failures(webhook.pk) == 1  # counter was cleared
+
+    def test_logout_everywhere_removes_webhooks(self, user, logged_in, webhook):
+        r = logged_in.post(reverse("users:logout_everywhere"))
+        assert r.status_code in (200, 302)
+        assert user.webhooks.count() == 0
+
+    def test_remove_webhook_all(self, user, token, webhook):
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
+        set_webhook(user, other.application.pk, "https://hook.example.org/b")
+        remove_webhook(user.pk)
         assert user.webhooks.count() == 0

@@ -160,7 +160,6 @@ class SiteConfig(models.Model):
         task_cleanup_days: int = 28
 
         # Webhooks
-        webhook_max_subscriptions: int = 1
         webhook_timeout: int = 1000
 
         # Advanced / Operational

@@ -90,3 +90,33 @@ and the response will be returned accordingly:
 
 `url` is relative to the site; `external_acct` is deprecated in favour of
 `external_accounts`.
+
+## Webhooks
+
+An application can register one webhook URL per user it is authorized by,
+to learn about changes without polling. With the user's access token:
+
+```
+curl -H "Authorization: Bearer ACCESS_TOKEN" -X PUT -H "Content-Type: application/json" \
+  -d '{"url": "https://example.org/hook"}' https://neodb.social/api/me/webhook
+```
+
+`GET /api/me/webhook` returns the current URL and whether it is disabled,
+`DELETE /api/me/webhook` removes it. Only https URLs resolving to public
+addresses are accepted. Revoking the application's access also removes its
+webhook.
+
+When the user's marks, reviews, notes, collections or articles change,
+a small JSON payload is POSTed to the URL, once per change:
+
+```
+{"type": "mark", "action": "save", "url": "https://neodb.social/book/xxx", "title": "Item Title"}
+```
+
+`type` is one of `mark`, `review`, `note`, `collection`, `article`; `action`
+is `save` or `delete`. The payload is a trigger only: fetch the details via
+the API. Delivery is one attempt, without retry or signature. After 100
+consecutive failures the webhook is disabled until it is set again.
+
+Users can see which of their authorized applications have a webhook on the
+account page, and set one for the Dev Console token on the developer page.

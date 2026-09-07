@@ -988,16 +988,9 @@ class AdvancedSettings(SiteConfigSettingsPage):
                 "login; clear to regenerate."
             ),
         },
-        "webhook_max_subscriptions": {
-            "title": _("Webhooks per User"),
-            "help_text": _(
-                "Maximum number of webhook URLs each user may configure in preferences."
-            ),
-            "min_value": 0,
-        },
         "webhook_timeout": {
             "title": _("Webhook Timeout (milliseconds)"),
-            "help_text": _("Timeout for delivering user webhook requests."),
+            "help_text": _("Timeout for delivering webhook requests to applications."),
             "min_value": 100,
         },
     }
@@ -1013,7 +1006,6 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "task_cleanup_days",
             "skip_migrations",
             "atproto_client_jwk",
-            "webhook_max_subscriptions",
             "webhook_timeout",
         ],
     }

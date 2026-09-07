@@ -1,4 +1,5 @@
 import ipaddress
+import logging
 import socket
 from urllib.parse import urlsplit, urlunsplit
 
@@ -7,12 +8,14 @@ import httpx
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models, transaction
-from loguru import logger
 
 from common.models import SiteConfig
 from common.validators import is_valid_url
+from takahe.models import Token
 
 from .user import User
+
+logger = logging.getLogger(__name__)
 
 _ENABLED_CACHE_KEY = "webhook_on:{}"
 _FAIL_CACHE_KEY = "webhook_fail:{}"
@@ -22,9 +25,12 @@ _URL_MAX_LENGTH = 1000
 
 
 class Webhook(models.Model):
-    """A user-configured URL receiving fire-and-forget POSTs on journal changes."""
+    """One URL per (user, application) receiving fire-and-forget POSTs on
+    the user's journal changes. `application_id` is a takahe Application pk,
+    kept as a plain integer because takahe lives in another database."""
 
     user = models.ForeignKey(User, models.CASCADE, related_name="webhooks")
+    application_id = models.IntegerField(db_index=True)
     url = models.URLField(max_length=_URL_MAX_LENGTH)
     disabled = models.BooleanField(default=False)
     created_time = models.DateTimeField(auto_now_add=True)
@@ -33,12 +39,12 @@ class Webhook(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "url"], name="unique_user_webhook_url"
+                fields=["user", "application_id"], name="unique_user_app_webhook"
             )
         ]
 
     def __str__(self):
-        return f"Webhook:{self.pk}:{self.url}"
+        return f"Webhook:{self.pk}:{self.application_id}:{self.url}"
 
 
 def validate_webhook_url(url: str) -> bool:
@@ -54,8 +60,6 @@ def validate_webhook_url(url: str) -> bool:
 
 
 def has_active_webhook(user_id: int) -> bool:
-    if SiteConfig.system.webhook_max_subscriptions <= 0:
-        return False
     return bool(
         cache.get_or_set(
             _ENABLED_CACHE_KEY.format(user_id),
@@ -71,6 +75,31 @@ def clear_webhook_cache(user_id: int) -> None:
 
 def clear_webhook_failures(pk: int) -> None:
     cache.delete(_FAIL_CACHE_KEY.format(pk))
+
+
+def set_webhook(user: User, application_id: int, url: str) -> Webhook:
+    """Create or replace the webhook of an application for a user; saving
+    re-enables one that was disabled after repeated failures."""
+    webhook, created = Webhook.objects.update_or_create(
+        user=user,
+        application_id=application_id,
+        defaults={"url": url, "disabled": False},
+    )
+    clear_webhook_failures(webhook.pk)
+    clear_webhook_cache(user.pk)
+    return webhook
+
+
+def remove_webhook(user_id: int, application_id: int | None = None) -> None:
+    """Delete the user's webhook of one application, or of all when the
+    application is not given (all tokens revoked)."""
+    webhooks = Webhook.objects.filter(user_id=user_id)
+    if application_id is not None:
+        webhooks = webhooks.filter(application_id=application_id)
+    for pk in webhooks.values_list("pk", flat=True):
+        clear_webhook_failures(pk)
+    webhooks.delete()
+    clear_webhook_cache(user_id)
 
 
 def dispatch_webhook(user_id: int, payload: dict[str, str]) -> None:
@@ -121,7 +150,7 @@ def _resolve_public_ip(hostname: str) -> str | None:
 
 def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
     """POST without trusting DNS twice or the response: pin the address
-    that passed the public-IP check (防 DNS rebinding) and close the
+    that passed the public-IP check (DNS rebinding) and close the
     response without reading its body."""
     if not url or len(url) > _URL_MAX_LENGTH:
         return False
@@ -155,17 +184,29 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
         return resp.is_success
 
 
+def _has_live_token(identity_id: int | None, application_id: int) -> bool:
+    return Token.objects.filter(
+        identity_id=identity_id, application_id=application_id, revoked__isnull=True
+    ).exists()
+
+
 def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
     """rq job: POST payload to each active webhook of the user, fire and
-    forget: no retry, failures only logged. Honors the instance limit at
-    delivery time, so lowering it takes effect without a user re-save."""
-    system = SiteConfig.system
-    limit = system.webhook_max_subscriptions
-    if limit <= 0:
+    forget: no retry, failures only logged. A webhook whose application no
+    longer holds a token for the user is dropped instead of called, so
+    revoking an app anywhere also stops its webhook."""
+    user = User.objects.filter(pk=user_id).select_related("identity").first()
+    if not user:
         return
-    timeout = (system.webhook_timeout or 1000) / 1000
+    identity = getattr(user, "identity", None)
+    identity_id = identity.pk if identity else None
+    timeout = (SiteConfig.system.webhook_timeout or 1000) / 1000
     webhooks = Webhook.objects.filter(user_id=user_id, disabled=False).order_by("pk")
-    for webhook in webhooks[:limit]:
+    for webhook in webhooks:
+        if not _has_live_token(identity_id, webhook.application_id):
+            logger.info(f"webhook {webhook.pk} dropped: application has no token")
+            remove_webhook(user_id, webhook.application_id)
+            continue
         try:
             ok = _post_webhook(webhook.url, payload, timeout)
         except Exception as e:

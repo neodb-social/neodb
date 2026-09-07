@@ -4,9 +4,10 @@ from django.conf import settings
 from ninja import Schema, Status
 from ninja.schema import Field
 
-from common.api import NOT_FOUND, OptionalOAuthAccessTokenAuth, Result, api
+from common.api import NOT_FOUND, OK, OptionalOAuthAccessTokenAuth, Result, api
 from mastodon.models import SocialAccount
-from users.models import APIdentity
+from users.models import APIdentity, Webhook
+from users.models.webhook import remove_webhook, set_webhook, validate_webhook_url
 
 
 class TokenSchema(Schema):
@@ -52,6 +53,15 @@ class UserSchema(UserIdentitySchema):
     external_acct: str | None = Field(deprecated=True)
     external_accounts: list[ExternalAccountSchema]
     roles: list[Literal["admin", "staff"]]
+
+
+class WebhookSchema(Schema):
+    url: str
+    disabled: bool
+
+
+class WebhookInSchema(Schema):
+    url: str
 
 
 class PreferenceSchema(Schema):
@@ -105,6 +115,57 @@ def me(request):
 )
 def preference(request):
     return Status(200, request.user.preference)
+
+
+@api.get(
+    "/me/webhook",
+    response={200: WebhookSchema, 401: Result, 404: Result},
+    summary="Get this application's webhook for the current user",
+    tags=["user"],
+)
+def get_webhook(request):
+    """
+    Each application (the one this access token belongs to) may register one
+    webhook URL per user. Changes to the user's marks, reviews, notes,
+    collections and articles are POSTed to it as a small JSON payload:
+    `{"type": "mark", "action": "save", "url": "...", "title": "..."}`.
+    The payload is a trigger only; fetch details via the API.
+    `disabled` becomes true after repeated delivery failures.
+    """
+    webhook = Webhook.objects.filter(
+        user=request.user, application_id=request.application_id
+    ).first()
+    if not webhook:
+        return NOT_FOUND
+    return Status(200, webhook)
+
+
+@api.put(
+    "/me/webhook",
+    response={200: WebhookSchema, 400: Result, 401: Result},
+    summary="Set this application's webhook for the current user",
+    tags=["user"],
+)
+def put_webhook(request, w_in: WebhookInSchema):
+    """
+    Register or replace the webhook URL. Only https URLs resolving to public
+    addresses are accepted. Setting it again re-enables a disabled webhook.
+    """
+    url = w_in.url.strip()
+    if not validate_webhook_url(url):
+        return Status(400, {"message": "Invalid webhook URL"})
+    return Status(200, set_webhook(request.user, request.application_id, url))
+
+
+@api.delete(
+    "/me/webhook",
+    response={200: Result, 401: Result},
+    summary="Remove this application's webhook for the current user",
+    tags=["user"],
+)
+def delete_webhook(request):
+    remove_webhook(request.user.pk, request.application_id)
+    return OK
 
 
 @api.get(

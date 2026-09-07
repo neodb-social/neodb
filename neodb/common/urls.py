@@ -32,6 +32,7 @@ urlpatterns = [
     path("me/", me, name="me"),
     path("nodeinfo/<str:version>/", nodeinfo2),
     path("developer/", console, name="developer"),
+    path("developer/webhook/", console_webhook, name="developer_webhook"),
     path("auth/signup/", signup, name="signup"),
     path("auth/signup/<str:code>/", signup, name="signup"),
     re_path(r"^\.well-known/oauth-protected-resource", oauth_protected_resource),

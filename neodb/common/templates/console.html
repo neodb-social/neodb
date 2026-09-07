@@ -77,6 +77,34 @@
           <code>curl -H "Authorization: Bearer YOUR_TOKEN" {{ site_url }}/api/me</code>
         </p>
       </details>
+      <details {% if webhook %}open{% endif %}>
+        <summary>
+          <a>Webhook</a>
+        </summary>
+        <form method="post"
+              action="{% url 'common:developer_webhook' %}"
+              role="group">
+          {% csrf_token %}
+          <input type="url"
+                 name="url"
+                 placeholder="https://example.org/hook"
+                 value="{{ webhook.url | default:'' }}"
+                 {% if not request.user.is_authenticated %}disabled{% endif %}>
+          <input type="submit"
+                 {% if request.user.is_authenticated %}value="Save"{% else %}value="Login to set" disabled{% endif %} />
+        </form>
+        <p>
+          {% if webhook.disabled %}
+            This webhook was disabled after repeated delivery failures; save again to re-enable it.
+            <br>
+          {% endif %}
+          When your marks, reviews, notes, collections or articles change, a JSON payload like
+          <code>{"type": "mark", "action": "save", "url": "...", "title": "..."}</code>
+          is POSTed to this URL. Leave it empty and save to remove it.
+          Each application can set its own webhook for your account via
+          <code>PUT /api/me/webhook</code>; this one belongs to the Dev Console token above.
+        </p>
+      </details>
       <br>
       <details>
         <summary>

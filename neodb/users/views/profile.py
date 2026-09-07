@@ -40,6 +40,11 @@ def account_info(request):
     )
     has_pending_tasks = Task.pending_tasks(request.user).exists()
     identity = request.user.identity
+    webhooks = {w.application_id: w for w in request.user.webhooks.all()}
+    tokens = list(Takahe.get_tokens_for_identity(identity.pk))
+    for token in tokens:
+        # takahe rows cannot join neodb rows: attach for the template
+        setattr(token, "webhook", webhooks.get(token.application_id))
     return render(
         request,
         "users/account.html",
@@ -50,7 +55,7 @@ def account_info(request):
             "enable_bluesky": SiteConfig.system.enable_login_bluesky,
             "profile_form": profile_form,
             "has_pending_tasks": has_pending_tasks,
-            "tokens": Takahe.get_tokens_for_identity(identity.pk),
+            "tokens": tokens,
             "counts": Takahe.get_follow_block_mute_counts(identity.pk),
             "passkeys": WebAuthnCredential.objects.filter(user=request.user),
         },

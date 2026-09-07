@@ -653,12 +653,13 @@ class Takahe:
         ).select_related("application")
 
     @staticmethod
-    def revoke_token(token_pk: int, identity_pk: int) -> bool:
+    def revoke_token(token_pk: int, identity_pk: int) -> int | None:
+        """Delete the token; returns its application id, None if not found."""
         token = Token.objects.filter(pk=token_pk, identity_id=identity_pk).first()
         if token:
             token.delete()
-            return True
-        return False
+            return token.application_id
+        return None
 
     @staticmethod
     def get_follow_block_mute_counts(identity_pk: int) -> dict[str, int]:
