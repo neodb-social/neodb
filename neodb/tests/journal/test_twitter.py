@@ -227,6 +227,30 @@ class TestTwitterImport:
         assert task.metadata["skipped"] == 2
         assert self._posts().count() == 2
 
+    def test_snowflake_collision_is_retried(self, tmp_path, monkeypatch):
+        from takahe.models import Snowflake
+
+        real = Snowflake.generate_post_at
+        fixed = real(
+            datetime.datetime(2021, 5, 4, 9, 8, 7, tzinfo=datetime.UTC).timestamp()
+        )
+        calls = []
+
+        def colliding(t: float) -> int:
+            calls.append(t)
+            # first post takes the fixed id, second post draws it again once
+            return fixed if len(calls) <= 2 else real(t)
+
+        monkeypatch.setattr(Snowflake, "generate_post_at", staticmethod(colliding))
+        task = self._run(
+            _zip([_tweet(), _tweet("1001", "two", "Tue May 04 09:09:00 +0000 2021")]),
+            tmp_path,
+        )
+        assert task.metadata["imported"] == 2
+        assert task.metadata["failed"] == 0
+        assert len(calls) == 3
+        assert self._posts().filter(pk=fixed).exists()
+
     def test_reply_to_other_is_plain_post(self, tmp_path):
         self._run(_zip([_tweet(text="@other yes", reply_to="42")]), tmp_path)
         post = self._posts().get()

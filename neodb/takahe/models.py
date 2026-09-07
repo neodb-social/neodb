@@ -1465,9 +1465,13 @@ class Post(models.Model):
                     if _delta > datetime.timedelta(
                         days=SiteConfig.system.fanout_limit_days
                     ):
-                        post_obj["id"] = Snowflake.generate_post_at(
-                            published.timestamp()
-                        )
+                        # 19 random bits per millisecond: a backdated id can
+                        # clash with one generated earlier for the same
+                        # moment, so pick again instead of failing the insert
+                        post_id = Snowflake.generate_post_at(published.timestamp())
+                        while cls.objects.filter(pk=post_id).exists():
+                            post_id = Snowflake.generate_post_at(published.timestamp())
+                        post_obj["id"] = post_id
                         post_obj["state"] = "fanned_out"  # add post quietly if it's old
             with transaction.atomic(using="takahe"):
                 # Make the Post object
