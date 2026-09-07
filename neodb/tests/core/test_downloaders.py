@@ -15,6 +15,7 @@ from catalog.common.downloaders import (
     MockResponse,
     ScraperResponse,
     get_mock_file,
+    redact_url,
 )
 from catalog.sites.douban import DoubanDownloader
 
@@ -64,6 +65,36 @@ class TestGetMockFile:
         result = get_mock_file(url)
         assert "SECRET123" not in result
         assert "key_8964" in result
+
+
+class TestRedactUrl:
+    def test_masks_secret_query_values(self):
+        url = "https://api.example.com/v1/items?q=dune&api_key=s3cret&page=2"
+        assert (
+            redact_url(url)
+            == "https://api.example.com/v1/items?q=dune&api_key=***&page=2"
+        )
+
+    def test_masks_case_insensitively(self):
+        assert redact_url("https://x.test/?KEY=abc&Token=def") == (
+            "https://x.test/?KEY=***&Token=***"
+        )
+
+    def test_keeps_url_without_query(self):
+        url = "https://api.example.com/v1/items/42"
+        assert redact_url(url) == url
+
+    def test_keeps_blank_values_and_fragment(self):
+        assert redact_url("https://x.test/p?a=&key=#frag") == (
+            "https://x.test/p?a=&key=***#frag"
+        )
+
+    def test_empty_input(self):
+        assert redact_url(None) == ""
+        assert redact_url("") == ""
+
+    def test_malformed_url(self):
+        assert redact_url("http://[::1") == "<malformed url>"
 
 
 class TestBasicDownloaderValidateResponse:

@@ -60,8 +60,8 @@ def redact_url(url: str | None) -> str:
         parts = urlparse(url)
     except ValueError:
         return "<malformed url>"
-    if not parts.query:
-        return url
+    # Always rebuild from the parsed parts, never hand back `url` itself:
+    # CodeQL tracks the raw string as tainted by the API key it may carry.
     redacted = [
         (k, "***" if k.lower() in _SECRET_QUERY_KEYS else v)
         for k, v in parse_qsl(parts.query, keep_blank_values=True)
@@ -121,7 +121,7 @@ class MockResponse:
             self.status_code = 404
             if ".jpg" not in self.url:
                 logger.warning(
-                    f"local response not found for {redact_url(url)} at {candidate}"
+                    f"local response not found for {redact_url(url)} in {base}"
                 )
 
     @property
