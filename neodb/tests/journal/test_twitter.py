@@ -157,13 +157,34 @@ class TestTwitterImport:
         assert post.mentions.count() == 0
         assert post.hashtags == ["neodb"]
 
-    def test_retweets_skipped(self, tmp_path):
+    def test_retweet_becomes_link_post(self, tmp_path):
         task = self._run(
-            _zip([_tweet(text="RT @someone: their words"), _tweet("1001")]),
+            _zip(
+                [
+                    _tweet(
+                        "1847061695962763653",
+                        "RT @bluesky: Bluesky is an open social network that gives…",
+                    )
+                ]
+            ),
             tmp_path,
         )
         assert task.metadata["imported"] == 1
-        assert task.metadata["skipped"] == 1
+        post = self._posts().get()
+        assert post.content_plain_text == (
+            "RT ＠bluesky https://x.com/bluesky/status/1847061695962763653"
+        )
+        assert post.mentions.count() == 0
+        assert post.state == "fanned_out"
+
+    def test_retweet_with_original_links_to_it(self, tmp_path):
+        original = {"id_str": "555", "user": {"screen_name": "someone"}}
+        self._run(
+            _zip([_tweet(text="RT @someone: their words", retweeted_status=original)]),
+            tmp_path,
+        )
+        post = self._posts().get()
+        assert "https://x.com/someone/status/555" in post.content
 
     def test_self_reply_threaded(self, tmp_path):
         self._run(

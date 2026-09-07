@@ -31,6 +31,7 @@ _MAX_JS_SIZE = 512 * 1024 * 1024
 _MAX_MEDIA_SIZE = 5 * 1024 * 1024  # Takahe.upload_image refuses larger files
 
 _HANDLE = re.compile(r"(?<![\w/])@([A-Za-z0-9_]{1,15})\b")
+_RETWEET = re.compile(r"^RT @([A-Za-z0-9_]{1,15})\b")
 _SPACES = re.compile(r"\s+")
 _INDEX_BATCH = 200
 
@@ -78,6 +79,25 @@ def _note_matches(tweet: dict, note: dict) -> bool:
     text = text.strip().rstrip("…").rstrip()
     full = html.unescape(note.get("core", {}).get("text", ""))
     return bool(text) and full.startswith(text[:50])
+
+
+def _retweet_content(tweet: dict) -> str | None:
+    """A retweet is stored as ``RT @user: text…`` with no id of the original
+    tweet. It becomes a short post pointing at the retweet's own status URL,
+    which X redirects to the original."""
+    original = tweet.get("retweeted_status")
+    if isinstance(original, dict) and original.get("id_str"):
+        handle = (original.get("user") or {}).get("screen_name") or "i"
+        return f"RT ＠{handle} https://x.com/{handle}/status/{original['id_str']}"
+    text = tweet.get("full_text") or tweet.get("text") or ""
+    m = _RETWEET.match(text)
+    if not m:
+        return None
+    handle = m.group(1)
+    tweet_id = str(tweet.get("id_str") or tweet.get("id") or "")
+    if not tweet_id:
+        return None
+    return f"RT ＠{handle} https://x.com/{handle}/status/{tweet_id}"
 
 
 def _fingerprint(text: str) -> str:
@@ -252,13 +272,11 @@ class TwitterImporter(BaseImporter):
         """``parent`` is the publish time and body of the tweet this one
         replies to, when that tweet is the user's own."""
         try:
-            text = tweet.get("full_text") or tweet.get("text") or ""
-            if text.startswith("RT @") or "retweeted_status" in tweet:
-                return "skipped", None
             if not published:
                 logger.warning(f"tweet {tweet.get('id_str')} has no valid date")
                 return "failed", None
-            content = self._content(tweet, note)
+            retweet = _retweet_content(tweet)
+            content = retweet or self._content(tweet, note)
             if not content and not self._media(tweet):
                 return "skipped", None
             if self._existing_post(published, content):
@@ -274,7 +292,11 @@ class TwitterImporter(BaseImporter):
                     sensitive=bool(tweet.get("possibly_sensitive")),
                     post_time=published,
                     reply_to_pk=reply_to.pk if reply_to else None,
-                    attachments=self._attachments(tweet, tweet_id, media) or None,
+                    attachments=(
+                        None
+                        if retweet
+                        else self._attachments(tweet, tweet_id, media) or None
+                    ),
                     language="" if lang == "und" else lang,
                 )
                 if not post:
