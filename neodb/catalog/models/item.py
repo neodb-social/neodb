@@ -1387,6 +1387,12 @@ class Item(PolymorphicModel):
                 credit = candidates.pop(idx)
                 used_pks.add(credit.pk)
                 update_fields = []
+                # unlinked rows matched by stripped name: store the stripped
+                # form, which the exact-name link-back needs; linked rows keep
+                # their name snapshot
+                if person is None and credit.name != name:
+                    credit.name = name
+                    update_fields.append("name")
                 if credit.order != order:
                     credit.order = order
                     update_fields.append("order")

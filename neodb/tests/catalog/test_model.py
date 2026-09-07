@@ -193,6 +193,17 @@ class TestSyncCreditsFromMetadata:
         assert [c.pk for c in credits] == [legacy.pk]
         assert credits[0].person == person
 
+    def test_legacy_unstripped_unlinked_credit_is_renamed_in_place(self):
+        m = self._make_movie()
+        m.director = ["Alice"]
+        m.save()
+        legacy = ItemCredit.objects.create(
+            item=m, role=CreditRole.Director, name="Alice ", order=0
+        )
+        m.sync_credits_from_metadata()
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert [(c.pk, c.name) for c in credits] == [(legacy.pk, "Alice")]
+
     def test_refetch_merge_of_unstripped_name_does_not_duplicate(self):
         """A stored stripped name merged with the scraper's unstripped copy
         (uniq is exact-match) must collapse to one entry and one credit."""
