@@ -18,7 +18,7 @@
           content="{{ item.display_title | default:item.category.label }}">
     <meta property="og:type" content="{{ item.category }}">
     <meta property="og:url" content="{{ item.absolute_url }}">
-    {% if item.has_cover %}<meta property="og:image" content="{{ item.cover_image_url }}">{% endif %}
+    <meta property="og:image" content="{{ item.display_cover_image_url }}">
     <meta property="og:site_name"
           content="{{ site_name }} {% trans item.category.label %}">
     <meta name="description"
@@ -59,7 +59,7 @@
         {% include "_site_labels.html" with resources=item.display_resources wikipedia=True %}
       </div>
       <div id="item-cover" class="left">
-        <img src="{{ item.cover_image_url|default:item.cover.url|default:item.default_cover_image_url|relative_uri }}"
+        <img src="{{ item.display_cover_image_url|relative_uri }}"
              alt="{{ item.display_title }}">
       </div>
       {% block primary_action %}

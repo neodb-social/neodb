@@ -1,10 +1,10 @@
 import logging
 from auditlog.context import set_actor
-from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 
 from catalog.models import Item
+from common.models.misc import MISSING_COVER
 from journal.search import JournalIndex
 from users.models import APIdentity, User
 
@@ -77,7 +77,7 @@ def remove_uploaded_files_by_identity(owner: APIdentity) -> int:
         count += 1
     for model in (Article, Collection):
         for piece in model.objects.filter(owner=owner).exclude(cover=""):
-            if not piece.cover or str(piece.cover) == settings.DEFAULT_ITEM_COVER:
+            if not piece.cover or str(piece.cover) == MISSING_COVER:
                 continue
             try:
                 _release_catalog_mirror(piece)
@@ -109,7 +109,7 @@ def _release_catalog_mirror(piece) -> None:
         return
     if str(catalog_item.cover) != str(piece.cover):
         return
-    catalog_item.cover = settings.DEFAULT_ITEM_COVER
+    catalog_item.cover = MISSING_COVER
     catalog_item.save(update_fields=["cover"])
 
 

@@ -2,22 +2,27 @@ import functools
 import json
 import logging
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+from urllib.parse import urljoin
 
 import django_rq
 from discord import HTTPException, SyncWebhook
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
+from django.core.signals import setting_changed
 from django.core.signing import b62_decode
 from django.db.models.fields.files import FieldFile
+from django.dispatch import receiver
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
+from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 from .models import int_
+from .models.misc import MISSING_COVER
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +98,25 @@ class HTTPResponseHXRedirect(HttpResponseRedirect):
     status_code = 200
 
 
+@functools.cache
+def get_default_cover_image_url(cover_type: str | None = None) -> str:
+    """Resolve once per cover type, after static storage is ready."""
+    cover_url = (
+        static(f"img/default-cover-{cover_type}.png")
+        if cover_type
+        else settings.SITE_INFO["default_cover_url"]
+    )
+    return urljoin(settings.SITE_INFO["site_url"], cover_url)
+
+
+@receiver(setting_changed)
+def _clear_default_cover_image_url_cache(*, setting: str, **kwargs: Any) -> None:
+    if setting in {"STATIC_URL", "STORAGES", "DEBUG", "SITE_INFO"}:
+        get_default_cover_image_url.cache_clear()
+
+
 def get_file_absolute_url(cover: FieldFile) -> str | None:
-    if not cover or cover == settings.DEFAULT_ITEM_COVER:
+    if not cover or cover == MISSING_COVER:
         return None
     url = cover.url
     if url.startswith("http://") or url.startswith("https://"):

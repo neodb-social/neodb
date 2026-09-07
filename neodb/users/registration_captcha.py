@@ -30,7 +30,6 @@ import secrets
 from itertools import pairwise
 from typing import Any, TypedDict, cast
 
-from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count
 from django.http import HttpRequest
@@ -49,6 +48,7 @@ from catalog.models import (
     item_content_types,
 )
 from common.models import SiteConfig
+from common.models.misc import MISSING_COVER
 from journal.models import ShelfMember, q_item_in_category
 
 logger = logging.getLogger(__name__)
@@ -149,7 +149,7 @@ def _covered_live_items(pks: list[int] | None = None):
     qs = Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
     if pks is not None:
         qs = qs.filter(pk__in=pks)
-    return qs.exclude(cover="").exclude(cover=settings.DEFAULT_ITEM_COVER)
+    return qs.exclude(cover="").exclude(cover=MISSING_COVER)
 
 
 def build_pool(category: ItemCategory, popular: bool) -> list[int]:

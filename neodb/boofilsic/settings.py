@@ -649,8 +649,7 @@ else:  # local
         "OPTIONS": {"location": TAKAHE_MEDIA_ROOT, "base_url": TAKAHE_MEDIA_URL},
     }
 
-DEFAULT_ITEM_COVER = "item/default.svg"
-SITE_INFO["default_cover_url"] = MEDIA_URL + DEFAULT_ITEM_COVER
+SITE_INFO["default_cover_url"] = STATIC_URL + "img/default-cover.png"
 
 CSRF_TRUSTED_ORIGINS = [SITE_INFO["site_url"]] + [
     f"https://{d}" for d in ALTERNATIVE_DOMAINS

@@ -31,7 +31,7 @@
           {% for item in group.items %}
             <li class="card">
               <a href="{{ item.url }}" title="{{ item.display_title }}">
-                <img src="{{ item.cover_image_url|default:default_cover_url|relative_uri }}"
+                <img src="{{ item.display_cover_image_url|relative_uri }}"
                      alt="{{ item.display_title }}"
                      loading="lazy">
                 <div>{{ item.display_title }}</div>

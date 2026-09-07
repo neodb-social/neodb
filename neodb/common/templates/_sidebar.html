@@ -141,7 +141,7 @@
                   <a class="episode"
                      data-uuid="{{ item.uuid }}"
                      data-media="{{ item.media_url }}"
-                     data-cover="{{ item.cover_url|default:item.program.cover.url }}"
+                     data-cover="{{ item.display_cover_image_url }}"
                      data-title="{{ item.display_title }}"
                      data-album="{{ item.program.display_title }}"
                      data-hosts="{{ item.program.host|join:' / ' }}"
@@ -149,7 +149,7 @@
                      data-position="0"
                      href="{{ item.url }}"
                      title="{{ item.display_title }}">
-                    <img src="{{ item.cover_image_url|default:item.cover.url|relative_uri }}"
+                    <img src="{{ item.display_cover_image_url|relative_uri }}"
                          alt="{{ item.display_title }}"
                          loading="lazy">
                     <div class="card-title">

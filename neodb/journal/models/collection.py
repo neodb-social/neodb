@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
-from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.dispatch import receiver
@@ -19,7 +18,8 @@ from catalog.models import CatalogCollection, Item, ItemCategory, item_categorie
 from catalog.models.utils import piece_cover_path
 from catalog.search.utils import enqueue_fetch
 from common.models import jsondata
-from common.utils import get_file_absolute_url
+from common.models.misc import MISSING_COVER
+from common.utils import get_default_cover_image_url, get_file_absolute_url
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
 from users.models import APIdentity, User
@@ -100,7 +100,7 @@ class Collection(List):
     title = models.CharField(_("title"), max_length=1000, default="")
     brief = models.TextField(_("description"), blank=True, default="")
     cover = models.ImageField(
-        upload_to=piece_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
+        upload_to=piece_cover_path, default=MISSING_COVER, blank=True
     )
     items = models.ManyToManyField(
         Item, through="CollectionMember", related_name="collections"
@@ -126,6 +126,14 @@ class Collection(List):
 
     def __str__(self):
         return f"Collection:{self.uuid}@{self.owner_id}:{self.title}"
+
+    @property
+    def default_cover_image_url(self) -> str:
+        return get_default_cover_image_url("collection")
+
+    @property
+    def display_cover_image_url(self) -> str:
+        return self.cover_image_url or self.default_cover_image_url
 
     @property
     def cover_image_url(self) -> str | None:
@@ -608,7 +616,7 @@ class Collection(List):
         return ", ".join(parts)
 
     def _build_cover_attachments(self, existing_post) -> list | None:
-        has_cover = bool(self.cover) and str(self.cover) != settings.DEFAULT_ITEM_COVER
+        has_cover = bool(self.cover) and str(self.cover) != MISSING_COVER
         existing = list(existing_post.attachments.all()) if existing_post else []
         if not has_cover:
             # clear stale attachments on existing posts; leave new posts as-is

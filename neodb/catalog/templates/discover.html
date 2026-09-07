@@ -97,13 +97,13 @@
                          title="{{ item.display_title }}"
                          class="episode"
                          data-media="{{ item.media_url }}"
-                         data-cover="{{ item.cover_image_url }}"
+                         data-cover="{{ item.display_cover_image_url }}"
                          data-title="{{ item.display_title }}"
                          data-album="{{ item.program.display_title }}"
                          data-hosts="{{ item.program.host_names|join:' / ' }}"
                          data-uuid="{{ item.uuid }}"
                          {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' item.uuid %}"{% endif %}>
-                        <img src="{{ item.cover_image_url }}"
+                        <img src="{{ item.display_cover_image_url }}"
                              alt="{{ item.display_title }}"
                              loading="lazy">
                         <div class="card-title">{{ item.display_title }}</div>

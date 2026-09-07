@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
 from catalog.models import Item
-from common.utils import json_ld_dumps
+from common.utils import get_default_cover_image_url, json_ld_dumps
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -219,6 +219,18 @@ class Review(Content):
     @property
     def delete_url(self) -> str:
         return reverse("journal:review_delete", args=[self.uuid])
+
+    @property
+    def default_cover_image_url(self) -> str:
+        return get_default_cover_image_url("review")
+
+    @property
+    def display_cover_image_url(self) -> str:
+        return self.cover_image_url or self.default_cover_image_url
+
+    @property
+    def cover_image_url(self) -> str | None:
+        return self.item.cover_image_url
 
     @property
     def cover(self):

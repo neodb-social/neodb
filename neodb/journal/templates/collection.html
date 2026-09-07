@@ -24,7 +24,8 @@
     <meta property="article:modified_time"
           content="{{ collection.edited_time | date:'c' }}">
     <meta property="og:url" content="{{ collection.absolute_url }}">
-    {% if collection.cover_image_url %}<meta property="og:image" content="{{ collection.cover_image_url }}">{% endif %}
+    <meta property="og:image"
+          content="{{ collection.display_cover_image_url }}">
     <meta property="og:site_name"
           content="{{ site_name }} {% trans 'Collection' %}">
     <meta name="fediverse:creator"

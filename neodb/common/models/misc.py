@@ -1,6 +1,9 @@
 import re
 from datetime import datetime
 
+# Stored marker for missing artwork, independent of the displayed fallback.
+MISSING_COVER = "item/default.svg"
+
 
 def uniq(ls: list) -> list:
     r = []

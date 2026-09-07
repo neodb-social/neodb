@@ -3,7 +3,6 @@ import mimetypes
 import re
 from typing import Any
 
-from django.conf import settings
 from django.core.files.base import File
 from django.db import models
 from django.urls import reverse
@@ -14,7 +13,8 @@ from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
 from catalog.models.utils import piece_cover_path
-from common.utils import get_file_absolute_url
+from common.models.misc import MISSING_COVER
+from common.utils import get_default_cover_image_url, get_file_absolute_url
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -122,7 +122,7 @@ class Article(Piece):
     # (plus an ``attachment`` mirror) and used for the Bluesky external-card
     # thumb and the ``site.standard.document`` coverImage blob.
     cover = models.ImageField(
-        upload_to=piece_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
+        upload_to=piece_cover_path, default=MISSING_COVER, blank=True
     )
 
     class Meta:
@@ -137,6 +137,14 @@ class Article(Piece):
     @property
     def display_title(self) -> str:
         return self.title
+
+    @property
+    def default_cover_image_url(self) -> str:
+        return get_default_cover_image_url("article")
+
+    @property
+    def display_cover_image_url(self) -> str:
+        return self.cover_image_url or self.default_cover_image_url
 
     @property
     def cover_image_url(self) -> str | None:
@@ -328,7 +336,7 @@ class Article(Piece):
         Read through ``storage.open`` (an independent handle) so it never
         disturbs the ``cover`` FieldFile's lazily-opened state that the
         Bluesky external-embed thumb path reads from in the same crosspost."""
-        if not self.cover or str(self.cover) == settings.DEFAULT_ITEM_COVER:
+        if not self.cover or str(self.cover) == MISSING_COVER:
             return None
         name = self.cover.name
         if not name:

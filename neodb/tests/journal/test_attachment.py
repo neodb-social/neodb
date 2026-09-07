@@ -17,6 +17,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Edition
+from common.models.misc import MISSING_COVER
 from journal.jobs.migrations import (
     backfill_attachments_20260818,
     register_legacy_attachment,
@@ -147,9 +148,9 @@ class TestAttachmentModel:
         article.refresh_from_db()
         collection.refresh_from_db()
         catalog_item.refresh_from_db()
-        assert str(article.cover) == settings.DEFAULT_ITEM_COVER
-        assert str(collection.cover) == settings.DEFAULT_ITEM_COVER
-        assert str(catalog_item.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(article.cover) == MISSING_COVER
+        assert str(collection.cover) == MISSING_COVER
+        assert str(catalog_item.cover) == MISSING_COVER
         assert not default_storage.exists(name)
 
     def test_deleting_the_row_reclaims_the_bytes(self):

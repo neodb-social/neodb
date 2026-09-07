@@ -40,7 +40,7 @@
                      class="episode"
                      data-uuid="{{ item.uuid }}"
                      data-media="{{ item.media_url }}"
-                     data-cover="{{ item.cover_url|default:item.parent_item.cover.url }}"
+                     data-cover="{{ item.display_cover_image_url }}"
                      data-title="{{ item.display_title }}"
                      data-album="{{ item.parent_item.display_title }}"
                      data-hosts="{{ item.parent_item.host|join:' / ' }}"
@@ -165,7 +165,7 @@
             {% if piece and piece.classname == 'note' %}
               {% if item %}
                 <a href="{{ item.url }}" title="{{ item.display_title }}">
-                  <img src="{{ item.cover_image_url }}"
+                  <img src="{{ item.display_cover_image_url }}"
                        title="{{ item.display_title }}"
                        alt="cover">
                 </a>

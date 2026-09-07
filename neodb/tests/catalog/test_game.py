@@ -4,12 +4,12 @@ import time
 import httpx
 import pytest
 import requests
-from django.conf import settings
 from igdb.wrapper import IGDBWrapper
 
 from catalog.common import *
 from catalog.models import Game, IdType, SiteName
 from catalog.sites.igdb import IGDB, igdb_limiter
+from common.models.misc import MISSING_COVER
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -175,7 +175,7 @@ class TestSteam:
         # header.jpg is horizontal; vertical covers are preferred, falling
         # through library_600x900_2x (absent in test data) to library_600x900
         assert "library_600x900.jpg" in site.resource.metadata["cover_image_url"]
-        assert site.resource.cover.name != settings.DEFAULT_ITEM_COVER
+        assert site.resource.cover.name != MISSING_COVER
 
 
 @pytest.mark.django_db(databases="__all__")

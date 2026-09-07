@@ -31,7 +31,12 @@ from common.models import (
 )
 from common.models.genre import normalize_genres
 from common.models.lang import localized_label_text, normalize_languages
-from common.utils import get_file_absolute_url, json_ld_dumps
+from common.models.misc import MISSING_COVER
+from common.utils import (
+    get_default_cover_image_url,
+    get_file_absolute_url,
+    json_ld_dumps,
+)
 
 from .common import (
     LOCALIZED_DESCRIPTION_SCHEMA,
@@ -46,6 +51,7 @@ from .common import (
 from .utils import item_cover_path, resource_cover_path
 
 logger = logging.getLogger(__name__)
+
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
@@ -317,7 +323,7 @@ class Item(PolymorphicModel):
     cover = models.ImageField(
         _("cover"),
         upload_to=item_cover_path,
-        default=settings.DEFAULT_ITEM_COVER,
+        default=MISSING_COVER,
         blank=True,
     )
     created_time = models.DateTimeField(auto_now_add=True)
@@ -1030,7 +1036,7 @@ class Item(PolymorphicModel):
         return d
 
     def has_cover(self) -> bool:
-        return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
+        return bool(self.cover) and self.cover != MISSING_COVER
 
     @property
     def cover_image_url(self) -> str | None:
@@ -1038,7 +1044,14 @@ class Item(PolymorphicModel):
 
     @property
     def default_cover_image_url(self) -> str:
-        return f"{settings.SITE_INFO['site_url']}{settings.DEFAULT_ITEM_COVER}"
+        category = getattr(self, "category", None)
+        return get_default_cover_image_url(
+            str(category) if category in ItemCategory.values else None
+        )
+
+    @property
+    def display_cover_image_url(self) -> str:
+        return self.cover_image_url or self.default_cover_image_url
 
     # Mapping from jsondata field name to CreditRole value for auto-sync
     CREDIT_FIELD_MAPPING: dict[str, str] = {}
@@ -1555,7 +1568,7 @@ class ExternalResource(models.Model):
         _("url to the resource"), blank=False, max_length=1000, unique=True
     )
     cover = models.ImageField(
-        upload_to=resource_cover_path, default=settings.DEFAULT_ITEM_COVER, blank=True
+        upload_to=resource_cover_path, default=MISSING_COVER, blank=True
     )
     other_lookup_ids = models.JSONField(default=dict)
     metadata = models.JSONField(default=dict)
@@ -1613,7 +1626,7 @@ class ExternalResource(models.Model):
         )
 
     def has_cover(self) -> bool:
-        return bool(self.cover) and self.cover != settings.DEFAULT_ITEM_COVER
+        return bool(self.cover) and self.cover != MISSING_COVER
 
     def _match_existing_item(self, model: type[Item]) -> Item | None:
         """

@@ -3,7 +3,6 @@ from io import BytesIO
 from unittest.mock import patch
 
 import pytest
-from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, override_settings
@@ -12,6 +11,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Edition, Game, Movie
+from common.models.misc import MISSING_COVER
 from journal.models import (
     Article,
     Collection,
@@ -734,14 +734,14 @@ def test_collection_cover_api(tmp_path):
         assert response.status_code == 400
 
         collection.refresh_from_db()
-        assert str(collection.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(collection.cover) == MISSING_COVER
 
         response = upload(url, png, token)
         assert response.status_code == 200
         assert response.json()["cover_image_url"]
 
         collection.refresh_from_db()
-        assert str(collection.cover) != settings.DEFAULT_ITEM_COVER
+        assert str(collection.cover) != MISSING_COVER
         assert (collection.cover.name or "").endswith(".png")
         assert collection.catalog_item.cover.name == collection.cover.name
 
@@ -758,8 +758,8 @@ def test_collection_cover_api(tmp_path):
         assert response.json()["cover_image_url"] is None
 
         collection.refresh_from_db()
-        assert str(collection.cover) == settings.DEFAULT_ITEM_COVER
-        assert str(collection.catalog_item.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(collection.cover) == MISSING_COVER
+        assert str(collection.catalog_item.cover) == MISSING_COVER
 
 
 @pytest.mark.django_db(databases="__all__")

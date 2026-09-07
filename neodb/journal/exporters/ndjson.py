@@ -12,6 +12,7 @@ from django.db.models.fields.files import ImageFieldFile
 from django.utils import timezone
 
 from catalog.common import ProxiedImageDownloader
+from common.models.misc import MISSING_COVER
 from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import (
     Article,
@@ -153,7 +154,7 @@ class NdjsonExporter(Task):
         The ap_object only carries a URL that may be unreachable after
         migration, so the bytes travel in the archive.
         """
-        if not cover or str(cover) == settings.DEFAULT_ITEM_COVER:
+        if not cover or str(cover) == MISSING_COVER:
             return None
         basename = os.path.basename(str(cover))
         if not basename:

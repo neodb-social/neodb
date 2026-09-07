@@ -30,6 +30,7 @@ from catalog.models import (
     TVSeason,
     TVShow,
 )
+from common.models.misc import MISSING_COVER
 from journal.exporters import NdjsonExporter
 from journal.importers import CsvImporter, NdjsonImporter
 from journal.models import *
@@ -720,7 +721,7 @@ class TestNdjsonExportImport:
             imported = Article.objects.get(
                 owner=self.user2.identity, title="Covered Read"
             )
-            assert str(imported.cover) != settings.DEFAULT_ITEM_COVER
+            assert str(imported.cover) != MISSING_COVER
             assert (imported.cover_image_url or "").endswith(".png")
 
     def test_ndjson_article_reimport_dedup(self):
@@ -818,7 +819,7 @@ class TestNdjsonExportImport:
                 owner=self.user2.identity, title="Cover Import OK"
             )
             # Cover populated from the on-disk file (not the model default)
-            assert coll.cover.name and coll.cover.name != settings.DEFAULT_ITEM_COVER
+            assert coll.cover.name and coll.cover.name != MISSING_COVER
 
             data["content"]["name"] = "Cover Traversal Rejected"
             data["cover"] = "../../etc/passwd"
@@ -827,7 +828,7 @@ class TestNdjsonExportImport:
                 owner=self.user2.identity, title="Cover Traversal Rejected"
             )
             # Traversal path is rejected: no cover stored, default still in place
-            assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER
+            assert not coll.cover.name or coll.cover.name == MISSING_COVER
 
             # A cover entry pointing at a directory inside temp_dir resolves
             # cleanly but must not raise IsADirectoryError on open().
@@ -838,7 +839,7 @@ class TestNdjsonExportImport:
             coll = Collection.objects.get(
                 owner=self.user2.identity, title="Cover Directory Skipped"
             )
-            assert not coll.cover.name or coll.cover.name == settings.DEFAULT_ITEM_COVER
+            assert not coll.cover.name or coll.cover.name == MISSING_COVER
 
     def test_ndjson_export_skips_debris(self):
         """A Debris tombstone must not abort the export.

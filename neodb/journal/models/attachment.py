@@ -36,6 +36,7 @@ from django.core.files.storage import Storage, default_storage, storages
 from django.db import models
 from django.utils import timezone
 
+from common.models.misc import MISSING_COVER
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -310,9 +311,7 @@ class Attachment(models.Model):
 
         cleared = 0
         for model in (Article, Collection, CatalogCollection):
-            cleared += model.objects.filter(cover=name).update(
-                cover=settings.DEFAULT_ITEM_COVER
-            )
+            cleared += model.objects.filter(cover=name).update(cover=MISSING_COVER)
         if cleared:
             logger.info(f"{self} cleared {cleared} cover reference(s) before delete")
         return cleared

@@ -4,7 +4,6 @@ from typing import Any
 
 import django_rq
 from auditlog.context import set_actor
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -18,6 +17,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.models.lang import get_current_locales
+from common.models.misc import MISSING_COVER
 from common.sentry import record_catalog_edit
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item_task
@@ -109,7 +109,7 @@ def _edit_changes(form) -> list[dict[str, str]]:
                     {
                         "label": str(field.label),
                         "old": old.name
-                        if old and old.name and old.name != settings.DEFAULT_ITEM_COVER
+                        if old and old.name and old.name != MISSING_COVER
                         else "-",
                         "new": new.name or "-",
                     }

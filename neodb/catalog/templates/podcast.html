@@ -49,7 +49,7 @@ window.podcastData = {
   "title": "{{ item.display_title | escapejs }}",
   "subtitle": "",
   "description": "{{ item.display_description | escapejs }}",
-  "cover": "{{ item.cover.url | escapejs }}",
+  "cover": "{{ item.display_cover_image_url | escapejs }}",
   "feeds": [{"type": "audio", "format": "mp3", "url": "{{ item.feed_url | escapejs }}", "variant": "high"}]
 }
 $(()=>{
@@ -58,7 +58,7 @@ $(()=>{
 	window.current_item_uuid = "{{focus_item.uuid}}";
 	create_player({
 		title: "{{ focus_item.display_title | escapejs }}",
-		cover: "{{ focus_item.cover_url | default:item.cover.url | escapejs }}",
+		cover: "{{ focus_item.display_cover_image_url | escapejs }}",
 		src: "{{ focus_item.media_url | escapejs }}",
 		album: "{{ item.display_title|escapejs }}",
 		artist: "{{ item.host_names|join:' / '|escapejs }}"

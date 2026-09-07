@@ -9,6 +9,7 @@ from lxml import etree
 from PIL import Image
 
 from catalog.common.downloaders import BasicImageDownloader
+from common.models.misc import MISSING_COVER
 from journal.exporters import WordpressExporter
 from journal.exporters.wordpress import _NS
 from journal.importers import WordpressImporter
@@ -328,7 +329,7 @@ class TestWordpressImport:
         assert task.metadata["imported"] == 1
         assert calls == [url]
         article = Article.objects.get(owner=self.user.identity)
-        assert article.cover and str(article.cover) != settings.DEFAULT_ITEM_COVER
+        assert article.cover and str(article.cover) != MISSING_COVER
 
     def test_attachment_without_thumbnail_meta_is_not_a_cover(
         self, tmp_path, monkeypatch
@@ -345,7 +346,7 @@ class TestWordpressImport:
         )
         self._run(_wxr(items), tmp_path)
         article = Article.objects.get(owner=self.user.identity)
-        assert str(article.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(article.cover) == MISSING_COVER
 
     def test_unfetchable_cover_still_imports_article(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
@@ -363,7 +364,7 @@ class TestWordpressImport:
         assert task.metadata["imported"] == 1
         assert task.metadata["failed"] == 0
         article = Article.objects.get(owner=self.user.identity)
-        assert str(article.cover) == settings.DEFAULT_ITEM_COVER
+        assert str(article.cover) == MISSING_COVER
 
     def test_cover_not_fetched_for_skipped_duplicate(self, tmp_path, monkeypatch):
         calls = []
@@ -468,4 +469,4 @@ class TestWordpressRoundTrip:
         # markdown survives the HTML detour
         assert "**Bold**" in imported.body
         assert "Second paragraph." in imported.body
-        assert str(imported.cover) != settings.DEFAULT_ITEM_COVER
+        assert str(imported.cover) != MISSING_COVER

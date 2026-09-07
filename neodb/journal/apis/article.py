@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any
 
 from django import forms
-from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from ninja import Field, File, Schema, Status
@@ -19,6 +18,7 @@ from common.api import (
     renamed_field,
     api,
 )
+from common.models.misc import MISSING_COVER
 from common.sentry import record_activity
 from takahe.utils import Takahe
 from users.apis import UserIdentitySchema
@@ -234,7 +234,7 @@ def remove_article_cover(request, article_uuid: str):
     article = Article.get_by_url_and_owner(article_uuid, request.user.identity.pk)
     if not article:
         return NOT_FOUND
-    article.cover = settings.DEFAULT_ITEM_COVER
+    article.cover = MISSING_COVER
     article.application_id_when_save = getattr(request, "application_id", None)
     article.save()
     record_activity("article", "api")

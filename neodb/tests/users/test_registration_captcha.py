@@ -12,6 +12,7 @@ from PIL import Image
 
 from catalog.models import Album, Game, ItemCategory, Movie, Podcast, PodcastEpisode
 from common.models import SiteConfig
+from common.models.misc import MISSING_COVER
 from journal.models import Mark, ShelfType
 from mastodon.models import Email
 from users import registration_captcha as captcha
@@ -649,12 +650,9 @@ class TestPool:
         assert naked.pk not in captcha.build_pool(ItemCategory.Movie, popular=False)
 
     def test_default_cover_is_not_a_cover(self, client, monkeypatch, media_root):
-        from django.conf import settings
 
         _configure(monkeypatch, registration_captcha_items=4, min_marks_for_captcha=1)
-        placeholder = Movie.objects.create(
-            title="Placeholder", cover=settings.DEFAULT_ITEM_COVER
-        )
+        placeholder = Movie.objects.create(title="Placeholder", cover=MISSING_COVER)
         assert placeholder.pk not in captcha.build_pool(
             ItemCategory.Movie, popular=False
         )

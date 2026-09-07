@@ -40,7 +40,7 @@
             <a href="{{ comment.item_url }}"
                data-media="{{ comment.item.media_url }}"
                data-position="{{ comment.metadata.position|default:0 }}"
-               data-cover="{{ comment.item.cover_url|default:item.cover.url }}"
+               data-cover="{{ comment.item.display_cover_image_url }}"
                class="episode"
                data-hosts="{{ item.host_names|join:' / ' }}"
                data-title="{{ comment.item.display_title }}"

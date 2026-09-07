@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any
 
 from django import forms
-from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import b62_encode
 from django.db.models import Count, QuerySet, prefetch_related_objects
@@ -26,6 +25,7 @@ from common.api import (
     renamed_field,
     api,
 )
+from common.models.misc import MISSING_COVER
 from common.sentry import record_activity
 from journal.models.collection import COVER_MAX_BYTES
 from journal.models.common import (
@@ -474,7 +474,7 @@ def collection_remove_cover(request, collection_uuid: str):
         return Status(404, {"message": "Collection not found"})
     if not c.is_editable_by(request.user):
         return Status(403, {"message": "Permission denied"})
-    c.cover = settings.DEFAULT_ITEM_COVER
+    c.cover = MISSING_COVER
     c.application_id_when_save = getattr(request, "application_id", None)
     c.save()
     record_activity("collection", "api")

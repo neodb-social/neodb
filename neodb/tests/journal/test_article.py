@@ -990,4 +990,6 @@ class TestArticlePageMarkup:
         assert resp.status_code == 200
         html = resp.content.decode()
         assert 'class="article-cover"' not in html
-        assert 'property="og:image"' not in html
+        assert (
+            f'property="og:image" content="{article.display_cover_image_url}"' in html
+        )
