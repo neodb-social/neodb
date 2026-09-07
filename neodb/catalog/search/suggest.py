@@ -38,7 +38,11 @@ _CJK = re.compile(r"[\u2e80-\u9fff\uf900-\ufaff]")
 # https://typesense.org/docs/latest/api/search.html#ranking-and-sorting-parameters
 _SUGGEST_PARAMS: dict[str, Any] = {
     "per_page": SUGGEST_LIMIT,
-    "num_typos": 1,
+    # A typeahead fires on every keystroke, so one query must stay cheap.
+    # Typo tolerance belongs to full search: a token long enough to pass
+    # min_len_1typo gets expanded here for no gain, because the next
+    # keystroke corrects the typo anyway (NEODB-SOCIAL-7WD).
+    "num_typos": 0,
     "drop_tokens_threshold": 0,
     "exhaustive_search": False,
     "search_cutoff_ms": 50,
@@ -48,8 +52,15 @@ _SUGGEST_PARAMS: dict[str, Any] = {
 
 class CatalogSuggestParser(CatalogQueryParser):
     max_pages = 1
+    # Full search also matches `people` and `company`, but they are large
+    # multi-valued fields, and prefix expansion over them made a two or three
+    # character query as expensive as a whole page of full search. The
+    # dropdown is a title typeahead; Enter still runs full search, which keeps
+    # matching creators. `prefix` is positional against `query_by`, so the two
+    # lists must stay the same length and in the same order.
     default_search_params = {
-        "query_by": "title, people, company, lookup_id, extra_title",
+        "query_by": "title, extra_title, lookup_id",
+        "prefix": "true,true,false",
         "sort_by": f"_text_match(bucket_size:{SUGGEST_LIMIT}):desc,mark_count:desc",
         "include_fields": "id, item_class, title",
         **_SUGGEST_PARAMS,
@@ -60,6 +71,7 @@ class PeopleSuggestParser(PeopleQueryParser):
     max_pages = 1
     default_search_params = {
         "query_by": "name, lookup_id",
+        "prefix": "true,false",
         "sort_by": f"_text_match(bucket_size:{SUGGEST_LIMIT}):desc,credit_count:desc",
         "include_fields": "id, people_type, name",
         **_SUGGEST_PARAMS,

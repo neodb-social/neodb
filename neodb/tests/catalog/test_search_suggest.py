@@ -47,13 +47,25 @@ class TestSuggestParsers:
         params = CatalogSuggestParser("thr", page_size=SUGGEST_LIMIT).to_search_params()
         assert params["q"] == "thr"
         assert params["per_page"] == SUGGEST_LIMIT
-        assert params["num_typos"] == 1
+        assert params["num_typos"] == 0
         assert params["drop_tokens_threshold"] == 0
         assert params["exhaustive_search"] is False
         assert params["search_cutoff_ms"] == 50
         assert "facet_by" not in params
         assert f"bucket_size:{SUGGEST_LIMIT}" in params["sort_by"]
         assert params["include_fields"] == "id, item_class, title"
+        # prefix expansion over the large multi-valued creator fields is what
+        # made a short query cost a full page of search (NEODB-SOCIAL-7WD)
+        assert params["query_by"] == "title, extra_title, lookup_id"
+        assert params["prefix"] == "true,true,false"
+
+    def test_people_and_company_are_still_filterable(self):
+        """Dropping them from query_by must not drop the `people:` filter."""
+        params = CatalogSuggestParser(
+            "people:某人 company:某社", page_size=SUGGEST_LIMIT
+        ).to_search_params()
+        assert "people:" in params["filter_by"]
+        assert "company:" in params["filter_by"]
 
     def test_catalog_category_filter(self):
         from catalog.models import ItemCategory
@@ -67,6 +79,7 @@ class TestSuggestParsers:
     def test_people_params(self):
         params = PeopleSuggestParser("liu", page_size=SUGGEST_LIMIT).to_search_params()
         assert params["query_by"] == "name, lookup_id"
+        assert params["prefix"] == "true,false"
         assert "facet_by" not in params
         assert params["include_fields"] == "id, people_type, name"
 
@@ -77,11 +90,19 @@ class TestSuggestParsers:
             (PeopleIndex.schema, PeopleSuggestParser),
         ):
             declared = {f["name"] for f in schema["fields"]} | {"id"}
-            wanted = {
-                f.strip()
-                for f in parser.default_search_params["include_fields"].split(",")
-            }
-            assert wanted <= declared
+            for key in ("include_fields", "query_by"):
+                wanted = {
+                    f.strip() for f in parser.default_search_params[key].split(",")
+                }
+                assert wanted <= declared, f"{parser.__name__}.{key}"
+
+    def test_prefix_lines_up_with_query_by(self):
+        """Typesense reads `prefix` positionally, so a stale list mismatches."""
+        for parser in (CatalogSuggestParser, PeopleSuggestParser):
+            params = parser.default_search_params
+            assert len(params["prefix"].split(",")) == len(
+                params["query_by"].split(",")
+            ), parser.__name__
 
 
 class TestTitleChoice:

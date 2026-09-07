@@ -13,6 +13,7 @@
     <ul class="nav-search {% if request.GET.q %}unhide{% endif %}">
       <li _="on focusout if not me.contains(event.relatedTarget) set #q's @data-dismissed to 'true' then send htmx:abort to #q then set #search-suggest's innerHTML to '' end">
         <form role="search" method="get" action="{% url 'common:search' %}">
+          {# An IME keeps its composition buffer in the input value and `input` fires on every pinyin keystroke with isComposing set, so one CJK title used to send a request per keystroke (NEODB-SOCIAL-7WD). Filter those out, and trigger on compositionend too for the browsers that fire the committed `input` first. Both specs share one debounce timer and one `changed` value, so a commit still sends one request. #}
           <input type="search"
                  name="q"
                  id="q"
@@ -21,7 +22,7 @@
                  autocomplete="off"
                  aria-controls="search-suggest"
                  hx-get="{% url 'common:search_suggest' %}"
-                 hx-trigger="input changed delay:200ms"
+                 hx-trigger="input[!event.isComposing] changed delay:300ms, compositionend changed delay:300ms"
                  hx-include="[name='c']"
                  hx-sync="this:replace"
                  hx-target="#search-suggest"
