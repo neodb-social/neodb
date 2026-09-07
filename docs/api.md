@@ -111,17 +111,50 @@ everywhere), its webhook is removed, at the latest when the next change
 would have been delivered.
 
 When the user's marks, reviews, notes, collections or articles change,
-a small JSON payload is POSTed to the URL, once per change:
+a JSON document is POSTed to the URL with `Content-Type: application/json`
+and a `User-Agent` like `NeoDB/1.0 (+https://neodb.social)`:
 
 ```
-{"type": "mark", "action": "save", "url": "https://neodb.social/book/xxx", "title": "Item Title"}
+{
+  "version": 1,
+  "site": "https://neodb.social",
+  "time": "2026-09-07T02:22:47+00:00",
+  "username": "alice",
+  "changes": [
+    {
+      "type": "mark",
+      "action": "update",
+      "object": {
+        "shelf_type": "progress",
+        "visibility": 0,
+        "item": {"uuid": "4upSY7ttUqa5kjvcnXflWt", "title": "Item Title", "...": "..."},
+        "comment_text": "...",
+        "rating_grade": 8,
+        "tags": ["fiction"],
+        "...": "..."
+      }
+    }
+  ]
+}
 ```
 
-`type` is one of `mark`, `review`, `note`, `collection`, `article`; `action`
-is `save` or `delete`. The payload is a trigger only: fetch the details via
-the API. Delivery is one attempt, without retry or signature. After 100
-consecutive failures (counted over a week) the webhook is disabled until it
-is set again.
+- `version` is bumped on incompatible changes to this document.
+- `username` is the account whose content changed, as in `/api/me`.
+- `changes` is a list. Today each delivery carries one entry; consumers
+  should nonetheless loop over it.
+- `type` is one of `mark`, `review`, `note`, `collection`, `article`;
+  `action` is `create`, `update` or `delete`.
+- On `create` and `update`, `object` is exactly what the API returns for the
+  piece (as in `GET /api/me/shelf/item/{uuid}`, `/api/me/note/item/{uuid}/`,
+  `/api/review/{uuid}`, `/api/collection/{uuid}`, `/api/article/{uuid}`),
+  minus fields the API documents as deprecated.
+- On `delete`, `object` only identifies the piece: `{"uuid": "..."}`, or
+  `{"item": {"uuid": "..."}}` for a mark, since marks are addressed by item.
+
+One delivery is sent per change: editing a mark's shelf, comment, rating and
+tags together yields one `mark` `update`. Delivery is one attempt, without
+retry or signature. After 100 consecutive failures (counted over a week) the
+webhook is disabled until it is set again.
 
 Users can see which of their authorized applications have a webhook on the
 account page, and set one for the Dev Console token on the developer page.

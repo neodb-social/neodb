@@ -98,9 +98,10 @@
             This webhook was disabled after repeated delivery failures; save again to re-enable it.
             <br>
           {% endif %}
-          When your marks, reviews, notes, collections or articles change, a JSON payload like
-          <code>{"type": "mark", "action": "save", "url": "...", "title": "..."}</code>
-          is POSTed to this URL. Leave it empty and save to remove it.
+          When your marks, reviews, notes, collections or articles change, a JSON document with
+          <code>{"version": 1, "username": ..., "changes": [{"type": "mark", "action": "update", "object": {...}}]}</code>
+          is POSTed to this URL; <code>object</code> is the API response for the piece. See the API docs for details.
+          Leave it empty and save to remove it.
           Each application can set its own webhook for your account via
           <code>PUT /api/me/webhook</code>; this one belongs to the Dev Console token above.
         </p>

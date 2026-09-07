@@ -5,13 +5,14 @@ from unittest.mock import patch
 import django_rq
 import httpx
 import pytest
+from django.conf import settings
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
 from common.validators import _host_cache
-from journal.models import Collection, Mark, Note, ShelfType
+from journal.models import Collection, Mark, Note, Review, ShelfType
 from takahe.models import Token
 from takahe.utils import Takahe
 from users.models import User, Webhook
@@ -129,6 +130,29 @@ class TestValidateWebhookUrl:
         assert validate_webhook_url("ftp://example.com/") is False
 
 
+def _only_change(queue) -> dict:
+    assert len(queue.jobs) == 1
+    func, args = queue.jobs[0]
+    assert func is _deliver_webhook
+    payload = args[1]
+    assert payload["version"] == 1
+    assert payload["site"] == settings.SITE_INFO["site_url"]
+    assert payload["time"]
+    assert len(payload["changes"]) == 1
+    return payload["changes"][0]
+
+
+def _api_json(client, token: Token, path: str) -> dict:
+    r = client.get(path, HTTP_AUTHORIZATION=f"Bearer {token.token}")
+    assert r.status_code == 200, r.content
+    data = r.json()
+    # the API still returns these deprecated fields; webhooks do not
+    for entry in data.get("data", [data]):
+        for k in ("display_title", "brief"):
+            entry.get("item", {}).pop(k, None)
+    return data
+
+
 @pytest.mark.django_db(databases="__all__")
 class TestDispatch:
     def test_no_webhook_no_enqueue(
@@ -138,20 +162,38 @@ class TestDispatch:
             Mark(user.identity, book).update(ShelfType.WISHLIST)
         assert queue.jobs == []
 
-    def test_mark_update_enqueues_once(
-        self, user, book, webhook, queue, django_capture_on_commit_callbacks
+    def test_mark_create_then_update(
+        self,
+        user,
+        book,
+        token,
+        webhook,
+        queue,
+        client,
+        django_capture_on_commit_callbacks,
     ):
         with django_capture_on_commit_callbacks(execute=True):
-            Mark(user.identity, book).update(ShelfType.WISHLIST)
-        assert len(queue.jobs) == 1
-        func, args = queue.jobs[0]
-        assert func is _deliver_webhook
-        assert args[0] == user.pk
-        payload = args[1]
-        assert payload["type"] == "mark"
-        assert payload["action"] == "save"
-        assert payload["title"] == book.display_title
-        assert payload["url"] == book.absolute_url
+            Mark(user.identity, book).update(ShelfType.WISHLIST, tags=["x"])
+        assert queue.jobs[0][1][0] == user.pk
+        assert queue.jobs[0][1][1]["username"] == user.identity.handle
+        change = _only_change(queue)
+        assert change["type"] == "mark"
+        assert change["action"] == "create"
+        obj = change["object"]
+        assert obj["shelf_type"] == "wishlist"
+        assert obj["item"]["uuid"] == book.uuid
+        assert obj["tags"] == ["x"]
+        assert "display_title" not in obj["item"]
+        # same JSON as the API returns for the mark
+        assert obj == _api_json(client, token, f"/api/me/shelf/item/{book.uuid}")
+
+        queue.jobs.clear()
+        with django_capture_on_commit_callbacks(execute=True):
+            Mark(user.identity, book).update(ShelfType.PROGRESS, comment_text="hi")
+        change = _only_change(queue)
+        assert change["action"] == "update"
+        assert change["object"]["shelf_type"] == "progress"
+        assert change["object"]["comment_text"] == "hi"
 
     def test_unmark_enqueues_delete(
         self, user, book, webhook, queue, django_capture_on_commit_callbacks
@@ -161,34 +203,78 @@ class TestDispatch:
         queue.jobs.clear()
         with django_capture_on_commit_callbacks(execute=True):
             Mark(user.identity, book).delete()
-        actions = [args[1]["action"] for _, args in queue.jobs]
-        assert actions == ["delete"]
+        change = _only_change(queue)
+        assert change["type"] == "mark"
+        assert change["action"] == "delete"
+        assert change["object"] == {"item": {"uuid": book.uuid}}
 
-    def test_note_save_and_delete(
-        self, user, book, webhook, queue, django_capture_on_commit_callbacks
+    def test_note_create_update_delete(
+        self,
+        user,
+        book,
+        token,
+        webhook,
+        queue,
+        client,
+        django_capture_on_commit_callbacks,
     ):
         with django_capture_on_commit_callbacks(execute=True):
             note = Note.objects.create(
                 owner=user.identity, item=book, title="n", content="c", visibility=0
             )
-        assert [args[1]["action"] for _, args in queue.jobs] == ["save"]
-        assert queue.jobs[0][1][1]["type"] == "note"
+        change = _only_change(queue)
+        assert change["type"] == "note"
+        assert change["action"] == "create"
+        assert change["object"]["uuid"] == note.uuid
+        assert change["object"]["content"] == "c"
+        listed = _api_json(client, token, f"/api/me/note/item/{book.uuid}/")
+        assert change["object"] == listed["data"][0]
+
+        queue.jobs.clear()
+        with django_capture_on_commit_callbacks(execute=True):
+            note.content = "c2"
+            note.save()
+        change = _only_change(queue)
+        assert change["action"] == "update"
+        assert change["object"]["content"] == "c2"
+
         queue.jobs.clear()
         with django_capture_on_commit_callbacks(execute=True):
             note.delete()
-        assert [args[1]["action"] for _, args in queue.jobs] == ["delete"]
+        change = _only_change(queue)
+        assert change["action"] == "delete"
+        assert change["object"] == {"uuid": note.uuid}
 
-    def test_collection_payload_uses_own_title_and_url(
+    def test_collection_object_without_deprecated_fields(
         self, user, webhook, queue, django_capture_on_commit_callbacks
     ):
         with django_capture_on_commit_callbacks(execute=True):
             collection = Collection.objects.create(
                 owner=user.identity, title="my list", brief="b"
             )
-        payload = queue.jobs[0][1][1]
-        assert payload["type"] == "collection"
-        assert payload["title"] == "my list"
-        assert payload["url"] == collection.absolute_url
+        change = _only_change(queue)
+        assert change["type"] == "collection"
+        obj = change["object"]
+        assert obj["uuid"] == collection.uuid
+        assert obj["title"] == "my list"
+        assert obj["description"] == "b"
+        assert obj["url"] == collection.url
+        assert "brief" not in obj and "cover" not in obj
+
+    def test_review_object_without_deprecated_fields(
+        self, user, book, webhook, queue, django_capture_on_commit_callbacks
+    ):
+        with django_capture_on_commit_callbacks(execute=True):
+            review = Review.objects.create(
+                owner=user.identity, item=book, title="r", body="text", visibility=0
+            )
+        change = _only_change(queue)
+        assert change["type"] == "review"
+        obj = change["object"]
+        assert obj["uuid"] == review.uuid
+        assert obj["content"] == "text"
+        assert "body" not in obj
+        assert obj["item"]["uuid"] == book.uuid
 
     def test_disabled_webhook_not_dispatched(
         self, user, book, webhook, queue, django_capture_on_commit_callbacks
@@ -205,8 +291,9 @@ class TestDispatch:
     ):
         assert has_active_webhook(user.pk) is True
         with django_capture_on_commit_callbacks(execute=True):
-            dispatch_webhook(user.pk, {"type": "note", "action": "save"})
+            dispatch_webhook(user.pk, "u", [{"type": "note", "action": "create"}])
         assert len(queue.jobs) == 1
+        assert queue.jobs[0][1][1]["username"] == "u"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -382,6 +469,7 @@ class TestPostWebhook:
         assert request.url.port == 8443
         assert request.headers["host"] == "hooks.example.com:8443"
         assert request.extensions.get("sni_hostname") == "hooks.example.com"
+        assert request.headers["user-agent"].startswith("NeoDB/")
 
     @override_settings(DEBUG=False)
     def test_post_refuses_private_resolution(self, monkeypatch):

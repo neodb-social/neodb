@@ -2,7 +2,7 @@ import functools
 import json
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, get_args, get_origin
 from urllib.parse import urljoin
 
 import django_rq
@@ -18,6 +18,8 @@ from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from ninja import Schema
+from ninja.responses import NinjaJSONEncoder
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
@@ -342,3 +344,44 @@ def _discord_send(dw, content, **args):
         # when its internal retry loop exhausts without a specific exception
         # (transient network/HTTP failure). Notifications are best-effort.
         logger.warning(f"discord webhook {webhook.id} send failed: {e}")
+
+
+def _schema_in(annotation: Any) -> type[Schema] | None:
+    """The Schema class inside an annotation like `X`, `X | None` or `list[X]`."""
+    if get_origin(annotation) is None:
+        if isinstance(annotation, type) and issubclass(annotation, Schema):
+            return annotation
+        return None
+    for arg in get_args(annotation):
+        found = _schema_in(arg)
+        if found:
+            return found
+    return None
+
+
+def _strip_deprecated(schema_cls: type[Schema], data: dict[str, Any]) -> None:
+    for name, field in schema_cls.model_fields.items():
+        if field.deprecated:
+            data.pop(name, None)
+            continue
+        nested = _schema_in(field.annotation)
+        value = data.get(name)
+        if nested is None or value is None:
+            continue
+        if isinstance(value, dict):
+            _strip_deprecated(nested, value)
+        elif isinstance(value, list):
+            for v in value:
+                if isinstance(v, dict):
+                    _strip_deprecated(nested, v)
+
+
+def dump_schema(schema_cls: type[Schema], obj: Any) -> dict[str, Any]:
+    """Serialize `obj` the way the API does with `schema_cls`, as plain JSON
+    types, minus the fields marked deprecated (nested schemas included)."""
+    # same encoder as the API renderer, so e.g. datetimes match its output
+    data = json.loads(
+        json.dumps(schema_cls.from_orm(obj).model_dump(), cls=NinjaJSONEncoder)
+    )
+    _strip_deprecated(schema_cls, data)
+    return data

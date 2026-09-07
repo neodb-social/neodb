@@ -8,6 +8,7 @@ import httpx
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models, transaction
+from django.utils import timezone
 
 from common.models import SiteConfig
 from common.validators import is_valid_url
@@ -23,6 +24,7 @@ _FAIL_LIMIT = 100
 _FAIL_WINDOW = 7 * 24 * 3600
 _URL_MAX_LENGTH = 1000
 MAX_WEBHOOKS_PER_USER = 5
+WEBHOOK_PAYLOAD_VERSION = 1
 
 
 class WebhookLimitReached(Exception):
@@ -129,12 +131,25 @@ def remove_webhook(user_id: int, application_id: int | None = None) -> None:
     clear_webhook_cache(user_id)
 
 
-def dispatch_webhook(user_id: int, payload: dict[str, str]) -> None:
+def build_webhook_payload(username: str, changes: list[dict]) -> dict:
+    """The delivery envelope: `changes` is a list so several objects can
+    share one delivery later; each entry is {"type", "action", "object"}."""
+    return {
+        "version": WEBHOOK_PAYLOAD_VERSION,
+        "site": settings.SITE_INFO["site_url"],
+        "time": timezone.now().isoformat(timespec="seconds"),
+        "username": username,
+        "changes": changes,
+    }
+
+
+def dispatch_webhook(user_id: int, username: str, changes: list[dict]) -> None:
     """Queue a delivery if the user has any active webhook; called from
     journal piece save/delete hooks, so it must stay cheap. Enqueued on
     commit so a rolled-back change never notifies."""
     if not has_active_webhook(user_id):
         return
+    payload = build_webhook_payload(username, changes)
     transaction.on_commit(
         lambda: django_rq.get_queue("webhook").enqueue(
             _deliver_webhook, user_id, payload
@@ -172,7 +187,7 @@ def _resolve_public_ip(hostname: str) -> str | None:
     return ips[0] if ips else None
 
 
-def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
+def _post_webhook(url: str, payload: dict, timeout: float) -> bool:
     """POST without trusting DNS twice or the response: pin the address
     that passed the public-IP check (DNS rebinding) and close the
     response without reading its body."""
@@ -180,10 +195,11 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
         return False
     parts = urlsplit(url)
     hostname = parts.hostname or ""
+    headers = {"User-Agent": settings.NEODB_USER_AGENT}
     if settings.DEBUG and parts.scheme in ("http", "https"):
         with (
             httpx.Client(timeout=timeout, follow_redirects=False) as client,
-            client.stream("POST", url, json=payload) as resp,
+            client.stream("POST", url, json=payload, headers=headers) as resp,
         ):
             return resp.is_success
     if parts.scheme != "https" or not hostname:
@@ -201,7 +217,7 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
             "POST",
             pinned,
             json=payload,
-            headers={"Host": host_header},
+            headers={**headers, "Host": host_header},
             extensions={"sni_hostname": hostname},
         ) as resp,
     ):
@@ -220,7 +236,7 @@ def has_live_token(identity_id: int | None, application_id: int) -> bool:
     return any("read" in scope_set(s) for s in scopes)
 
 
-def _deliver_webhook(user_id: int, payload: dict[str, str]) -> None:
+def _deliver_webhook(user_id: int, payload: dict) -> None:
     """rq job: POST payload to each active webhook of the user, fire and
     forget: no retry, failures only logged. A webhook whose application no
     longer holds a read token for the user is dropped instead of called

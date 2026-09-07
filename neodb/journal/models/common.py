@@ -18,6 +18,7 @@ from django.db import models
 from django.db.models import CharField, Q, prefetch_related_objects
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from ninja import Schema
 from polymorphic.models import PolymorphicModel
 from user_messages import api as messages
 
@@ -29,11 +30,12 @@ from catalog.models import (
     item_content_types,
 )
 from common.sentry import count as sentry_count
+from common.utils import dump_schema
 from mastodon.models.bluesky_oauth import OAuthError, OAuthRejectedError
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models import APIdentity, User
-from users.models.webhook import dispatch_webhook
+from users.models.webhook import dispatch_webhook, has_active_webhook
 
 from ..search import JournalIndex
 from .atproto import build_document_rkey
@@ -175,6 +177,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     application_id_when_save: int | None = None
     # event type sent to user webhooks; None disables webhook dispatch
     webhook_event: str | None = None
+    # API response schema per concrete class, used to serialize webhook
+    # objects; filled by journal.apis at startup (models cannot import it)
+    webhook_schemas: dict[type, type[Schema]] = {}
 
     @property
     def classname(self) -> str:
@@ -190,6 +195,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         return instance
 
     def save(self, *args, **kwargs):
+        created = self._state.adding
         link_post_id = kwargs.pop("link_post_id", -1)
         post_when_save = kwargs.pop(
             "post_when_save", self.local and self.post_when_save
@@ -209,7 +215,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 self.sync_to_social_accounts(update_mode)
             else:
                 self.sync_bluesky_records()
-            self.sync_to_webhooks("save")
+            self.sync_to_webhooks("create" if created else "update")
         if index_when_save:
             self.update_index()
 
@@ -221,27 +227,30 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         self.delete_index()
         return super().delete(*args, **kwargs)
 
-    def to_webhook_payload(self, action: str) -> dict[str, str]:
-        item = getattr(self, "item", None)
-        title = item.display_title if item else getattr(self, "title", "") or ""
-        # pieces without a page of their own (e.g. marks) link the item page
-        if self.url_path != "p":
-            url = self.absolute_url
+    def to_webhook_change(self, action: str) -> dict[str, Any]:
+        """One entry of the webhook `changes` list. `object` is the API
+        response for the piece on create/update; on delete only what
+        identifies it: the uuid, or the item uuid for a mark."""
+        if action == "delete":
+            item = getattr(self, "item", None)
+            if self.webhook_event == "mark" and item:
+                obj: dict[str, Any] = {"item": {"uuid": item.uuid}}
+            else:
+                obj = {"uuid": self.uuid}
         else:
-            url = item.absolute_url if item else ""
-        return {
-            "type": self.webhook_event or self.classname,
-            "action": action,
-            "url": url,
-            "title": title,
-        }
+            schema = self.webhook_schemas.get(type(self))
+            obj = dump_schema(schema, self) if schema else {"uuid": self.uuid}
+        return {"type": self.webhook_event, "action": action, "object": obj}
 
     def sync_to_webhooks(self, action: str) -> None:
         if not self.local or not self.webhook_event:
             return
         user_id = self.owner.user_id
-        if user_id:
-            dispatch_webhook(user_id, self.to_webhook_payload(action))
+        # serialization is not free: only when some webhook will receive it
+        if user_id and has_active_webhook(user_id):
+            dispatch_webhook(
+                user_id, self.owner.handle, [self.to_webhook_change(action)]
+            )
 
     @property
     def uuid(self):
