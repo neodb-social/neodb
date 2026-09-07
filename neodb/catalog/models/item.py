@@ -1239,8 +1239,9 @@ class Item(PolymorphicModel):
         or when an existing ItemCredit for the same name is already linked.
         When a People is resolved, the jsondata entry is rewritten to the
         canonical ``person.url`` form so subsequent edits show a link; other
-        entries are stripped of surrounding whitespace. When ``prune`` is
-        true, ItemCredit rows no longer present are deleted.
+        entries are stripped of surrounding whitespace, and duplicates by
+        name or person are dropped. When ``prune`` is true, ItemCredit rows
+        no longer present are deleted.
         """
         from .people import People
 
@@ -1297,6 +1298,7 @@ class Item(PolymorphicModel):
 
             desired: list[tuple[str, str, People | None]] = []
             new_values: list[str | dict] = []
+            seen: set[tuple[str | int, str]] = set()
             for value in values:
                 if isinstance(value, dict):
                     raw_name = (value.get("name") or "").strip()
@@ -1312,6 +1314,13 @@ class Item(PolymorphicModel):
                 if person is None and raw_name in linked_by_name:
                     person = linked_by_name[raw_name]
                     display = person.display_name or raw_name
+                # Collapse entries that differ only by whitespace or that
+                # resolve to the same person, e.g. a refetch merging "Name "
+                # into an already stripped "Name".
+                key = (person.pk if person else raw_name, character)
+                if key in seen:
+                    continue
+                seen.add(key)
                 canonical = person.url if person else raw_name
                 if isinstance(value, dict):
                     new_values.append({**value, "name": canonical})

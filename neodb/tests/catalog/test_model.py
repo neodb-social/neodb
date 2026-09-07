@@ -16,6 +16,7 @@ from catalog.models import (
     TVShow,
 )
 from catalog.models.people import People
+from common.models import uniq
 from common.models.jsondata import decrypt_str, encrypt_str
 
 
@@ -174,6 +175,57 @@ class TestSyncCreditsFromMetadata:
             "Alice",
             "Bob",
         ]
+
+    def test_refetch_merge_of_unstripped_name_does_not_duplicate(self):
+        """A stored stripped name merged with the scraper's unstripped copy
+        (uniq is exact-match) must collapse to one entry and one credit."""
+        m = self._make_movie()
+        m.director = ["Alice"]
+        m.save()
+        m.sync_credits_from_metadata()
+        m.director = uniq(m.director + ["Alice "])
+        m.save()
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == ["Alice"]
+        assert m.credits.filter(role=CreditRole.Director).count() == 1
+
+    def test_two_names_resolving_to_one_person_collapse(self):
+        person = People.objects.create(people_type="person", title="Alice")
+        person.localized_name = [
+            {"lang": "en", "text": "Alice"},
+            {"lang": "zh-cn", "text": "爱丽丝"},
+        ]
+        person.save()
+        m = self._make_movie()
+        m.director = ["爱丽丝", "Alice"]
+        m.save()
+        for i, name in enumerate(["爱丽丝", "Alice"]):
+            ItemCredit.objects.create(
+                item=m, role=CreditRole.Director, name=name, person=person, order=i
+            )
+        m.sync_credits_from_metadata()
+        m.refresh_from_db()
+        assert m.director == [person.url]
+        credits = list(m.credits.filter(role=CreditRole.Director))
+        assert len(credits) == 1
+        assert credits[0].person == person
+
+    def test_actor_same_person_different_characters_kept(self):
+        person = People.objects.create(people_type="person", title="Star")
+        person.localized_name = [{"lang": "en", "text": "Star"}]
+        person.save()
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.actor = [
+            {"name": person.url, "role": "Hero"},
+            {"name": person.url, "role": "Villain"},
+        ]
+        perf.save()
+        perf.sync_credits_from_metadata()
+        perf.refresh_from_db()
+        assert len(perf.actor) == 2
+        assert perf.credits.filter(role=CreditRole.Actor).count() == 2
 
     def test_edit_form_links_credit_despite_whitespace(self):
         """Regression: a scraper left a trailing space in jsondata, the
