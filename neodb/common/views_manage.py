@@ -645,6 +645,13 @@ class AccessSettings(SiteConfigSettingsPage):
             "title": _("Email From"),
             "help_text": _("Sender name and address for outgoing email."),
         },
+        "enable_import_twitter": {
+            "title": _("Enable Twitter / X Archive Import"),
+            "help_text": _(
+                "Show the Twitter / X archive import on the data page. Imported "
+                "tweets become local posts that are never federated."
+            ),
+        },
         "language_code": {
             "title": _("Default Language"),
             "choices": list(settings.LANGUAGES),
@@ -677,6 +684,9 @@ class AccessSettings(SiteConfigSettingsPage):
         _("Email"): [
             "email_url",
             "email_from",
+        ],
+        _("Data Import"): [
+            "enable_import_twitter",
         ],
         _("Localization"): [
             "language_code",

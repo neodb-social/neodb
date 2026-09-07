@@ -179,6 +179,7 @@ def data(request):
             "trakt_task": TraktImporter.latest_task(request.user),
             "wordpress_import_task": WordpressImporter.latest_task(request.user),
             "twitter_task": TwitterImporter.latest_task(request.user),
+            "enable_import_twitter": SiteConfig.system.enable_import_twitter,
             "wordpress_export_task": WordpressExporter.latest_task(request.user),
             # "opml_task": OPMLImporter.latest_task(request.user),
             "years": years,

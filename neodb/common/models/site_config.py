@@ -63,6 +63,10 @@ class SiteConfig(models.Model):
         email_url: str = ""
         email_from: str = ""
 
+        # Data import: shows the section on the data page, the endpoint
+        # itself is not gated
+        enable_import_twitter: bool = False
+
         # Discover
         min_marks_for_discover: int = 1
         discover_update_interval: int = 60

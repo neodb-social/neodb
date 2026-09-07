@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from PIL import Image
 
+from common.models import SiteConfig
 from journal.importers import TwitterImporter
 from takahe.models import FanOut, Post
 from users.models import User
@@ -390,12 +391,37 @@ class TestTwitterImportView:
         assert response.status_code == 400
         assert TwitterImporter.latest_task(user) is None
 
-    def test_data_page_shows_section(self, client):
+    def test_data_page_hides_section_by_default(self, client):
         user = User.register(email="tw_view3@test.com", username="tw_viewer3")
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
         response = client.get(reverse("users:data"))
         assert response.status_code == 200
+        assert reverse("users:import_twitter") not in response.content.decode()
+
+    def test_data_page_shows_section_when_enabled(self, client, monkeypatch):
+        enabled = SiteConfig.system.model_copy(update={"enable_import_twitter": True})
+        monkeypatch.setattr(SiteConfig, "system", enabled)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        user = User.register(email="tw_view4@test.com", username="tw_viewer4")
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(reverse("users:data"))
+        assert response.status_code == 200
         assert reverse("users:import_twitter") in response.content.decode()
+
+    def test_upload_works_without_the_switch(
+        self, client, tmp_path, settings, monkeypatch
+    ):
+        # the switch only hides the UI; the endpoint itself is not gated
+        settings.MEDIA_ROOT = str(tmp_path)
+        monkeypatch.setattr(TwitterImporter, "enqueue", lambda self: None)
+        user = User.register(email="tw_view5@test.com", username="tw_viewer5")
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        upload = SimpleUploadedFile("twitter.zip", _zip([_tweet()]))
+        response = client.post(
+            reverse("users:import_twitter"), {"file": upload, "visibility": "0"}
+        )
+        assert response.status_code == 302
+        assert TwitterImporter.latest_task(user) is not None
 
 
 @pytest.mark.django_db(databases="__all__")

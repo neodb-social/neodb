@@ -555,58 +555,60 @@
             </form>
           </details>
         </article>
-        <article>
-          <details>
-            <summary>{% trans 'Import Twitter / X Archive' %}</summary>
-            <form hx-post="{% url 'users:import_twitter' %}"
-                  enctype="multipart/form-data">
-              {% csrf_token %}
-              <ul>
-                <li>
-                  {% blocktrans %}On X, go to <b>Settings</b> - <b>Your account</b> - <b>Download an archive of your data</b>. Upload the <code>.zip</code> you receive, or only the <code>data/tweets.js</code> file inside it if the archive is larger than 100 MB (photos are then not imported).{% endblocktrans %}
-                </li>
-                <li>
-                  {% trans 'Each tweet becomes a post with its original date, text, links and photos. Replies to your own tweets are kept as a thread. A retweet becomes a short post that links to the original tweet. Videos are skipped.' %}
-                </li>
-                <li>
-                  {% trans 'Imported posts are only visible on this site and are never sent to other servers or to followers. Tweets that were imported before are skipped, so the same archive can be uploaded again.' %}
-                </li>
-              </ul>
-              <input type="file" name="file" required accept=".zip,.js">
-              <p>
-                {% trans 'Visibility' %}:
-                <br>
-                <label for="tw_visibility_0">
-                  <input type="radio"
-                         name="visibility"
-                         value="0"
-                         required=""
-                         id="tw_visibility_0"
-                         checked>
-                  {% trans 'Public' %}
-                </label>
-                <label for="tw_visibility_1">
-                  <input type="radio"
-                         name="visibility"
-                         value="1"
-                         required=""
-                         id="tw_visibility_1">
-                  {% trans 'Followers Only' %}
-                </label>
-                <label for="tw_visibility_2">
-                  <input type="radio"
-                         name="visibility"
-                         value="2"
-                         required=""
-                         id="tw_visibility_2">
-                  {% trans 'Mentioned Only' %}
-                </label>
-              </p>
-              <input type="submit" value="{% trans 'Import' %}" />
-              {% include "users/user_task_status.html" with task=twitter_task %}
-            </form>
-          </details>
-        </article>
+        {% if enable_import_twitter %}
+          <article>
+            <details>
+              <summary>{% trans 'Import Twitter / X Archive' %}</summary>
+              <form hx-post="{% url 'users:import_twitter' %}"
+                    enctype="multipart/form-data">
+                {% csrf_token %}
+                <ul>
+                  <li>
+                    {% blocktrans %}On X, go to <b>Settings</b> - <b>Your account</b> - <b>Download an archive of your data</b>. Upload the <code>.zip</code> you receive, or only the <code>data/tweets.js</code> file inside it if the archive is larger than 100 MB (photos are then not imported).{% endblocktrans %}
+                  </li>
+                  <li>
+                    {% trans 'Each tweet becomes a post with its original date, text, links and photos. Replies to your own tweets are kept as a thread. A retweet becomes a short post that links to the original tweet. Videos are skipped.' %}
+                  </li>
+                  <li>
+                    {% trans 'Imported posts are only visible on this site and are never sent to other servers or to followers. Tweets that were imported before are skipped, so the same archive can be uploaded again.' %}
+                  </li>
+                </ul>
+                <input type="file" name="file" required accept=".zip,.js">
+                <p>
+                  {% trans 'Visibility' %}:
+                  <br>
+                  <label for="tw_visibility_0">
+                    <input type="radio"
+                           name="visibility"
+                           value="0"
+                           required=""
+                           id="tw_visibility_0"
+                           checked>
+                    {% trans 'Public' %}
+                  </label>
+                  <label for="tw_visibility_1">
+                    <input type="radio"
+                           name="visibility"
+                           value="1"
+                           required=""
+                           id="tw_visibility_1">
+                    {% trans 'Followers Only' %}
+                  </label>
+                  <label for="tw_visibility_2">
+                    <input type="radio"
+                           name="visibility"
+                           value="2"
+                           required=""
+                           id="tw_visibility_2">
+                    {% trans 'Mentioned Only' %}
+                  </label>
+                </p>
+                <input type="submit" value="{% trans 'Import' %}" />
+                {% include "users/user_task_status.html" with task=twitter_task %}
+              </form>
+            </details>
+          </article>
+        {% endif %}
         <article>
           <details>
             <summary>{% trans 'View Annual Summary' %}</summary>
