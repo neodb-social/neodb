@@ -183,6 +183,8 @@ def _post_webhook(url: str, payload: dict[str, str], timeout: float) -> bool:
 
 def has_live_token(identity_id: int | None, application_id: int) -> bool:
     """Whether the application still holds an unrevoked token for the identity."""
+    if identity_id is None:
+        return False
     return Token.objects.filter(
         identity_id=identity_id, application_id=application_id, revoked__isnull=True
     ).exists()

@@ -102,9 +102,9 @@ curl -H "Authorization: Bearer ACCESS_TOKEN" -X PUT -H "Content-Type: applicatio
 ```
 
 `GET /api/me/webhook` returns the current URL and whether it is disabled,
-`DELETE /api/me/webhook` removes it. Only https URLs resolving to public
-addresses are accepted. Revoking the application's access also removes its
-webhook.
+`DELETE /api/me/webhook` removes it. Setting it needs a token with both
+`read` and `write` scopes. Only https URLs resolving to public addresses are
+accepted. Revoking the application's access also removes its webhook.
 
 When the user's marks, reviews, notes, collections or articles change,
 a small JSON payload is POSTed to the URL, once per change:
