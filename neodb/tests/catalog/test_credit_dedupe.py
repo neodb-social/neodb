@@ -55,8 +55,8 @@ class TestDedupeCredits:
         assert sorted(dup_person.credits.values_list("pk", flat=True)) == sorted(
             [first.pk, backfilled.pk]
         )
-        # the entry naming a linked credit now points at the person
-        assert Movie.objects.get(pk=dup_person.pk).director == [person.url]
+        # names the surviving row: left alone, the next sync links it by name
+        assert Movie.objects.get(pk=dup_person.pk).director == ["杨力州 "]
         assert dup_name.credits.count() == 1
         assert Movie.objects.get(pk=dup_name.pk).director == ["Bob", "Bob "]
         assert clean.credits.count() == 1
@@ -70,7 +70,8 @@ class TestDedupeCredits:
 
         dedupe_credits_20260907()
         m = Movie.objects.get(pk=m.pk)
-        assert m.director == [person.url, person.url]
+        # only the name of the deleted row is rewritten
+        assert m.director == ["爱丽丝", person.url]
         m.sync_credits_from_metadata()
 
         assert Movie.objects.get(pk=m.pk).director == [person.url]
@@ -90,10 +91,42 @@ class TestDedupeCredits:
         rows = {c.pk: c.character_name for c in perf.credits.all()}
         assert rows == {hero.pk: "Hero", villain.pk: "Villain"}
 
+    def test_ambiguous_name_is_not_rewritten(self):
+        director = self._person("Dan")
+        perf = Performance.objects.create(title="Show")
+        perf.localized_title = [{"lang": "en", "text": "Show"}]
+        perf.director = ["Dan"]
+        perf.actor = [
+            {"name": "Alice", "role": "Hero"},
+            {"name": "Alice", "role": "Villain"},
+        ]
+        perf.save()
+        # duplicate directors make the item a candidate
+        self._credit(perf, CreditRole.Director, "Dan", director, order=0)
+        self._credit(perf, CreditRole.Director, "Dan", director, order=1)
+        hero = self._credit(
+            perf, CreditRole.Actor, "Alice", self._person("Alice"), "Hero"
+        )
+        villain = self._credit(
+            perf, CreditRole.Actor, "Alice", self._person("Alice"), "Villain", 1
+        )
+
+        dedupe_credits_20260907()
+
+        perf = Performance.objects.get(pk=perf.pk)
+        assert perf.director == [director.url]
+        assert perf.actor == [
+            {"name": "Alice", "role": "Hero"},
+            {"name": "Alice", "role": "Villain"},
+        ]
+        assert sorted(
+            perf.credits.filter(role="actor").values_list("pk", flat=True)
+        ) == sorted([hero.pk, villain.pk])
+
     def test_legacy_unlinked_rows_differing_by_whitespace(self):
         m = self._movie(["Alice"])
         self._credit(m, CreditRole.Director, "Alice", order=0)
-        self._credit(m, CreditRole.Director, "Alice ", order=1)
+        self._credit(m, CreditRole.Director, "Alice\n", order=1)
 
         dedupe_credits_20260907()
 

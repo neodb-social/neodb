@@ -1058,18 +1058,28 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
     unlinked copy of a linked credit. Rows differing in character are
     distinct. The first row by order is kept.
 
-    Metadata entries naming a linked credit of the same role are rewritten to
-    the person URL, so the link survives the deletion of the row that carried
-    that name; nothing else in metadata changes, and the next sync (edit
-    save, refetch or merge) collapses the entries and reuses the surviving
-    row. Running the sync here would repurpose or prune rows that have no
-    metadata counterpart, such as those from
-    backfill_credits_from_relations_20260719.
+    Metadata entries naming a deleted linked row are rewritten to the person
+    URL, so the link survives the deletion of the row that carried that name;
+    a name shared by two people in one role is left alone. Nothing else in
+    metadata changes, and the next sync (edit save, refetch or merge)
+    collapses the entries and reuses the surviving row. Running the sync
+    here would repurpose or prune rows that have no metadata counterpart,
+    such as those from backfill_credits_from_relations_20260719.
     """
     from catalog.models import Item, ItemCredit
 
-    def _canonicalize(item: Item, credits: list[ItemCredit]) -> bool:
-        urls = {(c.role, c.name.strip()): c.person.url for c in credits if c.person}
+    def _canonicalize(item: Item, credits: list[ItemCredit], stale: list[int]) -> bool:
+        people: dict[tuple[str, str], set[str]] = {}
+        for c in credits:
+            if c.person:
+                people.setdefault((c.role, c.name.strip()), set()).add(c.person.url)
+        urls = {
+            (c.role, c.name.strip()): next(iter(people[(c.role, c.name.strip())]))
+            for c in credits
+            if c.pk in stale and c.person and len(people[(c.role, c.name.strip())]) == 1
+        }
+        if not urls:
+            return False
         changed = False
         for field, role in item.CREDIT_FIELD_MAPPING.items():
             values = getattr(item, field, None) or []
@@ -1125,10 +1135,18 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
         .filter(n__gt=1)
     )
     item_ids: set[int] = set()
+    # TRIM only removes spaces, while the Python check strips all whitespace;
+    # items with any such row form a superset for that check.
+    whitespace = (
+        ItemCredit.objects.filter(name__regex=r"(^\s|\s$)")
+        .values_list("item_id", flat=True)
+        .distinct()
+    )
     for row in dup_person.iterator():
         item_ids.add(row["item_id"])
     for row in dup_name.iterator():
         item_ids.add(row["item_id"])
+    item_ids.update(whitespace.iterator())
     ordered = sorted(item_ids)
     logger.warning(f"dedupe_credits: {len(ordered)} items with candidate duplicates")
     if dry_run:
@@ -1152,7 +1170,7 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
             }
             if stale_by_item:
                 for item in Item.objects.filter(pk__in=list(stale_by_item)):
-                    if _canonicalize(item, by_item[item.pk]):
+                    if _canonicalize(item, by_item[item.pk], stale_by_item[item.pk]):
                         item.save(update_fields=["metadata"])
                 stale = [pk for pks in stale_by_item.values() for pk in pks]
                 ItemCredit.objects.filter(pk__in=stale).delete()
