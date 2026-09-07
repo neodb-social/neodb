@@ -1174,15 +1174,24 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
                 if (pks := _duplicate_pks(credits))
             }
             if stale_by_item:
-                for item in Item.objects.filter(pk__in=list(stale_by_item)):
+                # deleted or merged items lose their duplicate rows too, but
+                # their metadata and search documents stay untouched
+                live = Item.objects.filter(
+                    pk__in=list(stale_by_item),
+                    is_deleted=False,
+                    merged_to_item__isnull=True,
+                )
+                live_ids = list(live.values_list("pk", flat=True))
+                for item in live:
                     if _canonicalize(item, by_item[item.pk], stale_by_item[item.pk]):
                         item.save(update_fields=["metadata"])
                 stale = [pk for pks in stale_by_item.values() for pk in pks]
                 ItemCredit.objects.filter(pk__in=stale).delete()
                 removed += len(stale)
                 # search docs carry credit names; rebuild them from fresh rows
-                items = Item.objects.filter(pk__in=list(stale_by_item))
-                index.replace_docs(index.items_to_docs(items))
+                if live_ids:
+                    fresh = Item.objects.filter(pk__in=live_ids)
+                    index.replace_docs(index.items_to_docs(fresh))
             pbar.update(len(chunk))
             sentry_count(
                 "migration", len(chunk), attributes={"name": "catalog.dedupe_credits"}

@@ -160,6 +160,11 @@ class TestDedupeCredits:
         self._credit(dup, CreditRole.Director, "Bob", order=1)
         clean = self._movie(["Carol"])
         clean.sync_credits_from_metadata()
+        gone = self._movie(["Dan"])
+        self._credit(gone, CreditRole.Director, "Dan", order=0)
+        self._credit(gone, CreditRole.Director, "Dan", order=1)
+        gone.is_deleted = True
+        gone.save()
 
         index = MagicMock(spec=CatalogIndex)
         index.initialize_collection.return_value = True
@@ -170,3 +175,4 @@ class TestDedupeCredits:
         reindexed = list(index.items_to_docs.call_args.args[0])
         assert [i.pk for i in reindexed] == [dup.pk]
         index.replace_docs.assert_called_once_with(index.items_to_docs.return_value)
+        assert gone.credits.count() == 1
