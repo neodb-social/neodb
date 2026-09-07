@@ -78,7 +78,7 @@
         </p>
       </details>
       <br>
-      <details {% if webhook %}open{% endif %}>
+      <details {% if webhook or pinged is not None %}open{% endif %}>
         <summary>
           <a>Webhook</a>
         </summary>
@@ -106,6 +106,22 @@
           Leave it empty and save to remove it.
           Each application can set its own webhook for your account via
           <code>PUT /api/me/webhook</code>; this one belongs to the Dev Console token above.
+        </p>
+        <form method="post"
+              action="{% url 'common:developer_webhook_ping' %}"
+              role="group">
+          {% csrf_token %}
+          <input type="submit"
+                 class="secondary"
+                 value="Ping all webhooks"
+                 {% if not webhook_count %}disabled{% endif %}>
+        </form>
+        <p>
+          {% if pinged is not None %}
+            Ping queued to {{ pinged }} webhook{{ pinged|pluralize }}.
+            <br>
+          {% endif %}
+          Ping sends the same document with an empty <code>changes</code> list to every webhook of your account, from any application, so receivers can be tested.
         </p>
       </details>
       <br>

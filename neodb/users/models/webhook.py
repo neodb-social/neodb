@@ -157,6 +157,16 @@ def dispatch_webhook(user_id: int, username: str, changes: list[dict]) -> None:
     )
 
 
+def ping_webhooks(user: User) -> int:
+    """Queue one delivery with an empty `changes` list to every active
+    webhook of the user, so receivers can be tested; returns how many."""
+    count = Webhook.objects.filter(user=user, disabled=False).count()
+    if count:
+        identity = getattr(user, "identity", None)
+        dispatch_webhook(user.pk, identity.handle if identity else user.username, [])
+    return count
+
+
 def _bump_failures(pk: int) -> int:
     # `cache.add` initialises the key (and TTL) atomically only when missing;
     # `cache.incr` then bumps the counter without resetting the TTL.

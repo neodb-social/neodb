@@ -20,6 +20,7 @@ from users.models.webhook import (
     Webhook,
     WebhookLimitReached,
     has_live_token,
+    ping_webhooks,
     remove_webhook,
     set_webhook,
     validate_webhook_url,
@@ -200,12 +201,17 @@ def console(request):
             user=request.user, application_id=app_id
         ).first()
         has_token = has_live_token(request.user.identity.pk, app_id)
+    pinged = request.GET.get("pinged")
     context = {
         "version": settings.NEODB_VERSION,
         "api": api,
         "token": token,
         "webhook": webhook,
         "has_token": has_token,
+        "webhook_count": request.user.webhooks.filter(disabled=False).count()
+        if request.user.is_authenticated
+        else 0,
+        "pinged": int(pinged) if pinged and pinged.isdigit() else None,
         "openapi_json_url": reverse(f"{api.urls_namespace}:openapi-json"),
         "show_debug_tools": show_debug_tools,
     }
@@ -231,6 +237,14 @@ def console_webhook(request):
     else:
         raise BadRequest("Invalid webhook URL")
     return redirect(reverse("common:developer"))
+
+
+@login_required
+@require_http_methods(["POST"])
+def console_webhook_ping(request):
+    """Send a test delivery (empty `changes`) to all webhooks of the user."""
+    count = ping_webhooks(request.user)
+    return redirect(reverse("common:developer") + f"?pinged={count}")
 
 
 def oauth_protected_resource(request):

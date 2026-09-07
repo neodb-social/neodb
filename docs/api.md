@@ -141,7 +141,8 @@ and a `User-Agent` like `NeoDB/1.0 (+https://neodb.social)`:
 - `version` is bumped on incompatible changes to this document.
 - `username` is the account whose content changed, as in `/api/me`.
 - `changes` is a list. Today each delivery carries one entry; consumers
-  should nonetheless loop over it.
+  should nonetheless loop over it. A ping from the developer console sends
+  the same document with an empty list.
 - `type` is one of `mark`, `review`, `note`, `collection`, `article`;
   `action` is `create`, `update` or `delete`.
 - On `create` and `update`, `object` is exactly what the API returns for the

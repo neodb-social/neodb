@@ -725,6 +725,31 @@ class TestWebViews:
         assert r.status_code == 400
         assert user.webhooks.count() == MAX_WEBHOOKS_PER_USER
 
+    def test_console_ping(
+        self, user, logged_in, token, webhook, queue, django_capture_on_commit_callbacks
+    ):
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "b", "read")
+        set_webhook(user, other.application.pk, "https://hook.example.org/b")
+        with django_capture_on_commit_callbacks(execute=True):
+            r = logged_in.post(reverse("common:developer_webhook_ping"))
+        assert r.status_code == 302
+        assert r.url.endswith("?pinged=2")
+        assert len(queue.jobs) == 1
+        payload = queue.jobs[0][1][1]
+        assert payload["username"] == user.identity.handle
+        assert payload["changes"] == []
+        html = logged_in.get(r.url).content.decode()
+        assert "Ping queued to 2 webhooks." in html
+
+    def test_console_ping_without_webhooks(
+        self, user, logged_in, queue, django_capture_on_commit_callbacks
+    ):
+        with django_capture_on_commit_callbacks(execute=True):
+            r = logged_in.post(reverse("common:developer_webhook_ping"))
+        assert r.status_code == 302
+        assert r.url.endswith("?pinged=0")
+        assert queue.jobs == []
+
     def test_console_rejects_invalid_url(self, user, logged_in, dev_token, monkeypatch):
         monkeypatch.setattr("common.views.validate_webhook_url", lambda url: False)
         r = logged_in.post(
