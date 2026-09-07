@@ -19,6 +19,9 @@ from common.models import SiteConfig
 
 from .models import *
 
+DEV_CONSOLE_CLIENT_ID = "app-00000000000-dev"
+DEV_CONSOLE_SCOPES = ["read", "write", "push"]
+
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
@@ -1330,7 +1333,7 @@ class Takahe:
                 application=app,
                 identity_id=owner_pk,
                 user_id=user_pk,
-                scopes=["read", "write", "push"],
+                scopes=list(DEV_CONSOLE_SCOPES),
                 token=secrets.token_urlsafe(43),
             ).token
 

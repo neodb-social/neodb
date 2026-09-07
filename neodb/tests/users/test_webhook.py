@@ -842,6 +842,31 @@ class TestTokenScopeFormat:
         assert fine.scopes == ["read"]
         assert normalize_token_scopes_20260907() == 0
 
+    def test_dev_console_upgraded_without_regenerating(self, user):
+        app = Takahe.get_or_create_app(
+            "Dev Console",
+            "",
+            "",
+            0,
+            scopes="read write follow",
+            client_id="app-00000000000-dev",
+        )
+        dev = Takahe.get_token(Takahe.refresh_token(app, user.identity.pk, user.pk))
+        assert dev
+        dev.scopes = ["read", "write"]
+        dev.save(update_fields=["scopes"])
+        other = Takahe.create_personal_token(user.identity.pk, user.pk, "o", "read")
+        assert normalize_token_scopes_20260907() == 1
+        dev.refresh_from_db()
+        app.refresh_from_db()
+        other.refresh_from_db()
+        assert dev.scopes == ["read", "write", "push"]
+        assert app.scopes == "read write push"
+        assert other.scopes == ["read"]
+        # the upgraded token can now register and receive webhooks
+        assert "push" in scope_set(dev.scopes)
+        assert normalize_token_scopes_20260907() == 0
+
     def test_account_page_renders_scopes_as_text(self, user, client):
         t = Takahe.create_personal_token(user.identity.pk, user.pk, "w", "write")
         legacy = Takahe.create_personal_token(user.identity.pk, user.pk, "l", "read")

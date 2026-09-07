@@ -13,7 +13,7 @@ from catalog.views import search as catalog_search
 from journal.views import search as journal_search
 from social.views import search as timeline_search
 from takahe.models import Domain
-from takahe.utils import Takahe
+from takahe.utils import DEV_CONSOLE_CLIENT_ID, DEV_CONSOLE_SCOPES, Takahe
 from users.models.user import User
 from users.models.webhook import (
     MAX_WEBHOOKS_PER_USER,
@@ -179,7 +179,8 @@ def _dev_console_app():
         settings.SITE_INFO["site_url"],
         "",
         owner_pk=0,
-        client_id="app-00000000000-dev",
+        scopes=" ".join(DEV_CONSOLE_SCOPES),
+        client_id=DEV_CONSOLE_CLIENT_ID,
     )
 
 
