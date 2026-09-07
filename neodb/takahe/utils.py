@@ -637,7 +637,7 @@ class Takahe:
             client_id=sec.token_urlsafe(32),
             client_secret=sec.token_urlsafe(32),
             redirect_uris="urn:ietf:wg:oauth:2.0:oob",
-            scopes=scopes,
+            scopes=" ".join(scopes),  # Application.scopes is text, Token's JSON
             name=name,
         )
         token = Token.objects.create(

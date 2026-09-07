@@ -562,6 +562,7 @@ class Mark:
         shelfmember.created_time = timestamp
         shelfmember.save(update_fields=["created_time"])
         self.current_progress = current_progress
+        shelfmember.sync_to_webhooks("update")
         return log_entry
 
     def update(

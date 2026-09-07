@@ -245,7 +245,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 obj = {"uuid": self.uuid}
         else:
             schema = self.webhook_schemas.get(type(self))
-            obj = dump_schema(schema, self) if schema else {"uuid": self.uuid}
+            # a fresh row: cached properties on `self` (e.g. a collection's
+            # item counts) may predate the change being announced
+            fresh = type(self).objects.filter(pk=self.pk).first() or self
+            obj = dump_schema(schema, fresh) if schema else {"uuid": self.uuid}
         return {"type": self.webhook_event, "action": action, "object": obj}
 
     def sync_to_webhooks(self, action: str) -> None:

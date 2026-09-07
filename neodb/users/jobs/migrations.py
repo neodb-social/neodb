@@ -1,3 +1,4 @@
+import ast
 import logging
 
 from django.db.models import CharField, F, Func
@@ -30,6 +31,18 @@ def normalize_token_scopes_20260907() -> int:
         Token.objects.filter(pk=pk).update(scopes=str(scopes).split())
         changed += 1
     logger.info(f"normalized scopes of {changed} tokens")
+
+    # Application.scopes is text; rows briefly written as a python list repr
+    for app in Application.objects.filter(scopes__startswith="[").iterator():
+        try:
+            parsed = ast.literal_eval(app.scopes)
+        except ValueError, SyntaxError:
+            continue
+        if isinstance(parsed, list):
+            Application.objects.filter(pk=app.pk).update(
+                scopes=" ".join(str(s) for s in parsed)
+            )
+            changed += 1
 
     scopes = list(DEV_CONSOLE_SCOPES)
     apps = Application.objects.filter(client_id=DEV_CONSOLE_CLIENT_ID)

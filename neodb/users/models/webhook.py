@@ -99,6 +99,20 @@ def clear_webhook_failures(pk: int) -> None:
     cache.delete(_FAIL_CACHE_KEY.format(pk))
 
 
+def purge_stale_webhooks(user: User) -> int:
+    """Delete the user's webhooks whose application no longer holds a push
+    token; disabled ones never reach delivery, so they would otherwise keep a
+    slot forever. Returns how many were removed."""
+    identity = getattr(user, "identity", None)
+    identity_id = identity.pk if identity else None
+    removed = 0
+    for webhook in Webhook.objects.filter(user=user):
+        if not has_live_token(identity_id, webhook.application_id):
+            remove_webhook(user.pk, webhook.application_id)
+            removed += 1
+    return removed
+
+
 def set_webhook(user: User, application_id: int, url: str) -> Webhook:
     """Create or replace the webhook of an application for a user; saving
     re-enables one that was disabled after repeated failures. Adding one
@@ -112,6 +126,10 @@ def set_webhook(user: User, application_id: int, url: str) -> Webhook:
         if (
             not webhooks.filter(application_id=application_id).exists()
             and webhooks.count() >= MAX_WEBHOOKS_PER_USER
+            and (
+                not purge_stale_webhooks(user)
+                or webhooks.count() >= MAX_WEBHOOKS_PER_USER
+            )
         ):
             raise WebhookLimitReached()
         webhook, created = Webhook.objects.update_or_create(

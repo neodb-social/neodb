@@ -277,6 +277,31 @@ class TestDispatch:
         assert "body" not in obj
         assert obj["item"]["uuid"] == book.uuid
 
+    def test_collection_counts_are_fresh_after_member_change(
+        self, user, book, webhook, queue, django_capture_on_commit_callbacks
+    ):
+        with django_capture_on_commit_callbacks(execute=True):
+            collection = Collection.objects.create(
+                owner=user.identity, title="l", brief=""
+            )
+            assert collection.item_count_by_category["book"] == 0  # cached
+            collection.append_item(book)
+        obj = queue.jobs[-1][1][1]["changes"][0]["object"]
+        assert obj["item_count_by_category"]["book"] == 1
+
+    def test_progress_change_announces_mark_update(
+        self, user, book, webhook, queue, django_capture_on_commit_callbacks
+    ):
+        with django_capture_on_commit_callbacks(execute=True):
+            Mark(user.identity, book).update(ShelfType.PROGRESS)
+        queue.jobs.clear()
+        with django_capture_on_commit_callbacks(execute=True):
+            Mark(user.identity, book).set_progress("page", "10")
+        change = _only_change(queue)
+        assert change["type"] == "mark"
+        assert change["action"] == "update"
+        assert change["object"]["shelf_type"] == "progress"
+
     def test_disabled_webhook_not_dispatched(
         self, user, book, webhook, queue, django_capture_on_commit_callbacks
     ):
@@ -595,6 +620,24 @@ class TestWebhookApi:
         r = _api(client, "put", tokens[-1], {"url": "https://hook.example.org/x"})
         assert r.status_code == 200
 
+    def test_cap_frees_slots_of_revoked_apps(self, user, client, token, webhook):
+        # five webhooks whose apps hold no push token any more (revoked via
+        # OAuth, rows possibly disabled): a new app must still get in
+        for i in range(MAX_WEBHOOKS_PER_USER):
+            Webhook.objects.create(
+                user=user,
+                application_id=400000 + i,
+                url=f"https://h.example/{i}",
+                disabled=bool(i % 2),
+            )
+        new = Takahe.create_personal_token(user.identity.pk, user.pk, "n", "write")
+        r = _api(client, "put", new, {"url": "https://hook.example.org/new"})
+        assert r.status_code == 200
+        assert set(user.webhooks.values_list("application_id", flat=True)) == {
+            token.application_id,
+            new.application_id,
+        }
+
     def test_replacement_allowed_over_cap(self, user, client, token, webhook):
         # rows beyond the cap can only predate it; replacing must still work
         for i in range(MAX_WEBHOOKS_PER_USER + 1):
@@ -722,9 +765,10 @@ class TestWebViews:
     def test_console_enforces_cap(self, user, logged_in, dev_token, monkeypatch):
         monkeypatch.setattr("common.views.validate_webhook_url", lambda url: True)
         for i in range(MAX_WEBHOOKS_PER_USER):
-            Webhook.objects.create(
-                user=user, application_id=300000 + i, url=f"https://h.example/{i}"
+            t = Takahe.create_personal_token(
+                user.identity.pk, user.pk, f"c{i}", "write"
             )
+            set_webhook(user, t.application.pk, f"https://h.example/{i}")
         r = logged_in.post(
             reverse("common:developer_webhook"), {"url": "https://hook.example.org/c"}
         )
@@ -799,6 +843,21 @@ class TestWebViews:
         assert has_active_webhook(user.pk) is False
         assert _bump_failures(webhook.pk) == 1  # counter was cleared
 
+    def test_revoke_keeps_webhook_while_push_token_survives(
+        self, user, logged_in, token, webhook
+    ):
+        second = Token.objects.create(
+            application=token.application,
+            user_id=token.user_id,
+            identity_id=token.identity_id,
+            token="second-" + token.token,
+            scopes=["read", "write", "push"],
+        )
+        logged_in.post(reverse("users:authorized_app_revoke"), {"token_id": token.pk})
+        assert Webhook.objects.filter(pk=webhook.pk).exists()
+        logged_in.post(reverse("users:authorized_app_revoke"), {"token_id": second.pk})
+        assert not Webhook.objects.filter(pk=webhook.pk).exists()
+
     def test_logout_everywhere_removes_webhooks(self, user, logged_in, webhook):
         r = logged_in.post(reverse("users:logout_everywhere"))
         assert r.status_code in (200, 302)
@@ -824,6 +883,7 @@ class TestTokenScopeFormat:
     def test_neodb_minted_tokens_store_lists(self, user):
         t = Takahe.create_personal_token(user.identity.pk, user.pk, "w", "write")
         assert t.scopes == ["read", "write", "push"]
+        assert t.application.scopes == "read write push"  # text column
         t = Takahe.create_personal_token(user.identity.pk, user.pk, "r", "read")
         assert t.scopes == ["read"]
         app = Takahe.get_or_create_app("", "", "", 0, client_id="app-00000000000-dev")
@@ -835,11 +895,16 @@ class TestTokenScopeFormat:
         legacy.scopes = "read write push"
         legacy.save(update_fields=["scopes"])
         fine = Takahe.create_personal_token(user.identity.pk, user.pk, "f", "read")
-        assert normalize_token_scopes_20260907() == 1
+        bad_app = legacy.application
+        bad_app.scopes = "['read', 'write', 'push']"
+        bad_app.save(update_fields=["scopes"])
+        assert normalize_token_scopes_20260907() == 2
         legacy.refresh_from_db()
         fine.refresh_from_db()
+        bad_app.refresh_from_db()
         assert legacy.scopes == ["read", "write", "push"]
         assert fine.scopes == ["read"]
+        assert bad_app.scopes == "read write push"
         assert normalize_token_scopes_20260907() == 0
 
     def test_dev_console_upgraded_without_regenerating(self, user):

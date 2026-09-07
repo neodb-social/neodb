@@ -134,9 +134,11 @@ def get_webhook(request):
     """
     Each application (the one this access token belongs to) may register one
     webhook URL per user. Changes to the user's marks, reviews, notes,
-    collections and articles are POSTed to it as a small JSON payload:
-    `{"type": "mark", "action": "save", "url": "...", "title": "..."}`.
-    The payload is a trigger only; fetch details via the API.
+    collections and articles are POSTed to it as a JSON document:
+    `{"version": 1, "site": ..., "time": ..., "username": ...,
+    "changes": [{"type": "mark", "action": "update", "object": {...}}]}`,
+    where `object` is the API response for the piece (only its uuid on
+    delete). See the Webhooks section of the API documentation.
     `disabled` becomes true after repeated delivery failures.
     """
     webhook = Webhook.objects.filter(
