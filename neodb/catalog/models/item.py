@@ -3,7 +3,7 @@ import re
 import uuid
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, Self
+from typing import TYPE_CHECKING, Any, Iterable, NamedTuple, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
 
     from ..common import ResourceContent
     from .creator import VerifiedCreator
-    from .people import ItemPeopleRelation, PeopleRole
+    from .people import ItemPeopleRelation, People, PeopleRole
 
 
 class PrimaryLookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -99,6 +99,80 @@ def _extract_people_uid(value: str) -> "uuid.UUID | None":
         return uuid.UUID(int=b62_decode(m.group(1)))
     except Exception:
         return None
+
+
+class _CreditEntry(NamedTuple):
+    """One raw credit value from jsondata, parsed but not yet resolved."""
+
+    value: str | dict
+    name: str  # stripped; may be a /person/<uuid> reference
+    character: str
+
+
+def _parse_credit_entries(values: Any) -> list[_CreditEntry]:
+    if isinstance(values, str):
+        values = [values]
+    entries: list[_CreditEntry] = []
+    for value in values or []:
+        if isinstance(value, dict):
+            name = (value.get("name") or "").strip()
+            character = (value.get("role") or "").strip()
+        else:
+            name = str(value or "").strip()
+            character = ""
+        entries.append(_CreditEntry(value, name, character))
+    return entries
+
+
+def _resolve_credit_people(names: Iterable[str]) -> "dict[uuid.UUID, People]":
+    """People referenced by URL across all entries, in one query."""
+    from .people import People
+
+    uuids = {uid for uid in map(_extract_people_uid, names) if uid is not None}
+    if not uuids:
+        return {}
+    return {p.uid: p for p in People.objects.filter(uid__in=uuids)}
+
+
+def _canonicalize_credit_entries(
+    entries: list[_CreditEntry],
+    people_by_uid: "dict[uuid.UUID, People]",
+    existing: "list[ItemCredit]",
+) -> "tuple[list[str | dict], list[tuple[str, str, People | None]]]":
+    """Return the jsondata values to store and the credits they describe.
+
+    A value resolves to a People by URL, or through an existing credit of
+    the same stripped name that is already linked. Resolved values are
+    rewritten to ``person.url``; others are stripped. Entries that collapse
+    to one person or one name for the same character are dropped, e.g. a
+    refetch merging "Name " into an already stripped "Name".
+    """
+    # Legacy rows may carry whitespace; compare stripped everywhere.
+    linked_by_name = {c.name.strip(): c.person for c in existing if c.person}
+    new_values: list[str | dict] = []
+    desired: list[tuple[str, str, People | None]] = []
+    seen: set[tuple[str | int, str]] = set()
+    for entry in entries:
+        if not entry.name:
+            if entry.value is not None:
+                new_values.append(entry.value)
+            continue
+        uid = _extract_people_uid(entry.name)
+        person = people_by_uid.get(uid) if uid else None
+        if person is None:
+            person = linked_by_name.get(entry.name)
+        key = (person.pk if person else entry.name, entry.character)
+        if key in seen:
+            continue
+        seen.add(key)
+        canonical = person.url if person else entry.name
+        if isinstance(entry.value, dict):
+            new_values.append({**entry.value, "name": canonical})
+        else:
+            new_values.append(canonical)
+        display = (person.display_name or entry.name) if person else entry.name
+        desired.append((display, entry.character, person))
+    return new_values, desired
 
 
 class LookupIdDescriptor(object):  # TODO make it mixin of Field
@@ -1243,141 +1317,80 @@ class Item(PolymorphicModel):
         name or person are dropped. When ``prune`` is true, ItemCredit rows
         no longer present are deleted.
         """
-        from .people import People
-
         if not self.CREDIT_FIELD_MAPPING:
             return
 
         managed_roles = set(self.CREDIT_FIELD_MAPPING.values())
-        credits_by_role: dict[str, list[ItemCredit]] = {r: [] for r in managed_roles}
+        existing_by_role: dict[str, list[ItemCredit]] = {}
         for c in self.credits.select_related("person").filter(role__in=managed_roles):
-            credits_by_role.setdefault(c.role, []).append(c)
+            existing_by_role.setdefault(c.role, []).append(c)
 
-        # Collect every People UUID referenced across all managed fields so we
-        # can resolve them in one query instead of per-value.
-        uuids: set[uuid.UUID] = set()
-
-        def _iter_raw_names():
-            for field_name in self.CREDIT_FIELD_MAPPING:
-                values = getattr(self, field_name, None) or []
-                if isinstance(values, str):
-                    values = [values]
-                for v in values:
-                    if isinstance(v, dict):
-                        yield (v.get("name") or "").strip()
-                    else:
-                        yield str(v or "").strip()
-
-        for raw in _iter_raw_names():
-            uid = _extract_people_uid(raw)
-            if uid is not None:
-                uuids.add(uid)
-        people_by_uid = (
-            {p.uid: p for p in People.objects.filter(uid__in=uuids)} if uuids else {}
+        entries_by_field = {
+            f: _parse_credit_entries(getattr(self, f, None))
+            for f in self.CREDIT_FIELD_MAPPING
+        }
+        people_by_uid = _resolve_credit_people(
+            e.name for entries in entries_by_field.values() for e in entries
         )
 
-        def _resolve(raw: str) -> tuple[People | None, str]:
-            uid = _extract_people_uid(raw)
-            if uid is None:
-                return None, raw
-            person = people_by_uid.get(uid)
-            if not person:
-                return None, raw
-            return person, person.display_name or raw
-
         metadata_changed = False
-        for field_name, credit_role in self.CREDIT_FIELD_MAPPING.items():
-            original = getattr(self, field_name, None)
-            scalar_field = isinstance(original, str)
-            values = original or []
-            if scalar_field:
-                values = [original]
-
-            existing = credits_by_role.get(credit_role, [])
-            # Legacy rows may carry whitespace; compare stripped everywhere.
-            linked_by_name = {c.name.strip(): c.person for c in existing if c.person}
-
-            desired: list[tuple[str, str, People | None]] = []
-            new_values: list[str | dict] = []
-            seen: set[tuple[str | int, str]] = set()
-            for value in values:
-                if isinstance(value, dict):
-                    raw_name = (value.get("name") or "").strip()
-                    character = (value.get("role") or "").strip()
-                else:
-                    raw_name = str(value or "").strip()
-                    character = ""
-                if not raw_name:
-                    if value is not None:
-                        new_values.append(value)
-                    continue
-                person, display = _resolve(raw_name)
-                if person is None and raw_name in linked_by_name:
-                    person = linked_by_name[raw_name]
-                    display = person.display_name or raw_name
-                # Collapse entries that differ only by whitespace or that
-                # resolve to the same person, e.g. a refetch merging "Name "
-                # into an already stripped "Name".
-                key = (person.pk if person else raw_name, character)
-                if key in seen:
-                    continue
-                seen.add(key)
-                canonical = person.url if person else raw_name
-                if isinstance(value, dict):
-                    new_values.append({**value, "name": canonical})
-                else:
-                    new_values.append(canonical)
-                desired.append((display, character, person))
-
-            if scalar_field:
-                new_value = new_values[0] if new_values else ""
-                if new_value != original:
-                    setattr(self, field_name, new_value)
-                    metadata_changed = True
-            elif new_values != values:
+        for field_name, role in self.CREDIT_FIELD_MAPPING.items():
+            existing = existing_by_role.get(role, [])
+            new_values, desired = _canonicalize_credit_entries(
+                entries_by_field[field_name], people_by_uid, existing
+            )
+            if new_values != (getattr(self, field_name, None) or []):
                 setattr(self, field_name, new_values)
                 metadata_changed = True
-
-            existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
-            for c in existing:
-                key = (c.name.strip(), c.person.pk if c.person else None)
-                existing_by_key.setdefault(key, c)
-
-            used_pks: set[int] = set()
-            for order, (name, character, person) in enumerate(desired):
-                key = (name, person.pk if person else None)
-                credit = existing_by_key.get(key)
-                if credit is not None and credit.pk not in used_pks:
-                    used_pks.add(credit.pk)
-                    update_fields = []
-                    if credit.order != order:
-                        credit.order = order
-                        update_fields.append("order")
-                    if (credit.character_name or "") != character:
-                        credit.character_name = character
-                        update_fields.append("character_name")
-                    if update_fields:
-                        credit.save(update_fields=update_fields)
-                else:
-                    ItemCredit.objects.create(
-                        item=self,
-                        role=credit_role,
-                        name=name,
-                        character_name=character,
-                        person=person,
-                        order=order,
-                    )
-
-            if prune:
-                stale = [c.pk for c in existing if c.pk not in used_pks]
-                if stale:
-                    ItemCredit.objects.filter(pk__in=stale).delete()
+            self._reconcile_credits(role, desired, existing, prune)
 
         if metadata_changed:
             self.save(update_fields=["metadata"])
         # Invalidate cached credits so subsequent reads reflect the new data
         self.__dict__.pop("role_credits", None)
         self.__dict__.pop("api_credits", None)
+
+    def _reconcile_credits(
+        self,
+        role: str,
+        desired: "list[tuple[str, str, People | None]]",
+        existing: "list[ItemCredit]",
+        prune: bool,
+    ) -> None:
+        """Make the ItemCredit rows of ``role`` match ``desired`` in order,
+        reusing a row with the same stripped name and person where one exists."""
+        existing_by_key: dict[tuple[str, int | None], ItemCredit] = {}
+        for c in existing:
+            existing_by_key.setdefault((c.name.strip(), c.person_id), c)
+
+        used_pks: set[int] = set()
+        for order, (name, character, person) in enumerate(desired):
+            credit = existing_by_key.get((name, person.pk if person else None))
+            if credit is not None and credit.pk not in used_pks:
+                used_pks.add(credit.pk)
+                update_fields = []
+                if credit.order != order:
+                    credit.order = order
+                    update_fields.append("order")
+                if (credit.character_name or "") != character:
+                    credit.character_name = character
+                    update_fields.append("character_name")
+                if update_fields:
+                    credit.save(update_fields=update_fields)
+            else:
+                ItemCredit.objects.create(
+                    item=self,
+                    role=role,
+                    name=name,
+                    character_name=character,
+                    person=person,
+                    order=order,
+                )
+
+        if prune:
+            stale = [c.pk for c in existing if c.pk not in used_pks]
+            if stale:
+                ItemCredit.objects.filter(pk__in=stale).delete()
 
     def process_fetched_item(
         self, fetched: Self, link_type: "ExternalResource.LinkType"
