@@ -1046,3 +1046,69 @@ def unify_metadata_20260715(
             f"unify_metadata complete: {updated} of {total} items updated, "
             f"{reindexed} docs reindexed, last pk {last_pk}."
         )
+
+
+def resync_duplicate_credits_20260907(
+    batch_size: int = 500, dry_run: bool = False
+) -> None:
+    """Re-run sync_credits_from_metadata on items holding duplicate credits
+    for one role: one People linked twice (credited under two localized
+    names, or a stored stripped name merged with a refetched unstripped
+    copy) or one plain name twice. The sync collapses both, rewrites linked
+    jsondata entries to person.url and prunes the stale rows.
+    """
+    from catalog.models import Item, ItemCredit
+
+    dup_person = (
+        ItemCredit.objects.filter(person__isnull=False)
+        .values("item_id", "role", "person_id")
+        .annotate(n=models.Count("pk"))
+        .filter(n__gt=1)
+    )
+    dup_name = (
+        ItemCredit.objects.values("item_id", "role", "name")
+        .annotate(n=models.Count("pk"))
+        .filter(n__gt=1)
+    )
+    item_ids: set[int] = set()
+    for row in dup_person.iterator():
+        item_ids.add(row["item_id"])
+    for row in dup_name.iterator():
+        item_ids.add(row["item_id"])
+    ordered = sorted(item_ids)
+    logger.warning(f"resync_duplicate_credits: {len(ordered)} items with duplicates")
+    if dry_run:
+        return
+    sentry_count(
+        "migration", attributes={"name": "catalog.resync_duplicate_credits.start"}
+    )
+    synced = 0
+    removed = 0
+    with tqdm(total=len(ordered), desc="resync_duplicate_credits") as pbar:
+        for i in range(0, len(ordered), batch_size):
+            chunk = ordered[i : i + batch_size]
+            items = Item.objects.filter(
+                pk__in=chunk, is_deleted=False, merged_to_item__isnull=True
+            )
+            for item in items:
+                roles = set(item.CREDIT_FIELD_MAPPING.values())
+                if not roles:
+                    continue
+                before = item.credits.filter(role__in=roles).count()
+                item.sync_credits_from_metadata()
+                after = item.credits.filter(role__in=roles).count()
+                synced += 1
+                removed += max(before - after, 0)
+            pbar.update(len(chunk))
+            sentry_count(
+                "migration",
+                len(chunk),
+                attributes={"name": "catalog.resync_duplicate_credits"},
+            )
+    sentry_count(
+        "migration", attributes={"name": "catalog.resync_duplicate_credits.end"}
+    )
+    logger.warning(
+        f"resync_duplicate_credits complete: {synced} items synced, "
+        f"{removed} duplicate credits removed."
+    )
