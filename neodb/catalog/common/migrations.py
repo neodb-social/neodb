@@ -1049,33 +1049,67 @@ def unify_metadata_20260715(
         )
 
 
-def resync_duplicate_credits_20260907(
-    batch_size: int = 500, dry_run: bool = False
-) -> None:
-    """Collapse duplicate credits: one People linked twice for a role
-    (credited under two localized names, or a stored stripped name merged
-    with a refetched unstripped copy) or one plain name twice.
+def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> None:
+    """Delete duplicate ItemCredit rows.
 
-    Re-runs sync_credits_from_metadata without pruning, so it dedupes and
-    canonicalizes the jsondata but keeps rows that have no metadata
-    counterpart (e.g. from backfill_credits_from_relations_20260719), then
-    deletes only rows that repeat another row's role, person or stripped
-    name, and character.
+    For one item and role, duplicates are: a People linked twice (credited
+    under two localized names, or a stored stripped name merged with a
+    refetched unstripped copy), one plain name twice up to whitespace, or an
+    unlinked copy of a linked credit. Rows differing in character are
+    distinct. The first row by order is kept.
+
+    Metadata entries naming a linked credit of the same role are rewritten to
+    the person URL, so the link survives the deletion of the row that carried
+    that name; nothing else in metadata changes, and the next sync (edit
+    save, refetch or merge) collapses the entries and reuses the surviving
+    row. Running the sync here would repurpose or prune rows that have no
+    metadata counterpart, such as those from
+    backfill_credits_from_relations_20260719.
     """
     from catalog.models import Item, ItemCredit
 
-    def _delete_duplicates(item: Item) -> int:
+    def _canonicalize(item: Item, credits: list[ItemCredit]) -> bool:
+        urls = {(c.role, c.name.strip()): c.person.url for c in credits if c.person}
+        changed = False
+        for field, role in item.CREDIT_FIELD_MAPPING.items():
+            values = getattr(item, field, None) or []
+            if isinstance(values, str):
+                values = [values]
+            new_values: list = []
+            for v in values:
+                name = (v.get("name") if isinstance(v, dict) else str(v or "")) or ""
+                url = urls.get((role, name.strip()))
+                if not url:
+                    new_values.append(v)
+                elif isinstance(v, dict):
+                    new_values.append({**v, "name": url})
+                else:
+                    new_values.append(url)
+            if new_values != values:
+                setattr(item, field, new_values)
+                changed = True
+        return changed
+
+    def _duplicate_pks(credits: list[ItemCredit]) -> list[int]:
+        linked_names = {
+            (c.role, c.name.strip(), c.character_name or "")
+            for c in credits
+            if c.person_id
+        }
         seen: set[tuple[str, int | str, str]] = set()
         stale: list[int] = []
-        for c in item.credits.order_by("role", "order", "pk"):
-            key = (c.role, c.person_id or c.name.strip(), c.character_name or "")
+        for c in credits:
+            character = c.character_name or ""
+            name = c.name.strip()
+            if not c.person_id and (c.role, name, character) in linked_names:
+                stale.append(c.pk)
+                continue
+            key = (c.role, c.person_id or name, character)
             if key in seen:
                 stale.append(c.pk)
             else:
                 seen.add(key)
-        if stale:
-            ItemCredit.objects.filter(pk__in=stale).delete()
-        return len(stale)
+        return stale
 
     dup_person = (
         ItemCredit.objects.filter(person__isnull=False)
@@ -1096,34 +1130,39 @@ def resync_duplicate_credits_20260907(
     for row in dup_name.iterator():
         item_ids.add(row["item_id"])
     ordered = sorted(item_ids)
-    logger.warning(f"resync_duplicate_credits: {len(ordered)} items with duplicates")
+    logger.warning(f"dedupe_credits: {len(ordered)} items with candidate duplicates")
     if dry_run:
         return
-    sentry_count(
-        "migration", attributes={"name": "catalog.resync_duplicate_credits.start"}
-    )
-    synced = 0
+    sentry_count("migration", attributes={"name": "catalog.dedupe_credits.start"})
     removed = 0
-    with tqdm(total=len(ordered), desc="resync_duplicate_credits") as pbar:
+    with tqdm(total=len(ordered), desc="dedupe_credits") as pbar:
         for i in range(0, len(ordered), batch_size):
             chunk = ordered[i : i + batch_size]
-            items = Item.objects.filter(
-                pk__in=chunk, is_deleted=False, merged_to_item__isnull=True
-            )
-            for item in items:
-                item.sync_credits_from_metadata(prune=False)
-                removed += _delete_duplicates(item)
-                synced += 1
+            by_item: dict[int, list[ItemCredit]] = {}
+            for c in (
+                ItemCredit.objects.filter(item_id__in=chunk)
+                .select_related("person")
+                .order_by("item_id", "role", "order", "pk")
+            ):
+                by_item.setdefault(c.item_id, []).append(c)
+            stale_by_item = {
+                item_id: pks
+                for item_id, credits in by_item.items()
+                if (pks := _duplicate_pks(credits))
+            }
+            if stale_by_item:
+                for item in Item.objects.filter(pk__in=list(stale_by_item)):
+                    if _canonicalize(item, by_item[item.pk]):
+                        item.save(update_fields=["metadata"])
+                stale = [pk for pks in stale_by_item.values() for pk in pks]
+                ItemCredit.objects.filter(pk__in=stale).delete()
+                removed += len(stale)
             pbar.update(len(chunk))
             sentry_count(
-                "migration",
-                len(chunk),
-                attributes={"name": "catalog.resync_duplicate_credits"},
+                "migration", len(chunk), attributes={"name": "catalog.dedupe_credits"}
             )
-    sentry_count(
-        "migration", attributes={"name": "catalog.resync_duplicate_credits.end"}
-    )
+    sentry_count("migration", attributes={"name": "catalog.dedupe_credits.end"})
     logger.warning(
-        f"resync_duplicate_credits complete: {synced} items synced, "
+        f"dedupe_credits complete: {len(ordered)} items checked, "
         f"{removed} duplicate credits removed."
     )
