@@ -860,6 +860,29 @@ class TestDoubanPersonage:
         assert "Kaige Chen" in names
         assert item.birth_date == "1952-08-12"
         assert item.imdb == "nm0155280"
+        bio = [b["text"] for b in item.localized_bio]
+        assert any("陈凯歌出身于艺术家庭" in b for b in bio)
+
+    @use_local_response
+    def test_scrape_personage_nested_bio(self):
+        """Bio wrapped in a nested div.content with <p> children is captured."""
+        site = SiteManager.get_site_by_id(IdType.DoubanPersonage, "38605873")
+        assert site is not None
+        pd = site.scrape()
+        assert pd.metadata["title"] == "丽甘·佩纳卢纳"
+        bio = [b["text"] for b in pd.metadata["localized_bio"]]
+        assert len(bio) == 1
+        # both paragraphs, joined by a newline
+        assert bio[0].startswith("[美]丽甘·佩纳卢纳\n丽甘·佩纳卢纳，波士顿大学哲学博士")
+        assert bio[0].endswith("列为“100部杰出新闻作品”之一。")
+
+    @use_local_response
+    def test_scrape_personage_placeholder_bio(self):
+        """Douban's 暂无 placeholder is not stored as a bio."""
+        site = SiteManager.get_site_by_id(IdType.DoubanPersonage, "27259396")
+        assert site is not None
+        pd = site.scrape()
+        assert pd.metadata["localized_bio"] == []
 
     def test_work_urls(self, monkeypatch):
         from catalog.sites import douban_personage as douban_personage_module

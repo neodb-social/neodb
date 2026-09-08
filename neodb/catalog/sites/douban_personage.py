@@ -87,11 +87,14 @@ class DoubanPersonage(AbstractSite):
             photo_url = photo_url.strip()
             photo_url = photo_url.replace("/m/", "/raw/")
 
-        # Bio
+        # Bio: the text sits directly in div.content on some pages and in a
+        # nested div.content with <p> children on others
         bio_elem = self.query_list(
-            content, '//div[@class="desc"]/div[@class="content"]/text()'
+            content, '//div[@class="desc"]/div[@class="content"]//text()'
         )
         bio = "\n".join([t.strip() for t in bio_elem if t.strip()])
+        if bio == "暂无":  # Douban's placeholder for a missing bio
+            bio = ""
 
         localized_bio = [{"lang": "zh-cn", "text": bio}] if bio else []
 

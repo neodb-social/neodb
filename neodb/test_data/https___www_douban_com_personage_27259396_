@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <title>Nicolae Dragan Nicolae Dragan(豆瓣)</title>
+    
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+    
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport">
+    <meta property="og:site_name" content="豆瓣">
+    <meta property="og:title" content="Nicolae Dragan">
+    <meta property="og:description" content="暂无">
+    <meta property="og:url" content="https://www.douban.com/personage/27259396">
+    <meta property="og:image" content="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png">
+
+    <script>var _head_start = new Date();</script>
+    <script src="https://img1.doubanio.com/f/vendors/0511abe9863c2ea7084efa7e24d1d86c5b3974f1/js/jquery-1.10.2.min.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/e258329ca4b2122b4efe53fddc418967441e0e7f/js/douban.js"></script>
+    <link href="https://img1.doubanio.com/f/vendors/fae7e145bf16b2f427ba0fe7ef3d47c04af3a6c0/css/douban.css" rel="stylesheet" type="text/css">
+    <link href="https://img2.doubanio.com/cuphead/elessar-static/css/base.45e91.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        
+    </style>
+    
+    <link rel="stylesheet" href="https://img1.doubanio.com/cuphead/elessar-static/css/subject.89099.css">
+    <link rel="stylesheet" href="https://img9.doubanio.com/cuphead/elessar-static/personage/web.cc6e4.css">
+    <script>
+        window.subject_id = 27259396;
+        window.uid = "";
+        function not_login(){
+                location.href = '//www.douban.com/accounts/login';
+                return true;
+        }
+
+    </script>
+    <!-- COLLECTED CSS -->
+
+    <!-- COLLECTED CSS -->
+    <script></script>
+
+    <link rel="shortcut icon" href="" type="image/x-icon">
+</head>
+
+<body style="">
+  
+    
+    <script type="text/javascript">var _body_start = new Date();</script>
+    
+        
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/f8b2226/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+    
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=main" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+    
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="on">
+      <a href="https://www.douban.com" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="">
+      <a href="https://book.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="">
+      <a href="https://music.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/podcast/" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-podcast&quot;,&quot;uid&quot;:&quot;0&quot;}">播客</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com/?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://fm.douban.com/?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com/?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com/?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/f8b2226/shire/bundle.js" defer="defer"></script>
+
+
+
+
+        
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/f8b2226/sns/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-nav-sns" class="nav">
+  <div class="nav-wrap">
+    <div class="nav-primary">
+     
+      <div class="nav-logo">
+        <a href="https://www.douban.com">豆瓣社区</a>
+      </div>
+
+      <div class="nav-search">
+  <form action="https://www.douban.com/search" method="get">
+	<fieldset>
+      <legend>搜索：</legend>
+	  <label for="inp-query" style="display: none;">搜索你感兴趣的内容和人...</label>
+	  <div class="inp">
+	    <input type="hidden" name="source" value="suggest">
+		<input id="inp-query" name="q" size="22" maxlength="60" autocomplete="off" value="" placeholder="搜索你感兴趣的内容和人...">
+	  </div>
+	  <div class="inp-btn"><input type="submit" value="搜索"></div>
+	</fieldset>
+  </form>
+</div>
+
+      
+
+<div class="nav-items">
+  <ul>
+    <li><a href="https://www.douban.com">首页</a></li>
+      <li>
+        <a href="https://www.douban.com/explore">
+          浏览发现
+        </a>
+      </li>
+      <li>
+        <a href="https://www.douban.com/gallery">
+          话题广场
+          <img src="https://img3.doubanio.com/f/shire/e49eca1517424a941871a2667a8957fd6c72d632/pics/new_menu.gif" alt="new" style="position: absolute; top: -7px; right: -13px;">
+        </a>
+      </li>
+  </ul>
+</div>
+
+    </div>
+  </div>
+</div>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/f8b2226/sns/bundle.js" defer="defer"></script>
+
+
+
+
+
+    <div id="wrapper">
+        
+        
+<div id="content">
+    
+    <div class="grid-16-8 clearfix" style="position: relative;">
+        
+        
+        <div class="article">
+
+    
+    <section class="subject-target">
+        <div>
+            <h1 class="subject-name">Nicolae Dragan</h1>
+            <div class="left">
+                <div class="avatar-container">
+                    <img class="avatar" src="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png" alt="Nicolae Dragan">
+                    <div class="middle">
+                      <a href="//www.douban.com/contribution/personage/27259396/edit/" class="text">去修改</a>
+                    </div>
+                  </div>
+                <div class="subject-edit"><a href="//www.douban.com/contribution/personage/27259396/edit/" target="_blank">增改资料和作品</a></div>
+            </div>
+
+            <div class="right">
+                    <ul class="subject-property">
+                            
+                            <li>
+                                <span class="label">
+                                    出生日期:
+                                </span>
+                                <span class="value">
+                                    1939年9月20日
+                                </span>
+                            </li>
+                            
+                            <li>
+                                <span class="label">
+                                    出生地:
+                                </span>
+                                <span class="value">
+                                    罗马尼亚,布加勒斯特
+                                </span>
+                            </li>
+                            
+                            <li>
+                                <span class="label">
+                                    IMDb编号:
+                                </span>
+                                <span class="value">
+                                    nm0236665
+                                </span>
+                            </li>
+                        <li>
+                            <span class="label">职业:</span>
+                            <span class="value">美术 / 服装</span>
+                        </li>
+                    </ul>
+
+                <div class="subject-action">
+                    
+                    <a href="//www.douban.com/accounts/login" class="subscribe-btn " data-f="false">
+                        关注
+                    </a>
+
+                    <span class="fans_count"><span id="fans_count">0</span>人关注</span>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+
+<div id="opt-bar" class="mod">
+    <div class="ll">
+    </div>
+    <div class="rr">
+        
+
+
+
+        
+
+
+
+
+
+
+
+
+    <div class="rec-sec">
+
+    <span class="rec">
+
+<a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="27259396" data-mode="plain" data-name="Nicolae Dragan" data-type="" data-desc="美术 服装 / 布加勒斯特的秘密 政权·真理 蒙娜丽莎无微笑" data-href="https://www.douban.com/personage/27259396/" data-image="https://img1.doubanio.com/f/vendors/ca527386eb8c4e325611e22dfcb04cc116d6b423/pics/personage-default-small.png" data-properties="{}" data-redir="https://www.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="1065" data-object_id="27259396" data-target_type="rec" data-target_action="0" data-action_props="{&quot;personage_url&quot;:&quot;https:\/\/www.douban.com\/personage\/27259396\/&quot;,&quot;personage_name&quot;:&quot;Nicolae Dragan&quot;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_bf4f3" class="j a_show_login lnk-sharing lnk-douban-sharing">推荐</a>
+</span>
+</div>
+
+    </div>
+</div>
+
+
+    </section>
+
+    <section class="subject-mod subject-intro">
+        
+    <h2>
+        人物简介
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+    </h2>
+
+        <div class="desc">
+            <div class="content"><div class="content"><p>暂无</p></div></div>
+        </div>
+        
+    </section>
+
+    
+    <section class="subject-mod subject-picture">
+            
+    <h2>
+        图片
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+            <span class="pl">&nbsp;(
+                
+                <a href="photos" target="_self">全部 0 张</a>&nbsp;·&nbsp;<a href="/personage/27259396/photos/upload" target="_self">上传照片</a>
+                ) </span>
+    </h2>
+
+        <ul>
+        </ul>
+    </section>
+
+    
+
+    
+
+
+            
+            <script>
+                window.work_collection_id = 27259396;
+                window.work_collections = ["\u5f71\u89c6"];
+            </script>
+
+            
+
+
+    <section id="work-collections-sortby-time"><div class="subject-mod subject-creations"><h2>最近的5部作品&nbsp;&nbsp;· · · · · ·<span class="tab"></span></h2><div class="creations-type"><ul class="works"><li class="creation"><div class="timeline-year">1983</div><a href="https://movie.douban.com/subject/3990142/" title="布加勒斯特的秘密" class="movie img_wrap" target="_blank"><img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2826915882.jpg" alt="布加勒斯特的秘密"></a><a title="布加勒斯特的秘密" href="https://movie.douban.com/subject/3990142/" target="_blank">布加勒斯特的秘密</a><div class="rating"><span class="rating-none">暂无评分</span></div></li><li class="creation"><div class="timeline-year">1981</div><a href="https://movie.douban.com/subject/5105477/" title="Stefan Luchian" class="movie img_wrap" target="_blank"><img src="https://img1.doubanio.com/cuphead/movie-static/pics/movie_default_medium.png" alt="Stefan Luchian"></a><a title="Stefan Luchian" href="https://movie.douban.com/subject/5105477/" target="_blank">Stefan Luchian</a><div class="rating"><span class="rating-none">暂无评分</span></div></li><li class="creation"><div class="timeline-year">1980</div><a href="https://movie.douban.com/subject/5096005/" title="Muntii in flacari" class="movie img_wrap" target="_blank"><img src="https://img1.doubanio.com/cuphead/movie-static/pics/movie_default_medium.png" alt="Muntii in flacari"></a><a title="Muntii in flacari" href="https://movie.douban.com/subject/5096005/" target="_blank">Muntii in flacari</a><div class="rating"><span class="rating-none">暂无评分</span></div></li><li class="creation"><a href="https://movie.douban.com/subject/5096034/" title="La rascrucea marilor furtuni" class="movie img_wrap" target="_blank"><img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2865176687.jpg" alt="La rascrucea marilor furtuni"></a><a title="La rascrucea marilor furtuni" href="https://movie.douban.com/subject/5096034/" target="_blank">La rascrucea marilor furtuni</a><div class="rating"><span class="rating-none">暂无评分</span></div></li><li class="creation"><div class="timeline-year">1979</div><a href="https://movie.douban.com/subject/5052066/" title="女演员、美元和特兰西瓦尼亚人" class="movie img_wrap" target="_blank"><img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2186614410.jpg" alt="女演员、美元和特兰西瓦尼亚人"></a><a title="女演员、美元和特兰西瓦尼亚人" href="https://movie.douban.com/subject/5052066/" target="_blank">女演员、美元和特兰西瓦尼亚人</a><div class="rating"><span class="rating-none">暂无评分</span></div></li></ul>&gt; <a href="creations?sortby=time&amp;type=filmmaker" target="_blank">更多影视作品 17</a></div></div></section>
+    <section id="work-collections-sortby-collect"><div class="subject-mod subject-creations"><h2>收藏人数最多的5部作品&nbsp;&nbsp;· · · · · ·<span class="tab"></span></h2><div class="creations-type"><ul class="works"><li class="creation"><a href="https://movie.douban.com/subject/3990142/" title="布加勒斯特的秘密" class="movie img_wrap" target="_blank"><img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2826915882.jpg" alt="布加勒斯特的秘密"></a><a title="布加勒斯特的秘密" href="https://movie.douban.com/subject/3990142/" target="_blank">布加勒斯特的秘密</a><div class="rating"><span class="rating-none">暂无评分</span></div><div class="pl">1983</div></li><li class="creation"><a href="https://movie.douban.com/subject/5107749/" title="政权·真理" class="movie img_wrap" target="_blank"><img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2529227033.jpg" alt="政权·真理"></a><a title="政权·真理" href="https://movie.douban.com/subject/5107749/" target="_blank">政权·真理</a><div class="rating"><span class="rating-none">暂无评分</span></div><div class="pl">1972</div></li><li class="creation"><a href="https://movie.douban.com/subject/3153884/" title="蒙娜丽莎无微笑" class="movie img_wrap" target="_blank"><img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2673983107.jpg" alt="蒙娜丽莎无微笑"></a><a title="蒙娜丽莎无微笑" href="https://movie.douban.com/subject/3153884/" target="_blank">蒙娜丽莎无微笑</a><div class="rating"><span class="rating-none">暂无评分</span></div><div class="pl">1967</div></li><li class="creation"><a href="https://movie.douban.com/subject/5052066/" title="女演员、美元和特兰西瓦尼亚人" class="movie img_wrap" target="_blank"><img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2186614410.jpg" alt="女演员、美元和特兰西瓦尼亚人"></a><a title="女演员、美元和特兰西瓦尼亚人" href="https://movie.douban.com/subject/5052066/" target="_blank">女演员、美元和特兰西瓦尼亚人</a><div class="rating"><span class="rating-none">暂无评分</span></div><div class="pl">1979</div></li><li class="creation"><a href="https://movie.douban.com/subject/5053980/" title="亥伯龙神" class="movie img_wrap" target="_blank"><img src="https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2563957419.jpg" alt="亥伯龙神"></a><a title="亥伯龙神" href="https://movie.douban.com/subject/5053980/" target="_blank">亥伯龙神</a><div class="rating"><span class="rating-none">暂无评分</span></div><div class="pl">1975</div></li></ul>&gt; <a href="creations?sortby=collection&amp;type=filmmaker" target="_blank">更多影视作品 17</a></div></div></section>
+    <section id="partners"><div class="partners-mod-mod subject-mod"><h2>合作过的人物&nbsp;&nbsp;· · · · · ·&nbsp;<span class="pl"> ( <a href="/personage/27259396/partners">全部 35</a> )</span> </h2><ul class="partners-mod-list"><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27273905"><img alt="Cornel Coman" src="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27273905" title="Cornel Coman">Cornel Coman</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27273905">6</a>)</span></div></li><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27325872"><img alt="Ovidiu Iuliu Moldovan" src="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27325872" title="Ovidiu Iuliu Moldovan">Ovidiu Iuliu Moldovan</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27325872">5</a>)</span></div></li><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27235050"><img alt="米尔恰·阿尔布列斯库" src="https://img9.doubanio.com/view/celebrity/m/public/p1518611184.4.jpg"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27235050" title="米尔恰·阿尔布列斯库">米尔恰·阿尔布列斯库</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27235050">4</a>)</span></div></li><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27248187"><img alt="伊拉里昂·乔巴努" src="https://img1.doubanio.com/view/celebrity/m/public/p25499.jpg"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27248187" title="伊拉里昂·乔巴努">伊拉里昂·乔巴努</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27248187">3</a>)</span></div></li><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27239236"><img alt="扬·贝索尤" src="https://img9.doubanio.com/view/celebrity/m/public/p1475060808.95.jpg"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27239236" title="扬·贝索尤">扬·贝索尤</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27239236">3</a>)</span></div></li><li class="partners-mod-item"><div class="partners-mod-pic"><a href="https://www.douban.com/personage/27360814"><img alt="西尔维乌·斯滕库列斯库" src="https://img3.doubanio.com/view/celebrity/m/public/p1556443366.03.jpg"></a></div><div class="partners-mod-info"><a href="https://www.douban.com/personage/27360814" title="西尔维乌·斯滕库列斯库">西尔维乌·斯滕库列斯库</a><span>&nbsp;合作作品 (<a href="/personage/27259396/partners#27360814">3</a>)</span></div></li></ul></div></section>
+
+
+</div>
+        <div class="aside">
+
+    
+
+    
+
+
+
+
+
+
+    
+
+
+    
+
+</div>
+        <div class="extra"></div>
+    <div class="fixed-fields" style="display: none;"></div></div>
+</div>
+
+        
+<div id="footer">
+    
+<span id="icp" class="fleft gray-link">
+    © 2005－2026 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="//www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+  <a href="https://www.douban.com/about">关于豆瓣</a>
+  · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+  · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+  · <a href="https://www.douban.com/about/legal">法律声明</a>
+  · <a href="https://help.douban.com/?app=main" target="_blank">帮助中心</a>
+  · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+</span>
+
+</div>
+
+    </div>
+    <!-- COLLECTED JS -->
+    
+    <script src="https://img3.doubanio.com/cuphead/elessar-static/subject/intro.f26fa.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/subject/subject.a2ecc.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/subject/pos_fixed.37a4d.js"></script>
+
+    <script>
+        $(function () {
+            var sidebar = fixed($('#content .aside'), {
+                fixedBound: 'bottom',
+                gap: 120
+            });
+            sidebar.init();
+        })
+    </script>
+    <script src="https://img1.doubanio.com/f/vendors/bd6325a12f40c34cbf2668aafafb4ccd60deab7e/vendors.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/6242a400cfd25992da35ace060e58f160efc9c50/shared_rc.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/personage/web.01329.js"></script>
+
+    
+    <!-- dae-web-elessar--default-599c7685b7-t9h4q -->
+
+
+  <script>_SPLITTEST=''</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="db-tagsug-list" class="suggest-overlay"></div></body>
+</html>

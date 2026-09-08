@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <title>丽甘·佩纳卢纳 Regan Penaluna(豆瓣)</title>
+    
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+    
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport">
+    <meta property="og:site_name" content="豆瓣">
+    <meta property="og:title" content="丽甘·佩纳卢纳">
+    <meta property="og:description" content="[美]丽甘·佩纳卢纳丽甘·佩纳卢纳，波士顿大学哲学博士，哥伦比亚大学新闻学硕士，资深撰稿人与记者，现居布鲁克林。她曾任《格尔尼卡》（Guernica）与《鹦鹉螺》（Nautilus）杂志编辑，负责深度长篇报道与访谈，其中一篇专题文章被《大西洋月刊》（Atlant ic）列为“100部杰出新闻作品”之一。">
+    <meta property="og:url" content="https://www.douban.com/personage/38605873">
+    <meta property="og:image" content="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png">
+
+    <script>var _head_start = new Date();</script>
+    <script src="https://img1.doubanio.com/f/vendors/0511abe9863c2ea7084efa7e24d1d86c5b3974f1/js/jquery-1.10.2.min.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/e258329ca4b2122b4efe53fddc418967441e0e7f/js/douban.js"></script>
+    <link href="https://img1.doubanio.com/f/vendors/fae7e145bf16b2f427ba0fe7ef3d47c04af3a6c0/css/douban.css" rel="stylesheet" type="text/css">
+    <link href="https://img2.doubanio.com/cuphead/elessar-static/css/base.45e91.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        
+    </style>
+    
+    <link rel="stylesheet" href="https://img1.doubanio.com/cuphead/elessar-static/css/subject.89099.css">
+    <link rel="stylesheet" href="https://img9.doubanio.com/cuphead/elessar-static/personage/web.cc6e4.css">
+    <script>
+        window.subject_id = 38605873;
+        window.uid = "";
+        function not_login(){
+                location.href = '//www.douban.com/accounts/login';
+                return true;
+        }
+
+    </script>
+    <!-- COLLECTED CSS -->
+
+    <!-- COLLECTED CSS -->
+    <script></script>
+
+    <link rel="shortcut icon" href="" type="image/x-icon">
+</head>
+
+<body style="">
+  
+    
+    <script type="text/javascript">var _body_start = new Date();</script>
+    
+        
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/f8b2226/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+    
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=main" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+    
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="on">
+      <a href="https://www.douban.com" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="">
+      <a href="https://book.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="">
+      <a href="https://music.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/podcast/" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-podcast&quot;,&quot;uid&quot;:&quot;0&quot;}">播客</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com/?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://fm.douban.com/?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com/?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com/?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/f8b2226/shire/bundle.js" defer="defer"></script>
+
+
+
+
+        
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/f8b2226/sns/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-nav-sns" class="nav">
+  <div class="nav-wrap">
+    <div class="nav-primary">
+     
+      <div class="nav-logo">
+        <a href="https://www.douban.com">豆瓣社区</a>
+      </div>
+
+      <div class="nav-search">
+  <form action="https://www.douban.com/search" method="get">
+	<fieldset>
+      <legend>搜索：</legend>
+	  <label for="inp-query" style="display: none;">搜索你感兴趣的内容和人...</label>
+	  <div class="inp">
+	    <input type="hidden" name="source" value="suggest">
+		<input id="inp-query" name="q" size="22" maxlength="60" autocomplete="off" value="" placeholder="搜索你感兴趣的内容和人...">
+	  </div>
+	  <div class="inp-btn"><input type="submit" value="搜索"></div>
+	</fieldset>
+  </form>
+</div>
+
+      
+
+<div class="nav-items">
+  <ul>
+    <li><a href="https://www.douban.com">首页</a></li>
+      <li>
+        <a href="https://www.douban.com/explore">
+          浏览发现
+        </a>
+      </li>
+      <li>
+        <a href="https://www.douban.com/gallery">
+          话题广场
+          <img src="https://img3.doubanio.com/f/shire/e49eca1517424a941871a2667a8957fd6c72d632/pics/new_menu.gif" alt="new" style="position: absolute; top: -7px; right: -13px;">
+        </a>
+      </li>
+  </ul>
+</div>
+
+    </div>
+  </div>
+</div>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/f8b2226/sns/bundle.js" defer="defer"></script>
+
+
+
+
+
+    <div id="wrapper">
+        
+        
+<div id="content">
+    
+    <div class="grid-16-8 clearfix" style="position: relative;">
+        
+        
+        <div class="article">
+
+    
+    <section class="subject-target">
+        <div>
+            <h1 class="subject-name">丽甘·佩纳卢纳 Regan Penaluna</h1>
+            <div class="left">
+                <div class="avatar-container">
+                    <img class="avatar" src="https://img1.doubanio.com/f/vendors/8dd0c794499fe925ae2ae89ee30cd225750457b4/pics/personage-default-medium.png" alt="丽甘·佩纳卢纳">
+                    <div class="middle">
+                      <a href="//www.douban.com/contribution/personage/38605873/edit/" class="text">去修改</a>
+                    </div>
+                  </div>
+                <div class="subject-edit"><a href="//www.douban.com/contribution/personage/38605873/edit/" target="_blank">增改资料和作品</a></div>
+            </div>
+
+            <div class="right">
+                    <ul class="subject-property">
+                        <li>
+                            <span class="label">职业:</span>
+                            <span class="value">作者</span>
+                        </li>
+                    </ul>
+
+                <div class="subject-action">
+                    
+                    <a href="//www.douban.com/accounts/login" class="subscribe-btn " data-f="false">
+                        关注
+                    </a>
+
+                    <span class="fans_count"><span id="fans_count">4</span>人关注</span>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+
+<div id="opt-bar" class="mod">
+    <div class="ll">
+    </div>
+    <div class="rr">
+        
+
+
+
+        
+
+
+
+
+
+
+
+
+    <div class="rec-sec">
+
+    <span class="rec">
+
+<a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="38605873" data-mode="plain" data-name="丽甘·佩纳卢纳" data-type="" data-desc="作者 / 如何像女人那样思考" data-href="https://www.douban.com/personage/38605873/" data-image="https://img1.doubanio.com/f/vendors/ca527386eb8c4e325611e22dfcb04cc116d6b423/pics/personage-default-small.png" data-properties="{}" data-redir="https://www.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="1065" data-object_id="38605873" data-target_type="rec" data-target_action="0" data-action_props="{&quot;personage_url&quot;:&quot;https:\/\/www.douban.com\/personage\/38605873\/&quot;,&quot;personage_name&quot;:&quot;丽甘·佩纳卢纳&quot;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_d14b8" class="j a_show_login lnk-sharing lnk-douban-sharing">推荐</a>
+</span>
+</div>
+
+    </div>
+</div>
+
+
+    </section>
+
+    <section class="subject-mod subject-intro">
+        
+    <h2>
+        人物简介
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+    </h2>
+
+        <div class="desc">
+            <div class="content"><div class="content"><p>[美]丽甘·佩纳卢纳</p><p>丽甘·佩纳卢纳，波士顿大学哲学博士，哥伦比亚大学新闻学硕士，资深撰稿人与记者，现居布鲁克林。她曾任《格尔尼卡》（Guernica）与《鹦鹉螺》（Nautilus）杂志编辑，负责深度长篇报道与访谈，其中一篇专题文章被《大西洋月刊》（Atlant ic）列为“100部杰出新闻作品”之一。</p></div></div>
+        </div>
+        
+    </section>
+
+    
+    <section class="subject-mod subject-picture">
+            
+    <h2>
+        图片
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+            <span class="pl">&nbsp;(
+                
+                <a href="photos" target="_self">全部 0 张</a>&nbsp;·&nbsp;<a href="/personage/38605873/photos/upload" target="_self">上传照片</a>
+                ) </span>
+    </h2>
+
+        <ul>
+        </ul>
+    </section>
+
+    
+
+    
+
+
+            
+            <script>
+                window.work_collection_id = 38605873;
+                window.work_collections = ["\u56fe\u4e66"];
+            </script>
+
+
+    <section id="work-collections-sortby-time"><div class="subject-mod subject-creations"><h2>最近的5部作品&nbsp;&nbsp;· · · · · ·<span class="tab"></span></h2><div class="creations-type"><ul class="works"><li class="creation"><div class="timeline-year">2026</div><a href="https://book.douban.com/subject/38434682/" title="如何像女人那样思考" class="book img_wrap" target="_blank"><img src="https://img1.doubanio.com/view/subject/m/public/s35589558.jpg" alt="如何像女人那样思考"></a><a title="如何像女人那样思考" href="https://book.douban.com/subject/38434682/" target="_blank">如何像女人那样思考</a><div class="rating"><span class="rating-star allstar40"></span><span class="rating-val">8.2</span></div></li></ul>&gt; <a href="creations?sortby=time&amp;type=writer" target="_blank">更多图书作品 1</a></div></div></section>
+    <section id="work-collections-sortby-collect"><div class="subject-mod subject-creations"><h2>收藏人数最多的5部作品&nbsp;&nbsp;· · · · · ·<span class="tab"></span></h2><div class="creations-type"><ul class="works"><li class="creation"><a href="https://book.douban.com/subject/38434682/" title="如何像女人那样思考" class="book img_wrap" target="_blank"><img src="https://img1.doubanio.com/view/subject/m/public/s35589558.jpg" alt="如何像女人那样思考"></a><a title="如何像女人那样思考" href="https://book.douban.com/subject/38434682/" target="_blank">如何像女人那样思考</a><div class="rating"><span class="rating-star allstar40"></span><span class="rating-val">8.2</span></div><div class="pl">2026</div></li></ul>&gt; <a href="creations?sortby=collection&amp;type=writer" target="_blank">更多图书作品 1</a></div></div></section>
+    <section id="partners"><div class="partners-mod-mod subject-mod"><ul class="partners-mod-list"></ul></div></section>
+
+
+</div>
+        <div class="aside">
+
+    
+
+    
+
+
+
+
+
+
+    
+
+        <section class="subject-mod subject-aside-mod subject-same-follower">
+            
+    <h2>
+        他们也关注了丽甘·佩纳卢纳
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+            <span class="pl">&nbsp;(
+                
+                    <a href="followers" target="_self">全部 4 </a>
+                ) </span>
+    </h2>
+
+            <ul>
+                    
+                    <li class="follower">
+                        <a href="https://www.douban.com/people/193109978/" target="_blank">
+                            <div class="avatar" style="background-image: url('https://img9.doubanio.com/icon/up193109978-15.jpg')"></div>
+                            <span class="title">莉莉丝</span>
+                        </a>
+                    </li>
+                    
+                    <li class="follower">
+                        <a href="https://www.douban.com/people/2801533/" target="_blank">
+                            <div class="avatar" style="background-image: url('https://img1.doubanio.com/icon/up2801533-28.jpg')"></div>
+                            <span class="title">大姐心里没有爱</span>
+                        </a>
+                    </li>
+                    
+                    <li class="follower">
+                        <a href="https://www.douban.com/people/279112478/" target="_blank">
+                            <div class="avatar" style="background-image: url('https://img2.doubanio.com/icon/up279112478-1.jpg')"></div>
+                            <span class="title">豆瓣用户</span>
+                        </a>
+                    </li>
+                    
+                    <li class="follower">
+                        <a href="https://www.douban.com/people/222895536/" target="_blank">
+                            <div class="avatar" style="background-image: url('https://img1.doubanio.com/icon/user_normal.jpg')"></div>
+                            <span class="title">CindyM26</span>
+                        </a>
+                    </li>
+            </ul>
+        </section>
+
+    
+    <section class="subject-mod subject-aside-mod subject-contributors">
+        
+    <h2>
+        丽甘·佩纳卢纳的贡献者
+            &nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·&nbsp;·
+            <span class="pl">&nbsp;(
+                
+                    <a href="contributors" target="_self">全部 1 </a>
+                ) </span>
+    </h2>
+
+        <ul>
+                <li class="contributor">
+                    <a href="https://www.douban.com/people/175445303/" target="_blank">
+                        <div class="avatar" style="background-image: url('https://img9.doubanio.com/icon/up175445303-16.jpg')"></div>
+                        <span class="title">AA批发显卡黄哥</span>
+                    </a>
+                </li>
+        </ul>
+    </section>
+
+</div>
+        <div class="extra"></div>
+    <div class="fixed-fields" style="display: none;"></div></div>
+</div>
+
+        
+<div id="footer">
+    
+<span id="icp" class="fleft gray-link">
+    © 2005－2026 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="//www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+  <a href="https://www.douban.com/about">关于豆瓣</a>
+  · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+  · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+  · <a href="https://www.douban.com/about/legal">法律声明</a>
+  · <a href="https://help.douban.com/?app=main" target="_blank">帮助中心</a>
+  · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+</span>
+
+</div>
+
+    </div>
+    <!-- COLLECTED JS -->
+    
+    <script src="https://img3.doubanio.com/cuphead/elessar-static/subject/intro.f26fa.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/subject/subject.a2ecc.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/subject/pos_fixed.37a4d.js"></script>
+
+    <script>
+        $(function () {
+            var sidebar = fixed($('#content .aside'), {
+                fixedBound: 'bottom',
+                gap: 120
+            });
+            sidebar.init();
+        })
+    </script>
+    <script src="https://img1.doubanio.com/f/vendors/bd6325a12f40c34cbf2668aafafb4ccd60deab7e/vendors.js"></script>
+    <script src="https://img1.doubanio.com/f/vendors/6242a400cfd25992da35ace060e58f160efc9c50/shared_rc.js"></script>
+    <script src="https://img1.doubanio.com/cuphead/elessar-static/personage/web.01329.js"></script>
+
+    
+    <!-- dae-web-elessar--default-599c7685b7-6hjjm -->
+
+
+  <script>_SPLITTEST=''</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="db-tagsug-list" class="suggest-overlay"></div></body>
+</html>
