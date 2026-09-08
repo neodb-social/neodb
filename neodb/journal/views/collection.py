@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied, RequestAborted
 from django.core.signing import b62_encode
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -373,6 +373,16 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
     else:
+        if not user.mastodon:
+            return render(
+                request,
+                "common/error.html",
+                {
+                    "msg": _(
+                        "Link a Fediverse account in account settings to share this."
+                    ),
+                },
+            )
         comment = request.POST.get("comment", "")
         # boost if possible, otherwise quote
         if (
@@ -380,8 +390,7 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
             and user.preference.mastodon_repost_mode == 0
             and collection.latest_post
         ):
-            if user.mastodon:
-                user.mastodon.boost_later(collection.latest_post.url)
+            user.mastodon.boost_later(collection.latest_post.url)
         else:
             visibility = VisibilityType(int_(request.POST.get("visibility")))
             link = (
@@ -389,8 +398,18 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
                 if collection.latest_post
                 else collection.absolute_url
             ) or ""
-            if not share_collection(collection, comment, user, visibility, link):
+            try:
+                share_collection(collection, comment, user, visibility, link)
+            except PermissionDenied:
+                logger.warning(f"post to mastodon error 401 {user}")
                 return render_relogin(request)
+            except Exception as e:
+                logger.warning(f"post to mastodon error {e} {user}")
+                return render(
+                    request,
+                    "common/error.html",
+                    {"msg": _("Unable to crosspost to Fediverse instance.")},
+                )
         referer = get_safe_referer_url(request)
         return HttpResponseRedirect(referer)
 
@@ -401,9 +420,14 @@ def share_collection(
     user: User,
     visibility: VisibilityType,
     link: str,
-):
-    if not user or not user.mastodon:
-        return
+) -> None:
+    """Post the collection to the user's Mastodon account.
+
+    Raises PermissionDenied when the instance rejects the token, and
+    RequestAborted on any other failure.
+    """
+    if not user.mastodon:
+        raise RequestAborted()
     tags = (
         "\n"
         + user.preference.mastodon_append_tag.replace("[category]", _("collection"))
@@ -424,11 +448,7 @@ def share_collection(
         )
     )
     content = f"{user_str}:{collection.title}\n{link}\n{comment}{tags}"
-    try:
-        user.mastodon.post(content, visibility)
-        return True
-    except Exception:
-        return False
+    user.mastodon.post(content, visibility)
 
 
 @login_required

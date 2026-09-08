@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 14:56-0400\n"
+"POT-Creation-Date: 2026-09-08 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -534,7 +534,7 @@ msgid "Album"
 msgstr ""
 
 #: catalog/models/common.py:168 catalog/models/common.py:185
-#: catalog/models/common.py:199 common/templates/_header.html:53
+#: catalog/models/common.py:199 common/templates/_header.html:54
 #: journal/templates/_sidebar_user_mark_list.html:48
 #: journal/templates/_sidebar_user_tag_filter.html:39
 msgid "Game"
@@ -549,7 +549,7 @@ msgid "Podcast Episode"
 msgstr ""
 
 #: catalog/models/common.py:171 catalog/models/common.py:187
-#: catalog/models/common.py:201 common/templates/_header.html:57
+#: catalog/models/common.py:201 common/templates/_header.html:58
 #: journal/templates/_sidebar_user_mark_list.html:52
 #: journal/templates/_sidebar_user_tag_filter.html:43
 msgid "Performance"
@@ -575,7 +575,7 @@ msgid "Person / Organization"
 msgstr ""
 
 #: catalog/models/common.py:181 catalog/models/common.py:195
-#: common/templates/_header.html:37
+#: common/templates/_header.html:38
 #: journal/templates/_sidebar_user_mark_list.html:32
 #: journal/templates/_sidebar_user_tag_filter.html:24
 msgid "Book"
@@ -588,14 +588,14 @@ msgid "TV"
 msgstr ""
 
 #: catalog/models/common.py:184 catalog/models/common.py:198
-#: common/templates/_header.html:49
+#: common/templates/_header.html:50
 #: journal/templates/_sidebar_user_mark_list.html:45
 #: journal/templates/_sidebar_user_tag_filter.html:36
 msgid "Music"
 msgstr ""
 
 #: catalog/models/common.py:186 catalog/models/common.py:200
-#: catalog/templates/_sidebar_edit.html:213 common/templates/_header.html:45
+#: catalog/templates/_sidebar_edit.html:213 common/templates/_header.html:46
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
@@ -2174,8 +2174,8 @@ msgstr ""
 #: catalog/views/edit.py:293 catalog/views/edit.py:296
 #: catalog/views/edit.py:440 catalog/views/edit.py:443
 #: catalog/views/verify.py:197 journal/views/collection.py:75
-#: journal/views/collection.py:100 journal/views/collection.py:538
-#: journal/views/collection.py:634 journal/views/common.py:231
+#: journal/views/collection.py:100 journal/views/collection.py:558
+#: journal/views/collection.py:654 journal/views/common.py:235
 #: journal/views/mark.py:244 journal/views/post.py:119
 #: journal/views/post.py:121 journal/views/post.py:168
 #: journal/views/post.py:187 journal/views/post.py:189
@@ -2209,10 +2209,10 @@ msgstr ""
 #: journal/views/article.py:133 journal/views/article.py:153
 #: journal/views/collection.py:248 journal/views/collection.py:341
 #: journal/views/collection.py:354 journal/views/collection.py:372
-#: journal/views/collection.py:439 journal/views/collection.py:482
-#: journal/views/collection.py:521 journal/views/collection.py:533
-#: journal/views/collection.py:558 journal/views/collection.py:595
-#: journal/views/common.py:304 journal/views/mark.py:317
+#: journal/views/collection.py:459 journal/views/collection.py:502
+#: journal/views/collection.py:541 journal/views/collection.py:553
+#: journal/views/collection.py:578 journal/views/collection.py:615
+#: journal/views/common.py:308 journal/views/mark.py:317
 #: journal/views/post.py:60 journal/views/post.py:80 journal/views/post.py:102
 #: journal/views/post.py:172 journal/views/post.py:201
 #: journal/views/post.py:274 journal/views/post.py:289
@@ -3795,96 +3795,96 @@ msgstr ""
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
 
-#: common/templates/_header.html:19 common/templates/_header.html:177
+#: common/templates/_header.html:20 common/templates/_header.html:178
 msgid "title, creator, ISBN, item url, @user, @user@instance"
 msgstr ""
 
-#: common/templates/_header.html:34
+#: common/templates/_header.html:35
 msgid "All Items"
 msgstr ""
 
-#: common/templates/_header.html:41
+#: common/templates/_header.html:42
 msgid "Movie & TV"
 msgstr ""
 
-#: common/templates/_header.html:60
+#: common/templates/_header.html:61
 msgid "People & Organizations"
 msgstr ""
 
-#: common/templates/_header.html:62
+#: common/templates/_header.html:63
 msgid "Journal"
 msgstr ""
 
-#: common/templates/_header.html:64 journal/templates/user_post_list.html:10
+#: common/templates/_header.html:65 journal/templates/user_post_list.html:10
 #: journal/templates/user_post_list.html:23
 msgid "Posts"
 msgstr ""
 
-#: common/templates/_header.html:102
+#: common/templates/_header.html:103
 msgid "Explore"
 msgstr ""
 
-#: common/templates/_header.html:106 common/views_manage.py:36
+#: common/templates/_header.html:107 common/views_manage.py:36
 msgid "Feed"
 msgstr ""
 
-#: common/templates/_header.html:111 journal/templates/profile.html:13
+#: common/templates/_header.html:112 journal/templates/profile.html:13
 #: users/templates/users/preferences.html:46
 msgid "Home"
 msgstr ""
 
-#: common/templates/_header.html:127 common/templates/common/scan.html:9
+#: common/templates/_header.html:128 common/templates/common/scan.html:9
 #: common/templates/common/scan.html:42
 msgid "Scan Barcode"
 msgstr ""
 
-#: common/templates/_header.html:131 social/templates/notification.html:12
+#: common/templates/_header.html:132 social/templates/notification.html:12
 #: social/templates/notification.html:53
 msgid "Notification"
 msgstr ""
 
-#: common/templates/_header.html:135 users/models/task.py:23
+#: common/templates/_header.html:136 users/models/task.py:23
 #: users/templates/users/account.html:219
 #: users/templates/users/crossposts.html:9
 msgid "Pending"
 msgstr ""
 
-#: common/templates/_header.html:138
+#: common/templates/_header.html:139
 msgid "Data"
 msgstr ""
 
-#: common/templates/_header.html:141 common/templates/_header.html:159
+#: common/templates/_header.html:142 common/templates/_header.html:160
 #: users/templates/users/preferences.html:12
 #: users/templates/users/preferences.html:23
 #: users/templates/users/preferences_anonymous.html:13
 msgid "Preferences"
 msgstr ""
 
-#: common/templates/_header.html:144
+#: common/templates/_header.html:145
 msgid "Account"
 msgstr ""
 
-#: common/templates/_header.html:148
+#: common/templates/_header.html:149
 msgid "Manage"
 msgstr ""
 
-#: common/templates/_header.html:152
+#: common/templates/_header.html:153
 msgid "Logout"
 msgstr ""
 
-#: common/templates/_header.html:156
+#: common/templates/_header.html:157
 msgid "Sign up or Login"
 msgstr ""
 
-#: common/templates/_header.html:173
+#: common/templates/_header.html:174
 msgid "title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02"
 msgstr ""
 
-#: common/templates/_header.html:175
+#: common/templates/_header.html:176
 msgid "name of a person or company"
 msgstr ""
 
-#: common/templates/_header.html:192
+#: common/templates/_header.html:193
 msgid "Open"
 msgstr ""
 
@@ -6239,7 +6239,7 @@ msgstr ""
 msgid "Articles"
 msgstr ""
 
-#: journal/templates/profile.html:166 journal/views/collection.py:409
+#: journal/templates/profile.html:166 journal/views/collection.py:433
 #: journal/views/profile.py:401
 msgid "collection"
 msgstr ""
@@ -6347,29 +6347,37 @@ msgstr ""
 msgid "Collection by {0}"
 msgstr ""
 
-#: journal/views/collection.py:414
+#: journal/views/collection.py:382
+msgid "Link a Fediverse account in account settings to share this."
+msgstr ""
+
+#: journal/views/collection.py:411
+msgid "Unable to crosspost to Fediverse instance."
+msgstr ""
+
+#: journal/views/collection.py:438
 msgid "shared my collection"
 msgstr ""
 
-#: journal/views/collection.py:417
+#: journal/views/collection.py:441
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:484 journal/views/collection.py:523
-#: journal/views/collection.py:535 journal/views/collection.py:561
+#: journal/views/collection.py:504 journal/views/collection.py:543
+#: journal/views/collection.py:555 journal/views/collection.py:581
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:500
+#: journal/views/collection.py:520
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:502
+#: journal/views/collection.py:522
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:548
+#: journal/views/collection.py:568
 msgid "Saved."
 msgstr ""
 
@@ -6380,15 +6388,15 @@ msgstr ""
 msgid "Content not found"
 msgstr ""
 
-#: journal/views/common.py:184 journal/views/mark.py:210
+#: journal/views/common.py:174 journal/views/mark.py:210
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr ""
 
-#: journal/views/common.py:186
+#: journal/views/common.py:190
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr ""
 
-#: journal/views/common.py:193
+#: journal/views/common.py:197
 msgid "List not found."
 msgstr ""
 

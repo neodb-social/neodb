@@ -170,8 +170,12 @@ def conditional_get_for_anonymous(get_timestamp):
     return decorator
 
 
-def render_relogin(request):
-    login_url = reverse("mastodon:login") + "?domain=" + request.user.mastodon.domain
+def render_relogin(request: AuthedHttpRequest) -> HttpResponse:
+    msg = _("Data saved but unable to crosspost to Fediverse instance.")
+    mastodon = request.user.mastodon
+    if not mastodon:
+        return render(request, "common/error.html", {"msg": msg})
+    login_url = reverse("mastodon:login") + "?domain=" + mastodon.domain
     if request.headers.get("HX-Request"):
         # the error page relies on a meta refresh, which an htmx swap cannot
         # run, so send the browser straight to the re-authentication step
@@ -181,7 +185,7 @@ def render_relogin(request):
         "common/error.html",
         {
             "url": login_url,
-            "msg": _("Data saved but unable to crosspost to Fediverse instance."),
+            "msg": msg,
             "secondary_msg": _(
                 "Redirecting to your Fediverse instance now to re-authenticate."
             ),
