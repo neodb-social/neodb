@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 19:24-0400\n"
+"POT-Creation-Date: 2026-09-08 21:25-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -2172,9 +2172,9 @@ msgstr "版本"
 
 #: catalog/views/edit.py:293 catalog/views/edit.py:296
 #: catalog/views/edit.py:440 catalog/views/edit.py:443
-#: catalog/views/verify.py:197 journal/views/collection.py:75
-#: journal/views/collection.py:100 journal/views/collection.py:558
-#: journal/views/collection.py:654 journal/views/common.py:235
+#: catalog/views/verify.py:197 journal/views/collection.py:79
+#: journal/views/collection.py:104 journal/views/collection.py:607
+#: journal/views/collection.py:703 journal/views/common.py:235
 #: journal/views/mark.py:244 journal/views/post.py:119
 #: journal/views/post.py:121 journal/views/post.py:168
 #: journal/views/post.py:187 journal/views/post.py:189
@@ -2206,11 +2206,11 @@ msgstr "本操作不可撤销。"
 #: catalog/views/edit.py:752 catalog/views/verify.py:158
 #: catalog/views/verify.py:206 journal/views/article.py:44
 #: journal/views/article.py:133 journal/views/article.py:153
-#: journal/views/collection.py:248 journal/views/collection.py:341
-#: journal/views/collection.py:354 journal/views/collection.py:372
-#: journal/views/collection.py:459 journal/views/collection.py:502
-#: journal/views/collection.py:541 journal/views/collection.py:553
-#: journal/views/collection.py:578 journal/views/collection.py:615
+#: journal/views/collection.py:252 journal/views/collection.py:345
+#: journal/views/collection.py:358 journal/views/collection.py:376
+#: journal/views/collection.py:508 journal/views/collection.py:551
+#: journal/views/collection.py:590 journal/views/collection.py:602
+#: journal/views/collection.py:627 journal/views/collection.py:664
 #: journal/views/common.py:308 journal/views/mark.py:317
 #: journal/views/post.py:60 journal/views/post.py:80 journal/views/post.py:102
 #: journal/views/post.py:172 journal/views/post.py:201
@@ -6296,7 +6296,7 @@ msgstr "年度小结"
 msgid "Articles"
 msgstr "文章"
 
-#: journal/templates/profile.html:166 journal/views/collection.py:433
+#: journal/templates/profile.html:166 journal/views/collection.py:448
 #: journal/views/profile.py:401
 msgid "collection"
 msgstr "收藏单"
@@ -6399,42 +6399,42 @@ msgstr "{0} 的文章"
 msgid "Link invalid"
 msgstr "链接无效"
 
-#: journal/views/collection.py:62 journal/views/collection.py:94
+#: journal/views/collection.py:66 journal/views/collection.py:98
 #, python-brace-format
 msgid "Collection by {0}"
 msgstr "{0} 的收藏单"
 
-#: journal/views/collection.py:382
-msgid "Link a Fediverse account in account settings to share this."
-msgstr "请先在账号设置中关联联邦宇宙账号，然后再分享。"
-
-#: journal/views/collection.py:411
+#: journal/views/collection.py:400
 msgid "Unable to crosspost to Fediverse instance."
 msgstr "未能转发到联邦实例。"
 
-#: journal/views/collection.py:438
+#: journal/views/collection.py:411
+msgid "Unable to share to Bluesky."
+msgstr "未能分享到 Bluesky。"
+
+#: journal/views/collection.py:423
 msgid "shared my collection"
 msgstr "分享我的收藏单"
 
-#: journal/views/collection.py:441
+#: journal/views/collection.py:431
 #, python-brace-format
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:504 journal/views/collection.py:543
-#: journal/views/collection.py:555 journal/views/collection.py:581
+#: journal/views/collection.py:553 journal/views/collection.py:592
+#: journal/views/collection.py:604 journal/views/collection.py:630
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:520
+#: journal/views/collection.py:569
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:522
+#: journal/views/collection.py:571
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:568
+#: journal/views/collection.py:617
 msgid "Saved."
 msgstr "已保存"
 

@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item, ItemCategory, item_categories
 from common.models import int_
+from common.models.misc import MISSING_COVER
 from common.sentry import record_activity
 from common.utils import (
     AuthedHttpRequest,
@@ -19,7 +20,9 @@ from common.utils import (
     get_uuid_or_404,
 )
 from common.validators import get_safe_referer_url
+from mastodon.models.bluesky import EmbedObj
 from takahe.auth import _SigError, verify_http_signature
+from takahe.utils import Takahe
 from users.models import User
 
 from ..forms import *
@@ -34,6 +37,7 @@ from .common import (
     require_piece_handle,
     target_identity_required,
 )
+from .post import _allowed_quote_visibilities
 
 logger = logging.getLogger(__name__)
 
@@ -372,34 +376,19 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
         return render(request, "collection_share.html", {"collection": collection})
-    else:
-        if not user.mastodon:
-            return render(
-                request,
-                "common/error.html",
-                {
-                    "msg": _(
-                        "Link a Fediverse account in account settings to share this."
-                    ),
-                },
-            )
-        comment = request.POST.get("comment", "")
+    comment = request.POST.get("comment", "").strip()
+    visibility = VisibilityType(int_(request.POST.get("visibility")))
+    post = collection.latest_post
+    link = (post.url if post else collection.absolute_url) or ""
+    if user.mastodon:
         # boost if possible, otherwise quote
-        if (
-            not comment
-            and user.preference.mastodon_repost_mode == 0
-            and collection.latest_post
-        ):
-            user.mastodon.boost_later(collection.latest_post.url)
+        if not comment and user.preference.mastodon_repost_mode == 0 and post:
+            user.mastodon.boost_later(post.url)
         else:
-            visibility = VisibilityType(int_(request.POST.get("visibility")))
-            link = (
-                collection.latest_post.url
-                if collection.latest_post
-                else collection.absolute_url
-            ) or ""
             try:
-                share_collection(collection, comment, user, visibility, link)
+                share_collection_to_mastodon(
+                    collection, comment, user, visibility, link
+                )
             except PermissionDenied:
                 logger.warning(f"post to mastodon error 401 {user}")
                 return render_relogin(request)
@@ -410,22 +399,48 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
                     "common/error.html",
                     {"msg": _("Unable to crosspost to Fediverse instance.")},
                 )
-        referer = get_safe_referer_url(request)
-        return HttpResponseRedirect(referer)
+    elif user.bluesky and visibility == VisibilityType.Public:
+        # Bluesky has no visibility; a non-public share stays on NeoDB
+        try:
+            share_collection_to_bluesky(collection, comment, user)
+        except Exception as e:
+            logger.warning(f"post to bluesky error {e} {user}")
+            return render(
+                request,
+                "common/error.html",
+                {"msg": _("Unable to share to Bluesky.")},
+            )
+    else:
+        share_collection_locally(collection, comment, user, visibility, link)
+    referer = get_safe_referer_url(request)
+    return HttpResponseRedirect(referer)
 
 
-def share_collection(
+def _collection_share_text(
+    collection: Collection, user: User, title: str, link: str, comment: str
+) -> str:
+    if user == collection.owner.user:
+        user_str = _("shared my collection")
+    else:
+        owner = collection.owner
+        owner_str = (
+            " @" + owner.user.mastodon.handle + " "
+            if user.mastodon and owner.user and owner.user.mastodon
+            else " @" + owner.handle + " "
+        )
+        user_str = _("shared {username}'s collection").format(username=owner_str)
+    return f"{user_str}:{title}\n{link}\n{comment}".rstrip()
+
+
+def share_collection_to_mastodon(
     collection: Collection,
     comment: str,
     user: User,
     visibility: VisibilityType,
     link: str,
 ) -> None:
-    """Post the collection to the user's Mastodon account.
-
-    Raises PermissionDenied when the instance rejects the token, and
-    RequestAborted on any other failure.
-    """
+    """Raises PermissionDenied when the instance rejects the token, and
+    RequestAborted on any other failure."""
     if not user.mastodon:
         raise RequestAborted()
     tags = (
@@ -434,21 +449,55 @@ def share_collection(
         if user.preference.mastodon_append_tag
         else ""
     )
-    user_str = (
-        _("shared my collection")
-        if user == collection.owner.user
-        else (
-            _("shared {username}'s collection").format(
-                username=(
-                    " @" + collection.owner.user.mastodon.handle + " "
-                    if collection.owner.user.mastodon
-                    else " " + collection.owner.username + " "
-                )
-            )
-        )
+    content = _collection_share_text(collection, user, collection.title, link, comment)
+    user.mastodon.post(content + tags, visibility)
+
+
+def share_collection_to_bluesky(collection: Collection, comment: str, user: User):
+    """Public-only. The title becomes a link and the collection is attached
+    as an external card, so the URL is left out of the text."""
+    if not user.bluesky:
+        raise RequestAborted()
+    has_cover = bool(collection.cover) and str(collection.cover) != MISSING_COVER
+    embed = EmbedObj(
+        collection.title,
+        collection.brief,
+        collection.absolute_url,
+        image=collection.cover.read() if has_cover else None,
     )
-    content = f"{user_str}:{collection.title}\n{link}\n{comment}{tags}"
-    user.mastodon.post(content, visibility)
+    content = _collection_share_text(collection, user, "##obj##", "", comment)
+    user.bluesky.post(content, obj=embed)
+
+
+def share_collection_locally(
+    collection: Collection,
+    comment: str,
+    user: User,
+    visibility: VisibilityType,
+    link: str,
+) -> None:
+    """Share from the user's own NeoDB identity: boost the collection's post
+    when there is nothing to add, otherwise quote it (or post a plain link when
+    the collection has no post)."""
+    post = collection.latest_post
+    v = Takahe.visibility_n2t(visibility, user.preference.post_public_mode)
+    boostable = post and post.visibility in (
+        Takahe.Visibilities.public,
+        Takahe.Visibilities.unlisted,
+        Takahe.Visibilities.local_only,
+    )
+    if post and boostable and not comment:
+        # not Takahe.boost_post: that flips, so a second share would undo it
+        Takahe.interact_post(post.pk, user.identity.pk, "boost")
+        return
+    quote_url = None
+    if post:
+        allowed = _allowed_quote_visibilities(post.visibility)
+        if v not in allowed:
+            v = Takahe.Visibilities(allowed[0])
+        quote_url = post.object_uri
+    content = _collection_share_text(collection, user, collection.title, link, comment)
+    Takahe.post(user.identity.pk, content, v, quote_url=quote_url)
 
 
 @login_required
@@ -657,7 +706,6 @@ def collection_edit(request: AuthedHttpRequest, collection_uuid=None):
 @target_identity_required
 def user_collection_list(request: AuthedHttpRequest, user_name):
     from journal.models.common import prefetch_latest_posts
-    from takahe.utils import Takahe
 
     target = request.target_identity
     collections = list(
@@ -683,7 +731,6 @@ def user_collection_list(request: AuthedHttpRequest, user_name):
 @target_identity_required
 def user_liked_collection_list(request: AuthedHttpRequest, user_name):
     from journal.models.common import prefetch_latest_posts
-    from takahe.utils import Takahe
 
     target = request.target_identity
     collections = Collection.objects.filter(

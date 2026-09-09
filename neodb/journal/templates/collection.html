@@ -63,7 +63,7 @@
                 {% endif %}
                 {% include "action_like_post.html" with post=collection.latest_post %}
                 {% include "action_boost_post.html" with post=collection.latest_post %}
-                {% if request.user.is_authenticated and request.user.mastodon %}
+                {% if request.user.is_authenticated %}
                   <span>
                     <a href="#"
                        hx-get="{% url 'journal:collection_share' collection.uuid %}"
