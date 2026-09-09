@@ -254,17 +254,33 @@ def post_toot2(
 
 def _get_redirect_uris(server_version: str) -> str:
     v = server_version or ""
+    # GoToSocial, Mitra and a few others reject more than one redirect uri
     allow_multiple_redir = not (
-        re.search(r"Pixelfed|Friendica", v) or v.startswith("0.")
-    )  # GoToSocial and a few don't support multiple redirect uris
+        re.search(r"Pixelfed|Friendica|Mitra", v) or v.startswith("0.")
+    )
     u = settings.SITE_INFO["site_url"] + "/account/login/oauth"
     if not allow_multiple_redir:
         return u
-    u2s = [
-        f"https://{d}/account/login/oauth"
-        for d in SiteConfig.system.alternative_domains
-    ]
-    return "\n".join([u] + u2s)
+    uris = [u]
+    for d in SiteConfig.system.alternative_domains:
+        d = d.strip().lower()
+        if not d:
+            continue
+        alt = f"https://{d}/account/login/oauth"
+        if alt not in uris:
+            uris.append(alt)
+    return "\n".join(uris)
+
+
+def _response_error(response: requests.Response) -> str:
+    """Server-side reason for a failed request, for logs and error messages."""
+    try:
+        data = response.json()
+    except ValueError:
+        return response.text[:200]
+    if isinstance(data, dict):
+        return str(data.get("error_description") or data.get("error") or "")[:200]
+    return ""
 
 
 def _get_scopes(server_version: str) -> str:
@@ -520,10 +536,12 @@ def get_or_create_fediverse_application(login_domain: str):
             return app
     response = create_app(api_domain, server_version)
     if response.status_code != 200:
+        detail = _response_error(response)
         logger.error(
-            f"Error creating app for {domain} on {api_domain}: {response.status_code}"
+            f"Error creating app for {domain} on {api_domain}: {response.status_code} {detail}"
         )
-        raise Exception("Error creating app, code: " + str(response.status_code))
+        msg = f"Error creating app, code: {response.status_code}"
+        raise Exception(f"{msg} ({detail})" if detail else msg)
     try:
         data = response.json()
     except Exception:
@@ -626,7 +644,7 @@ class MastodonApplication(models.Model):
         response = create_app(self.api_domain, self.server_version)
         if response.status_code != 200:
             logger.error(
-                f"Error creating app for {self.domain_name} on {self.api_domain}: {response.status_code}"
+                f"Error creating app for {self.domain_name} on {self.api_domain}: {response.status_code} {_response_error(response)}"
             )
             return False
         data = response.json()

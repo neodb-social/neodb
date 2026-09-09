@@ -5,12 +5,14 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.utils import timezone
 
+from common.models import SiteConfig
 from mastodon.models import MastodonAccount, MastodonApplication, Platform
 from mastodon.models.mastodon import (
     TootVisibilityEnum,
     _force_recreate_app,
     _get_redirect_uris,
     _get_scopes,
+    _response_error,
     get_toot_visibility,
 )
 from users.models import User
@@ -72,6 +74,46 @@ class TestGetRedirectUris:
         result = _get_redirect_uris("4.1.0")
         # At minimum, the primary site URL is included
         assert settings.SITE_INFO["site_url"] + "/account/login/oauth" in result
+
+    def test_mitra_returns_single_uri(self, monkeypatch):
+        monkeypatch.setattr(
+            SiteConfig.system, "alternative_domains", ["alt.example.org"]
+        )
+        result = _get_redirect_uris("4.0.0 (compatible; Mitra 5.10.0)")
+        assert result == settings.SITE_INFO["site_url"] + "/account/login/oauth"
+
+    def test_alternative_domains_are_cleaned(self, monkeypatch):
+        primary = settings.SITE_INFO["site_url"] + "/account/login/oauth"
+        monkeypatch.setattr(
+            SiteConfig.system,
+            "alternative_domains",
+            ["", "  ", settings.SITE_DOMAIN, "Alt.Example.org", "alt.example.org"],
+        )
+        result = _get_redirect_uris("4.1.0")
+        assert result.split("\n") == [
+            primary,
+            "https://alt.example.org/account/login/oauth",
+        ]
+
+
+class TestResponseError:
+    def test_json_error_description(self):
+        response = Mock(
+            json=Mock(return_value={"error": "x", "error_description": "invalid uri"})
+        )
+        assert _response_error(response) == "invalid uri"
+
+    def test_json_error_only(self):
+        response = Mock(json=Mock(return_value={"error": "bad"}))
+        assert _response_error(response) == "bad"
+
+    def test_non_json_body(self):
+        response = Mock(json=Mock(side_effect=ValueError), text="<html>oops</html>")
+        assert _response_error(response) == "<html>oops</html>"
+
+    def test_json_list(self):
+        response = Mock(json=Mock(return_value=[1]))
+        assert _response_error(response) == ""
 
 
 @pytest.mark.django_db(databases="__all__")
