@@ -12,7 +12,9 @@ from common.models.lang import (
     get_current_locales,
     localize_number,
     localized_label_text,
+    translate,
 )
+from common.models.site_config import SiteConfig
 
 
 class TestLocalizeNumber:
@@ -218,3 +220,26 @@ class TestLocalizedLabelText:
 
     def test_none_for_empty_list(self):
         assert localized_label_text([], ["en"]) is None
+
+
+class TestTranslateEmptyMessage:
+    """DeepL raises ValueError on an empty string, so a blank comment must
+    never reach either translation backend."""
+
+    @pytest.fixture(autouse=True)
+    def enable_backends(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        enabled = SiteConfig.system.model_copy(
+            update={"deepl_api_key": "key", "lt_api_url": "http://lt.example"}
+        )
+        monkeypatch.setattr(SiteConfig, "system", enabled)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+
+        def boom(*args: Any, **kwargs: Any) -> None:
+            raise AssertionError("translation backend must not be called")
+
+        monkeypatch.setattr(lang.deepl, "DeepLClient", boom)
+        monkeypatch.setattr(lang.httpx, "post", boom)
+
+    @pytest.mark.parametrize("message", ["", "   ", "\n\t"])
+    def test_blank_message_is_returned_unchanged(self, message: str) -> None:
+        assert translate(message, "zh-hans", "en") == message

@@ -838,6 +838,8 @@ def translate(
     lang: str,
     src: str | None,
 ) -> str:
+    if not message.strip():
+        return message
     cache_key = f"trans_{lang}_{hashlib.sha1(message.encode()).hexdigest()}"
     r = cache.get(cache_key)
     if r is not None:
