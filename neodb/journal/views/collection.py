@@ -429,7 +429,7 @@ def _collection_share_text(
             else " @" + owner.handle + " "
         )
         user_str = _("shared {username}'s collection").format(username=owner_str)
-    return f"{user_str}:{title}\n{link}\n{comment}".rstrip()
+    return "\n".join(p for p in (f"{user_str}:{title}", link, comment) if p)
 
 
 def share_collection_to_mastodon(
@@ -453,7 +453,9 @@ def share_collection_to_mastodon(
     user.mastodon.post(content + tags, visibility)
 
 
-def share_collection_to_bluesky(collection: Collection, comment: str, user: User):
+def share_collection_to_bluesky(
+    collection: Collection, comment: str, user: User
+) -> None:
     """Public-only. The title becomes a link and the collection is attached
     as an external card, so the URL is left out of the text."""
     if not user.bluesky:
