@@ -7,7 +7,7 @@ import re
 import ssl
 from collections.abc import Iterable
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import httpx
 import urlman
@@ -39,6 +39,7 @@ from django.template import loader
 from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from pyld.jsonld import JsonLdError
 from stator.exceptions import TryAgainLater
 from stator.models import State, StateField, StateGraph, StatorModel
@@ -815,13 +816,25 @@ class Post(StatorModel):
             return func(local=local)
         return self._safe_content_note(local=local)  # fallback
 
-    @staticmethod
-    def _rewrite_neodb_urls(content: str) -> str:
+    _neodb_url_regex = re.compile(r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"')
+
+    @classmethod
+    def _rewrite_neodb_urls(cls, content: str) -> str:
         """Rewrite ~neodb~ placeholder URLs to local search URLs for display."""
-        return re.sub(
-            r'href="(https?://[^/"]+)/~neodb~(/[^"]+)"',
-            'href="https://' + settings.SETUP.MAIN_DOMAIN + r'/search?r=1&q=\1\2"',
-            content,
+        # mark_safe: input is render_post output (already sanitized), and the
+        # inserted href is quoted, so the rewrite introduces no unsafe markup.
+        # Without it re.sub returns a plain str and templates escape the HTML.
+        return mark_safe(
+            cls._neodb_url_regex.sub(
+                lambda m: (
+                    'href="https://'
+                    + settings.SETUP.MAIN_DOMAIN
+                    + "/search?r=1&q="
+                    + quote(m.group(1) + m.group(2), safe="")
+                    + '"'
+                ),
+                content,
+            )
         )
 
     def safe_content_local(self):
