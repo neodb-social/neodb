@@ -8,6 +8,7 @@ from catalog.models import Item, ItemSchema
 from common.api import PageNumberPagination, Result, api
 
 from ..models import Tag
+from .collection import ListMemberPageNumberPagination
 
 
 class TagSchema(Schema):
@@ -153,7 +154,7 @@ def delete_tag(request, tag_uuid: str):
     response={200: list[TagItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["tag"],
 )
-@paginate(PageNumberPagination)
+@paginate(ListMemberPageNumberPagination)
 def tag_list_items(request, tag_uuid: str):
     """
     Get items in a tag tags

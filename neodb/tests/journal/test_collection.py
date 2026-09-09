@@ -9,7 +9,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from catalog.models import Edition, ExternalResource, IdType, Item, ItemCredit, Movie
-from journal.apis.collection import _prefetch_collection_member_items
+from journal.apis.collection import _prefetch_list_member_items
 from journal.models import Mark, ShelfType
 from journal.models.collection import Collection
 from takahe.utils import Takahe
@@ -380,7 +380,7 @@ class TestCollectionItemsApiPrefetch:
     """The ``/collection/{uuid}/item/`` and ``/me/collection/{uuid}/item/``
     APIs serialize each member's item via ``ItemSchema``; without batch
     prefetch each item fired a per-row ``catalog_externalresource`` query.
-    ``CollectionItemPageNumberPagination`` hydrates the page post-slice
+    ``ListMemberPageNumberPagination`` hydrates the page post-slice
     (mirrors the shelf API).
     """
 
@@ -405,7 +405,7 @@ class TestCollectionItemsApiPrefetch:
     def test_member_items_external_resources_and_credits_prefetched(self):
         # Fresh member instances, as the paginator receives them post-slice.
         members = list(self.collection.ordered_members)
-        _prefetch_collection_member_items(members)
+        _prefetch_list_member_items(members)
         # Reading external_resources and credits (as ItemSchema does) must now
         # be served from the prefetch cache without per-item queries.
         with CaptureQueriesContext(connection) as ctx:

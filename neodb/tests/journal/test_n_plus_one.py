@@ -1532,3 +1532,58 @@ class TestOwnerIdentityPrefetchOnApiLists:
         ]
         # one is the auth lookup; a per-row miss would add five more
         assert len(single_identity) <= 1, single_identity
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTagItemsApiPrefetch:
+    """``GET /api/me/tag/{uuid}/item/`` serializes each member's item via
+    ``ItemSchema``; the item FK is polymorphic and cannot be select_related,
+    so the paginator must batch-load items (NEODB-SOCIAL-7XJ)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="tagpf@example.com", username="tagpf")
+        self.tag = Tag.objects.create(
+            owner=self.user.identity, title="tagpf", visibility=0
+        )
+        for i in range(3):
+            book = Edition.objects.create(title=f"Tagpf Book {i}")
+            ExternalResource.objects.create(
+                item=book,
+                id_type=IdType.RSS,
+                id_value=f"tagpf-{i}",
+                url=f"https://example.com/tagpf-{i}",
+            )
+            self.tag.append_item(book)
+        app = Takahe.get_or_create_app(
+            "Tag Prefetch Tests",
+            "https://example.org",
+            "https://example.org/callback",
+            owner_pk=self.user.identity.pk,
+        )
+        self.token = Takahe.refresh_token(app, self.user.identity.pk, self.user.pk)
+
+    def test_tag_items_api_batches_item_queries(self):
+        client = Client()
+        with CaptureQueriesContext(connection) as ctx:
+            response = client.get(
+                f"/api/me/tag/{self.tag.uuid}/item/",
+                HTTP_AUTHORIZATION=f"Bearer {self.token}",
+            )
+        assert response.status_code == 200
+        assert response.json()["count"] == 3
+        item_individual = [
+            q
+            for q in ctx.captured_queries
+            if 'FROM "catalog_item"' in q["sql"]
+            and 'WHERE "catalog_item"."id" = ' in q["sql"]
+        ]
+        assert item_individual == [], (
+            f"tag items API loaded items one at a time: {len(item_individual)}"
+        )
+        extres = [
+            q
+            for q in ctx.captured_queries
+            if 'FROM "catalog_externalresource"' in q["sql"]
+        ]
+        assert len(extres) <= 1, "external_resources not batched"

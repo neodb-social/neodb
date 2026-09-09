@@ -121,8 +121,8 @@ class CollectionItemSchema(Schema):
         return note if isinstance(note, str) else ""
 
 
-def _prefetch_collection_member_items(data: list) -> None:
-    """Batch-hydrate items for ``CollectionItemSchema`` (``item: ItemSchema``).
+def _prefetch_list_member_items(data: list) -> None:
+    """Batch-hydrate items for list member schemas (``item: ItemSchema``).
 
     Without this, each member serializes its item's ``external_resources`` and
     ``credits`` one row at a time. Dynamic collections carry the item in a
@@ -158,9 +158,11 @@ def _prefetch_collection_member_items(data: list) -> None:
     Rating.attach_to_items(items)
 
 
-class CollectionItemPageNumberPagination(PageNumberPagination):
-    """Hydrate the page's items so ``CollectionItemSchema`` serialization does
-    not fire per-item ``external_resources``/``credits`` queries (N+1)."""
+class ListMemberPageNumberPagination(PageNumberPagination):
+    """Hydrate the page's items so member serialization does not fire
+    per-item ``item``/``external_resources``/``credits`` queries (N+1).
+
+    Shared by the collection and tag item APIs."""
 
     def paginate_queryset(
         self,
@@ -172,7 +174,7 @@ class CollectionItemPageNumberPagination(PageNumberPagination):
         val = super().paginate_queryset(queryset, pagination, request, **params)
         data = val.get("data")
         if data:
-            _prefetch_collection_member_items(list(data))
+            _prefetch_list_member_items(list(data))
         return val
 
 
@@ -327,7 +329,7 @@ def get_collection(request, collection_uuid: str):
     tags=["collection"],
     auth=OptionalOAuthAccessTokenAuth(),
 )
-@paginate(CollectionItemPageNumberPagination)
+@paginate(ListMemberPageNumberPagination)
 def collection_list_items(request, collection_uuid: str):
     """
     Get items in a collection collections
@@ -504,7 +506,7 @@ def delete_collection(request, collection_uuid: str):
     response={200: list[CollectionItemSchema], 401: Result, 403: Result, 404: Result},
     tags=["collection"],
 )
-@paginate(CollectionItemPageNumberPagination)
+@paginate(ListMemberPageNumberPagination)
 def user_collection_list_items(request, collection_uuid: str):
     """
     Get items in a collection collections
