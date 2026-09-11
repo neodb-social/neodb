@@ -182,12 +182,42 @@ def _list_sync_args_from_post(piece):
     return items_url, inline_items
 
 
-def resolve_url_query(request, keywords):
+def _fetch_or_confirm(
+    request, url: str, site: AbstractSite | None, confirmed: bool
+) -> HttpResponse:
+    """Start the fetch, or ask an anonymous visitor to confirm it first.
+
+    Fetching makes the server issue an outbound request to a host the
+    visitor chose, and every anonymous caller shares one throttle slot
+    (``get_actor_fetch_lock``), so a GET must not trigger it: a crawler
+    following ``/search?q=<url>`` links would spend that budget for
+    everyone. Signed-in traffic is attributable and keeps the one-step
+    behavior, and a url already in the catalog still redirects for
+    everyone with nothing to confirm.
+    """
+    if confirmed or request.user.is_authenticated:
+        return fetch(request, url, site, False)
+    item = site.get_item(allow_rematch=False) if site else None
+    if item:
+        return redirect(item.url)
+    return render(
+        request,
+        "fetch_confirm.html",
+        {
+            "url": url,
+            "source": site.SITE_NAME.label if site else _("the internet"),
+            "sites": SiteName.labels,
+        },
+    )
+
+
+def resolve_url_query(request, keywords, confirmed: bool = False):
     """If `keywords` looks like a URL, resolve it to a redirect or fetch
     response and return it; otherwise return None.
 
     Shared by the generic and people/org search views so paste-URL
-    behavior stays consistent.
+    behavior stays consistent. `confirmed` is set by the POST view that
+    the anonymous confirmation form submits to.
     """
     if keywords.find("://") <= 0:
         return None
@@ -210,12 +240,12 @@ def resolve_url_query(request, keywords):
         keywords, detect_redirection=False, detect_fallback=False
     )
     if site:
-        return fetch(request, keywords, site, False)
+        return _fetch_or_confirm(request, keywords, site, confirmed)
     if request.GET.get("r") and url_has_allowed_host_and_scheme(
         keywords, allowed_hosts=allowed_hosts, require_https=settings.SSL_ONLY
     ):
         return redirect(keywords)
-    return fetch(request, keywords, None, False)
+    return _fetch_or_confirm(request, keywords, None, confirmed)
 
 
 def visible_categories(request):
@@ -400,6 +430,24 @@ def external_search(request):
         else []
     )
     return render(request, "external_search_results.html", {"external_items": items})
+
+
+@user_identity_required
+@require_http_methods(["POST"])
+def fetch_url(request):
+    """Target of the confirmation form shown to anonymous visitors.
+
+    Open to anonymous callers by design, hence `user_identity_required`
+    rather than `login_required`; the POST and its CSRF token are what
+    make the fetch a deliberate act. The url goes back through
+    `resolve_url_query` so a hand-crafted POST still takes the local and
+    remote-mirror redirects instead of fetching.
+    """
+    url = request.POST.get("url", "").strip()
+    response = resolve_url_query(request, url, confirmed=True) if url else None
+    if response is None:
+        raise BadRequest(_("Invalid URL"))
+    return response
 
 
 @login_required

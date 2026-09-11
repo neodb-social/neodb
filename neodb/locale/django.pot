@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 21:25-0400\n"
+"POT-Creation-Date: 2026-09-10 22:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1335,7 +1335,7 @@ msgstr ""
 #: catalog/views/edit.py:624 catalog/views/edit.py:664
 #: catalog/views/edit.py:674 catalog/views/edit.py:703
 #: catalog/views/edit.py:782 catalog/views/edit.py:837
-#: catalog/views/edit.py:859 catalog/views/search.py:418
+#: catalog/views/edit.py:859 catalog/views/search.py:466
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -1909,8 +1909,22 @@ msgstr ""
 msgid "Some items were found from other websites and instances, click their title to save them locally."
 msgstr ""
 
+#: catalog/templates/fetch_confirm.html:13
 #: catalog/templates/fetch_pending.html:13
 msgid "Search results"
+msgstr ""
+
+#: catalog/templates/fetch_confirm.html:21
+msgid "This link is not in the catalog yet."
+msgstr ""
+
+#: catalog/templates/fetch_confirm.html:26
+#, python-format
+msgid "Get the data from %(site_label)s and add it to the catalog?"
+msgstr ""
+
+#: catalog/templates/fetch_confirm.html:31
+msgid "Fetch"
 msgstr ""
 
 #: catalog/templates/fetch_pending.html:22
@@ -2174,8 +2188,8 @@ msgstr ""
 #: catalog/views/edit.py:293 catalog/views/edit.py:296
 #: catalog/views/edit.py:440 catalog/views/edit.py:443
 #: catalog/views/verify.py:197 journal/views/collection.py:79
-#: journal/views/collection.py:104 journal/views/collection.py:607
-#: journal/views/collection.py:703 journal/views/common.py:235
+#: journal/views/collection.py:104 journal/views/collection.py:609
+#: journal/views/collection.py:705 journal/views/common.py:235
 #: journal/views/mark.py:244 journal/views/post.py:119
 #: journal/views/post.py:121 journal/views/post.py:168
 #: journal/views/post.py:187 journal/views/post.py:189
@@ -2209,9 +2223,9 @@ msgstr ""
 #: journal/views/article.py:133 journal/views/article.py:153
 #: journal/views/collection.py:252 journal/views/collection.py:345
 #: journal/views/collection.py:358 journal/views/collection.py:376
-#: journal/views/collection.py:508 journal/views/collection.py:551
-#: journal/views/collection.py:590 journal/views/collection.py:602
-#: journal/views/collection.py:627 journal/views/collection.py:664
+#: journal/views/collection.py:510 journal/views/collection.py:553
+#: journal/views/collection.py:592 journal/views/collection.py:604
+#: journal/views/collection.py:629 journal/views/collection.py:666
 #: journal/views/common.py:308 journal/views/mark.py:317
 #: journal/views/post.py:60 journal/views/post.py:80 journal/views/post.py:102
 #: journal/views/post.py:172 journal/views/post.py:201
@@ -2326,15 +2340,15 @@ msgstr ""
 msgid "This edition will be unlinked from the following work"
 msgstr ""
 
-#: catalog/views/search.py:113
+#: catalog/views/search.py:113 catalog/views/search.py:208
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:410
+#: catalog/views/search.py:449 catalog/views/search.py:458
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:413
+#: catalog/views/search.py:461
 msgid "Unsupported URL"
 msgstr ""
 
@@ -5866,7 +5880,7 @@ msgstr ""
 msgid "Boost this post?"
 msgstr ""
 
-#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:706
+#: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:724
 msgid "Boost"
 msgstr ""
 
@@ -6364,20 +6378,20 @@ msgstr ""
 msgid "shared {username}'s collection"
 msgstr ""
 
-#: journal/views/collection.py:553 journal/views/collection.py:592
-#: journal/views/collection.py:604 journal/views/collection.py:630
+#: journal/views/collection.py:555 journal/views/collection.py:594
+#: journal/views/collection.py:606 journal/views/collection.py:632
 msgid "Dynamic collection is not editable"
 msgstr ""
 
-#: journal/views/collection.py:569
+#: journal/views/collection.py:571
 msgid "The item is already in the collection."
 msgstr ""
 
-#: journal/views/collection.py:571
+#: journal/views/collection.py:573
 msgid "Unable to find the item, please use item url from this site."
 msgstr ""
 
-#: journal/views/collection.py:617
+#: journal/views/collection.py:619
 msgid "Saved."
 msgstr ""
 
@@ -6555,43 +6569,43 @@ msgid ""
 "If you prefer to register a new account with this email, please use this verification code: {code}"
 msgstr ""
 
-#: mastodon/models/mastodon.py:570
+#: mastodon/models/mastodon.py:588
 msgid "site domain name"
 msgstr ""
 
-#: mastodon/models/mastodon.py:571
+#: mastodon/models/mastodon.py:589
 msgid "domain for api call"
 msgstr ""
 
-#: mastodon/models/mastodon.py:572
+#: mastodon/models/mastodon.py:590
 msgid "type and verion"
 msgstr ""
 
-#: mastodon/models/mastodon.py:573
+#: mastodon/models/mastodon.py:591
 msgid "in-site app id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:574
+#: mastodon/models/mastodon.py:592
 msgid "client id"
 msgstr ""
 
-#: mastodon/models/mastodon.py:575
+#: mastodon/models/mastodon.py:593
 msgid "client secret"
 msgstr ""
 
-#: mastodon/models/mastodon.py:576
+#: mastodon/models/mastodon.py:594
 msgid "vapid key"
 msgstr ""
 
-#: mastodon/models/mastodon.py:578
+#: mastodon/models/mastodon.py:596
 msgid "0: unicode moon; 1: custom emoji"
 msgstr ""
 
-#: mastodon/models/mastodon.py:581
+#: mastodon/models/mastodon.py:599
 msgid "max toot len"
 msgstr ""
 
-#: mastodon/models/mastodon.py:707
+#: mastodon/models/mastodon.py:725
 msgid "New Post"
 msgstr ""
 
