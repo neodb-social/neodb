@@ -221,7 +221,9 @@ class HttpSignature:
         Call it only after the signature verified, so forged requests cannot
         flood the log.
         """
-        if "digest" in signed_headers:
+        # parse_signature keeps the sender's casing; the signed payload is
+        # built case-insensitively, so compare the same way.
+        if "digest" in (name.lower() for name in signed_headers):
             return True
         logger.error(
             "Inbox: POST signature from %s does not cover Digest (headers=%s)",

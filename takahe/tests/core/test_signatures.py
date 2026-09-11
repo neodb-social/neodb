@@ -257,7 +257,9 @@ def _signed_request(keypair, method: str, signed_headers: list[str], tamper=Fals
         "date": date,
         "digest": digest,
     }
-    signed_string = "\n".join(f"{name}: {values[name]}" for name in signed_headers)
+    signed_string = "\n".join(
+        f"{name.lower()}: {values[name.lower()]}" for name in signed_headers
+    )
     private_key = serialization.load_pem_private_key(
         keypair["private_key"].encode(), password=None
     )
@@ -327,8 +329,21 @@ def test_verify_request_bad_signature_without_digest_not_logged(keypair, caplog)
     assert caplog.records == []
 
 
+def test_verify_request_mixed_case_digest_not_logged(keypair, caplog):
+    """
+    Senders may list header names in any case; a signed `Digest` covers the body.
+    """
+    request = _signed_request(
+        keypair, "POST", ["(request-target)", "Host", "Date", "Digest"]
+    )
+    with caplog.at_level("ERROR", logger="core.signatures"):
+        HttpSignature.verify_request(request, keypair["public_key"])
+    assert caplog.records == []
+
+
 def test_check_digest_coverage():
     assert HttpSignature.check_digest_coverage("k", ["host", "date", "digest"])
+    assert HttpSignature.check_digest_coverage("k", ["Host", "Date", "DIGEST"])
     assert not HttpSignature.check_digest_coverage("k", ["host", "date"])
 
 
