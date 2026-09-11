@@ -211,6 +211,26 @@ class HttpSignature:
             raise VerificationFormatError(f"{label} is too far away")
 
     @classmethod
+    def check_digest_coverage(
+        cls, request: HttpRequest, signature_details: "HttpSignatureDetails"
+    ) -> bool:
+        """
+        Reports whether a POST signature covers the Digest header.
+
+        Mastodon and Misskey reject a POST whose signature does not cover Digest,
+        because the body is then unauthenticated. This only logs for now, so we
+        can measure which senders would break before making it a hard failure.
+        """
+        if request.method != "POST" or "digest" in signature_details["headers"]:
+            return True
+        logger.error(
+            "Inbox: POST signature from %s does not cover Digest (headers=%s)",
+            signature_details.get("keyid"),
+            " ".join(signature_details["headers"]),
+        )
+        return False
+
+    @classmethod
     def verify_request(cls, request, public_key, skip_date=False):
         """
         Verifies that the request has a valid signature for its body
@@ -241,6 +261,7 @@ class HttpSignature:
             and signature_details["algorithm"] != "hs2019"
         ):
             raise VerificationFormatError("Unknown signature algorithm")
+        cls.check_digest_coverage(request, signature_details)
         # Validate hs2019 (created) timestamp when used in place of Date header.
         # Note: (expires) is intentionally not enforced here — neither Mastodon nor
         # Pleroma enforce it, and doing so unilaterally would break interop with

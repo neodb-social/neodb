@@ -9,6 +9,7 @@ from pytest_httpx import HTTPXMock
 from core.files import check_url_safety
 from core.signatures import (
     HttpSignature,
+    HttpSignatureDetails,
     LDSignature,
     VerificationError,
     VerificationFormatError,
@@ -237,6 +238,80 @@ def test_verify_request_hs2019_with_created(keypair):
     )
     # Should verify without raising
     HttpSignature.verify_request(request, keypair["public_key"])
+
+
+def _signed_post(keypair, signed_headers: list[str]):
+    """
+    Builds a POST to /inbox whose signature covers exactly signed_headers.
+    Digest and Date headers are always sent; only their coverage varies.
+    """
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from django.utils.http import http_date
+
+    body = b'{"type": "Note"}'
+    digest = HttpSignature.calculate_digest(body)
+    date = http_date()
+    values = {
+        "(request-target)": "post /inbox",
+        "host": "example.com",
+        "date": date,
+        "digest": digest,
+    }
+    signed_string = "\n".join(f"{name}: {values[name]}" for name in signed_headers)
+    private_key = serialization.load_pem_private_key(
+        keypair["private_key"].encode(), password=None
+    )
+    sig_b64 = base64.b64encode(
+        private_key.sign(signed_string.encode(), padding.PKCS1v15(), hashes.SHA256())
+    ).decode()
+    return RequestFactory().post(
+        path="/inbox",
+        data=body,
+        content_type="application/json",
+        HTTP_HOST="example.com",
+        HTTP_DATE=date,
+        HTTP_DIGEST=digest,
+        HTTP_SIGNATURE=(
+            f'keyId="{keypair["public_key_id"]}",'
+            f'algorithm="rsa-sha256",'
+            f'headers="{" ".join(signed_headers)}",'
+            f'signature="{sig_b64}"'
+        ),
+    )
+
+
+def test_verify_request_logs_unsigned_digest(keypair, caplog):
+    """
+    A POST whose signature does not cover Digest still verifies for now, but
+    is logged at error level so affected senders can be found before enforcing.
+    """
+    request = _signed_post(keypair, ["(request-target)", "host", "date"])
+    with caplog.at_level("ERROR", logger="core.signatures"):
+        HttpSignature.verify_request(request, keypair["public_key"])
+    assert len(caplog.records) == 1
+    assert "does not cover Digest" in caplog.records[0].getMessage()
+    assert keypair["public_key_id"] in caplog.records[0].getMessage()
+
+
+def test_verify_request_signed_digest_not_logged(keypair, caplog):
+    request = _signed_post(keypair, ["(request-target)", "host", "date", "digest"])
+    with caplog.at_level("ERROR", logger="core.signatures"):
+        HttpSignature.verify_request(request, keypair["public_key"])
+    assert caplog.records == []
+
+
+def test_check_digest_coverage_ignores_get(caplog):
+    request = RequestFactory().get("/actor")
+    details: HttpSignatureDetails = {
+        "algorithm": "rsa-sha256",
+        "headers": ["(request-target)", "host", "date"],
+        "signature": b"",
+        "keyid": "https://example.com/a#main-key",
+    }
+    with caplog.at_level("ERROR", logger="core.signatures"):
+        assert HttpSignature.check_digest_coverage(request, details)
+    assert caplog.records == []
 
 
 def test_verify_request_created_timestamp_too_old(keypair):

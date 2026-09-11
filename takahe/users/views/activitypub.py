@@ -370,6 +370,7 @@ class Inbox(FederatedView):
                 else:
                     logger.info("Inbox: No key available for %s", key_id_actor)
                     # Pre-compute signed cleartext for deferred verification.
+                    HttpSignature.check_digest_coverage(request, signature_details)
                     if "digest" in request.headers:
                         expected_digest = HttpSignature.calculate_digest(request.body)
                         if request.headers["digest"] != expected_digest:
