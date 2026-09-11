@@ -403,11 +403,8 @@ class TestRemoteCollectionUrlPaste:
         intruder = User.register(email="intruder@test.com", username="intruder")
         rf = RequestFactory().get("/search?q=" + remote_url)
         rf.user = intruder
-        # Stub the catalog fall-through: when the mirror is hidden
-        # ``resolve_url_query`` continues into ``_fetch_or_confirm``,
-        # which would render a template that needs session middleware.
-        # We only care that no 302 to the local mirror was emitted and
-        # that no resync was enqueued.
+        # Stub the fall-through: ``_fetch_or_confirm`` would render a
+        # template that needs session middleware.
         sentinel = object()
         with (
             patch("django_rq.get_queue") as gq,

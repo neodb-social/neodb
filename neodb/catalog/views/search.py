@@ -187,16 +187,10 @@ def _fetch_or_confirm(
 ) -> HttpResponse:
     """Start the fetch, or ask the visitor to confirm it first.
 
-    Fetching makes the server issue an outbound request to a host the
-    visitor chose, so a GET must not trigger it: a crawler following
-    ``/search?q=<url>`` links would spend the shared throttle budget
-    (``get_actor_fetch_lock``) for everyone. What the gate asks is how
-    the request arrived, not who sent it. Submitting the search box is
-    already deliberate, and the header posts such a query straight to
-    ``fetch_url``; every GET is someone opening a link, a bookmark or an
-    address-bar search, and is confirmed first whether or not they are
-    signed in. A url already in the catalog still redirects with nothing
-    to confirm.
+    A GET must not make the server fetch a host the visitor chose: a
+    crawler following ``/search?q=<url>`` would spend the shared throttle
+    budget for everyone. Only a POST is deliberate, from the search box
+    or from the confirmation form.
     """
     if confirmed:
         return fetch(request, url, site, False)
@@ -219,8 +213,7 @@ def resolve_url_query(request, keywords, confirmed: bool = False):
     response and return it; otherwise return None.
 
     Shared by the generic and people/org search views so paste-URL
-    behavior stays consistent. `confirmed` is set by the POST view that
-    the anonymous confirmation form submits to.
+    behavior stays consistent. `confirmed` is set by `fetch_url`.
     """
     if keywords.find("://") <= 0:
         return None
@@ -438,14 +431,12 @@ def external_search(request):
 @user_identity_required
 @require_http_methods(["POST"])
 def fetch_url(request):
-    """Start a fetch the visitor asked for: the header search box posts a
-    url query here, and so does the confirmation form.
+    """Start a fetch the visitor asked for, from the search box or the
+    confirmation form.
 
     Open to anonymous callers by design, hence `user_identity_required`
-    rather than `login_required`; the POST and its CSRF token are what
-    make the fetch a deliberate act. The url goes back through
-    `resolve_url_query` so a hand-crafted POST still takes the local and
-    remote-mirror redirects instead of fetching.
+    rather than `login_required`. Goes back through `resolve_url_query`
+    so a hand-crafted POST still takes the redirect branches.
     """
     url = request.POST.get("url", "").strip()
     response = resolve_url_query(request, url, confirmed=True) if url else None

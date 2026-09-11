@@ -1,10 +1,7 @@
 """A pasted URL must not make the server fetch on a GET.
 
-`/search?q=<url>` used to queue an outbound fetch straight from the GET, so
-a crawler following such a link spent the shared throttle budget for
-everyone. The gate asks how the request arrived, not who sent it: the
-header posts a url typed into the search box straight to `fetch_url`, while
-every GET gets a confirmation form first, signed in or not.
+The header posts a url typed into the search box to `fetch_url`; every GET
+gets a confirmation form first, signed in or not.
 """
 
 from unittest.mock import patch
@@ -88,15 +85,13 @@ class TestAnonymousUrlFetchConfirm:
         enqueue.assert_not_called()
 
     def test_post_of_a_non_url_is_rejected(self):
-        """``resolve_url_query`` returns None for anything without a scheme,
-        which must not fall through as a successful fetch."""
+        """``resolve_url_query`` returns None without a scheme."""
         response, enqueue = _post(Client(), {"url": "not a url"})
         assert response.status_code == 400
         enqueue.assert_not_called()
 
     def test_post_of_a_local_url_redirects_without_fetching(self):
-        """A hand-crafted POST still takes the local-host branch of
-        ``resolve_url_query`` rather than fetching our own site."""
+        """A POST still takes the local-host branch."""
         local = f"https://{settings.SITE_DOMAINS[0]}/movie/abc"
         response, enqueue = _post(Client(), {"url": local})
         assert response.status_code == 302
@@ -109,8 +104,7 @@ class TestAnonymousUrlFetchConfirm:
 
 @pytest.mark.django_db(databases="__all__")
 class TestSignedInUrlFetch:
-    """Signing in does not skip the confirmation: a link opened from
-    elsewhere is no more deliberate for a user than for a guest."""
+    """Signing in does not skip the confirmation."""
 
     def _client(self, username="fetcher"):
         user = User.register(email=f"{username}@example.com", username=username)
