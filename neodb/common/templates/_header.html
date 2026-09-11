@@ -200,3 +200,24 @@ _search_cat_change();
 <form id="logout" action="{% url 'users:logout' %}" method="post">
   {% csrf_token %}
 </form>
+{# Submitting the search box is a deliberate act, so a url typed there posts straight to the fetch endpoint and skips the confirmation page. A GET of /search?q=<url> is a link, a bookmark or an address-bar search, and is confirmed first. #}
+<form id="fetch-url-form"
+      action="{% url 'catalog:fetch_url' %}"
+      method="post"
+      hidden>
+  {% csrf_token %}
+  <input type="hidden" name="url">
+</form>
+<script>
+$('.nav-search form[role=search]').on('submit', function (e) {
+  var q = ($('#q').val() || '').trim();
+  var c = $('.nav-search select[name=c]').val();
+  // journal and timeline never resolve a query as a url, so a link stays a text search there
+  if (c === 'journal' || c === 'timeline') return;
+  if (!/^https?:\/\//i.test(q)) return;
+  e.preventDefault();
+  var form = document.getElementById('fetch-url-form');
+  form.querySelector('input[name=url]').value = q;
+  form.submit();
+});
+</script>

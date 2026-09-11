@@ -1,9 +1,10 @@
-"""An anonymous URL paste must not make the server fetch on a GET.
+"""A pasted URL must not make the server fetch on a GET.
 
-`/search?q=<url>` used to queue an outbound fetch straight from the GET.
-Anonymous callers share one throttle slot, so a crawler following such a
-link spent that budget for everyone. Now they get a confirmation form and
-the fetch starts on the POST.
+`/search?q=<url>` used to queue an outbound fetch straight from the GET, so
+a crawler following such a link spent the shared throttle budget for
+everyone. The gate asks how the request arrived, not who sent it: the
+header posts a url typed into the search box straight to `fetch_url`, while
+every GET gets a confirmation form first, signed in or not.
 """
 
 from unittest.mock import patch
@@ -108,11 +109,23 @@ class TestAnonymousUrlFetchConfirm:
 
 @pytest.mark.django_db(databases="__all__")
 class TestSignedInUrlFetch:
-    def test_user_still_fetches_in_one_step(self):
-        user = User.register(email="fetcher@example.com", username="fetcher")
+    """Signing in does not skip the confirmation: a link opened from
+    elsewhere is no more deliberate for a user than for a guest."""
+
+    def _client(self, username="fetcher"):
+        user = User.register(email=f"{username}@example.com", username=username)
         client = Client()
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-        response, enqueue = _get(client, f"/search?q={URL}")
+        return client
+
+    def test_user_get_is_confirmed_too(self):
+        response, enqueue = _get(self._client(), f"/search?q={URL}")
+        assert response.status_code == 200
+        assert "fetch_confirm.html" in [t.name for t in response.templates]
+        enqueue.assert_not_called()
+
+    def test_user_post_starts_the_fetch(self):
+        response, enqueue = _post(self._client("poster"), {"url": URL})
         assert response.status_code == 200
         assert "fetch_pending.html" in [t.name for t in response.templates]
         enqueue.assert_called_once()

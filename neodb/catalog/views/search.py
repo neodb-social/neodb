@@ -185,17 +185,20 @@ def _list_sync_args_from_post(piece):
 def _fetch_or_confirm(
     request, url: str, site: AbstractSite | None, confirmed: bool
 ) -> HttpResponse:
-    """Start the fetch, or ask an anonymous visitor to confirm it first.
+    """Start the fetch, or ask the visitor to confirm it first.
 
     Fetching makes the server issue an outbound request to a host the
-    visitor chose, and every anonymous caller shares one throttle slot
-    (``get_actor_fetch_lock``), so a GET must not trigger it: a crawler
-    following ``/search?q=<url>`` links would spend that budget for
-    everyone. Signed-in traffic is attributable and keeps the one-step
-    behavior, and a url already in the catalog still redirects for
-    everyone with nothing to confirm.
+    visitor chose, so a GET must not trigger it: a crawler following
+    ``/search?q=<url>`` links would spend the shared throttle budget
+    (``get_actor_fetch_lock``) for everyone. What the gate asks is how
+    the request arrived, not who sent it. Submitting the search box is
+    already deliberate, and the header posts such a query straight to
+    ``fetch_url``; every GET is someone opening a link, a bookmark or an
+    address-bar search, and is confirmed first whether or not they are
+    signed in. A url already in the catalog still redirects with nothing
+    to confirm.
     """
-    if confirmed or request.user.is_authenticated:
+    if confirmed:
         return fetch(request, url, site, False)
     item = site.get_item(allow_rematch=False) if site else None
     if item:
@@ -435,7 +438,8 @@ def external_search(request):
 @user_identity_required
 @require_http_methods(["POST"])
 def fetch_url(request):
-    """Target of the confirmation form shown to anonymous visitors.
+    """Start a fetch the visitor asked for: the header search box posts a
+    url query here, and so does the confirmation form.
 
     Open to anonymous callers by design, hence `user_identity_required`
     rather than `login_required`; the POST and its CSRF token are what
