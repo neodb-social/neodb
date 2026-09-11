@@ -211,22 +211,23 @@ class HttpSignature:
             raise VerificationFormatError(f"{label} is too far away")
 
     @classmethod
-    def check_digest_coverage(
-        cls, request: HttpRequest, signature_details: "HttpSignatureDetails"
-    ) -> bool:
+    def check_digest_coverage(cls, key_id: str, signed_headers: list[str]) -> bool:
         """
-        Reports whether a POST signature covers the Digest header.
+        Reports whether a verified POST signature covers the Digest header.
 
         Mastodon and Misskey reject a POST whose signature does not cover Digest,
         because the body is then unauthenticated. This only logs for now, so we
         can measure which senders would break before making it a hard failure.
+        Call it only after the signature verified, so forged requests cannot
+        flood the log.
         """
-        if request.method != "POST" or "digest" in signature_details["headers"]:
+        if "digest" in signed_headers:
             return True
         logger.error(
             "Inbox: POST signature from %s does not cover Digest (headers=%s)",
-            signature_details.get("keyid"),
-            " ".join(signature_details["headers"]),
+            key_id,
+            " ".join(signed_headers),
+            extra={"keyid": key_id, "signed_headers": signed_headers},
         )
         return False
 
@@ -261,7 +262,6 @@ class HttpSignature:
             and signature_details["algorithm"] != "hs2019"
         ):
             raise VerificationFormatError("Unknown signature algorithm")
-        cls.check_digest_coverage(request, signature_details)
         # Validate hs2019 (created) timestamp when used in place of Date header.
         # Note: (expires) is intentionally not enforced here — neither Mastodon nor
         # Pleroma enforce it, and doing so unilaterally would break interop with
@@ -282,6 +282,10 @@ class HttpSignature:
             headers_string,
             public_key,
         )
+        if request.method == "POST":
+            cls.check_digest_coverage(
+                signature_details["keyid"], signature_details["headers"]
+            )
 
     @classmethod
     def signed_request(

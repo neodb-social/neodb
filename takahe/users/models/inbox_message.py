@@ -108,6 +108,11 @@ class InboxMessageStates(StateGraph):
                         sig_data["headers_string"],
                         identity.public_key,
                     )
+                    # Entries stored before this field existed skip the check.
+                    if "signed_headers" in sig_data:
+                        HttpSignature.check_digest_coverage(
+                            actor_uri, sig_data["signed_headers"]
+                        )
                 logger.debug(
                     "Inbox: Deferred %s verification succeeded for %s",
                     sig_type,
