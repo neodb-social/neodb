@@ -89,6 +89,12 @@ def passkey_register_verify(request):
 
     try:
         body = json.loads(request.body)
+        if not isinstance(body, dict):
+            return HttpResponseBadRequest("Invalid request")
+        name = body.get("name", "")
+        raw_transports = body.get("transports", [])
+        if not isinstance(name, str) or not isinstance(raw_transports, list):
+            return HttpResponseBadRequest("Invalid request")
     except json.JSONDecodeError, ValueError:
         return HttpResponseBadRequest("Invalid JSON")
 
@@ -99,6 +105,7 @@ def passkey_register_verify(request):
             expected_challenge=challenge,
             expected_rp_id=_get_rp_id(),
             expected_origin=_get_expected_origins(),
+            require_user_verification=True,
         )
     except Exception as e:
         logger.warning(f"WebAuthn registration verification failed: {e}")
@@ -106,8 +113,7 @@ def passkey_register_verify(request):
             {"ok": False, "error": _("Passkey registration failed")}, status=400
         )
 
-    name = (body.get("name", "").strip() or _("Passkey"))[:255]
-    raw_transports = body.get("transports", [])
+    name = (name.strip() or _("Passkey"))[:255]
     transports = [
         t for t in raw_transports if isinstance(t, str) and t in _VALID_TRANSPORTS
     ]
@@ -159,6 +165,8 @@ def passkey_login_verify(request):
 
     try:
         body = json.loads(request.body)
+        if not isinstance(body, dict):
+            return HttpResponseBadRequest("Invalid request")
     except json.JSONDecodeError, ValueError:
         return HttpResponseBadRequest("Invalid JSON")
 
@@ -198,6 +206,7 @@ def passkey_login_verify(request):
             expected_origin=_get_expected_origins(),
             credential_public_key=credential.public_key,
             credential_current_sign_count=credential.sign_count,
+            require_user_verification=True,
         )
     except Exception as e:
         logger.warning(f"WebAuthn authentication verification failed: {e}")
@@ -220,6 +229,8 @@ def passkey_login_verify(request):
 def passkey_delete(request):
     try:
         body = json.loads(request.body)
+        if not isinstance(body, dict):
+            return HttpResponseBadRequest("Invalid request")
         pk = int(body.get("id", 0))
     except json.JSONDecodeError, ValueError, TypeError:
         return HttpResponseBadRequest("Invalid request")
@@ -238,6 +249,8 @@ def passkey_delete(request):
 def passkey_rename(request):
     try:
         body = json.loads(request.body)
+        if not isinstance(body, dict) or not isinstance(body.get("name", ""), str):
+            return HttpResponseBadRequest("Invalid request")
         pk = int(body.get("id", 0))
         name = body.get("name", "").strip()
     except json.JSONDecodeError, ValueError, TypeError:

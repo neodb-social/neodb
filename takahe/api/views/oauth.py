@@ -82,7 +82,7 @@ class AuthorizationView(LoginRequiredMixin, View):
                 status=400,
             )
 
-        if application.redirect_uris and redirect_uri not in application.redirect_uris:
+        if redirect_uri not in application.redirect_uri_list:
             return render(
                 request,
                 "api/oauth_error.html",
@@ -106,7 +106,7 @@ class AuthorizationView(LoginRequiredMixin, View):
         scope = post_data["scope"]
         application = Application.objects.get(client_id=post_data["client_id"])
 
-        if application.redirect_uris and redirect_uri not in application.redirect_uris:
+        if redirect_uri not in application.redirect_uri_list:
             return render(
                 request,
                 "api/oauth_error.html",
@@ -140,13 +140,13 @@ class AuthorizationView(LoginRequiredMixin, View):
 def extract_client_info_from_basic_auth(request):
     if "authorization" in request.headers:
         auth = request.headers["authorization"].split()
-        if len(auth) == 2:
-            if auth[0].lower() == "basic":
-                client_id, client_secret = (
-                    base64.b64decode(auth[1]).decode("utf8").split(":", 1)
-                )
-
-                return client_id, client_secret
+        if auth and auth[0].lower() == "basic":
+            if len(auth) != 2:
+                raise ValueError("Malformed Basic authorization")
+            client_id, client_secret = (
+                base64.b64decode(auth[1], validate=True).decode("utf8").split(":", 1)
+            )
+            return client_id, client_secret
     return None, None
 
 
@@ -178,9 +178,16 @@ class TokenView(View):
 
     def post(self, request):
         post_data = request.PARAMS.copy()
-        auth_client_id, auth_client_secret = extract_client_info_from_basic_auth(
-            request
-        )
+        try:
+            auth_client_id, auth_client_secret = extract_client_info_from_basic_auth(
+                request
+            )
+        except ValueError:
+            return JsonResponse(
+                {"error": "invalid_client"},
+                status=401,
+                headers={"WWW-Authenticate": "Basic"},
+            )
         post_data.setdefault("client_id", auth_client_id)
         post_data.setdefault("client_secret", auth_client_secret)
         grant_type = post_data.get("grant_type")
@@ -266,12 +273,21 @@ class TokenView(View):
 class RevokeTokenView(View):
     def post(self, request):
         post_data = request.PARAMS.copy()
-        auth_client_id, auth_client_secret = extract_client_info_from_basic_auth(
-            request
-        )
+        try:
+            auth_client_id, auth_client_secret = extract_client_info_from_basic_auth(
+                request
+            )
+        except ValueError:
+            return JsonResponse(
+                {"error": "invalid_client"},
+                status=401,
+                headers={"WWW-Authenticate": "Basic"},
+            )
         post_data.setdefault("client_id", auth_client_id)
         post_data.setdefault("client_secret", auth_client_secret)
-        token_str = post_data["token"]
+        token_str = post_data.get("token")
+        if not token_str:
+            return JsonResponse({"error": "invalid_request"}, status=400)
 
         application = Application.objects.filter(
             client_id=post_data["client_id"],

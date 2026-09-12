@@ -37,11 +37,7 @@ class Application(Schema):
         # redirect_uris is stored as a single string; add_app joins multiple
         # values with commas while Mastodon clients may send them newline
         # separated. Split on both so each URI becomes its own list entry.
-        uris = [
-            uri.strip()
-            for uri in a["redirect_uris"].replace(",", "\n").split("\n")
-            if uri.strip()
-        ]
+        uris = application.redirect_uri_list
         a["redirect_uri"] = "\n".join(uris)
         a["redirect_uris"] = uris
         return a

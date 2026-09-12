@@ -24,6 +24,15 @@ class Application(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def redirect_uri_list(self) -> list[str]:
+        # add_app stores lists with commas; clients also send newline-separated URIs.
+        return [
+            uri.strip()
+            for uri in self.redirect_uris.replace(",", "\n").split("\n")
+            if uri.strip()
+        ]
+
     @classmethod
     def create(
         cls,
