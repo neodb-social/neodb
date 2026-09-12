@@ -102,7 +102,7 @@ msgstr "网络作品"
 
 #: catalog/models/book.py:185 catalog/models/game.py:38
 msgid "Other"
-msgstr "其它"
+msgstr "其他"
 
 #: catalog/models/book.py:262
 msgid "subtitle"
@@ -116,7 +116,7 @@ msgstr "原名"
 
 #: catalog/models/book.py:276
 msgid "other title"
-msgstr "其它标题"
+msgstr "其他标题"
 
 #: catalog/models/book.py:282 catalog/models/book.py:566
 #: catalog/models/item.py:224
@@ -1553,7 +1553,7 @@ msgstr "删除条目"
 
 #: catalog/templates/_sidebar_edit.html:355
 msgid "other"
-msgstr "其它"
+msgstr "其他"
 
 #: catalog/templates/_sidebar_edit.html:359
 msgid "To suggest merging or association, please include the URL of the target item"
@@ -1898,7 +1898,7 @@ msgstr "页数"
 
 #: catalog/templates/edition.html:80
 msgid "other editions"
-msgstr "其它版本"
+msgstr "其他版本"
 
 #: catalog/templates/edition.html:120
 msgid "Borrow or Buy"
@@ -1906,7 +1906,7 @@ msgstr "借阅或购买"
 
 #: catalog/templates/external_search_results.html:10
 msgid "Some items were found from other websites and instances, click their title to save them locally."
-msgstr "找到了一些来自其它网站可能相关的条目，点击标题可添加到本站。"
+msgstr "找到了一些来自其他网站可能相关的条目，点击标题可添加到本站。"
 
 #: catalog/templates/fetch_confirm.html:13
 #: catalog/templates/fetch_pending.html:13
@@ -2156,7 +2156,7 @@ msgstr "正在搜索站外条目"
 
 #: catalog/templates/search_results.html:51
 msgid "Logged in user may see search results from other sites."
-msgstr "登录用户可看到来自其它网站的搜索结果。"
+msgstr "登录用户可看到来自其他网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
 #: journal/templates/profile.html:200 journal/views/profile.py:614
@@ -3997,7 +3997,7 @@ msgstr ""
 "  <i class=\"fa-solid fa-circle-question\"></i> &nbsp; 如果有任何问题或建议，欢迎通过<a href=\"https://mastodon.social/@neodb\">联邦宇宙</a> 或 <a href=\"https://discord.gg/uprvcH8gqD\">Discord</a>和我们联系。\n"
 "</p>\n"
 "<p>\n"
-"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">单击这里</a>注册或登录。\n"
+"  <i class=\"fa-solid fa-door-open\"></i> &nbsp; <a href=\"%(login_url)s\">点击这里</a>注册或登录。\n"
 "</p>\n"
 "        "
 
@@ -4224,11 +4224,11 @@ msgstr "无效值。"
 
 #: common/views_manage.py:284
 msgid "Invalid configuration. Please check your input."
-msgstr "配置无效"
+msgstr "配置无效，请检查你的输入。"
 
 #: common/views_manage.py:289
 msgid "Settings have been saved."
-msgstr "设置已保存"
+msgstr "设置已保存。"
 
 #: common/views_manage.py:309
 msgid "Site Name"
@@ -5818,7 +5818,7 @@ msgstr "评论"
 #: journal/templates/_list_item.html:91
 #, python-format
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
-msgstr "还有%(dups)s个属于同一作品或可能重复的条目，点击显示。"
+msgstr "还有 %(dups)s 个属于同一作品或可能重复的条目，点击显示："
 
 #: journal/templates/_sidebar_collection_filter.html:32
 msgid "dropped"
@@ -6450,7 +6450,7 @@ msgstr "找不到条目，请使用本站条目网址。"
 
 #: journal/views/collection.py:619
 msgid "Saved."
-msgstr "已保存"
+msgstr "已保存。"
 
 #: journal/views/common.py:126 journal/views/mark.py:273
 #: journal/views/mark.py:315 journal/views/note.py:167
@@ -6556,7 +6556,7 @@ msgstr "标签不存在"
 
 #: journal/views/tag.py:65
 msgid "Tag deleted."
-msgstr "标签已删除"
+msgstr "标签已删除。"
 
 #: journal/views/tag.py:75
 msgid "Duplicated tag."
@@ -6564,11 +6564,11 @@ msgstr "重复标签"
 
 #: journal/views/tag.py:83
 msgid "Tag updated."
-msgstr "标签已更新"
+msgstr "标签已更新。"
 
 #: journal/views/wrapped.py:161
 msgid "Summary posted to timeline."
-msgstr "总结已发布到时间轴"
+msgstr "总结已发布到时间轴。"
 
 #: mastodon/models/common.py:31
 msgid "Mastodon"
@@ -6701,7 +6701,7 @@ msgstr "认证失败"
 
 #: mastodon/views/bluesky.py:47 mastodon/views/common.py:103
 msgid "Identity not found."
-msgstr "身份未找到"
+msgstr "身份未找到。"
 
 #: mastodon/views/bluesky.py:53 mastodon/views/email.py:35
 #: mastodon/views/mastodon.py:36 mastodon/views/threads.py:31
@@ -6723,7 +6723,7 @@ msgstr "无法连接 ATProto 服务器"
 
 #: mastodon/views/bluesky.py:107
 msgid "Invalid response from ATProto authorization server."
-msgstr "ATProto 授权服务器返回信息无效"
+msgstr "ATProto 授权服务器返回信息无效。"
 
 #: mastodon/views/bluesky.py:112
 msgid "Invalid account data from Bluesky."
@@ -6804,11 +6804,11 @@ msgstr "无法连接实例"
 
 #: mastodon/views/mastodon.py:63
 msgid "Invalid response from Fediverse instance."
-msgstr "联邦实例返回信息无效"
+msgstr "联邦实例返回信息无效。"
 
 #: mastodon/views/mastodon.py:71 mastodon/views/threads.py:66
 msgid "Invalid OAuth state. Please try again."
-msgstr "无效的OAuth认证状态，请重试"
+msgstr "无效的 OAuth 认证状态，请重试。"
 
 #: mastodon/views/mastodon.py:78
 msgid "Invalid cookie data."
@@ -7234,7 +7234,7 @@ msgstr "使用该用户名的用户已存在。"
 
 #: users/models/user.py:394
 msgid "This username is already taken."
-msgstr "用户名已被使用"
+msgstr "用户名已被使用。"
 
 #: users/models/webauthn.py:15
 msgid "credential ID"
@@ -7413,7 +7413,7 @@ msgstr "账号信息"
 
 #: users/templates/users/account.html:20
 msgid "Display name, avatar and other information"
-msgstr "昵称、头像与其它个人信息"
+msgstr "昵称、头像与其他个人信息"
 
 #: users/templates/users/account.html:23
 msgid "Updating profile information here will turn off automatic sync of display name, bio and avatar from your Mastodon instance. Sure to continue?"
@@ -7456,11 +7456,11 @@ msgstr "如果你还没有在任何联邦宇宙实例注册过，可先 <a href=
 
 #: users/templates/users/account.html:97
 msgid "To associate with another federated identity, please enter the domain name of the instance where the new identity is located."
-msgstr "如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名"
+msgstr "如需关联到另一个联邦宇宙社交身份，请输入新身份所在的实例域名。"
 
 #: users/templates/users/account.html:99
 msgid "If you have registered with a Federated instance, please enter the instance domain name."
-msgstr "如果你已经注册过联邦宇宙实例，请输入实例域名"
+msgstr "如果你已经注册过联邦宇宙实例，请输入实例域名。"
 
 #: users/templates/users/account.html:104
 msgid "e.g. mastodon.online"
@@ -7748,15 +7748,15 @@ msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
 #: users/templates/users/account.html:519
 msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
-msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除"
+msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除。"
 
 #: users/templates/users/account.html:529
 msgid "Once deleted, account data cannot be recovered."
-msgstr "账号数据一旦删除后将无法恢复"
+msgstr "账号数据一旦删除后将无法恢复。"
 
 #: users/templates/users/account.html:532
 msgid "Task in progress, can't delete now."
-msgstr "暂时无法删除，因为有导入或导出任务正在进行"
+msgstr "暂时无法删除，因为有导入或导出任务正在进行。"
 
 #: users/templates/users/account.html:536
 msgid "Permanently Delete"
@@ -7912,7 +7912,7 @@ msgstr "导入方式"
 
 #: users/templates/users/data.html:52
 msgid "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete."
-msgstr "自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）"
+msgstr "自动合并：仅更新正向变化（未标 -> 想读 -> 在读 -> 已读）标记，不更新其他标记和现有评论（推荐）"
 
 #: users/templates/users/data.html:56
 msgid "Overwrite: update all imported status."
@@ -8041,7 +8041,7 @@ msgstr "检测格式出错"
 
 #: users/templates/users/data.html:478
 msgid "Export NeoDB Archive"
-msgstr "导出NeoDB备份"
+msgstr "导出 NeoDB 备份"
 
 #: users/templates/users/data.html:482
 msgid "Export marks, reviews and notes in CSV"
@@ -8081,11 +8081,11 @@ msgstr "只有已发布的文章使用下面的可见性。草稿、待审、私
 
 #: users/templates/users/data.html:561
 msgid "Import Twitter / X Archive"
-msgstr "导入Twitter / X备份"
+msgstr "导入 Twitter / X 备份"
 
 #: users/templates/users/data.html:567
 msgid "On X, go to <b>Settings</b> - <b>Your account</b> - <b>Download an archive of your data</b>. Upload the <code>.zip</code> you receive, or only the <code>data/tweets.js</code> file inside it if the archive is larger than 100 MB (photos are then not imported)."
-msgstr "在X中，进入<b>设置</b> - <b>你的账号</b> - <b>下载你的数据存档</b>。上传收到的<code>.zip</code>文件；如果备份超过100 MB，可只上传其中的<code>data/tweets.js</code>文件（此时不会导入图片）。"
+msgstr "在 X 中，进入<b>设置</b> - <b>你的账号</b> - <b>下载你的数据存档</b>。上传收到的<code>.zip</code>文件；如果备份超过100 MB，可只上传其中的<code>data/tweets.js</code>文件（此时不会导入图片）。"
 
 #: users/templates/users/data.html:570
 msgid "Each tweet becomes a post with its original date, text, links and photos. Replies to your own tweets are kept as a thread. A retweet becomes a short post that links to the original tweet. Videos are skipped."
@@ -8166,7 +8166,7 @@ msgstr "去联邦实例授权注册或登录"
 
 #: users/templates/users/login.html:181
 msgid "If you don't have a <a href=\"https://joinmastodon.org/servers\" target=\"_blank\">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings."
-msgstr "如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其它平台注册登录，未来再作关联。"
+msgstr "如果你还没有或不便注册<a href=\"https://joinmastodon.org/servers\" target=\"_blank\">联邦实例</a>账号，也可先通过电子邮件或其他平台注册登录，未来再作关联。"
 
 #: users/templates/users/login.html:194
 msgid "Authorize via Threads"
@@ -8187,15 +8187,15 @@ msgstr "请选择一种方式注册或登录 %(site_name)s。如果你有多个�
 
 #: users/templates/users/login.html:249
 msgid "Valid invitation code, please login or register."
-msgstr "邀请链接有效，可注册新用户"
+msgstr "邀请链接有效，可注册新用户。"
 
 #: users/templates/users/login.html:251
 msgid "Please use invitation link to register a new account; existing user may login."
-msgstr "本站目前为邀请注册，已有账户可直接登入，新用户请使用有效邀请链接注册"
+msgstr "本站目前为邀请注册，已有账号可直接登录，新用户请使用有效邀请链接注册。"
 
 #: users/templates/users/login.html:253
 msgid "Invitation code invalid or expired."
-msgstr "邀请链接无效，已有账户可直接登入，新用户请使用有效邀请链接注册"
+msgstr "邀请链接无效或已过期。"
 
 #: users/templates/users/login.html:261
 msgid "Loading timed out, please check your network (VPN) settings."
@@ -8203,7 +8203,7 @@ msgstr "部分模块加载超时，请检查网络（翻墙）设置。"
 
 #: users/templates/users/login.html:267
 msgid "Continue using this site implies consent to our <a href=\"/pages/rules/\">rules</a> and <a href=\"/pages/terms/\">terms</a>, including using cookies to provide necessary functionality."
-msgstr "继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/terms/\">协议</a>，及使用cookie提供必要功能"
+msgstr "继续访问或注册视为同意<a href=\"/pages/rules/\">站规</a>与<a href=\"/pages/terms/\">协议</a>，及使用 Cookie 提供必要功能。"
 
 #: users/templates/users/login.html:281
 msgid "Domain of your instance (excl. @)"
@@ -8309,7 +8309,7 @@ msgstr "发表时默认转发到社交网络时间轴"
 #: users/templates/users/preferences.html:111
 #: users/templates/users/register.html:88
 msgid "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account."
-msgstr "在网站上点击转播帖文时用关联的联邦账号再次转播"
+msgstr "如果此身份关联了 Mastodon 账号，转播帖文时也会使用该 Mastodon 账号同步转播。"
 
 #: users/templates/users/preferences.html:115
 msgid "Method for crossposting to timeline"
@@ -8325,12 +8325,12 @@ msgstr "另发新帖文"
 
 #: users/templates/users/preferences.html:130
 msgid "this method is less optimal, may generate duplicated posts and miss reactions."
-msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、点赞不会被记录"
+msgstr "这种方式可能产生重复帖文，且其他人对新帖的回应、点赞不会被记录。"
 
 #: users/templates/users/preferences.html:140
 #: users/templates/users/register.html:97
 msgid "Always publish my public marks, reviews and articles as data records to my PDS."
-msgstr "始终将公开的标记、评论和文章作为数据记录发布到我的个人数据服务器；转发开关仅控制是否发布Bluesky时间轴帖文"
+msgstr "始终将公开的标记、评论和文章作为数据记录发布到我的个人数据服务器；转发开关仅控制是否发布 Bluesky 时间轴帖文。"
 
 #: users/templates/users/preferences.html:145
 msgid "Append tags when posting to timeline"
@@ -8680,7 +8680,7 @@ msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过-
 
 #: users/templates/users/steam_import.html:139
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
-msgstr "Steam资料必须公开可见才能导入"
+msgstr "Steam 资料必须公开可见才能导入。"
 
 #: users/templates/users/storygraph_import.html:9
 #: users/templates/users/storygraph_import.html:37
@@ -8710,7 +8710,7 @@ msgstr "验证电子邮件"
 
 #: users/templates/users/verify_email.html:22
 msgid "Verified successfully."
-msgstr "验证成功"
+msgstr "验证成功。"
 
 #: users/templates/users/verify_email.html:30
 msgid "Login again"
@@ -8728,7 +8728,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"              %(site_name)s还在不断完善中。 丰富的内容需要大家共同创造，试图添加垃圾数据（如添加信息混乱或缺失的书籍、以推广为主要目的的评论）将会受到严肃处理。 本站为非盈利站点，cookie和其它数据保管使用原则请参阅<a href=\"/pages/rules\">站内公告</a>。 本站提供API和导出功能，请妥善备份您的数据，使用过程中遇到的问题或者错误欢迎向<a href=\"%(support_link)s\">维护者</a>提出。感谢理解和支持！\n"
+"              %(site_name)s 的不断发展离不开像你一样的用户的协作与贡献。请阅读我们的<a href=\"/pages/rules\">站规</a>，如果有任何问题或反馈，欢迎随时<a href=\"%(support_link)s\">联系我们</a>。\n"
 "        "
 
 #: users/templates/users/welcome.html:37
@@ -8753,11 +8753,11 @@ msgstr "通行密钥已创建"
 
 #: users/views/account.py:127
 msgid "This username is already in use."
-msgstr "用户名已被使用"
+msgstr "用户名已被使用。"
 
 #: users/views/account.py:138
 msgid "This email address is already in use."
-msgstr "此电子邮件地址已被使用"
+msgstr "此电子邮件地址已被使用。"
 
 #: users/views/account.py:258 users/views/account.py:377
 msgid "Registration is for invitation only"
@@ -8810,7 +8810,7 @@ msgstr "正在生成导出文件。"
 
 #: users/views/data.py:320
 msgid "Export file expired. Please export again."
-msgstr "导出文件已失效，请重新导出"
+msgstr "导出文件已失效，请重新导出。"
 
 #: users/views/data.py:335 users/views/data.py:356 users/views/data.py:377
 msgid "Recent export still in progress."
@@ -8829,7 +8829,7 @@ msgstr "正在同步。"
 
 #: users/views/data.py:483
 msgid "Settings saved."
-msgstr "设置已保存"
+msgstr "设置已保存。"
 
 #: users/views/data.py:538
 msgid "Account no longer linked."
