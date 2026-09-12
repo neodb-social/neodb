@@ -240,3 +240,25 @@ def test_search_http_error_recorded_without_key(monkeypatch, caplog, status):
     assert all(
         "secret-test-key" not in str(record.__dict__) for record in caplog.records
     )
+
+
+@pytest.mark.parametrize("item", [None, "invalid", {"volumeInfo": None}])
+def test_search_malformed_item_does_not_abort_other_sources(monkeypatch, item):
+    async def get(self, url, **kwargs):
+        return httpx.Response(
+            200, request=httpx.Request("GET", url), json={"items": [item]}
+        )
+
+    async def healthy_source():
+        return ["healthy-source-result"]
+
+    async def search_sources():
+        return await asyncio.gather(
+            GoogleBooks.search_task("hobbit", 1, "book", 3), healthy_source()
+        )
+
+    monkeypatch.setattr(httpx.AsyncClient, "get", get)
+    failure = Mock()
+    monkeypatch.setattr("catalog.sites.google_books.record_search_failure", failure)
+    assert asyncio.run(search_sources()) == [[], ["healthy-source-result"]]
+    failure.assert_called_once_with(SiteName.GoogleBooks.value, "error")
