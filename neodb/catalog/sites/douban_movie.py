@@ -255,9 +255,7 @@ class DoubanMovie(AbstractSite):
                 "cover_image_url": img_url,
             }
         )
-        pd.metadata["preferred_model"] = (
-            "TVSeason" if is_series or episodes or season else "Movie"
-        )
+        pd.metadata["preferred_model"] = "TVSeason" if is_series or season else "Movie"
 
         if imdb_code:
             res_data = search_tmdb_by_imdb_id(imdb_code)

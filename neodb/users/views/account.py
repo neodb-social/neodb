@@ -17,7 +17,7 @@ from django.views.decorators.http import require_http_methods
 from catalog.models import ItemCategory
 from common.models import SiteConfig
 from common.sentry import record_activity, record_registration_captcha
-from common.utils import AuthedHttpRequest, client_ip
+from common.utils import client_ip
 from common.validators import (
     get_safe_redirect_url,
     sanitize_next_url,
@@ -363,7 +363,7 @@ def registration_captcha_tile(request: HttpRequest, token: str):
 
 
 @require_http_methods(["GET", "POST"])
-def register(request: AuthedHttpRequest):
+def register(request: HttpRequest):
     """show registration page and process the submission from it"""
 
     # check invite code if invite-only
