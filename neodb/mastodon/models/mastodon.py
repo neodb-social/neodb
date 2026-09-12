@@ -1000,7 +1000,16 @@ class MastodonAccount(SocialAccount):
         )
         if response is not None:
             if response.status_code in [200, 201]:
-                j = response.json()
+                # a domain no longer running Mastodon may answer 200 with anything
+                try:
+                    j = response.json()
+                except ValueError:
+                    j = None
+                if not isinstance(j, dict) or not j.get("id") or not j.get("url"):
+                    logger.warning(
+                        f"Error posting to {self._api_domain}, unexpected response {response.text[:200]!r}"
+                    )
+                    raise RequestAborted()
                 return {"id": j["id"], "url": j["url"]}
             elif response.status_code == 401:
                 raise PermissionDenied()

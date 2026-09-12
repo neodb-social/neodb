@@ -1,11 +1,14 @@
 from unittest.mock import Mock, patch
 
 import pytest
+import requests
 from django.conf import settings
+from django.core.exceptions import RequestAborted
 from django.db import IntegrityError
 from django.utils import timezone
 
 from common.models import SiteConfig
+from journal.models.common import VisibilityType
 from mastodon.models import MastodonAccount, MastodonApplication, Platform
 from mastodon.models.mastodon import (
     TootVisibilityEnum,
@@ -374,3 +377,44 @@ class TestDetectConfigurations:
         emojis = [{"shortcode": None}, {"url": "x"}, "junk"]
         self._detect(app, self._response(200, emojis))
         assert app.star_mode == 0
+
+
+def _http_response(status_code: int, body: bytes) -> requests.Response:
+    response = requests.Response()
+    response.status_code = status_code
+    response._content = body
+    response.encoding = "utf-8"
+    return response
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMastodonAccountPost:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(username="postuser")
+        self.account = MastodonAccount.objects.create(
+            handle="postuser@social.example",
+            user=self.user,
+            domain="social.example",
+            uid="54321",
+        )
+
+    def _post(self, response: requests.Response) -> dict:
+        with patch("mastodon.models.mastodon.post_toot2", return_value=response):
+            return self.account.post("hello", VisibilityType.Private)
+
+    def test_valid_response_returns_id_and_url(self):
+        url = "https://social.example/@postuser/1"
+        r = _http_response(200, b'{"id": "1", "url": "' + url.encode() + b'"}')
+        assert self._post(r) == {"id": "1", "url": url}
+
+    def test_non_json_body_aborts(self):
+        # a domain no longer running Mastodon may answer 200 with plain text
+        r = _http_response(200, b"social.example")
+        with pytest.raises(RequestAborted):
+            self._post(r)
+
+    def test_json_without_post_id_aborts(self):
+        r = _http_response(200, b'{"error": "unexpected"}')
+        with pytest.raises(RequestAborted):
+            self._post(r)
