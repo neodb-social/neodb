@@ -45,6 +45,35 @@ def test_import_following(
 
 
 @pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_import_following_unresolvable_handle(
+    identity: Identity,
+    stator: StatorRunner,
+    httpx_mock: HTTPXMock,
+):
+    """
+    A handle that does not resolve must error the message rather than retry forever
+    """
+    httpx_mock.add_response(
+        url="https://gone.test/.well-known/webfinger?resource=acct:nobody@gone.test",
+        status_code=404,
+    )
+    InboxMessage.create_internal(
+        {
+            "type": "AddFollow",
+            "source": identity.pk,
+            "target_handle": "nobody@gone.test",
+            "boosts": True,
+        }
+    )
+
+    stator.run_single_cycle()
+
+    assert InboxMessage.objects.get().state == "errored"
+    assert identity.outbound_follows.count() == 0
+
+
+@pytest.mark.django_db
 def test_export_following(
     client_with_user: Client,
     identity: Identity,

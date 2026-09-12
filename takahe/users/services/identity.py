@@ -14,6 +14,7 @@ from activities.models import (
     PostInteraction,
     PostInteractionStates,
 )
+from core.exceptions import ActivityPubError
 from core.files import resize_image
 from core.html import FediverseHtmlParser
 from stator.exceptions import TryAgainLater
@@ -378,7 +379,11 @@ class IdentityService:
         username, domain = payload["target_handle"].split("@")
         target_identity = Identity.by_username_and_domain(username, domain, fetch=True)
         if target_identity is None:
-            raise ValueError(f"Cannot find identity to follow: {target_identity}")
+            # The handle does not resolve, so retrying cannot help; a remote that is
+            # only busy raises TryAgainLater from the webfinger fetch instead.
+            handle = payload["target_handle"]
+            logger.warning("Cannot find identity to follow: %s", handle)
+            raise ActivityPubError(f"Cannot find identity to follow: {handle}")
         # Follow!
         self.follow(target_identity=target_identity, boosts=payload.get("boosts", True))
 
