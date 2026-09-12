@@ -487,9 +487,12 @@ class ImageDownloaderMixin:
                     self.extention = "svg"
                     return RESPONSE_OK
                 file_type = filetype.get_type(mime=mime) if mime else None
-                if file_type is None:
+                if file_type is None or not (file_type.mime or "").startswith("image/"):
                     # Fall back to magic-byte sniffing -- some CDNs send empty
-                    # or non-standard Content-Type for valid images.
+                    # or non-standard Content-Type for valid images. The
+                    # declared type must not be trusted when it is not an
+                    # image: filetype maps application/octet-stream, which
+                    # proxies commonly return, to the EOT font type.
                     file_type = filetype.guess(response.content)
                 if file_type is None or not (file_type.mime or "").startswith("image/"):
                     logger.error(

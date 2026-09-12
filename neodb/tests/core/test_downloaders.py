@@ -276,6 +276,37 @@ class TestImageDownloaderMimeNormalization:
         assert dl.validate_response(_img_response(_png_bytes(), "")) == RESPONSE_OK
         assert dl.extention == "png"
 
+    def test_octet_stream_sniffs_jpeg_body(self):
+        # filetype maps application/octet-stream to the EOT font type, so the
+        # declared type alone would reject a perfectly valid image.
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(
+                _img_response(_jpeg_bytes(), "application/octet-stream")
+            )
+            == RESPONSE_OK
+        )
+        assert dl.extention == "jpg"
+
+    def test_octet_stream_sniffs_png_body(self):
+        dl = BasicImageDownloader("https://example.com/x.png")
+        assert (
+            dl.validate_response(
+                _img_response(_png_bytes(), "application/octet-stream")
+            )
+            == RESPONSE_OK
+        )
+        assert dl.extention == "png"
+
+    def test_octet_stream_with_html_rejected(self):
+        dl = BasicImageDownloader("https://example.com/x.jpg")
+        assert (
+            dl.validate_response(
+                _img_response(b"<html></html>", "application/octet-stream")
+            )
+            == RESPONSE_NETWORK_ERROR
+        )
+
     def test_empty_content_type_with_html_rejected(self):
         dl = BasicImageDownloader("https://example.com/x.jpg")
         assert (
