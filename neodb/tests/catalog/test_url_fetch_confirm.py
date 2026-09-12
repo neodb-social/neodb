@@ -1,22 +1,25 @@
 """A pasted URL must not make the server fetch on a GET.
 
-The header posts a url typed into the search box to `fetch_url`; every GET
+The search box and the external result cards post to `fetch_url`; every GET
 gets a confirmation form first, signed in or not.
 """
 
 from unittest.mock import patch
+from urllib.parse import quote_plus
 
 import pytest
 from django.conf import settings
 from django.test import Client
 from django.urls import reverse
 
-from catalog.models import Movie
+from catalog.models import ItemCategory, Movie, SiteName
+from catalog.search.external import ExternalSearchResultItem, ExternalSources
 from users.models import User
 
 from .test_fetch_lock import FakeCache, StubSite
 
 URL = "https://example.com/unknown-thing"
+SOURCE_URL = "https://www.themoviedb.org/movie/1"
 
 
 def _get(client, url, item=None):
@@ -123,3 +126,36 @@ class TestSignedInUrlFetch:
         assert response.status_code == 200
         assert "fetch_pending.html" in [t.name for t in response.templates]
         enqueue.assert_called_once()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestExternalResultCard:
+    """Clicking a result posts, so saving it locally stays one click."""
+
+    def _html(self, monkeypatch):
+        results = [
+            ExternalSearchResultItem(
+                ItemCategory.Movie, SiteName.TMDB, SOURCE_URL, "Ext", "", "brief", ""
+            )
+        ]
+        monkeypatch.setattr(
+            ExternalSources, "search", classmethod(lambda cls, *a, **kw: results)
+        )
+        user = User.register(email="card@example.com", username="carduser")
+        client = Client()
+        client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(reverse("catalog:external_search"), {"q": "movie"})
+        assert response.status_code == 200
+        return response.content.decode()
+
+    def test_card_carries_a_post_form_for_the_source_url(self, monkeypatch):
+        html = self._html(monkeypatch)
+        assert f'action="{reverse("catalog:fetch_url")}"' in html
+        assert 'name="csrfmiddlewaretoken"' in html
+        assert f'name="url" value="{SOURCE_URL}"' in html
+        assert "form.submit()" in html  # the click handler ships with the card
+
+    def test_card_keeps_the_search_link_as_a_fallback(self, monkeypatch):
+        """A modified click, or no JS at all, still reaches the confirmation."""
+        html = self._html(monkeypatch)
+        assert f'href="/search?q={quote_plus(SOURCE_URL)}"' in html

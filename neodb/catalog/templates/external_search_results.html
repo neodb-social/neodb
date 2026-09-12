@@ -12,7 +12,23 @@
   {% endif %}
   {% for item in external_items %}
     <div class="item-card-list">
-      <article class="item-card external">{% include "_item_card.html" with item=item %}</article>
+      <article class="item-card external">
+        {% include "_item_card.html" with item=item %}
+        <form method="post" action="{% url 'catalog:fetch_url' %}" hidden>
+          {% csrf_token %}
+          <input type="hidden" name="url" value="{{ item.source_url }}">
+        </form>
+      </article>
     {% endfor %}
   </div>
 </details>
+<script>
+// Post the url and fetch right away; the confirmation only guards a GET.
+$('.item-card.external a[href^="/search?q="]').on('click', function (e) {
+  if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  var form = this.closest('article').querySelector('form');
+  if (!form) return;
+  e.preventDefault();
+  form.submit();
+});
+</script>
