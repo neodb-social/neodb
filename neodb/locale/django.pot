@@ -4064,7 +4064,7 @@ msgid "Attributions"
 msgstr ""
 
 #: common/templates/common/about.html:138
-msgid "This website can get catalog data from the sources below. These sources are not affiliated with this website, and they do not endorse it."
+msgid "This website may get catalog data from the sources below. These sources are not affiliated with this website."
 msgstr ""
 
 #: common/templates/common/about.html:142
@@ -4072,7 +4072,7 @@ msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, 
 msgstr ""
 
 #: common/templates/common/about.html:145
-msgid "This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
+msgid "This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
 msgstr ""
 
 #: common/templates/common/error.html:12 journal/models/crosspost.py:13

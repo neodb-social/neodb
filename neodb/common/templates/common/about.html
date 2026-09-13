@@ -135,14 +135,18 @@
           <h2>{% translate "Attributions" %}</h2>
           <div class="attributions">
             <p>
-              {% blocktranslate %}This website can get catalog data from the sources below. These sources are not affiliated with this website, and they do not endorse it.{% endblocktranslate %}
+              {% blocktranslate %}This website is powered by <a href="https://neodb.net" target="_blank">NeoDB</a>, a free and open-source software licensed under the AGPL-v3. All modifications to the software must be made available under the same license.{% endblocktranslate %}
             </p>
-            <p>{{ catalog_sites|join:", " }}</p>
             <p>
               {% blocktranslate %}This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.{% endblocktranslate %}
             </p>
             <p>
-              {% blocktranslate %}This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.{% endblocktranslate %}
+              {% blocktranslate %}This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.{% endblocktranslate %}
+            </p>
+            <p>
+              {% blocktranslate %}This website may get catalog data from the sources below. These sources are not affiliated with this website.{% endblocktranslate %}
+              <br>
+              {{ catalog_sites|join:", " }}
             </p>
           </div>
         </section>
