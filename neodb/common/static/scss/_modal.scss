@@ -104,26 +104,6 @@
   display: inline;
 }
 
-.donut {
-  margin-left: 10%;
-  width: 80%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.donut .hole {
-  width: 80%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  background: #f7f7f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 input:invalid#position {
   border: red dashed 1px;
 }

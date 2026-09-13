@@ -265,20 +265,6 @@ a.dc-nav {
   padding-top: 0.5rem;
 }
 
-.dc-sample {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.1rem 0.45rem;
-  border: 1px dashed var(--dc-muted);
-  border-radius: var(--dc-radius-sm);
-  font-size: var(--dc-fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--dc-muted);
-  vertical-align: 0.2em;
-}
-
 // section chips: links to sections or feed tabs, one of them active
 .dc-chips {
   display: flex;
