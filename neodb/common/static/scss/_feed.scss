@@ -1,94 +1,149 @@
+.feed-page,
+.classic-page {
+  // each activity is a surface card; the shared _event_post.html stays as is
+  .feed > section.activity {
+    margin: 0 0 var(--dc-gap);
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-surface);
+    min-width: 0;
+  }
+
+  .feed > .empty {
+    margin: var(--pico-spacing) 0;
+  }
+
+  // the post body is a flex child; without a min width the embedded item
+  // card keeps its own minimum and pokes out of the card on phones
+  .feed > section.activity > div > div {
+    min-width: 0;
+  }
+
+  // phones: tighter cards so the content, not the frame, fills the screen
+  @media (max-width: 768px) {
+    .feed > section.activity {
+      margin-bottom: calc(var(--dc-gap) * 0.6);
+      padding: 0.6rem 0.7rem;
+      border-radius: var(--dc-radius);
+    }
+
+    .feed > section.activity .avatar {
+      margin-right: 0.4rem !important;
+    }
+
+    .dc-notifications > .dc-notice {
+      padding: 0.7rem 0.8rem;
+      border-radius: var(--dc-radius);
+    }
+  }
+
+  .feed .dc-chips {
+    margin-bottom: var(--pico-spacing);
+  }
+}
+
 .feed-page {
   .feed {
     article {
-      margin-bottom: 0.5em;
-      margin-top: 0.5em;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
     }
   }
-  .notifications {
+  .feed .dc-chips {
+    margin-bottom: var(--pico-spacing);
+  }
+
+  // notifications: one card per event, unread ones marked with the primary edge
+  .dc-notifications {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--dc-gap) * 0.75);
     word-break: break-word;
 
-    .avatar {
-      height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
-      width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4 - 8px);
+    > .dc-notice {
+      display: flex;
+      gap: 0.9rem;
+      margin: 0;
+      padding: 0.9rem 1.1rem;
 
-      img {
-        height: 100%;
-        width: 100%;
+      &.unread {
+        border-left: 3px solid var(--pico-primary);
       }
-    }
 
-    > section {
-      margin-bottom: var(--pico-spacing);
-      display: grid;
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto;
-      grid-column-gap: 1em;
-      grid-row-gap: 0px;
-      // align-items: center;
-      // justify-content: left;
+      .avatar {
+        flex: none;
+        width: 2.5rem;
+        height: 2.5rem;
 
-      .nickname a {
-        word-break: break-all;
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+      }
+
+      .dc-notice-body {
+        flex: 1;
+        min-width: 0;
+        font-size: var(--dc-fs-md);
       }
 
       .time {
-        width: max-content;
         float: right;
-        color: var(--pico-muted-color);
-        opacity: 0.5;
-        margin-left: 1em;
+        margin-left: 1rem;
+        color: var(--dc-muted);
+        font-size: var(--dc-fs-sm);
       }
 
-      .rating-star {
-        margin: 0 0.5em;
+      .nickname {
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .seen {
+        color: var(--dc-muted);
       }
 
       .rating-star,
-      .rating-star>* {
+      .rating-star > * {
         color: var(--pico-primary);
       }
 
-      article {
-        padding: calc(var(--pico-block-spacing-horizontal) / 2);
-        margin-bottom: var(--pico-block-spacing-horizontal);
-
-        >div.item {
-          column-gap: calc(var(--pico-block-spacing-horizontal) / 2);
-
-          @media (max-width: 768px) {
-            grid-template-columns: calc(2.5rem * var(--pico-line-height)) auto
-          }
-        }
-
-        footer {
-          padding: calc(var(--pico-block-spacing-horizontal) / 2);
-          margin-left: calc(var(--pico-block-spacing-horizontal) * -0.5);
-          margin-right: calc(var(--pico-block-spacing-horizontal) * -0.5);
-          margin-top: calc(var(--pico-block-spacing-horizontal)/2);
-        }
-
-        // margin-right: 4px;
+      .rating-star {
+        margin: 0 0.5rem;
       }
 
       blockquote {
-        padding-top: 0;
-        padding-bottom: 0;
-        margin: 0;
-        color: var(--pico-muted-color);
+        margin: 0.4rem 0 0;
+        padding: 0 0 0 0.8rem;
+        color: var(--dc-muted);
 
         a {
-          color: var(--pico-muted-color);
+          color: var(--dc-muted);
         }
       }
 
-      p:last-child {
-      margin-bottom: 0;
+      // the quoted post inside a boost or reply repeats the avatar; the card
+      // already shows who did it
+      .post .avatar {
+        display: none;
       }
 
-      .spacing {
-        margin-bottom: calc(var(--pico-block-spacing-horizontal)/2);
+      article {
+        margin: 0.5rem 0 0;
+        padding: calc(var(--pico-block-spacing-horizontal) / 2);
       }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    > .htmx-indicator,
+    > .empty {
+      color: var(--dc-muted);
     }
   }
 }

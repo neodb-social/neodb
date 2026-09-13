@@ -30,6 +30,10 @@ MAX_ITEMS_PER_PERIOD = 12
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
 DAYS_FOR_TRENDS = 3
+DAYS_FOR_WEEKLY_MARKS = 7
+SPOTLIGHT_PER_CATEGORY = 2
+MAX_SPOTLIGHT = 12
+COLLECTION_COVERS = 4
 
 
 @JobManager.register
@@ -148,6 +152,58 @@ class DiscoverGenerator(BaseJob):
                     items.append(season.show)
         return items
 
+    def attach_weekly_marks(self, items: list[Item]) -> None:
+        """Set ``weekly_marks`` on each item: shelf marks in the last 7 days.
+
+        One aggregate query per call; discover cards and the spotlight read
+        the attribute from the cached items instead of counting per request.
+        """
+        if not items:
+            return
+        # marks land on seasons, and ``cleanup_shows`` puts the show on the
+        # shelf instead, so a show counts its own marks plus its seasons'
+        ids_by_item: dict[int, set[int]] = {i.pk: {i.pk} for i in items}
+        show_ids = [i.pk for i in items if isinstance(i, TVShow)]
+        if show_ids:
+            for season_id, show_id in TVSeason.objects.filter(
+                show_id__in=show_ids
+            ).values_list("pk", "show_id"):
+                ids_by_item[show_id].add(season_id)
+        qs = ShelfMember.objects.filter(
+            item_id__in=set().union(*ids_by_item.values()),
+            created_time__gt=timezone.now() - timedelta(days=DAYS_FOR_WEEKLY_MARKS),
+        )
+        if SiteConfig.system.discover_show_local_only:
+            qs = qs.filter(local=True)
+        counts = dict(
+            qs.values_list("item_id")
+            .annotate(n=Count("id"))
+            .values_list("item_id", "n")
+        )
+        for i in items:
+            i.weekly_marks = sum(counts.get(pk, 0) for pk in ids_by_item[i.pk])
+
+    def get_collection_meta(
+        self, collection_ids: list[int]
+    ) -> dict[int, dict[str, Any]]:
+        """Cover URLs, size and owner name for each featured collection.
+
+        Cached so the discover page renders a cover mosaic per collection
+        without a members query per card.
+        """
+        collections = list(
+            Collection.objects.filter(pk__in=collection_ids).select_related("owner")
+        )
+        Collection.attach_cover_previews(collections, COLLECTION_COVERS)
+        return {
+            c.pk: {
+                "covers": c.cover_previews,
+                "count": c.member_count,
+                "owner": c.owner.display_name,
+            }
+            for c in collections
+        }
+
     def get_original_episodes(
         self, max_items: int = 100, max_per_program: int = 10
     ) -> list:
@@ -211,6 +267,7 @@ class DiscoverGenerator(BaseJob):
         ]
         gallery_list = []
         trends: list[dict[str, Any]] = []
+        spotlight: list[Item] = []
         for category in gallery_categories:
             days = MAX_DAYS_FOR_PERIOD
             item_ids = []
@@ -251,6 +308,7 @@ class DiscoverGenerator(BaseJob):
             editions = [i for i in items if isinstance(i, Edition)]
             if editions:
                 prefetch_related_objects(editions, "works")
+            self.attach_weekly_marks(items)
             cache.set(key, items, timeout=None)
 
             item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
@@ -260,10 +318,16 @@ class DiscoverGenerator(BaseJob):
                 item_ids += self.get_popular_commented_podcast_ids(
                     DAYS_FOR_TRENDS, item_ids
                 )[:3]
-            for i in Item.objects.filter(pk__in=set(item_ids)):
-                cnt = ShelfMember.objects.filter(
-                    item=i, created_time__gt=timezone.now() - timedelta(days=7)
-                ).count()
+            recent = [
+                i
+                for i in Item.objects.filter(pk__in=set(item_ids))
+                if not i.is_deleted and not i.merged_to_item_id
+            ]
+            self.attach_weekly_marks(recent)
+            recent.sort(key=lambda x: x.weekly_marks or 0, reverse=True)
+            spotlight.extend(recent[:SPOTLIGHT_PER_CATEGORY])
+            for i in recent:
+                cnt = i.weekly_marks or 0
                 trends.append(
                     {
                         "title": i.display_title,
@@ -291,6 +355,22 @@ class DiscoverGenerator(BaseJob):
 
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
 
+        # The spotlight strip: the items marked most in the last week, a couple
+        # per category, with ratings and credits cached like the shelves.
+        spotlight.sort(key=lambda x: x.weekly_marks or 0, reverse=True)
+        spotlight = spotlight[:MAX_SPOTLIGHT]
+        for i in spotlight:
+            i.rating
+            i.rating_count
+            i.rating_distribution
+        prefetch_related_objects(
+            spotlight,
+            Item.external_resources_prefetch(),
+            Item.credits_prefetch(),
+        )
+        Item.prefetch_edition_works(spotlight)
+        cache.set("discover_spotlight", spotlight, timeout=None)
+
         collections = (
             Collection.objects.filter(visibility=0)
             .annotate(num=Count("interactions"))
@@ -299,7 +379,7 @@ class DiscoverGenerator(BaseJob):
         )
         if local:
             collections = collections.filter(local=True)
-        collection_ids = collections.values_list("pk", flat=True)[:40]
+        collection_ids = list(collections.values_list("pk", flat=True)[:40])
 
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
         excluding_identities = self.get_no_discover_identities()
@@ -358,10 +438,15 @@ class DiscoverGenerator(BaseJob):
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
+        cache.set(
+            "discover_collection_meta",
+            self.get_collection_meta(collection_ids),
+            timeout=None,
+        )
         cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
         cache.set("trends_statuses", list(post_ids), timeout=None)
         cache.set("trends_updated", timezone.now(), timeout=None)
         logger.info(
-            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
+            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, spotlight: {len(spotlight)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
         )

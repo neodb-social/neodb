@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 12:06-0400\n"
+"POT-Creation-Date: 2026-09-13 13:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,11 +59,11 @@ msgstr ""
 msgid "Traditional Chinese"
 msgstr ""
 
-#: catalog/forms.py:35 catalog/models/item.py:412
+#: catalog/forms.py:35 catalog/models/item.py:417
 msgid "Primary ID Type"
 msgstr ""
 
-#: catalog/forms.py:40 catalog/models/item.py:415
+#: catalog/forms.py:40 catalog/models/item.py:420
 msgid "Primary ID Value"
 msgstr ""
 
@@ -821,45 +821,45 @@ msgstr ""
 msgid "character name"
 msgstr ""
 
-#: catalog/models/item.py:409 catalog/models/item.py:441
-#: journal/models/collection.py:101
+#: catalog/models/item.py:414 catalog/models/item.py:446
+#: journal/models/collection.py:108
 msgid "title"
 msgstr ""
 
-#: catalog/models/item.py:410 catalog/models/item.py:449
-#: journal/models/collection.py:102
+#: catalog/models/item.py:415 catalog/models/item.py:454
+#: journal/models/collection.py:109
 msgid "description"
 msgstr ""
 
-#: catalog/models/item.py:421 catalog/models/people.py:484
+#: catalog/models/item.py:426 catalog/models/people.py:484
 msgid "metadata"
 msgstr ""
 
-#: catalog/models/item.py:423 catalog/templates/_item_card.html:28
+#: catalog/models/item.py:428 catalog/templates/_item_card.html:28
 msgid "cover"
 msgstr ""
 
-#: catalog/models/item.py:1612
+#: catalog/models/item.py:1617
 msgid "source site"
 msgstr ""
 
-#: catalog/models/item.py:1614
+#: catalog/models/item.py:1619
 msgid "ID on source site"
 msgstr ""
 
-#: catalog/models/item.py:1616
+#: catalog/models/item.py:1621
 msgid "source url"
 msgstr ""
 
-#: catalog/models/item.py:1632
+#: catalog/models/item.py:1637
 msgid "IdType of the source site"
 msgstr ""
 
-#: catalog/models/item.py:1638
+#: catalog/models/item.py:1643
 msgid "Primary Id on the source site"
 msgstr ""
 
-#: catalog/models/item.py:1641
+#: catalog/models/item.py:1646
 msgid "url to the resource"
 msgstr ""
 
@@ -1181,7 +1181,7 @@ msgstr ""
 #: journal/templates/profile_posts.html:21
 #: journal/templates/user_follow_list_items.html:63
 #: journal/templates/user_post_list_items.html:24
-#: social/templates/events.html:43 social/templates/feed_events.html:27
+#: social/templates/events.html:37 social/templates/feed_events.html:26
 msgid "nothing more."
 msgstr ""
 
@@ -1192,6 +1192,11 @@ msgstr ""
 #: catalog/templates/_item_comments_by_episode.html:35
 #: catalog/templates/podcast_episode_data.html:22
 msgid "comment this episode"
+msgstr ""
+
+#: catalog/templates/_item_cover_card.html:44
+#: catalog/templates/_item_user_pieces.html:83
+msgid "Set progress"
 msgstr ""
 
 #: catalog/templates/_item_credits_list.html:117
@@ -1265,11 +1270,6 @@ msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:74
 msgid "Add note"
-msgstr ""
-
-#: catalog/templates/_item_user_pieces.html:83
-#: common/templates/_sidebar.html:195 journal/templates/profile_items.html:46
-msgid "Set progress"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:101
@@ -1802,60 +1802,252 @@ msgstr ""
 msgid "Questions or issues with creator verification? Let the site moderators know."
 msgstr ""
 
-#: catalog/templates/discover.html:28 common/views_manage.py:35
-#: common/views_manage.py:431 users/templates/users/preferences.html:34
+#: catalog/templates/discover.html:30 common/templates/common/about.html:33
+#: common/templates/common/about.html:38 common/views_manage.py:35
+#: common/views_manage.py:431 social/templates/feed_events.html:38
+#: users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr ""
 
-#: catalog/templates/discover.html:58
-msgid "Recommended for you"
+#: catalog/templates/discover.html:44 common/templates/_sidebar.html:13
+msgid "Unread Announcements"
+msgstr ""
+
+#: catalog/templates/discover.html:52 common/templates/_sidebar.html:19
+#: social/templates/notification.html:35
+msgid "mark all as read"
+msgstr ""
+
+#: catalog/templates/discover.html:60
+#: common/templates/_sidebar_anonymous.html:42
+#: common/templates/common/about.html:196
+#: users/templates/users/announcements.html:12
+#: users/templates/users/announcements.html:39
+msgid "Announcements"
+msgstr ""
+
+#: catalog/templates/discover.html:76
+msgid "Free, open and federated"
+msgstr ""
+
+#: catalog/templates/discover.html:77
+msgid "Keep every book, film, album, game and podcast you love on one shelf."
+msgstr ""
+
+#: catalog/templates/discover.html:79
+msgid "Mark what you read, watch, play and hear. Rate it, review it, put it in a collection, and share it with friends across the Fediverse and Bluesky."
+msgstr ""
+
+#: catalog/templates/discover.html:84 common/templates/common/about.html:35
+msgid "Get started"
 msgstr ""
 
 #: catalog/templates/discover.html:87
-msgid "fediverse originals"
+#, python-format
+msgid "About %(site_name)s"
 msgstr ""
 
-#: catalog/templates/discover.html:135
+#: catalog/templates/discover.html:89 common/templates/common/about.html:42
+msgid "Sign in with a Fediverse account, a Bluesky account, or an email address."
+msgstr ""
+
+#: catalog/templates/discover.html:94
+msgid "In the catalog today"
+msgstr ""
+
+#: catalog/templates/discover.html:105
+#, python-format
+msgid "%(count)s members"
+msgstr ""
+
+#: catalog/templates/discover.html:117
+msgid "Welcome. Let us fill your shelf."
+msgstr ""
+
+#: catalog/templates/discover.html:118
+msgid "Three short steps unlock recommendations and a feed worth reading."
+msgstr ""
+
+#: catalog/templates/discover.html:124
+msgid "Mark three things you know"
+msgstr ""
+
+#: catalog/templates/discover.html:125
+msgid "Pick from the row below or search for anything. Marks seed your recommendations."
+msgstr ""
+
+#: catalog/templates/discover.html:126 common/templates/common/scan.html:60
+#: common/views_manage.py:766 social/templates/feed_events.html:41
+msgid "Search"
+msgstr ""
+
+#: catalog/templates/discover.html:132
+msgid "Follow a few people"
+msgstr ""
+
+#: catalog/templates/discover.html:133
+msgid "Scroll down to what people are saying and follow the voices you like."
+msgstr ""
+
+#: catalog/templates/discover.html:134
+msgid "See posts"
+msgstr ""
+
+#: catalog/templates/discover.html:140
+msgid "Bring your history"
+msgstr ""
+
+#: catalog/templates/discover.html:141
+msgid "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file."
+msgstr ""
+
+#: catalog/templates/discover.html:142
+msgid "Open importers"
+msgstr ""
+
+#: catalog/templates/discover.html:155
+msgid "Sections"
+msgstr ""
+
+#: catalog/templates/discover.html:158 social/templates/notification.html:50
+#: social/templates/notification.html:52
+msgid "All"
+msgstr ""
+
+#: catalog/templates/discover.html:162 catalog/templates/discover.html:246
+#: catalog/templates/discover.html:251 catalog/templates/discover.html:304
+msgid "For you"
+msgstr ""
+
+#: catalog/templates/discover.html:174 common/templates/_header.html:65
+#: journal/templates/user_post_list.html:10
+#: journal/templates/user_post_list.html:23
+msgid "Posts"
+msgstr ""
+
+#: catalog/templates/discover.html:179 catalog/templates/discover.html:425
+#: catalog/templates/discover.html:428
 #: journal/templates/user_collection_list.html:18
 #: journal/templates/user_collection_list.html:32
 msgid "Collections"
 msgstr ""
 
-#: catalog/templates/discover.html:153 journal/templates/profile.html:275
-msgid "edit layout"
+#: catalog/templates/discover.html:184
+msgid "Originals"
 msgstr ""
 
-#: catalog/templates/discover.html:156 journal/templates/profile.html:278
-msgid "save"
+#: catalog/templates/discover.html:192
+msgid "Trending now"
 msgstr ""
 
-#: catalog/templates/discover.html:167 journal/templates/profile.html:289
-msgid "cancel"
+#: catalog/templates/discover.html:193
+msgid "Marked most across the Fediverse in the last few days."
 msgstr ""
 
-#: catalog/templates/discover.html:173 journal/templates/profile.html:295
-msgid "show"
+#: catalog/templates/discover.html:197 catalog/templates/discover.html:256
+#: catalog/templates/discover.html:283 catalog/templates/discover.html:321
+#: catalog/templates/discover.html:433 journal/templates/profile.html:74
+#: journal/templates/profile_items.html:20
+msgid "scroll left"
 msgstr ""
 
-#: catalog/templates/discover.html:174 journal/templates/profile.html:296
-msgid "hide"
+#: catalog/templates/discover.html:203 catalog/templates/discover.html:262
+#: catalog/templates/discover.html:289 catalog/templates/discover.html:327
+#: catalog/templates/discover.html:439 journal/templates/profile.html:80
+#: journal/templates/profile_items.html:26
+msgid "scroll right"
 msgstr ""
 
-#: catalog/templates/discover.html:206 common/templates/_sidebar.html:13
-msgid "Unread Announcements"
+#: catalog/templates/discover.html:225
+#, python-format
+msgid "marked by %(counter)s person this week"
+msgid_plural "marked by %(counter)s people this week"
+msgstr[0] ""
+msgstr[1] ""
+
+#: catalog/templates/discover.html:252
+msgid "Because of what is on your shelf."
 msgstr ""
 
-#: catalog/templates/discover.html:212 common/templates/_sidebar.html:19
-#: social/templates/notification.html:67
-msgid "mark all as read"
+#: catalog/templates/discover.html:278
+msgid "From people you follow"
 msgstr ""
 
-#: catalog/templates/discover.html:222
+#: catalog/templates/discover.html:279
+msgid "Marked recently by people you follow."
+msgstr ""
+
+#: catalog/templates/discover.html:305
+msgid "Recommendations appear here once you mark a few things or follow people."
+msgstr ""
+
+#: catalog/templates/discover.html:318
+msgid "See all"
+msgstr ""
+
+#: catalog/templates/discover.html:343 catalog/templates/discover.html:347
+msgid "fediverse originals"
+msgstr ""
+
+#: catalog/templates/discover.html:349
+msgid "Podcasts whose creators verified themselves here. Play right on this page."
+msgstr ""
+
+#: catalog/templates/discover.html:351
+msgid "All verified shows"
+msgstr ""
+
+#: catalog/templates/discover.html:368 social/templates/_event_post.html:39
+msgid "play"
+msgstr ""
+
+#: catalog/templates/discover.html:385
+#, python-format
+msgid "%(counter)s recent episode"
+msgid_plural "%(counter)s recent episodes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: catalog/templates/discover.html:404 catalog/templates/discover.html:407
+msgid "What people are saying"
+msgstr ""
+
+#: catalog/templates/discover.html:408
+msgid "Public marks, comments and reviews from around the Fediverse."
+msgstr ""
+
+#: catalog/templates/discover.html:411
+msgid "Open the feed"
+msgstr ""
+
+#: catalog/templates/discover.html:429
+msgid "Lists made by members, most recently updated first."
+msgstr ""
+
+#: catalog/templates/discover.html:454 catalog/templates/discover.html:456
 #: common/templates/_sidebar_anonymous.html:54
 msgid "Popular Tags"
 msgstr ""
 
-#: catalog/templates/discover.html:229
+#: catalog/templates/discover.html:457
+msgid "Most used public tags in the last two weeks."
+msgstr ""
+
+#: catalog/templates/discover_category.html:10
+#: catalog/templates/discover_category.html:19
+#, python-format
+msgid "Trending in %(category)s"
+msgstr ""
+
+#: catalog/templates/discover_category.html:20
+msgid "Most marked across the Fediverse recently. Refreshed every hour."
+msgstr ""
+
+#: catalog/templates/discover_category.html:21
+msgid "Back to Explore"
+msgstr ""
+
+#: catalog/templates/discover_category.html:27
 #: catalog/templates/discover_original_podcasts.html:25
 #: catalog/templates/item_base.html:267
 #: catalog/templates/item_mark_list.html:71
@@ -1865,9 +2057,9 @@ msgstr ""
 #: common/templates/_sidebar.html:126
 #: common/templates/_sidebar_anonymous.html:45
 #: common/templates/_sidebar_anonymous.html:61 journal/templates/posts.html:7
-#: journal/templates/profile_articles.html:24
-#: journal/templates/profile_articles.html:26
-#: journal/templates/profile_items.html:65
+#: journal/templates/profile_articles.html:27
+#: journal/templates/profile_articles.html:29
+#: journal/templates/profile_items.html:40
 #: journal/templates/profile_posts.html:23
 #: journal/templates/user_article_list.html:58
 #: journal/templates/user_collection_list.html:52
@@ -1875,13 +2067,9 @@ msgstr ""
 #: journal/templates/user_item_list_base.html:27
 #: journal/templates/user_post_list_items.html:8
 #: journal/templates/user_post_list_items.html:26
-#: social/templates/events.html:45 users/templates/users/announcements.html:52
+#: social/templates/events.html:40 users/templates/users/announcements.html:52
 #: users/templates/users/relationship_list.html:11
 msgid "nothing so far."
-msgstr ""
-
-#: catalog/templates/discover.html:239 common/templates/_sidebar.html:268
-msgid "Recent Posts"
 msgstr ""
 
 #: catalog/templates/discover_original_podcasts.html:10
@@ -2026,7 +2214,6 @@ msgid "following"
 msgstr ""
 
 #: catalog/templates/people.html:15 journal/models/shelf.py:326
-#: social/templates/notification.html:60
 msgid "follow"
 msgstr ""
 
@@ -2044,7 +2231,6 @@ msgstr ""
 #: journal/templates/_sidebar_collection_filter.html:14
 #: journal/templates/_sidebar_collection_filter.html:28
 #: journal/templates/_sidebar_user_mark_list.html:56
-#: social/templates/notification.html:56
 msgid "all"
 msgstr ""
 
@@ -2160,7 +2346,8 @@ msgid "Logged in user may see search results from other sites."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:200 journal/views/profile.py:614
+#: journal/templates/profile.html:195 journal/templates/profile.html:200
+#: journal/views/profile.py:666
 msgid "People"
 msgstr ""
 
@@ -2386,16 +2573,20 @@ msgstr ""
 msgid "Creator verification removed."
 msgstr ""
 
-#: catalog/views/view.py:77 catalog/views/view.py:102
+#: catalog/views/view.py:87 catalog/views/view.py:112
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views/view.py:81 catalog/views/view.py:110 catalog/views/view.py:193
+#: catalog/views/view.py:91 catalog/views/view.py:120 catalog/views/view.py:203
 msgid "Item no longer exists"
 msgstr ""
 
-#: catalog/views/view.py:190
+#: catalog/views/view.py:200
 msgid "Invalid role"
+msgstr ""
+
+#: catalog/views/view.py:828
+msgid "Category not found"
 msgstr ""
 
 #: common/models/game_platform.py:30
@@ -3801,6 +3992,7 @@ msgid "Terms"
 msgstr ""
 
 #: common/templates/_footer.html:8 common/templates/common/about.html:12
+#: common/templates/common/about.html:14 common/templates/common/about.html:28
 msgid "About"
 msgstr ""
 
@@ -3837,11 +4029,6 @@ msgstr ""
 msgid "Journal"
 msgstr ""
 
-#: common/templates/_header.html:65 journal/templates/user_post_list.html:10
-#: journal/templates/user_post_list.html:23
-msgid "Posts"
-msgstr ""
-
 #: common/templates/_header.html:103
 msgid "Explore"
 msgstr ""
@@ -3860,14 +4047,12 @@ msgstr ""
 msgid "Scan Barcode"
 msgstr ""
 
-#: common/templates/_header.html:132 social/templates/notification.html:12
-#: social/templates/notification.html:53
+#: common/templates/_header.html:132
 msgid "Notification"
 msgstr ""
 
 #: common/templates/_header.html:136 users/models/task.py:23
 #: users/templates/users/account.html:219
-#: users/templates/users/crossposts.html:9
 msgid "Pending"
 msgstr ""
 
@@ -3910,6 +4095,35 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
+#: common/templates/_layout_editor.html:12
+msgid "edit layout"
+msgstr ""
+
+#: common/templates/_layout_editor.html:21
+#: common/templates/_layout_editor.html:32
+msgid "cancel"
+msgstr ""
+
+#: common/templates/_layout_editor.html:24
+msgid "Page layout"
+msgstr ""
+
+#: common/templates/_layout_editor.html:26
+msgid "Switch sections on or off and move them up or down. The order applies on every device."
+msgstr ""
+
+#: common/templates/_layout_editor.html:33
+msgid "save"
+msgstr ""
+
+#: common/templates/_layout_editor.html:47
+msgid "move up"
+msgstr ""
+
+#: common/templates/_layout_editor.html:53
+msgid "move down"
+msgstr ""
+
 #: common/templates/_sidebar.html:61
 #: users/templates/users/profile_actions.html:36
 msgid "approving followers manually"
@@ -3931,36 +4145,34 @@ msgstr ""
 msgid "Recent podcast episodes"
 msgstr ""
 
-#: common/templates/_sidebar.html:172
-msgid "Currently reading"
-msgstr ""
-
-#: common/templates/_sidebar.html:214
-msgid "Currently watching"
-msgstr ""
-
-#: common/templates/_sidebar.html:237 journal/forms.py:217
+#: common/templates/_sidebar.html:151 journal/forms.py:217
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr ""
 
-#: common/templates/_sidebar.html:243 journal/templates/user_tag_list.html:28
+#: common/templates/_sidebar.html:157 journal/templates/user_tag_list.html:28
 #: journal/templates/user_tagmember_list.html:10
 msgid "featured tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:246 journal/templates/user_tag_list.html:31
+#: common/templates/_sidebar.html:160 journal/templates/user_tag_list.html:31
 #: journal/templates/user_tagmember_list.html:15
 msgid "personal tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:253 journal/templates/user_tag_list.html:39
+#: common/templates/_sidebar.html:167 journal/templates/user_tag_list.html:39
 msgid "no tags so far."
 msgstr ""
 
-#: common/templates/_sidebar.html:257 common/templates/_sidebar.html:270
+#: common/templates/_sidebar.html:171 common/templates/_sidebar.html:184
+#: journal/templates/profile_articles.html:7
+#: journal/templates/profile_items.html:9
 msgid "show all"
+msgstr ""
+
+#: common/templates/_sidebar.html:182
+msgid "Recent Posts"
 msgstr ""
 
 #: common/templates/_sidebar_anonymous.html:15
@@ -3989,93 +4201,103 @@ msgid ""
 "        "
 msgstr ""
 
-#: common/templates/_sidebar_anonymous.html:42
-#: users/templates/users/announcements.html:12
-#: users/templates/users/announcements.html:39
-msgid "Announcements"
-msgstr ""
-
-#: common/templates/common/about.html:24
-msgid "Instance Domain"
-msgstr ""
-
-#: common/templates/common/about.html:28
-msgid "Software Version"
-msgstr ""
-
-#: common/templates/common/about.html:30
-msgid "Source Code"
-msgstr ""
-
-#: common/templates/common/about.html:32
-msgid "Registration"
-msgstr ""
-
-#: common/templates/common/about.html:35 common/views_manage.py:594
-msgid "Invite Only"
-msgstr ""
-
-#: common/templates/common/about.html:37
-msgid "Open Registration"
-msgstr ""
-
-#: common/templates/common/about.html:40 common/views_manage.py:680
-msgid "Preferred Languages"
-msgstr ""
-
-#: common/templates/common/about.html:45
-msgid "Not Specified"
-msgstr ""
-
-#: common/templates/common/about.html:52
+#: common/templates/common/about.html:46
 msgid "Statistics"
 msgstr ""
 
-#: common/templates/common/about.html:63
+#: common/templates/common/about.html:58
 msgid "Users"
 msgstr ""
 
-#: common/templates/common/about.html:67
+#: common/templates/common/about.html:62
 msgid "Statuses"
 msgstr ""
 
-#: common/templates/common/about.html:71
+#: common/templates/common/about.html:66
 msgid "Known Fediverse Instances"
 msgstr ""
 
-#: common/templates/common/about.html:77
-msgid "Known NeoDB Instances"
-msgstr ""
-
-#: common/templates/common/about.html:88
+#: common/templates/common/about.html:71
 msgid "Statistics are being calculated. Please check back in a few minutes."
 msgstr ""
 
-#: common/templates/common/about.html:96
+#: common/templates/common/about.html:77
+msgid "This instance"
+msgstr ""
+
+#: common/templates/common/about.html:80
+msgid "Instance Domain"
+msgstr ""
+
+#: common/templates/common/about.html:84
+msgid "Software Version"
+msgstr ""
+
+#: common/templates/common/about.html:87
+msgid "Source Code"
+msgstr ""
+
+#: common/templates/common/about.html:89
+msgid "Registration"
+msgstr ""
+
+#: common/templates/common/about.html:92 common/views_manage.py:594
+msgid "Invite Only"
+msgstr ""
+
+#: common/templates/common/about.html:94
+msgid "Open Registration"
+msgstr ""
+
+#: common/templates/common/about.html:97 common/views_manage.py:680
+msgid "Preferred Languages"
+msgstr ""
+
+#: common/templates/common/about.html:102
+msgid "Not Specified"
+msgstr ""
+
+#: common/templates/common/about.html:110
+msgid "Team"
+msgstr ""
+
+#: common/templates/common/about.html:111
+msgid "The people who run this instance and keep the catalog tidy."
+msgstr ""
+
+#: common/templates/common/about.html:116
 msgid "Site Administrators"
 msgstr ""
 
-#: common/templates/common/about.html:115
+#: common/templates/common/about.html:136
 msgid "Catalog Moderators"
 msgstr ""
 
-#: common/templates/common/about.html:135
+#: common/templates/common/about.html:160
+msgid "Known NeoDB Instances"
+msgstr ""
+
+#: common/templates/common/about.html:161
+msgid "Other communities running the same software. Follow people there from here."
+msgstr ""
+
+#: common/templates/common/about.html:174
 msgid "Attributions"
 msgstr ""
 
-#: common/templates/common/about.html:138
+#: common/templates/common/about.html:178
 msgid "This website is powered by <a href=\"https://neodb.net\" target=\"_blank\">NeoDB</a>, a free and open-source software licensed under the AGPL-v3. All modifications to the software must be made available under the same license."
 msgstr ""
 
-#: common/templates/common/about.html:141
+#: common/templates/common/about.html:181
 msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
 msgstr ""
 
-#: common/templates/common/about.html:144
+#: common/templates/common/about.html:184
 msgid "This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
 msgstr ""
 
-#: common/templates/common/about.html:147
+#: common/templates/common/about.html:187
 msgid "This website may get catalog data from the sources below. These sources are not affiliated with this website."
 msgstr ""
 
@@ -4093,10 +4315,6 @@ msgstr ""
 
 #: common/templates/common/scan.html:57
 msgid "Or type barcode / ISBN manually"
-msgstr ""
-
-#: common/templates/common/scan.html:60 common/views_manage.py:766
-msgid "Search"
 msgstr ""
 
 #: common/templates/common/scan.html:105
@@ -4180,12 +4398,12 @@ msgid "User no longer exists"
 msgstr ""
 
 #: common/utils.py:159 common/utils.py:161 common/utils.py:164
-#: common/utils.py:200 common/utils.py:204 journal/views/profile.py:499
+#: common/utils.py:200 common/utils.py:204 journal/views/profile.py:551
 msgid "Access denied"
 msgstr ""
 
 #: common/utils.py:167 common/utils.py:169 journal/views/article.py:204
-#: journal/views/profile.py:540 journal/views/review.py:200
+#: journal/views/profile.py:592 journal/views/review.py:200
 msgid "Login required"
 msgstr ""
 
@@ -4777,7 +4995,8 @@ msgid "Third-Party Login"
 msgstr ""
 
 #: common/views_manage.py:881 social/templates/feed.html:27
-#: social/templates/notification.html:35
+#: social/templates/notification.html:12 social/templates/notification.html:23
+#: social/templates/notification.html:46
 msgid "Notifications"
 msgstr ""
 
@@ -5085,7 +5304,7 @@ msgstr ""
 msgid "Collaborative editing"
 msgstr ""
 
-#: journal/forms.py:204 users/templates/users/crossposts.html:51
+#: journal/forms.py:204
 msgid "Status"
 msgstr ""
 
@@ -5136,7 +5355,7 @@ msgstr ""
 msgid "(may contain sensitive content)"
 msgstr ""
 
-#: journal/models/collection.py:48 journal/templates/add_to_collection.html:39
+#: journal/models/collection.py:50 journal/templates/add_to_collection.html:39
 #: journal/templates/collection_edit.html:64
 #: journal/templates/collection_share.html:63
 #: journal/templates/collection_update_item_note.html:3
@@ -5144,60 +5363,60 @@ msgstr ""
 msgid "note"
 msgstr ""
 
-#: journal/models/collection.py:116
+#: journal/models/collection.py:123
 msgid "search query for dynamic collection"
 msgstr ""
 
-#: journal/models/collection.py:575 journal/templatetags/collection.py:35
+#: journal/models/collection.py:637 journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:580 journal/templatetags/collection.py:43
+#: journal/models/collection.py:642 journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:585 journal/templatetags/collection.py:51
+#: journal/models/collection.py:647 journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:590 journal/templatetags/collection.py:59
+#: journal/models/collection.py:652 journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:595 journal/templatetags/collection.py:67
+#: journal/models/collection.py:657 journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:600 journal/templatetags/collection.py:75
+#: journal/models/collection.py:662 journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:606 journal/templatetags/collection.py:83
+#: journal/models/collection.py:668 journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/collection.py:614 journal/templatetags/collection.py:91
+#: journal/models/collection.py:676 journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
@@ -5280,7 +5499,7 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: journal/models/crosspost.py:18 users/templates/users/_crosspost_row.html:33
+#: journal/models/crosspost.py:18 users/templates/users/_crosspost_row.html:35
 msgid "Retrying"
 msgstr ""
 
@@ -5804,6 +6023,13 @@ msgstr ""
 msgid "removed mark"
 msgstr ""
 
+#: journal/templates/_collection_card.html:30
+#, python-format
+msgid "%(counter)s item"
+msgid_plural "%(counter)s items"
+msgstr[0] ""
+msgstr[1] ""
+
 #: journal/templates/_feature_stats.html:10
 msgid "stop tracking"
 msgstr ""
@@ -6029,8 +6255,8 @@ msgstr ""
 msgid "Edit Article"
 msgstr ""
 
-#: journal/templates/article_edit.html:15 journal/templates/profile.html:149
-#: journal/templates/profile_articles.html:9
+#: journal/templates/article_edit.html:15
+#: journal/templates/profile_articles.html:12
 msgid "Compose Article"
 msgstr ""
 
@@ -6222,13 +6448,12 @@ msgstr ""
 msgid " Note to %(reply_to_name)s "
 msgstr ""
 
-#: journal/templates/post_compose.html:20 journal/templates/profile.html:41
-#: social/templates/_compose_menu.html:4
+#: journal/templates/post_compose.html:20 journal/templates/profile.html:43
+#: social/templates/_compose_menu.html:4 social/templates/feed.html:25
 msgid "Compose"
 msgstr ""
 
 #: journal/templates/post_compose.html:35
-#: users/templates/users/crossposts.html:49
 msgid "Content"
 msgstr ""
 
@@ -6274,32 +6499,38 @@ msgstr ""
 msgid "Quotes"
 msgstr ""
 
-#: journal/templates/profile.html:82
+#: journal/templates/profile.html:65 journal/templates/profile.html:67
 msgid "calendar"
 msgstr ""
 
-#: journal/templates/profile.html:85 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:70 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:54
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:145
+#: journal/templates/profile.html:141 journal/templates/profile.html:147
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:38 journal/views/profile.py:479
+#: journal/templates/user_article_list.html:38 journal/views/profile.py:531
 msgid "Articles"
 msgstr ""
 
-#: journal/templates/profile.html:166 journal/views/collection.py:448
-#: journal/views/profile.py:401
+#: journal/templates/profile.html:159 journal/templates/profile.html:164
+#: journal/views/collection.py:448 journal/views/profile.py:450
 msgid "collection"
 msgstr ""
 
-#: journal/templates/profile.html:183 journal/views/profile.py:442
+#: journal/templates/profile.html:177 journal/templates/profile.html:182
+#: journal/views/profile.py:493
 msgid "liked collection"
 msgstr ""
 
-#: journal/templates/profile.html:217 journal/views/profile.py:616
+#: journal/templates/profile.html:213 journal/templates/profile.html:218
+#: journal/views/profile.py:668
 msgid "Organizations"
+msgstr ""
+
+#: journal/templates/profile_items.html:14
+msgid "Create collection"
 msgstr ""
 
 #: journal/templates/replies.html:8
@@ -6339,17 +6570,18 @@ msgstr ""
 msgid "Liked Collections"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:507
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:559
+#: social/templates/feed.html:43 social/templates/feed.html:45
 #: users/templates/users/account.html:455
 msgid "Following"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:511
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:563
 #: users/templates/users/account.html:464
 msgid "Followers"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:515
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:567
 msgid "Mutuals"
 msgstr ""
 
@@ -6667,7 +6899,7 @@ msgstr ""
 
 #: mastodon/views/bluesky.py:53 mastodon/views/email.py:35
 #: mastodon/views/mastodon.py:36 mastodon/views/threads.py:31
-#: users/templates/users/login.html:6 users/views/webauthn.py:136
+#: users/templates/users/login.html:6 users/views/webauthn.py:142
 msgid "Security check failed. Please try again."
 msgstr ""
 
@@ -6833,10 +7065,6 @@ msgstr[1] ""
 
 #: social/templates/_event_post.html:20
 msgid "boosted"
-msgstr ""
-
-#: social/templates/_event_post.html:39
-msgid "play"
 msgstr ""
 
 #: social/templates/_event_post.html:74
@@ -7023,41 +7251,61 @@ msgid ""
 "replied to your mark on <a href=\"%(item_url)s\">%(item_title)s</a>\n"
 msgstr ""
 
-#: social/templates/feed.html:39 users/templates/users/preferences.html:40
+#: social/templates/feed.html:23 social/templates/notification.html:39
+#: users/templates/users/preferences.html:40
 msgid "Activities"
 msgstr ""
 
-#: social/templates/feed.html:43 social/templates/feed.html:45
-msgid "world"
+#: social/templates/feed.html:39
+msgid "Feeds"
 msgstr ""
 
-#: social/templates/feed.html:51 social/templates/feed.html:53
-msgid "local"
+#: social/templates/feed.html:50 social/templates/feed.html:52
+msgid "Marks and reviews"
 msgstr ""
 
 #: social/templates/feed.html:58 social/templates/feed.html:60
-msgid "those you follow"
+msgid "Local"
 msgstr ""
 
-#: social/templates/feed.html:64 social/templates/feed.html:66
-msgid "what they read/watch/..."
+#: social/templates/feed.html:67 social/templates/feed.html:69
+msgid "World"
 msgstr ""
 
-#: social/templates/feed_events.html:29
+#: social/templates/feed_events.html:28
 msgid "no matching activities."
 msgstr ""
 
-#: social/templates/feed_events.html:31
+#: social/templates/feed_events.html:30
 msgid "no public activities yet."
 msgstr ""
 
-#: social/templates/feed_events.html:34
+#: social/templates/feed_events.html:35
 #, python-format
 msgid "Find and mark some books/movies/podcasts/games, <a href=\"%(import_url)s\">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow %(site_name)s users on the fediverse, so their recent activities and yours will show up here."
 msgstr ""
 
-#: social/templates/notification.html:58
-msgid "mention"
+#: social/templates/feed_events.html:44 users/templates/users/account.html:448
+#: users/templates/users/data.html:89 users/templates/users/data.html:141
+#: users/templates/users/data.html:198 users/templates/users/data.html:249
+#: users/templates/users/data.html:313 users/templates/users/data.html:376
+#: users/templates/users/data.html:553 users/templates/users/data.html:606
+#: users/templates/users/data.html:631
+#: users/templates/users/steam_import.html:140
+msgid "Import"
+msgstr ""
+
+#: social/templates/notification.html:26
+#, python-format
+msgid "%(count)s unread"
+msgstr ""
+
+#: social/templates/notification.html:57 social/templates/notification.html:59
+msgid "Mentions"
+msgstr ""
+
+#: social/templates/notification.html:64 social/templates/notification.html:66
+msgid "Follows"
 msgstr ""
 
 #: social/templates/post_question.html:6
@@ -7086,7 +7334,7 @@ msgstr ""
 msgid "Poll ending at %(end_time)s"
 msgstr ""
 
-#: social/templates/search_feed.html:12 social/views.py:57 social/views.py:58
+#: social/templates/search_feed.html:12 social/views.py:56 social/views.py:57
 msgid "Activities from those you follow"
 msgstr ""
 
@@ -7102,11 +7350,11 @@ msgstr ""
 msgid "Poll"
 msgstr ""
 
-#: social/views.py:59
+#: social/views.py:58
 msgid "Activities on this site"
 msgstr ""
 
-#: social/views.py:60
+#: social/views.py:59
 msgid "Activities from the fediverse"
 msgstr ""
 
@@ -7194,16 +7442,16 @@ msgstr ""
 msgid "Crossposted successfully."
 msgstr ""
 
-#: users/templates/users/_crosspost_row.html:39
+#: users/templates/users/_crosspost_row.html:41
 msgid "Re-authorize"
 msgstr ""
 
-#: users/templates/users/_crosspost_row.html:48
+#: users/templates/users/_crosspost_row.html:51
 msgid "Retry"
 msgstr ""
 
-#: users/templates/users/_crosspost_row.html:52
-#: users/templates/users/crossposts.html:22
+#: users/templates/users/_crosspost_row.html:55
+#: users/templates/users/crossposts.html:21
 msgid "Dismiss"
 msgstr ""
 
@@ -7471,7 +7719,7 @@ msgid "Name this passkey:"
 msgstr ""
 
 #: users/templates/users/account.html:227 users/templates/users/login.html:69
-#: users/templates/users/welcome.html:33 users/views/webauthn.py:109
+#: users/templates/users/welcome.html:33 users/views/webauthn.py:116
 msgid "Passkey"
 msgstr ""
 
@@ -7626,15 +7874,6 @@ msgstr ""
 
 #: users/templates/users/account.html:445
 msgid "CSV file"
-msgstr ""
-
-#: users/templates/users/account.html:448 users/templates/users/data.html:89
-#: users/templates/users/data.html:141 users/templates/users/data.html:198
-#: users/templates/users/data.html:249 users/templates/users/data.html:313
-#: users/templates/users/data.html:376 users/templates/users/data.html:553
-#: users/templates/users/data.html:606 users/templates/users/data.html:631
-#: users/templates/users/steam_import.html:140
-msgid "Import"
 msgstr ""
 
 #: users/templates/users/account.html:459
@@ -7793,6 +8032,11 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+#: users/templates/users/crossposts.html:9
+#: users/templates/users/crossposts.html:39
+msgid "Failed Crossposts"
+msgstr ""
+
 #: users/templates/users/crossposts.html:19
 msgid "Secure your account with a passkey for quick sign-in."
 msgstr ""
@@ -7802,22 +8046,10 @@ msgid "Set up"
 msgstr ""
 
 #: users/templates/users/crossposts.html:40
-msgid "Failed Crossposts"
-msgstr ""
-
-#: users/templates/users/crossposts.html:42
 msgid "These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post."
 msgstr ""
 
-#: users/templates/users/crossposts.html:48
-msgid "Time"
-msgstr ""
-
 #: users/templates/users/crossposts.html:50
-msgid "Platform"
-msgstr ""
-
-#: users/templates/users/crossposts.html:62
 msgid "No failed crossposts."
 msgstr ""
 
@@ -8288,7 +8520,7 @@ msgid "Turn replies to my own catalog item posts into notes for the item"
 msgstr ""
 
 #: users/templates/users/preferences.html:187
-msgid "Hide these categories in search results"
+msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:201
@@ -8869,31 +9101,31 @@ msgstr ""
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""
 
-#: users/views/webauthn.py:106
+#: users/views/webauthn.py:113
 msgid "Passkey registration failed"
 msgstr ""
 
-#: users/views/webauthn.py:126
+#: users/views/webauthn.py:132
 msgid "Credential already registered"
 msgstr ""
 
-#: users/views/webauthn.py:168 users/views/webauthn.py:175
-#: users/views/webauthn.py:184
+#: users/views/webauthn.py:176 users/views/webauthn.py:183
+#: users/views/webauthn.py:192
 msgid "Passkey not recognized"
 msgstr ""
 
-#: users/views/webauthn.py:189
+#: users/views/webauthn.py:197
 msgid "Account is inactive"
 msgstr ""
 
-#: users/views/webauthn.py:205
+#: users/views/webauthn.py:214
 msgid "Passkey verification failed"
 msgstr ""
 
-#: users/views/webauthn.py:231 users/views/webauthn.py:253
+#: users/views/webauthn.py:242 users/views/webauthn.py:266
 msgid "Passkey not found"
 msgstr ""
 
-#: users/views/webauthn.py:247
+#: users/views/webauthn.py:260
 msgid "Name is required"
 msgstr ""

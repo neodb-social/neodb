@@ -1,11 +1,13 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
 {% load mastodon %}
 {% load thumb %}
 {% load duration %}
+{% load discover %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
+<html lang="{{ LANGUAGE_CODE }}" class="discover-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,223 +36,471 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <script>
-    function _scroll_left(el){
-      el.scrollBy(0-el.offsetWidth, 0);
-    }
-    function _scroll_right(el){
-      el.scrollBy(el.offsetWidth, 0);
-    }
-    </script>
-    <main>
-      <div class="grid__main">
-        <div class="sortable">
-          {% if reco_items %}
-            <section class="entity-sort shelf" id="recommendations">
-              <span class="action">
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-                </span>
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-                </span>
-              </span>
-              <h5>{% trans "Recommended for you" %}</h5>
-              <ul class="cards">
-                {% for item in reco_items %}
-                  <li class="card">
-                    <a href="{{ item.url }}" title="{{ item.display_title }}">
-                      <img src="{{ item.cover|thumb:'normal' }}"
-                           alt="{{ item.display_title }}"
-                           loading="lazy">
-                      <div class="card-title">{{ item.display_title }}</div>
-                    </a>
-                  </li>
-                {% endfor %}
-              </ul>
+    <main class="dc-main" id="discover_top">
+      {% if request.user.is_authenticated %}
+        {% with unread=request.user.unread_announcements %}
+          {% if unread %}
+            <section class="dc-ann" id="announcements">
+              <span class="dc-eyebrow">{% trans "Unread Announcements" %}</span>
+              <div class="dc-ann-body">
+                {% for ann in unread %}<div>{{ ann.html }}</div>{% endfor %}
+              </div>
+              <form action="{% url 'users:mark_announcements_read' %}" method="post">
+                {% csrf_token %}
+                <input type="submit"
+                       class="secondary outline"
+                       value="{% trans 'mark all as read' %}">
+              </form>
             </section>
           {% endif %}
-          {% for gallery in gallery_list %}
-            <section class="entity-sort shelf"
-                     id="{{ gallery.name }}"
-                     {% if not gallery.items %}style="display:none;"{% endif %}>
-              <span class="action">
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-                </span>
-                <span>
-                  <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-                </span>
-              </span>
-              <h5>
-                {% if gallery.name == "original_episodes" %}
-                  <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'fediverse originals' %}</a>
-                {% else %}
-                  {{ gallery.category.label }}
-                {% endif %}
-              </h5>
-              <ul class="cards">
-                {% for item in gallery.items %}
-                  <li class="card">
-                    {% if gallery.name == "original_episodes" %}
-                      <a href="{{ item.url }}"
-                         title="{{ item.display_title }}"
-                         class="episode"
-                         data-media="{{ item.media_url }}"
-                         data-cover="{{ item.display_cover_image_url }}"
-                         data-title="{{ item.display_title }}"
-                         data-album="{{ item.program.display_title }}"
-                         data-hosts="{{ item.program.host_names|join:' / ' }}"
-                         data-uuid="{{ item.uuid }}"
-                         {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' item.uuid %}"{% endif %}>
-                        <img src="{{ item.display_cover_image_url }}"
-                             alt="{{ item.display_title }}"
-                             loading="lazy">
-                        <div class="card-title">{{ item.display_title }}</div>
-                      </a>
-                    {% else %}
-                      <a href="{{ item.url }}" title="{{ item.display_title }}">
-                        <img src="{{ item.cover|thumb:'normal' }}"
-                             alt="{{ item.display_title }}"
-                             loading="lazy">
-                        <div class="card-title">{{ item.display_title }}</div>
-                      </a>
-                    {% endif %}
+        {% endwith %}
+      {% elif all_announcements %}
+        <section class="dc-ann" id="announcements">
+          <details class="auto-collapse" open>
+            <summary>{% trans "Announcements" %}</summary>
+            {% for ann in all_announcements %}<div>{{ ann.html }}</div>{% endfor %}
+          </details>
+        </section>
+      {% endif %}
+      {% if not request.user.is_authenticated %}
+        <section class="dc-hero" id="hero">
+          <div class="dc-hero-copy">
+            {% if site_intro %}
+              <div class="dc-intro"
+                   hx-get="{{ site_intro }}"
+                   hx-trigger="load"
+                   hx-swap="outerHTML">
+                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+              </div>
+            {% else %}
+              <p class="dc-eyebrow">{% trans "Free, open and federated" %}</p>
+              <h1>{% trans "Keep every book, film, album, game and podcast you love on one shelf." %}</h1>
+              <p class="dc-lede">
+                {% blocktrans trimmed %}
+                  Mark what you read, watch, play and hear. Rate it, review it, put it in a collection, and share it with friends across the Fediverse and Bluesky.
+                {% endblocktrans %}
+              </p>
+              <p class="dc-cta">
+                <a class="dc-btn" role="button" href="{% url 'users:login' %}">{% trans "Get started" %}</a>
+                <a class="dc-btn outline secondary"
+                   role="button"
+                   href="{% url 'common:about' %}">{% blocktrans %}About {{ site_name }}{% endblocktrans %}</a>
+              </p>
+              <p class="dc-fine">{% trans "Sign in with a Fediverse account, a Bluesky account, or an email address." %}</p>
+            {% endif %}
+          </div>
+          {% if catalog_stats %}
+            <div class="dc-stats dc-surface">
+              <p class="dc-eyebrow">{% trans "In the catalog today" %}</p>
+              <ul>
+                {% for s in catalog_stats %}
+                  <li>
+                    <b>{{ s.count|localize }}</b>
+                    <span>{{ s.label }}</span>
                   </li>
                 {% endfor %}
               </ul>
-            </section>
-          {% endfor %}
-          <section class="entity-sort shelf"
-                   id="featured_collections"
-                   {% if not featured_collections %}style="display:none;"{% endif %}>
-            <span class="action">
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-              </span>
-              <span>
-                <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-              </span>
-            </span>
-            <h5>{% trans "Collections" %}</h5>
-            <ul class="cards">
-              {% for item in featured_collections %}
-                <li class="card">
-                  <a href="{{ item.url }}" title="{{ item.display_title }}">
-                    <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.title }}"
-                         loading="lazy">
-                    <div class="card-title">{{ item.title }}</div>
-                  </a>
-                </li>
+              {% if instance_stats.user_count %}
+                <p class="dc-fine">
+                  {% blocktrans with count=instance_stats.user_count|localize trimmed %}
+                    {{ count }} members
+                  {% endblocktrans %}
+                </p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+      {% if is_new_member %}
+        <section class="dc-onboard dc-surface" id="onboarding">
+          <header class="dc-mh">
+            <h2>{% trans "Welcome. Let us fill your shelf." %}</h2>
+            <span class="dc-sub">{% trans "Three short steps unlock recommendations and a feed worth reading." %}</span>
+          </header>
+          <ol class="dc-steps">
+            <li>
+              <b>1</b>
+              <div>
+                <strong>{% trans "Mark three things you know" %}</strong>
+                <span>{% trans "Pick from the row below or search for anything. Marks seed your recommendations." %}</span>
+                <a href="{% url 'common:search' %}">{% trans "Search" %} <i class="fa-solid fa-arrow-right"></i></a>
+              </div>
+            </li>
+            <li>
+              <b>2</b>
+              <div>
+                <strong>{% trans "Follow a few people" %}</strong>
+                <span>{% trans "Scroll down to what people are saying and follow the voices you like." %}</span>
+                <a href="#discover_posts">{% trans "See posts" %} <i class="fa-solid fa-arrow-down"></i></a>
+              </div>
+            </li>
+            <li>
+              <b>3</b>
+              <div>
+                <strong>{% trans "Bring your history" %}</strong>
+                <span>{% trans "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file." %}</span>
+                <a href="{% url 'users:data' %}">{% trans "Open importers" %} <i class="fa-solid fa-arrow-right"></i></a>
+              </div>
+            </li>
+          </ol>
+          {% if spotlight %}
+            <ul class="dc-cards">
+              {% for item in spotlight %}
+                {% include "_item_cover_card.html" %}
               {% endfor %}
             </ul>
-          </section>
-        </div>
-        {% if request.user.is_authenticated %}
-          <div class="entity-sort-control">
-            <div class="entity-sort-control__button" id="sortEditButton">
-              <span class="entity-sort-control__text" id="sortEditText">{% trans 'edit layout' %}</span>
-              <span class="entity-sort-control__text"
-                    id="sortSaveText"
-                    style="display: none">{% trans 'save' %}</span>
-              <span class="icon-edit" id="sortEditIcon">
-                <i class="fa-solid fa-pencil"></i>
-              </span>
-              <span class="icon-save" id="sortSaveIcon" style="display: none;">
-                <i class="fa-regular fa-floppy-disk"></i>
-              </span>
-            </div>
-            <div class="entity-sort-control__button"
-                 id="sortExitButton"
-                 style="display: none">
-              <span class="entity-sort-control__text">{% trans 'cancel' %}</span>
-            </div>
-          </div>
-          <div class="entity-sort-control__button entity-sort-control__button--float-right"
-               id="toggleDisplayButtonTemplate"
-               style="display: none">
-            <span class="showText" style="display: none;">{% trans 'show' %}</span>
-            <span class="hideText" style="display: none;">{% trans 'hide' %}</span>
-          </div>
-          <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-            {% csrf_token %}
-            <input type="hidden" name="name" value="discover">
-            <input type="hidden" name="layout">
-          </form>
-          <script src="{{ cdn_url }}/npm/html5sortable@0.13.3/dist/html5sortable.min.js"
-                  crossorigin="anonymous"></script>
-          <script src="{% static 'js/sort_layout.js' %}"></script>
-          {{ layout|json_script:"layout-data" }}
-          <script>
-        const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
-                      // initialize sort element visibility and order
-        initialLayoutData.forEach(elem => {
-          // set visiblity
-          $('#' + elem.id).data('visibility', elem.visibility);
-          if (!elem.visibility) {
-            $('#' + elem.id).hide();
-          }
-          // order
-          $('#' + elem.id).appendTo('.sortable');
-        });
-          </script>
-        {% endif %}
-      </div>
-      {% if request.user.is_authenticated %}
-        <aside class="grid__aside sidebar">
-          {% if request.user.unread_announcements %}
-            <section class="announcement">
-              <article>
-                <details id="section-announcements" class="auto-keep-collapse" open>
-                  <summary>{% trans "Unread Announcements" %}</summary>
-                  {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
-                  <form action="{% url 'users:mark_announcements_read' %}" method="post">
-                    {% csrf_token %}
-                    <input type="submit"
-                           class="secondary outline"
-                           value="{% trans 'mark all as read' %}">
-                  </form>
-                </details>
-              </article>
-            </section>
           {% endif %}
-          {% if popular_tags %}
-            <section>
-              <article>
-                <details id="section-popular-tags" class="auto-keep-collapse">
-                  <summary>{% trans 'Popular Tags' %}</summary>
-                  <div class="tag-list">
-                    {% for t in popular_tags %}
-                      <span>
-                        <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
-                      </span>
-                    {% empty %}
-                      <div class="empty">{% trans "nothing so far." %}</div>
-                    {% endfor %}
-                  </div>
-                </details>
-              </article>
-            </section>
-          {% endif %}
-          <section>
-            <article>
-              <details id="section-popular-posts" class="auto-keep-collapse" open>
-                <summary>{% trans 'Recent Posts' %}</summary>
-                <div style="font-size:80%"
-                     hx-get="{% url 'catalog:discover_popular_posts' %}"
-                     hx-trigger="load"
-                     hx-swap="innerHTML">
-                  <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                </div>
-              </details>
-            </article>
-          </section>
-        </aside>
-      {% else %}
-        {% include "_sidebar_anonymous.html" %}
+        </section>
       {% endif %}
-    </main>
-    {% include "_footer.html" %}
-  </body>
+      <nav class="dc-chips sticky" aria-label="{% trans 'Sections' %}">
+        <ul>
+          <li>
+            <a href="#discover_top" class="on">{% trans "All" %}</a>
+          </li>
+          {% if for_you_items or circles_items %}
+            <li>
+              <a href="#recommendations">{% trans "For you" %}</a>
+            </li>
+          {% endif %}
+          {% for gallery in gallery_list %}
+            {% if gallery.items %}
+              <li>
+                <a href="#{{ gallery.name }}">{{ gallery.category.label }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          {% if show_posts %}
+            <li>
+              <a href="#discover_posts">{% trans "Posts" %}</a>
+            </li>
+          {% endif %}
+          {% if featured_collections %}
+            <li>
+              <a href="#featured_collections">{% trans "Collections" %}</a>
+            </li>
+          {% endif %}
+          {% if original_shows %}
+            <li>
+              <a href="#original_episodes">{% trans "Originals" %}</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% if spotlight %}
+        <section class="dc-mod" id="spotlight">
+          <header class="dc-mh">
+            <h2>{% trans "Trending now" %}</h2>
+            <span class="dc-sub">{% trans "Marked most across the Fediverse in the last few days." %}</span>
+            <span class="action">
+              <button class="dc-nav dc-scroll"
+                      type="button"
+                      aria-label="{% trans 'scroll left' %}"
+                      _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="dc-nav dc-scroll"
+                    type="button"
+                    aria-label="{% trans 'scroll right' %}"
+                    _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </span>
+      </header>
+      <ul class="dc-spots">
+        {% for item in spotlight %}
+          <li class="dc-spot">
+            <a href="{{ item.url }}" title="{{ item.display_title }}">
+              <span class="dc-cover {{ item|cover_shape }}">
+                <img src="{{ item.cover|thumb:'normal' }}"
+                     alt="{{ item.display_title }}"
+                     loading="lazy">
+              </span>
+              <span class="dc-spot-body">
+                <span class="dc-eyebrow">{{ item.category.label }}</span>
+                <span class="dc-spot-title">{{ item.display_title }}</span>
+                <span class="dc-spot-rating">
+                  {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
+                  {% if item.weekly_marks %}
+                    <span>
+                      {% blocktrans count counter=item.weekly_marks trimmed %}
+                        marked by {{ counter }} person this week
+                      {% plural %}
+                        marked by {{ counter }} people this week
+                      {% endblocktrans %}
+                    </span>
+                  {% endif %}
+                </span>
+                <span class="dc-spot-brief">{{ item.display_description }}</span>
+                <span class="dc-spot-by">{{ item|primary_credit }}</span>
+              </span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+  <div class="sortable">
+    {# one section for both personal rows, so the layout editor can move or hide them under the id the old page used #}
+    <section class="entity-sort dc-mod"
+             id="recommendations"
+             data-title="{% trans 'For you' %}"
+             {% if not for_you_items and not circles_items %}style="display:none;"{% endif %}>
+      {% if for_you_items %}
+        <div class="dc-mod" id="for_you">
+          <header class="dc-mh">
+            <h2>{% trans "For you" %}</h2>
+            <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
+            <span class="action">
+              <button class="dc-nav dc-scroll"
+                      type="button"
+                      aria-label="{% trans 'scroll left' %}"
+                      _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="dc-nav dc-scroll"
+                    type="button"
+                    aria-label="{% trans 'scroll right' %}"
+                    _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </span>
+      </header>
+      <ul class="dc-cards">
+        {% for item in for_you_items %}
+          {% include "_item_cover_card.html" %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  {% if circles_items %}
+    <div class="dc-mod" id="from_circles">
+      <header class="dc-mh">
+        <h2>{% trans "From people you follow" %}</h2>
+        <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
+        <span class="action">
+          <button class="dc-nav dc-scroll"
+                  type="button"
+                  aria-label="{% trans 'scroll left' %}"
+                  _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'scroll right' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </span>
+  </header>
+  <ul class="dc-cards">
+    {% for item in circles_items %}
+      {% include "_item_cover_card.html" %}
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% if not for_you_items and not circles_items %}
+  <header class="dc-mh">
+    <h2>{% trans "For you" %}</h2>
+    <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
+  </header>
+{% endif %}
+</section>
+{% for gallery in gallery_list %}
+  <section class="entity-sort dc-mod"
+           id="{{ gallery.name }}"
+           data-title="{{ gallery.category.label }}"
+           {% if not gallery.items %}style="display:none;"{% endif %}>
+    <header class="dc-mh">
+      <h2>{{ gallery.category.label }}</h2>
+      <span class="action">
+        <a class="dc-more"
+           href="{% url 'catalog:discover_category' gallery.category.value %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'scroll left' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button class="dc-nav dc-scroll"
+              type="button"
+              aria-label="{% trans 'scroll right' %}"
+              _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </span>
+</header>
+<ul class="dc-cards">
+  {% for item in gallery.items %}
+    {% include "_item_cover_card.html" %}
+  {% endfor %}
+</ul>
+</section>
+{% endfor %}
+{% if show_originals %}
+  <section class="entity-sort dc-mod"
+           id="original_episodes"
+           data-title="{% trans 'fediverse originals' %}"
+           {% if not original_shows %}style="display:none;"{% endif %}>
+    <header class="dc-mh">
+      <h2>
+        <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'fediverse originals' %}</a>
+      </h2>
+      <span class="dc-sub">{% trans "Podcasts whose creators verified themselves here. Play right on this page." %}</span>
+      <span class="action">
+        <a class="dc-more" href="{% url 'catalog:discover_original_podcasts' %}">{% trans "All verified shows" %} <i class="fa-solid fa-arrow-right"></i></a>
+      </span>
+    </header>
+    <ul class="dc-shows">
+      {% for show in original_shows %}
+        {% with program=show.program episode=show.episodes.0 %}
+          <li class="dc-show">
+            <a href="{{ program.url }}" title="{{ program.display_title }}">
+              <img src="{{ program.cover|thumb:'normal' }}"
+                   alt="{{ program.display_title }}"
+                   loading="lazy">
+            </a>
+            <div class="dc-show-body">
+              <a class="dc-show-title" href="{{ program.url }}">{{ program.display_title }}</a>
+              <span class="dc-show-host">{{ program.host_names|join:' / ' }}</span>
+              <span class="dc-episode">
+                <a href="{{ episode.url }}"
+                   title="{% trans 'play' %}"
+                   class="dc-play episode"
+                   data-media="{{ episode.media_url }}"
+                   data-cover="{{ episode.display_cover_image_url }}"
+                   data-title="{{ episode.title|default:episode.display_title }}"
+                   data-album="{{ program.display_title }}"
+                   data-hosts="{{ program.host_names|join:' / ' }}"
+                   data-uuid="{{ episode.uuid }}"
+                   {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' episode.uuid %}"{% endif %}>
+                  <i class="fa-solid fa-play"></i>
+                </a>
+                <span>
+                  <a class="dc-episode-title" href="{{ episode.url }}">{{ episode.title|default:episode.display_title }}</a>
+                  <small class="dc-episode-date">
+                    {{ episode.pub_date|date:"Y-m-d" }}
+                    {% if show.episodes|length > 1 %}
+                      ·
+                      {% blocktrans count counter=show.episodes|length trimmed %}
+                        {{ counter }} recent episode
+                      {% plural %}
+                        {{ counter }} recent episodes
+                      {% endblocktrans %}
+                    {% endif %}
+                  </small>
+                </span>
+              </span>
+            </div>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}
+{% if show_posts %}
+  <section class="entity-sort dc-mod"
+           id="discover_posts"
+           data-title="{% trans 'What people are saying' %}"
+           data-nosnippet>
+    <header class="dc-mh">
+      <h2>{% trans "What people are saying" %}</h2>
+      <span class="dc-sub">{% trans "Public marks, comments and reviews from around the Fediverse." %}</span>
+      {% if request.user.is_authenticated %}
+        <span class="action">
+          <a class="dc-more" href="{% url 'social:feed' %}">{% trans "Open the feed" %} <i class="fa-solid fa-arrow-right"></i></a>
+        </span>
+      {% endif %}
+    </header>
+    <div class="dc-posts"
+         hx-get="{% url 'catalog:discover_popular_posts' %}"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  </section>
+{% endif %}
+<section class="entity-sort dc-mod"
+         id="featured_collections"
+         data-title="{% trans 'Collections' %}"
+         {% if not featured_collections %}style="display:none;"{% endif %}>
+  <header class="dc-mh">
+    <h2>{% trans "Collections" %}</h2>
+    <span class="dc-sub">{% trans "Lists made by members, most recently updated first." %}</span>
+    <span class="action">
+      <button class="dc-nav dc-scroll"
+              type="button"
+              aria-label="{% trans 'scroll left' %}"
+              _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'scroll right' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</span>
+</header>
+<ul class="dc-cards dc-cols">
+  {% for collection in featured_collections %}
+    {% include "_collection_card.html" %}
+  {% endfor %}
+</ul>
+</section>
+{% if popular_tags %}
+  <section class="entity-sort dc-mod"
+           id="popular_tags"
+           data-title="{% trans 'Popular Tags' %}">
+    <header class="dc-mh">
+      <h2>{% trans 'Popular Tags' %}</h2>
+      <span class="dc-sub">{% trans "Most used public tags in the last two weeks." %}</span>
+    </header>
+    <ul class="dc-tags">
+      {% for t in popular_tags %}
+        <li>
+          <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}
+</div>
+{% if request.user.is_authenticated %}
+  {{ layout|json_script:"layout-data" }}
+  <script>
+        const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
+        const knownSections = new Set();
+        // apply the saved order and visibility; data-visible feeds the editor
+        initialLayoutData.forEach(elem => {
+          knownSections.add(elem.id);
+          const el = document.getElementById(elem.id);
+          if (!el) return;
+          el.dataset.visible = elem.visibility ? '1' : '0';
+          if (!elem.visibility) {
+            el.style.display = 'none';
+          }
+          $(el).appendTo('.sortable');
+        });
+        // sections added since the layout was saved follow the saved ones
+        if (initialLayoutData.length) {
+          document.querySelectorAll('.sortable > .entity-sort').forEach(el => {
+            if (!knownSections.has(el.id)) {
+              $(el).appendTo('.sortable');
+            }
+          });
+        }
+        // chips must not point at a section the member hid
+        document.querySelectorAll('.dc-chips a[href^="#"]').forEach(a => {
+          const target = document.querySelector(a.getAttribute('href'));
+          if (target && target.style.display === 'none') {
+            a.parentElement.style.display = 'none';
+          }
+        });
+  </script>
+  {% include "_layout_editor.html" with name="discover" %}
+{% endif %}
+</main>
+{% include "_footer.html" %}
+</body>
 </html>

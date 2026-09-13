@@ -304,6 +304,11 @@ urlpatterns = [
         discover_original_podcasts,
         name="discover_original_podcasts",
     ),
+    path(
+        "discover/<str:category>/",
+        discover_category,
+        name="discover_category",
+    ),
     path("discover/", discover, name="discover"),
     # Debug views: DEBUG=True allows anyone, otherwise requires superuser
     path("debug/scraper/", scraper_debug_page, name="debug_scraper"),

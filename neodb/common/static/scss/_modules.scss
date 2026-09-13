@@ -1,0 +1,1059 @@
+// Shared building blocks for the discover, feed and profile pages: module
+// headers, cover cards, chips and surfaces. Every colour is a Pico token so
+// the blocks follow the site colour an admin picks (pico.<color>.css) and
+// both light and dark themes. Sizes are rem based with a pixel floor, because
+// _layout.scss drops the root font to 80% between 768px and 1200px on the
+// two-column pages. The only breakpoint is the site-wide 768px.
+//
+// Imported after _common.scss on purpose: the old `.shelf .action` and
+// `.action a` rules there would otherwise win over the header styles below.
+
+// libsass parses min()/max() as Sass functions; interpolate so CSS gets them.
+@function css-max($a, $b) {
+  @return unquote("max(#{$a}, #{$b})");
+}
+
+:root {
+  --dc-radius: 12px;
+  --dc-radius-lg: 16px;
+  --dc-gap: var(--pico-spacing);
+  --dc-surface: var(--pico-card-background-color);
+  --dc-surface-2: var(--pico-card-sectioning-background-color);
+  --dc-border: var(--pico-muted-border-color);
+  --dc-muted: var(--pico-muted-color);
+  --dc-strong: var(--pico-h2-color);
+  // widths of one card in the horizontal shelves; they scale with the
+  // viewport so no per-breakpoint column maths is needed
+  --dc-card: clamp(7.5rem, 12vw, 10rem);
+  --dc-col: clamp(11rem, 18vw, 14rem);
+  --dc-spot: clamp(18rem, 32vw, 26rem);
+  // text sizes with a floor for the 80% root font on two-column pages
+  --dc-fs-xs: #{css-max(0.72rem, 11px)};
+  --dc-fs-sm: #{css-max(0.8rem, 12px)};
+  --dc-fs-md: #{css-max(0.88rem, 13px)};
+  --dc-fs-base: #{css-max(1rem, 14px)};
+  --dc-fs-lg: #{css-max(1.3rem, 18px)};
+  --dc-fs-xl: 1.6rem;
+  // one radius for covers, buttons and mosaics; a larger one for cards and
+  // surfaces; the small one for badges; pills are fully round
+  --dc-radius-sm: 6px;
+  --dc-pill: 999px;
+}
+
+// one module: header plus content; pages that stack modules space them here
+.dc-mod {
+  margin: 0 0 calc(var(--dc-gap) * 2);
+  min-width: 0;
+}
+
+.dc-eyebrow {
+  margin: 0;
+  font-size: var(--dc-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pico-primary);
+}
+
+.dc-fine {
+  margin: 0.5rem 0 0;
+  font-size: var(--dc-fs-sm);
+  color: var(--dc-muted);
+}
+
+.dc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: auto;
+  margin: 0;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--dc-radius);
+  font-size: var(--dc-fs-md);
+  font-weight: 600;
+
+  &.outline {
+    background: var(--dc-surface);
+  }
+}
+
+// bordered box used for stats, onboarding, empty states and sidebar blocks
+.dc-surface {
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-lg);
+  background: var(--dc-surface);
+}
+
+// module header shared by every section
+.dc-mh {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0 0 0.9rem;
+
+  h1,
+  h2 {
+    margin: 0;
+    font-size: var(--dc-fs-lg);
+    font-weight: 700;
+    letter-spacing: -0.012em;
+    color: var(--dc-strong);
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    small {
+      margin-left: 0.4rem;
+      font-size: var(--dc-fs-sm);
+      font-weight: 600;
+      color: var(--dc-muted);
+
+      a {
+        color: inherit;
+      }
+    }
+  }
+
+  h1 {
+    font-size: var(--dc-fs-xl);
+  }
+
+  .dc-sub {
+    flex: 1 1 15rem;
+    font-size: var(--dc-fs-md);
+    color: var(--dc-muted);
+  }
+
+  // the global .action float does not apply inside this flex header
+  .action {
+    float: none;
+    position: static;
+    width: auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    > span {
+      padding: 0;
+    }
+
+    a:not(:hover) {
+      opacity: 1;
+    }
+
+    form {
+      margin: 0;
+    }
+  }
+}
+
+// item count next to a shelf title, a pill big enough to tap, links to the list
+.dc-count,
+a.dc-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0 0.7rem;
+  border-radius: var(--dc-pill);
+  background: var(--dc-surface-2);
+  color: var(--dc-strong);
+  font-size: var(--dc-fs-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  align-self: center;
+
+  &:hover {
+    background: var(--pico-primary-focus);
+    color: var(--pico-primary);
+  }
+}
+
+.dc-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--dc-fs-md);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:not(:hover) {
+    color: var(--pico-primary);
+  }
+}
+
+// round icon button: shelf arrows, compose, notifications
+.dc-nav,
+a.dc-nav {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--dc-border);
+  background: var(--dc-surface);
+  // not --pico-color: Pico redefines that to the primary inverse on <button>,
+  // which made the icon white on a white circle in the light theme
+  color: var(--dc-strong);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: var(--dc-fs-sm);
+  text-decoration: none;
+  line-height: 1;
+
+  &:hover,
+  &.activated {
+    border-color: var(--pico-primary);
+    color: var(--pico-primary);
+  }
+
+  .metrics {
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    min-width: 1.1rem;
+    padding: 0 0.3rem;
+    border-radius: var(--dc-pill);
+    background: var(--pico-primary-background);
+    color: var(--pico-primary-inverse);
+    font-size: var(--dc-fs-xs);
+    font-weight: 700;
+    line-height: 1.1rem;
+    text-align: center;
+  }
+
+  // the compose menu is a <details>; its summary is the button face
+  details.compose-menu > summary {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  // the main action of a page, filled in the site colour
+  &.primary {
+    background: var(--pico-primary-background);
+    border-color: var(--pico-primary-border);
+    color: var(--pico-primary-inverse);
+
+    &:hover {
+      background: var(--pico-primary-hover-background);
+      color: var(--pico-primary-inverse);
+    }
+  }
+}
+
+// play button over a podcast cover
+.dc-cover .dc-play {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.45rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  display: grid;
+  place-items: center;
+  font-size: var(--dc-fs-sm);
+  box-shadow: var(--pico-card-box-shadow);
+}
+
+// cards inside the narrow sidebar column
+.dc-sidebar-cards {
+  --dc-card: 7rem;
+  padding-top: 0.5rem;
+}
+
+.dc-sample {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px dashed var(--dc-muted);
+  border-radius: var(--dc-radius-sm);
+  font-size: var(--dc-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dc-muted);
+  vertical-align: 0.2em;
+}
+
+// section chips: links to sections or feed tabs, one of them active
+.dc-chips {
+  display: flex;
+  align-items: center;
+  gap: var(--dc-gap);
+  padding: 0.6rem 0;
+
+  ul {
+    flex: 1;
+    display: flex;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-block;
+    // Pico gives nav links negative margins that would overlap the pills
+    margin: 0;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-pill);
+    font-size: var(--dc-fs-md);
+    font-weight: 500;
+    color: var(--pico-color);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--pico-primary);
+      color: var(--pico-primary);
+    }
+
+    &.on,
+    &.on:hover {
+      background: var(--pico-primary-background);
+      border-color: var(--pico-primary-border);
+      color: var(--pico-primary-inverse);
+      cursor: default;
+    }
+  }
+
+  &.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    border-bottom: 1px solid var(--dc-border);
+    background: color-mix(in srgb, var(--pico-background-color) 90%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+// horizontal card shelves and the see-all grid
+.dc-cards,
+.dc-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0.6rem;
+  gap: var(--dc-gap);
+}
+
+.dc-cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--dc-card);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dc-border) transparent;
+
+  &.dc-cols {
+    grid-auto-columns: var(--dc-col);
+  }
+}
+
+.dc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+}
+
+.dc-card,
+.dc-col {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  scroll-snap-align: start;
+
+  > a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.dc-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--dc-radius);
+  overflow: hidden;
+  background: var(--dc-surface-2);
+  box-shadow: var(--pico-card-box-shadow);
+
+  &.sq {
+    aspect-ratio: 1;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+  }
+
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+}
+
+a:hover .dc-cover img {
+  transform: scale(1.03);
+}
+
+.dc-badge {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--dc-radius-sm);
+  // a translucent scrim in the theme's contrast colour over the cover
+  background: color-mix(in srgb, var(--pico-contrast-background) 80%, transparent);
+  color: var(--pico-contrast-inverse);
+  font-size: var(--dc-fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(4px);
+}
+
+// the owner's own stars in place of the public average
+.dc-badge-stars {
+  padding: 0.2rem 0.45rem;
+  font-size: var(--dc-fs-xs);
+  line-height: 1;
+
+  .rating-star {
+    vertical-align: middle;
+  }
+}
+
+// reading progress along the bottom edge of a cover
+.dc-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 0.3rem;
+  background: color-mix(in srgb, var(--pico-contrast-background) 40%, transparent);
+
+  > span {
+    display: block;
+    height: 100%;
+    background: var(--pico-primary-background);
+  }
+}
+
+// progress badge, a link on the owner's own shelf; same scrim look as the
+// rating badge, in the opposite corner of the cover
+.dc-progress-badge,
+a.dc-progress-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  margin: 0;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--dc-radius-sm);
+  background: color-mix(in srgb, var(--pico-contrast-background) 80%, transparent);
+  color: var(--pico-contrast-inverse);
+  font-size: var(--dc-fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    color: var(--pico-contrast-inverse);
+    background: var(--pico-primary-background);
+  }
+}
+
+.dc-title {
+  font-size: var(--dc-fs-md);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--dc-strong);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dc-meta {
+  font-size: var(--dc-fs-sm);
+  color: var(--dc-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// collections: a mosaic of member covers
+.dc-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  aspect-ratio: 1;
+  border-radius: var(--dc-radius);
+  overflow: hidden;
+  background: var(--dc-surface-2);
+  box-shadow: var(--pico-card-box-shadow);
+
+  &.single {
+    display: block;
+  }
+
+  span {
+    display: block;
+    overflow: hidden;
+    background: var(--dc-surface-2);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// posts laid out as cards
+.dc-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--dc-gap);
+
+  > .post {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-surface);
+    min-width: 0;
+  }
+
+  > .loading,
+  > .empty {
+    grid-column: 1 / -1;
+    color: var(--dc-muted);
+  }
+}
+
+// author avatar on an activity card: a filled circle flush with the name
+// line, instead of the bare default silhouette with a white ring
+// the avatar column is a flex item that must not shrink under the image
+.feed > section.activity > div > div:first-child,
+.dc-posts > .post > div > div:first-child {
+  flex: none;
+}
+
+.feed > section.activity .avatar,
+.dc-posts > .post .avatar {
+  display: block;
+  margin: 0.15rem 0.75rem 0 0 !important;
+  max-width: none;
+
+  img {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 0;
+    border-radius: 50%;
+    // the border grey, so the default silhouette gets a visible disc on a
+    // white card too
+    background: var(--dc-border);
+    object-fit: cover;
+  }
+
+  a img:hover {
+    border: 0;
+    outline: 2px solid var(--pico-primary);
+  }
+}
+
+// tags
+.dc-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--dc-pill);
+    background: var(--dc-surface-2);
+    color: var(--pico-color);
+    font-size: var(--dc-fs-sm);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--pico-primary-focus);
+      color: var(--pico-primary);
+    }
+  }
+}
+
+// label and value pairs in a surface (the about page)
+.dc-kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.6rem 1.5rem;
+  margin: 0;
+
+  dt {
+    margin: 0;
+    font-size: var(--dc-fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dc-muted);
+    align-self: baseline;
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--dc-fs-md);
+    color: var(--dc-strong);
+
+    small {
+      margin-left: 0.5rem;
+      font-size: var(--dc-fs-sm);
+    }
+  }
+}
+
+// people rows with an avatar and a name
+.dc-people {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--dc-gap);
+
+  ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.35rem 0;
+    color: var(--dc-strong);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--pico-primary);
+    }
+  }
+
+  .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+.dc-peers a small {
+  margin-left: 0.3rem;
+  color: var(--dc-muted);
+}
+
+.dc-ann-list > div + div {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--dc-border);
+}
+
+// one-line notice with an icon and links (the passkey nudge)
+.dc-nudge {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 var(--dc-gap);
+  padding: 0.7rem 1rem;
+  font-size: var(--dc-fs-md);
+
+  > i {
+    color: var(--pico-primary);
+  }
+
+  > span {
+    flex: 1 1 12rem;
+  }
+
+  a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+// failed crossposts: one card per post with its status and actions
+.dc-crossposts {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--dc-gap) * 0.75);
+  margin: 0;
+  padding: 0;
+}
+
+.dc-crosspost {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  list-style: none;
+
+  &.done {
+    align-items: center;
+    color: var(--dc-muted);
+  }
+
+  .dc-crosspost-icon {
+    flex: none;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--dc-surface-2);
+    color: var(--pico-primary);
+    display: grid;
+    place-items: center;
+    font-size: var(--dc-fs-base);
+  }
+
+  .dc-crosspost-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    .dc-title a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--pico-primary);
+      }
+    }
+  }
+
+  .dc-crosspost-status {
+    font-size: var(--dc-fs-sm);
+    color: var(--dc-muted);
+
+    i {
+      margin-right: 0.2rem;
+    }
+
+    small {
+      display: block;
+      margin-top: 0.15rem;
+    }
+
+    a {
+      margin-left: 0.4rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+  }
+
+  .dc-crosspost-actions {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+
+    .dc-btn {
+      padding: 0.45rem 0.8rem;
+      font-size: var(--dc-fs-sm);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dc-crosspost {
+    flex-wrap: wrap;
+
+    .dc-crosspost-actions {
+      flex-basis: 100%;
+      justify-content: flex-start;
+      padding-left: 3.3rem;
+    }
+  }
+}
+
+// empty state with a short text and a row of actions
+.dc-empty {
+  padding: 1.2rem 1.4rem;
+  border: 1px dashed var(--dc-border);
+  border-radius: var(--dc-radius-lg);
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-md);
+
+  p {
+    margin: 0 0 0.8rem;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  .dc-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0;
+  }
+}
+
+// a shelf with nothing on it; the hyperscript hides the whole section
+.dc-empty-inline {
+  list-style: none;
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-sm);
+}
+
+// compact, text-only preview of recent articles (articles have no cover)
+.article-preview {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--dc-gap);
+  margin: 0;
+  padding: 0.25rem 0 0.6rem;
+
+  > li {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-surface);
+    line-height: 1.4;
+    min-width: 0;
+  }
+
+  .title {
+    font-weight: 700;
+    color: var(--dc-strong);
+    text-decoration: none;
+  }
+
+  .meta {
+    color: var(--dc-muted);
+    margin-left: 0.4rem;
+    white-space: nowrap;
+    font-size: var(--dc-fs-sm);
+  }
+
+  .excerpt {
+    margin: 0.3rem 0 0;
+    color: var(--dc-muted);
+    font-size: var(--dc-fs-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  > li.empty {
+    border-style: dashed;
+    color: var(--dc-muted);
+    font-style: normal;
+    font-size: var(--dc-fs-sm);
+  }
+}
+
+// calendar heat map keeps its own widget; give it the row spacing
+.calendar_view {
+  margin: 0;
+  padding: 0.25rem 0 0.6rem;
+  list-style: none;
+}
+
+// layout editor: a button at the end of the page and a dialog with one row
+// per section, so reordering works with taps instead of drag and drop
+.dc-layout-control {
+  display: flex;
+  justify-content: center;
+  margin: var(--dc-gap) 0;
+}
+
+.dc-layout-editor {
+  article {
+    width: 100%;
+    max-width: 30rem;
+    margin: auto;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius-lg);
+
+    > header {
+      position: relative;
+      margin: 0 0 0.6rem;
+      padding: 0 2.6rem 0 0;
+      background: none;
+      border: 0;
+
+      h3 {
+        margin: 0 0 0.3rem;
+        font-size: var(--dc-fs-lg);
+      }
+
+      .dc-nav {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
+
+    > footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin: 0.9rem 0 0;
+      padding: 0;
+      background: none;
+      border: 0;
+
+      button {
+        width: auto;
+        margin: 0;
+      }
+    }
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0.4rem 0;
+    list-style: none;
+    border-bottom: 1px solid var(--dc-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-height: 2.6rem;
+      margin: 0;
+      font-size: var(--dc-fs-md);
+      font-weight: 600;
+      color: var(--dc-strong);
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      margin: 0;
+      flex: none;
+    }
+
+    &.off .dc-layout-title {
+      color: var(--dc-muted);
+      font-weight: 500;
+    }
+  }
+
+  .dc-layout-move {
+    display: flex;
+    gap: 0.35rem;
+
+    .dc-nav[disabled] {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dc-mh .dc-sub {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .dc-nav.dc-scroll {
+    display: none;
+  }
+
+  // the site header is sticky on phones; a second sticky bar would sit
+  // under it or over the open search box, so the chips scroll with the page
+  .dc-chips.sticky {
+    position: static;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .dc-layout-editor article {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-cover img {
+    transition: none;
+  }
+}

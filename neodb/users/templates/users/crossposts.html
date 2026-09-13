@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Pending' %}</title>
+    <title>{{ site_name }} - {% trans 'Failed Crossposts' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -14,11 +14,10 @@
     <main>
       <div class="grid__main">
         {% if not has_passkeys %}
-          <article id="passkey-nudge" style="display:none">
+          <div class="dc-surface dc-nudge" id="passkey-nudge" style="display:none">
             <i class="fa-solid fa-key"></i>
-            {% trans "Secure your account with a passkey for quick sign-in." %}
+            <span>{% trans "Secure your account with a passkey for quick sign-in." %}</span>
             <a href="{% url 'users:info' %}">{% trans "Set up" %}</a>
-            &middot;
             <a href="#" id="passkey-nudge-dismiss">{% trans "Dismiss" %}</a>
             <script>
               (function() {
@@ -33,36 +32,25 @@
                 });
               })();
             </script>
-          </article>
+          </div>
         {% endif %}
-        <article>
-          <details open>
-            <summary>{% trans 'Failed Crossposts' %}</summary>
-            <p>
-              <small>{% trans 'These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post.' %}</small>
-            </p>
-            {% if retries %}
-              <table role="grid">
-                <thead>
-                  <tr>
-                    <th>{% trans 'Time' %}</th>
-                    <th>{% trans 'Content' %}</th>
-                    <th>{% trans 'Platform' %}</th>
-                    <th>{% trans 'Status' %}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for retry in retries %}
-                    {% include "users/_crosspost_row.html" %}
-                  {% endfor %}
-                </tbody>
-              </table>
-            {% else %}
+        <section class="dc-mod" id="crossposts">
+          <header class="dc-mh">
+            <h1>{% trans 'Failed Crossposts' %}</h1>
+            <span class="dc-sub">{% trans 'These posts could not be crossposted to your linked social accounts. Re-authorize the account if needed, then retry. In rare cases retrying may create a duplicate post.' %}</span>
+          </header>
+          {% if retries %}
+            <ul class="dc-crossposts">
+              {% for retry in retries %}
+                {% include "users/_crosspost_row.html" %}
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="dc-empty">
               <p>{% trans 'No failed crossposts.' %}</p>
-            {% endif %}
-          </details>
-        </article>
+            </div>
+          {% endif %}
+        </section>
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
     </main>

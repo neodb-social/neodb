@@ -7,25 +7,19 @@
 {% load user_actions %}
 {% load duration %}
 {% for event in events %}
-  <section class="activity">
-    <div class="avatar">
-      <img src="{{ event.identity.avatar }}" alt="cover" />
-    </div>
-    <div>
-      <div>
-        <span class="time">
-          <span>{{ event.created|naturaldelta }}</span>
-        </span>
-        <div {% if event.seen %}class="seen"{% endif %}>
-          <span>
-            <a href="{{ event.identity.url }}"
-               class="nickname"
-               title="@{{ event.identity.full_handle }}">{{ event.identity.display_name }}</a>
-          </span>
-          {% with "event/"|add:event.template|add:".html" as template %}
-            {% include template %}
-          {% endwith %}
-        </div>
+  <section class="activity dc-surface dc-notice{% if not event.seen %} unread{% endif %}">
+    <a class="avatar" href="{{ event.identity.url }}">
+      <img src="{{ event.identity.avatar }}" alt="" loading="lazy" />
+    </a>
+    <div class="dc-notice-body">
+      <span class="time">{{ event.created|naturaldelta }}</span>
+      <div {% if event.seen %}class="seen"{% endif %}>
+        <a href="{{ event.identity.url }}"
+           class="nickname"
+           title="@{{ event.identity.full_handle }}">{{ event.identity.display_name }}</a>
+        {% with "event/"|add:event.template|add:".html" as template %}
+          {% include template %}
+        {% endwith %}
       </div>
     </div>
   </section>
@@ -42,6 +36,8 @@
   {% if request.GET.last %}
     <div class="empty">{% trans 'nothing more.' %}</div>
   {% else %}
-    <div class="empty">{% trans 'nothing so far.' %}</div>
+    <div class="dc-empty">
+      <p>{% trans 'nothing so far.' %}</p>
+    </div>
   {% endif %}
 {% endfor %}

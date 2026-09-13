@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.paginator import Paginator
 from django.db import models, transaction
+from django.db.models import Window
+from django.db.models.functions import RowNumber
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.html import escape
@@ -83,6 +85,11 @@ class Collection(List):
     if TYPE_CHECKING:
         members: models.QuerySet[CollectionMember]
         _stats_cache: dict[int, dict[str, int]]
+        # card data set per instance by attach_cover_previews and the
+        # discover view; templates read them, nothing persists them
+        cover_previews: list[str]
+        member_count: int
+        owner_name: str
     url_path = "collection"
     post_when_save = True
     index_when_save = True
@@ -417,6 +424,61 @@ class Collection(List):
             round(stats["complete"] * 100 / stats["total"]) if stats["total"] else 0
         )
         return stats
+
+    @classmethod
+    def attach_cover_previews(
+        cls, collections: list["Collection"], covers: int = 4
+    ) -> None:
+        """Set ``cover_previews`` and ``member_count`` on each collection.
+
+        Cards draw a mosaic of the first member covers instead of the
+        collection's own cover. Two queries for the whole list: one for the
+        leading members of every collection, one for the member counts.
+        Dynamic collections have no members and get an empty preview.
+        """
+        static = [c for c in collections if not c.is_dynamic]
+        for c in collections:
+            c.cover_previews = []
+            c.member_count = 0
+        if not static:
+            return
+        ids = [c.pk for c in static]
+        by_pk = {c.pk: c for c in static}
+        leading: dict[int, list[int]] = {pk: [] for pk in ids}
+        # only the leading rows of each collection leave the database, so a
+        # huge collection costs no more than a small one
+        rows = (
+            CollectionMember.objects.filter(parent_id__in=ids)
+            .annotate(
+                row=Window(
+                    expression=RowNumber(),
+                    partition_by=[models.F("parent_id")],
+                    order_by=[models.F("position").asc(), models.F("id").asc()],
+                )
+            )
+            .filter(row__lte=covers)
+            .order_by("parent_id", "position", "id")
+        )
+        for parent_id, item_id in rows.values_list("parent_id", "item_id"):
+            leading[parent_id].append(item_id)
+        # the polymorphic manager returns concrete items, whose default cover
+        # is the category's one instead of the generic placeholder; the tiles
+        # are small, so they get the same thumbnail as every other cover card
+        from common.templatetags.thumb import thumb
+
+        item_ids = {i for lst in leading.values() for i in lst}
+        items = Item.objects.filter(pk__in=item_ids).in_bulk() if item_ids else {}
+        for pk, lst in leading.items():
+            by_pk[pk].cover_previews = [
+                thumb(items[i].cover, "normal") for i in lst if i in items
+            ]
+        counts = (
+            CollectionMember.objects.filter(parent_id__in=ids)
+            .values("parent_id")
+            .annotate(n=models.Count("id"))
+        )
+        for row in counts:
+            by_pk[row["parent_id"]].member_count = row["n"]
 
     @classmethod
     def attach_stats_for_viewer(

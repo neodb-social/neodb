@@ -368,6 +368,7 @@ def about(request):
             peers.append({"name": name, "domain": peer})
     context["neodb_peers"] = peers
     context["preferred_languages"] = SiteConfig.system.preferred_languages
+    context["all_announcements"] = Takahe.get_announcements()
     return render(request, "common/about.html", context)
 
 

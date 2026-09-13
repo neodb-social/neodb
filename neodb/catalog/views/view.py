@@ -33,22 +33,32 @@ from journal.models import (
     q_piece_in_home_feed_of_user,
     q_piece_visible_to_user,
 )
+from journal.models.common import prefetch_pieces_for_posts
 from takahe.utils import Takahe
+from users.models import APIdentity
 
 from ..models import (
     CreditRole,
     ExternalResource,
     IdType,
     Item,
+    ItemCategory,
     ItemCredit,
     Podcast,
     TVEpisode,
 )
 from ..models.people import People, credit_role_label
-from ..recommendation import blended_for_discover, can_show_reco, similar_items
+from ..recommendation import can_show_reco, for_you, from_your_circles, similar_items
+from .search import visible_categories
 from ..sites import WikiData
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
+# personal rows on the discover page: how many cards to fetch, and the fewest
+# worth showing as a row at all
+RECO_ROW_SIZE = 24
+MIN_RECO_ROW = 3
+POSTS_ON_DISCOVER = 20
+POSTS_PER_AUTHOR_ON_DISCOVER = 2
 
 
 def retrieve_by_uuid(request, item_uid):
@@ -632,59 +642,158 @@ def wikipedia_pages(request, item_path, item_uuid, wikidata_id):
     )
 
 
-def discover(request):
-    cache_key = "public_gallery"
-    gallery_list = cache.get(cache_key, [])
+def _rotate(items: list, rot: int) -> list:
+    """Shift a cached list so the first card changes every six minutes."""
+    if not items:
+        return items
+    i = rot * len(items) // 10
+    return items[i:] + items[:i]
 
+
+def _group_original_episodes(episodes: list) -> list[dict]:
+    """Group the cached verified-podcast episodes by show, newest first."""
+    shows: dict[int, dict] = {}
+    for episode in episodes:
+        entry = shows.get(episode.program_id)
+        if entry is None:
+            entry = shows[episode.program_id] = {
+                "program": episode.program,
+                "episodes": [],
+            }
+        entry["episodes"].append(episode)
+    return list(shows.values())
+
+
+def _visible_category_values(request) -> set[str]:
+    """Category values the viewer may see; the session cache holds plain strings."""
+    return {getattr(c, "value", c) for c in visible_categories(request)}
+
+
+def _in_visible_categories(items: list[Item], visible: set[str]) -> list[Item]:
+    return [i for i in items if i.category.value in visible]
+
+
+def discover(request):
+    gallery_list = cache.get("public_gallery", [])
     if not SiteConfig.system.discover_show_verified_podcasts:
         gallery_list = [g for g in gallery_list if g["name"] != "original_episodes"]
+    # categories the site hides, or the member hid in preferences, stay off
+    # this page like they stay out of search
+    visible = _visible_category_values(request)
+    gallery_list = [
+        g
+        for g in gallery_list
+        if getattr(g.get("category"), "value", ItemCategory.Podcast.value) in visible
+    ]
 
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
+    card_items: list[Item] = []
+    shelves: list[dict] = []
+    original_shows: list[dict] = []
+    show_originals = False
     for gallery in gallery_list:
-        items = cache.get(gallery["name"], [])
-        i = rot * len(items) // 10
-        gallery["items"] = items[i:] + items[:i]
+        if gallery["name"] == "original_episodes":
+            show_originals = True
+            # group before rotating, so every show keeps its newest episode
+            # in front and the rotation only changes the order of the shows
+            original_shows = _rotate(
+                _group_original_episodes(cache.get(gallery["name"], [])), rot
+            )
+            continue
+        items = _rotate(cache.get(gallery["name"], []), rot)
+        gallery["items"] = items
+        shelves.append(gallery)
+        card_items.extend(items)
+    spotlight = _in_visible_categories(
+        _rotate(cache.get("discover_spotlight", []), rot), visible
+    )
+    card_items.extend(spotlight)
 
+    for_you_items: list[Item] = []
+    circles_items: list[Item] = []
+    is_new_member = False
     if request.user.is_authenticated:
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         announcements = []
+        pref = request.user.preference
+        # before the split, one "recommendations" section sat in the layout
+        # editor; a member who hid it keeps both personal rows hidden
+        hid_reco = any(
+            e.get("id") == "recommendations" and not e.get("visibility", True)
+            for e in layout
+        )
+        if not hid_reco and pref.show_recommendations("for_you"):
+            for_you_items = _in_visible_categories(
+                for_you(request.user, limit=RECO_ROW_SIZE), visible
+            )
+            if len(for_you_items) < MIN_RECO_ROW:
+                for_you_items = []
+        if not hid_reco and pref.show_recommendations("from_circles"):
+            circles_items = _in_visible_categories(
+                from_your_circles(request.user, limit=RECO_ROW_SIZE), visible
+            )
+            if len(circles_items) < MIN_RECO_ROW:
+                circles_items = []
+        reco_items = for_you_items + circles_items
+        if reco_items:
+            Item.prefetch_parent_items(reco_items)
+            Item.prefetch_edition_works(reco_items)
+            # Discover cards skip the metadata JSON (EGGPLANT-1DX); ratings
+            # and credits are batched so these cards match the cached shelves.
+            prefetch_related_objects(
+                reco_items,
+                Item.external_resources_prefetch(),
+                Item.credits_prefetch(),
+            )
+            Rating.attach_to_items(reco_items)
+            card_items.extend(reco_items)
+        # a member with nothing on any shelf and nobody followed gets the
+        # onboarding module in place of empty personal rows
+        is_new_member = (
+            not ShelfMember.objects.filter(owner=identity).exists()
+            and not identity.following
+        )
     else:
         identity = None
         layout = []
         announcements = Takahe.get_announcements()
+    Item.attach_localized_credit_names(card_items)
 
-    collection_ids = cache.get("featured_collections", [])
+    # cards read cover_previews, member_count and owner_name from the
+    # instance; the job cached them so no members query runs per page view
+    featured_collections: list[Collection] = []
+    collection_ids = _rotate(list(cache.get("featured_collections", [])), rot)
     if collection_ids:
-        i = rot * len(collection_ids) // 10
-        collection_ids = collection_ids[i:] + collection_ids[:i]
-        featured_collections = Collection.objects.filter(pk__in=collection_ids)
-    else:
-        featured_collections = []
+        meta = cache.get("discover_collection_meta", {})
+        by_id = {c.pk: c for c in Collection.objects.filter(pk__in=collection_ids)}
+        for cid in collection_ids:
+            c = by_id.get(cid)
+            if c is None:
+                continue
+            m = meta.get(cid, {})
+            c.cover_previews = m.get("covers", [])
+            c.member_count = m.get("count") or 0
+            c.owner_name = m.get("owner", "")
+            featured_collections.append(c)
 
     if SiteConfig.system.discover_show_popular_tags:
         popular_tags = cache.get("popular_tags", [])
     else:
         popular_tags = None
 
-    reco_items = []
+    # members always get a posts section (the public timeline when the site
+    # has no curated list); anonymous visitors only the curated one
+    show_posts = (
+        SiteConfig.system.discover_show_popular_posts or request.user.is_authenticated
+    )
     if request.user.is_authenticated:
-        reco_items = blended_for_discover(request.user, limit=30)
-        if len(reco_items) < 3:
-            reco_items = []
-        else:
-            Item.prefetch_parent_items(reco_items)
-            Item.prefetch_edition_works(reco_items)
-            # Discover cards skip the metadata JSON (EGGPLANT-1DX).
-            prefetch_related_objects(reco_items, Item.external_resources_prefetch())
-            cat_order = {
-                cat: i
-                for i, cat in enumerate(
-                    dict.fromkeys(str(it.category) for it in reco_items)
-                )
-            }
-            reco_items.sort(key=lambda i: cat_order[str(i.category)])
+        catalog_stats = []
+        instance_stats = {}
+    else:
+        catalog_stats = [s for s in cache.get("catalog_stats") or [] if s.get("count")]
+        instance_stats = cache.get("instance_info_stats") or {}
 
     updated = cache.get("trends_updated", timezone.now())
     return render(
@@ -693,13 +802,36 @@ def discover(request):
         {
             "identity": identity,
             "all_announcements": announcements,
-            "gallery_list": gallery_list,
+            "gallery_list": shelves,
+            "show_originals": show_originals,
+            "original_shows": original_shows,
+            "spotlight": spotlight,
+            "for_you_items": for_you_items,
+            "circles_items": circles_items,
+            "is_new_member": is_new_member,
             "featured_collections": featured_collections,
             "popular_tags": popular_tags,
+            "show_posts": show_posts,
+            "catalog_stats": catalog_stats,
+            "instance_stats": instance_stats,
             "layout": layout,
             "updated": updated,
-            "reco_items": reco_items,
         },
+    )
+
+
+def discover_category(request, category: str):
+    """Every item on one trending shelf, in the job's order, as a grid."""
+    try:
+        cat = ItemCategory(category)
+    except ValueError:
+        raise Http404(_("Category not found")) from None
+    items = cache.get("trending_" + cat.value, [])
+    Item.attach_localized_credit_names(items)
+    return render(
+        request,
+        "discover_category.html",
+        {"category": cat, "items": items},
     )
 
 
@@ -735,31 +867,81 @@ def discover_original_podcasts(request):
     )
 
 
-@login_required
 @require_http_methods(["GET"])
 def discover_popular_posts(request):
+    """Posts for the discover page, for members and anonymous visitors alike.
+
+    Anonymous visitors only get fully public posts, and the fragment is served
+    with ``X-Robots-Tag: noindex`` (robots.txt disallows the path as well), so
+    posts stay out of search engines while the page itself is indexed.
+    """
+    viewer = request.user.identity if request.user.is_authenticated else None
     if SiteConfig.system.discover_show_popular_posts:
         post_ids = cache.get("popular_posts", [])
         popular_posts = Takahe.get_posts(post_ids).order_by("-published")
-    else:
+    elif viewer:
+        # no curated list on this site: fall back to the public timeline,
+        # still capped per author so one person cannot fill it
         popular_posts = Takahe.get_public_posts(
             SiteConfig.system.discover_show_local_only
         )
-    popular_posts = (
-        popular_posts.not_blocked_by(request.user.identity.takahe_identity)
-        .annotate(
-            author_row=Window(
-                expression=RowNumber(),
-                partition_by="author_id",
-                order_by="-published",
+    else:
+        popular_posts = None
+    posts = []
+    hidden_authors: list[int] = []
+    if popular_posts is not None:
+        if viewer:
+            popular_posts = popular_posts.not_blocked_by(viewer.takahe_identity)
+        else:
+            # same rule as a single post page: public posts only, and none
+            # from local members who keep their profile behind a login
+            hidden_authors = list(
+                APIdentity.objects.filter(local=True)
+                .filter(Q(anonymous_viewable=False) | Q(deleted__isnull=False))
+                .values_list("pk", flat=True)
             )
+            popular_posts = popular_posts.filter(visibility=0).exclude(
+                author_id__in=hidden_authors
+            )
+        # a blocked (restricted) identity is only visible to itself
+        popular_posts = (
+            popular_posts.exclude(author__restriction=2)
+            .annotate(
+                author_row=Window(
+                    expression=RowNumber(),
+                    partition_by="author_id",
+                    order_by="-published",
+                )
+            )
+            .filter(author_row__lte=POSTS_PER_AUTHOR_ON_DISCOVER)
         )
-        .filter(author_row__lte=2)
-    )
-    posts = list(popular_posts[:20])
-    Takahe.prefetch_interaction_flags(posts, request.user.identity.pk)
-    return render(
+        posts = list(popular_posts[:POSTS_ON_DISCOVER])
+        if viewer:
+            Takahe.prefetch_interaction_flags(posts, viewer.pk)
+        else:
+            # a quoted post gets the same checks as the post itself; the
+            # template falls back to the quote link when it is dropped
+            for post in posts:
+                quoted = post.quoted_post_
+                if quoted and (
+                    quoted.visibility != 0
+                    or quoted.state in ("deleted", "deleted_fanned_out")
+                    or quoted.author_id in hidden_authors
+                    or quoted.author.restriction == 2
+                ):
+                    post.__dict__["quoted_post_"] = None
+        prefetch_pieces_for_posts(posts, viewer)
+        # posts about a hidden category go too; a post without an item stays
+        visible = _visible_category_values(request)
+        posts = [
+            p
+            for p in posts
+            if getattr(p, "item", None) is None or p.item.category.value in visible
+        ]
+    response = render(
         request,
         "_discover_popular_posts.html",
         {"popular_posts": posts},
     )
+    response["X-Robots-Tag"] = "noindex"
+    return response

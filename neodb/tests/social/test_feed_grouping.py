@@ -220,8 +220,9 @@ class TestFeedGroupingIntegration:
         content = response.content.decode()
         # the 5 marks collapse into exactly one group card
         assert content.count('class="activity post mark-group"') == 1
-        # all five covers are present in the carousel
+        # all five covers are present in the carousel, one cover card each
         assert content.count("mark-group-covers") == 1
+        assert content.count('class="dc-card"') == 5
         for book in books:
             assert book.display_title in content
 

@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load thumb %}
+{% comment %}
+  A collection as a shelf card: a mosaic of the first member covers, the title,
+  and a line with the owner (when ``owner_name`` is set) and the item count.
+  Callers batch ``Collection.attach_cover_previews`` first.
+{% endcomment %}
+<li class="dc-col">
+  <a href="{{ collection.url }}" title="{{ collection.title }}">
+    {% if collection.cover_previews|length >= 4 %}
+      <span class="dc-mosaic">
+        {% for cover in collection.cover_previews %}
+          <span>
+            <img src="{{ cover }}" alt="" loading="lazy">
+          </span>
+        {% endfor %}
+      </span>
+    {% else %}
+      <span class="dc-mosaic single">
+        <img src="{{ collection.cover|thumb:'normal' }}"
+             alt="{{ collection.title }}"
+             loading="lazy">
+      </span>
+    {% endif %}
+    <span class="dc-title">{{ collection.title }}</span>
+    <span class="dc-meta">
+      {{ collection.owner_name|default:"" }}
+      {% if collection.owner_name and collection.member_count %}·{% endif %}
+      {% if collection.member_count %}
+        {% blocktrans count counter=collection.member_count trimmed %}
+          {{ counter }} item
+        {% plural %}
+          {{ counter }} items
+        {% endblocktrans %}
+      {% endif %}
+    </span>
+  </a>
+</li>

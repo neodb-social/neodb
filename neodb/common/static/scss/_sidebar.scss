@@ -1,8 +1,19 @@
 .sidebar {
+  // each block is a bordered surface like the cards in the main column
   article {
     padding: calc(var(--pico-block-spacing-horizontal));
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius-lg);
+    box-shadow: none;
+
     article {
       box-shadow: unset;
+    }
+
+    > details > summary {
+      font-size: var(--dc-fs-md);
+      font-weight: 700;
+      color: var(--pico-h2-color);
     }
   }
 
@@ -34,7 +45,7 @@
       display: grid;
       grid-template-columns: auto 1fr;
       grid-template-rows: auto;
-      grid-column-gap: 0.5em;
+      grid-column-gap: 0.5rem;
       grid-row-gap: 0px;
       // align-items: center;
       // justify-content: left;
@@ -70,16 +81,25 @@
       float: right;
       color: var(--pico-muted-color);
       opacity: 0.5;
-      margin-left: 1em;
+      margin-left: 1rem;
     }
 
 
   }
 
 
-  @media (max-width: 768px) {
+  // recent posts belong to the profile owner, so the repeated avatar says nothing
+  .post .avatar {
+    display: none;
+  }
 
-    section,
+  @media (max-width: 768px) {
+    // the blocks are bordered cards, so keep a small gap between them when
+    // they stack above the main column
+    section {
+      margin-bottom: calc(var(--pico-spacing) * 0.5);
+    }
+
     >section>article,
     details {
       margin-bottom: 0;

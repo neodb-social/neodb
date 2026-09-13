@@ -463,7 +463,7 @@ def test_progress_shelf_renders_progress_bar(client):
     response = client.get(url)
     assert response.status_code == 200
     owner_content = response.content.decode()
-    assert "progress-bar" in owner_content
+    assert 'class="dc-progress"' in owner_content
     assert "width:25%" in owner_content
 
     # Reading progress is private: another viewer never sees the bar.
@@ -471,7 +471,7 @@ def test_progress_shelf_renders_progress_bar(client):
     client.force_login(other, backend="mastodon.auth.OAuth2Backend")
     response = client.get(url)
     assert response.status_code == 200
-    assert "progress-bar" not in response.content.decode()
+    assert 'class="dc-progress"' not in response.content.decode()
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -635,8 +635,8 @@ def test_edition_and_profile_show_and_update_book_progress(client):
     assert response.status_code == 200
     content = response.content.decode()
     assert "ch7" in content
-    assert 'class="card progress-card"' in content
-    assert 'class="progress-badge"' in content
+    assert 'class="dc-card"' in content
+    assert 'class="dc-progress-badge"' in content
     assert f"{note_url}?mode=progress" in content
 
     response = client.get(f"{note_url}?mode=progress")
@@ -678,9 +678,9 @@ def test_profile_book_progress_badge_hidden_from_non_owner(client):
     content = response.content.decode()
     # The public shelf still lists the book, but the private reading
     # progress must not leak to anyone other than the owner.
-    assert 'class="card progress-card"' in content
+    assert 'class="dc-card"' in content
     assert book.display_title in content
-    assert 'class="progress-badge"' not in content
+    assert 'class="dc-progress-badge"' not in content
     assert "ch7" not in content
     assert "Chapter 7" not in content
 

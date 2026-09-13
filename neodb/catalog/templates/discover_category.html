@@ -1,0 +1,33 @@
+{% load static %}
+{% load i18n %}
+{% load mastodon %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="discover-page nav-page-discover">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% blocktrans with category=category.label %}Trending in {{ category }}{% endblocktrans %}</title>
+    <link rel="canonical"
+          href="{{ site_url }}{% url 'catalog:discover_category' category.value %}">
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="dc-main">
+      <header class="dc-mh dc-page-head">
+        <h1>{% blocktrans with category=category.label %}Trending in {{ category }}{% endblocktrans %}</h1>
+        <span class="dc-sub">{% trans "Most marked across the Fediverse recently. Refreshed every hour." %}</span>
+        <a class="dc-more" href="{% url 'catalog:discover' %}">{% trans "Back to Explore" %} <i class="fa-solid fa-arrow-right"></i></a>
+      </header>
+      <ul class="dc-grid">
+        {% for item in items %}
+          {% include "_item_cover_card.html" %}
+        {% empty %}
+          <li class="empty">{% trans "nothing so far." %}</li>
+        {% endfor %}
+      </ul>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

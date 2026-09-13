@@ -1,67 +1,42 @@
-{% load thumb %}
 {% load i18n %}
 {% load l10n %}
-<span class="action">
-  <span>
-    <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-  </span>
-  <span>
-    <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-  </span>
-</span>
-<h5>
-  {{ title }}
-  <small>
-    <a href="{{ url }}">{{ total }}</a>
+{% comment %}
+  One shelf on a profile page: header with the count, and a scrolling row of
+  cover cards. ``kind`` is "collection" for collection rows, else items.
+{% endcomment %}
+<header class="dc-mh">
+  <h2>{{ title }}</h2>
+  <a class="dc-count" href="{{ url }}" title="{% trans 'show all' %}">{{ total }}</a>
+  <span class="action">
     {% if show_create_button %}
-      <a href="{% url 'journal:collection_create' %}">
-        <i class="fa-regular fa-square-plus"></i>
+      <a class="dc-nav"
+         href="{% url 'journal:collection_create' %}"
+         title="{% trans 'Create collection' %}">
+        <i class="fa-solid fa-plus"></i>
       </a>
     {% endif %}
-  </small>
-</h5>
-<ul class="cards">
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'scroll left' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button class="dc-nav dc-scroll"
+          type="button"
+          aria-label="{% trans 'scroll right' %}"
+          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+  <i class="fa-solid fa-chevron-right"></i>
+</button>
+</span>
+</header>
+<ul class="dc-cards{% if kind == 'collection' %} dc-cols{% endif %}">
   {% for item in items %}
-    <li class="card progress-card">
-      <a href="{{ item.url }}" title="{{ item.display_title }}">
-        <span class="cover">
-          <img src="{{ item.cover|thumb:'normal' }}"
-               alt="{{ item.display_title }}"
-               loading="lazy">
-          {% if item.reading_progress_percent %}
-            <span class="progress-bar" title="{{ item.reading_progress_percent }}%">
-              <span style="width:{{ item.reading_progress_percent }}%"></span>
-            </span>
-          {% endif %}
-        </span>
-        <div>{{ item.display_title }}</div>
-      </a>
-      {% if show_progress_badges %}
-        {% if can_update_progress %}
-          <a href="#"
-             class="progress-badge"
-             hx-get="{% url 'journal:note' item.uuid %}?mode=progress"
-             hx-target="body"
-             hx-swap="beforeend"
-             title="{% if item.reading_progress %}{{ item.reading_progress }}{% else %}{% trans 'Set progress' %}{% endif %}">
-            {% if item.reading_progress_short %}
-              {{ item.reading_progress_short }}
-            {% else %}
-              <i class="fa-solid fa-percent"></i>
-            {% endif %}
-          </a>
-        {% else %}
-          <span class="progress-badge" title="{{ item.reading_progress|default:'' }}">
-            {% if item.reading_progress_short %}
-              {{ item.reading_progress_short }}
-            {% else %}
-              <i class="fa-solid fa-percent"></i>
-            {% endif %}
-          </span>
-        {% endif %}
-      {% endif %}
-    </li>
+    {% if kind == 'collection' %}
+      {% include "_collection_card.html" with collection=item %}
+    {% else %}
+      {% include "_item_cover_card.html" %}
+    {% endif %}
   {% empty %}
-    <div _="init hide closest .shelf">{% trans "nothing so far." %}</div>
+    <li class="dc-empty-inline" _="init hide closest .entity-sort">{% trans "nothing so far." %}</li>
   {% endfor %}
 </ul>

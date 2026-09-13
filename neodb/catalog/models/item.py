@@ -401,6 +401,11 @@ class Item(PolymorphicModel):
     # discover surfaces so they neither render nor trigger the per-item tag
     # aggregation that was the NEODB-SOCIAL-7KW slow query.
     tags: list[str] | None = None
+    #: Shelf marks in the last week, set by ``DiscoverGenerator`` on the cached
+    #: discover items so cards can show it; not a DB field. None means unknown.
+    weekly_marks: int | None = None
+    # the shelf owner's own grade, set by the profile views for cover cards
+    owner_rating_grade: int | None = None
     #: Values ``to_indexable_doc`` would otherwise query per item, filled in by
     #: ``prepare_indexable_batch``; not DB fields. None means "not batched".
     _indexable_tags: list[str] | None = None

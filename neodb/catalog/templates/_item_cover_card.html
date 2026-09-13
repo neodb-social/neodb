@@ -1,0 +1,62 @@
+{% load i18n %}
+{% load thumb %}
+{% load discover %}
+{% load duration %}
+{% comment %}
+  One item as a cover card: cover with rating badge, title, and a line with
+  the leading credit and rating count. Callers batch ``Rating.attach_to_items``
+  and ``Item.credits_prefetch`` first, or pass ``compact`` to skip the credit
+  line. ``owner_rating`` swaps the public average for the shelf owner's own
+  stars (``owner_rating_grade``). ``show_progress_badges`` adds the reading progress bar and badge that
+  the owner's own progress shelf carries.
+{% endcomment %}
+<li class="dc-card">
+  <a href="{{ item.url }}" title="{{ item.display_title }}">
+    <span class="dc-cover {{ item|cover_shape }}">
+      <img src="{{ item.cover|thumb:'normal' }}"
+           alt="{{ item.display_title }}"
+           loading="lazy">
+      {% if owner_rating %}
+        {% if item.owner_rating_grade %}
+          <span class="dc-badge dc-badge-stars{% if not is_owner %} solo-hidden{% endif %}">{{ item.owner_rating_grade|rating_star }}</span>
+        {% endif %}
+      {% elif item.rating %}
+        <span class="dc-badge solo-hidden">★ {{ item.rating|floatformat:1 }}</span>
+      {% endif %}
+      {% if show_progress_badges and item.reading_progress_percent %}
+        <span class="dc-progress" title="{{ item.reading_progress_percent }}%">
+          <span style="width:{{ item.reading_progress_percent }}%"></span>
+        </span>
+      {% endif %}
+    </span>
+    <span class="dc-title">{{ item.display_title }}</span>
+    {% if not compact %}
+      {% with credit=item|primary_credit %}<span class="dc-meta">{{ credit }}</span>{% endwith %}
+    {% endif %}
+  </a>
+  {% if show_progress_badges %}
+    {% if can_update_progress %}
+      <a href="#"
+         class="dc-progress-badge"
+         hx-get="{% url 'journal:note' item.uuid %}?mode=progress"
+         hx-target="body"
+         hx-swap="beforeend"
+         title="{% if item.reading_progress %}{{ item.reading_progress }}{% else %}{% trans 'Set progress' %}{% endif %}">
+        {% if item.reading_progress_short %}
+          {{ item.reading_progress_short }}
+        {% else %}
+          <i class="fa-solid fa-percent"></i>
+        {% endif %}
+      </a>
+    {% else %}
+      <span class="dc-progress-badge"
+            title="{{ item.reading_progress|default:'' }}">
+        {% if item.reading_progress_short %}
+          {{ item.reading_progress_short }}
+        {% else %}
+          <i class="fa-solid fa-percent"></i>
+        {% endif %}
+      </span>
+    {% endif %}
+  {% endif %}
+</li>

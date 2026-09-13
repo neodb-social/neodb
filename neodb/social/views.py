@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Any, cast
+from typing import cast
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
@@ -10,17 +10,16 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from catalog.models import Edition, Item, ItemCategory, PodcastEpisode
 from common.models import SiteConfig
 from common.models.misc import int_
-from journal.models import CrosspostRetry, Piece, ShelfType
+from common.validators import get_safe_referer_url
+from journal.models import CrosspostRetry, Piece
 from journal.models.common import prefetch_pieces_for_posts
 from journal.search import JournalIndex, JournalQueryParser
 from social.feed_grouping import FeedEvent, group_feed_events
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity
-from common.validators import get_safe_referer_url
 
 PAGE_SIZE = 10
 MAX_UNREAD_DISPLAY = 99
@@ -84,64 +83,16 @@ def _public_posts(typ: int, identity: APIdentity) -> QuerySet[Post]:
     return posts.order_by("-id")
 
 
-def _sidebar_context(user):
-    podcast_ids = [
-        p.item_id
-        for p in user.shelf_manager.get_latest_members(
-            ShelfType.PROGRESS, ItemCategory.Podcast
-        )
-    ]
-    recent_podcast_episodes = PodcastEpisode.objects.filter(
-        program_id__in=podcast_ids
-    ).order_by("-pub_date")[:10]
-    book_members = list(
-        user.shelf_manager.get_latest_members(
-            ShelfType.PROGRESS, ItemCategory.Book
-        ).select_related("current_progress")[:10]
-    )
-    books_by_id = Edition.objects.filter(
-        id__in=[member.item_id for member in book_members]
-    ).in_bulk()
-    books_in_progress = []
-    for member in book_members:
-        book = books_by_id.get(member.item_id)
-        if not book:
-            continue
-        current_progress = getattr(member, "current_progress", None)
-        if current_progress:
-            rendered_book = cast(Any, book)
-            rendered_book.reading_progress = current_progress.progress_display
-            rendered_book.reading_progress_short = (
-                current_progress.progress_short_display
-            )
-            rendered_book.reading_progress_percent = (
-                current_progress.progress_percentage(book.pages)
-            )
-        books_in_progress.append(book)
-    tvshows_in_progress = Item.objects.filter(
-        id__in=[
-            p.item_id
-            for p in user.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.TV
-            )[:10]
-        ]
-    )
+def _unread_count(user) -> str | int:
+    """Unread notifications for the bell in the page header, capped for display."""
     unread_ids = list(
         Takahe.get_events(user.identity.pk, _all_notification_types)
         .filter(seen=False, dismissed=False)
         .values_list("pk", flat=True)[: MAX_UNREAD_DISPLAY + 1]
     )
-    unread = (
-        f"{MAX_UNREAD_DISPLAY}+"
-        if len(unread_ids) > MAX_UNREAD_DISPLAY
-        else len(unread_ids)
-    )
-    return {
-        "unread": unread,
-        "recent_podcast_episodes": recent_podcast_episodes,
-        "books_in_progress": books_in_progress,
-        "tvshows_in_progress": tvshows_in_progress,
-    }
+    if len(unread_ids) > MAX_UNREAD_DISPLAY:
+        return f"{MAX_UNREAD_DISPLAY}+"
+    return len(unread_ids)
 
 
 def _add_interaction_to_events(events, identity_id):
@@ -169,7 +120,7 @@ def feed(request, typ=FeedType.following):
     if not _feed_enabled(typ):
         raise Http404
     user = request.user
-    data = _sidebar_context(user)
+    data = {"unread": _unread_count(user)}
     data["feed_type"] = typ
     data["feed_title"] = _FEED_TITLES.get(typ, _FEED_TITLES[FeedType.following])
     data["show_local_feed"] = SiteConfig.system.feed_show_local
@@ -193,7 +144,7 @@ def world(request):
 @login_required
 def search(request):
     user = request.user
-    data = _sidebar_context(user)
+    data = {"unread": _unread_count(user)}
     return render(request, "search_feed.html", data)
 
 
@@ -307,7 +258,7 @@ def data(request):
 @require_http_methods(["GET"])
 @login_required
 def notification(request):
-    return render(request, "notification.html", _sidebar_context(request.user))
+    return render(request, "notification.html", {"unread": _unread_count(request.user)})
 
 
 @require_http_methods(["POST"])
@@ -335,7 +286,7 @@ class NotificationEvent:
             self.replies = [self.post]
             self.post = self.post.in_reply_to_post() if self.post else None
         self.piece = Piece.get_by_post_id(self.post.id) if self.post else None
-        self.item = getattr(self.piece, "item") if hasattr(self.piece, "item") else None
+        self.item = self.piece.item if hasattr(self.piece, "item") else None
         if self.piece and self.template in ["liked", "boosted", "mentioned"]:
             cls = self.piece.__class__.__name__.lower()
             self.template += "_" + cls

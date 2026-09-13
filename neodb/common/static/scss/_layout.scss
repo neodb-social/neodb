@@ -108,6 +108,7 @@
 
       .grid__aside {
         order: -2;
+        margin: var(--pico-spacing) var(--pico-spacing) 0;
       }
 
       ul {
@@ -119,6 +120,26 @@
       }
 
 
+    }
+  }
+}
+
+// one centred column for the feed and notification pages, the width a
+// comfortable line of text wants; the root font stays full size like the
+// discover page because nothing has to fit beside the column
+.feed-page.dc-column {
+  --pico-font-size: 100%;
+
+  main {
+    display: block;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.5) calc(var(--pico-spacing) * 2);
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding: calc(var(--pico-spacing) * 0.5) calc(var(--pico-spacing) * 0.5) calc(var(--pico-spacing) * 1.5);
     }
   }
 }

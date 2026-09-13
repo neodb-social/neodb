@@ -7,6 +7,9 @@ Disallow: /tags/*
 # Don't allow bots to crawl through the proxy
 Disallow: /proxy/*
 
+# Posts embedded in the discover page are for readers, not search indexes
+Disallow: /discover/popular-posts/
+
 {% for user_agent in user_agents %}
 User-agent: {{user_agent}}
 Disallow: /

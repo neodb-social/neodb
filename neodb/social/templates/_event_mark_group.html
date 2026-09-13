@@ -10,7 +10,7 @@
         </a>
       </div>
     </div>
-    <div style="flex-grow:1;">
+    <div style="flex-grow:1; min-width:0;">
       <span class="action">
         <span class="post_timestamp timestamp">{{ group.published|naturaldelta }}</span>
         <span>
@@ -26,20 +26,11 @@
            title="@{{ group.author.handle }}">{{ group.author.name|default:group.author.username }}</a>
         {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
       </span>
-      <div class="shelf">
-        <ul class="cards mark-group-covers">
-          {% for item in group.items %}
-            <li class="card">
-              <a href="{{ item.url }}" title="{{ item.display_title }}">
-                <img src="{{ item.display_cover_image_url|relative_uri }}"
-                     alt="{{ item.display_title }}"
-                     loading="lazy">
-                <div>{{ item.display_title }}</div>
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+      <ul class="dc-cards mark-group-covers">
+        {% for item in group.items %}
+          {% include "_item_cover_card.html" with compact=1 %}
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </section>

@@ -165,6 +165,21 @@ def profile(request: AuthedHttpRequest, user_name):
         else:
             year = None
     liked_collections_count = liked_collections_queryset.count()
+    # the owner's home page keeps the newest episodes of the podcasts they
+    # follow in the sidebar, playable in place
+    recent_podcast_episodes = []
+    if me:
+        podcast_ids = [
+            p.item_id
+            for p in target.shelf_manager.get_latest_members(
+                ShelfType.PROGRESS, ItemCategory.Podcast
+            )
+        ]
+        recent_podcast_episodes = list(
+            PodcastEpisode.objects.filter(program_id__in=podcast_ids)
+            .select_related("program")
+            .order_by("-pub_date")[:10]
+        )
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
@@ -223,6 +238,7 @@ def profile(request: AuthedHttpRequest, user_name):
             "me": me,
             "top_tags": top_tags,
             "recent_posts": recent_posts,
+            "recent_podcast_episodes": recent_podcast_episodes,
             "shelf_list": shelf_list,
             "collections_count": collections_count,
             "pinned_collections": pinned_collections,
@@ -342,6 +358,23 @@ def user_calendar_data(request, user_name):
     )
 
 
+def _attach_owner_ratings(owner: APIdentity, items: list, visible) -> None:
+    """Set ``owner_rating_grade`` on each item from the owner's own rating.
+
+    Profile shelves show the shelf owner's stars instead of the public
+    average; ``visible`` is the piece visibility filter for the viewer.
+    """
+    if not items:
+        return
+    grades = dict(
+        Rating.objects.filter(owner=owner, item_id__in=[i.pk for i in items])
+        .filter(visible)
+        .values_list("item_id", "grade")
+    )
+    for i in items:
+        i.owner_rating_grade = grades.get(i.pk)
+
+
 @require_http_methods(["GET", "HEAD"])
 def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
     collection = get_object_or_404(Collection, uid=get_uuid_or_404(collection_uuid))
@@ -361,8 +394,21 @@ def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
             items = r.items
             total = r.total
     else:
-        items = collection.ordered_items[:20]
+        items = list(collection.ordered_items[:20])
         total = collection.members.count()
+    # the profile page passes its owner, whose stars the cards show
+    owner = None
+    if handle := request.GET.get("owner"):
+        try:
+            owner = APIdentity.get_by_handle(handle)
+        except APIdentity.DoesNotExist:
+            owner = None
+    if items:
+        prefetch_related_objects(items, Item.credits_prefetch())
+        if owner:
+            _attach_owner_ratings(
+                owner, items, q_owned_piece_visible_to_user(request.user, owner)
+            )
 
     return render(
         request,
@@ -372,6 +418,8 @@ def profile_collection_items(request: AuthedHttpRequest, collection_uuid):
             "url": collection.url,
             "items": items,
             "total": total,
+            "owner_rating": owner is not None,
+            "is_owner": owner is not None and owner.user == request.user,
         },
     )
 
@@ -391,8 +439,9 @@ def profile_created_collections(request: AuthedHttpRequest, user_name):
     qv = q_owned_piece_visible_to_user(request.user, target)
 
     # Get collections
-    collections = Collection.objects.filter(qv).order_by("-created_time")[:20]
+    collections = list(Collection.objects.filter(qv).order_by("-created_time")[:20])
     total = Collection.objects.filter(qv).count()
+    Collection.attach_cover_previews(collections)
 
     return render(
         request,
@@ -402,6 +451,7 @@ def profile_created_collections(request: AuthedHttpRequest, user_name):
             "url": f"{target.url}collections/",
             "items": collections,
             "total": total,
+            "kind": "collection",
             "show_create_button": target.user == request.user,
         },
     )
@@ -432,8 +482,9 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
             q_piece_visible_to_user(request.user)
         )
 
-    collections = liked_collections[:20]
+    collections = list(liked_collections[:20])
     total = liked_collections.count()
+    Collection.attach_cover_previews(collections)
 
     return render(
         request,
@@ -443,6 +494,7 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
             "url": f"{target.url}like/collections/",
             "items": collections,
             "total": total,
+            "kind": "collection",
         },
     )
 
@@ -633,7 +685,8 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
                     )
     if items:
         Item.prefetch_parent_items(items)
-        Rating.attach_to_items(items)
+        prefetch_related_objects(items, Item.credits_prefetch())
+        _attach_owner_ratings(target, items, qv)
 
     if not label:
         # raise Http404(_("Shelf not found"))
@@ -649,5 +702,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             "total": total,
             "show_progress_badges": show_progress_badges,
             "can_update_progress": can_update_progress,
+            "owner_rating": True,
+            "is_owner": request.user.is_authenticated and target.user == request.user,
         },
     )

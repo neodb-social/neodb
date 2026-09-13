@@ -22,16 +22,27 @@
     </div>
   {% endif %}
 {% empty %}
-  <div class="empty">
-    {% if request.GET.last or page > 1 %}
-      {% trans 'nothing more.' %}
-    {% elif request.GET.q %}
-      {% trans 'no matching activities.' %}
-    {% elif feed_type == 2 or feed_type == 3 %}
-      {% trans 'no public activities yet.' %}
-    {% else %}
-      {% url 'users:data' as import_url %}
-      {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}
-    {% endif %}
-  </div>
+  {% if request.GET.last or page > 1 %}
+    <div class="empty">{% trans 'nothing more.' %}</div>
+  {% elif request.GET.q %}
+    <div class="empty">{% trans 'no matching activities.' %}</div>
+  {% elif feed_type == 2 or feed_type == 3 %}
+    <div class="empty">{% trans 'no public activities yet.' %}</div>
+  {% else %}
+    <div class="dc-empty">
+      <p>
+        {% url 'users:data' as import_url %}
+        {% blocktrans %}Find and mark some books/movies/podcasts/games, <a href="{{ import_url }}">import your data</a> from Goodreads/Letterboxd/Douban, follow some fellow {{ site_name }} users on the fediverse, so their recent activities and yours will show up here.{% endblocktrans %}
+      </p>
+      <p class="dc-cta">
+        <a class="dc-btn" role="button" href="{% url 'catalog:discover' %}">{% trans "Discover" %}</a>
+        <a class="dc-btn outline secondary"
+           role="button"
+           href="{% url 'common:search' %}">{% trans "Search" %}</a>
+        <a class="dc-btn outline secondary"
+           role="button"
+           href="{% url 'users:data' %}">{% trans "Import" %}</a>
+      </p>
+    </div>
+  {% endif %}
 {% endfor %}

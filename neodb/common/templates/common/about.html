@@ -5,105 +5,126 @@
 {% load thumb %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
+<html lang="{{ LANGUAGE_CODE }}" class="discover-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% translate "About" %} - {{ site_name }}</title>
+    <meta property="og:title"
+          content="{% translate 'About' %} - {{ site_name }}">
+    <meta name="description"
+          property="og:description"
+          content="{{ site_description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ site_logo }}">
+    <meta property="og:site_name" content="{{ site_name }}">
     {% include "common_libs.html" %}
   </head>
   <body>
     {% include "_header.html" %}
-    <main>
-      <div class="grid__main">
-        <section>
+    <main class="dc-main dc-about">
+      <section class="dc-hero" id="about">
+        <div class="dc-hero-copy">
+          <p class="dc-eyebrow">{% translate "About" %}</p>
           <h1>{{ site_name }}</h1>
-          <div class="instance-info">
-            <p>{{ site_description }}</p>
-            <dl>
-              <dt>{% translate "Instance Domain" %}</dt>
-              <dd>
-                {{ site_domain }}
-              </dd>
-              <dt>{% translate "Software Version" %}</dt>
-              <dd>
-                <a href="https://neodb.net" target="_blank" rel="noopener">{{ neodb_version }}</a> (<a target="_blank" href="https://github.com/neodb-social">{% trans 'Source Code' %}</a>)
-              </dd>
-              <dt>{% translate "Registration" %}</dt>
-              <dd>
-                {% if invite_only %}
-                  {% translate "Invite Only" %}
-                {% else %}
-                  {% translate "Open Registration" %}
-                {% endif %}
-              </dd>
-              <dt>{% translate "Preferred Languages" %}</dt>
-              <dd>
-                {% if preferred_languages %}
-                  {{ preferred_languages|join:", " }}
-                {% else %}
-                  {% translate "Not Specified" %}
-                {% endif %}
-              </dd>
-            </dl>
-          </div>
-        </section>
-        <section>
-          <h2>{% translate "Statistics" %}</h2>
-          <div class="stats">
-            {% if catalog_stats %}
-              <dl>
-                {% for category in catalog_stats %}
-                  <dt>{% translate category.label %}</dt>
-                  <dd>
-                    {{ category.count|default:"0"|localize }}
-                  </dd>
-                {% endfor %}
-                {% if instance_info_stats %}
-                  <dt>{% translate "Users" %}</dt>
-                  <dd>
-                    {{ instance_info_stats.user_count|default:"0"|localize }}
-                  </dd>
-                  <dt>{% translate "Statuses" %}</dt>
-                  <dd>
-                    {{ instance_info_stats.status_count|default:"0"|localize }}
-                  </dd>
-                  <dt>{% translate "Known Fediverse Instances" %}</dt>
-                  <dd>
-                    {{ instance_info_stats.domain_count|default:"0"|localize }}
-                  </dd>
-                {% endif %}
-                {% if neodb_peers %}
-                  <dt>{% translate "Known NeoDB Instances" %}</dt>
-                  <dd>
-                    {% for peer in neodb_peers %}
-                      <a href="https://{{ peer.domain }}" target="_blank">{{ peer.name }}</a>
-                      <small style="color:var(--pico-muted-color);">{{ peer.domain }}</small>
-                      <br>
-                    {% endfor %}
-                  </dd>
-                {% endif %}
-              </dl>
+          <p class="dc-lede">{{ site_description }}</p>
+          <p class="dc-cta">
+            {% if request.user.is_authenticated %}
+              <a class="dc-btn" role="button" href="{% url 'catalog:discover' %}">{% translate "Discover" %}</a>
             {% else %}
-              <p>{% translate "Statistics are being calculated. Please check back in a few minutes." %}</p>
+              <a class="dc-btn" role="button" href="{% url 'users:login' %}">{% translate "Get started" %}</a>
+              <a class="dc-btn outline secondary"
+                 role="button"
+                 href="{% url 'catalog:discover' %}">{% translate "Discover" %}</a>
             {% endif %}
-          </div>
-        </section>
-        {% if staff_users or admin_users %}
-          <section>
+          </p>
+          {% if not request.user.is_authenticated %}
+            <p class="dc-fine">{% translate "Sign in with a Fediverse account, a Bluesky account, or an email address." %}</p>
+          {% endif %}
+        </div>
+        <div class="dc-stats dc-surface">
+          <p class="dc-eyebrow">{% translate "Statistics" %}</p>
+          {% if catalog_stats %}
+            <ul>
+              {% for category in catalog_stats %}
+                <li>
+                  <b>{{ category.count|default:"0"|localize }}</b>
+                  <span>{% translate category.label %}</span>
+                </li>
+              {% endfor %}
+              {% if instance_info_stats %}
+                <li>
+                  <b>{{ instance_info_stats.user_count|default:"0"|localize }}</b>
+                  <span>{% translate "Users" %}</span>
+                </li>
+                <li>
+                  <b>{{ instance_info_stats.status_count|default:"0"|localize }}</b>
+                  <span>{% translate "Statuses" %}</span>
+                </li>
+                <li>
+                  <b>{{ instance_info_stats.domain_count|default:"0"|localize }}</b>
+                  <span>{% translate "Known Fediverse Instances" %}</span>
+                </li>
+              {% endif %}
+            </ul>
+          {% else %}
+            <p class="dc-fine">{% translate "Statistics are being calculated. Please check back in a few minutes." %}</p>
+          {% endif %}
+        </div>
+      </section>
+      <section class="dc-mod" id="instance">
+        <header class="dc-mh">
+          <h2>{% translate "This instance" %}</h2>
+        </header>
+        <dl class="dc-kv dc-surface">
+          <dt>{% translate "Instance Domain" %}</dt>
+          <dd>
+            {{ site_domain }}
+          </dd>
+          <dt>{% translate "Software Version" %}</dt>
+          <dd>
+            <a href="https://neodb.net" target="_blank" rel="noopener">NeoDB {{ neodb_version }}</a>
+            <small><a target="_blank" rel="noopener" href="https://github.com/neodb-social">{% trans 'Source Code' %}</a></small>
+          </dd>
+          <dt>{% translate "Registration" %}</dt>
+          <dd>
+            {% if invite_only %}
+              {% translate "Invite Only" %}
+            {% else %}
+              {% translate "Open Registration" %}
+            {% endif %}
+          </dd>
+          <dt>{% translate "Preferred Languages" %}</dt>
+          <dd>
+            {% if preferred_languages %}
+              {{ preferred_languages|join:", " }}
+            {% else %}
+              {% translate "Not Specified" %}
+            {% endif %}
+          </dd>
+        </dl>
+      </section>
+      {% if admin_users or staff_users %}
+        <section class="dc-mod" id="team">
+          <header class="dc-mh">
+            <h2>{% translate "Team" %}</h2>
+            <span class="dc-sub">{% translate "The people who run this instance and keep the catalog tidy." %}</span>
+          </header>
+          <div class="dc-people">
             {% if admin_users %}
-              <div class="user-list admin-users">
-                <h2>{% translate "Site Administrators" %}</h2>
+              <div class="dc-surface">
+                <p class="dc-eyebrow">{% translate "Site Administrators" %}</p>
                 <ul>
                   {% for user in admin_users %}
                     <li>
-                      <a href="{{ user.url }}" class="user-link">
+                      <a href="{{ user.url }}">
                         <img src="{{ user.avatar }}"
-                             alt="{{ user.username }}"
+                             alt=""
                              class="avatar"
-                             width="32"
-                             height="32">
-                        <span class="username">{{ user.display_name|default:user.username }}</span>
+                             width="40"
+                             height="40"
+                             loading="lazy">
+                        <span>{{ user.display_name|default:user.username }}</span>
                       </a>
                     </li>
                   {% endfor %}
@@ -111,47 +132,74 @@
               </div>
             {% endif %}
             {% if staff_users %}
-              <div class="user-list staff-users">
-                <h2>{% translate "Catalog Moderators" %}</h2>
+              <div class="dc-surface">
+                <p class="dc-eyebrow">{% translate "Catalog Moderators" %}</p>
                 <ul>
                   {% for user in staff_users %}
                     <li>
-                      <a href="{{ user.url }}" class="user-link">
+                      <a href="{{ user.url }}">
                         <img src="{{ user.avatar }}"
-                             alt="{{ user.username }}"
+                             alt=""
                              class="avatar"
-                             width="32"
-                             height="32">
-                        <span class="username">{{ user.display_name|default:user.username }}</span>
+                             width="40"
+                             height="40"
+                             loading="lazy">
+                        <span>{{ user.display_name|default:user.username }}</span>
                       </a>
                     </li>
                   {% endfor %}
                 </ul>
               </div>
             {% endif %}
-          </section>
-        {% endif %}
-        <section>
-          <h2>{% translate "Attributions" %}</h2>
-          <div class="attributions">
-            <p>
-              {% blocktranslate %}This website is powered by <a href="https://neodb.net" target="_blank">NeoDB</a>, a free and open-source software licensed under the AGPL-v3. All modifications to the software must be made available under the same license.{% endblocktranslate %}
-            </p>
-            <p>
-              {% blocktranslate %}This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.{% endblocktranslate %}
-            </p>
-            <p>
-              {% blocktranslate %}This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.{% endblocktranslate %}
-            </p>
-            <p>
-              {% blocktranslate %}This website may get catalog data from the sources below. These sources are not affiliated with this website.{% endblocktranslate %}
-              <br>
-              {{ catalog_sites|join:", " }}
-            </p>
           </div>
         </section>
-      </div>
-      {% include "_sidebar_anonymous.html" %}
+      {% endif %}
+      {% if neodb_peers %}
+        <section class="dc-mod" id="peers">
+          <header class="dc-mh">
+            <h2>{% translate "Known NeoDB Instances" %}</h2>
+            <span class="dc-sub">{% translate "Other communities running the same software. Follow people there from here." %}</span>
+          </header>
+          <ul class="dc-tags dc-peers">
+            {% for peer in neodb_peers %}
+              <li>
+                <a href="https://{{ peer.domain }}" target="_blank" rel="noopener">{{ peer.name }} <small>{{ peer.domain }}</small></a>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+      <section class="dc-mod" id="attributions">
+        <header class="dc-mh">
+          <h2>{% translate "Attributions" %}</h2>
+        </header>
+        <div class="dc-surface dc-attributions">
+          <p>
+            {% blocktranslate %}This website is powered by <a href="https://neodb.net" target="_blank">NeoDB</a>, a free and open-source software licensed under the AGPL-v3. All modifications to the software must be made available under the same license.{% endblocktranslate %}
+          </p>
+          <p>
+            {% blocktranslate %}This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.{% endblocktranslate %}
+          </p>
+          <p>
+            {% blocktranslate %}This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.{% endblocktranslate %}
+          </p>
+          <p>
+            {% blocktranslate %}This website may get catalog data from the sources below. These sources are not affiliated with this website.{% endblocktranslate %}
+            <br>
+            {{ catalog_sites|join:", " }}
+          </p>
+        </div>
+      </section>
+      {% if all_announcements %}
+        <section class="dc-mod" id="announcements">
+          <header class="dc-mh">
+            <h2>{% translate "Announcements" %}</h2>
+          </header>
+          <div class="dc-surface dc-ann-list">
+            {% for ann in all_announcements %}<div>{{ ann.html }}</div>{% endfor %}
+          </div>
+        </section>
+      {% endif %}
     </main>
     {% include "_footer.html" %}
   </body>

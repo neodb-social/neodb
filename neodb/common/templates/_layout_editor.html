@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load static %}
+{% comment %}
+  Layout editor for pages built from ``.sortable > .entity-sort`` sections.
+  Opens a dialog that lists the sections by their ``data-title`` (or heading),
+  each with a switch and move buttons, and posts the result to users:set_layout
+  as the same JSON list the old drag and drop editor produced.
+  ``name`` is the layout the server stores: "discover" or "profile".
+{% endcomment %}
+<div class="dc-layout-control">
+  <button type="button" class="dc-btn outline secondary" id="layoutEditButton">
+    <i class="fa-solid fa-sliders"></i> {% trans 'edit layout' %}
+  </button>
+</div>
+<dialog id="layoutEditor" class="dc-layout-editor">
+  <article>
+    <header>
+      <button type="button"
+              class="dc-nav"
+              id="layoutEditorClose"
+              aria-label="{% trans 'cancel' %}">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3>{% trans "Page layout" %}</h3>
+      <p class="dc-fine">
+        {% trans "Switch sections on or off and move them up or down. The order applies on every device." %}
+      </p>
+    </header>
+    <ul id="layoutEditorList">
+    </ul>
+    <footer>
+      <button type="button" class="secondary outline" id="layoutEditorCancel">{% trans 'cancel' %}</button>
+      <button type="button" id="layoutEditorSave">{% trans 'save' %}</button>
+    </footer>
+  </article>
+</dialog>
+<template id="layoutRowTemplate">
+  <li>
+    <label>
+      <input type="checkbox" role="switch">
+      <span class="dc-layout-title"></span>
+    </label>
+    <span class="dc-layout-move">
+      <button type="button"
+              class="dc-nav"
+              data-move="-1"
+              aria-label="{% trans 'move up' %}">
+        <i class="fa-solid fa-chevron-up"></i>
+      </button>
+      <button type="button"
+              class="dc-nav"
+              data-move="1"
+              aria-label="{% trans 'move down' %}">
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+    </span>
+  </li>
+</template>
+<form action="{% url 'users:set_layout' %}" method="post" id="layoutForm">
+  {% csrf_token %}
+  <input type="hidden" name="name" value="{{ name }}">
+  <input type="hidden" name="layout">
+</form>
+<script src="{% static 'js/layout_editor.js' %}"></script>

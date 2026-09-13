@@ -159,7 +159,7 @@ def test_profile_articles_shelf_empty_hidden_for_visitor():
     response = client.get(preview_url)
     assert response.status_code == 200
     # With no articles, a visitor's shelf collapses itself.
-    assert "hide closest .shelf" in response.content.decode()
+    assert "hide closest .entity-sort" in response.content.decode()
 
 
 @pytest.mark.django_db(databases="__all__")

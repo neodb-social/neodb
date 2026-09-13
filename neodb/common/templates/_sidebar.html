@@ -134,97 +134,11 @@
       <article>
         <details class="auto-collapse" open>
           <summary>{% trans 'Recent podcast episodes' %}</summary>
-          <div class="shelf">
-            <ul class="cards">
-              {% for item in recent_podcast_episodes %}
-                <li class="card">
-                  <a class="episode"
-                     data-uuid="{{ item.uuid }}"
-                     data-media="{{ item.media_url }}"
-                     data-cover="{{ item.display_cover_image_url }}"
-                     data-title="{{ item.display_title }}"
-                     data-album="{{ item.program.display_title }}"
-                     data-hosts="{{ item.program.host|join:' / ' }}"
-                     {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' item.uuid %}" {% endif %}
-                     data-position="0"
-                     href="{{ item.url }}"
-                     title="{{ item.display_title }}">
-                    <img src="{{ item.display_cover_image_url|relative_uri }}"
-                         alt="{{ item.display_title }}"
-                         loading="lazy">
-                    <div class="card-title">
-                      <i class="fa-solid fa-circle-play"></i> {{ item.display_title }}
-                    </div>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </details>
-      </article>
-    </section>
-  {% endif %}
-  {% if books_in_progress %}
-    <section>
-      <article>
-        <details class="auto-collapse" open>
-          <summary>{% trans 'Currently reading' %}</summary>
-          <div class="shelf">
-            <ul class="cards">
-              {% for item in books_in_progress %}
-                <li class="card progress-card">
-                  <a href="{{ item.url }}" title="{{ item.display_title }}">
-                    <span class="cover">
-                      <img src="{{ item.cover|thumb:'normal' }}"
-                           alt="{{ item.display_title }}"
-                           loading="lazy">
-                      {% if item.reading_progress_percent %}
-                        <span class="progress-bar" title="{{ item.reading_progress_percent }}%">
-                          <span style="width:{{ item.reading_progress_percent }}%"></span>
-                        </span>
-                      {% endif %}
-                    </span>
-                    <div class="card-title">{{ item.display_title }}</div>
-                  </a>
-                  <a href="#"
-                     class="progress-badge"
-                     hx-get="{% url 'journal:note' item.uuid %}?mode=progress"
-                     hx-target="body"
-                     hx-swap="beforeend"
-                     title="{% if item.reading_progress %}{{ item.reading_progress }}{% else %}{% trans 'Set progress' %}{% endif %}">
-                    {% if item.reading_progress_short %}
-                      {{ item.reading_progress_short }}
-                    {% else %}
-                      <i class="fa-solid fa-percent"></i>
-                    {% endif %}
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </details>
-      </article>
-    </section>
-  {% endif %}
-  {% if tvshows_in_progress %}
-    <section>
-      <article>
-        <details class="auto-collapse" open>
-          <summary>{% trans 'Currently watching' %}</summary>
-          <div class="shelf">
-            <ul class="cards">
-              {% for item in tvshows_in_progress %}
-                <li class="card">
-                  <a href="{{ item.url }}" title="{{ item.display_title }}">
-                    <img src="{{ item.cover|thumb:'normal' }}"
-                         alt="{{ item.display_title }}"
-                         loading="lazy">
-                    <div class="card-title">{{ item.display_title }}</div>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
+          <ul class="dc-cards dc-sidebar-cards">
+            {% for item in recent_podcast_episodes %}
+              {% include "_episode_card.html" %}
+            {% endfor %}
+          </ul>
         </details>
       </article>
     </section>
