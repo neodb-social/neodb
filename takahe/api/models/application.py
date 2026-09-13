@@ -24,14 +24,41 @@ class Application(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def parse_redirect_uris(value: str) -> list[str]:
+        """
+        Split a registration into its callback URIs.
+
+        Newlines are the Mastodon separator and what add_app writes. Older
+        rows join with commas, which are legal inside a URI, so only treat a
+        comma as a separator when there is no newline to separate on.
+        """
+        value = value.replace("\r\n", "\n").replace("\r", "\n")
+        separator = "\n" if "\n" in value else ","
+        return [uri.strip() for uri in value.split(separator) if uri.strip()]
+
     @property
     def redirect_uri_list(self) -> list[str]:
-        # add_app stores lists with commas; clients also send newline-separated URIs.
-        return [
-            uri.strip()
-            for uri in self.redirect_uris.replace(",", "\n").split("\n")
-            if uri.strip()
-        ]
+        return self.parse_redirect_uris(self.redirect_uris)
+
+    def matches_redirect_uri(self, uri: str) -> bool:
+        """
+        Whether uri is one of the registered callbacks, matched in full.
+
+        A registration left empty keeps its historic allow-any behaviour for
+        the apps that already rely on it; add_app rejects new ones.
+        """
+        if not uri:
+            return False
+        registered = self.redirect_uri_list
+        if not registered:
+            return True
+        if uri in registered:
+            return True
+        # A lone registered URI holding a comma is split by the legacy
+        # separator above, so accept the stored registration whole as well.
+        stored = self.redirect_uris.strip()
+        return "\n" not in stored and "\r" not in stored and uri == stored
 
     @classmethod
     def create(

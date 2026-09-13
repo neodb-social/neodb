@@ -91,7 +91,13 @@ class ParamsMiddleware:
         # See https://docs.joinmastodon.org/client/intro/#parameters
         # If they sent JSON, use that.
         if request.content_type == "application/json" and request.body.strip():
-            return json.loads(request.body)
+            try:
+                params = json.loads(request.body)
+            except json.JSONDecodeError:
+                return {}
+            # Views index into PARAMS, so a top-level array or scalar must not
+            # reach them: treat it as if no params were sent.
+            return params if isinstance(params, dict) else {}
         # Otherwise, fall back to form data.
         params = {}
         for key, value in request.GET.lists():

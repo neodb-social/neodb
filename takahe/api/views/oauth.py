@@ -82,7 +82,7 @@ class AuthorizationView(LoginRequiredMixin, View):
                 status=400,
             )
 
-        if redirect_uri not in application.redirect_uri_list:
+        if not application.matches_redirect_uri(redirect_uri):
             return render(
                 request,
                 "api/oauth_error.html",
@@ -101,12 +101,41 @@ class AuthorizationView(LoginRequiredMixin, View):
 
     def post(self, request):
         post_data = request.PARAMS
-        # Grab the application and other details again
-        redirect_uri = post_data["redirect_uri"]
-        scope = post_data["scope"]
-        application = Application.objects.get(client_id=post_data["client_id"])
+        # Grab the application and other details again. Every value below is
+        # client supplied, so each one gets the same error page the GET does
+        # rather than raising and turning a bad request into a 500.
+        redirect_uri = post_data.get("redirect_uri")
+        scope = post_data.get("scope") or "read write"
 
-        if redirect_uri not in application.redirect_uri_list:
+        if not redirect_uri:
+            return render(
+                request,
+                "api/oauth_error.html",
+                {"error": "Missing redirect_uri"},
+                status=400,
+            )
+
+        if not isinstance(scope, str):
+            return render(
+                request,
+                "api/oauth_error.html",
+                {"error": "Invalid scope"},
+                status=400,
+            )
+
+        application = Application.objects.filter(
+            client_id=post_data.get("client_id")
+        ).first()
+
+        if application is None:
+            return render(
+                request,
+                "api/oauth_error.html",
+                {"error": "Invalid client_id"},
+                status=400,
+            )
+
+        if not application.matches_redirect_uri(redirect_uri):
             return render(
                 request,
                 "api/oauth_error.html",
@@ -114,8 +143,21 @@ class AuthorizationView(LoginRequiredMixin, View):
                 status=401,
             )
 
-        # Get the identity
-        identity = self.request.user.identities.get(pk=post_data["identity"])
+        # Get the identity, which must be one the logged-in user owns
+        try:
+            identity = self.request.user.identities.filter(
+                pk=post_data.get("identity")
+            ).first()
+        except TypeError, ValueError:
+            identity = None
+
+        if identity is None:
+            return render(
+                request,
+                "api/oauth_error.html",
+                {"error": "Invalid identity"},
+                status=400,
+            )
 
         extra_args = {}
         if post_data.get("state"):
