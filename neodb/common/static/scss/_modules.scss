@@ -537,14 +537,21 @@ a.dc-progress-badge {
   }
 }
 
-// posts laid out as cards: three across, two on tablets, one on phones
+// posts laid out as cards: three across, two on tablets, one on phones.
+// posts differ a lot in length, and a grid row stretches every card to the
+// height of the tallest one in it, so short cards get a block of empty space
+// under their text; columns let each card keep its own height and pack the
+// next one against it, at the price of a top-to-bottom reading order
 .dc-posts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--dc-gap);
+  column-count: 3;
+  column-gap: var(--dc-gap);
 
   > .post {
-    margin: 0;
+    // a card cut in two across a column break is unreadable
+    break-inside: avoid;
+    // bottom margin only: a top margin would also indent the first card of
+    // each column, away from the heading
+    margin: 0 0 var(--dc-gap);
     padding: 0.8rem 1rem;
     border: 1px solid var(--dc-border);
     border-radius: var(--dc-radius);
@@ -554,8 +561,56 @@ a.dc-progress-badge {
 
   > .loading,
   > .empty {
-    grid-column: 1 / -1;
+    // only a block can span the columns, and the spinner is an <i>
+    display: block;
+    column-span: all;
     color: var(--dc-muted);
+  }
+
+  // keep the tallest cards near the size of the rest: a single very tall
+  // card pushes the balance out and leaves a gap at the foot of a column.
+  // these three all override rules written for a full-width timeline, and
+  // each selector is more specific than the one it overrides
+  // .content and the blockquote of a quoted post both carry it
+  > .post .tldr {
+    -webkit-line-clamp: 7;
+  }
+
+  // the cover next to a note is up to 8em wide on a wide screen, which in a
+  // card this narrow leaves the text a thin strip beside it
+  > .post .embed-cover img {
+    max-width: 3.5rem;
+    max-height: 5.25rem;
+    margin: 0.4em 0 0.4em 0.6em;
+  }
+
+  // attachments are half-width in the timeline so two sit side by side;
+  // half of a card this narrow is a stamp, so they share one row instead
+  // and are cropped to a preview of the same height
+  > .post .attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+
+    // one image fills the card, two or three share the row; the ratio keeps
+    // the strip the same shape whatever the pictures are, and the cap stops
+    // a single tall picture from doubling the height of the card.
+    // not the lightbox: it is a sibling anchor that covers the viewport
+    > a:not(.lightbox) {
+      flex: 1 1 6rem;
+      min-width: 0;
+      aspect-ratio: 4 / 3;
+      max-height: 11rem;
+    }
+
+    img.preview,
+    video.preview {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      max-height: 11rem;
+      object-fit: cover;
+    }
   }
 }
 
@@ -1040,7 +1095,7 @@ a.dc-progress-badge {
 // tablets: three post cards are too narrow to read, so drop to two
 @media (max-width: 1024px) {
   .dc-posts {
-    grid-template-columns: repeat(2, 1fr);
+    column-count: 2;
   }
 }
 
@@ -1055,7 +1110,7 @@ a.dc-progress-badge {
   }
 
   .dc-posts {
-    grid-template-columns: 1fr;
+    column-count: 1;
   }
 
   // the site header is sticky on phones; a second sticky bar would sit
