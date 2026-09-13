@@ -20,14 +20,6 @@
           <h3>{% trans "Verification email is being sent, please check your inbox." %}</h3>
         </header>
         {% trans "Please enter the verification code you received." %}
-        <style type="text/css">
-          .otp input {
-            font-family: monospace;
-            font-weight: bolder;
-            letter-spacing: 2em;
-            text-align: center;
-          }
-        </style>
         <form action="{% url 'mastodon:email_verify' %}" method="post">
           <div class="otp">
             <input name="code"

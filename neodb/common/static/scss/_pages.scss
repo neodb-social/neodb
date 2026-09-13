@@ -1,0 +1,375 @@
+// Rules for pages and widgets that used to carry their own <style> block.
+// Imported last, so a page-scoped override here beats the shared layout.
+
+// Catalog edit and catalog history share a sidebar of collapsible panels,
+// a tall content column, and the diff table in _catalog_edit_preview.html.
+.catalog-edit-page,
+.catalog-history-page {
+  aside details {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: var(--pico-muted-color) solid 1px;
+  }
+
+  aside summary {
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  main > div {
+    margin-bottom: 4rem;
+  }
+
+  .diffview pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    background: unset;
+  }
+
+  .diffview td {
+    vertical-align: top;
+  }
+}
+
+.catalog-edit-page {
+  .diffview pre {
+    margin: 0;
+  }
+
+  .people-ref-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.4rem;
+    font-size: 1em;
+    color: var(--pico-muted-color);
+  }
+
+  .people-ref-link[hidden] {
+    display: none;
+  }
+
+  .people-ref-link .people-ref-name:empty {
+    display: none;
+  }
+}
+
+// The old value of each changed field, revealed by the history page's script.
+.catalog-history-page .diffview td div {
+  display: none;
+}
+
+.article-page main > div > .replies {
+  padding-top: 2em;
+}
+
+.collection-edit-page .grid__main details {
+  margin: 2rem 0;
+}
+
+// The manage pages put their navigation in the narrow column, so the two
+// grid tracks swap round.
+.manage-page main {
+  grid-template-columns: 1fr 3fr;
+  grid-template-areas: "aside main";
+}
+
+.manage-nav {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: 0.15rem;
+  }
+
+  a {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--pico-border-radius);
+    text-decoration: none;
+    color: var(--pico-color);
+  }
+
+  a:hover {
+    background: var(--pico-secondary-background);
+  }
+
+  a.active {
+    background: var(--pico-primary-background);
+    color: var(--pico-primary-inverse);
+  }
+
+  .nav-divider {
+    border-top: 1px solid var(--pico-muted-border-color);
+    margin: 0.75rem 0;
+  }
+
+  .nav-external a {
+    font-size: 0.85em;
+    color: var(--pico-muted-color);
+  }
+}
+
+.manage-form {
+  .field-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .field-group legend {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+  }
+
+  .field {
+    margin-bottom: 1rem;
+  }
+
+  .field > label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+
+  .help-text {
+    font-size: 0.85em;
+    color: var(--pico-muted-color);
+    margin-bottom: 0.35rem;
+  }
+
+  .field .errorlist {
+    color: var(--pico-del-color);
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0;
+    font-size: 0.9em;
+  }
+
+  .field input[type="text"],
+  .field input[type="number"],
+  .field select,
+  .field textarea {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .env-table {
+    margin-bottom: 0;
+  }
+
+  .env-table td {
+    vertical-align: top;
+    font-size: 0.9em;
+  }
+
+  .env-table td:first-child {
+    white-space: nowrap;
+    width: 40%;
+  }
+
+  .env-table code {
+    word-break: break-all;
+  }
+
+  .env-table .env-default {
+    margin-left: 0.5em;
+    color: var(--pico-muted-color);
+  }
+}
+
+.manage-alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  margin-bottom: 1rem;
+}
+
+// The import preview tables are too wide for the usual content column.
+main.import-preview {
+  max-width: none;
+  width: 100%;
+  padding: calc(2 * var(--pico-spacing));
+  margin: 0;
+
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  table th,
+  table td {
+    word-break: break-word;
+    vertical-align: top;
+  }
+
+  table td input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.announcements-page {
+  h4 {
+    display: inline-block;
+  }
+
+  .header {
+    display: inline-block;
+  }
+
+  .operations {
+    margin-left: 5px;
+  }
+
+  .datetime {
+    margin-left: 12px;
+    color: #ccc;
+  }
+
+  .add {
+    margin-left: 15px;
+  }
+
+  .dividing-line {
+    border-top-style: dashed;
+  }
+}
+
+.scan-wrap {
+  max-width: 560px;
+  margin: 1rem auto;
+
+  video {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border-radius: var(--pico-border-radius);
+    object-fit: cover;
+  }
+}
+
+.scan-status {
+  text-align: center;
+  margin: 0.5rem 0;
+  min-height: 1.4em;
+}
+
+.scan-manual {
+  display: flex;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+  }
+}
+
+#credits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  .credit-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+  }
+
+  .credit-row:hover {
+    background-color: color-mix(in srgb, var(--pico-color) 8%, transparent);
+  }
+
+  .credit-role {
+    color: var(--pico-muted-color);
+    font-size: 0.8em;
+    min-width: 6em;
+    flex-shrink: 0;
+  }
+
+  .credit-name {
+    font-weight: 500;
+  }
+
+  .credit-person-link {
+    color: var(--pico-muted-color);
+    font-size: 0.75em;
+  }
+
+  .credit-character {
+    cursor: pointer;
+    color: var(--pico-muted-color);
+    font-size: 0.9em;
+  }
+
+  .credit-character:hover {
+    color: var(--pico-color);
+  }
+
+  .credit-character .fa-pen {
+    font-size: 0.7em;
+    opacity: 0.5;
+  }
+
+  .credit-character-form {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .credit-character-form input {
+    margin-bottom: 0;
+    max-width: 14em;
+    font-size: 0.9em;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .credit-row.editing .credit-character {
+    display: none;
+  }
+
+  .credit-row.editing .credit-character-form {
+    display: flex;
+  }
+
+  .credit-actions {
+    margin-left: auto;
+  }
+
+  .credit-empty {
+    color: var(--pico-muted-color);
+    padding: 0.5rem 0.4rem;
+  }
+}
+
+// roughViz draws its own axes; the wrapped chart only wants the bars.
+.yAxisviz0,
+.rough-yAxisviz0 {
+  display: none;
+}
+
+// Shown only once the login page has been waiting long enough to look stuck.
+.delayed {
+  animation: 10s _fadeIn;
+  animation-fill-mode: forwards;
+  visibility: hidden;
+}
+
+@keyframes _fadeIn {
+  99% {
+    visibility: hidden;
+  }
+
+  100% {
+    visibility: visible;
+    opacity: 1;
+  }
+}

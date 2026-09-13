@@ -132,3 +132,38 @@
     }
   }
 }
+
+// Visibility and collaborator radios read as one row of choices, not a list.
+#id_visibility,
+#id_visibility li,
+#id_collaborative li {
+  padding-left: 0;
+  margin-bottom: 0;
+  display: inline-block !important;
+}
+
+// The hstore widget pairs each key input with its value input on one line.
+.widget-value-key-input {
+  input:nth-child(odd) {
+    width: 49%;
+    margin-right: 1%;
+  }
+
+  input:nth-child(even) {
+    width: 49%;
+    margin-left: 1%;
+  }
+}
+
+// One-time code: spaced out so the digits read as separate boxes.
+.otp input {
+  font-family: monospace;
+  font-weight: bolder;
+  letter-spacing: 2em;
+  text-align: center;
+}
+
+#rating_select input {
+  padding: var(--pico-form-element-spacing-vertical)
+    calc(var(--pico-form-element-spacing-horizontal) / 4) !important;
+}

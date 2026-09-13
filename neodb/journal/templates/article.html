@@ -6,7 +6,7 @@
 {% load duration %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+<html lang="{{ LANGUAGE_CODE }}" class="content-page article-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,11 +51,6 @@
     {% if not article.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
     <title>{{ site_name }} | {{ article.title }}</title>
     {% include "common_libs.html" %}
-    <style>
-      main>div>.replies {
-        padding-top: 2em
-      }
-    </style>
   </head>
   <body>
     {% include "_header.html" %}

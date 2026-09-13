@@ -8,17 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans 'Review RateYourMusic matches' %}</title>
     {% include "common_libs.html" %}
-    <style>
-    main.rym-preview {
-      max-width: none;
-      width: 100%;
-      padding: calc(2 * var(--pico-spacing));
-      margin: 0;
-    }
-    main.rym-preview table { width: 100%; table-layout: fixed; }
-    main.rym-preview table th, main.rym-preview table td { word-break: break-word; vertical-align: top; }
-    main.rym-preview table td input[type="text"] { width: 100%; box-sizing: border-box; }
-    </style>
     <script>
     document.addEventListener('htmx:responseError', (event) => {
       let response = event.detail.xhr.response;
@@ -32,7 +21,7 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <main class="rym-preview">
+    <main class="import-preview">
       <article>
         <h3>{% trans 'Review RateYourMusic matches' %}</h3>
         <p>

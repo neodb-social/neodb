@@ -3,7 +3,7 @@
 {% load mastodon %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+<html lang="{{ LANGUAGE_CODE }}" class="content-page catalog-edit-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,44 +15,6 @@
       {% endif %}
     </title>
     {% include "common_libs.html" %}
-    <style>
-      aside details {
-        margin-bottom: 1rem;
-        padding: 1rem;
-        border: var(--pico-muted-color) solid 1px;
-      }
-      aside summary {
-        cursor: pointer;
-        font-weight: bold;
-      }
-      main>div {
-        margin-bottom: 4rem;
-      }
-      .people-ref-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin-left: 0.4rem;
-        font-size: 1em;
-        color: var(--pico-muted-color);
-      }
-      .people-ref-link[hidden] {
-        display: none;
-      }
-      .people-ref-link .people-ref-name:empty {
-        display: none;
-      }
-      .diffview pre {
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        word-break: break-all;
-        background: unset;
-        margin: 0;
-      }
-      .diffview td {
-        vertical-align: top;
-      }
-    </style>
   </head>
   <body>
     {% include "_header.html" %}

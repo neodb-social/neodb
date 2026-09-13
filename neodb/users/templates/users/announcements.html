@@ -4,7 +4,7 @@
 {% load duration %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}" class="announcements-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,27 +13,6 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <style>
-        h4 {
-            display: inline-block;
-        }
-        .operations {
-            margin-left: 5px;
-        }
-        .datetime {
-            margin-left: 12px;
-            color: #ccc;
-        }
-        .header {
-            display: inline-block;
-        }
-        .add {
-            margin-left: 15px;
-        }
-        .dividing-line {
-            border-top-style: dashed;
-        }
-    </style>
     <main class="container">
       <h1 class="header">
         {% trans 'Announcements' %}
