@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 15:51-0400\n"
+"POT-Creation-Date: 2026-09-14 05:42+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1199,7 +1199,7 @@ msgstr ""
 msgid "Comment this episode"
 msgstr ""
 
-#: catalog/templates/_item_cover_card.html:44
+#: catalog/templates/_item_cover_card.html:46
 #: catalog/templates/_item_user_pieces.html:83
 msgid "Set progress"
 msgstr ""
@@ -1939,7 +1939,7 @@ msgstr ""
 
 #: catalog/templates/discover.html:174 common/templates/_header.html:65
 #: journal/templates/user_post_list.html:10
-#: journal/templates/user_post_list.html:23
+#: journal/templates/user_post_list.html:21
 msgid "Posts"
 msgstr ""
 
@@ -2079,7 +2079,6 @@ msgstr ""
 #: journal/templates/profile_articles.html:29
 #: journal/templates/profile_items.html:40
 #: journal/templates/profile_posts.html:23
-#: journal/templates/user_article_list.html:58
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_follow_list_items.html:65
 #: journal/templates/user_item_list_base.html:27
@@ -2396,8 +2395,8 @@ msgstr ""
 #: catalog/views/edit.py:344 catalog/views/edit.py:437
 #: catalog/views/edit.py:603 catalog/views/edit.py:705
 #: catalog/views/edit.py:752 catalog/views/verify.py:158
-#: catalog/views/verify.py:206 journal/views/article.py:44
-#: journal/views/article.py:133 journal/views/article.py:153
+#: catalog/views/verify.py:206 journal/views/article.py:51
+#: journal/views/article.py:140 journal/views/article.py:160
 #: journal/views/collection.py:252 journal/views/collection.py:345
 #: journal/views/collection.py:358 journal/views/collection.py:376
 #: journal/views/collection.py:510 journal/views/collection.py:553
@@ -2550,7 +2549,7 @@ msgid "Please wait a moment before trying again."
 msgstr ""
 
 #: catalog/views/verify.py:164 common/utils.py:148 common/utils.py:189
-#: journal/views/article.py:186 journal/views/review.py:182
+#: journal/views/article.py:193 journal/views/review.py:182
 #: users/views/actions.py:44 users/views/actions.py:130
 msgid "User not found"
 msgstr ""
@@ -4375,7 +4374,7 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: common/utils.py:167 common/utils.py:169 journal/views/article.py:204
+#: common/utils.py:167 common/utils.py:169 journal/views/article.py:211
 #: journal/views/profile.py:592 journal/views/review.py:200
 msgid "Login required"
 msgstr ""
@@ -5324,7 +5323,7 @@ msgstr ""
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr ""
 
-#: journal/models/article.py:224 journal/views/article.py:218
+#: journal/models/article.py:269 journal/views/article.py:225
 msgid "(may contain sensitive content)"
 msgstr ""
 
@@ -5560,12 +5559,12 @@ msgstr ""
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr ""
 
-#: journal/models/review.py:80
+#: journal/models/review.py:86
 #, python-brace-format
 msgid "a review of {title}"
 msgstr ""
 
-#: journal/models/review.py:82
+#: journal/models/review.py:88
 msgid "(may contain spoilers)"
 msgstr ""
 
@@ -6417,7 +6416,7 @@ msgid " Note to %(reply_to_name)s "
 msgstr ""
 
 #: journal/templates/post_compose.html:20 journal/templates/profile.html:43
-#: social/templates/_compose_menu.html:4 social/templates/feed.html:25
+#: social/templates/_compose_menu.html:5
 msgid "Compose"
 msgstr ""
 
@@ -6473,7 +6472,7 @@ msgstr ""
 
 #: journal/templates/profile.html:141 journal/templates/profile.html:147
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:38 journal/views/profile.py:531
+#: journal/templates/user_article_list.html:23 journal/views/profile.py:531
 msgid "Articles"
 msgstr ""
 
@@ -6519,8 +6518,44 @@ msgstr ""
 msgid "Delete this tag"
 msgstr ""
 
-#: journal/templates/user_article_list.html:32
+#: journal/templates/user_article_list.html:26
+#, python-format
+msgid "%(counter)s article"
+msgid_plural "%(counter)s articles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/user_article_list.html:31
+#, python-format
+msgid "by %(name)s"
+msgstr ""
+
+#: journal/templates/user_article_list.html:39
+msgid "RSS feed"
+msgstr ""
+
+#: journal/templates/user_article_list.html:46
 msgid "Compose new article"
+msgstr ""
+
+#: journal/templates/user_article_list.html:74
+#, python-format
+msgid "%(counter)s min read"
+msgid_plural "%(counter)s min read"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/user_article_list.html:112
+msgid "You have no articles yet. An article is a long text that you write here and send to the Fediverse."
+msgstr ""
+
+#: journal/templates/user_article_list.html:118
+msgid "Write an article"
+msgstr ""
+
+#: journal/templates/user_article_list.html:123
+#, python-format
+msgid "%(name)s has no articles yet."
 msgstr ""
 
 #: journal/templates/user_collection_list.html:16
@@ -6564,16 +6599,16 @@ msgstr ""
 msgid "#%(year)s_report"
 msgstr ""
 
-#: journal/views/article.py:184 journal/views/review.py:180
+#: journal/views/article.py:191 journal/views/review.py:180
 msgid "User not local"
 msgstr ""
 
-#: journal/views/article.py:192 journal/views/article.py:206
+#: journal/views/article.py:199 journal/views/article.py:213
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr ""
 
-#: journal/views/article.py:194 journal/views/article.py:202
+#: journal/views/article.py:201 journal/views/article.py:209
 #: journal/views/review.py:190 journal/views/review.py:198
 msgid "Link invalid"
 msgstr ""
@@ -7002,12 +7037,20 @@ msgid_plural "%(counter)s words"
 msgstr[0] ""
 msgstr[1] ""
 
-#: social/templates/_compose_menu.html:11
+#: social/templates/_compose_menu.html:19
 msgid "New post"
 msgstr ""
 
-#: social/templates/_compose_menu.html:14
+#: social/templates/_compose_menu.html:20
+msgid "Share a short note"
+msgstr ""
+
+#: social/templates/_compose_menu.html:30
 msgid "New article"
+msgstr ""
+
+#: social/templates/_compose_menu.html:31
+msgid "Write a longer piece with a title"
 msgstr ""
 
 #: social/templates/_event_mark_group.html:27
@@ -7284,7 +7327,7 @@ msgstr ""
 msgid "Poll ending at %(end_time)s"
 msgstr ""
 
-#: social/templates/search_feed.html:12 social/views.py:56 social/views.py:57
+#: social/templates/search_feed.html:12 social/views.py:59 social/views.py:60
 msgid "Activities from those you follow"
 msgstr ""
 
@@ -7300,11 +7343,11 @@ msgstr ""
 msgid "Poll"
 msgstr ""
 
-#: social/views.py:58
+#: social/views.py:61
 msgid "Activities on this site"
 msgstr ""
 
-#: social/views.py:59
+#: social/views.py:62
 msgid "Activities from the fediverse"
 msgstr ""
 

@@ -13,50 +13,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {{ identity.display_name }} - {% trans "Articles" %}</title>
     {% include "common_libs.html" %}
-    {% if identity.local and identity.anonymous_viewable %}
-      <link rel="alternate"
-            type="application/rss+xml"
-            title="{{ site_name }} - @{{ identity.handle }} - Articles"
-            href="{{ identity.url }}feed/articles/">
-    {% endif %}
+    {% include "profile_common.html" %}
   </head>
   <body>
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <h5>
-          {% if identity == request.user.identity %}
-            <span class="action">
-              <span>
-                <a href="{% url 'journal:article_compose' %}"
-                   title="{% trans 'Compose new article' %}">
-                  <i class="fa-regular fa-pen-to-square"></i>
-                </a>
-              </span>
+        <header class="dc-mh">
+          <h1>{% trans "Articles" %}</h1>
+          {% if total %}
+            <span class="dc-count"
+                  title="{% blocktrans count counter=total trimmed %}{{ counter }} article{% plural %}{{ counter }} articles{% endblocktrans %}">
+              {{ total }}
             </span>
           {% endif %}
-          {{ identity.display_name }} - {% trans "Articles" %}
-        </h5>
-        {% for article in articles %}
-          <p>
-            <div class="action">
-              {% if article.latest_post %}
-                {% include "action_like_post.html" with post=article.latest_post %}
-                {% include "action_boost_post.html" with post=article.latest_post %}
-                {% include "action_open_post.html" with post=article.latest_post %}
-              {% endif %}
-            </div>
-            <span><a href="{{ article.url }}">{{ article.title }}</a></span>
-            <small>- {{ article.created_time|date }}</small>
-            {% if article.normalized_tags %}
-              <span class="tags">
-                {% for tag in article.normalized_tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
-              </span>
+          <a class="dc-sub" href="{{ identity.url }}">
+            {% blocktrans with name=identity.display_name trimmed %}
+              by {{ name }}
+            {% endblocktrans %}
+          </a>
+          <span class="action">
+            {% if identity.local and identity.anonymous_viewable %}
+              <a class="dc-nav"
+                 href="{{ identity.url }}feed/articles/"
+                 title="{% trans 'RSS feed' %}">
+                <i class="fa-solid fa-rss"></i>
+              </a>
             {% endif %}
-          </p>
-        {% empty %}
-          <div class="empty">{% trans "Nothing so far." %}</div>
-        {% endfor %}
+            {% if identity == request.user.identity %}
+              <a class="dc-nav primary"
+                 href="{% url 'journal:article_compose' %}"
+                 title="{% trans 'Compose new article' %}">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+            {% endif %}
+          </span>
+        </header>
+        {% if articles %}
+          <ul class="article-list">
+            {% for article in articles %}
+              {% ifchanged article.created_time|date:"Y" %}
+                <li class="article-year">{{ article.created_time|date:"Y" }}</li>
+              {% endifchanged %}
+              <li>
+                <div class="article-entry">
+                  {% if article.cover_image_url and not article.sensitive %}
+                    <a class="thumb"
+                       href="{{ article.url }}"
+                       tabindex="-1"
+                       aria-hidden="true">
+                      <img src="{{ article.cover|thumb:'normal' }}" alt="" loading="lazy">
+                    </a>
+                  {% endif %}
+                  <div class="body">
+                    <a class="title" href="{{ article.url }}">{{ article.title }}</a>
+                    <div class="meta">
+                      <span>{{ article.created_time|date }}</span>
+                      <span class="sep">·</span>
+                      <span>
+                        {% blocktrans count counter=article.reading_time trimmed %}
+                          {{ counter }} min read
+                        {% plural %}
+                          {{ counter }} min read
+                        {% endblocktrans %}
+                      </span>
+                    </div>
+                    {% if article.teaser %}<p class="teaser">{{ article.teaser }}</p>{% endif %}
+                    <div class="foot">
+                      {% if article.normalized_tags %}
+                        <ul class="tags">
+                          {% for tag in article.normalized_tags %}
+                            <li>
+                              {% if request.user.is_authenticated and request.user.identity == article.owner %}
+                                <a href="{% url 'common:search' %}?c=journal&amp;q=tag:&quot;{{ tag }}&quot;">{{ tag }}</a>
+                              {% else %}
+                                <a>{{ tag }}</a>
+                              {% endif %}
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                      {% if article.latest_post %}
+                        <span class="action">
+                          {% include "action_like_post.html" with post=article.latest_post %}
+                          {% include "action_boost_post.html" with post=article.latest_post %}
+                          {% include "action_open_post.html" with post=article.latest_post %}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="dc-empty">
+            {% if identity == request.user.identity %}
+              <p>{% trans "You have no articles yet. An article is a long text that you write here and send to the Fediverse." %}</p>
+              <p class="dc-cta">
+                <a role="button"
+                   class="dc-btn"
+                   href="{% url 'journal:article_compose' %}">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  {% trans "Write an article" %}
+                </a>
+              </p>
+            {% else %}
+              <p>
+                {% blocktrans with name=identity.display_name trimmed %}
+                  {{ name }} has no articles yet.
+                {% endblocktrans %}
+              </p>
+            {% endif %}
+          </div>
+        {% endif %}
+        {% include "_pagination.html" %}
       </div>
       {% include "_sidebar.html" with show_profile=1 %}
     </main>

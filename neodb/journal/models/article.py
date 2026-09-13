@@ -1,6 +1,7 @@
 import logging
 import mimetypes
 import re
+from html import unescape
 from typing import Any
 
 from django.core.files.base import File
@@ -27,6 +28,23 @@ from .tag import Tag as TagModel
 logger = logging.getLogger(__name__)
 
 _RE_SPOILER_TAG = re.compile(r'<(div|span)\sclass="spoiler">.*</(div|span)>')
+
+# Han, kana and Hangul: text that packs a word into one or two characters
+# and gives ``str.split`` nothing to count. Used by ``reading_time``.
+_RE_CJK = re.compile(
+    "["
+    "\u3000-\u303f"  # CJK punctuation, which ``str.split`` would count as words
+    "\u3040-\u30ff"  # hiragana and katakana
+    "\u3400-\u4dbf"  # CJK unified ideographs extension A
+    "\u4e00-\u9fff"  # CJK unified ideographs
+    "\uf900-\ufaff"  # CJK compatibility ideographs
+    "\uac00-\ud7af"  # Hangul syllables
+    "]"
+)
+
+# Words per minute for spaced text, characters per minute for CJK.
+_WORDS_PER_MINUTE = 200
+_CJK_CHARS_PER_MINUTE = 400
 
 _TAG_MAX_COUNT = 30
 
@@ -169,7 +187,13 @@ class Article(Piece):
         # Mask spoiler blocks first, then strip remaining HTML tags. Mirrors
         # ``Review.plain_content`` but uses Django's ``strip_tags`` instead
         # of a hand-rolled regex (more robust against pathological markup).
-        return strip_tags(_RE_SPOILER_TAG.sub("***", html))
+        text = strip_tags(_RE_SPOILER_TAG.sub("***", html))
+        # ``strip_tags`` removes markup but keeps character references, so
+        # markdown's own escaping ("&amp;", "&gt;") survives into what every
+        # caller treats as plain text. A teaser rendered in a template then
+        # escapes it a second time and shows a literal "&amp;"; a crosspost
+        # or an ATProto record carries the same noise. Decode it once here.
+        return unescape(text)
 
     @property
     def brief_description(self) -> str:
@@ -186,6 +210,27 @@ class Article(Piece):
         if len(text) <= 220:
             return text
         return text[:220].rstrip() + "…"
+
+    @property
+    def teaser(self) -> str:
+        """Snippet for the list and profile preview cards: the author summary
+        (which carries the sensitive marker) when there is one, else the body
+        excerpt. A sensitive article therefore previews as its marker and
+        never leaks its body into a list."""
+        return self.display_summary or self.excerpt
+
+    @property
+    def reading_time(self) -> int:
+        """Estimated minutes to read, never less than one.
+
+        ``word_count`` counts whitespace tokens, which reports one minute for
+        an article of any length in Chinese or Japanese. Count CJK characters
+        and other words separately instead, each at its own rate."""
+        text = self.plain_content
+        cjk = len(_RE_CJK.findall(text))
+        words = len(_RE_CJK.sub(" ", text).split())
+        minutes = cjk / _CJK_CHARS_PER_MINUTE + words / _WORDS_PER_MINUTE
+        return max(1, round(minutes))
 
     @property
     def word_count(self) -> int:

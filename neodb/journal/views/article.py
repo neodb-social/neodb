@@ -10,8 +10,15 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.models.lang import translate
+from common.models.misc import int_
 from common.sentry import record_activity
-from common.utils import AuthedHttpRequest, get_uuid_or_404, target_identity_required
+from common.utils import (
+    AuthedHttpRequest,
+    CustomPaginator,
+    PageLinksGenerator,
+    get_uuid_or_404,
+    target_identity_required,
+)
 from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
@@ -241,11 +248,17 @@ class ArticleFeed(Feed):
 @target_identity_required
 def user_article_list(request: AuthedHttpRequest, user_name):
     target = request.target_identity
-    articles = list(
+    queryset = (
         Article.objects.filter(owner=target)
         .filter(q_owned_piece_visible_to_user(request.user, target))
-        .order_by("-created_time")
+        # ``id`` breaks ties: two articles saved in the same tick would
+        # otherwise be free to swap places between page requests.
+        .order_by("-created_time", "-id")
     )
+    paginator = CustomPaginator(queryset, request)
+    page_number = int_(request.GET.get("page", default=1), 1)
+    articles = list(paginator.get_page(page_number))
+    # Both prefetches run over one page, not the whole archive.
     prefetch_latest_posts(articles)
     if request.user.is_authenticated:
         posts = [a.latest_post for a in articles if a.latest_post]
@@ -257,5 +270,13 @@ def user_article_list(request: AuthedHttpRequest, user_name):
             "user": target.user,
             "identity": target,
             "articles": articles,
+            "total": paginator.count,
+            # one page needs no page links, and the template hides the block
+            # when there is no generator
+            "pagination": PageLinksGenerator(
+                page_number, paginator.num_pages, request.GET
+            )
+            if paginator.num_pages > 1
+            else None,
         },
     )

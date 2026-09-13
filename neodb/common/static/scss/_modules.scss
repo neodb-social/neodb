@@ -906,6 +906,190 @@ a.dc-progress-badge {
   }
 }
 
+// the full article list page: one card per article, grouped by year
+.article-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+// year label, with a rule filling the rest of the row
+.article-year {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1.2rem 0 0.3rem;
+  font-size: var(--dc-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--dc-muted);
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--dc-border);
+  }
+}
+
+.article-entry {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-lg);
+  background: var(--dc-surface);
+
+  &:hover {
+    border-color: var(--pico-primary);
+  }
+
+  > .thumb {
+    flex: none;
+    width: 6rem;
+    height: 6rem;
+    border-radius: var(--dc-radius);
+    overflow: hidden;
+    background: var(--dc-surface-2);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  > .body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .title {
+    display: block;
+    font-size: var(--dc-fs-lg);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+    color: var(--dc-strong);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--pico-primary);
+    }
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.3rem;
+    font-size: var(--dc-fs-sm);
+    color: var(--dc-muted);
+
+    .sep {
+      opacity: 0.5;
+    }
+  }
+
+  .teaser {
+    margin: 0.45rem 0 0;
+    font-size: var(--dc-fs-md);
+    line-height: 1.5;
+    color: var(--dc-muted);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+
+    li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: var(--dc-pill);
+      background: var(--dc-surface-2);
+      color: var(--pico-color);
+      font-size: var(--dc-fs-xs);
+      text-decoration: none;
+    }
+
+    // only the owner's tags are links; everyone else gets a bare <a>
+    a[href]:hover {
+      background: var(--pico-primary-focus);
+      color: var(--pico-primary);
+    }
+  }
+
+  // the global .action floats right and dims its links at half opacity; in
+  // this card it is one more flex child, pushed to the end of the row
+  .action {
+    float: none;
+    position: static;
+    width: auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--dc-fs-sm);
+
+    > span {
+      padding: 0;
+    }
+
+    a:not(:hover) {
+      opacity: 1;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .article-entry {
+    flex-direction: column;
+
+    > .thumb {
+      width: 100%;
+      height: 9rem;
+    }
+  }
+}
+
 // calendar heat map keeps its own widget; give it the row spacing
 .calendar_view {
   margin: 0;

@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from html import unescape
 from functools import cached_property
 from typing import Any
 
@@ -65,9 +66,14 @@ class Review(Content):
     @property
     def plain_content(self):
         html = render_md(self.body)
-        return _RE_HTML_TAG.sub(
+        text = _RE_HTML_TAG.sub(
             " ", _RE_SPOILER_TAG.sub("***", html.replace("\n", " "))
         )
+        # Stripping tags leaves character references behind, so markdown's own
+        # escaping ("&amp;", "&gt;") survives into what every caller treats as
+        # plain text and is escaped a second time by whoever renders it. Same
+        # fix as ``Article.plain_content``.
+        return unescape(text)
 
     @property
     def display_summary(self) -> str:

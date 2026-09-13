@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 15:51-0400\n"
+"POT-Creation-Date: 2026-09-14 05:42+0800\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1198,7 +1198,7 @@ msgstr "添加短评"
 msgid "Comment this episode"
 msgstr "写该集短评"
 
-#: catalog/templates/_item_cover_card.html:44
+#: catalog/templates/_item_cover_card.html:46
 #: catalog/templates/_item_user_pieces.html:83
 msgid "Set progress"
 msgstr "设置进度"
@@ -1938,7 +1938,7 @@ msgstr "为你推荐"
 
 #: catalog/templates/discover.html:174 common/templates/_header.html:65
 #: journal/templates/user_post_list.html:10
-#: journal/templates/user_post_list.html:23
+#: journal/templates/user_post_list.html:21
 msgid "Posts"
 msgstr "帖文"
 
@@ -2076,7 +2076,6 @@ msgstr "返回发现"
 #: journal/templates/profile_articles.html:29
 #: journal/templates/profile_items.html:40
 #: journal/templates/profile_posts.html:23
-#: journal/templates/user_article_list.html:58
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_follow_list_items.html:65
 #: journal/templates/user_item_list_base.html:27
@@ -2393,8 +2392,8 @@ msgstr "本操作不可撤销。"
 #: catalog/views/edit.py:344 catalog/views/edit.py:437
 #: catalog/views/edit.py:603 catalog/views/edit.py:705
 #: catalog/views/edit.py:752 catalog/views/verify.py:158
-#: catalog/views/verify.py:206 journal/views/article.py:44
-#: journal/views/article.py:133 journal/views/article.py:153
+#: catalog/views/verify.py:206 journal/views/article.py:51
+#: journal/views/article.py:140 journal/views/article.py:160
 #: journal/views/collection.py:252 journal/views/collection.py:345
 #: journal/views/collection.py:358 journal/views/collection.py:376
 #: journal/views/collection.py:510 journal/views/collection.py:553
@@ -2547,7 +2546,7 @@ msgid "Please wait a moment before trying again."
 msgstr "重试前请稍等。"
 
 #: catalog/views/verify.py:164 common/utils.py:148 common/utils.py:189
-#: journal/views/article.py:186 journal/views/review.py:182
+#: journal/views/article.py:193 journal/views/review.py:182
 #: users/views/actions.py:44 users/views/actions.py:130
 msgid "User not found"
 msgstr "用户不存在"
@@ -4393,7 +4392,7 @@ msgstr "用户不存在了"
 msgid "Access denied"
 msgstr "访问被拒绝"
 
-#: common/utils.py:167 common/utils.py:169 journal/views/article.py:204
+#: common/utils.py:167 common/utils.py:169 journal/views/article.py:211
 #: journal/views/profile.py:592 journal/views/review.py:200
 msgid "Login required"
 msgstr "登录后访问"
@@ -5342,7 +5341,7 @@ msgstr "匹配文件丢失，无法导入。"
 msgid "Import complete: {imported} imported, {skipped} skipped, {failed} failed"
 msgstr "导入完成：已导入 {imported}，跳过 {skipped}，失败 {failed}"
 
-#: journal/models/article.py:224 journal/views/article.py:218
+#: journal/models/article.py:269 journal/views/article.py:225
 msgid "(may contain sensitive content)"
 msgstr "（可能包含剧透或敏感内容）"
 
@@ -5570,12 +5569,12 @@ msgstr "{value}周目"
 msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "关于 {item_title}，可能包含剧透或敏感内容"
 
-#: journal/models/review.py:80
+#: journal/models/review.py:86
 #, python-brace-format
 msgid "a review of {title}"
 msgstr "关于 {title} 的评论"
 
-#: journal/models/review.py:82
+#: journal/models/review.py:88
 msgid "(may contain spoilers)"
 msgstr "（可能包含剧透）"
 
@@ -6471,7 +6470,7 @@ msgid " Note to %(reply_to_name)s "
 msgstr " 给 %(reply_to_name)s 的笔记 "
 
 #: journal/templates/post_compose.html:20 journal/templates/profile.html:43
-#: social/templates/_compose_menu.html:4 social/templates/feed.html:25
+#: social/templates/_compose_menu.html:5
 msgid "Compose"
 msgstr "撰写"
 
@@ -6527,7 +6526,7 @@ msgstr "年度小结"
 
 #: journal/templates/profile.html:141 journal/templates/profile.html:147
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:38 journal/views/profile.py:531
+#: journal/templates/user_article_list.html:23 journal/views/profile.py:531
 msgid "Articles"
 msgstr "文章"
 
@@ -6573,9 +6572,43 @@ msgstr "个人标签不被包括在条目的公共索引中，但如果公开标
 msgid "Delete this tag"
 msgstr "删除这个标签"
 
-#: journal/templates/user_article_list.html:32
+#: journal/templates/user_article_list.html:26
+#, python-format
+msgid "%(counter)s article"
+msgid_plural "%(counter)s articles"
+msgstr[0] "%(counter)s 篇文章"
+
+#: journal/templates/user_article_list.html:31
+#, python-format
+msgid "by %(name)s"
+msgstr "作者 %(name)s"
+
+#: journal/templates/user_article_list.html:39
+msgid "RSS feed"
+msgstr "RSS 订阅"
+
+#: journal/templates/user_article_list.html:46
 msgid "Compose new article"
 msgstr "撰写新文章"
+
+#: journal/templates/user_article_list.html:74
+#, python-format
+msgid "%(counter)s min read"
+msgid_plural "%(counter)s min read"
+msgstr[0] "阅读约 %(counter)s 分钟"
+
+#: journal/templates/user_article_list.html:112
+msgid "You have no articles yet. An article is a long text that you write here and send to the Fediverse."
+msgstr "你还没有文章。文章是你在这里撰写并发送到联邦宇宙的长文。"
+
+#: journal/templates/user_article_list.html:118
+msgid "Write an article"
+msgstr "写文章"
+
+#: journal/templates/user_article_list.html:123
+#, python-format
+msgid "%(name)s has no articles yet."
+msgstr "%(name)s 还没有文章。"
 
 #: journal/templates/user_collection_list.html:16
 #: journal/templates/user_collection_list.html:30
@@ -6618,16 +6651,16 @@ msgstr "分享年度小结"
 msgid "#%(year)s_report"
 msgstr "#我的#%(year)s书影音"
 
-#: journal/views/article.py:184 journal/views/review.py:180
+#: journal/views/article.py:191 journal/views/review.py:180
 msgid "User not local"
 msgstr "用户不在本站"
 
-#: journal/views/article.py:192 journal/views/article.py:206
+#: journal/views/article.py:199 journal/views/article.py:213
 #, python-brace-format
 msgid "Articles by {0}"
 msgstr "{0} 的文章"
 
-#: journal/views/article.py:194 journal/views/article.py:202
+#: journal/views/article.py:201 journal/views/article.py:209
 #: journal/views/review.py:190 journal/views/review.py:198
 msgid "Link invalid"
 msgstr "链接无效"
@@ -7072,13 +7105,21 @@ msgid "%(counter)s word"
 msgid_plural "%(counter)s words"
 msgstr[0] "%(counter)s 词"
 
-#: social/templates/_compose_menu.html:11
+#: social/templates/_compose_menu.html:19
 msgid "New post"
 msgstr "新帖文"
 
-#: social/templates/_compose_menu.html:14
+#: social/templates/_compose_menu.html:20
+msgid "Share a short note"
+msgstr "发布一条短文"
+
+#: social/templates/_compose_menu.html:30
 msgid "New article"
 msgstr "新文章"
+
+#: social/templates/_compose_menu.html:31
+msgid "Write a longer piece with a title"
+msgstr "写一篇有标题的长文"
 
 #: social/templates/_event_mark_group.html:27
 #, python-format
@@ -7395,7 +7436,7 @@ msgstr "投票已于%(end_time)s结束"
 msgid "Poll ending at %(end_time)s"
 msgstr "投票将于%(end_time)s结束"
 
-#: social/templates/search_feed.html:12 social/views.py:56 social/views.py:57
+#: social/templates/search_feed.html:12 social/views.py:59 social/views.py:60
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
@@ -7411,11 +7452,11 @@ msgstr "文章"
 msgid "Poll"
 msgstr "投票"
 
-#: social/views.py:58
+#: social/views.py:61
 msgid "Activities on this site"
 msgstr "本站动态"
 
-#: social/views.py:59
+#: social/views.py:62
 msgid "Activities from the fediverse"
 msgstr "全网动态"
 

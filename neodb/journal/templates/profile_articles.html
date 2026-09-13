@@ -20,7 +20,7 @@
     <li>
       <a href="{{ article.url }}" class="title">{{ article.title }}</a>
       <small class="meta">{{ article.created_time|date }}</small>
-      {% if article.excerpt %}<p class="excerpt">{{ article.excerpt }}</p>{% endif %}
+      {% if article.teaser %}<p class="excerpt">{{ article.teaser }}</p>{% endif %}
     </li>
   {% empty %}
     {% if show_create_button %}
