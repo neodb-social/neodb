@@ -22,7 +22,7 @@
       <header class="dc-mh">
         <h1>{% trans 'Activities' %}</h1>
         <span class="action">
-          <span class="dc-nav primary" title="{% trans 'Compose' %}">{% include "_compose_menu.html" %}</span>
+          {% include "_compose_menu.html" with primary=1 %}
           <a class="dc-nav{% if unread %} activated{% endif %}"
              title="{% trans "Notifications" %}"
              href="{% url 'social:notification' %}">

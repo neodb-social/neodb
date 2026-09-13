@@ -1,0 +1,203 @@
+// The compose menu in _compose_menu.html: a popover card under the round
+// compose button on a wide screen, a bottom sheet on a phone. Every colour is
+// a Pico or --dc-* token, like the other blocks in _modules.scss.
+//
+// Imported after _common.scss and _modules.scss on purpose. On the posts page
+// the menu sits inside `.action`, whose `a:not(:hover)` rule paints links
+// muted at half opacity; the item selectors below carry two classes and three
+// types so they win that rule instead of relying on source order alone.
+
+details.compose-menu {
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  padding: 0;
+
+  // the summary is the button face itself, so it carries .dc-nav; Pico draws a
+  // marker and a dropdown caret on a summary, and neither belongs on a circle
+  > summary {
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::marker {
+      content: '';
+    }
+
+    &::after {
+      display: none !important;
+    }
+  }
+
+  // Pico puts a spacing-sized bottom margin on the summary of an open
+  // <details>. Here the summary is a round button in a page header, so that
+  // margin grew the header and pushed the whole page down by 1rem on open, and
+  // dropped the popover by the same amount. The [open] lifts this over Pico's
+  // own details[open] > summary rather than leaning on stylesheet order.
+  &[open] > summary {
+    margin-bottom: 0;
+  }
+
+  > ul {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: 0;
+    z-index: 100;
+    width: max-content;
+    max-width: 18rem;
+    margin: 0;
+    padding: 0.3rem;
+    list-style: none;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-surface);
+    box-shadow: var(--pico-card-box-shadow);
+  }
+
+  > ul > li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  > ul > li > .compose-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 0.6rem;
+    border: 0;
+    border-radius: var(--dc-radius-sm);
+    background: transparent;
+    box-shadow: none;
+    color: var(--dc-strong);
+    font-size: var(--dc-fs-md);
+    font-weight: 400;
+    line-height: 1.35;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 1;
+
+    // the icon plate; it fills with the site colour on hover
+    > i {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: var(--dc-radius-sm);
+      // --dc-surface-2 is all but invisible on a card; a tint of the site
+      // colour gives the plate an edge in both themes
+      background: color-mix(in srgb, var(--pico-primary) 12%, transparent);
+      color: var(--pico-primary);
+      font-size: var(--dc-fs-sm);
+      transition:
+        background-color 0.14s ease,
+        color 0.14s ease;
+    }
+
+    strong {
+      display: block;
+      font-weight: 600;
+      color: var(--dc-strong);
+    }
+
+    small {
+      display: block;
+      margin-top: 0.1rem;
+      font-size: var(--dc-fs-xs);
+      font-weight: 400;
+      color: var(--dc-muted);
+      white-space: normal;
+    }
+
+    // --pico-primary-focus is a half opaque primary, too strong behind text
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in srgb, var(--pico-primary) 12%, transparent);
+      color: var(--dc-strong);
+      opacity: 1;
+
+      > i {
+        background: var(--pico-primary-background);
+        color: var(--pico-primary-inverse);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--pico-primary);
+      outline-offset: -2px;
+    }
+  }
+
+  // phones: a bottom sheet over a scrim, because a 2rem button in the page
+  // header leaves no room for a popover card beside it
+  @media (max-width: 768px) {
+    // above the 999 of the sticky site header in _header.scss, or the header
+    // stays bright and tappable over the scrim
+    &[open]::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      // the same wash as .modal-underlay in _modal.scss: a contrast token
+      // would lighten the page in the dark theme, and a scrim must darken
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    > ul {
+      position: fixed;
+      z-index: 1001;
+      top: auto;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: auto;
+      max-width: none;
+      padding: 0.3rem 0.6rem 0.6rem;
+      padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+      border: 0;
+      border-top: 1px solid var(--dc-border);
+      border-radius: var(--dc-radius-lg) var(--dc-radius-lg) 0 0;
+
+      // the grab handle of a sheet, drawn rather than added to the markup
+      &::before {
+        content: '';
+        display: block;
+        width: 2.2rem;
+        height: 0.25rem;
+        margin: 0.25rem auto 0.5rem;
+        border-radius: var(--dc-pill);
+        background: var(--dc-border);
+      }
+    }
+
+    > ul > li > .compose-item {
+      padding: 0.7rem 0.6rem;
+    }
+  }
+}
+
+// No open or close animation, on purpose. Chrome does not restart an
+// animation on the content of a <details>, because the browser keeps that
+// content in the DOM and only skips its rendering while the menu is shut.
+// Three routes were measured here, and each played once per page load and
+// never again: a transition with @starting-style, a keyframe on the list or
+// on ::details-content, and a keyframe driven by a class that the template
+// removes and adds around each open. A transition on ::details-content to
+// hold the list painted through the close was worse than useless: it raced,
+// the list sometimes never left its starting style, and the menu opened
+// invisible; it also swallowed the focus call, because the subtree was still
+// content-visibility: hidden at toggle time. An animation on every open
+// therefore needs the open state driven from script, the way the dialogs in
+// this repo do it with a .closing class. The menu opens and shuts at once,
+// like the account dropdown in the header.
+@media (prefers-reduced-motion: reduce) {
+  details.compose-menu > ul > li > .compose-item > i {
+    transition: none;
+  }
+}

@@ -1,69 +1,36 @@
 {% load i18n %}
 <details class="compose-menu"
-         _="on click from elsewhere if @open and not (the target is inside me) remove @open from me end">
-  <summary title="{% trans 'Compose' %}" aria-haspopup="menu">
-    <i class="fa-regular fa-pen-to-square"></i>
+         _="on click from elsewhere remove @open from me on click if the target is me remove @open from me end on keydown[key=='Escape'] from document if me.open then remove @open from me then set btn to the first <summary/> in me then call btn.focus() end on click from <.compose-item/> in me remove @open from me on toggle if me.open then set itm to the first <.compose-item/> in me then wait 50ms then call itm.focus({preventScroll:true}) end">
+  <summary class="dc-nav{% if primary %} primary{% endif %}"
+           title="{% trans 'Compose' %}"
+           aria-haspopup="menu">
+    <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
   </summary>
   <ul role="menu">
-    <li>
-      <a hx-get="{% url 'journal:post_compose' %}"
-         hx-target="body"
-         hx-swap="beforeend">{% trans 'New post' %}</a>
+    <li role="none">
+      <button type="button"
+              role="menuitem"
+              class="compose-item"
+              hx-get="{% url 'journal:post_compose' %}"
+              hx-target="body"
+              hx-swap="beforeend">
+        <i class="fa-regular fa-comment" aria-hidden="true"></i>
+        <span>
+          <strong>{% trans 'New post' %}</strong>
+          <small>{% trans 'Share a short note' %}</small>
+        </span>
+      </button>
     </li>
-    <li>
-      <a href="{% url 'journal:article_compose' %}">{% trans 'New article' %}</a>
+    <li role="none">
+      <a role="menuitem"
+         class="compose-item"
+         href="{% url 'journal:article_compose' %}">
+        <i class="fa-regular fa-newspaper" aria-hidden="true"></i>
+        <span>
+          <strong>{% trans 'New article' %}</strong>
+          <small>{% trans 'Write a longer piece with a title' %}</small>
+        </span>
+      </a>
     </li>
   </ul>
 </details>
-<style>
-  details.compose-menu {
-    display: inline-block;
-    position: relative;
-    margin: 0;
-    padding: 0;
-  }
-  details.compose-menu > summary {
-    list-style: none;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    color: inherit;
-  }
-  details.compose-menu > summary::-webkit-details-marker { display: none; }
-  details.compose-menu > summary::marker { content: ''; }
-  details.compose-menu > summary::after { display: none !important; }
-  details.compose-menu > ul {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    z-index: 100;
-    min-width: max-content;
-    margin: 0.25em 0 0 0;
-    padding: 0.25em 0;
-    list-style: none;
-    background: var(--pico-card-background-color, #fff);
-    border: 1px solid var(--pico-card-border-color, rgba(0,0,0,.1));
-    border-radius: var(--pico-border-radius, 4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-  }
-  details.compose-menu > ul > li {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  details.compose-menu > ul > li > a {
-    display: block;
-    padding: 0.45em 1em;
-    text-decoration: none;
-    color: var(--pico-dropdown-color, var(--pico-color, inherit));
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  details.compose-menu > ul > li > a:hover,
-  details.compose-menu > ul > li > a:focus {
-    background: var(--pico-dropdown-hover-background-color, rgba(0,0,0,.05));
-    color: var(--pico-dropdown-color, var(--pico-color, inherit));
-  }
-</style>

@@ -16,9 +16,7 @@
       <div class="grid__main">
         <h5>
           {% if me %}
-            <span class="action">
-              <span>{% include "_compose_menu.html" %}</span>
-            </span>
+            <span class="action">{% include "_compose_menu.html" %}</span>
           {% endif %}
           <a href="{{ identity.url }}">{{ identity.display_name }}</a> - {% trans "Posts" %}
         </h5>

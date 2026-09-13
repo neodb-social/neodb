@@ -230,14 +230,6 @@ a.dc-nav {
     text-align: center;
   }
 
-  // the compose menu is a <details>; its summary is the button face
-  details.compose-menu > summary {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-  }
-
   // the main action of a page, filled in the site colour
   &.primary {
     background: var(--pico-primary-background);
