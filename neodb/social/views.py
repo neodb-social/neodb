@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import cast
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -13,10 +13,13 @@ from django.views.decorators.http import require_http_methods
 from common.models import SiteConfig
 from common.models.misc import int_
 from common.validators import get_safe_referer_url
-from journal.models import CrosspostRetry, Piece
-from journal.models.common import prefetch_pieces_for_posts
+from journal.models import CrosspostRetry, Piece, Rating
+from journal.models.common import (
+    prefetch_pieces_for_posts,
+    q_owned_piece_visible_to_user,
+)
 from journal.search import JournalIndex, JournalQueryParser
-from social.feed_grouping import FeedEvent, group_feed_events
+from social.feed_grouping import FeedEvent, FeedEventGroup, group_feed_events
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -176,6 +179,49 @@ def search_data(request):
     )
 
 
+def _attach_group_ratings(grouped: list, viewing_user) -> None:
+    """Give each mark group the author's own rating for its cover cards.
+
+    A collapsed group shows the author's stars, like a profile shelf does, in
+    place of the public average a single item card shows. All the ratings of a
+    page are read in one query, filtered by what the viewer may see of each
+    author's pieces: the local and world timelines show posts of users the
+    viewer does not follow, so a followers-only rating on a public mark must
+    stay hidden.
+    """
+    groups_by_owner: dict[int, list[FeedEventGroup]] = {}
+    for event in grouped:
+        if isinstance(event, FeedEventGroup) and event.owner_id:
+            groups_by_owner.setdefault(event.owner_id, []).append(event)
+    if not groups_by_owner:
+        return
+    query = None
+    for owner in APIdentity.objects.filter(pk__in=groups_by_owner):
+        item_ids = {
+            item.pk for group in groups_by_owner[owner.pk] for item in group.items
+        }
+        if not item_ids:
+            continue
+        q = q_owned_piece_visible_to_user(viewing_user, owner) & Q(item_id__in=item_ids)
+        query = q if query is None else query | q
+    if query is None:
+        return
+    grades = {
+        (owner_id, item_id): grade
+        for owner_id, item_id, grade in Rating.objects.filter(query).values_list(
+            "owner_id", "item_id", "grade"
+        )
+        if grade
+    }
+    for owner_id, groups in groups_by_owner.items():
+        for group in groups:
+            group.owner_rating_grades = {
+                item.pk: grades[(owner_id, item.pk)]
+                for item in group.items
+                if (owner_id, item.pk) in grades
+            }
+
+
 def _public_data(request, typ: int, since_id: int, identity_id: int):
     posts = _public_posts(typ, request.user.identity)
     if since_id:
@@ -191,6 +237,7 @@ def _public_data(request, typ: int, since_id: int, identity_id: int):
     _add_interaction_to_events(events, identity_id)
     prefetch_pieces_for_posts(post_list, request.user.identity)
     grouped = group_feed_events(cast(list[FeedEvent], events))
+    _attach_group_ratings(grouped, request.user)
     return render(
         request,
         "feed_events.html",
@@ -248,6 +295,7 @@ def data(request):
     # events are TimelineEvent rows; the type checker can't see Django's implicit
     # id/_id attributes that FeedEvent declares, so assert the shape at this boundary.
     grouped = group_feed_events(cast(list[FeedEvent], events))
+    _attach_group_ratings(grouped, request.user)
     return render(
         request,
         "feed_events.html",

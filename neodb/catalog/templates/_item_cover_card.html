@@ -6,8 +6,10 @@
   One item as a cover card: cover with rating badge, title, and a line with
   the leading credit and rating count. Callers batch ``Rating.attach_to_items``
   and ``Item.credits_prefetch`` first, or pass ``compact`` to skip the credit
-  line. ``owner_rating`` swaps the public average for the shelf owner's own
-  stars (``owner_rating_grade``). ``show_progress_badges`` adds the reading progress bar and badge that
+  line. ``owner_rating`` swaps the public average for the stars of one user,
+  whose grade the caller passes as ``owner_rating_grade``; a profile shelf also
+  passes ``solo_hide_rating`` to hide another user's stars in solo mode, which
+  the feed does not. ``show_progress_badges`` adds the reading progress bar and badge that
   the owner's own progress shelf carries.
 {% endcomment %}
 <li class="dc-card">
@@ -17,8 +19,8 @@
            alt="{{ item.display_title }}"
            loading="lazy">
       {% if owner_rating %}
-        {% if item.owner_rating_grade %}
-          <span class="dc-badge dc-badge-stars{% if not is_owner %} solo-hidden{% endif %}">{{ item.owner_rating_grade|rating_star }}</span>
+        {% if owner_rating_grade %}
+          <span class="dc-badge dc-badge-stars{% if solo_hide_rating and not is_owner %} solo-hidden{% endif %}">{{ owner_rating_grade|rating_star }}</span>
         {% endif %}
       {% elif item.rating %}
         <span class="dc-badge solo-hidden">★ {{ item.rating|floatformat:1 }}</span>

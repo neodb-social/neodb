@@ -34,7 +34,7 @@
     {% if kind == 'collection' %}
       {% include "_collection_card.html" with collection=item %}
     {% else %}
-      {% include "_item_cover_card.html" %}
+      {% include "_item_cover_card.html" with owner_rating_grade=item.owner_rating_grade solo_hide_rating=1 %}
     {% endif %}
   {% empty %}
     <li class="dc-empty-inline" _="init hide closest .entity-sort">{% trans "nothing so far." %}</li>

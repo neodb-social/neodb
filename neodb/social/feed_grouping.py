@@ -70,6 +70,23 @@ class FeedEventGroup:
                 items.append(item)
         self.items = items
         self.count = len(items)
+        # Cover cards show the mark author's own stars, not the public average.
+        # The view fills this in (item pk -> grade) after grouping; keeping it
+        # here rather than on the Item objects matters because the feed prefetch
+        # shares one Item instance across every post on the page, so a per-item
+        # attribute set for one author's group would show up in another's.
+        self.owner_rating_grades: dict[int, int] = {}
+
+    @property
+    def owner_id(self) -> int | None:
+        """APIdentity id of the mark author; all events in a group share one."""
+        piece = getattr(self.posts[0], "piece", None)
+        return getattr(piece, "owner_id", None)
+
+    @property
+    def cards(self) -> list[tuple[Any, int | None]]:
+        """``(item, author's rating grade)`` pairs, in cover order."""
+        return [(i, self.owner_rating_grades.get(i.pk)) for i in self.items]
 
     @property
     def pk(self) -> int:

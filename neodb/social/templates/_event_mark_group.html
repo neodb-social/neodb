@@ -27,8 +27,8 @@
         {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
       </span>
       <ul class="dc-cards mark-group-covers">
-        {% for item in group.items %}
-          {% include "_item_cover_card.html" with compact=1 %}
+        {% for item, grade in group.cards %}
+          {% include "_item_cover_card.html" with compact=1 owner_rating=1 owner_rating_grade=grade %}
         {% endfor %}
       </ul>
     </div>
