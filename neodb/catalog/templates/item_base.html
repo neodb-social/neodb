@@ -65,11 +65,13 @@
       {% block primary_action %}
         {% if request.user.is_authenticated and not mark.shelf_type %}
           <div id="item-primary-action" class="right mark">
-            <div class="item-action item-mark-buttons">
+            {# one joined group, as in the mark dialog, so the buttons keep to one row #}
+            <div class="item-action item-mark-buttons" role="group">
               {% for k, v in shelf_statuses %}
                 {% if v and k != 'dropped' %}
                   <button class="primary"
                           data-status="{{ k }}"
+                          title="{% trans v %}"
                           hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}"
                           hx-target="body"
                           hx-swap="beforeend">{% trans v %}</button>
