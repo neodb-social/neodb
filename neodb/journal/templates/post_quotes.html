@@ -2,7 +2,7 @@
 <section class="replies" id="quote_{{ post.pk }}">
   {% if request.user.is_authenticated %}
     {% if submitted %}
-      <small style="color: var(--muted-color)">{% trans "Quoted." %}</small>
+      <small class="post-thread-note">{% trans "Quoted." %}</small>
     {% else %}
       <form class="reply"
             role="group"
@@ -57,7 +57,7 @@
     {% endif %}
   {% endif %}
   {% if quotes %}
-    <h6 style="color: var(--muted-color); margin: 0.5em 0">{% trans "Quotes" %}</h6>
+    <h6 class="post-thread-heading">{% trans "Quotes" %}</h6>
     {% for quote in quotes %}
       <div class="post">
         <span class="action">

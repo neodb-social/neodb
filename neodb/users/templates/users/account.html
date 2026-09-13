@@ -241,11 +241,8 @@
                     <tr id="passkey-row-{{ pk.id }}">
                       <td>
                         <span class="passkey-name">{{ pk.name }}</span>
-                        <a href="#"
-                           class="passkey-rename-link"
-                           data-pk="{{ pk.id }}"
-                           style="margin-left:0.5em">
-                          <i class="fa-solid fa-pencil" style="font-size:80%"></i>
+                        <a href="#" class="passkey-rename-link field-note" data-pk="{{ pk.id }}">
+                          <i class="fa-solid fa-pencil text-sm"></i>
                         </a>
                       </td>
                       <td>{{ pk.created|date:"Y-m-d" }}</td>

@@ -112,7 +112,7 @@
                 <small>{{ mark.created_time | date }}</small>
               </button>
             </div>
-            <div class="small-only" style="margin-top:2vh;">
+            <div class="small-only item-actions-row">
               <a href="#item-sidebar">{% trans 'Mark, comment and collect' %}</a>
             </div>
           </div>
@@ -332,7 +332,7 @@
              hx-trigger="intersect once"
              hx-swap="outerHTML"></div>
       </div>
-      <div style="clear: both;display: table;"></div>
+      <div class="clearfix"></div>
     </main>
     {% include "_footer.html" %}
   </body>

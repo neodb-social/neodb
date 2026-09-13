@@ -17,7 +17,7 @@
         <h5>
           <a href="{{ identity.url }}">{{ identity.display_name }}</a> - {{ title }}
         </h5>
-        <nav style="margin-bottom:1rem;">
+        <nav class="follow-list-nav">
           <a href="{% url 'journal:user_follow_list' identity.handle 'following' %}"
              {% if list_type == 'following' %}aria-current="page"{% endif %}>
             {% trans "Following" %} ({{ identity.following_count }})
@@ -31,7 +31,7 @@
           <a href="{% url 'journal:user_follow_list' identity.handle 'mutuals' %}"
              {% if list_type == 'mutuals' %}aria-current="page"{% endif %}>{% trans "Mutuals" %}</a>
         </nav>
-        <div style="column-width:240px; column-gap:0.5rem;">{% include "user_follow_list_items.html" %}</div>
+        <div class="follow-list">{% include "user_follow_list_items.html" %}</div>
       </div>
       {% include "_sidebar.html" with show_profile=1 %}
     </main>

@@ -120,6 +120,33 @@
   visibility: hidden;
 }
 
+.text-center {
+  text-align: center;
+}
+
+// Handles and identifiers that are there to be copied out.
+.copyable {
+  cursor: copy;
+}
+
+.text-sm {
+  font-size: 80%;
+}
+
+.clearfix {
+  clear: both;
+  display: table;
+}
+
+.scroll-x {
+  overflow-x: scroll;
+}
+
+.scroll-box {
+  overflow: scroll;
+  max-height: 20em;
+}
+
 .folded {
   max-height: 0;
   transform: scaleY(0);

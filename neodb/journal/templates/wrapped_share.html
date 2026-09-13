@@ -19,19 +19,15 @@
       <form method="post" action="{% url 'journal:wrapped_share' year %}">
         {% csrf_token %}
         <input type="hidden" name="img" id="img" value="">
-        <div style="display: flex;">
-          <div style="width:6em; margin:1em;">
-            <img id="preview" alt="preview" style="width:6em;" />
+        <div class="wrapped-share-row">
+          <div class="wrapped-share-preview">
+            <img id="preview" alt="preview" />
           </div>
-          <div style="width:100%;">
-            <textarea type="text"
-                      name="comment"
-                      placeholder="{% trans "note" %}"
-                      style="width:100%;
-                             height:100%"> {% blocktrans %}#{{year}}_report{% endblocktrans %}</textarea>
+          <div class="wrapped-share-note">
+            <textarea type="text" name="comment" placeholder="{% trans "note" %}"> {% blocktrans %}#{{year}}_report{% endblocktrans %}</textarea>
           </div>
         </div>
-        <div style="margin:0.5em">
+        <div class="wrapped-share-options">
           <fieldset>
             {% trans "Visibility" %}
             <input type="radio"

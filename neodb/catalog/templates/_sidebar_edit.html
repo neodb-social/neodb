@@ -144,7 +144,7 @@
         <summary>
           {% trans 'Edit sub-items' %} <small>({{ item.child_items.count }})</small>
         </summary>
-        <p class="tag-list" style="overflow: scroll; max-height: 20em;">
+        <p class="tag-list scroll-box">
           {% for ep in item.child_items %}
             <span class="season-number" id="ci_{{ ep.uuid }}">
               <a href="{% url 'catalog:edit' ep.url_path ep.uuid %}">{{ ep.episode_number|default:ep.display_title|default:"#" }}</a>

@@ -146,3 +146,35 @@
     padding: 0;
   }
 }
+
+// The inline mark on the sign-in button of a platform that has no icon font.
+.platform-logo {
+  width: 1.25em;
+  color: var(--pico-color);
+  padding-bottom: 0.2em;
+
+  g {
+    stroke-width: 2;
+  }
+
+  path {
+    stroke-linecap: square;
+    stroke-linejoin: round;
+  }
+}
+
+.platform-icon-sm {
+  font-size: 85%;
+}
+
+#passkey-login-btn {
+  width: 100%;
+}
+
+.login-intro {
+  margin: 0 1em;
+}
+
+.login-error {
+  color: var(--pico-del-color);
+}

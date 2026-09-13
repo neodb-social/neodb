@@ -57,16 +57,16 @@
     <main>
       <div>
         {% if article.latest_post %}
-          <div style="display:flex;">
+          <div class="byline-row">
             <div>
-              <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+              <div class="avatar">
                 <a href="{{ article.latest_post.author.url }}">
                   <img src="{{ article.latest_post.author.local_icon_url }}"
                        alt="@{{ article.latest_post.author.handle }}">
                 </a>
               </div>
             </div>
-            <div style="flex-grow:1;">
+            <div class="byline-body">
               <span class="action">
                 {% include "action_post_timestamp.html" with post=article.latest_post %}
                 {% include "action_like_post.html" with post=article.latest_post %}
@@ -120,8 +120,7 @@
           </header>
           {% if article.classname == "article" and article.sensitive %}
             <p id="article_{{ article.uuid }}_reveal_wrap"
-               class="article-reveal-wrap"
-               style="text-align:center">
+               class="article-reveal-wrap">
               <button class="outline article-reveal"
                       type="button"
                       _="on click hide #article_{{ article.uuid }}_reveal_wrap then remove @hidden from #article_{{ article.uuid }}_content">
@@ -137,10 +136,7 @@
               {% if article.classname == "article" and article.cover_image_url %}
                 <img class="article-cover"
                      src="{{ article.display_cover_image_url }}"
-                     alt="{{ article.title }}"
-                     style="max-width:100%;
-                            height:auto;
-                            margin-bottom:1rem">
+                     alt="{{ article.title }}">
               {% endif %}
               {{ article.html_content | safe }}
             {% else %}

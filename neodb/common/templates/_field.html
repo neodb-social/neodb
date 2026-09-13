@@ -13,7 +13,7 @@
   {{ field.errors }}
   {% if field.field.widget.input_type == "file" and field.value %}
     <img alt="{{ field.label }}"
-         style="max-height: 4em"
+         class="field-preview"
          src="{{ field.value.url }}">
   {% endif %}
 </fieldset>

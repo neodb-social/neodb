@@ -3,8 +3,7 @@
 {% trans 'followed you' %}
 <div>
   <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>
-  <code class="{{ event.identity.id }}_handler"
-        style="cursor:copy"
+  <code class="{{ event.identity.id }}_handler copyable"
         onmouseleave="$(this).removeAttr('data-tooltip')"
         onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ event.identity.full_handle }}</code>
 </div>

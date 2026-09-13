@@ -3,62 +3,49 @@
 {% load mastodon %}
 {% load thumb %}
 {% for person in identities %}
-  <article style="padding:0.75rem; margin:0 0 0.5rem; break-inside:avoid;">
-    <div style="display:grid;
-                grid-template-columns:auto 1fr;
-                gap:0.5rem;
-                align-items:center;
-                width:100%">
+  <article class="follow-card">
+    <div class="follow-card__body">
       <div class="avatar">
         <a href="{{ person.url }}">
           <img src="{{ person.avatar|relative_uri }}"
                alt="{{ person.display_name }}">
         </a>
       </div>
-      <div style="min-width:0;">
-        <div class="nickname"
-             style="overflow:hidden;
-                    text-overflow:ellipsis;
-                    white-space:nowrap">
+      <div class="follow-card__name">
+        <div class="nickname">
           <a href="{{ person.url }}">{{ person.display_name }}</a>
         </div>
-        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        <div>
           <small class="handler">@{{ person.handle }}</small>
         </div>
       </div>
       {% if person.safe_metadata %}
-        <dl style="grid-column:1/-1;
-                   margin:0.25rem 0 0;
-                   display:flex;
-                   flex-wrap:wrap;
-                   gap:0.25rem 1rem">
+        <dl class="follow-card__fields">
           {% for entry in person.safe_metadata %}
-            <div style="display:flex; gap:0.25rem; align-items:baseline;">
+            <div>
               <dt>
                 <small class="muted">{{ entry.name }}</small>
               </dt>
-              <dd style="margin:0;">
+              <dd>
                 <small>{{ entry.value }}</small>
               </dd>
             </div>
           {% endfor %}
         </dl>
       {% endif %}
-      {% if person.safe_summary %}
-        <div style="grid-column:1/-1; margin-top:0.25rem;">{{ person.safe_summary|safe }}</div>
-      {% endif %}
+      {% if person.safe_summary %}<div class="follow-card__summary">{{ person.safe_summary|safe }}</div>{% endif %}
     </div>
   </article>
 {% endfor %}
 {% if next_cursor %}
-  <div style="column-span:all"
+  <div class="follow-list-end"
        hx-get="{% url 'journal:user_follow_list' user_name list_type %}?last={{ next_cursor }}"
        hx-trigger="revealed"
        hx-swap="outerHTML">
     <i class="fa-solid fa-compact-disc fa-spin loading"></i>
   </div>
 {% elif not identities %}
-  <p class="empty" style="column-span:all;">
+  <p class="empty follow-list-end">
     {% if request.GET.last %}
       {% trans "Nothing more." %}
     {% else %}

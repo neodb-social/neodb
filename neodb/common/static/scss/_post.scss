@@ -297,3 +297,64 @@ section.activity.post>section.replies {
 		}
 	}
 }
+
+// Author line: the avatar, then the body column taking whatever is left.
+.byline-row {
+  display: flex;
+
+  .avatar {
+    margin: 0.6em 0.6em 0.6em 0;
+  }
+}
+
+.byline-body {
+  flex-grow: 1;
+}
+
+// A mark group scrolls its covers sideways, so the column must be free to
+// shrink below their combined width.
+.mark-group .byline-body {
+  min-width: 0;
+}
+
+// Post body beside its preview card, when the post carries one.
+.post-content-row {
+  display: flex;
+}
+
+.post-content-main {
+  flex-grow: 1;
+}
+
+.note-quote {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+// The infinite scroll spinner lines up under the post body, past the avatar.
+.post-list-more {
+  margin-left: 60px;
+}
+
+.post-thread-heading {
+  color: var(--pico-muted-color);
+  margin: 0.5em 0;
+}
+
+.post-thread-note {
+  color: var(--pico-muted-color);
+}
+
+// Spacing between the rows of options in the compose form.
+.compose-row {
+  margin-top: 0.6em;
+}
+
+.compose-row--last {
+  margin-bottom: 0;
+}
+
+.compose-row--flush {
+  margin-top: 0;
+}

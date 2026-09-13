@@ -41,7 +41,7 @@
           </span>
         </span>
         <h5>{{ year }} {% trans "annual summary" %}</h5>
-        <div id="viz0" style="max-width: 100%; aspect-ratio: 1 / 1;"></div>
+        <div id="viz0"></div>
         {{ by_cat|json_script:"cat-data" }}
         {{ monthly|json_script:"mon-data" }}
         {{ data|json_script:"data" }}

@@ -25,7 +25,7 @@
         <ul>
           {% for candidate in candidates %}
             <li>
-              <code style="cursor:copy"
+              <code class="copyable"
                     onmouseleave="$(this).removeAttr('data-tooltip')"
                     onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">{{ candidate }}</code>
             </li>
@@ -43,13 +43,13 @@
         {% if example_url %}
           <p>{% trans "For example, add this rel=me link to the web page your feed links to (click to copy):" %}</p>
           <p>
-            <code style="cursor:copy"
+            <code class="copyable"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
                   onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">&lt;a rel="me" href="{{ example_url }}"&gt;{{ site_name }}&lt;/a&gt;</code>
           </p>
           <p>{% trans "Or, in the page's head:" %}</p>
           <p>
-            <code style="cursor:copy"
+            <code class="copyable"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
                   onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">&lt;link rel="me" href="{{ example_url }}"&gt;</code>
           </p>
@@ -57,7 +57,7 @@
             {% trans "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):" %}
           </p>
           <p>
-            <code style="cursor:copy"
+            <code class="copyable"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
                   onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">{% trans "Welcome to follow me on the Fediverse:" %} {{ example_url }}</code>
           </p>
@@ -77,7 +77,7 @@
                 <small>@{{ claim.owner.full_handle }}</small>
                 {% if can_moderate and claim.owner != request.user.identity %}
                   <form method="post"
-                        style="display:inline"
+                        class="inline-form"
                         action="{% url 'catalog:unverify_creator' item.url_path item.uuid %}"
                         onsubmit="return confirm('{% trans "Sure to remove this creator verification?" %}');">
                     {% csrf_token %}

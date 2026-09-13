@@ -1,9 +1,8 @@
 {% load i18n %}
 {% for identity in list %}
-  <p style="border-bottom: gray 1px dashed; padding-bottom:4px;">
+  <p class="relationship-row">
     <span class="action">{% include 'users/profile_actions.html' with show_home=1 %}</span>
-    <code class="{{ id }}_handler"
-          style="cursor:copy"
+    <code class="{{ id }}_handler copyable"
           onmouseleave="$(this).removeAttr('data-tooltip')"
           onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ identity.handle }}</code>
   </p>

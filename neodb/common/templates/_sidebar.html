@@ -33,7 +33,7 @@
                   <img src="{{ identity.avatar|relative_uri }}" alt="">
                 </a>
               </div>
-              <div style="align-content:center;">
+              <div class="sidebar-identity">
                 <hgroup>
                   <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
@@ -181,7 +181,7 @@
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
    title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
-          <div style="font-size:80%">{% include "posts.html" with posts=recent_posts collapse_content=1 %}</div>
+          <div class="text-sm">{% include "posts.html" with posts=recent_posts collapse_content=1 %}</div>
         </details>
       </article>
     </section>

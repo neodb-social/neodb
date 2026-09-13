@@ -7,18 +7,16 @@
     <h6>
       <a data-media="{{ ep.media_url }}"
          data-cover="{{ ep.display_cover_image_url }}"
-         class="episode gg-play-button-o"
+         class="episode gg-play-button-o episode-play-inline"
          href="{{ ep.url }}"
          data-uuid="{{ ep.uuid }}"
          data-title="{{ ep.display_title }}"
          data-album="{{ item.display_title }}"
          data-hosts="{{ item.host_names|join:' / ' }}"
-         {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' ep.uuid %}" {% endif %}
-         style="top:4px;
-                margin-right: 8px"></a>
+         {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' ep.uuid %}" {% endif %}></a>
       &nbsp;
       {% if request.user.is_authenticated %}
-        <a style="margin-right: 10px"
+        <a class="episode-play"
            title="{% trans "Comment this episode" %}"
            href="#"
            hx-get="{% url 'journal:comment' ep.uuid %}"
@@ -30,7 +28,7 @@
          rel="noopener"
          href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
       {{ ep.display_title }}
-      <small style="color:lightgrey;">{{ ep.pub_date|date }}</small>
+      <small class="episode-date">{{ ep.pub_date|date }}</small>
     </h6>
     <small class="tldr-2 muted" _="on click toggle .tldr-2">{{ ep.display_description | linebreaksbr }}</small>
   </p>

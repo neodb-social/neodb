@@ -47,7 +47,7 @@
           </div>
           <div>
             {% if not edit_post %}
-              <fieldset style="margin-top:0.6em">
+              <fieldset class="compose-row">
                 <input type="radio"
                        name="visibility"
                        value="0"
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div>
-          <fieldset style="margin-top:0.6em;margin-bottom:0">
+          <fieldset class="compose-row compose-row--last">
             <label for="id_sensitive">
               <input type="checkbox"
                      name="sensitive"
@@ -87,7 +87,7 @@
             </label>
           </fieldset>
           <fieldset id="post-subject-row"
-                    style="margin-top:0"
+                    class="compose-row--flush"
                     {% if not sensitive %}hidden{% endif %}>
             <input type="text"
                    name="subject"

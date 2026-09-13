@@ -122,7 +122,7 @@
             </span>
             <span class="pending-dot"></span>
           </summary>
-          <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
+          <ul role="listbox" class="nav-menu-list" dir="rtl">
             <li>
               <a href="{% url 'common:scan' %}">{% trans 'Scan barcode' %}</a>
             </li>
@@ -185,7 +185,7 @@ _search_cat_change();
        hx-swap="innerHTML"></div>
 {% endif %}
 {% if messages %}
-  <ul class="messages" style="text-align:center">
+  <ul class="messages text-center">
     {% for message in messages %}
       <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>
         {% if message.meta.url %}

@@ -35,12 +35,6 @@
                   {% if v %}
                     <button data-value="{{ k }}"
                             id="id_status_{{ k }}"
-                            style="padding-left:0.1em;
-                                   padding-right:0.1em;
-                                   width:25%;
-                                   text-overflow: ellipsis;
-                                   white-space: nowrap;
-                                   overflow: hidden"
                             {% if k == "wishlist" %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then add .hidden to .rating-editor then halt" {% else %} _="on click add .outline to .status-selector then remove .outline from me then set value of #mark-status to '{{ k }}' then remove .hidden from .rating-editor then halt" {% endif %}
                             {% if shelf_type == k %}class="status-selector"{% else %}class="status-selector outline"{% endif %}>
                       {{ v }}
@@ -76,7 +70,7 @@
                  autocomplete="off">
         </div>
       </div>
-      <div class="grid" style="overflow-x:scroll;">
+      <div class="grid scroll-x">
         <div>
           <fieldset>
             <input type="radio"

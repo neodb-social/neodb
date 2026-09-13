@@ -16,7 +16,7 @@
 		}
   </script>
   <form method="get" action="">
-    <fieldset role="search" style="width: 100%;">
+    <fieldset role="search">
       <select name="category" id="category" onchange="filter()">
         <option value="" {% if not category %}selected{% endif %}>{% trans "All categories" %}</option>
         {% visible_categories as cats %}

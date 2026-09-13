@@ -21,7 +21,7 @@
         <h5>{% trans 'Tag list' %}</h5>
         <div class="tag-list">
           {% for v in tags %}
-            <span style="margin-right:2em; white-space: nowrap;">
+            <span class="tag-list-entry">
               <span>
                 <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}{% if category %}?category={{ category.value }}{% endif %}">
                   {% if v.pinned %}

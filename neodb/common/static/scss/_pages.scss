@@ -60,8 +60,21 @@
   display: none;
 }
 
-.article-page main > div > .replies {
-  padding-top: 2em;
+.article-page {
+  main > div > .replies {
+    padding-top: 2em;
+  }
+
+  img.article-cover {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+}
+
+// The button that reveals a sensitive article sits on its own, centred.
+.article-reveal-wrap {
+  text-align: center;
 }
 
 .collection-edit-page .grid__main details {
@@ -348,6 +361,248 @@ main.import-preview {
     color: var(--pico-muted-color);
     padding: 0.5rem 0.4rem;
   }
+}
+
+// The follow list flows its cards down newspaper columns.
+.follow-list {
+  column-width: 240px;
+  column-gap: 0.5rem;
+}
+
+.follow-list-nav {
+  margin-bottom: 1rem;
+}
+
+// The spinner and the empty notice sit across the full width, not in a column.
+.follow-list-end {
+  column-span: all;
+}
+
+.follow-card {
+  padding: 0.75rem;
+  margin: 0 0 0.5rem;
+  break-inside: avoid;
+}
+
+.follow-card__body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+// A long display name or handle is cut rather than allowed to widen the card.
+.follow-card__name {
+  min-width: 0;
+
+  > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.follow-card__fields {
+  grid-column: 1 / -1;
+  margin: 0.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+
+  > div {
+    display: flex;
+    gap: 0.25rem;
+    align-items: baseline;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.follow-card__summary {
+  grid-column: 1 / -1;
+  margin-top: 0.25rem;
+}
+
+.filter fieldset[role="search"] {
+  width: 100%;
+}
+
+// Field and value columns of a diff take the width; the label column is narrow.
+.diffview thead th:not(:first-child) {
+  width: 40%;
+}
+
+// Import preview: title, then the wide note column, then the two short ones.
+main.import-preview {
+  col:nth-child(1) {
+    width: 20%;
+  }
+
+  col:nth-child(2) {
+    width: 50%;
+  }
+
+  col:nth-child(3),
+  col:nth-child(4) {
+    width: 15%;
+  }
+}
+
+.auth-logo {
+  max-height: 42vh;
+}
+
+.auth-logo-sm {
+  max-height: 20vh;
+}
+
+.footer-note {
+  padding-top: 1em;
+}
+
+.field-preview {
+  max-height: 4em;
+}
+
+.field-note {
+  margin-left: 0.5em;
+}
+
+.indent-field {
+  margin-left: 1.5rem;
+}
+
+.note-input {
+  width: unset;
+}
+
+.tag-list-entry {
+  margin-right: 2em;
+  white-space: nowrap;
+}
+
+.profile-action-row {
+  padding-bottom: 1em;
+  display: inline-block;
+}
+
+.relationship-row {
+  border-bottom: gray 1px dashed;
+  padding-bottom: 4px;
+}
+
+.item-actions-row {
+  margin-top: 2vh;
+}
+
+.episode-play {
+  margin-right: 10px;
+}
+
+// The uploaded image preview under a file field.
+#previewImage {
+  margin: 10px 0;
+  max-width: 500px;
+}
+
+// The wrapped chart is square and never wider than its column.
+#viz0 {
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.wrapped-share-row {
+  display: flex;
+}
+
+.wrapped-share-preview {
+  width: 6em;
+  margin: 1em;
+
+  img {
+    width: 6em;
+  }
+}
+
+.wrapped-share-note {
+  width: 100%;
+
+  textarea {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.wrapped-share-options {
+  margin: 0.5em;
+}
+
+// A video or audio attachment never widens the event card it sits in.
+.attachment-media {
+  max-width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.inline-form {
+  display: inline;
+}
+
+// A streaming embed: a short strip on an item card, a tall panel on the album
+// page where it is the main event.
+.embed-card {
+  width: 100%;
+  height: 120px;
+  margin-top: 0.5em;
+}
+
+.embed-full {
+  width: 100%;
+  height: 50vh;
+}
+
+.episode-play-inline {
+  top: 4px;
+  margin-right: 8px;
+}
+
+.episode-date {
+  color: lightgrey;
+}
+
+// Safari needs the prefixed keyword to size the menu to its longest entry.
+.nav-menu-list {
+  min-width: -webkit-max-content;
+}
+
+.sidebar-identity {
+  align-content: center;
+}
+
+.collection-item-input {
+  min-width: 24rem;
+}
+
+.migrate-form {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 0.5em;
+}
+
+// Four status buttons share the row, so each clips its own label.
+.status-selector {
+  padding-left: 0.1em;
+  padding-right: 0.1em;
+  width: 25%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 // roughViz draws its own axes; the wrapped chart only wants the bars.

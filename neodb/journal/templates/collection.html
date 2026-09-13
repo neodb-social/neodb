@@ -46,16 +46,16 @@
     <main>
       <div class="grid__main">
         {% if collection.latest_post %}
-          <div style="display:flex;">
+          <div class="byline-row">
             <div>
-              <div class="avatar" style="margin:0.6em 0.6em 0.6em 0;">
+              <div class="avatar">
                 <a href="{{ collection.latest_post.author.url }}">
                   <img src="{{ collection.latest_post.author.local_icon_url }}"
                        alt="@{{ collection.latest_post.author.handle }}">
                 </a>
               </div>
             </div>
-            <div style="flex-grow:1;">
+            <div class="byline-body">
               <span class="action">
                 {% include "action_post_timestamp.html" with post=collection.latest_post %}
                 {% if request.user.is_authenticated and collection.latest_post.author_id == request.user.identity.pk %}
@@ -115,7 +115,7 @@
               <div class="markdown-content">{{ collection.html_content | safe }}</div>
             </div>
             <div class="more">
-              <div style="text-align: center;">
+              <div class="text-center">
                 <img src="{{ collection.cover|thumb:'normal' }}" alt="">
               </div>
             </div>

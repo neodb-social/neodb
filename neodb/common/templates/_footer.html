@@ -9,7 +9,7 @@
     <a href="{% url 'common:developer' %}">{% trans 'API' %}</a>
     <a target="_blank" href="https://neodb.net/apps/">{% trans 'Apps' %}</a>
   </div>
-  <div class="hide_unless_alter_domain" style="padding-top: 1em;">
+  <div class="hide_unless_alter_domain footer-note">
     {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}
   </div>
 </footer>

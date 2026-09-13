@@ -46,10 +46,7 @@
               {% for alias in aliases %}
                 <form action="{% url 'users:migrate_in' %}"
                       method="post"
-                      style="display: flex;
-                             align-items: center;
-                             gap: 1em;
-                             margin-bottom: 0.5em">
+                      class="migrate-form">
                   {% csrf_token %}
                   <span>{{ alias.handle }}</span>
                   <input type="hidden" name="alias" value="{{ alias.handle }}">

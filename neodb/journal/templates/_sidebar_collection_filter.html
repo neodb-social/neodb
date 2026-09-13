@@ -2,7 +2,7 @@
 {% if category_choices|length > 1 or request.user.is_authenticated and not collection.is_dynamic %}
   <section class="filter">
     <form method="get" action="">
-      <fieldset role="search" style="width: 100%;">
+      <fieldset role="search">
         {% if category_choices|length > 1 %}
           <select name="category" onchange="this.form.submit()">
             <option value="">{% trans "All" %}</option>

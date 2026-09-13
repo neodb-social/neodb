@@ -10,8 +10,7 @@
   {% for post in posts %}
     {% include "_event_post.html" %}
     {% if forloop.last %}
-      <div class="htmx-indicator"
-           style="margin-left: 60px"
+      <div class="htmx-indicator post-list-more"
            hx-get="{% url 'journal:user_post_list' user_name %}?last={{ post.boost_pk|default:post.pk }}"
            hx-trigger="revealed"
            hx-swap="outerHTML">
