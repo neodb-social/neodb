@@ -1,9 +1,9 @@
 // Shared building blocks for the discover, feed and profile pages: module
 // headers, cover cards, chips and surfaces. Every colour is a Pico token so
 // the blocks follow the site colour an admin picks (pico.<color>.css) and
-// both light and dark themes. Sizes are rem based with a pixel floor, because
-// _layout.scss drops the root font to 80% between 768px and 1200px on the
-// two-column pages. The only breakpoint is the site-wide 768px.
+// both light and dark themes. Sizes are rem based with a pixel floor, so the
+// smallest labels stay legible when a reader sets a small base font. The
+// breakpoints here are the site-wide 768px and 1024px.
 //
 // Imported after _common.scss on purpose: the old `.shelf .action` and
 // `.action a` rules there would otherwise win over the header styles below.
@@ -537,10 +537,10 @@ a.dc-progress-badge {
   }
 }
 
-// posts laid out as cards
+// posts laid out as cards: three across, two on tablets, one on phones
 .dc-posts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--dc-gap);
 
   > .post {
@@ -918,6 +918,23 @@ a.dc-progress-badge {
   display: flex;
   justify-content: center;
   margin: var(--dc-gap) 0;
+
+  // a quiet text control at the foot of the page: the member opens the
+  // editor once, so it must not compete with the sections above it
+  .dc-btn {
+    padding: 0.2rem 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--dc-muted);
+    font-size: var(--dc-fs-sm);
+    font-weight: 400;
+  }
+
+  .dc-btn:hover,
+  .dc-btn:focus-visible {
+    background: none;
+    color: var(--pico-primary);
+  }
 }
 
 .dc-layout-editor {
@@ -1020,6 +1037,13 @@ a.dc-progress-badge {
   }
 }
 
+// tablets: three post cards are too narrow to read, so drop to two
+@media (max-width: 1024px) {
+  .dc-posts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .dc-mh .dc-sub {
     flex-basis: 100%;
@@ -1028,6 +1052,10 @@ a.dc-progress-badge {
 
   .dc-nav.dc-scroll {
     display: none;
+  }
+
+  .dc-posts {
+    grid-template-columns: 1fr;
   }
 
   // the site header is sticky on phones; a second sticky bar would sit

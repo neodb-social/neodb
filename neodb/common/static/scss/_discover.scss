@@ -2,10 +2,6 @@
 // Shared blocks (headers, cards, chips) live in _modules.scss; this file
 // holds only what the discover page alone uses.
 .discover-page {
-  // _layout.scss drops the root font to 80% between 768px and 1200px to fit
-  // the two-column pages; this page is one column, so it keeps full size
-  --pico-font-size: 100%;
-
   .dc-main {
     max-width: 1280px;
     margin: 0 auto;

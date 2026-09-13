@@ -2114,8 +2114,8 @@ msgid "Trending now"
 msgstr "當前熱門"
 
 #: catalog/templates/discover.html:193
-msgid "Marked most across the Fediverse in the last few days."
-msgstr "最近幾天聯邦宇宙中被標記最多的作品。"
+msgid "Marked most across the Fediverse recently."
+msgstr "最近聯邦宇宙中被標記最多的作品。"
 
 #: catalog/templates/discover.html:197 catalog/templates/discover.html:256
 #: catalog/templates/discover.html:283 catalog/templates/discover.html:321
@@ -2133,9 +2133,9 @@ msgstr "向右捲動"
 
 #: catalog/templates/discover.html:225
 #, python-format
-msgid "Marked by %(counter)s person this week"
-msgid_plural "Marked by %(counter)s people this week"
-msgstr[0] "本週 %(counter)s 人標記"
+msgid "Marked by %(counter)s person recently"
+msgid_plural "Marked by %(counter)s people recently"
+msgstr[0] "最近 %(counter)s 人標記"
 
 #: catalog/templates/discover.html:252
 msgid "Because of what is on your shelf."

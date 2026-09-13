@@ -51,7 +51,9 @@
                 {% endif %}
               </span>
             {% endif %}
-            {% include "action_reply_post.html" %}
+            {% if not compact_actions %}
+              {% include "action_reply_post.html" %}
+            {% endif %}
             {% include "action_like_post.html" %}
             {% include "action_boost_post.html" %}
             {% if show_all_actions %}
@@ -63,7 +65,10 @@
             {% if show_all_actions %}
               {% include "_post_action_menu.html" %}
             {% endif %}
-            {% include "action_open_post.html" %}
+            {% comment %}the visibility icon is also the share link; on a narrow card the timestamp link is sufficient{% endcomment %}
+            {% if not compact_actions %}
+              {% include "action_open_post.html" %}
+            {% endif %}
           {% endif %}
         </span>
         <span class="post_author">

@@ -18,7 +18,8 @@
 
   .cards {
     display: grid;
-    grid-auto-columns: 100%;
+    // four across on the narrowest phone; the tiers below widen the cards
+    grid-auto-columns: calc(25% - var(--pico-block-spacing-horizontal));
     grid-column-gap: var(--pico-block-spacing-horizontal);
     grid-auto-flow: column;
     padding: var(--pico-nav-link-spacing-vertical) 0px;
@@ -96,13 +97,7 @@
     }
   }
 
-  @media (min-width: 200px) {
-    .cards {
-      grid-auto-columns: calc(25% - var(--pico-block-spacing-horizontal));
-    }
-  }
-
-  @media (min-width: 500px) {
+  @media (min-width: 576px) {
     .cards {
       grid-auto-columns: calc(20% - var(--pico-block-spacing-horizontal));
     }
@@ -114,7 +109,7 @@
     }
   }
 
-  @media (min-width: 1281px) {
+  @media (min-width: 1280px) {
     .cards {
       grid-auto-columns: calc(calc(100% / 8) - var(--pico-block-spacing-horizontal));
     }
@@ -149,7 +144,7 @@
   }
 }
 
-@media (min-width: 1281px) {
+@media (min-width: 1280px) {
   #sibling .cards {
     grid-auto-columns: calc(calc(100% / 6) - var(--pico-block-spacing-horizontal));
   }

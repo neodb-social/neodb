@@ -1,11 +1,9 @@
+// One text size at every width. The two-column pages used to shrink this to
+// 80% between 769px and 1280px so their columns fit, which made the text
+// shrink and then grow again as a window narrowed. A page too tight for its
+// columns stacks them at a breakpoint instead.
 :root {
   --pico-font-size: 100%;
-}
-
-@media (max-width: 1200px) {
-  :root {
-    --pico-font-size: 80%;
-  }
 }
 
 @media (min-width: 769px) {
@@ -20,10 +18,6 @@
 }
 
 @media (max-width: 768px) {
-  :root {
-    --pico-font-size: 100%;
-  }
-
   .large-only {
     display: none;
   }
@@ -125,11 +119,8 @@
 }
 
 // one centred column for the feed and notification pages, the width a
-// comfortable line of text wants; the root font stays full size like the
-// discover page because nothing has to fit beside the column
+// comfortable line of text wants
 .feed-page.dc-column {
-  --pico-font-size: 100%;
-
   main {
     display: block;
     max-width: 46rem;

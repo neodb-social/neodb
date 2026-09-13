@@ -177,6 +177,15 @@ body {
       .nav-search,
       .nav-search li {
         width: 100%;
+        // a flex item will not shrink below the intrinsic width of the input
+        // inside it, which pushed the account menu off the right edge on a
+        // narrow laptop; the search box gives up its width instead
+        min-width: 0;
+      }
+
+      .nav-search form,
+      .nav-search input:not([type="submit"]) {
+        min-width: 0;
       }
 
       .nav-search select {

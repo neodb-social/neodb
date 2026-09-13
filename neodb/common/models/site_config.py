@@ -73,6 +73,9 @@ class SiteConfig(models.Model):
 
         # Discover
         min_marks_for_discover: int = 1
+        # one window for the spotlight: the marks it ranks items by, and the
+        # number each spotlight card shows
+        discover_spotlight_days: int = 14
         discover_update_interval: int = 60
         discover_filter_language: bool = False
         discover_show_local_only: bool = False
@@ -290,6 +293,7 @@ class SiteConfig(models.Model):
             or "",
             # Discover
             "min_marks_for_discover": getattr(settings, "MIN_MARKS_FOR_DISCOVER", 1),
+            "discover_spotlight_days": getattr(settings, "DISCOVER_SPOTLIGHT_DAYS", 14),
             "discover_update_interval": getattr(
                 settings, "DISCOVER_UPDATE_INTERVAL", 60
             ),

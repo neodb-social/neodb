@@ -29,8 +29,9 @@ logger = logging.getLogger(__name__)
 MAX_ITEMS_PER_PERIOD = 12
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
+# the fast moving list behind /api/v1/trends/links; the spotlight has its own
+# window, which the site configures
 DAYS_FOR_TRENDS = 3
-DAYS_FOR_WEEKLY_MARKS = 7
 SPOTLIGHT_PER_CATEGORY = 2
 MAX_SPOTLIGHT = 12
 COLLECTION_COVERS = 4
@@ -45,6 +46,10 @@ class DiscoverGenerator(BaseJob):
     @property
     def min_marks(self) -> int:
         return SiteConfig.system.min_marks_for_discover
+
+    @property
+    def spotlight_days(self) -> int:
+        return SiteConfig.system.discover_spotlight_days
 
     def get_no_discover_identities(self) -> list:
         return list(
@@ -143,6 +148,20 @@ class DiscoverGenerator(BaseJob):
             .values_list("p", flat=True)[:MAX_ITEMS_PER_PERIOD]
         )
 
+    def get_top_marked_ids(self, category, days: int) -> list:
+        """The few most marked items of a category in the last ``days``."""
+        ids = self.get_popular_marked_item_ids(category, days, [])[:5]
+        if category == ItemCategory.Podcast:
+            ids += self.get_popular_commented_podcast_ids(days, ids)[:3]
+        return ids
+
+    def load_visible_items(self, item_ids) -> list[Item]:
+        return [
+            i
+            for i in Item.objects.filter(pk__in=set(item_ids))
+            if not i.is_deleted and not i.merged_to_item_id
+        ]
+
     def cleanup_shows(self, items):
         seasons = [i for i in items if i.__class__ == TVSeason]
         for season in seasons:
@@ -152,8 +171,8 @@ class DiscoverGenerator(BaseJob):
                     items.append(season.show)
         return items
 
-    def attach_weekly_marks(self, items: list[Item]) -> None:
-        """Set ``weekly_marks`` on each item: shelf marks in the last 7 days.
+    def attach_recent_marks(self, items: list[Item], days: int) -> None:
+        """Set ``recent_marks`` on each item: shelf marks in the last ``days``.
 
         One aggregate query per call; discover cards and the spotlight read
         the attribute from the cached items instead of counting per request.
@@ -171,7 +190,7 @@ class DiscoverGenerator(BaseJob):
                 ids_by_item[show_id].add(season_id)
         qs = ShelfMember.objects.filter(
             item_id__in=set().union(*ids_by_item.values()),
-            created_time__gt=timezone.now() - timedelta(days=DAYS_FOR_WEEKLY_MARKS),
+            created_time__gt=timezone.now() - timedelta(days=days),
         )
         if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
@@ -181,7 +200,7 @@ class DiscoverGenerator(BaseJob):
             .values_list("item_id", "n")
         )
         for i in items:
-            i.weekly_marks = sum(counts.get(pk, 0) for pk in ids_by_item[i.pk])
+            i.recent_marks = sum(counts.get(pk, 0) for pk in ids_by_item[i.pk])
 
     def get_collection_meta(
         self, collection_ids: list[int]
@@ -308,26 +327,26 @@ class DiscoverGenerator(BaseJob):
             editions = [i for i in items if isinstance(i, Edition)]
             if editions:
                 prefetch_related_objects(editions, "works")
-            self.attach_weekly_marks(items)
+            self.attach_recent_marks(items, self.spotlight_days)
             cache.set(key, items, timeout=None)
 
-            item_ids = self.get_popular_marked_item_ids(category, DAYS_FOR_TRENDS, [])[
-                :5
-            ]
-            if category == ItemCategory.Podcast:
-                item_ids += self.get_popular_commented_podcast_ids(
-                    DAYS_FOR_TRENDS, item_ids
-                )[:3]
-            recent = [
-                i
-                for i in Item.objects.filter(pk__in=set(item_ids))
-                if not i.is_deleted and not i.merged_to_item_id
-            ]
-            self.attach_weekly_marks(recent)
-            recent.sort(key=lambda x: x.weekly_marks or 0, reverse=True)
-            spotlight.extend(recent[:SPOTLIGHT_PER_CATEGORY])
-            for i in recent:
-                cnt = i.weekly_marks or 0
+            # the spotlight picks and ranks over the window the site sets, so
+            # the number on a card is the one that put the item there
+            candidates = self.load_visible_items(
+                self.get_top_marked_ids(category, self.spotlight_days)
+            )
+            self.attach_recent_marks(candidates, self.spotlight_days)
+            candidates.sort(key=lambda x: x.recent_marks or 0, reverse=True)
+            spotlight.extend(candidates[:SPOTLIGHT_PER_CATEGORY])
+
+            # trends keep their own short window, so trending links turn over
+            # from day to day whatever the spotlight is set to
+            trending = self.load_visible_items(
+                self.get_top_marked_ids(category, DAYS_FOR_TRENDS)
+            )
+            self.attach_recent_marks(trending, DAYS_FOR_TRENDS)
+            for i in trending:
+                cnt = i.recent_marks or 0
                 trends.append(
                     {
                         "title": i.display_title,
@@ -337,7 +356,9 @@ class DiscoverGenerator(BaseJob):
                         "provider_name": str(i.category.label),
                         "history": [
                             {
-                                "day": str(int(time.time() / 86400 - 3) * 86400),
+                                "day": str(
+                                    int(time.time() / 86400 - DAYS_FOR_TRENDS) * 86400
+                                ),
                                 "accounts": str(cnt),
                                 "uses": str(cnt),
                             }
@@ -355,9 +376,10 @@ class DiscoverGenerator(BaseJob):
 
         trends.sort(key=lambda x: int(x["history"][0]["accounts"]), reverse=True)
 
-        # The spotlight strip: the items marked most in the last week, a couple
-        # per category, with ratings and credits cached like the shelves.
-        spotlight.sort(key=lambda x: x.weekly_marks or 0, reverse=True)
+        # The spotlight strip: the items marked most in the configured window,
+        # a couple per category, with ratings and credits cached like the
+        # shelves.
+        spotlight.sort(key=lambda x: x.recent_marks or 0, reverse=True)
         spotlight = spotlight[:MAX_SPOTLIGHT]
         for i in spotlight:
             i.rating

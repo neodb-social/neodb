@@ -431,10 +431,12 @@ class Collection(List):
     ) -> None:
         """Set ``cover_previews`` and ``member_count`` on each collection.
 
-        Cards draw a mosaic of the first member covers instead of the
-        collection's own cover. Two queries for the whole list: one for the
-        leading members of every collection, one for the member counts.
-        Dynamic collections have no members and get an empty preview.
+        A collection whose owner gave it a cover keeps that cover, and the
+        card falls back to it because the preview list stays empty. The
+        mosaic of member covers stands in only for the collections that never
+        got one. Two queries for the whole list: one for the leading members,
+        one for the member counts. Dynamic collections have no members and get
+        an empty preview.
         """
         static = [c for c in collections if not c.is_dynamic]
         for c in collections:
@@ -444,11 +446,12 @@ class Collection(List):
             return
         ids = [c.pk for c in static]
         by_pk = {c.pk: c for c in static}
-        leading: dict[int, list[int]] = {pk: [] for pk in ids}
+        mosaic_ids = [c.pk for c in static if not c.cover_image_url]
+        leading: dict[int, list[int]] = {pk: [] for pk in mosaic_ids}
         # only the leading rows of each collection leave the database, so a
         # huge collection costs no more than a small one
         rows = (
-            CollectionMember.objects.filter(parent_id__in=ids)
+            CollectionMember.objects.filter(parent_id__in=mosaic_ids)
             .annotate(
                 row=Window(
                     expression=RowNumber(),

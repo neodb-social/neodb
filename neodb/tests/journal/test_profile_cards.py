@@ -108,6 +108,27 @@ def test_created_collections_render_cover_mosaics():
     assert "1 item" in content
 
 
+def test_collection_with_its_own_cover_keeps_it():
+    user, client = _member("owncover")
+    books = [Edition.objects.create(title=f"Cover Book {i}") for i in range(4)]
+    own = Collection.objects.create(owner=user.identity, title="Mine", visibility=0)
+    for book in books:
+        own.append_item(book)
+    own.cover.name = "collections/mine.png"
+    own.save(update_fields=["cover"])
+
+    Collection.attach_cover_previews([own])
+
+    # four members, but the owner's cover stands instead of a mosaic of them
+    assert own.cover_previews == []
+    assert own.member_count == 4
+
+    url = reverse("journal:profile_created_collections", args=[user.identity.handle])
+    content = client.get(url).content.decode()
+    assert 'class="dc-mosaic"' not in content
+    assert 'class="dc-mosaic single"' in content
+
+
 def test_attach_cover_previews_query_count_is_flat():
     user, _ = _member("previews")
     books = [Edition.objects.create(title=f"Preview Book {i}") for i in range(6)]

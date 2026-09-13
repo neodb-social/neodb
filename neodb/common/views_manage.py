@@ -396,6 +396,14 @@ class DiscoverSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "discover_spotlight_days": {
+            "title": _("Spotlight window (days)"),
+            "help_text": _(
+                "How many days of marks the spotlight ranks items by, and the "
+                "number each spotlight card shows."
+            ),
+            "min_value": 1,
+        },
         "discover_update_interval": {
             "title": _("Update interval (minutes)"),
             "help_text": _("How often to refresh the popular items list."),
@@ -430,6 +438,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
     layout = {
         _("Discover"): [
             "min_marks_for_discover",
+            "discover_spotlight_days",
             "discover_update_interval",
             "discover_filter_language",
             "discover_show_local_only",

@@ -1959,7 +1959,7 @@ msgid "Trending now"
 msgstr ""
 
 #: catalog/templates/discover.html:193
-msgid "Marked most across the Fediverse in the last few days."
+msgid "Marked most across the Fediverse recently."
 msgstr ""
 
 #: catalog/templates/discover.html:197 catalog/templates/discover.html:256
@@ -1978,8 +1978,8 @@ msgstr ""
 
 #: catalog/templates/discover.html:225
 #, python-format
-msgid "Marked by %(counter)s person this week"
-msgid_plural "Marked by %(counter)s people this week"
+msgid "Marked by %(counter)s person recently"
+msgid_plural "Marked by %(counter)s people recently"
 msgstr[0] ""
 msgstr[1] ""
 

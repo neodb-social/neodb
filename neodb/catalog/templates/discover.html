@@ -186,60 +186,62 @@
           {% endif %}
         </ul>
       </nav>
-      {% if spotlight %}
-        <section class="dc-mod" id="spotlight">
-          <header class="dc-mh">
-            <h2>{% trans "Trending now" %}</h2>
-            <span class="dc-sub">{% trans "Marked most across the Fediverse in the last few days." %}</span>
-            <span class="action">
+      <div class="sortable">
+        {% if spotlight %}
+          <section class="entity-sort dc-mod"
+                   id="spotlight"
+                   data-title="{% trans 'Trending now' %}">
+            <header class="dc-mh">
+              <h2>{% trans "Trending now" %}</h2>
+              <span class="dc-sub">{% trans "Marked most across the Fediverse recently." %}</span>
+              <span class="action">
+                <button class="dc-nav dc-scroll"
+                        type="button"
+                        aria-label="{% trans 'Scroll left' %}"
+                        _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
               <button class="dc-nav dc-scroll"
                       type="button"
-                      aria-label="{% trans 'Scroll left' %}"
-                      _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-              <i class="fa-solid fa-chevron-left"></i>
+                      aria-label="{% trans 'Scroll right' %}"
+                      _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+              <i class="fa-solid fa-chevron-right"></i>
             </button>
-            <button class="dc-nav dc-scroll"
-                    type="button"
-                    aria-label="{% trans 'Scroll right' %}"
-                    _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </span>
-      </header>
-      <ul class="dc-spots">
-        {% for item in spotlight %}
-          <li class="dc-spot">
-            <a href="{{ item.url }}" title="{{ item.display_title }}">
-              <span class="dc-cover {{ item|cover_shape }}">
-                <img src="{{ item.cover|thumb:'normal' }}"
-                     alt="{{ item.display_title }}"
-                     loading="lazy">
-              </span>
-              <span class="dc-spot-body">
-                <span class="dc-eyebrow">{{ item.category.label }}</span>
-                <span class="dc-spot-title">{{ item.display_title }}</span>
-                <span class="dc-spot-rating">
-                  {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
-                  {% if item.weekly_marks %}
-                    <span>
-                      {% blocktrans count counter=item.weekly_marks trimmed %}
-                        Marked by {{ counter }} person this week
-                      {% plural %}
-                        Marked by {{ counter }} people this week
-                      {% endblocktrans %}
-                    </span>
-                  {% endif %}
+          </span>
+        </header>
+        <ul class="dc-spots">
+          {% for item in spotlight %}
+            <li class="dc-spot">
+              <a href="{{ item.url }}" title="{{ item.display_title }}">
+                <span class="dc-cover {{ item|cover_shape }}">
+                  <img src="{{ item.cover|thumb:'normal' }}"
+                       alt="{{ item.display_title }}"
+                       loading="lazy">
                 </span>
-                <span class="dc-spot-brief">{{ item.display_description }}</span>
-                <span class="dc-spot-by">{{ item|primary_credit }}</span>
-              </span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  {% endif %}
-  <div class="sortable">
+                <span class="dc-spot-body">
+                  <span class="dc-eyebrow">{{ item.category.label }}</span>
+                  <span class="dc-spot-title">{{ item.display_title }}</span>
+                  <span class="dc-spot-rating">
+                    {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
+                    {% if item.recent_marks %}
+                      <span>
+                        {% blocktrans count counter=item.recent_marks trimmed %}
+                          Marked by {{ counter }} person recently
+                        {% plural %}
+                          Marked by {{ counter }} people recently
+                        {% endblocktrans %}
+                      </span>
+                    {% endif %}
+                  </span>
+                  <span class="dc-spot-brief">{{ item.display_description }}</span>
+                  <span class="dc-spot-by">{{ item|primary_credit }}</span>
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
     {# one section for both personal rows, so the layout editor can move or hide them under the id the old page used #}
     <section class="entity-sort dc-mod"
              id="recommendations"
@@ -470,25 +472,26 @@
   {{ layout|json_script:"layout-data" }}
   <script>
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
-        const knownSections = new Set();
-        // apply the saved order and visibility; data-visible feeds the editor
+        const savedIds = [];
+        // apply the saved visibility; data-visible feeds the editor
         initialLayoutData.forEach(elem => {
-          knownSections.add(elem.id);
           const el = document.getElementById(elem.id);
           if (!el) return;
           el.dataset.visible = elem.visibility ? '1' : '0';
           if (!elem.visibility) {
             el.style.display = 'none';
           }
-          $(el).appendTo('.sortable');
+          if (el.matches('.sortable > .entity-sort')) savedIds.push(elem.id);
         });
-        // sections added since the layout was saved follow the saved ones
-        if (initialLayoutData.length) {
-          document.querySelectorAll('.sortable > .entity-sort').forEach(el => {
-            if (!knownSections.has(el.id)) {
-              $(el).appendTo('.sortable');
-            }
-          });
+        // the saved sections take the saved order, and a section the layout
+        // never mentioned keeps the slot it has on the page, so a section
+        // added since the layout was saved does not drop to the bottom
+        if (savedIds.length) {
+          const slots = Array.from(document.querySelectorAll('.sortable > .entity-sort'));
+          let next = 0;
+          slots
+            .map(el => savedIds.indexOf(el.id) < 0 ? el : document.getElementById(savedIds[next++]))
+            .forEach(el => $(el).appendTo('.sortable'));
         }
         // chips must not point at a section the member hid
         document.querySelectorAll('.dc-chips a[href^="#"]').forEach(a => {

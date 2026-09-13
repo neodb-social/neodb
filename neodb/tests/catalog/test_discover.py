@@ -9,7 +9,7 @@ from django.utils import timezone
 from catalog.jobs.discover import DiscoverGenerator
 from catalog.models import Edition, Movie, Podcast, PodcastEpisode, TVSeason, TVShow
 from common.models import SiteConfig
-from journal.models import Collection, Mark, ShelfType
+from journal.models import Collection, Mark, ShelfMember, ShelfType
 from takahe.utils import Takahe
 from users.models import User
 
@@ -40,7 +40,7 @@ def _mark_by_many(item, n: int, prefix: str) -> list[User]:
 
 
 class TestDiscoverJob:
-    def test_caches_weekly_marks_spotlight_and_collection_meta(self, site_config):
+    def test_caches_recent_marks_spotlight_and_collection_meta(self, site_config):
         book = Edition.objects.create(title="Trending Book")
         readers = _mark_by_many(book, 3, "reader")
         collection = Collection.objects.create(
@@ -52,17 +52,37 @@ class TestDiscoverJob:
 
         shelf = cache.get("trending_book")
         cached = next(i for i in shelf if i.pk == book.pk)
-        assert cached.weekly_marks == 3
+        assert cached.recent_marks == 3
         assert cached.rating_count == 3
 
         spotlight = cache.get("discover_spotlight")
         spot = next(i for i in spotlight if i.pk == book.pk)
-        assert spot.weekly_marks == 3
+        assert spot.recent_marks == 3
 
         meta = cache.get("discover_collection_meta")[collection.pk]
         assert meta["count"] == 1
         assert meta["covers"] == [book.display_cover_image_url]
         assert meta["owner"] == readers[0].identity.display_name
+
+    def test_spotlight_window_picks_and_counts_over_the_same_days(self, site_config):
+        book = Edition.objects.create(title="Slow Burn")
+        _mark_by_many(book, 3, "slowreader")
+        ShelfMember.objects.filter(item_id=book.pk).update(
+            created_time=timezone.now() - timedelta(days=9)
+        )
+
+        # marks nine days old are inside the default window
+        site_config.discover_spotlight_days = 14
+        DiscoverGenerator().run()
+        spotlight = cache.get("discover_spotlight")
+        assert [i.recent_marks for i in spotlight if i.pk == book.pk] == [3]
+
+        # and outside a shorter one, so the item leaves the strip instead of
+        # showing a count from a window that never chose it
+        site_config.discover_spotlight_days = 3
+        DiscoverGenerator().run()
+        spotlight = cache.get("discover_spotlight")
+        assert [i.pk for i in spotlight if i.pk == book.pk] == []
 
     def test_show_counts_marks_on_its_seasons(self, site_config):
         show = TVShow.objects.create(title="Long Show")
@@ -74,7 +94,7 @@ class TestDiscoverJob:
         # the season trends, but the shelf lists its show with the count
         shelf = cache.get("trending_tv")
         assert [i.pk for i in shelf] == [show.pk]
-        assert shelf[0].weekly_marks == 2
+        assert shelf[0].recent_marks == 2
 
 
 class TestDiscoverPage:
