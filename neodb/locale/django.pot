@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 02:03-0400\n"
+"POT-Creation-Date: 2026-09-13 02:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4056,10 +4056,14 @@ msgid "Attributions"
 msgstr ""
 
 #: common/templates/common/about.html:138
+msgid "This website can get catalog data from the sources below. These sources are not affiliated with this website, and they do not endorse it."
+msgstr ""
+
+#: common/templates/common/about.html:142
 msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
 msgstr ""
 
-#: common/templates/common/about.html:141
+#: common/templates/common/about.html:145
 msgid "This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
 msgstr ""
 

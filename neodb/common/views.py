@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from boofilsic import __version__
+from catalog.common.sites import SiteManager
 from catalog.views import people_search as catalog_people_search, discover
 from catalog.views import search as catalog_search
 from journal.views import search as journal_search
@@ -336,10 +337,22 @@ def oauth_authorization_server(request):
     return JsonResponse(metadata)
 
 
+def _catalog_sites() -> list[str]:
+    """Names of the sites the catalog can fetch from, for the about page.
+
+    Several site classes share one SITE_NAME (the three MusicBrainz ones, for
+    example), so collapse them. Sorted by the localized label, which is what
+    the reader sees.
+    """
+    names = {site.SITE_NAME for site in SiteManager.get_all_sites()}
+    return sorted((str(name.label) for name in names), key=str.casefold)
+
+
 def about(request):
     context = {
         "neodb_version": settings.NEODB_VERSION,
     }
+    context["catalog_sites"] = _catalog_sites()
     context["catalog_stats"] = cache.get("catalog_stats") or []
     context["instance_info_stats"] = cache.get("instance_info_stats") or {}
     context["invite_only"] = SiteConfig.system.invite_only

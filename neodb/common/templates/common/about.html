@@ -135,6 +135,10 @@
           <h2>{% translate "Attributions" %}</h2>
           <div class="attributions">
             <p>
+              {% blocktranslate %}This website can get catalog data from the sources below. These sources are not affiliated with this website, and they do not endorse it.{% endblocktranslate %}
+            </p>
+            <p>{{ catalog_sites|join:", " }}</p>
+            <p>
               {% blocktranslate %}This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.{% endblocktranslate %}
             </p>
             <p>
