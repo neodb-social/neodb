@@ -32,9 +32,6 @@
         {% include "action_boost_post.html" with post=mark.comment.latest_post %}
         {% include "action_open_post.html" with post=mark.comment.latest_post %}
       {% endif %}
-      {% comment %}
-      <span class="timestamp">{{ mark.comment.created_time|date }}</span>
-      {% endcomment %}
     </span>
     <p>{{ mark.comment.html|safe }}</p>
   {% endif %}
@@ -53,7 +50,6 @@
         {% include "action_boost_post.html" with post=comment.latest_post %}
         {% include "action_open_post.html" with post=comment.latest_post %}
       {% endif %}
-      {% comment %} <span class="timestamp">{{ comment.created_time|date }}</span> {% endcomment %}
     </span>
     <p>
       <a href="{{ comment.item.url }}">{{ comment.item.display_title }}</a>: {{ comment.html|safe }}
@@ -162,17 +158,11 @@
         {% include "action_boost_post.html" with post=review.latest_post %}
         {% include "action_open_post.html" with post=review.latest_post %}
       {% endif %}
-      {% comment %}
-      <span class="timestamp">{{ mark.review.created_time|date }}</span>
-      {% endcomment %}
     </span>
     <p>
       <a href="{% url 'journal:review_retrieve' review.uuid %}">{{ review.title }}</a>
     </p>
   {% else %}
-    {% comment %}
-      <span class="empty">{% trans "nothing so far." %}</span>
-    {% endcomment %}
   {% endif %}
 </section>
 <section>
@@ -197,9 +187,6 @@
         {% if c.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
       </p>
     {% empty %}
-      {% comment %}
-      <span class="empty">{% trans "nothing so far." %}</span>
-      {% endcomment %}
     {% endfor %}
   </div>
 </section>

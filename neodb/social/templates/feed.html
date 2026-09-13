@@ -36,7 +36,6 @@
             </a>
           </span>
         </header>
-        {# the active tab is not a link, so it carries no href #}
         <nav class="dc-chips" aria-label="{% trans 'Feeds' %}">
           <ul>
             <li>
@@ -81,7 +80,6 @@
           </div>
         </div>
       </div>
-      {# bottom: on a phone the activities come first, the sidebar below them #}
       {% include "_sidebar.html" with show_profile=1 show_progress=1 bottom=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}

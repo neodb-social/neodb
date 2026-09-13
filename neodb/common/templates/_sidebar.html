@@ -30,7 +30,6 @@
             <div>
               <div class="avatar">
                 <a href="{{ identity.url }}" onclick="window.location = this.href;">
-                  {% comment %} onclick to workaround webkit issue with <a />  in <summary /> {% endcomment %}
                   <img src="{{ identity.avatar|relative_uri }}" alt="">
                 </a>
               </div>

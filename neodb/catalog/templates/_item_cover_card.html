@@ -2,16 +2,6 @@
 {% load thumb %}
 {% load discover %}
 {% load duration %}
-{% comment %}
-  One item as a cover card: cover with rating badge, title, and a line with
-  the leading credit and rating count. Callers batch ``Rating.attach_to_items``
-  and ``Item.credits_prefetch`` first, or pass ``compact`` to skip the credit
-  line. ``owner_rating`` swaps the public average for the stars of one user,
-  whose grade the caller passes as ``owner_rating_grade``; a profile shelf also
-  passes ``solo_hide_rating`` to hide another user's stars in solo mode, which
-  the feed does not. ``show_progress_badges`` adds the reading progress bar and badge that
-  the owner's own progress shelf carries.
-{% endcomment %}
 <li class="dc-card">
   <a href="{{ item.url }}" title="{{ item.display_title }}">
     <span class="dc-cover {{ item|cover_shape }}">

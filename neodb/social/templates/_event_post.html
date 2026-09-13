@@ -65,7 +65,6 @@
             {% if show_all_actions %}
               {% include "_post_action_menu.html" %}
             {% endif %}
-            {% comment %}the visibility icon is also the share link; on a narrow card the timestamp link is sufficient{% endcomment %}
             {% if not compact_actions %}
               {% include "action_open_post.html" %}
             {% endif %}
@@ -86,7 +85,6 @@
         {% if post.in_reply_to_post_ %}
           <span class="replied">
             {% trans 'replying to' %}
-            {% comment %}do not show replying to detail in case viewer has no access to it{% endcomment %}
             <a class="nickname"
                title="@{{ post.in_reply_to_post_.author.handle }}"
                href="{% url 'journal:post_view' post.in_reply_to_post_.author.handle post.in_reply_to_post_.pk %}">

@@ -160,7 +160,6 @@
                 {% for tag in article.normalized_tags %}
                   <span class="tag">
                     {% if request.user.is_authenticated and request.user.identity == article.owner %}
-                      {# urlencode: a tag may hold "&" or "#", which would otherwise cut the query short #}
                       {% with q='tag:"'|add:tag|add:'"' %}
                         <a href="{% url 'common:search' %}?c=journal&amp;q={{ q|urlencode }}">{{ tag }}</a>
                       {% endwith %}

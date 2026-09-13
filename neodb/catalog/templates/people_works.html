@@ -53,7 +53,6 @@
                 {% endfor %}
               </select>
               {% if request.user.is_authenticated %}
-                {% comment %}"Complete" is already a task status label with its own translation, so this msgid stays lowercase and is capitalized here{% endcomment %}
                 {% translate 'complete' as st_complete %}
                 <select id="status_filter" onchange="applyFilter()">
                   <option value="" {% if not current_status %}selected{% endif %}>{% trans 'All' %}</option>

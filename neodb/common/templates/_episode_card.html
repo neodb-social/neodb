@@ -1,11 +1,6 @@
 {% load i18n %}
 {% load thumb %}
 {% load duration %}
-{% comment %}
-  A podcast episode as a cover card with a play button; podcast.js picks up
-  the ``episode`` class and its data attributes. ``item`` is the episode with
-  ``program`` loaded.
-{% endcomment %}
 <li class="dc-card">
   <a class="episode"
      href="{{ item.url }}"

@@ -1,12 +1,5 @@
 {% load i18n %}
 {% load static %}
-{% comment %}
-  Layout editor for pages built from ``.sortable > .entity-sort`` sections.
-  Opens a dialog that lists the sections by their ``data-title`` (or heading),
-  each with a switch and move buttons, and posts the result to users:set_layout
-  as the same JSON list the old drag and drop editor produced.
-  ``name`` is the layout the server stores: "discover" or "profile".
-{% endcomment %}
 <div class="dc-layout-control">
   <button type="button" class="dc-btn" id="layoutEditButton">
     <i class="fa-solid fa-sliders"></i> {% trans 'Edit layout' %}

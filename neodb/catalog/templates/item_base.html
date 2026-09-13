@@ -65,7 +65,6 @@
       {% block primary_action %}
         {% if request.user.is_authenticated and not mark.shelf_type %}
           <div id="item-primary-action" class="right mark">
-            {# one joined group, as in the mark dialog, so the buttons keep to one row #}
             <div class="item-action item-mark-buttons" role="group">
               {% for k, v in shelf_statuses %}
                 {% if v and k != 'dropped' %}
@@ -103,7 +102,6 @@
                       hx-get="{% url 'journal:mark' item.uuid %}"
                       hx-target="body"
                       hx-swap="beforeend">
-                {% comment %}the status label also reads after a date ("2024-01-01 read"), so it stays lowercase{% endcomment %}
                 {% translate mark.status_label as status_label %}
                 <strong>{{ status_label|capfirst }}</strong>
                 <br>
@@ -257,7 +255,6 @@
           {% endif %}
         </hgroup>
       </div>
-      <style type="text/css"></style>
       <div id="item-detail" class="middle">
         <section id="item-content">
           <h5>{% trans 'Overview' %}</h5>

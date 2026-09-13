@@ -1,8 +1,4 @@
 {% load duration %}
-{% comment %}
-resources: ExternalResource list; wikipedia: enable the WikiData popup
-Up to four labels render in full; from five on, only three plus a +N chip.
-{% endcomment %}
 {% with resources=resources|site_order %}
   {% with count=resources|length %}
     <span class="site-list{% if count > 4 %} collapsed{% endif %}">

@@ -1,7 +1,6 @@
 {% load i18n %}
 {% load user_actions %}
 {% load duration %}
-{# the viewer's own mark details on a list card; the mark dialog swaps this in place after saving #}
 <div {% if request.user.is_authenticated and mark.owner.pk == request.user.identity.pk %}data-mark-detail="{{ item.uuid }}"{% endif %}
      {% if oob %}hx-swap-oob="outerHTML:[data-mark-detail='{{ item.uuid }}']"{% endif %}>
   {% if mark.shelf %}

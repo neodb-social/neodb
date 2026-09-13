@@ -1,10 +1,5 @@
 {% load i18n %}
 {% load thumb %}
-{% comment %}
-  A collection as a shelf card: a mosaic of the first member covers, the title,
-  and a line with the owner (when ``owner_name`` is set) and the item count.
-  Callers batch ``Collection.attach_cover_previews`` first.
-{% endcomment %}
 <li class="dc-col">
   <a href="{{ collection.url }}" title="{{ collection.title }}">
     {% if collection.cover_previews|length >= 4 %}

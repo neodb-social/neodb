@@ -9,7 +9,6 @@
       <div class="item-action">
         <form method="post" action="{% url 'journal:follow' item.uuid %}">
           {% csrf_token %}
-          {% comment %}both msgids also read as a count suffix ("12 following"), so they stay lowercase and are capitalized here{% endcomment %}
           {% if mark.shelf_type %}
             {% translate 'following' as follow_label %}
             <button class="outline">{{ follow_label|capfirst }}</button>
