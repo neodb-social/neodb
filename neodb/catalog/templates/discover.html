@@ -91,8 +91,14 @@
           </div>
           {% if catalog_stats %}
             <div class="dc-stats dc-surface">
-              <p class="dc-eyebrow">{% trans "In the catalog today" %}</p>
+              <p class="dc-eyebrow">{% trans "On this server" %}</p>
               <ul>
+                {% if instance_stats.user_count %}
+                  <li>
+                    <b>{{ instance_stats.user_count|localize }}</b>
+                    <span>{% trans "members" %}</span>
+                  </li>
+                {% endif %}
                 {% for s in catalog_stats %}
                   <li>
                     <b>{{ s.count|localize }}</b>
@@ -100,13 +106,6 @@
                   </li>
                 {% endfor %}
               </ul>
-              {% if instance_stats.user_count %}
-                <p class="dc-fine">
-                  {% blocktrans with count=instance_stats.user_count|localize trimmed %}
-                    {{ count }} members
-                  {% endblocktrans %}
-                </p>
-              {% endif %}
             </div>
           {% endif %}
         </section>

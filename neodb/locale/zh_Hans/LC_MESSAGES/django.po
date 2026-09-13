@@ -1864,13 +1864,12 @@ msgid "Sign in with a Fediverse account, a Bluesky account, or an email address.
 msgstr "可以用联邦宇宙账号、Bluesky 账号或电子邮箱登录。"
 
 #: catalog/templates/discover.html:94
-msgid "In the catalog today"
-msgstr "目前收录"
+msgid "On this server"
+msgstr "本站"
 
-#: catalog/templates/discover.html:105
-#, python-format
-msgid "%(count)s members"
-msgstr "%(count)s 位成员"
+#: catalog/templates/discover.html:99
+msgid "members"
+msgstr "成员"
 
 #: catalog/templates/discover.html:117
 msgid "Welcome. Let us fill your shelf."

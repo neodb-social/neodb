@@ -1865,12 +1865,11 @@ msgid "Sign in with a Fediverse account, a Bluesky account, or an email address.
 msgstr ""
 
 #: catalog/templates/discover.html:94
-msgid "In the catalog today"
+msgid "On this server"
 msgstr ""
 
-#: catalog/templates/discover.html:105
-#, python-format
-msgid "%(count)s members"
+#: catalog/templates/discover.html:99
+msgid "members"
 msgstr ""
 
 #: catalog/templates/discover.html:117
