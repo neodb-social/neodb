@@ -6,7 +6,7 @@
 {% endcomment %}
 <header class="dc-mh">
   <h2>{{ title }}</h2>
-  <a class="dc-count" href="{{ url }}" title="{% trans 'show all' %}">{{ total }}</a>
+  <a class="dc-count" href="{{ url }}" title="{% trans 'Show all' %}">{{ total }}</a>
   <span class="action">
     {% if show_create_button %}
       <a class="dc-nav"
@@ -17,13 +17,13 @@
     {% endif %}
     <button class="dc-nav dc-scroll"
             type="button"
-            aria-label="{% trans 'scroll left' %}"
+            aria-label="{% trans 'Scroll left' %}"
             _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
     <i class="fa-solid fa-chevron-left"></i>
   </button>
   <button class="dc-nav dc-scroll"
           type="button"
-          aria-label="{% trans 'scroll right' %}"
+          aria-label="{% trans 'Scroll right' %}"
           _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
   <i class="fa-solid fa-chevron-right"></i>
 </button>
@@ -37,6 +37,6 @@
       {% include "_item_cover_card.html" %}
     {% endif %}
   {% empty %}
-    <li class="dc-empty-inline" _="init hide closest .entity-sort">{% trans "nothing so far." %}</li>
+    <li class="dc-empty-inline" _="init hide closest .entity-sort">{% trans "Nothing so far." %}</li>
   {% endfor %}
 </ul>

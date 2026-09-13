@@ -380,7 +380,7 @@ def recast(request, item_path, item_uuid):
         raise BadRequest("Same target type")
     if not _is_confirmed(request):
         labels = {
-            TVShow: _("TV Show"),
+            TVShow: _("TV show"),
             Movie: _("Movie"),
             TVSeason: _("TV Season"),
         }
@@ -547,7 +547,7 @@ def remove_unused_seasons(request, item_path, item_uuid):
 def fetch_tvepisodes(request, item_path, item_uuid):
     item = get_object_or_404(TVSeason, uid=get_uuid_or_404(item_uuid))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
-        raise BadRequest(_("TV Season with IMDB id and season number required."))
+        raise BadRequest(_("TV season with IMDB id and season number required."))
     item.log_action({"!fetch_tvepisodes": ["", ""]})
     record_catalog_edit("fetch", item.class_name, "fetch_tvepisodes")
     django_rq.get_queue("crawl").enqueue(

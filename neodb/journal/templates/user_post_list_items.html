@@ -5,7 +5,7 @@
 {% load user_actions %}
 {% load duration %}
 {% if show_empty %}
-  <div class="empty">{% trans "nothing so far." %}</div>
+  <div class="empty">{% trans "Nothing so far." %}</div>
 {% else %}
   {% for post in posts %}
     {% include "_event_post.html" %}
@@ -21,9 +21,9 @@
   {% empty %}
     <div class="empty">
       {% if request.GET.last %}
-        {% trans "nothing more." %}
+        {% trans "Nothing more." %}
       {% else %}
-        {% trans "nothing so far." %}
+        {% trans "Nothing so far." %}
       {% endif %}
     </div>
   {% endfor %}

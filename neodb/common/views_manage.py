@@ -38,7 +38,7 @@ MANAGE_NAV_SECTIONS = [
     ("access", _("Access"), "common:manage_access"),
     ("federation", _("Federation"), "common:manage_federation"),
     ("catalog", _("Catalog"), "common:manage_catalog"),
-    ("api_keys", _("API Keys"), "common:manage_api_keys"),
+    ("api_keys", _("API keys"), "common:manage_api_keys"),
     ("downloader", _("Downloader"), "common:manage_downloader"),
     ("advanced", _("Advanced"), "common:manage_advanced"),
     ("environment", _("Environment"), "common:manage_environment"),
@@ -306,26 +306,26 @@ class BrandingSettings(SiteConfigSettingsPage):
 
     options = {
         "site_name": {
-            "title": _("Site Name"),
+            "title": _("Site name"),
         },
         "site_description": {
-            "title": _("Site Description"),
+            "title": _("Site description"),
             "help_text": _("Short description shown in metadata and about page."),
         },
         "site_logo": {
-            "title": _("Site Logo URL"),
+            "title": _("Site logo URL"),
             "help_text": _("URL path to the site logo image."),
         },
         "site_icon": {
-            "title": _("Site Icon URL"),
+            "title": _("Site icon URL"),
             "help_text": _("URL path to the site icon/favicon."),
         },
         "user_icon": {
-            "title": _("Default User Avatar URL"),
+            "title": _("Default user avatar URL"),
             "help_text": _("URL path to the default user avatar."),
         },
         "site_color": {
-            "title": _("Site Color Theme"),
+            "title": _("Site color theme"),
             "help_text": _("PicoCSS color theme."),
             "choices": [
                 ("amber", "Amber"),
@@ -351,16 +351,16 @@ class BrandingSettings(SiteConfigSettingsPage):
             ],
         },
         "site_intro": {
-            "title": _("Site Introduction"),
+            "title": _("Site introduction"),
             "help_text": _("URL path for the intro/welcome sidebar page."),
         },
         "site_head": {
-            "title": _("Custom HTML Head"),
+            "title": _("Custom HTML head"),
             "help_text": _("Extra HTML injected into the <head> of all pages."),
             "display": "textarea",
         },
         "site_links": {
-            "title": _("Footer Links"),
+            "title": _("Footer links"),
             "help_text": _("Link title mapped to URL."),
             "schema": {
                 "type": "object",
@@ -390,37 +390,37 @@ class DiscoverSettings(SiteConfigSettingsPage):
     section = "discover"
     options = {
         "min_marks_for_discover": {
-            "title": _("Minimum Marks for Discover"),
+            "title": _("Minimum marks for Discover"),
             "help_text": _(
                 "Number of marks required for an item to appear in discover."
             ),
             "min_value": 0,
         },
         "discover_update_interval": {
-            "title": _("Update Interval (minutes)"),
+            "title": _("Update interval (minutes)"),
             "help_text": _("How often to refresh the popular items list."),
             "min_value": 1,
         },
         "discover_filter_language": {
-            "title": _("Filter by Preferred Languages"),
+            "title": _("Filter by preferred languages"),
             "help_text": _("Only show items with titles in the preferred languages."),
         },
         "discover_show_local_only": {
-            "title": _("Show Local Only"),
+            "title": _("Show local only"),
             "help_text": _(
                 "Only show items marked by local users, not the entire network."
             ),
         },
         "discover_show_popular_posts": {
-            "title": _("Show Popular Posts"),
+            "title": _("Show popular posts"),
             "help_text": _("Show popular public posts instead of recent ones."),
         },
         "discover_show_popular_tags": {
-            "title": _("Show Popular Tags"),
+            "title": _("Show popular tags"),
             "help_text": _("Show popular public tags on the discover page."),
         },
         "discover_show_verified_podcasts": {
-            "title": _("Show Verified Podcasts"),
+            "title": _("Show verified podcasts"),
             "help_text": _(
                 "Show a shelf of recent episodes from podcasts with a "
                 "verified creator on the discover page."
@@ -444,14 +444,14 @@ class FeedSettings(SiteConfigSettingsPage):
     section = "feed"
     options = {
         "feed_show_world": {
-            "title": _("Show World Timeline"),
+            "title": _("Show world timeline"),
             "help_text": _(
                 "Offer a tab with public posts from this site and every server "
                 "it federates with."
             ),
         },
         "feed_show_local": {
-            "title": _("Show Local Timeline"),
+            "title": _("Show local timeline"),
             "help_text": _("Offer a tab with public posts from this site only."),
         },
     }
@@ -484,14 +484,14 @@ class RecommendationSettings(SiteConfigSettingsPage):
 
     options = {
         "enable_recommendations": {
-            "title": _("Enable Recommendations"),
+            "title": _("Enable recommendations"),
             "help_text": _(
                 "Master switch. When off, all recommendation surfaces are "
                 "hidden and the cron jobs are not scheduled."
             ),
         },
         "reco_min_source_marks": {
-            "title": _("Source Item Mark Threshold"),
+            "title": _("Source item mark threshold"),
             "help_text": _(
                 "Minimum public marks an item needs before similarity rows "
                 "are built for it."
@@ -499,7 +499,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "reco_min_target_marks": {
-            "title": _("Target Item Mark Threshold"),
+            "title": _("Target item mark threshold"),
             "help_text": _(
                 "Minimum public marks an item needs to be eligible as a "
                 "recommendation target."
@@ -507,24 +507,24 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "reco_similarity_top_k": {
-            "title": _("Top-K Similar Items per Source"),
+            "title": _("Top-K similar items per source"),
             "help_text": _("Number of similar items stored per source item."),
             "min_value": 1,
         },
         "reco_user_top_n": {
-            "title": _("Top-N Recommendations per User"),
+            "title": _("Top-N recommendations per user"),
             "help_text": _("Number of personalised rows stored per user."),
             "min_value": 1,
         },
         "reco_user_idf_dampen": {
-            "title": _("Dampen Heavy Shelvers"),
+            "title": _("Dampen heavy shelvers"),
             "help_text": _(
                 "Weight each user's contribution by 1/sqrt(n_marks) to "
                 "neutralise mega-shelvers in similarity scoring."
             ),
         },
         "reco_user_mark_cap": {
-            "title": _("Per-User Mark Cap (training)"),
+            "title": _("Per-user mark cap (training)"),
             "help_text": _(
                 "Truncate each user's contribution to their N most recent "
                 "marks when building the similarity matrix."
@@ -532,7 +532,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 2,
         },
         "reco_user_active_days": {
-            "title": _("Active-User Window (days)"),
+            "title": _("Active-user window (days)"),
             "help_text": _(
                 "Refresh personalised recommendations for users with at "
                 "least one public mark in the last N days."
@@ -540,7 +540,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "reco_per_user_seed_cap": {
-            "title": _("Per-User Seed Cap (serving)"),
+            "title": _("Per-user seed cap (serving)"),
             "help_text": _(
                 "Number of recent marks used as seeds when scoring "
                 "personalised recommendations for one user."
@@ -548,7 +548,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "reco_lazy_ttl_days": {
-            "title": _("Lazy Refresh TTL (days)"),
+            "title": _("Lazy refresh TTL (days)"),
             "help_text": _(
                 "How long cached on-demand recommendations are valid before "
                 "the next request triggers a refresh."
@@ -556,7 +556,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "reco_circles_window_days": {
-            "title": _("Circles Window (days)"),
+            "title": _("Circles window (days)"),
             "help_text": _(
                 "Look back N days when finding items recently marked by "
                 "people the viewer follows."
@@ -565,10 +565,10 @@ class RecommendationSettings(SiteConfigSettingsPage):
         },
     }
     layout = {
-        _("Master Switch"): [
+        _("Master switch"): [
             "enable_recommendations",
         ],
-        _("Similarity Builder"): [
+        _("Similarity builder"): [
             "reco_min_source_marks",
             "reco_min_target_marks",
             "reco_similarity_top_k",
@@ -591,22 +591,22 @@ class AccessSettings(SiteConfigSettingsPage):
     # inferred type; test_views_manage indexes into this dict
     options: ClassVar[dict] = {
         "invite_only": {
-            "title": _("Invite Only"),
+            "title": _("Invite only"),
             "help_text": _(
                 "Require an invite token to register. Invite tokens can be "
                 "generated with neodb-manage invite --create."
             ),
         },
         "enable_local_only": {
-            "title": _("Enable Local-Only Posting"),
+            "title": _("Enable local-only posting"),
             "help_text": _("Allow users to create posts visible only to local users."),
         },
         "mastodon_login_whitelist": {
-            "title": _("Mastodon Login Whitelist"),
+            "title": _("Mastodon login whitelist"),
             "help_text": _("One domain per line. Leave empty to allow any instance."),
         },
         "email_domain_blocklist": {
-            "title": _("Email Domain Blocklist"),
+            "title": _("Email domain blocklist"),
             "help_text": _(
                 "One domain per line. A new account or a new email link is "
                 "refused when the address is on one of these domains or on a "
@@ -615,7 +615,7 @@ class AccessSettings(SiteConfigSettingsPage):
             ),
         },
         "registration_captcha_items": {
-            "title": _("Registration Captcha Items"),
+            "title": _("Registration captcha items"),
             "min_value": 0,
             "max_value": CAPTCHA_MAX_ITEMS,
             "help_text": _(
@@ -627,7 +627,7 @@ class AccessSettings(SiteConfigSettingsPage):
             ),
         },
         "min_marks_for_captcha": {
-            "title": _("Registration Captcha Minimum Marks"),
+            "title": _("Registration captcha minimum marks"),
             "min_value": 1,
             "help_text": _(
                 "Marks an item needs before the captcha treats it as well known "
@@ -636,13 +636,13 @@ class AccessSettings(SiteConfigSettingsPage):
             ),
         },
         "enable_login_mastodon": {
-            "title": _("Enable Mastodon Login"),
+            "title": _("Enable Mastodon login"),
         },
         "enable_login_bluesky": {
-            "title": _("Enable Bluesky Login"),
+            "title": _("Enable Bluesky login"),
         },
         "enable_login_threads": {
-            "title": _("Enable Threads Login"),
+            "title": _("Enable Threads login"),
         },
         "email_url": {
             "title": _("Email URL"),
@@ -651,25 +651,25 @@ class AccessSettings(SiteConfigSettingsPage):
             ),
         },
         "email_from": {
-            "title": _("Email From"),
+            "title": _("Email from"),
             "help_text": _("Sender name and address for outgoing email."),
         },
         "enable_import_twitter": {
-            "title": _("Enable Twitter / X Archive Import"),
+            "title": _("Enable Twitter / X archive import"),
             "help_text": _(
                 "Show the Twitter / X archive import on the data page. Imported "
                 "tweets become local posts that are never federated."
             ),
         },
         "enable_import_mastodon": {
-            "title": _("Enable Mastodon Archive Import"),
+            "title": _("Enable Mastodon archive import"),
             "help_text": _(
                 "Show the Mastodon archive import on the data page. Imported "
                 "posts become local posts that are never federated."
             ),
         },
         "language_code": {
-            "title": _("Default Language"),
+            "title": _("Default language"),
             "choices": list(settings.LANGUAGES),
             "help_text": _(
                 "Interface language for visitors and for users who have not "
@@ -677,7 +677,7 @@ class AccessSettings(SiteConfigSettingsPage):
             ),
         },
         "preferred_languages": {
-            "title": _("Preferred Languages"),
+            "title": _("Preferred languages"),
             "help_text": _(
                 "Language codes, one per line (e.g. en, zh, ja). "
                 "First language is the default."
@@ -685,7 +685,7 @@ class AccessSettings(SiteConfigSettingsPage):
         },
     }
     layout = {
-        _("Access Control"): [
+        _("Access control"): [
             "invite_only",
             "enable_local_only",
             "mastodon_login_whitelist",
@@ -693,7 +693,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "registration_captcha_items",
             "min_marks_for_captcha",
         ],
-        _("Login Methods"): [
+        _("Login methods"): [
             "enable_login_mastodon",
             "enable_login_bluesky",
             "enable_login_threads",
@@ -702,7 +702,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "email_url",
             "email_from",
         ],
-        _("Data Import"): [
+        _("Data import"): [
             "enable_import_twitter",
             "enable_import_mastodon",
         ],
@@ -717,38 +717,38 @@ class FederationSettings(SiteConfigSettingsPage):
     section = "federation"
     options = {
         "disable_default_relay": {
-            "title": _("Disable Default Relay"),
+            "title": _("Disable default relay"),
             "help_text": _(
                 "Disable relay.neodb.net federation for sharing "
                 "public ratings across instances."
             ),
         },
         "fanout_limit_days": {
-            "title": _("Fanout Limit (days)"),
+            "title": _("Fanout limit (days)"),
             "help_text": _("Posts older than this many days will not be fanned out."),
             "min_value": 1,
         },
         "remote_prune_horizon": {
-            "title": _("Remote Prune Horizon (days)"),
+            "title": _("Remote prune horizon (days)"),
             "help_text": _(
                 "Remote profiles inactive for this many days will be pruned."
             ),
             "min_value": 1,
         },
         "search_sites": {
-            "title": _("Search Sites"),
+            "title": _("Search sites"),
             "help_text": _("External search sites to include, one per line."),
         },
         "search_peers": {
-            "title": _("Federated Search Peers"),
+            "title": _("Federated search peers"),
             "help_text": _("NeoDB peer instances for federated search, one per line."),
         },
         "hidden_categories": {
-            "title": _("Hidden Categories"),
+            "title": _("Hidden categories"),
             "help_text": _("Category values to hide from the catalog, one per line."),
         },
         "guest_search_max_pages": {
-            "title": _("Guest Search Page Limit"),
+            "title": _("Guest search page limit"),
             "help_text": _(
                 "Visitors who are not logged in cannot open search result pages "
                 "beyond this one. Lower it to keep crawlers out of deep "
@@ -776,70 +776,70 @@ class APIKeysSettings(SiteConfigSettingsPage):
     section = "api_keys"
     options = {
         "spotify_api_key": {
-            "title": _("Spotify API Key"),
+            "title": _("Spotify API key"),
             "help_text": _("https://developer.spotify.com/"),
         },
         "tmdb_api_key": {
-            "title": _("TMDB API Key"),
+            "title": _("TMDB API key"),
             "help_text": _("https://developer.themoviedb.org/"),
         },
         "google_api_key": {
-            "title": _("Google Books API Key"),
+            "title": _("Google Books API key"),
             "help_text": _("https://developers.google.com/books/"),
         },
         "discogs_api_key": {
-            "title": _("Discogs API Key"),
+            "title": _("Discogs API key"),
             "help_text": _(
                 "Personal access token from https://www.discogs.com/settings/developers"
             ),
         },
         "igdb_client_id": {
-            "title": _("IGDB Client ID"),
+            "title": _("IGDB client ID"),
             "help_text": _("https://api-docs.igdb.com/"),
         },
         "igdb_client_secret": {
-            "title": _("IGDB Client Secret"),
+            "title": _("IGDB client secret"),
         },
         "bgg_api_token": {
-            "title": _("BoardGameGeek API Token"),
+            "title": _("BoardGameGeek API token"),
             "help_text": _(
                 "Bearer token from https://boardgamegeek.com/applications "
                 "(see https://boardgamegeek.com/using_the_xml_api#toc9)."
             ),
         },
         "mal_client_id": {
-            "title": _("MyAnimeList Client ID"),
+            "title": _("MyAnimeList client ID"),
             "help_text": _(
                 "Client ID of an app registered at https://myanimelist.net/apiconfig. "
                 "MyAnimeList is disabled when empty."
             ),
         },
         "steam_api_key": {
-            "title": _("Steam API Key"),
+            "title": _("Steam API key"),
             "help_text": _(
                 "https://steamcommunity.com/dev - fallback key for Steam importer. "
                 "Users can provide their own key when importing."
             ),
         },
         "deepl_api_key": {
-            "title": _("DeepL API Key"),
+            "title": _("DeepL API key"),
             "help_text": _("For translation features."),
         },
         "lt_api_url": {
             "title": _("LibreTranslate API URL"),
         },
         "lt_api_key": {
-            "title": _("LibreTranslate API Key"),
+            "title": _("LibreTranslate API key"),
         },
         "threads_app_id": {
-            "title": _("Threads App ID"),
+            "title": _("Threads app ID"),
             "help_text": _("OAuth app ID for Threads login."),
         },
         "threads_app_secret": {
-            "title": _("Threads App Secret"),
+            "title": _("Threads app secret"),
         },
         "discord_webhooks": {
-            "title": _("Discord Webhooks"),
+            "title": _("Discord webhooks"),
             "help_text": _(
                 "Webhook URLs keyed by channel (default, report, audit, suggest, system). "
                 "All channels must be Discord forum or media channels (thread mode) "
@@ -874,7 +874,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
             "lt_api_url",
             "lt_api_key",
         ],
-        _("Third-Party Login"): [
+        _("Third-party login"): [
             "threads_app_id",
             "threads_app_secret",
         ],
@@ -888,38 +888,38 @@ class DownloaderSettings(SiteConfigSettingsPage):
     section = "downloader"
     options = {
         "downloader_providers": {
-            "title": _("Scraping Providers"),
+            "title": _("Scraping providers"),
             "help_text": _("Comma-separated list of providers to try in order."),
         },
         "downloader_proxy_list": {
-            "title": _("Proxy List"),
+            "title": _("Proxy list"),
             "help_text": _("One per line, format: http://server?url=__URL__"),
         },
         "downloader_backup_proxy": {
-            "title": _("Backup Proxy"),
+            "title": _("Backup proxy"),
         },
         "downloader_scrapfly_key": {
-            "title": _("Scrapfly API Key"),
+            "title": _("Scrapfly API key"),
         },
         "downloader_decodo_token": {
-            "title": _("Decodo Base64 Auth Token"),
+            "title": _("Decodo base64 auth token"),
         },
         "downloader_scraperapi_key": {
-            "title": _("ScraperAPI Key"),
+            "title": _("ScraperAPI key"),
         },
         "downloader_scrapingbee_key": {
-            "title": _("ScrapingBee API Key"),
+            "title": _("ScrapingBee API key"),
         },
         "downloader_customscraper_url": {
-            "title": _("Custom Scraper URL"),
+            "title": _("Custom scraper URL"),
             "help_text": _("URL with __URL__ and __SELECTOR__ placeholders."),
         },
         "downloader_request_timeout": {
-            "title": _("Request Timeout (seconds)"),
+            "title": _("Request timeout (seconds)"),
             "min_value": 1,
         },
         "downloader_cache_timeout": {
-            "title": _("Cache Timeout (seconds)"),
+            "title": _("Cache timeout (seconds)"),
             "min_value": 0,
         },
         "downloader_retries": {
@@ -933,7 +933,7 @@ class DownloaderSettings(SiteConfigSettingsPage):
             "downloader_proxy_list",
             "downloader_backup_proxy",
         ],
-        _("Provider Keys"): [
+        _("Provider keys"): [
             "downloader_scrapfly_key",
             "downloader_decodo_token",
             "downloader_scraperapi_key",
@@ -952,15 +952,15 @@ class AdvancedSettings(SiteConfigSettingsPage):
     section = "advanced"
     options = {
         "alternative_domains": {
-            "title": _("Alternative Domains"),
+            "title": _("Alternative domains"),
             "help_text": _("One domain per line."),
         },
         "mastodon_client_scope": {
-            "title": _("Mastodon Client Scope"),
+            "title": _("Mastodon client scope"),
             "help_text": _("OAuth scope when creating Mastodon apps."),
         },
         "mastodon_timeout": {
-            "title": _("Mastodon API Timeout (seconds)"),
+            "title": _("Mastodon API timeout (seconds)"),
             "help_text": _(
                 "Timeout for requests to Mastodon instances and remote "
                 "fediverse servers."
@@ -968,11 +968,11 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "min_value": 1,
         },
         "disable_cron_jobs": {
-            "title": _("Disable Cron Jobs"),
+            "title": _("Disable cron jobs"),
             "help_text": _("Job names to disable, one per line. Use * to disable all."),
         },
         "index_aliases": {
-            "title": _("Index Aliases"),
+            "title": _("Index aliases"),
             "help_text": _("Map index names to their aliases."),
             "schema": {
                 "type": "object",
@@ -983,7 +983,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             },
         },
         "task_cleanup_days": {
-            "title": _("Task Cleanup (days)"),
+            "title": _("Task cleanup (days)"),
             "help_text": _(
                 "Delete import/export tasks and their files after this many days. "
                 "Set to 0 to disable cleanup."
@@ -991,7 +991,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             "min_value": 0,
         },
         "skip_migrations": {
-            "title": _("Skip Migration Jobs"),
+            "title": _("Skip migration jobs"),
             "help_text": _(
                 "Post-migration job keys to skip, one per line "
                 "(e.g. normalize_genre). Checked by the worker at dequeue time; "
@@ -999,7 +999,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             ),
         },
         "atproto_client_jwk": {
-            "title": _("ATProto OAuth Client Key"),
+            "title": _("ATProto OAuth client key"),
             "help_text": _(
                 "Private key (JWK) identifying this site to ATProto "
                 "authorization servers. Auto-generated on first Bluesky "
@@ -1007,7 +1007,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
             ),
         },
         "webhook_timeout": {
-            "title": _("Webhook Timeout (milliseconds)"),
+            "title": _("Webhook timeout (milliseconds)"),
             "help_text": _("Timeout for delivering webhook requests to applications."),
             "min_value": 100,
         },
@@ -1033,42 +1033,42 @@ class CatalogSettings(SiteConfigSettingsPage):
     section = "catalog"
     options = {
         "genres_movie": {
-            "title": _("Movie Genres"),
+            "title": _("Movie genres"),
             "help_text": _(
                 "Genre codes offered in the Movie edit dropdown, one per line. "
                 "Leave empty to use the built-in default."
             ),
         },
         "genres_tv": {
-            "title": _("TV Genres"),
+            "title": _("TV genres"),
             "help_text": _(
                 "Genre codes offered in the TV edit dropdown, one per line. "
                 "Leave empty to use the built-in default."
             ),
         },
         "genres_music": {
-            "title": _("Music Genres"),
+            "title": _("Music genres"),
             "help_text": _(
                 "Genre codes offered in the Music edit dropdown, one per line. "
                 "Leave empty to use the built-in default."
             ),
         },
         "genres_game": {
-            "title": _("Game Genres"),
+            "title": _("Game genres"),
             "help_text": _(
                 "Genre codes offered in the Game edit dropdown, one per line. "
                 "Leave empty to use the built-in default."
             ),
         },
         "genres_podcast": {
-            "title": _("Podcast Genres"),
+            "title": _("Podcast genres"),
             "help_text": _(
                 "Genre codes offered in the Podcast edit dropdown, one per line. "
                 "Leave empty to use the built-in default."
             ),
         },
         "genres_performance": {
-            "title": _("Performance Genres"),
+            "title": _("Performance genres"),
             "help_text": _(
                 "Genre codes offered in the Performance edit dropdown, one per "
                 "line. Leave empty to use the built-in default."
@@ -1076,7 +1076,7 @@ class CatalogSettings(SiteConfigSettingsPage):
         },
     }
     layout = {
-        _("Genres by Category"): [
+        _("Genres by category"): [
             "genres_movie",
             "genres_tv",
             "genres_music",
@@ -1110,7 +1110,7 @@ class EnvironmentSettings(TemplateView):
             ("NEODB_ADMIN_HANDLES", lambda: settings.ADMIN_HANDLES),
             ("NEODB_EXTRA_APPS", lambda: settings.EXTRA_APPS),
         ],
-        _("Database and Services"): [
+        _("Database and services"): [
             ("NEODB_DB_URL", lambda: settings.DB_URL),
             ("TAKAHE_DB_URL", lambda: settings.TAKAHE_DB_URL),
             (
@@ -1120,7 +1120,7 @@ class EnvironmentSettings(TemplateView):
             ("NEODB_REDIS_URL", lambda: settings.REDIS_URL),
             ("NEODB_SEARCH_URL", lambda: settings.SEARCH_URL),
         ],
-        _("Media and Files"): [
+        _("Media and files"): [
             ("MEDIA_BACKEND", lambda: settings.MEDIA_BACKEND),
             ("NEODB_MEDIA_ROOT", lambda: settings.MEDIA_ROOT),
             ("NEODB_MEDIA_URL", lambda: settings.MEDIA_URL),
@@ -1142,7 +1142,7 @@ class EnvironmentSettings(TemplateView):
     def env_var_names(cls) -> set[str]:
         return {name for entries in cls.groups.values() for name, _getter in entries}
 
-    other_title = _("Other Environment Variables")
+    other_title = _("Other environment variables")
     other_help = _(
         "Present in the environment of this process but not read by NeoDB "
         "settings. They are used by Docker Compose or by Takahe."

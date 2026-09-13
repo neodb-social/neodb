@@ -445,7 +445,7 @@ def share_collection_to_mastodon(
         raise RequestAborted()
     tags = (
         "\n"
-        + user.preference.mastodon_append_tag.replace("[category]", _("collection"))
+        + user.preference.mastodon_append_tag.replace("[category]", _("Collection"))
         if user.preference.mastodon_append_tag
         else ""
     )

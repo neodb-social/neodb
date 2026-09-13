@@ -19,7 +19,7 @@
   {% with item.all_seasons as seasons %}
     {% if seasons %}
       <div>
-        {% trans 'all seasons' %}:
+        {% trans 'All seasons' %}:
         {% for s in seasons %}
           <span class="season-number">
             <a href="{{ s.url }}">{{ s.season_number|default:"#" }}</a>

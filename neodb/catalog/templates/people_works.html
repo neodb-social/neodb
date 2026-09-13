@@ -25,7 +25,7 @@
           {% for work in works %}
             {% include "_list_item.html" with item=work %}
           {% empty %}
-            <div>{% trans 'nothing so far.' %}</div>
+            <div>{% trans 'Nothing so far.' %}</div>
           {% endfor %}
         </div>
         {% include "_pagination.html" %}
@@ -53,14 +53,16 @@
                 {% endfor %}
               </select>
               {% if request.user.is_authenticated %}
+                {% comment %}"Complete" is already a task status label with its own translation, so this msgid stays lowercase and is capitalized here{% endcomment %}
+                {% translate 'complete' as st_complete %}
                 <select id="status_filter" onchange="applyFilter()">
-                  <option value="" {% if not current_status %}selected{% endif %}>{% trans 'all' %}</option>
+                  <option value="" {% if not current_status %}selected{% endif %}>{% trans 'All' %}</option>
                   <option value="wishlist"
-                          {% if current_status == 'wishlist' %}selected{% endif %}>{% trans 'wishlist' %}</option>
+                          {% if current_status == 'wishlist' %}selected{% endif %}>{% trans 'Wishlist' %}</option>
                   <option value="progress"
-                          {% if current_status == 'progress' %}selected{% endif %}>{% trans 'in progress' %}</option>
+                          {% if current_status == 'progress' %}selected{% endif %}>{% trans 'In progress' %}</option>
                   <option value="complete"
-                          {% if current_status == 'complete' %}selected{% endif %}>{% trans 'complete' %}</option>
+                          {% if current_status == 'complete' %}selected{% endif %}>{{ st_complete|capfirst }}</option>
                 </select>
               {% endif %}
             </fieldset>

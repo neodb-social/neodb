@@ -23,11 +23,11 @@
   {% endif %}
 {% empty %}
   {% if request.GET.last or page > 1 %}
-    <div class="empty">{% trans 'nothing more.' %}</div>
+    <div class="empty">{% trans 'Nothing more.' %}</div>
   {% elif request.GET.q %}
-    <div class="empty">{% trans 'no matching activities.' %}</div>
+    <div class="empty">{% trans 'No matching activities.' %}</div>
   {% elif feed_type == 2 or feed_type == 3 %}
-    <div class="empty">{% trans 'no public activities yet.' %}</div>
+    <div class="empty">{% trans 'No public activities yet.' %}</div>
   {% else %}
     <div class="dc-empty">
       <p>

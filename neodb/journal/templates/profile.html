@@ -62,22 +62,22 @@
             {% if request.user.is_authenticated %}
               <section class="entity-sort dc-mod"
                        id="calendar_grid"
-                       data-title="{% trans 'calendar' %}">
+                       data-title="{% trans 'Calendar' %}">
                 <header class="dc-mh">
-                  <h2>{% trans "calendar" %}</h2>
+                  <h2>{% trans "Calendar" %}</h2>
                   <span class="action">
                     {% if year %}
                       <a class="dc-more" href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %} <i class="fa-solid fa-arrow-right"></i></a>
                     {% endif %}
                     <button class="dc-nav dc-scroll"
                             type="button"
-                            aria-label="{% trans 'scroll left' %}"
+                            aria-label="{% trans 'Scroll left' %}"
                             _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
                     <i class="fa-solid fa-chevron-left"></i>
                   </button>
                   <button class="dc-nav dc-scroll"
                           type="button"
-                          aria-label="{% trans 'scroll right' %}"
+                          aria-label="{% trans 'Scroll right' %}"
                           _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
                   <i class="fa-solid fa-chevron-right"></i>
                 </button>
@@ -156,12 +156,12 @@
         </section>
         <section class="entity-sort dc-mod"
                  id="collection_created"
-                 data-title="{% trans 'collection' %}">
+                 data-title="{% trans 'Collection' %}">
           <div hx-swap="outerHTML"
                hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
                hx-trigger="intersect once queue:last">
             <header class="dc-mh">
-              <h2>{% trans 'collection' %}</h2>
+              <h2>{% trans 'Collection' %}</h2>
             </header>
             <ul class="dc-cards">
               <li class="dc-card">
@@ -174,12 +174,12 @@
         </section>
         <section class="entity-sort dc-mod"
                  id="collection_marked"
-                 data-title="{% trans 'liked collection' %}">
+                 data-title="{% trans 'Liked collection' %}">
           <div hx-swap="outerHTML"
                hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
                hx-trigger="intersect once queue:last">
             <header class="dc-mh">
-              <h2>{% trans 'liked collection' %}</h2>
+              <h2>{% trans 'Liked collection' %}</h2>
             </header>
             <ul class="dc-cards">
               <li class="dc-card">

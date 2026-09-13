@@ -4,5 +4,5 @@
 {% for post in posts %}
   {% include "_event_post.html" with piece=post.piece %}
 {% empty %}
-  <div class="empty">{% trans "nothing so far." %}</div>
+  <div class="empty">{% trans "Nothing so far." %}</div>
 {% endfor %}

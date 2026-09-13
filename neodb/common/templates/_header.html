@@ -17,7 +17,7 @@
           <input type="search"
                  name="q"
                  id="q"
-                 placeholder="{% trans 'title, creator, ISBN, item url, @user, @user@instance' %}"
+                 placeholder="{% trans 'Title, creator, ISBN, item url, @user, @user@instance' %}"
                  class="search"
                  autocomplete="off"
                  aria-controls="search-suggest"
@@ -32,7 +32,7 @@
           <select name="c"
                   _="on change set #q's @data-dismissed to 'true' then send htmx:abort to #q then set #search-suggest's innerHTML to ''">
             {% visible_categories as cats %}
-            <option value="all">{% trans 'All Items' %}</option>
+            <option value="all">{% trans 'All items' %}</option>
             {% if 'book' in cats %}
               <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
                       value="book">{% trans 'Book' %}</option>
@@ -58,7 +58,7 @@
                       value="performance">{% trans 'Performance' %}</option>
             {% endif %}
             <option {% if request.GET.c == 'people' or '/person/' in request.path or '/organization/' in request.path %}selected{% endif %}
-                    value="people">{% trans 'People & Organizations' %}</option>
+                    value="people">{% trans 'People & organizations' %}</option>
             <option {% if request.GET.c == 'journal' %}selected{% endif %}
                     value="journal">{% trans 'Journal' %}</option>
             <option {% if request.GET.c == 'timeline' %}selected{% endif %}
@@ -125,7 +125,7 @@
           </summary>
           <ul role="listbox" style="min-width:-webkit-max-content;" dir="rtl">
             <li>
-              <a href="{% url 'common:scan' %}">{% trans 'Scan Barcode' %}</a>
+              <a href="{% url 'common:scan' %}">{% trans 'Scan barcode' %}</a>
             </li>
             {% if request.user.is_authenticated %}
               <li>
@@ -154,7 +154,7 @@
               </li>
             {% else %}
               <li>
-                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or Login' %}</a>
+                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or login' %}</a>
               </li>
               <li>
                 <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
@@ -171,11 +171,11 @@
 function _search_cat_change(){
   var val = $('.nav-search select').val();
   if (['journal', 'timeline'].includes(val)) {
-    $('#q').attr('placeholder', "{% trans 'title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02' %}");
+    $('#q').attr('placeholder', "{% trans 'Title or content  category:tv  status:complete  rating:8..10  date:2021-09-11..2022-02' %}");
   } else if (val === 'people') {
-    $('#q').attr('placeholder', "{% trans 'name of a person or company' %}");
+    $('#q').attr('placeholder', "{% trans 'Name of a person or company' %}");
   } else {
-    $('#q').attr('placeholder', "{% trans 'title, creator, ISBN, item url, @user, @user@instance' %}");
+    $('#q').attr('placeholder', "{% trans 'Title, creator, ISBN, item url, @user, @user@instance' %}");
   }
 }
 $('.nav-search select').on('change', _search_cat_change);

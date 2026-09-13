@@ -27,7 +27,7 @@
             <li>
               <code style="cursor:copy"
                     onmouseleave="$(this).removeAttr('data-tooltip')"
-                    onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">{{ candidate }}</code>
+                    onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">{{ candidate }}</code>
             </li>
           {% endfor %}
         </ul>
@@ -45,13 +45,13 @@
           <p>
             <code style="cursor:copy"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
-                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">&lt;a rel="me" href="{{ example_url }}"&gt;{{ site_name }}&lt;/a&gt;</code>
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">&lt;a rel="me" href="{{ example_url }}"&gt;{{ site_name }}&lt;/a&gt;</code>
           </p>
-          <p>{% trans "or, in the page's head:" %}</p>
+          <p>{% trans "Or, in the page's head:" %}</p>
           <p>
             <code style="cursor:copy"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
-                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">&lt;link rel="me" href="{{ example_url }}"&gt;</code>
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">&lt;link rel="me" href="{{ example_url }}"&gt;</code>
           </p>
           <p>
             {% trans "Can't edit the website? Just add a line like this to your feed's description instead (click to copy):" %}
@@ -59,7 +59,7 @@
           <p>
             <code style="cursor:copy"
                   onmouseleave="$(this).removeAttr('data-tooltip')"
-                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'copied' %}');">{% trans "Welcome to follow me on the Fediverse:" %} {{ example_url }}</code>
+                  onclick="navigator.clipboard.writeText(this.innerText);$(this).attr('data-tooltip','{% trans 'Copied' %}');">{% trans "Welcome to follow me on the Fediverse:" %} {{ example_url }}</code>
           </p>
         {% endif %}
         <p>
@@ -82,7 +82,7 @@
                         onsubmit="return confirm('{% trans "Sure to remove this creator verification?" %}');">
                     {% csrf_token %}
                     <input type="hidden" name="claim_id" value="{{ claim.pk }}">
-                    <input class="contrast outline" type="submit" value="{% trans 'remove' %}">
+                    <input class="contrast outline" type="submit" value="{% trans 'Remove' %}">
                   </form>
                 {% endif %}
               </li>
@@ -99,8 +99,8 @@
             <input type="text"
                    name="handle"
                    required
-                   placeholder="{% trans 'user handle, e.g. @user or @user@instance' %}">
-            <input class="contrast" type="submit" value="{% trans 'verify' %}">
+                   placeholder="{% trans 'User handle, e.g. @user or @user@instance' %}">
+            <input class="contrast" type="submit" value="{% trans 'Verify' %}">
           </form>
         </details>
       {% endif %}
@@ -113,11 +113,11 @@
           <textarea name="detail"
                     required
                     placeholder="{% trans "Questions or issues with creator verification? Let the site moderators know." %}"></textarea>
-          <input type="submit" value="{% trans 'submit' %}">
+          <input type="submit" value="{% trans 'Submit' %}">
         </form>
       </details>
       <p>
-        <a href="{{ item.url }}">{% trans 'back to item' %}</a>
+        <a href="{{ item.url }}">{% trans 'Back to item' %}</a>
       </p>
     </main>
     {% include "_footer.html" %}

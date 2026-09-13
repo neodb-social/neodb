@@ -7,7 +7,7 @@
 <span {% if request.user.is_authenticated and mark.owner.pk == request.user.identity.pk %}data-mark-item="{{ item.uuid }}"{% endif %}
       {% if oob %}hx-swap-oob="outerHTML:[data-mark-item='{{ item.uuid }}']"{% endif %}>
   {% if not mark.shelf_type %}
-    <a title="{% trans "add mark" %}"
+    <a title="{% trans "Add mark" %}"
        hx-get="{% url 'journal:mark' item.uuid %}?shelf_type=wishlist&amp;inline=1"
        hx-target="body"
        hx-swap="beforeend">
@@ -15,7 +15,7 @@
     </a>
   {% else %}
     <a class="activated"
-       title="{% trans "update mark" %}"
+       title="{% trans "Update mark" %}"
        hx-get="{% url 'journal:mark' item.uuid %}?inline=1"
        hx-target="body"
        hx-swap="beforeend">

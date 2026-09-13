@@ -941,5 +941,5 @@ class TestTokenScopeFormat:
         html = client.get(reverse("users:info")).content.decode()
         assert "<td>read write push</td>" in html
         assert "<td>read</td>" in html
-        assert "[" not in html.split("Authorized Apps")[1].split("</table>")[0]
+        assert "[" not in html.split("Authorized apps")[1].split("</table>")[0]
         assert t.pk

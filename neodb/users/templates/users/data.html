@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Data Management' %}</title>
+    <title>{{ site_name }} - {% trans 'Data management' %}</title>
     {% include "common_libs.html" %}
     <script>
     document.addEventListener('htmx:responseError', (event) => {
@@ -36,7 +36,7 @@
       <div class="grid__main">
         <article>
           <details>
-            <summary>{% trans 'Import Marks and Reviews from Douban' %}</summary>
+            <summary>{% trans 'Import marks and reviews from Douban' %}</summary>
             <form hx-post="{% url 'users:import_douban' %}"
                   enctype="multipart/form-data">
               {% csrf_token %}
@@ -46,7 +46,7 @@
               </p>
               <input type="file" name="file" id="excel" required accept=".xlsx">
               <fieldset>
-                <legend>{% trans "Import Method" %}</legend>
+                <legend>{% trans "Import method" %}</legend>
                 <label for="import_mode_0">
                   <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>
                   {% trans "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete." %}
@@ -105,7 +105,7 @@
                   {% blocktrans %}Upload the downloaded <code>goodreads_library_export.csv</code> file below.{% endblocktrans %}
                 </li>
                 <li>
-                  {% trans 'want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported.' %}
+                  {% trans 'Want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported.' %}
                 </li>
               </ul>
               <input type="file" name="file" required accept=".csv">
@@ -152,16 +152,16 @@
               {% csrf_token %}
               <ul>
                 <li>
-                  {% blocktrans %}on letterboxd.com, click <a href="https://letterboxd.com/settings/data/" target="_blank" rel="noopener">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA{% endblocktrans %}
+                  {% blocktrans %}On letterboxd.com, click <a href="https://letterboxd.com/settings/data/" target="_blank" rel="noopener">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA{% endblocktrans %}
                 </li>
                 <li>
-                  {% blocktrans %}download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip{% endblocktrans %}
+                  {% blocktrans %}Download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip{% endblocktrans %}
                 </li>
                 <li>
-                  {% blocktrans %}the following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
+                  {% blocktrans %}The following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
                 </li>
                 <li>
-                  {% blocktrans %}exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below{% endblocktrans %}
+                  {% blocktrans %}Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below{% endblocktrans %}
                 </li>
               </ul>
               <br>
@@ -255,7 +255,7 @@
         <article id="rym">{% include "users/_rym_section.html" %}</article>
         <article>
           <details>
-            <summary>{% trans 'Import from Steam Wishlist / Library' %}</summary>
+            <summary>{% trans 'Import from Steam wishlist / library' %}</summary>
             <a href="{% url 'users:steam_openid_start' %}"
                role="button"
                class="secondary outline">{% trans 'Login with Steam' %}</a>
@@ -264,11 +264,11 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Import Podcast Subscriptions' %}</summary>
+            <summary>{% trans 'Import podcast subscriptions' %}</summary>
             <form hx-post="{% url 'users:import_opml' %}" enctype="multipart/form-data">
               {% csrf_token %}
               <div>
-                {% trans 'Import Method' %}：
+                {% trans 'Import method' %}：
                 <label for="opml_import_mode_0">
                   <input id="opml_import_mode_0"
                          type="radio"
@@ -318,7 +318,7 @@
         </article>
         <article>
           <details id="import-neodb-archive">
-            <summary>{% trans 'Import NeoDB Archive' %}</summary>
+            <summary>{% trans 'Import NeoDB archive' %}</summary>
             <form hx-post="{% url 'users:import_neodb' %}"
                   enctype="multipart/form-data">
               {% csrf_token %}
@@ -475,7 +475,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Export NeoDB Archive' %}</summary>
+            <summary>{% trans 'Export NeoDB archive' %}</summary>
             <form hx-post="{% url 'users:export_csv' %}" enctype="multipart/form-data">
               {% csrf_token %}
               <input type="submit"
@@ -493,7 +493,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Import and Export Articles (WordPress)' %}</summary>
+            <summary>{% trans 'Import and export articles (WordPress)' %}</summary>
             <ul>
               <li>
                 {% trans 'Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those.' %}
@@ -558,7 +558,7 @@
         {% if enable_import_twitter %}
           <article>
             <details>
-              <summary>{% trans 'Import Twitter / X Archive' %}</summary>
+              <summary>{% trans 'Import Twitter / X archive' %}</summary>
               <form hx-post="{% url 'users:import_twitter' %}"
                     enctype="multipart/form-data">
                 {% csrf_token %}
@@ -612,7 +612,7 @@
         {% if enable_import_mastodon %}
           <article>
             <details>
-              <summary>{% trans 'Import Mastodon Archive' %}</summary>
+              <summary>{% trans 'Import Mastodon archive' %}</summary>
               <form hx-post="{% url 'users:import_mastodon' %}"
                     enctype="multipart/form-data">
                 {% csrf_token %}
@@ -636,7 +636,7 @@
         {% endif %}
         <article>
           <details>
-            <summary>{% trans 'View Annual Summary' %}</summary>
+            <summary>{% trans 'View annual summary' %}</summary>
             <div class="tag-list">
               {% for year in years %}
                 <span>

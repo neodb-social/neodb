@@ -19,13 +19,13 @@
       &nbsp;
       {% if request.user.is_authenticated %}
         <a style="margin-right: 10px"
-           title="{% trans "comment this episode" %}"
+           title="{% trans "Comment this episode" %}"
            href="#"
            hx-get="{% url 'journal:comment' ep.uuid %}"
            hx-target="body"
            hx-swap="beforeend"><i class="fa-regular fa-comment-dots"></i></a>
       {% endif %}
-      <a title="{% trans "original website" %}"
+      <a title="{% trans "Original website" %}"
          target="_blank"
          rel="noopener"
          href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
@@ -38,8 +38,8 @@
     <button class="outline"
             hx-get="{% url 'catalog:episode_data' item.uuid %}?last={{ ep.pub_date|date:'Y-m-d H:i:s.uO'|urlencode }}"
             hx-trigger="click"
-            hx-swap="outerHTML">{% trans "show more" %}</button>
+            hx-swap="outerHTML">{% trans "Show more" %}</button>
   {% endif %}
 {% empty %}
-  <div>{% trans 'nothing more.' %}</div>
+  <div>{% trans 'Nothing more.' %}</div>
 {% endfor %}

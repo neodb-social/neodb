@@ -57,9 +57,9 @@ class NoteForm(NeoModelForm):
             "progress_value": forms.TextInput(
                 attrs={"placeholder": _("Progress (optional)")}
             ),
-            "content": forms.Textarea(attrs={"placeholder": _("Note Content")}),
+            "content": forms.Textarea(attrs={"placeholder": _("Note content")}),
             "title": forms.TextInput(
-                attrs={"placeholder": _("Content Warning (optional)")}
+                attrs={"placeholder": _("Content warning (optional)")}
             ),
         }
 
@@ -81,7 +81,7 @@ class NoteForm(NeoModelForm):
                 types.append(Note.ProgressType(pt))
             except ValueError:
                 pass
-        choices = [("", _("Progress Type (optional)"))] + [(x, x.label) for x in types]
+        choices = [("", _("Progress type (optional)"))] + [(x, x.label) for x in types]
         self.fields["progress_type"].choices = choices  # type: ignore
 
 

@@ -63,7 +63,7 @@
                 </li>
                 <li>
                   <b>{{ instance_info_stats.domain_count|default:"0"|localize }}</b>
-                  <span>{% translate "Known Fediverse Instances" %}</span>
+                  <span>{% translate "Known Fediverse instances" %}</span>
                 </li>
               {% endif %}
             </ul>
@@ -77,29 +77,29 @@
           <h2>{% translate "This instance" %}</h2>
         </header>
         <dl class="dc-kv dc-surface">
-          <dt>{% translate "Instance Domain" %}</dt>
+          <dt>{% translate "Instance domain" %}</dt>
           <dd>
             {{ site_domain }}
           </dd>
-          <dt>{% translate "Software Version" %}</dt>
+          <dt>{% translate "Software version" %}</dt>
           <dd>
             <a href="https://neodb.net" target="_blank" rel="noopener">NeoDB {{ neodb_version }}</a>
-            <small><a target="_blank" rel="noopener" href="https://github.com/neodb-social">{% trans 'Source Code' %}</a></small>
+            <small><a target="_blank" rel="noopener" href="https://github.com/neodb-social">{% trans 'Source code' %}</a></small>
           </dd>
           <dt>{% translate "Registration" %}</dt>
           <dd>
             {% if invite_only %}
-              {% translate "Invite Only" %}
+              {% translate "Invite only" %}
             {% else %}
-              {% translate "Open Registration" %}
+              {% translate "Open registration" %}
             {% endif %}
           </dd>
-          <dt>{% translate "Preferred Languages" %}</dt>
+          <dt>{% translate "Preferred languages" %}</dt>
           <dd>
             {% if preferred_languages %}
               {{ preferred_languages|join:", " }}
             {% else %}
-              {% translate "Not Specified" %}
+              {% translate "Not specified" %}
             {% endif %}
           </dd>
         </dl>
@@ -113,7 +113,7 @@
           <div class="dc-people">
             {% if admin_users %}
               <div class="dc-surface">
-                <p class="dc-eyebrow">{% translate "Site Administrators" %}</p>
+                <p class="dc-eyebrow">{% translate "Site administrators" %}</p>
                 <ul>
                   {% for user in admin_users %}
                     <li>
@@ -133,7 +133,7 @@
             {% endif %}
             {% if staff_users %}
               <div class="dc-surface">
-                <p class="dc-eyebrow">{% translate "Catalog Moderators" %}</p>
+                <p class="dc-eyebrow">{% translate "Catalog moderators" %}</p>
                 <ul>
                   {% for user in staff_users %}
                     <li>
@@ -157,7 +157,7 @@
       {% if neodb_peers %}
         <section class="dc-mod" id="peers">
           <header class="dc-mh">
-            <h2>{% translate "Known NeoDB Instances" %}</h2>
+            <h2>{% translate "Known NeoDB instances" %}</h2>
             <span class="dc-sub">{% translate "Other communities running the same software. Follow people there from here." %}</span>
           </header>
           <ul class="dc-tags dc-peers">

@@ -10,7 +10,7 @@
       <fieldset role="search" style="width: 100%;">
         {% if category_choices|length > 1 %}
           <select name="category" onchange="this.form.submit()">
-            <option value="">{% trans "all" %}</option>
+            <option value="">{% trans "All" %}</option>
             {% for value, label in category_choices %}
               <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
@@ -23,12 +23,12 @@
           which stores the owner's shelf_type, so they get no status select.
           {% endcomment %}
           <select name="status" onchange="this.form.submit()">
-            <option value="">{% trans "all" %}</option>
-            <option value="wishlist" {% if status == 'wishlist' %}selected{% endif %}>{% trans "wishlist" %}</option>
-            <option value="progress" {% if status == 'progress' %}selected{% endif %}>{% trans "in progress" %}</option>
-            <option value="complete" {% if status == 'complete' %}selected{% endif %}>{% trans "complete" %}</option>
-            <option value="dropped" {% if status == 'dropped' %}selected{% endif %}>{% trans "dropped" %}</option>
-            <option value="unmarked" {% if status == 'unmarked' %}selected{% endif %}>{% trans "not marked yet" %}</option>
+            <option value="">{% trans "All" %}</option>
+            <option value="wishlist" {% if status == 'wishlist' %}selected{% endif %}>{% trans "Wishlist" %}</option>
+            <option value="progress" {% if status == 'progress' %}selected{% endif %}>{% trans "In progress" %}</option>
+            <option value="complete" {% if status == 'complete' %}selected{% endif %}>{% trans "Complete" %}</option>
+            <option value="dropped" {% if status == 'dropped' %}selected{% endif %}>{% trans "Dropped" %}</option>
+            <option value="unmarked" {% if status == 'unmarked' %}selected{% endif %}>{% trans "Not marked yet" %}</option>
           </select>
         {% endif %}
       </fieldset>

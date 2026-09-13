@@ -447,7 +447,7 @@ def profile_created_collections(request: AuthedHttpRequest, user_name):
         request,
         "profile_items.html",
         {
-            "title": _("collection"),
+            "title": _("Collection"),
             "url": f"{target.url}collections/",
             "items": collections,
             "total": total,
@@ -490,7 +490,7 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
         request,
         "profile_items.html",
         {
-            "title": _("liked collection"),
+            "title": _("Liked collection"),
             "url": f"{target.url}like/collections/",
             "items": collections,
             "total": total,

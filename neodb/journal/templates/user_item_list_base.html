@@ -24,7 +24,7 @@
           {% for member in members %}
             {% include "_list_item.html" with item=member.item mark=member.mark hide_category=True %}
           {% empty %}
-            <div>{% trans 'nothing so far.' %}</div>
+            <div>{% trans 'Nothing so far.' %}</div>
           {% endfor %}
         </div>
         {% include "_pagination.html" %}

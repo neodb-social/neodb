@@ -5,15 +5,15 @@
 {% if item %}
   <div class="action">
     <span>
-      <a title="{% trans "edit" %}"
+      <a title="{% trans "Edit" %}"
          href="{% url 'catalog:edit' item.url_path item.uuid %}"><i class="fa-solid fa-pen-to-square"></i></a>
     </span>
     <span>
-      <a title="{% trans "revision history" %}"
+      <a title="{% trans "Revision history" %}"
          href="{% url 'catalog:history' item.url_path item.uuid %}"><i class="fa-solid fa-clock-rotate-left"></i></a>
     </span>
     <span>
-      <a title="{% trans "back to item" %}" href="{{ item.url }}"><i class="fa-solid fa-file-lines"></i></a>
+      <a title="{% trans "Back to item" %}" href="{{ item.url }}"><i class="fa-solid fa-file-lines"></i></a>
     </span>
     {% if item.class_name == "podcast" %}
       <span>
@@ -22,7 +22,7 @@
       </span>
     {% endif %}
   </div>
-  <h5>{% trans "Edit Options" %}</h5>
+  <h5>{% trans "Edit options" %}</h5>
   {% if item.is_protected %}
     <p>
       <i class="fa-solid fa-circle-exclamation"></i> {% trans "Editing this item is restricted." %}
@@ -79,7 +79,7 @@
                 <input class="outline"
                        type="submit"
                        title="{% trans 'Fetch films and TV shows for this person from this external source' %}"
-                       value="{% trans 'pull works' %}">
+                       value="{% trans 'Pull works' %}">
               </form>
             {% endif %}
           {% endif %}
@@ -155,7 +155,7 @@
           <input name="parent" type="hidden" value="{{ item.uuid }}">
           <input class="contrast"
                  type="submit"
-                 value="{% trans "create" %} {{ item.child_class }}">
+                 value="{% trans "Create" %} {{ item.child_class }}">
         </form>
       </details>
     {% endif %}
@@ -177,18 +177,18 @@
     {% endif %}
     {% if item.class_name == "movie" %}
       <details>
-        <summary>{% trans 'switch category' %}</summary>
+        <summary>{% trans 'Switch category' %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}">
           {% csrf_token %}
           <input type="hidden" value="tvshow" name="class">
-          <input class="contrast" type="submit" value="➡ {% trans 'TV Show' %}">
+          <input class="contrast" type="submit" value="➡ {% trans 'TV show' %}">
         </form>
       </details>
     {% elif item.class_name == "tvshow" %}
       {% if not item.all_seasons or request.user.is_staff %}
         <details>
-          <summary>{% trans 'switch category' %}</summary>
+          <summary>{% trans 'Switch category' %}</summary>
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -205,7 +205,7 @@
       {% endif %}
     {% elif item.class_name == "album" %}
       <details>
-        <summary>{% trans 'switch category' %}</summary>
+        <summary>{% trans 'Switch category' %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -239,7 +239,7 @@
           {% csrf_token %}
           <input class="contrast"
                  type="submit"
-                 value="{% trans 'remove seasons not marked' %}">
+                 value="{% trans 'Remove seasons not marked' %}">
         </form>
       </details>
     {% endif %}
@@ -257,7 +257,7 @@
           <br>
           <input class="contrast"
                  type="submit"
-                 value="{% trans 'merge to another item' %}">
+                 value="{% trans 'Merge to another item' %}">
         </form>
       </details>
       {% if item.is_deletable and not item.journal_exists %}
@@ -341,23 +341,23 @@
     </details>
   {% endif %}
   <details>
-    <summary>{% trans 'Suggest Edits' %}</summary>
+    <summary>{% trans 'Suggest edits' %}</summary>
     <form method="post"
           action="{% url 'catalog:suggest' item.url_path item.uuid %}">
       {% csrf_token %}
       <select name="action" aria-label="Select action..." required>
-        <option selected disabled value="">{% trans "proposed action" %}</option>
-        <option value="merge">{% trans "merge to another item" %}</option>
-        <option value="link">{% trans "link to another item" %}</option>
-        <option value="type">{% trans "change item category" %}</option>
-        <option value="metadata">{% trans "change item metadata" %}</option>
-        <option value="delete">{% trans "remove item" %}</option>
-        <option value="other">{% trans "other" %}</option>
+        <option selected disabled value="">{% trans "Proposed action" %}</option>
+        <option value="merge">{% trans "Merge to another item" %}</option>
+        <option value="link">{% trans "Link to another item" %}</option>
+        <option value="type">{% trans "Change item category" %}</option>
+        <option value="metadata">{% trans "Change item metadata" %}</option>
+        <option value="delete">{% trans "Remove item" %}</option>
+        <option value="other">{% translate "other" as action_other %}{{ action_other|capfirst }}</option>
       </select>
       <textarea name="detail"
                 required
                 placeholder="{% trans "To suggest merging or association, please include the URL of the target item" %}"></textarea>
-      <input type="submit" value="{% trans 'submit' %}">
+      <input type="submit" value="{% trans 'Submit' %}">
       <small>{% trans "As a user of this community, you may edit some metadata of items on this site. If you are unsure whether your edits are appropriate or are unable to make a certain change, you can make suggestions here. Moderators will consider each suggestion, although there is no guarantee that they will always be fully adopted; suggestions may also be viewed or discussed by other community users. If you have suggestions that are not related to a specific item, please contact us. Thank you for your support and contribution." %}</small>
     </form>
   </details>

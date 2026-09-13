@@ -9,7 +9,7 @@
 {% endcomment %}
 <div class="dc-layout-control">
   <button type="button" class="dc-btn outline secondary" id="layoutEditButton">
-    <i class="fa-solid fa-sliders"></i> {% trans 'edit layout' %}
+    <i class="fa-solid fa-sliders"></i> {% trans 'Edit layout' %}
   </button>
 </div>
 <dialog id="layoutEditor" class="dc-layout-editor">
@@ -18,7 +18,7 @@
       <button type="button"
               class="dc-nav"
               id="layoutEditorClose"
-              aria-label="{% trans 'cancel' %}">
+              aria-label="{% trans 'Cancel' %}">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <h3>{% trans "Page layout" %}</h3>
@@ -29,8 +29,8 @@
     <ul id="layoutEditorList">
     </ul>
     <footer>
-      <button type="button" class="secondary outline" id="layoutEditorCancel">{% trans 'cancel' %}</button>
-      <button type="button" id="layoutEditorSave">{% trans 'save' %}</button>
+      <button type="button" class="secondary outline" id="layoutEditorCancel">{% trans 'Cancel' %}</button>
+      <button type="button" id="layoutEditorSave">{% trans 'Save' %}</button>
     </footer>
   </article>
 </dialog>
@@ -44,13 +44,13 @@
       <button type="button"
               class="dc-nav"
               data-move="-1"
-              aria-label="{% trans 'move up' %}">
+              aria-label="{% trans 'Move up' %}">
         <i class="fa-solid fa-chevron-up"></i>
       </button>
       <button type="button"
               class="dc-nav"
               data-move="1"
-              aria-label="{% trans 'move down' %}">
+              aria-label="{% trans 'Move down' %}">
         <i class="fa-solid fa-chevron-down"></i>
       </button>
     </span>

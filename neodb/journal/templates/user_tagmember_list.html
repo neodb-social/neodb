@@ -7,12 +7,12 @@
   <span class="action">
     {% if tag.pinned %}
       <span><a>
-        <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+        <i class="fa-solid fa-crown" title="{% trans "Featured tag" %}"></i>
       </a></span>
     {% endif %}
     {% if tag.visibility > 0 %}
       <span><a>
-        <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+        <i class="fa-solid fa-user" title="{% trans "Personal tag" %}"></i>
       </a></span>
     {% endif %}
     {% if identity.user == request.user %}

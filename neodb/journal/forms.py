@@ -143,8 +143,8 @@ class ArticleForm(forms.ModelForm):
 
 
 COLLABORATIVE_CHOICES = [
-    (0, _("owner only")),
-    (1, _("owner and their local mutuals")),
+    (0, _("Owner only")),
+    (1, _("Owner and their local mutuals")),
 ]
 
 

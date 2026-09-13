@@ -48,7 +48,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         ShelfType.WISHLIST,
-        _("books to read"),  # shelf label
+        _("Books to read"),  # shelf label
         _("want to read"),  # action label
         _("wants to read {item}"),  # feed
         _("to read"),  # status label
@@ -56,7 +56,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         ShelfType.PROGRESS,
-        _("books reading"),
+        _("Books reading"),
         _("start reading"),
         _("started reading {item}"),
         _("reading"),
@@ -64,7 +64,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         ShelfType.COMPLETE,
-        _("books completed"),
+        _("Books completed"),
         _("finish reading"),
         _("finished reading {item}"),
         _("read"),
@@ -72,7 +72,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         ShelfType.DROPPED,
-        _("books dropped"),
+        _("Books dropped"),
         _("stop reading"),
         _("stopped reading {item}"),
         _("stopped reading"),
@@ -80,7 +80,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Book,
         _REVIEWED,
-        _("books reviewed"),
+        _("Books reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -88,7 +88,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Movie,
         ShelfType.WISHLIST,
-        _("movies to watch"),
+        _("Movies to watch"),
         _("want to watch"),
         _("wants to watch {item}"),
         _("to watch"),
@@ -96,7 +96,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Movie,
         ShelfType.PROGRESS,
-        _("movies watching"),
+        _("Movies watching"),
         _("start watching"),
         _("started watching {item}"),
         _("watching"),
@@ -104,7 +104,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Movie,
         ShelfType.COMPLETE,
-        _("movies watched"),
+        _("Movies watched"),
         _("finish watching"),
         _("finished watching {item}"),
         _("watched"),
@@ -112,7 +112,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Movie,
         ShelfType.DROPPED,
-        _("movies dropped"),
+        _("Movies dropped"),
         _("stop watching"),
         _("stopped watching {item}"),
         _("stopped watching"),
@@ -120,7 +120,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Movie,
         _REVIEWED,
-        _("movies reviewed"),
+        _("Movies reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -168,7 +168,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         ShelfType.WISHLIST,
-        _("albums to listen"),
+        _("Albums to listen"),
         _("want to listen"),
         _("wants to listen {item}"),
         _("to listen"),
@@ -176,7 +176,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         ShelfType.PROGRESS,
-        _("albums listening"),
+        _("Albums listening"),
         _("start listening"),
         _("started listening {item}"),
         _("listening"),
@@ -184,7 +184,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         ShelfType.COMPLETE,
-        _("albums listened"),
+        _("Albums listened"),
         _("finish listening"),
         _("finished listening {item}"),
         _("listened"),
@@ -192,7 +192,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         ShelfType.DROPPED,
-        _("albums dropped"),
+        _("Albums dropped"),
         _("stop listening"),
         _("stopped listening {item}"),
         _("stopped listening"),
@@ -200,7 +200,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Music,
         _REVIEWED,
-        _("albums reviewed"),
+        _("Albums reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -208,7 +208,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Game,
         ShelfType.WISHLIST,
-        _("games to play"),
+        _("Games to play"),
         _("want to play"),
         _("wants to play {item}"),
         _("to play"),
@@ -216,7 +216,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Game,
         ShelfType.PROGRESS,
-        _("games playing"),
+        _("Games playing"),
         _("start playing"),
         _("started playing {item}"),
         _("playing"),
@@ -224,7 +224,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Game,
         ShelfType.COMPLETE,
-        _("games played"),
+        _("Games played"),
         _("finish playing"),
         _("finished playing {item}"),
         _("played"),
@@ -232,7 +232,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Game,
         ShelfType.DROPPED,
-        _("games dropped"),
+        _("Games dropped"),
         _("stop playing"),
         _("stopped playing {item}"),
         _("stopped playing"),
@@ -240,7 +240,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Game,
         _REVIEWED,
-        _("games reviewed"),
+        _("Games reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -248,7 +248,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Podcast,
         ShelfType.WISHLIST,
-        _("podcasts to listen"),
+        _("Podcasts to listen"),
         _("want to listen"),
         _("wants to listen {item}"),
         _("to listen"),
@@ -256,7 +256,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Podcast,
         ShelfType.PROGRESS,
-        _("podcasts listening"),
+        _("Podcasts listening"),
         _("start listening"),
         _("started listening {item}"),
         _("listening"),
@@ -264,7 +264,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Podcast,
         ShelfType.COMPLETE,
-        _("podcasts listened"),
+        _("Podcasts listened"),
         _("finish listening"),
         _("finished listening {item}"),
         _("listened"),
@@ -272,7 +272,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Podcast,
         ShelfType.DROPPED,
-        _("podcasts dropped"),
+        _("Podcasts dropped"),
         _("stop listening"),
         _("stopped listening {item}"),
         _("stopped listening"),
@@ -280,7 +280,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Podcast,
         _REVIEWED,
-        _("podcasts reviewed"),
+        _("Podcasts reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -288,7 +288,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Performance,
         ShelfType.WISHLIST,
-        _("performances to see"),
+        _("Performances to see"),
         _("want to see"),
         _("wants to see {item}"),
         _("to see"),
@@ -298,7 +298,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Performance,
         ShelfType.COMPLETE,
-        _("performances saw"),
+        _("Performances saw"),
         _("finish seeing"),
         _("finished seeing {item}"),
         _("seen"),
@@ -306,7 +306,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Performance,
         ShelfType.DROPPED,
-        _("performances dropped"),
+        _("Performances dropped"),
         _("stop seeing"),
         _("stopped seeing {item}"),
         _("stopped seeing"),
@@ -314,7 +314,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.Performance,
         _REVIEWED,
-        _("performances reviewed"),
+        _("Performances reviewed"),
         _("review"),
         _("wrote a review of {item}"),
         "",
@@ -322,7 +322,7 @@ _SHELF_LABELS = [
     [
         ItemCategory.People,
         ShelfType.PROGRESS,
-        _("people following"),
+        _("People following"),
         _("follow"),
         _("started following {item}"),
         _("following"),

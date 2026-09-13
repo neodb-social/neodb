@@ -77,7 +77,7 @@
               {% endfor %}
             </div>
             <div class="tvshow-tip">
-              {% trans 'select one of the seasons to comment' %}
+              {% trans 'Select one of the seasons to comment' %}
               {% if item.class_name == 'tvshow' %}
                 {% with item.all_seasons as seasons %}
                   {% if seasons %}
@@ -101,7 +101,9 @@
                       hx-get="{% url 'journal:mark' item.uuid %}"
                       hx-target="body"
                       hx-swap="beforeend">
-                <strong>{% trans mark.status_label %}</strong>
+                {% comment %}the status label also reads after a date ("2024-01-01 read"), so it stays lowercase{% endcomment %}
+                {% translate mark.status_label as status_label %}
+                <strong>{{ status_label|capfirst }}</strong>
                 <br>
                 {% if mark.rating_grade %}
                   {{ mark.rating_grade | rating_star }}
@@ -111,7 +113,7 @@
               </button>
             </div>
             <div class="small-only" style="margin-top:2vh;">
-              <a href="#item-sidebar">{% trans 'mark, comment and collect' %}</a>
+              <a href="#item-sidebar">{% trans 'Mark, comment and collect' %}</a>
             </div>
           </div>
         {% endif %}
@@ -133,7 +135,7 @@
         {% block sidebar %}{% endblock %}
         {% if collection_list %}
           <section>
-            <h5>{% trans 'Related Collections' %}</h5>
+            <h5>{% trans 'Related collections' %}</h5>
             <div>
               {% for c in collection_list %}
                 <p>
@@ -256,7 +258,7 @@
       <style type="text/css"></style>
       <div id="item-detail" class="middle">
         <section id="item-content">
-          <h5>{% trans 'overview' %}</h5>
+          <h5>{% trans 'Overview' %}</h5>
           <div class="tldr-box">
             <input type="checkbox" id="content-expanded">
             {% if item.display_description %}
@@ -264,9 +266,9 @@
             {% elif item.parent_item.display_description %}
               <p>{{ item.parent_item.display_description | linebreaksbr }}</p>
             {% else %}
-              <p class="empty">{% trans 'nothing so far.' %}</p>
+              <p class="empty">{% trans 'Nothing so far.' %}</p>
             {% endif %}
-            <label for="content-expanded" role="button" class="outline secondary">{% trans "show more" %}</label>
+            <label for="content-expanded" role="button" class="outline secondary">{% trans "Show more" %}</label>
           </div>
           <script type="text/javascript">
           const ps = document.querySelectorAll('.tldr-box p');
@@ -287,11 +289,11 @@
           <section class="solo-hidden">
             <div>
               <h5>
-                {% trans 'comments' %}
+                {% trans 'Comments' %}
                 <small>
                   {% if request.user.is_authenticated %}
-                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
-                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'Marks' %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'Marks from who you follow' %}</a>
                   {% endif %}
                 </small>
               </h5>
@@ -305,7 +307,7 @@
             </div>
           </section>
           <section class="solo-hidden">
-            <h5>{% trans 'reviews' %}</h5>
+            <h5>{% trans 'Reviews' %}</h5>
             <div>
               <div hx-get="{% url 'catalog:reviews' item.url_path item.uuid %}"
                    hx-trigger="intersect once"
@@ -315,7 +317,7 @@
             </div>
           </section>
           <section class="solo-hidden">
-            <h5>{% trans 'notes' %}</h5>
+            <h5>{% trans 'Notes' %}</h5>
             <div>
               <div hx-get="{% url 'catalog:notes' item.url_path item.uuid %}"
                    hx-trigger="intersect once"

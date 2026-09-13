@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans "Account Information" %}</title>
+    <title>{{ site_name }} - {% trans "Account information" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -76,7 +76,7 @@
                 <fieldset>
                   {% if request.user.mastodon %}
                     <label>
-                      <i class="fa-brands fa-mastodon"></i> {% trans "Verified Identity" %}
+                      <i class="fa-brands fa-mastodon"></i> {% trans "Verified identity" %}
                       <input type="input"
                              {% if request.user.mastodon %}aria-invalid="false"{% endif %}
                              value="{{ request.user.mastodon.handle | default:'-' }}"
@@ -96,7 +96,7 @@
                     {% if request.user.mastodon %}
                       {% trans "To associate with another federated identity, please enter the domain name of the instance where the new identity is located." %}
                     {% else %}
-                      {% trans "If you have registered with a Federated instance, please enter the instance domain name." %}
+                      {% trans "If you have registered with a federated instance, please enter the instance domain name." %}
                     {% endif %}
                     <input type="input"
                            name="domain"
@@ -232,7 +232,7 @@
                   <tr>
                     <th>{% trans "Name" %}</th>
                     <th>{% trans "Created" %}</th>
-                    <th>{% trans "Last Used" %}</th>
+                    <th>{% trans "Last used" %}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -263,7 +263,7 @@
             <button type="button"
                     id="passkey-add-btn"
                     _="on load if window.PublicKeyCredential is undefined add @disabled to me">
-              {% trans "Add Passkey" %}
+              {% trans "Add passkey" %}
             </button>
             <small id="passkey-mgmt-status"></small>
           </details>
@@ -375,7 +375,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans "Authorized Apps" %}</summary>
+            <summary>{% trans "Authorized apps" %}</summary>
             {% if tokens %}
               <table role="grid">
                 <thead>
@@ -397,9 +397,9 @@
                         {% if token.webhook %}
                           <span data-tooltip="{{ token.webhook.url }}" data-placement="left">
                             {% if token.webhook.disabled %}
-                              {% trans "disabled" %}
+                              {% trans "Disabled" %}
                             {% else %}
-                              {% trans "active" %}
+                              {% trans "Active" %}
                             {% endif %}
                           </span>
                         {% endif %}
@@ -421,13 +421,13 @@
               <p>{% trans "No authorized applications." %}</p>
             {% endif %}
             <p>
-              <a href="{% url 'users:authorized_app_create' %}">{% trans "Create Personal Token" %}</a>
+              <a href="{% url 'users:authorized_app_create' %}">{% trans "Create personal token" %}</a>
             </p>
           </details>
         </article>
         <article>
           <details>
-            <summary>{% trans "Import/Export Social Graph" %}</summary>
+            <summary>{% trans "Import/export social graph" %}</summary>
             <p>{% trans "Upload a CSV file exported from Mastodon or compatible services." %}</p>
             <form action="{% url 'users:import_social_graph' %}"
                   method="post"
@@ -533,7 +533,7 @@
                            disabled />
                   {% else %}
                     <input type="submit"
-                           value="{% trans 'Permanently Delete' %}"
+                           value="{% trans 'Permanently delete' %}"
                            class="contrast"
                            disabled
                            id="delete" />

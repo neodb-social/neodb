@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans "Migrate Here" %}</title>
+    <title>{{ site_name }} - {% trans "Migrate here" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,7 +16,7 @@
         <article>
           <details open>
             <summary>
-              <b>{% trans "Migrate Here" %}</b>
+              <b>{% trans "Migrate here" %}</b>
             </summary>
             <p>
               {% trans "To move another account to this one, first add it as an alias here, and then go to the server where it is hosted and initiate the move." %}
@@ -32,7 +32,7 @@
                        required>
               </label>
               <input type="submit"
-                     value="{% trans 'Add Alias' %}"
+                     value="{% trans 'Add alias' %}"
                      {% if moved %}disabled{% endif %}>
             </form>
           </details>
@@ -40,7 +40,7 @@
         <article>
           <details open>
             <summary>
-              <b>{% trans "Current Aliases" %}</b>
+              <b>{% trans "Current aliases" %}</b>
             </summary>
             {% if aliases %}
               {% for alias in aliases %}

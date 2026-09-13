@@ -212,7 +212,7 @@ class ReviewFeed(Feed):
             review_title=item.title, item_title=item.item.title
         )
         if has_spoiler(item.body):
-            s += " (" + _("may contain spoiler or triggering content") + ")"
+            s += " (" + _("May contain spoiler or triggering content") + ")"
         return s
 
     def item_description(self, item: Review):

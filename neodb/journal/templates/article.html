@@ -78,7 +78,7 @@
                 {% include "action_boost_post.html" with post=article.latest_post %}
                 {% if translate_enabled and request.user.is_authenticated %}
                   <span>
-                    <a title="{% trans "translate" %}"
+                    <a title="{% trans "Translate" %}"
                        {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
                        hx-trigger="click once"
                        hx-target="#{{ article.classname }}_{{ article.uuid }}_content">

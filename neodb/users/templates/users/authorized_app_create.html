@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans "Create Personal Token" %}</title>
+    <title>{{ site_name }} - {% trans "Create personal token" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,7 +16,7 @@
         <article>
           <details open>
             <summary>
-              <b>{% trans "Create Personal Token" %}</b>
+              <b>{% trans "Create personal token" %}</b>
             </summary>
             <form action="{% url 'users:authorized_app_create' %}" method="post">
               {% csrf_token %}
@@ -29,7 +29,7 @@
                        placeholder="{% trans 'Identifies this app in your app list' %}">
               </label>
               <fieldset>
-                <legend>{% trans "Access Level" %}</legend>
+                <legend>{% trans "Access level" %}</legend>
                 <label for="scope_read">
                   <input type="radio" name="scope" value="read" id="scope_read" checked>
                   {% trans "Read-only access" %}

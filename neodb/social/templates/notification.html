@@ -32,7 +32,7 @@
           {% if unread %}
             <form method="post" action="{% url 'social:dismiss_notification' %}">
               {% csrf_token %}
-              <button class="dc-btn outline secondary">{% trans 'mark all as read' %}</button>
+              <button class="dc-btn outline secondary">{% trans 'Mark all as read' %}</button>
             </form>
           {% endif %}
           <a class="dc-nav"

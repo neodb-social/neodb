@@ -2017,7 +2017,7 @@ class TestFetchPeopleWorksView:
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
         response = client.get(f"{person.url}/edit")
         assert response.status_code == 200
-        assert b"pull works" in response.content
+        assert b"Pull works" in response.content
         assert b'name="resource_id"' in response.content
 
     def test_edit_page_shows_pull_button_for_douban_resource(self):
@@ -2029,7 +2029,7 @@ class TestFetchPeopleWorksView:
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
         response = client.get(f"{person.url}/edit")
         assert response.status_code == 200
-        assert b"pull works" in response.content
+        assert b"Pull works" in response.content
         assert b'name="resource_id"' in response.content
 
     def test_protected_person_forbidden_for_non_staff(self):

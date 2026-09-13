@@ -36,17 +36,17 @@
       <div class="grid__main">
         <span class="action">
           <span>
-            <a onclick="restyle()" title="{% trans 'another style' %}"><i class="fa-solid fa-shuffle"></i></a>
+            <a onclick="restyle()" title="{% trans 'Another style' %}"><i class="fa-solid fa-shuffle"></i></a>
           </span>
           <span>
             <a hx-get="{% url 'journal:wrapped_share' year %}"
                hx-target="body"
                hx-swap="beforeend"
-               title="{% trans 'share' %}"><i class="fa-solid fa-share-from-square"></i></a>
+               title="{% trans 'Share' %}"><i class="fa-solid fa-share-from-square"></i></a>
           </span>
           <span>
             <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], '{{ year }}-wrapped.png');"
-               title="{% trans 'download' %}"><i class="fa-solid fa-download"></i></a>
+               title="{% trans 'Download' %}"><i class="fa-solid fa-download"></i></a>
           </span>
         </span>
         <h5>{{ year }} {% trans "annual summary" %}</h5>

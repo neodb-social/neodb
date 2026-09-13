@@ -18,9 +18,9 @@
     <main>
       <div class="grid__main">
         <h5>
-          <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'marks' %}</a>
-          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'marks from who you follow' %}</a>
-          | {% trans 'reviews' %}
+          <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'Marks' %}</a>
+          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'Marks from who you follow' %}</a>
+          | {% trans 'Reviews' %}
         </h5>
         {% for review in reviews %}
           <section>
@@ -48,7 +48,7 @@
             <div class="tldr piece-summary">{{ review.display_summary }}</div>
           </section>
         {% empty %}
-          <div>{% trans 'nothing so far.' %}</div>
+          <div>{% trans 'Nothing so far.' %}</div>
         {% endfor %}
         {% include "_pagination.html" %}
       </div>

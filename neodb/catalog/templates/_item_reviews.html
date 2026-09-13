@@ -41,15 +41,15 @@
     <a hx-get="{% url 'catalog:reviews' review.item.url_path review.item.uuid %}?last={{ review.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
        hx-trigger="click"
        hx-swap="outerHTML">
-      <button class="outline">{% trans "show more" %}</button>
+      <button class="outline">{% trans "Show more" %}</button>
     </a>
   {% endif %}
 {% empty %}
   <div class="empty">
     {% if not request.user.is_authenticated %}
-      {% trans 'nothing more.' %}
+      {% trans 'Nothing more.' %}
     {% else %}
-      <a href="{% url 'journal:review_create' item.uuid %}">{% trans 'write a review' %}</a>
+      <a href="{% url 'journal:review_create' item.uuid %}">{% trans 'Write a review' %}</a>
     {% endif %}
   </div>
 {% endfor %}

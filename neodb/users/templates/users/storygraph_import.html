@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Review StoryGraph Matches' %}</title>
+    <title>{{ site_name }} - {% trans 'Review StoryGraph matches' %}</title>
     {% include "common_libs.html" %}
     <style>
     main.storygraph-preview {
@@ -34,7 +34,7 @@
     {% include "_header.html" %}
     <main class="storygraph-preview">
       <article>
-        <h3>{% trans 'Review StoryGraph Matches' %}</h3>
+        <h3>{% trans 'Review StoryGraph matches' %}</h3>
         <p>
           {% blocktrans with total=total local=task.metadata.matched_local external=task.metadata.matched_external unmatched=task.metadata.unmatched %}
               Matched {{ local }} locally, {{ external }} externally, {{ unmatched }} unmatched out of {{ total }} rows.
@@ -54,8 +54,8 @@
           </colgroup>
           <thead>
             <tr>
-              <th>{% trans 'Title / Author' %}</th>
-              <th>{% trans 'Matched Link' %}</th>
+              <th>{% trans 'Title / author' %}</th>
+              <th>{% trans 'Matched link' %}</th>
               <th>{% trans 'Shelf' %}</th>
               <th>{% trans 'Date' %}</th>
             </tr>
@@ -92,7 +92,7 @@
               {% trans 'Mentioned Only' %}
             </label>
           </fieldset>
-          <button type="submit">{% trans 'Confirm Import' %}</button>
+          <button type="submit">{% trans 'Confirm import' %}</button>
           <a href="{% url 'users:data' %}">{% trans 'Back' %}</a>
         </form>
       </article>

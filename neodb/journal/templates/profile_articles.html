@@ -4,12 +4,12 @@
   <h2>
     <a href="{{ url }}">{{ title }}</a>
   </h2>
-  <a class="dc-count" href="{{ url }}" title="{% trans 'show all' %}">{{ total }}</a>
+  <a class="dc-count" href="{{ url }}" title="{% trans 'Show all' %}">{{ total }}</a>
   <span class="action">
     {% if show_create_button %}
       <a class="dc-nav"
          href="{% url 'journal:article_compose' %}"
-         title="{% trans 'Compose Article' %}">
+         title="{% trans 'Compose article' %}">
         <i class="fa-solid fa-pen-to-square"></i>
       </a>
     {% endif %}
@@ -24,9 +24,9 @@
     </li>
   {% empty %}
     {% if show_create_button %}
-      <li class="empty">{% trans "nothing so far." %}</li>
+      <li class="empty">{% trans "Nothing so far." %}</li>
     {% else %}
-      <li class="empty" _="init hide closest .entity-sort">{% trans "nothing so far." %}</li>
+      <li class="empty" _="init hide closest .entity-sort">{% trans "Nothing so far." %}</li>
     {% endif %}
   {% endfor %}
 </ul>

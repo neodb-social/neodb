@@ -76,20 +76,20 @@
                        name="post_public_mode"
                        value="0"
                        {% if request.user.preference.post_public_mode == 0 %}checked{% endif %} />
-                <label for="post_public_mode_0">{% trans "in public timeline" %}</label>
+                <label for="post_public_mode_0">{% trans "In public timeline" %}</label>
                 <input type="radio"
                        id="post_public_mode_1"
                        name="post_public_mode"
                        value="1"
                        {% if request.user.preference.post_public_mode == 1 %}checked{% endif %} />
-                <label for="post_public_mode_1">{% trans "unlisted and excluded from public timeline" %}</label>
+                <label for="post_public_mode_1">{% trans "Unlisted and excluded from public timeline" %}</label>
                 {% if enable_local_only %}
                   <input type="radio"
                          id="post_public_mode_4"
                          name="post_public_mode"
                          value="4"
                          {% if request.user.preference.post_public_mode == 4 %}checked{% endif %} />
-                  <label for="post_public_mode_4">{% trans "local, this site only" %}</label>
+                  <label for="post_public_mode_4">{% trans "Local, this site only" %}</label>
                 {% endif %}
               </fieldset>
               {% if request.user.mastodon %}
@@ -127,7 +127,7 @@
                          id="mastodon_repost_mode_1"
                          {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
                   <label for="mastodon_repost_mode_1">{% trans "Create a new post" %}</label>
-                  <em data-tooltip="{% trans "this method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
+                  <em data-tooltip="{% trans "This method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                 </fieldset>
               {% endif %}
               {% if request.user.bluesky %}
@@ -214,7 +214,7 @@
                          name="anonymous_viewable"
                          {% if request.user.identity.anonymous_viewable %}checked{% endif %}>
                   {% trans 'Profile visible to anonymous web visitors and search engines' %}
-                  <em data-tooltip="{% trans "this option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting" %}"><i class="fa fa-question-circle"></i></em>
+                  <em data-tooltip="{% trans "This option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting" %}"><i class="fa fa-question-circle"></i></em>
                 </label>
               </fieldset>
               <fieldset>

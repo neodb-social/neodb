@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {{ identity.display_name }} -
       {% if liked %}
-        {% trans "Liked Collections" %}
+        {% trans "Liked collections" %}
       {% else %}
         {% trans "Collections" %}
       {% endif %}
@@ -27,7 +27,7 @@
         <h5>
           {{ identity.display_name }} -
           {% if liked %}
-            {% trans "Liked Collections" %}
+            {% trans "Liked collections" %}
           {% else %}
             {% trans "Collections" %}
           {% endif %}
@@ -49,7 +49,7 @@
             {% endif %}
           </p>
         {% empty %}
-          <div class="empty">{% trans "nothing so far." %}</div>
+          <div class="empty">{% trans "Nothing so far." %}</div>
         {% endfor %}
       </div>
       {% include "_sidebar.html" with show_profile=1 %}

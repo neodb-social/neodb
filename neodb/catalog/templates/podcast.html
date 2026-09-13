@@ -32,7 +32,7 @@
   </div>
 {% endblock %}
 {% block content %}
-  <h5>{% trans 'recent episodes' %}</h5>
+  <h5>{% trans 'Recent episodes' %}</h5>
   <div hx-get="{% url 'catalog:episode_data' item.uuid %}"
        hx-trigger="load"
        hx-swap="outerHTML"></div>
@@ -41,7 +41,7 @@
 {% block left_sidebar %}
   <section>
     <center>
-      <button href="#" class="podlove-subscribe-button-primary outline">{% trans 'subscribe in apps' %}</button>
+      <button href="#" class="podlove-subscribe-button-primary outline">{% trans 'Subscribe in apps' %}</button>
     </center>
   </section>
   <script>

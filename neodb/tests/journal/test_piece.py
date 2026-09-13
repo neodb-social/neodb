@@ -171,7 +171,7 @@ class TestMark:
 
         mark = Mark(self.user1.identity, self.book1)
         assert mark.shelf_type == ShelfType.WISHLIST
-        assert mark.shelf_label == "books to read"
+        assert mark.shelf_label == "Books to read"
         assert mark.comment_text == "a gentle comment"
         assert mark.rating_grade == 9
         assert mark.visibility == 1

@@ -41,7 +41,7 @@
         {% with unread=request.user.unread_announcements %}
           {% if unread %}
             <section class="dc-ann" id="announcements">
-              <span class="dc-eyebrow">{% trans "Unread Announcements" %}</span>
+              <span class="dc-eyebrow">{% trans "Unread announcements" %}</span>
               <div class="dc-ann-body">
                 {% for ann in unread %}<div>{{ ann.html }}</div>{% endfor %}
               </div>
@@ -49,7 +49,7 @@
                 {% csrf_token %}
                 <input type="submit"
                        class="secondary outline"
-                       value="{% trans 'mark all as read' %}">
+                       value="{% trans 'Mark all as read' %}">
               </form>
             </section>
           {% endif %}
@@ -194,13 +194,13 @@
             <span class="action">
               <button class="dc-nav dc-scroll"
                       type="button"
-                      aria-label="{% trans 'scroll left' %}"
+                      aria-label="{% trans 'Scroll left' %}"
                       _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
             <button class="dc-nav dc-scroll"
                     type="button"
-                    aria-label="{% trans 'scroll right' %}"
+                    aria-label="{% trans 'Scroll right' %}"
                     _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
@@ -223,9 +223,9 @@
                   {% if item.weekly_marks %}
                     <span>
                       {% blocktrans count counter=item.weekly_marks trimmed %}
-                        marked by {{ counter }} person this week
+                        Marked by {{ counter }} person this week
                       {% plural %}
-                        marked by {{ counter }} people this week
+                        Marked by {{ counter }} people this week
                       {% endblocktrans %}
                     </span>
                   {% endif %}
@@ -253,13 +253,13 @@
             <span class="action">
               <button class="dc-nav dc-scroll"
                       type="button"
-                      aria-label="{% trans 'scroll left' %}"
+                      aria-label="{% trans 'Scroll left' %}"
                       _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
             <button class="dc-nav dc-scroll"
                     type="button"
-                    aria-label="{% trans 'scroll right' %}"
+                    aria-label="{% trans 'Scroll right' %}"
                     _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
@@ -280,13 +280,13 @@
         <span class="action">
           <button class="dc-nav dc-scroll"
                   type="button"
-                  aria-label="{% trans 'scroll left' %}"
+                  aria-label="{% trans 'Scroll left' %}"
                   _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
         <button class="dc-nav dc-scroll"
                 type="button"
-                aria-label="{% trans 'scroll right' %}"
+                aria-label="{% trans 'Scroll right' %}"
                 _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
         <i class="fa-solid fa-chevron-right"></i>
       </button>
@@ -318,13 +318,13 @@
            href="{% url 'catalog:discover_category' gallery.category.value %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
         <button class="dc-nav dc-scroll"
                 type="button"
-                aria-label="{% trans 'scroll left' %}"
+                aria-label="{% trans 'Scroll left' %}"
                 _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
         <i class="fa-solid fa-chevron-left"></i>
       </button>
       <button class="dc-nav dc-scroll"
               type="button"
-              aria-label="{% trans 'scroll right' %}"
+              aria-label="{% trans 'Scroll right' %}"
               _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
@@ -340,11 +340,11 @@
 {% if show_originals %}
   <section class="entity-sort dc-mod"
            id="original_episodes"
-           data-title="{% trans 'fediverse originals' %}"
+           data-title="{% trans 'Fediverse originals' %}"
            {% if not original_shows %}style="display:none;"{% endif %}>
     <header class="dc-mh">
       <h2>
-        <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'fediverse originals' %}</a>
+        <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'Fediverse originals' %}</a>
       </h2>
       <span class="dc-sub">{% trans "Podcasts whose creators verified themselves here. Play right on this page." %}</span>
       <span class="action">
@@ -365,7 +365,7 @@
               <span class="dc-show-host">{{ program.host_names|join:' / ' }}</span>
               <span class="dc-episode">
                 <a href="{{ episode.url }}"
-                   title="{% trans 'play' %}"
+                   title="{% trans 'Play' %}"
                    class="dc-play episode"
                    data-media="{{ episode.media_url }}"
                    data-cover="{{ episode.display_cover_image_url }}"
@@ -430,13 +430,13 @@
     <span class="action">
       <button class="dc-nav dc-scroll"
               type="button"
-              aria-label="{% trans 'scroll left' %}"
+              aria-label="{% trans 'Scroll left' %}"
               _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
       <i class="fa-solid fa-chevron-left"></i>
     </button>
     <button class="dc-nav dc-scroll"
             type="button"
-            aria-label="{% trans 'scroll right' %}"
+            aria-label="{% trans 'Scroll right' %}"
             _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
     <i class="fa-solid fa-chevron-right"></i>
   </button>
@@ -451,9 +451,9 @@
 {% if popular_tags %}
   <section class="entity-sort dc-mod"
            id="popular_tags"
-           data-title="{% trans 'Popular Tags' %}">
+           data-title="{% trans 'Popular tags' %}">
     <header class="dc-mh">
-      <h2>{% trans 'Popular Tags' %}</h2>
+      <h2>{% trans 'Popular tags' %}</h2>
       <span class="dc-sub">{% trans "Most used public tags in the last two weeks." %}</span>
     </header>
     <ul class="dc-tags">

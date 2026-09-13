@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans "Migrate Out" %}</title>
+    <title>{{ site_name }} - {% trans "Migrate out" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -17,7 +17,7 @@
           <article>
             <details open>
               <summary>
-                <b>{% trans "Migration In Progress" %}</b>
+                <b>{% trans "Migration in progress" %}</b>
               </summary>
               <p>{% trans "Your account is being migrated to:" %}</p>
               {% for alias in aliases %}
@@ -32,7 +32,7 @@
                 <input type="hidden" name="cancel" value="1">
                 <input type="submit"
                        class="secondary"
-                       value="{% trans 'Cancel Migration' %}">
+                       value="{% trans 'Cancel migration' %}">
               </form>
             </details>
           </article>
@@ -40,7 +40,7 @@
           <article>
             <details open>
               <summary>
-                <b>{% trans "Migrate Out" %}</b>
+                <b>{% trans "Migrate out" %}</b>
               </summary>
               <p>
                 {% blocktrans with handle=identity.handle %}To migrate to another account, first add <code>@{{ handle }}</code> as an alias on the target server, and then type the target account below to start the migration.{% endblocktrans %}
@@ -57,7 +57,7 @@
                          placeholder="@user@example.com"
                          required>
                 </label>
-                <input type="submit" value="{% trans 'Start Migration' %}">
+                <input type="submit" value="{% trans 'Start migration' %}">
               </form>
             </details>
           </article>

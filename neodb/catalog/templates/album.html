@@ -55,11 +55,11 @@
 <!-- class specific sidebar -->
 {% block content %}
   {% if item.track_list %}
-    <h5>tracks</h5>
+    <h5>{% trans "Tracks" %}</h5>
     <p class="tldr" _="on click toggle .tldr on me">{{ item.track_list | linebreaksbr }}</p>
   {% endif %}
   {% if item.get_embed_link %}
-    <h5>play this album</h5>
+    <h5>{% trans "Play this album" %}</h5>
     <iframe src="{{ item.get_embed_link }}"
             frameborder="0"
             allowtransparency="true"

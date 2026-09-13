@@ -15,7 +15,7 @@
     <main>
       <div class="grid__main">
         <article>
-          <h3>{% trans 'Import from Steam Wishlist / Library' %}</h3>
+          <h3>{% trans 'Import from Steam wishlist / library' %}</h3>
           <p>
             {% trans 'Steam ID' %}: <strong>{{ steam_id }}</strong>
           </p>
@@ -23,7 +23,7 @@
             {% csrf_token %}
             <input type="hidden" name="steam_id" value="{{ steam_id }}">
             <fieldset>
-              <legend>{% trans 'Steam API Key' %}</legend>
+              <legend>{% trans 'Steam API key' %}</legend>
               <label>
                 {% trans 'Your personal Steam API key' %}
                 <input type="text"
@@ -39,10 +39,10 @@
               </label>
             </fieldset>
             <fieldset>
-              <legend>{% trans 'Import Sources' %}</legend>
+              <legend>{% trans 'Import sources' %}</legend>
               <label>
                 <input type="checkbox" name="source[]" value="wishlist" checked>
-                {% trans 'Steam Wishlist' %}
+                {% trans 'Steam wishlist' %}
               </label>
               <label>
                 <input type="checkbox" name="source[]" value="library" checked>
@@ -101,18 +101,18 @@
               <label>
                 {% trans 'Playing threshold' %}
                 <input type="number" name="playing_thresh" value="12">
-                <small>{% trans "in days, launched in recent X days to be considered playing" %}</small>
+                <small>{% trans "In days, launched in recent X days to be considered playing" %}</small>
               </label>
               <label>
                 {% trans 'Finished threshold' %}
                 <input type="number" name="finish_thresh" value="2">
-                <small>{% trans "in hours, played for more than these hours to be considered finished" %}</small>
+                <small>{% trans "In hours, played for more than these hours to be considered finished" %}</small>
               </label>
             </fieldset>
             <fieldset>
               <legend>{% trans 'Advanced' %}</legend>
               <label>
-                {% trans 'Ignored Games' %}
+                {% trans 'Ignored games' %}
                 <input type="text" name="ignored_appids" placeholder="12345,67890,54321">
                 <small>{% trans 'Comma-separated Steam AppIDs' %}</small>
               </label>

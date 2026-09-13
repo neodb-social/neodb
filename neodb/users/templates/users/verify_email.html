@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Verify Your Email' %}</title>
+    <title>{{ site_name }} - {% trans 'Verify your email' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,7 +16,7 @@
         <header style="text-align: center;">
           <img src="{{ site_logo }}" class="logo" alt="logo">
         </header>
-        <h4>{% trans 'Verify Your Email' %}</h4>
+        <h4>{% trans 'Verify your email' %}</h4>
         {% if success %}
           <p>
             {{ request.user.email }} {% trans "Verified successfully." %}

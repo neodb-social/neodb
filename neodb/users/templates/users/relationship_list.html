@@ -8,13 +8,13 @@
           onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ identity.handle }}</code>
   </p>
 {% empty %}
-  <p class="empty">{% trans "nothing so far." %}</p>
+  <p class="empty">{% trans "Nothing so far." %}</p>
 {% endfor %}
 <p>
   <span class="action">
     <span>
       <a id="download_{{ id }}"
-         title="{% trans "export" %}"
+         title="{% trans "Export" %}"
          download="neodb_{{ id }}.csv"><i class="fa-solid fa-download"></i></a>
     </span>
   </span>

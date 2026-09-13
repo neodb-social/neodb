@@ -66,7 +66,7 @@
       </div>
     {% empty %}
       {% if not show_header %}
-        <div class="empty">{% trans 'no replies so far.' %}</div>
+        <div class="empty">{% trans 'No replies so far.' %}</div>
       {% endif %}
     {% endfor %}
   {% endwith %}
@@ -75,7 +75,7 @@
           role="group"
           hx-post="{% url 'journal:post_reply' post.pk %}"
           hx-trigger="submit once">
-      <input name="content" type="text" placeholder="{% trans "add a reply" %}" />
+      <input name="content" type="text" placeholder="{% trans "Add a reply" %}" />
       <details class="dropdown">
         <summary>
           <i class="fa-solid fa-users-gear"></i>

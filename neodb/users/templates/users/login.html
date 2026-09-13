@@ -55,7 +55,7 @@
   <body>
     <article>
       <header>
-        <img src="{{ site_logo }}" class="logo" alt="{% trans 'logo' %}">
+        <img src="{{ site_logo }}" class="logo" alt="{% trans 'Logo' %}">
       </header>
       <div>
         {% if request.user.is_authenticated %}
@@ -123,7 +123,7 @@
           class="login-submit"
           style="width:100%"
           id="passkey-login-btn"
-          disabled>{% trans "Sign in with Passkey" %}</button>
+          disabled>{% trans "Sign in with passkey" %}</button>
   <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey" display="invisible" name="altcha" workers="2"></altcha-widget>
   <small class="login-proof-status" role="status" aria-live="polite"></small>
   <small id="passkey-error" style="display:none; color:var(--pico-del-color)"></small>

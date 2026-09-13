@@ -53,15 +53,15 @@
         {% endif %}
       </select>
       <select name="year" id="year" onchange="filter()">
-        <option value="">{% trans "all" %}</option>
+        <option value="">{% trans "All" %}</option>
         {% for y in years %}
           <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
       <select name="sort" id="sort" onchange="filter()">
-        <option value="" disabled>{% trans "sorting" %}</option>
-        <option value="">{% trans "date" %}</option>
-        <option value="rating" {% if 'rating' == sort %}selected{% endif %}>{% trans "rating" %}</option>
+        <option value="" disabled>{% trans "Sorting" %}</option>
+        <option value="">{% trans "Date" %}</option>
+        <option value="rating" {% if 'rating' == sort %}selected{% endif %}>{% trans "Rating" %}</option>
       </select>
     </fieldset>
   </form>

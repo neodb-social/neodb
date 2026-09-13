@@ -9,11 +9,11 @@
   {% endif %}
 {% elif relationship.rejecting %}
   <span class="tag-list">
-    <span><a title="{% trans "click to unblock" %}"
-   hx-confirm="{% trans "are you sure to unblock?" %}"
+    <span><a title="{% trans "Click to unblock" %}"
+   hx-confirm="{% trans "Are you sure to unblock?" %}"
    hx-post="{% url 'users:unblock' identity.handle %}"
    hx-target="closest .action"
-   hx-swap="innerHTML">{% trans "blocked" %}</a></span>
+   hx-swap="innerHTML">{% trans "Blocked" %}</a></span>
   </span>
 {% else %}
   <span class="tag-list">
@@ -26,14 +26,14 @@
   </span>
   {% if show_home %}
     <span>
-      <a title="{% trans "user profile" %}" href="{{ identity.url }}">
+      <a title="{% trans "User profile" %}" href="{{ identity.url }}">
         <i class="fa-solid fa-home"></i>
       </a>
     </span>
   {% endif %}
   {% if identity.locked %}
     <span>
-      <a title="{% trans "approving followers manually" %}">
+      <a title="{% trans "Approving followers manually" %}">
         <i class="fa-solid fa-user-shield"></i>
       </a>
     </span>
@@ -43,27 +43,27 @@
       <a href="{{ identity.profile_uri }}"
          target="_blank"
          rel="noopener"
-         title="{% trans "original home" %}">
+         title="{% trans "Original home" %}">
         <i class="fa-brands fa-fediverse"></i>
       </a>
     </span>
   {% else %}
     {% if identity.user.is_superuser %}
       <span>
-        <a title="{% trans 'admin' %}">
+        <a title="{% trans 'Admin' %}">
           <i class="fa-solid fa-user-astronaut"></i>
         </a>
       </span>
     {% elif identity.user.is_staff %}
       <span>
-        <a title="{% trans 'staff' %}">
+        <a title="{% trans 'Staff' %}">
           <i class="fa-solid fa-hat-wizard"></i>
         </a>
       </span>
     {% endif %}
     {% if not identity.locked or request.user.is_superuser or relationship.status %}
       <span>
-        <a title="{% trans 'compose a message' %}"
+        <a title="{% trans 'Compose a message' %}"
            hx-get="{% url 'journal:post_compose' %}?reply_to={{ identity.full_handle }}&amp;visibility={% if identity.is_group %}0{% else %}2{% endif %}"
            hx-target="body"
            hx-swap="beforeend">
@@ -77,9 +77,9 @@
   {% endif %}
   {% if relationship.requested %}
     <span>
-      <a title="{% trans "accept follow request" %}"
+      <a title="{% trans "Accept follow request" %}"
          class="activated"
-         hx-confirm="{% trans 'sure to accept follow request?' %}"
+         hx-confirm="{% trans 'Sure to accept follow request?' %}"
          hx-post="{% url 'users:accept_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -87,9 +87,9 @@
       </a>
     </span>
     <span>
-      <a title="{% trans "reject follow request" %}"
+      <a title="{% trans "Reject follow request" %}"
          class="activated"
-         hx-confirm="{% trans 'sure to reject follow request?' %}"
+         hx-confirm="{% trans 'Sure to reject follow request?' %}"
          hx-post="{% url 'users:reject_follow_request' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -99,9 +99,9 @@
   {% endif %}
   {% if relationship.following %}
     <span>
-      <a title="{% trans "click to unfollow" %}"
+      <a title="{% trans "Click to unfollow" %}"
          class="activated"
-         hx-confirm="{% trans 'sure to unfollow?' %}"
+         hx-confirm="{% trans 'Sure to unfollow?' %}"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -110,9 +110,9 @@
     </span>
   {% elif relationship.requesting %}
     <span>
-      <a title="{% trans "click to cancel follow request" %}"
+      <a title="{% trans "Click to cancel follow request" %}"
          class="activated"
-         hx-confirm="{% trans 'sure to cancel follow request?' %}"
+         hx-confirm="{% trans 'Sure to cancel follow request?' %}"
          hx-post="{% url 'users:unfollow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -121,8 +121,8 @@
     </span>
   {% else %}
     <span>
-      <a title="{% trans "click to follow" %}"
-         hx-confirm="{% trans 'sure to follow?' %}"
+      <a title="{% trans "Click to follow" %}"
+         hx-confirm="{% trans 'Sure to follow?' %}"
          hx-post="{% url 'users:follow' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -132,7 +132,7 @@
   {% endif %}
   {% if not relationship.muting %}
     <span>
-      <a title="{% trans "click to mute" %}"
+      <a title="{% trans "Click to mute" %}"
          hx-post="{% url 'users:mute' identity.handle %}"
          hx-target="closest .action"
          hx-swap="innerHTML">
@@ -141,7 +141,7 @@
     </span>
   {% else %}
     <span>
-      <a title="{% trans "click to unmute" %}"
+      <a title="{% trans "Click to unmute" %}"
          class="activated"
          hx-post="{% url 'users:unmute' identity.handle %}"
          hx-target="closest .action"
@@ -151,8 +151,8 @@
     </span>
   {% endif %}
   <span>
-    <a title="{% trans 'click to block' %}"
-       hx-confirm="{% trans 'sure to block?' %}"
+    <a title="{% trans 'Click to block' %}"
+       hx-confirm="{% trans 'Sure to block?' %}"
        hx-post="{% url 'users:block' identity.handle %}"
        hx-target="closest .action"
        hx-swap="innerHTML">

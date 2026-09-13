@@ -10,25 +10,25 @@
   <div class="search-category-picker">
     {% visible_categories as cats %}
     {% if request.GET.c and request.GET.c != 'all' %}
-      <a href="?q={{ request.GET.q|urlencode }}&amp;c=all">{% trans "all" %}</a>
+      <a href="?q={{ request.GET.q|urlencode }}&amp;c=all">{% trans "All" %}</a>
     {% else %}
-      {% trans "all" %}
+      {% trans "All" %}
     {% endif %}
     {% if 'book' in cats %}
       |
       {% if request.GET.c != 'book' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=book">{% trans "books" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=book">{% trans "Books" %}</a>
       {% else %}
-        {% trans "books" %}
+        {% trans "Books" %}
       {% endif %}
       {% if by_category.book %}<small>({{ by_category.book }})</small>{% endif %}
     {% endif %}
     {% if 'movie' in cats or 'tv' in cats %}
       |
       {% if request.GET.c != 'movietv' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=movietv">{% trans "movie & tv" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=movietv">{% trans "Movie & TV" %}</a>
       {% else %}
-        {% trans "movie & tv" %}
+        {% trans "Movie & TV" %}
       {% endif %}
       {% if by_category.movie or by_category.tv %}
         <small>({{ by_category.movie|default:0|add:by_category.tv|default:0 }})</small>
@@ -37,57 +37,57 @@
     {% if 'podcast' in cats %}
       |
       {% if request.GET.c != 'podcast' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=podcast">{% trans "podcasts" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=podcast">{% trans "Podcasts" %}</a>
       {% else %}
-        {% trans "podcasts" %}
+        {% trans "Podcasts" %}
       {% endif %}
       {% if by_category.podcast %}<small>({{ by_category.podcast }})</small>{% endif %}
     {% endif %}
     {% if 'music' in cats %}
       |
       {% if request.GET.c != 'music' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=music">{% trans "music" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=music">{% trans "Music" %}</a>
       {% else %}
-        {% trans "music" %}
+        {% trans "Music" %}
       {% endif %}
       {% if by_category.music %}<small>({{ by_category.music }})</small>{% endif %}
     {% endif %}
     {% if 'game' in cats %}
       |
       {% if request.GET.c != 'game' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=game">{% trans "games" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=game">{% trans "Games" %}</a>
       {% else %}
-        {% trans "games" %}
+        {% trans "Games" %}
       {% endif %}
       {% if by_category.game %}<small>({{ by_category.game }})</small>{% endif %}
     {% endif %}
     {% if 'performance' in cats %}
       |
       {% if request.GET.c != 'performance' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=performance">{% trans "performances" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=performance">{% trans "Performances" %}</a>
       {% else %}
-        {% trans "performances" %}
+        {% trans "Performances" %}
       {% endif %}
       {% if by_category.performance %}<small>({{ by_category.performance }})</small>{% endif %}
     {% endif %}
     |
     {% if request.GET.c != 'people' %}
-      <a href="?q={{ request.GET.q|urlencode }}&amp;c=people">{% trans "people & organizations" %}</a>
+      <a href="?q={{ request.GET.q|urlencode }}&amp;c=people">{% trans "People & organizations" %}</a>
     {% else %}
-      {% trans "people & organizations" %}
+      {% trans "People & organizations" %}
     {% endif %}
     {% if user.is_authenticated %}
       |
       {% if request.GET.c != 'journal' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=journal">{% trans "your journal" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=journal">{% trans "Your journal" %}</a>
       {% else %}
-        {% trans "your journal" %}
+        {% trans "Your journal" %}
       {% endif %}
       |
       {% if request.GET.c != 'timeline' %}
-        <a href="?q={{ request.GET.q|urlencode }}&amp;c=timeline">{% trans "your timeline" %}</a>
+        <a href="?q={{ request.GET.q|urlencode }}&amp;c=timeline">{% trans "Your timeline" %}</a>
       {% else %}
-        {% trans "your timeline" %}
+        {% trans "Your timeline" %}
       {% endif %}
     {% endif %}
     {% if request.GET.c == 'journal' %}

@@ -10,7 +10,7 @@
       <span class="season-number">
         <a hx-swap="innerHTML"
            hx-get="{% url "catalog:comments" item.url_path item.uuid %}"
-           hx-target="#comments">{% trans "this season" %}</a>
+           hx-target="#comments">{% trans "This season" %}</a>
       </span>
       {% for ep in item.all_episodes %}
         <span class="season-number" id="ci_{{ ep.uuid }}">
@@ -32,7 +32,7 @@
           {% else %}
             <i class="fa-regular fa-square-plus"></i>
           {% endif %}
-          {% trans "comment this episode" %}
+          {% trans "Comment this episode" %}
         </a>
       </small>
     </p>
@@ -77,10 +77,10 @@
       <a hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ episode_uuid }}&last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
          hx-trigger="click"
          hx-swap="outerHTML">
-        <button class="outline">{% trans "show more" %}</button>
+        <button class="outline">{% trans "Show more" %}</button>
       </a>
     {% endif %}
   {% empty %}
-    <div class="empty">{% trans 'nothing more.' %}</div>
+    <div class="empty">{% trans 'Nothing more.' %}</div>
   {% endfor %}
 </div>

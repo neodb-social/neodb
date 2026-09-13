@@ -18,7 +18,7 @@
   <form method="get" action="">
     <fieldset role="search" style="width: 100%;">
       <select name="category" id="category" onchange="filter()">
-        <option value="" {% if not category %}selected{% endif %}>{% trans "All Categories" %}</option>
+        <option value="" {% if not category %}selected{% endif %}>{% trans "All categories" %}</option>
         {% visible_categories as cats %}
         {% if 'book' in cats %}
           <option value="book" {% if category == 'book' %}selected{% endif %}>{% trans "Book" %}</option>

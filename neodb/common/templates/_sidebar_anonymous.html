@@ -42,7 +42,7 @@
         <summary>{% trans "Announcements" %}</summary>
         {% for ann in all_announcements %}
           <div>{{ ann.html }}</div>
-        {% empty %}{% trans "nothing so far." %}
+        {% empty %}{% trans "Nothing so far." %}
         {% endfor %}
       </details>
     </article>
@@ -51,14 +51,14 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans 'Popular Tags' %}</summary>
+          <summary>{% trans 'Popular tags' %}</summary>
           <div class="tag-list">
             {% for t in popular_tags %}
               <span>
                 <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
               </span>
             {% empty %}
-              <div class="empty">{% trans "nothing so far." %}</div>
+              <div class="empty">{% trans "Nothing so far." %}</div>
             {% endfor %}
           </div>
         </details>

@@ -18,17 +18,17 @@
     {% include "_header.html" %}
     <main>
       <div class="grid__main">
-        <h5>{% trans 'Tag List' %}</h5>
+        <h5>{% trans 'Tag list' %}</h5>
         <div class="tag-list">
           {% for v in tags %}
             <span style="margin-right:2em; white-space: nowrap;">
               <span>
                 <a href="{% url 'journal:user_tag_member_list' identity.handle v.title %}{% if category %}?category={{ category.value }}{% endif %}">
                   {% if v.pinned %}
-                    <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+                    <i class="fa-solid fa-crown" title="{% trans "Featured tag" %}"></i>
                   {% endif %}
                   {% if v.visibility > 0 %}
-                    <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+                    <i class="fa-solid fa-user" title="{% trans "Personal tag" %}"></i>
                   {% endif %}
                   {{ v.title }}
                 </a>
@@ -36,7 +36,7 @@
               <span>({{ v.total }})</span>
             </span>
           {% empty %}
-            {% trans 'no tags so far.' %}
+            {% trans 'No tags so far.' %}
           {% endfor %}
         </div>
       </div>

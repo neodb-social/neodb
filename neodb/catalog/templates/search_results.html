@@ -11,7 +11,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'Search Results' %}</title>
+    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'Search results' %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -23,7 +23,7 @@
             {% include "search_header.html" %}
           {% endif %}
           {% if request.GET.tag %}
-            <h5>{% trans 'tag' %}: “{{ request.GET.tag }}”</h5>
+            <h5>{% trans 'Tag' %}: “{{ request.GET.tag }}”</h5>
           {% endif %}
           <div class="item-card-list">
             {% for item in items %}

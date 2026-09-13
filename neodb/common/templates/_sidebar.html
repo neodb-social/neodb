@@ -10,13 +10,13 @@
     <section class="announcement">
       <article>
         <details open>
-          <summary>{% trans "Unread Announcements" %}</summary>
+          <summary>{% trans "Unread announcements" %}</summary>
           {% for ann in request.user.unread_announcements %}<div>{{ ann.html }}</div>{% endfor %}
           <form action="{% url 'users:mark_announcements_read' %}" method="post">
             {% csrf_token %}
             <input type="submit"
                    class="secondary outline"
-                   value="{% trans 'mark all as read' %}">
+                   value="{% trans 'Mark all as read' %}">
           </form>
         </details>
       </article>
@@ -57,7 +57,7 @@
             {% if identity.user == request.user %}
               {% if identity.locked %}
                 <span>
-                  <a title="{% trans "approving followers manually" %}">
+                  <a title="{% trans "Approving followers manually" %}">
                     <i class="fa-solid fa-user-shield"></i>
                   </a>
                 </span>
@@ -107,7 +107,7 @@
     <section>
       <article>
         <details {% if identity.featured_collections.all %}open{% endif %}>
-          <summary>{% trans 'Current Targets' %}</summary>
+          <summary>{% trans 'Current targets' %}</summary>
           {% for featured_collection in identity.featured_collections.all %}
             {% user_visibility_of featured_collection as visible %}
             {% if visible %}
@@ -122,7 +122,7 @@
             {% if request.user == identity.user %}
               <div class="empty">{% trans "Set a collection as target, its progress will show up here." %}</div>
             {% else %}
-              <div class="empty">{% trans "nothing so far." %}</div>
+              <div class="empty">{% trans "Nothing so far." %}</div>
             {% endif %}
           {% endfor %}
         </details>
@@ -153,21 +153,21 @@
               <span>
                 <a href="{% url 'journal:user_tag_member_list' identity.handle t.title %}">
                   {% if t.pinned %}
-                    <i class="fa-solid fa-crown" title="{% trans "featured tag" %}"></i>
+                    <i class="fa-solid fa-crown" title="{% trans "Featured tag" %}"></i>
                   {% endif %}
                   {% if t.visibility > 0 %}
-                    <i class="fa-solid fa-user" title="{% trans "personal tag" %}"></i>
+                    <i class="fa-solid fa-user" title="{% trans "Personal tag" %}"></i>
                   {% endif %}
                   {{ t.title }}
                 </a>
                 <small>({{ t.total }})</small>
               </span>
             {% empty %}
-              <div class="empty">{% trans "no tags so far." %}</div>
+              <div class="empty">{% trans "No tags so far." %}</div>
             {% endfor %}
           </div>
           <small>
-            <a href="{% url 'journal:user_tag_list' identity.handle %}">({% trans 'show all' %})</a>
+            <a href="{% url 'journal:user_tag_list' identity.handle %}">({% trans 'Show all' %})</a>
           </small>
         </details>
       </article>
@@ -180,7 +180,7 @@
           <summary>
             {% trans 'Recent Posts' %}
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
-   title="{% trans 'show all' %}"><i class="fa-solid fa-list"></i></a></small>
+   title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
           <div style="font-size:80%">{% include "posts.html" with posts=recent_posts collapse_content=1 %}</div>
         </details>

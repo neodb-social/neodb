@@ -9,7 +9,7 @@
             hx-post="{% url 'journal:post_quote' post.pk %}"
             hx-target="#quote_{{ post.pk }}"
             hx-swap="outerHTML">
-        <input name="content" type="text" placeholder="{% trans "add a quote" %}" />
+        <input name="content" type="text" placeholder="{% trans "Add a quote" %}" />
         <details class="dropdown">
           <summary>
             <i class="fa-solid fa-users-gear"></i>

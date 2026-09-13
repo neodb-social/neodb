@@ -7,12 +7,12 @@
 </form>
 {% if featured %}
   <a class="activated"
-     title="{% trans "stop tracking" %}"
+     title="{% trans "Stop tracking" %}"
      onclick="if (confirm('{% trans "Stop tracking this target?" %}')) $('#feature-form').submit();">
     <i class="fa-solid fa-circle-dot"></i>
   </a>
 {% else %}
-  <a title="{% trans "set as target" %}"
+  <a title="{% trans "Set as target" %}"
      onclick="$('#feature-form').submit()">
     <i class="fa-regular fa-circle-dot"></i>
   </a>

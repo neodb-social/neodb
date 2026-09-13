@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans "original podcasts" %}</title>
+    <title>{{ site_name }} - {% trans "Original podcasts" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -15,14 +15,14 @@
     <main>
       <div class="grid__main">
         <h5>
-          {% trans "original podcasts" %}
+          {% trans "Original podcasts" %}
           <small>({{ total }})</small>
         </h5>
         <div class="item-card-list">
           {% for item in podcasts %}
             {% include "_list_item.html" with item=item %}
           {% empty %}
-            <div>{% trans 'nothing so far.' %}</div>
+            <div>{% trans 'Nothing so far.' %}</div>
           {% endfor %}
         </div>
         {% include "_pagination.html" %}

@@ -114,13 +114,13 @@
       {% if credit.person %}
         <a class="credit-name" href="{{ credit.person.url }}">{{ credit.name }}</a>
         <i class="fa-solid fa-link credit-person-link"
-           title="{% trans 'linked to a person page' %}"></i>
+           title="{% trans 'Linked to a person page' %}"></i>
       {% else %}
         <span class="credit-name">{{ credit.name }}</span>
       {% endif %}
       <span class="credit-character"
             data-edit-character
-            title="{% trans 'click to edit character name' %}">
+            title="{% trans 'Click to edit character name' %}">
         {% if credit.character_name %}
           ({{ credit.character_name }})
         {% else %}
@@ -143,7 +143,7 @@
            hx-target="#credits-section"
            hx-swap="innerHTML"
            hx-confirm="{% trans 'Remove this credit?' %}"
-           title="{% trans 'remove' %}">
+           title="{% trans 'Remove' %}">
           <i class="fa-solid fa-xmark"></i>
         </a>
       </span>
