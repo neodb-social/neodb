@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 02:13-0400\n"
+"POT-Creation-Date: 2026-09-13 12:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1671,7 +1671,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:312
+#: catalog/templates/_verify_status.html:31 users/views/account.py:328
 msgid "Verification failed"
 msgstr ""
 
@@ -4019,7 +4019,7 @@ msgstr ""
 msgid "Open Registration"
 msgstr ""
 
-#: common/templates/common/about.html:40 common/views_manage.py:671
+#: common/templates/common/about.html:40 common/views_manage.py:680
 msgid "Preferred Languages"
 msgstr ""
 
@@ -4064,15 +4064,19 @@ msgid "Attributions"
 msgstr ""
 
 #: common/templates/common/about.html:138
-msgid "This website may get catalog data from the sources below. These sources are not affiliated with this website."
+msgid "This website is powered by <a href=\"https://neodb.net\" target=\"_blank\">NeoDB</a>, a free and open-source software licensed under the AGPL-v3. All modifications to the software must be made available under the same license."
 msgstr ""
 
-#: common/templates/common/about.html:142
+#: common/templates/common/about.html:141
 msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
 msgstr ""
 
-#: common/templates/common/about.html:145
+#: common/templates/common/about.html:144
 msgid "This website uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
+msgstr ""
+
+#: common/templates/common/about.html:147
+msgid "This website may get catalog data from the sources below. These sources are not affiliated with this website."
 msgstr ""
 
 #: common/templates/common/error.html:12 journal/models/crosspost.py:13
@@ -4091,7 +4095,7 @@ msgstr ""
 msgid "Or type barcode / ISBN manually"
 msgstr ""
 
-#: common/templates/common/scan.html:60 common/views_manage.py:756
+#: common/templates/common/scan.html:60 common/views_manage.py:766
 msgid "Search"
 msgstr ""
 
@@ -4197,7 +4201,7 @@ msgstr ""
 msgid "Access"
 msgstr ""
 
-#: common/views_manage.py:39 common/views_manage.py:751
+#: common/views_manage.py:39 common/views_manage.py:761
 msgid "Federation"
 msgstr ""
 
@@ -4499,501 +4503,509 @@ msgid "One domain per line. Leave empty to allow any instance."
 msgstr ""
 
 #: common/views_manage.py:609
+msgid "Email Domain Blocklist"
+msgstr ""
+
+#: common/views_manage.py:611
+msgid "One domain per line. A new account or a new email link is refused when the address is on one of these domains or on a subdomain of one. Addresses that are already linked keep working."
+msgstr ""
+
+#: common/views_manage.py:618
 msgid "Registration Captcha Items"
 msgstr ""
 
-#: common/views_manage.py:613
+#: common/views_manage.py:622
 msgid "Number of item covers a new user must sort into two category rows before choosing a username. 0 disables the captcha; 5-6 is recommended. The covers carry no title text, so this cannot be solved with a screen reader: if you enable it, keep another way in, such as an invite link."
 msgstr ""
 
-#: common/views_manage.py:621
+#: common/views_manage.py:630
 msgid "Registration Captcha Minimum Marks"
 msgstr ""
 
-#: common/views_manage.py:624
+#: common/views_manage.py:633
 msgid "Marks an item needs before the captcha treats it as well known enough to be recognizable. Categories with too few such items fall back to any item."
 msgstr ""
 
-#: common/views_manage.py:630
+#: common/views_manage.py:639
 msgid "Enable Mastodon Login"
 msgstr ""
 
-#: common/views_manage.py:633
+#: common/views_manage.py:642
 msgid "Enable Bluesky Login"
 msgstr ""
 
-#: common/views_manage.py:636
+#: common/views_manage.py:645
 msgid "Enable Threads Login"
 msgstr ""
 
-#: common/views_manage.py:639
+#: common/views_manage.py:648
 msgid "Email URL"
 msgstr ""
 
-#: common/views_manage.py:641
+#: common/views_manage.py:650
 msgid "Email backend URL for login codes, such as an SMTP or Anymail URL."
 msgstr ""
 
-#: common/views_manage.py:645
+#: common/views_manage.py:654
 msgid "Email From"
 msgstr ""
 
-#: common/views_manage.py:646
+#: common/views_manage.py:655
 msgid "Sender name and address for outgoing email."
 msgstr ""
 
-#: common/views_manage.py:649
+#: common/views_manage.py:658
 msgid "Enable Twitter / X Archive Import"
 msgstr ""
 
-#: common/views_manage.py:651
+#: common/views_manage.py:660
 msgid "Show the Twitter / X archive import on the data page. Imported tweets become local posts that are never federated."
 msgstr ""
 
-#: common/views_manage.py:656
+#: common/views_manage.py:665
 msgid "Enable Mastodon Archive Import"
 msgstr ""
 
-#: common/views_manage.py:658
+#: common/views_manage.py:667
 msgid "Show the Mastodon archive import on the data page. Imported posts become local posts that are never federated."
 msgstr ""
 
-#: common/views_manage.py:663
+#: common/views_manage.py:672
 msgid "Default Language"
 msgstr ""
 
-#: common/views_manage.py:666
+#: common/views_manage.py:675
 msgid "Interface language for visitors and for users who have not chosen one themselves."
 msgstr ""
 
-#: common/views_manage.py:673
+#: common/views_manage.py:682
 msgid "Language codes, one per line (e.g. en, zh, ja). First language is the default."
 msgstr ""
 
-#: common/views_manage.py:679
+#: common/views_manage.py:688
 msgid "Access Control"
 msgstr ""
 
-#: common/views_manage.py:686
+#: common/views_manage.py:696
 msgid "Login Methods"
 msgstr ""
 
-#: common/views_manage.py:691 mastodon/models/common.py:30
+#: common/views_manage.py:701 mastodon/models/common.py:30
 #: users/templates/users/account.html:45 users/templates/users/account.html:55
 #: users/templates/users/login.html:76
 msgid "Email"
 msgstr ""
 
-#: common/views_manage.py:695
+#: common/views_manage.py:705
 msgid "Data Import"
 msgstr ""
 
-#: common/views_manage.py:699
+#: common/views_manage.py:709
 msgid "Localization"
 msgstr ""
 
-#: common/views_manage.py:710
+#: common/views_manage.py:720
 msgid "Disable Default Relay"
 msgstr ""
 
-#: common/views_manage.py:712
+#: common/views_manage.py:722
 msgid "Disable relay.neodb.net federation for sharing public ratings across instances."
 msgstr ""
 
-#: common/views_manage.py:717
+#: common/views_manage.py:727
 msgid "Fanout Limit (days)"
 msgstr ""
 
-#: common/views_manage.py:718
+#: common/views_manage.py:728
 msgid "Posts older than this many days will not be fanned out."
 msgstr ""
 
-#: common/views_manage.py:722
+#: common/views_manage.py:732
 msgid "Remote Prune Horizon (days)"
 msgstr ""
 
-#: common/views_manage.py:724
+#: common/views_manage.py:734
 msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
-#: common/views_manage.py:729
+#: common/views_manage.py:739
 msgid "Search Sites"
 msgstr ""
 
-#: common/views_manage.py:730
+#: common/views_manage.py:740
 msgid "External search sites to include, one per line."
 msgstr ""
 
-#: common/views_manage.py:733
+#: common/views_manage.py:743
 msgid "Federated Search Peers"
 msgstr ""
 
-#: common/views_manage.py:734
+#: common/views_manage.py:744
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
-#: common/views_manage.py:737
+#: common/views_manage.py:747
 msgid "Hidden Categories"
 msgstr ""
 
-#: common/views_manage.py:738
+#: common/views_manage.py:748
 msgid "Category values to hide from the catalog, one per line."
 msgstr ""
 
-#: common/views_manage.py:741
+#: common/views_manage.py:751
 msgid "Guest Search Page Limit"
 msgstr ""
 
-#: common/views_manage.py:743
+#: common/views_manage.py:753
 msgid "Visitors who are not logged in cannot open search result pages beyond this one. Lower it to keep crawlers out of deep pagination, which is expensive to serve."
 msgstr ""
 
-#: common/views_manage.py:769
+#: common/views_manage.py:779
 msgid "Spotify API Key"
 msgstr ""
 
-#: common/views_manage.py:770
+#: common/views_manage.py:780
 msgid "https://developer.spotify.com/"
 msgstr ""
 
-#: common/views_manage.py:773
+#: common/views_manage.py:783
 msgid "TMDB API Key"
 msgstr ""
 
-#: common/views_manage.py:774
+#: common/views_manage.py:784
 msgid "https://developer.themoviedb.org/"
 msgstr ""
 
-#: common/views_manage.py:777
+#: common/views_manage.py:787
 msgid "Google Books API Key"
 msgstr ""
 
-#: common/views_manage.py:778
+#: common/views_manage.py:788
 msgid "https://developers.google.com/books/"
 msgstr ""
 
-#: common/views_manage.py:781
+#: common/views_manage.py:791
 msgid "Discogs API Key"
 msgstr ""
 
-#: common/views_manage.py:783
+#: common/views_manage.py:793
 msgid "Personal access token from https://www.discogs.com/settings/developers"
 msgstr ""
 
-#: common/views_manage.py:787
+#: common/views_manage.py:797
 msgid "IGDB Client ID"
 msgstr ""
 
-#: common/views_manage.py:788
+#: common/views_manage.py:798
 msgid "https://api-docs.igdb.com/"
 msgstr ""
 
-#: common/views_manage.py:791
+#: common/views_manage.py:801
 msgid "IGDB Client Secret"
 msgstr ""
 
-#: common/views_manage.py:794
+#: common/views_manage.py:804
 msgid "BoardGameGeek API Token"
 msgstr ""
 
-#: common/views_manage.py:796
+#: common/views_manage.py:806
 msgid "Bearer token from https://boardgamegeek.com/applications (see https://boardgamegeek.com/using_the_xml_api#toc9)."
 msgstr ""
 
-#: common/views_manage.py:801
+#: common/views_manage.py:811
 msgid "MyAnimeList Client ID"
 msgstr ""
 
-#: common/views_manage.py:803
+#: common/views_manage.py:813
 msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAnimeList is disabled when empty."
 msgstr ""
 
-#: common/views_manage.py:808 users/templates/users/steam_import.html:26
+#: common/views_manage.py:818 users/templates/users/steam_import.html:26
 msgid "Steam API Key"
 msgstr ""
 
-#: common/views_manage.py:810
+#: common/views_manage.py:820
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
 msgstr ""
 
-#: common/views_manage.py:815
+#: common/views_manage.py:825
 msgid "DeepL API Key"
 msgstr ""
 
-#: common/views_manage.py:816
+#: common/views_manage.py:826
 msgid "For translation features."
 msgstr ""
 
-#: common/views_manage.py:819
+#: common/views_manage.py:829
 msgid "LibreTranslate API URL"
 msgstr ""
 
-#: common/views_manage.py:822
+#: common/views_manage.py:832
 msgid "LibreTranslate API Key"
 msgstr ""
 
-#: common/views_manage.py:825
+#: common/views_manage.py:835
 msgid "Threads App ID"
 msgstr ""
 
-#: common/views_manage.py:826
+#: common/views_manage.py:836
 msgid "OAuth app ID for Threads login."
 msgstr ""
 
-#: common/views_manage.py:829
+#: common/views_manage.py:839
 msgid "Threads App Secret"
 msgstr ""
 
-#: common/views_manage.py:832
+#: common/views_manage.py:842
 msgid "Discord Webhooks"
 msgstr ""
 
-#: common/views_manage.py:834
+#: common/views_manage.py:844
 msgid "Webhook URLs keyed by channel (default, report, audit, suggest, system). All channels must be Discord forum or media channels (thread mode) because notifications are posted as threads."
 msgstr ""
 
-#: common/views_manage.py:851
+#: common/views_manage.py:861
 msgid "Catalog APIs"
 msgstr ""
 
-#: common/views_manage.py:862
+#: common/views_manage.py:872
 msgid "Translation"
 msgstr ""
 
-#: common/views_manage.py:867
+#: common/views_manage.py:877
 msgid "Third-Party Login"
 msgstr ""
 
-#: common/views_manage.py:871 social/templates/feed.html:27
+#: common/views_manage.py:881 social/templates/feed.html:27
 #: social/templates/notification.html:35
 msgid "Notifications"
 msgstr ""
 
-#: common/views_manage.py:881
+#: common/views_manage.py:891
 msgid "Scraping Providers"
 msgstr ""
 
-#: common/views_manage.py:882
+#: common/views_manage.py:892
 msgid "Comma-separated list of providers to try in order."
 msgstr ""
 
-#: common/views_manage.py:885
+#: common/views_manage.py:895
 msgid "Proxy List"
 msgstr ""
 
-#: common/views_manage.py:886
+#: common/views_manage.py:896
 msgid "One per line, format: http://server?url=__URL__"
 msgstr ""
 
-#: common/views_manage.py:889
+#: common/views_manage.py:899
 msgid "Backup Proxy"
 msgstr ""
 
-#: common/views_manage.py:892
+#: common/views_manage.py:902
 msgid "Scrapfly API Key"
 msgstr ""
 
-#: common/views_manage.py:895
+#: common/views_manage.py:905
 msgid "Decodo Base64 Auth Token"
 msgstr ""
 
-#: common/views_manage.py:898
+#: common/views_manage.py:908
 msgid "ScraperAPI Key"
 msgstr ""
 
-#: common/views_manage.py:901
+#: common/views_manage.py:911
 msgid "ScrapingBee API Key"
 msgstr ""
 
-#: common/views_manage.py:904
+#: common/views_manage.py:914
 msgid "Custom Scraper URL"
 msgstr ""
 
-#: common/views_manage.py:905
+#: common/views_manage.py:915
 msgid "URL with __URL__ and __SELECTOR__ placeholders."
 msgstr ""
 
-#: common/views_manage.py:908
+#: common/views_manage.py:918
 msgid "Request Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:912
+#: common/views_manage.py:922
 msgid "Cache Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:916
+#: common/views_manage.py:926
 msgid "Retries"
 msgstr ""
 
-#: common/views_manage.py:921
+#: common/views_manage.py:931
 msgid "Providers"
 msgstr ""
 
-#: common/views_manage.py:926
+#: common/views_manage.py:936
 msgid "Provider Keys"
 msgstr ""
 
-#: common/views_manage.py:933
+#: common/views_manage.py:943
 msgid "Timeouts"
 msgstr ""
 
-#: common/views_manage.py:945
+#: common/views_manage.py:955
 msgid "Alternative Domains"
 msgstr ""
 
-#: common/views_manage.py:946
+#: common/views_manage.py:956
 msgid "One domain per line."
 msgstr ""
 
-#: common/views_manage.py:949
+#: common/views_manage.py:959
 msgid "Mastodon Client Scope"
 msgstr ""
 
-#: common/views_manage.py:950
+#: common/views_manage.py:960
 msgid "OAuth scope when creating Mastodon apps."
 msgstr ""
 
-#: common/views_manage.py:953
+#: common/views_manage.py:963
 msgid "Mastodon API Timeout (seconds)"
 msgstr ""
 
-#: common/views_manage.py:955
+#: common/views_manage.py:965
 msgid "Timeout for requests to Mastodon instances and remote fediverse servers."
 msgstr ""
 
-#: common/views_manage.py:961
+#: common/views_manage.py:971
 msgid "Disable Cron Jobs"
 msgstr ""
 
-#: common/views_manage.py:962
+#: common/views_manage.py:972
 msgid "Job names to disable, one per line. Use * to disable all."
 msgstr ""
 
-#: common/views_manage.py:965
+#: common/views_manage.py:975
 msgid "Index Aliases"
 msgstr ""
 
-#: common/views_manage.py:966
+#: common/views_manage.py:976
 msgid "Map index names to their aliases."
 msgstr ""
 
-#: common/views_manage.py:976
+#: common/views_manage.py:986
 msgid "Task Cleanup (days)"
 msgstr ""
 
-#: common/views_manage.py:978
+#: common/views_manage.py:988
 msgid "Delete import/export tasks and their files after this many days. Set to 0 to disable cleanup."
 msgstr ""
 
-#: common/views_manage.py:984
+#: common/views_manage.py:994
 msgid "Skip Migration Jobs"
 msgstr ""
 
-#: common/views_manage.py:986
+#: common/views_manage.py:996
 msgid "Post-migration job keys to skip, one per line (e.g. normalize_genre). Checked by the worker at dequeue time; skipped jobs log a warning and notify the Discord system channel."
 msgstr ""
 
-#: common/views_manage.py:992
+#: common/views_manage.py:1002
 msgid "ATProto OAuth Client Key"
 msgstr ""
 
-#: common/views_manage.py:994
+#: common/views_manage.py:1004
 msgid "Private key (JWK) identifying this site to ATProto authorization servers. Auto-generated on first Bluesky login; clear to regenerate."
 msgstr ""
 
-#: common/views_manage.py:1000
+#: common/views_manage.py:1010
 msgid "Webhook Timeout (milliseconds)"
 msgstr ""
 
-#: common/views_manage.py:1001
+#: common/views_manage.py:1011
 msgid "Timeout for delivering webhook requests to applications."
 msgstr ""
 
-#: common/views_manage.py:1006
+#: common/views_manage.py:1016
 msgid "Domains"
 msgstr ""
 
-#: common/views_manage.py:1009
+#: common/views_manage.py:1019
 msgid "Operational"
 msgstr ""
 
-#: common/views_manage.py:1026
+#: common/views_manage.py:1036
 msgid "Movie Genres"
 msgstr ""
 
-#: common/views_manage.py:1028
+#: common/views_manage.py:1038
 msgid "Genre codes offered in the Movie edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1033
+#: common/views_manage.py:1043
 msgid "TV Genres"
 msgstr ""
 
-#: common/views_manage.py:1035
+#: common/views_manage.py:1045
 msgid "Genre codes offered in the TV edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1040
+#: common/views_manage.py:1050
 msgid "Music Genres"
 msgstr ""
 
-#: common/views_manage.py:1042
+#: common/views_manage.py:1052
 msgid "Genre codes offered in the Music edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1047
+#: common/views_manage.py:1057
 msgid "Game Genres"
 msgstr ""
 
-#: common/views_manage.py:1049
+#: common/views_manage.py:1059
 msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1054
+#: common/views_manage.py:1064
 msgid "Podcast Genres"
 msgstr ""
 
-#: common/views_manage.py:1056
+#: common/views_manage.py:1066
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1061
+#: common/views_manage.py:1071
 msgid "Performance Genres"
 msgstr ""
 
-#: common/views_manage.py:1063
+#: common/views_manage.py:1073
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
-#: common/views_manage.py:1069
+#: common/views_manage.py:1079
 msgid "Genres by Category"
 msgstr ""
 
-#: common/views_manage.py:1093
+#: common/views_manage.py:1103
 msgid "Site"
 msgstr ""
 
-#: common/views_manage.py:1103
+#: common/views_manage.py:1113
 msgid "Database and Services"
 msgstr ""
 
-#: common/views_manage.py:1113
+#: common/views_manage.py:1123
 msgid "Media and Files"
 msgstr ""
 
-#: common/views_manage.py:1122
+#: common/views_manage.py:1132
 msgid "Monitoring"
 msgstr ""
 
-#: common/views_manage.py:1126
+#: common/views_manage.py:1136
 msgid "Security"
 msgstr ""
 
-#: common/views_manage.py:1135
+#: common/views_manage.py:1145
 msgid "Other Environment Variables"
 msgstr ""
 
-#: common/views_manage.py:1137
+#: common/views_manage.py:1147
 msgid "Present in the environment of this process but not read by NeoDB settings. They are used by Docker Compose or by Takahe."
 msgstr ""
 
@@ -6549,18 +6561,18 @@ msgstr ""
 msgid "Bluesky"
 msgstr ""
 
-#: mastodon/models/email.py:63
+#: mastodon/models/email.py:87
 msgid ""
 "\n"
 "\n"
 "If you did not mean to register or login, please ignore this email. If you are concerned with your account security, please change the email linked with your account, or contact us."
 msgstr ""
 
-#: mastodon/models/email.py:68 mastodon/models/email.py:73
+#: mastodon/models/email.py:92 mastodon/models/email.py:97
 msgid "Verification Code"
 msgstr ""
 
-#: mastodon/models/email.py:70
+#: mastodon/models/email.py:94
 #, python-brace-format
 msgid ""
 "Use this code to verify your email address {email}\n"
@@ -6568,7 +6580,7 @@ msgid ""
 "{code}"
 msgstr ""
 
-#: mastodon/models/email.py:74
+#: mastodon/models/email.py:98
 #, python-brace-format
 msgid ""
 "Use this code to login as {email}\n"
@@ -6576,14 +6588,14 @@ msgid ""
 "{code}"
 msgstr ""
 
-#: mastodon/models/email.py:78 users/templates/users/captcha.html:13
+#: mastodon/models/email.py:102 users/templates/users/captcha.html:13
 #: users/templates/users/captcha_solved.html:9
 #: users/templates/users/login.html:20 users/templates/users/register.html:9
 #: users/templates/users/welcome.html:10
 msgid "Register"
 msgstr ""
 
-#: mastodon/models/email.py:80
+#: mastodon/models/email.py:104
 #, python-brace-format
 msgid ""
 "There is no account registered with this email address yet: {email}\n"
@@ -6644,8 +6656,8 @@ msgstr ""
 #: mastodon/views/mastodon.py:70 mastodon/views/mastodon.py:77
 #: mastodon/views/mastodon.py:87 mastodon/views/mastodon.py:94
 #: mastodon/views/threads.py:57 mastodon/views/threads.py:65
-#: mastodon/views/threads.py:71 users/views/account.py:257
-#: users/views/account.py:376
+#: mastodon/views/threads.py:71 users/views/account.py:273
+#: users/views/account.py:392
 msgid "Authentication failed"
 msgstr ""
 
@@ -6659,7 +6671,7 @@ msgstr ""
 msgid "Security check failed. Please try again."
 msgstr ""
 
-#: mastodon/views/bluesky.py:60 mastodon/views/email.py:66
+#: mastodon/views/bluesky.py:60 mastodon/views/email.py:74
 msgid "Too many attempts, please try again later."
 msgstr ""
 
@@ -6683,7 +6695,7 @@ msgstr ""
 msgid "Invalid user."
 msgstr ""
 
-#: mastodon/views/common.py:52 users/views/account.py:417
+#: mastodon/views/common.py:52 users/views/account.py:433
 msgid "Registration failed"
 msgstr ""
 
@@ -6729,14 +6741,22 @@ msgid "Invalid email address"
 msgstr ""
 
 #: mastodon/views/email.py:46
+msgid "Unable to register with this email address"
+msgstr ""
+
+#: mastodon/views/email.py:47
+msgid "Please use a different email address."
+msgstr ""
+
+#: mastodon/views/email.py:54
 msgid "Verification"
 msgstr ""
 
-#: mastodon/views/email.py:48 users/templates/users/verify.html:20
+#: mastodon/views/email.py:56 users/templates/users/verify.html:20
 msgid "Verification email is being sent, please check your inbox."
 msgstr ""
 
-#: mastodon/views/email.py:80
+#: mastodon/views/email.py:88
 msgid "Invalid verification code"
 msgstr ""
 
@@ -8664,44 +8684,48 @@ msgstr ""
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:258 users/views/account.py:377
+#: users/views/account.py:141
+msgid "Email addresses from this domain are not accepted."
+msgstr ""
+
+#: users/views/account.py:274 users/views/account.py:393
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:269 users/views/account.py:341
+#: users/views/account.py:285 users/views/account.py:357
 msgid "Time is up"
 msgstr ""
 
-#: users/views/account.py:270 users/views/account.py:313
-#: users/views/account.py:342
+#: users/views/account.py:286 users/views/account.py:329
+#: users/views/account.py:358
 msgid "Please log in again to continue registration."
 msgstr ""
 
-#: users/views/account.py:316
+#: users/views/account.py:332
 msgid "That is not quite right. Here is a new set."
 msgstr ""
 
-#: users/views/account.py:328
+#: users/views/account.py:344
 msgid "Too many attempts"
 msgstr ""
 
-#: users/views/account.py:329
+#: users/views/account.py:345
 msgid "Please try again later."
 msgstr ""
 
-#: users/views/account.py:418
+#: users/views/account.py:434
 msgid "Username already taken. Please try again."
 msgstr ""
 
-#: users/views/account.py:448
+#: users/views/account.py:464
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:519
+#: users/views/account.py:535
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:522
+#: users/views/account.py:538
 msgid "Account mismatch."
 msgstr ""
 

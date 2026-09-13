@@ -136,7 +136,23 @@ class RegistrationForm(forms.ModelForm):
             .exists()
         ):
             raise forms.ValidationError(_("This email address is already in use."))
+        if email and Email.is_domain_blocked(email) and not self._email_linked(email):
+            raise forms.ValidationError(
+                _("Email addresses from this domain are not accepted.")
+            )
         return email
+
+    def _email_linked(self, email: str) -> bool:
+        """Is this address already the one linked to the edited account?
+
+        A blocked domain only stops a new link, so an address a user already
+        has stays usable when they submit this form again.
+        """
+        pk = self.instance.pk if self.instance else None
+        return bool(
+            pk
+            and EmailAccount.objects.filter(handle__iexact=email, user_id=pk).exists()
+        )
 
 
 def _handle_email_change(request, form):

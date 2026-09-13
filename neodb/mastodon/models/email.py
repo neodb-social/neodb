@@ -35,6 +35,30 @@ class Email:
         return account
 
     @staticmethod
+    def is_domain_blocked(email: str) -> bool:
+        """Is this address on the configured blocklist, subdomains included?"""
+        domain = email.strip().lower().rsplit("@", 1)[-1].strip(".")
+        if not domain:
+            return False
+        return any(
+            domain == blocked or domain.endswith("." + blocked)
+            for blocked in SiteConfig.system.email_domain_blocklist
+        )
+
+    @staticmethod
+    def is_registration_blocked(email: str) -> bool:
+        """Is this address refused because it has no account yet?
+
+        The existing-account test matches the login/register split in
+        generate_login_email, so a user who registered before the domain was
+        blocked keeps their login.
+        """
+        if not Email.is_domain_blocked(email):
+            return False
+        account = EmailAccount.objects.filter(handle__iexact=email).first()
+        return not (account and account.user)
+
+    @staticmethod
     def _send(email, subject, body):
         try:
             logger.debug(f"Sending email to {email} with subject {subject}")

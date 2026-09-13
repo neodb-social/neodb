@@ -605,6 +605,15 @@ class AccessSettings(SiteConfigSettingsPage):
             "title": _("Mastodon Login Whitelist"),
             "help_text": _("One domain per line. Leave empty to allow any instance."),
         },
+        "email_domain_blocklist": {
+            "title": _("Email Domain Blocklist"),
+            "help_text": _(
+                "One domain per line. A new account or a new email link is "
+                "refused when the address is on one of these domains or on a "
+                "subdomain of one. Addresses that are already linked keep "
+                "working."
+            ),
+        },
         "registration_captcha_items": {
             "title": _("Registration Captcha Items"),
             "min_value": 0,
@@ -680,6 +689,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "invite_only",
             "enable_local_only",
             "mastodon_login_whitelist",
+            "email_domain_blocklist",
             "registration_captcha_items",
             "min_marks_for_captcha",
         ],

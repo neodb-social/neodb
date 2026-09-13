@@ -20,7 +20,7 @@ Most configuration settings can be managed through the web-based Site Settings p
 
  - **Branding** - site name, logo, icon, color theme, description, footer links, custom HTML head
  - **Discover** - minimum marks, update interval, language filtering, local-only mode, popular posts/tags
- - **Access** - invite-only mode, local-only posting, email delivery, Mastodon/Bluesky/Threads login, default and preferred languages
+ - **Access** - invite-only mode, local-only posting, email domain blocklist, email delivery, Mastodon/Bluesky/Threads login, default and preferred languages
  - **Federation** - default relay, fanout limit, prune horizon, search sites/peers, hidden categories
  - **API Keys** - Spotify, TMDB, Google Books, Discogs, IGDB, Steam, DeepL, LibreTranslate, Threads, Discord webhooks
  - **Downloader** - scraping providers, proxy list, provider API keys, timeouts

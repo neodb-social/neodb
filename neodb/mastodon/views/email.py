@@ -38,6 +38,14 @@ def email_login(request: HttpRequest):
     if not form.is_valid():
         return render_error(request, _("Invalid email address"))
     login_email = form.cleaned_data["email"]
+    if Email.is_registration_blocked(login_email):
+        # refuse before a code is sent, so the site cannot be used to mail
+        # a blocked domain either
+        return render_error(
+            request,
+            _("Unable to register with this email address"),
+            _("Please use a different email address."),
+        )
     Email.send_login_email(request, login_email, "login")
     return render(
         request,

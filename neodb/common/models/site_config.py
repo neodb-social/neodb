@@ -51,6 +51,9 @@ class SiteConfig(models.Model):
         invite_only: bool = False
         enable_local_only: bool = False
         mastodon_login_whitelist: list[str] = []
+        # Email domains refused when a new account or a new email link is made;
+        # addresses already linked keep working.
+        email_domain_blocklist: list[str] = []
         # Number of covers shown in the registration captcha; 0 disables it.
         registration_captcha_items: int = 0
         # Marks an item needs before the captcha considers it recognizable.
@@ -199,6 +202,20 @@ class SiteConfig(models.Model):
             if value < 1:
                 raise ValueError("at least 1 mark is required")
             return value
+
+        @pydantic.field_validator("email_domain_blocklist")
+        @classmethod
+        def validate_email_domain_blocklist(cls, value: list[str]) -> list[str]:
+            domains = []
+            for entry in value:
+                domain = entry.strip().lower().strip(".")
+                # accept what an admin is likely to paste: @example.com,
+                # *.example.com, or a whole address
+                domain = domain.rsplit("@", 1)[-1]
+                domain = domain.removeprefix("*.")
+                if domain and domain not in domains:
+                    domains.append(domain)
+            return domains
 
         @pydantic.field_validator("guest_search_max_pages")
         @classmethod
