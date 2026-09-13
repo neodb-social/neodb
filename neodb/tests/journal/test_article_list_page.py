@@ -110,6 +110,26 @@ def test_list_page_paginates(monkeypatch):
     assert "Article 0" in second
     assert "Article 2" not in second
 
+    # an out-of-range page is clamped (Django's get_page sends anything below
+    # 1 to the last page), and the links follow the page that was rendered
+    # rather than the one that was asked for
+    clamped = client.get(_url(user), {"page": 0}).content.decode()
+    assert clamped.count('class="article-entry"') == 1
+    assert 'class="current">2</a>' in clamped
+    assert 'class="current">1</a>' not in clamped
+
+
+def test_tag_links_are_url_encoded():
+    user, client = _member("reserved")
+    _article(user.identity, "Reserved", tags=["R&D", "C#"])
+
+    content = client.get(_url(user)).content.decode()
+
+    assert "q=tag%3A%22R%26D%22" in content
+    assert "q=tag%3A%22C%23%22" in content
+    # the raw form would end the query at "&" and start a fragment at "#"
+    assert "q=tag:&quot;R&amp;D&quot;" not in content
+
 
 def test_list_page_is_empty_for_a_user_without_articles():
     user, client = _member("quiet")

@@ -256,8 +256,12 @@ def user_article_list(request: AuthedHttpRequest, user_name):
         .order_by("-created_time", "-id")
     )
     paginator = CustomPaginator(queryset, request)
-    page_number = int_(request.GET.get("page", default=1), 1)
-    articles = list(paginator.get_page(page_number))
+    # ``get_page`` never raises: it clamps an out-of-range number to the last
+    # page and an unparseable one to the first. The links are therefore built
+    # from the page it returned, not from what was asked for, so that what is
+    # highlighted is what is on screen.
+    page = paginator.get_page(int_(request.GET.get("page", default=1), 1))
+    articles = list(page)
     # Both prefetches run over one page, not the whole archive.
     prefetch_latest_posts(articles)
     if request.user.is_authenticated:
@@ -274,7 +278,7 @@ def user_article_list(request: AuthedHttpRequest, user_name):
             # one page needs no page links, and the template hides the block
             # when there is no generator
             "pagination": PageLinksGenerator(
-                page_number, paginator.num_pages, request.GET
+                page.number, paginator.num_pages, request.GET
             )
             if paginator.num_pages > 1
             else None,
