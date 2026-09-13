@@ -5,7 +5,7 @@
 {% load thumb %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="feed-page dc-column nav-page-feed">
+<html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,66 +19,70 @@
   <body>
     {% include "_header.html" %}
     <main>
-      <header class="dc-mh">
-        <h1>{% trans 'Activities' %}</h1>
-        <span class="action">
-          {% include "_compose_menu.html" with primary=1 %}
-          <a class="dc-nav{% if unread %} activated{% endif %}"
-             title="{% trans "Notifications" %}"
-             href="{% url 'social:notification' %}">
-            {% if unread %}
-              <i class="fa-solid fa-bell"></i>
-              <span class="metrics">{{ unread }}</span>
-            {% else %}
-              <i class="fa-regular fa-bell"></i>
-            {% endif %}
-          </a>
-        </span>
-      </header>
-      {# the active tab is not a link, so it carries no href #}
-      <nav class="dc-chips" aria-label="{% trans 'Feeds' %}">
-        <ul>
-          <li>
-            {% if feed_type == 0 %}
-              <a class="on" aria-current="page">{% trans "Following" %}</a>
-            {% else %}
-              <a href="{% url 'social:feed' %}">{% trans "Following" %}</a>
-            {% endif %}
-          </li>
-          <li>
-            {% if feed_type == 1 %}
-              <a class="on" aria-current="page">{% trans "Marks and reviews" %}</a>
-            {% else %}
-              <a href="{% url 'social:focus' %}">{% trans "Marks and reviews" %}</a>
-            {% endif %}
-          </li>
-          {% if show_local_feed %}
-            <li>
-              {% if feed_type == 2 %}
-                <a class="on" aria-current="page">{% trans "Local" %}</a>
+      <div class="grid__main">
+        <header class="dc-mh">
+          <h1>{% trans 'Activities' %}</h1>
+          <span class="action">
+            {% include "_compose_menu.html" with primary=1 %}
+            <a class="dc-nav{% if unread %} activated{% endif %}"
+               title="{% trans "Notifications" %}"
+               href="{% url 'social:notification' %}">
+              {% if unread %}
+                <i class="fa-solid fa-bell"></i>
+                <span class="metrics">{{ unread }}</span>
               {% else %}
-                <a href="{% url 'social:local' %}">{% trans "Local" %}</a>
+                <i class="fa-regular fa-bell"></i>
+              {% endif %}
+            </a>
+          </span>
+        </header>
+        {# the active tab is not a link, so it carries no href #}
+        <nav class="dc-chips" aria-label="{% trans 'Feeds' %}">
+          <ul>
+            <li>
+              {% if feed_type == 0 %}
+                <a class="on" aria-current="page">{% trans "Following" %}</a>
+              {% else %}
+                <a href="{% url 'social:feed' %}">{% trans "Following" %}</a>
               {% endif %}
             </li>
-          {% endif %}
-          {% if show_world_feed %}
             <li>
-              {% if feed_type == 3 %}
-                <a class="on" aria-current="page">{% trans "World" %}</a>
+              {% if feed_type == 1 %}
+                <a class="on" aria-current="page">{% trans "Marks and reviews" %}</a>
               {% else %}
-                <a href="{% url 'social:world' %}">{% trans "World" %}</a>
+                <a href="{% url 'social:focus' %}">{% trans "Marks and reviews" %}</a>
               {% endif %}
             </li>
-          {% endif %}
-        </ul>
-      </nav>
-      <div class="feed">
-        <div hx-get="{% url 'social:data' %}?typ={{ feed_type }}"
-             hx-trigger="intersect once delay:0.1s"
-             hx-swap="outerHTML">
-          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            {% if show_local_feed %}
+              <li>
+                {% if feed_type == 2 %}
+                  <a class="on" aria-current="page">{% trans "Local" %}</a>
+                {% else %}
+                  <a href="{% url 'social:local' %}">{% trans "Local" %}</a>
+                {% endif %}
+              </li>
+            {% endif %}
+            {% if show_world_feed %}
+              <li>
+                {% if feed_type == 3 %}
+                  <a class="on" aria-current="page">{% trans "World" %}</a>
+                {% else %}
+                  <a href="{% url 'social:world' %}">{% trans "World" %}</a>
+                {% endif %}
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        <div class="feed">
+          <div hx-get="{% url 'social:data' %}?typ={{ feed_type }}"
+               hx-trigger="intersect once delay:0.1s"
+               hx-swap="outerHTML">
+            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </div>
         </div>
       </div>
+      {# bottom: on a phone the activities come first, the sidebar below them #}
+      {% include "_sidebar.html" with show_profile=1 show_progress=1 bottom=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>

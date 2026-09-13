@@ -49,8 +49,14 @@ def test_follow_notification_renders_as_card():
     assert "follower" in content
 
 
-def test_feed_page_is_one_column():
-    _, client = _member("columnist")
+def test_feed_page_carries_the_profile_sidebar():
+    user, client = _member("columnist")
     content = client.get(reverse("social:feed")).content.decode()
-    assert 'class="feed-page dc-column nav-page-feed"' in content
-    assert "grid__aside" not in content
+
+    # the same two column shell and sidebar the member's own page uses
+    assert 'class="feed-page nav-page-feed"' in content
+    assert "dc-column" not in content
+    assert "grid__main" in content
+    assert "grid__aside" in content
+    assert user.identity.display_name in content
+    assert "Current targets" in content

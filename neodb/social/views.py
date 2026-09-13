@@ -117,6 +117,20 @@ def _add_interaction_to_events(events, identity_id):
             ) in interactions
 
 
+def _sidebar_context(identity: APIdentity) -> dict:
+    """The tags and posts blocks of the sidebar, for the viewer's own feed.
+
+    The profile page builds the same blocks for whoever is on display; here
+    the viewer is always the owner, so nothing is hidden from them.
+    """
+    top_tags = identity.tag_manager.get_tags(public_only=False, pinned_only=True)[:10]
+    if not top_tags.exists():
+        top_tags = identity.tag_manager.get_tags(public_only=False)[:10]
+    recent_posts = list(Takahe.get_recent_posts(identity.pk, identity.pk)[:10])
+    prefetch_pieces_for_posts(recent_posts)
+    return {"top_tags": top_tags, "recent_posts": recent_posts}
+
+
 @require_http_methods(["GET"])
 @login_required
 def feed(request, typ=FeedType.following):
@@ -128,6 +142,7 @@ def feed(request, typ=FeedType.following):
     data["feed_title"] = _FEED_TITLES.get(typ, _FEED_TITLES[FeedType.following])
     data["show_local_feed"] = SiteConfig.system.feed_show_local
     data["show_world_feed"] = SiteConfig.system.feed_show_world
+    data.update(_sidebar_context(user.identity))
     return render(request, "feed.html", data)
 
 
