@@ -131,6 +131,17 @@
             {% endif %}
           </section>
         {% endif %}
+        <section>
+          <h2>{% translate "Attributions" %}</h2>
+          <div class="attributions">
+            <p>
+              {% blocktranslate %}This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.{% endblocktranslate %}
+            </p>
+            <p>
+              {% blocktranslate %}This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.{% endblocktranslate %}
+            </p>
+          </div>
+        </section>
       </div>
       {% include "_sidebar_anonymous.html" %}
     </main>

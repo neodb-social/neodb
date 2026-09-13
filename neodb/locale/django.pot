@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-10 22:57-0400\n"
+"POT-Creation-Date: 2026-09-13 02:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1335,7 +1335,7 @@ msgstr ""
 #: catalog/views/edit.py:624 catalog/views/edit.py:664
 #: catalog/views/edit.py:674 catalog/views/edit.py:703
 #: catalog/views/edit.py:782 catalog/views/edit.py:837
-#: catalog/views/edit.py:859 catalog/views/search.py:466
+#: catalog/views/edit.py:859 catalog/views/search.py:461
 msgid "Editing this item is restricted."
 msgstr ""
 
@@ -2340,15 +2340,15 @@ msgstr ""
 msgid "This edition will be unlinked from the following work"
 msgstr ""
 
-#: catalog/views/search.py:113 catalog/views/search.py:208
+#: catalog/views/search.py:113 catalog/views/search.py:205
 msgid "the internet"
 msgstr ""
 
-#: catalog/views/search.py:449 catalog/views/search.py:458
+#: catalog/views/search.py:444 catalog/views/search.py:453
 msgid "Invalid URL"
 msgstr ""
 
-#: catalog/views/search.py:461
+#: catalog/views/search.py:456
 msgid "Unsupported URL"
 msgstr ""
 
@@ -4049,6 +4049,18 @@ msgstr ""
 
 #: common/templates/common/about.html:115
 msgid "Catalog Moderators"
+msgstr ""
+
+#: common/templates/common/about.html:135
+msgid "Attributions"
+msgstr ""
+
+#: common/templates/common/about.html:138
+msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
+msgstr ""
+
+#: common/templates/common/about.html:141
+msgid "This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
 msgstr ""
 
 #: common/templates/common/error.html:12 journal/models/crosspost.py:13

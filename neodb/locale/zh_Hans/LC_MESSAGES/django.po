@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-10 22:57-0400\n"
+"POT-Creation-Date: 2026-09-13 02:03-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1334,7 +1334,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:624 catalog/views/edit.py:664
 #: catalog/views/edit.py:674 catalog/views/edit.py:703
 #: catalog/views/edit.py:782 catalog/views/edit.py:837
-#: catalog/views/edit.py:859 catalog/views/search.py:466
+#: catalog/views/edit.py:859 catalog/views/search.py:461
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -2339,15 +2339,15 @@ msgstr "确定取消关联吗？"
 msgid "This edition will be unlinked from the following work"
 msgstr "这个图书版本将与以下作品取消关联"
 
-#: catalog/views/search.py:113 catalog/views/search.py:208
+#: catalog/views/search.py:113 catalog/views/search.py:205
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:449 catalog/views/search.py:458
+#: catalog/views/search.py:444 catalog/views/search.py:453
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:461
+#: catalog/views/search.py:456
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -4070,6 +4070,18 @@ msgstr "实例管理员"
 #: common/templates/common/about.html:115
 msgid "Catalog Moderators"
 msgstr "条目管理员"
+
+#: common/templates/common/about.html:135
+msgid "Attributions"
+msgstr "数据来源声明"
+
+#: common/templates/common/about.html:138
+msgid "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
+msgstr "本网站使用 TMDB 和 TMDB API，但未获得 TMDB 的认可、认证或其他形式的批准。"
+
+#: common/templates/common/about.html:141
+msgid "This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC."
+msgstr "本应用使用 Discogs 的 API，但与 Discogs 并无从属关系，也未获得 Discogs 的赞助或认可。“Discogs”是 Zink Media, LLC 的商标。"
 
 #: common/templates/common/error.html:12 journal/models/crosspost.py:13
 msgid "Error"
