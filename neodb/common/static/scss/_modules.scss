@@ -866,6 +866,7 @@ a.dc-progress-badge {
   > li {
     margin: 0;
     padding: 0.8rem 1rem;
+    list-style: none;
     border: 1px solid var(--dc-border);
     border-radius: var(--dc-radius);
     background: var(--dc-surface);
