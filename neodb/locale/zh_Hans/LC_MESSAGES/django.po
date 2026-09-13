@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 02:07-0400\n"
+"POT-Creation-Date: 2026-09-13 02:13-0400\n"
 "PO-Revision-Date: 2026-08-08 21:19+0000\n"
 "Last-Translator: reducedradius <137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -970,7 +970,7 @@ msgstr "制作公司"
 msgid "Record Label"
 msgstr "唱片公司"
 
-#: catalog/models/people.py:59 common/templates/_footer.html:9
+#: catalog/models/people.py:59
 msgid "Developer"
 msgstr "开发者"
 
@@ -3803,7 +3803,15 @@ msgstr "服务协议"
 msgid "About"
 msgstr "关于"
 
-#: common/templates/_footer.html:12 users/templates/users/login.html:259
+#: common/templates/_footer.html:9
+msgid "API"
+msgstr "API"
+
+#: common/templates/_footer.html:10
+msgid "Apps"
+msgstr "应用"
+
+#: common/templates/_footer.html:13 users/templates/users/login.html:259
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr "这是%(site_name)s的临时镜像，请尽可能使用<a href=\"%(site_url)s%(request.get_full_path)s\">原始站点</a>。"

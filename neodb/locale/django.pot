@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 02:07-0400\n"
+"POT-Creation-Date: 2026-09-13 02:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -971,7 +971,7 @@ msgstr ""
 msgid "Record Label"
 msgstr ""
 
-#: catalog/models/people.py:59 common/templates/_footer.html:9
+#: catalog/models/people.py:59
 msgid "Developer"
 msgstr ""
 
@@ -3804,7 +3804,15 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: common/templates/_footer.html:12 users/templates/users/login.html:259
+#: common/templates/_footer.html:9
+msgid "API"
+msgstr ""
+
+#: common/templates/_footer.html:10
+msgid "Apps"
+msgstr ""
+
+#: common/templates/_footer.html:13 users/templates/users/login.html:259
 #, python-format
 msgid "You are visiting an alternative domain for %(site_name)s, please always use <a href=\"%(site_url)s%(request.get_full_path)s\">original version</a> if possible."
 msgstr ""
