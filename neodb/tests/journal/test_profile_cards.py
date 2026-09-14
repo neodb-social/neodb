@@ -106,6 +106,8 @@ def test_created_collections_render_cover_mosaics():
     assert content.count('class="dc-mosaic single"') == 1
     assert "4 items" in content
     assert "1 item" in content
+    # the default cover is square and fills the box, so it gets no backdrop
+    assert 'class="dc-blur"' not in content
 
 
 def test_collection_with_its_own_cover_keeps_it():
@@ -127,6 +129,8 @@ def test_collection_with_its_own_cover_keeps_it():
     content = client.get(url).content.decode()
     assert 'class="dc-mosaic"' not in content
     assert 'class="dc-mosaic single"' in content
+    # the whole cover shows, so a blurred copy of it fills the band each side
+    assert content.count('class="dc-blur"') == 1
 
 
 def test_attach_cover_previews_query_count_is_flat():

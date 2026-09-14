@@ -497,6 +497,8 @@ a.dc-progress-badge {
 
 // collections: a mosaic of member covers
 .dc-mosaic {
+  // the blurred backdrop of a single cover is absolute against this box
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3px;
@@ -506,8 +508,30 @@ a.dc-progress-badge {
   background: var(--dc-surface-2);
   box-shadow: var(--pico-card-box-shadow);
 
+  // one cover the owner uploaded, in whatever shape they drew it. these
+  // covers often carry the name of the collection as part of the artwork,
+  // and a square crop cuts that name off, so the whole image stays visible.
+  // a blurred copy of the same image fills the band each side, which keeps
+  // the card one block of colour and costs no second request. the card
+  // template leaves that copy out for the square default cover, which fills
+  // the box on its own
   &.single {
     display: block;
+
+    img {
+      // a static image would paint under the absolute backdrop below
+      position: relative;
+      object-fit: contain;
+    }
+
+    .dc-blur {
+      position: absolute;
+      inset: 0;
+      object-fit: cover;
+      // scaled up so the blur has pixels to sample at the edges of the box
+      filter: blur(16px) saturate(1.15);
+      transform: scale(1.25);
+    }
   }
 
   span {

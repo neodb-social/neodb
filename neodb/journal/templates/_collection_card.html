@@ -11,11 +11,18 @@
         {% endfor %}
       </span>
     {% else %}
-      <span class="dc-mosaic single">
-        <img src="{{ collection.cover|thumb:'normal' }}"
-             alt="{{ collection.title }}"
-             loading="lazy">
-      </span>
+      {% with cover=collection.cover|thumb:"normal" %}
+        <span class="dc-mosaic single">
+          {% if collection.cover_image_url %}
+            <img class="dc-blur"
+                 src="{{ cover }}"
+                 alt=""
+                 aria-hidden="true"
+                 loading="lazy">
+          {% endif %}
+          <img src="{{ cover }}" alt="{{ collection.title }}" loading="lazy">
+        </span>
+      {% endwith %}
     {% endif %}
     <span class="dc-title">{{ collection.title }}</span>
     <span class="dc-meta">
