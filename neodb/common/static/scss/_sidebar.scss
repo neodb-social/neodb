@@ -62,6 +62,9 @@
 
     .avatar {
       height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
+      // the box shrinks to fit its image, so an image with no intrinsic size
+      // would leave a narrow ellipse instead of the circle
+      width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
       max-height: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
       max-width: calc(1rem * var(--pico-line-height) + var(--pico-nav-link-spacing-vertical) * 4);
 

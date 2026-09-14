@@ -330,6 +330,12 @@ form img {
     border: 2px solid var(--pico-form-element-background-color);
     border-radius: 50%;
     transition: linear 0.25s;
+    // an avatar that fails to load is no longer a replaced element, so width
+    // and height stop applying to it and its alt text sizes the box instead,
+    // which pushes the rest of the line out of the card; a non-inline box
+    // keeps the circle at its declared size and clips what cannot load
+    display: inline-block;
+    overflow: hidden;
   }
 }
 

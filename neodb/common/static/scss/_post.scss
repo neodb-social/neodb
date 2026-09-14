@@ -213,6 +213,9 @@ section.activity.post>section.replies {
 		flex-shrink: 0;
 		border-radius: 50%;
 		object-fit: cover;
+		// keeps its size when the remote avatar cannot be loaded
+		display: inline-block;
+		overflow: hidden;
 	}
 }
 

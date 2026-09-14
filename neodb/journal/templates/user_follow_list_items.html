@@ -6,9 +6,8 @@
   <article class="follow-card">
     <div class="follow-card__body">
       <div class="avatar">
-        <a href="{{ person.url }}">
-          <img src="{{ person.avatar|relative_uri }}"
-               alt="{{ person.display_name }}">
+        <a href="{{ person.url }}" aria-label="{{ person.display_name }}">
+          <img src="{{ person.avatar|relative_uri }}" alt="">
         </a>
       </div>
       <div class="follow-card__name">
