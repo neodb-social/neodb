@@ -118,14 +118,9 @@
     align-items: center;
   }
 
-  // the status buttons scale with this column, so it is their query container
-  #item-primary-action {
-    container-type: inline-size;
-  }
-
   // The status buttons are one joined group, the same control as the mark
-  // dialog. They stay on one row at every column width: the labels scale with
-  // the column, then truncate. They used to be a wrapping row of 31%-wide
+  // dialog. They stay on one row at every column width: the labels truncate
+  // once the column gets narrow. They used to be a wrapping row of 31%-wide
   // buttons, which broke into a ragged 2 + 1 group in the narrow sidebar, and
   // the labels painted over each other because they could not shrink.
   .item-mark-buttons {
@@ -136,8 +131,9 @@
   .item-mark-buttons button {
     margin: 0;
     min-width: 0;
-    padding: 0.5em 0.3em;
-    font-size: clamp(0.65rem, 4.8cqw, 0.9rem);
+    max-width: 8em;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
