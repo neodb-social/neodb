@@ -294,10 +294,7 @@ class Command(SiteCommand):
         identities = APIdentity.objects.filter(local=not remote)
         if owners:
             identities = identities.filter(pk__in=owners)
-        # mirror APIdentity.is_active
-        active_q = Q(user__isnull=False, user__is_active=True) | Q(
-            user__isnull=True, deleted__isnull=True
-        )
+        active_q = APIdentity.active_q()
         indexed_owner_ids: set[int] | None = None
         if remote:
             # candidates: remote identities owning indexable pieces, plus

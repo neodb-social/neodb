@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from common.models import BaseJob, JobManager
 from journal.models import Comment, Review, ShelfMember
-from takahe.models import Domain, Identity, Post
+from takahe.models import Domain, Post
+from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +34,11 @@ class TakaheStats(BaseJob):
         logger.info("Updating Tahake stats.")
         # for /api/v1/instance
         stats = {
-            "user_count": Identity.objects.filter(
-                local=True, deleted__isnull=True
-            ).count(),
+            # count identities the site still treats as live: Takahe only
+            # knows about deletion, not about a user disabled locally
+            "user_count": APIdentity.objects.filter(local=True)
+            .filter(APIdentity.active_q())
+            .count(),
             "status_count": Post.objects.filter(local=True)
             .exclude(state__in=["deleted", "deleted_fanned_out"])
             .count(),

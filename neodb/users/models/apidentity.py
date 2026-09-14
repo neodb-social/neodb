@@ -95,6 +95,12 @@ class APIdentity(models.Model):
             self.user.is_active if self.user else self.takahe_identity.deleted is None
         )
 
+    @staticmethod
+    def active_q() -> models.Q:
+        return models.Q(user__isnull=False, user__is_active=True) | models.Q(
+            user__isnull=True, deleted__isnull=True
+        )
+
     @property
     def actor_type(self):
         return self.takahe_identity.actor_type

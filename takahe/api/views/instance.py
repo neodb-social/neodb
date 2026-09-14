@@ -39,7 +39,11 @@ def instance_info_v1(request) -> dict:
     stats = cache.get("instance_info_stats")
     if stats is None:
         stats = {
-            "user_count": Identity.objects.filter(local=True).count(),
+            # a rough count until TakaheStats replaces it, but deleted
+            # identities must not inflate it in the meantime
+            "user_count": Identity.objects.filter(
+                local=True, deleted__isnull=True
+            ).count(),
             "status_count": Post.objects.filter(local=True).not_hidden().count(),
             "domain_count": Domain.objects.count(),
         }
