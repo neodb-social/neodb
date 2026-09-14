@@ -65,6 +65,10 @@
                   <span>{% translate "Known Fediverse instances" %}</span>
                 </li>
               {% endif %}
+              <li>
+                <b>{{ neodb_peers|length|localize }}</b>
+                <span>{% translate "Known NeoDB instances" %}</span>
+              </li>
             </ul>
           {% else %}
             <p class="dc-fine">{% translate "Statistics are being calculated. Please check back in a few minutes." %}</p>
@@ -170,7 +174,7 @@
       {% endif %}
       <section class="dc-mod" id="attributions">
         <header class="dc-mh">
-          <h2>{% translate "Attributions" %}</h2>
+          <h2>{% translate "Copyrights and attributions" %}</h2>
         </header>
         <div class="dc-surface dc-attributions">
           <p>
