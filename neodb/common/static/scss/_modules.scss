@@ -723,11 +723,19 @@ a.dc-progress-badge {
     }
   }
 
+  // the same ring and hover as the sidebar profile icon
   .avatar {
     width: 2.5rem;
     height: 2.5rem;
+    border: 2px solid var(--pico-form-element-background-color);
     border-radius: 50%;
     object-fit: cover;
+    transition: linear 0.25s;
+  }
+
+  a:hover .avatar {
+    border-color: var(--pico-primary);
+    transition: ease-out 0.2s;
   }
 }
 
