@@ -118,23 +118,6 @@
   }
 }
 
-// one centred column for the feed and notification pages, the width a
-// comfortable line of text wants
-.feed-page.dc-column {
-  main {
-    display: block;
-    max-width: 46rem;
-    margin: 0 auto;
-    padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.5) calc(var(--pico-spacing) * 2);
-  }
-
-  @media (max-width: 768px) {
-    main {
-      padding: calc(var(--pico-spacing) * 0.5) calc(var(--pico-spacing) * 0.5) calc(var(--pico-spacing) * 1.5);
-    }
-  }
-}
-
 .content-page {
   article {
     margin: 0;

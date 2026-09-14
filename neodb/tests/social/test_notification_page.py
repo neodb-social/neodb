@@ -23,9 +23,10 @@ def test_notification_page_header_and_filters():
     assert '<a class="on" aria-current="page">All</a>' in content
     assert f'href="{reverse("social:notification")}?type=mention"' in content
     assert f'href="{reverse("social:notification")}?type=follow"' in content
-    # the page is one column: no sidebar, no grid wrapper
-    assert "grid__aside" not in content
-    assert 'class="grid__main"' not in content
+    # the same two column shell and sidebar the feed page uses
+    assert "dc-column" not in content
+    assert 'class="grid__main"' in content
+    assert "grid__aside" in content
 
     content = client.get(
         reverse("social:notification") + "?type=follow"

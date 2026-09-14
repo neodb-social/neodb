@@ -5,7 +5,7 @@
 {% load thumb %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="feed-page dc-column nav-page-feed">
+<html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,61 +19,64 @@
   <body>
     {% include "_header.html" %}
     <main>
-      <header class="dc-mh">
-        <h1>{% trans 'Notifications' %}</h1>
-        {% if unread %}
-          <span class="dc-sub">
-            {% blocktrans with count=unread trimmed %}
-              {{ count }} unread
-            {% endblocktrans %}
-          </span>
-        {% endif %}
-        <span class="action">
+      <div class="grid__main">
+        <header class="dc-mh">
+          <h1>{% trans 'Notifications' %}</h1>
           {% if unread %}
-            <form method="post" action="{% url 'social:dismiss_notification' %}">
-              {% csrf_token %}
-              <button class="dc-btn outline secondary">{% trans 'Mark all as read' %}</button>
-            </form>
+            <span class="dc-sub">
+              {% blocktrans with count=unread trimmed %}
+                {{ count }} unread
+              {% endblocktrans %}
+            </span>
           {% endif %}
-          <a class="dc-nav"
-             title="{% trans 'Activities' %}"
-             href="{% url 'social:feed' %}">
-            <i class="fa-regular fa-newspaper"></i>
-          </a>
-        </span>
-      </header>
-      <nav class="dc-chips" aria-label="{% trans 'Notifications' %}">
-        <ul>
-          <li>
-            {% if not request.GET.type %}
-              <a class="on" aria-current="page">{% trans "All" %}</a>
-            {% else %}
-              <a href="{% url 'social:notification' %}">{% trans "All" %}</a>
+          <span class="action">
+            {% if unread %}
+              <form method="post" action="{% url 'social:dismiss_notification' %}">
+                {% csrf_token %}
+                <button class="dc-btn outline secondary">{% trans 'Mark all as read' %}</button>
+              </form>
             {% endif %}
-          </li>
-          <li>
-            {% if request.GET.type == 'mention' %}
-              <a class="on" aria-current="page">{% trans "Mentions" %}</a>
-            {% else %}
-              <a href="{% url 'social:notification' %}?type=mention">{% trans "Mentions" %}</a>
-            {% endif %}
-          </li>
-          <li>
-            {% if request.GET.type == 'follow' %}
-              <a class="on" aria-current="page">{% trans "Follows" %}</a>
-            {% else %}
-              <a href="{% url 'social:notification' %}?type=follow">{% trans "Follows" %}</a>
-            {% endif %}
-          </li>
-        </ul>
-      </nav>
-      <div class="notifications dc-notifications">
-        <div hx-get="{% url 'social:events' %}?type={{ request.GET.type }}"
-             hx-trigger="intersect once delay:0.1s"
-             hx-swap="outerHTML">
-          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            <a class="dc-nav"
+               title="{% trans 'Activities' %}"
+               href="{% url 'social:feed' %}">
+              <i class="fa-regular fa-newspaper"></i>
+            </a>
+          </span>
+        </header>
+        <nav class="dc-chips" aria-label="{% trans 'Notifications' %}">
+          <ul>
+            <li>
+              {% if not request.GET.type %}
+                <a class="on" aria-current="page">{% trans "All" %}</a>
+              {% else %}
+                <a href="{% url 'social:notification' %}">{% trans "All" %}</a>
+              {% endif %}
+            </li>
+            <li>
+              {% if request.GET.type == 'mention' %}
+                <a class="on" aria-current="page">{% trans "Mentions" %}</a>
+              {% else %}
+                <a href="{% url 'social:notification' %}?type=mention">{% trans "Mentions" %}</a>
+              {% endif %}
+            </li>
+            <li>
+              {% if request.GET.type == 'follow' %}
+                <a class="on" aria-current="page">{% trans "Follows" %}</a>
+              {% else %}
+                <a href="{% url 'social:notification' %}?type=follow">{% trans "Follows" %}</a>
+              {% endif %}
+            </li>
+          </ul>
+        </nav>
+        <div class="notifications dc-notifications">
+          <div hx-get="{% url 'social:events' %}?type={{ request.GET.type }}"
+               hx-trigger="intersect once delay:0.1s"
+               hx-swap="outerHTML">
+            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </div>
         </div>
       </div>
+      {% include "_sidebar.html" with show_profile=1 bottom=1 identity=request.user.identity %}
     </main>
     {% include "_footer.html" %}
   </body>
