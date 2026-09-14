@@ -41,7 +41,16 @@ from ..models import (
 from ..models.attachment import generate_attachment_path
 from common.validators import get_safe_redirect_url
 
-_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+# Mirrored by the editor's imageAccept / imageMaxSize in markdown_editor.html:
+# that list is the file picker's accept filter, so anything missing there cannot
+# be uploaded from the toolbar however permissive this set is.
+_ALLOWED_IMAGE_TYPES = {
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/avif",
+}
 _MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 

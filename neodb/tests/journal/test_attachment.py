@@ -31,10 +31,22 @@ from takahe.utils import Takahe
 from users.models import User
 
 
-def _png_bytes() -> bytes:
+def _image_bytes(fmt: str = "PNG") -> bytes:
     buf = io.BytesIO()
-    Image.new("RGB", (2, 2), "red").save(buf, format="PNG")
+    Image.new("RGB", (2, 2), "red").save(buf, format=fmt)
     return buf.getvalue()
+
+
+def _png_bytes() -> bytes:
+    return _image_bytes("PNG")
+
+
+# Formats the markdown editor's imageAccept list advertises beyond png/jpeg/gif.
+# Uploaded below as application/octet-stream on purpose: both endpoints identify
+# the bytes themselves (filetype.guess on the web one, Pillow on the API one),
+# so a test that declared the right type could pass without the allowlist ever
+# being consulted for the real format.
+MODERN_FORMATS = [("WEBP", "webp", "image/webp"), ("AVIF", "avif", "image/avif")]
 
 
 def _stored(identity_id: int, name: str = "x.png") -> str:
@@ -438,6 +450,35 @@ class TestUploadEndpoints:
         a = Attachment.objects.get(owner=self.identity)
         assert path == a.url
         assert a.pieces.count() == 0  # registered, not yet embedded
+
+    @pytest.mark.parametrize(("fmt", "ext", "mimetype"), MODERN_FORMATS)
+    def test_web_upload_accepts_modern_formats(self, fmt, ext, mimetype):
+        response = self.client.post(
+            reverse("journal:upload_image"),
+            {
+                "image": SimpleUploadedFile(
+                    f"x.{ext}", _image_bytes(fmt), "application/octet-stream"
+                )
+            },
+        )
+        assert response.status_code == 200, response.content
+        a = Attachment.objects.get(owner=self.identity)
+        assert a.mimetype == mimetype
+        assert (a.file.name or "").endswith(f".{ext}")
+
+    @pytest.mark.parametrize(("fmt", "ext", "mimetype"), MODERN_FORMATS)
+    def test_api_upload_accepts_modern_formats(self, fmt, ext, mimetype):
+        response = Client().post(
+            "/api/me/attachment/",
+            {
+                "file": SimpleUploadedFile(
+                    f"x.{ext}", _image_bytes(fmt), "application/octet-stream"
+                )
+            },
+            HTTP_AUTHORIZATION=f"Bearer {_api_token(self.user)}",
+        )
+        assert response.status_code == 200, response.content
+        assert response.json()["mimetype"] == mimetype
 
     def test_web_upload_rejects_non_image(self):
         response = self.client.post(

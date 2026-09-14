@@ -21,7 +21,13 @@ from ..models import Attachment
 
 # Matches the web upload endpoint (journal.views.common) so both entry points
 # accept exactly the same files.
-ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+ALLOWED_IMAGE_TYPES = {
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/avif",
+}
 MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024  # 10MB
 
 

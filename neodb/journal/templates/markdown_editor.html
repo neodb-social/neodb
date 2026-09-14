@@ -60,6 +60,12 @@ Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wiki
       status: false,
       minHeight: "300px",
       uploadImage: true,
+      // EasyMDE defaults to png/jpeg/gif/avif and 2MB, both narrower than what
+      // the server takes. imageAccept becomes the file picker's accept filter,
+      // so a format missing here cannot be selected at all; keep these two in
+      // step with _ALLOWED_IMAGE_TYPES / _MAX_IMAGE_SIZE in journal.views.common.
+      imageAccept: "image/jpeg, image/png, image/gif, image/webp, image/avif",
+      imageMaxSize: 10 * 1024 * 1024,
       imageUploadEndpoint: "{% url 'journal:upload_image' %}",
       imageCSRFToken: csrfToken,
       imageCSRFHeader: false,
