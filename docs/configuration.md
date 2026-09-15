@@ -294,7 +294,23 @@ MEDIA_URL=https://my.media.domain/media/
 
 Make sure `my.media.domain` maps to your S2 server (port 9000 as configured above). NeoDB always builds media URLs with `https`, so serve that domain through a TLS reverse proxy in front of S2.
 
-To change from `MEDIA_BACKEND=local://`, move the contents of the `neodb-media` and `takahe-media` directories into `s2/data/media`. NeoDB and takahe use different key prefixes, thus their files do not conflict. S2 writes into the same directory, where it keeps a `.meta` directory of the metadata of each file it receives through the S3 API.
+To change from `MEDIA_BACKEND=local://`, merge the two local media directories into the bucket directory. With `local://`, NeoDB writes to `neodb-media` and takahe writes to `takahe-media`. With `s3://`, both write to the root of the same bucket, because the object key is the path below each local root. Move the contents of both directories into `s2/data/media`, with no renaming:
+```
+s2/data/media/
+├── item/                     ┐
+├── user/                     │
+├── upload/                   │ from neodb-media
+├── sync/                     │
+├── export/                   ┘
+├── attachments/              ┐
+├── attachment_thumbnails/    │
+├── profile_images/           │ from takahe-media
+├── background_images/        │
+├── emoji/                    │
+├── config/                   ┘
+└── .meta/                      written by S2
+```
+The two applications use different names at this level, thus their files do not conflict. S2 keeps in `.meta` the metadata of each file it receives through the S3 API. The files you move have no entry there, and S2 finds their content type from the file extension.
 
 S2 gives the files it did not write a placeholder ETag. It also does not answer conditional requests, thus a browser gets the full file each time instead of a `304`. The example above turns the web console off; remove `S2_SERVER_CONSOLE_LISTEN` to get it on port 9001.
 
