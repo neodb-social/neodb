@@ -225,6 +225,65 @@ MEDIA_URL=https://my.media.domain/media/
 Make sure `my.media.domain` maps to your VersityGW server (port 7070 as configured above). NeoDB always builds media URLs with `https`, so serve that domain through a TLS reverse proxy in front of VersityGW.
 
 
+### S2
+
+[S2](https://github.com/mojatter/s2) is a small S3 server that can serve a directory of files it did not write itself. It finds the content type of each file from the file extension, so you can put an existing media folder into a bucket and use it immediately. S2 is a young project, and its authors give local development as the primary use.
+
+Write a configuration file, for example `${NEODB_DATA:-../data}/s2/s2.json`. The `"*"` account is the anonymous reader, which makes the media files publicly readable:
+```
+{
+  "listen": ":9000",
+  "type": "osfs",
+  "root": "/var/lib/s2",
+  "user": "neodbadmin",
+  "password": "change_password",
+  "users": [
+    {
+      "access_key_id": "*",
+      "policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::media/*"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+Add the following to `compose.override.yml`. Each directory below the root is a bucket, so the `media` bucket needs no separate creation step:
+```
+services:
+  s2:
+    image: mojatter/s2-server:0.17.0
+    environment:
+      S2_SERVER_CONFIG: /etc/s2/s2.json
+      S2_SERVER_CONSOLE_LISTEN: ""
+    volumes:
+      - ${NEODB_DATA:-../data}/s2/s2.json:/etc/s2/s2.json
+      - ${NEODB_DATA:-../data}/s2/data:/var/lib/s2
+    ports:
+      - 9000:9000
+```
+
+Add these settings to `.env`:
+```
+MEDIA_BACKEND=s3-insecure://neodbadmin:change_password@s2:9000/media
+MEDIA_URL=https://my.media.domain/media/
+```
+
+Make sure `my.media.domain` maps to your S2 server (port 9000 as configured above). NeoDB always builds media URLs with `https`, so serve that domain through a TLS reverse proxy in front of S2.
+
+To change from `MEDIA_BACKEND=local://`, move the contents of the `neodb-media` and `takahe-media` directories into `s2/data/media`. NeoDB and takahe use different key prefixes, thus their files do not conflict. S2 writes into the same directory, where it keeps a `.meta` directory of the metadata of each file it receives through the S3 API.
+
+S2 gives the files it did not write a placeholder ETag. It also does not answer conditional requests, thus a browser gets the full file each time instead of a `304`. The example above turns the web console off; remove `S2_SERVER_CONSOLE_LISTEN` to get it on port 9001.
+
+
 ## Scaling Parameters
 
 For a high-traffic instance, raise these settings to higher values in `.env`, as long as the host server can handle them:
