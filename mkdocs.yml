@@ -11,6 +11,7 @@ nav:
   - install.md
   - upgrade.md
   - configuration.md
+  - storage.md
   - accounts.md
   - troubleshooting.md
   - development.md
