@@ -7865,7 +7865,7 @@ msgstr "使用者名稱"
 
 #: users/models/user.py:137
 msgid "Required. 50 characters or fewer. Letters, digits and _ only."
-msgstr "必填，限英文字母數字底線，最多50個字元。"
+msgstr "必填，限英文字母數字底線，最多30個字元。"
 
 #: users/models/user.py:140
 msgid "A user with that username already exists."

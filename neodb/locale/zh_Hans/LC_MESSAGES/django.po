@@ -1470,11 +1470,11 @@ msgstr "更新关联"
 
 #: catalog/templates/_sidebar_edit.html:236
 msgid "Cleanup seasons"
-msgstr "本剧所有季"
+msgstr "清理分季"
 
 #: catalog/templates/_sidebar_edit.html:242
 msgid "Remove seasons not marked"
-msgstr "清理单季"
+msgstr "移除未标记的分季"
 
 #: catalog/templates/_sidebar_edit.html:248
 msgid "Merge"
