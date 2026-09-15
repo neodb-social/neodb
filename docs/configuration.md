@@ -103,11 +103,35 @@ Also make sure `my.media.domain` maps to your Minio server (port 9000 as configu
 
 ### Garage
 
-[Garage](https://garagehq.deuxfleurs.fr/) is a lightweight S3-compatible storage engine. Add the following to `compose.override.yml`:
+[Garage](https://garagehq.deuxfleurs.fr/) is a lightweight S3-compatible storage engine. Version 2.3.0 and later can configure a single-node cluster and its first bucket at start, thus the commands below are much fewer than the [Garage quick start](https://garagehq.deuxfleurs.fr/documentation/quick-start/) gives for a cluster.
+
+Create a `garage.toml` configuration file. Make a new `rpc_secret` with `openssl rand -hex 32`:
+```
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+replication_factor = 1
+rpc_bind_addr = "[::]:3901"
+rpc_secret = "YOUR_RPC_SECRET"
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "[::]:3900"
+
+[s3_web]
+bind_addr = "[::]:3902"
+root_domain = ".my.media.domain"
+```
+
+Add the following to `compose.override.yml`. Make the access key with `echo GK$(openssl rand -hex 16)` and the secret key with `openssl rand -hex 32`:
 ```
 services:
   garage:
-    image: dxflrs/garage:v2.2.0
+    image: dxflrs/garage:v2.4.1
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: YOUR_ACCESS_KEY
+      GARAGE_DEFAULT_SECRET_KEY: YOUR_SECRET_KEY
+      GARAGE_DEFAULT_BUCKET: media
     volumes:
       - ${NEODB_DATA:-../data}/garage/garage.toml:/etc/garage.toml
       - ${NEODB_DATA:-../data}/garage/data:/var/lib/garage/data
@@ -117,23 +141,14 @@ services:
       - 3902:3902
 ```
 
-Create a `garage.toml` configuration file (see [Garage quick start](https://garagehq.deuxfleurs.fr/documentation/quick-start/) for details), then initialize after first start:
+`--single-node` makes the cluster layout, and `--default-bucket` makes the key and the `media` bucket. Neither of them makes the bucket public, thus give the bucket public read access after the first start:
 ```
-# Assign node layout
-docker compose exec garage /garage -c /etc/garage.toml status
-docker compose exec garage /garage -c /etc/garage.toml layout assign -z dc1 -c 1G <node_id>
-docker compose exec garage /garage -c /etc/garage.toml layout apply --version 1
-
-# Create bucket and key
-docker compose exec garage /garage -c /etc/garage.toml bucket create media
-docker compose exec garage /garage -c /etc/garage.toml key create neodb-app-key
-docker compose exec garage /garage -c /etc/garage.toml bucket allow --read --write --owner media --key neodb-app-key
 docker compose exec garage /garage -c /etc/garage.toml bucket website --allow media
 ```
 
-Add these settings to `.env`, using the key ID and secret from the output of `key create` above:
+Add these settings to `.env`, using the same key ID and secret key:
 ```
-MEDIA_BACKEND=s3-insecure://KEY_ID:SECRET_KEY@garage:3900/media
+MEDIA_BACKEND=s3-insecure://YOUR_ACCESS_KEY:YOUR_SECRET_KEY@garage:3900/media
 MEDIA_URL=https://media.my.media.domain/
 ```
 
