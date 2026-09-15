@@ -170,6 +170,61 @@ MEDIA_URL=https://my.media.domain/media/
 Make sure `my.media.domain` maps to your SeaweedFS server (port 8333). Files are publicly readable via the same port thanks to the anonymous read identity.
 
 
+### VersityGW
+
+[VersityGW](https://github.com/versity/versitygw) is an S3 gateway that keeps each object as a plain file in a local directory. Add the following to `compose.override.yml`:
+
+```
+services:
+  versitygw:
+    image: ghcr.io/versity/versitygw:v1.8.0
+    environment:
+      ROOT_ACCESS_KEY: neodbadmin
+      ROOT_SECRET_KEY: change_password
+      VGW_BACKEND: posix
+      VGW_BACKEND_ARGS: /data/s3
+      VGW_IAM_DIR: /data/iam
+    volumes:
+      - ${NEODB_DATA:-../data}/versitygw/s3:/data/s3
+      - ${NEODB_DATA:-../data}/versitygw/iam:/data/iam
+    ports:
+      - 7070:7070
+```
+
+Put the `s3` directory on a filesystem that supports extended attributes. VersityGW keeps the content type, the ETag and the bucket policy in extended attributes. If your filesystem does not support them, add `--sidecar /data/meta` to `VGW_BACKEND_ARGS` and mount a second directory at `/data/meta`, where VersityGW will keep the same data as plain files. Select one of the two modes before you create the bucket, because VersityGW does not read the metadata of the other mode.
+
+Do not move an existing media folder into the bucket directory. VersityGW gives the files no content type, thus it sends them as `text/plain` and browsers will not show the images. Copy the folder in through the S3 API instead, which sets the content type from the file extension:
+```
+aws --endpoint-url http://localhost:7070 s3 sync /path/to/neodb-media s3://media/
+```
+
+If the folder is too large to copy twice, you can put it in the bucket directory and then give each object a content type with a server-side copy, which does not send the data again:
+```
+aws --endpoint-url http://localhost:7070 s3api copy-object --bucket media \
+  --key covers/example.jpg --copy-source media/covers/example.jpg \
+  --metadata-directive REPLACE --content-type image/jpeg
+```
+Such objects still have no ETag. Add `--default-etag <value>` to `VGW_BACKEND_ARGS` if your clients need one. VersityGW has no command to build the metadata of existing files ([feature request](https://github.com/versity/versitygw/issues/2304)).
+
+Create the `media` bucket after first start, then let anonymous users read it. VersityGW does not allow bucket ACLs by default, so you must add a bucket policy (using [awscli](https://aws.amazon.com/cli/) or any S3 client):
+```
+export AWS_ACCESS_KEY_ID=neodbadmin
+export AWS_SECRET_ACCESS_KEY=change_password
+export AWS_DEFAULT_REGION=us-east-1
+aws --endpoint-url http://localhost:7070 s3 mb s3://media
+aws --endpoint-url http://localhost:7070 s3api put-bucket-policy --bucket media \
+  --policy '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::media/*"}]}'
+```
+
+Add these settings to `.env`:
+```
+MEDIA_BACKEND=s3-insecure://neodbadmin:change_password@versitygw:7070/media
+MEDIA_URL=https://my.media.domain/media/
+```
+
+Make sure `my.media.domain` maps to your VersityGW server (port 7070 as configured above). NeoDB always builds media URLs with `https`, so serve that domain through a TLS reverse proxy in front of VersityGW.
+
+
 ## Scaling Parameters
 
 For a high-traffic instance, raise these settings to higher values in `.env`, as long as the host server can handle them:
