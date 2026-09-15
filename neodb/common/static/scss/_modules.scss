@@ -613,6 +613,9 @@ a.dc-progress-badge {
   display: block;
   margin: 0.15rem 0.75rem 0 0 !important;
   max-width: none;
+  // the shared .avatar crops its image; the hover ring below is an outline
+  // outside the image box, so the crop cuts it off
+  overflow: visible;
 
   img {
     width: 2.4rem;
