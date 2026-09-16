@@ -148,6 +148,7 @@ IdealIdTypes = [
     IdType.ISRC,
     IdType.OCLC,
     IdType.MusicBrainz_ReleaseGroup,
+    IdType.MusicBrainz_Release,
     IdType.RSS,
     IdType.IMDB,
     IdType.Steam,

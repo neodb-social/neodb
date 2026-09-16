@@ -223,6 +223,12 @@ class Command(SiteCommand):
                 backfill_credits_from_relations_20260719(
                     start_pk=start or 0, batch_size=batch_size
                 )
+            case "normalize_primary_id":
+                from catalog.common.migrations import normalize_primary_id_20260915
+
+                normalize_primary_id_20260915(
+                    start_pk=start or 0, batch_size=batch_size, dry_run=dry_run
+                )
             case "dedupe_credits":
                 from catalog.common.migrations import dedupe_credits_20260907
 

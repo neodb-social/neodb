@@ -9,7 +9,7 @@ import pytest
 
 from catalog.common import ResourceContent
 from catalog.common.downloaders import DownloadError, use_local_response
-from catalog.models import IdType
+from catalog.models import Album, ExternalResource, IdType
 from catalog.sites.fedi import FediverseInstance
 from common.models import SiteConfig
 
@@ -601,3 +601,72 @@ class TestFediverseInstance:
 
         # Should not include the incompatible external resource in lookup_ids
         assert IdType.ISBN not in content.lookup_ids
+
+
+_BRIDGE_URL = (
+    "https://bridge.neodb.net/catalog/music/"
+    "mbReleaseId-6e30c2f9-355f-410e-bde6-a578c011203e"
+)
+_MB_RELEASE_ID = "6e30c2f9-355f-410e-bde6-a578c011203e"
+
+
+class TestFediversePrimaryLookupId:
+    """An imported item must be identified by a real site id when it knows one"""
+
+    @staticmethod
+    def _album(other_lookup_ids: dict) -> Album:
+        res = ExternalResource(
+            id_type=IdType.Fediverse,
+            id_value=_BRIDGE_URL,
+            url=_BRIDGE_URL,
+            other_lookup_ids=other_lookup_ids,
+        )
+        album = Album()
+        album._update_primary_lookup_id([res])
+        return album
+
+    def test_musicbrainz_release_is_an_ideal_id(self):
+        album = self._album({IdType.MusicBrainz_Release: _MB_RELEASE_ID})
+        assert album.primary_lookup_id_type == IdType.MusicBrainz_Release
+        assert album.primary_lookup_id_value == _MB_RELEASE_ID
+
+    def test_non_ideal_site_id_beats_the_peer_url(self):
+        album = self._album({IdType.AppleMusic: "123456"})
+        assert album.primary_lookup_id_type == IdType.AppleMusic
+        assert album.primary_lookup_id_value == "123456"
+
+    def test_ideal_id_beats_a_non_ideal_site_id(self):
+        album = self._album(
+            {IdType.AppleMusic: "123456", IdType.MusicBrainz_Release: _MB_RELEASE_ID}
+        )
+        assert album.primary_lookup_id_type == IdType.MusicBrainz_Release
+
+    def test_peer_url_remains_when_nothing_else_is_known(self):
+        album = self._album({})
+        assert album.primary_lookup_id_type == IdType.Fediverse
+        assert album.primary_lookup_id_value == _BRIDGE_URL
+
+    def test_album_edit_form_offers_musicbrainz_ids(self):
+        choices = dict(Album.lookup_id_type_choices())
+        assert IdType.MusicBrainz_Release in choices
+        assert IdType.MusicBrainz_ReleaseGroup in choices
+        assert IdType.AppleMusic in choices
+
+    @pytest.mark.django_db(databases="__all__")
+    @use_local_response
+    def test_scrape_bridged_album(self):
+        site = FediverseInstance(_BRIDGE_URL)
+        content = site.scrape()
+        assert isinstance(content, ResourceContent)
+        assert content.metadata["preferred_model"] == "Album"
+        assert content.lookup_ids[IdType.MusicBrainz_Release] == _MB_RELEASE_ID
+
+    @pytest.mark.django_db(databases="__all__")
+    @use_local_response
+    def test_bridged_album_item_uses_musicbrainz_id(self):
+        site = FediverseInstance(_BRIDGE_URL)
+        resource = site.get_resource_ready(auto_link=False)
+        assert resource is not None
+        assert resource.item is not None
+        assert resource.item.primary_lookup_id_type == IdType.MusicBrainz_Release
+        assert resource.item.primary_lookup_id_value == _MB_RELEASE_ID

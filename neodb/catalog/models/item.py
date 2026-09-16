@@ -1190,17 +1190,36 @@ class Item(PolymorphicModel):
         item.sync_credits_from_metadata()
         return item
 
+    @staticmethod
+    def _lookup_id_candidates(
+        resources: "list[ExternalResource]",
+    ) -> list[tuple[str, str]]:
+        """Every (id_type, id_value) known to these resources, best first.
+
+        Resources are walked in display order, so the ordering does not depend
+        on the queryset's row order; within a resource its own id comes before
+        the ids it merely references. The first occurrence of a type wins.
+        """
+        candidates: list[tuple[str, str]] = []
+        seen: set[str] = set()
+        for res in ExternalResource.sort_for_display(resources):
+            ids = [(res.id_type, res.id_value)] + sorted(
+                (res.other_lookup_ids or {}).items()
+            )
+            for t, v in ids:
+                if not t or not v or t in seen:
+                    continue
+                seen.add(t)
+                candidates.append((t, v))
+        return candidates
+
     def _update_primary_lookup_id(self, override_resources=None) -> bool:
         """
         Update primary_lookup_id from external resources
         """
-        lookup_ids = {}
-        r = None
         resources = self._resources_for_normalize(override_resources)
-        for res in resources:
-            r = res
-            lookup_ids.update(res.other_lookup_ids or {})
-            lookup_ids[res.id_type] = res.id_value
+        candidates = self._lookup_id_candidates(resources)
+        lookup_ids = dict(candidates)
         if not lookup_ids:
             logger.warning(f"Item {self}: no available lookup_ids")
             return False
@@ -1209,8 +1228,13 @@ class Item(PolymorphicModel):
             if t in lookup_ids and lookup_ids[t]:
                 pid = (t, lookup_ids[t])
                 break
-        if r and pid == (None, None):
-            pid = (r.id_type, r.id_value)
+        if pid == (None, None):
+            # a peer instance's own url identifies the peer, not the work, so
+            # it only wins when nothing else is known
+            pid = next(
+                ((t, v) for t, v in candidates if t != IdType.Fediverse),
+                candidates[0],
+            )
         if (
             self.primary_lookup_id_type,
             self.primary_lookup_id_value,

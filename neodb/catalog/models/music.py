@@ -219,9 +219,15 @@ class Album(Item):
         id_types = [
             IdType.GTIN,
             IdType.ISRC,
+            IdType.MusicBrainz_ReleaseGroup,
+            IdType.MusicBrainz_Release,
             IdType.Spotify_Album,
+            IdType.AppleMusic,
             IdType.Bandcamp,
             IdType.YouTubeMusic,
+            IdType.Discogs_Release,
+            IdType.Discogs_Master,
+            IdType.RateYourMusic_Release,
             IdType.DoubanMusic,
             IdType.Bangumi,
         ]

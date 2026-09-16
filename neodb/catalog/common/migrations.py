@@ -1201,3 +1201,87 @@ def dedupe_credits_20260907(batch_size: int = 500, dry_run: bool = False) -> Non
         f"dedupe_credits complete: {len(ordered)} items checked, "
         f"{removed} duplicate credits removed."
     )
+
+
+def normalize_primary_id_20260915(
+    start_pk: int = 0, batch_size: int = 500, dry_run: bool = False
+) -> None:
+    """Recompute primary_lookup_id for items that may hold a stale one.
+
+    Two changes landed together: IdType.MusicBrainz_Release became an ideal id,
+    and the non-ideal fallback now prefers any known site id over a peer
+    instance's own url. Scope is therefore items whose primary id is a
+    Fediverse url, plus items carrying a MusicBrainz release id anywhere.
+
+    Restart-safe: the queryset is pk-ordered with a start_pk parameter, and
+    _update_primary_lookup_id is idempotent. bulk_update skips post_save
+    signals, so each flushed batch is reindexed immediately after it is
+    written: a PrimaryLookupIdDescriptor field can reach the search document
+    (Album.barcode feeds lookup_id), and two resources may disagree on the
+    same ideal type, so even a primary id that keeps its type can change value.
+    """
+    from catalog.models import IdType, Item
+    from catalog.search import CatalogIndex
+
+    index = None
+    if not dry_run:
+        index = CatalogIndex.instance()
+        if not index.initialize_collection(max_wait=30):
+            logger.error("Index is not ready, migration aborted.")
+            return
+
+    logger.warning(f"normalize_primary_id start (from pk {start_pk})")
+    qs = (
+        Item.objects.filter(
+            models.Q(primary_lookup_id_type=IdType.Fediverse)
+            | models.Q(
+                external_resources__id_type=IdType.MusicBrainz_Release,
+            )
+            | models.Q(
+                external_resources__other_lookup_ids__has_key=IdType.MusicBrainz_Release
+            ),
+            is_deleted=False,
+            merged_to_item__isnull=True,
+            pk__gte=start_pk,
+        )
+        .distinct()
+        .order_by("pk")
+        .prefetch_related("external_resources")
+    )
+    total = qs.count()
+    logger.warning(f"normalize_primary_id scanning {total} items")
+    updated = 0
+    reindexed = 0
+    last_pk = start_pk
+    pending: list[Item] = []
+
+    def flush() -> None:
+        nonlocal reindexed
+        if pending and not dry_run:
+            Item.objects.bulk_update(
+                pending, ["primary_lookup_id_type", "primary_lookup_id_value"]
+            )
+            # bulk_update bypasses save()->update_index(); reindex the
+            # batch now (re-fetch polymorphic for to_indexable_doc)
+            if index:
+                items = Item.objects.filter(pk__in=[i.pk for i in pending])
+                reindexed += index.replace_docs(index.items_to_docs(items))
+        pending.clear()
+
+    with tqdm(total=total, desc="normalize_primary_id") as pbar:
+        for item in qs.iterator(chunk_size=batch_size):
+            last_pk = item.pk
+            pbar.update(1)
+            if item._update_primary_lookup_id():
+                pending.append(item)
+                updated += 1
+            if len(pending) >= batch_size:
+                flush()
+                pbar.set_postfix(updated=updated, pk=last_pk)
+        flush()
+
+    logger.warning(
+        f"normalize_primary_id finished. {updated} items "
+        f"{'would be ' if dry_run else ''}updated, {reindexed} docs reindexed, "
+        f"last pk: {last_pk}."
+    )
