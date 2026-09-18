@@ -169,7 +169,7 @@
             {% endif %}
           {% endfor %}
           {% if show_posts %}
-            <li>
+            <li class="solo-hidden">
               <a href="#discover_posts">{% trans "Posts" %}</a>
             </li>
           {% endif %}
@@ -223,7 +223,7 @@
                   <span class="dc-spot-rating">
                     {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
                     {% if item.recent_marks %}
-                      <span>
+                      <span class="solo-hidden">
                         {% blocktrans count counter=item.recent_marks trimmed %}
                           Marked by {{ counter }} person recently
                         {% plural %}
@@ -399,7 +399,7 @@
   </section>
 {% endif %}
 {% if show_posts %}
-  <section class="entity-sort dc-mod"
+  <section class="entity-sort dc-mod solo-hidden"
            id="discover_posts"
            data-title="{% trans 'What people are saying' %}"
            data-nosnippet>
