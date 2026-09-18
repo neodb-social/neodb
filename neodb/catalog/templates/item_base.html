@@ -134,7 +134,7 @@
         {% endblock %}
         {% block sidebar %}{% endblock %}
         {% if collection_list %}
-          <section>
+          <section class="solo-hidden">
             <h5>{% trans 'Related collections' %}</h5>
             <div>
               {% for c in collection_list %}
