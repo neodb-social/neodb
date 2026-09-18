@@ -298,3 +298,36 @@ def test_broadcaster_does_not_count_a_refusal_as_delivered(
     attempted, delivered = broadcaster.send(["https://peer.test/inbox/"])
 
     assert (attempted, delivered) == (1, 0)
+
+
+@pytest.mark.django_db
+def test_broadcaster_abandons_a_stalled_peer(identity, config_system, federating):
+    """
+    A delivery can outlast every httpx timeout, because the host is resolved by
+    a blocking getaddrinfo before the request starts. The handler still has to
+    return inside the window stator locked the row for.
+    """
+    make_serializable(identity)
+    identity.deleted = timezone.now()
+
+    def stall(request):
+        time.sleep(30)
+        return httpx.Response(202)
+
+    broadcaster = DeleteBroadcaster(
+        identity,
+        deadline=0.2,
+        tail_grace=0.3,
+        concurrency=1,
+        transport=httpx.MockTransport(stall),
+    )
+
+    started = time.monotonic()
+    attempted, delivered = broadcaster.send(
+        [f"https://peer{n}.test/inbox/" for n in range(5)]
+    )
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 5
+    assert delivered == 0
+    assert attempted >= 1

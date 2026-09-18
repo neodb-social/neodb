@@ -34,6 +34,13 @@ ADVISORY_LOCK_MODULUS = 2**31
 # handler, including the in-flight tail and the transition write, finishes
 # inside the window.
 DEFAULT_DEADLINE = 200.0
+# How long the last batch may keep finishing after the deadline. A delivery can
+# outlast every httpx timeout, because make_safe_client resolves the host with a
+# blocking getaddrinfo before the request starts and the read timeout bounds
+# inactivity rather than total time, so the waits are bounded here instead. A
+# thread that is still stuck is abandoned: it cannot be cancelled, it holds
+# nothing the handler needs, and a Delete that lands late is harmless.
+DEFAULT_TAIL_GRACE = 30.0
 DEFAULT_CONCURRENCY = 200
 # Connect is the term that matters: a black-holed host burns all of it.
 DEFAULT_TIMEOUT = httpx.Timeout(connect=3.0, read=5.0, write=5.0, pool=5.0)
@@ -85,9 +92,11 @@ class DeleteBroadcaster:
         concurrency: int = DEFAULT_CONCURRENCY,
         timeout: httpx.Timeout = DEFAULT_TIMEOUT,
         transport: httpx.BaseTransport | None = None,
+        tail_grace: float = DEFAULT_TAIL_GRACE,
     ):
         self.identity = identity
         self.deadline = deadline
+        self.tail_grace = tail_grace
         self.concurrency = concurrency
         self.timeout = timeout
         self.transport = transport
@@ -175,10 +184,14 @@ class DeleteBroadcaster:
             # covers its target, exactly as signed_request avoids for deliveries.
             follow_redirects=False,
         ) as client:
+
+            def remaining() -> float:
+                return self.deadline - (time.monotonic() - started)
+
             pool = ThreadPoolExecutor(max_workers=self.concurrency)
             try:
                 for uri in uris:
-                    if time.monotonic() - started >= self.deadline:
+                    if remaining() <= 0:
                         logger.warning(
                             "Delete broadcast for %s hit its %ss deadline after %s of %s inboxes",
                             self.identity.pk,
@@ -192,14 +205,26 @@ class DeleteBroadcaster:
                     # deadline bounding the loop rather than the requests, and
                     # the pool would then drain the whole queue regardless.
                     if len(pending) >= self.concurrency:
-                        done, pending = wait(pending, return_when=FIRST_COMPLETED)
+                        done, pending = wait(
+                            pending,
+                            timeout=remaining(),
+                            return_when=FIRST_COMPLETED,
+                        )
                         collect(done)
+                        if not done:
+                            # Everything in flight is stuck and there is no
+                            # time left to wait for a slot.
+                            continue
                     pending.add(pool.submit(self.deliver, client, uri))
                     attempted += 1
-                # Only the last batch is still in flight, and each of those is
-                # capped by the timeout, so this tail is bounded.
-                done, _ = wait(pending)
+                done, abandoned = wait(pending, timeout=self.tail_grace)
                 collect(done)
+                if abandoned:
+                    logger.warning(
+                        "Delete broadcast for %s left %s deliveries unfinished",
+                        self.identity.pk,
+                        len(abandoned),
+                    )
             finally:
                 pool.shutdown(wait=False, cancel_futures=True)
         logger.info(
