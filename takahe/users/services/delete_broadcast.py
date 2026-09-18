@@ -2,7 +2,7 @@ import json
 import logging
 import time
 from collections.abc import Iterator
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
@@ -134,11 +134,20 @@ class DeleteBroadcaster:
 
     def deliver(self, client: httpx.Client, uri: str) -> bool:
         try:
-            client.post(uri, headers=self.headers_for(uri), content=self.body)
+            response = client.post(
+                uri, headers=self.headers_for(uri), content=self.body
+            )
         except Exception as error:
             # Best effort: a peer that cannot be reached is simply skipped.
             # It still learns of the deletion when it next pulls the actor.
             logger.debug("Delete broadcast to %s failed: %s", uri, error)
+            return False
+        # post() does not raise on a 4xx or 5xx, and a peer that answered 401 or
+        # 500 has not taken the news.
+        if response.status_code >= 400:
+            logger.debug(
+                "Delete broadcast to %s refused: %s", uri, response.status_code
+            )
             return False
         return True
 
@@ -150,8 +159,14 @@ class DeleteBroadcaster:
             return 0, 0
         started = time.monotonic()
         attempted = 0
-        futures = []
+        delivered = 0
+        pending: set[Future[bool]] = set()
         limits = httpx.Limits(max_connections=self.concurrency)
+
+        def collect(done: set[Future[bool]]) -> None:
+            nonlocal delivered
+            delivered += sum(1 for future in done if future.result())
+
         with make_safe_client(
             timeout=self.timeout,
             limits=limits,
@@ -160,7 +175,8 @@ class DeleteBroadcaster:
             # covers its target, exactly as signed_request avoids for deliveries.
             follow_redirects=False,
         ) as client:
-            with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
+            pool = ThreadPoolExecutor(max_workers=self.concurrency)
+            try:
                 for uri in uris:
                     if time.monotonic() - started >= self.deadline:
                         logger.warning(
@@ -171,9 +187,21 @@ class DeleteBroadcaster:
                             len(uris),
                         )
                         break
-                    futures.append(pool.submit(self.deliver, client, uri))
+                    # Never hold more than one full batch of work. Submitting
+                    # everything up front would return at once and leave the
+                    # deadline bounding the loop rather than the requests, and
+                    # the pool would then drain the whole queue regardless.
+                    if len(pending) >= self.concurrency:
+                        done, pending = wait(pending, return_when=FIRST_COMPLETED)
+                        collect(done)
+                    pending.add(pool.submit(self.deliver, client, uri))
                     attempted += 1
-        delivered = sum(1 for future in futures if future.result())
+                # Only the last batch is still in flight, and each of those is
+                # capped by the timeout, so this tail is bounded.
+                done, _ = wait(pending)
+                collect(done)
+            finally:
+                pool.shutdown(wait=False, cancel_futures=True)
         logger.info(
             "Delete broadcast for %s: %s of %s attempted inboxes accepted it",
             self.identity.pk,

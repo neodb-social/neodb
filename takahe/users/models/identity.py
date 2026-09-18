@@ -168,15 +168,30 @@ class IdentityStates(StateGraph):
         These are the peers a deletion has to reach reliably, so they get a
         FanOut each. Every other peer is told best effort, without a row.
         """
+        from activities.models import Post, PostInteraction
+
+        from users.models import Follow
+
+        peer = models.OuterRef("pk")
+        # Exists() rather than reverse-relation filters: four OR-ed multi-valued
+        # joins multiply their rows before the distinct removes them again, so a
+        # peer with many follows and interactions costs their product.
         return (
             Identity.objects.filter(local=False, shared_inbox_uri__isnull=False)
             .filter(
-                models.Q(outbound_follows__target=identity)
-                | models.Q(inbound_follows__source=identity)
-                | models.Q(interactions__post__author=identity)
-                | models.Q(posts_mentioning__author=identity)
+                models.Exists(Follow.objects.filter(source=peer, target=identity))
+                | models.Exists(Follow.objects.filter(source=identity, target=peer))
+                | models.Exists(
+                    PostInteraction.objects.filter(identity=peer, post__author=identity)
+                )
+                | models.Exists(
+                    Post.mentions.through.objects.filter(
+                        identity=peer, post__author=identity
+                    )
+                )
             )
             .exclude(state=IdentityStates.connection_issue)
+            .order_by("shared_inbox_uri")
             .distinct("shared_inbox_uri")
         )
 
@@ -321,11 +336,13 @@ class IdentityStates(StateGraph):
             if not acquired:
                 # Another stator replica is already broadcasting this one. Its
                 # lock outlives our row lock, which stator clears after 300 s
-                # whether or not the handler has finished.
+                # whether or not the handler has finished. Stay in this state
+                # rather than finishing on its behalf: if it then dies, the
+                # retry is the only thing that would ever send the rest.
                 logger.info(
                     "Delete broadcast for %s is already running elsewhere", instance.pk
                 )
-                return cls.deleted_fanned_out
+                return None
             broadcast_identity_deletion(
                 instance, cls.unacquainted_peer_inboxes(instance)
             )

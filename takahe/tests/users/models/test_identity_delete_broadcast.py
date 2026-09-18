@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import httpx
 import pytest
@@ -129,7 +130,9 @@ def test_broadcast_state_stands_down_when_another_replica_holds_the_lock(
 
     result = IdentityStates.handle_deleted_broadcasting(identity)
 
-    assert result == IdentityStates.deleted_fanned_out
+    # Staying put, not finishing on the other replica's behalf: if that one
+    # dies mid-broadcast, this retry is the only thing that sends the rest.
+    assert result is None
     assert called == []
 
 
@@ -247,3 +250,51 @@ def test_other_fanout_types_keep_their_three_day_retry(
 
     with pytest.raises(TryAgainLater):
         FanOutStates.handle_new(fan_out)
+
+
+@pytest.mark.django_db
+def test_broadcaster_stops_dispatching_partway_through(
+    identity, config_system, federating
+):
+    """
+    The deadline has to bound the requests, not just the submitting loop.
+    """
+    make_serializable(identity)
+    identity.deleted = timezone.now()
+    seen = []
+
+    def slow(request):
+        seen.append(request)
+        time.sleep(0.2)
+        return httpx.Response(202)
+
+    broadcaster = DeleteBroadcaster(
+        identity,
+        deadline=0.5,
+        concurrency=1,
+        transport=httpx.MockTransport(slow),
+    )
+
+    started = time.monotonic()
+    attempted, _ = broadcaster.send([f"https://peer{n}.test/inbox/" for n in range(40)])
+    elapsed = time.monotonic() - started
+
+    assert 0 < attempted < 40
+    assert elapsed < 5
+
+
+@pytest.mark.django_db
+def test_broadcaster_does_not_count_a_refusal_as_delivered(
+    identity, config_system, federating
+):
+    make_serializable(identity)
+    identity.deleted = timezone.now()
+    broadcaster = DeleteBroadcaster(
+        identity,
+        concurrency=2,
+        transport=httpx.MockTransport(lambda request: httpx.Response(500)),
+    )
+
+    attempted, delivered = broadcaster.send(["https://peer.test/inbox/"])
+
+    assert (attempted, delivered) == (1, 0)
