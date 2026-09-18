@@ -331,3 +331,25 @@ def test_broadcaster_abandons_a_stalled_peer(identity, config_system, federating
     assert elapsed < 5
     assert delivered == 0
     assert attempted >= 1
+
+
+@pytest.mark.django_db
+def test_remote_identity_in_a_delete_state_transitions_validly(remote_identity):
+    """
+    A handler that returns a state its own state cannot reach raises inside
+    transition_attempt. Stator logs that and leaves the row where it was, so it
+    retries every try_interval for good rather than failing visibly.
+    """
+    for state, handler in (
+        (IdentityStates.deleted, IdentityStates.handle_deleted),
+        (
+            IdentityStates.deleted_broadcasting,
+            IdentityStates.handle_deleted_broadcasting,
+        ),
+    ):
+        result = handler(remote_identity)
+        assert result in state.children, f"{state} cannot reach {result}"
+
+    remote_identity.state = IdentityStates.deleted.name
+    remote_identity.save()
+    assert remote_identity.transition_attempt() == IdentityStates.deleted_fanned_out

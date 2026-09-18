@@ -101,6 +101,7 @@ class IdentityStates(StateGraph):
     moved_fanned_out = State(externally_progressed=True)
 
     deleted.transitions_to(deleted_broadcasting)
+    deleted.transitions_to(deleted_fanned_out)
     deleted_broadcasting.transitions_to(deleted_fanned_out)
 
     edited.transitions_to(updated)
@@ -267,7 +268,10 @@ class IdentityStates(StateGraph):
         )
 
         if not instance.local:
-            return cls.updated
+            # Nothing to delete or announce for someone else's actor. This has
+            # to be a state "deleted" can reach, or the transition raises and
+            # the row retries every try_interval for good.
+            return cls.deleted_fanned_out
 
         # Delete local data. The identity row itself is kept as a tombstone,
         # so every cascade that hangs off it is dead code: anything keyed on
@@ -330,7 +334,7 @@ class IdentityStates(StateGraph):
         )
 
         if not instance.local:
-            return cls.updated
+            return cls.deleted_fanned_out
 
         with identity_broadcast_lock(instance.pk) as acquired:
             if not acquired:
