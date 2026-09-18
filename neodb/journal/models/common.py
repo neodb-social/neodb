@@ -1,7 +1,6 @@
 import logging
 import re
 import uuid
-from abc import abstractmethod
 from collections.abc import Sequence
 from datetime import datetime
 from functools import cached_property
@@ -405,20 +404,17 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         raise NotImplementedError("subclass must implement this")
 
     @classmethod
-    @abstractmethod
     def params_from_ap_object(
         cls, post: "Post", obj: dict[str, Any], piece: Self | None
     ) -> dict[str, Any]:
         return {}
 
-    @abstractmethod
     def to_post_params(self) -> dict[str, Any]:
         """
         returns a dict of parameter to create a post
         """
         return {}
 
-    @abstractmethod
     def to_crosspost_params(self) -> dict[str, Any]:
         """
         returns a dict of parameter to create a post for each platform
