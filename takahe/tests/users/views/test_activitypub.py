@@ -1,7 +1,10 @@
 import pytest
 from activities.models import Post
+from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 
 from users.models import InboxMessage
 
@@ -208,3 +211,24 @@ def test_outbox_bounded_queries(client, identity, other_identity, config_system)
         '"in_reply_to" IN',
     ):
         assert sum(fragment in s for s in sql) <= 1, fragment
+
+
+@pytest.mark.django_db
+def test_webfinger_gone_for_deleted_identity(client, identity, monkeypatch):
+    """
+    A deleted identity has to webfinger 410, because that is the only signal a
+    peer can pull while the actor endpoint still answers 200 with a Tombstone.
+    """
+    monkeypatch.setattr(settings.SETUP, "NO_FEDERATION", False)
+
+    response = client.get("/.well-known/webfinger?resource=acct:test@example.com")
+    assert response.status_code == 200
+
+    identity.deleted = timezone.now()
+    identity.save()
+    # The view is cache_page()d, so a peer keeps the stale 200 for up to
+    # cache_timeout_page_default seconds after the deletion.
+    cache.clear()
+
+    response = client.get("/.well-known/webfinger?resource=acct:test@example.com")
+    assert response.status_code == 410

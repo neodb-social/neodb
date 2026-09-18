@@ -14,6 +14,11 @@ from users.models.system_actor import SystemActor
 logger = logging.getLogger(__name__)
 
 
+# How long a Delete(actor) keeps being retried at an unreachable peer, against
+# the three days every other fan-out gets.
+IDENTITY_DELETED_MAX_AGE = 86400
+
+
 class FanOutStates(StateGraph):
     new = State(try_interval=600)
     sent = State(delete_after=86400)
@@ -319,10 +324,23 @@ class FanOutStates(StateGraph):
             # Handle sending identity deleted to remote
             case (FanOut.Types.identity_deleted, False):
                 identity = instance.subject_identity
-                if state := cls._deliver(
-                    identity, instance, canonicalise(identity.to_delete_ap())
-                ):
-                    return state
+                try:
+                    if state := cls._deliver(
+                        identity, instance, canonicalise(identity.to_delete_ap())
+                    ):
+                        return state
+                except TryAgainLater:
+                    # A peer that has refused the news for a day is not going
+                    # to take it on the 400th attempt, and the actor endpoint
+                    # tells it the same thing whenever it asks.
+                    if instance.state_age > IDENTITY_DELETED_MAX_AGE:
+                        logger.info(
+                            "FanOut %s abandoned: peer unreachable for %ss",
+                            instance.pk,
+                            int(instance.state_age),
+                        )
+                        return cls.failed
+                    raise
 
             # Handle move for local follower
             case (FanOut.Types.identity_moved, True):

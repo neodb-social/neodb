@@ -194,6 +194,11 @@ class Webfinger(FederatedView):
             actor = SystemActor()
         else:
             actor = by_handle_or_404(request, handle)
+            if actor.deleted:
+                # The only signal a peer can pull while the actor endpoint
+                # still answers 200 with a Tombstone, which Mastodon does not
+                # accept as a deletion.
+                return HttpResponse(status=410)
 
         return JsonResponse(actor.to_webfinger(), content_type="application/jrd+json")
 
