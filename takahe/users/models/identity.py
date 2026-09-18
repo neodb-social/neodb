@@ -182,6 +182,7 @@ class IdentityStates(StateGraph):
         from activities.models import (
             FanOut,
             Post,
+            PostAttachment,
             PostInteraction,
             PostInteractionStates,
             PostStates,
@@ -189,23 +190,43 @@ class IdentityStates(StateGraph):
         )
 
         from users.models import (
+            AccountNote,
+            Block,
             Bookmark,
+            FeatureAuthorization,
             Follow,
             FollowStates,
             HashtagFeature,
             HashtagFollow,
+            List,
+            Marker,
             Report,
         )
 
         if not instance.local:
             return cls.updated
 
-        # Delete local data
+        # Delete local data. The identity row itself is kept as a tombstone,
+        # so every cascade that hangs off it is dead code: anything keyed on
+        # this identity has to be removed by hand here.
         TimelineEvent.objects.filter(identity=instance).delete()
         Bookmark.objects.filter(identity=instance).delete()
         HashtagFollow.objects.filter(identity=instance).delete()
         HashtagFeature.objects.filter(identity=instance).delete()
         Report.objects.filter(source_identity=instance).delete()
+        # Blocks carry mutes too, and an account note is private text this
+        # identity wrote about someone else.
+        Block.objects.filter(source=instance).delete()
+        AccountNote.objects.filter(source=instance).delete()
+        List.objects.filter(identity=instance).delete()
+        Marker.objects.filter(identity=instance).delete()
+        FeatureAuthorization.objects.filter(identity=instance).delete()
+        # Media uploaded through the API and never attached to a post has no
+        # post to cascade from, so nothing would ever collect it. Deleting
+        # the rows reclaims the files through the post_delete receiver. The
+        # media of real posts is left alone here: the Delete activities still
+        # have to serialize it, and it goes when the post rows do.
+        PostAttachment.objects.filter(author=instance, post__isnull=True).delete()
         # Nullify all fields and fanout
         instance.name = ""
         instance.summary = ""
@@ -982,7 +1003,14 @@ class Identity(StatorModel):
         # Remove all login tokens
         Authorization.objects.filter(identity=self).delete()
         Token.objects.filter(identity=self).delete()
-        # Remove all users from ourselves and mark deletion date
+        # Remove all users from ourselves and mark deletion date. A login
+        # left with no identity at all is still a usable login, so close it
+        # here; one that still holds another identity is left alone. This
+        # must run before the unlink, which empties the relation.
+        for user in self.users.all():
+            if not user.identities.exclude(pk=self.pk).exists():
+                user.deleted = True
+                user.save(update_fields=["deleted"])
         self.users.set([])
         self.deleted = timezone.now()
         self.save()

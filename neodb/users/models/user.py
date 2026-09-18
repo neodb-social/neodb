@@ -230,7 +230,19 @@ class User(AbstractUser):
         return p.edited_time if p else None
 
     def clear(self):
+        from journal.models import CrosspostRetry
+
+        from .preference import Preference
+        from .task import Task
+        from .webhook import Webhook, clear_webhook_cache
+
         accounts = list(self.social_accounts.all())
+        # Tasks first, outside the transaction: an export holds a full copy of
+        # the journal on disk, and a queued job would otherwise keep writing
+        # after the account is gone.
+        for task in Task.objects.filter(user=self):
+            task.cancel()
+            task.delete_files()
         with transaction.atomic():
             accts = [str(a) for a in accounts]
             if accts:
@@ -239,7 +251,13 @@ class User(AbstractUser):
             self.is_active = False
             self.save()
             self.social_accounts.all().delete()
+            Task.objects.filter(user=self).delete()
+            # A webhook row carries the user's delivery endpoint.
+            Webhook.objects.filter(user=self).delete()
+            CrosspostRetry.objects.filter(user=self).delete()
+            Preference.objects.filter(user=self).delete()
             logger.warning(f"User {self} cleared.")
+        clear_webhook_cache(self.pk)
         for account in accounts:
             # platform-specific cleanup (e.g. PDS records); best-effort and
             # outside the transaction, like the explicit disconnect view.

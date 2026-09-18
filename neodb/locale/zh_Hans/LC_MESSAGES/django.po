@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-14 19:35-0400\n"
+"POT-Creation-Date: 2026-09-18 09:35-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -71,12 +71,12 @@ msgid "Invalid date, expecting YYYY, YYYY-MM or YYYY-MM-DD."
 msgstr "日期无效，应为 YYYY、YYYY-MM 或 YYYY-MM-DD。"
 
 #: catalog/models/book.py:141 catalog/models/book.py:160
-#: catalog/models/common.py:279 catalog/models/common.py:297
+#: catalog/models/common.py:280 catalog/models/common.py:298
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:144 catalog/models/book.py:163
-#: catalog/models/common.py:282 catalog/models/common.py:302
+#: catalog/models/common.py:283 catalog/models/common.py:303
 msgid "text content"
 msgstr "文本内容"
 
@@ -500,69 +500,69 @@ msgstr "MyAnimeList动画"
 msgid "MyAnimeList Manga"
 msgstr "MyAnimeList漫画"
 
-#: catalog/models/common.py:161
+#: catalog/models/common.py:162
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:162 catalog/templates/_sidebar_edit.html:289
+#: catalog/models/common.py:163 catalog/templates/_sidebar_edit.html:289
 msgid "Work"
 msgstr "作品"
 
-#: catalog/models/common.py:163
+#: catalog/models/common.py:164
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:164 catalog/templates/_sidebar_edit.html:202
+#: catalog/models/common.py:165 catalog/templates/_sidebar_edit.html:202
 #: catalog/views/edit.py:385
 msgid "TV Season"
 msgstr "电视分季"
 
-#: catalog/models/common.py:165
+#: catalog/models/common.py:166
 msgid "TV Episode"
 msgstr "电视单集"
 
-#: catalog/models/common.py:166 catalog/models/common.py:182
-#: catalog/models/common.py:196 catalog/templates/_sidebar_edit.html:196
+#: catalog/models/common.py:167 catalog/models/common.py:183
+#: catalog/models/common.py:197 catalog/templates/_sidebar_edit.html:196
 #: catalog/views/edit.py:384 journal/templates/_sidebar_user_mark_list.html:35
 #: journal/templates/_sidebar_user_tag_filter.html:27
 msgid "Movie"
 msgstr "电影"
 
-#: catalog/models/common.py:167
+#: catalog/models/common.py:168
 msgid "Album"
 msgstr "专辑"
 
-#: catalog/models/common.py:168 catalog/models/common.py:185
-#: catalog/models/common.py:199 common/templates/_header.html:53
+#: catalog/models/common.py:169 catalog/models/common.py:186
+#: catalog/models/common.py:200 common/templates/_header.html:53
 #: journal/templates/_sidebar_user_mark_list.html:48
 #: journal/templates/_sidebar_user_tag_filter.html:39
 msgid "Game"
 msgstr "游戏"
 
-#: catalog/models/common.py:169
+#: catalog/models/common.py:170
 msgid "Podcast Program"
 msgstr "播客节目"
 
-#: catalog/models/common.py:170
+#: catalog/models/common.py:171
 msgid "Podcast Episode"
 msgstr "播客单集"
 
-#: catalog/models/common.py:171 catalog/models/common.py:187
-#: catalog/models/common.py:201 common/templates/_header.html:57
+#: catalog/models/common.py:172 catalog/models/common.py:188
+#: catalog/models/common.py:202 common/templates/_header.html:57
 #: journal/templates/_sidebar_user_mark_list.html:52
 #: journal/templates/_sidebar_user_tag_filter.html:43
 msgid "Performance"
 msgstr "演出"
 
-#: catalog/models/common.py:172 catalog/templates/performance.html:42
+#: catalog/models/common.py:173 catalog/templates/performance.html:42
 msgid "Production"
 msgstr "上演"
 
-#: catalog/models/common.py:173
+#: catalog/models/common.py:174
 msgid "Exhibition"
 msgstr "展览"
 
-#: catalog/models/common.py:174 catalog/models/common.py:191
+#: catalog/models/common.py:175 catalog/models/common.py:192
 #: journal/templates/collection.html:30 journal/templates/collection.html:41
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
@@ -571,24 +571,24 @@ msgstr "展览"
 msgid "Collection"
 msgstr "收藏单"
 
-#: catalog/models/common.py:177 catalog/models/common.py:190
+#: catalog/models/common.py:178 catalog/models/common.py:191
 msgid "Person / Organization"
 msgstr "人物 / 团体"
 
-#: catalog/models/common.py:181 catalog/models/common.py:195
+#: catalog/models/common.py:182 catalog/models/common.py:196
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:32
 #: journal/templates/_sidebar_user_tag_filter.html:24
 msgid "Book"
 msgstr "图书"
 
-#: catalog/models/common.py:183 catalog/models/common.py:197
+#: catalog/models/common.py:184 catalog/models/common.py:198
 #: journal/templates/_sidebar_user_mark_list.html:38
 #: journal/templates/_sidebar_user_tag_filter.html:30
 msgid "TV"
 msgstr "剧集"
 
-#: catalog/models/common.py:184 catalog/models/common.py:198
+#: catalog/models/common.py:185 catalog/models/common.py:199
 #: catalog/templates/search_header.html:49
 #: catalog/templates/search_header.html:51 common/templates/_header.html:49
 #: journal/templates/_sidebar_user_mark_list.html:45
@@ -596,34 +596,34 @@ msgstr "剧集"
 msgid "Music"
 msgstr "音乐"
 
-#: catalog/models/common.py:186 catalog/models/common.py:200
+#: catalog/models/common.py:187 catalog/models/common.py:201
 #: catalog/templates/_sidebar_edit.html:213 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:345 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:346 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr "类型"
 
-#: catalog/models/common.py:383
+#: catalog/models/common.py:384
 msgid "origin country"
 msgstr "制片国家/地区"
 
-#: catalog/models/common.py:412 catalog/templates/album.html:33
+#: catalog/models/common.py:413 catalog/templates/album.html:33
 msgid "album type"
 msgstr "专辑类型"
 
-#: catalog/models/common.py:416 catalog/templates/_platform_list.html:5
+#: catalog/models/common.py:417 catalog/templates/_platform_list.html:5
 msgid "platform"
 msgstr "平台"
 
-#: catalog/models/common.py:420
+#: catalog/models/common.py:421
 msgid "media format"
 msgstr "介质"
 
-#: catalog/models/common.py:425 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:426 catalog/templates/_language_list.html:5
 #: users/models/user.py:144
 msgid "language"
 msgstr "语言"
@@ -841,27 +841,27 @@ msgstr "元数据"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1618
+#: catalog/models/item.py:1642
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1620
+#: catalog/models/item.py:1644
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1622
+#: catalog/models/item.py:1646
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1638
+#: catalog/models/item.py:1662
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1644
+#: catalog/models/item.py:1668
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1647
+#: catalog/models/item.py:1671
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -1171,7 +1171,7 @@ msgstr "翻译"
 
 #: catalog/templates/_item_comments.html:92
 #: catalog/templates/_item_comments_by_episode.html:80
-#: catalog/templates/_item_notes.html:88
+#: catalog/templates/_item_notes.html:86
 #: catalog/templates/_item_reviews.html:44 catalog/templates/item_base.html:270
 #: catalog/templates/podcast_episode_data.html:39
 msgid "Show more"
@@ -1179,11 +1179,11 @@ msgstr "显示更多"
 
 #: catalog/templates/_item_comments.html:98
 #: catalog/templates/_item_comments_by_episode.html:84
-#: catalog/templates/_item_notes.html:96
+#: catalog/templates/_item_notes.html:94
 #: catalog/templates/_item_reviews.html:50
 #: catalog/templates/podcast_episode_data.html:42
 #: journal/templates/profile_posts.html:20
-#: journal/templates/user_follow_list_items.html:50
+#: journal/templates/user_follow_list_items.html:49
 #: journal/templates/user_post_list_items.html:23
 #: social/templates/events.html:36 social/templates/feed_events.html:25
 msgid "Nothing more."
@@ -1234,11 +1234,11 @@ msgstr "姓名或 /people/... 链接"
 msgid "Add"
 msgstr "添加"
 
-#: catalog/templates/_item_notes.html:75 catalog/templates/_item_notes.html:86
+#: catalog/templates/_item_notes.html:73 catalog/templates/_item_notes.html:84
 msgid "More notes from them"
 msgstr "显示更多来自该用户的笔记"
 
-#: catalog/templates/_item_notes.html:101
+#: catalog/templates/_item_notes.html:99
 msgid "Take some note or quote"
 msgstr "作笔记或摘抄"
 
@@ -1678,7 +1678,7 @@ msgstr "确定移除你的创作者验证吗？移除后任何人都可以再次
 msgid "Remove my verification"
 msgstr "移除我的验证"
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:328
+#: catalog/templates/_verify_status.html:31 users/views/account.py:331
 msgid "Verification failed"
 msgstr "验证失败"
 
@@ -2012,7 +2012,7 @@ msgstr "创作者已在本站完成认证的播客，可直接在此播放。"
 msgid "All verified shows"
 msgstr "全部已验证播客"
 
-#: catalog/templates/discover.html:368 social/templates/_event_post.html:39
+#: catalog/templates/discover.html:368 social/templates/_event_post.html:38
 msgid "Play"
 msgstr "播放"
 
@@ -2076,7 +2076,7 @@ msgstr "返回发现"
 #: journal/templates/profile_items.html:36
 #: journal/templates/profile_posts.html:22
 #: journal/templates/user_collection_list.html:52
-#: journal/templates/user_follow_list_items.html:52
+#: journal/templates/user_follow_list_items.html:51
 #: journal/templates/user_item_list_base.html:27
 #: journal/templates/user_post_list_items.html:8
 #: journal/templates/user_post_list_items.html:25
@@ -2361,7 +2361,7 @@ msgstr "版本"
 #: catalog/views/edit.py:440 catalog/views/edit.py:443
 #: catalog/views/verify.py:197 journal/views/collection.py:79
 #: journal/views/collection.py:104 journal/views/collection.py:609
-#: journal/views/collection.py:705 journal/views/common.py:235
+#: journal/views/collection.py:705 journal/views/common.py:244
 #: journal/views/mark.py:244 journal/views/post.py:119
 #: journal/views/post.py:121 journal/views/post.py:168
 #: journal/views/post.py:187 journal/views/post.py:189
@@ -2398,7 +2398,7 @@ msgstr "本操作不可撤销。"
 #: journal/views/collection.py:510 journal/views/collection.py:553
 #: journal/views/collection.py:592 journal/views/collection.py:604
 #: journal/views/collection.py:629 journal/views/collection.py:666
-#: journal/views/common.py:308 journal/views/mark.py:317
+#: journal/views/common.py:317 journal/views/mark.py:317
 #: journal/views/post.py:60 journal/views/post.py:80 journal/views/post.py:102
 #: journal/views/post.py:172 journal/views/post.py:201
 #: journal/views/post.py:274 journal/views/post.py:289
@@ -4028,7 +4028,7 @@ msgstr "扫描条形码"
 msgid "Notification"
 msgstr "通知"
 
-#: common/templates/_header.html:135 users/models/task.py:23
+#: common/templates/_header.html:135 users/models/task.py:49
 #: users/templates/users/account.html:219
 msgid "Pending"
 msgstr "等待"
@@ -4374,7 +4374,7 @@ msgstr "已关注"
 msgid "following you"
 msgstr "关注了你"
 
-#: common/templatetags/mastodon.py:53 social/templates/_event_post.html:92
+#: common/templatetags/mastodon.py:53 social/templates/_event_post.html:91
 msgid "you"
 msgstr "你"
 
@@ -5484,7 +5484,7 @@ msgstr "帖文未能发布到联邦实例。"
 msgid "Authorization expired"
 msgstr "授权已过期"
 
-#: journal/models/crosspost.py:17 users/models/task.py:26
+#: journal/models/crosspost.py:17 users/models/task.py:52
 msgid "Failed"
 msgstr "失败"
 
@@ -6012,7 +6012,7 @@ msgstr "关注了{item}"
 msgid "removed mark"
 msgstr "移除标记"
 
-#: journal/templates/_collection_card.html:25
+#: journal/templates/_collection_card.html:32
 #, python-format
 msgid "%(counter)s item"
 msgid_plural "%(counter)s items"
@@ -6058,7 +6058,7 @@ msgstr "评论"
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr "还有 %(dups)s 个属于同一作品或可能重复的条目，点击显示："
 
-#: journal/templates/_sidebar_collection_filter.html:19 users/models/task.py:25
+#: journal/templates/_sidebar_collection_filter.html:19 users/models/task.py:51
 msgid "Complete"
 msgstr "完成"
 
@@ -6218,11 +6218,11 @@ msgstr "添加到收藏单"
 msgid "Create a new collection"
 msgstr "创建新收藏单"
 
-#: journal/templates/article.html:97 social/templates/_event_post.html:80
+#: journal/templates/article.html:97 social/templates/_event_post.html:79
 msgid "wrote a review"
 msgstr "写了评论"
 
-#: journal/templates/article.html:99 social/templates/_event_post.html:82
+#: journal/templates/article.html:99 social/templates/_event_post.html:81
 msgid "wrote an article"
 msgstr "写了文章"
 
@@ -6711,22 +6711,22 @@ msgstr "找不到条目，请使用本站条目网址。"
 msgid "Saved."
 msgstr "已保存。"
 
-#: journal/views/common.py:126 journal/views/mark.py:273
+#: journal/views/common.py:135 journal/views/mark.py:273
 #: journal/views/mark.py:315 journal/views/note.py:167
 #: journal/views/profile.py:42 journal/views/review.py:59
 #: journal/views/review.py:79
 msgid "Content not found"
 msgstr "内容未找到"
 
-#: journal/views/common.py:174 journal/views/mark.py:210
+#: journal/views/common.py:183 journal/views/mark.py:210
 msgid "Data saved but unable to crosspost to Fediverse instance."
 msgstr "数据已保存但未能转发到联邦实例。"
 
-#: journal/views/common.py:190
+#: journal/views/common.py:199
 msgid "Redirecting to your Fediverse instance now to re-authenticate."
 msgstr "正在重定向到你的联邦实例以重新认证。"
 
-#: journal/views/common.py:197
+#: journal/views/common.py:206
 msgid "List not found."
 msgstr "列表未找到。"
 
@@ -6953,8 +6953,8 @@ msgstr "Bluesky 登录已禁用。"
 #: mastodon/views/mastodon.py:70 mastodon/views/mastodon.py:77
 #: mastodon/views/mastodon.py:87 mastodon/views/mastodon.py:94
 #: mastodon/views/threads.py:57 mastodon/views/threads.py:65
-#: mastodon/views/threads.py:71 users/views/account.py:273
-#: users/views/account.py:392
+#: mastodon/views/threads.py:71 users/views/account.py:276
+#: users/views/account.py:395
 msgid "Authentication failed"
 msgstr "认证失败"
 
@@ -6992,7 +6992,7 @@ msgstr "Bluesky返回了无效的账号数据。"
 msgid "Invalid user."
 msgstr "无效用户。"
 
-#: mastodon/views/common.py:52 users/views/account.py:433
+#: mastodon/views/common.py:52 users/views/account.py:436
 msgid "Registration failed"
 msgstr "注册失败"
 
@@ -7128,7 +7128,7 @@ msgstr "新文章"
 msgid "Write a longer piece with a title"
 msgstr "写一篇有标题的长文"
 
-#: social/templates/_event_mark_group.html:27
+#: social/templates/_event_mark_group.html:26
 #, python-format
 msgid "marked %(counter)s item"
 msgid_plural "marked %(counter)s items"
@@ -7138,11 +7138,11 @@ msgstr[0] "标记了 %(counter)s 个条目"
 msgid "boosted"
 msgstr "转播了"
 
-#: social/templates/_event_post.html:78
+#: social/templates/_event_post.html:77
 msgid "wrote a note"
 msgstr "写了笔记"
 
-#: social/templates/_event_post.html:87
+#: social/templates/_event_post.html:86
 msgid "replying to"
 msgstr "回应"
 
@@ -7495,7 +7495,7 @@ msgstr "个人资料图片"
 msgid "Header picture"
 msgstr "背景图片"
 
-#: users/models/task.py:24
+#: users/models/task.py:50
 msgid "Started"
 msgstr "已开始"
 
@@ -7515,7 +7515,7 @@ msgstr "必填，限英文字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:394
+#: users/models/user.py:417
 msgid "This username is already taken."
 msgstr "用户名已被使用。"
 
@@ -8021,8 +8021,8 @@ msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "账号数据一旦删除后将无法恢复，确定继续吗？"
 
 #: users/templates/users/account.html:516
-msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
-msgstr "输入完整的登录用 <code>用户名@实例名</code> 或 <code>电子邮件地址</code> 以确认删除。"
+msgid "Enter your full handle, e.g. <code>username@instance.social</code>, <code>email@domain.com</code> or <code>username.bsky.social</code>, to confirm deletion."
+msgstr "输入完整的登录标识以确认删除，如 <code>用户名@实例名</code>、<code>电子邮件地址</code> 或 <code>用户名.bsky.social</code>。"
 
 #: users/templates/users/account.html:526
 msgid "Once deleted, account data cannot be recovered."
@@ -9013,56 +9013,56 @@ msgstr "以后再说"
 msgid "Passkey created"
 msgstr "通行密钥已创建"
 
-#: users/views/account.py:127
+#: users/views/account.py:130
 msgid "This username is already in use."
 msgstr "用户名已被使用。"
 
-#: users/views/account.py:138
+#: users/views/account.py:141
 msgid "This email address is already in use."
 msgstr "此电子邮件地址已被使用。"
 
-#: users/views/account.py:141
+#: users/views/account.py:144
 msgid "Email addresses from this domain are not accepted."
 msgstr "不接受此域名的电子邮件地址。"
 
-#: users/views/account.py:274 users/views/account.py:393
+#: users/views/account.py:277 users/views/account.py:396
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/views/account.py:285 users/views/account.py:357
+#: users/views/account.py:288 users/views/account.py:360
 msgid "Time is up"
 msgstr "时间已到"
 
-#: users/views/account.py:286 users/views/account.py:329
-#: users/views/account.py:358
+#: users/views/account.py:289 users/views/account.py:332
+#: users/views/account.py:361
 msgid "Please log in again to continue registration."
 msgstr "请重新登录以继续注册。"
 
-#: users/views/account.py:332
+#: users/views/account.py:335
 msgid "That is not quite right. Here is a new set."
 msgstr "不太对，换一组新的。"
 
-#: users/views/account.py:344
+#: users/views/account.py:347
 msgid "Too many attempts"
 msgstr "尝试次数过多"
 
-#: users/views/account.py:345
+#: users/views/account.py:348
 msgid "Please try again later."
 msgstr "请稍后再试。"
 
-#: users/views/account.py:434
+#: users/views/account.py:437
 msgid "Username already taken. Please try again."
 msgstr "用户名已被使用，请重试。"
 
-#: users/views/account.py:464
+#: users/views/account.py:467
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
 
-#: users/views/account.py:535
+#: users/views/account.py:549
 msgid "Account is being deleted."
 msgstr "账户删除进行中。"
 
-#: users/views/account.py:538
+#: users/views/account.py:552
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 

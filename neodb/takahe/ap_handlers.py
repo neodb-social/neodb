@@ -275,7 +275,11 @@ def identity_deleted(pk):
         return
 
     logger.warning(f"handle deleting identity {apid}")
-    if apid.user and apid.user.is_active:
+    if apid.user:
+        # Unconditional: the identity is going, so the user must go with it,
+        # whatever state the account was in. clear() is safe to repeat, and
+        # the old is_active test skipped a suspended account, leaving its
+        # tasks, webhooks and social accounts behind.
         apid.user.clear()  # for local identity, clear their user as well
     apid.clear()
 

@@ -1,21 +1,24 @@
 import pytest
 
-from catalog.models import Edition
+from catalog.models import Edition, VerifiedCreator
 from journal.models import (
     Article,
     Collection,
     CollectionMember,
     Comment,
+    Like,
     Mark,
     Note,
     Rating,
     Review,
+    Shelf,
     ShelfLogEntry,
     ShelfMember,
     ShelfType,
     Tag,
     TagMember,
 )
+from journal.models.common import Debris
 from journal.models.utils import (
     journal_exists_for_item,
     remove_data_by_identity,
@@ -95,6 +98,25 @@ class TestRemoveDataByIdentity:
         assert not CollectionMember.objects.filter(owner=self.identity).exists()
         assert not Collection.objects.filter(owner=self.identity).exists()
         assert not Article.objects.filter(owner=self.identity).exists()
+
+    def test_remove_data_clears_debris_likes_shelves_and_claims(self):
+        Mark(self.identity, self.book).update(ShelfType.COMPLETE, "done", 10, [], 0)
+        comment = Comment.objects.filter(owner=self.identity).first()
+        assert comment
+        Debris.create_from_piece(comment)
+        Like.user_like_piece(self.identity, comment)
+        VerifiedCreator.objects.create(
+            item=self.book, owner=self.identity, state="pending"
+        )
+        assert Debris.objects.filter(owner=self.identity).exists()
+        assert Like.objects.filter(owner=self.identity).exists()
+        assert Shelf.objects.filter(owner=self.identity).exists()
+        assert VerifiedCreator.objects.filter(owner=self.identity).exists()
+        remove_data_by_identity(self.identity)
+        assert not Debris.objects.filter(owner=self.identity).exists()
+        assert not Like.objects.filter(owner=self.identity).exists()
+        assert not Shelf.objects.filter(owner=self.identity).exists()
+        assert not VerifiedCreator.objects.filter(owner=self.identity).exists()
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -1,3 +1,4 @@
+import logging
 import re
 import secrets
 from urllib.parse import quote
@@ -35,8 +36,11 @@ from takahe.utils import Takahe
 
 from .. import registration_captcha as captcha
 from ..login_proof import LOGIN_PROOF_METHODS, create_login_proof_challenge
-from ..models import User
+from ..jobs.cleanup import clear_identity_data
+from ..models import Task, User
 from ..models.webhook import remove_webhook
+
+logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["GET"])
@@ -511,13 +515,22 @@ def auth_logout(request):
 
 
 def initiate_user_deletion(user):
-    # Local deletion clears NeoDB, asks Takahe to delete, then lets the
-    # identity_deleted callback finish cleanup. Takahe-initiated deletion
-    # enters at the callback step.
+    # Clear NeoDB ourselves, then ask Takahe to delete the identity so the
+    # deletion federates. The Takahe round trip is one asynchronous hop whose
+    # handler swallows its own exceptions, so it must not be the only thing
+    # that removes the user's data. identity_deleted arriving later is
+    # idempotent on an already cleared identity. Takahe-initiated deletion
+    # still enters at that callback.
     user.clear()
-    r = Takahe.request_delete_identity(user.identity.pk)
-    if not r:
-        django_rq.get_queue("mastodon").enqueue(user.identity.clear)
+    try:
+        django_rq.get_queue("mastodon").enqueue(clear_identity_data, user.identity.pk)
+    except Exception as e:
+        # The queue is the only thing standing between the user and their
+        # data still being here, so fall back to doing it in the request
+        # rather than leaving it for the reconcile job an hour later.
+        logger.error(f"unable to queue data removal for {user}: {e}")
+        clear_identity_data(user.identity.pk)
+    Takahe.request_delete_identity(user.identity.pk)
 
 
 @require_http_methods(["POST"])
@@ -525,10 +538,19 @@ def initiate_user_deletion(user):
 def clear_data(request):
     if request.META.get("HTTP_AUTHORIZATION"):
         raise BadRequest("Only for web login")
-    v = request.POST.get("verification", "").strip()
+    if Task.pending_tasks(request.user).exists():
+        # A running export finishes its work and saves its row whatever we do
+        # here, which would write a fresh copy of the journal to disk after
+        # the account is gone. The form hides the button for this; refuse it
+        # on the server too.
+        messages.add_message(
+            request, messages.ERROR, _("Task in progress, can't delete now.")
+        )
+        return redirect(reverse("users:data"))
+    v = request.POST.get("verification", "").strip().lstrip("@").casefold()
     if v:
         for acct in request.user.social_accounts.all():
-            if acct.handle == v:
+            if (acct.handle or "").casefold() == v:
                 initiate_user_deletion(request.user)
                 record_activity("leave", "web")
                 messages.add_message(

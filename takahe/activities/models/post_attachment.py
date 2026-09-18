@@ -1,10 +1,15 @@
+import logging
 from functools import partial
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from core.uploads import upload_namer
 from core.uris import ProxyAbsoluteUrl, RelativeAbsoluteUrl
 from stator.models import State, StateField, StateGraph, StatorModel
+
+logger = logging.getLogger(__name__)
 
 
 class PostAttachmentStates(StateGraph):
@@ -187,3 +192,23 @@ class PostAttachment(StatorModel):
             "description": self.name,
             "blurhash": self.blurhash,
         }
+
+
+@receiver(post_delete, sender=PostAttachment)
+def delete_attachment_files(sender, instance: PostAttachment, **kwargs):
+    """Reclaim an attachment's bytes when its row goes.
+
+    Nothing else did: the row cascades away with its post, a day after the
+    deletion fans out, and takes only the database entry with it. Doing this
+    on the row rather than earlier is what keeps the Delete activity
+    serializable, because PostAttachment.to_ap() reads self.file.url and a
+    cleared field raises. A remote attachment has no stored file and is a
+    no-op here. Best effort: a storage error must not abort the delete.
+    """
+    for blob in (instance.file, instance.thumbnail):
+        if not blob:
+            continue
+        try:
+            blob.delete(save=False)
+        except Exception as e:
+            logger.warning("Error deleting attachment file %s: %s", blob.name, e)

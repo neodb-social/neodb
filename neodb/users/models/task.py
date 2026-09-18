@@ -1,4 +1,6 @@
 import logging
+import os
+import shutil
 from typing import Self
 
 import django_rq
@@ -15,6 +17,30 @@ from .user import User
 logger = logging.getLogger(__name__)
 
 
+def _delete_path(file_path: str) -> bool:
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            logger.debug(f"Deleted file {file_path}")
+            # Remove parent directories if empty (date-based dirs like 2024/01/15/)
+            parent = os.path.dirname(file_path)
+            for _ in range(3):  # up to 3 levels (day/month/year)
+                if parent and os.path.isdir(parent) and not os.listdir(parent):
+                    os.rmdir(parent)
+                    logger.debug(f"Removed empty directory {parent}")
+                    parent = os.path.dirname(parent)
+                else:
+                    break
+            return True
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+            logger.debug(f"Deleted directory {file_path}")
+            return True
+    except OSError as e:
+        logger.warning(f"Failed to delete {file_path}: {e}")
+    return False
+
+
 class Task(TypedModel):
     TaskQueue = "default"
     DefaultMetadata = {}
@@ -24,6 +50,8 @@ class Task(TypedModel):
         started = 1, _("Started")
         complete = 2, _("Complete")
         failed = 3, _("Failed")
+
+    FileKeys = ("file", "matched_file")
 
     user = models.ForeignKey(User, models.CASCADE, null=False)
     # type = models.CharField(max_length=20, null=False)
@@ -93,6 +121,32 @@ class Task(TypedModel):
         return django_rq.get_queue(self.TaskQueue).enqueue(
             self._execute, self.pk, job_id=self.job_id
         )
+
+    def cancel(self) -> None:
+        """Drop this task's queued job, if it has not started yet."""
+        try:
+            job = django_rq.get_queue(self.TaskQueue).fetch_job(self.job_id)
+            if job:
+                job.cancel()
+        except Exception as e:
+            logger.warning(f"{self} cancel error {e}")
+
+    def delete_files(self) -> bool:
+        """Delete the file(s) this task owns, if any exist.
+
+        Some importers (e.g. RYM) keep a derived ``matched_file`` alongside
+        the original upload -- both belong to the task and must go together.
+
+        Returns True if at least one file was deleted.
+        """
+        if not self.metadata:
+            return False
+        deleted = False
+        for key in self.FileKeys:
+            path = self.metadata.get(key)
+            if path and _delete_path(path):
+                deleted = True
+        return deleted
 
     def notify(self) -> None:
         ok = self.state == self.States.complete

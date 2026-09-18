@@ -3,7 +3,7 @@ from auditlog.context import set_actor
 from django.db import transaction
 from django.db.utils import IntegrityError
 
-from catalog.models import Item
+from catalog.models import Item, VerifiedCreator
 from common.models.misc import MISSING_COVER
 from journal.search import JournalIndex
 from users.models import APIdentity, User
@@ -17,7 +17,8 @@ from .itemlist import ListMember
 from .note import Note
 from .rating import Rating
 from .review import Review
-from .shelf import ShelfLogEntry, ShelfMember
+from .like import Like
+from .shelf import Shelf, ShelfLogEntry, ShelfMember
 from .tag import Tag, TagMember
 
 logger = logging.getLogger(__name__)
@@ -130,6 +131,14 @@ def remove_data_by_identity(owner: APIdentity):
     Collection.objects.filter(owner=owner).delete()
     FeaturedCollection.objects.filter(owner=owner).delete()
     Article.objects.filter(owner=owner).delete()
+    Like.objects.filter(owner=owner).delete()
+    # Debris holds the ap_object of pieces this identity already deleted, so
+    # it outlives every row above and must go with them.
+    Debris.objects.filter(owner=owner).delete()
+    # Shelves last: their members are gone by now, and PROTECT would refuse
+    # while any remained.
+    Shelf.objects.filter(owner=owner).delete()
+    VerifiedCreator.objects.filter(owner=owner).delete()
     index = JournalIndex.instance()
     index.delete_by_owner(owner.pk)
     logger.info(f"removed journal data by {owner}, {removed} uploaded files")

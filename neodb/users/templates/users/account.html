@@ -513,8 +513,8 @@
                     onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">
                 {% csrf_token %}
                 <div>
-                  {% blocktrans %}Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion.{% endblocktrans %}
-                  <input type="email"
+                  {% blocktrans %}Enter your full handle, e.g. <code>username@instance.social</code>, <code>email@domain.com</code> or <code>username.bsky.social</code>, to confirm deletion.{% endblocktrans %}
+                  <input type="text"
                          name="verification"
                          _="on input remove [@disabled] from #delete end"
                          value=""
