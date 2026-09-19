@@ -5,6 +5,7 @@ from pytest_httpx import HTTPXMock
 from core.files import check_url_safety
 from core.models import Config
 from users.models import Domain, Identity, User
+from users.models.identity import IdentityStates
 from users.views.identity import CreateIdentity
 
 
@@ -1141,3 +1142,35 @@ def test_pruneidentities_keeps_rows_that_resolve_an_alias(config_system, setting
     # And the identity the alias names, which holds nothing of its own either:
     # deleting it would null the alias out and strand the actor
     assert Identity.objects.filter(pk=canonical.pk).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False,
+    assert_all_responses_were_requested=False,
+)
+def test_a_merged_alias_is_never_refetched(httpx_mock, config_system):
+    """
+    A retired endpoint answering 410 makes fetch_actor delete the row, which
+    would take the mapping with it and strand every peer still addressing the
+    actor by that URI.
+    """
+    domain = Domain.get_remote_domain("remote.example")
+    canonical = Identity.objects.create(
+        actor_uri="https://remote.example/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://remote.example/users/ruben",
+        local=False,
+        canonical=canonical,
+    )
+    httpx_mock.add_response(url=alias.actor_uri, status_code=410, is_reusable=True)
+
+    assert alias.fetch_actor() is False
+    assert Identity.objects.filter(pk=alias.pk).exists()
+    assert Identity.by_actor_uri(alias.actor_uri).pk == canonical.pk
+    # And stator leaves it alone rather than retrying the retired endpoint
+    assert IdentityStates.handle_outdated(alias) == IdentityStates.updated

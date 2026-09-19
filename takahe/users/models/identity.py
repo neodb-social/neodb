@@ -358,6 +358,10 @@ class IdentityStates(StateGraph):
         if identity.local:
             identity.calculate_stats()
             return cls.updated
+        # A row kept only to resolve one of an actor's URIs holds nothing to
+        # refresh, and its endpoint is the other row's business
+        if identity.canonical_id:
+            return cls.updated
         # Run the actor fetch and progress to updated if it succeeds
         if identity.fetch_actor():
             return cls.updated
@@ -1335,6 +1339,11 @@ class Identity(StatorModel):
 
         if self.local:
             raise ValueError("Cannot fetch local identities")
+        if self.canonical_id:
+            # This row is a second URI for an actor stored elsewhere. Asking
+            # the retired endpoint gains nothing and a 410 there would delete
+            # the row, taking the mapping with it.
+            return False
         if (self.actor_uri or "").lower().split(":")[0] not in ["http", "https"]:
             return False
         try:
