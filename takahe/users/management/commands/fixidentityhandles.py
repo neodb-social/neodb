@@ -4,8 +4,10 @@ from urllib.parse import urlparse
 
 import httpx
 from core.files import SSRFAttemptError
+from activities.models import Conversation
 from core.json import json_from_response
 from core.ld import canonicalise
+from core.models import Config
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError, transaction
 from django.db.models import Model
@@ -21,8 +23,23 @@ ALIAS = "alias"
 FREE = "free"
 RELEASABLE = "releasable"
 UNFIXABLE = "unfixable"
+FOREIGN = "foreign"
 
 REPAIRABLE = {ALIAS, FREE, RELEASABLE}
+
+
+def same_origin(one: str, other: str) -> bool:
+    """
+    Whether two actor URIs come from the same host.
+
+    Only the server an actor lives on may say that actor is an alias of
+    another. Believing a server that names a different host's actor would let
+    it move that actor's posts and followers onto whatever it points at, so a
+    cross-host claim is reported instead, however genuine it may be: a server
+    that really did move can say so in alsoKnownAs, and none of the ones seen
+    doing this do.
+    """
+    return urlparse(one).hostname == urlparse(other).hostname
 
 
 def relation_target(rel) -> tuple[type[Model], str]:
@@ -67,6 +84,9 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
     if alias.users.exists():
         raise ValueError(f"Identity {alias.pk} belongs to a local user")
     moved: dict[str, int] = {}
+    conversations = list(
+        Conversation.objects.filter(participants=alias).values_list("pk", flat=True)
+    )
     with transaction.atomic():
         for rel in Identity._meta.related_objects:
             model, field_name = relation_target(rel)
@@ -82,6 +102,25 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
                 else:
                     key = f"{model._meta.label} moved"
                 moved[key] = moved.get(key, 0) + 1
+        for conversation in Conversation.objects.filter(pk__in=conversations):
+            participants = set(conversation.participants.values_list("pk", flat=True))
+            new_hash = Conversation.compute_participant_hash(participants)
+            if new_hash == conversation.participant_hash:
+                continue
+            if (
+                Conversation.objects.filter(participant_hash=new_hash)
+                .exclude(pk=conversation.pk)
+                .exists()
+            ):
+                # Both identities already talk to the same people, and merging
+                # the two threads is not this command's call to make
+                raise ValueError(
+                    f"Identity {alias.pk} shares conversation {conversation.pk} "
+                    "with the identity it merges into"
+                )
+            Conversation.objects.filter(pk=conversation.pk).update(
+                participant_hash=new_hash
+            )
         # Nothing may still point at the row about to go, or deleting it would
         # cascade into rows the merge was supposed to keep
         left = identity_references(alias)
@@ -126,6 +165,9 @@ class Command(BaseCommand):
         *args,
         **options,
     ):
+        # Only middleware and the stator runner load this, and a probe needs
+        # the system actor's key to sign with
+        Config.system = Config.load_system()
         if actor:
             identities = Identity.objects.filter(actor_uri=actor)
         else:
@@ -143,7 +185,7 @@ class Command(BaseCommand):
 
         repairable = [f for f in findings if f[1] in REPAIRABLE]
         self.stdout.write("")
-        for kind in [FREE, RELEASABLE, ALIAS, UNFIXABLE, UNREACHABLE]:
+        for kind in [FREE, RELEASABLE, ALIAS, FOREIGN, UNFIXABLE, UNREACHABLE]:
             count = len([f for f in findings if f[1] == kind])
             if count:
                 self.stdout.write(f"{kind}: {count}")
@@ -179,6 +221,12 @@ class Command(BaseCommand):
         document_id = document.get("id")
         if isinstance(document_id, str) and document_id != identity.actor_uri:
             # This row is the alias; the actor it names is the real one
+            if not same_origin(identity.actor_uri, document_id):
+                return (
+                    FOREIGN,
+                    Identity.objects.filter(actor_uri=document_id).first(),
+                    document_id,
+                )
             canonical = Identity.objects.filter(actor_uri=document_id).first()
             return ALIAS, canonical, document_id
         handle = self.wanted_handle(identity.actor_uri, document)
@@ -198,6 +246,8 @@ class Command(BaseCommand):
         if holder_document.get("id") == identity.actor_uri:
             # The holder is an alias of this identity, so it can give the
             # handle back
+            if not same_origin(identity.actor_uri, holder.actor_uri):
+                return FOREIGN, holder, None
             return RELEASABLE, holder, None
         # Two actors that really are distinct, such as a Lemmy user and a
         # community of the same name. The schema cannot hold both.

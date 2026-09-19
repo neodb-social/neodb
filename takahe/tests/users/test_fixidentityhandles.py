@@ -1,7 +1,8 @@
 from io import StringIO
 
 import pytest
-from activities.models import Post
+from activities.models import Conversation, Post
+from core.models import Config
 from django.core.management import call_command
 from users.models import Domain, Identity
 
@@ -192,3 +193,90 @@ def test_unreachable_actor_is_left_alone(httpx_mock, config_system, _no_federati
     assert "unreachable" in output
     identity.refresh_from_db()
     assert identity.state == "updated"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_cross_host_claim_is_never_merged(httpx_mock, config_system, _no_federation):
+    """
+    Only the server an actor lives on may call it an alias of another. A
+    document naming a different host's actor is how a server would take that
+    actor's posts, and a genuine move (bae.st to shitpost.cloud) is
+    indistinguishable from it, so both are reported instead.
+    """
+    canonical = Identity.objects.create(
+        actor_uri="https://other.example/users/owl",
+        local=False,
+    )
+    claimer = Identity.objects.create(
+        actor_uri="https://claimer.example/users/owl",
+        local=False,
+    )
+    post = Post.objects.create(author=claimer, local=False, content="<p>mine</p>")
+    mock_actor(httpx_mock, claimer.actor_uri, canonical.actor_uri, "owl")
+    mock_actor(httpx_mock, canonical.actor_uri, canonical.actor_uri, "owl")
+
+    output = run(fix=True, yes=True)
+
+    assert "foreign" in output
+    assert Identity.objects.filter(pk=claimer.pk).exists()
+    post.refresh_from_db()
+    assert post.author_id == claimer.pk
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_merge_rewrites_the_conversation_key(httpx_mock, config_system, _no_federation):
+    """
+    A conversation is found by a hash of its participants, so moving one
+    without rewriting the hash hides the thread from everything that looks it
+    up and splits the history in two.
+    """
+    domain = Domain.get_remote_domain("example.com")
+    canonical = Identity.objects.create(
+        actor_uri="https://example.com/ruben",
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    other = Identity.objects.create(
+        actor_uri="https://example.com/someone",
+        username="someone",
+        domain=domain,
+        local=False,
+    )
+    conversation = Conversation.get_or_create_for_participants({alias.pk, other.pk})
+    mock_actor(httpx_mock, canonical.actor_uri, canonical.actor_uri, "ruben")
+    mock_actor(httpx_mock, alias.actor_uri, canonical.actor_uri, "ruben")
+
+    run(fix=True, yes=True)
+
+    conversation.refresh_from_db()
+    assert conversation.participant_hash == Conversation.compute_participant_hash(
+        {canonical.pk, other.pk}
+    )
+    assert (
+        Conversation.get_or_create_for_participants({canonical.pk, other.pk}).pk
+        == conversation.pk
+    )
+
+
+@pytest.mark.django_db
+def test_loads_the_system_config():
+    """
+    Only middleware and the stator runner load it, and SystemActor reads it to
+    sign a probe, so a management process that skips this cannot fetch a
+    single actor. Deliberately runs without the config_system fixture, which
+    is what hid this.
+    """
+    Config.__forced__ = False
+    if hasattr(Config, "system"):
+        del Config.system
+
+    run()
+
+    assert getattr(Config, "system", None) is not None
