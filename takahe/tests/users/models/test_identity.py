@@ -850,3 +850,42 @@ def test_fetch_actor_adopts_canonical_domain_when_webfinger_loops_back(
     identity.refresh_from_db()
     assert identity.username == "michael"
     assert identity.domain_id == "news.example"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_actor_still_refreshes_alias_that_already_holds_a_handle(
+    httpx_mock, config_system
+):
+    """
+    Rows fetched before the alias and loop-back guards existed already hold a
+    handle and work. Refusing their refresh would strand a working identity in
+    connection_issue, so the guards apply only to rows yet to claim a handle.
+    """
+    domain = Domain.get_remote_domain("example.com")
+    identity = Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        username="ruben",
+        domain=domain,
+        name="Old Name",
+        local=False,
+    )
+    httpx_mock.add_response(
+        url="https://example.com/users/ruben",
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": ["https://www.w3.org/ns/activitystreams"],
+            "id": "https://example.com/ruben",
+            "type": "Person",
+            "preferredUsername": "ruben",
+            "inbox": "https://example.com/ruben/inbox",
+            "name": "New Name",
+        },
+    )
+
+    assert identity.fetch_actor()
+
+    identity.refresh_from_db()
+    assert identity.name == "New Name"
+    assert identity.username == "ruben"
+    assert identity.domain_id == "example.com"
