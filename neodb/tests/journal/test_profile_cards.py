@@ -81,6 +81,9 @@ def test_own_home_lists_recent_podcast_episodes_in_sidebar():
     assert 'class="dc-cards dc-sidebar-cards"' in content
     assert episode.display_title in content
     assert 'data-media="' in content
+    # the markup alone is inert; podcast.js binds the click that starts playback
+    assert "shikwasa" in content
+    assert "js/podcast.js" in content
 
     # visitors see the owner's shelves, not their listening queue
     _, visitor = _member("visitor")
