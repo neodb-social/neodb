@@ -776,6 +776,72 @@ def test_fetch_actor_keeps_host_handle_when_webfinger_does_not_loop_back(
             "preferredUsername": "luciana",
             "inbox": "https://blog.example/inbox",
         },
+        is_reusable=True,
+    )
+    httpx_mock.add_response(
+        url="https://blog.example/.well-known/host-meta",
+        status_code=404,
+        is_reusable=True,
+    )
+    httpx_mock.add_response(
+        url="https://blog.example/.well-known/webfinger?resource=acct:luciana@blog.example",
+        json={
+            "subject": "acct:luciana@other.example",
+            "links": [
+                {
+                    "rel": "self",
+                    "type": "application/activity+json",
+                    "href": "https://other.example/users/luciana",
+                },
+            ],
+        },
+        is_reusable=True,
+    )
+
+    assert identity.fetch_actor()
+
+    identity.refresh_from_db()
+    assert identity.username == "luciana"
+    assert identity.domain_id == "blog.example"
+
+    # The check must hold on every refresh, not only on the first fetch, or
+    # the next one moves the row onto the other actor's handle
+    assert identity.fetch_actor()
+
+    identity.refresh_from_db()
+    assert identity.username == "luciana"
+    assert identity.domain_id == "blog.example"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_actor_keeps_stored_handle_when_webfinger_does_not_loop_back(
+    httpx_mock, config_system
+):
+    """
+    A row stored before the loop-back guard existed holds a handle webfinger
+    would not verify today. Refreshing it must leave that handle alone rather
+    than rewrite a working identity.
+    """
+    domain = Domain.get_remote_domain("other.example")
+    identity = Identity.objects.create(
+        actor_uri="https://blog.example/?author=35",
+        username="luciana",
+        domain=domain,
+        name="Old Name",
+        local=False,
+    )
+    httpx_mock.add_response(
+        url="https://blog.example/?author=35",
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": ["https://www.w3.org/ns/activitystreams"],
+            "id": "https://blog.example/?author=35",
+            "type": "Person",
+            "preferredUsername": "luciana",
+            "inbox": "https://blog.example/inbox",
+            "name": "New Name",
+        },
     )
     httpx_mock.add_response(
         url="https://blog.example/.well-known/host-meta",
@@ -798,8 +864,9 @@ def test_fetch_actor_keeps_host_handle_when_webfinger_does_not_loop_back(
     assert identity.fetch_actor()
 
     identity.refresh_from_db()
+    assert identity.name == "New Name"
     assert identity.username == "luciana"
-    assert identity.domain_id == "blog.example"
+    assert identity.domain_id == "other.example"
 
 
 @pytest.mark.django_db

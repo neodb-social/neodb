@@ -1347,13 +1347,14 @@ class Identity(StatorModel):
             return False
         if "type" not in document:
             return False
-        # The two guards below decide whether this document may claim a
-        # handle, so they apply only to a row that has yet to claim one. A row
-        # already holding a handle was fetched successfully before the guards
-        # existed, and refusing its refresh would strand a working identity in
-        # connection_issue; repairing those is a migration's job, not a read
-        # path's.
-        unclaimed = not self.username
+        # The guards below decide whether this document may take a handle, so
+        # neither may disturb the handle a row already holds: it was fetched
+        # successfully before they existed, and refusing or rewriting it would
+        # strand a working identity in connection_issue. Repairing those rows
+        # is a migration's job, not a read path's.
+        stored_username = self.username
+        stored_domain_id = self.domain_id
+        unclaimed = not stored_username
         # An actor that names a different id is an alias of that actor, not
         # this row. Several servers publish one actor under several paths, and
         # the actor GET follows redirects, so actor_uri can be left pointing at
@@ -1434,17 +1435,23 @@ class Identity(StatorModel):
                 webfinger_actor, webfinger_handle = self.fetch_webfinger(
                     f"{self.username}@{actor_url_parts.hostname}"
                 )
-                if unclaimed and webfinger_handle and webfinger_actor != self.actor_uri:
+                if webfinger_handle and webfinger_actor != self.actor_uri:
                     # WebFinger answered for a different actor, so the handle
-                    # it reports is that actor's, not ours. Taking it would
-                    # claim a handle this row cannot hold. Keep the one derived
-                    # from the actor's own host, as Mastodon and Pleroma do.
+                    # it reports is that actor's, not ours. Never move this row
+                    # onto it: keep the handle the row already holds, or the
+                    # one derived from the actor's own host when it holds none
+                    # yet, as Mastodon and Pleroma do. Keeping rather than
+                    # skipping the check leaves rows stored before this guard
+                    # untouched and still verifies every later refresh.
+                    if stored_username and stored_domain_id:
+                        self.username = stored_username
+                        self.domain = Domain.get_remote_domain(stored_domain_id)
                     logger.info(
                         "WebFinger for %s points at %s, keeping %s@%s",
                         self.actor_uri,
                         webfinger_actor,
                         self.username,
-                        actor_url_parts.hostname,
+                        self.domain_id,
                     )
                 elif webfinger_handle:
                     webfinger_username, webfinger_domain = webfinger_handle.split("@")
