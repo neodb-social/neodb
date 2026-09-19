@@ -2137,6 +2137,7 @@ class Emoji(models.Model):
     # Files may not be populated if it's remote and not cached on our side yet
     file = models.ImageField(
         # upload_to=partial(upload_emoji_namer, "emoji"),
+        storage=upload_store,
         null=True,
         blank=True,
     )
@@ -2203,8 +2204,10 @@ class Emoji(models.Model):
     def full_url(self, always_show=False) -> RelativeAbsoluteUrl:
         if self.is_usable or always_show:
             if self.file:
-                return AutoAbsoluteUrl(settings.TAKAHE_MEDIA_URL + self.file.name)
-                # return AutoAbsoluteUrl(self.file.url)
+                # .url, not TAKAHE_MEDIA_URL + name: on S3 the takahe storage
+                # serves from the bucket, which TAKAHE_MEDIA_URL only matches
+                # while compose happens to point both at the same value
+                return AutoAbsoluteUrl(self.file.url)
             elif self.remote_url:
                 return ProxyAbsoluteUrl(
                     f"/proxy/emoji/{self.pk}/",

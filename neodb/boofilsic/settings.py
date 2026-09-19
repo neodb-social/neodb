@@ -603,6 +603,15 @@ TAKAHE_SESSION_COOKIE_NAME = "sessionid"
 
 MEDIA_BACKEND: str = env("MEDIA_BACKEND", default="local://")
 
+# S3-compatible hosts disagree on what they accept, so the knobs a host may
+# need are env-driven. The names mirror Takahe's MEDIA_BACKEND_S3_ACL, and
+# compose forwards one value to both sides.
+MEDIA_BACKEND_S3_ACL: str = env("MEDIA_BACKEND_S3_ACL", default="public-read")
+MEDIA_BACKEND_S3_REGION: str = env("MEDIA_BACKEND_S3_REGION", default="")
+MEDIA_BACKEND_S3_ADDRESSING_STYLE: str = env(
+    "MEDIA_BACKEND_S3_ADDRESSING_STYLE", default=""
+)
+
 MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))
 MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")
 
@@ -621,7 +630,17 @@ if MEDIA_BACKEND and MEDIA_BACKEND.startswith("s3"):
     _parsed_media_backend: parse.ParseResult = env.url("MEDIA_BACKEND")
     AWS_STORAGE_BUCKET_NAME = (_parsed_media_backend.path or "").lstrip("/")
     AWS_QUERYSTRING_AUTH = False
-    AWS_DEFAULT_ACL = "public-read"
+    # Empty means send no ACL header at all: a bucket with ACLs disabled
+    # rejects a canned ACL outright (AWS Object Ownership "bucket owner
+    # enforced" answers AccessControlListNotSupported), and such a bucket is
+    # made readable by policy instead.
+    AWS_DEFAULT_ACL = MEDIA_BACKEND_S3_ACL or None
+    if MEDIA_BACKEND_S3_REGION:
+        AWS_S3_REGION_NAME = MEDIA_BACKEND_S3_REGION
+    if MEDIA_BACKEND_S3_ADDRESSING_STYLE:
+        # "path" is what MinIO and most self-hosted gateways need, because
+        # virtual-host addressing requires a wildcard DNS entry per bucket
+        AWS_S3_ADDRESSING_STYLE = MEDIA_BACKEND_S3_ADDRESSING_STYLE
     if _parsed_media_backend.username is not None:
         AWS_ACCESS_KEY_ID = _parsed_media_backend.username
         AWS_SECRET_ACCESS_KEY = parse.unquote(_parsed_media_backend.password or "")

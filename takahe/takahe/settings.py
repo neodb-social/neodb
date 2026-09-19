@@ -150,8 +150,16 @@ class Settings(BaseSettings):
     MEDIA_BACKEND: MediaBackendUrl | None = None
 
     #: S3 ACL to apply to all media objects when MEDIA_BACKEND is set to S3. If using a CDN
-    #: and/or have public access blocked to buckets this will likely need to be 'private'
+    #: and/or have public access blocked to buckets this will likely need to be 'private'.
+    #: Leave empty to send no ACL at all, which a bucket with ACLs disabled requires.
     MEDIA_BACKEND_S3_ACL: str = "public-read"
+
+    #: S3 region to sign requests for; leave empty to let boto3 decide.
+    MEDIA_BACKEND_S3_REGION: str = ""
+
+    #: S3 addressing style, "path" or "virtual"; leave empty for the boto3 default.
+    #: MinIO and most self-hosted gateways need "path".
+    MEDIA_BACKEND_S3_ADDRESSING_STYLE: str = ""
 
     #: Maximum filesize when uploading images. Increasing this may increase memory utilization
     #: because all images with a dimension greater than 2000px are resized to meet that limit, which
@@ -450,7 +458,11 @@ if SETUP.MEDIA_BACKEND:
         STORAGES["default"]["BACKEND"] = "core.uploads.TakaheS3Storage"
         AWS_STORAGE_BUCKET_NAME = path.lstrip("/")
         AWS_QUERYSTRING_AUTH = False
-        AWS_DEFAULT_ACL = SETUP.MEDIA_BACKEND_S3_ACL
+        AWS_DEFAULT_ACL = SETUP.MEDIA_BACKEND_S3_ACL or None
+        if SETUP.MEDIA_BACKEND_S3_REGION:
+            AWS_S3_REGION_NAME = SETUP.MEDIA_BACKEND_S3_REGION
+        if SETUP.MEDIA_BACKEND_S3_ADDRESSING_STYLE:
+            AWS_S3_ADDRESSING_STYLE = SETUP.MEDIA_BACKEND_S3_ADDRESSING_STYLE
         if SETUP.MEDIA_BACKEND.username is not None:
             AWS_ACCESS_KEY_ID = SETUP.MEDIA_BACKEND.username
             AWS_SECRET_ACCESS_KEY = urllib.parse.unquote(

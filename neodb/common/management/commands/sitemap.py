@@ -1,9 +1,10 @@
 import os
-import shutil
 import tempfile
 from itertools import islice
 
 from django.conf import settings
+from django.core.files.base import File
+from django.core.files.storage import default_storage
 from django.db.models import Count, Exists, Max, OuterRef
 
 from catalog.models import *
@@ -88,15 +89,18 @@ class Command(SiteCommand):
             for r in ratings.iterator():
                 f.write(Item.objects.get(pk=r["item_id"]).absolute_url + "\n")
 
-        fn = settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
-        # mkstemp() creates the file as 0600, so set the mode the web server expects
-        shutil.copyfile(temp, fn)
-        os.chmod(fn, 0o644)
+        # Unlike an export, the sitemap is fetched by crawlers over the web, so
+        # it has to live wherever MEDIA_URL actually points -- the bucket on an
+        # S3 backend. Writing it to MEDIA_ROOT only worked while the two agreed.
+        rel = settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
+        # FileSystemStorage.save() never overwrites; it would pick a suffixed
+        # name and leave the advertised URL serving the previous run's file
+        if default_storage.exists(rel):
+            default_storage.delete(rel)
+        with open(temp, "rb") as f:
+            rel = default_storage.save(rel, File(f))
         os.remove(temp)
-        url = (
-            settings.SITE_INFO["site_url"]
-            + settings.MEDIA_URL
-            + settings.EXPORT_FILE_PATH_ROOT
-            + "sitemap.txt"
-        )
+        url = default_storage.url(rel)
+        if "://" not in url:
+            url = settings.SITE_INFO["site_url"] + url
         self.stdout.write(self.style.SUCCESS(f"Generated {url}"))

@@ -1131,6 +1131,12 @@ class EnvironmentSettings(TemplateView):
         ],
         _("Media and files"): [
             ("MEDIA_BACKEND", lambda: settings.MEDIA_BACKEND),
+            ("MEDIA_BACKEND_S3_ACL", lambda: settings.MEDIA_BACKEND_S3_ACL),
+            ("MEDIA_BACKEND_S3_REGION", lambda: settings.MEDIA_BACKEND_S3_REGION),
+            (
+                "MEDIA_BACKEND_S3_ADDRESSING_STYLE",
+                lambda: settings.MEDIA_BACKEND_S3_ADDRESSING_STYLE,
+            ),
             ("NEODB_MEDIA_ROOT", lambda: settings.MEDIA_ROOT),
             ("NEODB_MEDIA_URL", lambda: settings.MEDIA_URL),
             ("TAKAHE_MEDIA_ROOT", lambda: settings.TAKAHE_MEDIA_ROOT),

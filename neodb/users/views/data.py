@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.db.models import Min
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
@@ -255,6 +255,32 @@ def user_task_status(request, task_type: str):
     return render(request, "users/user_task_status.html", {"task": task})
 
 
+def _serve_generated_file(
+    request, path: str, content_type: str, filename: str
+) -> HttpResponseBase:
+    """Stream a file a task generated under MEDIA_ROOT.
+
+    These artifacts are not media: exports and matched CSVs are written by the
+    worker and read back by the web process over the volume both mount, and
+    they never go to the media storage. Serving them used to be an
+    ``X-Accel-Redirect`` to ``MEDIA_URL + relpath``, which only works while
+    MEDIA_URL is the local ``/m/`` prefix nginx aliases. On an S3 backend
+    MEDIA_URL is the bucket or CDN, so the header named an absolute URL that no
+    nginx location can internally redirect to, and the download broke.
+    """
+    if not os.path.isfile(path):
+        messages.add_message(
+            request, messages.ERROR, _("Export file expired. Please export again.")
+        )
+        return redirect(reverse("users:data"))
+    return FileResponse(
+        open(path, "rb"),
+        content_type=content_type,
+        as_attachment=True,
+        filename=filename,
+    )
+
+
 @login_required
 def user_task_download(request, task_type: str):
     # WXR is served as a bare .xml: WordPress's importer takes the XML file
@@ -275,15 +301,12 @@ def user_task_download(request, task_type: str):
     if not task or task.state != Task.States.complete or not task.metadata.get("file"):
         messages.add_message(request, messages.ERROR, _("Export file not available."))
         return redirect(reverse("users:data"))
-    response = HttpResponse()
-    response["X-Accel-Redirect"] = (
-        settings.MEDIA_URL + task.metadata["file"][len(settings.MEDIA_ROOT) :]
+    return _serve_generated_file(
+        request,
+        task.metadata["file"],
+        content_type,
+        f"{task.filename}.{extension}",
     )
-    response["Content-Type"] = content_type
-    response["Content-Disposition"] = (
-        f'attachment; filename="{task.filename}.{extension}"'
-    )
-    return response
 
 
 @login_required
@@ -308,18 +331,12 @@ def export_marks(request):
                 request, messages.ERROR, _("Export file not available.")
             )
             return redirect(reverse("users:data"))
-        try:
-            with open(task.metadata["file"], "rb") as fh:
-                response = HttpResponse(
-                    fh.read(), content_type="application/vnd.ms-excel"
-                )
-                response["Content-Disposition"] = 'attachment;filename="marks.xlsx"'
-                return response
-        except Exception:
-            messages.add_message(
-                request, messages.ERROR, _("Export file expired. Please export again.")
-            )
-            return redirect(reverse("users:data"))
+        return _serve_generated_file(
+            request,
+            task.metadata.get("file") or "",
+            "application/vnd.ms-excel",
+            "marks.xlsx",
+        )
 
 
 @login_required
@@ -811,14 +828,14 @@ def rym_download(request):
     if not os.path.exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
-    response = HttpResponse()
-    response["X-Accel-Redirect"] = settings.MEDIA_URL + path[len(settings.MEDIA_ROOT) :]
-    response["Content-Type"] = "text/csv"
     hint = task.metadata.get("filename_hint") or "rym_export.csv"
     stem, _ext = os.path.splitext(hint)
-    filename = f"{stem}-matched.csv"
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
-    return response
+    return FileResponse(
+        open(path, "rb"),
+        content_type="text/csv",
+        as_attachment=True,
+        filename=f"{stem}-matched.csv",
+    )
 
 
 def _storygraph_active_task(user):
@@ -1037,14 +1054,14 @@ def storygraph_download(request):
     if not os.path.exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
-    response = HttpResponse()
-    response["X-Accel-Redirect"] = settings.MEDIA_URL + path[len(settings.MEDIA_ROOT) :]
-    response["Content-Type"] = "text/csv"
     hint = task.metadata.get("filename_hint") or "storygraph_export.csv"
     stem, _ext = os.path.splitext(hint)
-    filename = f"{stem}-matched.csv"
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
-    return response
+    return FileResponse(
+        open(path, "rb"),
+        content_type="text/csv",
+        as_attachment=True,
+        filename=f"{stem}-matched.csv",
+    )
 
 
 @login_required
