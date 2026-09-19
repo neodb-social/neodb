@@ -1347,6 +1347,20 @@ class Identity(StatorModel):
             return False
         if "type" not in document:
             return False
+        # An actor that names a different id is an alias of that actor, not
+        # this row. Several servers publish one actor under several paths, and
+        # the actor GET follows redirects, so actor_uri can be left pointing at
+        # the alias. Storing it anyway lets the alias take the handle over the
+        # canonical row, which then cannot be saved at all and strands its
+        # posts under a handle-less author.
+        document_id = document.get("id")
+        if isinstance(document_id, str) and document_id != self.actor_uri:
+            logger.info(
+                "Actor %s identifies as %s, not storing it as a separate identity",
+                self.actor_uri,
+                document_id,
+            )
+            return False
         # Compare the normalised username, so a list/language-wrapped value
         # that decodes to the stored one doesn't look like a change
         username = _remote_text(document.get("preferredUsername"))
@@ -1413,7 +1427,19 @@ class Identity(StatorModel):
                 webfinger_actor, webfinger_handle = self.fetch_webfinger(
                     f"{self.username}@{actor_url_parts.hostname}"
                 )
-                if webfinger_handle:
+                if webfinger_handle and webfinger_actor != self.actor_uri:
+                    # WebFinger answered for a different actor, so the handle
+                    # it reports is that actor's, not ours. Taking it would
+                    # claim a handle this row cannot hold. Keep the one derived
+                    # from the actor's own host, as Mastodon and Pleroma do.
+                    logger.info(
+                        "WebFinger for %s points at %s, keeping %s@%s",
+                        self.actor_uri,
+                        webfinger_actor,
+                        self.username,
+                        actor_url_parts.hostname,
+                    )
+                elif webfinger_handle:
                     webfinger_username, webfinger_domain = webfinger_handle.split("@")
                     self.username = webfinger_username
                     self.domain = Domain.get_remote_domain(webfinger_domain)
