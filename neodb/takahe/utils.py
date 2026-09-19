@@ -405,7 +405,24 @@ class Takahe:
         return follow
 
     @staticmethod
+    def resolve_identity_pk(pk: int) -> int:
+        """
+        Follow a merged identity to the row that now receives its traffic.
+
+        A mirror row, or a client, can still hold the id of an identity that
+        turned out to be a second URI for another one. A relationship written
+        against that row is one the actor never sees.
+        """
+        canonical_id = (
+            Identity.objects.filter(pk=pk)
+            .values_list("canonical_id", flat=True)
+            .first()
+        )
+        return canonical_id or pk
+
+    @staticmethod
     def follow(source_pk: int, target_pk: int, force_accept: bool = False):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         try:
             follow = Follow.objects.get(source_id=source_pk, target_id=target_pk)
             if follow.state != "accepted":
@@ -426,6 +443,7 @@ class Takahe:
 
     @staticmethod
     def unfollow(source_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         Takahe.update_follow_state(source_pk, target_pk, [], "undone")
         InboxMessage.create_internal(
             {
@@ -437,10 +455,12 @@ class Takahe:
 
     @staticmethod
     def accept_follow_request(source_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         Takahe.update_follow_state(source_pk, target_pk, [], "accepting")
 
     @staticmethod
     def reject_follow_request(source_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         Takahe.update_follow_state(source_pk, target_pk, [], "rejecting")
 
     @staticmethod
@@ -477,6 +497,7 @@ class Takahe:
 
     @staticmethod
     def block_or_mute(source_pk: int, target_pk: int, is_mute: bool):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         source = Identity.objects.get(pk=source_pk)
         if not source.local:
             raise ValueError(f"Cannot block/mute from remote identity {source}")
@@ -506,6 +527,7 @@ class Takahe:
 
     @staticmethod
     def undo_block_or_mute(source_pk: int, target_pk: int, is_mute: bool):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         Block.objects.filter(
             source_id=source_pk, target_id=target_pk, mute=is_mute
         ).update(state="undone")

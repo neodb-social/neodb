@@ -86,3 +86,37 @@ def test_signature_by_an_alias_key_resolves_to_the_canonical_identity():
 
     assert apidentity.pk == canonical.pk
     assert apidentity.username == "ruben"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_relationship_against_a_merged_id_lands_on_the_real_identity():
+    """
+    A mirror row kept because it owns data still carries the alias id, and a
+    block written against the emptied row is one the actor never sees.
+    """
+    from takahe.models import Block
+    from takahe.utils import Takahe
+
+    domain = Domain.get_remote_domain("remote.example")
+    local = Identity.objects.create(
+        actor_uri="https://testserver/@me/",
+        username="me",
+        domain=Domain.objects.create(domain="testserver", local=True),
+        local=True,
+    )
+    canonical = Identity.objects.create(
+        actor_uri="https://remote.example/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://remote.example/users/ruben",
+        local=False,
+        canonical=canonical,
+    )
+
+    Takahe.block_or_mute(local.pk, alias.pk, False)
+
+    assert Block.objects.filter(source=local, target=canonical, mute=False).exists()
+    assert not Block.objects.filter(target=alias).exists()

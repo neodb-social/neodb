@@ -42,7 +42,7 @@ def accept_follow_request(
 ) -> schemas.Relationship:
     source_identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     IdentityService(request.identity).accept_follow_request(source_identity)
     return IdentityService(source_identity).mastodon_json_relationship(request.identity)
 
@@ -55,6 +55,6 @@ def reject_follow_request(
 ) -> schemas.Relationship:
     source_identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     IdentityService(request.identity).reject_follow_request(source_identity)
     return IdentityService(source_identity).mastodon_json_relationship(request.identity)

@@ -179,7 +179,7 @@ def account(request, id: str) -> schemas.Account:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked),
         pk=id,
-    )
+    ).resolved
     return schemas.Account.from_identity(identity)
 
 
@@ -200,7 +200,7 @@ def account_statuses(
 ) -> ApiResponse[list[schemas.Status]]:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     queryset = (
         identity.posts.not_hidden()
         .visible_to(
@@ -261,7 +261,7 @@ def account_follow(
 ) -> schemas.Relationship:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     service = IdentityService(request.identity)
     service.follow(identity, boosts=reblogs, notify=notify)
     return schemas.Relationship.from_identity_pair(identity, request.identity)
@@ -332,7 +332,7 @@ def account_note(
 ) -> schemas.Relationship:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     service = IdentityService(identity)
     return schemas.Relationship(**service.set_note(request.identity, comment))
 
@@ -348,7 +348,7 @@ def account_following(
 ) -> ApiResponse[list[schemas.Account]]:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
 
     if not identity.config_identity.visible_follows and request.identity != identity:
         return ApiResponse([])
@@ -381,7 +381,7 @@ def account_followers(
 ) -> ApiResponse[list[schemas.Account]]:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
 
     if not identity.config_identity.visible_follows and request.identity != identity:
         return ApiResponse([])
@@ -407,7 +407,7 @@ def account_followers(
 def account_featured_tags(request: HttpRequest, id: str) -> list[schemas.FeaturedTag]:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     return [
         schemas.FeaturedTag.from_feature(f, domain=request.domain)
         for f in identity.hashtag_features.select_related("hashtag")
@@ -419,7 +419,7 @@ def account_featured_tags(request: HttpRequest, id: str) -> list[schemas.Feature
 def account_lists(request: HttpRequest, id: str) -> list[schemas.List]:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     return [
         schemas.List.from_list(lst)
         for lst in request.identity.lists.filter(members=identity)
