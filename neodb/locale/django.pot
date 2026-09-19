@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-19 13:23-0400\n"
+"POT-Creation-Date: 2026-09-19 13:39-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -567,8 +567,8 @@ msgstr ""
 #: journal/templates/collection.html:30 journal/templates/collection.html:41
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
-#: journal/templates/profile.html:159 journal/templates/profile.html:164
-#: journal/views/collection.py:448 journal/views/profile.py:450
+#: journal/templates/profile.html:163 journal/templates/profile.html:168
+#: journal/views/collection.py:448 journal/views/profile.py:434
 msgid "Collection"
 msgstr ""
 
@@ -702,7 +702,7 @@ msgstr ""
 msgid "developer"
 msgstr ""
 
-#: catalog/models/game.py:143 catalog/models/podcast.py:257
+#: catalog/models/game.py:143 catalog/models/podcast.py:261
 msgid "date of publication"
 msgstr ""
 
@@ -718,7 +718,7 @@ msgstr ""
 
 #: catalog/models/game.py:180 catalog/models/movie.py:158
 #: catalog/models/people.py:178 catalog/models/performance.py:258
-#: catalog/models/performance.py:465 catalog/models/podcast.py:89
+#: catalog/models/performance.py:465 catalog/models/podcast.py:90
 #: catalog/models/tv.py:251 catalog/models/tv.py:478
 #: catalog/templates/game.html:33 catalog/templates/movie.html:48
 #: catalog/templates/people.html:46 catalog/templates/performance.html:35
@@ -766,7 +766,7 @@ msgstr ""
 msgid "performer"
 msgstr ""
 
-#: catalog/models/item.py:235 catalog/models/podcast.py:80
+#: catalog/models/item.py:235 catalog/models/podcast.py:81
 msgid "host"
 msgstr ""
 
@@ -1963,14 +1963,14 @@ msgstr ""
 
 #: catalog/templates/discover.html:199 catalog/templates/discover.html:256
 #: catalog/templates/discover.html:283 catalog/templates/discover.html:321
-#: catalog/templates/discover.html:433 journal/templates/profile.html:74
+#: catalog/templates/discover.html:433 journal/templates/profile.html:78
 #: journal/templates/profile_items.html:16
 msgid "Scroll left"
 msgstr ""
 
 #: catalog/templates/discover.html:205 catalog/templates/discover.html:262
 #: catalog/templates/discover.html:289 catalog/templates/discover.html:327
-#: catalog/templates/discover.html:439 journal/templates/profile.html:80
+#: catalog/templates/discover.html:439 journal/templates/profile.html:84
 #: journal/templates/profile_items.html:22
 msgid "Scroll right"
 msgstr ""
@@ -2076,7 +2076,7 @@ msgstr ""
 #: common/templates/_sidebar_anonymous.html:61 journal/templates/posts.html:7
 #: journal/templates/profile_articles.html:27
 #: journal/templates/profile_articles.html:29
-#: journal/templates/profile_items.html:36
+#: journal/templates/profile_items.html:38
 #: journal/templates/profile_posts.html:22
 #: journal/templates/user_collection_list.html:52
 #: journal/templates/user_follow_list_items.html:51
@@ -2221,11 +2221,11 @@ msgid "Number of episodes"
 msgstr ""
 
 #: catalog/templates/people.html:13 common/templates/_sidebar.html:74
-#: common/templates/_sidebar.html:81 journal/models/shelf.py:328
+#: common/templates/_sidebar.html:81 journal/models/shelf.py:329
 msgid "following"
 msgstr ""
 
-#: catalog/templates/people.html:16 journal/models/shelf.py:326
+#: catalog/templates/people.html:16 journal/models/shelf.py:327
 msgid "follow"
 msgstr ""
 
@@ -2334,8 +2334,8 @@ msgid "Logged in user may see search results from other sites."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:195 journal/templates/profile.html:200
-#: journal/views/profile.py:666
+#: journal/templates/profile.html:199 journal/templates/profile.html:204
+#: journal/views/profile.py:650
 msgid "People"
 msgstr ""
 
@@ -4116,33 +4116,37 @@ msgstr ""
 msgid "Recent podcast episodes"
 msgstr ""
 
-#: common/templates/_sidebar.html:149 journal/forms.py:217
+#: common/templates/_sidebar.html:149
+msgid "Currently reading"
+msgstr ""
+
+#: common/templates/_sidebar.html:163 journal/forms.py:217
 #: journal/templates/user_tag_list.html:13
 #: journal/templates/user_tagmember_list.html:4
 msgid "Tags"
 msgstr ""
 
-#: common/templates/_sidebar.html:155 journal/templates/user_tag_list.html:28
+#: common/templates/_sidebar.html:169 journal/templates/user_tag_list.html:28
 #: journal/templates/user_tagmember_list.html:10
 msgid "Featured tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:158 journal/templates/user_tag_list.html:31
+#: common/templates/_sidebar.html:172 journal/templates/user_tag_list.html:31
 #: journal/templates/user_tagmember_list.html:15
 msgid "Personal tag"
 msgstr ""
 
-#: common/templates/_sidebar.html:165 journal/templates/user_tag_list.html:39
+#: common/templates/_sidebar.html:179 journal/templates/user_tag_list.html:39
 msgid "No tags so far."
 msgstr ""
 
-#: common/templates/_sidebar.html:169 common/templates/_sidebar.html:182
+#: common/templates/_sidebar.html:183 common/templates/_sidebar.html:196
 #: journal/templates/profile_articles.html:7
 #: journal/templates/profile_items.html:5
 msgid "Show all"
 msgstr ""
 
-#: common/templates/_sidebar.html:180
+#: common/templates/_sidebar.html:194
 msgid "Recent Posts"
 msgstr ""
 
@@ -4369,12 +4373,12 @@ msgid "User no longer exists"
 msgstr ""
 
 #: common/utils.py:159 common/utils.py:161 common/utils.py:164
-#: common/utils.py:200 common/utils.py:204 journal/views/profile.py:551
+#: common/utils.py:200 common/utils.py:204 journal/views/profile.py:535
 msgid "Access denied"
 msgstr ""
 
 #: common/utils.py:167 common/utils.py:169 journal/views/article.py:211
-#: journal/views/profile.py:592 journal/views/review.py:200
+#: journal/views/profile.py:576 journal/views/review.py:200
 msgid "Login required"
 msgstr ""
 
@@ -5575,430 +5579,430 @@ msgstr ""
 msgid "(may contain spoilers)"
 msgstr ""
 
-#: journal/models/shelf.py:39
+#: journal/models/shelf.py:40
 msgid "WISHLIST"
 msgstr ""
 
-#: journal/models/shelf.py:40
+#: journal/models/shelf.py:41
 msgid "PROGRESS"
 msgstr ""
 
-#: journal/models/shelf.py:41
+#: journal/models/shelf.py:42
 msgid "COMPLETE"
 msgstr ""
 
-#: journal/models/shelf.py:42
+#: journal/models/shelf.py:43
 msgid "DROPPED"
 msgstr ""
 
-#: journal/models/shelf.py:51
+#: journal/models/shelf.py:52
 msgid "Books to read"
 msgstr ""
 
-#: journal/models/shelf.py:52
+#: journal/models/shelf.py:53
 msgid "want to read"
 msgstr ""
 
-#: journal/models/shelf.py:53
+#: journal/models/shelf.py:54
 #, python-brace-format
 msgid "wants to read {item}"
 msgstr ""
 
-#: journal/models/shelf.py:54
+#: journal/models/shelf.py:55
 msgid "to read"
 msgstr ""
 
-#: journal/models/shelf.py:59
+#: journal/models/shelf.py:60
 msgid "Books reading"
 msgstr ""
 
-#: journal/models/shelf.py:60
+#: journal/models/shelf.py:61
 msgid "start reading"
 msgstr ""
 
-#: journal/models/shelf.py:61
+#: journal/models/shelf.py:62
 #, python-brace-format
 msgid "started reading {item}"
 msgstr ""
 
-#: journal/models/shelf.py:62
+#: journal/models/shelf.py:63
 msgid "reading"
 msgstr ""
 
-#: journal/models/shelf.py:67
+#: journal/models/shelf.py:68
 msgid "Books completed"
 msgstr ""
 
-#: journal/models/shelf.py:68
+#: journal/models/shelf.py:69
 msgid "finish reading"
 msgstr ""
 
-#: journal/models/shelf.py:69
+#: journal/models/shelf.py:70
 #, python-brace-format
 msgid "finished reading {item}"
 msgstr ""
 
-#: journal/models/shelf.py:70
+#: journal/models/shelf.py:71
 msgid "read"
 msgstr ""
 
-#: journal/models/shelf.py:75
+#: journal/models/shelf.py:76
 msgid "Books dropped"
 msgstr ""
 
-#: journal/models/shelf.py:76
+#: journal/models/shelf.py:77
 msgid "stop reading"
 msgstr ""
 
-#: journal/models/shelf.py:77
+#: journal/models/shelf.py:78
 #, python-brace-format
 msgid "stopped reading {item}"
 msgstr ""
 
-#: journal/models/shelf.py:78
+#: journal/models/shelf.py:79
 msgid "stopped reading"
 msgstr ""
 
-#: journal/models/shelf.py:83
+#: journal/models/shelf.py:84
 msgid "Books reviewed"
-msgstr ""
-
-#: journal/models/shelf.py:84 journal/models/shelf.py:124
-#: journal/models/shelf.py:164 journal/models/shelf.py:204
-#: journal/models/shelf.py:244 journal/models/shelf.py:284
-#: journal/models/shelf.py:318
-msgid "review"
 msgstr ""
 
 #: journal/models/shelf.py:85 journal/models/shelf.py:125
 #: journal/models/shelf.py:165 journal/models/shelf.py:205
 #: journal/models/shelf.py:245 journal/models/shelf.py:285
 #: journal/models/shelf.py:319
+msgid "review"
+msgstr ""
+
+#: journal/models/shelf.py:86 journal/models/shelf.py:126
+#: journal/models/shelf.py:166 journal/models/shelf.py:206
+#: journal/models/shelf.py:246 journal/models/shelf.py:286
+#: journal/models/shelf.py:320
 #, python-brace-format
 msgid "wrote a review of {item}"
 msgstr ""
 
-#: journal/models/shelf.py:91
+#: journal/models/shelf.py:92
 msgid "Movies to watch"
 msgstr ""
 
-#: journal/models/shelf.py:92 journal/models/shelf.py:132
+#: journal/models/shelf.py:93 journal/models/shelf.py:133
 msgid "want to watch"
 msgstr ""
 
-#: journal/models/shelf.py:93 journal/models/shelf.py:133
+#: journal/models/shelf.py:94 journal/models/shelf.py:134
 #, python-brace-format
 msgid "wants to watch {item}"
 msgstr ""
 
-#: journal/models/shelf.py:94 journal/models/shelf.py:134
+#: journal/models/shelf.py:95 journal/models/shelf.py:135
 msgid "to watch"
 msgstr ""
 
-#: journal/models/shelf.py:99
+#: journal/models/shelf.py:100
 msgid "Movies watching"
 msgstr ""
 
-#: journal/models/shelf.py:100 journal/models/shelf.py:140
+#: journal/models/shelf.py:101 journal/models/shelf.py:141
 msgid "start watching"
 msgstr ""
 
-#: journal/models/shelf.py:101 journal/models/shelf.py:141
+#: journal/models/shelf.py:102 journal/models/shelf.py:142
 #, python-brace-format
 msgid "started watching {item}"
 msgstr ""
 
-#: journal/models/shelf.py:102 journal/models/shelf.py:142
+#: journal/models/shelf.py:103 journal/models/shelf.py:143
 msgid "watching"
 msgstr ""
 
-#: journal/models/shelf.py:107
+#: journal/models/shelf.py:108
 msgid "Movies watched"
 msgstr ""
 
-#: journal/models/shelf.py:108 journal/models/shelf.py:148
+#: journal/models/shelf.py:109 journal/models/shelf.py:149
 msgid "finish watching"
 msgstr ""
 
-#: journal/models/shelf.py:109 journal/models/shelf.py:149
+#: journal/models/shelf.py:110 journal/models/shelf.py:150
 #, python-brace-format
 msgid "finished watching {item}"
 msgstr ""
 
-#: journal/models/shelf.py:110 journal/models/shelf.py:150
+#: journal/models/shelf.py:111 journal/models/shelf.py:151
 msgid "watched"
 msgstr ""
 
-#: journal/models/shelf.py:115
+#: journal/models/shelf.py:116
 msgid "Movies dropped"
 msgstr ""
 
-#: journal/models/shelf.py:116 journal/models/shelf.py:156
+#: journal/models/shelf.py:117 journal/models/shelf.py:157
 msgid "stop watching"
 msgstr ""
 
-#: journal/models/shelf.py:117 journal/models/shelf.py:157
+#: journal/models/shelf.py:118 journal/models/shelf.py:158
 #, python-brace-format
 msgid "stopped watching {item}"
 msgstr ""
 
-#: journal/models/shelf.py:118 journal/models/shelf.py:158
+#: journal/models/shelf.py:119 journal/models/shelf.py:159
 msgid "stopped watching"
 msgstr ""
 
-#: journal/models/shelf.py:123
+#: journal/models/shelf.py:124
 msgid "Movies reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:131
+#: journal/models/shelf.py:132
 msgid "TV shows to watch"
 msgstr ""
 
-#: journal/models/shelf.py:139
+#: journal/models/shelf.py:140
 msgid "TV shows watching"
 msgstr ""
 
-#: journal/models/shelf.py:147
+#: journal/models/shelf.py:148
 msgid "TV shows watched"
 msgstr ""
 
-#: journal/models/shelf.py:155
+#: journal/models/shelf.py:156
 msgid "TV shows dropped"
 msgstr ""
 
-#: journal/models/shelf.py:163
+#: journal/models/shelf.py:164
 msgid "TV shows reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:171
+#: journal/models/shelf.py:172
 msgid "Albums to listen"
 msgstr ""
 
-#: journal/models/shelf.py:172 journal/models/shelf.py:252
+#: journal/models/shelf.py:173 journal/models/shelf.py:253
 msgid "want to listen"
 msgstr ""
 
-#: journal/models/shelf.py:173 journal/models/shelf.py:253
+#: journal/models/shelf.py:174 journal/models/shelf.py:254
 #, python-brace-format
 msgid "wants to listen {item}"
 msgstr ""
 
-#: journal/models/shelf.py:174 journal/models/shelf.py:254
+#: journal/models/shelf.py:175 journal/models/shelf.py:255
 msgid "to listen"
 msgstr ""
 
-#: journal/models/shelf.py:179
+#: journal/models/shelf.py:180
 msgid "Albums listening"
 msgstr ""
 
-#: journal/models/shelf.py:180 journal/models/shelf.py:260
+#: journal/models/shelf.py:181 journal/models/shelf.py:261
 msgid "start listening"
 msgstr ""
 
-#: journal/models/shelf.py:181 journal/models/shelf.py:261
+#: journal/models/shelf.py:182 journal/models/shelf.py:262
 #, python-brace-format
 msgid "started listening {item}"
 msgstr ""
 
-#: journal/models/shelf.py:182 journal/models/shelf.py:262
+#: journal/models/shelf.py:183 journal/models/shelf.py:263
 msgid "listening"
 msgstr ""
 
-#: journal/models/shelf.py:187
+#: journal/models/shelf.py:188
 msgid "Albums listened"
 msgstr ""
 
-#: journal/models/shelf.py:188 journal/models/shelf.py:268
+#: journal/models/shelf.py:189 journal/models/shelf.py:269
 msgid "finish listening"
 msgstr ""
 
-#: journal/models/shelf.py:189 journal/models/shelf.py:269
+#: journal/models/shelf.py:190 journal/models/shelf.py:270
 #, python-brace-format
 msgid "finished listening {item}"
 msgstr ""
 
-#: journal/models/shelf.py:190 journal/models/shelf.py:270
+#: journal/models/shelf.py:191 journal/models/shelf.py:271
 msgid "listened"
 msgstr ""
 
-#: journal/models/shelf.py:195
+#: journal/models/shelf.py:196
 msgid "Albums dropped"
 msgstr ""
 
-#: journal/models/shelf.py:196 journal/models/shelf.py:276
+#: journal/models/shelf.py:197 journal/models/shelf.py:277
 msgid "stop listening"
 msgstr ""
 
-#: journal/models/shelf.py:197 journal/models/shelf.py:277
+#: journal/models/shelf.py:198 journal/models/shelf.py:278
 #, python-brace-format
 msgid "stopped listening {item}"
 msgstr ""
 
-#: journal/models/shelf.py:198 journal/models/shelf.py:278
+#: journal/models/shelf.py:199 journal/models/shelf.py:279
 msgid "stopped listening"
 msgstr ""
 
-#: journal/models/shelf.py:203
+#: journal/models/shelf.py:204
 msgid "Albums reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:211
+#: journal/models/shelf.py:212
 msgid "Games to play"
 msgstr ""
 
-#: journal/models/shelf.py:212
+#: journal/models/shelf.py:213
 msgid "want to play"
 msgstr ""
 
-#: journal/models/shelf.py:213
+#: journal/models/shelf.py:214
 #, python-brace-format
 msgid "wants to play {item}"
 msgstr ""
 
-#: journal/models/shelf.py:214
+#: journal/models/shelf.py:215
 msgid "to play"
 msgstr ""
 
-#: journal/models/shelf.py:219
+#: journal/models/shelf.py:220
 msgid "Games playing"
 msgstr ""
 
-#: journal/models/shelf.py:220
+#: journal/models/shelf.py:221
 msgid "start playing"
 msgstr ""
 
-#: journal/models/shelf.py:221
+#: journal/models/shelf.py:222
 #, python-brace-format
 msgid "started playing {item}"
 msgstr ""
 
-#: journal/models/shelf.py:222
+#: journal/models/shelf.py:223
 msgid "playing"
 msgstr ""
 
-#: journal/models/shelf.py:227
+#: journal/models/shelf.py:228
 msgid "Games played"
 msgstr ""
 
-#: journal/models/shelf.py:228
+#: journal/models/shelf.py:229
 msgid "finish playing"
 msgstr ""
 
-#: journal/models/shelf.py:229
+#: journal/models/shelf.py:230
 #, python-brace-format
 msgid "finished playing {item}"
 msgstr ""
 
-#: journal/models/shelf.py:230
+#: journal/models/shelf.py:231
 msgid "played"
 msgstr ""
 
-#: journal/models/shelf.py:235
+#: journal/models/shelf.py:236
 msgid "Games dropped"
 msgstr ""
 
-#: journal/models/shelf.py:236
+#: journal/models/shelf.py:237
 msgid "stop playing"
 msgstr ""
 
-#: journal/models/shelf.py:237
+#: journal/models/shelf.py:238
 #, python-brace-format
 msgid "stopped playing {item}"
 msgstr ""
 
-#: journal/models/shelf.py:238
+#: journal/models/shelf.py:239
 msgid "stopped playing"
 msgstr ""
 
-#: journal/models/shelf.py:243
+#: journal/models/shelf.py:244
 msgid "Games reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:251
+#: journal/models/shelf.py:252
 msgid "Podcasts to listen"
 msgstr ""
 
-#: journal/models/shelf.py:259
+#: journal/models/shelf.py:260
 msgid "Podcasts listening"
 msgstr ""
 
-#: journal/models/shelf.py:267
+#: journal/models/shelf.py:268
 msgid "Podcasts listened"
 msgstr ""
 
-#: journal/models/shelf.py:275
+#: journal/models/shelf.py:276
 msgid "Podcasts dropped"
 msgstr ""
 
-#: journal/models/shelf.py:283
+#: journal/models/shelf.py:284
 msgid "Podcasts reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:291
+#: journal/models/shelf.py:292
 msgid "Performances to see"
 msgstr ""
 
-#: journal/models/shelf.py:292
+#: journal/models/shelf.py:293
 msgid "want to see"
 msgstr ""
 
-#: journal/models/shelf.py:293
+#: journal/models/shelf.py:294
 #, python-brace-format
 msgid "wants to see {item}"
 msgstr ""
 
-#: journal/models/shelf.py:294
+#: journal/models/shelf.py:295
 msgid "to see"
 msgstr ""
 
-#: journal/models/shelf.py:301
+#: journal/models/shelf.py:302
 msgid "Performances saw"
 msgstr ""
 
-#: journal/models/shelf.py:302
+#: journal/models/shelf.py:303
 msgid "finish seeing"
 msgstr ""
 
-#: journal/models/shelf.py:303
+#: journal/models/shelf.py:304
 #, python-brace-format
 msgid "finished seeing {item}"
 msgstr ""
 
-#: journal/models/shelf.py:304
+#: journal/models/shelf.py:305
 msgid "seen"
 msgstr ""
 
-#: journal/models/shelf.py:309
+#: journal/models/shelf.py:310
 msgid "Performances dropped"
 msgstr ""
 
-#: journal/models/shelf.py:310
+#: journal/models/shelf.py:311
 msgid "stop seeing"
 msgstr ""
 
-#: journal/models/shelf.py:311
+#: journal/models/shelf.py:312
 #, python-brace-format
 msgid "stopped seeing {item}"
 msgstr ""
 
-#: journal/models/shelf.py:312
+#: journal/models/shelf.py:313
 msgid "stopped seeing"
 msgstr ""
 
-#: journal/models/shelf.py:317
+#: journal/models/shelf.py:318
 msgid "Performances reviewed"
 msgstr ""
 
-#: journal/models/shelf.py:325
+#: journal/models/shelf.py:326
 msgid "People following"
 msgstr ""
 
-#: journal/models/shelf.py:327
+#: journal/models/shelf.py:328
 #, python-brace-format
 msgid "started following {item}"
 msgstr ""
 
-#: journal/models/shelf.py:925
+#: journal/models/shelf.py:943
 msgid "removed mark"
 msgstr ""
 
@@ -6422,7 +6426,7 @@ msgstr ""
 msgid " Note to %(reply_to_name)s "
 msgstr ""
 
-#: journal/templates/post_compose.html:20 journal/templates/profile.html:43
+#: journal/templates/post_compose.html:20 journal/templates/profile.html:47
 #: social/templates/_compose_menu.html:5
 msgid "Compose"
 msgstr ""
@@ -6468,28 +6472,28 @@ msgstr ""
 msgid "Quotes"
 msgstr ""
 
-#: journal/templates/profile.html:65 journal/templates/profile.html:67
+#: journal/templates/profile.html:69 journal/templates/profile.html:71
 msgid "Calendar"
 msgstr ""
 
-#: journal/templates/profile.html:70 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:74 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:43
 msgid "annual summary"
 msgstr ""
 
-#: journal/templates/profile.html:141 journal/templates/profile.html:147
+#: journal/templates/profile.html:145 journal/templates/profile.html:151
 #: journal/templates/user_article_list.html:14
-#: journal/templates/user_article_list.html:23 journal/views/profile.py:531
+#: journal/templates/user_article_list.html:23 journal/views/profile.py:515
 msgid "Articles"
 msgstr ""
 
-#: journal/templates/profile.html:177 journal/templates/profile.html:182
-#: journal/views/profile.py:493
+#: journal/templates/profile.html:181 journal/templates/profile.html:186
+#: journal/views/profile.py:477
 msgid "Liked collection"
 msgstr ""
 
-#: journal/templates/profile.html:213 journal/templates/profile.html:218
-#: journal/views/profile.py:668
+#: journal/templates/profile.html:217 journal/templates/profile.html:222
+#: journal/views/profile.py:652
 msgid "Organizations"
 msgstr ""
 
@@ -6570,18 +6574,18 @@ msgstr ""
 msgid "Liked collections"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:23 journal/views/profile.py:559
+#: journal/templates/user_follow_list.html:23 journal/views/profile.py:543
 #: social/templates/feed.html:43 social/templates/feed.html:45
 #: users/templates/users/account.html:452
 msgid "Following"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:28 journal/views/profile.py:563
+#: journal/templates/user_follow_list.html:28 journal/views/profile.py:547
 #: users/templates/users/account.html:461
 msgid "Followers"
 msgstr ""
 
-#: journal/templates/user_follow_list.html:32 journal/views/profile.py:567
+#: journal/templates/user_follow_list.html:32 journal/views/profile.py:551
 msgid "Mutuals"
 msgstr ""
 
@@ -7334,7 +7338,7 @@ msgstr ""
 msgid "Poll ending at %(end_time)s"
 msgstr ""
 
-#: social/templates/search_feed.html:12 social/views.py:59 social/views.py:60
+#: social/templates/search_feed.html:12 social/views.py:66 social/views.py:67
 msgid "Activities from those you follow"
 msgstr ""
 
@@ -7350,11 +7354,11 @@ msgstr ""
 msgid "Poll"
 msgstr ""
 
-#: social/views.py:61
+#: social/views.py:68
 msgid "Activities on this site"
 msgstr ""
 
-#: social/views.py:62
+#: social/views.py:69
 msgid "Activities from the fediverse"
 msgstr ""
 

@@ -142,6 +142,20 @@
       </article>
     </section>
   {% endif %}
+  {% if books_in_progress %}
+    <section>
+      <article>
+        <details class="auto-collapse" open>
+          <summary>{% trans 'Currently reading' %}</summary>
+          <ul class="dc-cards dc-sidebar-cards">
+            {% for item in books_in_progress %}
+              {% include "_item_cover_card.html" with owner_rating=1 show_progress_badges=1 can_update_progress=1 compact=1 %}
+            {% endfor %}
+          </ul>
+        </details>
+      </article>
+    </section>
+  {% endif %}
   {% if top_tags is not None %}
     <section>
       <article>

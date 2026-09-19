@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterable
 from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
@@ -671,6 +672,23 @@ class ShelfMemberProgress(models.Model):
 
         return Note.get_progress_percentage(
             self.progress_type, self.progress_value, total
+        )
+
+
+def attach_reading_progress(members: Iterable[ShelfMember]) -> None:
+    """Copy each member's progress onto its item, where the cards read it.
+
+    Pass members fetched with ``select_related("current_progress")``.
+    """
+    for member in members:
+        progress = getattr(member, "current_progress", None)
+        if not progress:
+            continue
+        item = member.item
+        item.reading_progress = progress.progress_display
+        item.reading_progress_short = progress.progress_short_display
+        item.reading_progress_percent = progress.progress_percentage(
+            getattr(item, "pages", None)
         )
 
 

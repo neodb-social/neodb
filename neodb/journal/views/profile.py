@@ -165,21 +165,6 @@ def profile(request: AuthedHttpRequest, user_name):
         else:
             year = None
     liked_collections_count = liked_collections_queryset.count()
-    # the owner's home page keeps the newest episodes of the podcasts they
-    # follow in the sidebar, playable in place
-    recent_podcast_episodes = []
-    if me:
-        podcast_ids = [
-            p.item_id
-            for p in target.shelf_manager.get_latest_members(
-                ShelfType.PROGRESS, ItemCategory.Podcast
-            )
-        ]
-        recent_podcast_episodes = list(
-            PodcastEpisode.objects.filter(program_id__in=podcast_ids)
-            .select_related("program")
-            .order_by("-pub_date")[:10]
-        )
     top_tags = target.tag_manager.get_tags(public_only=not me, pinned_only=True)[:10]
     if not top_tags.exists():
         top_tags = target.tag_manager.get_tags(public_only=not me)[:10]
@@ -238,7 +223,6 @@ def profile(request: AuthedHttpRequest, user_name):
             "me": me,
             "top_tags": top_tags,
             "recent_posts": recent_posts,
-            "recent_podcast_episodes": recent_podcast_episodes,
             "shelf_list": shelf_list,
             "collections_count": collections_count,
             "pinned_collections": pinned_collections,
@@ -671,18 +655,15 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
         items = [member.item for member in members]
         total = members_queryset.count()
         if show_progress_badges:
-            for member in members:
-                current_progress = getattr(member, "current_progress", None)
-                if current_progress:
-                    member.item.reading_progress = current_progress.progress_display
-                    member.item.reading_progress_short = (
-                        current_progress.progress_short_display
-                    )
-                    member.item.reading_progress_percent = (
-                        current_progress.progress_percentage(
-                            getattr(member.item, "pages", None)
-                        )
-                    )
+            attach_reading_progress(members)
+        if (
+            item_category == ItemCategory.Podcast
+            and shelf_type_enum == ShelfType.PROGRESS
+        ):
+            # a show on this shelf stands for its newest episode, and plays it
+            episodes = PodcastEpisode.latest_by_program([item.pk for item in items])
+            for item in items:
+                item.latest_episode = episodes.get(item.pk)
     if items:
         Item.prefetch_parent_items(items)
         prefetch_related_objects(items, Item.credits_prefetch())

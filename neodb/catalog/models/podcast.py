@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -241,6 +242,9 @@ class Podcast(Item):
 
 
 class PodcastEpisode(Item):
+    if TYPE_CHECKING:
+        program_id: int
+
     schema = PodcastEpisodeSchema
     category = ItemCategory.Podcast
     type = ItemType.PodcastEpisode
@@ -269,6 +273,21 @@ class PodcastEpisode(Item):
         "brief",
         "pub_date",
     ]
+
+    @classmethod
+    def latest_by_program(
+        cls, program_ids: Sequence[int]
+    ) -> dict[int, "PodcastEpisode"]:
+        """The newest episode of each of those programs, in one query."""
+        if not program_ids:
+            return {}
+        episodes = (
+            cls.objects.filter(program_id__in=program_ids)
+            .order_by("program_id", "-pub_date")
+            .distinct("program_id")
+            .select_related("program")
+        )
+        return {episode.program_id: episode for episode in episodes}
 
     @property
     def parent_item(self) -> Podcast | None:

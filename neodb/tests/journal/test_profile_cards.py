@@ -1,4 +1,6 @@
+import datetime
 import re
+
 import pytest
 from django.db import connection
 from django.test import Client
@@ -68,28 +70,41 @@ def test_shelf_items_render_cover_cards_with_rating_and_count():
     )
 
 
-def test_own_home_lists_recent_podcast_episodes_in_sidebar():
+def test_listening_shelf_plays_the_newest_episode_of_each_show():
     user, client = _member("listener")
     show = Podcast.objects.create(title="Nightly Show")
-    episode = PodcastEpisode.objects.create(
-        title="Episode one", program=show, pub_date=timezone.now()
+    PodcastEpisode.objects.create(
+        title="Older one",
+        program=show,
+        pub_date=timezone.now() - datetime.timedelta(days=1),
+        media_url="https://example.org/old.mp3",
     )
+    newest = PodcastEpisode.objects.create(
+        title="Newest one",
+        program=show,
+        pub_date=timezone.now(),
+        media_url="https://example.org/new.mp3",
+    )
+    silent = Podcast.objects.create(title="Silent Show")
     Mark(user.identity, show).update(ShelfType.PROGRESS)
+    Mark(user.identity, silent).update(ShelfType.PROGRESS)
 
-    content = client.get(user.identity.url).content.decode()
-    assert "Recent podcast episodes" in content
-    assert 'class="dc-cards dc-sidebar-cards"' in content
-    assert episode.display_title in content
-    assert 'data-media="' in content
-    # the markup alone is inert; podcast.js binds the click that starts playback
-    assert "shikwasa" in content
-    assert "js/podcast.js" in content
+    # the episodes left the sidebar; the main shelf plays them instead
+    home = client.get(user.identity.url).content.decode()
+    assert "Recent podcast episodes" not in home.split("<aside", 1)[1]
+    assert "js/podcast.js" in home
 
-    # visitors see the owner's shelves, not their listening queue
-    _, visitor = _member("visitor")
-    assert (
-        "Recent podcast episodes" not in visitor.get(user.identity.url).content.decode()
+    url = reverse(
+        "journal:profile_shelf_items",
+        args=[user.identity.handle, "podcast", "progress"],
     )
+    content = client.get(url).content.decode()
+
+    assert f'data-media="{newest.media_url}"' in content
+    assert "Older one" not in content
+    # a show with no episode yet keeps its cover card, so the count still matches
+    assert ">2</a>" in content
+    assert silent.display_title in content
 
 
 def test_created_collections_render_cover_mosaics():

@@ -35,6 +35,7 @@ from .shelf import (
     ShelfManager,
     ShelfMember,
     ShelfType,
+    attach_reading_progress,
 )
 from .tag import Tag, TagManager, TagMember
 from .utils import (
@@ -85,6 +86,7 @@ __all__ = [
     "TagManager",
     "TagMember",
     "UNMARKED",
+    "attach_reading_progress",
     "cleanup_deleted_post",
     "journal_exists_for_item",
     "remove_data_by_identity",

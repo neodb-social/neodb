@@ -10,10 +10,17 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
+from catalog.models import Item, ItemCategory, PodcastEpisode
 from common.models import SiteConfig
 from common.models.misc import int_
 from common.validators import get_safe_referer_url
-from journal.models import CrosspostRetry, Piece, Rating
+from journal.models import (
+    CrosspostRetry,
+    Piece,
+    Rating,
+    ShelfType,
+    attach_reading_progress,
+)
 from journal.models.common import (
     prefetch_pieces_for_posts,
     q_owned_piece_visible_to_user,
@@ -131,6 +138,35 @@ def _sidebar_context(identity: APIdentity) -> dict:
     return {"top_tags": top_tags, "recent_posts": recent_posts}
 
 
+def _in_progress_context(identity: APIdentity) -> dict:
+    """What the viewer is in the middle of. Pages showing it load the player."""
+    podcast_ids = [
+        member.item_id
+        for member in identity.shelf_manager.get_latest_members(
+            ShelfType.PROGRESS, ItemCategory.Podcast
+        )
+    ]
+    recent_podcast_episodes = list(
+        PodcastEpisode.objects.filter(program_id__in=podcast_ids)
+        .select_related("program")
+        .order_by("-pub_date")[:10]
+    )
+    book_members = list(
+        identity.shelf_manager.get_latest_members(ShelfType.PROGRESS, ItemCategory.Book)
+        .select_related("current_progress")
+        # Cards skip the metadata JSON (EGGPLANT-1DX).
+        .prefetch_related(
+            "item",
+            Item.external_resources_prefetch(lookup="item__external_resources"),
+        )[:10]
+    )
+    attach_reading_progress(book_members)
+    return {
+        "recent_podcast_episodes": recent_podcast_episodes,
+        "books_in_progress": [member.item for member in book_members],
+    }
+
+
 @require_http_methods(["GET"])
 @login_required
 def feed(request, typ=FeedType.following):
@@ -143,6 +179,7 @@ def feed(request, typ=FeedType.following):
     data["show_local_feed"] = SiteConfig.system.feed_show_local
     data["show_world_feed"] = SiteConfig.system.feed_show_world
     data.update(_sidebar_context(user.identity))
+    data.update(_in_progress_context(user.identity))
     return render(request, "feed.html", data)
 
 
@@ -321,7 +358,9 @@ def data(request):
 @require_http_methods(["GET"])
 @login_required
 def notification(request):
-    return render(request, "notification.html", {"unread": _unread_count(request.user)})
+    data = {"unread": _unread_count(request.user)}
+    data.update(_in_progress_context(request.user.identity))
+    return render(request, "notification.html", data)
 
 
 @require_http_methods(["POST"])
