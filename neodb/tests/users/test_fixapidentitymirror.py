@@ -78,6 +78,26 @@ class TestFixAPIdentityMirror:
         assert mirror.username == "renamed"
         assert mirror.deleted is None
 
+    def test_stale_mirror_is_resynced_when_nobody_took_the_old_handle(self):
+        """
+        Nothing needs to hold the old handle for the row to be wrong: the
+        identity behind it renamed, and the mirror still says the old name.
+        Raised on PR 1917 by Sentry's reviewer.
+        """
+        domain = Domain.get_remote_domain("example.com")
+        make_identity(
+            109, "https://example.com/renamed", username="renamed", domain=domain
+        )
+        mirror = make_mirror(109, "oldname", "example.com")
+
+        output = run(fix=True, yes=True)
+
+        assert "stale" in output
+        mirror.refresh_from_db()
+        assert mirror.username == "renamed"
+        assert mirror.domain_name == "example.com"
+        assert mirror.deleted is None
+
     def test_orphan_that_owns_data_is_only_reported(self):
         """
         Retiring a row that owns journal data would hide it, and no handle is
