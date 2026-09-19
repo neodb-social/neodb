@@ -41,6 +41,9 @@ class Command(BaseCommand):
             | Q(inbound_follows__isnull=False)
             | Q(outbound_blocks__isnull=False)
             | Q(inbound_blocks__isnull=False)
+            # Deleting the identity an alias names would null that alias out
+            # and send the actor's traffic back to an emptied row
+            | Q(alias_identities__isnull=False)
         )[:number]
         identity_ids = identities.values_list("id", flat=True)
         print(f"  found {len(identity_ids)}")

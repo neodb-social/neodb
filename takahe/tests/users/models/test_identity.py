@@ -1138,3 +1138,6 @@ def test_pruneidentities_keeps_rows_that_resolve_an_alias(config_system, setting
 
     assert Identity.objects.filter(pk=alias.pk).exists()
     assert not Identity.objects.filter(pk=unused.pk).exists()
+    # And the identity the alias names, which holds nothing of its own either:
+    # deleting it would null the alias out and strand the actor
+    assert Identity.objects.filter(pk=canonical.pk).exists()

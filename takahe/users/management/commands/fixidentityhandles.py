@@ -69,27 +69,37 @@ def identity_references(identity: Identity) -> dict[str, int]:
     return counts
 
 
-def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
+def merge_identity(
+    alias: Identity, canonical: Identity
+) -> tuple[dict[str, int], Identity]:
     """
     Moves every row referencing alias onto canonical and retires alias.
 
     The row is kept, not deleted. NeoDB mirrors identities by primary key and
     lives in another database this process cannot reach, so deleting one here
     can leave a review or a collection owned by an identity that no longer
-    exists. An emptied row with no handle costs nothing and pruneidentities
-    can take it later.
+    exists. An emptied row with no handle costs nothing.
     """
+    # A whole batch is classified before any of it is repaired, so the target
+    # may have been merged away in the meantime. Read it again and follow it
+    # to the identity that now holds everything, because by_actor_uri takes
+    # one hop and a chain would strand this actor at an emptied row.
+    canonical = Identity.objects.get(pk=canonical.pk)
+    for _ in range(10):
+        if not canonical.canonical_id:
+            break
+        canonical = canonical.canonical
+    else:
+        raise ValueError(f"Identity {canonical.pk} sits behind an alias chain")
+    alias = Identity.objects.get(pk=alias.pk)
+    if alias.canonical_id:
+        raise ValueError(f"Identity {alias.pk} was already merged")
     if alias.pk == canonical.pk:
         raise ValueError("Cannot merge an identity into itself")
     if alias.local or canonical.local:
         raise ValueError("Cannot merge local identities")
     if alias.users.exists():
         raise ValueError(f"Identity {alias.pk} belongs to a local user")
-    if canonical.canonical_id:
-        raise ValueError(
-            f"Identity {canonical.pk} is itself an alias of "
-            f"{canonical.canonical_id}, merge into that instead"
-        )
     if alias.restriction > canonical.restriction:
         # Moving the posts of a limited or blocked identity onto an
         # unrestricted one would quietly undo a moderator's decision
@@ -154,7 +164,7 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
         )
         # Anything that pointed at the alias now points here instead
         Identity.objects.filter(canonical=alias).update(canonical=canonical)
-    return moved
+    return moved, canonical
 
 
 class Command(BaseCommand):
@@ -355,11 +365,13 @@ class Command(BaseCommand):
             canonical = other or Identity.by_actor_uri(target_uri, create=True)
         else:
             return
-        self.stdout.write(f"merging {alias.actor_uri} into {canonical.actor_uri}")
         try:
-            moved = merge_identity(alias, canonical)
+            moved, canonical = merge_identity(alias, canonical)
         except ValueError as error:
-            self.stdout.write(f"  skipped: {error}")
+            self.stdout.write(f"skipped {alias.actor_uri}: {error}")
             return
-        self.stdout.write(f"  {moved or 'nothing to move'}")
+        self.stdout.write(
+            f"merged {alias.actor_uri} into {canonical.actor_uri}: "
+            f"{moved or 'nothing to move'}"
+        )
         canonical.transition_perform(IdentityStates.outdated)
