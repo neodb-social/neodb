@@ -495,7 +495,9 @@ class ImageDownloaderMixin:
                     # proxies commonly return, to the EOT font type.
                     file_type = filetype.guess(response.content)
                 if file_type is None or not (file_type.mime or "").startswith("image/"):
-                    logger.error(
+                    # a blocked or hotlink-protected cover is served as an
+                    # error page, which is an expected third-party outcome
+                    logger.warning(
                         f"Unsupported image type: {content_type}",
                         extra={"url": redact_url(response.url)},
                     )
