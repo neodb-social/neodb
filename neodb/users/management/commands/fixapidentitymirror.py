@@ -122,9 +122,14 @@ class Command(SiteCommand):
         identity = Identity.objects.filter(pk=apidentity.pk).first()
         if identity is None:
             return OWNED if apidentity_references(apidentity) else ORPHAN
-        if (identity.username, identity.domain_id) != (
+        if (identity.username, identity.domain_id) == (
             apidentity.username,
             apidentity.domain_name,
         ):
-            return STALE
-        return None
+            return None
+        if not identity.username and apidentity_references(apidentity):
+            # An identity fixidentityhandles emptied. Copying its nulls over
+            # would leave this row's data reachable only through a handle that
+            # reads None@None, so it needs a person either way.
+            return OWNED
+        return STALE

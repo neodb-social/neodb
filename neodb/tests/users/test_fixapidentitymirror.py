@@ -114,6 +114,23 @@ class TestFixAPIdentityMirror:
         tag.refresh_from_db()
         assert tag.owner_id == orphan.pk
 
+    def test_emptied_identity_owning_data_is_not_resynced_to_nulls(self):
+        """
+        fixidentityhandles leaves a merged alias with no handle. Copying that
+        over a mirror that owns journal data would leave the data reachable
+        only through a handle reading None@None.
+        """
+        make_identity(110, "https://example.com/users/ruben")
+        mirror = make_mirror(110, "ruben", "example.com")
+        Tag.objects.create(owner=mirror, title="kept")
+
+        output = run(fix=True, yes=True)
+
+        assert "orphan-owns-data" in output
+        mirror.refresh_from_db()
+        assert mirror.username == "ruben"
+        assert mirror.deleted is None
+
     def test_scan_only_by_default(self):
         domain = Domain.get_remote_domain("example.com")
         make_identity(106, "https://example.com/ruben", username="ruben", domain=domain)
