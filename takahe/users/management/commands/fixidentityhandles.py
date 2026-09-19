@@ -209,7 +209,7 @@ class Command(BaseCommand):
             identities = Identity.objects.filter(actor_uri=actor)
         else:
             identities = Identity.objects.filter(
-                local=False, username__isnull=True
+                local=False, username__isnull=True, canonical__isnull=True
             ).order_by("pk")
         identities = list(identities[:number])
         self.stdout.write(f"Examining {len(identities)} identities...")

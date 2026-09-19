@@ -97,6 +97,11 @@ def verify_http_signature(request: HttpRequest):
         raise _SigError(f"Bad base64 signature: {e}") from e
     key_id_actor = urldefrag(details["keyId"]).url
     signer = Identity.objects.filter(actor_uri=key_id_actor).first()
+    if signer and signer.canonical:
+        # The key belongs to an actor we since learned lives on another row,
+        # which is where its follows and its mirror are. The key is the same
+        # actor's either way, so this changes who signed, not whether it did.
+        signer = signer.canonical
     if not signer or not signer.public_key:
         # Don't fetch synchronously: that would let unsigned probes drive
         # outbound HTTP. Federation push primes the cache.

@@ -783,6 +783,8 @@ class Identity(StatorModel):
         the activities it sends, so comparing against actor_uri alone rejects
         the actor's own deletes and undoes.
         """
+        if not uri:
+            return False
         if uri == self.actor_uri:
             return True
         return self.alias_identities.filter(actor_uri=uri).exists()

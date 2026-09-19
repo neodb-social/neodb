@@ -235,6 +235,16 @@ class Migration(migrations.Migration):
                 ("metadata", models.JSONField(blank=True, null=True)),
                 ("pinned", models.JSONField(blank=True, null=True)),
                 ("aliases", models.JSONField(blank=True, null=True)),
+                (
+                    "canonical",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="alias_identities",
+                        to="takahe.identity",
+                    ),
+                ),
                 ("stats", models.JSONField(blank=True, null=True)),
                 ("sensitive", models.BooleanField(default=False)),
                 (

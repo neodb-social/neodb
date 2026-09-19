@@ -492,6 +492,17 @@ class Identity(models.Model):
     # the one URI it was moved to.
     aliases = models.JSONField(blank=True, null=True)
 
+    # Set when this row turned out to be another actor under a second URI.
+    # Takahe writes it; NeoDB reads it to resolve a request signed with the
+    # key of an actor it knows by that URI.
+    canonical = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="alias_identities",
+    )
+
     # Calculated (or fetched) statistics: follower/post counts, etc.
     stats = models.JSONField(blank=True, null=True)
 

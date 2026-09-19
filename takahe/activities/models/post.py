@@ -2188,7 +2188,7 @@ class Post(StatorModel):
         if post.local:
             return
         # Only the author's own activities about their post are forwarded
-        if message.get("actor") != post.author.actor_uri:
+        if not post.author.is_actor_uri(message.get("actor")):
             return
         if post.visibility not in [
             cls.Visibilities.public,
