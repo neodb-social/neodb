@@ -85,6 +85,11 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
         raise ValueError("Cannot merge local identities")
     if alias.users.exists():
         raise ValueError(f"Identity {alias.pk} belongs to a local user")
+    if canonical.canonical_id:
+        raise ValueError(
+            f"Identity {canonical.pk} is itself an alias of "
+            f"{canonical.canonical_id}, merge into that instead"
+        )
     if alias.restriction > canonical.restriction:
         # Moving the posts of a limited or blocked identity onto an
         # unrestricted one would quietly undo a moderator's decision
@@ -140,9 +145,15 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
         left = identity_references(alias)
         if left:
             raise ValueError(f"Identity {alias.pk} still referenced by {left}")
-        # Give up the handle, which is the point of the whole exercise. The
-        # guards in fetch_actor stop the emptied row taking it again.
-        Identity.objects.filter(pk=alias.pk).update(username=None, domain=None)
+        # Give up the handle, which is the point of the whole exercise, and
+        # record where the row's actor really lives so that peers still
+        # addressing it by this URI resolve to that identity. The guards in
+        # fetch_actor stop the emptied row taking the handle again.
+        Identity.objects.filter(pk=alias.pk).update(
+            username=None, domain=None, canonical=canonical
+        )
+        # Anything that pointed at the alias now points here instead
+        Identity.objects.filter(canonical=alias).update(canonical=canonical)
     return moved
 
 

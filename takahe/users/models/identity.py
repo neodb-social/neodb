@@ -454,6 +454,18 @@ class Identity(StatorModel):
     # the one URI it was moved to.
     aliases = models.JSONField(blank=True, null=True)
 
+    # Set when this row turned out to be another actor under a second URI,
+    # which several servers publish. The row is kept, because peers go on
+    # addressing the actor by it, and everything it holds belongs to the
+    # identity here.
+    canonical = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="alias_identities",
+    )
+
     # Calculated (or fetched) statistics: follower/post counts, etc.
     stats = models.JSONField(blank=True, null=True)
 
@@ -739,7 +751,11 @@ class Identity(StatorModel):
         if not uri:
             raise cls.DoesNotExist("No actor_uri provided")
         try:
-            return cls.objects.get(actor_uri=uri)
+            identity = cls.objects.get(actor_uri=uri)
+            # A peer may go on addressing an actor by a URI we since learned
+            # is a second name for another row. One hop only: a merge resolves
+            # its own target first, so a chain never forms.
+            return identity.canonical or identity
         except cls.DoesNotExist:
             if create:
                 if transient:
@@ -758,6 +774,18 @@ class Identity(StatorModel):
                 raise cls.DoesNotExist(f"No identity found with actor_uri {uri}")
 
     ### Dynamic properties ###
+
+    def is_actor_uri(self, uri: str) -> bool:
+        """
+        Whether this identity is the actor named by a URI.
+
+        A peer that knows the actor by one of its other URIs names that one in
+        the activities it sends, so comparing against actor_uri alone rejects
+        the actor's own deletes and undoes.
+        """
+        if uri == self.actor_uri:
+            return True
+        return self.alias_identities.filter(actor_uri=uri).exists()
 
     @property
     def name_or_handle(self):

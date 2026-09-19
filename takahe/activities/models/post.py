@@ -2103,7 +2103,7 @@ class Post(StatorModel):
                 # It's already been deleted
                 return
             # Ensure the actor on the request authored the post
-            if not post.author.actor_uri == data["actor"]:
+            if not post.author.is_actor_uri(data["actor"]):
                 raise ActorMismatchError("Actor on delete does not match object")
             post.perform_remote_deletion()
 

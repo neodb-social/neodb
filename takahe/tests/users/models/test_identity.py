@@ -956,3 +956,47 @@ def test_fetch_actor_still_refreshes_alias_that_already_holds_a_handle(
     assert identity.name == "New Name"
     assert identity.username == "ruben"
     assert identity.domain_id == "example.com"
+
+
+@pytest.mark.django_db
+def test_by_actor_uri_resolves_an_alias_to_its_canonical_identity(config_system):
+    """
+    A peer goes on addressing an actor by the URI it knows, which may be the
+    one a merge emptied. Everything that resolves an actor comes through here,
+    so the mapping is read here rather than at each caller.
+    """
+    domain = Domain.get_remote_domain("example.com")
+    canonical = Identity.objects.create(
+        actor_uri="https://example.com/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        local=False,
+        canonical=canonical,
+    )
+
+    assert Identity.by_actor_uri(alias.actor_uri).pk == canonical.pk
+    assert Identity.by_actor_uri(canonical.actor_uri).pk == canonical.pk
+
+
+@pytest.mark.django_db
+def test_is_actor_uri_accepts_an_alias_uri(config_system):
+    domain = Domain.get_remote_domain("example.com")
+    canonical = Identity.objects.create(
+        actor_uri="https://example.com/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        local=False,
+        canonical=canonical,
+    )
+
+    assert canonical.is_actor_uri("https://example.com/ruben")
+    assert canonical.is_actor_uri("https://example.com/users/ruben")
+    assert not canonical.is_actor_uri("https://example.com/someone-else")

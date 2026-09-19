@@ -78,6 +78,10 @@ def test_releasable_alias_gives_the_handle_back(
     alias.refresh_from_db()
     assert alias.username is None
     assert alias.domain_id is None
+    # And peers still addressing the actor by the alias URI resolve to the
+    # identity that now holds everything
+    assert alias.canonical_id == canonical.pk
+    assert Identity.by_actor_uri(alias.actor_uri).pk == canonical.pk
 
 
 @pytest.mark.django_db
