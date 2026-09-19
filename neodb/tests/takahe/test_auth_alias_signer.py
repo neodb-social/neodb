@@ -120,3 +120,41 @@ def test_relationship_against_a_merged_id_lands_on_the_real_identity():
 
     assert Block.objects.filter(source=local, target=canonical, mute=False).exists()
     assert not Block.objects.filter(target=alias).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_relationship_reads_see_what_the_writes_did():
+    """
+    Resolving writes but not reads is worse than resolving neither: the block
+    lands on the identity behind the alias while every check that guards
+    content still asks about the alias and sees nothing.
+    """
+    from takahe.utils import Takahe
+
+    domain = Domain.get_remote_domain("remote.example")
+    local = Identity.objects.create(
+        actor_uri="https://testserver/@me2/",
+        username="me2",
+        domain=Domain.objects.create(domain="testserver2", local=True),
+        local=True,
+    )
+    canonical = Identity.objects.create(
+        actor_uri="https://remote.example/ruben2",
+        username="ruben2",
+        domain=domain,
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://remote.example/users/ruben2",
+        local=False,
+        canonical=canonical,
+    )
+
+    Takahe.block_or_mute(local.pk, alias.pk, False)
+
+    assert Takahe.get_is_blocking(local.pk, alias.pk)
+    assert Takahe.get_is_blocking(local.pk, canonical.pk)
+
+    Takahe.follow(local.pk, alias.pk, force_accept=True)
+    assert Takahe.get_is_following(local.pk, alias.pk)
+    assert Takahe.get_is_following(local.pk, canonical.pk)

@@ -1,9 +1,9 @@
 from django.http import HttpRequest
-from api.views import get_object_or_404
 from hatchway import api_view
 
 from api import schemas
 from api.decorators import scope_required
+from api.views.accounts import identity_for_client
 from api.pagination import MastodonPaginator, PaginatingApiResponse, PaginationResult
 from users.models.identity import Identity
 from users.services.identity import IdentityService
@@ -40,9 +40,7 @@ def accept_follow_request(
     request: HttpRequest,
     id: str | None = None,
 ) -> schemas.Relationship:
-    source_identity = get_object_or_404(
-        Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    ).resolved
+    source_identity = identity_for_client(id)
     IdentityService(request.identity).accept_follow_request(source_identity)
     return IdentityService(source_identity).mastodon_json_relationship(request.identity)
 
@@ -53,8 +51,6 @@ def reject_follow_request(
     request: HttpRequest,
     id: str | None = None,
 ) -> schemas.Relationship:
-    source_identity = get_object_or_404(
-        Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    ).resolved
+    source_identity = identity_for_client(id)
     IdentityService(request.identity).reject_follow_request(source_identity)
     return IdentityService(source_identity).mastodon_json_relationship(request.identity)

@@ -249,12 +249,14 @@ class Takahe:
 
     @staticmethod
     def get_is_following(identity_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         return Follow.objects.filter(
             source_id=identity_pk, target_id=target_pk, state="accepted"
         ).exists()
 
     @staticmethod
     def get_is_follow_requesting(identity_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         return Follow.objects.filter(
             source_id=identity_pk,
             target_id=target_pk,
@@ -263,6 +265,7 @@ class Takahe:
 
     @staticmethod
     def get_is_muting(identity_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         return Block.objects.filter(
             source_id=identity_pk,
             target_id=target_pk,
@@ -272,6 +275,7 @@ class Takahe:
 
     @staticmethod
     def get_is_blocking(identity_pk: int, target_pk: int):
+        target_pk = Takahe.resolve_identity_pk(target_pk)
         return Block.objects.filter(
             source_id=identity_pk,
             target_id=target_pk,
@@ -455,11 +459,14 @@ class Takahe:
 
     @staticmethod
     def accept_follow_request(source_pk: int, target_pk: int):
+        # The remote party of an inbound request is the source
+        source_pk = Takahe.resolve_identity_pk(source_pk)
         target_pk = Takahe.resolve_identity_pk(target_pk)
         Takahe.update_follow_state(source_pk, target_pk, [], "accepting")
 
     @staticmethod
     def reject_follow_request(source_pk: int, target_pk: int):
+        source_pk = Takahe.resolve_identity_pk(source_pk)
         target_pk = Takahe.resolve_identity_pk(target_pk)
         Takahe.update_follow_state(source_pk, target_pk, [], "rejecting")
 
