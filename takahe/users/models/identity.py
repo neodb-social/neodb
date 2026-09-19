@@ -779,6 +779,17 @@ class Identity(StatorModel):
 
     ### Dynamic properties ###
 
+    @property
+    def resolved(self) -> "Identity":
+        """
+        This identity, or the one it turned out to be a second URI for.
+
+        A client holds the numeric id it was given, which may be one a merge
+        has since emptied, and acting on that row would report success while
+        doing nothing the actor ever sees.
+        """
+        return self.canonical or self
+
     def is_actor_uri(self, uri: str) -> bool:
         """
         Whether this identity is the actor named by a URI.

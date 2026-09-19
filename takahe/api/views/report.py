@@ -18,7 +18,7 @@ def file_report(
     category: QueryOrBody[str] = "other",
     **kwargs,
 ) -> schemas.Report:
-    subject_identity = get_object_or_404(Identity, pk=account_id)
+    subject_identity = get_object_or_404(Identity, pk=account_id).resolved
     if not status_ids:
         raise ApiError(422, "Not status ids provided")
     subject_post = Post.objects.filter(id__in=status_ids).first()

@@ -51,3 +51,33 @@ def test_following_count_consistent_after_unfollow(
     assert response.status_code == 200
     own = api_client.get("/api/v1/accounts/verify_credentials").json()
     assert own["following_count"] == 0
+
+
+@pytest.mark.django_db
+def test_account_action_on_a_merged_id_reaches_the_real_identity(
+    api_client, identity, remote_identity
+):
+    """
+    A client keeps the numeric id it was given, which may be one a merge has
+    since emptied. Blocking that row would report success while the actor
+    went on being seen.
+    """
+    from users.models import Block, Identity
+
+    alias = Identity.objects.create(
+        actor_uri="https://remote.test/users/test/",
+        local=False,
+        canonical=remote_identity,
+    )
+
+    response = api_client.post(
+        f"/api/v1/accounts/{alias.pk}/block",
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["id"] == str(remote_identity.pk)
+    assert Block.objects.filter(
+        source=identity, target=remote_identity, mute=False
+    ).exists()
+    assert not Block.objects.filter(target=alias).exists()

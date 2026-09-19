@@ -90,7 +90,7 @@ def account_relationships(
     else:
         ids = id
     for actual_id in ids:
-        identity = get_object_or_404(Identity, pk=actual_id)
+        identity = get_object_or_404(Identity, pk=actual_id).resolved
         result.append(
             IdentityService(identity).mastodon_json_relationship(request.identity)
         )
@@ -113,7 +113,7 @@ def familiar_followers(
         ids = id
     result = []
     for actual_id in ids:
-        target_identity = get_object_or_404(Identity, pk=actual_id)
+        target_identity = get_object_or_404(Identity, pk=actual_id).resolved
         result.append(
             schemas.FamiliarFollowers(
                 id=actual_id,
@@ -272,7 +272,7 @@ def account_follow(
 def account_unfollow(request, id: str) -> schemas.Relationship:
     identity = get_object_or_404(
         Identity.objects.exclude(restriction=Identity.Restriction.blocked), pk=id
-    )
+    ).resolved
     service = IdentityService(request.identity)
     service.unfollow(identity)
     return schemas.Relationship.from_identity_pair(identity, request.identity)
@@ -281,7 +281,7 @@ def account_unfollow(request, id: str) -> schemas.Relationship:
 @scope_required("write:blocks")
 @api_view.post
 def account_block(request, id: str) -> schemas.Relationship:
-    identity = get_object_or_404(Identity, pk=id)
+    identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.block(identity)
     return schemas.Relationship.from_identity_pair(identity, request.identity)
@@ -290,7 +290,7 @@ def account_block(request, id: str) -> schemas.Relationship:
 @scope_required("write:blocks")
 @api_view.post
 def account_unblock(request, id: str) -> schemas.Relationship:
-    identity = get_object_or_404(Identity, pk=id)
+    identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.unblock(identity)
     return schemas.Relationship.from_identity_pair(identity, request.identity)
@@ -304,7 +304,7 @@ def account_mute(
     notifications: QueryOrBody[bool] = True,
     duration: QueryOrBody[int] = 0,
 ) -> schemas.Relationship:
-    identity = get_object_or_404(Identity, pk=id)
+    identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.mute(
         identity,
@@ -317,7 +317,7 @@ def account_mute(
 @scope_required("write:mutes")
 @api_view.post
 def account_unmute(request, id: str) -> schemas.Relationship:
-    identity = get_object_or_404(Identity, pk=id)
+    identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.unmute(identity)
     return schemas.Relationship.from_identity_pair(identity, request.identity)
