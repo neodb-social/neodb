@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 from itertools import islice
 
@@ -15,6 +16,13 @@ from takahe.models import Identity, Post
 
 class Command(SiteCommand):
     help = "generate sitemap.txt"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--output",
+            help="write the sitemap to this local path instead of media storage, "
+            "e.g. /www/root/sitemap.txt to serve it from the site root",
+        )
 
     def handle(self, *args, **options):
         fd, temp = tempfile.mkstemp(suffix=".txt")
@@ -88,6 +96,19 @@ class Command(SiteCommand):
             )
             for r in ratings.iterator():
                 f.write(Item.objects.get(pk=r["item_id"]).absolute_url + "\n")
+
+        output = options.get("output")
+        if output:
+            parent = os.path.dirname(output)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            shutil.copyfile(temp, output)
+            # mkstemp() creates the file as 0600, so set the mode the web
+            # server expects
+            os.chmod(output, 0o644)
+            os.remove(temp)
+            self.stdout.write(self.style.SUCCESS(f"Generated {output}"))
+            return
 
         # Unlike an export, the sitemap is fetched by crawlers over the web, so
         # it has to live wherever MEDIA_URL actually points -- the bucket on an
