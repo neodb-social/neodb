@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-19 13:16-0400\n"
+"POT-Creation-Date: 2026-09-19 13:23-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -2009,8 +2009,8 @@ msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr "联邦宇宙创作者的播客，可直接在此播放。"
 
 #: catalog/templates/discover.html:351
-msgid "All verified shows"
-msgstr "全部已验证播客"
+msgid "All original shows"
+msgstr "全部原创播客"
 
 #: catalog/templates/discover.html:368 social/templates/_event_post.html:38
 msgid "Play"
