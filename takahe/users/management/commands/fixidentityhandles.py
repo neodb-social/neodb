@@ -71,11 +71,13 @@ def identity_references(identity: Identity) -> dict[str, int]:
 
 def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
     """
-    Moves every row referencing alias onto canonical, then deletes alias.
+    Moves every row referencing alias onto canonical and retires alias.
 
-    A row the canonical identity already has its own copy of, such as a follow
-    of the same target, cannot move onto it without breaking a unique
-    constraint, so it is dropped as the duplicate it is.
+    The row is kept, not deleted. NeoDB mirrors identities by primary key and
+    lives in another database this process cannot reach, so deleting one here
+    can leave a review or a collection owned by an identity that no longer
+    exists. An emptied row with no handle costs nothing and pruneidentities
+    can take it later.
     """
     if alias.pk == canonical.pk:
         raise ValueError("Cannot merge an identity into itself")
@@ -83,6 +85,13 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
         raise ValueError("Cannot merge local identities")
     if alias.users.exists():
         raise ValueError(f"Identity {alias.pk} belongs to a local user")
+    if alias.restriction > canonical.restriction:
+        # Moving the posts of a limited or blocked identity onto an
+        # unrestricted one would quietly undo a moderator's decision
+        raise ValueError(
+            f"Identity {alias.pk} is restricted ({alias.restriction}) and "
+            f"{canonical.pk} is not"
+        )
     moved: dict[str, int] = {}
     conversations = list(
         Conversation.objects.filter(participants=alias).values_list("pk", flat=True)
@@ -96,11 +105,18 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
                 try:
                     with transaction.atomic():
                         row.update(**{field_name: canonical})
-                except IntegrityError:
-                    row.delete()
-                    key = f"{model._meta.label} dropped"
-                else:
-                    key = f"{model._meta.label} moved"
+                except IntegrityError as error:
+                    # The canonical identity has its own row where only one
+                    # can exist. They are not necessarily the same: two notes
+                    # about one person hold different text, and two follows
+                    # hold different states. Nothing here can choose between
+                    # them, so the whole merge rolls back for a person to look
+                    # at.
+                    raise ValueError(
+                        f"{model._meta.label} {pk} clashes with a row "
+                        f"{canonical.pk} already has: {error}"
+                    ) from error
+                key = f"{model._meta.label} moved"
                 moved[key] = moved.get(key, 0) + 1
         for conversation in Conversation.objects.filter(pk__in=conversations):
             participants = set(conversation.participants.values_list("pk", flat=True))
@@ -121,12 +137,12 @@ def merge_identity(alias: Identity, canonical: Identity) -> dict[str, int]:
             Conversation.objects.filter(pk=conversation.pk).update(
                 participant_hash=new_hash
             )
-        # Nothing may still point at the row about to go, or deleting it would
-        # cascade into rows the merge was supposed to keep
         left = identity_references(alias)
         if left:
             raise ValueError(f"Identity {alias.pk} still referenced by {left}")
-        Identity.objects.filter(pk=alias.pk).delete()
+        # Give up the handle, which is the point of the whole exercise. The
+        # guards in fetch_actor stop the emptied row taking it again.
+        Identity.objects.filter(pk=alias.pk).update(username=None, domain=None)
     return moved
 
 
@@ -142,7 +158,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--yes",
             action="store_true",
-            help="Do not ask before merging and deleting rows",
+            help="Do not ask before merging rows",
         )
         parser.add_argument(
             "--number",
@@ -199,8 +215,9 @@ class Command(BaseCommand):
         merges = len([f for f in repairable if f[1] in {ALIAS, RELEASABLE}])
         if merges and not yes:
             self.stdout.write(
-                f"\nAbout to merge and delete {merges} identity rows. "
-                "Their posts and follows move to the identity they alias."
+                f"\nAbout to empty {merges} identity rows. Their posts and "
+                "follows move to the identity they alias, which then takes "
+                "back the handle."
             )
             if not input("Are you sure? [Y/N] ").upper().startswith("Y"):
                 self.stdout.write("Nothing was changed.")

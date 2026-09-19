@@ -4,7 +4,7 @@ import pytest
 from activities.models import Conversation, Post
 from core.models import Config
 from django.core.management import call_command
-from users.models import Domain, Identity
+from users.models import Domain, Follow, Identity
 
 
 def actor_document(actor_uri: str, document_id: str, username: str) -> dict:
@@ -68,11 +68,16 @@ def test_releasable_alias_gives_the_handle_back(
     output = run(fix=True, yes=True)
 
     assert "releasable" in output
-    assert not Identity.objects.filter(pk=alias.pk).exists()
     post.refresh_from_db()
     assert post.author_id == canonical.pk
     canonical.refresh_from_db()
     assert canonical.state == "outdated"
+    # Emptied, not deleted: NeoDB mirrors identities by primary key from
+    # another database, and a review owned by a row deleted here would point
+    # at nothing
+    alias.refresh_from_db()
+    assert alias.username is None
+    assert alias.domain_id is None
 
 
 @pytest.mark.django_db
@@ -124,9 +129,10 @@ def test_row_that_is_itself_an_alias_merges_into_the_actor_it_names(
     output = run(fix=True, yes=True)
 
     assert "alias" in output
-    assert not Identity.objects.filter(pk=alias.pk).exists()
     post.refresh_from_db()
     assert post.author_id == canonical.pk
+    alias.refresh_from_db()
+    assert alias.username is None
 
 
 @pytest.mark.django_db
@@ -219,7 +225,6 @@ def test_cross_host_claim_is_never_merged(httpx_mock, config_system, _no_federat
     output = run(fix=True, yes=True)
 
     assert "foreign" in output
-    assert Identity.objects.filter(pk=claimer.pk).exists()
     post.refresh_from_db()
     assert post.author_id == claimer.pk
 
@@ -280,3 +285,77 @@ def test_loads_the_system_config():
     run()
 
     assert getattr(Config, "system", None) is not None
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_restricted_alias_is_not_merged(httpx_mock, config_system, _no_federation):
+    """
+    Moving a limited or blocked identity's posts onto an unrestricted one
+    would quietly undo a moderator's decision, because the restriction lives
+    on the identity and cannot move with them.
+    """
+    domain = Domain.get_remote_domain("example.com")
+    canonical = Identity.objects.create(
+        actor_uri="https://example.com/ruben",
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+        restriction=Identity.Restriction.blocked,
+    )
+    post = Post.objects.create(author=alias, local=False, content="<p>hi</p>")
+    mock_actor(httpx_mock, canonical.actor_uri, canonical.actor_uri, "ruben")
+    mock_actor(httpx_mock, alias.actor_uri, canonical.actor_uri, "ruben")
+
+    output = run(fix=True, yes=True)
+
+    assert "skipped" in output
+    post.refresh_from_db()
+    assert post.author_id == alias.pk
+    alias.refresh_from_db()
+    assert alias.username == "ruben"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_clashing_row_aborts_the_whole_merge(httpx_mock, config_system, _no_federation):
+    """
+    Where only one row can exist, the two are not necessarily the same: two
+    follows hold different states. Nothing here can choose between them, so
+    the merge rolls back rather than throw one away.
+    """
+    domain = Domain.get_remote_domain("example.com")
+    canonical = Identity.objects.create(
+        actor_uri="https://example.com/ruben",
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://example.com/users/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    target = Identity.objects.create(
+        actor_uri="https://example.com/target",
+        username="target",
+        domain=domain,
+        local=False,
+    )
+    Follow.objects.create(source=alias, target=target, state="unrequested")
+    Follow.objects.create(source=canonical, target=target, state="accepted")
+    post = Post.objects.create(author=alias, local=False, content="<p>hi</p>")
+    mock_actor(httpx_mock, canonical.actor_uri, canonical.actor_uri, "ruben")
+    mock_actor(httpx_mock, alias.actor_uri, canonical.actor_uri, "ruben")
+
+    output = run(fix=True, yes=True)
+
+    assert "skipped" in output
+    # Nothing moved, and both follows are still there
+    post.refresh_from_db()
+    assert post.author_id == alias.pk
+    assert Follow.objects.filter(source=alias, target=target).exists()
+    assert Follow.objects.filter(source=canonical, target=target).exists()
