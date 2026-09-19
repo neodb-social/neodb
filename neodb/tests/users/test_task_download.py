@@ -2,7 +2,8 @@ import pytest
 from django.test import Client, override_settings
 from django.urls import reverse
 
-from journal.exporters import NdjsonExporter
+from journal.exporters import DoufenExporter, NdjsonExporter
+from journal.importers import RymImporter, StoryGraphImporter
 from users.models import Task, User
 
 pytestmark = pytest.mark.django_db(databases="__all__")
@@ -79,3 +80,66 @@ def test_export_download_redirects_when_the_file_is_gone(tmp_path):
 
     assert response.status_code == 302
     assert response["Location"] == reverse("users:data")
+
+
+def test_marks_export_download_streams_the_workbook(tmp_path):
+    user, client = _member("marksexporter")
+    workbook = tmp_path / "marks.xlsx"
+    workbook.write_bytes(b"PK\x03\x04sheet")
+    task = DoufenExporter.create(user=user)
+    task.metadata["file"] = str(workbook)
+    task.state = Task.States.complete
+    task.save()
+
+    response = client.get(reverse("users:export_marks"))
+
+    assert response.status_code == 200
+    assert _read(response) == b"PK\x03\x04sheet"
+    assert response["Content-Type"] == "application/vnd.ms-excel"
+    assert 'filename="marks.xlsx"' in response["Content-Disposition"]
+
+
+def test_marks_export_download_redirects_without_a_file():
+    user, client = _member("marksless")
+    task = DoufenExporter.create(user=user)
+    task.state = Task.States.complete
+    task.save()
+
+    response = client.get(reverse("users:export_marks"))
+
+    assert response.status_code == 302
+    assert response["Location"] == reverse("users:data")
+
+
+@pytest.mark.parametrize(
+    "importer,url_name,hint,stem",
+    [
+        (RymImporter, "users:rym_download", "my_rym.csv", "my_rym"),
+        (
+            StoryGraphImporter,
+            "users:storygraph_download",
+            "my_sg.csv",
+            "my_sg",
+        ),
+    ],
+)
+def test_matched_csv_download_streams_the_file(
+    tmp_path, importer, url_name, hint, stem
+):
+    """The matched CSV sits beside the upload in sync/, which stays local."""
+    user, client = _member(f"matched{importer.__name__.lower()}")
+    matched = tmp_path / "matched.csv"
+    matched.write_text("title,link\nDune,https://example.com/dune\n")
+    task = importer.create(user=user)
+    task.metadata.update(
+        {"phase": "preview", "matched_file": str(matched), "filename_hint": hint}
+    )
+    task.save()
+
+    response = client.get(reverse(url_name))
+
+    assert response.status_code == 200
+    assert "X-Accel-Redirect" not in response
+    assert _read(response).decode() == matched.read_text()
+    assert response["Content-Type"] == "text/csv"
+    assert f'filename="{stem}-matched.csv"' in response["Content-Disposition"]
