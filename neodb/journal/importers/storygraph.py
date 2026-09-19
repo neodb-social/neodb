@@ -1,5 +1,6 @@
 import csv
 import datetime
+import io
 import logging
 import os
 import re
@@ -18,6 +19,11 @@ from catalog.search.index import CatalogIndex, CatalogQueryParser
 from common.models import SiteConfig
 from journal.models import *
 from users.models import Task
+from users.models.task_files import (
+    exists as task_file_exists,
+    local_copy,
+    overwrite_task_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -163,8 +169,10 @@ class StoryGraphImporter(Task):
     # ---- Phase 1: matching ----
 
     def _run_matching(self) -> None:
-        in_path = self.metadata["file"]
-        out_path = self._derive_matched_path(in_path)
+        in_path = self.local_file
+        # derived from the recorded path, not the staged copy: the key is
+        # what the preview and download views look the file up by
+        out_key = self._derive_matched_path(self.metadata["file"])
         with open(in_path, encoding="utf-8-sig", newline="") as fin:
             reader = csv.DictReader(fin)
             fieldnames = [h.strip() for h in reader.fieldnames or []]
@@ -172,16 +180,17 @@ class StoryGraphImporter(Task):
             # k is None for extra cells in ragged rows; drop them
             rows = [{k.strip(): v for k, v in raw.items() if k} for raw in reader]
         self.metadata["total"] = len(rows)
-        self.metadata["matched_file"] = out_path
+        self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
 
-        with open(out_path, "w", encoding="utf-8", newline="") as fout:
-            writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
-            writer.writeheader()
-            for row in rows:
-                self._match_row(row)
-                writer.writerow(row)
+        buf = io.StringIO()
+        writer = csv.DictWriter(buf, fieldnames=fieldnames + extra)
+        writer.writeheader()
+        for row in rows:
+            self._match_row(row)
+            writer.writerow(row)
+        overwrite_task_file(out_key, buf.getvalue().encode("utf-8"))
 
         self.metadata["phase"] = "preview"
         self.message = _(
@@ -389,11 +398,14 @@ class StoryGraphImporter(Task):
 
     def _run_import(self) -> None:
         path = self.metadata.get("matched_file")
-        if not path or not os.path.exists(path):
+        if not path or not task_file_exists(path):
             self.message = _("Matched file missing; cannot import.")
             self.save(update_fields=["message"])
             return
-        with open(path, encoding="utf-8-sig", newline="") as f:
+        with (
+            local_copy(path) as local,
+            open(local, encoding="utf-8-sig", newline="") as f,
+        ):
             reader = csv.DictReader(f)
             rows = [{k.strip(): v for k, v in r.items() if k} for r in reader]
         self.metadata["total"] = len(rows)

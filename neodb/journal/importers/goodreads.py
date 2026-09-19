@@ -117,7 +117,7 @@ class GoodreadsImporter(Task):
         self.save(update_fields=["metadata", "message"])
 
     def run(self) -> None:
-        filename = self.metadata["file"]
+        filename = self.local_file
         visibility = self.metadata["visibility"]
         with open(filename, encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)

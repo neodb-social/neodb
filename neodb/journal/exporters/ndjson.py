@@ -13,7 +13,6 @@ from django.utils import timezone
 
 from catalog.common import ProxiedImageDownloader
 from common.models.misc import MISSING_COVER
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import (
     Article,
     Attachment,
@@ -31,6 +30,7 @@ from journal.models import (
 from journal.models.renderers import RE_MD_IMAGE, normalize_image_src
 from takahe.models import Post
 from users.models import Task
+from users.models.task_files import save_local_file
 
 logger = logging.getLogger(__name__)
 
@@ -396,8 +396,8 @@ class NdjsonExporter(Task):
             takahe_identity = self.user.identity.takahe_identity
             # The key pair is exported on purpose: it is what lets a user
             # re-establish this same actor when rebuilding their own site.
-            # Treat the archive as a secret accordingly -- it is served from
-            # MEDIA_ROOT, so anyone holding the download URL holds the key.
+            # Treat the archive as a secret accordingly; the download link is
+            # signed and short-lived so the object is never public.
             # TODO: avatar (icon), header (image), discoverable, indexable and
             # manually_approves_followers are not carried, and process_actor
             # restores only name/summary -- `metadata` (profile fields) is
@@ -416,12 +416,10 @@ class NdjsonExporter(Task):
             }
             f.write(json.dumps(identity_data, default=str) + "\n")
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
+        archive = shutil.make_archive(
+            os.path.join(temp_dir, "export"), "zip", temp_folder_path
         )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-        shutil.make_archive(filename[:-4], "zip", temp_folder_path)
+        filename = save_local_file(archive, "f.zip", settings.EXPORT_FILE_PATH_ROOT)
         # the staging copy holds every attachment we just bundled; drop it
         # so exports don't accumulate in the system temp dir
         shutil.rmtree(temp_dir, ignore_errors=True)

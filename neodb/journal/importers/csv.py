@@ -259,7 +259,7 @@ class CsvImporter(BaseImporter):
 
     def run(self) -> None:
         """Run the CSV import."""
-        filename = self.metadata["file"]
+        filename = self.local_file
         logger.debug(f"Importing {filename}")
 
         with zipfile.ZipFile(filename, "r") as zipref:

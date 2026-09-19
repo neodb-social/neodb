@@ -203,7 +203,7 @@ class WordpressImporter(BaseImporter):
             return "failed"
 
     def run(self) -> None:
-        tree = etree.parse(self.metadata["file"], _parser())
+        tree = etree.parse(self.local_file, _parser())
         channel = tree.getroot().find("./channel")
         items = channel.findall("item") if channel is not None else []
 

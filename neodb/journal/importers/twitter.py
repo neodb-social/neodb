@@ -321,7 +321,7 @@ class TwitterImporter(BaseImporter):
             self.metadata.get("visibility", 0),
             self.user.preference.post_public_mode,
         )
-        tweets, notes, media = self._load(self.metadata["file"])
+        tweets, notes, media = self._load(self.local_file)
         tweets = [t.get("tweet", t) for t in tweets]
         tweets.sort(key=lambda t: int(t.get("id_str") or t.get("id") or 0))
         by_id = {str(t.get("id_str") or t.get("id")): t for t in tweets}

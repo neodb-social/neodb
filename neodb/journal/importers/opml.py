@@ -38,7 +38,7 @@ class OPMLImporter(Task):
             return False
 
     def run(self):
-        with open(self.metadata["file"], "r") as f:
+        with open(self.local_file, "r") as f:
             feeds = listparser.parse(f.read()).feeds
             self.metadata["total"] = len(feeds)
             self.message = f"Processing {self.metadata['total']} feeds."

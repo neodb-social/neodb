@@ -103,7 +103,7 @@ class DoubanImporter(Task):
 
     def load_sheets(self):
         """Load data into mark_data / review_data / entity_lookup"""
-        with open(self.metadata["file"], "rb") as f:
+        with open(self.local_file, "rb") as f:
             wb = openpyxl.load_workbook(
                 f, read_only=True, data_only=True, keep_links=False
             )

@@ -6,9 +6,9 @@ import tempfile
 from django.conf import settings
 
 from catalog.models import Item, ItemCategory
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Note, Review, ShelfMember, q_item_in_category
 from users.models import Task
+from users.models.task_files import save_local_file
 
 #
 
@@ -162,12 +162,13 @@ class CsvExporter(Task):
                     ]
                     writer.writerow(line)
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
+        archive = shutil.make_archive(
+            os.path.join(temp_dir, "export"), "zip", temp_folder_path
         )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-        shutil.make_archive(filename[:-4], "zip", temp_folder_path)
+        filename = save_local_file(archive, "f.zip", settings.EXPORT_FILE_PATH_ROOT)
+        # the staging copy and the archive both sit in the system temp dir;
+        # drop them now that the archive is stored
+        shutil.rmtree(temp_dir, ignore_errors=True)
         self.metadata["file"] = filename
         self.metadata["total"] = total
         self.message = f"{total} records exported."

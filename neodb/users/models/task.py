@@ -1,6 +1,4 @@
 import logging
-import os
-import shutil
 from typing import Self
 
 import django_rq
@@ -12,33 +10,10 @@ from user_messages import api as msg
 
 from users.middlewares import activate_language_for_user
 
+from .task_files import delete_task_file, local_copy
 from .user import User
 
 logger = logging.getLogger(__name__)
-
-
-def _delete_path(file_path: str) -> bool:
-    try:
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-            logger.debug(f"Deleted file {file_path}")
-            # Remove parent directories if empty (date-based dirs like 2024/01/15/)
-            parent = os.path.dirname(file_path)
-            for _ in range(3):  # up to 3 levels (day/month/year)
-                if parent and os.path.isdir(parent) and not os.listdir(parent):
-                    os.rmdir(parent)
-                    logger.debug(f"Removed empty directory {parent}")
-                    parent = os.path.dirname(parent)
-                else:
-                    break
-            return True
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-            logger.debug(f"Deleted directory {file_path}")
-            return True
-    except OSError as e:
-        logger.warning(f"Failed to delete {file_path}: {e}")
-    return False
 
 
 class Task(TypedModel):
@@ -88,11 +63,36 @@ class Task(TypedModel):
         t = cls.objects.create(user=user, metadata=d)
         return t
 
+    #: Backs ``local_file``; set only while ``_run()`` has a staged copy.
+    #: Kept off ``metadata`` on purpose, because a task that saves mid-run
+    #: would otherwise persist a temp path that is gone by the next read.
+    _local_file: str = ""
+
+    @property
+    def local_file(self) -> str:
+        """A real filesystem path for ``metadata["file"]``.
+
+        The recorded path is a storage key, which zipfile, openpyxl and lxml
+        cannot open, so ``_run()`` stages the object to a temp file first.
+        Falling back to the recorded path keeps a directly invoked ``run()``
+        working whenever that path is already local.
+        """
+        return self._local_file or self.metadata.get("file") or ""
+
     def _run(self) -> bool:
         activate_language_for_user(self.user)
         with set_actor(self.user):
             try:
-                self.run()
+                path = self.metadata.get("file") or ""
+                if path:
+                    with local_copy(path) as local:
+                        self._local_file = local
+                        try:
+                            self.run()
+                        finally:
+                            self._local_file = ""
+                else:
+                    self.run()
                 return True
             except Exception as e:
                 logger.exception(
@@ -144,7 +144,7 @@ class Task(TypedModel):
         deleted = False
         for key in self.FileKeys:
             path = self.metadata.get(key)
-            if path and _delete_path(path):
+            if path and delete_task_file(path):
                 deleted = True
         return deleted
 

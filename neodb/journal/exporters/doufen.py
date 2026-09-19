@@ -1,13 +1,14 @@
 import os
+import tempfile
 
 from django.conf import settings
 from openpyxl import Workbook
 
 from catalog.models import IdType, ItemCategory, TVEpisode
 from common.models import country_display_name
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Review, ShelfType, q_item_in_category
 from users.models import Task
+from users.models.task_files import save_local_file
 
 
 def _get_source_url(item):
@@ -45,11 +46,6 @@ class DoufenExporter(Task):
     def run(self):
         user = self.user
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
         heading = [
             "标题",
             "简介",
@@ -329,7 +325,10 @@ class DoufenExporter(Task):
                 ]
                 ws.append(line)
 
-        wb.save(filename=filename)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local = os.path.join(temp_dir, "export.xlsx")
+            wb.save(filename=local)
+            filename = save_local_file(local, "f.xlsx", settings.EXPORT_FILE_PATH_ROOT)
         self.metadata["file"] = filename
         self.message = "Export complete."
         self.save()

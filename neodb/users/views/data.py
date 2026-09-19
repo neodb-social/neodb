@@ -3,7 +3,6 @@ import csv
 import datetime
 import logging
 import os
-import shutil
 import zipfile
 
 import django_rq
@@ -24,7 +23,6 @@ from catalog.models import Item, SiteName
 from catalog.sites import FediverseInstance
 from common.models import SiteConfig
 from common.sentry import record_activity
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.exporters import (
     CsvExporter,
     DoufenExporter,
@@ -52,6 +50,14 @@ from journal.models.common import VisibilityType
 from takahe.models import InboxMessage
 from takahe.utils import Takahe
 from users.models import Task, User
+from users.models.task_files import (
+    copy_task_file,
+    download_url,
+    exists as task_file_exists,
+    local_copy,
+    open_task_file,
+    save_task_file,
+)
 from users.models.webhook import has_live_token, remove_webhook
 
 from .account import clear_preference_cache
@@ -258,23 +264,27 @@ def user_task_status(request, task_type: str):
 def _serve_generated_file(
     request, path: str, content_type: str, filename: str
 ) -> HttpResponseBase:
-    """Stream a file a task generated under MEDIA_ROOT.
+    """Hand the browser a file a task generated.
 
-    These artifacts are not media: exports and matched CSVs are written by the
-    worker and read back by the web process over the volume both mount, and
-    they never go to the media storage. Serving them used to be an
-    ``X-Accel-Redirect`` to ``MEDIA_URL + relpath``, which only works while
-    MEDIA_URL is the local ``/m/`` prefix nginx aliases. On an S3 backend
-    MEDIA_URL is the bucket or CDN, so the header named an absolute URL that no
-    nginx location can internally redirect to, and the download broke.
+    On S3 the browser is redirected straight to the object with a signed,
+    short-lived URL, so the bytes never cross the app server and the object
+    itself stays private -- an export archive carries the owner's actor
+    private key. On a local backend there is nothing to sign, so it is
+    streamed instead; gunicorn turns that into a sendfile(2).
+
+    This replaced an ``X-Accel-Redirect`` to ``MEDIA_URL + relpath``, which
+    only worked while MEDIA_URL was the local ``/m/`` prefix nginx aliases.
     """
-    if not os.path.isfile(path):
+    if not task_file_exists(path):
         messages.add_message(
             request, messages.ERROR, _("Export file expired. Please export again.")
         )
         return redirect(reverse("users:data"))
+    url = download_url(path)
+    if url:
+        return redirect(url)
     return FileResponse(
-        open(path, "rb"),
+        open_task_file(path),
         content_type=content_type,
         as_attachment=True,
         filename=filename,
@@ -408,15 +418,7 @@ def import_wordpress(request):
         return redirect(reverse("users:data"))
     if not WordpressImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.xml", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.xml", settings.SYNC_FILE_PATH_ROOT)
     task = WordpressImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -436,15 +438,7 @@ def import_twitter(request):
         raise BadRequest(_("Invalid file."))
     ext = ".zip" if zipfile.is_zipfile(upload) else ".js"
     upload.seek(0)
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x" + ext, settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in upload.chunks():
-            destination.write(chunk)
+    f = save_task_file(upload, "x" + ext, settings.SYNC_FILE_PATH_ROOT)
     task = TwitterImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -464,15 +458,7 @@ def import_mastodon(request):
         raise BadRequest(_("Invalid file."))
     ext = ".zip" if zipfile.is_zipfile(upload) else ".json"
     upload.seek(0)
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("mastodon" + ext, settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in upload.chunks():
-            destination.write(chunk)
+    f = save_task_file(upload, "mastodon" + ext, settings.SYNC_FILE_PATH_ROOT)
     task = MastodonImporter.create(request.user, file=f)
     task.enqueue()
     record_activity("import", "web")
@@ -594,15 +580,7 @@ def import_goodreads(request):
         return redirect(reverse("users:data"))
     if not GoodreadsImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.csv", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.csv", settings.SYNC_FILE_PATH_ROOT)
     task = GoodreadsImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -630,18 +608,10 @@ def import_rym_upload(request):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
     record_activity("import", "web")
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.csv", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.csv", settings.SYNC_FILE_PATH_ROOT)
     # detect 'link' column for round-trip
     had_link = False
-    with open(f, encoding="utf-8-sig", newline="") as fp:
+    with local_copy(f) as local, open(local, encoding="utf-8-sig", newline="") as fp:
         reader = csv.reader(fp)
         try:
             headers = next(reader)
@@ -653,7 +623,7 @@ def import_rym_upload(request):
         # already matched; copy to matched_file and skip phase 1
         stem, _ext = os.path.splitext(os.path.basename(f))
         matched = os.path.join(os.path.dirname(f), f"{stem}-matched.csv")
-        shutil.copyfile(f, matched)
+        matched = copy_task_file(f, matched)
         task = RymImporter.create(
             request.user,
             phase="preview",
@@ -715,7 +685,7 @@ def rym_preview(request):
         # import already applied; preview/matched-CSV are no longer relevant
         return redirect(reverse("users:data") + "#rym")
     path = task.metadata["matched_file"]
-    if not os.path.exists(path):
+    if not task_file_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
     try:
@@ -723,7 +693,10 @@ def rym_preview(request):
     except TypeError, ValueError:
         page = 1
     page_size = 100
-    with open(path, encoding="utf-8-sig", newline="") as fp:
+    with (
+        local_copy(path) as local,
+        open(local, encoding="utf-8-sig", newline="") as fp,
+    ):
         reader = csv.DictReader(fp)
         all_rows = list(reader)
     total = len(all_rows)
@@ -825,13 +798,16 @@ def rym_download(request):
         messages.add_message(request, messages.ERROR, _("No matched file available."))
         return redirect(reverse("users:data"))
     path = task.metadata["matched_file"]
-    if not os.path.exists(path):
+    if not task_file_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
     hint = task.metadata.get("filename_hint") or "rym_export.csv"
     stem, _ext = os.path.splitext(hint)
+    url = download_url(path)
+    if url:
+        return redirect(url)
     return FileResponse(
-        open(path, "rb"),
+        open_task_file(path),
         content_type="text/csv",
         as_attachment=True,
         filename=f"{stem}-matched.csv",
@@ -855,18 +831,10 @@ def import_storygraph(request):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
     record_activity("import", "web")
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.csv", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.csv", settings.SYNC_FILE_PATH_ROOT)
     # detect 'link' column for round-trip
     had_link = False
-    with open(f, encoding="utf-8-sig", newline="") as fp:
+    with local_copy(f) as local, open(local, encoding="utf-8-sig", newline="") as fp:
         reader = csv.reader(fp)
         try:
             headers = next(reader)
@@ -878,7 +846,7 @@ def import_storygraph(request):
         # already matched; copy to matched_file and skip phase 1
         stem, _ext = os.path.splitext(os.path.basename(f))
         matched = os.path.join(os.path.dirname(f), f"{stem}-matched.csv")
-        shutil.copyfile(f, matched)
+        matched = copy_task_file(f, matched)
         task = StoryGraphImporter.create(
             request.user,
             phase="preview",
@@ -946,7 +914,7 @@ def storygraph_preview(request):
         # import already applied; preview/matched-CSV are no longer relevant
         return redirect(reverse("users:data") + "#storygraph")
     path = task.metadata["matched_file"]
-    if not os.path.exists(path):
+    if not task_file_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
     try:
@@ -954,7 +922,10 @@ def storygraph_preview(request):
     except TypeError, ValueError:
         page = 1
     page_size = 100
-    with open(path, encoding="utf-8-sig", newline="") as fp:
+    with (
+        local_copy(path) as local,
+        open(local, encoding="utf-8-sig", newline="") as fp,
+    ):
         reader = csv.DictReader(fp)
         all_rows = list(reader)
     total = len(all_rows)
@@ -1051,13 +1022,16 @@ def storygraph_download(request):
         messages.add_message(request, messages.ERROR, _("No matched file available."))
         return redirect(reverse("users:data"))
     path = task.metadata["matched_file"]
-    if not os.path.exists(path):
+    if not task_file_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
     hint = task.metadata.get("filename_hint") or "storygraph_export.csv"
     stem, _ext = os.path.splitext(hint)
+    url = download_url(path)
+    if url:
+        return redirect(url)
     return FileResponse(
-        open(path, "rb"),
+        open_task_file(path),
         content_type="text/csv",
         as_attachment=True,
         filename=f"{stem}-matched.csv",
@@ -1070,15 +1044,7 @@ def import_douban(request):
         return redirect(reverse("users:data"))
     if not DoubanImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.zip", settings.SYNC_FILE_PATH_ROOT)
     task = DoubanImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -1096,15 +1062,7 @@ def import_letterboxd(request):
         return redirect(reverse("users:data"))
     if not LetterboxdImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.zip", settings.SYNC_FILE_PATH_ROOT)
     task = LetterboxdImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -1121,15 +1079,7 @@ def import_trakt(request):
         return redirect(reverse("users:data"))
     if not TraktImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.zip", settings.SYNC_FILE_PATH_ROOT)
     task = TraktImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -1146,15 +1096,7 @@ def import_opml(request):
         return redirect(reverse("users:data"))
     if not OPMLImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
-    f = (
-        settings.MEDIA_ROOT
-        + "/"
-        + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-    )
-    os.makedirs(os.path.dirname(f), exist_ok=True)
-    with open(f, "wb+") as destination:
-        for chunk in request.FILES["file"].chunks():
-            destination.write(chunk)
+    f = save_task_file(request.FILES["file"], "x.zip", settings.SYNC_FILE_PATH_ROOT)
     task = OPMLImporter.create(
         request.user,
         visibility=int(request.POST.get("visibility", 0)),
@@ -1216,15 +1158,7 @@ def import_neodb(request):
         # the background task
         if not importer.validate_file(request.FILES["file"]):
             raise BadRequest(_("Invalid file."))
-        f = (
-            settings.MEDIA_ROOT
-            + "/"
-            + GenerateDateUUIDMediaFilePath("x.zip", settings.SYNC_FILE_PATH_ROOT)
-        )
-        os.makedirs(os.path.dirname(f), exist_ok=True)
-        with open(f, "wb+") as destination:
-            for chunk in request.FILES["file"].chunks():
-                destination.write(chunk)
+        f = save_task_file(request.FILES["file"], "x.zip", settings.SYNC_FILE_PATH_ROOT)
         task = importer.create(
             request.user,
             visibility=int(request.POST.get("visibility", 0)),

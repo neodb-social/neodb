@@ -2,12 +2,13 @@ import asyncio
 import csv
 import datetime
 import fcntl
+import io
 import logging
 import os
 import re
-import tempfile
 
 from django.conf import settings
+from django_redis import get_redis_connection
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
@@ -20,6 +21,12 @@ from catalog.sites.spotify import Spotify
 from common.models import SiteConfig
 from journal.models import Mark, Review, ShelfType
 from users.models import Task
+from users.models.task_files import (
+    exists as task_file_exists,
+    is_stored,
+    local_copy,
+    overwrite_task_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -200,8 +207,10 @@ class RymImporter(Task):
     # ---- Phase 1: matching ----
 
     def _run_matching(self) -> None:
-        in_path = self.metadata["file"]
-        out_path = self._derive_matched_path(in_path)
+        in_path = self.local_file
+        # derived from the recorded path, not the staged copy: the key is
+        # what the preview and download views look the file up by
+        out_key = self._derive_matched_path(self.metadata["file"])
         with open(in_path, encoding="utf-8-sig", newline="") as fin:
             reader = csv.DictReader(fin)
             raw_fieldnames = list(reader.fieldnames or [])
@@ -212,7 +221,7 @@ class RymImporter(Task):
                 # normalize header whitespace (RYM exports have inconsistent spaces)
                 rows.append({k.strip(): v for k, v in raw_row.items()})
         self.metadata["total"] = len(rows)
-        self.metadata["matched_file"] = out_path
+        self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
 
@@ -220,12 +229,13 @@ class RymImporter(Task):
         # avoids the cost of creating/closing a loop per row.
         self._match_loop = asyncio.new_event_loop()
         try:
-            with open(out_path, "w", encoding="utf-8", newline="") as fout:
-                writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
-                writer.writeheader()
-                for row in rows:
-                    self._match_row(row)
-                    writer.writerow(row)
+            buf = io.StringIO()
+            writer = csv.DictWriter(buf, fieldnames=fieldnames + extra)
+            writer.writeheader()
+            for row in rows:
+                self._match_row(row)
+                writer.writerow(row)
+            overwrite_task_file(out_key, buf.getvalue().encode("utf-8"))
         finally:
             self._match_loop.close()
             self._match_loop = None
@@ -346,11 +356,14 @@ class RymImporter(Task):
 
     def _run_import(self) -> None:
         path = self.metadata.get("matched_file")
-        if not path or not os.path.exists(path):
+        if not path or not task_file_exists(path):
             self.message = _("Matched file missing; cannot import.")
             self.save(update_fields=["message"])
             return
-        with open(path, encoding="utf-8-sig", newline="") as f:
+        with (
+            local_copy(path) as local,
+            open(local, encoding="utf-8-sig", newline="") as f,
+        ):
             reader = csv.DictReader(f)
             rows = [{k.strip(): v for k, v in r.items()} for r in reader]
         self.metadata["total"] = len(rows)
@@ -493,12 +506,18 @@ def int_or_zero(v) -> int:
 def update_row_in_matched_file(path: str, index: int, updates: dict) -> dict | None:
     """Apply ``updates`` to the ``index``-th data row of ``path`` (atomic rewrite).
 
-    Wraps the read-modify-write in an exclusive ``fcntl.flock`` on a sibling
-    ``<path>.lock`` so concurrent HTMX saves from the same user can't clobber
-    each other.
+    Serialises the read-modify-write so concurrent HTMX saves from the same
+    user cannot clobber each other. A local file takes an ``fcntl.flock`` on
+    a sibling ``<path>.lock``; a stored one takes a redis lock instead,
+    because the file has no descriptor to lock and the two saves may not
+    even reach the same host.
 
     Returns the updated row, or None if the index is out of range.
     """
+    if is_stored(path):
+        conn = get_redis_connection("default")
+        with conn.lock(f"rym-matched-file:{path}", timeout=30, blocking_timeout=30):
+            return _update_row_locked(path, index, updates)
     lock_path = path + ".lock"
     with open(lock_path, "a+") as lock_fp:
         fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
@@ -506,23 +525,17 @@ def update_row_in_matched_file(path: str, index: int, updates: dict) -> dict | N
 
 
 def _update_row_locked(path: str, index: int, updates: dict) -> dict | None:
-    with open(path, encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        fieldnames = list(reader.fieldnames or [])
-        rows = list(reader)
+    with local_copy(path) as local:
+        with open(local, encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            fieldnames = list(reader.fieldnames or [])
+            rows = list(reader)
     if index < 0 or index >= len(rows):
         return None
     rows[index].update({k: v for k, v in updates.items() if k in fieldnames})
-    fd, tmp = tempfile.mkstemp(
-        suffix=".csv", dir=os.path.dirname(path) or None, text=True
-    )
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="") as fout:
-            writer = csv.DictWriter(fout, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        os.replace(tmp, path)
-    except Exception:
-        os.unlink(tmp)
-        raise
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(rows)
+    overwrite_task_file(path, buf.getvalue().encode("utf-8"))
     return rows[index]

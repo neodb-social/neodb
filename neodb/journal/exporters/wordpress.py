@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import tempfile
 from email.utils import format_datetime
 
 from django.conf import settings
@@ -9,9 +10,9 @@ from django.utils.text import slugify
 from lxml import etree
 
 from common.models import SiteConfig
-from common.utils import GenerateDateUUIDMediaFilePath
 from journal.models import Article
 from users.models import Task
+from users.models.task_files import save_local_file
 
 # WordPress eXtended RSS. 1.2 is what WordPress itself still emits and what
 # every importer (WordPress, Ghost, Substack, Blogger) accepts.
@@ -227,13 +228,12 @@ class WordpressExporter(Task):
                 self._add_thumbnail_meta(item, attachment_id)
             total += 1
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.xml", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        etree.ElementTree(root).write(
-            filename, xml_declaration=True, encoding="UTF-8", pretty_print=True
-        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local = os.path.join(temp_dir, "export.xml")
+            etree.ElementTree(root).write(
+                local, xml_declaration=True, encoding="UTF-8", pretty_print=True
+            )
+            filename = save_local_file(local, "f.xml", settings.EXPORT_FILE_PATH_ROOT)
         self.metadata["file"] = filename
         self.metadata["total"] = total
         self.message = f"{total} articles exported."

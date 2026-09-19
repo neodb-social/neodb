@@ -1,0 +1,169 @@
+"""The storage the import/export files live in, and the cleanup that wipes them.
+
+These files are not media: an import is uploaded by the web process and read by
+a worker, an export is written by a worker and downloaded by the web process.
+A deployment may run those on different hosts, so they go to the media storage
+rather than a local volume -- and the cleanup has to follow them there.
+"""
+
+import os
+from datetime import timedelta
+
+import pytest
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.test import override_settings
+from django.utils import timezone
+
+from journal.exporters import NdjsonExporter
+from users.jobs.cleanup import prune_tasks
+from users.models import Task, User
+from users.models.task_files import (
+    copy_task_file,
+    delete_task_file,
+    exists,
+    is_stored,
+    local_copy,
+    overwrite_task_file,
+    save_task_file,
+)
+
+pytestmark = pytest.mark.django_db(databases="__all__")
+
+
+def _user(username: str) -> User:
+    return User.register(email=f"{username}@example.com", username=username)
+
+
+class TestPathKinds:
+    def test_a_storage_key_is_relative_and_a_legacy_path_absolute(self):
+        assert is_stored("sync/2026/09/19/abc.csv")
+        assert not is_stored("/www/m/sync/2026/09/19/abc.csv")
+        assert not is_stored("")
+
+
+class TestRoundTrip:
+    def test_saved_file_is_readable_and_deletable(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"payload"), "x.csv", "sync/")
+
+            assert is_stored(key)
+            assert key.startswith("sync/")
+            assert exists(key)
+            with default_storage.open(key, "rb") as f:
+                assert f.read() == b"payload"
+
+            assert delete_task_file(key)
+            assert not exists(key)
+
+    def test_local_copy_stages_a_stored_file_and_cleans_up(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"zipbytes"), "x.zip", "sync/")
+
+            with local_copy(key) as local:
+                assert os.path.isabs(local)
+                assert local.endswith(".zip")
+                with open(local, "rb") as f:
+                    assert f.read() == b"zipbytes"
+                staged = local
+
+            assert not os.path.exists(staged)
+
+    def test_local_copy_passes_a_legacy_path_straight_through(self, tmp_path):
+        legacy = tmp_path / "old.csv"
+        legacy.write_bytes(b"legacy")
+
+        with local_copy(str(legacy)) as local:
+            assert local == str(legacy)
+
+        # never deleted: it is the real file, not a staged copy
+        assert legacy.exists()
+
+    def test_overwrite_keeps_the_key(self, tmp_path):
+        """A suffixed name would leave every recorded reference on the old bytes."""
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"first"), "x.csv", "sync/")
+
+            overwrite_task_file(key, b"second")
+
+            with default_storage.open(key, "rb") as f:
+                assert f.read() == b"second"
+            assert sorted(p.name for p in (tmp_path / "sync").rglob("*.csv")) == [
+                os.path.basename(key)
+            ]
+
+    def test_copy_duplicates_within_storage(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            src = save_task_file(ContentFile(b"rows"), "x.csv", "sync/")
+            dst = os.path.join(os.path.dirname(src), "copy-matched.csv")
+
+            saved = copy_task_file(src, dst)
+
+            assert saved == dst
+            assert exists(src) and exists(dst)
+
+
+class TestCleanup:
+    """What the user asked for: expired files actually leave the bucket."""
+
+    def _stale_export(self, user: User, key: str) -> NdjsonExporter:
+        task = NdjsonExporter.create(user=user)
+        task.metadata["file"] = key
+        task.state = Task.States.complete
+        task.save()
+        # created_time is auto_now_add, so age it by hand
+        Task.objects.filter(pk=task.pk).update(
+            created_time=timezone.now() - timedelta(days=60)
+        )
+        return task
+
+    def test_pruning_deletes_the_stored_object_not_just_the_row(self, tmp_path):
+        user = _user("pruned")
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"archive"), "f.zip", "export/")
+            task = self._stale_export(user, key)
+
+            tasks_deleted, files_deleted = prune_tasks(days=28)
+
+            assert tasks_deleted >= 1
+            assert files_deleted >= 1
+            assert not exists(key)
+            assert not Task.objects.filter(pk=task.pk).exists()
+
+    def test_pruning_spares_a_task_inside_the_window(self, tmp_path):
+        user = _user("recent")
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"archive"), "f.zip", "export/")
+            task = NdjsonExporter.create(user=user)
+            task.metadata["file"] = key
+            task.state = Task.States.complete
+            task.save()
+
+            prune_tasks(days=28)
+
+            assert exists(key)
+            assert Task.objects.filter(pk=task.pk).exists()
+
+    def test_deleting_a_user_wipes_their_stored_files(self, tmp_path):
+        user = _user("goner")
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"archive"), "f.zip", "export/")
+            task = NdjsonExporter.create(user=user)
+            task.metadata["file"] = key
+            task.save()
+
+            task.delete_files()
+
+            assert not exists(key)
+
+    def test_cleanup_still_removes_a_legacy_local_file(self, tmp_path):
+        user = _user("legacyprune")
+        legacy = tmp_path / "export" / "old.zip"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_bytes(b"old archive")
+        self._stale_export(user, str(legacy))
+
+        _, files_deleted = prune_tasks(days=28)
+
+        assert files_deleted >= 1
+        assert not legacy.exists()
