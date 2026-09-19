@@ -307,6 +307,6 @@ class Block(StatorModel):
         except KeyError, cls.DoesNotExist:
             return
         # Check the block's source is the actor
-        if data["actor"] != block.source.actor_uri:
+        if not block.source.is_actor_uri(data["actor"]):
             raise ActorMismatchError("Undo actor does not match its Block object", data)
         block.delete()

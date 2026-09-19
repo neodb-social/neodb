@@ -420,7 +420,7 @@ class Follow(StatorModel):
             return
 
         # Ensure the Accept actor is the Follow's target
-        if data["actor"] != follow.target.actor_uri:
+        if not follow.target.is_actor_uri(data["actor"]):
             raise ActorMismatchError(
                 "Accept actor does not match its Follow object", data
             )
@@ -447,7 +447,7 @@ class Follow(StatorModel):
             return
 
         # Ensure the Accept actor is the Follow's target
-        if data["actor"] != follow.target.actor_uri:
+        if not follow.target.is_actor_uri(data["actor"]):
             raise ActorMismatchError(
                 "Reject actor does not match its Follow object", data
             )
@@ -478,7 +478,7 @@ class Follow(StatorModel):
             return
 
         # Ensure the Undo actor is the Follow's source
-        if data["actor"] != follow.source.actor_uri:
+        if not follow.source.is_actor_uri(data["actor"]):
             raise ActorMismatchError(
                 "Undo actor does not match its Follow object", data
             )

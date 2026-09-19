@@ -586,7 +586,7 @@ class PostInteraction(StatorModel):
                 # Well I guess we don't need to undo it do we
                 return
             # Verify the actor matches
-            if data["actor"] != interaction.identity.actor_uri:
+            if not interaction.identity.is_actor_uri(data["actor"]):
                 raise ActorMismatchError("Actor mismatch on interaction undo")
             # Delete all events that reference it
             interaction.timeline_events.all().delete()

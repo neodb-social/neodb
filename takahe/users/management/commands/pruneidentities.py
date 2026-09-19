@@ -29,6 +29,10 @@ class Command(BaseCommand):
         identities = Identity.objects.filter(
             local=False,
             created__lt=timezone.now(),
+            # An emptied row that still names the identity its actor lives on
+            # holds nothing, but peers go on addressing the actor by its URI
+            # and it is what resolves them
+            canonical__isnull=True,
         ).exclude(
             Q(interactions__post__local=True)
             | Q(posts__isnull=False)

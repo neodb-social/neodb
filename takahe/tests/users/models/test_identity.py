@@ -1000,3 +1000,141 @@ def test_is_actor_uri_accepts_an_alias_uri(config_system):
     assert canonical.is_actor_uri("https://example.com/ruben")
     assert canonical.is_actor_uri("https://example.com/users/ruben")
     assert not canonical.is_actor_uri("https://example.com/someone-else")
+
+
+@pytest.mark.django_db
+def test_alias_uri_is_accepted_by_the_activity_handlers(config_system, identity):
+    """
+    A peer that knows the actor by its old URI names that one in the Undo it
+    sends. Comparing against actor_uri alone rejected the actor's own undo and
+    left the follow stuck.
+    """
+    from activities.models import Post, PostInteraction, PostInteractionStates
+    from core.exceptions import ActorMismatchError
+    from users.models import Block, Follow
+
+    domain = Domain.get_remote_domain("remote.example")
+    canonical = Identity.objects.create(
+        actor_uri="https://remote.example/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+        inbox_uri="https://remote.example/ruben/inbox",
+    )
+    alias_uri = "https://remote.example/users/ruben"
+    Identity.objects.create(
+        actor_uri=alias_uri,
+        local=False,
+        canonical=canonical,
+    )
+
+    follow = Follow.objects.create(source=canonical, target=identity)
+    Follow.handle_undo_ap(
+        {
+            "type": "Undo",
+            "actor": alias_uri,
+            "object": {
+                "type": "Follow",
+                "id": follow.uri or f"{alias_uri}#follows/1",
+                "actor": alias_uri,
+                "object": identity.actor_uri,
+            },
+        }
+    )
+
+    block = Block.objects.create(source=canonical, target=identity, mute=False)
+    Block.handle_undo_ap(
+        {
+            "type": "Undo",
+            "actor": alias_uri,
+            "object": {
+                "type": "Block",
+                "id": block.uri or f"{alias_uri}#blocks/1",
+                "actor": alias_uri,
+                "object": identity.actor_uri,
+            },
+        }
+    )
+    assert not Block.objects.filter(pk=block.pk).exists()
+
+    post = Post.objects.create(
+        author=identity,
+        local=True,
+        content="<p>hi</p>",
+        object_uri="https://example.com/posts/1",
+    )
+    interaction = PostInteraction.objects.create(
+        identity=canonical,
+        post=post,
+        type=PostInteraction.Types.like,
+        object_uri=f"{alias_uri}#likes/1",
+        state=PostInteractionStates.fanned_out,
+    )
+    PostInteraction.handle_undo_ap(
+        {
+            "type": "Undo",
+            "actor": alias_uri,
+            "object": {
+                "type": "Like",
+                "id": interaction.object_uri,
+                "actor": alias_uri,
+                "object": post.object_uri,
+            },
+        }
+    )
+    interaction.refresh_from_db()
+    assert interaction.state == "undone_fanned_out"
+
+    # A stranger is still a stranger
+    other = Identity.objects.create(
+        actor_uri="https://remote.example/someone",
+        username="someone",
+        domain=domain,
+        local=False,
+    )
+    assert not canonical.is_actor_uri(other.actor_uri)
+    with pytest.raises(ActorMismatchError):
+        Post.handle_delete_ap(
+            {
+                "type": "Delete",
+                "actor": other.actor_uri,
+                "object": post.object_uri,
+            }
+        )
+
+
+@pytest.mark.django_db
+def test_pruneidentities_keeps_rows_that_resolve_an_alias(config_system, settings):
+    """
+    A merged alias holds nothing, so it looks prunable, but it is what
+    resolves peers still addressing the actor by its URI. Deleting it undoes
+    the repair: the next delivery makes a fresh handle-less row the
+    document-id guard then refuses.
+    """
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    settings.SETUP.REMOTE_PRUNE_HORIZON = 30
+    domain = Domain.get_remote_domain("remote.example")
+    canonical = Identity.objects.create(
+        actor_uri="https://remote.example/ruben",
+        username="ruben",
+        domain=domain,
+        local=False,
+    )
+    alias = Identity.objects.create(
+        actor_uri="https://remote.example/users/ruben",
+        local=False,
+        canonical=canonical,
+    )
+    unused = Identity.objects.create(
+        actor_uri="https://remote.example/nobody",
+        local=False,
+    )
+
+    with pytest.raises(SystemExit):
+        call_command("pruneidentities", stdout=StringIO())
+
+    assert Identity.objects.filter(pk=alias.pk).exists()
+    assert not Identity.objects.filter(pk=unused.pk).exists()
