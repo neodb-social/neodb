@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-18 09:35-0400\n"
+"POT-Creation-Date: 2026-09-19 13:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1679,7 +1679,7 @@ msgstr ""
 msgid "Remove my verification"
 msgstr ""
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:331
+#: catalog/templates/_verify_status.html:31 users/views/account.py:332
 msgid "Verification failed"
 msgstr ""
 
@@ -2007,7 +2007,7 @@ msgid "Fediverse originals"
 msgstr ""
 
 #: catalog/templates/discover.html:349
-msgid "Podcasts whose creators verified themselves here. Play right on this page."
+msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr ""
 
 #: catalog/templates/discover.html:351
@@ -5402,7 +5402,7 @@ msgid_plural "%(count)d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/models/common.py:59 journal/templates/action_open_post.html:15
+#: journal/models/common.py:58 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/mark.html:82
 #: journal/templates/post_compose.html:58 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:39 users/templates/users/data.html:69
@@ -5417,7 +5417,7 @@ msgstr[1] ""
 msgid "Public"
 msgstr ""
 
-#: journal/models/common.py:60 journal/templates/action_open_post.html:9
+#: journal/models/common.py:59 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/mark.html:89
 #: journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:45 users/templates/users/data.html:77
@@ -5432,7 +5432,7 @@ msgstr ""
 msgid "Followers Only"
 msgstr ""
 
-#: journal/models/common.py:61 journal/templates/collection_share.html:57
+#: journal/models/common.py:60 journal/templates/collection_share.html:57
 #: journal/templates/mark.html:96 journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:51 users/templates/users/data.html:85
 #: users/templates/users/data.html:138 users/templates/users/data.html:195
@@ -5446,27 +5446,27 @@ msgstr ""
 msgid "Mentioned Only"
 msgstr ""
 
-#: journal/models/common.py:851
+#: journal/models/common.py:847
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr ""
 
-#: journal/models/common.py:1048
+#: journal/models/common.py:1044
 msgid "A recent post was not posted to Threads."
 msgstr ""
 
-#: journal/models/common.py:1081
+#: journal/models/common.py:1077
 msgid "A recent post was not boosted on Mastodon."
 msgstr ""
 
-#: journal/models/common.py:1091
+#: journal/models/common.py:1087
 msgid "Original post no longer exists."
 msgstr ""
 
-#: journal/models/common.py:1105
+#: journal/models/common.py:1101
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr ""
 
-#: journal/models/common.py:1114
+#: journal/models/common.py:1110
 msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
@@ -6884,8 +6884,8 @@ msgstr ""
 #: mastodon/views/mastodon.py:70 mastodon/views/mastodon.py:77
 #: mastodon/views/mastodon.py:87 mastodon/views/mastodon.py:94
 #: mastodon/views/threads.py:57 mastodon/views/threads.py:65
-#: mastodon/views/threads.py:71 users/views/account.py:276
-#: users/views/account.py:395
+#: mastodon/views/threads.py:71 users/views/account.py:277
+#: users/views/account.py:396
 msgid "Authentication failed"
 msgstr ""
 
@@ -6923,7 +6923,7 @@ msgstr ""
 msgid "Invalid user."
 msgstr ""
 
-#: mastodon/views/common.py:52 users/views/account.py:436
+#: mastodon/views/common.py:52 users/views/account.py:437
 msgid "Registration failed"
 msgstr ""
 
@@ -7406,7 +7406,7 @@ msgstr ""
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:417
+#: users/models/user.py:412
 msgid "This username is already taken."
 msgstr ""
 
@@ -7919,7 +7919,7 @@ msgstr ""
 msgid "Once deleted, account data cannot be recovered."
 msgstr ""
 
-#: users/templates/users/account.html:529
+#: users/templates/users/account.html:529 users/views/account.py:547
 msgid "Task in progress, can't delete now."
 msgstr ""
 
@@ -8899,56 +8899,56 @@ msgstr ""
 msgid "Passkey created"
 msgstr ""
 
-#: users/views/account.py:130
+#: users/views/account.py:131
 msgid "This username is already in use."
 msgstr ""
 
-#: users/views/account.py:141
+#: users/views/account.py:142
 msgid "This email address is already in use."
 msgstr ""
 
-#: users/views/account.py:144
+#: users/views/account.py:145
 msgid "Email addresses from this domain are not accepted."
 msgstr ""
 
-#: users/views/account.py:277 users/views/account.py:396
+#: users/views/account.py:278 users/views/account.py:397
 msgid "Registration is for invitation only"
 msgstr ""
 
-#: users/views/account.py:288 users/views/account.py:360
+#: users/views/account.py:289 users/views/account.py:361
 msgid "Time is up"
 msgstr ""
 
-#: users/views/account.py:289 users/views/account.py:332
-#: users/views/account.py:361
+#: users/views/account.py:290 users/views/account.py:333
+#: users/views/account.py:362
 msgid "Please log in again to continue registration."
 msgstr ""
 
-#: users/views/account.py:335
+#: users/views/account.py:336
 msgid "That is not quite right. Here is a new set."
 msgstr ""
 
-#: users/views/account.py:347
+#: users/views/account.py:348
 msgid "Too many attempts"
 msgstr ""
 
-#: users/views/account.py:348
+#: users/views/account.py:349
 msgid "Please try again later."
 msgstr ""
 
-#: users/views/account.py:437
+#: users/views/account.py:438
 msgid "Username already taken. Please try again."
 msgstr ""
 
-#: users/views/account.py:467
+#: users/views/account.py:468
 msgid "Valid username required"
 msgstr ""
 
-#: users/views/account.py:549
+#: users/views/account.py:557
 msgid "Account is being deleted."
 msgstr ""
 
-#: users/views/account.py:552
+#: users/views/account.py:560
 msgid "Account mismatch."
 msgstr ""
 

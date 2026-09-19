@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-18 09:35-0400\n"
+"POT-Creation-Date: 2026-09-19 13:16-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1678,7 +1678,7 @@ msgstr "确定移除你的创作者验证吗？移除后任何人都可以再次
 msgid "Remove my verification"
 msgstr "移除我的验证"
 
-#: catalog/templates/_verify_status.html:31 users/views/account.py:331
+#: catalog/templates/_verify_status.html:31 users/views/account.py:332
 msgid "Verification failed"
 msgstr "验证失败"
 
@@ -2005,8 +2005,8 @@ msgid "Fediverse originals"
 msgstr "联邦宇宙原创"
 
 #: catalog/templates/discover.html:349
-msgid "Podcasts whose creators verified themselves here. Play right on this page."
-msgstr "创作者已在本站完成认证的播客，可直接在此播放。"
+msgid "Podcasts by creators on the Fediverse. Play right on this page."
+msgstr "联邦宇宙创作者的播客，可直接在此播放。"
 
 #: catalog/templates/discover.html:351
 msgid "All verified shows"
@@ -5412,7 +5412,7 @@ msgid "%(count)d item"
 msgid_plural "%(count)d items"
 msgstr[0] "%(count)d 个条目"
 
-#: journal/models/common.py:59 journal/templates/action_open_post.html:15
+#: journal/models/common.py:58 journal/templates/action_open_post.html:15
 #: journal/templates/collection_share.html:35 journal/templates/mark.html:82
 #: journal/templates/post_compose.html:58 journal/templates/tag_edit.html:42
 #: journal/templates/wrapped_share.html:39 users/templates/users/data.html:69
@@ -5427,7 +5427,7 @@ msgstr[0] "%(count)d 个条目"
 msgid "Public"
 msgstr "公开"
 
-#: journal/models/common.py:60 journal/templates/action_open_post.html:9
+#: journal/models/common.py:59 journal/templates/action_open_post.html:9
 #: journal/templates/collection_share.html:46 journal/templates/mark.html:89
 #: journal/templates/post_compose.html:65
 #: journal/templates/wrapped_share.html:45 users/templates/users/data.html:77
@@ -5442,7 +5442,7 @@ msgstr "公开"
 msgid "Followers Only"
 msgstr "仅关注者"
 
-#: journal/models/common.py:61 journal/templates/collection_share.html:57
+#: journal/models/common.py:60 journal/templates/collection_share.html:57
 #: journal/templates/mark.html:96 journal/templates/post_compose.html:72
 #: journal/templates/wrapped_share.html:51 users/templates/users/data.html:85
 #: users/templates/users/data.html:138 users/templates/users/data.html:195
@@ -5456,27 +5456,27 @@ msgstr "仅关注者"
 msgid "Mentioned Only"
 msgstr "自己和提到的人"
 
-#: journal/models/common.py:851
+#: journal/models/common.py:847
 msgid "A recent post was not posted to Bluesky, please login NeoDB using ATProto again to re-authorize."
 msgstr "帖文未能发布到Bluesky，请重新使用ATProto验证登录。"
 
-#: journal/models/common.py:1048
+#: journal/models/common.py:1044
 msgid "A recent post was not posted to Threads."
 msgstr "帖文未能发布到Threads。"
 
-#: journal/models/common.py:1081
+#: journal/models/common.py:1077
 msgid "A recent post was not boosted on Mastodon."
 msgstr "帖文未能在联邦实例转播。"
 
-#: journal/models/common.py:1091
+#: journal/models/common.py:1087
 msgid "Original post no longer exists."
 msgstr "原帖文已不存在。"
 
-#: journal/models/common.py:1105
+#: journal/models/common.py:1101
 msgid "A recent post was not posted to Mastodon, please re-authorize."
 msgstr "帖文未能发布到联邦实例，请重新验证登录。"
 
-#: journal/models/common.py:1114
+#: journal/models/common.py:1110
 msgid "A recent post was not posted to Mastodon."
 msgstr "帖文未能发布到联邦实例。"
 
@@ -6953,8 +6953,8 @@ msgstr "Bluesky 登录已禁用。"
 #: mastodon/views/mastodon.py:70 mastodon/views/mastodon.py:77
 #: mastodon/views/mastodon.py:87 mastodon/views/mastodon.py:94
 #: mastodon/views/threads.py:57 mastodon/views/threads.py:65
-#: mastodon/views/threads.py:71 users/views/account.py:276
-#: users/views/account.py:395
+#: mastodon/views/threads.py:71 users/views/account.py:277
+#: users/views/account.py:396
 msgid "Authentication failed"
 msgstr "认证失败"
 
@@ -6992,7 +6992,7 @@ msgstr "Bluesky返回了无效的账号数据。"
 msgid "Invalid user."
 msgstr "无效用户。"
 
-#: mastodon/views/common.py:52 users/views/account.py:436
+#: mastodon/views/common.py:52 users/views/account.py:437
 msgid "Registration failed"
 msgstr "注册失败"
 
@@ -7515,7 +7515,7 @@ msgstr "必填，限英文字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:417
+#: users/models/user.py:412
 msgid "This username is already taken."
 msgstr "用户名已被使用。"
 
@@ -8028,7 +8028,7 @@ msgstr "输入完整的登录标识以确认删除，如 <code>用户名@实例�
 msgid "Once deleted, account data cannot be recovered."
 msgstr "账号数据一旦删除后将无法恢复。"
 
-#: users/templates/users/account.html:529
+#: users/templates/users/account.html:529 users/views/account.py:547
 msgid "Task in progress, can't delete now."
 msgstr "暂时无法删除，因为有导入或导出任务正在进行。"
 
@@ -9013,56 +9013,56 @@ msgstr "以后再说"
 msgid "Passkey created"
 msgstr "通行密钥已创建"
 
-#: users/views/account.py:130
+#: users/views/account.py:131
 msgid "This username is already in use."
 msgstr "用户名已被使用。"
 
-#: users/views/account.py:141
+#: users/views/account.py:142
 msgid "This email address is already in use."
 msgstr "此电子邮件地址已被使用。"
 
-#: users/views/account.py:144
+#: users/views/account.py:145
 msgid "Email addresses from this domain are not accepted."
 msgstr "不接受此域名的电子邮件地址。"
 
-#: users/views/account.py:277 users/views/account.py:396
+#: users/views/account.py:278 users/views/account.py:397
 msgid "Registration is for invitation only"
 msgstr "本站仅限邀请注册"
 
-#: users/views/account.py:288 users/views/account.py:360
+#: users/views/account.py:289 users/views/account.py:361
 msgid "Time is up"
 msgstr "时间已到"
 
-#: users/views/account.py:289 users/views/account.py:332
-#: users/views/account.py:361
+#: users/views/account.py:290 users/views/account.py:333
+#: users/views/account.py:362
 msgid "Please log in again to continue registration."
 msgstr "请重新登录以继续注册。"
 
-#: users/views/account.py:335
+#: users/views/account.py:336
 msgid "That is not quite right. Here is a new set."
 msgstr "不太对，换一组新的。"
 
-#: users/views/account.py:347
+#: users/views/account.py:348
 msgid "Too many attempts"
 msgstr "尝试次数过多"
 
-#: users/views/account.py:348
+#: users/views/account.py:349
 msgid "Please try again later."
 msgstr "请稍后再试。"
 
-#: users/views/account.py:437
+#: users/views/account.py:438
 msgid "Username already taken. Please try again."
 msgstr "用户名已被使用，请重试。"
 
-#: users/views/account.py:467
+#: users/views/account.py:468
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
 
-#: users/views/account.py:549
+#: users/views/account.py:557
 msgid "Account is being deleted."
 msgstr "账户删除进行中。"
 
-#: users/views/account.py:552
+#: users/views/account.py:560
 msgid "Account mismatch."
 msgstr "账号信息不匹配。"
 
