@@ -13,4 +13,28 @@
   <div>
     {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
   </div>
+  {% if not hide_brief %}
+    {% with ep=item.latest_episode %}
+      {% if ep %}
+        <div class="card-episode">
+          {% if ep.media_url %}
+            <a class="episode"
+               title="{% trans "Play" %}"
+               href="{{ ep.url }}"
+               data-uuid="{{ ep.uuid }}"
+               data-media="{{ ep.media_url }}"
+               data-cover="{{ ep.display_cover_image_url }}"
+               data-title="{{ ep.title }}"
+               data-album="{{ item.display_title }}"
+               data-hosts="{{ item.host_names|join:' / ' }}"
+               data-position="0"
+               {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' ep.uuid %}"{% endif %}><i class="fa-solid fa-circle-play"></i> {{ ep.title }}</a>
+          {% else %}
+            <a href="{{ ep.url }}">{{ ep.title }}</a>
+          {% endif %}
+          <small class="episode-date">{{ ep.pub_date|date }}</small>
+        </div>
+      {% endif %}
+    {% endwith %}
+  {% endif %}
 {% endblock full %}

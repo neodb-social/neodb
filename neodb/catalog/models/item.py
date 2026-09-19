@@ -950,6 +950,32 @@ class Item(PolymorphicModel):
             prefetch_related_objects(performanceproductions, "show")
 
     @staticmethod
+    def prefetch_latest_episodes(items: "Iterable[Item]") -> None:
+        """Batch-attach each podcast's newest episode for item cards.
+
+        ``_item_card_metadata_podcast.html`` renders a play button for
+        ``Podcast.latest_episode``; without this every podcast card fires its
+        own ORDER BY pub_date LIMIT 1 query. This is the mixed-list form of
+        what ``profile_shelf_items`` does with an all-podcast list: it picks
+        the shows out of a page of polymorphic items and shares the single
+        ``latest_by_program`` query behind them.
+        """
+        from .podcast import Podcast, PodcastEpisode
+
+        podcasts = {i.pk: i for i in items if isinstance(i, Podcast)}
+        if not podcasts:
+            return
+        episodes = PodcastEpisode.latest_by_program(list(podcasts))
+        for pk, podcast in podcasts.items():
+            episode = episodes.get(pk)
+            if episode:
+                # the show is already loaded here, so reuse that instance
+                # rather than the one select_related built; the card reads the
+                # episode cover through it
+                episode.program = podcast
+            podcast.latest_episode = episode
+
+    @staticmethod
     def prepare_indexable_batch(items: "list[Item]") -> None:
         """Load everything ``to_indexable_doc`` needs for a batch of items.
 

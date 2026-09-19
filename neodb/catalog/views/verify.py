@@ -235,6 +235,7 @@ def user_verified_works(request, user_name):
         )
     }
     items = [items_by_id[i] for i in item_ids if i in items_by_id]
+    Item.prefetch_latest_episodes(items)
     return render(
         request,
         "user_verified_works.html",

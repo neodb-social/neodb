@@ -282,6 +282,7 @@ def render_list(
     if items:
         Item.prefetch_parent_items(items)
         Item.prefetch_credits(items)
+        Item.prefetch_latest_episodes(items)
         Rating.attach_to_items(items)
         marks = Mark.get_marks_by_items(target, items, request.user)
         for m in members:

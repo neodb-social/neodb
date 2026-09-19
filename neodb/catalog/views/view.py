@@ -260,6 +260,7 @@ def people_works(request, item_path, item_uuid, role):
             Item.credits_prefetch(),
         )
         Item.prefetch_parent_items(works_items)
+        Item.prefetch_latest_episodes(works_items)
         Rating.attach_to_items(works_items)
         if request.user.is_authenticated:
             Mark.attach_to_items(request.user.identity, works_items, request.user)
@@ -853,6 +854,7 @@ def discover_original_podcasts(request):
             Item.external_resources_prefetch(),
             Item.credits_prefetch(),
         )
+        Item.prefetch_latest_episodes(podcast_items)
         Rating.attach_to_items(podcast_items)
         if request.user.is_authenticated:
             Mark.attach_to_items(request.user.identity, podcast_items, request.user)

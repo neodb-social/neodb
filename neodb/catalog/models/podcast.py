@@ -57,6 +57,7 @@ class PodcastEpisodeSchema(PodcastEpisodeInSchema, BaseSchema):
 class Podcast(Item):
     if TYPE_CHECKING:
         episodes: models.QuerySet["PodcastEpisode"]
+        _latest_episode: "PodcastEpisode | None"
     schema = PodcastSchema
     category = ItemCategory.Podcast
     type = ItemType.Podcast
@@ -172,6 +173,28 @@ class Podcast(Item):
     @property
     def recent_episodes(self):
         return self.episodes.all().order_by("-pub_date")[:10]
+
+    @property
+    def latest_episode(self) -> "PodcastEpisode | None":
+        """Newest episode, offered as a play button on the item card.
+
+        Ordering matches ``recent_episodes`` and the episode list on the
+        podcast page, so a card plays what that page shows first.
+        ``Item.prefetch_latest_episodes`` fills this for a page of cards; the
+        fallback keeps a lone card correct.
+        """
+        if not hasattr(self, "_latest_episode"):
+            episode = self.episodes.order_by("-pub_date").first()
+            if episode:
+                episode.program = self
+            self._latest_episode = episode
+        return self._latest_episode
+
+    @latest_episode.setter
+    def latest_episode(self, episode: "PodcastEpisode | None") -> None:
+        # ``profile_shelf_items`` assigns the result of ``latest_by_program``
+        # straight onto the item, so the attribute has to stay writable.
+        self._latest_episode = episode
 
     @property
     def feed_url(self):

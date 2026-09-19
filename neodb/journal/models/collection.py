@@ -341,6 +341,7 @@ class Collection(List):
                 pages = r.pages
                 Item.prefetch_parent_items(items)
                 Item.prefetch_credits(items)
+                Item.prefetch_latest_episodes(items)
                 Rating.attach_to_items(items)
                 if viewer:
                     Mark.attach_to_items(viewer, items, viewer.user)
@@ -398,6 +399,7 @@ class Collection(List):
                     member.item = items_map.get(member.item_id)
                 Item.prefetch_parent_items(items)
                 Item.prefetch_credits(items)
+                Item.prefetch_latest_episodes(items)
                 Rating.attach_to_items(items)
                 if viewer:
                     Mark.attach_to_items(viewer, items, viewer.user)

@@ -530,6 +530,7 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
         # journal_rating GROUP BY (Sentry: EGGPLANT-1EM).
         Item.prefetch_parent_items(items)
         Item.prefetch_credits(items)
+        Item.prefetch_latest_episodes(items)
         Rating.attach_to_items(items)
         items_map = {i.pk: i for i in items}
         for member in members:

@@ -50,4 +50,12 @@ div.item {
 
   }
 
+  // The latest episode keeps the box its sibling description gets, clipped to
+  // one line like .brief. It is deliberately not a nowrap flex row: the auto
+  // grid column takes its minimum from this cell, so an unwrappable title
+  // would widen the whole card past a phone screen.
+  .full>div.card-episode {
+    -webkit-line-clamp: 1;
+  }
+
 }

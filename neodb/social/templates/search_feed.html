@@ -1,4 +1,3 @@
-{% load static %}
 {% load i18n %}
 {% load l10n %}
 {% load mastodon %}
@@ -11,28 +10,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans 'Activities from those you follow' %}</title>
     {% include "common_libs.html" %}
-    <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
-    <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
-          rel="stylesheet"></link>
-  <script src="{% static 'js/podcast.js' %}"></script>
-</head>
-<body>
-  {% include "_header.html" %}
-  <main>
-    <div class="grid__main">
-      {% include 'search_header.html' %}
-      <div class="feed">
-        <div hx-get="{% url 'social:search_data' %}?q={{ request.GET.q }}"
-             hx-trigger="intersect once delay:0.1s"
-             hx-swap="outerHTML">
-          <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        {% include 'search_header.html' %}
+        <div class="feed">
+          <div hx-get="{% url 'social:search_data' %}?q={{ request.GET.q }}"
+               hx-trigger="intersect once delay:0.1s"
+               hx-swap="outerHTML">
+            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </div>
         </div>
       </div>
-    </div>
-    {% block sidebar %}
-      {% include "_sidebar.html" with show_profile=1 identity=user.identity sidebar_template="_sidebar_search_journal.html" bottom=1 %}
-    {% endblock %}
-  </main>
-  {% include "_footer.html" %}
-</body>
+      {% block sidebar %}
+        {% include "_sidebar.html" with show_profile=1 identity=user.identity sidebar_template="_sidebar_search_journal.html" bottom=1 %}
+      {% endblock %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
 </html>

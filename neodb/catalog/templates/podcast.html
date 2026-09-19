@@ -1,17 +1,10 @@
 {% extends "item_base.html" %}
-{% load static %}
 {% load i18n %}
 {% load l10n %}
 {% load humanize %}
 {% load mastodon %}
 {% load strip_scheme %}
 {% load thumb %}
-{% block head %}
-  <script src="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/shikwasa.min.js"></script>
-  <link href="{{ cdn_url }}/npm/shikwasa@2.2.1/dist/style.min.css"
-        rel="stylesheet"></link>
-<script src="{% static 'js/podcast.js' %}"></script>
-{% endblock %}
 {% block details %}
   <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
   <div>{% include '_credits.html' with credits=item.role_credits.host role_label='host' max=5 %}</div>

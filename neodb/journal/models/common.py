@@ -1290,6 +1290,7 @@ def prefetch_pieces_for_posts(
 
         Item.prefetch_parent_items(items)
         Item.prefetch_credits(items)
+        Item.prefetch_latest_episodes(items)
         Rating.attach_to_items(items)
         # Feed cards render with allow_embed=1, so Album.get_embed_link reads
         # res.metadata (Bandcamp/YouTube ids). Keep metadata in the deferred set

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
+from catalog.models import Item
 from common.models.misc import int_
 from common.utils import PageLinksGenerator
 
@@ -27,6 +28,7 @@ def search(request):
         # item-keyed pieces (matters for tag / free-text searches now
         # that the gate isn't ``type:article``-only).
         articles = [p for p in r.pieces if isinstance(p, Article)]
+        Item.prefetch_latest_episodes(r.items)
         return render(
             request,
             "search_journal.html",

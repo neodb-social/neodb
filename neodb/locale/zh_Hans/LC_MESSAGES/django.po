@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-19 13:39-0400\n"
+"POT-Creation-Date: 2026-09-19 14:56-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -566,7 +566,7 @@ msgstr "展览"
 #: journal/templates/collection.html:30 journal/templates/collection.html:41
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
-#: journal/templates/profile.html:163 journal/templates/profile.html:168
+#: journal/templates/profile.html:159 journal/templates/profile.html:164
 #: journal/views/collection.py:448 journal/views/profile.py:434
 msgid "Collection"
 msgstr "收藏单"
@@ -701,7 +701,7 @@ msgstr "艺术家"
 msgid "developer"
 msgstr "开发者"
 
-#: catalog/models/game.py:143 catalog/models/podcast.py:261
+#: catalog/models/game.py:143 catalog/models/podcast.py:284
 msgid "date of publication"
 msgstr "发行日期"
 
@@ -717,12 +717,12 @@ msgstr "发布类型"
 
 #: catalog/models/game.py:180 catalog/models/movie.py:158
 #: catalog/models/people.py:178 catalog/models/performance.py:258
-#: catalog/models/performance.py:465 catalog/models/podcast.py:90
+#: catalog/models/performance.py:465 catalog/models/podcast.py:91
 #: catalog/models/tv.py:251 catalog/models/tv.py:478
 #: catalog/templates/game.html:33 catalog/templates/movie.html:48
 #: catalog/templates/people.html:46 catalog/templates/performance.html:35
 #: catalog/templates/performanceproduction.html:35
-#: catalog/templates/podcast.html:30 catalog/templates/tvseason.html:65
+#: catalog/templates/podcast.html:23 catalog/templates/tvseason.html:65
 #: catalog/templates/tvshow.html:60
 msgid "website"
 msgstr "网站"
@@ -765,7 +765,7 @@ msgstr "编舞"
 msgid "performer"
 msgstr "表演者"
 
-#: catalog/models/item.py:235 catalog/models/podcast.py:81
+#: catalog/models/item.py:235 catalog/models/podcast.py:82
 msgid "host"
 msgstr "主播"
 
@@ -841,27 +841,27 @@ msgstr "元数据"
 msgid "cover"
 msgstr "封面"
 
-#: catalog/models/item.py:1642
+#: catalog/models/item.py:1667
 msgid "source site"
 msgstr "来源站点"
 
-#: catalog/models/item.py:1644
+#: catalog/models/item.py:1669
 msgid "ID on source site"
 msgstr "来源站点标识"
 
-#: catalog/models/item.py:1646
+#: catalog/models/item.py:1671
 msgid "source url"
 msgstr "来源站点网址"
 
-#: catalog/models/item.py:1662
+#: catalog/models/item.py:1687
 msgid "IdType of the source site"
 msgstr "来源站点的主要标识类型"
 
-#: catalog/models/item.py:1668
+#: catalog/models/item.py:1693
 msgid "Primary Id on the source site"
 msgstr "来源站点的主要标识数据"
 
-#: catalog/models/item.py:1671
+#: catalog/models/item.py:1696
 msgid "url to the resource"
 msgstr "指向外部资源的网址"
 
@@ -1149,6 +1149,11 @@ msgstr "个评分"
 msgid "part of"
 msgstr "所属"
 
+#: catalog/templates/_item_card_metadata_podcast.html:22
+#: catalog/templates/discover.html:363 social/templates/_event_post.html:38
+msgid "Play"
+msgstr "播放"
+
 #: catalog/templates/_item_comments.html:10
 #: catalog/templates/_item_comments_by_episode.html:13
 msgid "This season"
@@ -1338,7 +1343,7 @@ msgstr "编辑选项"
 #: catalog/views/edit.py:624 catalog/views/edit.py:664
 #: catalog/views/edit.py:674 catalog/views/edit.py:703
 #: catalog/views/edit.py:782 catalog/views/edit.py:837
-#: catalog/views/edit.py:859 catalog/views/search.py:461
+#: catalog/views/edit.py:859 catalog/views/search.py:462
 msgid "Editing this item is restricted."
 msgstr "这个条目仅管理员可编辑。"
 
@@ -1814,23 +1819,23 @@ msgstr "发送反馈"
 msgid "Questions or issues with creator verification? Let the site moderators know."
 msgstr "对创作者验证有疑问或遇到问题？请告知站点管理员。"
 
-#: catalog/templates/discover.html:30 common/templates/common/about.html:32
+#: catalog/templates/discover.html:29 common/templates/common/about.html:32
 #: common/templates/common/about.html:37 common/views_manage.py:35
 #: common/views_manage.py:439 social/templates/feed_events.html:37
 #: users/templates/users/preferences.html:34
 msgid "Discover"
 msgstr "发现"
 
-#: catalog/templates/discover.html:44 common/templates/_sidebar.html:13
+#: catalog/templates/discover.html:39 common/templates/_sidebar.html:13
 msgid "Unread announcements"
 msgstr "未读公告"
 
-#: catalog/templates/discover.html:52 common/templates/_sidebar.html:19
-#: social/templates/notification.html:36
+#: catalog/templates/discover.html:47 common/templates/_sidebar.html:19
+#: social/templates/notification.html:31
 msgid "Mark all as read"
 msgstr "全部标为已读"
 
-#: catalog/templates/discover.html:60
+#: catalog/templates/discover.html:55
 #: common/templates/_sidebar_anonymous.html:42
 #: common/templates/common/about.html:199
 #: users/templates/users/announcements.html:12
@@ -1838,212 +1843,208 @@ msgstr "全部标为已读"
 msgid "Announcements"
 msgstr "公告栏"
 
-#: catalog/templates/discover.html:76
+#: catalog/templates/discover.html:71
 msgid "Free, open and federated"
 msgstr "自由、开放、互联"
 
-#: catalog/templates/discover.html:77
+#: catalog/templates/discover.html:72
 msgid "Keep every book, film, album, game and podcast you love on one shelf."
 msgstr "把你喜爱的每一本书、每一部电影、每一张专辑、每一款游戏和每一档播客，放在同一个书架上。"
 
-#: catalog/templates/discover.html:79
+#: catalog/templates/discover.html:74
 msgid "Mark what you read, watch, play and hear. Rate it, review it, put it in a collection, and share it with friends across the Fediverse and Bluesky."
 msgstr "标记你读过、看过、玩过、听过的作品，评分、评论、加入收藏单，并与联邦宇宙和 Bluesky 上的朋友分享。"
 
-#: catalog/templates/discover.html:84 common/templates/common/about.html:34
+#: catalog/templates/discover.html:79 common/templates/common/about.html:34
 msgid "Get started"
 msgstr "开始使用"
 
-#: catalog/templates/discover.html:87
+#: catalog/templates/discover.html:82
 #, python-format
 msgid "About %(site_name)s"
 msgstr "关于 %(site_name)s"
 
-#: catalog/templates/discover.html:89 common/templates/common/about.html:41
+#: catalog/templates/discover.html:84 common/templates/common/about.html:41
 msgid "Sign in with a Fediverse account, a Bluesky account, or an email address."
 msgstr "可以用联邦宇宙账号、Bluesky 账号或电子邮箱登录。"
 
-#: catalog/templates/discover.html:94
+#: catalog/templates/discover.html:89
 msgid "On this server"
 msgstr "本站"
 
-#: catalog/templates/discover.html:99
+#: catalog/templates/discover.html:94
 msgid "members"
 msgstr "成员"
 
-#: catalog/templates/discover.html:116
+#: catalog/templates/discover.html:111
 msgid "Welcome. Let us fill your shelf."
 msgstr "欢迎！来填满你的书架吧。"
 
-#: catalog/templates/discover.html:117
+#: catalog/templates/discover.html:112
 msgid "Three short steps unlock recommendations and a feed worth reading."
 msgstr "三个简单步骤，解锁个性化推荐和值得一读的动态。"
 
-#: catalog/templates/discover.html:123
+#: catalog/templates/discover.html:118
 msgid "Mark three things you know"
 msgstr "标记三个你熟悉的作品"
 
-#: catalog/templates/discover.html:124
+#: catalog/templates/discover.html:119
 msgid "Pick from the row below or search for anything. Marks seed your recommendations."
 msgstr "从下面一排里挑选，或搜索任何作品。你的标记是推荐的依据。"
 
-#: catalog/templates/discover.html:125 common/templates/common/scan.html:35
+#: catalog/templates/discover.html:120 common/templates/common/scan.html:35
 #: common/views_manage.py:775 social/templates/feed_events.html:40
 msgid "Search"
 msgstr "搜索"
 
-#: catalog/templates/discover.html:131
+#: catalog/templates/discover.html:126
 msgid "Follow a few people"
 msgstr "关注几位用户"
 
-#: catalog/templates/discover.html:132
+#: catalog/templates/discover.html:127
 msgid "Scroll down to what people are saying and follow the voices you like."
 msgstr "往下看看大家在说什么，关注你喜欢的声音。"
 
-#: catalog/templates/discover.html:133
+#: catalog/templates/discover.html:128
 msgid "See posts"
 msgstr "查看帖文"
 
-#: catalog/templates/discover.html:139
+#: catalog/templates/discover.html:134
 msgid "Bring your history"
 msgstr "带来你的记录"
 
-#: catalog/templates/discover.html:140
+#: catalog/templates/discover.html:135
 msgid "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file."
 msgstr "从豆瓣、Goodreads、Letterboxd、Steam、Trakt 或播客 OPML 文件导入。"
 
-#: catalog/templates/discover.html:141
+#: catalog/templates/discover.html:136
 msgid "Open importers"
 msgstr "打开导入工具"
 
-#: catalog/templates/discover.html:154
+#: catalog/templates/discover.html:149
 msgid "Sections"
 msgstr "板块"
 
-#: catalog/templates/discover.html:157 catalog/templates/people_works.html:58
+#: catalog/templates/discover.html:152 catalog/templates/people_works.html:58
 #: catalog/templates/search_header.html:13
 #: catalog/templates/search_header.html:15
 #: journal/templates/_sidebar_collection_filter.html:8
 #: journal/templates/_sidebar_collection_filter.html:16
 #: journal/templates/_sidebar_user_mark_list.html:56
-#: social/templates/notification.html:50 social/templates/notification.html:52
+#: social/templates/notification.html:45 social/templates/notification.html:47
 msgid "All"
 msgstr "全部"
 
-#: catalog/templates/discover.html:161 catalog/templates/discover.html:246
-#: catalog/templates/discover.html:251 catalog/templates/discover.html:304
+#: catalog/templates/discover.html:156 catalog/templates/discover.html:241
+#: catalog/templates/discover.html:246 catalog/templates/discover.html:299
 msgid "For you"
 msgstr "为你推荐"
 
-#: catalog/templates/discover.html:173 common/templates/_header.html:64
+#: catalog/templates/discover.html:168 common/templates/_header.html:64
 #: journal/templates/user_post_list.html:10
 #: journal/templates/user_post_list.html:21
 msgid "Posts"
 msgstr "帖文"
 
-#: catalog/templates/discover.html:178 catalog/templates/discover.html:425
-#: catalog/templates/discover.html:428
+#: catalog/templates/discover.html:173 catalog/templates/discover.html:420
+#: catalog/templates/discover.html:423
 #: journal/templates/user_collection_list.html:18
 #: journal/templates/user_collection_list.html:32
 msgid "Collections"
 msgstr "收藏单"
 
-#: catalog/templates/discover.html:183
+#: catalog/templates/discover.html:178
 msgid "Originals"
 msgstr "原创播客"
 
-#: catalog/templates/discover.html:192 catalog/templates/discover.html:194
+#: catalog/templates/discover.html:187 catalog/templates/discover.html:189
 msgid "Trending now"
 msgstr "当前热门"
 
-#: catalog/templates/discover.html:195
+#: catalog/templates/discover.html:190
 msgid "Marked most across the Fediverse recently."
 msgstr "最近在联邦宇宙被标记最多的作品。"
 
-#: catalog/templates/discover.html:199 catalog/templates/discover.html:256
-#: catalog/templates/discover.html:283 catalog/templates/discover.html:321
-#: catalog/templates/discover.html:433 journal/templates/profile.html:78
+#: catalog/templates/discover.html:194 catalog/templates/discover.html:251
+#: catalog/templates/discover.html:278 catalog/templates/discover.html:316
+#: catalog/templates/discover.html:428 journal/templates/profile.html:74
 #: journal/templates/profile_items.html:16
 msgid "Scroll left"
 msgstr "向左滚动"
 
-#: catalog/templates/discover.html:205 catalog/templates/discover.html:262
-#: catalog/templates/discover.html:289 catalog/templates/discover.html:327
-#: catalog/templates/discover.html:439 journal/templates/profile.html:84
+#: catalog/templates/discover.html:200 catalog/templates/discover.html:257
+#: catalog/templates/discover.html:284 catalog/templates/discover.html:322
+#: catalog/templates/discover.html:434 journal/templates/profile.html:80
 #: journal/templates/profile_items.html:22
 msgid "Scroll right"
 msgstr "向右滚动"
 
-#: catalog/templates/discover.html:227
+#: catalog/templates/discover.html:222
 #, python-format
 msgid "Marked by %(counter)s person recently"
 msgid_plural "Marked by %(counter)s people recently"
 msgstr[0] "最近 %(counter)s 人标记"
 
-#: catalog/templates/discover.html:252
+#: catalog/templates/discover.html:247
 msgid "Because of what is on your shelf."
 msgstr "根据你书架上的作品推荐。"
 
-#: catalog/templates/discover.html:278
+#: catalog/templates/discover.html:273
 msgid "From people you follow"
 msgstr "来自你关注的人"
 
-#: catalog/templates/discover.html:279
+#: catalog/templates/discover.html:274
 msgid "Marked recently by people you follow."
 msgstr "你关注的人最近标记的作品。"
 
-#: catalog/templates/discover.html:305
+#: catalog/templates/discover.html:300
 msgid "Recommendations appear here once you mark a few things or follow people."
 msgstr "标记几个作品或关注一些人之后，推荐会出现在这里。"
 
-#: catalog/templates/discover.html:318
+#: catalog/templates/discover.html:313
 msgid "See all"
 msgstr "查看全部"
 
-#: catalog/templates/discover.html:343 catalog/templates/discover.html:347
+#: catalog/templates/discover.html:338 catalog/templates/discover.html:342
 msgid "Fediverse originals"
 msgstr "联邦宇宙原创"
 
-#: catalog/templates/discover.html:349
+#: catalog/templates/discover.html:344
 msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr "联邦宇宙创作者的播客，可直接在此播放。"
 
-#: catalog/templates/discover.html:351
+#: catalog/templates/discover.html:346
 msgid "All original shows"
 msgstr "全部原创播客"
 
-#: catalog/templates/discover.html:368 social/templates/_event_post.html:38
-msgid "Play"
-msgstr "播放"
-
-#: catalog/templates/discover.html:385
+#: catalog/templates/discover.html:380
 #, python-format
 msgid "%(counter)s recent episode"
 msgid_plural "%(counter)s recent episodes"
 msgstr[0] "%(counter)s 期近期节目"
 
-#: catalog/templates/discover.html:404 catalog/templates/discover.html:407
+#: catalog/templates/discover.html:399 catalog/templates/discover.html:402
 msgid "What people are saying"
 msgstr "大家在说什么"
 
-#: catalog/templates/discover.html:408
+#: catalog/templates/discover.html:403
 msgid "Public marks, comments and reviews from around the Fediverse."
 msgstr "来自联邦宇宙各处的公开标记、短评和评论。"
 
-#: catalog/templates/discover.html:411
+#: catalog/templates/discover.html:406
 msgid "Open the feed"
 msgstr "打开动态"
 
-#: catalog/templates/discover.html:429
+#: catalog/templates/discover.html:424
 msgid "Lists made by members, most recently updated first."
 msgstr "成员创建的收藏单，按最近更新排序。"
 
-#: catalog/templates/discover.html:454 catalog/templates/discover.html:456
+#: catalog/templates/discover.html:449 catalog/templates/discover.html:451
 #: common/templates/_sidebar_anonymous.html:54
 msgid "Popular tags"
 msgstr "热门标签"
 
-#: catalog/templates/discover.html:457
+#: catalog/templates/discover.html:452
 msgid "Most used public tags in the last two weeks."
 msgstr "过去两周最常用的公开标签。"
 
@@ -2248,15 +2249,15 @@ msgstr "想看"
 msgid "In progress"
 msgstr "在看"
 
-#: catalog/templates/podcast.html:20 common/templates/_sidebar.html:51
+#: catalog/templates/podcast.html:13 common/templates/_sidebar.html:51
 msgid "verified creator"
 msgstr "已验证创作者"
 
-#: catalog/templates/podcast.html:35
+#: catalog/templates/podcast.html:28
 msgid "Recent episodes"
 msgstr "近期节目"
 
-#: catalog/templates/podcast.html:44
+#: catalog/templates/podcast.html:37
 msgid "Subscribe in apps"
 msgstr "用播客应用订阅"
 
@@ -2331,7 +2332,7 @@ msgid "Logged in user may see search results from other sites."
 msgstr "登录用户可看到来自其他网站的搜索结果。"
 
 #: catalog/templates/search_results_people.html:12
-#: journal/templates/profile.html:199 journal/templates/profile.html:204
+#: journal/templates/profile.html:195 journal/templates/profile.html:200
 #: journal/views/profile.py:650
 msgid "People"
 msgstr "人物"
@@ -2360,8 +2361,8 @@ msgstr "版本"
 #: catalog/views/edit.py:293 catalog/views/edit.py:296
 #: catalog/views/edit.py:440 catalog/views/edit.py:443
 #: catalog/views/verify.py:197 journal/views/collection.py:79
-#: journal/views/collection.py:104 journal/views/collection.py:609
-#: journal/views/collection.py:705 journal/views/common.py:244
+#: journal/views/collection.py:104 journal/views/collection.py:610
+#: journal/views/collection.py:706 journal/views/common.py:244
 #: journal/views/mark.py:244 journal/views/post.py:119
 #: journal/views/post.py:121 journal/views/post.py:168
 #: journal/views/post.py:187 journal/views/post.py:189
@@ -2395,10 +2396,10 @@ msgstr "本操作不可撤销。"
 #: journal/views/article.py:140 journal/views/article.py:160
 #: journal/views/collection.py:252 journal/views/collection.py:345
 #: journal/views/collection.py:358 journal/views/collection.py:376
-#: journal/views/collection.py:510 journal/views/collection.py:553
-#: journal/views/collection.py:592 journal/views/collection.py:604
-#: journal/views/collection.py:629 journal/views/collection.py:666
-#: journal/views/common.py:317 journal/views/mark.py:317
+#: journal/views/collection.py:510 journal/views/collection.py:554
+#: journal/views/collection.py:593 journal/views/collection.py:605
+#: journal/views/collection.py:630 journal/views/collection.py:667
+#: journal/views/common.py:318 journal/views/mark.py:317
 #: journal/views/post.py:60 journal/views/post.py:80 journal/views/post.py:102
 #: journal/views/post.py:172 journal/views/post.py:201
 #: journal/views/post.py:274 journal/views/post.py:289
@@ -2516,11 +2517,11 @@ msgstr "这个图书版本将与以下作品取消关联"
 msgid "the internet"
 msgstr "互联网"
 
-#: catalog/views/search.py:444 catalog/views/search.py:453
+#: catalog/views/search.py:445 catalog/views/search.py:454
 msgid "Invalid URL"
 msgstr "无效网址"
 
-#: catalog/views/search.py:456
+#: catalog/views/search.py:457
 msgid "Unsupported URL"
 msgstr "尚未支持的网址"
 
@@ -2570,7 +2571,7 @@ msgstr "条目已不存在"
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
-#: catalog/views/view.py:828
+#: catalog/views/view.py:829
 msgid "Category not found"
 msgstr "分类不存在"
 
@@ -4995,9 +4996,9 @@ msgstr "翻译"
 msgid "Third-party login"
 msgstr "第三方登录"
 
-#: common/views_manage.py:890 social/templates/feed.html:28
-#: social/templates/notification.html:12 social/templates/notification.html:24
-#: social/templates/notification.html:46
+#: common/views_manage.py:890 social/templates/feed.html:23
+#: social/templates/notification.html:11 social/templates/notification.html:19
+#: social/templates/notification.html:41
 msgid "Notifications"
 msgstr "通知"
 
@@ -5368,49 +5369,49 @@ msgstr "备注"
 msgid "search query for dynamic collection"
 msgstr "动态收藏单查询条件"
 
-#: journal/models/collection.py:640 journal/templatetags/collection.py:35
+#: journal/models/collection.py:642 journal/templatetags/collection.py:35
 #, python-format
 msgid "%(count)d book"
 msgid_plural "%(count)d books"
 msgstr[0] "%(count)d 本书"
 
-#: journal/models/collection.py:645 journal/templatetags/collection.py:43
+#: journal/models/collection.py:647 journal/templatetags/collection.py:43
 #, python-format
 msgid "%(count)d movie"
 msgid_plural "%(count)d movies"
 msgstr[0] "%(count)d 部电影"
 
-#: journal/models/collection.py:650 journal/templatetags/collection.py:51
+#: journal/models/collection.py:652 journal/templatetags/collection.py:51
 #, python-format
 msgid "%(count)d tv show"
 msgid_plural "%(count)d tv shows"
 msgstr[0] "%(count)d 部电视剧"
 
-#: journal/models/collection.py:655 journal/templatetags/collection.py:59
+#: journal/models/collection.py:657 journal/templatetags/collection.py:59
 #, python-format
 msgid "%(count)d album"
 msgid_plural "%(count)d albums"
 msgstr[0] "%(count)d 张专辑"
 
-#: journal/models/collection.py:660 journal/templatetags/collection.py:67
+#: journal/models/collection.py:662 journal/templatetags/collection.py:67
 #, python-format
 msgid "%(count)d game"
 msgid_plural "%(count)d games"
 msgstr[0] "%(count)d 个游戏"
 
-#: journal/models/collection.py:665 journal/templatetags/collection.py:75
+#: journal/models/collection.py:667 journal/templatetags/collection.py:75
 #, python-format
 msgid "%(count)d podcast"
 msgid_plural "%(count)d podcasts"
 msgstr[0] "%(count)d 个播客"
 
-#: journal/models/collection.py:671 journal/templatetags/collection.py:83
+#: journal/models/collection.py:673 journal/templatetags/collection.py:83
 #, python-format
 msgid "%(count)d performance"
 msgid_plural "%(count)d performances"
 msgstr[0] "%(count)d 场演出"
 
-#: journal/models/collection.py:679 journal/templatetags/collection.py:91
+#: journal/models/collection.py:681 journal/templatetags/collection.py:91
 #, python-format
 msgid "%(count)d item"
 msgid_plural "%(count)d items"
@@ -6480,7 +6481,7 @@ msgstr "删除不可撤销。确认继续吗？"
 msgid " Note to %(reply_to_name)s "
 msgstr " 给 %(reply_to_name)s 的笔记 "
 
-#: journal/templates/post_compose.html:20 journal/templates/profile.html:47
+#: journal/templates/post_compose.html:20 journal/templates/profile.html:43
 #: social/templates/_compose_menu.html:5
 msgid "Compose"
 msgstr "撰写"
@@ -6526,27 +6527,27 @@ msgstr "添加引用"
 msgid "Quotes"
 msgstr "引用"
 
-#: journal/templates/profile.html:69 journal/templates/profile.html:71
+#: journal/templates/profile.html:65 journal/templates/profile.html:67
 msgid "Calendar"
 msgstr "日历"
 
-#: journal/templates/profile.html:74 journal/templates/wrapped.html:15
+#: journal/templates/profile.html:70 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:43
 msgid "annual summary"
 msgstr "年度小结"
 
-#: journal/templates/profile.html:145 journal/templates/profile.html:151
+#: journal/templates/profile.html:141 journal/templates/profile.html:147
 #: journal/templates/user_article_list.html:14
 #: journal/templates/user_article_list.html:23 journal/views/profile.py:515
 msgid "Articles"
 msgstr "文章"
 
-#: journal/templates/profile.html:181 journal/templates/profile.html:186
+#: journal/templates/profile.html:177 journal/templates/profile.html:182
 #: journal/views/profile.py:477
 msgid "Liked collection"
 msgstr "喜欢的收藏单"
 
-#: journal/templates/profile.html:217 journal/templates/profile.html:222
+#: journal/templates/profile.html:213 journal/templates/profile.html:218
 #: journal/views/profile.py:652
 msgid "Organizations"
 msgstr "团体"
@@ -6627,7 +6628,7 @@ msgid "Liked collections"
 msgstr "喜欢的收藏单"
 
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:543
-#: social/templates/feed.html:43 social/templates/feed.html:45
+#: social/templates/feed.html:38 social/templates/feed.html:40
 #: users/templates/users/account.html:452
 msgid "Following"
 msgstr "正在关注"
@@ -6698,20 +6699,20 @@ msgstr "分享我的收藏单"
 msgid "shared {username}'s collection"
 msgstr "分享 {username} 的收藏单"
 
-#: journal/views/collection.py:555 journal/views/collection.py:594
-#: journal/views/collection.py:606 journal/views/collection.py:632
+#: journal/views/collection.py:556 journal/views/collection.py:595
+#: journal/views/collection.py:607 journal/views/collection.py:633
 msgid "Dynamic collection is not editable"
 msgstr "不能修改动态收藏单中的条目"
 
-#: journal/views/collection.py:571
+#: journal/views/collection.py:572
 msgid "The item is already in the collection."
 msgstr "条目已在收藏单中。"
 
-#: journal/views/collection.py:573
+#: journal/views/collection.py:574
 msgid "Unable to find the item, please use item url from this site."
 msgstr "找不到条目，请使用本站条目网址。"
 
-#: journal/views/collection.py:619
+#: journal/views/collection.py:620
 msgid "Saved."
 msgstr "已保存。"
 
@@ -7368,24 +7369,24 @@ msgstr ""
 "\n"
 "回应了你对 <a href=\"%(item_url)s\">%(item_title)s</a> 的标记\n"
 
-#: social/templates/feed.html:24 social/templates/notification.html:40
+#: social/templates/feed.html:19 social/templates/notification.html:35
 #: users/templates/users/preferences.html:40
 msgid "Activities"
 msgstr "动态"
 
-#: social/templates/feed.html:39
+#: social/templates/feed.html:34
 msgid "Feeds"
 msgstr "动态"
 
-#: social/templates/feed.html:50 social/templates/feed.html:52
+#: social/templates/feed.html:45 social/templates/feed.html:47
 msgid "Marks and reviews"
 msgstr "标记与评论"
 
-#: social/templates/feed.html:58 social/templates/feed.html:60
+#: social/templates/feed.html:53 social/templates/feed.html:55
 msgid "Local"
 msgstr "本站"
 
-#: social/templates/feed.html:67 social/templates/feed.html:69
+#: social/templates/feed.html:62 social/templates/feed.html:64
 msgid "World"
 msgstr "全网"
 
@@ -7412,16 +7413,16 @@ msgstr "搜索并标记一些书影音/播客/游戏，<a href=\"%(import_url)s\
 msgid "Import"
 msgstr "导入"
 
-#: social/templates/notification.html:27
+#: social/templates/notification.html:22
 #, python-format
 msgid "%(count)s unread"
 msgstr "%(count)s 条未读"
 
-#: social/templates/notification.html:57 social/templates/notification.html:59
+#: social/templates/notification.html:52 social/templates/notification.html:54
 msgid "Mentions"
 msgstr "提及"
 
-#: social/templates/notification.html:64 social/templates/notification.html:66
+#: social/templates/notification.html:59 social/templates/notification.html:61
 msgid "Follows"
 msgstr "关注"
 
@@ -7447,19 +7448,19 @@ msgstr "投票已于%(end_time)s结束"
 msgid "Poll ending at %(end_time)s"
 msgstr "投票将于%(end_time)s结束"
 
-#: social/templates/search_feed.html:12 social/views.py:66 social/views.py:67
+#: social/templates/search_feed.html:11 social/views.py:66 social/views.py:67
 msgid "Activities from those you follow"
 msgstr "好友动态"
 
-#: social/templates/single_post.html:13 social/templates/single_post.html:32
+#: social/templates/single_post.html:12 social/templates/single_post.html:31
 msgid "Post"
 msgstr "帖文"
 
-#: social/templates/single_post.html:26
+#: social/templates/single_post.html:25
 msgid "Article"
 msgstr "文章"
 
-#: social/templates/single_post.html:29
+#: social/templates/single_post.html:28
 msgid "Poll"
 msgstr "投票"
 
