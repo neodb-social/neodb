@@ -1457,6 +1457,28 @@ class Identity(StatorModel):
                 self.pk: int | None = other_row.pk
                 with transaction.atomic():
                     self.save()
+            else:
+                # An existing row cannot take the handle it just fetched,
+                # because another row already holds it: an alias actor_uri for
+                # an actor already stored, or two actors the unique constraint
+                # on (username, domain) cannot both hold, such as a Lemmy user
+                # and a community of the same name. The save is lost either
+                # way, so report the failure instead of continuing as if the
+                # row now held the fetched values.
+                other_row = (
+                    Identity.objects.filter(username=self.username, domain=self.domain)
+                    .exclude(pk=self.pk)
+                    .first()
+                )
+                logger.info(
+                    "Cannot save actor %s as %s@%s, already held by %s: %s",
+                    self.actor_uri,
+                    self.username,
+                    self.domain_id,
+                    other_row.actor_uri if other_row else "?",
+                    e,
+                )
+                return False
 
         # Fetch featured tags, posts, counts in a followup task
         InboxMessage.create_internal(

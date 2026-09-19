@@ -658,3 +658,49 @@ def test_fetch_actor_invalid_idna_host(config_system, monkeypatch, settings):
         assert identity.fetch_actor() is False
     finally:
         settings.SETUP.NO_FEDERATION = original
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_actor_handle_already_taken(httpx_mock, config_system, monkeypatch):
+    """
+    Two actors can share a preferredUsername on one domain, such as a Lemmy
+    user and a community of the same name, but (username, domain) is unique.
+    The save is lost, so fetch_actor must report failure rather than enqueue a
+    neodb sync for a row that still holds none of the fetched values
+    (EGGPLANT-1JM).
+    """
+    domain = Domain.get_remote_domain("lemmy.example")
+    Identity.objects.create(
+        actor_uri="https://lemmy.example/c/books",
+        username="books",
+        domain=domain,
+        local=False,
+    )
+    other = Identity.objects.create(
+        actor_uri="https://lemmy.example/u/books",
+        local=False,
+    )
+    httpx_mock.add_response(
+        url="https://lemmy.example/u/books",
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": ["https://www.w3.org/ns/activitystreams"],
+            "id": "https://lemmy.example/u/books",
+            "type": "Person",
+            "preferredUsername": "books",
+            "inbox": "https://lemmy.example/u/books/inbox",
+        },
+    )
+    enqueued = []
+    monkeypatch.setattr(
+        "django.conf.settings.NEODB_MQ",
+        type("Queue", (), {"enqueue": lambda self, *a, **kw: enqueued.append(a)})(),
+    )
+
+    assert other.fetch_actor() is False
+
+    other.refresh_from_db()
+    assert other.username is None
+    assert other.domain_id is None
+    assert enqueued == []
