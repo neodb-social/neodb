@@ -329,9 +329,10 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             shelf_type = content_data.get("status", ShelfType.WISHLIST)
             mark = Mark(owner, item)
             if self._is_current(mark.shelfmember, updated_dt, published_dt):
@@ -524,9 +525,10 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             name = content_data.get("name", "")
             content = content_data.get("content", "")
             # TODO: identity is (owner, item, title), so a review retitled on
@@ -573,9 +575,10 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             title = Note.title_from_ap_object(content_data, "") or ""
             content = content_data.get("content", "")
             sensitive = content_data.get("sensitive", False)
@@ -649,9 +652,10 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             content = content_data.get("content", "")
             existing_comment = Comment.objects.filter(owner=owner, item=item).first()
             if existing_comment:
@@ -696,9 +700,10 @@ class NdjsonImporter(BaseImporter):
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             rating_grade = int(float(content_data.get("value") or 0))
             if not rating_grade:
                 # a rating with no grade carries nothing to restore, and
@@ -770,9 +775,10 @@ class NdjsonImporter(BaseImporter):
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
-            item = self.items.get(content_data.get("withRegardTo", ""))
+            item_url = content_data.get("withRegardTo", "")
+            item = self.items.get(item_url)
             if not item:
-                raise KeyError(f"Could not find item: {data.get('item', '')}")
+                raise KeyError(f"Could not find item: {item_url}")
             tag_title = Tag.cleanup_title(content_data.get("tag", ""))
             # created_time is not nullable, so only pass it when the bundle
             # carries one; inserting NULL raises IntegrityError, which marks
