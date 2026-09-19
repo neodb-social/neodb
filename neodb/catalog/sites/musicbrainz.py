@@ -14,6 +14,7 @@ import httpx
 from django.conf import settings
 
 from catalog.common import *
+from catalog.common.downloaders import DownloadError
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.models import *
 from catalog.search import ExternalSearchResultItem, record_search_failure
@@ -209,8 +210,11 @@ class MusicBrainzReleaseGroup(AbstractSite):
         try:
             downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
+        except DownloadError:
+            # expected third-party failure; the caller warns on DownloadError
+            # instead of reporting a wrapped ParseError as an error
+            raise
         except Exception as e:
-            _logger.error(f"Failed to fetch MusicBrainz data: {e}")
             raise ParseError(self, f"Failed to fetch data from MusicBrainz API: {e}")
 
         return self._parse_release_group_data(response_data)
@@ -398,8 +402,11 @@ class MusicBrainzRelease(AbstractSite):
         try:
             downloader = MusicBrainzDownloader(api_url, headers=headers)
             response_data = downloader.download().json()
+        except DownloadError:
+            # expected third-party failure; the caller warns on DownloadError
+            # instead of reporting a wrapped ParseError as an error
+            raise
         except Exception as e:
-            _logger.error(f"Failed to fetch MusicBrainz release data: {e}")
             raise ParseError(self, f"Failed to fetch data from MusicBrainz API: {e}")
 
         return self._parse_release_data(response_data)
@@ -768,8 +775,11 @@ class MusicBrainzArtist(AbstractSite):
                 rate_limit_timeout=300.0,
             )
             data = downloader.download().json()
+        except DownloadError:
+            # expected third-party failure; the caller warns on DownloadError
+            # instead of reporting a wrapped ParseError as an error
+            raise
         except Exception as e:
-            _logger.error(f"Failed to fetch MusicBrainz artist data: {e}")
             raise ParseError(
                 self, f"Failed to fetch data from MusicBrainz API: {e}"
             ) from e

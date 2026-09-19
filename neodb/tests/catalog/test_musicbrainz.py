@@ -1,9 +1,11 @@
 import pytest
 
 from catalog.common import *
+from catalog.common.downloaders import DownloadError
 from catalog.models import Album, IdType, People, PeopleType
 from catalog.sites.musicbrainz import (
     MusicBrainzArtist,
+    MusicBrainzDownloader,
     MusicBrainzRelease,
     MusicBrainzReleaseGroup,
     _extract_first_isrc,
@@ -579,3 +581,40 @@ class TestMusicBrainzArtist:
         assert site.resource.item.display_name == "Radiohead"
         # Wikidata QID is picked up from MusicBrainz url-rels.
         assert site.resource.other_lookup_ids.get(IdType.WikiData) == "Q7444"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMusicBrainzDownloadFailure:
+    """A failed MusicBrainz call must stay a DownloadError.
+
+    SiteManager.fetch_related_resources_task and catalog.search.utils both log
+    a DownloadError as a warning and anything else as an error, so wrapping it
+    in ParseError reported every upstream outage as a Sentry error.
+    """
+
+    IDS = {  # noqa: RUF012
+        MusicBrainzReleaseGroup: "b1392450-e666-3926-a536-22c65f834433",
+        MusicBrainzRelease: "215d389f-c267-4a17-9a38-28ebbb96c6b7",
+        MusicBrainzArtist: "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+    }
+
+    @pytest.mark.parametrize("site_cls", list(IDS))
+    def test_download_error_is_not_wrapped(self, site_cls, monkeypatch):
+        def _fail(downloader):
+            downloader.logs = []
+            downloader.response_type = RESPONSE_NETWORK_ERROR
+            raise DownloadError(downloader)
+
+        monkeypatch.setattr(MusicBrainzDownloader, "download", _fail)
+        site = site_cls(id_value=self.IDS[site_cls])
+        with pytest.raises(DownloadError):
+            site.scrape()
+
+    def test_non_download_failure_is_a_parse_error(self, monkeypatch):
+        def _bad_json(downloader):
+            raise ValueError("not json")
+
+        monkeypatch.setattr(MusicBrainzDownloader, "download", _bad_json)
+        site = MusicBrainzRelease(id_value=self.IDS[MusicBrainzRelease])
+        with pytest.raises(ParseError):
+            site.scrape()
