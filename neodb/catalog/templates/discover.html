@@ -369,7 +369,7 @@
                    class="dc-play episode"
                    data-media="{{ episode.media_url }}"
                    data-cover="{{ episode.display_cover_image_url }}"
-                   data-title="{{ episode.title|default:episode.display_title }}"
+                   data-title="{{ episode.title }}"
                    data-album="{{ program.display_title }}"
                    data-hosts="{{ program.host_names|join:' / ' }}"
                    data-uuid="{{ episode.uuid }}"
@@ -377,7 +377,7 @@
                   <i class="fa-solid fa-play"></i>
                 </a>
                 <span>
-                  <a class="dc-episode-title" href="{{ episode.url }}">{{ episode.title|default:episode.display_title }}</a>
+                  <a class="dc-episode-title" href="{{ episode.url }}">{{ episode.title }}</a>
                   <small class="dc-episode-date">
                     {{ episode.pub_date|date:"Y-m-d" }}
                     {% if show.episodes|length > 1 %}

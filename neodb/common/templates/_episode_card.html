@@ -8,7 +8,7 @@
      data-uuid="{{ item.uuid }}"
      data-media="{{ item.media_url }}"
      data-cover="{{ item.display_cover_image_url }}"
-     data-title="{{ item.title|default:item.display_title }}"
+     data-title="{{ item.title }}"
      data-album="{{ item.program.display_title }}"
      data-hosts="{{ item.program.host|join:' / ' }}"
      {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' item.uuid %}"{% endif %}
@@ -19,7 +19,7 @@
            loading="lazy">
       <span class="dc-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
     </span>
-    <span class="dc-title">{{ item.title|default:item.display_title }}</span>
+    <span class="dc-title">{{ item.title }}</span>
     <span class="dc-meta">{{ item.program.display_title }}</span>
   </a>
 </li>
