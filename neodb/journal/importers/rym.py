@@ -18,6 +18,11 @@ from catalog.search.index import CatalogIndex, CatalogQueryParser
 from catalog.sites.musicbrainz import MusicBrainzRelease
 from catalog.sites.spotify import Spotify
 from common.models import SiteConfig
+from common.storage import (
+    local_media_file,
+    media_exists,
+    media_file_writer,
+)
 from journal.models import Mark, Review, ShelfType
 from users.models import Task
 
@@ -200,8 +205,8 @@ class RymImporter(Task):
     # ---- Phase 1: matching ----
 
     def _run_matching(self) -> None:
-        in_path = self.metadata["file"]
-        out_path = self._derive_matched_path(in_path)
+        in_path = self.local_path()
+        out_key = self._derive_matched_path(self.metadata["file"])
         with open(in_path, encoding="utf-8-sig", newline="") as fin:
             reader = csv.DictReader(fin)
             raw_fieldnames = list(reader.fieldnames or [])
@@ -212,7 +217,7 @@ class RymImporter(Task):
                 # normalize header whitespace (RYM exports have inconsistent spaces)
                 rows.append({k.strip(): v for k, v in raw_row.items()})
         self.metadata["total"] = len(rows)
-        self.metadata["matched_file"] = out_path
+        self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
 
@@ -220,12 +225,13 @@ class RymImporter(Task):
         # avoids the cost of creating/closing a loop per row.
         self._match_loop = asyncio.new_event_loop()
         try:
-            with open(out_path, "w", encoding="utf-8", newline="") as fout:
-                writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
-                writer.writeheader()
-                for row in rows:
-                    self._match_row(row)
-                    writer.writerow(row)
+            with media_file_writer(out_key) as out_path:
+                with open(out_path, "w", encoding="utf-8", newline="") as fout:
+                    writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
+                    writer.writeheader()
+                    for row in rows:
+                        self._match_row(row)
+                        writer.writerow(row)
         finally:
             self._match_loop.close()
             self._match_loop = None
@@ -346,11 +352,13 @@ class RymImporter(Task):
 
     def _run_import(self) -> None:
         path = self.metadata.get("matched_file")
-        if not path or not os.path.exists(path):
+        if not path or not media_exists(path):
             self.message = _("Matched file missing; cannot import.")
             self.save(update_fields=["message"])
             return
-        with open(path, encoding="utf-8-sig", newline="") as f:
+        with open(
+            self.local_path("matched_file"), encoding="utf-8-sig", newline=""
+        ) as f:
             reader = csv.DictReader(f)
             rows = [{k.strip(): v for k, v in r.items()} for r in reader]
         self.metadata["total"] = len(rows)
@@ -472,10 +480,9 @@ class RymImporter(Task):
 
     @staticmethod
     def _derive_matched_path(in_path: str) -> str:
-        base = os.path.basename(in_path)
-        stem, _ext = os.path.splitext(base)
-        out_dir = os.path.dirname(in_path)
-        return os.path.join(out_dir, f"{stem}-matched.csv")
+        """The matched file's key, beside the uploaded one it derives from."""
+        stem, _ext = os.path.splitext(in_path)
+        return f"{stem}-matched.csv"
 
 
 def _strip_quotes(s: str) -> str:
@@ -495,14 +502,18 @@ def update_row_in_matched_file(path: str, index: int, updates: dict) -> dict | N
 
     Wraps the read-modify-write in an exclusive ``fcntl.flock`` on a sibling
     ``<path>.lock`` so concurrent HTMX saves from the same user can't clobber
-    each other.
+    each other. A remote media backend is fetched and stored back around that,
+    and there the lock guards only this call's own copy: two saves racing from
+    different processes can still lose one edit, as they already could when
+    they landed on different hosts.
 
     Returns the updated row, or None if the index is out of range.
     """
-    lock_path = path + ".lock"
-    with open(lock_path, "a+") as lock_fp:
-        fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
-        return _update_row_locked(path, index, updates)
+    with local_media_file(path, writable=True) as local_path:
+        lock_path = local_path + ".lock"
+        with open(lock_path, "a+") as lock_fp:
+            fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
+            return _update_row_locked(local_path, index, updates)
 
 
 def _update_row_locked(path: str, index: int, updates: dict) -> dict | None:

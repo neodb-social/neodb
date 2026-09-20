@@ -1083,7 +1083,7 @@ class NdjsonImporter(BaseImporter):
 
     def run(self) -> None:
         """Run the NDJSON import."""
-        filename = self.metadata["file"]
+        filename = self.local_path()
         logger.debug(f"Importing {filename}")
 
         with zipfile.ZipFile(filename, "r") as zipref:

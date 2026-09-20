@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from catalog.common.downloaders import use_local_response
@@ -16,7 +18,9 @@ class TestLetterboxdImporter:
 
     @use_local_response
     def test_letterboxd_import_process_complete_normally(self):
-        zip_path = "test_data/letterboxd-neodb-2025-09-23-06-48-utc.zip"
+        zip_path = os.path.abspath(
+            "test_data/letterboxd-neodb-2025-09-23-06-48-utc.zip"
+        )
         assert LetterboxdImporter.validate_file(open(zip_path, "rb")), (
             "Unable to validate the provided export"
         )

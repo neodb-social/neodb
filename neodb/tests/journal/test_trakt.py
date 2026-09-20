@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 import pytest
@@ -18,7 +19,7 @@ class TestTraktImporter:
         self.identity = self.user.identity
 
     def test_validate_file(self):
-        zip_path = "test_data/trakt-export-test.zip"
+        zip_path = os.path.abspath("test_data/trakt-export-test.zip")
         assert TraktImporter.validate_file(open(zip_path, "rb"))
 
     def test_validate_file_rejects_non_zip(self, tmp_path):
@@ -28,7 +29,7 @@ class TestTraktImporter:
 
     @use_local_response
     def test_trakt_import(self):
-        zip_path = "test_data/trakt-export-test.zip"
+        zip_path = os.path.abspath("test_data/trakt-export-test.zip")
         task = TraktImporter.create(self.user, visibility=0, file=zip_path)
         with (
             patch(
@@ -90,7 +91,7 @@ class TestTraktImporter:
     @use_local_response
     def test_trakt_import_list_visibility(self):
         """Lists should honor the selected visibility."""
-        zip_path = "test_data/trakt-export-test.zip"
+        zip_path = os.path.abspath("test_data/trakt-export-test.zip")
         task = TraktImporter.create(self.user, visibility=1, file=zip_path)
         task.run()
 
@@ -103,7 +104,7 @@ class TestTraktImporter:
     @use_local_response
     def test_trakt_import_no_duplicate_lists(self):
         """Re-importing should not duplicate custom lists."""
-        zip_path = "test_data/trakt-export-test.zip"
+        zip_path = os.path.abspath("test_data/trakt-export-test.zip")
 
         task1 = TraktImporter.create(self.user, visibility=0, file=zip_path)
         task1.run()
@@ -123,7 +124,7 @@ class TestTraktImporter:
     @use_local_response
     def test_trakt_import_skip_downgrades(self):
         """Marks already in place should be skipped on re-import."""
-        zip_path = "test_data/trakt-export-test.zip"
+        zip_path = os.path.abspath("test_data/trakt-export-test.zip")
 
         # First import
         task1 = TraktImporter.create(self.user, visibility=0, file=zip_path)

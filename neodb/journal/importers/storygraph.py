@@ -16,6 +16,7 @@ from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
 from catalog.search.index import CatalogIndex, CatalogQueryParser
 from common.models import SiteConfig
+from common.storage import media_exists, media_file_writer
 from journal.models import *
 from users.models import Task
 
@@ -163,8 +164,8 @@ class StoryGraphImporter(Task):
     # ---- Phase 1: matching ----
 
     def _run_matching(self) -> None:
-        in_path = self.metadata["file"]
-        out_path = self._derive_matched_path(in_path)
+        in_path = self.local_path()
+        out_key = self._derive_matched_path(self.metadata["file"])
         with open(in_path, encoding="utf-8-sig", newline="") as fin:
             reader = csv.DictReader(fin)
             fieldnames = [h.strip() for h in reader.fieldnames or []]
@@ -172,16 +173,17 @@ class StoryGraphImporter(Task):
             # k is None for extra cells in ragged rows; drop them
             rows = [{k.strip(): v for k, v in raw.items() if k} for raw in reader]
         self.metadata["total"] = len(rows)
-        self.metadata["matched_file"] = out_path
+        self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
 
-        with open(out_path, "w", encoding="utf-8", newline="") as fout:
-            writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
-            writer.writeheader()
-            for row in rows:
-                self._match_row(row)
-                writer.writerow(row)
+        with media_file_writer(out_key) as out_path:
+            with open(out_path, "w", encoding="utf-8", newline="") as fout:
+                writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
+                writer.writeheader()
+                for row in rows:
+                    self._match_row(row)
+                    writer.writerow(row)
 
         self.metadata["phase"] = "preview"
         self.message = _(
@@ -389,11 +391,13 @@ class StoryGraphImporter(Task):
 
     def _run_import(self) -> None:
         path = self.metadata.get("matched_file")
-        if not path or not os.path.exists(path):
+        if not path or not media_exists(path):
             self.message = _("Matched file missing; cannot import.")
             self.save(update_fields=["message"])
             return
-        with open(path, encoding="utf-8-sig", newline="") as f:
+        with open(
+            self.local_path("matched_file"), encoding="utf-8-sig", newline=""
+        ) as f:
             reader = csv.DictReader(f)
             rows = [{k.strip(): v for k, v in r.items() if k} for r in reader]
         self.metadata["total"] = len(rows)
@@ -532,7 +536,6 @@ class StoryGraphImporter(Task):
 
     @staticmethod
     def _derive_matched_path(in_path: str) -> str:
-        base = os.path.basename(in_path)
-        stem, _ext = os.path.splitext(base)
-        out_dir = os.path.dirname(in_path)
-        return os.path.join(out_dir, f"{stem}-matched.csv")
+        """The matched file's key, beside the uploaded one it derives from."""
+        stem, _ext = os.path.splitext(in_path)
+        return f"{stem}-matched.csv"

@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from catalog.common import ProxiedImageDownloader
 from common.models.misc import MISSING_COVER
-from common.utils import GenerateDateUUIDMediaFilePath
+from common.storage import generate_media_key, media_file_writer
 from journal.models import (
     Article,
     Attachment,
@@ -416,17 +416,14 @@ class NdjsonExporter(Task):
             }
             f.write(json.dumps(identity_data, default=str) + "\n")
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-        shutil.make_archive(filename[:-4], "zip", temp_folder_path)
+        key = generate_media_key(settings.EXPORT_FILE_PATH_ROOT, f"{self.filename}.zip")
+        with media_file_writer(key) as filename:
+            shutil.make_archive(filename[:-4], "zip", temp_folder_path)
         # the staging copy holds every attachment we just bundled; drop it
         # so exports don't accumulate in the system temp dir
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-        self.metadata["file"] = filename
+        self.metadata["file"] = key
         self.metadata["total"] = total
         self.message = f"{total} records exported."
         self.save()

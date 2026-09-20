@@ -79,6 +79,13 @@ class S3Storage(S3Boto3Storage):
         if name.endswith(".webp"):
             params["ContentDisposition"] = "inline"
             params["ContentType"] = "image/webp"
+        elif name.startswith(
+            (settings.EXPORT_FILE_PATH_ROOT, settings.SYNC_FILE_PATH_ROOT)
+        ) and not name.endswith("/sitemap.txt"):
+            # these are downloaded by redirecting to the object, so the object
+            # itself has to say it is a download, and what it is called
+            basename = name.rpartition("/")[2]
+            params["ContentDisposition"] = f'attachment; filename="{basename}"'
         return params
 
 

@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from django.utils import timezone
 
@@ -36,7 +38,7 @@ def _make_edition_with_isbn(isbn13: str, title: str) -> Edition:
 
 @pytest.mark.django_db(databases="__all__")
 class TestGoodreadsImporter:
-    CSV_PATH = "test_data/goodreads_library_export.csv"
+    CSV_PATH = os.path.abspath("test_data/goodreads_library_export.csv")
 
     @pytest.fixture(autouse=True)
     def setup_data(self):

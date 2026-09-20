@@ -6,7 +6,7 @@ import tempfile
 from django.conf import settings
 
 from catalog.models import Item, ItemCategory
-from common.utils import GenerateDateUUIDMediaFilePath
+from common.storage import generate_media_key, media_file_writer
 from journal.models import Note, Review, ShelfMember, q_item_in_category
 from users.models import Task
 
@@ -162,13 +162,10 @@ class CsvExporter(Task):
                     ]
                     writer.writerow(line)
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.zip", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-        shutil.make_archive(filename[:-4], "zip", temp_folder_path)
-        self.metadata["file"] = filename
+        key = generate_media_key(settings.EXPORT_FILE_PATH_ROOT, f"{self.filename}.zip")
+        with media_file_writer(key) as filename:
+            shutil.make_archive(filename[:-4], "zip", temp_folder_path)
+        self.metadata["file"] = key
         self.metadata["total"] = total
         self.message = f"{total} records exported."
         self.save()

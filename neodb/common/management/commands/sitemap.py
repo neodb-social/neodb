@@ -1,13 +1,14 @@
 import os
-import shutil
 import tempfile
 from itertools import islice
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.db.models import Count, Exists, Max, OuterRef
 
 from catalog.models import *
 from common.management.base import SiteCommand
+from common.storage import media_url, save_media_file
 from journal.models import *
 from takahe.models import Identity, Post
 
@@ -88,15 +89,10 @@ class Command(SiteCommand):
             for r in ratings.iterator():
                 f.write(Item.objects.get(pk=r["item_id"]).absolute_url + "\n")
 
-        fn = settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
-        # mkstemp() creates the file as 0600, so set the mode the web server expects
-        shutil.copyfile(temp, fn)
-        os.chmod(fn, 0o644)
+        # storage writes it with FILE_UPLOAD_PERMISSIONS, unlike the 0600
+        # that mkstemp() gives the temporary copy
+        key = settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
+        save_media_file(temp, key)
         os.remove(temp)
-        url = (
-            settings.SITE_INFO["site_url"]
-            + settings.MEDIA_URL
-            + settings.EXPORT_FILE_PATH_ROOT
-            + "sitemap.txt"
-        )
+        url = urljoin(settings.SITE_INFO["site_url"], media_url(key))
         self.stdout.write(self.style.SUCCESS(f"Generated {url}"))

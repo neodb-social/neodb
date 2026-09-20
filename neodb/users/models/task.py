@@ -1,6 +1,6 @@
 import logging
-import os
 import shutil
+import tempfile
 from typing import Self
 
 import django_rq
@@ -10,35 +10,12 @@ from django.utils.translation import gettext_lazy as _
 from typedmodels.models import TypedModel
 from user_messages import api as msg
 
+from common.storage import delete_media, download_media_file, local_media_path
 from users.middlewares import activate_language_for_user
 
 from .user import User
 
 logger = logging.getLogger(__name__)
-
-
-def _delete_path(file_path: str) -> bool:
-    try:
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-            logger.debug(f"Deleted file {file_path}")
-            # Remove parent directories if empty (date-based dirs like 2024/01/15/)
-            parent = os.path.dirname(file_path)
-            for _ in range(3):  # up to 3 levels (day/month/year)
-                if parent and os.path.isdir(parent) and not os.listdir(parent):
-                    os.rmdir(parent)
-                    logger.debug(f"Removed empty directory {parent}")
-                    parent = os.path.dirname(parent)
-                else:
-                    break
-            return True
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-            logger.debug(f"Deleted directory {file_path}")
-            return True
-    except OSError as e:
-        logger.warning(f"Failed to delete {file_path}: {e}")
-    return False
 
 
 class Task(TypedModel):
@@ -52,6 +29,10 @@ class Task(TypedModel):
         failed = 3, _("Failed")
 
     FileKeys = ("file", "matched_file")
+
+    # temp copies of stored files, dropped when the task run ends
+    _temp_dir: str | None = None
+    _local_copies: dict[str, str] | None = None
 
     user = models.ForeignKey(User, models.CASCADE, null=False)
     # type = models.CharField(max_length=20, null=False)
@@ -100,6 +81,8 @@ class Task(TypedModel):
                     extra={"exception": e, "task": self.pk},
                 )
                 return False
+            finally:
+                self.drop_local_copies()
 
     @classmethod
     def _execute(cls, task_id: int):
@@ -131,6 +114,32 @@ class Task(TypedModel):
         except Exception as e:
             logger.warning(f"{self} cancel error {e}")
 
+    def local_path(self, key: str = "file") -> str:
+        """A filesystem path for one of this task's stored files.
+
+        A remote backend has none, so the file is copied to a temporary one
+        that lives until the task run ends.
+        """
+        path = self.metadata.get(key) if self.metadata else None
+        if not path:
+            raise FileNotFoundError(f"{self} has no {key}")
+        local = local_media_path(path)
+        if local is not None:
+            return local
+        if self._local_copies is None:
+            self._local_copies = {}
+        if key not in self._local_copies:
+            if self._temp_dir is None:
+                self._temp_dir = tempfile.mkdtemp(prefix="neodb-task-")
+            self._local_copies[key] = download_media_file(path, self._temp_dir)
+        return self._local_copies[key]
+
+    def drop_local_copies(self) -> None:
+        if self._temp_dir:
+            shutil.rmtree(self._temp_dir, ignore_errors=True)
+            self._temp_dir = None
+        self._local_copies = None
+
     def delete_files(self) -> bool:
         """Delete the file(s) this task owns, if any exist.
 
@@ -144,7 +153,7 @@ class Task(TypedModel):
         deleted = False
         for key in self.FileKeys:
             path = self.metadata.get(key)
-            if path and _delete_path(path):
+            if path and delete_media(path):
                 deleted = True
         return deleted
 

@@ -369,7 +369,7 @@ class TraktImporter(Task):
                         self.progress(-1, label)
 
     def run(self) -> None:
-        filename = self.metadata["file"]
+        filename = self.local_path()
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdir:
                 for member in zipref.namelist():

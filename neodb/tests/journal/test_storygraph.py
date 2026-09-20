@@ -99,7 +99,7 @@ class TestStoryGraphImporter:
         assert task.metadata["matched_external"] == 3
         assert task.metadata["unmatched"] == 1
 
-        rows = _read_matched(task.metadata["matched_file"])
+        rows = _read_matched(task.local_path("matched_file"))
         assert len(rows) == 9
 
         row = rows["Brave New World"]

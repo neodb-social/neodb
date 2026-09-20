@@ -163,7 +163,7 @@ class TestCsvExportImport:
         # Export data to CSV
         exporter = CsvExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
         logger.debug(f"exported to {export_path}")
         assert os.path.exists(export_path)
 

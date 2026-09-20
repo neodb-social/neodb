@@ -208,7 +208,7 @@ class LetterboxdImporter(Task):
 
     def run(self):
         uris = set()
-        filename = self.metadata["file"]
+        filename = self.local_path()
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug(f"Extracting {filename} to {tmpdirname}")

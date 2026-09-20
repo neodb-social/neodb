@@ -108,7 +108,7 @@ class TestWordpressExport:
     def _export(self):
         exporter = WordpressExporter.create(user=self.user)
         exporter.run()
-        return etree.parse(exporter.metadata["file"]), exporter
+        return etree.parse(exporter.local_path()), exporter
 
     def test_export_articles(self):
         Article.update_local_article(
@@ -455,7 +455,7 @@ class TestWordpressRoundTrip:
             exporter.run()
 
             importer = WordpressImporter.create(
-                self.user2, visibility=0, file=exporter.metadata["file"]
+                self.user2, visibility=0, file=exporter.local_path()
             )
             importer.run()
 

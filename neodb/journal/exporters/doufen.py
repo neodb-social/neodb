@@ -1,11 +1,9 @@
-import os
-
 from django.conf import settings
 from openpyxl import Workbook
 
 from catalog.models import IdType, ItemCategory, TVEpisode
 from common.models import country_display_name
-from common.utils import GenerateDateUUIDMediaFilePath
+from common.storage import generate_media_key, media_file_writer
 from journal.models import Review, ShelfType, q_item_in_category
 from users.models import Task
 
@@ -45,11 +43,7 @@ class DoufenExporter(Task):
     def run(self):
         user = self.user
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.xlsx", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
+        key = generate_media_key(settings.EXPORT_FILE_PATH_ROOT, "marks.xlsx")
         heading = [
             "标题",
             "简介",
@@ -329,7 +323,8 @@ class DoufenExporter(Task):
                 ]
                 ws.append(line)
 
-        wb.save(filename=filename)
-        self.metadata["file"] = filename
+        with media_file_writer(key) as filename:
+            wb.save(filename=filename)
+        self.metadata["file"] = key
         self.message = "Export complete."
         self.save()

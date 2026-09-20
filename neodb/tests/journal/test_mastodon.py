@@ -475,8 +475,8 @@ class TestMastodonImportView:
         task = MastodonImporter.latest_task(user)
         assert task is not None
         assert enqueued == [task.pk]
-        assert task.metadata["file"].endswith(".zip")
-        with open(task.metadata["file"], "rb") as f:
+        assert task.local_path().endswith(".zip")
+        with open(task.local_path(), "rb") as f:
             assert zipfile.is_zipfile(f)
 
     def test_bare_outbox_upload_kept_as_json(
@@ -491,7 +491,7 @@ class TestMastodonImportView:
         assert response.status_code == 302
         task = MastodonImporter.latest_task(user)
         assert task is not None
-        assert task.metadata["file"].endswith(".json")
+        assert task.local_path().endswith(".json")
 
     def test_invalid_upload_rejected(self, client):
         user = User.register(email="ma_view2@test.com", username="ma_viewer2")

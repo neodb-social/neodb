@@ -315,7 +315,7 @@ class TestNdjsonExportImport:
         # Export data to NDJSON
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
         logger.debug(f"exported to {export_path}")
         assert os.path.exists(export_path)
         assert exporter.metadata["total"] == 61
@@ -528,7 +528,7 @@ class TestNdjsonExportImport:
         exporter.run()
 
         importer = NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         )
         importer.run()
 
@@ -560,7 +560,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
 
         NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
         NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
@@ -655,7 +655,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
 
         # Bundle should advertise both Article rows on the journal stream.
         with zipfile.ZipFile(export_path, "r") as zf:
@@ -710,7 +710,7 @@ class TestNdjsonExportImport:
             )
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            export_path = exporter.metadata["file"]
+            export_path = exporter.local_path()
 
             importer = NdjsonImporter.create(
                 user=self.user2, file=export_path, visibility=0
@@ -734,7 +734,7 @@ class TestNdjsonExportImport:
         )
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
         NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
         NdjsonImporter.create(user=self.user2, file=export_path, visibility=0).run()
         assert (
@@ -752,12 +752,12 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
 
-        with zipfile.ZipFile(exporter.metadata["file"], "r") as zf:
+        with zipfile.ZipFile(exporter.local_path(), "r") as zf:
             catalog = zf.read("catalog.ndjson").decode()
         assert self.book1.absolute_url in catalog
 
         importer = NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         )
         importer.run()
         assert importer.metadata["failed"] == 0
@@ -855,7 +855,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(exporter.local_path()) as zf:
             journal = zf.read("journal.ndjson").decode()
         types = {json.loads(line)["type"] for line in journal.splitlines()[1:]}
         assert "Comment" in types
@@ -874,12 +874,12 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(exporter.local_path()) as zf:
             catalog = zf.read("catalog.ndjson").decode()
         assert self.book1.absolute_url in catalog
 
         importer = NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         )
         importer.run()
         assert importer.metadata["failed"] == 0
@@ -1001,7 +1001,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        export_path = exporter.metadata["file"]
+        export_path = exporter.local_path()
         with zipfile.ZipFile(export_path) as zf:
             journal = zf.read("journal.ndjson").decode()
         exported_types = {
@@ -1075,7 +1075,7 @@ class TestNdjsonExportImport:
 
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            export_path = exporter.metadata["file"]
+            export_path = exporter.local_path()
             with zipfile.ZipFile(export_path) as zf:
                 assert any(
                     n.startswith("attachments/") and n.endswith(".png")
@@ -1108,7 +1108,7 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
         importer = NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         )
         importer.run()
         assert importer.metadata["failed"] == 0
@@ -1157,7 +1157,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(exporter.local_path()) as zf:
             journal = zf.read("journal.ndjson").decode()
         shelf_members = [
             json.loads(line)
@@ -1169,7 +1169,7 @@ class TestNdjsonExportImport:
         assert shelf_members[0]["progress"] is None
 
         importer = NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         )
         importer.run()
         assert importer.metadata["failed"] == 0
@@ -1219,7 +1219,7 @@ class TestNdjsonExportImport:
 
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            with zipfile.ZipFile(exporter.local_path()) as zf:
                 names = zf.namelist()
                 journal = zf.read("journal.ndjson").decode()
             assert any(
@@ -1531,7 +1531,7 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=source_user)
         exporter.run()
         importer = NdjsonImporter.create(
-            user=dest_user, file=exporter.metadata["file"], visibility=0
+            user=dest_user, file=exporter.local_path(), visibility=0
         )
         importer.run()
         return importer
@@ -1640,7 +1640,7 @@ class TestNdjsonExportImport:
             note = self._note_with_media("", "image/png", "png")
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            path = exporter.metadata["file"]
+            path = exporter.local_path()
             NdjsonImporter.create(user=self.user2, file=path, visibility=0).run()
 
             imported = Note.objects.get(owner=owner2, item=self.book1)
@@ -1720,7 +1720,7 @@ class TestNdjsonExportImport:
                 return_value=(None, ""),
             ):
                 exporter.run()
-            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            with zipfile.ZipFile(exporter.local_path()) as zf:
                 journal = zf.read("journal.ndjson").decode()
             record = next(
                 r
@@ -1802,7 +1802,7 @@ class TestNdjsonExportImport:
         )
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        path = exporter.metadata["file"]
+        path = exporter.local_path()
         NdjsonImporter.create(user=self.user2, file=path, visibility=0).run()
         importer = NdjsonImporter.create(user=self.user2, file=path, visibility=0)
         importer.run()
@@ -1826,7 +1826,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as z:
+        with zipfile.ZipFile(exporter.local_path()) as z:
             lines = z.read("journal.ndjson").decode().strip().split("\n")
         posts = [
             json.loads(ln) for ln in lines[1:] if json.loads(ln).get("type") == "post"
@@ -1963,7 +1963,7 @@ class TestNdjsonExportImport:
             )
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            path = exporter.metadata["file"]
+            path = exporter.local_path()
 
             def stored_uploads():
                 return sorted(default_storage.listdir("upload")[0])
@@ -2000,7 +2000,7 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
         NdjsonImporter.create(
-            user=self.user2, file=exporter.metadata["file"], visibility=0
+            user=self.user2, file=exporter.local_path(), visibility=0
         ).run()
 
         member = collection.get_member_for_item(self.book1)
@@ -2012,7 +2012,7 @@ class TestNdjsonExportImport:
         exporter2.run()
         with mock.patch.object(Collection, "sync_to_timeline") as sync_collection:
             NdjsonImporter.create(
-                user=self.user2, file=exporter2.metadata["file"], visibility=0
+                user=self.user2, file=exporter2.local_path(), visibility=0
             ).run()
 
         # Re-saving the changed collection body updates its AP envelope once.
@@ -2048,7 +2048,7 @@ class TestNdjsonExportImport:
         # and the validator must accept what our own exporter produces
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with open(exporter.metadata["file"], "rb") as f:
+        with open(exporter.local_path(), "rb") as f:
             assert NdjsonImporter.validate_file(
                 SimpleUploadedFile("export.zip", f.read())
             )

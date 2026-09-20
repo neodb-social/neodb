@@ -377,8 +377,8 @@ class TestTwitterImportView:
         assert task is not None
         assert enqueued == [task.pk]
         assert task.metadata["visibility"] == 1
-        assert task.metadata["file"].endswith(".zip")
-        with open(task.metadata["file"], "rb") as f:
+        assert task.local_path().endswith(".zip")
+        with open(task.local_path(), "rb") as f:
             assert zipfile.is_zipfile(f)
 
     def test_invalid_upload_rejected(self, client):

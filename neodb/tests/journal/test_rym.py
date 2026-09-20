@@ -200,7 +200,7 @@ class TestMatchedFileGeneration:
         self._stub_matchers(monkeypatch)
         task = self._make_task()
         task.run()
-        path = task.metadata["matched_file"]
+        path = task.local_path("matched_file")
         with open(path, encoding="utf-8-sig", newline="") as f:
             rows = list(csv.DictReader(f))
         # Ownership=o -> COMPLETE; collect_date copied from Purchase Date
@@ -217,7 +217,7 @@ class TestMatchedFileGeneration:
         self._stub_matchers(monkeypatch)
         task = self._make_task()
         task.run()
-        path = task.metadata["matched_file"]
+        path = task.local_path("matched_file")
         with open(path, encoding="utf-8-sig", newline="") as f:
             rows = list(csv.DictReader(f))
         # Radiohead row had no Purchase Date -> collect_date defaults to ~today-7d
@@ -231,7 +231,7 @@ class TestMatchedFileGeneration:
         )
         task = self._make_task()
         task.run()
-        path = task.metadata["matched_file"]
+        path = task.local_path("matched_file")
         with open(path, encoding="utf-8-sig", newline="") as f:
             rows = list(csv.DictReader(f))
         assert all(r["match_source"] == "musicbrainz" for r in rows)

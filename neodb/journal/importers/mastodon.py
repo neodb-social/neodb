@@ -446,7 +446,7 @@ class MastodonImporter(BaseImporter):
     # ---- run --------------------------------------------------------------
 
     def run(self) -> None:
-        items, media = self._load(self.metadata["file"])
+        items, media = self._load(self.local_path())
         activities = self._plan(items)
 
         self.metadata["total"] = len(activities)

@@ -9,7 +9,7 @@ from django.utils.text import slugify
 from lxml import etree
 
 from common.models import SiteConfig
-from common.utils import GenerateDateUUIDMediaFilePath
+from common.storage import generate_media_key, media_file_writer
 from journal.models import Article
 from users.models import Task
 
@@ -227,14 +227,12 @@ class WordpressExporter(Task):
                 self._add_thumbnail_meta(item, attachment_id)
             total += 1
 
-        filename = GenerateDateUUIDMediaFilePath(
-            "f.xml", settings.MEDIA_ROOT + "/" + settings.EXPORT_FILE_PATH_ROOT
-        )
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        etree.ElementTree(root).write(
-            filename, xml_declaration=True, encoding="UTF-8", pretty_print=True
-        )
-        self.metadata["file"] = filename
+        key = generate_media_key(settings.EXPORT_FILE_PATH_ROOT, f"{self.filename}.xml")
+        with media_file_writer(key) as filename:
+            etree.ElementTree(root).write(
+                filename, xml_declaration=True, encoding="UTF-8", pretty_print=True
+            )
+        self.metadata["file"] = key
         self.metadata["total"] = total
         self.message = f"{total} articles exported."
         self.save()
