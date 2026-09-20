@@ -18,7 +18,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
 
-from common.storage import media_exists, media_key, media_url, save_upload
+from common.storage import (
+    media_exists,
+    media_key,
+    media_url,
+    open_media,
+    save_media_file,
+    save_upload,
+)
 from journal.exporters import NdjsonExporter
 from journal.importers import GoodreadsImporter
 from users.models import Task, User
@@ -43,6 +50,10 @@ class RemoteStorage(Storage):
 
     def _open(self, name, mode="rb"):
         return File(open(self._full(name), mode))
+
+    def get_available_name(self, name, max_length=None):
+        # S3 overwrites a key rather than renaming around it
+        return name
 
     def _save(self, name, content):
         full = self._full(name)
@@ -121,6 +132,51 @@ class TestRemoteMediaBackend:
         assert task.delete_files() is True
         assert not media_exists(key)
 
+    def test_a_file_written_before_s3_is_read_from_disk(
+        self, remote_storage, settings, tmp_path
+    ):
+        """An instance that already ran on s3 wrote its uploads locally."""
+        settings.MEDIA_ROOT = str(tmp_path / "media")
+        old = tmp_path / "media" / "sync" / "2024" / "01" / "01x.csv"
+        old.parent.mkdir(parents=True)
+        old.write_text("Title,Author\n")
+        task = GoodreadsImporter.create(self.user, visibility=0, file=str(old))
+        # nothing of it is in the bucket, and it still has to import
+        assert not media_exists(str(tmp_path / "media" / "sync" / "gone.csv"))
+        assert media_exists(str(old))
+        assert task.local_path() == str(old)
+        assert task.delete_files() is True
+
+    def test_a_replacement_lands_on_the_same_key(self, remote_storage, tmp_path):
+        key = save_upload(
+            SimpleUploadedFile("x.csv", b"one\n"), settings.SYNC_FILE_PATH_ROOT, "x.csv"
+        )
+        edited = tmp_path / "edited.csv"
+        edited.write_text("two\n")
+        assert save_media_file(str(edited), key) == key
+        with open_media(key) as f:
+            assert f.read() == b"two\n"
+
+    def test_a_failed_replacement_keeps_the_old_object(
+        self, remote_storage, tmp_path, monkeypatch
+    ):
+        """A matched file holds every row the user has corrected so far."""
+        key = save_upload(
+            SimpleUploadedFile("x.csv", b"one\n"), settings.SYNC_FILE_PATH_ROOT, "x.csv"
+        )
+        edited = tmp_path / "edited.csv"
+        edited.write_text("two\n")
+
+        def _fail(self, name, content):
+            raise OSError("upload failed")
+
+        monkeypatch.setattr(RemoteStorage, "_save", _fail)
+        with pytest.raises(OSError):
+            save_media_file(str(edited), key)
+        monkeypatch.undo()
+        with open_media(key) as f:
+            assert f.read() == b"one\n"
+
     def test_export_is_stored_and_served_by_redirect(self, remote_storage):
         exporter = NdjsonExporter.create(self.user)
         exporter.run()
@@ -187,6 +243,24 @@ class TestLocalMediaBackend:
         task = GoodreadsImporter.create(self.user, visibility=0, file=str(outside))
         assert task.delete_files() is True
         assert outside.parent.exists()
+
+    def test_a_replacement_keeps_the_key_and_the_old_content_until_it_lands(
+        self, tmp_path
+    ):
+        key = "export/sitemap.txt"
+        first = tmp_path / "first.txt"
+        first.write_text("one\n")
+        assert save_media_file(str(first), key) == key
+        second = tmp_path / "second.txt"
+        second.write_text("two\n")
+        assert save_media_file(str(second), key) == key
+        # the local backend renames around a collision, so a stray copy of
+        # either write beside the key would mean the swap did not happen
+        assert sorted(p.name for p in (tmp_path / "export").iterdir()) == [
+            "sitemap.txt"
+        ]
+        with open_media(key) as f:
+            assert f.read() == b"two\n"
 
     def test_path_outside_media_root_is_left_alone(self, tmp_path):
         outside = tmp_path.parent / "elsewhere.csv"

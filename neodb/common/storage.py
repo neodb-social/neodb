@@ -47,10 +47,10 @@ def generate_media_key(path_root: str, filename: str) -> str:
 
 
 def media_exists(path: str) -> bool:
-    key = media_key(path)
-    if os.path.isabs(key):
-        return os.path.exists(key)
-    return default_storage.exists(key)
+    local = local_media_path(path)
+    if local is not None:
+        return os.path.exists(local)
+    return default_storage.exists(media_key(path))
 
 
 def media_url(path: str) -> str:
@@ -58,10 +58,22 @@ def media_url(path: str) -> str:
 
 
 def local_media_path(path: str) -> str | None:
-    """The filesystem path of a stored file, or None on a remote backend."""
-    key = media_key(path)
-    if os.path.isabs(key):
-        return key
+    """The filesystem path of a stored file, or None on a remote backend.
+
+    A path written before s3 support is absolute, and resolves from disk for
+    as long as the file is there, whatever the backend is now: an instance
+    that already ran on s3 wrote its uploads locally, and those imports and
+    matched files have to keep working after the upgrade.
+    """
+    if not os.path.isabs(path):
+        key = path
+    elif os.path.exists(path):
+        return path
+    else:
+        key = media_key(path)
+        if os.path.isabs(key):
+            # below no media root, so no backend can hold it either
+            return path
     try:
         return default_storage.path(key)
     except NotImplementedError:
@@ -78,16 +90,22 @@ def save_upload(upload: File, path_root: str, filename: str) -> str:
 def save_media_file(local_path: str, key: str) -> str:
     """Copy a local file into storage at exactly ``key``, replacing any object.
 
-    ``Storage.save()`` renames around a collision, so an object already there
-    is removed first: the key is the one the caller has recorded.
+    Nothing is removed before the new content is safely stored, so a write
+    that fails leaves the previous object in place. S3 overwrites the key;
+    the local filesystem renames around it instead, and that copy is then
+    moved over the old one, which is atomic.
     """
-    if default_storage.exists(key):
-        default_storage.delete(key)
     with open(local_path, "rb") as f:
         saved = default_storage.save(key, File(f))
-    if saved != key:
-        logger.warning(f"stored {local_path} as {saved}, not {key}")
-    return saved
+    if saved == key:
+        return key
+    source = local_media_path(saved)
+    target = local_media_path(key)
+    if source is None or target is None:
+        default_storage.delete(saved)
+        raise RuntimeError(f"{key} cannot be replaced: it was stored as {saved}")
+    os.replace(source, target)
+    return key
 
 
 def open_media(path: str, mode: str = "rb") -> File:

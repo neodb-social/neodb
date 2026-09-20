@@ -2,6 +2,7 @@ import asyncio
 import csv
 import datetime
 import fcntl
+import hashlib
 import logging
 import os
 import re
@@ -20,8 +21,10 @@ from catalog.sites.spotify import Spotify
 from common.models import SiteConfig
 from common.storage import (
     local_media_file,
+    local_media_path,
     media_exists,
     media_file_writer,
+    media_key,
 )
 from journal.models import Mark, Review, ShelfType
 from users.models import Task
@@ -497,22 +500,35 @@ def int_or_zero(v) -> int:
         return 0
 
 
+def _matched_file_lock_path(path: str) -> str:
+    """Where to lock a read-modify-write of ``path``.
+
+    A local file locks on a sibling ``<path>.lock``, which serialises every
+    process that mounts the media directory. A remote one has no such shared
+    place, so its lock is one file per key in the temporary directory, and
+    covers the processes on this host.
+    """
+    local = local_media_path(path)
+    if local is not None:
+        return local + ".lock"
+    digest = hashlib.sha1(media_key(path).encode(), usedforsecurity=False).hexdigest()
+    return os.path.join(tempfile.gettempdir(), f"neodb-matched-{digest}.lock")
+
+
 def update_row_in_matched_file(path: str, index: int, updates: dict) -> dict | None:
     """Apply ``updates`` to the ``index``-th data row of ``path`` (atomic rewrite).
 
-    Wraps the read-modify-write in an exclusive ``fcntl.flock`` on a sibling
-    ``<path>.lock`` so concurrent HTMX saves from the same user can't clobber
-    each other. A remote media backend is fetched and stored back around that,
-    and there the lock guards only this call's own copy: two saves racing from
-    different processes can still lose one edit, as they already could when
-    they landed on different hosts.
+    Wraps the read-modify-write in an exclusive ``fcntl.flock`` so concurrent
+    HTMX saves from the same user can't clobber each other. A remote media
+    backend is fetched and stored back inside that lock, because there the
+    whole round trip is what has to be serialised.
 
     Returns the updated row, or None if the index is out of range.
     """
-    with local_media_file(path, writable=True) as local_path:
-        lock_path = local_path + ".lock"
-        with open(lock_path, "a+") as lock_fp:
-            fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
+    lock_path = _matched_file_lock_path(path)
+    with open(lock_path, "a+") as lock_fp:
+        fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
+        with local_media_file(path, writable=True) as local_path:
             return _update_row_locked(local_path, index, updates)
 
 
