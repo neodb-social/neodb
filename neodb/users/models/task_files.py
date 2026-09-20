@@ -34,6 +34,10 @@ logger = logging.getLogger(__name__)
 #: useless: an export archive carries the owner's actor private key.
 DOWNLOAD_URL_EXPIRY = 300
 
+#: Read an object larger than this to disk rather than holding it in the
+#: worker's memory. Import archives run to hundreds of megabytes.
+SPOOL_TO_DISK_ABOVE = 16 * 1024 * 1024
+
 
 def _on_s3() -> bool:
     return settings.MEDIA_BACKEND.startswith("s3")
@@ -51,10 +55,22 @@ def _s3_task_storage() -> S3Storage:
 
     An empty configured ACL means the bucket has ACLs disabled and is governed
     by a policy instead; sending "private" there is rejected, so the ACL is
-    only tightened when one is in use at all.
+    only tightened when one is in use at all. An ACL cannot override a bucket
+    policy that already grants anonymous reads across the whole bucket, which
+    is what the self-hosted examples in docs/storage.md set up, so that page
+    also says how to keep these two prefixes out of such a policy.
+
+    ``max_memory_size`` matters more than it looks: django-storages reads an
+    object into a SpooledTemporaryFile, and the default of 0 means the spool
+    never rolls over, so a whole import archive would sit in the worker's
+    memory. A threshold keeps anything bigger on disk.
     """
     acl = "private" if settings.MEDIA_BACKEND_S3_ACL else None
-    return S3Storage(default_acl=acl, querystring_auth=True)
+    return S3Storage(
+        default_acl=acl,
+        querystring_auth=True,
+        max_memory_size=SPOOL_TO_DISK_ABOVE,
+    )
 
 
 def _storage() -> Storage:
@@ -309,6 +325,10 @@ def download_url(path: str, filename: str = "", content_type: str = "") -> str |
         signer = S3Storage(
             custom_domain=None,
             querystring_auth=True,
+            # pinned, because botocore still resolves some regions to the
+            # v2 scheme for a presigned URL, which a modern bucket rejects
+            signature_version="s3v4",
+            max_memory_size=SPOOL_TO_DISK_ABOVE,
             **({"endpoint_url": endpoint} if endpoint else {}),
         )
         return signer.url(path, parameters=overrides, expire=DOWNLOAD_URL_EXPIRY)

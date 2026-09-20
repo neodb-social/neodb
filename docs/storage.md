@@ -177,8 +177,9 @@ export AWS_SECRET_ACCESS_KEY=change_password
 export AWS_DEFAULT_REGION=us-east-1
 aws --endpoint-url http://localhost:7070 s3 mb s3://media
 aws --endpoint-url http://localhost:7070 s3api put-bucket-policy --bucket media \
-  --policy '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::media/*"}]}'
+  --policy '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":["arn:aws:s3:::media/item/*","arn:aws:s3:::media/user/*","arn:aws:s3:::media/upload/*","arn:aws:s3:::media/attachments/*","arn:aws:s3:::media/attachment_thumbnails/*","arn:aws:s3:::media/profile_images/*","arn:aws:s3:::media/background_images/*","arn:aws:s3:::media/emoji/*"]}]}'
 ```
+The policy names each media prefix instead of the whole bucket, so that it leaves out `sync/` and `export/`. See [import and export files](#import-and-export-files) for why those two must not be readable by anonymous users.
 
 Add these settings to `.env`:
 ```
@@ -259,7 +260,11 @@ s2/data/media/
 ├── config/                   ┘
 └── .meta/                      written by S2
 ```
-`sync/` holds the files users upload to import, and `export/` the archives NeoDB generates for them. They go to the bucket like everything else, so the web processes and the workers do not need a shared volume between them and may run on different hosts. Both are covered by the `task_cleanup_days` setting: the daily task cleanup deletes each file together with the task that owns it, wherever it lives. An export is downloaded through a signed link which expires after five minutes, so the archive, which contains the account's private key, does not need to be readable by the public.
+### Import and export files
+
+`sync/` holds the files users upload to import, and `export/` the archives NeoDB generates for them. They go to the bucket like everything else, so the web processes and the workers do not need a shared volume between them and may run on different hosts. Both are covered by the `task_cleanup_days` setting: the daily task cleanup deletes each file together with the task that owns it, wherever it lives.
+
+**Keep these two prefixes out of any policy which grants anonymous reads.** An export archive holds the account's ActivityPub private key, which is what proves the account's identity to every other server. NeoDB writes these objects with a `private` ACL and hands them out through a link that expires after five minutes, but an ACL does not override a bucket policy: a rule allowing `s3:GetObject` on `media/*` makes the archives readable by anyone who learns the key, expiry or not. Grant anonymous reads on the media prefixes only, as the VersityGW example above does. The same applies to the anonymous identities in the SeaweedFS and S2 examples, which is why those two suit an instance whose users do not export.
 
 The two applications use different names at this level, thus their files do not conflict. S2 keeps in `.meta` the metadata of each file it receives through the S3 API. The files you move have no entry there, and S2 finds their content type from the file extension.
 
