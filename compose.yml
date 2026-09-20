@@ -259,6 +259,13 @@ services:
     <<: *neodb-service
     command: takahe-manage runstator
     stop_signal: SIGINT
+    # A Delete(actor) broadcast opens one connection per unacquainted peer,
+    # up to 200 at a time per identity, so the default soft limit of some
+    # hosts is not enough.
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -310,6 +317,13 @@ services:
     <<: *dev-neodb-service
     command: takahe-manage runstator
     stop_signal: SIGINT
+    # A Delete(actor) broadcast opens one connection per unacquainted peer,
+    # up to 200 at a time per identity, so the default soft limit of some
+    # hosts is not enough.
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   dev-nginx:
     <<: *dev-neodb-service
