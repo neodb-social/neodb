@@ -176,6 +176,17 @@ class TestLocalMediaBackend:
         task = GoodreadsImporter.create(self.user, visibility=0, file=str(old))
         assert task.local_path() == str(old)
         assert task.delete_files() is True
+        # the emptied date directories go too, the media root never does
+        assert not (tmp_path / "sync").exists()
+        assert tmp_path.exists()
+
+    def test_deleting_a_file_from_elsewhere_keeps_its_directory(self, tmp_path):
+        outside = tmp_path.parent / "elsewhere" / "export.csv"
+        outside.parent.mkdir(exist_ok=True)
+        outside.write_text("Title,Author\n")
+        task = GoodreadsImporter.create(self.user, visibility=0, file=str(outside))
+        assert task.delete_files() is True
+        assert outside.parent.exists()
 
     def test_path_outside_media_root_is_left_alone(self, tmp_path):
         outside = tmp_path.parent / "elsewhere.csv"

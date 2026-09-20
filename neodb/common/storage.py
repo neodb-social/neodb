@@ -100,10 +100,13 @@ def open_media(path: str, mode: str = "rb") -> File:
 
 def delete_media(path: str) -> bool:
     """Delete a stored file. Returns True if something was deleted."""
+    key = media_key(path)
     local = local_media_path(path)
     if local is not None:
-        return _delete_local_path(local)
-    key = media_key(path)
+        # prune only the directories the key itself introduced, never one
+        # above them: a path from outside the media root introduced none
+        levels = 0 if os.path.isabs(key) else key.count("/")
+        return _delete_local_path(local, levels)
     if not default_storage.exists(key):
         return False
     default_storage.delete(key)
@@ -111,14 +114,14 @@ def delete_media(path: str) -> bool:
     return True
 
 
-def _delete_local_path(file_path: str) -> bool:
+def _delete_local_path(file_path: str, prune_levels: int = 0) -> bool:
     try:
         if os.path.isfile(file_path):
             os.remove(file_path)
             logger.debug(f"Deleted file {file_path}")
             # Remove parent directories if empty (uuid and date dirs)
             parent = os.path.dirname(file_path)
-            for _ in range(4):  # up to 4 levels (uuid/day/month/year)
+            for _ in range(prune_levels):
                 if parent and os.path.isdir(parent) and not os.listdir(parent):
                     os.rmdir(parent)
                     logger.debug(f"Removed empty directory {parent}")
