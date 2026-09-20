@@ -125,18 +125,36 @@ def overwrite_task_file(path: str, content: bytes) -> None:
     ``save`` keeps the key instead of picking a suffixed name, and the object
     only changes once the upload succeeds.
     """
-    if not is_stored(path):
-        directory = os.path.dirname(path) or "."
+    local = _local_path(path)
+    if local is not None:
+        directory = os.path.dirname(local) or "."
+        os.makedirs(directory, exist_ok=True)
         fd, tmp = tempfile.mkstemp(dir=directory)
         try:
             with os.fdopen(fd, "wb") as f:
                 f.write(content)
-            os.replace(tmp, path)
+            os.replace(tmp, local)
         except Exception:
             discard(tmp)
             raise
         return
     _storage().save(path, ContentFile(content))
+
+
+def _local_path(path: str) -> str | None:
+    """The filesystem path behind ``path``, when the storage has one.
+
+    A key on the local backend still resolves to a real file, and rewriting it
+    through ``Storage.save`` would not overwrite: FileSystemStorage picks a
+    suffixed name and leaves every recorded reference on the stale file. S3
+    raises NotImplementedError here and takes the overwriting PUT instead.
+    """
+    if not is_stored(path):
+        return path
+    try:
+        return _storage().path(path)
+    except NotImplementedError:
+        return None
 
 
 def copy_task_file(src: str, dst: str) -> str:
