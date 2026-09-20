@@ -1,4 +1,5 @@
 import pytest
+from urllib.parse import unquote
 from django.test import Client, override_settings
 from django.urls import reverse
 
@@ -39,7 +40,7 @@ def test_export_download_streams_the_generated_file(tmp_path):
     archive.write_bytes(b"PK\x05\x06" + b"\x00" * 18)
     task = _completed_export(user, str(archive))
 
-    with override_settings(MEDIA_ROOT=str(tmp_path)):
+    with override_settings(MEDIA_ROOT=str(tmp_path), DEBUG=True):
         response = client.get(
             reverse("users:user_task_download", args=["journal.ndjsonexporter"])
         )
@@ -60,13 +61,51 @@ def test_export_download_survives_an_absolute_media_url(tmp_path):
     _completed_export(user, str(archive))
 
     with override_settings(
-        MEDIA_ROOT=str(tmp_path), MEDIA_URL="https://cdn.example.com/"
+        MEDIA_ROOT=str(tmp_path), MEDIA_URL="https://cdn.example.com/", DEBUG=True
     ):
         response = client.get(
             reverse("users:user_task_download", args=["journal.ndjsonexporter"])
         )
 
     assert response.status_code == 200
+    assert _read(response) == b"payload"
+
+
+def test_export_download_is_offloaded_to_nginx_in_production(tmp_path):
+    """Streaming a large archive would occupy a gunicorn worker for the whole
+    download, and the arbiter kills one that stays in a request past --timeout,
+    truncating the file. nginx serves it from an internal location instead."""
+    user, client = _member("accelexporter")
+    archive = tmp_path / "export" / "e.zip"
+    archive.parent.mkdir()
+    archive.write_bytes(b"payload")
+    task = _completed_export(user, str(archive))
+
+    with override_settings(MEDIA_ROOT=str(tmp_path), DEBUG=False):
+        response = client.get(
+            reverse("users:user_task_download", args=["journal.ndjsonexporter"])
+        )
+
+    assert response.status_code == 200
+    assert response["X-Accel-Redirect"] == "/__neodb_task__/export/e.zip"
+    assert response["Content-Type"] == "application/zip"
+    assert f"{task.filename}.zip" in unquote(response["Content-Disposition"])
+
+
+def test_export_download_outside_media_root_is_streamed(tmp_path):
+    """Nothing to alias: the internal location only covers MEDIA_ROOT."""
+    user, client = _member("outsideexporter")
+    archive = tmp_path / "elsewhere.zip"
+    archive.write_bytes(b"payload")
+    _completed_export(user, str(archive))
+
+    with override_settings(MEDIA_ROOT=str(tmp_path / "media"), DEBUG=False):
+        response = client.get(
+            reverse("users:user_task_download", args=["journal.ndjsonexporter"])
+        )
+
+    assert response.status_code == 200
+    assert "X-Accel-Redirect" not in response
     assert _read(response) == b"payload"
 
 

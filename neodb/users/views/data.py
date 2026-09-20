@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import zipfile
+from urllib.parse import quote
 
 import django_rq
 from django.conf import settings
@@ -266,14 +267,22 @@ def _serve_generated_file(
 ) -> HttpResponseBase:
     """Hand the browser a file a task generated.
 
-    On S3 the browser is redirected straight to the object with a signed,
-    short-lived URL, so the bytes never cross the app server and the object
-    itself stays private -- an export archive carries the owner's actor
-    private key. On a local backend there is nothing to sign, so it is
-    streamed instead; gunicorn turns that into a sendfile(2).
+    Three ways out, in order of how much work the app server does.
 
-    This replaced an ``X-Accel-Redirect`` to ``MEDIA_URL + relpath``, which
-    only worked while MEDIA_URL was the local ``/m/`` prefix nginx aliases.
+    On S3 the browser goes straight to the object with a signed, short-lived
+    URL, so the bytes never cross the app server and the object stays private
+    -- an export archive carries the owner's actor private key.
+
+    On a local backend nginx serves it, through an internal location the
+    browser cannot request directly. The old code did this too, but named the
+    target with MEDIA_URL, which stops being a local path the moment media
+    moves to a bucket; the prefix here is fixed and always local.
+
+    Streaming is the fallback for anything else, such as a file outside
+    MEDIA_ROOT or a development server with no nginx in front. It is correct
+    everywhere but occupies a worker for the whole download, and gunicorn's
+    arbiter kills a worker that spends longer than --timeout inside one
+    request, which would truncate a large archive.
     """
     if not task_file_exists(path):
         messages.add_message(
@@ -283,12 +292,46 @@ def _serve_generated_file(
     url = download_url(path, filename, content_type)
     if url:
         return redirect(url)
+    accel = _accel_path(path)
+    if accel:
+        response = HttpResponse()
+        response["X-Accel-Redirect"] = accel
+        response["Content-Type"] = content_type
+        response["Content-Disposition"] = (
+            f"attachment; filename*=UTF-8''{quote(filename)}"
+        )
+        return response
     return FileResponse(
         open_task_file(path),
         content_type=content_type,
         as_attachment=True,
         filename=filename,
     )
+
+
+#: Matches the internal location in misc/nginx.conf.d/*.conf, which aliases it
+#: to NEODB_MEDIA_ROOT. Fixed rather than derived from MEDIA_URL, because that
+#: becomes a bucket URL on S3 and nginx cannot redirect to one internally.
+TASK_ACCEL_PREFIX = "/__neodb_task__/"
+
+
+def _accel_path(path: str) -> str | None:
+    """Where nginx should read a locally stored task file from, if it can.
+
+    None under DEBUG, where the development server answers directly and would
+    send an empty body with a header nothing acts on, and None for a file that
+    does not sit below MEDIA_ROOT, which the internal location is aliased to.
+    """
+    if settings.DEBUG:
+        return None
+    root = os.path.realpath(settings.MEDIA_ROOT)
+    absolute = os.path.realpath(
+        path if os.path.isabs(path) else os.path.join(root, path)
+    )
+    rel = os.path.relpath(absolute, root)
+    if rel.startswith(os.pardir) or not os.path.isfile(absolute):
+        return None
+    return TASK_ACCEL_PREFIX + quote(rel)
 
 
 @login_required
