@@ -56,6 +56,12 @@ def open_task_file(path: str, mode: str = "rb") -> IO[Any]:
     return open(path, mode)
 
 
+def read_task_file(path: str) -> bytes:
+    """The whole file, for callers that want bytes rather than a handle."""
+    with open_task_file(path) as f:
+        return f.read()
+
+
 def exists(path: str) -> bool:
     if not path:
         return False
@@ -94,6 +100,31 @@ def copy_task_file(src: str, dst: str) -> str:
         return default_storage.save(dst, File(f))
 
 
+def stage_locally(path: str) -> str:
+    """Copy a stored object to a temp file and return its path.
+
+    The caller owns the file; ``Task.local_file`` ties it to the task's
+    lifetime. Use ``local_copy`` instead wherever the scope is a block.
+    """
+    suffix = os.path.splitext(path)[1]
+    fd, tmp = tempfile.mkstemp(suffix=suffix)
+    os.close(fd)
+    try:
+        with default_storage.open(path, "rb") as src, open(tmp, "wb") as dst:
+            shutil.copyfileobj(src, dst)
+    except Exception:
+        with contextlib.suppress(OSError):
+            os.remove(tmp)
+        raise
+    return tmp
+
+
+def discard(path: str) -> None:
+    """Remove a staged temp file, ignoring a file that is already gone."""
+    with contextlib.suppress(OSError):
+        os.remove(path)
+
+
 @contextlib.contextmanager
 def local_copy(path: str) -> Iterator[str]:
     """Yield a real filesystem path for ``path``.
@@ -105,16 +136,11 @@ def local_copy(path: str) -> Iterator[str]:
     if not is_stored(path):
         yield path
         return
-    suffix = os.path.splitext(path)[1]
-    fd, tmp = tempfile.mkstemp(suffix=suffix)
-    os.close(fd)
+    tmp = stage_locally(path)
     try:
-        with default_storage.open(path, "rb") as src, open(tmp, "wb") as dst:
-            shutil.copyfileobj(src, dst)
         yield tmp
     finally:
-        with contextlib.suppress(OSError):
-            os.remove(tmp)
+        discard(tmp)
 
 
 def delete_task_file(path: str) -> bool:

@@ -43,6 +43,11 @@ from journal.search import JournalIndex
 from takahe.models import PostAttachment
 from takahe.utils import Takahe
 from users.models import Task, User
+from users.models.task_files import (
+    exists as task_file_exists,
+    open_task_file,
+    read_task_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -317,12 +322,12 @@ class TestNdjsonExportImport:
         exporter.run()
         export_path = exporter.metadata["file"]
         logger.debug(f"exported to {export_path}")
-        assert os.path.exists(export_path)
+        assert task_file_exists(export_path)
         assert exporter.metadata["total"] == 61
 
         # Validate the NDJSON export file structure
         with TemporaryDirectory() as extract_dir:
-            with zipfile.ZipFile(export_path, "r") as zip_ref:
+            with zipfile.ZipFile(BytesIO(read_task_file(export_path))) as zip_ref:
                 zip_ref.extractall(extract_dir)
                 logger.debug(f"unzipped to {extract_dir}")
 
@@ -658,7 +663,7 @@ class TestNdjsonExportImport:
         export_path = exporter.metadata["file"]
 
         # Bundle should advertise both Article rows on the journal stream.
-        with zipfile.ZipFile(export_path, "r") as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(export_path))) as zf:
             with TemporaryDirectory() as tmpdir:
                 zf.extractall(tmpdir)
                 journal_path = next(
@@ -752,7 +757,7 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
 
-        with zipfile.ZipFile(exporter.metadata["file"], "r") as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(exporter.metadata["file"]))) as zf:
             catalog = zf.read("catalog.ndjson").decode()
         assert self.book1.absolute_url in catalog
 
@@ -855,7 +860,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(exporter.metadata["file"]))) as zf:
             journal = zf.read("journal.ndjson").decode()
         types = {json.loads(line)["type"] for line in journal.splitlines()[1:]}
         assert "Comment" in types
@@ -874,7 +879,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(exporter.metadata["file"]))) as zf:
             catalog = zf.read("catalog.ndjson").decode()
         assert self.book1.absolute_url in catalog
 
@@ -1002,7 +1007,7 @@ class TestNdjsonExportImport:
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
         export_path = exporter.metadata["file"]
-        with zipfile.ZipFile(export_path) as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(export_path))) as zf:
             journal = zf.read("journal.ndjson").decode()
         exported_types = {
             json.loads(line)["type"]
@@ -1076,7 +1081,7 @@ class TestNdjsonExportImport:
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
             export_path = exporter.metadata["file"]
-            with zipfile.ZipFile(export_path) as zf:
+            with zipfile.ZipFile(BytesIO(read_task_file(export_path))) as zf:
                 assert any(
                     n.startswith("attachments/") and n.endswith(".png")
                     for n in zf.namelist()
@@ -1157,7 +1162,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+        with zipfile.ZipFile(BytesIO(read_task_file(exporter.metadata["file"]))) as zf:
             journal = zf.read("journal.ndjson").decode()
         shelf_members = [
             json.loads(line)
@@ -1219,7 +1224,9 @@ class TestNdjsonExportImport:
 
             exporter = NdjsonExporter.create(user=self.user1)
             exporter.run()
-            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            with zipfile.ZipFile(
+                BytesIO(read_task_file(exporter.metadata["file"]))
+            ) as zf:
                 names = zf.namelist()
                 journal = zf.read("journal.ndjson").decode()
             assert any(
@@ -1720,7 +1727,9 @@ class TestNdjsonExportImport:
                 return_value=(None, ""),
             ):
                 exporter.run()
-            with zipfile.ZipFile(exporter.metadata["file"]) as zf:
+            with zipfile.ZipFile(
+                BytesIO(read_task_file(exporter.metadata["file"]))
+            ) as zf:
                 journal = zf.read("journal.ndjson").decode()
             record = next(
                 r
@@ -1826,7 +1835,7 @@ class TestNdjsonExportImport:
 
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with zipfile.ZipFile(exporter.metadata["file"]) as z:
+        with zipfile.ZipFile(BytesIO(read_task_file(exporter.metadata["file"]))) as z:
             lines = z.read("journal.ndjson").decode().strip().split("\n")
         posts = [
             json.loads(ln) for ln in lines[1:] if json.loads(ln).get("type") == "post"
@@ -2048,7 +2057,7 @@ class TestNdjsonExportImport:
         # and the validator must accept what our own exporter produces
         exporter = NdjsonExporter.create(user=self.user1)
         exporter.run()
-        with open(exporter.metadata["file"], "rb") as f:
+        with open_task_file(exporter.metadata["file"]) as f:
             assert NdjsonImporter.validate_file(
                 SimpleUploadedFile("export.zip", f.read())
             )

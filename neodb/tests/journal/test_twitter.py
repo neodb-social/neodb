@@ -14,6 +14,7 @@ from common.models import SiteConfig
 from journal.importers import TwitterImporter
 from takahe.models import FanOut, Post
 from users.models import User
+from users.models.task_files import open_task_file
 
 
 def _png() -> bytes:
@@ -378,7 +379,7 @@ class TestTwitterImportView:
         assert enqueued == [task.pk]
         assert task.metadata["visibility"] == 1
         assert task.metadata["file"].endswith(".zip")
-        with open(task.metadata["file"], "rb") as f:
+        with open_task_file(task.metadata["file"]) as f:
             assert zipfile.is_zipfile(f)
 
     def test_invalid_upload_rejected(self, client):

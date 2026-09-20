@@ -14,6 +14,7 @@ from common.models import SiteConfig
 from journal.importers import MastodonImporter
 from takahe.models import FanOut, Post
 from users.models import User
+from users.models.task_files import open_task_file
 
 _HOST = "https://mastodon.example"
 _ACTOR = f"{_HOST}/users/masto"
@@ -476,7 +477,7 @@ class TestMastodonImportView:
         assert task is not None
         assert enqueued == [task.pk]
         assert task.metadata["file"].endswith(".zip")
-        with open(task.metadata["file"], "rb") as f:
+        with open_task_file(task.metadata["file"]) as f:
             assert zipfile.is_zipfile(f)
 
     def test_bare_outbox_upload_kept_as_json(

@@ -1,4 +1,5 @@
 import logging
+import weakref
 from typing import Self
 
 import django_rq
@@ -10,7 +11,7 @@ from user_messages import api as msg
 
 from users.middlewares import activate_language_for_user
 
-from .task_files import delete_task_file, local_copy
+from .task_files import delete_task_file, discard as _discard, is_stored, stage_locally
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -63,9 +64,9 @@ class Task(TypedModel):
         t = cls.objects.create(user=user, metadata=d)
         return t
 
-    #: Backs ``local_file``; set only while ``_run()`` has a staged copy.
-    #: Kept off ``metadata`` on purpose, because a task that saves mid-run
-    #: would otherwise persist a temp path that is gone by the next read.
+    #: Caches the staged copy behind ``local_file``. Kept off ``metadata`` on
+    #: purpose, because several importers save mid-run and would otherwise
+    #: persist a temp path that is gone by the next read.
     _local_file: str = ""
 
     @property
@@ -73,26 +74,29 @@ class Task(TypedModel):
         """A real filesystem path for ``metadata["file"]``.
 
         The recorded path is a storage key, which zipfile, openpyxl and lxml
-        cannot open, so ``_run()`` stages the object to a temp file first.
-        Falling back to the recorded path keeps a directly invoked ``run()``
-        working whenever that path is already local.
+        cannot open, so the object is staged to a temp file on first use and
+        reused for the rest of the run. A path recorded before the files moved
+        into storage is already local and is handed back untouched.
+
+        Staging lazily rather than in ``_run()`` keeps a directly invoked
+        ``run()`` working, which is how the importers are driven from tests
+        and from the ``journal export`` command. The temp file is removed when
+        this instance is collected.
         """
-        return self._local_file or self.metadata.get("file") or ""
+        if self._local_file:
+            return self._local_file
+        path = self.metadata.get("file") or ""
+        if not path or not is_stored(path):
+            return path
+        self._local_file = stage_locally(path)
+        weakref.finalize(self, _discard, self._local_file)
+        return self._local_file
 
     def _run(self) -> bool:
         activate_language_for_user(self.user)
         with set_actor(self.user):
             try:
-                path = self.metadata.get("file") or ""
-                if path:
-                    with local_copy(path) as local:
-                        self._local_file = local
-                        try:
-                            self.run()
-                        finally:
-                            self._local_file = ""
-                else:
-                    self.run()
+                self.run()
                 return True
             except Exception as e:
                 logger.exception(

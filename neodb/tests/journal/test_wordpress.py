@@ -15,6 +15,7 @@ from journal.exporters.wordpress import _NS
 from journal.importers import WordpressImporter
 from journal.models import Article
 from users.models import User
+from users.models.task_files import read_task_file
 
 
 def _png() -> bytes:
@@ -108,7 +109,7 @@ class TestWordpressExport:
     def _export(self):
         exporter = WordpressExporter.create(user=self.user)
         exporter.run()
-        return etree.parse(exporter.metadata["file"]), exporter
+        return etree.parse(BytesIO(read_task_file(exporter.metadata["file"]))), exporter
 
     def test_export_articles(self):
         Article.update_local_article(

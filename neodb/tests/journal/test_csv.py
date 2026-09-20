@@ -12,6 +12,8 @@ from journal.exporters import CsvExporter
 from journal.importers import CsvImporter
 from journal.models import *
 from users.models import User
+from users.models.task_files import exists as task_file_exists, read_task_file
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -165,11 +167,11 @@ class TestCsvExportImport:
         exporter.run()
         export_path = exporter.metadata["file"]
         logger.debug(f"exported to {export_path}")
-        assert os.path.exists(export_path)
+        assert task_file_exists(export_path)
 
         # Validate the number of CSV rows in the export files
         with TemporaryDirectory() as extract_dir:
-            with zipfile.ZipFile(export_path, "r") as zip_ref:
+            with zipfile.ZipFile(BytesIO(read_task_file(export_path))) as zip_ref:
                 zip_ref.extractall(extract_dir)
                 logger.debug(f"unzipped to {extract_dir}")
 
