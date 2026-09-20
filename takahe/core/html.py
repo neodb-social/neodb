@@ -11,31 +11,66 @@ _ALLOWED_SCHEMES = {"http", "https", "mailto"}
 class FediverseHtmlParser(HTMLParser):
     """
     A custom HTML parser that only allows a certain tag subset and behaviour:
-    - br, p tags are passed through
+    - block and inline formatting tags on the passthrough lists are kept, with
+      every attribute dropped, and the output is balanced
     - a tags are passed through if they're not hashtags or mentions
-    - Another set of tags are converted to p
+    - headings are converted to p > strong
+    - any other tag is dropped, keeping its text
 
     It also linkifies URLs, mentions, hashtags, and imagifies emoji.
     """
 
-    REWRITE_TO_P = [
+    # Block-level tags emitted as themselves. Remote instances send lists,
+    # quotes and code blocks; rewriting them all to <p> loses the structure.
+    PASSTHROUGH_BLOCKS = [
         "p",
+        "blockquote",
+        "pre",
+        "ul",
+        "ol",
+        "li",
+    ]
+
+    # Inline formatting emitted as itself. This is Mastodon's allow list less
+    # span, which stays dropped so that <span>#</span>tag still reads as a
+    # single hashtag.
+    PASSTHROUGH_INLINE = [
+        "code",
+        "b",
+        "strong",
+        "i",
+        "em",
+        "u",
+        "del",
+        "s",
+        "ruby",
+        "rt",
+        "rp",
+    ]
+
+    # A heading would dominate a post card, so demote it as Mastodon does.
+    REWRITE_TO_STRONG_P = [
         "h1",
         "h2",
         "h3",
         "h4",
         "h5",
         "h6",
-        "blockquote",
-        "pre",
-        "ul",
-        "ol",
     ]
 
     REWRITE_TO_BR = [
         "br",
-        "li",
     ]
+
+    # Closing one of these ends a paragraph in the plain text rendering.
+    TEXT_BLOCK_TAGS = {"p", "blockquote", "pre", "ul", "ol", *REWRITE_TO_STRONG_P}
+
+    # Content of these is literal: no linkifying, hashtags or emoji.
+    LITERAL_TAGS = {"pre", "code"}
+
+    # Every open tag is a level of nesting in the output, and HTMLParser does
+    # not build a tree, so cap it before a hostile post nests without bound.
+    MAX_NESTING = 32
 
     MENTION_REGEX = re.compile(
         r"(^|[^\w\d\-_/])@([\w\d\-_.]+(?:@[\w\d\-_\.]+[\w\d\-_]+)?)"
@@ -83,8 +118,10 @@ class FediverseHtmlParser(HTMLParser):
         self.hashtags: set[str] = set()
         self._pending_a: dict | None = None
         self._fresh_p = False
-        self.feed(html.replace("\n", ""))
+        self._open_tags: list[tuple[str, str]] = []
+        self.feed(html)
         self.flush_data()
+        self.close_all()
 
     def calculate_mentions(self, mentions: list | None):
         """
@@ -113,10 +150,73 @@ class FediverseHtmlParser(HTMLParser):
                 self.mention_matches[f"{username}@{domain}"] = url
                 self.mention_matches[mention.absolute_profile_uri()] = url
 
+    @property
+    def in_literal(self) -> bool:
+        """Whether the parser is inside a tag whose content is verbatim."""
+        return any(tag in self.LITERAL_TAGS for tag, _ in self._open_tags)
+
+    def push_tag(self, tag: str, opening: str, closing: str) -> None:
+        """Emit an opening tag and remember how to close it."""
+        if len(self._open_tags) >= self.MAX_NESTING:
+            return
+        self.html_output += opening
+        self._open_tags.append((tag, closing))
+
+    def close_innermost(self) -> None:
+        self.html_output += self._open_tags.pop()[1]
+
+    def close_tag(self, tag: str) -> None:
+        """Close up to and including the innermost open `tag`, if there is one."""
+        for index in range(len(self._open_tags) - 1, -1, -1):
+            if self._open_tags[index][0] == tag:
+                while len(self._open_tags) > index:
+                    self.close_innermost()
+                return
+
+    def close_all(self) -> None:
+        """Balance the output. Remote HTML leaves tags open more often than not."""
+        while self._open_tags:
+            self.close_innermost()
+
+    def open_block(self, tag: str) -> None:
+        # A <p> holds no block, and an <li> holds no <li>. Remote HTML leans on
+        # the browser to close both, so close them here instead.
+        while self._open_tags and self._open_tags[-1][0] == "p":
+            self.close_innermost()
+        if tag == "li":
+            while self._open_tags and self._open_tags[-1][0] == "li":
+                self.close_innermost()
+            if not self._fresh_p:
+                self.text_output += "\n"
+        if tag in self.REWRITE_TO_STRONG_P:
+            self.push_tag(tag, "<p><strong>", "</strong></p>")
+        else:
+            self.push_tag(tag, f"<{tag}>", f"</{tag}>")
+
+    def handle_emoji_img(self, attrs: dict[str, str | None]) -> None:
+        alt = attrs.get("alt") or ""
+        m = self.IMG_EMOJI_REGEX.match(alt.strip())
+        if not m:
+            return
+        shortcode = m.group(1)
+        if self._pending_a:
+            self._pending_a["content"] += f":{shortcode}:"
+            return
+        self.flush_data()
+        if self.find_emojis:
+            self.html_output += self.create_emoji(shortcode)
+        else:
+            self.html_output += html.escape(f":{shortcode}:")
+        self.text_output += f":{shortcode}:"
+
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in self.REWRITE_TO_P:
-            self.flush_data()
-            self.html_output += "<p>"
+        is_block = tag in self.PASSTHROUGH_BLOCKS or tag in self.REWRITE_TO_STRONG_P
+        if tag == "img":
+            self.handle_emoji_img(dict(attrs))
+        elif self._pending_a is not None:
+            # Keep link labels plain. Markup opened inside <a> would be emitted
+            # ahead of the link that handle_endtag builds from the buffer.
+            pass
         elif tag in self.REWRITE_TO_BR:
             self.flush_data()
             if not self._fresh_p:
@@ -125,28 +225,27 @@ class FediverseHtmlParser(HTMLParser):
         elif tag == "a":
             self.flush_data()
             self._pending_a = {"attrs": dict(attrs), "content": ""}
-        elif tag == "img":
-            alt = dict(attrs).get("alt") or ""
-            m = self.IMG_EMOJI_REGEX.match(alt.strip())
-            if m:
-                shortcode = m.group(1)
-                if self._pending_a:
-                    self._pending_a["content"] += f":{shortcode}:"
-                else:
-                    self.flush_data()
-                    if self.find_emojis:
-                        self.html_output += self.create_emoji(shortcode)
-                    else:
-                        self.html_output += html.escape(f":{shortcode}:")
-                    self.text_output += f":{shortcode}:"
-        self._fresh_p = tag in self.REWRITE_TO_P
+        elif is_block:
+            self.flush_data()
+            self.open_block(tag)
+        elif tag in self.PASSTHROUGH_INLINE:
+            self.flush_data()
+            self.push_tag(tag, f"<{tag}>", f"</{tag}>")
+        self._fresh_p = is_block
 
     def handle_endtag(self, tag: str) -> None:
         self._fresh_p = False
-        if tag in self.REWRITE_TO_P:
+        if tag != "a" and self._pending_a is not None:
+            pass
+        elif (
+            tag in self.PASSTHROUGH_BLOCKS
+            or tag in self.PASSTHROUGH_INLINE
+            or tag in self.REWRITE_TO_STRONG_P
+        ):
             self.flush_data()
-            self.html_output += "</p>"
-            self.text_output += "\n\n"
+            self.close_tag(tag)
+            if tag in self.TEXT_BLOCK_TAGS:
+                self.text_output += "\n\n"
         elif tag == "a":
             if self._pending_a:
                 href = self._pending_a["attrs"].get("href", "#")
@@ -171,6 +270,12 @@ class FediverseHtmlParser(HTMLParser):
                 self._pending_a = None
 
     def handle_data(self, data: str) -> None:
+        if not self.in_literal:
+            # Newlines are insignificant outside <pre>, and dropping them here
+            # rather than before feed() is what lets <pre> keep its own.
+            data = data.replace("\n", "")
+            if not data:
+                return
         self._fresh_p = False
         if self._pending_a:
             self._pending_a["content"] += data
@@ -183,7 +288,10 @@ class FediverseHtmlParser(HTMLParser):
         so we can treat <span>#</span>hashtag as #hashtag
         """
         self.text_output += self._data_buffer
-        self.html_output += self.linkify(self._data_buffer)
+        if self.in_literal:
+            self.html_output += html.escape(self._data_buffer)
+        else:
+            self.html_output += self.linkify(self._data_buffer)
         self._data_buffer = ""
 
     def create_link(self, href, content, has_ellipsis=False):

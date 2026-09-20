@@ -212,7 +212,34 @@ def render_spoiler_text(text, item):
         return None, text or ""
 
 
-_post_allowed_tags = set(["a", "p", "span", "br", "div", "img"])
+# Keep in step with FediverseHtmlParser's passthrough lists, or translating a
+# post strips back out the structure the renderer just kept.
+_post_allowed_tags = set(
+    [
+        "a",
+        "p",
+        "span",
+        "br",
+        "div",
+        "img",
+        "blockquote",
+        "pre",
+        "ul",
+        "ol",
+        "li",
+        "code",
+        "b",
+        "strong",
+        "i",
+        "em",
+        "u",
+        "del",
+        "s",
+        "ruby",
+        "rt",
+        "rp",
+    ]
+)
 
 
 def sanitize_post_content(text: str) -> str:

@@ -3,6 +3,7 @@ import pytest
 from catalog.models import Edition
 from journal.models.renderers import (
     _linkify,
+    _post_allowed_tags,
     normalize_image_src,
     convert_leading_space_in_md,
     has_spoiler,
@@ -13,7 +14,9 @@ from journal.models.renderers import (
     render_text,
     render_title_as_hashtag,
     sanitize_md_images,
+    sanitize_post_content,
 )
+from takahe.html import FediverseHtmlParser
 
 
 def _link(url: str) -> str:
@@ -437,3 +440,25 @@ class TestSanitizeMdImages:
         md = "![img](https://mysite.local/m/upload/1/abc.jpg)"
         result = sanitize_md_images(md)
         assert result == "![img](/m/upload/1/abc.jpg)"
+
+
+class TestSanitizePostContent:
+    """The translation path must not undo what the renderer kept."""
+
+    def test_keeps_structure(self):
+        html = (
+            "<ul><li>One</li></ul><blockquote><p>q</p></blockquote>"
+            "<pre><code>x</code></pre><p><strong>b</strong> <em>i</em></p>"
+        )
+        assert sanitize_post_content(html) == html
+
+    def test_still_drops_scripts_and_handlers(self):
+        assert "script" not in sanitize_post_content("<script>alert(1)</script>")
+        assert "onclick" not in sanitize_post_content('<p onclick="evil()">x</p>')
+
+    def test_allows_everything_the_parser_emits(self):
+        parser_tags = set(FediverseHtmlParser.PASSTHROUGH_BLOCKS) | set(
+            FediverseHtmlParser.PASSTHROUGH_INLINE
+        )
+        missing = parser_tags - _post_allowed_tags
+        assert not missing, f"nh3 would strip tags the renderer keeps: {missing}"

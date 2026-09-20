@@ -4,6 +4,39 @@
 		margin-bottom: 0.5em;
 	}
 
+	// Structure kept from remote posts. Pico styles these for an article, which
+	// is too airy for a timeline card, so tighten the spacing to match p above.
+	ul,
+	ol {
+		margin: 0 0 0.5em;
+		padding-left: 1.5em;
+	}
+
+	li {
+		word-break: break-word;
+	}
+
+	// .note-quote and .quote-post are our own chrome, styled at (0,1,0) further
+	// down. Excluding them keeps this rule from outranking theirs.
+	blockquote:not(.note-quote, .quote-post) {
+		margin: 0 0 0.5em;
+		padding: 0.1em 0 0.1em 0.8em;
+		font-size: unset;
+	}
+
+	pre {
+		margin: 0 0 0.5em;
+		// Wrap rather than scroll. A horizontal scrollbar in a timeline card is
+		// worse than a wrapped line, and a nowrap line would otherwise set the
+		// min-content width of the column the post sits in.
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	code {
+		word-break: break-word;
+	}
+
 	// Page/converted objects: render the linked page card first, then user
 	// content, then image attachments. DOM order is unchanged; only visual
 	// order is reordered so ordinary posts are unaffected.
