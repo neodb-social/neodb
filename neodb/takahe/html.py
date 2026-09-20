@@ -143,6 +143,10 @@ class FediverseHtmlParser(HTMLParser):
                 url = mention.profile_uri
             else:
                 url = str(mention.urls.view)
+            # profile_uri is nullable, and absolute_profile_uri() hands it back
+            # verbatim for a remote identity, so either branch can yield None.
+            # Fall back to the local profile page instead of losing the link.
+            url = url or str(mention.urls.view)
             if mention.username:
                 username = mention.username.lower()
                 domain = mention.domain_id.lower()
@@ -170,13 +174,18 @@ class FediverseHtmlParser(HTMLParser):
     def close_innermost(self) -> None:
         self.html_output += self._open_tags.pop()[1]
 
-    def close_tag(self, tag: str) -> None:
-        """Close up to and including the innermost open `tag`, if there is one."""
+    def close_tag(self, tag: str) -> bool:
+        """Close up to and including the innermost open `tag`.
+
+        False when no such tag was open, either because the closing tag was
+        stray or because the nesting cap dropped the opening one.
+        """
         for index in range(len(self._open_tags) - 1, -1, -1):
             if self._open_tags[index][0] == tag:
                 while len(self._open_tags) > index:
                     self.close_innermost()
-                return
+                return True
+        return False
 
     def close_all(self) -> None:
         """Balance the output. Remote HTML leaves tags open more often than not."""
@@ -251,8 +260,9 @@ class FediverseHtmlParser(HTMLParser):
             or tag in self.REWRITE_TO_STRONG_P
         ):
             self.flush_data()
-            self.close_tag(tag)
-            if tag in self.TEXT_BLOCK_TAGS:
+            # Only break the paragraph for a block that is really in the
+            # output, or the plain text gains blank lines the HTML has not.
+            if self.close_tag(tag) and tag in self.TEXT_BLOCK_TAGS:
                 self.text_output += "\n\n"
         elif tag == "a":
             if self._pending_a:

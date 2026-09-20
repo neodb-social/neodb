@@ -392,6 +392,17 @@ def test_parser_balances_output():
     assert "<li>" not in parser.html
     assert parser.plain_text == "a"
 
+    # Nor may closing a block the cap dropped add a paragraph break. Only the
+    # blockquotes that reached the output may break the text.
+    cap = FediverseHtmlParser.MAX_NESTING
+    over = "<blockquote>" * 40 + "x" + "</blockquote>" * 40 + "<p>after</p>"
+    parser = FediverseHtmlParser(over)
+    assert parser.html.count("<blockquote>") == cap
+    assert parser.plain_text == "x" + "\n\n" * cap + "after"
+
+    # A stray closing tag breaks nothing either
+    assert FediverseHtmlParser("a</blockquote>b").plain_text == "ab"
+
 
 def test_parser_keeps_link_labels_plain():
     """
@@ -404,3 +415,20 @@ def test_parser_keeps_link_labels_plain():
     assert parser.html == (
         '<p><a href="https://example.com/" rel="nofollow">bold link</a></p>'
     )
+
+
+@pytest.mark.django_db
+def test_parser_mention_without_profile_uri(remote_identity):
+    """
+    profile_uri is nullable, so a remote mention must still render as a link
+    """
+
+    remote_identity.profile_uri = None
+    remote_identity.save()
+
+    parser = FediverseHtmlParser(
+        "<p>hi @test@remote.test</p>", mentions=[remote_identity]
+    )
+    assert 'href="/@test@remote.test/"' in parser.html
+    assert parser.plain_text == "hi @test@remote.test"
+    assert parser.mentions == {"test@remote.test"}
