@@ -258,6 +258,8 @@ s2/data/media/
 ├── config/                   ┘
 └── .meta/                      written by S2
 ```
+`sync/` holds the files users upload to import, and `export/` the archives NeoDB generates for them. They go to the bucket like everything else, so the web processes and the workers do not need a shared volume between them and may run on different hosts. Both are covered by the `task_cleanup_days` setting: the daily task cleanup deletes each file together with the task that owns it, wherever it lives. An export is downloaded through a signed link which expires after five minutes, so the archive, which contains the account's private key, does not need to be readable by the public.
+
 The two applications use different names at this level, thus their files do not conflict. S2 keeps in `.meta` the metadata of each file it receives through the S3 API. The files you move have no entry there, and S2 finds their content type from the file extension.
 
 S2 gives the files it did not write a placeholder ETag. It also does not answer conditional requests, thus a browser gets the full file each time instead of a `304`. The example above turns the web console off; remove `S2_SERVER_CONSOLE_LISTEN` to get it on port 9001.

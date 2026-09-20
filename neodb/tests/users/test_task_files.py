@@ -41,6 +41,16 @@ class TestPathKinds:
         assert not is_stored("/www/m/sync/2026/09/19/abc.csv")
         assert not is_stored("")
 
+    def test_a_relative_path_to_a_real_file_is_local(self, tmp_path, monkeypatch):
+        """A management command or a test may pass one, and it is not a key."""
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "test_data").mkdir()
+        (tmp_path / "test_data" / "export.csv").write_text("a,b\n")
+
+        assert not is_stored("test_data/export.csv")
+        with local_copy("test_data/export.csv") as local:
+            assert local == "test_data/export.csv"
+
 
 class TestRoundTrip:
     def test_saved_file_is_readable_and_deletable(self, tmp_path):

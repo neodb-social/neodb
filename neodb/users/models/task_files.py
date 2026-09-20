@@ -34,8 +34,18 @@ DOWNLOAD_URL_EXPIRY = 300
 
 
 def is_stored(path: str) -> bool:
-    """True when ``path`` is a storage key rather than a legacy local path."""
-    return bool(path) and not os.path.isabs(path)
+    """True when ``path`` is a storage key rather than a local file.
+
+    Keys are relative, and the absolute paths recorded before the files moved
+    into storage are not. A relative path that resolves to a real file is
+    local too: a management command or a test may pass one, and reading it
+    from disk is what the caller meant. A key never collides with that,
+    because ``sync/`` and ``export/`` do not exist below the working
+    directory.
+    """
+    if not path or os.path.isabs(path):
+        return False
+    return not os.path.isfile(path)
 
 
 def save_task_file(content: File, filename: str, path_root: str) -> str:
