@@ -20,13 +20,15 @@ from users.jobs.cleanup import prune_tasks
 from users.models import Task, User
 from users.models.task_files import (
     copy_task_file,
-    download_url,
     delete_task_file,
+    discard,
+    download_url,
     exists,
     is_stored,
     local_copy,
     overwrite_task_file,
     save_task_file,
+    stage_locally,
 )
 
 pytestmark = pytest.mark.django_db(databases="__all__")
@@ -67,18 +69,49 @@ class TestRoundTrip:
             assert delete_task_file(key)
             assert not exists(key)
 
-    def test_local_copy_stages_a_stored_file_and_cleans_up(self, tmp_path):
+    def test_staging_copies_out_and_keeps_the_extension(self, tmp_path):
+        """What a remote backend goes through, where there is no path to read.
+        zipfile and openpyxl want a seekable file, and an importer walks the
+        archive more than once."""
         with override_settings(MEDIA_ROOT=str(tmp_path)):
             key = save_task_file(ContentFile(b"zipbytes"), "x.zip", "sync/")
 
-            with local_copy(key) as local:
-                assert os.path.isabs(local)
-                assert local.endswith(".zip")
-                with open(local, "rb") as f:
+            staged = stage_locally(key)
+            try:
+                assert os.path.isabs(staged)
+                assert staged.endswith(".zip")
+                assert staged != str(tmp_path / key)
+                with open(staged, "rb") as f:
                     assert f.read() == b"zipbytes"
-                staged = local
+            finally:
+                discard(staged)
 
             assert not os.path.exists(staged)
+
+    def test_local_backend_is_read_in_place_without_a_copy(self, tmp_path):
+        """local:// is the default and must stay cheap: the file is already on
+        this disk, and staging it would put a second copy of a whole import
+        archive beside it."""
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"archive"), "x.zip", "sync/")
+
+            with local_copy(key) as local:
+                assert local == str(tmp_path / key)
+                assert os.path.isfile(local)
+
+            # still there: it is the stored file, not a staged copy
+            assert os.path.isfile(str(tmp_path / key))
+            assert exists(key)
+
+    def test_task_local_file_points_at_the_stored_file_on_local_backend(self, tmp_path):
+        user = _user("localreader")
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"archive"), "x.zip", "sync/")
+            task = NdjsonExporter.create(user=user, file=key)
+
+            assert task.local_file == str(tmp_path / key)
+            with open(task.local_file, "rb") as f:
+                assert f.read() == b"archive"
 
     def test_local_copy_passes_a_legacy_path_straight_through(self, tmp_path):
         legacy = tmp_path / "old.csv"

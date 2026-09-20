@@ -117,9 +117,9 @@ def save_task_file(content: File, filename: str, path_root: str) -> str:
     return _storage().save(rel_path, content)
 
 
-def save_local_file(local_path: str, filename: str, path_root: str) -> str:
+def save_local_file(source: str, filename: str, path_root: str) -> str:
     """Store a file already written to local disk, returning its storage key."""
-    with open(local_path, "rb") as f:
+    with open(source, "rb") as f:
         return save_task_file(File(f), filename, path_root)
 
 
@@ -156,7 +156,7 @@ def overwrite_task_file(path: str, content: bytes) -> None:
     ``save`` keeps the key instead of picking a suffixed name, and the object
     only changes once the upload succeeds.
     """
-    local = _local_path(path)
+    local = local_path(path)
     if local is not None:
         directory = os.path.dirname(local) or "."
         os.makedirs(directory, exist_ok=True)
@@ -172,13 +172,15 @@ def overwrite_task_file(path: str, content: bytes) -> None:
     _storage().save(path, ContentFile(content))
 
 
-def _local_path(path: str) -> str | None:
+def local_path(path: str) -> str | None:
     """The filesystem path behind ``path``, when the storage has one.
 
-    A key on the local backend still resolves to a real file, and rewriting it
-    through ``Storage.save`` would not overwrite: FileSystemStorage picks a
-    suffixed name and leaves every recorded reference on the stale file. S3
-    raises NotImplementedError here and takes the overwriting PUT instead.
+    None only for a remote backend. A key on the local backend resolves to a
+    real file, which callers want for two reasons: rewriting it through
+    ``Storage.save`` would not overwrite, since FileSystemStorage picks a
+    suffixed name and leaves every recorded reference on the stale file; and
+    reading it needs no staging copy, which for an import archive would mean
+    a second copy of the whole thing on the same disk.
     """
     if not is_stored(path):
         return path
@@ -233,10 +235,14 @@ def local_copy(path: str) -> Iterator[str]:
 
     ``zipfile``, ``lxml.etree.parse`` and ``csv`` all want a path or a seekable
     file, and an importer may walk the archive repeatedly, so a remote object
-    is staged to a temp file for the duration rather than streamed.
+    is staged to a temp file for the duration rather than streamed. A local
+    backend hands back the real file, with nothing copied and nothing to
+    clean up; callers only read through this, and write through
+    ``overwrite_task_file``.
     """
-    if not is_stored(path):
-        yield path
+    direct = local_path(path)
+    if direct is not None:
+        yield direct
         return
     tmp = stage_locally(path)
     try:

@@ -11,7 +11,12 @@ from user_messages import api as msg
 
 from users.middlewares import activate_language_for_user
 
-from .task_files import delete_task_file, discard as _discard, is_stored, stage_locally
+from .task_files import (
+    delete_task_file,
+    discard as _discard,
+    local_path,
+    stage_locally,
+)
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -86,8 +91,13 @@ class Task(TypedModel):
         if self._local_file:
             return self._local_file
         path = self.metadata.get("file") or ""
-        if not path or not is_stored(path):
+        if not path:
             return path
+        direct = local_path(path)
+        if direct is not None:
+            # local backend: the recorded file is already on this disk, and
+            # staging it would put a second copy of the archive beside it
+            return direct
         self._local_file = stage_locally(path)
         weakref.finalize(self, _discard, self._local_file)
         return self._local_file
