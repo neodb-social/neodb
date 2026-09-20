@@ -67,14 +67,25 @@ def _s3_task_storage() -> S3Storage:
     never rolls over, so a whole import archive would sit in the worker's
     memory. A threshold keeps anything bigger on disk.
     """
-    acl = "private" if settings.MEDIA_BACKEND_S3_ACL else None
-    bucket = settings.MEDIA_BACKEND_S3_TASK_BUCKET
-    return S3Storage(
-        default_acl=acl,
-        querystring_auth=True,
-        max_memory_size=SPOOL_TO_DISK_ABOVE,
-        **({"bucket_name": bucket} if bucket else {}),
-    )
+    return S3Storage(**_s3_task_options())
+
+
+def _s3_task_options() -> dict[str, Any]:
+    """The settings shared by the task storage and the signer.
+
+    Shared rather than repeated because the two must agree on where the file
+    is: a signer left on the media bucket would sign a URL for an object that
+    was uploaded to the task bucket, and since signing still succeeds the
+    streaming fallback would not catch it.
+    """
+    options: dict[str, Any] = {
+        "default_acl": "private" if settings.MEDIA_BACKEND_S3_ACL else None,
+        "querystring_auth": True,
+        "max_memory_size": SPOOL_TO_DISK_ABOVE,
+    }
+    if settings.MEDIA_BACKEND_S3_TASK_BUCKET:
+        options["bucket_name"] = settings.MEDIA_BACKEND_S3_TASK_BUCKET
+    return options
 
 
 def _storage() -> Storage:
@@ -327,12 +338,11 @@ def download_url(path: str, filename: str = "", content_type: str = "") -> str |
         if content_type:
             overrides["ResponseContentType"] = content_type
         signer = S3Storage(
+            **_s3_task_options(),
             custom_domain=None,
-            querystring_auth=True,
             # pinned, because botocore still resolves some regions to the
             # v2 scheme for a presigned URL, which a modern bucket rejects
             signature_version="s3v4",
-            max_memory_size=SPOOL_TO_DISK_ABOVE,
             **({"endpoint_url": endpoint} if endpoint else {}),
         )
         return signer.url(path, parameters=overrides, expire=DOWNLOAD_URL_EXPIRY)
