@@ -2,8 +2,6 @@
 
 NeoDB keeps the files which users upload, for example item covers, avatars and post attachments, in the backend which `MEDIA_BACKEND` selects in `.env`. The default is `local://`, which writes to the `neodb-media` and `takahe-media` directories below `NEODB_DATA`. The other option is S3, or one of the S3-compatible servers below, which you can run together with your instance.
 
-The files which one process writes and another one reads use the same backend: an import upload that the web server receives (`sync/`), and an export that a worker generates (`export/`). With S3 the web and worker containers do not have to share a disk.
-
 To test storage configuration, you can use the following command to upload a test file and check if it's accessible:
 
 ```
