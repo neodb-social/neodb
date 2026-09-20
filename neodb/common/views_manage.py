@@ -1137,6 +1137,10 @@ class EnvironmentSettings(TemplateView):
                 "MEDIA_BACKEND_S3_ADDRESSING_STYLE",
                 lambda: settings.MEDIA_BACKEND_S3_ADDRESSING_STYLE,
             ),
+            (
+                "MEDIA_BACKEND_S3_PUBLIC_ENDPOINT",
+                lambda: settings.MEDIA_BACKEND_S3_PUBLIC_ENDPOINT,
+            ),
             ("NEODB_MEDIA_ROOT", lambda: settings.MEDIA_ROOT),
             ("NEODB_MEDIA_URL", lambda: settings.MEDIA_URL),
             ("TAKAHE_MEDIA_ROOT", lambda: settings.TAKAHE_MEDIA_ROOT),

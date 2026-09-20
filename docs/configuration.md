@@ -48,7 +48,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_REDIS_URL` - Redis URL for cache and job queue
  - `NEODB_SEARCH_URL` - Typesense search backend URL
  - `MEDIA_BACKEND` - storage backend (local/s3)
- - `MEDIA_BACKEND_S3_ACL`, `MEDIA_BACKEND_S3_REGION`, `MEDIA_BACKEND_S3_ADDRESSING_STYLE` - optional S3 options, see [storage](storage.md)
+ - `MEDIA_BACKEND_S3_ACL`, `MEDIA_BACKEND_S3_REGION`, `MEDIA_BACKEND_S3_ADDRESSING_STYLE`, `MEDIA_BACKEND_S3_PUBLIC_ENDPOINT` - optional S3 options, see [storage](storage.md)
  - `NEODB_MEDIA_ROOT`, `NEODB_MEDIA_URL` - media storage paths
  - `SSL_ONLY` - Force HTTPS
  - `NEODB_DATA` - data directory for docker volumes (database, redis, typesense, media), default `../data`

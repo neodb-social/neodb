@@ -20,6 +20,7 @@ from users.jobs.cleanup import prune_tasks
 from users.models import Task, User
 from users.models.task_files import (
     copy_task_file,
+    download_url,
     delete_task_file,
     exists,
     is_stored,
@@ -102,6 +103,23 @@ class TestRoundTrip:
                 os.path.basename(key)
             ]
 
+    def test_a_failed_overwrite_leaves_the_old_bytes(self, tmp_path, monkeypatch):
+        """It rewrites a matched CSV one edited row at a time. Deleting first
+        and then failing to upload would lose every match made so far."""
+        legacy = tmp_path / "matched.csv"
+        legacy.write_bytes(b"title,link\nDune,x\n")
+
+        def boom(*args, **kwargs):
+            raise OSError("disk full")
+
+        monkeypatch.setattr("users.models.task_files.os.replace", boom)
+        with pytest.raises(OSError):
+            overwrite_task_file(str(legacy), b"clobbered")
+
+        assert legacy.read_bytes() == b"title,link\nDune,x\n"
+        # the staging file does not pile up beside it either
+        assert [p.name for p in tmp_path.iterdir()] == ["matched.csv"]
+
     def test_copy_duplicates_within_storage(self, tmp_path):
         with override_settings(MEDIA_ROOT=str(tmp_path)):
             src = save_task_file(ContentFile(b"rows"), "x.csv", "sync/")
@@ -111,6 +129,32 @@ class TestRoundTrip:
 
             assert saved == dst
             assert exists(src) and exists(dst)
+
+
+class TestDownloadUrl:
+    """A signed link is only handed out when the browser can actually use it."""
+
+    def test_no_url_on_a_local_backend(self, tmp_path):
+        with override_settings(MEDIA_ROOT=str(tmp_path)):
+            key = save_task_file(ContentFile(b"x"), "f.zip", "export/")
+            assert download_url(key, "export.zip", "application/zip") is None
+
+    def test_no_url_for_a_legacy_local_path(self, tmp_path):
+        legacy = tmp_path / "old.zip"
+        legacy.write_bytes(b"x")
+        assert download_url(str(legacy), "export.zip", "application/zip") is None
+
+    def test_an_internal_endpoint_alone_yields_no_url(self):
+        """Every self-hosted setup in the docs points MEDIA_BACKEND at an
+        internal host and serves media from a different one. Signing against
+        the internal host would hand the browser an unreachable link, and
+        because signing succeeds the streaming fallback would never run."""
+        with override_settings(
+            MEDIA_BACKEND="s3-insecure://k:s@minio:9000/media",
+            AWS_S3_ENDPOINT_URL="http://minio:9000",
+            MEDIA_BACKEND_S3_PUBLIC_ENDPOINT="",
+        ):
+            assert download_url("export/x.zip", "export.zip", "application/zip") is None
 
 
 class TestCleanup:

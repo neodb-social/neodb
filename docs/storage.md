@@ -15,6 +15,7 @@ These apply to every S3 and S3-compatible backend, and configure NeoDB and takah
  - `MEDIA_BACKEND_S3_ACL` - the canned ACL to put on each object. The default is `public-read`. Set it to an empty value to send no ACL at all, which a bucket with ACLs disabled requires: AWS answers `AccessControlListNotSupported` when object ownership is `BucketOwnerEnforced`, which is the default for buckets created since April 2023. Make such a bucket readable with a bucket policy instead.
  - `MEDIA_BACKEND_S3_REGION` - the region to sign requests for. Leave it unset unless the server asks for a particular one.
  - `MEDIA_BACKEND_S3_ADDRESSING_STYLE` - `path` or `virtual`. Leave it unset for the default. Set it to `path` for a server which has no wildcard DNS entry per bucket, so that the bucket goes in the URL path instead of in the host name.
+ - `MEDIA_BACKEND_S3_PUBLIC_ENDPOINT` - the address a browser reaches the bucket at, for example `https://my.media.domain`. Set it only when that differs from the host in `MEDIA_BACKEND`, which it does in every example below: NeoDB connects to the server over the internal Docker network, and the browser cannot. It is used to sign the links which download an import or export file. Without it NeoDB sends those files through itself, which always works but keeps a web worker busy for the whole download. The signature covers the host name, so the address you give must be the one which serves the bucket, and the proxy in front of it must pass the `Host` header through unchanged.
 
 ## Minio
 

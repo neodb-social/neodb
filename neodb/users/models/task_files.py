@@ -12,16 +12,18 @@ was already queued when the new code shipped still completes.
 """
 
 import contextlib
+import functools
 import logging
 import os
 import shutil
 import tempfile
 from collections.abc import Iterator
 from typing import IO, Any
+from urllib.parse import quote
 
 from django.conf import settings
 from django.core.files.base import ContentFile, File
-from django.core.files.storage import default_storage
+from django.core.files.storage import Storage, default_storage
 
 from common.utils import GenerateDateUUIDMediaFilePath, S3Storage
 
@@ -31,6 +33,36 @@ logger = logging.getLogger(__name__)
 #: download, short enough that a link copied out of a browser's history is
 #: useless: an export archive carries the owner's actor private key.
 DOWNLOAD_URL_EXPIRY = 300
+
+
+def _on_s3() -> bool:
+    return settings.MEDIA_BACKEND.startswith("s3")
+
+
+@functools.cache
+def _s3_task_storage() -> S3Storage:
+    """Private S3 storage for task files.
+
+    Media is uploaded public-read, which would make an export archive -- and
+    the account private key inside it -- readable by anyone who guesses or is
+    handed the key. Signing a URL cannot undo that, because dropping the query
+    string from a public object still fetches it. So task files get their own
+    storage that uploads them private, and the signed link is the only way in.
+
+    An empty configured ACL means the bucket has ACLs disabled and is governed
+    by a policy instead; sending "private" there is rejected, so the ACL is
+    only tightened when one is in use at all.
+    """
+    acl = "private" if settings.MEDIA_BACKEND_S3_ACL else None
+    return S3Storage(default_acl=acl, querystring_auth=True)
+
+
+def _storage() -> Storage:
+    """Where task files live.
+
+    Locally this is the media storage, so MEDIA_ROOT overrides still apply.
+    """
+    return _s3_task_storage() if _on_s3() else default_storage
 
 
 def is_stored(path: str) -> bool:
@@ -51,7 +83,7 @@ def is_stored(path: str) -> bool:
 def save_task_file(content: File, filename: str, path_root: str) -> str:
     """Store ``content`` under a dated random key, returning that key."""
     rel_path = GenerateDateUUIDMediaFilePath(filename, path_root)
-    return default_storage.save(rel_path, content)
+    return _storage().save(rel_path, content)
 
 
 def save_local_file(local_path: str, filename: str, path_root: str) -> str:
@@ -62,7 +94,7 @@ def save_local_file(local_path: str, filename: str, path_root: str) -> str:
 
 def open_task_file(path: str, mode: str = "rb") -> IO[Any]:
     if is_stored(path):
-        return default_storage.open(path, mode)
+        return _storage().open(path, mode)
     return open(path, mode)
 
 
@@ -76,24 +108,35 @@ def exists(path: str) -> bool:
     if not path:
         return False
     if is_stored(path):
-        return default_storage.exists(path)
+        return _storage().exists(path)
     return os.path.isfile(path)
 
 
 def overwrite_task_file(path: str, content: bytes) -> None:
     """Replace the bytes at ``path``, keeping the same key.
 
-    ``Storage.save`` never overwrites -- it would pick a suffixed name and
-    leave every recorded reference pointing at the stale object -- so the old
-    one goes first.
+    Never deletes first. This is how a single edited row is written back to a
+    matched CSV, and a delete followed by a failed upload would lose every
+    match and hand-edit made so far, with previews and downloads meanwhile
+    seeing nothing there at all.
+
+    Locally the replacement is atomic through ``os.replace``. On S3 it is a
+    plain overwriting PUT: ``AWS_S3_FILE_OVERWRITE`` defaults to true, so
+    ``save`` keeps the key instead of picking a suffixed name, and the object
+    only changes once the upload succeeds.
     """
     if not is_stored(path):
-        with open(path, "wb") as f:
-            f.write(content)
+        directory = os.path.dirname(path) or "."
+        fd, tmp = tempfile.mkstemp(dir=directory)
+        try:
+            with os.fdopen(fd, "wb") as f:
+                f.write(content)
+            os.replace(tmp, path)
+        except Exception:
+            discard(tmp)
+            raise
         return
-    if default_storage.exists(path):
-        default_storage.delete(path)
-    default_storage.save(path, ContentFile(content))
+    _storage().save(path, ContentFile(content))
 
 
 def copy_task_file(src: str, dst: str) -> str:
@@ -106,8 +149,8 @@ def copy_task_file(src: str, dst: str) -> str:
     if not is_stored(src):
         shutil.copyfile(src, dst)
         return dst
-    with default_storage.open(src, "rb") as f:
-        return default_storage.save(dst, File(f))
+    with _storage().open(src, "rb") as f:
+        return _storage().save(dst, File(f))
 
 
 def stage_locally(path: str) -> str:
@@ -120,7 +163,7 @@ def stage_locally(path: str) -> str:
     fd, tmp = tempfile.mkstemp(suffix=suffix)
     os.close(fd)
     try:
-        with default_storage.open(path, "rb") as src, open(tmp, "wb") as dst:
+        with _storage().open(path, "rb") as src, open(tmp, "wb") as dst:
             shutil.copyfileobj(src, dst)
     except Exception:
         with contextlib.suppress(OSError):
@@ -159,8 +202,8 @@ def delete_task_file(path: str) -> bool:
         return False
     if is_stored(path):
         try:
-            if default_storage.exists(path):
-                default_storage.delete(path)
+            if _storage().exists(path):
+                _storage().delete(path)
                 logger.debug(f"Deleted stored file {path}")
                 return True
         except Exception as e:
@@ -193,24 +236,64 @@ def _delete_local_path(file_path: str) -> bool:
     return False
 
 
-def download_url(path: str) -> str | None:
+def _signing_endpoint() -> str | None:
+    """The S3 endpoint to sign a browser-bound URL against, if any.
+
+    A SigV4 signature is bound to the host it was made for, so the URL is only
+    usable if the browser reaches the bucket at that same host. Every
+    self-hosted setup in docs/storage.md points MEDIA_BACKEND at an internal
+    address (``minio:9000``, ``garage:3900``) and publishes media on a separate
+    MEDIA_URL, so signing against the configured endpoint would hand out a
+    link that resolves nowhere outside the container network.
+
+    So: no endpoint configured at all means real AWS S3, whose public hostname
+    is the one being signed, and a link works. A custom endpoint only produces
+    a link when the operator names the public one, which is what
+    MEDIA_BACKEND_S3_PUBLIC_ENDPOINT is for. Otherwise there is no usable
+    link and the caller streams instead.
+    """
+    configured = getattr(settings, "AWS_S3_ENDPOINT_URL", "")
+    public = settings.MEDIA_BACKEND_S3_PUBLIC_ENDPOINT
+    if public:
+        return public
+    return None if configured else ""
+
+
+def download_url(path: str, filename: str = "", content_type: str = "") -> str | None:
     """A URL the browser can fetch the file from directly, if there is one.
 
-    None on a local backend, where the caller streams the file instead.
+    None whenever the file is local, or the bucket is only reachable
+    internally; the caller streams the file in that case.
 
-    On S3 this is deliberately not ``default_storage.url()``: NeoDB always sets
+    Deliberately not ``_storage().url()``: NeoDB always sets
     AWS_S3_CUSTOM_DOMAIN, and django-storages returns an unsigned public URL
-    whenever a custom domain is set. An export carries the owner's actor
-    private key, so it gets a signed URL against the bucket endpoint instead,
-    and the object never has to be publicly readable.
+    whenever a custom domain is set, which would defeat the point of storing
+    these objects privately.
+
+    The response headers are signed in too. A redirect otherwise loses the
+    attachment disposition and the name, so a WordPress export would render in
+    the browser instead of downloading, and every file would be saved under
+    its UUID key.
     """
-    if not is_stored(path):
+    if not is_stored(path) or not _on_s3():
         return None
-    if not settings.MEDIA_BACKEND.startswith("s3"):
+    endpoint = _signing_endpoint()
+    if endpoint is None:
         return None
     try:
-        signer = S3Storage(custom_domain=None, querystring_auth=True)
-        return signer.url(path, expire=DOWNLOAD_URL_EXPIRY)
+        overrides = {}
+        if filename:
+            overrides["ResponseContentDisposition"] = (
+                f"attachment; filename*=UTF-8''{quote(filename)}"
+            )
+        if content_type:
+            overrides["ResponseContentType"] = content_type
+        signer = S3Storage(
+            custom_domain=None,
+            querystring_auth=True,
+            **({"endpoint_url": endpoint} if endpoint else {}),
+        )
+        return signer.url(path, parameters=overrides, expire=DOWNLOAD_URL_EXPIRY)
     except Exception as e:
         logger.warning(f"Failed to sign a download URL for {path}: {e}")
         return None

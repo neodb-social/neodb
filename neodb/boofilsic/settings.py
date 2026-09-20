@@ -611,6 +611,13 @@ MEDIA_BACKEND_S3_REGION: str = env("MEDIA_BACKEND_S3_REGION", default="")
 MEDIA_BACKEND_S3_ADDRESSING_STYLE: str = env(
     "MEDIA_BACKEND_S3_ADDRESSING_STYLE", default=""
 )
+# The endpoint a browser reaches the bucket at, when that is not the one
+# NeoDB itself connects to. Import and export files are private objects
+# fetched through a signed link, and a signature only works against the host
+# it was made for, so an internal MEDIA_BACKEND host cannot sign one.
+MEDIA_BACKEND_S3_PUBLIC_ENDPOINT: str = env(
+    "MEDIA_BACKEND_S3_PUBLIC_ENDPOINT", default=""
+)
 
 MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))
 MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")

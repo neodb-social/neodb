@@ -280,7 +280,7 @@ def _serve_generated_file(
             request, messages.ERROR, _("Export file expired. Please export again.")
         )
         return redirect(reverse("users:data"))
-    url = download_url(path)
+    url = download_url(path, filename, content_type)
     if url:
         return redirect(url)
     return FileResponse(
@@ -803,7 +803,7 @@ def rym_download(request):
         return redirect(reverse("users:data"))
     hint = task.metadata.get("filename_hint") or "rym_export.csv"
     stem, _ext = os.path.splitext(hint)
-    url = download_url(path)
+    url = download_url(path, f"{stem}-matched.csv", "text/csv")
     if url:
         return redirect(url)
     return FileResponse(
@@ -1027,7 +1027,7 @@ def storygraph_download(request):
         return redirect(reverse("users:data"))
     hint = task.metadata.get("filename_hint") or "storygraph_export.csv"
     stem, _ext = os.path.splitext(hint)
-    url = download_url(path)
+    url = download_url(path, f"{stem}-matched.csv", "text/csv")
     if url:
         return redirect(url)
     return FileResponse(
