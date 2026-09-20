@@ -74,7 +74,15 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("mimetype", models.CharField(max_length=200)),
-                ("file", models.ImageField(blank=True, null=True, upload_to="")),
+                (
+                    "file",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        storage=takahe.models.upload_store,
+                        upload_to="",
+                    ),
+                ),
                 ("remote_url", models.CharField(blank=True, max_length=500, null=True)),
                 ("category", models.CharField(blank=True, max_length=100, null=True)),
                 ("created", models.DateTimeField(auto_now_add=True)),

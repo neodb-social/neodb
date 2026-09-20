@@ -2139,6 +2139,7 @@ class Emoji(models.Model):
         # upload_to=partial(upload_emoji_namer, "emoji"),
         null=True,
         blank=True,
+        storage=upload_store,
     )
 
     # A link to the custom emoji
@@ -2203,8 +2204,7 @@ class Emoji(models.Model):
     def full_url(self, always_show=False) -> RelativeAbsoluteUrl:
         if self.is_usable or always_show:
             if self.file:
-                return AutoAbsoluteUrl(settings.TAKAHE_MEDIA_URL + self.file.name)
-                # return AutoAbsoluteUrl(self.file.url)
+                return AutoAbsoluteUrl(self.file.url)
             elif self.remote_url:
                 return ProxyAbsoluteUrl(
                     f"/proxy/emoji/{self.pk}/",
