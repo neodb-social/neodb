@@ -618,6 +618,10 @@ MEDIA_BACKEND_S3_ADDRESSING_STYLE: str = env(
 MEDIA_BACKEND_S3_PUBLIC_ENDPOINT: str = env(
     "MEDIA_BACKEND_S3_PUBLIC_ENDPOINT", default=""
 )
+# A separate bucket for import and export files. Worth setting when the
+# media bucket is readable by anyone, because an export archive holds the
+# account private key and no object ACL overrides a bucket-wide grant.
+MEDIA_BACKEND_S3_TASK_BUCKET: str = env("MEDIA_BACKEND_S3_TASK_BUCKET", default="")
 
 MEDIA_ROOT: str = env("NEODB_MEDIA_ROOT", default=os.path.join(BASE_DIR, "media"))
 MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")
@@ -699,6 +703,9 @@ COLLECTION_MEDIA_PATH_ROOT = "collection/"
 DEFAULT_COLLECTION_IMAGE = os.path.join(COLLECTION_MEDIA_PATH_ROOT, "default.svg")
 SYNC_FILE_PATH_ROOT = "sync/"
 EXPORT_FILE_PATH_ROOT = "export/"
+# Generated files which are meant to be fetched by anyone, unlike the two
+# above: a bucket policy grants anonymous reads here and not there.
+PUBLIC_FILE_PATH_ROOT = "public/"
 
 # Default redirect loaction when access login required view
 LOGIN_URL = "/account/login"

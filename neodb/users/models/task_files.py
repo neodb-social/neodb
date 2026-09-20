@@ -56,9 +56,11 @@ def _s3_task_storage() -> S3Storage:
     An empty configured ACL means the bucket has ACLs disabled and is governed
     by a policy instead; sending "private" there is rejected, so the ACL is
     only tightened when one is in use at all. An ACL cannot override a bucket
-    policy that already grants anonymous reads across the whole bucket, which
-    is what the self-hosted examples in docs/storage.md set up, so that page
-    also says how to keep these two prefixes out of such a policy.
+    policy that already grants anonymous reads across the whole bucket, nor
+    Garage's website endpoint, which serves a whole bucket once it is allowed.
+    docs/storage.md says how to keep these two prefixes out of such a policy,
+    and MEDIA_BACKEND_S3_TASK_BUCKET puts them in a bucket of their own where
+    that is not possible.
 
     ``max_memory_size`` matters more than it looks: django-storages reads an
     object into a SpooledTemporaryFile, and the default of 0 means the spool
@@ -66,10 +68,12 @@ def _s3_task_storage() -> S3Storage:
     memory. A threshold keeps anything bigger on disk.
     """
     acl = "private" if settings.MEDIA_BACKEND_S3_ACL else None
+    bucket = settings.MEDIA_BACKEND_S3_TASK_BUCKET
     return S3Storage(
         default_acl=acl,
         querystring_auth=True,
         max_memory_size=SPOOL_TO_DISK_ABOVE,
+        **({"bucket_name": bucket} if bucket else {}),
     )
 
 

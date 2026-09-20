@@ -23,7 +23,7 @@ def test_sitemap_writes_to_the_given_local_path(tmp_path):
     with override_settings(MEDIA_ROOT=str(tmp_path / "media")):
         output = _run(output=str(target))
 
-        assert not default_storage.exists("export/sitemap.txt")
+        assert not default_storage.exists("public/sitemap.txt")
 
     assert target.is_file()
     # mkstemp() makes the temp file 0600; the web server needs it readable
@@ -35,7 +35,7 @@ def test_sitemap_without_a_path_goes_to_media_storage(tmp_path):
     with override_settings(MEDIA_ROOT=str(tmp_path)):
         output = _run()
 
-        assert default_storage.exists("export/sitemap.txt")
+        assert default_storage.exists("public/sitemap.txt")
         assert "sitemap.txt" in output
 
 
@@ -46,5 +46,5 @@ def test_sitemap_replaces_the_stored_copy_rather_than_suffixing(tmp_path):
         _run()
         _run()
 
-    stored = sorted(p.name for p in (tmp_path / "export").iterdir())
+    stored = sorted(p.name for p in (tmp_path / "public").iterdir())
     assert stored == ["sitemap.txt"]

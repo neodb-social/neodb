@@ -10,12 +10,13 @@ neodb-manage catalog storage-test
 
 ## S3 options
 
-These apply to every S3 and S3-compatible backend, and configure NeoDB and takahe together. All three are optional.
+These apply to every S3 and S3-compatible backend, and configure NeoDB and takahe together. All of them are optional.
 
  - `MEDIA_BACKEND_S3_ACL` - the canned ACL to put on each object. The default is `public-read`. Set it to an empty value to send no ACL at all, which a bucket with ACLs disabled requires: AWS answers `AccessControlListNotSupported` when object ownership is `BucketOwnerEnforced`, which is the default for buckets created since April 2023. Make such a bucket readable with a bucket policy instead.
  - `MEDIA_BACKEND_S3_REGION` - the region to sign requests for. Leave it unset unless the server asks for a particular one.
  - `MEDIA_BACKEND_S3_ADDRESSING_STYLE` - `path` or `virtual`. Leave it unset for the default. Set it to `path` for a server which has no wildcard DNS entry per bucket, so that the bucket goes in the URL path instead of in the host name.
  - `MEDIA_BACKEND_S3_PUBLIC_ENDPOINT` - the address a browser reaches the bucket at, for example `https://my.media.domain`. Set it only when that differs from the host in `MEDIA_BACKEND`, which it does in every example below: NeoDB connects to the server over the internal Docker network, and the browser cannot. It is used to sign the links which download an import or export file. Without it NeoDB sends those files through itself, which always works but keeps a web worker busy for the whole download. The signature covers the host name, so the address you give must be the one which serves the bucket, and the proxy in front of it must pass the `Host` header through unchanged.
+ - `MEDIA_BACKEND_S3_TASK_BUCKET` - a second bucket to keep import and export files in, instead of the media bucket. Set it when the media bucket is readable by anyone and you cannot narrow that down, which is the case for the Garage setup below: its website endpoint serves a whole bucket once allowed, and no object ACL or policy takes that back. Make this bucket private, and give the same credentials access to it. See [import and export files](#import-and-export-files).
 
 ## Minio
 
@@ -177,9 +178,9 @@ export AWS_SECRET_ACCESS_KEY=change_password
 export AWS_DEFAULT_REGION=us-east-1
 aws --endpoint-url http://localhost:7070 s3 mb s3://media
 aws --endpoint-url http://localhost:7070 s3api put-bucket-policy --bucket media \
-  --policy '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":["arn:aws:s3:::media/item/*","arn:aws:s3:::media/user/*","arn:aws:s3:::media/upload/*","arn:aws:s3:::media/attachments/*","arn:aws:s3:::media/attachment_thumbnails/*","arn:aws:s3:::media/profile_images/*","arn:aws:s3:::media/background_images/*","arn:aws:s3:::media/emoji/*"]}]}'
+  --policy '{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":["arn:aws:s3:::media/item/*","arn:aws:s3:::media/user/*","arn:aws:s3:::media/upload/*","arn:aws:s3:::media/attachments/*","arn:aws:s3:::media/attachment_thumbnails/*","arn:aws:s3:::media/profile_images/*","arn:aws:s3:::media/background_images/*","arn:aws:s3:::media/emoji/*","arn:aws:s3:::media/config/*","arn:aws:s3:::media/public/*"]}]}'
 ```
-The policy names each media prefix instead of the whole bucket, so that it leaves out `sync/` and `export/`. See [import and export files](#import-and-export-files) for why those two must not be readable by anonymous users.
+The policy names each media prefix instead of the whole bucket, so that it leaves out `sync/` and `export/`. `config/` holds the site icon and banner which takahe serves, and `public/` the generated sitemap, so both stay readable. See [import and export files](#import-and-export-files) for why those two must not be readable by anonymous users.
 
 Add these settings to `.env`:
 ```
@@ -264,7 +265,9 @@ s2/data/media/
 
 `sync/` holds the files users upload to import, and `export/` the archives NeoDB generates for them. They go to the bucket like everything else, so the web processes and the workers do not need a shared volume between them and may run on different hosts. Both are covered by the `task_cleanup_days` setting: the daily task cleanup deletes each file together with the task that owns it, wherever it lives.
 
-**Keep these two prefixes out of any policy which grants anonymous reads.** An export archive holds the account's ActivityPub private key, which is what proves the account's identity to every other server. NeoDB writes these objects with a `private` ACL and hands them out through a link that expires after five minutes, but an ACL does not override a bucket policy: a rule allowing `s3:GetObject` on `media/*` makes the archives readable by anyone who learns the key, expiry or not. Grant anonymous reads on the media prefixes only, as the VersityGW example above does. The same applies to the anonymous identities in the SeaweedFS and S2 examples, which is why those two suit an instance whose users do not export.
+**Keep these two prefixes out of any policy which grants anonymous reads.** An export archive holds the account's ActivityPub private key, which is what proves the account's identity to every other server. NeoDB writes these objects with a `private` ACL and hands them out through a link that expires after five minutes, but an ACL does not override a bucket policy: a rule allowing `s3:GetObject` on `media/*` makes the archives readable by anyone who learns the key, expiry or not.
+
+Grant anonymous reads on the media prefixes only, as the VersityGW example above does, and remember `config/` for the takahe site images and `public/` for the sitemap. The anonymous identities in the SeaweedFS and S2 examples cover the whole bucket in the same way, and Garage's website endpoint serves an entire bucket once `bucket website --allow` is given for it, which nothing takes back per prefix. Where the media bucket cannot be narrowed down, put these files in a private bucket of their own with `MEDIA_BACKEND_S3_TASK_BUCKET`.
 
 The two applications use different names at this level, thus their files do not conflict. S2 keeps in `.meta` the metadata of each file it receives through the S3 API. The files you move have no entry there, and S2 finds their content type from the file extension.
 

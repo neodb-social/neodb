@@ -113,7 +113,9 @@ class Command(SiteCommand):
         # Unlike an export, the sitemap is fetched by crawlers over the web, so
         # it has to live wherever MEDIA_URL actually points -- the bucket on an
         # S3 backend. Writing it to MEDIA_ROOT only worked while the two agreed.
-        rel = settings.EXPORT_FILE_PATH_ROOT + "sitemap.txt"
+        # It goes under its own prefix rather than export/, which a bucket
+        # policy keeps private because the archives there hold account keys.
+        rel = settings.PUBLIC_FILE_PATH_ROOT + "sitemap.txt"
         # FileSystemStorage.save() never overwrites; it would pick a suffixed
         # name and leave the advertised URL serving the previous run's file
         if default_storage.exists(rel):

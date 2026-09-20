@@ -1141,6 +1141,10 @@ class EnvironmentSettings(TemplateView):
                 "MEDIA_BACKEND_S3_PUBLIC_ENDPOINT",
                 lambda: settings.MEDIA_BACKEND_S3_PUBLIC_ENDPOINT,
             ),
+            (
+                "MEDIA_BACKEND_S3_TASK_BUCKET",
+                lambda: settings.MEDIA_BACKEND_S3_TASK_BUCKET,
+            ),
             ("NEODB_MEDIA_ROOT", lambda: settings.MEDIA_ROOT),
             ("NEODB_MEDIA_URL", lambda: settings.MEDIA_URL),
             ("TAKAHE_MEDIA_ROOT", lambda: settings.TAKAHE_MEDIA_ROOT),
