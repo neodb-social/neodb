@@ -216,7 +216,8 @@ class FediverseHtmlParser(HTMLParser):
         elif self._pending_a is not None:
             # Keep link labels plain. Markup opened inside <a> would be emitted
             # ahead of the link that handle_endtag builds from the buffer.
-            pass
+            # Nothing was emitted, so _fresh_p has to keep its current value.
+            return
         elif tag in self.REWRITE_TO_BR:
             self.flush_data()
             if not self._fresh_p:
