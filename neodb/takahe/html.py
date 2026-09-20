@@ -155,12 +155,17 @@ class FediverseHtmlParser(HTMLParser):
         """Whether the parser is inside a tag whose content is verbatim."""
         return any(tag in self.LITERAL_TAGS for tag, _ in self._open_tags)
 
-    def push_tag(self, tag: str, opening: str, closing: str) -> None:
-        """Emit an opening tag and remember how to close it."""
+    def push_tag(self, tag: str, opening: str, closing: str) -> bool:
+        """Emit an opening tag and remember how to close it.
+
+        False when the nesting cap dropped it, so the caller can skip whatever
+        else it would have recorded for a tag that is not in the output.
+        """
         if len(self._open_tags) >= self.MAX_NESTING:
-            return
+            return False
         self.html_output += opening
         self._open_tags.append((tag, closing))
+        return True
 
     def close_innermost(self) -> None:
         self.html_output += self._open_tags.pop()[1]
@@ -186,12 +191,14 @@ class FediverseHtmlParser(HTMLParser):
         if tag == "li":
             while self._open_tags and self._open_tags[-1][0] == "li":
                 self.close_innermost()
-            if not self._fresh_p:
-                self.text_output += "\n"
         if tag in self.REWRITE_TO_STRONG_P:
-            self.push_tag(tag, "<p><strong>", "</strong></p>")
+            pushed = self.push_tag(tag, "<p><strong>", "</strong></p>")
         else:
-            self.push_tag(tag, f"<{tag}>", f"</{tag}>")
+            pushed = self.push_tag(tag, f"<{tag}>", f"</{tag}>")
+        # Only after the push, or a list item dropped by the nesting cap still
+        # starts a line in the plain text rendering.
+        if pushed and tag == "li" and not self._fresh_p:
+            self.text_output += "\n"
 
     def handle_emoji_img(self, attrs: dict[str, str | None]) -> None:
         alt = attrs.get("alt") or ""

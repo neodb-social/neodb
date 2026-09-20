@@ -386,6 +386,12 @@ def test_parser_balances_output():
     assert html.count("<blockquote>") == FediverseHtmlParser.MAX_NESTING
     assert html.count("</blockquote>") == FediverseHtmlParser.MAX_NESTING
 
+    # An <li> the cap drops must not leave a line behind in the plain text
+    over = "<ul>" * 40 + "<li>a</li>" + "</ul>" * 40
+    parser = FediverseHtmlParser(over)
+    assert "<li>" not in parser.html
+    assert parser.plain_text == "a"
+
 
 def test_parser_keeps_link_labels_plain():
     """
