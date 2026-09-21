@@ -15,9 +15,13 @@ from django.conf import settings
 from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client
+from django.core.management import call_command
+from django.core.management.base import SystemCheckError
+from django.test import Client, override_settings
 from django.urls import reverse
 
+from common.apps import media_url_errors
+from common.media_url import media_url_at_site_root, s3_custom_domain
 from common.storage import (
     media_exists,
     media_key,
@@ -26,6 +30,7 @@ from common.storage import (
     save_media_file,
     save_upload,
 )
+from common.utils import S3Storage
 from journal.exporters import NdjsonExporter
 from journal.importers import GoodreadsImporter
 from users.models import Task, User
@@ -267,3 +272,151 @@ class TestLocalMediaBackend:
         outside.write_text("Title,Author\n")
         task = GoodreadsImporter.create(self.user, visibility=0, file=str(outside))
         assert task.local_path() == str(outside)
+
+
+class TestS3CustomDomain:
+    """Which host, if any, django-storages builds a media url from.
+
+    Media on one of our own domains is addressed by path, so a page served on
+    an alias domain loads media from that same domain. A media host of its own
+    keeps the absolute url it always had.
+    """
+
+    def test_the_site_domain_yields_a_path(self):
+        assert s3_custom_domain("https://example.com/m/", ["example.com"]) == "/m"
+
+    def test_the_hostname_comparison_ignores_case(self):
+        domains = ["example.com", "alias.example.org"]
+        assert s3_custom_domain("https://Example.COM/m/", domains) == "/m"
+
+    def test_an_alternative_domain_yields_a_path(self):
+        domains = ["example.com", "alias.example.org"]
+        assert s3_custom_domain("https://alias.example.org/m/", domains) == "/m"
+
+    def test_a_media_host_of_its_own_is_kept(self):
+        assert (
+            s3_custom_domain("https://media.example.net/media/", ["example.com"])
+            == "media.example.net/media"
+        )
+
+    def test_a_port_is_not_part_of_the_comparison(self):
+        assert s3_custom_domain("https://example.com:8443/m/", ["example.com"]) == "/m"
+
+    def test_a_host_less_media_url_yields_the_same_path(self):
+        # characterisation: "/m/" is the MEDIA_URL default, and the storage
+        # has to make something of it rather than build "https:///m/..."
+        assert s3_custom_domain("/m/", ["example.com"]) == "/m"
+
+    def test_the_site_root_yields_the_root_path(self):
+        # a misconfiguration, reported by neodb.E005; the value still has to
+        # be a path so the storage does not fall back to an endpoint url
+        assert s3_custom_domain("https://example.com/", ["example.com"]) == "/"
+        assert s3_custom_domain("https://example.com", ["example.com"]) == "/"
+
+
+class TestS3StorageUrl:
+    """``S3Storage.url`` with a path-only custom domain.
+
+    Constructed directly rather than through ``override_settings``, because
+    ``AWS_S3_CUSTOM_DOMAIN`` is computed once, when settings are imported.
+    """
+
+    def test_a_path_custom_domain_stays_a_path(self):
+        assert S3Storage(custom_domain="/m").url("item/x.jpg") == "/m/item/x.jpg"
+
+    def test_a_name_is_percent_encoded(self):
+        storage = S3Storage(custom_domain="/m")
+        assert storage.url("item/a b.jpg") == "/m/item/a%20b.jpg"
+        assert storage.url("item/封面.jpg") == ("/m/item/%E5%B0%81%E9%9D%A2.jpg")
+
+    def test_the_site_root_yields_a_single_slash(self):
+        # "//item/x.jpg" would be protocol relative, and resolve against
+        # whatever host the page came from with the wrong meaning
+        assert S3Storage(custom_domain="/").url("item/x.jpg") == "/item/x.jpg"
+
+    def test_parameters_are_kept(self):
+        storage = S3Storage(custom_domain="/m")
+        assert storage.url("item/x.jpg", parameters={"v": "2"}) == "/m/item/x.jpg?v=2"
+
+    def test_a_media_host_keeps_the_parent_behaviour(self):
+        storage = S3Storage(custom_domain="media.example.net/media")
+        assert storage.url("item/x.jpg") == "https://media.example.net/media/item/x.jpg"
+
+
+class TestMediaUrlAtSiteRoot:
+    def test_a_path_is_not_the_root(self):
+        assert (
+            media_url_at_site_root("https://example.com/m/", ["example.com"]) is False
+        )
+
+    def test_a_media_host_at_its_own_root_is_allowed(self):
+        assert (
+            media_url_at_site_root("https://media.example.net/", ["example.com"])
+            is False
+        )
+
+    def test_the_site_root_is_reported(self):
+        assert media_url_at_site_root("https://example.com/", ["example.com"]) is True
+
+    def test_a_host_less_root_is_reported(self):
+        assert media_url_at_site_root("/", ["example.com"]) is True
+
+
+class TestMediaUrlCheck:
+    """``neodb.E005``: a remote backend served from the root of our own site.
+
+    Every media key would sit in the url space of the site itself. Settings do
+    not raise on it, so that ``neodb-manage check`` runs far enough to say so.
+    """
+
+    @override_settings(
+        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
+        MEDIA_URL="https://example.org/",
+        SITE_DOMAINS=["example.org"],
+    )
+    def test_the_site_root_is_an_error(self):
+        assert [m.id for m in media_url_errors()] == ["neodb.E005"]
+
+    @override_settings(
+        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
+        MEDIA_URL="https://alias.example.org/",
+        SITE_DOMAINS=["example.org", "alias.example.org"],
+    )
+    def test_an_alias_root_is_an_error(self):
+        assert [m.id for m in media_url_errors()] == ["neodb.E005"]
+
+    @override_settings(
+        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
+        MEDIA_URL="https://example.org/m/",
+        SITE_DOMAINS=["example.org"],
+    )
+    def test_a_path_on_the_site_domain_passes(self):
+        assert media_url_errors() == []
+
+    @override_settings(
+        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
+        MEDIA_URL="https://media.example.net/",
+        SITE_DOMAINS=["example.org"],
+    )
+    def test_a_media_host_at_its_own_root_passes(self):
+        assert media_url_errors() == []
+
+    @override_settings(
+        MEDIA_BACKEND="local://",
+        MEDIA_URL="/",
+        SITE_DOMAINS=["example.org"],
+    )
+    def test_the_local_backend_is_not_checked(self):
+        # the local backend serves MEDIA_ROOT at MEDIA_URL, and that overlap
+        # is the web server's configuration rather than ours
+        assert media_url_errors() == []
+
+    @override_settings(
+        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
+        MEDIA_URL="https://example.org/",
+        SITE_DOMAINS=["example.org"],
+    )
+    def test_manage_check_reports_it(self):
+        # the registration itself, so the error reaches neodb-manage check
+        with pytest.raises(SystemCheckError, match="neodb.E005"):
+            call_command("check")

@@ -3,7 +3,7 @@ import json
 import logging
 import uuid
 from typing import TYPE_CHECKING, Any, get_args, get_origin
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 import django_rq
 from discord import HTTPException, SyncWebhook
@@ -16,11 +16,13 @@ from django.db.models.fields.files import FieldFile
 from django.dispatch import receiver
 from django.http import Http404, HttpRequest, HttpResponseRedirect, QueryDict
 from django.templatetags.static import static
+from django.utils.encoding import filepath_to_uri
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from ninja import Schema
 from ninja.responses import NinjaJSONEncoder
 from storages.backends.s3boto3 import S3Boto3Storage
+from storages.utils import clean_name
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 from .models import int_
@@ -71,8 +73,28 @@ def json_ld_dumps(data: object) -> str:
 
 class S3Storage(S3Boto3Storage):
     """
-    Custom override backend that makes webp files store correctly
+    Custom override backend that makes webp files store correctly, and that
+    addresses media on one of our own domains by path
     """
+
+    def url(
+        self,
+        name: str | None,
+        parameters: dict | None = None,
+        expire: int | None = None,
+        http_method: str | None = None,
+    ) -> str:
+        # custom_domain comes from AWS_S3_CUSTOM_DOMAIN through the settings
+        # the base class copies onto the instance, so it is not declared
+        custom_domain: str = getattr(self, "custom_domain", "") or ""
+        if custom_domain.startswith("/"):
+            # a path-only custom domain, which the parent would render as
+            # "https:///m/...": keep it a path, so the page's own host serves
+            # the media and every alias domain serves its own
+            key = self._normalize_name(clean_name(name))
+            url = f"{custom_domain.rstrip('/')}/{filepath_to_uri(key)}"
+            return f"{url}?{urlencode(parameters)}" if parameters else url
+        return super().url(name, parameters, expire, http_method)
 
     def get_object_parameters(self, name: str):
         params = super().get_object_parameters(name)

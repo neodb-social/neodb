@@ -8,6 +8,10 @@ To test storage configuration, you can use the following command to upload a tes
 neodb-manage catalog storage-test
 ```
 
+`MEDIA_URL` says where those files are served from. If its host is your site domain or one of `NEODB_ALTERNATIVE_DOMAINS`, NeoDB renders media as path-only URLs such as `/m/item/x.jpg`, so a page served on an alias domain loads its media from that same domain. Make sure every alias routes that path to the same storage. A separate media host, for example a CDN, keeps absolute URLs.
+
+`MEDIA_URL` must have a path of its own. On S3, a bare `https://your.site.domain/` puts every media key in the URL space of the site itself, where it collides with NeoDB's own paths, and `neodb-manage check` reports it as `neodb.E005`.
+
 ## Minio
 
 If you are using Minio or [its forks](https://github.com/minio/minio/network) for local S3-compatible storage, add the following configuration to `compose.override.yml` (change `minio/minio` to your chosen fork as the original one is unmaintained and may have known security issues):

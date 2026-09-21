@@ -48,7 +48,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_REDIS_URL` - Redis URL for cache and job queue
  - `NEODB_SEARCH_URL` - Typesense search backend URL
  - `MEDIA_BACKEND` - storage backend (local/s3)
- - `NEODB_MEDIA_ROOT`, `NEODB_MEDIA_URL` - media storage paths
+ - `NEODB_MEDIA_ROOT`, `NEODB_MEDIA_URL` - media storage paths. On S3, a `NEODB_MEDIA_URL` whose host is the site domain or one of `NEODB_ALTERNATIVE_DOMAINS` makes media render as path-only URLs, so each alias serves its own; it needs a path of its own, and `neodb-manage check` reports a bare domain. See [storage](storage.md).
  - `SSL_ONLY` - Force HTTPS
  - `NEODB_DATA` - data directory for docker volumes (database, redis, typesense, media), default `../data`
  - `NEODB_PORT` - the port to expose the main web server on

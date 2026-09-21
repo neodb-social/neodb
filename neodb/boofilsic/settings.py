@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from boofilsic import __version__
 from common.config import resolve_email_settings
+from common.media_url import s3_custom_domain
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -635,10 +636,10 @@ if MEDIA_BACKEND and MEDIA_BACKEND.startswith("s3"):
         port = _parsed_media_backend.port or s3_default_port
         AWS_S3_ENDPOINT_URL = f"{s3_scheme}://{_parsed_media_backend.hostname}:{port}"
     if MEDIA_URL:
-        _media_url_parsed = parse.urlparse(MEDIA_URL)
-        AWS_S3_CUSTOM_DOMAIN = (
-            _media_url_parsed.hostname or ""
-        ) + _media_url_parsed.path.rstrip("/")
+        # media on one of our own domains is addressed by path, so a page on
+        # an alias domain loads it from that same domain; see neodb.E005 for
+        # the one shape of MEDIA_URL this cannot express
+        AWS_S3_CUSTOM_DOMAIN = s3_custom_domain(MEDIA_URL, SITE_DOMAINS)
     STORAGES["default"] = STORAGES["takahe"] = {"BACKEND": "common.utils.S3Storage"}
 elif MEDIA_BACKEND and not MEDIA_BACKEND.startswith("local"):
     raise ImproperlyConfigured(f"MEDIA_BACKEND {MEDIA_BACKEND} is not supported ")
