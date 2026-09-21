@@ -277,9 +277,9 @@
     {% endif %}
   </div>
   {% if feed_view %}
-    {% include "_sidebar.html" with show_profile=1 %}
+    {% include "_sidebar.html" with show_profile=1 collapse_profile=me %}
   {% else %}
-    {% include "_sidebar.html" with show_progress=1 show_profile=1 %}
+    {% include "_sidebar.html" with show_progress=1 show_profile=1 collapse_profile=me %}
   {% endif %}
 </main>
 {% include "_footer.html" %}
