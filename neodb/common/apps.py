@@ -36,6 +36,12 @@ def media_url_errors() -> list[CheckMessage]:
     """
     if not settings.MEDIA_BACKEND.startswith("s3"):
         return []
+    # An empty MEDIA_URL leaves the custom domain unset on purpose: urls then
+    # address the s3 endpoint itself, and no path of ours is involved. Django
+    # reads such a MEDIA_URL back as "/", which is indistinguishable from a
+    # configured site root below, so the computed value decides instead.
+    if not getattr(settings, "AWS_S3_CUSTOM_DOMAIN", ""):
+        return []
     # SITE_DOMAINS the way the other readers of it take it: a test that
     # patches SITE_DOMAIN alone should not turn this check into an error
     site_domains = getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN])

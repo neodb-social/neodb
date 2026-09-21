@@ -362,6 +362,21 @@ class TestMediaUrlAtSiteRoot:
         assert media_url_at_site_root("/", ["example.com"]) is True
 
 
+def _s3_settings(media_url: str, site_domains: list[str]) -> dict[str, object]:
+    """What an s3 instance computes from this ``MEDIA_URL``.
+
+    The check reads ``AWS_S3_CUSTOM_DOMAIN`` as well as ``MEDIA_URL``, so a
+    test that patched only the latter would describe a state settings never
+    produce.
+    """
+    return {
+        "MEDIA_BACKEND": "s3://key:secret@s3.example:9000/bucket",
+        "MEDIA_URL": media_url,
+        "SITE_DOMAINS": site_domains,
+        "AWS_S3_CUSTOM_DOMAIN": s3_custom_domain(media_url, site_domains),
+    }
+
+
 class TestMediaUrlCheck:
     """``neodb.E005``: a remote backend served from the root of our own site.
 
@@ -369,36 +384,36 @@ class TestMediaUrlCheck:
     not raise on it, so that ``neodb-manage check`` runs far enough to say so.
     """
 
-    @override_settings(
-        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
-        MEDIA_URL="https://example.org/",
-        SITE_DOMAINS=["example.org"],
-    )
+    @override_settings(**_s3_settings("https://example.org/", ["example.org"]))
     def test_the_site_root_is_an_error(self):
         assert [m.id for m in media_url_errors()] == ["neodb.E005"]
 
     @override_settings(
-        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
-        MEDIA_URL="https://alias.example.org/",
-        SITE_DOMAINS=["example.org", "alias.example.org"],
+        **_s3_settings(
+            "https://alias.example.org/", ["example.org", "alias.example.org"]
+        )
     )
     def test_an_alias_root_is_an_error(self):
         assert [m.id for m in media_url_errors()] == ["neodb.E005"]
 
-    @override_settings(
-        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
-        MEDIA_URL="https://example.org/m/",
-        SITE_DOMAINS=["example.org"],
-    )
+    @override_settings(**_s3_settings("https://example.org/m/", ["example.org"]))
     def test_a_path_on_the_site_domain_passes(self):
+        assert media_url_errors() == []
+
+    @override_settings(**_s3_settings("https://media.example.net/", ["example.org"]))
+    def test_a_media_host_at_its_own_root_passes(self):
         assert media_url_errors() == []
 
     @override_settings(
         MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
-        MEDIA_URL="https://media.example.net/",
+        MEDIA_URL="/",
         SITE_DOMAINS=["example.org"],
     )
-    def test_a_media_host_at_its_own_root_passes(self):
+    def test_an_empty_media_url_is_not_reported(self):
+        # an empty NEODB_MEDIA_URL leaves AWS_S3_CUSTOM_DOMAIN unset, so urls
+        # address the s3 endpoint itself and nothing of ours is at the root.
+        # Django reads that empty value back as "/", which is why the check
+        # cannot decide on MEDIA_URL alone
         assert media_url_errors() == []
 
     @override_settings(
@@ -411,11 +426,7 @@ class TestMediaUrlCheck:
         # is the web server's configuration rather than ours
         assert media_url_errors() == []
 
-    @override_settings(
-        MEDIA_BACKEND="s3://key:secret@s3.example:9000/bucket",
-        MEDIA_URL="https://example.org/",
-        SITE_DOMAINS=["example.org"],
-    )
+    @override_settings(**_s3_settings("https://example.org/", ["example.org"]))
     def test_manage_check_reports_it(self):
         # the registration itself, so the error reaches neodb-manage check
         with pytest.raises(SystemCheckError, match="neodb.E005"):
