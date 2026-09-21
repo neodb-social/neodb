@@ -88,18 +88,12 @@ def pending_source_for_post_attachment(pk: int) -> str:
 def takahe_attachment_urls(atta: "PostAttachment") -> tuple[str, str]:
     """``(full, preview)`` absolute URLs for a takahe attachment, never raising.
 
-    Mirrors ``PostAttachment.full_url()`` / ``thumbnail_url()`` but resolves the
-    absolute form here instead of calling them, for three reasons. ``field.url``
-    itself raises when a storage has no base URL, and this runs inside
-    ``Note.update_by_ap_object``, where an exception takes inbound federation of
-    every note with media down with it. The absolute form is built from
-    ``SITE_INFO["site_url"]``, which a deployment can point elsewhere, rather
-    than from ``SITE_DOMAIN``. And the proxy fallback is gated on images only,
-    a considered divergence documented below.
-
-    Those methods no longer raise on a schemeless storage URL, which is what
-    ``file.url`` is whenever media is served from a path. Their ``remote_url``
-    branch still does, on a remote value that is not absolute.
+    Mirrors ``PostAttachment.full_url()`` / ``thumbnail_url()`` but resolves
+    the absolute form here: ``field.url`` raises when a storage has no base
+    URL, and this runs inside ``Note.update_by_ap_object``, where that would
+    take inbound federation of every note with media down with it. It also
+    absolutizes against ``SITE_INFO["site_url"]``, which a deployment can
+    point elsewhere, and gates the proxy fallback on images, as below.
     """
     site = settings.SITE_INFO["site_url"].rstrip("/")
 
@@ -251,10 +245,8 @@ class Attachment(models.Model):
     def to_json(self) -> dict[str, Any]:
         """Legacy ``Note.attachments`` JSON entry for this row.
 
-        The urls are whatever the storage serves them as, so a row written
-        while media sat on a host of its own holds an absolute url, and one
-        written while media is on our own domains holds a path. Every reader
-        of this column takes both.
+        The urls are whatever the storage served, absolute or a path, and
+        every reader of this column takes both.
         """
         return {
             "type": self.type,

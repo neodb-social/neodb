@@ -932,10 +932,8 @@ class TestArticleFeed:
 @pytest.mark.django_db(databases="__all__")
 class TestReviewFeedEnclosure:
     """The cover enclosure of ``/users/<handle>/feed/reviews/``, kept next to
-    ``TestArticleFeed`` because the two feeds are siblings.
-
-    An enclosure url must be absolute: django passes it through as given, and
-    a storage url is a path whenever media is served from our own domain.
+    ``TestArticleFeed`` because the two feeds are siblings. Django passes an
+    enclosure url through as given, so it has to be absolute already.
     """
 
     @pytest.fixture(autouse=True)

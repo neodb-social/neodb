@@ -275,12 +275,7 @@ class TestLocalMediaBackend:
 
 
 class TestS3CustomDomain:
-    """Which host, if any, django-storages builds a media url from.
-
-    Media on one of our own domains is addressed by path, so a page served on
-    an alias domain loads media from that same domain. A media host of its own
-    keeps the absolute url it always had.
-    """
+    """Which host, if any, django-storages builds a media url from."""
 
     def test_the_site_domain_yields_a_path(self):
         assert s3_custom_domain("https://example.com/m/", ["example.com"]) == "/m"
@@ -303,13 +298,11 @@ class TestS3CustomDomain:
         assert s3_custom_domain("https://example.com:8443/m/", ["example.com"]) == "/m"
 
     def test_a_host_less_media_url_yields_the_same_path(self):
-        # characterisation: "/m/" is the MEDIA_URL default, and the storage
-        # has to make something of it rather than build "https:///m/..."
+        # "/m/" is the MEDIA_URL default, and must not become "https:///m/..."
         assert s3_custom_domain("/m/", ["example.com"]) == "/m"
 
     def test_the_site_root_yields_the_root_path(self):
-        # a misconfiguration, reported by neodb.E005; the value still has to
-        # be a path so the storage does not fall back to an endpoint url
+        # reported by neodb.E005, but still a path rather than an endpoint url
         assert s3_custom_domain("https://example.com/", ["example.com"]) == "/"
         assert s3_custom_domain("https://example.com", ["example.com"]) == "/"
 
@@ -317,8 +310,8 @@ class TestS3CustomDomain:
 class TestS3StorageUrl:
     """``S3Storage.url`` with a path-only custom domain.
 
-    Constructed directly rather than through ``override_settings``, because
-    ``AWS_S3_CUSTOM_DOMAIN`` is computed once, when settings are imported.
+    Constructed directly, because ``AWS_S3_CUSTOM_DOMAIN`` is computed once,
+    when settings are imported.
     """
 
     def test_a_path_custom_domain_stays_a_path(self):
@@ -330,8 +323,7 @@ class TestS3StorageUrl:
         assert storage.url("item/封面.jpg") == ("/m/item/%E5%B0%81%E9%9D%A2.jpg")
 
     def test_the_site_root_yields_a_single_slash(self):
-        # "//item/x.jpg" would be protocol relative, and resolve against
-        # whatever host the page came from with the wrong meaning
+        # "//item/x.jpg" would be protocol relative, and point somewhere else
         assert S3Storage(custom_domain="/").url("item/x.jpg") == "/item/x.jpg"
 
     def test_parameters_are_kept(self):
@@ -365,9 +357,8 @@ class TestMediaUrlAtSiteRoot:
 def _s3_settings(media_url: str, site_domains: list[str]) -> dict[str, object]:
     """What an s3 instance computes from this ``MEDIA_URL``.
 
-    The check reads ``AWS_S3_CUSTOM_DOMAIN`` as well as ``MEDIA_URL``, so a
-    test that patched only the latter would describe a state settings never
-    produce.
+    The check reads ``AWS_S3_CUSTOM_DOMAIN`` too, and patching only
+    ``MEDIA_URL`` would describe a state settings never produce.
     """
     return {
         "MEDIA_BACKEND": "s3://key:secret@s3.example:9000/bucket",
@@ -410,10 +401,8 @@ class TestMediaUrlCheck:
         SITE_DOMAINS=["example.org"],
     )
     def test_an_empty_media_url_is_not_reported(self):
-        # an empty NEODB_MEDIA_URL leaves AWS_S3_CUSTOM_DOMAIN unset, so urls
-        # address the s3 endpoint itself and nothing of ours is at the root.
-        # Django reads that empty value back as "/", which is why the check
-        # cannot decide on MEDIA_URL alone
+        # AWS_S3_CUSTOM_DOMAIN stays unset and urls address the s3 endpoint;
+        # django reads the empty value back as "/", hence the check's gate
         assert media_url_errors() == []
 
     @override_settings(

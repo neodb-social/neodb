@@ -636,9 +636,7 @@ if MEDIA_BACKEND and MEDIA_BACKEND.startswith("s3"):
         port = _parsed_media_backend.port or s3_default_port
         AWS_S3_ENDPOINT_URL = f"{s3_scheme}://{_parsed_media_backend.hostname}:{port}"
     if MEDIA_URL:
-        # media on one of our own domains is addressed by path, so a page on
-        # an alias domain loads it from that same domain; see neodb.E005 for
-        # the one shape of MEDIA_URL this cannot express
+        # a path on one of our own domains, so each alias serves its own
         AWS_S3_CUSTOM_DOMAIN = s3_custom_domain(MEDIA_URL, SITE_DOMAINS)
     STORAGES["default"] = STORAGES["takahe"] = {"BACKEND": "common.utils.S3Storage"}
 elif MEDIA_BACKEND and not MEDIA_BACKEND.startswith("local"):

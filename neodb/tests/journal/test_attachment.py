@@ -320,13 +320,10 @@ class TestTakaheAttachmentUrls:
 class TestPostAttachmentUrls:
     """``PostAttachment`` serves its own URLs through ``AutoAbsoluteUrl``.
 
-    A storage URL is schemeless whenever its base URL is a path, which is the
-    default for takahe media and what media on our own domain produces.
-    ``RelativeAbsoluteUrl`` raises on such a value, which used to break every
-    reader of a post with media, ``to_mastodon_json()`` included.
-
-    Unsaved instances with a patched ``base_url``, as above: the field resolved
-    its storage callable at import, so patching the registry is not enough.
+    ``RelativeAbsoluteUrl`` raises on a schemeless URL, which is what a
+    storage serves whenever its base URL is a path. Unsaved instances with a
+    patched ``base_url``, as above: the field resolved its storage callable at
+    import, so patching the registry is not enough.
     """
 
     def test_schemeless_file_url_becomes_absolute(self):
@@ -334,9 +331,8 @@ class TestPostAttachmentUrls:
         with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             url = atta.full_url()
         expected = f"https://{settings.SITE_DOMAIN}/media/attachments/a.png"
+        # the relative form is what a template renders, and stays a path
         assert url.absolute == expected
-        # the relative form is what a template renders, and stays a path so a
-        # page served on an alias domain keeps its media on that domain
         assert url.relative == "/media/attachments/a.png"
 
     def test_absolute_file_url_is_unchanged(self):

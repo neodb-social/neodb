@@ -84,13 +84,10 @@ class S3Storage(S3Boto3Storage):
         expire: int | None = None,
         http_method: str | None = None,
     ) -> str:
-        # custom_domain comes from AWS_S3_CUSTOM_DOMAIN through the settings
-        # the base class copies onto the instance, so it is not declared
+        # set from AWS_S3_CUSTOM_DOMAIN by the base class, never declared
         custom_domain: str = getattr(self, "custom_domain", "") or ""
         if custom_domain.startswith("/"):
-            # a path-only custom domain, which the parent would render as
-            # "https:///m/...": keep it a path, so the page's own host serves
-            # the media and every alias domain serves its own
+            # the parent would render a path-only domain as "https:///m/..."
             key = self._normalize_name(clean_name(name))
             url = f"{custom_domain.rstrip('/')}/{filepath_to_uri(key)}"
             return f"{url}?{urlencode(parameters)}" if parameters else url

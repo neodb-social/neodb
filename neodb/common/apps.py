@@ -30,20 +30,15 @@ def setup_check(app_configs, **kwargs):
 def media_url_errors() -> list[CheckMessage]:
     """MEDIA_URL must not serve a remote backend from the site root.
 
-    Media on one of our own domains is addressed by path, and a root path
-    leaves every media key in the url space of the site itself, where the
-    application's own paths already live.
+    Every media key would sit in the url space of the site itself.
     """
     if not settings.MEDIA_BACKEND.startswith("s3"):
         return []
-    # An empty MEDIA_URL leaves the custom domain unset on purpose: urls then
-    # address the s3 endpoint itself, and no path of ours is involved. Django
-    # reads such a MEDIA_URL back as "/", which is indistinguishable from a
-    # configured site root below, so the computed value decides instead.
+    # an empty MEDIA_URL leaves this unset and urls address the s3 endpoint;
+    # django reads it back as "/", which looks like the site root below
     if not getattr(settings, "AWS_S3_CUSTOM_DOMAIN", ""):
         return []
-    # SITE_DOMAINS the way the other readers of it take it: a test that
-    # patches SITE_DOMAIN alone should not turn this check into an error
+    # as renderers.py and jobs/migrations.py read it
     site_domains = getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN])
     if not media_url_at_site_root(settings.MEDIA_URL, site_domains):
         return []
@@ -61,6 +56,5 @@ def media_url_errors() -> list[CheckMessage]:
 
 @register(Tags.files)
 def media_url_check(app_configs, **kwargs):
-    # not a deploy check: a misconfigured instance should hear about this
-    # from a plain ``neodb-manage check``
+    # not a deploy check: a plain ``neodb-manage check`` should say so
     return media_url_errors()

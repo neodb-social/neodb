@@ -260,9 +260,8 @@ class TestRemoteAPIdentity:
 class TestIdentityMastodonJson:
     """``avatar`` in the api must be absolute.
 
-    ``local_icon_url()`` is also a template src, so it stays a path there: a
-    proxy path for a remote icon, and a storage path whenever media is served
-    from our own domain. The serializer resolves it instead.
+    ``local_icon_url()`` is also a template src and stays a path there, so the
+    serializer resolves it.
     """
 
     def test_remote_proxy_icon_is_absolute(self):
@@ -284,8 +283,7 @@ class TestIdentityMastodonJson:
     def test_local_icon_on_schemeless_storage_is_absolute(self):
         user = User.register(email="icon@test.com", username="iconuser")
         identity = user.identity.takahe_identity
-        # read the storage before the name is set: the field hands out the
-        # same storage either way, and this keeps the attribute a file
+        # read before the name is set, which keeps the attribute a file
         storage = identity.icon.storage
         identity.icon = "profile_images/a.png"
         with mock.patch.object(storage, "base_url", "/media/"):
