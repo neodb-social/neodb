@@ -1,11 +1,14 @@
+from unittest import mock
 from urllib.parse import urlparse
 
 import pytest
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from catalog.models import Edition
 from common.models import SiteConfig
 from journal.models import Mark, ShelfType
+from takahe.models import Domain, Identity
 from users.models import APIdentity, User
 from users.models.user import UsernameValidator
 
@@ -251,3 +254,42 @@ class TestRemoteAPIdentity:
             icon_uri="https://lemmy.example/pictrs/image/books.png"
         )
         assert identity.avatar == f"/proxy/identity_icon/{identity.pk}/"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestIdentityMastodonJson:
+    """``avatar`` in the api must be absolute.
+
+    ``local_icon_url()`` is also a template src, so it stays a path there: a
+    proxy path for a remote icon, and a storage path whenever media is served
+    from our own domain. The serializer resolves it instead.
+    """
+
+    def test_remote_proxy_icon_is_absolute(self):
+        domain, _ = Domain.objects.get_or_create(
+            domain="remote.example", defaults={"local": False}
+        )
+        identity = Identity.objects.create(
+            actor_uri="https://remote.example/u/bob",
+            local=False,
+            username="bob",
+            domain=domain,
+            icon_uri="https://remote.example/avatar.png",
+        )
+        value = identity.to_mastodon_json()
+        proxy = f"https://{settings.SITE_DOMAIN}/proxy/identity_icon/{identity.pk}/"
+        assert value["avatar"] == proxy
+        assert value["avatar_static"] == proxy
+
+    def test_local_icon_on_schemeless_storage_is_absolute(self):
+        user = User.register(email="icon@test.com", username="iconuser")
+        identity = user.identity.takahe_identity
+        # read the storage before the name is set: the field hands out the
+        # same storage either way, and this keeps the attribute a file
+        storage = identity.icon.storage
+        identity.icon = "profile_images/a.png"
+        with mock.patch.object(storage, "base_url", "/media/"):
+            value = identity.to_mastodon_json()
+        expected = f"https://{settings.SITE_DOMAIN}/media/profile_images/a.png"
+        assert value["avatar"] == expected
+        assert value["avatar_static"] == expected

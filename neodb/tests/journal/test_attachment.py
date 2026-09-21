@@ -258,11 +258,10 @@ class TestTakaheMediaPath:
 
 
 class TestTakaheAttachmentUrls:
-    """``PostAttachment.full_url()`` wraps its value in ``RelativeAbsoluteUrl``,
-    which raises on a schemeless URL -- and takahe serves schemeless URLs
-    whenever ``TAKAHE_MEDIA_URL`` is relative, the settings default. Reading
-    ``.absolute`` there aborts note ingestion, so we resolve the URLs
-    ourselves and must never raise."""
+    """``takahe_attachment_urls`` resolves an attachment's URLs itself instead
+    of calling ``PostAttachment.full_url()`` / ``thumbnail_url()``: it runs
+    inside note ingestion, where it must never raise, it absolutizes against
+    ``SITE_INFO["site_url"]``, and it gates the proxy fallback on images."""
 
     # Real (unsaved) PostAttachments rather than stubs, so the production
     # signature stays honest and the storage plumbing is the real one.
@@ -316,6 +315,61 @@ class TestTakaheAttachmentUrls:
         )
         assert full == ""
         assert preview == ""
+
+
+class TestPostAttachmentUrls:
+    """``PostAttachment`` serves its own URLs through ``AutoAbsoluteUrl``.
+
+    A storage URL is schemeless whenever its base URL is a path, which is the
+    default for takahe media and what media on our own domain produces.
+    ``RelativeAbsoluteUrl`` raises on such a value, which used to break every
+    reader of a post with media, ``to_mastodon_json()`` included.
+
+    Unsaved instances with a patched ``base_url``, as above: the field resolved
+    its storage callable at import, so patching the registry is not enough.
+    """
+
+    def test_schemeless_file_url_becomes_absolute(self):
+        atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        with mock.patch.object(atta.file.storage, "base_url", "/media/"):
+            url = atta.full_url()
+        expected = f"https://{settings.SITE_DOMAIN}/media/attachments/a.png"
+        assert url.absolute == expected
+        # the relative form is what a template renders, and stays a path so a
+        # page served on an alias domain keeps its media on that domain
+        assert url.relative == "/media/attachments/a.png"
+
+    def test_absolute_file_url_is_unchanged(self):
+        atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        with mock.patch.object(atta.file.storage, "base_url", "https://cdn.example/"):
+            url = atta.full_url()
+        assert url.absolute == "https://cdn.example/attachments/a.png"
+        assert url.relative == url.absolute
+
+    def test_schemeless_thumbnail_url_becomes_absolute(self):
+        atta = PostAttachment(
+            pk=7,
+            mimetype="image/png",
+            file="attachments/a.png",
+            thumbnail="attachment_thumbnails/a.png",
+        )
+        with mock.patch.object(atta.thumbnail.storage, "base_url", "/media/"):
+            url = atta.thumbnail_url()
+        expected = f"https://{settings.SITE_DOMAIN}/media/attachment_thumbnails/a.png"
+        assert url.absolute == expected
+
+    def test_mastodon_json_is_absolute_on_schemeless_storage(self):
+        atta = PostAttachment(
+            pk=7,
+            mimetype="image/png",
+            file="attachments/a.png",
+            thumbnail="attachment_thumbnails/a.png",
+        )
+        with mock.patch.object(atta.file.storage, "base_url", "/media/"):
+            value = atta.to_mastodon_json()
+        assert value["url"] == f"https://{settings.SITE_DOMAIN}/media/attachments/a.png"
+        assert value["preview_url"].startswith(f"https://{settings.SITE_DOMAIN}/")
+        assert value["preview_url"].endswith("/media/attachment_thumbnails/a.png")
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -11,7 +11,8 @@ from django.test import Client, override_settings
 from django.utils import timezone
 from PIL import Image
 
-from journal.models import Article
+from catalog.models import Edition
+from journal.models import Article, Review
 from journal.search import JournalQueryParser
 from takahe.ap_handlers import post_deleted
 from takahe.utils import Takahe
@@ -926,6 +927,43 @@ class TestArticleFeed:
         assert self.client.get(self.feed_url).status_code == 404
         # ReviewFeed shares the same guard
         assert self.client.get(f"{self.identity.url}feed/reviews/").status_code == 404
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestReviewFeedEnclosure:
+    """The cover enclosure of ``/users/<handle>/feed/reviews/``, kept next to
+    ``TestArticleFeed`` because the two feeds are siblings.
+
+    An enclosure url must be absolute: django passes it through as given, and
+    a storage url is a path whenever media is served from our own domain.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.user = User.register(email="rev_feed@test.com", username="rev_feed")
+        self.identity = self.user.identity
+        self.client = Client()
+        self.feed_url = f"{self.identity.url}feed/reviews/"
+
+    def test_enclosure_url_is_absolute(self):
+        item = Edition.objects.create(title="Enclosed Book", cover="item/cover.png")
+        Review.update_item_review(item, self.identity, "Good", "body", visibility=0)
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        body = resp.content.decode()
+        # django writes the attributes in alphabetical order
+        assert item.cover_image_url is not None
+        assert item.cover_image_url.startswith("https://")
+        assert f'url="{item.cover_image_url}"' in body
+
+    def test_no_enclosure_without_a_cover(self):
+        # the default is a sentinel path with no stored file, and an enclosure
+        # pointing at it would 404 for every reader
+        item = Edition.objects.create(title="Bare Book")
+        Review.update_item_review(item, self.identity, "Plain", "body", visibility=0)
+        resp = self.client.get(self.feed_url)
+        assert resp.status_code == 200
+        assert "<enclosure" not in resp.content.decode()
 
 
 @pytest.mark.django_db(databases="__all__")

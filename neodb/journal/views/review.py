@@ -234,7 +234,11 @@ class ReviewFeed(Feed):
         return item.edited_time
 
     def item_enclosure_url(self, item):
-        return item.item.cover.url
+        # an enclosure url must be absolute: django passes it through as
+        # given, and a storage url is relative whenever media is served from
+        # our own domain. None for an item with no cover of its own, which
+        # drops the enclosure instead of pointing it at a sentinel path
+        return item.item.cover_image_url
 
     def item_enclosure_mime_type(self, item):
         t, _ = mimetypes.guess_type(item.item.cover.url)
