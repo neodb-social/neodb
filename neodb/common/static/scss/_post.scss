@@ -265,9 +265,6 @@ section.activity.post>section.replies {
 	margin: 0.5em 0;
 	padding: 0.5em 0.75em;
 	font-size: 0.9em;
-	// An unresolved quote renders its bare url as the link text. Pico's
-	// inherited overflow-wrap: break-word wraps it but does not shrink
-	// min-content, so the flex body would size to the whole url.
 	word-break: break-word;
 }
 
