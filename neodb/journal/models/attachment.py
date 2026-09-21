@@ -249,7 +249,13 @@ class Attachment(models.Model):
         return (self.mimetype or "unknown").split("/")[0]
 
     def to_json(self) -> dict[str, Any]:
-        """Legacy ``Note.attachments`` JSON entry for this row."""
+        """Legacy ``Note.attachments`` JSON entry for this row.
+
+        The urls are whatever the storage serves them as, so a row written
+        while media sat on a host of its own holds an absolute url, and one
+        written while media is on our own domains holds a path. Every reader
+        of this column takes both.
+        """
         return {
             "type": self.type,
             "mimetype": self.mimetype,

@@ -36,7 +36,10 @@ def media_url_errors() -> list[CheckMessage]:
     """
     if not settings.MEDIA_BACKEND.startswith("s3"):
         return []
-    if not media_url_at_site_root(settings.MEDIA_URL, settings.SITE_DOMAINS):
+    # SITE_DOMAINS the way the other readers of it take it: a test that
+    # patches SITE_DOMAIN alone should not turn this check into an error
+    site_domains = getattr(settings, "SITE_DOMAINS", [settings.SITE_DOMAIN])
+    if not media_url_at_site_root(settings.MEDIA_URL, site_domains):
         return []
     return [
         Error(
