@@ -64,6 +64,12 @@ These settings require infrastructure access or process restart and cannot be ma
 
 `MEDIA_BACKEND` selects where NeoDB keeps the files which users upload. See [storage](storage.md) for S3 and for the S3-compatible servers which you can run yourself.
 
+### Main server and S3 media sharing same hostname
+
+When S3 is enabled, it's possible to serve NeoDB and its media from the same host, for example `https://your.site.domain/` and `https://your.site.domain/m/item/x.jpg`, basically host of `MEDIA_URL` is same as `NEODB_SITE_DOMAIN`.
+In this case, NeoDB writes media links without a host, such as `/m/item/x.jpg`. A page opened on any of those domains then loads its media from that same domain, so each of them must route that path to the same storage (eg using a reverse proxy).
+
+If `MEDIA_URL` has different host, such as a CDN or a dedicated media domain, absolute links will be rendered on page.
 
 ## Scaling Parameters
 
