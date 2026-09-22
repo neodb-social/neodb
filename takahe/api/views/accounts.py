@@ -91,9 +91,7 @@ def account_relationships(
         ids = id
     for actual_id in ids:
         identity = get_object_or_404(Identity, pk=actual_id).resolved
-        result.append(
-            IdentityService(identity).mastodon_json_relationship(request.identity)
-        )
+        result.append(relationship_for_client(identity, request.identity, actual_id))
     return result
 
 
@@ -187,6 +185,21 @@ def identity_for_client(id: str) -> Identity:
     return identity
 
 
+def relationship_for_client(
+    identity: Identity, from_identity: Identity, id: str
+) -> schemas.Relationship:
+    """
+    from_identity's relationship with identity, under the id the client sent.
+
+    A merged id resolves to another row, but the client files the answer
+    under the account it holds, so the id it asked about is the one it can
+    correlate.
+    """
+    relationship = IdentityService(identity).mastodon_json_relationship(from_identity)
+    relationship["id"] = id
+    return schemas.Relationship(**relationship)
+
+
 @scope_required("read:accounts")
 @api_view.get
 def account(request, id: str) -> schemas.Account:
@@ -271,7 +284,7 @@ def account_follow(
     identity = identity_for_client(id)
     service = IdentityService(request.identity)
     service.follow(identity, boosts=reblogs, notify=notify)
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:follows")
@@ -280,7 +293,7 @@ def account_unfollow(request, id: str) -> schemas.Relationship:
     identity = identity_for_client(id)
     service = IdentityService(request.identity)
     service.unfollow(identity)
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:blocks")
@@ -289,7 +302,7 @@ def account_block(request, id: str) -> schemas.Relationship:
     identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.block(identity)
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:blocks")
@@ -298,7 +311,7 @@ def account_unblock(request, id: str) -> schemas.Relationship:
     identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.unblock(identity)
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:mutes")
@@ -316,7 +329,7 @@ def account_mute(
         duration=duration,
         include_notifications=notifications,
     )
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:mutes")
@@ -325,7 +338,7 @@ def account_unmute(request, id: str) -> schemas.Relationship:
     identity = get_object_or_404(Identity, pk=id).resolved
     service = IdentityService(request.identity)
     service.unmute(identity)
-    return schemas.Relationship.from_identity_pair(identity, request.identity)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @scope_required("write:accounts")
@@ -336,8 +349,8 @@ def account_note(
     comment: QueryOrBody[str] = "",
 ) -> schemas.Relationship:
     identity = identity_for_client(id)
-    service = IdentityService(identity)
-    return schemas.Relationship(**service.set_note(request.identity, comment))
+    IdentityService(identity).set_note(request.identity, comment)
+    return relationship_for_client(identity, request.identity, id)
 
 
 @api_view.get

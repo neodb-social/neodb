@@ -76,11 +76,18 @@ def test_account_action_on_a_merged_id_reaches_the_real_identity(
     )
 
     assert response.status_code == 200
-    assert response.json()["id"] == str(remote_identity.pk)
     assert Block.objects.filter(
         source=identity, target=remote_identity, mute=False
     ).exists()
     assert not Block.objects.filter(target=alias).exists()
+    # The client files the answer under the id it sent, so that is the id
+    # it gets back, here and when it asks again
+    assert response.json()["id"] == str(alias.pk)
+    response = api_client.get(f"/api/v1/accounts/relationships?id={alias.pk}")
+    assert response.status_code == 200
+    assert [(r["id"], r["blocking"]) for r in response.json()] == [
+        (str(alias.pk), True)
+    ]
 
 
 @pytest.mark.django_db

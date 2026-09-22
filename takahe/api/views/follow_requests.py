@@ -3,7 +3,7 @@ from hatchway import api_view
 
 from api import schemas
 from api.decorators import scope_required
-from api.views.accounts import identity_for_client
+from api.views.accounts import identity_for_client, relationship_for_client
 from api.pagination import MastodonPaginator, PaginatingApiResponse, PaginationResult
 from users.models.identity import Identity
 from users.services.identity import IdentityService
@@ -42,7 +42,7 @@ def accept_follow_request(
 ) -> schemas.Relationship:
     source_identity = identity_for_client(id)
     IdentityService(request.identity).accept_follow_request(source_identity)
-    return IdentityService(source_identity).mastodon_json_relationship(request.identity)
+    return relationship_for_client(source_identity, request.identity, id)
 
 
 @scope_required("write:follows")
@@ -53,4 +53,4 @@ def reject_follow_request(
 ) -> schemas.Relationship:
     source_identity = identity_for_client(id)
     IdentityService(request.identity).reject_follow_request(source_identity)
-    return IdentityService(source_identity).mastodon_json_relationship(request.identity)
+    return relationship_for_client(source_identity, request.identity, id)
