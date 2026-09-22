@@ -146,7 +146,7 @@ class TestCatalogQueryParser:
         assert parser.filter_by.get("date") == ["99990000..99999999"]
 
     def test_year_filtering_out_of_range(self):
-        """Test an out of range year is dropped, not overflowed (NEODB-SOCIAL-7ZK)"""
+        """Test an out of range year is dropped, not overflowed"""
         for q in ["year:18002023", "year:2010..18002023", "year:18002023..2020"]:
             parser = CatalogQueryParser(q, 1, 20)
 

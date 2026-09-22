@@ -35,7 +35,7 @@ def _update_catalog_index_task():
 
 def _year_(s: str) -> int:
     # date is int32 YYYYMMDD, so a longer year overflows it and fails the
-    # entire search instead of just this filter (NEODB-SOCIAL-7ZK)
+    # entire search instead of just this filter
     year = int_(s)
     return year if 1 <= year <= 9999 else 0
 
