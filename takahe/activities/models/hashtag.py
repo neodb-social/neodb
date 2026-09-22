@@ -29,7 +29,7 @@ class HashtagStates(StateGraph):
         # Use timezone-aware datetime ranges instead of __date / __year /
         # __month lookups so the FILTER predicates are plain timestamp
         # comparisons instead of per-row AT TIME ZONE / EXTRACT calls
-        # (NEODB-SOCIAL-4QR -- single aggregate was hitting ~800ms on
+        # (single aggregate was hitting ~800ms on
         # popular hashtags because each candidate row had to be cast).
         today_start = timezone.make_aware(datetime(today.year, today.month, today.day))
         tomorrow_start = today_start + timedelta(days=1)

@@ -19,7 +19,7 @@ class TestArrayField:
         assert o.other_title == []
 
     def test_tolerant_array_form_field_empty_string(self):
-        """Regression for EGGPLANT-1CM: empty/blank string POSTed for an
+        """Regression: empty/blank string POSTed for an
         ArrayField widget must not raise JSONDecodeError."""
         from common.models.jsondata import ArrayField, TolerantArrayFormField
 
@@ -35,7 +35,7 @@ class TestArrayField:
         assert f.to_python('["drama"]') == ["drama"]
 
     def test_edit_form_accepts_blank_array_fields(self):
-        """Regression for EGGPLANT-1CM: posting an edit with blank array
+        """Regression: posting an edit with blank array
         fields must not crash form validation."""
         from catalog.forms import CatalogForms
 
@@ -105,7 +105,7 @@ class TestQueryStr:
         assert AbstractSite.query_str(content, '//span[@class="year"]/text()') == "2024"
 
     def test_missing_element_returns_empty_string(self):
-        # Regression for NEODB-SOCIAL-4H7: an empty xpath result must not
+        # Regression: an empty xpath result must not
         # raise IndexError so callers' `if not src:` guards can fire.
         content = html.fromstring("<html><body></body></html>")
         assert (

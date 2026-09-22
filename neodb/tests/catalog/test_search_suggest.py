@@ -55,7 +55,7 @@ class TestSuggestParsers:
         assert f"bucket_size:{SUGGEST_LIMIT}" in params["sort_by"]
         assert params["include_fields"] == "id, item_class, title"
         # prefix expansion over the large multi-valued creator fields is what
-        # made a short query cost a full page of search (NEODB-SOCIAL-7WD)
+        # made a short query cost a full page of search
         assert params["query_by"] == "title, extra_title, lookup_id"
         assert params["prefix"] == "true,true,false"
 

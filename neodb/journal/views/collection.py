@@ -519,7 +519,7 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
                 id=last_member
             )
         members = list(members_qs[:20])
-        # Member cards skip the metadata JSON (EGGPLANT-1DX).
+        # Member cards skip the metadata JSON.
         item_ids = [m.item_id for m in members]
         items = list(
             Item.objects.filter(pk__in=item_ids).prefetch_related(
@@ -527,7 +527,7 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
             )
         )
         # Batch credits + rating to avoid a per-item catalog_itemcredit join and
-        # journal_rating GROUP BY (Sentry: EGGPLANT-1EM).
+        # journal_rating GROUP BY.
         Item.prefetch_parent_items(items)
         Item.prefetch_credits(items)
         Item.prefetch_latest_episodes(items)

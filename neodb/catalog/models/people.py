@@ -271,7 +271,7 @@ class People(Item):
         first ``RELATED_ITEMS_DISPLAY_LIMIT`` of them, downcast to their concrete
         subclass for rendering. The total count is derived from ids without
         polymorphic downcasting, so a prolific person no longer fetches and
-        resolves hundreds of full item rows per page render (EGGPLANT-1DP).
+        resolves hundreds of full item rows per page render.
         """
         from .item import Item
 

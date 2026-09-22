@@ -423,7 +423,6 @@ class SiteManager:
         # localized_name contains the link's display name. Driving from the
         # itemcredit (item) index over the handful of people attached to one
         # item keeps this off the slow DISTINCT scan over catalog_people
-        # (EGGPLANT-1CV).
         base = People.objects.filter(
             is_deleted=False,
             merged_to_item__isnull=True,

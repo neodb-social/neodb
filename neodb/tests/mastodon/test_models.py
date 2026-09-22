@@ -205,7 +205,7 @@ class TestMastodonAccount:
 @pytest.mark.django_db(databases="__all__")
 class TestSocialAccountSaveFields:
     """A sync job holds the instance across network calls, so the user may
-    disconnect the account before it writes back (NEODB-SOCIAL-7QM)."""
+    disconnect the account before it writes back."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):

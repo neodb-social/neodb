@@ -28,7 +28,7 @@ from users.models import User
 
 @pytest.mark.django_db(databases="__all__")
 class TestSearchTVShowDedupNoNPlusOne:
-    """EGGPLANT-188: ``query_index`` used to access ``season.show`` while
+    """``query_index`` used to access ``season.show`` while
     deduping a show against its seasons in the result list, firing one
     ``catalog_tvshow`` lookup per TVSeason. Match by ``show_id`` instead so
     the count stays flat as the number of seasons grows.
@@ -118,7 +118,7 @@ class TestSearchTVShowDedupNoNPlusOne:
         )
 
     def test_dupe_to_items_carry_indexed_tags_without_tagmember_query(self):
-        """NEODB-SOCIAL-7KW: dropping ``Tag.attach_to_items`` from the search
+        """dropping ``Tag.attach_to_items`` from the search
         view must not reintroduce a per-``dupe_to`` tag query. ``dupe_to`` items
         are members of ``CatalogSearchResult.items`` (the deduped result reuses
         those same instances), so they already carry the indexed ``tag`` list.
@@ -150,7 +150,7 @@ class TestSearchTVShowDedupNoNPlusOne:
 
 @pytest.mark.django_db(databases="__all__")
 class TestSearchReusesIndexedTags:
-    """NEODB-SOCIAL-7KW: ``CatalogSearchResult.items`` attaches the public tags
+    """``CatalogSearchResult.items`` attaches the public tags
     stored in the search index onto each item, so search no longer re-aggregates
     ``journal_tagmember`` (a slow query for heavily-tagged items) per request.
     """
@@ -192,7 +192,7 @@ class TestSearchReusesIndexedTags:
 
 @pytest.mark.django_db(databases="__all__")
 class TestSearchExternalResourcesSlim:
-    """EGGPLANT-1DX: search loaded the full ``catalog_externalresource`` row
+    """search loaded the full ``catalog_externalresource`` row
     (including the large ``metadata``/``other_lookup_ids`` JSON) for every
     result. Cards only read url/site_name/site_label, so the prefetch must skip
     those heavy columns.
@@ -249,7 +249,7 @@ class TestSearchExternalResourcesSlim:
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogIndexBatchNoNPlusOne:
-    """NEODB-SOCIAL-7W5: ``CatalogIndex.replace_items`` built every document on
+    """``CatalogIndex.replace_items`` built every document on
     its own, so each item in the batch cost one query for its credits, one for
     its public tags and one for its mark count, plus one for the parent title
     of a TVSeason. Batch them, so the count stays flat as the batch grows.

@@ -41,7 +41,7 @@ _SUGGEST_PARAMS: dict[str, Any] = {
     # A typeahead fires on every keystroke, so one query must stay cheap.
     # Typo tolerance belongs to full search: a token long enough to pass
     # min_len_1typo gets expanded here for no gain, because the next
-    # keystroke corrects the typo anyway (NEODB-SOCIAL-7WD).
+    # keystroke corrects the typo anyway.
     "num_typos": 0,
     "drop_tokens_threshold": 0,
     "exhaustive_search": False,

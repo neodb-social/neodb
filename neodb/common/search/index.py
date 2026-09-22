@@ -258,7 +258,7 @@ class Index:
         # the client retries the identical (slow) query immediately with no
         # backoff, turning one slow search into a burst of consecutive HTTP
         # calls that both stalls the page and piles load onto an already-slow
-        # Typesense (NEODB-SOCIAL-7RV). Writes run in background jobs where
+        # Typesense. Writes run in background jobs where
         # durability matters more than latency, so they retry a couple of times.
         return Client(
             {

@@ -1117,7 +1117,7 @@ class TestItemRetrieveCreditsPrefetch:
         """The credits prefetch must not pull the heavy person metadata JSON.
 
         Selecting each credited person's catalog_item.metadata made this a slow
-        DB query (EGGPLANT-1EF). The optimized Prefetch fetches only the person
+        DB query. The optimized Prefetch fetches only the person
         columns needed for credit.person.url (uid/people_type).
         """
         client = Client()
@@ -1538,7 +1538,7 @@ class TestOwnerIdentityPrefetchOnApiLists:
 class TestTagItemsApiPrefetch:
     """``GET /api/me/tag/{uuid}/item/`` serializes each member's item via
     ``ItemSchema``; the item FK is polymorphic and cannot be select_related,
-    so the paginator must batch-load items (NEODB-SOCIAL-7XJ)."""
+    so the paginator must batch-load items."""
 
     @pytest.fixture(autouse=True)
     def setup_data(self):

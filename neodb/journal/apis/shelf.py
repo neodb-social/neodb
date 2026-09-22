@@ -49,7 +49,7 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     if not members:
         return
     items = [m.item for m in members]
-    # Batch-fetch to avoid N+1; external_resources skips metadata (EGGPLANT-1DX).
+    # Batch-fetch to avoid N+1; external_resources skips metadata.
     prefetch_related_objects(
         items,
         Item.external_resources_prefetch(),
@@ -60,7 +60,7 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     Rating.attach_to_items(items)
     # Public item tags are not returned on the shelf; only the owner's own tags
     # (MarkSchema.tags, fetched below). ItemSchema.tags serializes as null
-    # without a per-item aggregation (NEODB-SOCIAL-7KW).
+    # without a per-item aggregation.
     prefetch_latest_posts(members)
     # select_related("owner") gives each row its own APIdentity instance, so
     # MarkSchema.owner would fire a takahe lookup per row without this.

@@ -471,7 +471,7 @@ class TestSyncCreditsFromMetadata:
 class TestSchemaCreditResolvers:
     """Schemas must source credit fields from ItemCredit via resolve_*.
 
-    Regression for NEODB-SOCIAL-4MQ: resolver methods defined on a plain mixin
+    Regression: resolver methods defined on a plain mixin
     (not a Schema subclass) were silently dropped by ninja's ResolverMetaclass,
     so ap_object fell back to the raw jsondata field. When that field held
     corrupted scalar data (string instead of list) Pydantic raised
@@ -540,7 +540,7 @@ class TestCreditDisplayNameLocalization:
     display once Item.attach_localized_credit_names has run, instead of the
     snapshot frozen at sync time. attach_localized_credit_names fetches only the
     localized_name JSON sub-key in one bounded query -- never the heavy person
-    metadata blob (EGGPLANT-1EF) and never a per-credit query. Surfaces that
+    metadata blob and never a per-credit query. Surfaces that
     never attach (ap_object, backups, import matching) keep the snapshot.
 
     Regression: a Douban-sourced movie froze the director credit name in

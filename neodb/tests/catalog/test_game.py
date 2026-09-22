@@ -72,7 +72,6 @@ class TestIGDB:
         # IGDBWrapper raises requests' HTTPError (not httpx's) on a 429;
         # api_query must catch it and degrade to [] rather than let it
         # propagate and crash the caller (e.g. a Steam import job).
-        # Regression for EGGPLANT-1GY / EGGPLANT-1GZ.
         monkeypatch.setattr(igdb_limiter(), "acquire", lambda timeout: None)
         monkeypatch.setattr(time, "sleep", lambda s: None)
 

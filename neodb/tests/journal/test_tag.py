@@ -34,7 +34,7 @@ def test_indexable_tags_for_item_aggregates_public_tags():
 
 @pytest.mark.django_db(databases="__all__")
 def test_item_tags_not_aggregated_on_read():
-    """Item.tags must not auto-aggregate on read (NEODB-SOCIAL-7KW): a freshly
+    """Item.tags must not auto-aggregate on read: a freshly
     loaded item exposes tags as None and touches no journal_tagmember row, so
     list/feed surfaces that never attach tags cannot trigger the slow query."""
     owner = User.register(email="noagg@example.com", username="noagg")
@@ -70,7 +70,7 @@ def test_to_indexable_doc_includes_public_tags():
 @pytest.mark.django_db(databases="__all__")
 def test_append_item_recovers_from_duplicate_race():
     """A concurrent insert that wins the parent+item unique race must not
-    surface to the caller — append_item is idempotent (Sentry NEODB-SOCIAL-3JG)."""
+    surface to the caller — append_item is idempotent."""
     owner = User.register(email="race@example.com", username="raceowner")
     book = Edition.objects.create(title="Raced Book")
     tag = Tag.objects.create(owner=owner.identity, title="raced", visibility=0)

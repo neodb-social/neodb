@@ -147,7 +147,7 @@ def test_relationship_null_boolean_columns(identity, other_identity):
     """
     Legacy/imported follow rows can hold NULL in the notify/boosts columns.
     The relationship JSON must coerce these to real booleans so the Mastodon
-    Relationship schema validation does not fail (NEODB-SOCIAL-7RP).
+    Relationship schema validation does not fail.
     """
     from api.schemas import Relationship
     from users.models.follow import Follow, FollowStates

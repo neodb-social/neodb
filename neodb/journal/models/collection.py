@@ -382,7 +382,7 @@ class Collection(List):
             members = p.get_page(page_number)
             pages = p.num_pages
             item_ids = [m.item_id for m in members]
-            # Member cards skip the metadata JSON (EGGPLANT-1DX).
+            # Member cards skip the metadata JSON.
             items = list(
                 Item.objects.filter(pk__in=item_ids).prefetch_related(
                     Item.external_resources_prefetch()
@@ -932,7 +932,7 @@ class Collection(List):
         members = list(self.members.all())
         # Item is polymorphic; per-member FK access costs two queries each
         # (base row + subclass join). Batch-fetch through the polymorphic
-        # manager instead (Sentry: EGGPLANT-1HD).
+        # manager instead.
         items_map = {
             i.pk: i for i in Item.objects.filter(pk__in=[m.item_id for m in members])
         }

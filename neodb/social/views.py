@@ -140,7 +140,7 @@ def _in_progress_context(identity: APIdentity) -> dict:
     book_members = list(
         identity.shelf_manager.get_latest_members(ShelfType.PROGRESS, ItemCategory.Book)
         .select_related("current_progress")
-        # Cards skip the metadata JSON (EGGPLANT-1DX).
+        # Cards skip the metadata JSON.
         .prefetch_related(
             "item",
             Item.external_resources_prefetch(lookup="item__external_resources"),

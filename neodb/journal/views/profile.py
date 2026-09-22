@@ -609,7 +609,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             Review.objects.filter(q_item_in_category(item_category))
             .filter(qv)
             .order_by("-created_time")
-            # Cards skip the metadata JSON (EGGPLANT-1DX).
+            # Cards skip the metadata JSON.
             .prefetch_related(
                 "item",
                 Item.external_resources_prefetch(lookup="item__external_resources"),
@@ -626,7 +626,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
         members_queryset = (
             target.shelf_manager.get_latest_members(shelf_type_enum, item_category)
             .filter(qv)
-            # Cards skip the metadata JSON (EGGPLANT-1DX).
+            # Cards skip the metadata JSON.
             .prefetch_related(
                 "item",
                 Item.external_resources_prefetch(lookup="item__external_resources"),

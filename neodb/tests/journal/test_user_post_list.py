@@ -138,7 +138,7 @@ def test_user_post_list_follower_sees_all(alice_with_posts):
 @pytest.mark.django_db(databases="__all__", transaction=True)
 def test_get_recent_posts_keyset_follows_published_not_pk():
     """Keyset paging stays correct when pk order != published order and when
-    two posts share a published time (EGGPLANT-1E7 published-keyset fix)."""
+    two posts share a published time (published-keyset fix)."""
     alice = User.register(email="alice_keyset@example.com", username="alicekeyset")
     posts = []
     for i in range(4):

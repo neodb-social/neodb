@@ -769,7 +769,7 @@ class TestOriginalEpisodes:
         assert dates == sorted(dates, reverse=True)
 
     def test_program_host_credits_prefetched_no_n_plus_one(self):
-        """NEODB-SOCIAL-7NC: discover episode cards read
+        """Discover episode cards read
         ``item.program.host_names`` (host credits), so ``get_original_episodes``
         must prefetch each program's credits; reading them across N episodes
         must not fire one ``catalog_itemcredit`` query per episode.

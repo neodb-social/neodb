@@ -644,7 +644,7 @@ def test_fetch_actor_invalid_idna_host(config_system, monkeypatch, settings):
     """
     An actor on an unencodable host is unfetchable, so fetch_actor reports
     failure instead of letting a raw idna error escape to Stator, which had
-    inbox_message logging an error on every retry (NEODB-SOCIAL-7VE / 7VF).
+    inbox_message logging an error on every retry.
     """
     original = settings.SETUP.NO_FEDERATION
     settings.SETUP.NO_FEDERATION = False
@@ -667,8 +667,7 @@ def test_fetch_actor_handle_already_taken(httpx_mock, config_system, monkeypatch
     Two actors can share a preferredUsername on one domain, such as a Lemmy
     user and a community of the same name, but (username, domain) is unique.
     The save is lost, so fetch_actor must report failure rather than enqueue a
-    neodb sync for a row that still holds none of the fetched values
-    (EGGPLANT-1JM).
+    neodb sync for a row that still holds none of the fetched values.
     """
     domain = Domain.get_remote_domain("lemmy.example")
     Identity.objects.create(
@@ -713,7 +712,7 @@ def test_fetch_actor_rejects_alias_actor_uri(httpx_mock, config_system, monkeypa
     Several servers publish one actor under several paths, and the actor GET
     follows redirects, so a row can be left pointing at an alias. Its document
     names the canonical id, and storing it would let the alias take the handle
-    the canonical row needs (EGGPLANT-1JM).
+    the canonical row needs.
     """
     canonical = Identity.objects.create(
         actor_uri="https://example.com/ruben",

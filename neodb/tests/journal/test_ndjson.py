@@ -581,7 +581,7 @@ class TestNdjsonExportImport:
     def test_ndjson_newer_import_updates_instead_of_duplicating(self):
         """Importing newer data updates existing Comment/Review rows in place;
         creating another row would duplicate (owner, item) — the same
-        corruption behind Sentry EGGPLANT-1GP."""
+        corruption behind."""
         importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
         importer.items = {self.book1.absolute_url: self.book1}
         owner = self.user2.identity
@@ -919,7 +919,7 @@ class TestNdjsonExportImport:
         """A rating created after the lookup is updated, not re-inserted.
 
         The blinded first lookup stands in for the row a concurrent import
-        commits in that window (NEODB-SOCIAL-7WA).
+        commits in that window.
         """
         importer = NdjsonImporter.create(user=self.user2, file="x.zip", visibility=0)
         importer.items = {self.book1.absolute_url: self.book1}

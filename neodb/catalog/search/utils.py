@@ -57,7 +57,6 @@ def query_index(
     search_items = r.items
     # Result cards only read url/site_name/site_label, so skip the large
     # metadata/other_lookup_ids JSON columns that made this a slow query
-    # (Sentry: EGGPLANT-1DX).
     prefetch_related_objects(search_items, Item.external_resources_prefetch())
     editions = [item for item in search_items if isinstance(item, Edition)]
     if editions:
@@ -90,7 +89,7 @@ def query_index(
         for res in i.external_resources.all():
             urls.append(res.url)
     # hide show if its season exists. Match via show_id so we never fire a
-    # per-season FK lookup on TVShow (EGGPLANT-188).
+    # per-season FK lookup on TVShow.
     items_by_pk = {}
     seasons = []
     for i in items:

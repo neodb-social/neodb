@@ -485,7 +485,7 @@ class TestSiblingEditionExclusion:
 
 @pytest.mark.django_db(databases="__all__")
 class TestRecoItemsExternalResourcesNoNPlusOne:
-    """EGGPLANT-1FN (/similar) and EGGPLANT-1FP (/me/recommendations).
+    """N+1 on /similar and /me/recommendations.
 
     Reco items come from similar_items()/blended_for_discover(), which -- unlike
     the search path's query_index -- do not pre-hydrate external_resources, so
@@ -559,7 +559,7 @@ class TestFromYourCircles:
         assert {i.pk for i in items} == {self.book_b.pk}
 
     def test_shelved_exclusion_uses_subquery(self):
-        # Regression for EGGPLANT-1GE: the viewer's shelved items must be
+        # Regression: the viewer's shelved items must be
         # excluded via a subquery, not inlined as one parameter per item.
         _public_mark(self.viewer.identity, self.book_a)
         with CaptureQueriesContext(connection) as ctx:

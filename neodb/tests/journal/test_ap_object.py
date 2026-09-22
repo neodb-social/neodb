@@ -711,9 +711,9 @@ class TestUpdateByApObjectDuplicateRows:
 
     Comment and Review have no unique constraint on (owner, item), so
     concurrent fetch workers can race duplicate rows in; a later update
-    then crashed update_or_create with MultipleObjectsReturned (Sentry
-    EGGPLANT-1GP). The update must target the newest row and delete older
-    duplicates only when their content matches it.
+    then crashed update_or_create with MultipleObjectsReturned. The update
+    must target the newest row and delete older duplicates only when their
+    content matches it.
     """
 
     @pytest.fixture(autouse=True)

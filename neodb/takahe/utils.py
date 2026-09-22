@@ -1208,7 +1208,7 @@ class Takahe:
             # Keyset on (-published, -pk): resolve the cursor pk to its
             # published time and compare the tuple, so paging holds when pk
             # order != published order. Sorting by published (not pk) also
-            # avoids the ORDER BY id pathology (EGGPLANT-1E7).
+            # avoids the ORDER BY id pathology.
             boundary = (
                 Post.objects.filter(pk=before_pk)
                 .values_list("published", flat=True)

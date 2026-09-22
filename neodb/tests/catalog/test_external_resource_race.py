@@ -9,7 +9,7 @@ from catalog.models import ExternalResource, IdType
 @pytest.mark.django_db(databases="__all__")
 class TestUpdateContentRaceRecovery:
     def test_adopts_existing_pk_on_url_conflict(self):
-        # Simulate the EGGPLANT-1A4 / NEODB-SOCIAL-4MN race: two workers
+        # Simulate the insert race: two workers
         # both miss the get_resource() lookup, build unsaved rows, then
         # one wins the insert. The loser's update_content must adopt the
         # winner's pk instead of raising IntegrityError.

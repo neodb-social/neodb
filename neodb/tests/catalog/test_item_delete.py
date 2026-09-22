@@ -35,7 +35,7 @@ def _review(item, owner_username: str = "reviewer") -> Review:
 class TestItemDeleteInUse:
     def test_staff_cannot_delete_item_in_use(self):
         """Deleting an in-use item strands every piece pointing at it: the
-        piece can be exported but never re-imported (NEODB-SOCIAL-7VV)."""
+        piece can be exported but never re-imported."""
         item = _podcast()
         _review(item)
         client = Client()

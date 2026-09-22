@@ -254,7 +254,7 @@ class JournalSearchResult(SearchResult):
                 [],
             )
         )
-        # get_by_ids already prefetches external_resources (slim; EGGPLANT-1DX).
+        # get_by_ids already prefetches external_resources (slim).
         items = Item.get_by_ids(ids)
         return Item.get_final_items(items)
 

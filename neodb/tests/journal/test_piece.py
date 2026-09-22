@@ -190,7 +190,7 @@ class TestMark:
 
     def test_delete_review_without_existing(self):
         # Deleting a review that was never created must be a no-op, not an
-        # attempt to insert a Review with a null title (NEODB-SOCIAL-7MX).
+        # attempt to insert a Review with a null title.
         result = Review.update_item_review(self.book1, self.user1.identity, None, None)
         assert result is None
         mark = Mark(self.user1.identity, self.book1)

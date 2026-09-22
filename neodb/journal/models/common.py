@@ -1283,7 +1283,7 @@ def prefetch_pieces_for_posts(
     # rating, credits, external resources) don't fire per-item queries while
     # rendering feed_events.html. Mirrors the list-view prefetch in
     # journal.views.common. Public tags are not shown on feed cards, so they
-    # are intentionally not attached (NEODB-SOCIAL-7KW).
+    # are intentionally not attached.
     items = list(items_by_id.values())
     if items:
         from journal.models import Rating

@@ -128,8 +128,7 @@ class TestTimelineDataNPlusOne:
 
     def test_no_per_item_card_data_queries(self):
         """Item-card data must be batch-prefetched in prefetch_pieces_for_posts,
-        not queried once per feed item while rendering feed_events.html
-        (NEODB-SOCIAL-4QY, NEODB-SOCIAL-7MQ).
+        not queried once per feed item while rendering feed_events.html.
 
         external_resources and credits are read only by the item-card partials,
         so a single-item lookup (``"item_id" = ...`` rather than the batched

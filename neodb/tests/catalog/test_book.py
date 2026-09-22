@@ -725,7 +725,7 @@ class TestQidian:
     def test_scrape_without_description(self):
         # A page whose description paragraph is missing must not produce a
         # localized_description entry with text=None, which would fail
-        # EditionSchema validation (NEODB-SOCIAL-7KK).
+        # EditionSchema validation.
         t_url = "https://book.qidian.com/info/1035420986/"
         site = SiteManager.get_site_by_url(t_url)
         assert site is not None

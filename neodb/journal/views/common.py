@@ -269,7 +269,7 @@ def render_list(
     people_type = request.GET.get("people_type") or ""
     if people_type in PeopleType.values and item_category == ItemCategory.People:
         queryset = queryset.filter(item__people__people_type=people_type)
-    # Slim external_resources prefetch: cards skip the metadata JSON (EGGPLANT-1DX).
+    # Slim external_resources prefetch: cards skip the metadata JSON.
     queryset = queryset.prefetch_related(
         "item", Item.external_resources_prefetch(lookup="item__external_resources")
     )

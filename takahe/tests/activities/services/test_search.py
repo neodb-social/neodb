@@ -80,7 +80,7 @@ def test_search_identities_by_domain(identity, identity2):
     """Searching a bare domain name should return identities on that
     domain, matched case-insensitively.
 
-    Regression: EGGPLANT-1GW - ``domain__iexact`` raised FieldError as
+    Regression: ``domain__iexact`` raised FieldError as
     ``iexact`` cannot be applied directly to the ForeignKey.
     """
     results = SearchService("Example.COM", None).search_identities_handle()

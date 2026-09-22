@@ -305,7 +305,7 @@ class TestCollectionListOperations:
 
 @pytest.mark.django_db(databases="__all__")
 class TestCollectionEditItemsNPlusOne:
-    """EGGPLANT-1EM: /collection/<uuid>/edit_items rendered per-item credits
+    """/collection/<uuid>/edit_items rendered per-item credits
     and rating distribution, firing a catalog_itemcredit join for every member.
     Credits must be batch-prefetched instead.
     """
@@ -344,7 +344,7 @@ class TestCollectionEditItemsNPlusOne:
 
 @pytest.mark.django_db(databases="__all__")
 class TestCollectionIndexDocNPlusOne:
-    """EGGPLANT-1HD: reordering members re-saves the Collection, whose index
+    """reordering members re-saves the Collection, whose index
     doc iterated members and fetched each polymorphic item individually (two
     queries per member). Items must be batch-fetched instead.
     """

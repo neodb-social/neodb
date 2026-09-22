@@ -147,7 +147,7 @@ def _prefetch_list_member_items(data: list) -> None:
     items = [i for i in items if i is not None]
     if not items:
         return
-    # external_resources skips the metadata JSON (EGGPLANT-1DX).
+    # external_resources skips the metadata JSON.
     prefetch_related_objects(
         items,
         Item.external_resources_prefetch(),

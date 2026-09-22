@@ -144,7 +144,7 @@ class TestBandcamp:
         assert site.id_value == t_id_value
 
     def test_custom_domain_url_to_id(self):
-        # Regression for NEODB-SOCIAL-4MW: custom Bandcamp domains must resolve
+        # Regression: custom Bandcamp domains must resolve
         # via URL_PATTERN_FALLBACK, else scrape() asserts on a None url.
         from catalog.sites.bandcamp import Bandcamp
 
@@ -175,7 +175,7 @@ class TestBandcamp:
         assert site.resource.item.genre == []
 
     def test_scrape_rejects_page_without_title(self, monkeypatch):
-        # Regression for NEODB-SOCIAL-4H7: query_str now returns "" instead
+        # Regression: query_str now returns "" instead
         # of raising IndexError on a missing element, so the scraper must
         # reject pages lacking title/artist explicitly rather than silently
         # saving empty metadata.

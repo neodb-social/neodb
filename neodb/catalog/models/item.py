@@ -306,7 +306,7 @@ class ItemCredit(models.Model):
         """Attach request-localized display names to ``credits``, in one query.
 
         The linked ``People``'s localized name lives in the heavy, deliberately
-        deferred person ``metadata`` JSON (EGGPLANT-1EF), so fetch only that
+        deferred person ``metadata`` JSON, so fetch only that
         sub-key for all credited people at once instead of selecting it through
         ``Item.credits_prefetch``. Credits with no person keep their snapshot.
         """
@@ -399,7 +399,7 @@ class Item(PolymorphicModel):
     # are attached explicitly only where shown -- the item detail view/API and
     # search results (from the precomputed index). Left None on list/feed/
     # discover surfaces so they neither render nor trigger the per-item tag
-    # aggregation that was the NEODB-SOCIAL-7KW slow query.
+    # aggregation that was a slow query.
     tags: list[str] | None = None
     #: Shelf marks in the window the site sets for the spotlight, filled in by
     #: ``DiscoverGenerator`` on the cached discover items so cards can show it;
@@ -898,7 +898,7 @@ class Item(PolymorphicModel):
         select = {f"id_{i}": f"id={i}" for i in ids}
         order = [f"-id_{i}" for i in ids]
         # Result cards only read url/site_name/site_label, so skip the large
-        # metadata/other_lookup_ids JSON columns (Sentry: EGGPLANT-1DX).
+        # metadata/other_lookup_ids JSON columns.
         items = (
             cls.objects.filter(pk__in=ids, is_deleted=False)
             .prefetch_related(cls.external_resources_prefetch())
@@ -981,7 +981,7 @@ class Item(PolymorphicModel):
 
         Without this each item costs one query for its credits, one for its
         public tags, one for its mark count, and for a TVSeason one more for
-        the parent title (Sentry: NEODB-SOCIAL-7W5).
+        the parent title.
         """
         from journal.models import Mark, TagManager
 
@@ -1004,7 +1004,7 @@ class Item(PolymorphicModel):
         the person's ``uid``/``people_type``). Restrict the ``select_related``
         join to those columns so the batch prefetch no longer pulls the large
         ``metadata`` JSON on each credited person, which made it a slow DB
-        query (EGGPLANT-1EF).
+        query.
 
         This intentionally does NOT load ``localized_name`` (which lives in the
         deferred ``metadata`` JSON): to localize credit names for display, call
@@ -1047,7 +1047,7 @@ class Item(PolymorphicModel):
         *, lookup: str = "external_resources", with_metadata: bool = False
     ) -> models.Prefetch:
         """``Prefetch`` for external_resources that drops the large metadata /
-        other_lookup_ids JSON (Sentry: EGGPLANT-1DX); cards and the API only
+        other_lookup_ids JSON; cards and the API only
         read url/site_name/site_label. Pass ``with_metadata=True`` for embed
         surfaces (item detail, feed cards) where ``Album.get_embed_link`` reads
         ``res.metadata``; ``lookup`` sets the relation path for nested prefetch.

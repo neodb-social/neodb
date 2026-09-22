@@ -126,7 +126,7 @@ def retrieve(request, item_path, item_uuid):
     # The detail page only reads url/site_name/site_label (derived from
     # id_type/id_value) via item.display_resources, so skip the large
     # metadata/other_lookup_ids JSON columns that made this prefetch a slow
-    # query (EGGPLANT-1DX). Albums are the exception: album.html renders an
+    # query. Albums are the exception: album.html renders an
     # embed via Album.get_embed_link(), which reads res.metadata for Bandcamp
     # resources, so keep metadata for them to avoid a per-resource deferred load.
     prefetch_related_objects(
@@ -139,7 +139,7 @@ def retrieve(request, item_path, item_uuid):
     Item.attach_localized_credit_names([item])
     Item.prefetch_parent_items([item])
     # Public tags are shown on the item detail page; aggregate for this single
-    # item only (list pages no longer attach tags -- NEODB-SOCIAL-7KW).
+    # item only (list pages no longer attach tags).
     item.tags = TagManager.indexable_tags_for_item(item)
     focus_item = None
     if request.GET.get("focus"):
@@ -253,7 +253,7 @@ def people_works(request, item_path, item_uuid, role):
     if works_items:
         # Card partials only read url/site_name/site_label (derived from
         # id_type/id_value), so skip the large metadata/other_lookup_ids JSON
-        # columns that made this prefetch a slow query (EGGPLANT-1DX).
+        # columns that made this prefetch a slow query.
         prefetch_related_objects(
             works_items,
             Item.external_resources_prefetch(),
@@ -567,7 +567,7 @@ def similar(request, item_path, item_uuid):
         Item.prefetch_edition_works(items)
         # Card partials only read url/site_name/site_label (derived from
         # id_type/id_value), so skip the large metadata/other_lookup_ids JSON
-        # columns that made this prefetch a slow query (EGGPLANT-1DX).
+        # columns that made this prefetch a slow query.
         prefetch_related_objects(items, Item.external_resources_prefetch())
     return render(
         request,
@@ -741,7 +741,7 @@ def discover(request):
         if reco_items:
             Item.prefetch_parent_items(reco_items)
             Item.prefetch_edition_works(reco_items)
-            # Discover cards skip the metadata JSON (EGGPLANT-1DX); ratings
+            # Discover cards skip the metadata JSON; ratings
             # and credits are batched so these cards match the cached shelves.
             prefetch_related_objects(
                 reco_items,

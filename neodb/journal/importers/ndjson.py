@@ -663,7 +663,6 @@ class NdjsonImporter(BaseImporter):
                     return "skipped"
                 # a newer export updates the existing comment in place;
                 # creating another row would duplicate (owner, item),
-                # the same corruption behind EGGPLANT-1GP
                 existing_comment.text = content
                 if published_dt:
                     existing_comment.created_time = published_dt

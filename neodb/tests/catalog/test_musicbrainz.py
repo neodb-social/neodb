@@ -168,7 +168,7 @@ class TestMusicBrainzReleaseGroup:
 
     def test_extract_track_info_null_length(self):
         """MB returns "length": null for tracks of unknown length; the key is
-        present but the value is None, which int() can't take (EGGPLANT-1E4)."""
+        present but the value is None, which int() can't take."""
         release_data = {
             "media": [
                 {
@@ -403,7 +403,7 @@ class TestMusicBrainzRelease:
 
     def test_track_extraction_null_length(self):
         """A release whose tracks carry "length": null must not crash on
-        int(None) while summing duration (EGGPLANT-1E4)."""
+        int(None) while summing duration."""
         release_data = {
             "media": [
                 {

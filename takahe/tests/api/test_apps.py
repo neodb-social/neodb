@@ -98,7 +98,7 @@ def test_verify_credentials_redirect_uri_shape(identity):
     """
     /api/v1/apps/verify_credentials must serialize redirect_uri as a string and
     redirect_uris as a list even though it is stored as a plain string,
-    rather than raising a pydantic ValidationError (NEODB-SOCIAL-7NS).
+    rather than raising a pydantic ValidationError.
     """
     client = _verify_credentials_client(
         identity, client_id="tk-verify-test", redirect_uris="neodb://oauth/callback"

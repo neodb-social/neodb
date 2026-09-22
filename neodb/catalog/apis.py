@@ -255,7 +255,7 @@ def search_item(
     )
     Rating.attach_to_items(items)
     # Public tags already ride along from the search index (query_index); no
-    # per-request journal_tagmember aggregation here (NEODB-SOCIAL-7KW).
+    # per-request journal_tagmember aggregation here.
     if request.user.is_authenticated:
         Mark.attach_to_items(request.user.identity, items, request.user)
     return Status(200, {"data": items, "pages": num_pages, "count": count})
@@ -480,7 +480,7 @@ def _get_item(cls, uuid, response, attach_credits: bool = True, subresource: str
         response["Location"] = item.api_url
         return Status(302, {"message": "Item recasted", "url": item.api_url})
     # Public tags are returned for single-item lookups; aggregate for this item
-    # only (list endpoints no longer attach tags -- NEODB-SOCIAL-7KW).
+    # only (list endpoints no longer attach tags).
     item.tags = TagManager.indexable_tags_for_item(item)
     if attach_credits and cls is not People:  # PeopleSchema has no credits
         # Credit names follow the request locale, as on the HTML item page.
@@ -812,7 +812,7 @@ def _prepare_reco_items(request, items: list) -> None:
         # Reco items come from similar_items()/blended_for_discover(), which
         # (unlike query_index) don't pre-hydrate external_resources; without
         # this ItemSchema.external_resources fires one query per item
-        # (EGGPLANT-1FN /similar, EGGPLANT-1FP /me/recommendations).
+        # (/similar, /me/recommendations).
         Item.external_resources_prefetch(),
     )
     Rating.attach_to_items(items)
