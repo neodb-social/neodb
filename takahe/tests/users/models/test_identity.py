@@ -544,6 +544,74 @@ def test_fetch_webfinger_url(httpx_mock: HTTPXMock, config_system):
 
 
 @pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_webfinger_xrd(httpx_mock: HTTPXMock, config_system):
+    """
+    A cache that ignores Vary: Accept can answer a JSON webfinger request with
+    the XRD variant of the same resource, which still resolves.
+    """
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/host-meta",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/webfinger?resource=acct:test@example.com",
+        headers={"Content-Type": "application/xrd+xml"},
+        content=(
+            b'<?xml version="1.0" encoding="UTF-8"?>'
+            b'<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">'
+            b"<Subject>acct:test@example.com</Subject>"
+            b'<Link rel="self" type="application/activity+json"'
+            b' href="https://example.com/users/9u8410yv8ddh0gfg"/>'
+            b'<Link rel="http://webfinger.net/rel/profile-page" type="text/html"'
+            b' href="https://example.com/@test"/>'
+            b"</XRD>"
+        ),
+    )
+    assert Identity.fetch_webfinger("test@example.com") == (
+        "https://example.com/users/9u8410yv8ddh0gfg",
+        "test@example.com",
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_webfinger_unparseable(httpx_mock: HTTPXMock, config_system):
+    """
+    A body that is neither JRD nor XRD is still an error, so it keeps the
+    reporting it has always had.
+    """
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/host-meta",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/webfinger?resource=acct:test@example.com",
+        headers={"Content-Type": "text/html"},
+        content=b"<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='utf-8'>\n",
+    )
+    with pytest.raises(ValueError, match="JSON parse error fetching webfinger"):
+        Identity.fetch_webfinger("test@example.com")
+
+
+def test_parse_webfinger_xrd_without_subject():
+    """
+    An XRD document with no subject resolves no handle, so it is not usable.
+    """
+    assert (
+        Identity.parse_webfinger_xrd(
+            b'<?xml version="1.0" encoding="UTF-8"?>'
+            b'<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">'
+            b'<Link rel="self" type="application/activity+json"'
+            b' href="https://example.com/users/1"/>'
+            b"</XRD>"
+        )
+        is None
+    )
+    assert Identity.parse_webfinger_xrd(b"") is None
+
+
+@pytest.mark.django_db
 def test_attachment_to_ap(identity: Identity, config_system):
     """
     Tests identity attachment conversion to AP format.

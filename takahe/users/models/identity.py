@@ -1155,6 +1155,28 @@ class Identity(StatorModel):
         return f"https://{domain}/.well-known/webfinger?resource={{uri}}"
 
     @classmethod
+    def parse_webfinger_xrd(cls, content: bytes) -> dict | None:
+        """
+        Parses an XRD webfinger document into the JRD shape, or returns None
+        if it is not one. A server behind a cache that ignores Vary: Accept
+        can answer a JSON request with the XML variant of the same resource.
+        """
+        try:
+            parser = etree.XMLParser(resolve_entities=False, no_network=True)
+            tree = etree.fromstring(content, parser=parser)
+        except etree.ParseError:
+            return None
+        subject = tree.xpath("string(.//*[local-name() = 'Subject'])")
+        if not subject:
+            return None
+        return {
+            "subject": subject,
+            "links": [
+                dict(link.attrib) for link in tree.xpath(".//*[local-name() = 'Link']")
+            ],
+        }
+
+    @classmethod
     def fetch_webfinger(cls, handle: str) -> tuple[str | None, str | None]:
         """
         Given a username@domain handle, returns a tuple of
@@ -1203,13 +1225,15 @@ class Identity(StatorModel):
         try:
             data = response.json()
         except ValueError:
-            # Some servers return these with a 200 status code!
-            if b"not found" in response.content.lower():
-                return None, None
-            raise ValueError(
-                "JSON parse error fetching webfinger",
-                response.content,
-            )
+            data = cls.parse_webfinger_xrd(response.content)
+            if data is None:
+                # Some servers return these with a 200 status code!
+                if b"not found" in response.content.lower():
+                    return None, None
+                raise ValueError(
+                    "JSON parse error fetching webfinger",
+                    response.content,
+                )
         try:
             if data["subject"].startswith("acct:"):
                 data["subject"] = data["subject"][5:]
