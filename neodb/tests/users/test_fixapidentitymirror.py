@@ -1,7 +1,9 @@
 from io import StringIO
+from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
+from django.utils import timezone
 
 from catalog.models import Edition
 from journal.models import Comment, Shelf, ShelfMember, ShelfType, Tag, TagMember
@@ -198,6 +200,31 @@ class TestFixAPIdentityMirror:
         comment.refresh_from_db()
         assert comment.owner_id == canonical_mirror.pk
 
+    def test_alias_merge_rewrites_the_search_index(self):
+        """
+        The rows move by queryset update, which Piece.save() never sees, so
+        every indexed document would go on naming the retired alias as owner
+        and the canonical identity's data would stay invisible in search.
+        """
+        make_alias(126, 127)
+        alias_mirror = make_mirror(126, "ruben", "example.com")
+        make_mirror(127, "ruben", "example.com")
+        book = Edition.objects.create(title="A Book")
+        mark = shelve(alias_mirror, book, ShelfType.COMPLETE)
+        comment = Comment.objects.create(
+            owner=alias_mirror, item=book, text="hi", local=False
+        )
+
+        with patch(
+            "users.management.commands.fixapidentitymirror.JournalIndex.instance"
+        ) as instance:
+            run(fix=True, yes=True)
+
+        index = instance.return_value
+        index.delete_by_owner.assert_called_once_with(alias_mirror.pk)
+        (replaced,), _ = index.replace_pieces.call_args
+        assert set(replaced) >= {mark.pk, comment.pk}
+
     def test_alias_mirror_is_retired_and_the_canonical_mirror_created(self):
         """
         The canonical identity may never have reached NeoDB. An alias that
@@ -239,6 +266,28 @@ class TestFixAPIdentityMirror:
         assert alias_mirror.deleted is None
         mark.refresh_from_db()
         assert mark.owner_id == alias_mirror.pk
+        comment.refresh_from_db()
+        assert comment.owner_id == alias_mirror.pk
+
+    def test_alias_is_not_merged_onto_a_retired_mirror(self):
+        """
+        from_takahe hands back whatever row holds the canonical pk, retired or
+        not, and data moved onto a retired row is hidden as surely as data on
+        an orphan.
+        """
+        make_alias(128, 129)
+        alias_mirror = make_mirror(128, "ruben", "example.com")
+        retired = make_mirror(129, "ruben", "example.com")
+        retired.deleted = timezone.now()
+        retired.save(update_fields=["deleted"])
+        book = Edition.objects.create(title="A Book")
+        comment = Comment.objects.create(
+            owner=alias_mirror, item=book, text="hi", local=False
+        )
+
+        output = run(fix=True, yes=True)
+
+        assert "skipped 128" in output
         comment.refresh_from_db()
         assert comment.owner_id == alias_mirror.pk
 

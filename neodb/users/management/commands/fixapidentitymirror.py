@@ -22,8 +22,9 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from common.management.base import SiteCommand
-from journal.models import Shelf, Tag
+from journal.models import Piece, Shelf, Tag
 from journal.models.itemlist import List
+from journal.search.index import JournalIndex
 from takahe.models import Identity
 from users.models.apidentity import APIdentity
 
@@ -74,12 +75,21 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
     of which can exist per owner, such as a shelf or a mark of one item, may
     clash with one canonical already holds. Nothing here can choose between
     them, so the whole merge rolls back for a person to look at.
+
+    The rows are moved with queryset updates, which never reach Piece.save(),
+    so the search index is rewritten here: every document owned by alias goes,
+    and the moved pieces are indexed again under canonical.
     """
     if alias.pk == canonical.pk:
         raise ValueError("Cannot merge a mirror into itself")
     if alias.local or canonical.local or alias.user_id or canonical.user_id:
         raise ValueError("Cannot merge a local user's mirror")
+    if canonical.deleted:
+        raise ValueError(
+            f"Mirror {canonical.pk} is retired, moving data onto it would hide it"
+        )
     moved: dict[str, int] = {}
+    piece_ids: list[int] = []
     with transaction.atomic():
         for model, key in CONTAINERS.items():
             for container in model.objects.filter(owner=alias):
@@ -90,7 +100,9 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
                     continue
                 try:
                     with transaction.atomic():
-                        container.members.update(parent=target)
+                        container.members.update(
+                            parent=target, visibility=target.visibility
+                        )
                 except IntegrityError as error:
                     raise ValueError(
                         f"{model._meta.label} {container.pk} has a member "
@@ -101,6 +113,8 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
             model, field_name = relation_target(rel)
             rows = model._base_manager.filter(**{field_name: alias})
             for pk in list(rows.values_list("pk", flat=True)):
+                if issubclass(model, Piece):
+                    piece_ids.append(pk)
                 try:
                     with transaction.atomic():
                         model._base_manager.filter(pk=pk).update(
@@ -118,6 +132,10 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
             raise ValueError(f"Mirror {alias.pk} still referenced by {left}")
         alias.deleted = timezone.now()
         alias.save(update_fields=["deleted"])
+    index = JournalIndex.instance()
+    index.delete_by_owner(alias.pk)
+    if piece_ids:
+        index.replace_pieces(piece_ids)
     return moved
 
 
