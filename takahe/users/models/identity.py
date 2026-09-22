@@ -1166,14 +1166,12 @@ class Identity(StatorModel):
             tree = etree.fromstring(content, parser=parser)
         except etree.ParseError:
             return None
-        subject = tree.xpath("string(.//*[local-name() = 'Subject'])")
+        subject = tree.findtext(".//{*}Subject")
         if not subject:
             return None
         return {
-            "subject": subject,
-            "links": [
-                dict(link.attrib) for link in tree.xpath(".//*[local-name() = 'Link']")
-            ],
+            "subject": subject.strip(),
+            "links": [dict(link.attrib) for link in tree.findall(".//{*}Link")],
         }
 
     @classmethod

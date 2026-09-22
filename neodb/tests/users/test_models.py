@@ -291,3 +291,55 @@ class TestIdentityMastodonJson:
         expected = f"https://{settings.SITE_DOMAIN}/media/profile_images/a.png"
         assert value["avatar"] == expected
         assert value["avatar_static"] == expected
+
+
+class TestWebfingerXRD:
+    """
+    A cache that ignores Vary: Accept can answer a JSON webfinger request with
+    the XRD variant of the same resource.
+    """
+
+    def test_xrd_answer_is_parsed(self):
+        data = Identity.parse_webfinger_xrd(
+            b'<?xml version="1.0" encoding="UTF-8"?>'
+            b'<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">'
+            b"<Subject>acct:test@remote.example</Subject>"
+            b'<Link rel="self" type="application/activity+json"'
+            b' href="https://remote.example/users/9u8410yv8ddh0gfg"/>'
+            b'<Link rel="http://webfinger.net/rel/profile-page" type="text/html"'
+            b' href="https://remote.example/@test"/>'
+            b"</XRD>"
+        )
+        assert data == {
+            "subject": "acct:test@remote.example",
+            "links": [
+                {
+                    "rel": "self",
+                    "type": "application/activity+json",
+                    "href": "https://remote.example/users/9u8410yv8ddh0gfg",
+                },
+                {
+                    "rel": "http://webfinger.net/rel/profile-page",
+                    "type": "text/html",
+                    "href": "https://remote.example/@test",
+                },
+            ],
+        }
+
+    def test_other_documents_are_rejected(self):
+        assert (
+            Identity.parse_webfinger_xrd(
+                b'<?xml version="1.0" encoding="UTF-8"?>'
+                b'<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">'
+                b'<Link rel="self" href="https://remote.example/users/1"/>'
+                b"</XRD>"
+            )
+            is None
+        )
+        assert (
+            Identity.parse_webfinger_xrd(
+                b"<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='utf-8'>\n"
+            )
+            is None
+        )
+        assert Identity.parse_webfinger_xrd(b"") is None
