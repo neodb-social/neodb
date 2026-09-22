@@ -3,6 +3,23 @@
   filter: blur(2px);
   cursor: pointer;
 
+  // 2px hides text but leaves a photo plainly recognisable, so media carries
+  // a blur of its own, clipped to its box so the halo does not spill over the
+  // post. the lightbox paints the full image as the background of its span,
+  // and its anchor goes inert so the first click reveals instead of opening it
+  &:not(.revealed) {
+    img,
+    video,
+    .lightbox span {
+      filter: blur(2rem);
+      clip-path: inset(0);
+    }
+
+    .attachments a {
+      pointer-events: none;
+    }
+  }
+
   &.revealed {
     background: unset;
     filter: unset;
