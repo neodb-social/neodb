@@ -215,8 +215,15 @@ class Command(SiteCommand):
                 apidentity.save(update_fields=["deleted"])
                 self.stdout.write(f"retired {apidentity.pk}")
             elif kind == ALIAS:
-                identity = Identity.objects.get(pk=apidentity.pk)
-                canonical = APIdentity.from_takahe(identity.canonical)
+                # The whole table is classified before any of it is repaired,
+                # so the identity it aliased may have been deleted since
+                identity = Identity.objects.filter(pk=apidentity.pk).first()
+                canonical = APIdentity.from_takahe(identity and identity.canonical)
+                if canonical is None:
+                    self.stdout.write(
+                        f"skipped {apidentity.pk}: it no longer aliases an identity"
+                    )
+                    continue
                 try:
                     moved = merge_apidentity(apidentity, canonical)
                 except ValueError as error:

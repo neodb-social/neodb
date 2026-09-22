@@ -8,7 +8,10 @@ from django.utils import timezone
 from catalog.models import Edition
 from journal.models import Comment, Shelf, ShelfMember, ShelfType, Tag, TagMember
 from takahe.models import Domain, Identity
-from users.management.commands.fixapidentitymirror import apidentity_references
+from users.management.commands.fixapidentitymirror import (
+    Command,
+    apidentity_references,
+)
 from users.models.apidentity import APIdentity
 
 
@@ -41,11 +44,13 @@ def make_mirror(pk: int, username: str, domain_name: str) -> APIdentity:
     )
 
 
-def make_alias(alias_pk: int, canonical_pk: int) -> tuple[Identity, Identity]:
+def make_alias(
+    alias_pk: int, canonical_pk: int, username: str = "ruben"
+) -> tuple[Identity, Identity]:
     """A merged alias and the identity it now resolves to, as Takahe leaves them."""
     domain = Domain.get_remote_domain("example.com")
     canonical = make_identity(
-        canonical_pk, f"https://example.com/u{canonical_pk}", "ruben", domain
+        canonical_pk, f"https://example.com/u{canonical_pk}", username, domain
     )
     alias = make_identity(alias_pk, f"https://example.com/users/u{alias_pk}")
     Identity.objects.filter(pk=alias.pk).update(canonical=canonical)
@@ -297,6 +302,32 @@ class TestFixAPIdentityMirror:
         assert mark.owner_id == alias_mirror.pk
         comment.refresh_from_db()
         assert comment.owner_id == alias_mirror.pk
+
+    def test_alias_whose_canonical_went_away_is_skipped(self):
+        """
+        Every row is classified before any is repaired, and the canonical
+        identity can be deleted in between, which nulls the alias's pointer.
+        One such row must not abort the rest of the batch.
+        """
+        alias, canonical = make_alias(132, 133)
+        make_mirror(132, "ruben", "example.com")
+        make_alias(134, 135, "ruth")
+        other = make_mirror(134, "ruth", "example.com")
+        original = Command.classify
+
+        def classify_then_delete(command, apidentity):
+            kind = original(command, apidentity)
+            if apidentity.pk == 132:
+                Identity.objects.filter(pk=canonical.pk).delete()
+            return kind
+
+        with patch.object(Command, "classify", classify_then_delete):
+            output = run(fix=True, yes=True)
+
+        assert "skipped 132" in output
+        assert "merged 134 into 135" in output
+        other.refresh_from_db()
+        assert other.deleted is not None
 
     def test_alias_is_not_merged_onto_a_retired_mirror(self):
         """
