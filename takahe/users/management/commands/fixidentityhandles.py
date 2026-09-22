@@ -82,14 +82,10 @@ def merge_identity(
     """
     # A whole batch is classified before any of it is repaired, so the target
     # may have been merged away in the meantime. Read it again and follow it
-    # to the identity that now holds everything, because by_actor_uri takes
-    # one hop and a chain would strand this actor at an emptied row.
-    canonical = Identity.objects.get(pk=canonical.pk)
-    for _ in range(10):
-        if not canonical.canonical_id:
-            break
-        canonical = canonical.canonical
-    else:
+    # to the identity that now holds everything. One hop is enough, because
+    # every merge repoints what aimed at the row it empties, so no chain forms.
+    canonical = Identity.objects.get(pk=canonical.pk).resolved
+    if canonical.canonical_id:
         raise ValueError(f"Identity {canonical.pk} sits behind an alias chain")
     alias = Identity.objects.get(pk=alias.pk)
     if alias.canonical_id:
