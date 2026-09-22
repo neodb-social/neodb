@@ -402,6 +402,7 @@ class Identity(models.Model):
 
     if TYPE_CHECKING:
         domain_id: str
+        canonical_id: int | None
         inbound_follows: "models.QuerySet[Follow]"
         hashtag_features: "models.QuerySet[HashtagFeature]"
 

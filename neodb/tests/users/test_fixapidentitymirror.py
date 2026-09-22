@@ -3,8 +3,10 @@ from io import StringIO
 import pytest
 from django.core.management import call_command
 
-from journal.models import Tag
+from catalog.models import Edition
+from journal.models import Comment, Shelf, ShelfMember, ShelfType, Tag, TagMember
 from takahe.models import Domain, Identity
+from users.management.commands.fixapidentitymirror import apidentity_references
 from users.models.apidentity import APIdentity
 
 
@@ -34,6 +36,24 @@ def make_mirror(pk: int, username: str, domain_name: str) -> APIdentity:
         username=username,
         domain_name=domain_name,
         anonymous_viewable=False,
+    )
+
+
+def make_alias(alias_pk: int, canonical_pk: int) -> tuple[Identity, Identity]:
+    """A merged alias and the identity it now resolves to, as Takahe leaves them."""
+    domain = Domain.get_remote_domain("example.com")
+    canonical = make_identity(
+        canonical_pk, f"https://example.com/u{canonical_pk}", "ruben", domain
+    )
+    alias = make_identity(alias_pk, f"https://example.com/users/u{alias_pk}")
+    Identity.objects.filter(pk=alias.pk).update(canonical=canonical)
+    return alias, canonical
+
+
+def shelve(owner: APIdentity, item: Edition, shelf_type: ShelfType) -> ShelfMember:
+    shelf = Shelf.objects.get_or_create(owner=owner, shelf_type=shelf_type)[0]
+    return ShelfMember.objects.create(
+        owner=owner, parent=shelf, item=item, position=0, local=False
     )
 
 
@@ -130,6 +150,97 @@ class TestFixAPIdentityMirror:
         mirror.refresh_from_db()
         assert mirror.username == "ruben"
         assert mirror.deleted is None
+
+    def test_alias_mirror_data_moves_onto_the_canonical_mirror(self):
+        """
+        Takahe already moved the posts and follows. What NeoDB holds against
+        the alias id, marks, tags and comments, belongs to the same person and
+        follows Identity.canonical to the mirror of the identity that now
+        holds everything, so it stays reachable under a handle that exists.
+        """
+        make_alias(120, 121)
+        alias_mirror = make_mirror(120, "ruben", "example.com")
+        canonical_mirror = make_mirror(121, "ruben", "example.com")
+        book = Edition.objects.create(title="A Book")
+        other = Edition.objects.create(title="Another Book")
+        # Both mirrors hold the same shelf, which the schema allows only once
+        # per owner, so the mark moves into the shelf canonical already has
+        mark = shelve(alias_mirror, book, ShelfType.COMPLETE)
+        kept = shelve(canonical_mirror, other, ShelfType.COMPLETE)
+        # Same for a tag of the same title; a tag only the alias has moves whole
+        shared = Tag.objects.create(owner=alias_mirror, title="shared", local=False)
+        TagMember.objects.create(
+            owner=alias_mirror, parent=shared, item=book, position=0, local=False
+        )
+        theirs = Tag.objects.create(owner=canonical_mirror, title="shared", local=False)
+        only = Tag.objects.create(owner=alias_mirror, title="only", local=False)
+        comment = Comment.objects.create(
+            owner=alias_mirror, item=book, text="hi", local=False
+        )
+
+        output = run(fix=True, yes=True)
+
+        assert "alias" in output
+        assert "merged 120 into 121" in output
+        alias_mirror.refresh_from_db()
+        assert alias_mirror.deleted is not None
+        assert apidentity_references(alias_mirror) == {}
+        mark.refresh_from_db()
+        assert mark.owner_id == canonical_mirror.pk
+        assert mark.parent == kept.parent
+        assert Shelf.objects.filter(owner=canonical_mirror).count() == 1
+        assert list(
+            TagMember.objects.filter(parent=theirs).values_list("item_id", flat=True)
+        ) == [book.pk]
+        assert not Tag.objects.filter(pk=shared.pk).exists()
+        only.refresh_from_db()
+        assert only.owner_id == canonical_mirror.pk
+        comment.refresh_from_db()
+        assert comment.owner_id == canonical_mirror.pk
+
+    def test_alias_mirror_is_retired_and_the_canonical_mirror_created(self):
+        """
+        The canonical identity may never have reached NeoDB. An alias that
+        owns nothing is retired rather than resynced to a handle reading
+        None@None, which the scan would otherwise report on every run.
+        """
+        make_alias(122, 123)
+        alias_mirror = make_mirror(122, "ruben", "example.com")
+
+        output = run(fix=True, yes=True)
+
+        assert "nothing to move" in output
+        alias_mirror.refresh_from_db()
+        assert alias_mirror.deleted is not None
+        created = APIdentity.objects.get(pk=123)
+        assert (created.username, created.domain_name) == ("ruben", "example.com")
+        assert "0 mismatched" in run()
+
+    def test_alias_merge_rolls_back_on_a_clash(self):
+        """
+        Two marks of one item are not necessarily the same mark, and nothing
+        here can choose between them, so the whole merge is left for a
+        person, with the alias still owning everything it did.
+        """
+        make_alias(124, 125)
+        alias_mirror = make_mirror(124, "ruben", "example.com")
+        canonical_mirror = make_mirror(125, "ruben", "example.com")
+        book = Edition.objects.create(title="A Book")
+        mark = shelve(alias_mirror, book, ShelfType.WISHLIST)
+        shelve(canonical_mirror, book, ShelfType.COMPLETE)
+        comment = Comment.objects.create(
+            owner=alias_mirror, item=book, text="hi", local=False
+        )
+
+        output = run(fix=True, yes=True)
+
+        assert "skipped 124" in output
+        alias_mirror.refresh_from_db()
+        assert alias_mirror.deleted is None
+        mark.refresh_from_db()
+        assert mark.owner_id == alias_mirror.pk
+        comment.refresh_from_db()
+        assert comment.owner_id == alias_mirror.pk
 
     def test_scan_only_by_default(self):
         domain = Domain.get_remote_domain("example.com")
