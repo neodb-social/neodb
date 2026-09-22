@@ -662,7 +662,7 @@ class NdjsonImporter(BaseImporter):
                 if self._is_current(existing_comment, updated_dt, published_dt):
                     return "skipped"
                 # a newer export updates the existing comment in place;
-                # creating another row would duplicate (owner, item),
+                # creating another row would duplicate (owner, item).
                 existing_comment.text = content
                 if published_dt:
                     existing_comment.created_time = published_dt
