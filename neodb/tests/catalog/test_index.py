@@ -139,6 +139,24 @@ class TestCatalogQueryParser:
         assert parser.q == ""
         assert parser.filter_by.get("date") == ["20150000..20159999"]
 
+    def test_year_filtering_max(self):
+        """Test the largest year the date encoding holds"""
+        parser = CatalogQueryParser("year:9999", 1, 20)
+
+        assert parser.filter_by.get("date") == ["99990000..99999999"]
+
+    def test_year_filtering_out_of_range(self):
+        """An out of range year is dropped, not sent as an int32 overflow.
+
+        ``date`` is int32 YYYYMMDD, so year:18002023 used to build
+        180020230000 and fail the whole search (NEODB-SOCIAL-7ZK).
+        """
+        for q in ["year:18002023", "year:2010..18002023", "year:18002023..2020"]:
+            parser = CatalogQueryParser(q, 1, 20)
+
+            assert "date" not in parser.filter_by
+            assert "date" not in parser.to_search_params().get("filter_by", "")
+
     def test_exclude_categories(self):
         """Test exclude_categories parameter in CatalogQueryParser"""
         parser = CatalogQueryParser("test", 1, 20, exclude_categories=["book", "movie"])
