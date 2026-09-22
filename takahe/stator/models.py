@@ -119,11 +119,7 @@ class StatorModel(models.Model):
         Returns up to `number` tasks for execution, having locked them.
         """
         with transaction.atomic():
-            # Query for `number` rows that:
-            #  - Have a next_attempt that's either null or in the past
-            #  - Have one of the states we care about
-            # Then, sort them by next_attempt NULLS FIRST, so that we handle the
-            # rows in a roughly FIFO order.
+            # skip_locked so concurrent stator replicas claim disjoint rows.
             selected = list(
                 cls.objects.filter(
                     models.Q(state_next_attempt__isnull=True)

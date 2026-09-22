@@ -240,44 +240,6 @@ def test_article_timeline_teaser_links_to_detail_and_truncates():
     assert "https://remote.test/articles/long" not in html
 
 
-@pytest.mark.parametrize(
-    "image,expected",
-    [
-        ("https://remote.test/a.jpg", "https://remote.test/a.jpg"),
-        (
-            {"type": "Image", "url": "https://remote.test/b.jpg"},
-            "https://remote.test/b.jpg",
-        ),
-        (
-            {"url": {"type": "Link", "href": "https://remote.test/c.jpg"}},
-            "https://remote.test/c.jpg",
-        ),
-        (
-            {"type": "Link", "href": "https://remote.test/f.jpg"},
-            "https://remote.test/f.jpg",
-        ),
-        (
-            [{"url": "https://remote.test/d.jpg"}, "ignored"],
-            "https://remote.test/d.jpg",
-        ),
-        (None, None),
-        ({}, None),
-        ("ftp://remote.test/e.jpg", None),
-    ],
-)
-def test_article_cover_url_normalizes_image_shapes(image, expected):
-    post = Post(type=Post.Types.article, type_data={"object": {"image": image}})
-    assert post.article_cover_url == expected
-
-
-def test_article_cover_url_none_for_non_article():
-    post = Post(
-        type=Post.Types.note,
-        type_data={"object": {"image": "https://remote.test/x.jpg"}},
-    )
-    assert post.article_cover_url is None
-
-
 def test_article_cover_url_handles_non_dict_type_data():
     # type_data may be any JSON shape; a list must not raise AttributeError.
     assert Post(type=Post.Types.article, type_data=[]).article_cover_url is None

@@ -6,8 +6,8 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
-# opencc is removed for now due to package installation issues
-# to re-enable it, add it to Dockerfile/requirements.txt and uncomment the following lines
+# opencc is disabled (packaging issues); to re-enable, add it as a dependency
+# and uncomment these two lines plus the return in _cc.
 # from opencc import OpenCC
 # cc = OpenCC("t2s")
 def _cc(text):

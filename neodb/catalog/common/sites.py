@@ -388,9 +388,8 @@ class SiteManager:
             return 0
         # Re-check person__isnull in the UPDATE WHERE clause so a concurrent
         # worker that linked the same row to a different person between our
-        # SELECT and our UPDATE is not silently overwritten. The returned
-        # count reflects only rows we actually changed; a concurrent worker
-        # that linked the same row to a different person is excluded.
+        # SELECT and our UPDATE is not silently overwritten; the returned count
+        # then reflects only the rows we actually changed.
         linked_count = ItemCredit.objects.filter(
             pk__in=ids, person__isnull=True
         ).update(person=person)

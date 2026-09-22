@@ -21,10 +21,8 @@ class ReviewForm(forms.ModelForm):
             "item": forms.TextInput(attrs={"hidden": ""}),
         }
 
-    # Labels are pinned for screen-reader / form-error association; the
-    # visible UI surfaces them as ``placeholder`` + ``aria-label`` so
-    # ``review_edit.html`` doesn't need an explicit
-    # ``<div>{{ form.field.label }}</div>`` row above each input.
+    # Labels are pinned for screen-reader / form-error association; the visible
+    # UI surfaces them as ``placeholder`` + ``aria-label`` instead.
     title = forms.CharField(
         label=_("Title"),
         widget=forms.TextInput(
@@ -71,11 +69,8 @@ class ArticleForm(forms.ModelForm):
         widgets = {"cover": PreviewImageInput()}
         labels = {"cover": _("Featured image (optional)")}
 
-    # Labels are pinned for accessibility (screen readers / HTML
-    # ``<label>``-by-association) but the visible UI surfaces them as
-    # placeholders + ``aria-label`` instead, so the template doesn't need
-    # an explicit ``<div>{{ form.field.label }}</div>`` row above each
-    # input.
+    # Labels are pinned for screen-reader / form-error association; the visible
+    # UI surfaces them as ``placeholder`` + ``aria-label`` instead.
     title = forms.CharField(
         label=_("Title"),
         max_length=500,

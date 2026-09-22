@@ -748,6 +748,10 @@ def test_article_web_view_shows_cover_and_links_tags(remote_identity):
             "https://remote.test/c.jpg",
         ),
         (
+            {"type": "Link", "href": "https://remote.test/f.jpg"},
+            "https://remote.test/f.jpg",
+        ),
+        (
             [{"url": "https://remote.test/d.jpg"}, "ignored"],
             "https://remote.test/d.jpg",
         ),

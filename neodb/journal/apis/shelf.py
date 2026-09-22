@@ -61,8 +61,6 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     # Public item tags are not returned on the shelf; only the owner's own tags
     # (MarkSchema.tags, fetched below). ItemSchema.tags serializes as null
     # without a per-item aggregation (NEODB-SOCIAL-7KW).
-    # Batch-fetch latest_post_id for all members to avoid N+1 queries
-    # when MarkSchema accesses latest_post_id
     prefetch_latest_posts(members)
     # select_related("owner") gives each row its own APIdentity instance, so
     # MarkSchema.owner would fire a takahe lookup per row without this.

@@ -84,11 +84,6 @@ class JSONFieldDescriptor(object):
                     value = self.field.from_json(value)
             elif self.field.has_default():
                 value = self.field._get_default()
-                # if hasattr(self.field, "to_json"):
-                #     json_value[self.field.attname] = self.field.to_json(value)
-                # else:
-                #     json_value[self.field.attname] = value
-                # return value
             else:
                 value = None
             return value
@@ -257,10 +252,6 @@ def _bind_json_column_models(sender: type[Model], **kwargs: Any) -> None:
 
 class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):  # ty: ignore[invalid-method-override]
     pass
-    # def __init__(self, *args, **kwargs):
-    #     super(BooleanField, self).__init__(*args, **kwargs)
-    #     if django.VERSION < (2,):
-    #         self.blank = False
 
 
 class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):  # ty: ignore[invalid-method-override]

@@ -191,10 +191,8 @@ def history(request, item_path, item_uuid):
     from django.contrib.contenttypes.models import ContentType
 
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
-    # Include ItemCredit audit log entries for this item.
-    # Create/delete entries have 'item' in changes; update entries may not.
-    # First collect all credit object_ids that reference this item, then
-    # fetch ALL log entries for those object_ids (including updates).
+    # Update entries carry no 'item' in changes, so the credit object_ids are
+    # collected first and every log entry for them is fetched.
     credit_ct = ContentType.objects.get_for_model(ItemCredit)
     current_ids = set(str(pk) for pk in item.credits.values_list("pk", flat=True))
     deleted_ids = set(

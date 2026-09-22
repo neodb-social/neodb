@@ -17,17 +17,9 @@ class TestUsernameValidator:
     def setup_method(self):
         self.v = UsernameValidator()
 
-    def test_valid_alphanumeric(self):
-        self.v("alice123")
-
-    def test_valid_with_underscore(self):
-        self.v("alice_bob")
-
-    def test_minimum_length(self):
-        self.v("ab")
-
-    def test_maximum_length(self):
-        self.v("a" * 30)
+    def test_accepts_valid_usernames(self):
+        for name in ("alice123", "alice_bob", "ab", "a" * 30):
+            self.v(name)
 
     def test_reserved_admin_raises(self):
         with pytest.raises(ValidationError):
@@ -114,9 +106,6 @@ class TestUserModel:
         assert self.user.identity.username == "alice"
         assert self.user.identity.local is True
 
-    def test_url_contains_username(self):
-        assert "alice" in self.user.url
-
     def test_clear_deactivates_user(self):
         self.user.clear()
         self.user.refresh_from_db()
@@ -135,22 +124,17 @@ class TestUserModel:
         with pytest.raises(ValueError, match="username is not set"):
             User.register(username="")
 
-    def test_mastodon_acct_empty_when_no_mastodon(self):
+    def test_fresh_user_attributes(self):
+        assert "alice" in self.user.url
+        assert urlparse(self.user.absolute_url).hostname == "example.org"
         assert self.user.mastodon_acct == ""
-
-    def test_email_account_none_when_no_email(self):
         assert self.user.email_account is None
-
-    def test_last_usage_none_when_no_marks(self):
         assert self.user.last_usage is None
 
     def test_last_usage_returns_time_when_marked(self):
         book = Edition.objects.create(title="Test Book")
         Mark(self.user.identity, book).update(ShelfType.WISHLIST)
         assert self.user.last_usage is not None
-
-    def test_absolute_url_contains_domain(self):
-        assert urlparse(self.user.absolute_url).hostname == "example.org"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -160,27 +144,15 @@ class TestAPIdentityModel:
         self.user = User.register(username="iduser")
         self.identity = self.user.identity
 
-    def test_str_contains_username(self):
+    def test_local_identity_attributes(self):
         assert "iduser" in str(self.identity)
-
-    def test_local_handle_is_username(self):
         assert self.identity.handle == "iduser"
-
-    def test_full_handle_contains_at_and_username(self):
-        full = self.identity.full_handle
-        assert "@" in full
-        assert "iduser" in full
-
-    def test_url_contains_users(self):
+        assert "@" in self.identity.full_handle
+        assert "iduser" in self.identity.full_handle
         assert "/users/" in self.identity.url
-
-    def test_is_active(self):
         assert self.identity.is_active is True
-
-    def test_is_not_bot(self):
+        assert self.identity.is_person is True
         assert self.identity.is_bot is False
-
-    def test_is_not_group(self):
         assert self.identity.is_group is False
 
     def test_is_rejecting_self_is_false(self):
@@ -207,9 +179,6 @@ class TestAPIdentityModel:
         self.identity.clear()
         self.identity.refresh_from_db()
         assert self.identity.deleted is not None
-
-    def test_is_person(self):
-        assert self.identity.is_person is True
 
 
 @pytest.mark.django_db(databases="__all__")
