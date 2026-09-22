@@ -129,8 +129,8 @@ class FanOutStates(StateGraph):
                     .exists()
                 ):
                     return cls.skipped
-                # A reply only lands on the timeline when we are already in the
-                # conversation: mentioned, its author, or following someone in it.
+                # A reply is added only when we follow its author and it
+                # mentions someone we follow, the author, or ourselves.
                 add = True
                 mentioned = {identity.id for identity in post.mentions.all()}
                 if post.in_reply_to:
