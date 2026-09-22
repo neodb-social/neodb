@@ -2,7 +2,7 @@ from django import template
 from django.conf import settings
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
-from common.models.misc import MISSING_COVER
+from common.models.misc import is_missing_cover
 
 register = template.Library()
 
@@ -13,7 +13,7 @@ def thumb(source, alias):
     This filter modifies that from `easy_thumbnails` so that
     it can neglect .svg file.
     """
-    if not source or source == MISSING_COVER:
+    if is_missing_cover(source):
         return getattr(
             getattr(source, "instance", None),
             "display_cover_image_url",

@@ -17,7 +17,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from common.models.lang import get_current_locales
-from common.models.misc import MISSING_COVER
+from common.models.misc import is_missing_cover
 from common.sentry import record_catalog_edit
 from common.utils import discord_send, get_uuid_or_404
 from journal.models import update_journal_for_merged_item_task
@@ -108,9 +108,7 @@ def _edit_changes(form) -> list[dict[str, str]]:
                 changes.append(
                     {
                         "label": str(field.label),
-                        "old": old.name
-                        if old and old.name and old.name != MISSING_COVER
-                        else "-",
+                        "old": old.name if old and not is_missing_cover(old) else "-",
                         "new": new.name or "-",
                     }
                 )

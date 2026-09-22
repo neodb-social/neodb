@@ -26,7 +26,7 @@ from storages.utils import clean_name
 
 from .config import ITEMS_PER_PAGE, ITEMS_PER_PAGE_OPTIONS, PAGE_LINK_NUMBER
 from .models import int_
-from .models.misc import MISSING_COVER
+from .models.misc import is_missing_cover
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +144,7 @@ def _clear_default_cover_image_url_cache(*, setting: str, **kwargs: Any) -> None
 
 
 def get_file_absolute_url(cover: FieldFile) -> str | None:
-    if not cover or cover == MISSING_COVER:
+    if is_missing_cover(cover):
         return None
     url = cover.url
     if url.startswith("http://") or url.startswith("https://"):

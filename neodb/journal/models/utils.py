@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 
 from catalog.models import Item, VerifiedCreator
-from common.models.misc import MISSING_COVER
+from common.models.misc import MISSING_COVER, is_missing_cover
 from journal.search import JournalIndex
 from users.models import APIdentity, User
 
@@ -78,7 +78,7 @@ def remove_uploaded_files_by_identity(owner: APIdentity) -> int:
         count += 1
     for model in (Article, Collection):
         for piece in model.objects.filter(owner=owner).exclude(cover=""):
-            if not piece.cover or str(piece.cover) == MISSING_COVER:
+            if is_missing_cover(piece.cover):
                 continue
             try:
                 _release_catalog_mirror(piece)

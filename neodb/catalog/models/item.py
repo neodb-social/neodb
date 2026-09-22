@@ -31,7 +31,7 @@ from common.models import (
 )
 from common.models.genre import normalize_genres
 from common.models.lang import localized_label_text, normalize_languages
-from common.models.misc import MISSING_COVER
+from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import (
     get_default_cover_image_url,
     get_file_absolute_url,
@@ -1167,7 +1167,7 @@ class Item(PolymorphicModel):
         return d
 
     def has_cover(self) -> bool:
-        return bool(self.cover) and self.cover != MISSING_COVER
+        return not is_missing_cover(self.cover)
 
     @property
     def cover_image_url(self) -> str | None:
@@ -1755,7 +1755,7 @@ class ExternalResource(models.Model):
         )
 
     def has_cover(self) -> bool:
-        return bool(self.cover) and self.cover != MISSING_COVER
+        return not is_missing_cover(self.cover)
 
     def _match_existing_item(self, model: type[Item]) -> Item | None:
         """

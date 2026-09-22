@@ -841,6 +841,45 @@ class TestNdjsonExportImport:
             )
             assert not coll.cover.name or coll.cover.name == MISSING_COVER
 
+    def test_ndjson_export_skips_legacy_default_cover(self, caplog):
+        """A legacy default-cover marker names no file, so nothing to bundle.
+
+        Rows predating ``item/default.svg`` keep other placeholders such as
+        ``collection/default.svg``; the exact-match guard missed those and the
+        export logged an error for every one of them.
+        """
+        coll = Collection.objects.create(
+            owner=self.user1.identity,
+            title="Legacy Cover Collection",
+            brief="",
+            visibility=0,
+        )
+        Collection.objects.filter(pk=coll.pk).update(cover="collection/default.svg")
+        article = Article.update_local_article(
+            owner=self.user1.identity,
+            title="Legacy Cover Article",
+            body="body",
+            visibility=0,
+        )
+        Article.objects.filter(pk=article.pk).update(cover="default.svg")
+
+        exporter = NdjsonExporter.create(user=self.user1)
+        with caplog.at_level(logging.ERROR, logger="journal.exporters.ndjson"):
+            exporter.run()
+        assert [
+            r.message
+            for r in caplog.records
+            if r.name == "journal.exporters.ndjson" and r.levelno >= logging.ERROR
+        ] == []
+
+        with zipfile.ZipFile(exporter.local_path()) as zf:
+            names = zf.namelist()
+            journal = zf.read("journal.ndjson").decode()
+        assert not any(n.endswith("default.svg") for n in names)
+        records = [json.loads(line) for line in journal.splitlines()[1:]]
+        covers = [r["cover"] for r in records if r["type"] in ("Collection", "Article")]
+        assert covers and set(covers) == {None}
+
     def test_ndjson_export_skips_debris(self):
         """A Debris tombstone must not abort the export.
 

@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
 from catalog.models.utils import piece_cover_path
-from common.models.misc import MISSING_COVER
+from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import get_default_cover_image_url, get_file_absolute_url
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -382,7 +382,7 @@ class Article(Piece):
         Read through ``storage.open`` (an independent handle) so it never
         disturbs the ``cover`` FieldFile's lazily-opened state that the
         Bluesky external-embed thumb path reads from in the same crosspost."""
-        if not self.cover or str(self.cover) == MISSING_COVER:
+        if is_missing_cover(self.cover):
             return None
         name = self.cover.name
         if not name:

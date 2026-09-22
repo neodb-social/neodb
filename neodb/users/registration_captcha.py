@@ -48,7 +48,6 @@ from catalog.models import (
     item_content_types,
 )
 from common.models import SiteConfig
-from common.models.misc import MISSING_COVER
 from journal.models import ShelfMember, q_item_in_category
 
 logger = logging.getLogger(__name__)
@@ -149,7 +148,8 @@ def _covered_live_items(pks: list[int] | None = None):
     qs = Item.objects.filter(is_deleted=False, merged_to_item__isnull=True)
     if pks is not None:
         qs = qs.filter(pk__in=pks)
-    return qs.exclude(cover="").exclude(cover=MISSING_COVER)
+    # endswith, not an exact match: older rows carry other default.svg markers
+    return qs.exclude(cover="").exclude(cover__endswith="default.svg")
 
 
 def build_pool(category: ItemCategory, popular: bool) -> list[int]:

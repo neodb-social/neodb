@@ -20,7 +20,7 @@ from catalog.models import CatalogCollection, Item, ItemCategory, item_categorie
 from catalog.models.utils import piece_cover_path
 from catalog.search.utils import enqueue_fetch
 from common.models import jsondata
-from common.models.misc import MISSING_COVER
+from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import get_default_cover_image_url, get_file_absolute_url
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.utils import Takahe
@@ -684,7 +684,7 @@ class Collection(List):
         return ", ".join(parts)
 
     def _build_cover_attachments(self, existing_post) -> list | None:
-        has_cover = bool(self.cover) and str(self.cover) != MISSING_COVER
+        has_cover = not is_missing_cover(self.cover)
         existing = list(existing_post.attachments.all()) if existing_post else []
         if not has_cover:
             # clear stale attachments on existing posts; leave new posts as-is

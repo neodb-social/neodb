@@ -1,8 +1,25 @@
+import os
 import re
 from datetime import datetime
 
+from django.db.models.fields.files import FieldFile
+
 # Stored marker for missing artwork, independent of the displayed fallback.
 MISSING_COVER = "item/default.svg"
+
+
+def is_missing_cover(cover: FieldFile | str | None) -> bool:
+    """True when ``cover`` holds no real artwork.
+
+    Older rows carry markers other than MISSING_COVER (``collection/default.svg``,
+    a bare ``default.svg``). None of them was ever a stored file, so every
+    ``default.svg`` path counts as missing; an uploaded cover cannot collide,
+    because every upload_to helper names it ``<uuid>.<ext>``.
+
+    Accepts a ``FieldFile`` or a plain name, since call sites hold either.
+    """
+    name = str(cover or "")
+    return not name or os.path.basename(name) == "default.svg"
 
 
 def uniq(ls: list) -> list:

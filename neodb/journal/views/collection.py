@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.models import Item, ItemCategory, item_categories
 from common.models import int_
-from common.models.misc import MISSING_COVER
+from common.models.misc import is_missing_cover
 from common.sentry import record_activity
 from common.utils import (
     AuthedHttpRequest,
@@ -460,7 +460,7 @@ def share_collection_to_bluesky(
     as an external card, so the URL is left out of the text."""
     if not user.bluesky:
         raise RequestAborted()
-    has_cover = bool(collection.cover) and str(collection.cover) != MISSING_COVER
+    has_cover = not is_missing_cover(collection.cover)
     embed = EmbedObj(
         collection.title,
         collection.brief,

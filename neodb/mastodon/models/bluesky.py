@@ -23,7 +23,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from common.models import SiteConfig, jsondata
-from common.models.misc import MISSING_COVER
+from common.models.misc import is_missing_cover
 from takahe.utils import Takahe
 
 from .bluesky_oauth import (
@@ -810,7 +810,7 @@ class BlueskyAccount(SocialAccount):
             cover = getattr(obj, "cover", None)
             blob = (
                 cover.read()
-                if cover and cover != MISSING_COVER
+                if cover and not is_missing_cover(cover)
                 else getattr(obj, "image", None)
             )
             max_size = 1000000  # maxSize of app.bsky.embed.external

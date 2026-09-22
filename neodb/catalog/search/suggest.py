@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.signing import b62_encode
 from django.db.models import ImageField
 
-from common.models.misc import MISSING_COVER
+from common.models.misc import is_missing_cover
 from .index import CatalogIndex, CatalogQueryParser
 from .people_index import PeopleIndex, PeopleQueryParser
 
@@ -98,7 +98,7 @@ def _item_classes() -> dict[str, type["Item"]]:
 def _cover_url(name: str) -> str | None:
     from catalog.models import Item
 
-    if not name or name == MISSING_COVER:
+    if is_missing_cover(name):
         return None
     url = cast(ImageField, Item._meta.get_field("cover")).storage.url(name)
     if url.startswith("http://") or url.startswith("https://"):
