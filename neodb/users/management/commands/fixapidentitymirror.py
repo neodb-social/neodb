@@ -77,8 +77,9 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
     them, so the whole merge rolls back for a person to look at.
 
     The rows are moved with queryset updates, which never reach Piece.save(),
-    so the search index is rewritten here: every document owned by alias goes,
-    and the moved pieces are indexed again under canonical.
+    so the search index is rewritten once the merge commits, in the worker
+    that retries: the moved pieces are indexed again under canonical, and the
+    containers deleted here lose their documents the same way.
     """
     if alias.pk == canonical.pk:
         raise ValueError("Cannot merge a mirror into itself")
@@ -98,17 +99,18 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
                 ).first()
                 if target is None:
                     continue
+                # Each member keeps its own visibility: a followers-only mark
+                # stays one, whatever the shelf it joins is set to
                 try:
                     with transaction.atomic():
-                        container.members.update(
-                            parent=target, visibility=target.visibility
-                        )
+                        container.members.update(parent=target)
                 except IntegrityError as error:
                     raise ValueError(
                         f"{model._meta.label} {container.pk} has a member "
                         f"{canonical.pk}'s already holds: {error}"
                     ) from error
                 model._base_manager.filter(pk=container.pk).delete()
+                piece_ids.append(container.pk)
         for rel in APIdentity._meta.related_objects:
             model, field_name = relation_target(rel)
             rows = model._base_manager.filter(**{field_name: alias})
@@ -132,10 +134,11 @@ def merge_apidentity(alias: APIdentity, canonical: APIdentity) -> dict[str, int]
             raise ValueError(f"Mirror {alias.pk} still referenced by {left}")
         alias.deleted = timezone.now()
         alias.save(update_fields=["deleted"])
-    index = JournalIndex.instance()
-    index.delete_by_owner(alias.pk)
-    if piece_ids:
-        index.replace_pieces(piece_ids)
+        # A deleted container has no piece left to index, so the same job
+        # only drops its document
+        transaction.on_commit(
+            lambda: JournalIndex.enqueue_replace_pieces(piece_ids), robust=True
+        )
     return moved
 
 

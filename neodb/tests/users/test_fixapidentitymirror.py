@@ -200,30 +200,59 @@ class TestFixAPIdentityMirror:
         comment.refresh_from_db()
         assert comment.owner_id == canonical_mirror.pk
 
-    def test_alias_merge_rewrites_the_search_index(self):
+    def test_alias_merge_rewrites_the_search_index(
+        self, django_capture_on_commit_callbacks
+    ):
         """
         The rows move by queryset update, which Piece.save() never sees, so
         every indexed document would go on naming the retired alias as owner
-        and the canonical identity's data would stay invisible in search.
+        and the canonical identity's data would stay invisible in search. The
+        rewrite goes through the retrying worker once the merge has committed,
+        so a Typesense failure does not leave the index half done.
         """
         make_alias(126, 127)
         alias_mirror = make_mirror(126, "ruben", "example.com")
-        make_mirror(127, "ruben", "example.com")
+        canonical_mirror = make_mirror(127, "ruben", "example.com")
         book = Edition.objects.create(title="A Book")
         mark = shelve(alias_mirror, book, ShelfType.COMPLETE)
+        shelve(canonical_mirror, Edition.objects.create(title="B"), ShelfType.COMPLETE)
         comment = Comment.objects.create(
             owner=alias_mirror, item=book, text="hi", local=False
         )
+        alias_shelf_pk = Shelf.objects.get(owner=alias_mirror).pk
 
-        with patch(
-            "users.management.commands.fixapidentitymirror.JournalIndex.instance"
-        ) as instance:
+        with (
+            patch(
+                "users.management.commands.fixapidentitymirror."
+                "JournalIndex.enqueue_replace_pieces"
+            ) as enqueue,
+            django_capture_on_commit_callbacks(execute=True),
+        ):
             run(fix=True, yes=True)
 
-        index = instance.return_value
-        index.delete_by_owner.assert_called_once_with(alias_mirror.pk)
-        (replaced,), _ = index.replace_pieces.call_args
-        assert set(replaced) >= {mark.pk, comment.pk}
+        enqueue.assert_called_once()
+        (replaced,), _ = enqueue.call_args
+        assert {mark.pk, comment.pk, alias_shelf_pk} <= set(replaced)
+
+    def test_merged_mark_keeps_its_own_visibility(self):
+        """
+        Shelves are public by default while a mark carries the visibility of
+        the post it came from. Taking the shelf's visibility on the way in
+        would publish a followers-only mark.
+        """
+        make_alias(130, 131)
+        alias_mirror = make_mirror(130, "ruben", "example.com")
+        canonical_mirror = make_mirror(131, "ruben", "example.com")
+        book = Edition.objects.create(title="A Book")
+        mark = shelve(alias_mirror, book, ShelfType.COMPLETE)
+        ShelfMember.objects.filter(pk=mark.pk).update(visibility=1)
+        shelve(canonical_mirror, Edition.objects.create(title="B"), ShelfType.COMPLETE)
+
+        run(fix=True, yes=True)
+
+        mark.refresh_from_db()
+        assert mark.owner_id == canonical_mirror.pk
+        assert mark.visibility == 1
 
     def test_alias_mirror_is_retired_and_the_canonical_mirror_created(self):
         """
