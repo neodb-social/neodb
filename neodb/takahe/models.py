@@ -494,8 +494,8 @@ class Identity(models.Model):
     aliases = models.JSONField(blank=True, null=True)
 
     # Set when this row turned out to be another actor under a second URI.
-    # Takahe writes it; NeoDB reads it to resolve a request signed with the
-    # key of an actor it knows by that URI.
+    # Takahe writes it; fixapidentitymirror reads it to move the alias
+    # mirror's data onto the identity it names.
     canonical = models.ForeignKey(
         "self",
         blank=True,
