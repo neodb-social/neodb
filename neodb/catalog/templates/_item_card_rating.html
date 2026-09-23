@@ -1,0 +1,4 @@
+{% load i18n %}
+{% if item.rating %}
+  <span class="solo-hidden card-rating"><b>★ {{ item.rating|floatformat:1 }}</b> <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
+{% endif %}

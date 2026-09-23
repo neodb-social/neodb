@@ -124,6 +124,16 @@
 	}
 }
 
+// the item a mark or review post is about: a tinted panel inside the post
+// card, not a second shadowed card
+.post article.item-embed {
+	margin: 0.5rem 0;
+	padding: 0.75rem;
+	border-radius: var(--dc-radius);
+	background-color: var(--dc-surface-2);
+	box-shadow: none;
+}
+
 section.replies {
 	border-left: 4px solid var(--pico-muted-border-color);
 	padding-left: var(--pico-spacing);

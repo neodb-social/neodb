@@ -3,12 +3,10 @@
 {% if allow_embed and item.get_embed_link %}
   <div class="item player">
     <hgroup>
+      {% if not hide_category %}<p class="dc-eyebrow category">{{ item.category.label }}</p>{% endif %}
       <h5>
         <a href="{{ item.url }}">{{ item.display_title }}</a>
-        <small>
-          {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
-          {% include "_site_labels.html" with resources=item.external_resources.all %}
-        </small>
+        <small>{% include "_site_labels.html" with resources=item.external_resources.all %}</small>
       </h5>
     </hgroup>
     <iframe src="{{ item.get_embed_link }}"

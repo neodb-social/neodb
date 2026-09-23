@@ -156,13 +156,27 @@ body {
   --pico-block-spacing-vertical: var(--pico-block-spacing-horizontal);
 }
 
+// a flat surface like the discover cards; no background here, so the striped
+// .deleting one still applies
 article.item-card {
-  padding: calc(var(--pico-block-spacing-horizontal));
-  margin-bottom: calc(var(--pico-block-spacing-vertical) / 2);
+  margin: 0 0 var(--dc-gap);
+  padding: 0.9rem;
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-lg);
+  box-shadow: none;
 
   header,
   footer {
     padding: calc(var(--pico-block-spacing-horizontal) / 2);
+  }
+
+  // Pico pulls the footer out to the card edge as a shaded band
+  > footer {
+    margin: 0.9rem 0 0;
+    padding: 0.2rem 0 0;
+    border-top: 1px solid var(--dc-border);
+    border-radius: 0;
+    background-color: transparent;
   }
 
   section {
@@ -172,16 +186,16 @@ article.item-card {
 
   section.item-note+section {
     padding-top: calc(var(--pico-spacing) / 2);
-    border-top: var(--pico-border-width) dashed var(--pico-card-border-color)
+    border-top: var(--pico-border-width) dashed var(--dc-border)
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
   }
 }
 
 article.item-card.external h5 {
   font-style: italic;
-}
-
-article.item-card+article.item-card {
-  margin-top: 2em;
 }
 
 details {

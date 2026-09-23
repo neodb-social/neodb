@@ -3,9 +3,7 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% if item.rating %}
-      <span class="solo-hidden">{{ item.rating | floatformat:1 }} <small>({{ item.rating_count }} {% trans "ratings" %})</small></span>
-    {% endif %}
+    {% include '_item_card_rating.html' %}
     {% include '_credits.html' with credits=item.role_credits.artist role_label='' max=2 %}
     {% include '_genre_list.html' with list=item.genre max=5 %}
   </div>

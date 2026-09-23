@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load highlight %}
 <hgroup>
+  {% if not hide_category %}<p class="dc-eyebrow category">{{ item.category.label }}</p>{% endif %}
   <h5>
     <a href="{{ item.url }}">
       {% if request.GET.q %}
@@ -12,7 +13,6 @@
     </a>
     <small>
       {% if item.year %}({{ item.year }}){% endif %}
-      {% if not hide_category %}<span class="category">[{{ item.category.label }}]</span>{% endif %}
       {% include "_site_labels.html" with resources=item.external_resources.all %}
     </small>
   </h5>

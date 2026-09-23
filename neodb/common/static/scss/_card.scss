@@ -1,30 +1,77 @@
+// The item card of lists, collections and posts, in the look of the discover
+// spotlight card (.dc-spot): rounded cover, category eyebrow, strong title,
+// muted meta. The --dc-* tokens come from _modules.scss.
 div.item {
   display: grid;
+  // minmax(0, ...) and not auto: an auto track takes its minimum from the
+  // longest unwrappable line, which would widen the card past a phone screen
   grid-template-columns:
-    calc(4rem * var(--pico-line-height)) auto;
-  column-gap: var(--pico-block-spacing-horizontal);
-  align-items: top;
-  justify-content: left;
+    calc(4rem * var(--pico-line-height)) minmax(0, 1fr);
+  column-gap: var(--dc-gap);
+  align-items: start;
   word-break: break-all;
 
   &.player {
     display: block;
   }
 
-  hgroup {
-    margin: 0;
+  .cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--dc-radius-sm);
+    background: var(--dc-surface-2);
+    box-shadow: var(--pico-card-box-shadow);
   }
 
-  h5 small,
-  hgroup span {
-    font-weight: 400;
-    font-size: 80%;
-    color: var(--pico-muted-color);
+  hgroup {
+    margin: 0;
 
-    &.category {
-      opacity: 0.5;
+    .dc-eyebrow {
+      margin: 0 0 0.2rem;
+      font-size: var(--dc-fs-xs);
     }
 
+    // Pico sizes the last child of an hgroup at 1rem
+    > small {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: var(--dc-fs-sm);
+      color: var(--dc-muted);
+    }
+  }
+
+  h5 {
+    margin: 0;
+    font-size: var(--dc-fs-base);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--dc-strong);
+
+    > a {
+      color: inherit;
+
+      &:hover {
+        color: var(--pico-primary);
+      }
+    }
+
+    small {
+      font-size: var(--dc-fs-sm);
+      font-weight: 400;
+      color: var(--dc-muted);
+    }
+  }
+
+  .brief,
+  .full > div.multi-fields {
+    font-size: var(--dc-fs-sm);
+    color: var(--dc-muted);
+
+    // not --pico-color: Pico redefines it to the primary colour on <a>
+    a:not(:hover) {
+      color: var(--dc-strong);
+    }
   }
 
   .brief {
@@ -32,30 +79,71 @@ div.item {
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-size: 80%;
+    margin-top: 0.35rem;
 
-    >span {
+    > span {
       margin-right: 1rem;
     }
   }
 
-  .full>div {
+  .card-rating {
+    b {
+      color: var(--pico-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    small {
+      font-size: inherit;
+    }
+  }
+
+  .full > div {
     text-overflow: ellipsis;
     word-wrap: break-word;
     overflow: hidden;
     -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    font-size: 80%;
+    margin-top: 0.3rem;
+    font-size: var(--dc-fs-md);
+    line-height: 1.45;
+  }
 
+  .full > div.multi-fields {
+    -webkit-line-clamp: 1;
+    line-height: inherit;
   }
 
   // The latest episode keeps the box its sibling description gets, clipped to
-  // one line like .brief. It is deliberately not a nowrap flex row: the auto
-  // grid column takes its minimum from this cell, so an unwrappable title
-  // would widen the whole card past a phone screen.
-  .full>div.card-episode {
+  // one line like .brief. It is deliberately not a nowrap flex row: an
+  // unwrappable title there would set the min-content width of the column.
+  .full > div.card-episode {
     -webkit-line-clamp: 1;
+    font-size: var(--dc-fs-sm);
   }
+}
 
+// tags on a card and in its mark footer, as the .dc-tags pills; the shared
+// .tag-list sets its margins with !important
+div.item .tag-list,
+article.item-card .tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+
+  span a {
+    margin: 0 !important;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--dc-pill);
+    background: var(--dc-border);
+    color: var(--dc-strong);
+    font-size: var(--dc-fs-xs);
+    line-height: 1.4;
+
+    &:hover {
+      background: var(--pico-primary-focus);
+      color: var(--pico-primary);
+    }
+  }
 }
