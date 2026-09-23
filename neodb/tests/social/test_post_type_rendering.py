@@ -3,8 +3,11 @@ from datetime import timedelta
 import pytest
 from django.template.loader import render_to_string
 from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 
+from catalog.models import Edition
+from journal.models import Note
 from takahe.models import Post, PreviewCard
 from users.models import User
 
@@ -247,3 +250,36 @@ def test_article_cover_url_handles_non_dict_type_data():
         Post(type=Post.Types.article, type_data={"object": []}).article_cover_url
         is None
     )
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+@pytest.mark.parametrize("sensitive", [False, True])
+def test_note_title_renders_as_heading_not_content_warning(sensitive):
+    owner = User.register(
+        email=f"note-title-{sensitive}@example.com",
+        username=f"notetitle{int(sensitive)}",
+    )
+    book = Edition.objects.create(title="Note Title Book")
+    note = Note.objects.create(
+        item=book,
+        owner=owner.identity,
+        title="Chapter one",
+        content="Loved the opening.",
+        sensitive=sensitive,
+        visibility=0,
+    )
+    post = note.latest_post
+    assert post is not None
+    # the title still federates as the content warning
+    assert post.summary == "Chapter one"
+
+    client = Client()
+    for url in (
+        f"/@{owner.username}/posts/{post.pk}/",
+        reverse("journal:user_post_list", kwargs={"user_name": owner.username}),
+    ):
+        response = client.get(url)
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "<strong>Chapter one</strong>" in html
+        assert ('class="post-content-main spoiler"' in html) is sensitive

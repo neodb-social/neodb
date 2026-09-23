@@ -98,10 +98,20 @@
         {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article>{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}
-        {% if post.type != 'Article' %}<div>{{ post.summary|default:'' }}</div>{% endif %}
+        {% if piece.classname == 'note' %}
+          {% if piece.title %}
+            <div>
+              <strong>{{ piece.title }}</strong>
+            </div>
+          {% endif %}
+        {% elif post.type != 'Article' %}
+          <div>{{ post.summary|default:'' }}</div>
+        {% endif %}
         <div class="post-content-row">
-          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}"
-               {% if post.type != 'Article' %}{% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}
+          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if piece.classname == 'note' %}{% if post.sensitive %} spoiler{% endif %}{% elif post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}"
+               {% if piece.classname == 'note' %}{% if post.sensitive %}_="on click toggle .revealed on me"{% endif %}
+               {% elif post.type != 'Article' %}
+               {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}
                {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}

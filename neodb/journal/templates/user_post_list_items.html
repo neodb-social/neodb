@@ -8,7 +8,7 @@
   <div class="empty">{% trans "Nothing so far." %}</div>
 {% else %}
   {% for post in posts %}
-    {% include "_event_post.html" %}
+    {% include "_event_post.html" with piece=post.piece %}
     {% if forloop.last %}
       <div class="htmx-indicator post-list-more"
            hx-get="{% url 'journal:user_post_list' user_name %}?last={{ post.boost_pk|default:post.pk }}"
