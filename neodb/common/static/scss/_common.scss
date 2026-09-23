@@ -159,11 +159,35 @@ body {
 // a flat surface like the discover cards; no background here, so the striped
 // .deleting one still applies
 article.item-card {
+  --item-card-padding: 0.9rem;
+  position: relative;
   margin: 0 0 var(--dc-gap);
-  padding: 0.9rem;
+  padding: var(--item-card-padding);
   border: 1px solid var(--dc-border);
   border-radius: var(--dc-radius-lg);
   box-shadow: none;
+
+  // A floated action narrows the whole div.item grid beside it, so the
+  // text column loses the icon width for the full card height. Pin it to the
+  // corner instead and reserve room beside the first heading line only.
+  >.action {
+    float: none;
+    position: absolute;
+    top: var(--item-card-padding);
+    right: var(--item-card-padding);
+  }
+
+  >.action:has(*)+.item hgroup::before {
+    content: "";
+    float: right;
+    width: 1.5rem;
+    height: 1rem;
+  }
+
+  // collection edit mode shows three action icons
+  &[data-member-id]>.action:has(*)+.item hgroup::before {
+    width: 4.5rem;
+  }
 
   header,
   footer {
@@ -190,7 +214,7 @@ article.item-card {
   }
 
   @media (max-width: 768px) {
-    padding: 0.75rem;
+    --item-card-padding: 0.75rem;
   }
 }
 
