@@ -95,6 +95,7 @@
             </a>
           </span>
         {% endif %}
+        {% if show_handle %}<div class="post_handle">@{{ post.author.handle }}</div>{% endif %}
         {% if item and piece.classname != 'note' and piece.classname != 'article' %}
           <article class="item-embed">{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}

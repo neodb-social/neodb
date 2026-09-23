@@ -25,6 +25,7 @@
            title="@{{ group.author.handle }}">{{ group.author.name|default:group.author.username }}</a>
         {% blocktrans count counter=group.count %}marked {{ counter }} item{% plural %}marked {{ counter }} items{% endblocktrans %}
       </span>
+      <div class="post_handle">@{{ group.author.handle }}</div>
       <ul class="dc-cards mark-group-covers">
         {% for item, grade in group.cards %}
           {% include "_item_cover_card.html" with compact=1 owner_rating=1 owner_rating_grade=grade %}

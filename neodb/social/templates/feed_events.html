@@ -10,7 +10,7 @@
   {% if event.is_group %}
     {% include "_event_mark_group.html" with group=event %}
   {% else %}
-    {% include "_event_post.html" with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item %}
+    {% include "_event_post.html" with post=event.subject_post piece=event.subject_post.piece item=event.subject_post.item show_handle=1 %}
   {% endif %}
   {% if forloop.last %}
     <div class="htmx-indicator post-list-more"

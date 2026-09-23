@@ -2,7 +2,7 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from takahe.models import TimelineEvent
+from takahe.models import Post, TimelineEvent
 from users.models import User
 
 pytestmark = pytest.mark.django_db(databases="__all__")
@@ -61,3 +61,45 @@ def test_feed_page_carries_the_profile_sidebar():
     assert "grid__aside" in content
     assert user.identity.display_name in content
     assert "Current targets" in content
+
+
+def _post_by(author: User, text: str) -> Post:
+    return Post.objects.create(
+        author=author.identity.takahe_identity,
+        local=True,
+        object_uri=f"https://example.com/objects/{author.username}",
+        content=f"<p>{text}</p>",
+        visibility=Post.Visibilities.public,
+        state="fanned_out",
+    )
+
+
+def test_post_author_handle_shows_in_timeline_and_notifications():
+    user, client = _member("handleviewer")
+    fan = User.register(email="handlefan@example.com", username="handlefan")
+    post = _post_by(user, "handle post")
+    TimelineEvent.objects.create(
+        identity_id=user.identity.pk,
+        type=TimelineEvent.Types.post,
+        subject_post=post,
+        subject_identity_id=user.identity.pk,
+    )
+    TimelineEvent.objects.create(
+        identity_id=user.identity.pk,
+        type=TimelineEvent.Types.liked,
+        subject_post=post,
+        subject_identity_id=fan.identity.pk,
+    )
+    handle_line = f'<div class="post_handle">@{post.author.handle}</div>'
+
+    feed = client.get(reverse("social:data")).content.decode()
+    assert "handle post" in feed
+    assert handle_line in feed
+
+    notifications = client.get(reverse("social:events")).content.decode()
+    assert "liked your post" in notifications
+    assert handle_line in notifications
+
+    single = client.get(f"/@{user.username}/posts/{post.pk}/").content.decode()
+    assert "handle post" in single
+    assert "post_handle" not in single

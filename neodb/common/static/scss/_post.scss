@@ -358,6 +358,12 @@ section.activity.post>section.replies {
   flex-grow: 1;
 }
 
+.post_handle {
+  color: var(--pico-muted-color);
+  font-size: 0.8em;
+  overflow-wrap: anywhere;
+}
+
 // A mark group scrolls its covers sideways, so the column must be free to
 // shrink below their combined width.
 .mark-group .byline-body {

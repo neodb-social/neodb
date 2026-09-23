@@ -18,7 +18,7 @@
            class="nickname"
            title="@{{ event.identity.full_handle }}">{{ event.identity.display_name }}</a>
         {% with "event/"|add:event.template|add:".html" as template %}
-          {% include template %}
+          {% include template with show_handle=1 %}
         {% endwith %}
       </div>
     </div>
