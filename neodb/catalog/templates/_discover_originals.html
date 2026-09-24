@@ -1,0 +1,62 @@
+{% load i18n %}
+{% load thumb %}
+<section class="entity-sort dc-mod"
+         id="original_episodes"
+         data-title="{% trans 'Fediverse originals' %}"
+         data-category="podcast"
+         {% if not original_shows %}style="display:none;"{% endif %}>
+  <header class="dc-mh">
+    <h2>
+      <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'Fediverse originals' %}</a>
+    </h2>
+    <span class="dc-sub">{% trans "Podcasts by creators on the Fediverse. Play right on this page." %}</span>
+    <span class="action">
+      <a class="dc-more" href="{% url 'catalog:discover_original_podcasts' %}">{% trans "All original shows" %} <i class="fa-solid fa-arrow-right"></i></a>
+    </span>
+  </header>
+  <ul class="dc-shows">
+    {% for show in original_shows %}
+      {% with program=show.program episode=show.episodes.0 %}
+        <li class="dc-show">
+          <a href="{{ program.url }}" title="{{ program.display_title }}">
+            <img src="{{ program.cover|thumb:'normal' }}"
+                 alt="{{ program.display_title }}"
+                 loading="lazy">
+          </a>
+          <div class="dc-show-body">
+            <a class="dc-show-title" href="{{ program.url }}">{{ program.display_title }}</a>
+            <span class="dc-show-host">{{ program.host_names|join:' / ' }}</span>
+            <span class="dc-episode">
+              <a href="{{ episode.url }}"
+                 title="{% trans 'Play' %}"
+                 class="dc-play episode"
+                 data-media="{{ episode.media_url }}"
+                 data-cover="{{ episode.display_cover_image_url }}"
+                 data-title="{{ episode.title }}"
+                 data-album="{{ program.display_title }}"
+                 data-hosts="{{ program.host_names|join:' / ' }}"
+                 data-uuid="{{ episode.uuid }}"
+                 data-comment-href="{% url 'journal:comment' episode.uuid %}">
+                <i class="fa-solid fa-play"></i>
+              </a>
+              <span>
+                <a class="dc-episode-title" href="{{ episode.url }}">{{ episode.title }}</a>
+                <small class="dc-episode-date">
+                  {{ episode.pub_date|date:"Y-m-d" }}
+                  {% if show.episodes|length > 1 %}
+                    ·
+                    {% blocktrans count counter=show.episodes|length trimmed %}
+                      {{ counter }} recent episode
+                    {% plural %}
+                      {{ counter }} recent episodes
+                    {% endblocktrans %}
+                  {% endif %}
+                </small>
+              </span>
+            </span>
+          </div>
+        </li>
+      {% endwith %}
+    {% endfor %}
+  </ul>
+</section>

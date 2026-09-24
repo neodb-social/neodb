@@ -1,0 +1,31 @@
+{% load i18n %}
+<section class="entity-sort dc-mod"
+         id="{{ gallery.name }}"
+         data-title="{{ gallery.category.label }}"
+         data-category="{{ gallery.category.value }}"
+         {% if not gallery.items %}style="display:none;"{% endif %}>
+  <header class="dc-mh">
+    <h2>{{ gallery.category.label }}</h2>
+    <span class="action">
+      <a class="dc-more"
+         href="{% url 'catalog:discover_category' gallery.category.value %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
+      <button class="dc-nav dc-scroll"
+              type="button"
+              aria-label="{% trans 'Scroll left' %}"
+              _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'Scroll right' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</span>
+</header>
+<ul class="dc-cards">
+  {% for item in gallery.items %}
+    {% include "_item_cover_card.html" %}
+  {% endfor %}
+</ul>
+</section>

@@ -54,7 +54,8 @@ function podcast_init(context) {
     var cover_url = $(ele).data('cover');
     var media_url = $(ele).data('media');
     var position = $(ele).data('position');
-    var comment_href = $(ele).data('comment-href');
+    // pages render the link for everyone so they can be cached across viewers
+    var comment_href = window.neodb_member ? $(ele).data('comment-href') : null;
     if (!media_url) return;
     window.current_item_uuid = $(ele).data('uuid');
     if (!window.player) {

@@ -13,7 +13,7 @@
          data-title="{{ ep.display_title }}"
          data-album="{{ item.display_title }}"
          data-hosts="{{ item.host_names|join:' / ' }}"
-         {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' ep.uuid %}" {% endif %}></a>
+         data-comment-href="{% url 'journal:comment' ep.uuid %}"></a>
       &nbsp;
       {% if request.user.is_authenticated %}
         <a class="episode-play"

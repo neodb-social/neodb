@@ -1,3 +1,6 @@
+from functools import partial
+from typing import Callable
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -5,8 +8,11 @@ from django.db.models import Count, F, Q, Window, prefetch_related_objects
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -46,6 +52,7 @@ from ..models import (
     ItemCredit,
     Podcast,
     TVEpisode,
+    item_categories,
 )
 from ..models.people import People, credit_role_label
 from ..recommendation import can_show_reco, for_you, from_your_circles, similar_items
@@ -59,6 +66,8 @@ RECO_ROW_SIZE = 24
 MIN_RECO_ROW = 3
 POSTS_ON_DISCOVER = 20
 POSTS_PER_AUTHOR_ON_DISCOVER = 2
+# the discover page rotates its shelves once per slot
+DISCOVER_SLOT_SECONDS = 360
 
 
 def retrieve_by_uuid(request, item_uid):
@@ -674,42 +683,143 @@ def _in_visible_categories(items: list[Item], visible: set[str]) -> list[Item]:
     return [i for i in items if i.category.value in visible]
 
 
+#: template, its context, the items whose credit names it shows, and how
+#: many entries it lists
+DiscoverSection = tuple[str, dict, list[Item], int]
+
+
+def _shelf_section(gallery: dict, rot: int) -> DiscoverSection:
+    items = _rotate(cache.get(gallery["name"], []), rot)
+    return (
+        "_discover_shelf.html",
+        {"gallery": {**gallery, "items": items}},
+        items,
+        len(items),
+    )
+
+
+def _spotlight_section(
+    template: str, rot: int, categories: set[str]
+) -> DiscoverSection:
+    spotlight = _in_visible_categories(
+        _rotate(cache.get("discover_spotlight", []), rot), categories
+    )
+    return template, {"spotlight": spotlight}, spotlight, len(spotlight)
+
+
+def _originals_section(rot: int) -> DiscoverSection:
+    # group before rotating, so every show keeps its newest episode in front
+    # and the rotation only changes the order of the shows
+    shows = _rotate(_group_original_episodes(cache.get("original_episodes", [])), rot)
+    return "_discover_originals.html", {"original_shows": shows}, [], len(shows)
+
+
+def _collections_section(rot: int) -> DiscoverSection:
+    # cards read cover_previews, member_count and owner_name from the
+    # instance; the job cached them so no members query runs per page view
+    featured_collections: list[Collection] = []
+    collection_ids = _rotate(list(cache.get("featured_collections", [])), rot)
+    if collection_ids:
+        meta = cache.get("discover_collection_meta", {})
+        by_id = {c.pk: c for c in Collection.objects.filter(pk__in=collection_ids)}
+        for cid in collection_ids:
+            c = by_id.get(cid)
+            if c is None:
+                continue
+            m = meta.get(cid, {})
+            c.cover_previews = m.get("covers", [])
+            c.member_count = m.get("count") or 0
+            c.owner_name = m.get("owner", "")
+            featured_collections.append(c)
+    return (
+        "_discover_collections.html",
+        {"featured_collections": featured_collections},
+        [],
+        len(featured_collections),
+    )
+
+
+def _tags_section() -> DiscoverSection:
+    tags = cache.get("popular_tags", [])
+    return "_discover_tags.html", {"popular_tags": tags}, [], len(tags)
+
+
+def _discover_fragments(
+    builders: dict[str, Callable[[], DiscoverSection]], key_prefix: str
+) -> dict[str, dict]:
+    """Rendered discover sections that every viewer can share.
+
+    A section holds nothing about the viewer: it is rendered without the
+    request, the comment link on episodes is switched on in the browser, and
+    the page hides the categories a member hid. Only the sections missing
+    from the cache are built, with their credit names localized in one query.
+    Each fragment is ``{"html": ..., "n": number of entries}``.
+    """
+    keys = {name: f"{key_prefix}:{name}" for name in builders}
+    found = cache.get_many(list(keys.values()))
+    fragments: dict[str, dict] = {}
+    missing: list[tuple[str, DiscoverSection]] = []
+    for name, build in builders.items():
+        fragment = found.get(keys[name])
+        if fragment is None:
+            missing.append((name, build()))
+        else:
+            fragments[name] = fragment
+    if missing:
+        Item.attach_localized_credit_names(
+            item for _name, section in missing for item in section[2]
+        )
+        rendered: dict[str, dict] = {}
+        for name, (template, context, _items, count) in missing:
+            fragment = {"html": render_to_string(template, context), "n": count}
+            fragments[name] = rendered[keys[name]] = fragment
+        # a fragment never outlives the rotation slot it was rendered for
+        now = timezone.now()
+        ttl = DISCOVER_SLOT_SECONDS - (now.minute % 6) * 60 - now.second
+        cache.set_many(rendered, max(ttl, 1))
+    for fragment in fragments.values():
+        fragment["html"] = mark_safe(fragment["html"])
+    return fragments
+
+
 def discover(request):
     gallery_list = cache.get("public_gallery", [])
     if not SiteConfig.system.discover_show_verified_podcasts:
         gallery_list = [g for g in gallery_list if g["name"] != "original_episodes"]
-    # categories the site hides, or the member hid in preferences, stay off
-    # this page like they stay out of search
+    # categories the site hides stay off the page for anonymous visitors, and
+    # the ones a member hid in preferences are hidden in the browser, like
+    # they stay out of search
     visible = _visible_category_values(request)
+    excluded = (
+        set()
+        if request.user.is_authenticated
+        else set(SiteConfig.system.hidden_categories)
+    )
+    shown = {c.value for c in item_categories()} - excluded
+    hidden_categories = sorted(shown - visible)
     gallery_list = [
         g
         for g in gallery_list
-        if getattr(g.get("category"), "value", ItemCategory.Podcast.value) in visible
+        if getattr(g.get("category"), "value", ItemCategory.Podcast.value) in shown
     ]
 
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
-    card_items: list[Item] = []
+    builders: dict[str, Callable[[], DiscoverSection]] = {
+        "spotlight": partial(_spotlight_section, "_discover_spotlight.html", rot, shown)
+    }
     shelves: list[dict] = []
-    original_shows: list[dict] = []
-    show_originals = False
+    # episode dates render in the member's detected timezone
+    originals = f"originals:{timezone.get_current_timezone_name()}"
     for gallery in gallery_list:
         if gallery["name"] == "original_episodes":
-            show_originals = True
-            # group before rotating, so every show keeps its newest episode
-            # in front and the rotation only changes the order of the shows
-            original_shows = _rotate(
-                _group_original_episodes(cache.get(gallery["name"], [])), rot
-            )
-            continue
-        items = _rotate(cache.get(gallery["name"], []), rot)
-        gallery["items"] = items
-        shelves.append(gallery)
-        card_items.extend(items)
-    spotlight = _in_visible_categories(
-        _rotate(cache.get("discover_spotlight", []), rot), visible
-    )
-    card_items.extend(spotlight)
+            builders[originals] = partial(_originals_section, rot)
+        else:
+            shelves.append(gallery)
+            builders[gallery["name"]] = partial(_shelf_section, gallery, rot)
+    builders["collections"] = partial(_collections_section, rot)
+    if SiteConfig.system.discover_show_popular_tags:
+        builders["tags"] = _tags_section
 
     for_you_items: list[Item] = []
     circles_items: list[Item] = []
@@ -749,40 +859,32 @@ def discover(request):
                 Item.credits_prefetch(),
             )
             Rating.attach_to_items(reco_items)
-            card_items.extend(reco_items)
+            Item.attach_localized_credit_names(reco_items)
         # a member with nothing on any shelf and nobody followed gets the
         # onboarding module in place of empty personal rows
         is_new_member = (
             not ShelfMember.objects.filter(owner=identity).exists()
             and not identity.following
         )
+        if is_new_member:
+            builders["onboarding"] = partial(
+                _spotlight_section, "_discover_spotlight_cards.html", rot, shown
+            )
     else:
         identity = None
         layout = []
         announcements = Takahe.get_announcements()
-    Item.attach_localized_credit_names(card_items)
 
-    # cards read cover_previews, member_count and owner_name from the
-    # instance; the job cached them so no members query runs per page view
-    featured_collections: list[Collection] = []
-    collection_ids = _rotate(list(cache.get("featured_collections", [])), rot)
-    if collection_ids:
-        meta = cache.get("discover_collection_meta", {})
-        by_id = {c.pk: c for c in Collection.objects.filter(pk__in=collection_ids)}
-        for cid in collection_ids:
-            c = by_id.get(cid)
-            if c is None:
-                continue
-            m = meta.get(cid, {})
-            c.cover_previews = m.get("covers", [])
-            c.member_count = m.get("count") or 0
-            c.owner_name = m.get("owner", "")
-            featured_collections.append(c)
-
-    if SiteConfig.system.discover_show_popular_tags:
-        popular_tags = cache.get("popular_tags", [])
-    else:
-        popular_tags = None
+    updated = cache.get("trends_updated")
+    stamp = int(updated.timestamp()) if updated else 0
+    frag = _discover_fragments(
+        builders,
+        f"discover_frag:{stamp}:{get_language()}:{rot}:{','.join(sorted(excluded))}",
+    )
+    for gallery in shelves:
+        gallery.update(frag[gallery["name"]])
+    if originals in frag:
+        frag["originals"] = frag.pop(originals)
 
     # members always get a posts section (the public timeline when the site
     # has no curated list); anonymous visitors only the curated one
@@ -796,27 +898,23 @@ def discover(request):
         catalog_stats = [s for s in cache.get("catalog_stats") or [] if s.get("count")]
         instance_stats = cache.get("instance_info_stats") or {}
 
-    updated = cache.get("trends_updated", timezone.now())
     return render(
         request,
         "discover.html",
         {
             "identity": identity,
             "all_announcements": announcements,
-            "gallery_list": shelves,
-            "show_originals": show_originals,
-            "original_shows": original_shows,
-            "spotlight": spotlight,
+            "frag": frag,
+            "shelves": shelves,
+            "hidden_categories": hidden_categories,
             "for_you_items": for_you_items,
             "circles_items": circles_items,
             "is_new_member": is_new_member,
-            "featured_collections": featured_collections,
-            "popular_tags": popular_tags,
             "show_posts": show_posts,
             "catalog_stats": catalog_stats,
             "instance_stats": instance_stats,
             "layout": layout,
-            "updated": updated,
+            "updated": updated or timezone.now(),
         },
     )
 

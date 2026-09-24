@@ -1,0 +1,29 @@
+{% load i18n %}
+<section class="entity-sort dc-mod"
+         id="featured_collections"
+         data-title="{% trans 'Collections' %}"
+         {% if not featured_collections %}style="display:none;"{% endif %}>
+  <header class="dc-mh">
+    <h2>{% trans "Collections" %}</h2>
+    <span class="dc-sub">{% trans "Lists made by members, most recently updated first." %}</span>
+    <span class="action">
+      <button class="dc-nav dc-scroll"
+              type="button"
+              aria-label="{% trans 'Scroll left' %}"
+              _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'Scroll right' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</span>
+</header>
+<ul class="dc-cards dc-cols">
+  {% for collection in featured_collections %}
+    {% include "_collection_card.html" %}
+  {% endfor %}
+</ul>
+</section>

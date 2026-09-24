@@ -1,0 +1,56 @@
+{% load i18n %}
+{% load thumb %}
+{% load discover %}
+<section class="entity-sort dc-mod"
+         id="spotlight"
+         data-title="{% trans 'Trending now' %}">
+  <header class="dc-mh">
+    <h2>{% trans "Trending now" %}</h2>
+    <span class="dc-sub">{% trans "Marked most across the Fediverse recently." %}</span>
+    <span class="action">
+      <button class="dc-nav dc-scroll"
+              type="button"
+              aria-label="{% trans 'Scroll left' %}"
+              _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'Scroll right' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</span>
+</header>
+<ul class="dc-spots">
+  {% for item in spotlight %}
+    <li class="dc-spot" data-category="{{ item.category.value }}">
+      <a href="{{ item.url }}" title="{{ item.display_title }}">
+        <span class="dc-cover {{ item|cover_shape }}">
+          <img src="{{ item.cover|thumb:'normal' }}"
+               alt="{{ item.display_title }}"
+               loading="lazy">
+        </span>
+        <span class="dc-spot-body">
+          <span class="dc-eyebrow">{{ item.category.label }}</span>
+          <span class="dc-spot-title">{{ item.display_title }}</span>
+          <span class="dc-spot-rating">
+            {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
+            {% if item.recent_marks %}
+              <span class="solo-hidden">
+                {% blocktrans count counter=item.recent_marks trimmed %}
+                  Marked by {{ counter }} person recently
+                {% plural %}
+                  Marked by {{ counter }} people recently
+                {% endblocktrans %}
+              </span>
+            {% endif %}
+          </span>
+          <span class="dc-spot-brief">{{ item.display_description }}</span>
+          <span class="dc-spot-by">{{ item|primary_credit }}</span>
+        </span>
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+</section>

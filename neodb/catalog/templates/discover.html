@@ -28,6 +28,9 @@
     <meta name="lastmodified" content="{{ updated | date:'r' }}" />
     <title>{{ site_name }} - {% trans 'Discover' %}</title>
     {% include "common_libs.html" %}
+    {% if hidden_categories %}
+      <style>{% for c in hidden_categories %}.dc-main [data-category="{{ c }}"]{% if not forloop.last %}, {% endif %}{% endfor %} {display: none;}</style>
+    {% endif %}
   </head>
   <body>
     {% include "_header.html" %}
@@ -137,13 +140,7 @@
               </div>
             </li>
           </ol>
-          {% if spotlight %}
-            <ul class="dc-cards">
-              {% for item in spotlight %}
-                {% include "_item_cover_card.html" %}
-              {% endfor %}
-            </ul>
-          {% endif %}
+          {% if frag.onboarding.n %}{{ frag.onboarding.html }}{% endif %}
         </section>
       {% endif %}
       <nav class="dc-chips sticky" aria-label="{% trans 'Sections' %}">
@@ -156,10 +153,10 @@
               <a href="#recommendations">{% trans "For you" %}</a>
             </li>
           {% endif %}
-          {% for gallery in gallery_list %}
-            {% if gallery.items %}
-              <li>
-                <a href="#{{ gallery.name }}">{{ gallery.category.label }}</a>
+          {% for shelf in shelves %}
+            {% if shelf.n %}
+              <li data-category="{{ shelf.category.value }}">
+                <a href="#{{ shelf.name }}">{{ shelf.category.label }}</a>
               </li>
             {% endif %}
           {% endfor %}
@@ -168,83 +165,56 @@
               <a href="#discover_posts">{% trans "Posts" %}</a>
             </li>
           {% endif %}
-          {% if featured_collections %}
+          {% if frag.collections.n %}
             <li>
               <a href="#featured_collections">{% trans "Collections" %}</a>
             </li>
           {% endif %}
-          {% if original_shows %}
-            <li>
+          {% if frag.originals.n %}
+            <li data-category="podcast">
               <a href="#original_episodes">{% trans "Originals" %}</a>
             </li>
           {% endif %}
         </ul>
       </nav>
       <div class="sortable">
-        {% if spotlight %}
-          <section class="entity-sort dc-mod"
-                   id="spotlight"
-                   data-title="{% trans 'Trending now' %}">
-            <header class="dc-mh">
-              <h2>{% trans "Trending now" %}</h2>
-              <span class="dc-sub">{% trans "Marked most across the Fediverse recently." %}</span>
-              <span class="action">
+        {% if frag.spotlight.n %}{{ frag.spotlight.html }}{% endif %}
+        <section class="entity-sort dc-mod"
+                 id="recommendations"
+                 data-title="{% trans 'For you' %}"
+                 {% if not for_you_items and not circles_items %}style="display:none;"{% endif %}>
+          {% if for_you_items %}
+            <div class="dc-mod" id="for_you">
+              <header class="dc-mh">
+                <h2>{% trans "For you" %}</h2>
+                <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
+                <span class="action">
+                  <button class="dc-nav dc-scroll"
+                          type="button"
+                          aria-label="{% trans 'Scroll left' %}"
+                          _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
                 <button class="dc-nav dc-scroll"
                         type="button"
-                        aria-label="{% trans 'Scroll left' %}"
-                        _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-                <i class="fa-solid fa-chevron-left"></i>
+                        aria-label="{% trans 'Scroll right' %}"
+                        _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+                <i class="fa-solid fa-chevron-right"></i>
               </button>
-              <button class="dc-nav dc-scroll"
-                      type="button"
-                      aria-label="{% trans 'Scroll right' %}"
-                      _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
-          </span>
-        </header>
-        <ul class="dc-spots">
-          {% for item in spotlight %}
-            <li class="dc-spot">
-              <a href="{{ item.url }}" title="{{ item.display_title }}">
-                <span class="dc-cover {{ item|cover_shape }}">
-                  <img src="{{ item.cover|thumb:'normal' }}"
-                       alt="{{ item.display_title }}"
-                       loading="lazy">
-                </span>
-                <span class="dc-spot-body">
-                  <span class="dc-eyebrow">{{ item.category.label }}</span>
-                  <span class="dc-spot-title">{{ item.display_title }}</span>
-                  <span class="dc-spot-rating">
-                    {% if item.rating %}<b class="solo-hidden">★ {{ item.rating|floatformat:1 }}</b>{% endif %}
-                    {% if item.recent_marks %}
-                      <span class="solo-hidden">
-                        {% blocktrans count counter=item.recent_marks trimmed %}
-                          Marked by {{ counter }} person recently
-                        {% plural %}
-                          Marked by {{ counter }} people recently
-                        {% endblocktrans %}
-                      </span>
-                    {% endif %}
-                  </span>
-                  <span class="dc-spot-brief">{{ item.display_description }}</span>
-                  <span class="dc-spot-by">{{ item|primary_credit }}</span>
-                </span>
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </section>
-    {% endif %}
-    <section class="entity-sort dc-mod"
-             id="recommendations"
-             data-title="{% trans 'For you' %}"
-             {% if not for_you_items and not circles_items %}style="display:none;"{% endif %}>
-      {% if for_you_items %}
-        <div class="dc-mod" id="for_you">
+            </span>
+          </header>
+          <ul class="dc-cards">
+            {% for item in for_you_items %}
+              {% include "_item_cover_card.html" %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      {% if circles_items %}
+        <div class="dc-mod" id="from_circles">
           <header class="dc-mh">
-            <h2>{% trans "For you" %}</h2>
-            <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
+            <h2>{% trans "From people you follow" %}</h2>
+            <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
             <span class="action">
               <button class="dc-nav dc-scroll"
                       type="button"
@@ -261,138 +231,21 @@
         </span>
       </header>
       <ul class="dc-cards">
-        {% for item in for_you_items %}
+        {% for item in circles_items %}
           {% include "_item_cover_card.html" %}
         {% endfor %}
       </ul>
     </div>
   {% endif %}
-  {% if circles_items %}
-    <div class="dc-mod" id="from_circles">
-      <header class="dc-mh">
-        <h2>{% trans "From people you follow" %}</h2>
-        <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
-        <span class="action">
-          <button class="dc-nav dc-scroll"
-                  type="button"
-                  aria-label="{% trans 'Scroll left' %}"
-                  _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <button class="dc-nav dc-scroll"
-                type="button"
-                aria-label="{% trans 'Scroll right' %}"
-                _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </span>
-  </header>
-  <ul class="dc-cards">
-    {% for item in circles_items %}
-      {% include "_item_cover_card.html" %}
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
-{% if not for_you_items and not circles_items %}
-  <header class="dc-mh">
-    <h2>{% trans "For you" %}</h2>
-    <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
-  </header>
-{% endif %}
-</section>
-{% for gallery in gallery_list %}
-  <section class="entity-sort dc-mod"
-           id="{{ gallery.name }}"
-           data-title="{{ gallery.category.label }}"
-           {% if not gallery.items %}style="display:none;"{% endif %}>
+  {% if not for_you_items and not circles_items %}
     <header class="dc-mh">
-      <h2>{{ gallery.category.label }}</h2>
-      <span class="action">
-        <a class="dc-more"
-           href="{% url 'catalog:discover_category' gallery.category.value %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
-        <button class="dc-nav dc-scroll"
-                type="button"
-                aria-label="{% trans 'Scroll left' %}"
-                _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      <button class="dc-nav dc-scroll"
-              type="button"
-              aria-label="{% trans 'Scroll right' %}"
-              _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  </span>
-</header>
-<ul class="dc-cards">
-  {% for item in gallery.items %}
-    {% include "_item_cover_card.html" %}
-  {% endfor %}
-</ul>
-</section>
-{% endfor %}
-{% if show_originals %}
-  <section class="entity-sort dc-mod"
-           id="original_episodes"
-           data-title="{% trans 'Fediverse originals' %}"
-           {% if not original_shows %}style="display:none;"{% endif %}>
-    <header class="dc-mh">
-      <h2>
-        <a href="{% url 'catalog:discover_original_podcasts' %}">{% trans 'Fediverse originals' %}</a>
-      </h2>
-      <span class="dc-sub">{% trans "Podcasts by creators on the Fediverse. Play right on this page." %}</span>
-      <span class="action">
-        <a class="dc-more" href="{% url 'catalog:discover_original_podcasts' %}">{% trans "All original shows" %} <i class="fa-solid fa-arrow-right"></i></a>
-      </span>
+      <h2>{% trans "For you" %}</h2>
+      <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
     </header>
-    <ul class="dc-shows">
-      {% for show in original_shows %}
-        {% with program=show.program episode=show.episodes.0 %}
-          <li class="dc-show">
-            <a href="{{ program.url }}" title="{{ program.display_title }}">
-              <img src="{{ program.cover|thumb:'normal' }}"
-                   alt="{{ program.display_title }}"
-                   loading="lazy">
-            </a>
-            <div class="dc-show-body">
-              <a class="dc-show-title" href="{{ program.url }}">{{ program.display_title }}</a>
-              <span class="dc-show-host">{{ program.host_names|join:' / ' }}</span>
-              <span class="dc-episode">
-                <a href="{{ episode.url }}"
-                   title="{% trans 'Play' %}"
-                   class="dc-play episode"
-                   data-media="{{ episode.media_url }}"
-                   data-cover="{{ episode.display_cover_image_url }}"
-                   data-title="{{ episode.title }}"
-                   data-album="{{ program.display_title }}"
-                   data-hosts="{{ program.host_names|join:' / ' }}"
-                   data-uuid="{{ episode.uuid }}"
-                   {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' episode.uuid %}"{% endif %}>
-                  <i class="fa-solid fa-play"></i>
-                </a>
-                <span>
-                  <a class="dc-episode-title" href="{{ episode.url }}">{{ episode.title }}</a>
-                  <small class="dc-episode-date">
-                    {{ episode.pub_date|date:"Y-m-d" }}
-                    {% if show.episodes|length > 1 %}
-                      ·
-                      {% blocktrans count counter=show.episodes|length trimmed %}
-                        {{ counter }} recent episode
-                      {% plural %}
-                        {{ counter }} recent episodes
-                      {% endblocktrans %}
-                    {% endif %}
-                  </small>
-                </span>
-              </span>
-            </div>
-          </li>
-        {% endwith %}
-      {% endfor %}
-    </ul>
-  </section>
-{% endif %}
+  {% endif %}
+</section>
+{% for shelf in shelves %}{{ shelf.html }}{% endfor %}
+{% if frag.originals %}{{ frag.originals.html }}{% endif %}
 {% if show_posts %}
   <section class="entity-sort dc-mod solo-hidden"
            id="discover_posts"
@@ -415,55 +268,21 @@
     </div>
   </section>
 {% endif %}
-<section class="entity-sort dc-mod"
-         id="featured_collections"
-         data-title="{% trans 'Collections' %}"
-         {% if not featured_collections %}style="display:none;"{% endif %}>
-  <header class="dc-mh">
-    <h2>{% trans "Collections" %}</h2>
-    <span class="dc-sub">{% trans "Lists made by members, most recently updated first." %}</span>
-    <span class="action">
-      <button class="dc-nav dc-scroll"
-              type="button"
-              aria-label="{% trans 'Scroll left' %}"
-              _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-    <button class="dc-nav dc-scroll"
-            type="button"
-            aria-label="{% trans 'Scroll right' %}"
-            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-    <i class="fa-solid fa-chevron-right"></i>
-  </button>
-</span>
-</header>
-<ul class="dc-cards dc-cols">
-  {% for collection in featured_collections %}
-    {% include "_collection_card.html" %}
-  {% endfor %}
-</ul>
-</section>
-{% if popular_tags %}
-  <section class="entity-sort dc-mod"
-           id="popular_tags"
-           data-title="{% trans 'Popular tags' %}">
-    <header class="dc-mh">
-      <h2>{% trans 'Popular tags' %}</h2>
-      <span class="dc-sub">{% trans "Most used public tags in the last two weeks." %}</span>
-    </header>
-    <ul class="dc-tags">
-      {% for t in popular_tags %}
-        <li>
-          <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
-{% endif %}
+{{ frag.collections.html }}
+{% if frag.tags.n %}{{ frag.tags.html }}{% endif %}
 </div>
 {% if request.user.is_authenticated %}
   {{ layout|json_script:"layout-data" }}
+  {{ hidden_categories|json_script:"hidden-categories" }}
   <script>
+        // the shared sections carry every category the site shows; drop the
+        // ones this member hid, so the chips and the layout editor skip them
+        const hiddenCategories = JSON.parse(document.getElementById('hidden-categories').textContent);
+        document.querySelectorAll('.dc-main [data-category]').forEach(el => {
+          if (hiddenCategories.includes(el.dataset.category)) el.remove();
+        });
+        const spotlight = document.getElementById('spotlight');
+        if (spotlight && !spotlight.querySelector('.dc-spot')) spotlight.remove();
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
         const savedIds = [];
         // apply the saved visibility; data-visible feeds the editor

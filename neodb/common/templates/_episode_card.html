@@ -11,7 +11,7 @@
      data-title="{{ item.title }}"
      data-album="{{ item.program.display_title }}"
      data-hosts="{{ item.program.host|join:' / ' }}"
-     {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' item.uuid %}"{% endif %}
+     data-comment-href="{% url 'journal:comment' item.uuid %}"
      data-position="0">
     <span class="dc-cover sq">
       <img src="{{ item.display_cover_image_url|relative_uri }}"

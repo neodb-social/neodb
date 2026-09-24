@@ -26,7 +26,7 @@
                data-album="{{ item.display_title }}"
                data-hosts="{{ item.host_names|join:' / ' }}"
                data-position="0"
-               {% if request.user.is_authenticated %}data-comment-href="{% url 'journal:comment' ep.uuid %}"{% endif %}><i class="fa-solid fa-circle-play"></i> {{ ep.title }}</a>
+               data-comment-href="{% url 'journal:comment' ep.uuid %}"><i class="fa-solid fa-circle-play"></i> {{ ep.title }}</a>
           {% else %}
             <a href="{{ ep.url }}">{{ ep.title }}</a>
           {% endif %}

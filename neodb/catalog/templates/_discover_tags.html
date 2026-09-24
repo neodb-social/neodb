@@ -1,0 +1,16 @@
+{% load i18n %}
+<section class="entity-sort dc-mod"
+         id="popular_tags"
+         data-title="{% trans 'Popular tags' %}">
+  <header class="dc-mh">
+    <h2>{% trans 'Popular tags' %}</h2>
+    <span class="dc-sub">{% trans "Most used public tags in the last two weeks." %}</span>
+  </header>
+  <ul class="dc-tags">
+    {% for t in popular_tags %}
+      <li>
+        <a href="{% url 'common:search' %}?tag={{ t|urlencode }}">{{ t }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

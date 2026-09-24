@@ -2,7 +2,7 @@
 {% load thumb %}
 {% load discover %}
 {% load duration %}
-<li class="dc-card">
+<li class="dc-card" data-category="{{ item.category.value }}">
   <a href="{{ item.url }}" title="{{ item.display_title }}">
     <span class="dc-cover {{ item|cover_shape }}">
       <img src="{{ item.cover|thumb:'normal' }}"

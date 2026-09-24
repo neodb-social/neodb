@@ -45,7 +45,7 @@
                data-hosts="{{ item.host_names|join:' / ' }}"
                data-title="{{ comment.item.display_title }}"
                data-album="{{ item.display_title }}"
-               {% if request.user.is_authenticated %} data-comment-href="{% url 'journal:comment' comment.item.uuid %}" {% endif %}
+               data-comment-href="{% url 'journal:comment' comment.item.uuid %}"
                data-uuid="{{ comment.item.uuid }}"><i class="fa-regular fa-circle-play"></i></a>
           </span>
         {% endif %}
