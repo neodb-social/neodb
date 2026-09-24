@@ -134,7 +134,7 @@ class TestRemotePieceIndex:
         self.owner = _make_remote_identity("reader")
 
     def search_item_posts(self, piece_type: str):
-        # mirrors the query built by /api/item/{uuid}/posts/
+        # an item-scoped post search, as /api/v1/timelines/link builds
         q = JournalQueryParser(f"type:{piece_type}", 1)
         q.filter_by_viewer(None)
         q.filter("item_id", self.book.pk)

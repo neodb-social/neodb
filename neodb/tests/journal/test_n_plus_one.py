@@ -1,8 +1,5 @@
 """Tests for N+1 query optimizations."""
 
-from types import SimpleNamespace
-from unittest.mock import patch
-
 import pytest
 from django.db import connection, connections
 from django.test import Client
@@ -23,7 +20,6 @@ from catalog.models import (
 from journal.models import Collection, Mark, ShelfType, Tag
 from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
-from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import User
 
@@ -1466,21 +1462,19 @@ class TestItemPostsApiPrefetch:
             )
 
     def test_item_posts_api_bounded_queries(self):
-        posts = Post.objects.filter(author_id__in=[u.identity.pk for u in self.users])
-        assert posts.count() == 4
-
-        class StubIndex:
-            def search(self, query):
-                return SimpleNamespace(posts=posts, pages=1, total=4)
-
         with (
-            patch("journal.apis.post.JournalIndex.instance", return_value=StubIndex()),
+            CaptureQueriesContext(connections["default"]) as neodb_ctx,
             CaptureQueriesContext(connections["takahe"]) as ctx,
         ):
-            response = Client().get(f"/api/item/{self.book.uuid}/posts/")
+            response = Client().get(f"/api/item/{self.book.uuid}/posts/?type=mark")
         assert response.status_code == 200
         assert len(response.json()["data"]) == 4
 
+        # count, page and latest-post lookup; never one per piece
+        piecepost = [
+            q for q in neodb_ctx.captured_queries if '"journal_piecepost"' in q["sql"]
+        ]
+        assert len(piecepost) == 3
         sql = [q["sql"] for q in ctx.captured_queries]
         # one prefetch query each, never one per post
         for table in ('"activities_post_mentions"', '"activities_post_emojis"'):

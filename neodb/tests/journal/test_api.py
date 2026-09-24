@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 from io import BytesIO
 from unittest.mock import patch
 
@@ -15,6 +16,7 @@ from common.models.misc import MISSING_COVER
 from journal.models import (
     Article,
     Collection,
+    Comment,
     FeaturedCollection,
     Mark,
     Note,
@@ -1768,114 +1770,6 @@ def test_article_api_sanitizes_body_and_validates_length():
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_post_api_list_for_item():
-    user = User.register(email="post@example.com", username="postuser")
-    item = Edition.objects.create(title="Post Item")
-
-    app = Takahe.get_or_create_app(
-        "Post API Tests",
-        "https://example.org",
-        "https://example.org/callback",
-        owner_pk=user.identity.pk,
-    )
-    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
-    client = Client()
-
-    class StubPosts(list):
-        def prefetch_related(self, *args, **kwargs):
-            return self
-
-        def select_related(self, *args, **kwargs):
-            return self
-
-    class StubPost:
-        def __init__(self, post_id):
-            self.post_id = post_id
-
-        def to_mastodon_json(self):
-            return {
-                "id": str(self.post_id),
-                "uri": f"https://example.org/posts/{self.post_id}",
-                "created_at": "2024-01-01T00:00:00Z",
-                "account": {
-                    "id": "1",
-                    "username": "user",
-                    "acct": "user",
-                    "url": "https://example.org/@user",
-                    "display_name": "User",
-                    "note": "",
-                    "avatar": "",
-                    "avatar_static": "",
-                    "header": "",
-                    "header_static": "",
-                    "locked": False,
-                    "fields": [],
-                    "emojis": [],
-                    "bot": False,
-                    "group": False,
-                    "discoverable": True,
-                    "indexable": True,
-                    "moved": None,
-                    "suspended": False,
-                    "limited": False,
-                    "created_at": "2024-01-01T00:00:00Z",
-                },
-                "content": "ok",
-                "visibility": "public",
-                "sensitive": False,
-                "spoiler_text": "",
-                "media_attachments": [],
-                "mentions": [],
-                "tags": [],
-                "emojis": [],
-                "reblogs_count": 0,
-                "favourites_count": 0,
-                "replies_count": 0,
-                "url": f"https://example.org/posts/{self.post_id}",
-                "in_reply_to_id": None,
-                "in_reply_to_account_id": None,
-                "language": None,
-                "text": None,
-                "edited_at": None,
-                "favourited": False,
-                "reblogged": False,
-                "muted": False,
-                "bookmarked": False,
-                "pinned": False,
-                "ext_neodb": None,
-            }
-
-    class StubResult:
-        def __init__(self, posts):
-            self.posts = posts
-            self.pages = 1
-            self.total = len(posts)
-
-    class StubIndex:
-        def __init__(self, result):
-            self._result = result
-
-        def search(self, query):
-            return self._result
-
-    stub_posts = StubPosts([StubPost(1), StubPost(2)])
-    stub_result = StubResult(stub_posts)
-
-    with patch(
-        "journal.apis.post.JournalIndex.instance", return_value=StubIndex(stub_result)
-    ):
-        response = client.get(
-            f"/api/item/{item.uuid}/posts/?type=comment",
-            HTTP_AUTHORIZATION=f"Bearer {token}",
-        )
-
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["count"] == 2
-    assert payload["data"][0]["id"] == "1"
-
-
-@pytest.mark.django_db(databases="__all__")
 class TestApplicationOnPosts:
     """Test that posts created via API have the application field set."""
 
@@ -2131,118 +2025,133 @@ def test_optional_auth_on_public_endpoints():
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_posts_endpoint_optional_auth():
-    """Test that /item/{uuid}/posts/ works with and without auth."""
-    user = User.register(email="postopt@example.com", username="postoptuser")
-    item = Edition.objects.create(title="PostOpt Item")
+class TestItemPostsApi:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        def user(name):
+            return User.register(email=f"{name}@example.com", username=name)
 
-    app = Takahe.get_or_create_app(
-        "PostOpt API Tests",
-        "https://example.org",
-        "https://example.org/callback",
-        owner_pk=user.identity.pk,
-    )
-    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
-
-    class StubPosts(list):
-        def prefetch_related(self, *args, **kwargs):
-            return self
-
-        def select_related(self, *args, **kwargs):
-            return self
-
-    class StubPost:
-        def __init__(self, post_id):
-            self.post_id = post_id
-
-        def to_mastodon_json(self):
-            return {
-                "id": str(self.post_id),
-                "uri": f"https://example.org/posts/{self.post_id}",
-                "created_at": "2024-01-01T00:00:00Z",
-                "account": {
-                    "id": "1",
-                    "username": "user",
-                    "acct": "user",
-                    "url": "https://example.org/@user",
-                    "display_name": "User",
-                    "note": "",
-                    "avatar": "",
-                    "avatar_static": "",
-                    "header": "",
-                    "header_static": "",
-                    "locked": False,
-                    "fields": [],
-                    "emojis": [],
-                    "bot": False,
-                    "group": False,
-                    "discoverable": True,
-                    "indexable": True,
-                    "moved": None,
-                    "suspended": False,
-                    "limited": False,
-                    "created_at": "2024-01-01T00:00:00Z",
-                },
-                "content": "ok",
-                "visibility": "public",
-                "sensitive": False,
-                "spoiler_text": "",
-                "media_attachments": [],
-                "mentions": [],
-                "tags": [],
-                "emojis": [],
-                "reblogs_count": 0,
-                "favourites_count": 0,
-                "replies_count": 0,
-                "url": f"https://example.org/posts/{self.post_id}",
-                "in_reply_to_id": None,
-                "in_reply_to_account_id": None,
-                "language": None,
-                "text": None,
-                "edited_at": None,
-                "favourited": False,
-                "reblogged": False,
-                "muted": False,
-                "bookmarked": False,
-                "pinned": False,
-                "ext_neodb": None,
-            }
-
-    class StubResult:
-        def __init__(self, posts):
-            self.posts = posts
-            self.pages = 1
-            self.total = len(posts)
-
-    class StubIndex:
-        def __init__(self, result):
-            self._result = result
-
-        def search(self, query):
-            return self._result
-
-    stub_posts = StubPosts([StubPost(1)])
-    stub_result = StubResult(stub_posts)
-
-    with patch(
-        "journal.apis.post.JournalIndex.instance", return_value=StubIndex(stub_result)
-    ):
-        # Authenticated access works
-        response = Client().get(
-            f"/api/item/{item.uuid}/posts/",
-            HTTP_AUTHORIZATION=f"Bearer {token}",
+        self.item = Edition.objects.create(title="Item Posts")
+        self.viewer = user("ipviewer")
+        marker, plain, reviewer, friend, loner, noter = (
+            user(n)
+            for n in (
+                "ipmarker",
+                "ipplain",
+                "ipreviewer",
+                "ipfriend",
+                "iploner",
+                "ipnoter",
+            )
         )
-        assert response.status_code == 200
-        assert response.json()["count"] == 1
+        self.viewer.identity.follow(friend.identity, True)
 
-        # Anonymous access works
-        response = Client().get(f"/api/item/{item.uuid}/posts/")
-        assert response.status_code == 200
-        assert response.json()["count"] == 1
+        def mark(u, comment, visibility=0):
+            m = Mark(u.identity, self.item)
+            m.update(ShelfType.COMPLETE, comment, None, [], visibility)
+            assert m.shelfmember
+            return m.shelfmember.latest_post_id
 
-        # Invalid token returns 401
+        self.marked = mark(marker, "commented mark")
+        self.plain = mark(plain, None)
+        self.friend = mark(friend, "followers only", visibility=1)
+        review = Review.update_item_review(
+            self.item, reviewer.identity, "Title", "Body", visibility=0
+        )
+        assert review
+        self.review = review.latest_post_id
+        # a comment without a mark, as a remote user or an episode comment makes
+        comment = Comment.objects.create(
+            owner=loner.identity, item=self.item, text="lone", visibility=0
+        )
+        post = Post.objects.create(
+            author_id=loner.identity.pk,
+            local=False,
+            object_uri="https://remote.example/comment/1",
+            content="lone",
+            visibility=Post.Visibilities.public,
+            state="fanned_out",
+        )
+        comment.link_post_id(post.pk)
+        self.lone = post.pk
+        self.note = Note.objects.create(
+            owner=noter.identity, item=self.item, content="note", visibility=0
+        ).latest_post_id
+        collection = Collection.objects.create(
+            owner=marker.identity, title="With item", visibility=0
+        )
+        collection.append_item(self.item)
+        self.collection = collection.latest_post_id
+        self.noter = noter
+        self.token = Takahe.refresh_token(
+            Takahe.get_or_create_app(
+                "Item Posts Tests",
+                "https://example.org",
+                "https://example.org/callback",
+                owner_pk=self.viewer.identity.pk,
+            ),
+            self.viewer.identity.pk,
+            self.viewer.pk,
+        )
+
+    def fetch(self, query="", auth=False):
+        headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"} if auth else {}
+        response = Client().get(f"/api/item/{self.item.uuid}/posts/{query}", **headers)
+        assert response.status_code == 200
+        return response.json()
+
+    def ids(self, payload):
+        return {int(p["id"]) for p in payload["data"]}
+
+    def test_default_types_are_comment_and_review(self):
+        payload = self.fetch()
+        assert self.ids(payload) == {self.marked, self.lone, self.review}
+        assert payload["count"] == 3
+        assert payload["pages"] == 1
+
+    def test_types(self):
+        assert self.ids(self.fetch("?type=mark")) == {self.marked, self.plain}
+        assert self.ids(self.fetch("?type=note")) == {self.note}
+        assert self.ids(self.fetch("?type=collection")) == {self.collection}
+        assert self.ids(self.fetch("?type=bogus,review")) == {self.review}
+
+    def test_commented_mark_counts_once(self):
+        payload = self.fetch("?type=mark,comment")
+        assert self.ids(payload) == {self.marked, self.plain, self.lone}
+        assert payload["count"] == len(payload["data"]) == 3
+
+    def test_followers_only_visible_to_follower(self):
+        assert self.friend not in self.ids(self.fetch("?type=mark"))
+        assert self.friend in self.ids(self.fetch("?type=mark", auth=True))
+
+    def test_owner_not_anonymous_viewable(self):
+        self.noter.identity.anonymous_viewable = False
+        self.noter.identity.save(update_fields=["anonymous_viewable"])
+        assert self.fetch("?type=note")["count"] == 0
+        assert self.ids(self.fetch("?type=note", auth=True)) == {self.note}
+
+    def test_newest_first_and_paged(self, monkeypatch):
+        monkeypatch.setattr("journal.apis.post.ITEM_POSTS_PAGE_SIZE", 2)
+        now = timezone.now()
+        for age, model in enumerate((Review, Comment)):
+            model.objects.filter(item=self.item).update(
+                created_time=now - timedelta(days=age + 1)
+            )
+        first = self.fetch()
+        assert [int(p["id"]) for p in first["data"]] == [self.marked, self.review]
+        assert first["count"] == 3
+        assert first["pages"] == 2
+        assert [int(p["id"]) for p in self.fetch("?page=2")["data"]] == [self.lone]
+
+    def test_deleted_post_is_skipped(self):
+        Post.objects.filter(pk=self.review).update(state="deleted")
+        payload = self.fetch("?type=review")
+        assert payload["data"] == []
+        assert payload["count"] == 1
+
+    def test_invalid_token(self):
         response = Client().get(
-            f"/api/item/{item.uuid}/posts/",
+            f"/api/item/{self.item.uuid}/posts/",
             HTTP_AUTHORIZATION="Bearer invalidtoken",
         )
         assert response.status_code == 401

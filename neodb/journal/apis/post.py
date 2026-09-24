@@ -1,6 +1,7 @@
 from typing import Literal, Union
 
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Exists, OuterRef, Prefetch, Q, QuerySet
+from django.db.models.expressions import BaseExpression
 from django.http import HttpResponse
 from ninja import Field, Schema
 
@@ -13,11 +14,25 @@ from common.api import (
     api,
     resolve_item_for_read,
 )
+from journal.models import (
+    Collection,
+    CollectionMember,
+    Comment,
+    Note,
+    Piece,
+    PiecePost,
+    Review,
+    ShelfMember,
+    q_piece_visible_to_user,
+)
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Identity
+from takahe.models import Post as TakahePost
+from users.models import User
 
 TIMELINE_LINK_MAX_LIMIT = 40
 TIMELINE_LINK_DEFAULT_LIMIT = 20
+ITEM_POSTS_PAGE_SIZE = 20
 
 
 def _with_status_relations(posts: QuerySet) -> QuerySet:
@@ -140,6 +155,47 @@ class PaginatedPostList(Schema):
 PostTypes = {"mark", "comment", "review", "collection", "note"}
 
 
+def _item_pieces(item: Item, types: set[str], user: User) -> QuerySet:
+    """(pk, created_time) of the item's pieces of the given types visible to user.
+
+    Mirrors the journal index docs: a comment with a sibling mark shares the
+    mark's post and lives in the mark's doc, so it is reached through the
+    mark and never on its own; that keeps one row per post.
+    """
+    visible = q_piece_visible_to_user(user)
+    has_post = Exists(PiecePost.objects.filter(piece_id=OuterRef("pk")))
+    on_item = Q(item_id=item.pk)
+    sibling = {"owner_id": OuterRef("owner_id"), "item_id": item.pk}
+
+    def pieces(model: type[Piece], *conditions: Q | BaseExpression) -> QuerySet:
+        # plain QuerySet skips polymorphic loading and ShelfMember's annotations
+        return (
+            QuerySet(model)
+            .filter(*conditions, visible, has_post)
+            .values_list("pk", "created_time")
+        )
+
+    qs = []
+    if "mark" in types:
+        qs.append(pieces(ShelfMember, on_item))
+    elif "comment" in types:
+        qs.append(
+            pieces(ShelfMember, on_item, Exists(QuerySet(Comment).filter(**sibling)))
+        )
+    if "comment" in types:
+        qs.append(
+            pieces(Comment, on_item, ~Exists(QuerySet(ShelfMember).filter(**sibling)))
+        )
+    if "review" in types:
+        qs.append(pieces(Review, on_item))
+    if "note" in types:
+        qs.append(pieces(Note, on_item))
+    if "collection" in types:
+        members = CollectionMember.objects.filter(item_id=item.pk)
+        qs.append(pieces(Collection, Q(pk__in=members.values("parent_id"))))
+    return qs[0].union(*qs[1:], all=True) if len(qs) > 1 else qs[0]
+
+
 @api.get(
     "/item/{item_uuid}/posts/",
     response={
@@ -165,6 +221,8 @@ def list_posts_for_item(
 
     `type` is optional, can be a comma separated list of `comment`, `review`, `collection`, `note`, `mark`; default is `comment,review`
 
+    Anonymous callers see only public posts from accounts that allow anonymous viewing.
+
     If the item was merged into another one, HTTP 302 is returned.
     """
     if page < 1 or page > 99:
@@ -174,25 +232,39 @@ def list_posts_for_item(
     )
     if not item:
         return redirect
-    types = [t for t in (type or "").split(",") if t in PostTypes]
-    q = "type:" + ",".join(types or ["comment", "review"])
-    query = JournalQueryParser(q, page)
-    viewer = request.user.identity if request.user.is_authenticated else None
-    query.filter_by_viewer(viewer)
-    query.filter("item_id", item.pk)
-    # NB: no `post_id:>0` filter to align `count` with `data`: post_id has no
-    # range index and millions of distinct values, so it scans the whole
-    # numeric tree and saturates Typesense. So `count` may
-    # exceed len(data): a doc whose post takahe pruned still counts here but
-    # resolves to no post; accepted drift, healed by refetch or idx-rebuild
-    query.sort(["created:desc"])
-    r = JournalIndex.instance().search(query)
-    result = {
-        "data": [p.to_mastodon_json() for p in _with_status_relations(r.posts)],
-        "pages": r.pages,
-        "count": r.total,
+    types = {t for t in (type or "").split(",") if t in PostTypes}
+    pieces = _item_pieces(item, types or {"comment", "review"}, request.user)
+    total = pieces.count()
+    offset = (page - 1) * ITEM_POSTS_PAGE_SIZE
+    piece_ids = [
+        pk
+        for pk, _ in pieces.order_by("-created_time", "-pk")[
+            offset : offset + ITEM_POSTS_PAGE_SIZE
+        ]
+    ]
+    # latest link wins, as in Piece.latest_post_id
+    post_ids = dict(
+        PiecePost.objects.filter(piece_id__in=piece_ids)
+        .order_by("piece_id", "-pk")
+        .distinct("piece_id")
+        .values_list("piece_id", "post_id")
+    )
+    # posts live in the takahe database; a piece whose post takahe pruned or
+    # deleted still counts in `total` but yields no entry in `data`
+    posts = {
+        p.pk: p
+        for p in _with_status_relations(
+            TakahePost.objects.filter(pk__in=post_ids.values()).exclude(
+                state__in=["deleted", "deleted_fanned_out"]
+            )
+        )
     }
-    return result
+    ordered = [posts[post_ids[pk]] for pk in piece_ids if post_ids.get(pk) in posts]
+    return {
+        "data": [p.to_mastodon_json() for p in ordered],
+        "pages": (total + ITEM_POSTS_PAGE_SIZE - 1) // ITEM_POSTS_PAGE_SIZE,
+        "count": total,
+    }
 
 
 # The one versioned path in an otherwise unversioned API: it fills in a
