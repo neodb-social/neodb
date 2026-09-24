@@ -17,8 +17,9 @@
         <a href="{{ event.identity.url }}"
            class="nickname"
            title="@{{ event.identity.full_handle }}">{{ event.identity.display_name }}</a>
+        <span class="post_handle">@{{ event.identity.full_handle }}</span>
         {% with "event/"|add:event.template|add:".html" as template %}
-          {% include template with show_handle=1 %}
+          {% include template with show_handle=1 hide_own_handle=1 %}
         {% endwith %}
       </div>
     </div>
