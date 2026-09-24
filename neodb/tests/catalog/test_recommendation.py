@@ -572,3 +572,37 @@ class TestFromYourCircles:
         # ShelfMemberManager's default annotations must not leak in either.
         assert 'FROM "journal_rating"' not in agg[0]
         assert 'FROM "journal_comment"' not in agg[0]
+
+    def _count_aggregates(self) -> tuple[list, int]:
+        with CaptureQueriesContext(connection) as ctx:
+            items = from_your_circles(self.viewer)
+        agg = [q for q in ctx.captured_queries if "COUNT(DISTINCT" in q["sql"]]
+        return items, len(agg)
+
+    def test_second_call_reuses_cached_ranking(self):
+        first, n = self._count_aggregates()
+        assert n == 1
+        second, n = self._count_aggregates()
+        assert n == 0
+        assert [i.pk for i in second] == [i.pk for i in first]
+
+    def test_mark_after_cache_is_still_excluded(self):
+        from_your_circles(self.viewer)
+        _public_mark(self.viewer.identity, self.book_a)
+        items, n = self._count_aggregates()
+        assert n == 0
+        assert {i.pk for i in items} == {self.book_b.pk}
+
+    def test_new_followee_mark_waits_for_ttl(self):
+        from_your_circles(self.viewer)
+        book_c = Edition.objects.create(title="Circles C")
+        _public_mark(self.friends[0].identity, book_c)
+        items = from_your_circles(self.viewer)
+        assert book_c.pk not in {i.pk for i in items}
+
+    def test_first_follow_is_not_hidden_by_cache(self):
+        loner = User.register(email="c9@test.com", username="c_loner")
+        assert from_your_circles(loner) == []
+        loner.identity.follow(self.friends[0].identity, True)
+        items = from_your_circles(loner)
+        assert {i.pk for i in items} == {self.book_a.pk, self.book_b.pk}

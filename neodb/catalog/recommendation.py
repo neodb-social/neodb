@@ -19,6 +19,7 @@ from django.utils import timezone
 from common.models import SiteConfig
 from journal.models import ShelfMember, q_piece_visible_to_user
 from takahe.models import Identity as TakaheIdentity
+from users.models import APIdentity, User
 
 from .models import (
     Item,
@@ -330,25 +331,14 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     return out
 
 
-def from_your_circles(
-    viewer, category: str | None = None, limit: int = 30
-) -> list[Item]:
-    """Items recently marked by people the viewer follows, ranked by distinct shelvers.
+_CIRCLES_TTL = 3600
 
-    Per-request query (no precompute). Respects visibility via
-    ``q_piece_visible_to_user`` and excludes items the viewer has already
-    shelved.
-    """
-    if not viewer or not viewer.is_authenticated:
-        return []
-    identity = getattr(viewer, "identity", None)
-    if identity is None:
-        return []
+
+def _circles_ranked_ids(
+    viewer: User, identity: APIdentity, following: list[int], limit: int
+) -> list[int]:
     sys = SiteConfig.system
     since = timezone.now() - timedelta(days=sys.reco_circles_window_days)
-    following = list(identity.following)
-    if not following:
-        return []
     not_discoverable = set(
         TakaheIdentity.objects.filter(pk__in=following, discoverable=False).values_list(
             "pk", flat=True
@@ -372,16 +362,48 @@ def from_your_circles(
     )
     if excluded_ctypes:
         qs = qs.exclude(item__polymorphic_ctype_id__in=excluded_ctypes)
-    rows = list(
+    return list(
         qs.values("item_id")
         .annotate(c=Count("owner_id", distinct=True))
         .order_by("-c")
-        .values_list("item_id", "c")[: limit * 2]
+        .values_list("item_id", flat=True)[: limit * 2]
     )
-    target_ids = [iid for iid, _ in rows]
+
+
+def from_your_circles(
+    viewer, category: str | None = None, limit: int = 30
+) -> list[Item]:
+    """Items recently marked by people the viewer follows, ranked by distinct shelvers.
+
+    The ranked ids are cached per viewer for ``_CIRCLES_TTL``, so follow
+    changes and new marks by followees show up late; items the viewer shelved
+    since then are dropped on every read. Respects visibility via
+    ``q_piece_visible_to_user``.
+    """
+    if not viewer or not viewer.is_authenticated:
+        return []
+    identity = getattr(viewer, "identity", None)
+    if identity is None:
+        return []
+    # not cached, so a new member's first follows show up at once
+    following = list(identity.following)
+    if not following:
+        return []
+    key = f"reco:circles:{viewer.pk}:{limit}"
+    target_ids = cache.get(key)
+    if target_ids is None:
+        target_ids = _circles_ranked_ids(viewer, identity, following, limit)
+        cache.set(key, target_ids, timeout=_CIRCLES_TTL)
     if not target_ids:
         return []
-    items_qs = _live_items(Item.objects.filter(pk__in=target_ids))
+    shelved = set(
+        _user_shelved_members(identity.pk)
+        .filter(item_id__in=target_ids)
+        .values_list("item_id", flat=True)
+    )
+    items_qs = _live_items(
+        Item.objects.filter(pk__in=[i for i in target_ids if i not in shelved])
+    )
     by_id = {i.pk: i for i in items_qs}
     if category:
         by_id = {pk: i for pk, i in by_id.items() if str(i.category) == category}

@@ -1,4 +1,5 @@
 import pytest
+from django.core.cache import cache
 from django.utils import translation
 
 # Marker for multi-database tests - equivalent to Django's databases = "__all__"
@@ -15,6 +16,18 @@ def _reset_language():
     """
     yield
     translation.deactivate()
+
+
+@pytest.fixture(autouse=True)
+def _clear_circles_cache():
+    """Drop cached circles rows keyed by user pk.
+
+    Tests share redis with the dev cluster and --create-db restarts the pk
+    sequences, so a key left by an earlier run can match a new test user.
+    """
+    delete_pattern = getattr(cache, "delete_pattern", None)
+    if delete_pattern:
+        delete_pattern("reco:circles:*")
 
 
 @pytest.fixture(autouse=True)
