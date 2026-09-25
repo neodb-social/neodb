@@ -2149,6 +2149,32 @@ class TestItemPostsApi:
         assert payload["data"] == []
         assert payload["count"] == 1
 
+    def link(self, limit=None, auth=False):
+        params = {"url": self.item.absolute_url}
+        if limit:
+            params["limit"] = limit
+        headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"} if auth else {}
+        response = Client().get("/api/v1/timelines/link", params, **headers)
+        assert response.status_code == 200
+        return [int(p["id"]) for p in response.json()]
+
+    def test_link_timeline_has_every_type(self):
+        everyone = {
+            self.marked,
+            self.plain,
+            self.lone,
+            self.review,
+            self.note,
+            self.collection,
+        }
+        assert set(self.link()) == everyone
+        assert set(self.link(auth=True)) == everyone | {self.friend}
+
+    def test_link_timeline_limit(self):
+        newest = self.link()
+        assert len(newest) == 6
+        assert self.link(limit=2) == newest[:2]
+
     def test_invalid_token(self):
         response = Client().get(
             f"/api/item/{self.item.uuid}/posts/",

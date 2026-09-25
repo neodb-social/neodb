@@ -25,7 +25,6 @@ from journal.models import (
     ShelfMember,
     q_piece_visible_to_user,
 )
-from journal.search import JournalIndex, JournalQueryParser
 from takahe.models import Identity
 from takahe.models import Post as TakahePost
 from users.models import User
@@ -160,7 +159,8 @@ def _item_pieces(item: Item, types: set[str], user: User) -> QuerySet:
 
     Mirrors the journal index docs: a comment with a sibling mark shares the
     mark's post and lives in the mark's doc, so it is reached through the
-    mark and never on its own; that keeps one row per post.
+    mark and never on its own; that keeps one row per post. A post orphaned
+    by a shelf change has no piece, so it never shows here.
     """
     visible = q_piece_visible_to_user(user)
     has_post = Exists(PiecePost.objects.filter(piece_id=OuterRef("pk")))
@@ -194,6 +194,27 @@ def _item_pieces(item: Item, types: set[str], user: User) -> QuerySet:
         members = CollectionMember.objects.filter(item_id=item.pk)
         qs.append(pieces(Collection, Q(pk__in=members.values("parent_id"))))
     return qs[0].union(*qs[1:], all=True) if len(qs) > 1 else qs[0]
+
+
+def _latest_posts(piece_ids: list[int]) -> list[TakahePost]:
+    """Each piece's latest post, in piece_ids order; pieces whose post is
+    gone from takahe are skipped."""
+    # latest link wins, as in Piece.latest_post_id
+    post_ids = dict(
+        PiecePost.objects.filter(piece_id__in=piece_ids)
+        .order_by("piece_id", "-pk")
+        .distinct("piece_id")
+        .values_list("piece_id", "post_id")
+    )
+    posts = {
+        p.pk: p
+        for p in _with_status_relations(
+            TakahePost.objects.filter(pk__in=post_ids.values()).exclude(
+                state__in=["deleted", "deleted_fanned_out"]
+            )
+        )
+    }
+    return [posts[post_ids[pk]] for pk in piece_ids if post_ids.get(pk) in posts]
 
 
 @api.get(
@@ -242,26 +263,10 @@ def list_posts_for_item(
             offset : offset + ITEM_POSTS_PAGE_SIZE
         ]
     ]
-    # latest link wins, as in Piece.latest_post_id
-    post_ids = dict(
-        PiecePost.objects.filter(piece_id__in=piece_ids)
-        .order_by("piece_id", "-pk")
-        .distinct("piece_id")
-        .values_list("piece_id", "post_id")
-    )
-    # posts live in the takahe database; a piece whose post takahe pruned or
-    # deleted still counts in `total` but yields no entry in `data`
-    posts = {
-        p.pk: p
-        for p in _with_status_relations(
-            TakahePost.objects.filter(pk__in=post_ids.values()).exclude(
-                state__in=["deleted", "deleted_fanned_out"]
-            )
-        )
-    }
-    ordered = [posts[post_ids[pk]] for pk in piece_ids if post_ids.get(pk) in posts]
+    # a piece whose post takahe pruned or deleted still counts in `total`
+    # but yields no entry in `data`
     return {
-        "data": [p.to_mastodon_json() for p in ordered],
+        "data": [p.to_mastodon_json() for p in _latest_posts(piece_ids)],
         "pages": (total + ITEM_POSTS_PAGE_SIZE - 1) // ITEM_POSTS_PAGE_SIZE,
         "count": total,
     }
@@ -286,21 +291,13 @@ def timeline_link(
 
     Returns posts visible to the requesting user that are about the catalog item
     identified by `url`, which may be a NeoDB item URL or an external resource
-    URL (e.g. a Douban or Goodreads page). Anonymous callers see public posts.
+    URL (e.g. a Douban or Goodreads page). Anonymous callers see only public posts
+    from accounts that allow anonymous viewing.
     """
     limit = min(max(1, limit), TIMELINE_LINK_MAX_LIMIT)
     item = Item.get_by_remote_url(url)
     if not item:
         return []
-    query = JournalQueryParser("", page_size=limit)
-    query.filter_by_viewer(
-        request.user.identity if request.user.is_authenticated else None
-    )
-    query.filter("item_id", item.pk)
-    # posts orphaned by a shelf change carry item fields too; keep them
-    # out to preserve pre-enrichment behavior (surfacing old mark posts
-    # here would arguably be correct, but that is a product decision)
-    query.exclude("piece_class", "Post")
-    query.sort(["created:desc"])
-    r = JournalIndex.instance().search(query)
-    return [p.to_mastodon_json() for p in _with_status_relations(r.posts)]
+    pieces = _item_pieces(item, PostTypes, request.user)
+    piece_ids = [pk for pk, _ in pieces.order_by("-created_time", "-pk")[:limit]]
+    return [p.to_mastodon_json() for p in _latest_posts(piece_ids)]
