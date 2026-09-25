@@ -1068,10 +1068,8 @@ class Post(StatorModel):
         Ensure any of the already parsed hashtags from this Post
         have a corresponding Hashtag record.
         """
-        # Ensure hashtags
         if self.hashtags:
-            for hashtag in self.hashtags:
-                Hashtag.ensure_hashtag(hashtag, update=True)
+            Hashtag.ensure_hashtags(self.hashtags, update=True)
 
     def calculate_stats(self, save=True):
         """

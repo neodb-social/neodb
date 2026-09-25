@@ -1,5 +1,6 @@
 import re
 import time
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 
 import urlman
@@ -263,6 +264,32 @@ class Hashtag(StatorModel):
         if created or update or hashtag.needs_update:
             hashtag.transition_perform(HashtagStates.outdated)
         return hashtag
+
+    @classmethod
+    def ensure_hashtags(cls, names: Iterable[str], update: bool = False) -> None:
+        """
+        Batch version of ensure_hashtag for many names at once.
+        """
+        names = list(
+            dict.fromkeys(
+                n.strip().lstrip("#").lower()[: Hashtag.MAXIMUM_LENGTH] for n in names
+            )
+        )
+        existing = cls.objects.in_bulk(names)
+        missing = [n for n in names if n not in existing]
+        if missing:
+            cls.objects.bulk_create(
+                [cls(hashtag=n) for n in missing], ignore_conflicts=True
+            )
+        outdated = (
+            names
+            if update
+            else missing + [n for n, t in existing.items() if t.needs_update]
+        )
+        if outdated:
+            cls.transition_perform_queryset(
+                cls.objects.filter(pk__in=outdated), HashtagStates.outdated
+            )
 
     @classmethod
     def handle_add_ap(cls, data):
