@@ -39,10 +39,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from django.db import connection
 from django.test import RequestFactory
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
-from catalog.models import Edition
+from catalog.models import Edition, ExternalResource, IdType, Item, Movie
 from catalog.views.search import resolve_url_query
 from journal.models import Collection
 from takahe.models import Post
@@ -319,6 +321,36 @@ class TestSyncMembersFromAp:
             call.args[0] != self.book1.absolute_url for call in enq.call_args_list
         )
         assert [m.item_id for m in col.members.all()] == [self.book1.pk]
+
+    def test_remote_urls_resolve_in_one_batch(self):
+        movie = Movie.objects.create(title="Film")
+        targets = [self.book1, self.book2, self.book3, movie]
+        for n, it in enumerate(targets):
+            ExternalResource.objects.create(
+                item=it,
+                id_type=IdType.RSS,
+                id_value=f"syncm-{n}",
+                url=f"https://remote.example/item/{n}",
+            )
+        urls = [f"https://remote.example/item/{n}" for n in range(len(targets))]
+        urls[0] = "https://remote.example/~neodb~/item/0"
+        items: list[dict[str, object]] = [
+            {"type": "ShelfItem", "withRegardTo": u} for u in urls
+        ]
+        items.append({"type": "ShelfItem", "withRegardTo": {"id": urls[1]}})
+        col = self._make_mirror()
+        with CaptureQueriesContext(connection) as ctx:
+            pending = Collection._sync_members_from_ap(col, items)
+        assert pending == 0
+        members = list(col.members.order_by("position"))
+        assert [m.item_id for m in members] == [it.pk for it in targets]
+        lookups = [
+            q["sql"]
+            for q in ctx.captured_queries
+            if 'FROM "catalog_externalresource"' in q["sql"]
+        ]
+        assert len(lookups) == 1
+        assert isinstance(Item.get_by_remote_urls([urls[3]])[urls[3]], Movie)
 
 
 @pytest.mark.django_db(databases="__all__")

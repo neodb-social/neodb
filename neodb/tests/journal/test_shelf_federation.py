@@ -19,7 +19,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from catalog.models import Edition
+from catalog.models import Edition, ExternalResource, IdType
 from journal.models import Collection, Shelf, ShelfMember, ShelfType
 from takahe.ap_handlers import _ShelfDispatcher
 from users.models import User
@@ -327,6 +327,26 @@ class TestShelfSyncMembersFromAp:
         assert unknown in called_urls
         # Local item resolves immediately and gets a member.
         assert [m.item_id for m in s.members.all()] == [self.book1.pk]
+
+    def test_remote_urls_resolve(self):
+        for n, it in enumerate([self.book1, self.book2]):
+            ExternalResource.objects.create(
+                item=it,
+                id_type=IdType.RSS,
+                id_value=f"smbob-{n}",
+                url=f"https://remote.example/book/{n}",
+            )
+        s = self._make_mirror()
+        items = [
+            {"type": "ShelfItem", "withRegardTo": "https://remote.example/book/1"},
+            {
+                "type": "ShelfItem",
+                "withRegardTo": "https://remote.example/~neodb~/book/0",
+            },
+        ]
+        assert Shelf._sync_members_from_ap(s, items) == 0
+        members = list(s.members.order_by("position"))
+        assert [m.item_id for m in members] == [self.book2.pk, self.book1.pk]
 
     def test_member_visibility_inherits_from_shelf(self):
         # Followers-only shelf: synced members must NOT default to

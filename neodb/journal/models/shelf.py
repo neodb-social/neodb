@@ -834,11 +834,14 @@ class Shelf(List):
         ][:max_total]
         resolved: list[Item] = []
         pending = 0
+        known = Item.get_by_remote_urls(
+            url for e in item_objs if isinstance(url := e.get("withRegardTo"), str)
+        )
         for entry in item_objs:
             url = entry.get("withRegardTo")
-            if not url:
+            if not url or not isinstance(url, str):
                 continue
-            looked_up = Item.get_by_remote_url(url)
+            looked_up = known.get(url)
             if looked_up:
                 resolved.append(looked_up)
                 continue

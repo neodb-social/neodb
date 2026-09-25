@@ -892,6 +892,35 @@ class Item(PolymorphicModel):
         return r.item if r else None
 
     @classmethod
+    def get_by_remote_urls(cls, urls: Iterable[str]) -> "dict[str, Item]":
+        """Batch ``get_by_remote_url``, keyed by the given urls; misses are omitted."""
+        found: dict[str, Item] = {}
+        remote: dict[str, list[str]] = {}
+        for url in urls:
+            url_ = url.replace("/~neodb~/", "/")
+            if url_.startswith(settings.SITE_INFO["site_url"]):
+                item = cls.get_by_url(url_, True)
+                if item:
+                    found[url] = item
+            else:
+                remote.setdefault(url_, []).append(url)
+        remote_urls = list(remote)
+        for start in range(0, len(remote_urls), 1000):
+            item_ids = dict(
+                ExternalResource.objects.filter(
+                    url__in=remote_urls[start : start + 1000], item__isnull=False
+                ).values_list("url", "item_id")
+            )
+            items = {
+                i.pk: i for i in Item.objects.filter(pk__in=set(item_ids.values()))
+            }
+            for url_, item_id in item_ids.items():
+                if item_id in items:
+                    for url in remote[url_]:
+                        found[url] = items[item_id]
+        return found
+
+    @classmethod
     def get_by_ids(cls, ids: list[int]):
         if not ids:
             return cls.objects.none()
