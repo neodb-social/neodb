@@ -3,7 +3,6 @@ import logging
 
 import httpx
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 
@@ -228,35 +227,41 @@ class IdentityService:
             ),
         }
 
-    def sync_pins(self, object_uris):
+    def sync_pins(self, object_uris: list[str]) -> None:
         if not object_uris or self.identity.domain.blocked:
             return
 
         with transaction.atomic():
-            for object_uri in object_uris:
-                try:
-                    post = Post.by_object_uri(object_uri, fetch=True)
-                    PostInteraction.objects.get_or_create(
-                        type=PostInteraction.Types.pin,
-                        identity=self.identity,
-                        post=post,
-                        state__in=PostInteractionStates.group_active(),
-                    )
-                except MultipleObjectsReturned as exc:
-                    logger.exception("%s on %s", exc, object_uri)
-                    pass
-                except Post.DoesNotExist:
-                    # ignore 404s...
-                    pass
-                except TryAgainLater:
-                    # don't wait for it now, it'll be synced on next refresh
-                    pass
-            for removed in PostInteraction.objects.filter(
+            uris = set(object_uris)
+            local_posts = Post.objects.in_bulk(uris, field_name="object_uri")
+            pinned_post_ids = set()
+            for pin in PostInteraction.objects.filter(
                 type=PostInteraction.Types.pin,
                 identity=self.identity,
                 state__in=PostInteractionStates.group_active(),
-            ).exclude(post__object_uri__in=object_uris):
-                removed.transition_perform(PostInteractionStates.undone_fanned_out)
+            ).select_related("post"):
+                if pin.post.object_uri in uris:
+                    pinned_post_ids.add(pin.post_id)
+                else:
+                    pin.transition_perform(PostInteractionStates.undone_fanned_out)
+            for object_uri in object_uris:
+                try:
+                    post = local_posts.get(object_uri) or Post.by_object_uri(
+                        object_uri, fetch=True
+                    )
+                except Post.DoesNotExist:
+                    # ignore 404s...
+                    continue
+                except TryAgainLater:
+                    # don't wait for it now, it'll be synced on next refresh
+                    continue
+                if post.pk not in pinned_post_ids:
+                    PostInteraction.objects.create(
+                        type=PostInteraction.Types.pin,
+                        identity=self.identity,
+                        post=post,
+                    )
+                    pinned_post_ids.add(post.pk)
 
     @transaction.atomic
     def sync_tags(self, tags):
