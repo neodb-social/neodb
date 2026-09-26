@@ -1228,7 +1228,10 @@ class Item(PolymorphicModel):
                 item.ap_object  # validate schema
         except Exception:
             if item.pk:
-                item.delete_index()
+                try:
+                    item.delete_index()
+                except Exception as e:
+                    logger.warning(f"index cleanup failed for {item.pk}: {e}")
             raise
         item.sync_credits_from_metadata()
         return item

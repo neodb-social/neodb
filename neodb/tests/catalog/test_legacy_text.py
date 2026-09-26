@@ -1,8 +1,11 @@
+from unittest import mock
+
 import pytest
 
 from catalog.common.migrations import fix_legacy_brief_20260926
 from catalog.models import ExternalResource, IdType, Item, Movie, TVEpisode
 from catalog.models.utils import legacy_text, normalize_legacy_text_metadata
+from catalog.search import CatalogIndex
 from journal.models import Mark, ShelfType
 from users.models import User
 
@@ -173,3 +176,17 @@ class TestFixLegacyBriefMigration:
         assert not Item.objects.get(pk=linked.pk).is_deleted
         assert not Item.objects.get(pk=marked.pk).is_deleted
         fix_legacy_brief_20260926(delete_orphans=True)
+
+    def test_deleted_items_are_skipped(self):
+        deleted = TVEpisode.objects.create(
+            title="Deleted", brief=MARKDOWN_REPR, episode_number=4, is_deleted=True
+        )
+        with mock.patch.object(
+            CatalogIndex, "replace_docs", autospec=True, return_value=0
+        ) as replace_docs:
+            fix_legacy_brief_20260926()
+        assert Item.objects.get(pk=deleted.pk).brief == MARKDOWN_REPR
+        indexed = [
+            doc["item_id"] for call in replace_docs.call_args_list for doc in call[0][1]
+        ]
+        assert deleted.pk not in indexed

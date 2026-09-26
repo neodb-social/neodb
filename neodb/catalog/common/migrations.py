@@ -1329,7 +1329,8 @@ def fix_legacy_brief_20260926(
 
     Three passes, each pk-ordered and idempotent:
     - ExternalResource.metadata, via normalize_legacy_text_metadata
-    - Item.brief (repr string) and Item.metadata labels; reindexed per batch
+    - Item.brief (repr string) and Item.metadata labels of live items;
+      reindexed per batch
     - items left by the failed creates (repr brief, no external resource, no
       journal activity) are listed, and soft-deleted with delete_orphans
     """
@@ -1377,7 +1378,7 @@ def fix_legacy_brief_20260926(
 
     item_qs = (
         Item.objects.non_polymorphic()
-        .filter(pk__gte=start_pk)
+        .filter(is_deleted=False, merged_to_item__isnull=True, pk__gte=start_pk)
         .filter(
             models.Q(brief__startswith="{", brief__contains="'plainText'")
             | models.Q(_legacy_text_condition(Item._meta.db_table, False))
@@ -1399,17 +1400,15 @@ def fix_legacy_brief_20260926(
                 reindexed += index.replace_docs(index.items_to_docs(items))
         item_pending.clear()
 
-    for pk, brief, metadata, is_deleted in tqdm(
-        item_qs.values_list("pk", "brief", "metadata", "is_deleted").iterator(
-            chunk_size=batch_size
-        ),
+    for pk, brief, metadata in tqdm(
+        item_qs.values_list("pk", "brief", "metadata").iterator(chunk_size=batch_size),
         desc="fix_legacy_brief items",
     ):
         new_brief = legacy_text(brief) or ""
         new_metadata = copy.deepcopy(metadata)
         if isinstance(new_metadata, dict):
             normalize_legacy_text_metadata(new_metadata)
-        if new_brief != brief and not is_deleted:
+        if new_brief != brief:
             orphan_candidates.append(pk)
         if new_brief == brief and new_metadata == metadata:
             continue
@@ -1422,9 +1421,7 @@ def fix_legacy_brief_20260926(
     flush_items()
 
     orphans = []
-    for item in Item.objects.filter(
-        pk__in=orphan_candidates, merged_to_item__isnull=True
-    ).order_by("pk"):
+    for item in Item.objects.filter(pk__in=orphan_candidates).order_by("pk"):
         if (
             item.external_resources.exists()
             or item.merged_from_items.exists()
