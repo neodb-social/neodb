@@ -220,6 +220,43 @@ class TestIdxCatchup:
         assert [int(d["id"]) for d in people] == [credited.pk]
         assert people[0]["credit_count"] == 1
 
+    def _person(self, name: str) -> People:
+        return People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": name}]},
+            people_type=PeopleType.PERSON,
+        )
+
+    def _merge_with_credits(self) -> tuple[People, People]:
+        source = self._person("Source")
+        target = self._person("Target")
+        for person in (source, target):
+            movie = Movie.objects.create(title=f"Movie of {person.pk}")
+            ItemCredit.objects.create(
+                item=movie, person=person, role=CreditRole.Director, name="X"
+            )
+        return source, target
+
+    def test_people_merge_reindexes_target_credit_count(self):
+        source, target = self._merge_with_credits()
+        self.people_replace_docs.reset_mock()
+
+        source.merge_to(target)
+
+        docs = [d for c in self.people_replace_docs.call_args_list for d in c.args[0]]
+        target_docs = [d for d in docs if int(d["id"]) == target.pk]
+        assert target_docs[-1]["credit_count"] == 2
+
+    def test_refreshes_people_merge_target(self):
+        source, target = self._merge_with_credits()
+        source.merge_to(target)
+        self._age(target, *Movie.objects.all())
+
+        self._catchup()
+
+        assert source.pk in _deleted_ids(self.people_delete_docs)
+        docs = [d for c in self.people_replace_docs.call_args_list for d in c.args[0]]
+        assert [(int(d["id"]), d["credit_count"]) for d in docs] == [(target.pk, 2)]
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestCatalogQueryParser:

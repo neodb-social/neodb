@@ -557,23 +557,30 @@ class Command(SiteCommand):
         )
         # credit_count in a people doc changes when credits are linked or
         # moved, which saves neither the person nor any timestamped row, so
-        # refresh people credited on items edited in the window
-        person_ids = list(
+        # refresh people credited on items edited in the window, and people
+        # that took over credits from a person merged in the window
+        credited = (
             ItemCredit.objects.filter(
                 item__edited_time__gte=cutoff_time, person__isnull=False
             )
             .exclude(person__edited_time__gte=cutoff_time)
-            .order_by("person_id")
             .values_list("person_id", flat=True)
-            .distinct()
         )
+        merge_targets = (
+            People.objects.filter(merged_from_items__edited_time__gte=cutoff_time)
+            .exclude(edited_time__gte=cutoff_time)
+            .values_list("pk", flat=True)
+        )
+        person_ids = sorted(set(credited) | set(merge_targets))
         people_index = PeopleIndex.instance()
         for i in tqdm(range(0, len(person_ids), batch_size), desc="Updating people"):
             try:
                 people_index.replace_people(person_ids[i : i + batch_size])
             except Exception as e:
                 logger.error(f"Error updating people index: {e}")
-        self.stdout.write(f"{len(person_ids)} credited people refreshed.")
+        self.stdout.write(
+            f"{len(person_ids)} credited or merge-target people refreshed."
+        )
 
     # Item-side IdTypes whose scrapers emit People entries in related_resources.
     # Listed explicitly because the command rejects anything outside this set.

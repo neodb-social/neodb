@@ -353,6 +353,8 @@ class People(Item):
         if not to_item:
             return
         self.merge_credits(to_item)
+        # the target was indexed before its credit_count grew
+        to_item.update_index()
 
     def update_index(self, later: bool = False):
         from catalog.search import PeopleIndex
