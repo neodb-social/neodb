@@ -3,9 +3,16 @@ from unittest import mock
 import pytest
 
 from catalog.common.migrations import fix_legacy_brief_20260926
-from catalog.models import ExternalResource, IdType, Item, Movie, TVEpisode
+from catalog.models import (
+    ExternalResource,
+    IdType,
+    Item,
+    Movie,
+    People,
+    TVEpisode,
+)
 from catalog.models.utils import legacy_text, normalize_legacy_text_metadata
-from catalog.search import CatalogIndex
+from catalog.search import CatalogIndex, PeopleIndex
 from journal.models import Mark, ShelfType
 from users.models import User
 
@@ -103,9 +110,29 @@ class TestCreateFromLegacyResource:
         monkeypatch.setattr(TVEpisode, "ap_object", property(broken))
         res = _legacy_episode_resource()
         before = Item.objects.count()
-        with pytest.raises(ValueError):
-            TVEpisode.create_from_external_resource(res)
+        with mock.patch.object(CatalogIndex, "delete_item", autospec=True) as cleanup:
+            with pytest.raises(ValueError):
+                TVEpisode.create_from_external_resource(res)
         assert Item.objects.count() == before
+        assert cleanup.called
+
+    def test_failed_people_validation_cleans_people_index(self, monkeypatch):
+        def broken(self):
+            raise ValueError("schema")
+
+        monkeypatch.setattr(People, "ap_object", property(broken))
+        res = ExternalResource.objects.create(
+            id_type=IdType.TMDB_Person,
+            id_value="99998",
+            url="https://www.themoviedb.org/person/99998",
+            metadata={"localized_name": [{"lang": "en", "text": "P"}]},
+        )
+        before = Item.objects.count()
+        with mock.patch.object(PeopleIndex, "delete_person", autospec=True) as cleanup:
+            with pytest.raises(ValueError):
+                People.create_from_external_resource(res)
+        assert Item.objects.count() == before
+        assert cleanup.called
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -159,18 +186,22 @@ class TestFixLegacyBriefMigration:
         fix_legacy_brief_20260926()
         pending.refresh_from_db()
         assert pending.metadata["brief"] == PLOT
-        for item in (linked, orphan, marked):
+        for item in (linked, marked):
             fixed = Item.objects.get(pk=item.pk)
             assert fixed.brief == PLOT
             assert not fixed.is_deleted
+        kept = Item.objects.get(pk=orphan.pk)
+        assert kept.brief == MARKDOWN_REPR
+        assert not kept.is_deleted
         assert Movie.objects.get(pk=movie.pk).localized_description == [
             {"lang": "en", "text": PLOT}
         ]
         assert Movie.objects.get(pk=clean.pk).brief == "{not legacy}"
         TVEpisode.create_from_external_resource(pending)
 
-    def test_delete_orphans(self):
+    def test_delete_orphans_after_a_run_without_yes(self):
         _, linked, orphan, marked, _, _ = self._setup()
+        fix_legacy_brief_20260926()
         fix_legacy_brief_20260926(delete_orphans=True)
         assert Item.objects.get(pk=orphan.pk).is_deleted
         assert not Item.objects.get(pk=linked.pk).is_deleted

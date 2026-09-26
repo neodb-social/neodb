@@ -1332,7 +1332,8 @@ def fix_legacy_brief_20260926(
     - Item.brief (repr string) and Item.metadata labels of live items;
       reindexed per batch
     - items left by the failed creates (repr brief, no external resource, no
-      journal activity) are listed, and soft-deleted with delete_orphans
+      journal activity) are listed, and soft-deleted with delete_orphans;
+      they are never repaired, so a later run still finds them
     """
     from catalog.models import ExternalResource, Item
     from catalog.models.utils import legacy_text, normalize_legacy_text_metadata
@@ -1387,8 +1388,19 @@ def fix_legacy_brief_20260926(
     )
     item_updated = 0
     reindexed = 0
-    orphan_candidates: list[int] = []
+    orphans: list[Item] = []
     item_pending: list[Item] = []
+
+    def as_orphan(pk: int) -> Item | None:
+        item = Item.objects.filter(pk=pk).first()
+        if item is None or (
+            item.external_resources.exists()
+            or item.merged_from_items.exists()
+            or item.child_items.exists()
+            or item.journal_exists()
+        ):
+            return None
+        return item
 
     def flush_items() -> None:
         nonlocal reindexed
@@ -1409,7 +1421,10 @@ def fix_legacy_brief_20260926(
         if isinstance(new_metadata, dict):
             normalize_legacy_text_metadata(new_metadata)
         if new_brief != brief:
-            orphan_candidates.append(pk)
+            orphan = as_orphan(pk)
+            if orphan:
+                orphans.append(orphan)
+                continue
         if new_brief == brief and new_metadata == metadata:
             continue
         if dry_run and item_updated < 20:
@@ -1420,17 +1435,8 @@ def fix_legacy_brief_20260926(
             flush_items()
     flush_items()
 
-    orphans = []
-    for item in Item.objects.filter(pk__in=orphan_candidates).order_by("pk"):
-        if (
-            item.external_resources.exists()
-            or item.merged_from_items.exists()
-            or item.child_items.exists()
-            or item.journal_exists()
-        ):
-            continue
-        orphans.append(item)
-        if delete_orphans and not dry_run:
+    if delete_orphans and not dry_run:
+        for item in orphans:
             item.delete()
     if orphans:
         logger.warning(

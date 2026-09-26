@@ -362,6 +362,11 @@ class People(Item):
         else:
             PeopleIndex.instance().replace_person(self)
 
+    def delete_index(self):
+        from catalog.search import PeopleIndex
+
+        PeopleIndex.instance().delete_person(self)
+
     @classmethod
     def find_by_name(
         cls, name: str, exact: bool = True, limit: int = 0
