@@ -792,6 +792,28 @@ class TestCollectionFilterView:
 
 
 @pytest.mark.django_db(databases="__all__")
+class TestCollectionDetailCover:
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(email="cv_owner@test.com", username="cvowner")
+
+    def _get(self, cover: str) -> str:
+        collection = Collection(owner=self.owner.identity, title="C", cover=cover)
+        collection.save()
+        url = reverse("journal:collection_retrieve", args=[collection.uuid])
+        response = Client().get(url)
+        assert response.status_code == 200
+        return response.content.decode()
+
+    @pytest.mark.parametrize("cover", ["", "collection/default.svg"])
+    def test_default_cover_is_hidden(self, cover: str):
+        assert 'class="more"' not in self._get(cover)
+
+    def test_uploaded_cover_is_shown(self):
+        assert 'class="more"' in self._get("piece/cover.jpg")
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestDynamicCollectionFilters:
     """Dynamic collections page through the search index, so the category
     filter is pushed into the query as an ``item_class`` filter. Status is not
