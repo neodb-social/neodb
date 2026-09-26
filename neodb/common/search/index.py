@@ -398,6 +398,11 @@ class Index:
         return c
 
     def delete_docs(self, field: str, values: Iterable[int | str] | int | str) -> int:
+        if not isinstance(values, (str, int)):
+            values = list(values)
+            if not values:
+                # "field:[]" is not a valid filter
+                return 0
         v: str = (
             str(values)
             if isinstance(values, (str, int))

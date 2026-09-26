@@ -1,10 +1,23 @@
 import re
-from unittest.mock import MagicMock, patch
+from datetime import timedelta
+from io import StringIO
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
+from django.core.management import call_command
+from django.utils import timezone
 from django_redis.client import DefaultClient
 
-from catalog.models import Edition, Item, Movie
+from catalog.models import (
+    CreditRole,
+    Edition,
+    Item,
+    ItemCredit,
+    Movie,
+    People,
+    PeopleType,
+)
+from catalog.search import PeopleIndex
 from catalog.search.index import (
     CatalogIndex,
     CatalogQueryParser,
@@ -99,8 +112,113 @@ class TestCatalogIndex:
             mock_replace_docs.reset_mock()
             index.replace_items(item_ids)
 
-            # Should try to delete these items from index
-            mock_delete_docs.assert_called_once()
+            mock_replace_docs.assert_not_called()
+            mock_delete_docs.assert_called_once_with(
+                "item_id", {self.book.pk, self.movie.pk}
+            )
+
+    def test_delete_docs_empty_is_noop(self):
+        with patch.object(
+            CatalogIndex, "write_collection", new_callable=PropertyMock
+        ) as mock_collection:
+            assert CatalogIndex().delete_docs("item_id", set()) == 0
+            mock_collection.assert_not_called()
+
+
+def _replaced_ids(mock_replace_docs: MagicMock) -> set[int]:
+    return {int(d["id"]) for c in mock_replace_docs.call_args_list for d in c.args[0]}
+
+
+def _deleted_ids(mock_delete_docs: MagicMock) -> set[int]:
+    ids: set[int] = set()
+    for c in mock_delete_docs.call_args_list:
+        v = c.args[1]
+        ids |= {int(x) for x in v} if isinstance(v, (set, list)) else {int(v)}
+    return ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestIdxCatchup:
+    @pytest.fixture(autouse=True)
+    def mock_index(self):
+        with (
+            patch.object(CatalogIndex, "replace_docs") as self.replace_docs,
+            patch.object(CatalogIndex, "delete_docs") as self.delete_docs,
+            patch.object(PeopleIndex, "replace_docs") as self.people_replace_docs,
+            patch.object(PeopleIndex, "delete_docs") as self.people_delete_docs,
+        ):
+            yield
+
+    def _age(self, *items: Item) -> None:
+        Item.objects.filter(pk__in=[i.pk for i in items]).update(
+            edited_time=timezone.now() - timedelta(hours=48)
+        )
+
+    def _catchup(self) -> None:
+        for m in (
+            self.replace_docs,
+            self.delete_docs,
+            self.people_replace_docs,
+            self.people_delete_docs,
+        ):
+            m.reset_mock()
+        call_command("catalog", "idx-catchup", "--hour", "1", stdout=StringIO())
+
+    def test_removes_deleted_and_merged_items(self):
+        live = Movie.objects.create(title="Live")
+        gone = Movie.objects.create(title="Gone")
+        gone.delete()
+        merged = Movie.objects.create(title="Merged")
+        merged.merge_to(live)
+        old = Movie.objects.create(title="Old")
+        self._age(old)
+
+        self._catchup()
+
+        replaced = _replaced_ids(self.replace_docs)
+        deleted = _deleted_ids(self.delete_docs)
+        assert live.pk in replaced
+        assert {gone.pk, merged.pk} <= deleted
+        assert not {gone.pk, merged.pk} & replaced
+        assert old.pk not in replaced | deleted
+
+    def test_removes_deleted_people(self):
+        person = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Gone Person"}]},
+            people_type=PeopleType.PERSON,
+        )
+        person.delete()
+
+        self._catchup()
+
+        assert person.pk in _deleted_ids(self.people_delete_docs)
+        assert person.pk not in _replaced_ids(self.people_replace_docs)
+        assert person.pk not in _replaced_ids(self.replace_docs)
+
+    def test_refreshes_people_credited_on_edited_items(self):
+        credited = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Credited"}]},
+            people_type=PeopleType.PERSON,
+        )
+        untouched = People.objects.create(
+            metadata={"localized_name": [{"lang": "en", "text": "Untouched"}]},
+            people_type=PeopleType.PERSON,
+        )
+        edited = Movie.objects.create(title="Edited")
+        stale = Movie.objects.create(title="Stale")
+        ItemCredit.objects.create(
+            item=edited, person=credited, role=CreditRole.Director, name="Credited"
+        )
+        ItemCredit.objects.create(
+            item=stale, person=untouched, role=CreditRole.Director, name="Untouched"
+        )
+        self._age(credited, untouched, stale)
+
+        self._catchup()
+
+        people = [d for c in self.people_replace_docs.call_args_list for d in c.args[0]]
+        assert [int(d["id"]) for d in people] == [credited.pk]
+        assert people[0]["credit_count"] == 1
 
 
 @pytest.mark.django_db(databases="__all__")

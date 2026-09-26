@@ -274,9 +274,9 @@ class CatalogIndex(Index):
         docs = [i.to_indexable_doc() for i in indexable]
         if docs:
             self.replace_docs(docs)
-        if len(docs) < len(item_ids):
-            deletes = set(item_ids) - set([i.pk for i in items])
-            self.delete_docs("item_id", deletes)
+        to_delete = set(item_ids) - {i.pk for i in indexable}
+        if to_delete:
+            self.delete_docs("item_id", to_delete)
 
     def replace_item(self, item: "Item"):
         if not item.pk:

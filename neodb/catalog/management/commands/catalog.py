@@ -20,6 +20,7 @@ from catalog.models import (
     ExternalResource,
     IdType,
     Item,
+    ItemCredit,
     People,
     Podcast,
     PodcastEpisode,
@@ -57,7 +58,8 @@ idx-alt:          update index schema
 idx-delete:       delete docs in index
 idx-rebuild:      rebuild docs in index
 idx-get:          dump one doc (use --query for URL)
-idx-catchup:      update index for items edited in last X hours (use --hour)
+idx-catchup:      update index for items edited in last X hours (use --hour),
+                  removing deleted/merged ones and refreshing credited people
 """
 
 
@@ -526,27 +528,52 @@ class Command(SiteCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"  delete failed: {e}"))
 
-    def idx_catchup(self, hours):
+    def idx_catchup(self, hours: int | None, batch_size: int = 1000) -> None:
         """Update index for items edited in the last X hours"""
         if hours is None:
             self.stdout.write(self.style.ERROR("--hour parameter is required"))
             return
         cutoff_time = timezone.now() - timedelta(hours=hours)
-        items = Item.objects.filter(
-            edited_time__gte=cutoff_time, is_deleted=False, merged_to_item__isnull=True
-        ).order_by("pk")
+        # deleted and merged items are kept: soft delete and merge both save,
+        # and update_index() drops their docs (People included, via dispatch)
+        items = Item.objects.filter(edited_time__gte=cutoff_time).order_by("pk")
         total_count = items.count()
         self.stdout.write(f"Found {total_count} items edited since: {cutoff_time}")
-        updated_count = 0
+        indexed = removed = errors = 0
         with tqdm(total=total_count, desc="Updating index") as pbar:
             for item in items.iterator():
                 try:
                     item.update_index()
-                    updated_count += 1
-                    pbar.set_description(f"Updated: {item.title[:30]}...")
+                    if item.is_deleted or item.merged_to_item_id:
+                        removed += 1
+                    else:
+                        indexed += 1
                 except Exception as e:
+                    errors += 1
                     logger.error(f"Error updating index for item {item.pk}: {e}")
                 pbar.update(1)
+        self.stdout.write(
+            f"{indexed} items indexed, {removed} removed, {errors} errors."
+        )
+        # credit_count in a people doc changes when credits are linked or
+        # moved, which saves neither the person nor any timestamped row, so
+        # refresh people credited on items edited in the window
+        person_ids = list(
+            ItemCredit.objects.filter(
+                item__edited_time__gte=cutoff_time, person__isnull=False
+            )
+            .exclude(person__edited_time__gte=cutoff_time)
+            .order_by("person_id")
+            .values_list("person_id", flat=True)
+            .distinct()
+        )
+        people_index = PeopleIndex.instance()
+        for i in tqdm(range(0, len(person_ids), batch_size), desc="Updating people"):
+            try:
+                people_index.replace_people(person_ids[i : i + batch_size])
+            except Exception as e:
+                logger.error(f"Error updating people index: {e}")
+        self.stdout.write(f"{len(person_ids)} credited people refreshed.")
 
     # Item-side IdTypes whose scrapers emit People entries in related_resources.
     # Listed explicitly because the command rejects anything outside this set.
@@ -1075,7 +1102,7 @@ class Command(SiteCommand):
 
             case "idx-catchup":
                 hour = options.get("hour")
-                self.idx_catchup(hour)
+                self.idx_catchup(hour, batch_size=int(batch_size))
 
             case "storage-test":
                 self.storage_test(keep=options["keep"])
