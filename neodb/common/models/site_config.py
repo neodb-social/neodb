@@ -82,6 +82,9 @@ class SiteConfig(models.Model):
         discover_show_popular_posts: bool = False
         discover_show_popular_tags: bool = False
         discover_show_verified_podcasts: bool = False
+        # mix popular posts from other servers into /api/v1/trends/statuses,
+        # regardless of the options above
+        trend_include_fedi_posts: bool = False
 
         # Feed: extra timelines offered next to the home feed, off by default
         # because a public timeline exposes every local and federated post.
@@ -311,6 +314,9 @@ class SiteConfig(models.Model):
             ),
             "discover_show_verified_podcasts": getattr(
                 settings, "DISCOVER_SHOW_VERIFIED_PODCASTS", False
+            ),
+            "trend_include_fedi_posts": getattr(
+                settings, "TREND_INCLUDE_FEDI_POSTS", False
             ),
             # Localization
             "preferred_languages": list(

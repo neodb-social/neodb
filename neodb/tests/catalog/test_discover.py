@@ -22,6 +22,8 @@ from catalog.models import (
 )
 from common.models import SiteConfig
 from journal.models import Collection, Mark, ShelfMember, ShelfType
+from takahe.models import Domain, Post, PostInteraction
+from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models import User
 
@@ -295,6 +297,110 @@ class TestDiscoverPosts:
 
         member = _member_client(posts).get("/discover/popular-posts/")
         assert "public thoughts" in member.content.decode()
+
+
+class TestTrendsStatuses:
+    @pytest.fixture
+    def fans(self, site_config) -> list[int]:
+        return [
+            User.register(email=f"fan{i}@example.com", username=f"fan{i}").identity.pk
+            for i in range(5)
+        ]
+
+    @staticmethod
+    def _remote_post(
+        name: str, fans: list[int], likes: int, domain: str = "mastodon.example", **kw
+    ) -> Post:
+        remote_domain, _ = Domain.objects.get_or_create(
+            domain=domain, defaults={"local": False}
+        )
+        author = TakaheIdentity.objects.create(
+            actor_uri=f"https://{domain}/users/{name}",
+            local=False,
+            username=name,
+            domain=remote_domain,
+        )
+        post = Post.objects.create(
+            author=author,
+            local=False,
+            object_uri=f"https://{domain}/users/{name}/statuses/1",
+            content=name,
+            visibility=kw.pop("visibility", 0),
+            state="fanned_out",
+            **kw,
+        )
+        for i, fan in enumerate(fans[:likes]):
+            PostInteraction.objects.create(
+                identity_id=fan,
+                post=post,
+                type="boost" if i % 2 else "like",
+                state="fanned_out",
+            )
+        return post
+
+    def test_flag_off_keeps_fedi_posts_out(self, site_config, fans):
+        site_config.trend_include_fedi_posts = False
+        self._remote_post("loud", fans, 5)
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == []
+
+    def test_flag_on_adds_fedi_posts_to_trends_only(self, site_config, fans):
+        # the discover options do not limit the trends list
+        site_config.trend_include_fedi_posts = True
+        site_config.discover_show_popular_posts = True
+        site_config.discover_show_local_only = True
+        site_config.discover_filter_language = True
+        site_config.preferred_languages = ["fr"]
+        post = self._remote_post("loud", fans, 3, language="en")
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == [post.pk]
+        assert post.pk not in cache.get("popular_posts")
+
+    def test_ineligible_posts_stay_out(self, site_config, fans):
+        site_config.trend_include_fedi_posts = True
+        self._remote_post("reply", fans, 5, in_reply_to="https://x.example/1")
+        self._remote_post("sensitive", fans, 5, sensitive=True)
+        self._remote_post("warned", fans, 5, summary="spoiler")
+        self._remote_post("unlisted", fans, 5, visibility=1)
+        self._remote_post("lonely", fans, 1)
+        self._remote_post("old", fans, 5, published=timezone.now() - timedelta(days=4))
+        self._remote_post("blocked", fans, 5, domain="blocked.example")
+        Domain.objects.filter(domain="blocked.example").update(blocked=True)
+        hidden = self._remote_post("hidden", fans, 5)
+        TakaheIdentity.objects.filter(pk=hidden.author_id).update(discoverable=False)
+        limited = self._remote_post("limited", fans, 5)
+        TakaheIdentity.objects.filter(pk=limited.author_id).update(restriction=1)
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == []
+
+    def test_score_decays_by_the_hour(self, site_config, fans):
+        site_config.trend_include_fedi_posts = True
+        # 5 interactions a day ago score 16 / 2^4 = 1, 3 now score 4
+        older = self._remote_post(
+            "older", fans, 5, published=timezone.now() - timedelta(hours=24)
+        )
+        fresh = self._remote_post("fresh", fans, 3)
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == [fresh.pk, older.pk]
+
+        Post.objects.filter(pk=fresh.pk).update(
+            published=timezone.now() - timedelta(hours=36)
+        )
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == [older.pk, fresh.pk]
+
+    def test_curated_posts_are_ranked_with_fedi_posts(self, site_config, fans):
+        site_config.trend_include_fedi_posts = True
+        site_config.discover_show_popular_posts = True
+        movie = Movie.objects.create(title="Talked About")
+        author = User.register(email="local@example.com", username="local")
+        mark = Mark(author.identity, movie)
+        mark.update(ShelfType.COMPLETE, comment_text="local thoughts", visibility=0)
+        local_post = mark.all_post_ids[0]
+        fedi = self._remote_post("loud", fans, 3)
+        DiscoverGenerator().run()
+        assert local_post in cache.get("popular_posts")
+        assert cache.get("trends_statuses") == [fedi.pk, local_post]
 
 
 class TestOriginalShows:

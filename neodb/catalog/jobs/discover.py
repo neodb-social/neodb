@@ -29,12 +29,20 @@ logger = logging.getLogger(__name__)
 MAX_ITEMS_PER_PERIOD = 12
 MAX_DAYS_FOR_PERIOD = 96
 MIN_DAYS_FOR_PERIOD = 6
-# the fast moving list behind /api/v1/trends/links; the spotlight has its own
+# the fast moving lists behind /api/v1/trends/links and, with fediverse posts
+# mixed in, /api/v1/trends/statuses; the spotlight has its own
 # window, which the site configures
 DAYS_FOR_TRENDS = 3
 SPOTLIGHT_PER_CATEGORY = 2
 MAX_SPOTLIGHT = 12
 COLLECTION_COVERS = 4
+# /api/v1/trends/statuses with fediverse posts mixed in: Mastodon's score,
+# (likes + boosts - 1)^2 halved every TRENDS_HALFLIFE_HOURS, over the
+# interactions this site has seen
+TRENDS_HALFLIFE_HOURS = 6
+TRENDS_MIN_INTERACTIONS = 2
+TRENDS_MAX_CANDIDATES = 1000
+MAX_TRENDS_STATUSES = 40
 
 
 @JobManager.register
@@ -94,9 +102,14 @@ class DiscoverGenerator(BaseJob):
         return qs
 
     def _top_post_ids(self, qs, limit: int, max_per_author: int = 2) -> list:
+        rows = qs.values_list("pk", "author_id")[: limit * 10]
+        return self._cap_per_author(rows, limit, max_per_author)
+
+    @staticmethod
+    def _cap_per_author(rows, limit: int, max_per_author: int = 2) -> list:
         pks = []
         author_count: dict[int, int] = {}
-        for pk, author_id in qs.values_list("pk", "author_id")[: limit * 10]:
+        for pk, author_id in rows:
             if author_count.get(author_id, 0) >= max_per_author:
                 continue
             pks.append(pk)
@@ -104,6 +117,61 @@ class DiscoverGenerator(BaseJob):
             if len(pks) >= limit:
                 break
         return pks
+
+    def get_trending_fedi_posts(self):
+        """Public posts from any server, eligible for trends as in Mastodon."""
+        since = timezone.now() - timedelta(days=DAYS_FOR_TRENDS)
+        return (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(
+                visibility=0,
+                published__gte=since,
+                in_reply_to__isnull=True,
+                sensitive=False,
+                author__restriction=0,
+                author__discoverable=True,
+            )
+            .filter(Q(summary__isnull=True) | Q(summary=""))
+            .exclude(author__domain__blocked=True)
+        )
+
+    def get_trends_statuses(self, curated_ids) -> list[int]:
+        """Rank curated and fediverse posts together by a decaying score."""
+        num = Count(
+            "interactions",
+            filter=Q(
+                interactions__type__in=["like", "boost"],
+                interactions__state__in=["new", "fanned_out"],
+            ),
+        )
+        fields = ("pk", "author_id", "published", "num")
+        rows = set(
+            self.get_trending_fedi_posts()
+            .annotate(num=num)
+            .filter(num__gte=TRENDS_MIN_INTERACTIONS)
+            .order_by("-num")
+            .values_list(*fields)[:TRENDS_MAX_CANDIDATES]
+        )
+        if curated_ids:
+            rows |= set(
+                Post.objects.filter(pk__in=curated_ids)
+                .annotate(num=num)
+                .values_list(*fields)
+            )
+        now = timezone.now()
+
+        def score(row) -> tuple[float, Any]:
+            _, _, published, n = row
+            age = (now - published).total_seconds() / 3600
+            return (
+                max(n - 1, 0) ** 2 * 0.5 ** (age / TRENDS_HALFLIFE_HOURS),
+                published,
+            )
+
+        ranked = sorted(rows, key=score, reverse=True)
+        return self._cap_per_author(
+            [(pk, author_id) for pk, author_id, _, _ in ranked], MAX_TRENDS_STATUSES
+        )
 
     def get_popular_marked_item_ids(self, category, days, exisiting_ids):
         qs = (
@@ -456,6 +524,14 @@ class DiscoverGenerator(BaseJob):
                 )
         else:
             post_ids = []
+        if SiteConfig.system.trend_include_fedi_posts:
+            trends_statuses = self.get_trends_statuses(post_ids)
+        else:
+            trends_statuses = list(
+                Post.objects.filter(pk__in=post_ids)
+                .order_by("-published")
+                .values_list("pk", flat=True)
+            )
         cache.set("public_gallery", gallery_list, timeout=None)
         cache.set("trends_links", trends, timeout=None)
         cache.set("featured_collections", collection_ids, timeout=None)
@@ -466,8 +542,8 @@ class DiscoverGenerator(BaseJob):
         )
         cache.set("popular_tags", list(tags), timeout=None)
         cache.set("popular_posts", list(post_ids), timeout=None)
-        cache.set("trends_statuses", list(post_ids), timeout=None)
+        cache.set("trends_statuses", trends_statuses, timeout=None)
         cache.set("trends_updated", timezone.now(), timeout=None)
         logger.info(
-            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, spotlight: {len(spotlight)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}."
+            f"Discover data updated, excluded: {len(excluding_identities)}, trends: {len(trends)}, spotlight: {len(spotlight)}, collections: {len(collection_ids)}, tags: {len(tags)}, posts: {len(post_ids)}, trends statuses: {len(trends_statuses)}."
         )

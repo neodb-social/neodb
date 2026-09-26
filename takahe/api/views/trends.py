@@ -54,13 +54,14 @@ def trends_statuses(
         cache.set(
             "trends_statuses", popular_post_ids, Config.system.cache_timeout_trends
         )
-    posts = (
-        Post.objects.not_hidden()
-        .filter(id__in=popular_post_ids[offset : offset + limit])
-        .order_by("-published")
-        .visible_to(request.identity)
+    # the cached list is ranked, keep its order
+    page_ids = popular_post_ids[offset : offset + limit]
+    rank = {pk: i for i, pk in enumerate(page_ids)}
+    posts = sorted(
+        Post.objects.not_hidden().filter(id__in=page_ids).visible_to(request.identity),
+        key=lambda p: rank[p.pk],
     )
-    return schemas.Status.map_from_post(list(posts), request.identity)
+    return schemas.Status.map_from_post(posts, request.identity)
 
 
 class Link(Schema):

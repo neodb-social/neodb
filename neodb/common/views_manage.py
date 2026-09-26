@@ -434,6 +434,13 @@ class DiscoverSettings(SiteConfigSettingsPage):
                 "verified creator on the discover page."
             ),
         },
+        "trend_include_fedi_posts": {
+            "title": _("Include fediverse posts in trends"),
+            "help_text": _(
+                "Add popular public posts from other servers to the trending "
+                "posts API, ranked by recent likes and boosts seen by this site."
+            ),
+        },
     }
     layout = {
         _("Discover"): [
@@ -445,6 +452,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_show_popular_posts",
             "discover_show_popular_tags",
             "discover_show_verified_podcasts",
+            "trend_include_fedi_posts",
         ],
     }
 
