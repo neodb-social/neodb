@@ -114,11 +114,13 @@
               {% endif %}
               <div class="markdown-content">{{ collection.html_content | safe }}</div>
             </div>
-            <div class="more">
-              <div class="text-center">
-                <img src="{{ collection.cover|thumb:'normal' }}" alt="">
+            {% if collection.cover_image_url %}
+              <div class="more">
+                <div class="text-center">
+                  <img src="{{ collection.cover|thumb:'normal' }}" alt="">
+                </div>
               </div>
-            </div>
+            {% endif %}
           </div>
         </section>
         <section>
