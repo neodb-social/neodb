@@ -160,16 +160,6 @@
     margin: 2rem 0;
   }
 
-  @media (min-width: 769px) {
-
-    // #item-cover {
-    //   clear: both;
-    // }
-    #item-content {
-      min-height: 15rem;
-    }
-  }
-
   @media (max-width: 768px) {
     #item-primary-action,
     #item-primary-mark {
