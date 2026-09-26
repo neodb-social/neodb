@@ -2097,3 +2097,30 @@ class TestNdjsonExportImport:
         assert CsvImporter.validate_file(zipped("book_review.csv"))
         assert not CsvImporter.validate_file(zipped("foo.csv"))
         assert not CsvImporter.validate_file(zipped("nested/movie_mark.csv"))
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_lookup_survives_a_site_that_raises():
+    from catalog.sites.imdb import IMDB
+
+    movie = Movie.objects.create(localized_title=[{"lang": "zh-cn", "text": "M"}])
+    ExternalResource.objects.create(
+        item=movie,
+        id_type=IdType.DoubanMovie,
+        id_value="25931446",
+        url="https://movie.douban.com/subject/25931446/",
+        metadata={
+            "localized_title": [{"lang": "zh-cn", "text": "M"}],
+            "preferred_model": "Movie",
+        },
+        scraped_time=timezone.now(),
+    )
+    user = User.register(email="lookup@example.com", username="lookup")
+    importer = NdjsonImporter.create(user=user, file="x.zip", visibility=0)
+    links = [
+        "https://movie.douban.com/subject/25931446/",
+        "https://www.imdb.com/title/tt11592198/",
+    ]
+    with mock.patch.object(IMDB, "get_item", side_effect=ValueError("broken")) as m:
+        assert importer.get_item_by_info_and_links("", "", links) == movie
+    assert m.called

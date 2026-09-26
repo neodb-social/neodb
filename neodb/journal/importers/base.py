@@ -5,7 +5,7 @@ from typing import Dict, List, Literal, Optional
 from django.conf import settings
 from django.utils.dateparse import parse_datetime
 
-from catalog.common.sites import SiteManager
+from catalog.common.sites import AbstractSite, SiteManager
 from catalog.models import Edition, IdType, Item, SiteName
 from journal.models import ShelfType
 from users.models import Task
@@ -69,6 +69,15 @@ class BaseImporter(Task):
     def run(self) -> None:
         raise NotImplementedError
 
+    @staticmethod
+    def _match_site_item(site: AbstractSite) -> Optional[Item]:
+        # one bad stored resource must not end the lookup for the other links
+        try:
+            return site.get_item()
+        except Exception:
+            logger.exception(f"Error matching item from {site.url}")
+            return None
+
     def get_item_by_info_and_links(
         self, title: str, info_str: str, links: list[str]
     ) -> Optional[Item]:
@@ -105,7 +114,7 @@ class BaseImporter(Task):
 
         # match items without extra requests
         for site in sites:
-            item = site.get_item()
+            item = self._match_site_item(site)
             if item:
                 return item
 
@@ -116,7 +125,7 @@ class BaseImporter(Task):
         ]
         sites = [site for site in sites if site]
         for site in sites:
-            item = site.get_item()
+            item = self._match_site_item(site)
             if item:
                 return item
 
