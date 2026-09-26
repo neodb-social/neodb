@@ -41,7 +41,8 @@ purge:            purge deleted items
 prune-podcast-no-audio:
                   hard-delete PodcastEpisode rows with no media_url that
                   have no user journal activity (use --yes to commit)
-migrate:          run migration
+migrate:          run migration (use --name; fix_legacy_brief takes --yes to
+                  soft-delete the items its failed imports left behind)
 search:           search docs in index
 extsearch:        search external sites
 storage-test:     test write/read/delete on default storage backend
@@ -165,7 +166,7 @@ class Command(SiteCommand):
             help="Number of hours to look back for edited items (used with idx-catchup)",
         )
 
-    def migrate(self, m, start=None, batch_size=1000, dry_run=False):
+    def migrate(self, m, start=None, batch_size=1000, dry_run=False, yes=False):
         match m:
             case "unify_metadata":
                 from catalog.common.migrations import unify_metadata_20260715
@@ -233,6 +234,15 @@ class Command(SiteCommand):
                 from catalog.common.migrations import dedupe_credits_20260907
 
                 dedupe_credits_20260907(batch_size=batch_size, dry_run=dry_run)
+            case "fix_legacy_brief":
+                from catalog.common.migrations import fix_legacy_brief_20260926
+
+                fix_legacy_brief_20260926(
+                    start_pk=start or 0,
+                    batch_size=batch_size,
+                    dry_run=dry_run,
+                    delete_orphans=yes,
+                )
             case _:
                 self.stdout.write(self.style.ERROR("Unknown migration."))
 
@@ -1060,6 +1070,7 @@ class Command(SiteCommand):
                     start=start,
                     batch_size=int(batch_size),
                     dry_run=options.get("dry_run", False),
+                    yes=yes,
                 )
 
             case "idx-catchup":

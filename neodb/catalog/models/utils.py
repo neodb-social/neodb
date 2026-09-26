@@ -1,3 +1,4 @@
+import ast
 import re
 import uuid
 from typing import Any
@@ -152,6 +153,59 @@ def _coerce_duration_key(metadata: dict[str, Any], key: str, legacy: bool) -> No
         metadata[key] = parsed
     else:
         metadata.pop(key, None)
+
+
+def legacy_text(value: Any) -> str | None:
+    """Plain text from a legacy rich-text value, or None if there is none.
+
+    IMDB scrapes before 2024-07-18 stored the GraphQL ``Markdown`` object
+    ({"plainText": ..., "__typename": "Markdown"}) as brief and as
+    localized_description text; items created from them saved its repr in
+    the brief column, which exports and peers then carried on as a string.
+    """
+    if isinstance(value, str):
+        if value.startswith("{") and "'plainText'" in value:
+            try:
+                parsed = ast.literal_eval(value)
+            except ValueError, SyntaxError, MemoryError, RecursionError:
+                return value
+            return legacy_text(parsed) if isinstance(parsed, dict) else value
+        return value
+    if isinstance(value, dict):
+        for key in ("plainText", "text"):
+            if isinstance(value.get(key), str):
+                return value[key]
+    return None
+
+
+def normalize_legacy_text_metadata(metadata: dict[str, Any]) -> None:
+    """Replace legacy rich-text values in title/brief and localized labels
+    with their plain text, in place; drop them when no text is left."""
+    for key in ("title", "brief"):
+        value = metadata.get(key)
+        if value is None:
+            continue
+        text = legacy_text(value)
+        if text is None:
+            metadata.pop(key)
+        elif text != value:
+            metadata[key] = text
+    for key in ("localized_title", "localized_description"):
+        labels = metadata.get(key)
+        if not isinstance(labels, list):
+            continue
+        fixed = []
+        for label in labels:
+            if not isinstance(label, dict):
+                continue
+            text = legacy_text(label.get("text"))
+            if text is None:
+                continue
+            fixed.append(
+                label if text == label.get("text") else {**label, "text": text}
+            )
+        if fixed != labels:
+            metadata[key] = fixed
 
 
 def normalize_legacy_video_metadata(metadata: dict[str, Any]) -> None:

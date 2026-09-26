@@ -48,7 +48,11 @@ from .common import (
     LocalizedLabelSchema,
     SiteName,
 )
-from .utils import item_cover_path, resource_cover_path
+from .utils import (
+    item_cover_path,
+    normalize_legacy_text_metadata,
+    resource_cover_path,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -804,6 +808,11 @@ class Item(PolymorphicModel):
             index = CatalogIndex.instance()
             index.replace_item(self)
 
+    def delete_index(self):
+        from catalog.search import CatalogIndex
+
+        CatalogIndex.instance().delete_item(self)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.update_index()
@@ -1154,7 +1163,7 @@ class Item(PolymorphicModel):
         Mutates ``metadata`` in place. Subclasses extend for their own
         legacy fields; call ``super()`` to chain.
         """
-        return
+        normalize_legacy_text_metadata(metadata)
 
     @classmethod
     def copy_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
@@ -1211,8 +1220,16 @@ class Item(PolymorphicModel):
         if p.has_cover():
             item.cover = p.cover
         item.normalize_metadata([p])
-        item.save()
-        item.ap_object  # validate schema
+        # the schema reads relations, so it can only validate a saved row;
+        # roll back on failure, or every retry leaves an unlinked item behind
+        try:
+            with transaction.atomic():
+                item.save()
+                item.ap_object  # validate schema
+        except Exception:
+            if item.pk:
+                item.delete_index()
+            raise
         item.sync_credits_from_metadata()
         return item
 

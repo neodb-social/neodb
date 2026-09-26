@@ -1,3 +1,4 @@
+import copy
 import importlib
 import logging
 import re
@@ -1284,4 +1285,169 @@ def normalize_primary_id_20260915(
         f"normalize_primary_id finished. {updated} items "
         f"{'would be ' if dry_run else ''}updated, {reindexed} docs reindexed, "
         f"last pk: {last_pk}."
+    )
+
+
+# a localized label whose text is missing or not a string
+_BAD_LABEL_JSONPATH = '$.{key}[*] ? (!exists(@.text ? (@.type() == "string")))'
+_REPR_TEXT_LIKE = "{%'plainText'%"
+
+
+def _legacy_text_condition(table: str, with_scalars: bool) -> models.expressions.RawSQL:
+    col = f'"{table}"."metadata"'
+    sql = [
+        f"jsonb_path_exists({col}, %s)",
+        f"jsonb_path_exists({col}, %s)",
+    ]
+    params: list[str] = [
+        _BAD_LABEL_JSONPATH.format(key="localized_title"),
+        _BAD_LABEL_JSONPATH.format(key="localized_description"),
+    ]
+    if with_scalars:
+        for key in ("title", "brief"):
+            sql.append(f"jsonb_typeof({col}->'{key}') NOT IN ('string', 'null')")
+            sql.append(f"{col}->>'{key}' LIKE %s")
+            params.append(_REPR_TEXT_LIKE)
+    return models.expressions.RawSQL(
+        "(" + " OR ".join(sql) + ")", params, output_field=models.BooleanField()
+    )
+
+
+def fix_legacy_brief_20260926(
+    start_pk: int = 0,
+    batch_size: int = 500,
+    dry_run: bool = False,
+    delete_orphans: bool = False,
+) -> None:
+    """Repair legacy rich-text values in title/brief and localized labels.
+
+    IMDB scrapes from 2024-07-13 to 2024-07-18 stored the GraphQL Markdown
+    object as brief and as localized_description text, and earlier ones as
+    brief; items created from them saved its repr in the brief column. Such a
+    resource fails schema validation when an item is created from it, and
+    each failure used to leave an item with no external resource behind.
+
+    Three passes, each pk-ordered and idempotent:
+    - ExternalResource.metadata, via normalize_legacy_text_metadata
+    - Item.brief (repr string) and Item.metadata labels; reindexed per batch
+    - items left by the failed creates (repr brief, no external resource, no
+      journal activity) are listed, and soft-deleted with delete_orphans
+    """
+    from catalog.models import ExternalResource, Item
+    from catalog.models.utils import legacy_text, normalize_legacy_text_metadata
+    from catalog.search import CatalogIndex
+
+    index = None
+    if not dry_run:
+        index = CatalogIndex.instance()
+        if not index.initialize_collection(max_wait=30):
+            logger.error("Index is not ready, migration aborted.")
+            return
+
+    res_qs = (
+        ExternalResource.objects.filter(pk__gte=start_pk)
+        .filter(_legacy_text_condition(ExternalResource._meta.db_table, True))
+        .order_by("pk")
+    )
+    res_updated = 0
+    res_pending: list[ExternalResource] = []
+
+    def flush_resources() -> None:
+        if res_pending and not dry_run:
+            ExternalResource.objects.bulk_update(res_pending, ["metadata"])
+        res_pending.clear()
+
+    for pk, metadata in tqdm(
+        res_qs.values_list("pk", "metadata").iterator(chunk_size=batch_size),
+        desc="fix_legacy_brief resources",
+    ):
+        if not isinstance(metadata, dict):
+            continue
+        new_metadata = copy.deepcopy(metadata)
+        normalize_legacy_text_metadata(new_metadata)
+        if new_metadata == metadata:
+            continue
+        if dry_run and res_updated < 20:
+            logger.info(f"dry run resource {pk}: {metadata} -> {new_metadata}")
+        res_pending.append(ExternalResource(pk=pk, metadata=new_metadata))
+        res_updated += 1
+        if len(res_pending) >= batch_size:
+            flush_resources()
+    flush_resources()
+
+    item_qs = (
+        Item.objects.non_polymorphic()
+        .filter(pk__gte=start_pk)
+        .filter(
+            models.Q(brief__startswith="{", brief__contains="'plainText'")
+            | models.Q(_legacy_text_condition(Item._meta.db_table, False))
+        )
+        .order_by("pk")
+    )
+    item_updated = 0
+    reindexed = 0
+    orphan_candidates: list[int] = []
+    item_pending: list[Item] = []
+
+    def flush_items() -> None:
+        nonlocal reindexed
+        if item_pending and not dry_run:
+            Item.objects.bulk_update(item_pending, ["brief", "metadata"])
+            # bulk_update bypasses save()->update_index()
+            if index:
+                items = Item.objects.filter(pk__in=[i.pk for i in item_pending])
+                reindexed += index.replace_docs(index.items_to_docs(items))
+        item_pending.clear()
+
+    for pk, brief, metadata, is_deleted in tqdm(
+        item_qs.values_list("pk", "brief", "metadata", "is_deleted").iterator(
+            chunk_size=batch_size
+        ),
+        desc="fix_legacy_brief items",
+    ):
+        new_brief = legacy_text(brief) or ""
+        new_metadata = copy.deepcopy(metadata)
+        if isinstance(new_metadata, dict):
+            normalize_legacy_text_metadata(new_metadata)
+        if new_brief != brief and not is_deleted:
+            orphan_candidates.append(pk)
+        if new_brief == brief and new_metadata == metadata:
+            continue
+        if dry_run and item_updated < 20:
+            logger.info(f"dry run item {pk}: brief {brief!r} -> {new_brief!r}")
+        item_pending.append(Item(pk=pk, brief=new_brief, metadata=new_metadata))
+        item_updated += 1
+        if len(item_pending) >= batch_size:
+            flush_items()
+    flush_items()
+
+    orphans = []
+    for item in Item.objects.filter(
+        pk__in=orphan_candidates, merged_to_item__isnull=True
+    ).order_by("pk"):
+        if (
+            item.external_resources.exists()
+            or item.merged_from_items.exists()
+            or item.child_items.exists()
+            or item.journal_exists()
+        ):
+            continue
+        orphans.append(item)
+        if delete_orphans and not dry_run:
+            item.delete()
+    if orphans:
+        logger.warning(
+            "fix_legacy_brief orphans (no resource, no journal): "
+            + ", ".join(f"{i.pk}:{i.uuid}" for i in orphans[:50])
+            + (" ..." if len(orphans) > 50 else "")
+        )
+
+    verb = "would be updated" if dry_run else "updated"
+    orphan_verb = (
+        "soft-deleted" if delete_orphans and not dry_run else "found (use --yes)"
+    )
+    logger.warning(
+        f"fix_legacy_brief finished. {res_updated} resources and {item_updated} "
+        f"items {verb}, {reindexed} docs reindexed, {len(orphans)} orphans "
+        f"{orphan_verb}."
     )
