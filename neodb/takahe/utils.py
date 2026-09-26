@@ -2,7 +2,7 @@ import io
 import logging
 import mimetypes
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from blurhash_rs import blurhash_encode
 from django.conf import settings
@@ -10,7 +10,7 @@ from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from PIL import Image
@@ -23,6 +23,8 @@ DEV_CONSOLE_CLIENT_ID = "app-00000000000-dev"
 DEV_CONSOLE_SCOPES = ["read", "write", "push"]
 
 logger = logging.getLogger(__name__)
+
+_PostQS = TypeVar("_PostQS", bound=QuerySet)
 
 if TYPE_CHECKING:
     from users.models import User as NeoUser
@@ -1174,6 +1176,24 @@ class Takahe:
         if excl_self:
             qs = qs.exclude(subject_identity_id=identity_id)
         return qs
+
+    @staticmethod
+    def exclude_authors(qs: _PostQS, handles: list[str]) -> _PostQS:
+        """Drop posts by accounts (``@user@domain``) or by whole domains."""
+        q = Q()
+        for handle in handles:
+            handle = handle.strip().lstrip("@").lower()
+            if "@" in handle:
+                username, domain = handle.split("@", 1)
+                q |= Q(author__username__iexact=username) & (
+                    Q(author__domain_id=domain)
+                    | Q(author__domain__service_domain=domain)
+                )
+            elif handle:
+                q |= Q(author__domain_id=handle) | Q(
+                    author__domain__service_domain=handle
+                )
+        return qs.exclude(q) if q else qs
 
     @staticmethod
     def get_public_posts(local_only=False):

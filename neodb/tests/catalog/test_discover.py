@@ -288,6 +288,29 @@ class TestDiscoverPosts:
         member = _member_client(posts).get("/discover/popular-posts/")
         assert "secret thoughts" in member.content.decode()
 
+    def test_excluded_account_is_hidden_from_discover(self, site_config, posts):
+        site_config.discover_show_popular_posts = True
+        DiscoverGenerator().run()
+        assert (
+            "public thoughts"
+            in Client().get("/discover/popular-posts/").content.decode()
+        )
+
+        site_config.discover_exclude_posts_from = [f"@pub@{posts.identity.domain_name}"]
+        DiscoverGenerator().run()
+        assert not set(cache.get("popular_posts")) & set(
+            Takahe.get_public_posts()
+            .filter(author_id=posts.identity.pk)
+            .values_list("pk", flat=True)
+        )
+        content = Client().get("/discover/popular-posts/").content.decode()
+        assert "public thoughts" not in content
+
+        # the member fallback timeline follows the list as well
+        site_config.discover_show_popular_posts = False
+        member = _member_client(posts).get("/discover/popular-posts/")
+        assert "public thoughts" not in member.content.decode()
+
     def test_flag_off_keeps_posts_for_members_only(self, site_config, posts):
         site_config.discover_show_popular_posts = False
 
@@ -372,6 +395,32 @@ class TestTrendsStatuses:
         TakaheIdentity.objects.filter(pk=limited.author_id).update(restriction=1)
         DiscoverGenerator().run()
         assert cache.get("trends_statuses") == []
+
+    def test_local_posts_trend_too(self, site_config, fans):
+        site_config.trend_include_fedi_posts = True
+        site_config.discover_show_popular_posts = False
+        author = User.register(email="local@example.com", username="local")
+        post = Takahe.post(
+            author.identity.pk, "local thoughts", Takahe.Visibilities.public
+        )
+        assert post
+        for fan in fans[:3]:
+            Takahe.like_post(post.pk, fan)
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == [post.pk]
+
+    def test_excluded_accounts_and_domains_stay_out(self, site_config, fans):
+        site_config.trend_include_fedi_posts = True
+        site_config.discover_show_popular_posts = True
+        site_config.discover_exclude_posts_from = [
+            "@LOUD@Mastodon.Example",
+            "spam.example",
+        ]
+        self._remote_post("loud", fans, 5)
+        self._remote_post("bot", fans, 5, domain="spam.example")
+        kept = self._remote_post("quiet", fans, 3)
+        DiscoverGenerator().run()
+        assert cache.get("trends_statuses") == [kept.pk]
 
     def test_score_decays_by_the_hour(self, site_config, fans):
         site_config.trend_include_fedi_posts = True

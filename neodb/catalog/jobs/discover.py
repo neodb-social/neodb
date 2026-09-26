@@ -22,7 +22,7 @@ from journal.models import (
     q_item_in_category,
 )
 from takahe.models import Identity
-from takahe.utils import Post
+from takahe.utils import Post, Takahe
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +87,7 @@ class DiscoverGenerator(BaseJob):
         )
         if local_only:
             qs = qs.filter(local=True)
+        qs = Takahe.exclude_authors(qs, SiteConfig.system.discover_exclude_posts_from)
         if (
             SiteConfig.system.discover_filter_language
             and SiteConfig.system.preferred_languages
@@ -121,7 +122,7 @@ class DiscoverGenerator(BaseJob):
     def get_trending_fedi_posts(self):
         """Public posts from any server, eligible for trends as in Mastodon."""
         since = timezone.now() - timedelta(days=DAYS_FOR_TRENDS)
-        return (
+        qs = (
             Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
             .filter(
                 visibility=0,
@@ -134,6 +135,7 @@ class DiscoverGenerator(BaseJob):
             .filter(Q(summary__isnull=True) | Q(summary=""))
             .exclude(author__domain__blocked=True)
         )
+        return Takahe.exclude_authors(qs, SiteConfig.system.discover_exclude_posts_from)
 
     def get_trends_statuses(self, curated_ids) -> list[int]:
         """Rank curated and fediverse posts together by a decaying score."""
@@ -521,6 +523,14 @@ class DiscoverGenerator(BaseJob):
                         )
                     )
                     .values_list("posts", flat=True)
+                )
+            # reviews and articles above are picked without the post query
+            if post_ids and SiteConfig.system.discover_exclude_posts_from:
+                post_ids = set(
+                    Takahe.exclude_authors(
+                        Post.objects.filter(pk__in=post_ids),
+                        SiteConfig.system.discover_exclude_posts_from,
+                    ).values_list("pk", flat=True)
                 )
         else:
             post_ids = []

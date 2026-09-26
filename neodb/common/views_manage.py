@@ -437,8 +437,16 @@ class DiscoverSettings(SiteConfigSettingsPage):
         "trend_include_fedi_posts": {
             "title": _("Include fediverse posts in trends"),
             "help_text": _(
-                "Add popular public posts from other servers to the trending "
-                "posts API, ranked by recent likes and boosts seen by this site."
+                "Add popular public posts from this and other servers to the "
+                "trending posts API, ranked by recent likes and boosts seen by "
+                "this site."
+            ),
+        },
+        "discover_exclude_posts_from": {
+            "title": _("Exclude posts from"),
+            "help_text": _(
+                "Accounts (@user@domain) or domains whose posts never appear in "
+                "popular posts or trends, one per line."
             ),
         },
     }
@@ -453,6 +461,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_show_popular_tags",
             "discover_show_verified_podcasts",
             "trend_include_fedi_posts",
+            "discover_exclude_posts_from",
         ],
     }
 

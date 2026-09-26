@@ -990,6 +990,9 @@ def discover_popular_posts(request):
     posts = []
     hidden_authors: list[int] = []
     if popular_posts is not None:
+        popular_posts = Takahe.exclude_authors(
+            popular_posts, SiteConfig.system.discover_exclude_posts_from
+        )
         if viewer:
             popular_posts = popular_posts.not_blocked_by(viewer.takahe_identity)
         else:
