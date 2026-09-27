@@ -232,6 +232,34 @@ def test_handle_needs_fetch_falls_back_to_title_tag(httpx_mock, config_system):
 @pytest.mark.httpx_mock(
     assert_all_requests_were_expected=False, can_send_already_matched_responses=True
 )
+def test_handle_needs_fetch_strips_nul_bytes(httpx_mock, config_system):
+    html = (
+        "<html><head><title>T\x00itle</title>"
+        '<meta property="og:description" content="Line one\x00line two"/>'
+        '<meta property="og:image" content="https://example.com/i\x00.jpg"/>'
+        "</head></html>"
+    )
+    httpx_mock.add_response(
+        url="https://example.com/nul",
+        headers={"Content-Type": "text/html"},
+        content=html.encode(),
+    )
+    card = PreviewCard.objects.create(url="https://example.com/nul")
+    with patch(
+        "socket.getaddrinfo", return_value=[(2, 1, 0, "", ("93.184.216.34", 443))]
+    ):
+        result = PreviewCardStates.handle_needs_fetch(card)
+    card.refresh_from_db()
+    assert result == PreviewCardStates.fetched
+    assert card.title == "Title"
+    assert card.description == "Line oneline two"
+    assert card.image_url == "https://example.com/i.jpg"
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False, can_send_already_matched_responses=True
+)
 def test_handle_needs_fetch_non_html_returns_fetch_failed(httpx_mock, config_system):
     httpx_mock.add_response(
         url="https://example.com/image.png",

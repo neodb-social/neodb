@@ -149,7 +149,8 @@ class PreviewCardStates(StateGraph):
             return cls.fetch_failed
 
         try:
-            html_text = body.decode("utf-8", errors="replace")
+            # PostgreSQL text columns reject NUL, and some pages ship one raw
+            html_text = body.decode("utf-8", errors="replace").replace("\x00", "")
         except Exception:
             return cls.fetch_failed
 
