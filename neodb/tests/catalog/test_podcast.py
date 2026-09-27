@@ -4,6 +4,15 @@ from django.test.utils import CaptureQueriesContext
 
 from catalog.common import *
 from catalog.models import *
+from catalog.sites.rss import _episode_duration
+
+
+@pytest.mark.parametrize(
+    "total_time,expected",
+    [(2032, 2032), (0, None), (-5, None), (2**31, None), (None, None), ("60", None)],
+)
+def test_episode_duration(total_time, expected):
+    assert _episode_duration({"total_time": total_time}) == expected
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -38,6 +47,10 @@ class TestPodcastRSSFeed:
         assert item.recent_episodes[0].title is not None
         assert item.recent_episodes[0].link is not None
         assert item.recent_episodes[0].media_url is not None
+        episode = PodcastEpisode.objects.get(
+            program=item, guid="0951c1ff-ad98-42b4-a21e-54cf36cedd0c"
+        )
+        assert episode.duration == 2032
 
     @use_local_response
     def test_scrape_digforfire(self):
@@ -55,6 +68,10 @@ class TestPodcastRSSFeed:
         assert item.recent_episodes[0].title is not None
         assert item.recent_episodes[0].link is not None
         assert item.recent_episodes[0].media_url is not None
+        # podcastparser reports total_time 0 for every episode of this feed
+        assert not PodcastEpisode.objects.filter(
+            program=item, duration__isnull=False
+        ).exists()
 
     @use_local_response
     def test_scrape_bbc(self):

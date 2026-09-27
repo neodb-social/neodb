@@ -26,6 +26,12 @@ from journal.models.renderers import html_to_text
 _logger = logging.getLogger(__name__)
 
 
+def _episode_duration(episode: dict) -> int | None:
+    # podcastparser keeps itunes:duration in seconds as total_time, 0 if absent
+    seconds = episode.get("total_time")
+    return seconds if isinstance(seconds, int) and 0 < seconds < 2**31 else None
+
+
 @SiteManager.register
 class RSS(AbstractSite):
     SITE_NAME = SiteName.RSS
@@ -193,7 +199,7 @@ class RSS(AbstractSite):
                         if episode.get("published") is not None
                         else None
                     ),
-                    "duration": episode.get("duration"),
+                    "duration": _episode_duration(episode),
                     "link": episode.get("link"),
                 },
             )
