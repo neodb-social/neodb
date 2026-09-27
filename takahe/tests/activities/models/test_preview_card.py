@@ -260,6 +260,64 @@ def test_handle_needs_fetch_strips_nul_bytes(httpx_mock, config_system):
 @pytest.mark.httpx_mock(
     assert_all_requests_were_expected=False, can_send_already_matched_responses=True
 )
+def test_handle_needs_fetch_drops_out_of_range_dimensions(httpx_mock, config_system):
+    html = (
+        '<html><head><meta property="og:image" content="https://example.com/i.jpg"/>'
+        '<meta property="og:image:width" content="99999999999"/>'
+        '<meta property="og:image:height" content="-5"/>'
+        "</head></html>"
+    )
+    httpx_mock.add_response(
+        url="https://example.com/dims",
+        headers={"Content-Type": "text/html"},
+        text=html,
+    )
+    card = PreviewCard.objects.create(url="https://example.com/dims")
+    with patch(
+        "socket.getaddrinfo", return_value=[(2, 1, 0, "", ("93.184.216.34", 443))]
+    ):
+        result = PreviewCardStates.handle_needs_fetch(card)
+    card.refresh_from_db()
+    assert result == PreviewCardStates.fetched
+    assert card.image_url == "https://example.com/i.jpg"
+    assert card.image_width is None
+    assert card.image_height is None
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False, can_send_already_matched_responses=True
+)
+def test_handle_needs_fetch_unsavable_value_fails_permanently(
+    httpx_mock, config_system
+):
+    httpx_mock.add_response(
+        url="https://example.com/bad",
+        headers={"Content-Type": "text/html"},
+        text="<html></html>",
+    )
+    card = PreviewCard.objects.create(url="https://example.com/bad")
+    with (
+        patch(
+            "socket.getaddrinfo",
+            return_value=[(2, 1, 0, "", ("93.184.216.34", 443))],
+        ),
+        patch(
+            "activities.models.preview_card._parse_og_tags",
+            return_value={"og:title": "bad\x00title"},
+        ),
+    ):
+        result = PreviewCardStates.handle_needs_fetch(card)
+    assert result == PreviewCardStates.fetch_failed
+    card.refresh_from_db()
+    assert card.title == ""
+    assert card.fetched_at is None
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(
+    assert_all_requests_were_expected=False, can_send_already_matched_responses=True
+)
 def test_handle_needs_fetch_non_html_returns_fetch_failed(httpx_mock, config_system):
     httpx_mock.add_response(
         url="https://example.com/image.png",

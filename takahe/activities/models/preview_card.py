@@ -1,11 +1,16 @@
+import logging
 from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from core.files import make_safe_client
 from core.uris import ProxyAbsoluteUrl
-from django.db import models
+from django.db import DataError, models, transaction
 from django.utils import timezone
 from stator.models import State, StateField, StateGraph, StatorModel
+
+logger = logging.getLogger(__name__)
+
+_INT4_MAX = 2**31 - 1
 
 # ---------------------------------------------------------------------------
 # Tracking param stripping
@@ -103,6 +108,14 @@ def _parse_og_tags(html_text: str) -> dict[str, str]:
     return result
 
 
+def _parse_dimension(value: str | None) -> int | None:
+    try:
+        n = int(value or "")
+    except ValueError:
+        return None
+    return n if 0 < n <= _INT4_MAX else None
+
+
 # ---------------------------------------------------------------------------
 # State machine
 # ---------------------------------------------------------------------------
@@ -169,14 +182,8 @@ class PreviewCardStates(StateGraph):
         image_url_max = instance._meta.get_field("image_url").max_length
         if image_url_max and len(instance.image_url) > image_url_max:
             instance.image_url = ""
-        try:
-            instance.image_width = int(meta["og:image:width"])
-        except KeyError, ValueError, TypeError:
-            instance.image_width = None
-        try:
-            instance.image_height = int(meta["og:image:height"])
-        except KeyError, ValueError, TypeError:
-            instance.image_height = None
+        instance.image_width = _parse_dimension(meta.get("og:image:width"))
+        instance.image_height = _parse_dimension(meta.get("og:image:height"))
         if not instance.image_url:
             instance.image_width = None
             instance.image_height = None
@@ -186,19 +193,25 @@ class PreviewCardStates(StateGraph):
         instance.provider_name = (parsed.hostname or "")[:provider_name_max]
         instance.provider_url = f"{parsed.scheme}://{parsed.netloc}"
         instance.fetched_at = timezone.now()
-        instance.save(
-            update_fields=[
-                "title",
-                "description",
-                "image_url",
-                "image_width",
-                "image_height",
-                "author_name",
-                "provider_name",
-                "provider_url",
-                "fetched_at",
-            ]
-        )
+        # A value the checks above missed fails the same way on every retry
+        try:
+            with transaction.atomic():
+                instance.save(
+                    update_fields=[
+                        "title",
+                        "description",
+                        "image_url",
+                        "image_width",
+                        "image_height",
+                        "author_name",
+                        "provider_name",
+                        "provider_url",
+                        "fetched_at",
+                    ]
+                )
+        except (DataError, UnicodeEncodeError) as e:
+            logger.warning("Preview card %s not saved: %s", instance.url, e)
+            return cls.fetch_failed
         return cls.fetched
 
 
