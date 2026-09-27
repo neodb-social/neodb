@@ -144,7 +144,10 @@ def _attach_preview_card(post_pk: int, content: str) -> None:
         return
 
     canonical_url = PreviewCard.strip_tracking_params(url)
-    if not canonical_url.startswith(("http://", "https://")):
+    if (
+        not canonical_url.startswith(("http://", "https://"))
+        or len(canonical_url) > PreviewCard._meta.get_field("url").max_length
+    ):
         Post.objects.filter(pk=post_pk).update(preview_card=None)
         return
 
@@ -1597,6 +1600,12 @@ class Post(StatorModel):
                 raise ActivityPubFormatError(
                     "Object's ID domain is different to its author"
                 )
+            if (
+                len(data["id"]) > cls._meta.get_field("object_uri").max_length
+                or len(data["attributedTo"])
+                > Identity._meta.get_field("actor_uri").max_length
+            ):
+                raise ActivityPubFormatError("Object or author URI is too long")
         except (TypeError, KeyError) as ex:
             raise cls.DoesNotExist(
                 "Object data is not a recognizable ActivityPub object"
@@ -1645,8 +1654,10 @@ class Post(StatorModel):
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
         if update or created:
             post.type = data["type"]
-            post.url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
-            post.url = post.url or data["id"]
+            url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
+            if not url or len(url) > cls._meta.get_field("url").max_length:
+                url = data["id"]
+            post.url = url
             if post.type == cls.Types.question:
                 post.type_data = PostTypeData(root=data).root
                 if not post.local and isinstance(post.type_data, QuestionData):
@@ -1691,6 +1702,13 @@ class Post(StatorModel):
             in_reply_to = data.get("inReplyTo")
             if isinstance(in_reply_to, dict):
                 in_reply_to = in_reply_to.get("id")
+            # Too long to store, so the reply link is dropped, as Mastodon
+            # does for a parent it cannot resolve
+            if (
+                isinstance(in_reply_to, str)
+                and len(in_reply_to) > cls._meta.get_field("in_reply_to").max_length
+            ):
+                in_reply_to = None
             post.in_reply_to = in_reply_to
             # Quote URL - check properties in priority order (FEP-044f).
             # BookWyrm overloads `quote` with the HTML quotation text rather
@@ -1736,6 +1754,11 @@ class Post(StatorModel):
             for tag in get_list(data, "tag"):
                 tag_type = tag["type"].lower()
                 if tag_type == "mention":
+                    if (
+                        len(tag["href"])
+                        > Identity._meta.get_field("actor_uri").max_length
+                    ):
+                        continue
                     mention_identity = Identity.by_actor_uri(tag["href"], create=True)
                     post.mentions.add(mention_identity)
                 elif tag_type in ["_:hashtag", "hashtag"]:

@@ -1,9 +1,14 @@
+from unittest.mock import patch
+
 import pytest
+from django.db import DataError
 from pytest_httpx import HTTPXMock
 
 from activities.models import Hashtag, Post, PostStates
 from activities.models.post_types import QuestionData
+from core.exceptions import ActivityPubFormatError
 from users.models import Identity, InboxMessage
+from users.models.inbox_message import InboxMessageStates
 
 
 @pytest.mark.django_db
@@ -423,6 +428,60 @@ def test_content_map_question(remote_identity: Identity):
     assert isinstance(post.type_data, QuestionData)
     assert post.type_data.voter_count == 100
     assert post.id == question_id
+
+
+@pytest.mark.django_db
+def test_by_ap_drops_overlong_uris(remote_identity):
+    post = Post.by_ap(
+        data={
+            "id": "https://remote.test/posts/long-1/",
+            "type": "Note",
+            "content": "Hello",
+            "attributedTo": "https://remote.test/test-actor/",
+            "url": "https://remote.test/" + "u" * 2100,
+            "inReplyTo": "https://remote.test/" + "r" * 600,
+            "tag": [{"type": "Mention", "href": "https://remote.test/" + "m" * 600}],
+            "published": "2024-01-15T12:00:00Z",
+        },
+        create=True,
+    )
+    assert post.url == "https://remote.test/posts/long-1/"
+    assert post.in_reply_to is None
+    assert not post.mentions.exists()
+
+
+@pytest.mark.django_db
+def test_by_ap_rejects_overlong_id(remote_identity):
+    with pytest.raises(ActivityPubFormatError):
+        Post.by_ap(
+            data={
+                "id": "https://remote.test/posts/" + "x" * 2100,
+                "type": "Note",
+                "content": "Hello",
+                "attributedTo": "https://remote.test/test-actor/",
+            },
+            create=True,
+        )
+    assert not Post.objects.filter(author=remote_identity).exists()
+
+
+@pytest.mark.django_db
+def test_inbox_unsavable_value_fails_permanently(remote_identity):
+    message = InboxMessage.objects.create(
+        message={
+            "id": "https://remote.test/activities/1",
+            "type": "Create",
+            "actor": "https://remote.test/test-actor/",
+            "object": {
+                "id": "https://remote.test/posts/1/",
+                "type": "Note",
+                "content": "Hello",
+                "attributedTo": "https://remote.test/test-actor/",
+            },
+        }
+    )
+    with patch.object(Post, "handle_create_ap", side_effect=DataError("too long")):
+        assert InboxMessageStates.handle_received(message) == InboxMessageStates.errored
 
 
 @pytest.mark.django_db

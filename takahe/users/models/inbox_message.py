@@ -1,7 +1,7 @@
 import base64
 import logging
 
-from django.db import models
+from django.db import DataError, models
 from pyld.jsonld import JsonLdError
 
 from activities.models.hashtag import Hashtag
@@ -376,6 +376,13 @@ class InboxMessageStates(StateGraph):
                 Post.forward_activity_ap(instance.message, instance.raw_document)
             return cls.processed
         except ActivityPubError, JsonLdError:
+            return cls.errored
+        except DataError, UnicodeEncodeError:
+            # A value that cannot be stored fails the same way on every retry,
+            # so report it once instead of retrying for days
+            logger.exception(
+                "Inbox message %s (%s) not stored", instance.pk, instance.message_type
+            )
             return cls.errored
 
 

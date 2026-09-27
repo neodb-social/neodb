@@ -386,6 +386,18 @@ def test_attach_preview_card_creates_and_links(identity, config_system):
 
 
 @pytest.mark.django_db
+def test_attach_preview_card_skips_overlong_url(identity, config_system):
+    url = "https://example.com/" + "a" * 2100
+    post = Post.create_local(
+        author=identity, content=f'<p><a href="{url}">{url}</a></p>'
+    )
+    _attach_preview_card(post.pk, post.content)
+    post.refresh_from_db()
+    assert post.preview_card is None
+    assert not PreviewCard.objects.exists()
+
+
+@pytest.mark.django_db
 def test_attach_preview_card_deduplicates(identity, config_system):
     existing = PreviewCard.objects.create(url="https://example.com/shared")
     post1 = Post.create_local(
