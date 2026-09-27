@@ -33,6 +33,7 @@ from common.models.genre import normalize_genres
 from common.models.lang import localized_label_text, normalize_languages
 from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import (
+    clean_json,
     get_default_cover_image_url,
     get_file_absolute_url,
     json_ld_dumps,
@@ -1930,8 +1931,8 @@ class ExternalResource(models.Model):
         return self.site_name.label
 
     def update_content(self, resource_content: "ResourceContent"):
-        self.other_lookup_ids = resource_content.lookup_ids
-        self.metadata = resource_content.metadata
+        self.other_lookup_ids = clean_json(resource_content.lookup_ids)
+        self.metadata = clean_json(resource_content.metadata)
         if (
             resource_content.metadata.get("cover_image_url")
             and not resource_content.cover_image
