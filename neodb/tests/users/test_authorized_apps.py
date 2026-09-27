@@ -2,7 +2,7 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from takahe.models import PushNotification, PushSubscription, Token
+from takahe.models import Application, PushNotification, PushSubscription, Token
 from takahe.utils import Takahe
 from users.models import User
 
@@ -45,3 +45,14 @@ class TestRevokeToken:
         )
         assert response.status_code == 302
         assert not Token.objects.filter(pk=self.token.pk).exists()
+
+    def test_authorized_app_create_clamps_name(self):
+        client = Client()
+        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
+        response = client.post(
+            reverse("users:authorized_app_create"),
+            {"name": "a\x00" + "b" * 600, "scope": "read"},
+        )
+        assert response.status_code == 200
+        app = Application.objects.exclude(name="test app").get()
+        assert app.name == "a" + "b" * 499

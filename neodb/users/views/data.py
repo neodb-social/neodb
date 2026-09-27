@@ -1206,7 +1206,8 @@ def import_steam(request):
 @require_http_methods(["GET", "POST"])
 def authorized_app_create(request):
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        name = request.POST.get("name", "").replace("\x00", "").strip()
+        name = name[:500]  # takahe Application.name column
         scope = request.POST.get("scope", "read")
         if not name:
             messages.error(request, _("Name is required."))
