@@ -1754,12 +1754,14 @@ class Post(StatorModel):
             for tag in get_list(data, "tag"):
                 tag_type = tag["type"].lower()
                 if tag_type == "mention":
+                    href = tag.get("href")
                     if (
-                        len(tag["href"])
-                        > Identity._meta.get_field("actor_uri").max_length
+                        not isinstance(href, str)
+                        or not href
+                        or len(href) > Identity._meta.get_field("actor_uri").max_length
                     ):
                         continue
-                    mention_identity = Identity.by_actor_uri(tag["href"], create=True)
+                    mention_identity = Identity.by_actor_uri(href, create=True)
                     post.mentions.add(mention_identity)
                 elif tag_type in ["_:hashtag", "hashtag"]:
                     # kbin produces tags with 'tag' instead of 'name'

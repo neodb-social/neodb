@@ -451,6 +451,26 @@ def test_by_ap_drops_overlong_uris(remote_identity):
 
 
 @pytest.mark.django_db
+def test_by_ap_skips_mentions_without_usable_href(remote_identity):
+    post = Post.by_ap(
+        data={
+            "id": "https://remote.test/posts/mentions-1/",
+            "type": "Note",
+            "content": "Hello",
+            "attributedTo": "https://remote.test/test-actor/",
+            "tag": [
+                {"type": "Mention", "name": "@missing"},
+                {"type": "Mention", "href": None},
+                {"type": "Mention", "href": {"id": "https://remote.test/x/"}},
+                {"type": "Mention", "href": "https://remote.test/test-actor/"},
+            ],
+        },
+        create=True,
+    )
+    assert list(post.mentions.all()) == [remote_identity]
+
+
+@pytest.mark.django_db
 def test_by_ap_rejects_overlong_id(remote_identity):
     with pytest.raises(ActivityPubFormatError):
         Post.by_ap(
