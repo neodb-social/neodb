@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from core.json import clean_json
 from core.models import Config
 from stator.models import State, StateField, StateGraph, StatorModel
 from users.schemas import NodeInfo, NodeInfoSoftware, NodeInfoUsage
@@ -273,7 +274,7 @@ class Domain(StatorModel):
                 return None
 
             try:
-                info = NodeInfo(**response.json())
+                info = NodeInfo(**clean_json(response.json()))
             except (
                 json.JSONDecodeError,
                 pydantic.ValidationError,

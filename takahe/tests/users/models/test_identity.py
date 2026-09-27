@@ -595,6 +595,28 @@ def test_fetch_webfinger_unparseable(httpx_mock: HTTPXMock, config_system):
         Identity.fetch_webfinger("test@example.com")
 
 
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_webfinger_strips_nul(httpx_mock: HTTPXMock, config_system):
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/host-meta",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://example.com/.well-known/webfinger?resource=acct:test@example.com",
+        headers={"Content-Type": "application/jrd+json"},
+        content=(
+            b'{"subject": "acct:te\\u0000st@example.com", "links": [{"rel": "self",'
+            b' "type": "application/activity+json",'
+            b' "href": "https://example.com/users/te\\u0000st"}]}'
+        ),
+    )
+    assert Identity.fetch_webfinger("test@example.com") == (
+        "https://example.com/users/test",
+        "test@example.com",
+    )
+
+
 def test_parse_webfinger_xrd_without_subject():
     """
     An XRD document with no subject resolves no handle, so it is not usable.

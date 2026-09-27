@@ -7,6 +7,7 @@ from activities.models import Post
 from activities.services import TimelineService
 from core import sentry
 from core.decorators import cache_page
+from core.json import clean_json
 from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id
 from core.signatures import (
     HttpSignature,
@@ -219,7 +220,9 @@ class Inbox(FederatedView):
         # use raw_document rather than the canonicalised form.
         try:
             raw_document = json.loads(request.body)
-            document = canonicalise(raw_document, include_security=True, outbound=False)
+            document = canonicalise(
+                clean_json(raw_document), include_security=True, outbound=False
+            )
         except ValueError, JsonLdError:
             # pyld reports malformed JSON-LD with its own exception, and a
             # non-UTF-8 body arrives here as UnicodeDecodeError, so the log
@@ -465,7 +468,7 @@ class Inbox(FederatedView):
                     # original structure rather than the canonicalized message.
                     metadata["ld_sig"] = {
                         "creator_uri": creator,
-                        "raw_document": raw_document,
+                        "raw_document": clean_json(raw_document),
                     }
             except VerificationFormatError as e:
                 logger.warning("Inbox error: Bad LD signature format: %s", e.args[0])
@@ -538,6 +541,9 @@ class Inbox(FederatedView):
                 # (e.g. appending to @context) and forwarding must resend
                 # exactly what the origin signed.
                 forward_raw_document = json.loads(request.body)
+                # A cleaned copy no longer matches its signature, so drop it
+                if clean_json(forward_raw_document) is not forward_raw_document:
+                    forward_raw_document = None
 
         if verified:
             InboxMessage.objects.create(

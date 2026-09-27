@@ -10,7 +10,7 @@ from api.models.push import PushSubscription, PushType
 from core.exceptions import ActorMismatchError
 from core.files import SSRFAttemptError, check_url_safety
 from core.html import ContentRenderer, FediverseHtmlParser
-from core.json import json_from_response
+from core.json import clean_json, json_from_response
 from core.ld import (
     canonicalise,
     format_ld_date,
@@ -1266,7 +1266,7 @@ class Identity(StatorModel):
                 return None, None
 
         try:
-            data = response.json()
+            data = clean_json(response.json())
         except ValueError:
             data = cls.parse_webfinger_xrd(response.content)
             if data is None:

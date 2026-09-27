@@ -1,6 +1,8 @@
 import pytest
+from pytest_httpx import HTTPXMock
 
 from users.models import Domain
+from users.models.domain import DomainStates
 
 
 def test_valid_domain():
@@ -60,3 +62,26 @@ def test_fetch_nodeinfo_invalid_idna_host():
     """
 
     assert Domain(domain="xn--4t8h.example").fetch_nodeinfo() is None
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_nodeinfo_with_nul_and_nan_is_saved(httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        url="https://nul.example/.well-known/nodeinfo",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://nul.example/nodeinfo/2.0",
+        headers={"Content-Type": "application/json"},
+        content=(
+            b'{"version": "2.0", "software": {"name": "x\\u0000y", "version": "1"},'
+            b' "openRegistrations": false, "usage": {"users": {}},'
+            b' "metadata": {"nodeName": "a\\u0000b", "ratio": NaN}}'
+        ),
+    )
+    domain = Domain.objects.create(domain="nul.example", local=False)
+    assert DomainStates.handle_outdated(domain) == DomainStates.updated
+    domain.refresh_from_db()
+    assert domain.nodeinfo["software"]["name"] == "xy"
+    assert domain.nodeinfo["metadata"] == {"nodeName": "ab", "ratio": None}

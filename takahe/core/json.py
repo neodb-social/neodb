@@ -1,4 +1,7 @@
 import json
+import math
+import re
+from typing import Any
 from urllib.parse import urljoin
 
 from httpx import Response
@@ -7,6 +10,47 @@ JSON_CONTENT_TYPES = [
     "application/ld+json",
     "application/activity+json",
 ]
+
+
+_UNSAFE_CHARS = re.compile("[\x00\ud800-\udfff]")
+
+
+def _replace_unsafe(match: re.Match[str]) -> str:
+    return "" if match.group() == "\x00" else "\ufffd"
+
+
+def _has_unsafe(value: Any) -> bool:
+    if isinstance(value, str):
+        return _UNSAFE_CHARS.search(value) is not None
+    if isinstance(value, float):
+        return not math.isfinite(value)
+    if isinstance(value, dict):
+        return any(_has_unsafe(k) or _has_unsafe(v) for k, v in value.items())
+    if isinstance(value, list | tuple):
+        return any(_has_unsafe(v) for v in value)
+    return False
+
+
+def _clean(value: Any) -> Any:
+    if isinstance(value, str):
+        return _UNSAFE_CHARS.sub(_replace_unsafe, value)
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {_clean(k): _clean(v) for k, v in value.items()}
+    if isinstance(value, list | tuple):
+        return [_clean(v) for v in value]
+    return value
+
+
+def clean_json(value: Any) -> Any:
+    """
+    Makes parsed remote JSON storable in PostgreSQL: removes NUL, replaces lone
+    surrogates with U+FFFD and NaN/Infinity with None. Text and jsonb columns
+    reject all of them, and json.loads accepts all of them. Returns the same
+    object when nothing needs a change.
+    """
+    return _clean(value) if _has_unsafe(value) else value
 
 
 def json_from_response(response: Response) -> dict:
@@ -27,11 +71,11 @@ def json_from_response(response: Response) -> dict:
             charset = value.strip()
 
     if charset:
-        return json.loads(response.content.decode(charset))
+        return clean_json(json.loads(response.content.decode(charset)))
     else:
         # if no charset informed, default to
         # httpx json for encoding inference
-        return response.json()
+        return clean_json(response.json())
 
 
 def _split_link_entries(value: str) -> list[str]:

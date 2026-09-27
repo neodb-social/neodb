@@ -85,6 +85,46 @@ def test_ld_signed_non_reply_does_not_keep_raw_document(
     assert message.raw_document is None
 
 
+@pytest.mark.django_db
+def test_ld_signed_reply_with_nul_is_stored_cleaned(
+    client, identity, remote_identity, keypair, config_system
+):
+    """
+    PostgreSQL rejects NUL in jsonb. The message is stored cleaned, and the raw
+    document is not kept, because a cleaned copy fails its LD signature.
+    """
+    document = _document(
+        remote_identity.actor_uri,
+        in_reply_to=_local_thread_uri(identity),
+    )
+    document["object"]["content"] = "Hel\x00lo"
+    resp = _ld_sign_and_post(client, identity, remote_identity, keypair, document)
+    assert resp.status_code == 202
+    message = InboxMessage.objects.last()
+    assert message.message["object"]["content"] == "Hello"
+    assert message.raw_document is None
+
+
+@pytest.mark.django_db
+def test_deferred_ld_signature_with_nul_is_stored_cleaned(
+    client, identity, remote_identity, keypair
+):
+    document = _document(remote_identity.actor_uri)
+    document["object"]["content"] = "Hel\x00lo"
+    document["signature"] = LDSignature.create_signature(
+        document, keypair["private_key"], f"{remote_identity.actor_uri}#main-key"
+    )
+    resp = client.post(
+        identity.inbox_uri,
+        data=json.dumps(document),
+        content_type="application/activity+json",
+    )
+    assert resp.status_code == 202
+    message = InboxMessage.objects.last()
+    assert message.message["object"]["content"] == "Hello"
+    assert message.metadata["ld_sig"]["raw_document"]["object"]["content"] == "Hello"
+
+
 def _http_sign_and_post(client, identity, document, keypair):
     """HTTP-sign a document as its actor and post it to the inbox."""
     body = json.dumps(document).encode()
