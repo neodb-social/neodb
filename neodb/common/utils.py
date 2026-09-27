@@ -77,7 +77,7 @@ _UNSAFE_CHARS = re.compile("[\x00\ud800-\udfff]")
 
 
 def _replace_unsafe(match: re.Match[str]) -> str:
-    return "" if match.group() == "\x00" else "�"
+    return "" if match.group() == "\x00" else "\ufffd"
 
 
 def _has_unsafe(value: Any) -> bool:
