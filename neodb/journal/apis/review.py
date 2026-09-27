@@ -49,7 +49,7 @@ class ReviewSchema(Schema):
 class ReviewInSchema(Schema):
     visibility: int = Field(ge=0, le=2)
     created_time: datetime | None = None
-    title: str
+    title: str = Field(max_length=500)
     content: str = renamed_field("content", "body")
     body: str | None = deprecated_field()
     post_to_fediverse: bool = False

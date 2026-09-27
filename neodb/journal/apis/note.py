@@ -51,7 +51,7 @@ class NoteInSchema(Schema):
     content: str
     sensitive: bool = False
     progress_type: Note.ProgressType | None = None
-    progress_value: str | None = None
+    progress_value: str | None = Field(None, max_length=500)
     visibility: int = Field(ge=0, le=2)
     post_to_fediverse: bool = False
 

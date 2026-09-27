@@ -103,11 +103,11 @@ class CollectionSchema(Schema):
 
 
 class CollectionInSchema(Schema):
-    title: str
+    title: str = Field(max_length=1000)
     description: str = renamed_field("description", "brief")
     brief: str | None = deprecated_field()
     visibility: int = Field(ge=0, le=2)
-    query: str | None = None
+    query: str | None = Field(None, max_length=1000)
 
 
 class CollectionItemSchema(Schema):

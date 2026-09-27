@@ -2495,3 +2495,47 @@ def test_user_profile_is_public_while_its_subroutes_are_not():
         f"/api/user/{user.username}", HTTP_AUTHORIZATION=f"Bearer {token}"
     )
     assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_write_apis_reject_values_longer_than_columns():
+    user = User.register(email="long-write@example.com", username="longwriteuser")
+    item = Edition.objects.create(title="Long Write Book")
+    app = Takahe.get_or_create_app(
+        "Long Write API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client(HTTP_AUTHORIZATION=f"Bearer {token}")
+    cases = [
+        (
+            f"/api/me/review/item/{item.uuid}",
+            {"title": "x" * 501, "content": "Body", "visibility": 0},
+        ),
+        (
+            f"/api/me/note/item/{item.uuid}/",
+            {
+                "title": "Title",
+                "content": "Content",
+                "progress_type": "page",
+                "progress_value": "1" * 501,
+                "visibility": 0,
+            },
+        ),
+        (
+            "/api/me/collection/",
+            {"title": "x" * 1001, "description": "", "visibility": 0},
+        ),
+        (
+            "/api/me/collection/",
+            {"title": "T", "description": "", "query": "q" * 1001, "visibility": 0},
+        ),
+    ]
+    for path, payload in cases:
+        response = client.post(path, payload, content_type="application/json")
+        assert response.status_code == 422, path
+    assert not Review.objects.filter(owner=user.identity).exists()
+    assert not Note.objects.filter(owner=user.identity).exists()
+    assert not Collection.objects.filter(owner=user.identity).exists()
