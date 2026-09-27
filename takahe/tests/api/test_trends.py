@@ -3,7 +3,11 @@ from django.core.cache import cache
 
 
 @pytest.mark.django_db
-def test_trends_statuses_keep_cached_rank(api_client):
+def test_trends_statuses_keep_cached_rank(api_client, settings):
+    # CI runs takahe without CACHES_DEFAULT, which means the dummy backend
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }
     ids = [
         api_client.post(
             "/api/v1/statuses",

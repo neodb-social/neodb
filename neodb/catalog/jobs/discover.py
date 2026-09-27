@@ -147,16 +147,20 @@ class DiscoverGenerator(BaseJob):
             ),
         )
         fields = ("pk", "author_id", "published", "num")
-        rows = set(
-            self.get_trending_fedi_posts()
+        # keyed by pk: a post in both queries may have gained an interaction
+        # between them
+        rows = {
+            row[0]: row
+            for row in self.get_trending_fedi_posts()
             .annotate(num=num)
             .filter(num__gte=TRENDS_MIN_INTERACTIONS)
             .order_by("-num")
             .values_list(*fields)[:TRENDS_MAX_CANDIDATES]
-        )
+        }
         if curated_ids:
-            rows |= set(
-                Post.objects.filter(pk__in=curated_ids)
+            rows.update(
+                (row[0], row)
+                for row in Post.objects.filter(pk__in=curated_ids)
                 .annotate(num=num)
                 .values_list(*fields)
             )
@@ -170,7 +174,7 @@ class DiscoverGenerator(BaseJob):
                 published,
             )
 
-        ranked = sorted(rows, key=score, reverse=True)
+        ranked = sorted(rows.values(), key=score, reverse=True)
         return self._cap_per_author(
             [(pk, author_id) for pk, author_id, _, _ in ranked], MAX_TRENDS_STATUSES
         )
