@@ -343,7 +343,6 @@ class TVDB(AbstractSite):
     URL_PATTERNS: list[str] = []
     SLUG_PATTERNS: list[str] = []
     DEREFERRER = ""
-    SEARCH_TYPE = ""
 
     @classmethod
     def id_to_url(cls, id_value):

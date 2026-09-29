@@ -339,6 +339,7 @@ class Command(SiteCommand):
                     logger.warning(f"TMDB external_ids failed for {res}: {e}")
                     errors += 1
                     continue
+                time.sleep(0.1)
                 if not tvdb_id:
                     missing += 1
                     continue
@@ -365,7 +366,6 @@ class Command(SiteCommand):
                         f"TheTVDB fetch failed for {tvdb_type}:{tvdb_id}: {e}"
                     )
                     errors += 1
-                time.sleep(0.2)
         self.stdout.write(
             self.style.SUCCESS(
                 f"TheTVDB ids found: {found}, without id: {missing}, "

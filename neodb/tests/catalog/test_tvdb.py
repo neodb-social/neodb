@@ -29,6 +29,7 @@ from catalog.sites.tvdb import (
     TVDB_Series,
     _credits,
     _language,
+    _slug_cache_key,
     _url_cache_key,
 )
 from common.models import SiteConfig
@@ -38,6 +39,31 @@ _TEST_DATA = Path(__file__).parent.parent.parent / "test_data"
 
 def _fixture(url: str) -> dict:
     return json.loads((_TEST_DATA / get_mock_file(url)).read_text())
+
+
+_SLUG_URLS = (
+    "https://thetvdb.com/series/friends",
+    "https://thetvdb.com/movies/the-matrix",
+    "https://thetvdb.com/series/friends/seasons/official/2",
+    "https://thetvdb.com/series/some-uncached-slug",
+)
+
+
+@pytest.fixture(autouse=True)
+def _isolated():
+    # use_local_response does not reset mock mode when a test raises, and the
+    # test cache is the dev cluster's redis, which live fetches also fill
+    set_mock_mode(False)
+    for url in _SLUG_URLS:
+        cache.delete(_url_cache_key(url))
+    for kind, slug in (
+        ("series", "friends"),
+        ("movies", "the-matrix"),
+        ("series", "some-uncached-slug"),
+    ):
+        cache.delete(_slug_cache_key(kind, slug))
+    yield
+    set_mock_mode(False)
 
 
 @pytest.fixture
@@ -97,12 +123,6 @@ class TestUrl:
 
     @use_local_response
     def test_slug_urls_resolve_through_the_api(self):
-        for url in (
-            "https://thetvdb.com/series/friends",
-            "https://thetvdb.com/movies/the-matrix",
-            "https://thetvdb.com/series/friends/seasons/official/2",
-        ):
-            cache.delete(_url_cache_key(url))
         site = SiteManager.get_site_by_url(
             "https://thetvdb.com/series/friends", detect_redirection=False
         )
@@ -123,8 +143,8 @@ class TestUrl:
 
     def test_slug_urls_are_inert_without_a_key(self, no_tvdb_key):
         url = "https://thetvdb.com/series/some-uncached-slug"
-        cache.delete(_url_cache_key(url))
-        assert SiteManager.get_site_by_url(url, detect_redirection=False) is None
+        assert not TVDB_Series.validate_url_fallback(url)
+        assert TVDB_Series.url_to_id(url) is None
 
 
 class TestHelpers:
