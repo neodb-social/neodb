@@ -170,7 +170,11 @@ def _language(code: str | None, text: str = "") -> str | None:
 
 
 def _wanted(lang: str, orig_lang: str | None) -> bool:
-    return lang.split("-")[0] in SITE_PREFERRED_LANGUAGES or lang == orig_lang
+    # base languages: an original "zh" must keep its zh-cn and zh-tw texts
+    base = lang.split("-")[0]
+    return base in SITE_PREFERRED_LANGUAGES or (
+        orig_lang is not None and base == orig_lang.split("-")[0]
+    )
 
 
 def _localized(
@@ -204,12 +208,16 @@ def _translations(
     tr = record.get("translations") or {}
     titles = _localized(tr.get("nameTranslations"), "name", orig_lang)
     descs = _localized(tr.get("overviewTranslations"), "overview", orig_lang)
+    # the top-level fields are not always in the original language (an
+    # English name on a Japanese series), so detect rather than assume
     name = (record.get("name") or "").strip()
     if name and name not in [t["text"] for t in titles]:
-        titles.append({"lang": orig_lang or detect_language(name), "text": name})
+        titles.append({"lang": detect_language(name, hint=orig_lang), "text": name})
     overview = (record.get("overview") or "").strip()
     if overview and overview not in [t["text"] for t in descs]:
-        descs.append({"lang": orig_lang or detect_language(overview), "text": overview})
+        descs.append(
+            {"lang": detect_language(overview, hint=orig_lang), "text": overview}
+        )
     return titles, descs
 
 

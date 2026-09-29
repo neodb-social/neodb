@@ -10,7 +10,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.db.models import Count, F, Q
+from django.db.models import Count, Exists, F, OuterRef, Q
+from django.db.models.fields.json import KeyTextTransform
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -308,20 +309,30 @@ class Command(SiteCommand):
 
         Only the id is stored on the TMDB resource; fetching the TheTVDB
         resource afterwards lets its own matching land it on the same item.
+        With a key, a resource stays to do until its TheTVDB resource exists,
+        so failed fetches and ids stored before the key was set are retried.
         """
-        has_tvdb_id = Q()
-        for tvdb_type in TMDB_TO_TVDB_ID_TYPES.values():
-            has_tvdb_id |= Q(other_lookup_ids__has_key=tvdb_type)
-        qs = (
-            ExternalResource.objects.filter(id_type__in=TMDB_TO_TVDB_ID_TYPES.keys())
-            .exclude(has_tvdb_id)
-            .order_by("pk")
-        )
+        has_key = bool(SiteConfig.system.tvdb_api_key)
+        todo = Q()
+        for tmdb_type, tvdb_type in TMDB_TO_TVDB_ID_TYPES.items():
+            if has_key:
+                done = Exists(
+                    ExternalResource.objects.filter(
+                        id_type=tvdb_type,
+                        id_value=KeyTextTransform(
+                            tvdb_type, OuterRef("other_lookup_ids")
+                        ),
+                    )
+                )
+            else:
+                done = Q(other_lookup_ids__has_key=tvdb_type)
+            todo |= Q(id_type=tmdb_type) & ~done
+        qs = ExternalResource.objects.filter(todo).order_by("pk")
         if start:
             qs = qs.filter(pk__gte=start)
         if limit:
             qs = qs[:limit]
-        fetch_tvdb = bool(SiteConfig.system.tvdb_api_key) and not dry_run
+        fetch_tvdb = has_key and not dry_run
         if not fetch_tvdb and not dry_run:
             self.stdout.write(
                 self.style.WARNING(
@@ -333,28 +344,31 @@ class Command(SiteCommand):
             for res in qs.iterator():
                 pbar.update(1)
                 pbar.set_postfix(pk=res.pk)
-                try:
-                    tvdb_id = query_tmdb_tvdb_id(res.id_type, res.id_value)
-                except DownloadError as e:
-                    logger.warning(f"TMDB external_ids failed for {res}: {e}")
-                    errors += 1
-                    continue
-                time.sleep(0.1)
-                if not tvdb_id:
-                    missing += 1
-                    continue
-                found += 1
                 tvdb_type = TMDB_TO_TVDB_ID_TYPES[res.id_type]
+                tvdb_id = (res.other_lookup_ids or {}).get(tvdb_type)
+                if not tvdb_id:
+                    try:
+                        tvdb_id = query_tmdb_tvdb_id(res.id_type, res.id_value)
+                    except DownloadError as e:
+                        logger.warning(f"TMDB external_ids failed for {res}: {e}")
+                        errors += 1
+                        continue
+                    time.sleep(0.1)
+                    if not tvdb_id:
+                        missing += 1
+                        continue
+                    found += 1
+                    if not dry_run:
+                        ExternalResource.objects.filter(pk=res.pk).update(
+                            other_lookup_ids={
+                                **(res.other_lookup_ids or {}),
+                                tvdb_type: tvdb_id,
+                            }
+                        )
                 if dry_run:
                     if self.verbose:
                         self.stdout.write(f"{res.url} -> {tvdb_type}:{tvdb_id}")
                     continue
-                ExternalResource.objects.filter(pk=res.pk).update(
-                    other_lookup_ids={
-                        **(res.other_lookup_ids or {}),
-                        tvdb_type: tvdb_id,
-                    }
-                )
                 if not fetch_tvdb:
                     continue
                 site = SiteManager.get_site_by_id(tvdb_type, tvdb_id)

@@ -1,5 +1,6 @@
 import asyncio
 import json
+from io import StringIO
 from pathlib import Path
 
 import httpx
@@ -29,6 +30,8 @@ from catalog.sites.tvdb import (
     TVDB_Series,
     _credits,
     _language,
+    _translations,
+    _wanted,
     _slug_cache_key,
     _url_cache_key,
 )
@@ -123,23 +126,23 @@ class TestUrl:
 
     @use_local_response
     def test_slug_urls_resolve_through_the_api(self):
-        site = SiteManager.get_site_by_url(
-            "https://thetvdb.com/series/friends", detect_redirection=False
-        )
-        assert isinstance(site, TVDB_Series)
-        assert site.id_value == "79168"
-        assert site.url == "https://thetvdb.com/dereferrer/series/79168"
-        site = SiteManager.get_site_by_url(
-            "https://thetvdb.com/movies/the-matrix", detect_redirection=False
-        )
-        assert isinstance(site, TVDB_Movie)
-        assert site.id_value == "169"
-        site = SiteManager.get_site_by_url(
-            "https://thetvdb.com/series/friends/seasons/official/2",
-            detect_redirection=False,
-        )
-        assert isinstance(site, TVDB_Season)
-        assert site.id_value == "16104"
+        # the two steps SiteManager.get_site_by_url takes for a fallback url;
+        # going through it would also run every other site's fallback, and
+        # the Fediverse one reads the database
+        for cls, url, tvdb_id in (
+            (TVDB_Series, "https://thetvdb.com/series/friends", "79168"),
+            (TVDB_Movie, "https://thetvdb.com/movies/the-matrix", "169"),
+            (
+                TVDB_Season,
+                "https://thetvdb.com/series/friends/seasons/official/2",
+                "16104",
+            ),
+        ):
+            assert not cls.validate_url(url)
+            assert cls.validate_url_fallback(url)
+            site = cls(url)
+            assert site.id_value == tvdb_id
+            assert site.url == cls.id_to_url(tvdb_id)
 
     def test_slug_urls_are_inert_without_a_key(self, no_tvdb_key):
         url = "https://thetvdb.com/series/some-uncached-slug"
@@ -175,6 +178,28 @@ class TestHelpers:
         assert c["producer"] == ["D"]
         assert [p["id_value"] for p in c["related_people"]] == ["1", "4", "2", "3"]
         assert "url" not in c["related_people"][0]
+
+    def test_original_language_keeps_its_variants(self, monkeypatch):
+        monkeypatch.setattr(tvdb, "SITE_PREFERRED_LANGUAGES", ["en"])
+        assert _wanted("zh-tw", "zh")
+        assert _wanted("zh-cn", "zh")
+        assert _wanted("en", "zh")
+        assert not _wanted("fr", "zh")
+        assert not _wanted("fr", None)
+
+    def test_fallback_text_language_is_detected(self, monkeypatch):
+        monkeypatch.setattr(tvdb, "SITE_PREFERRED_LANGUAGES", ["en"])
+        record = {
+            "name": "Attack on Titan",
+            "overview": "Humanity fights the giant Titans behind the walls.",
+            "translations": {
+                "nameTranslations": [{"language": "jpn", "name": "進撃の巨人"}]
+            },
+        }
+        titles, descs = _translations(record, "ja")
+        assert {"lang": "ja", "text": "進撃の巨人"} in titles
+        assert {"lang": "en", "text": "Attack on Titan"} in titles
+        assert descs[0]["lang"] == "en"
 
 
 class TestUnconfigured:
@@ -393,3 +418,50 @@ class TestTMDBLink:
         assert ExternalResource.objects.filter(
             id_type=IdType.TVDB_Season, id_value="16104"
         ).exists()
+
+    def test_backfill_retries_a_stored_id_without_tmdb(
+        self, mock_mode, tvdb_key, monkeypatch
+    ):
+        """An id stored by an earlier run (failed fetch, or no key yet) is
+        fetched again, straight from the stored id."""
+
+        def no_tmdb(*args):
+            raise AssertionError("TMDB must not be queried for a stored id")
+
+        monkeypatch.setattr(
+            "catalog.management.commands.catalog.query_tmdb_tvdb_id", no_tmdb
+        )
+        ExternalResource.objects.create(
+            id_type=IdType.TMDB_TV,
+            id_value="1668",
+            url="https://www.themoviedb.org/tv/1668",
+            other_lookup_ids={IdType.TVDB_Series: "79168"},
+        )
+        out = StringIO()
+        call_command("catalog", "tvdb-tmdb", stdout=out)
+        assert "TheTVDB resources linked: 1" in out.getvalue()
+        assert ExternalResource.objects.filter(
+            id_type=IdType.TVDB_Series, id_value="79168"
+        ).exists()
+        # linked now, so a rerun selects nothing
+        out = StringIO()
+        call_command("catalog", "tvdb-tmdb", stdout=out)
+        assert "TheTVDB resources linked: 0" in out.getvalue()
+
+    def test_backfill_without_key_skips_stored_ids(
+        self, mock_mode, no_tvdb_key, monkeypatch
+    ):
+        def no_tmdb(*args):
+            raise AssertionError("TMDB must not be queried for a stored id")
+
+        monkeypatch.setattr(
+            "catalog.management.commands.catalog.query_tmdb_tvdb_id", no_tmdb
+        )
+        ExternalResource.objects.create(
+            id_type=IdType.TMDB_TV,
+            id_value="1668",
+            url="https://www.themoviedb.org/tv/1668",
+            other_lookup_ids={IdType.TVDB_Series: "79168"},
+        )
+        call_command("catalog", "tvdb-tmdb")
+        assert not ExternalResource.objects.filter(id_type=IdType.TVDB_Series).exists()
