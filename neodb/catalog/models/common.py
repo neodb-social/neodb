@@ -60,6 +60,7 @@ class SiteName(models.TextChoices):
     Readmoo = "readmoo", _("Readmoo")
     MyAnimeList = "myanimelist", _("MyAnimeList")
     MangaUpdates = "mangaupdates", _("MangaUpdates")
+    TVDB = "tvdb", _("TheTVDB")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -138,6 +139,13 @@ class IdType(models.TextChoices):  # values must be in lowercase
     # The base36 slug from the series URL, which is also what Wikidata P11149
     # stores; the API wants int(slug, 36).
     MangaUpdates = "mangaupdates", _("MangaUpdates")
+    # TheTVDB's own numeric ids, as its API and Wikidata store them; the web
+    # pages use slugs, which the sites resolve through the API.
+    TVDB_Series = "tvdb_series", _("TheTVDB Series")
+    TVDB_Season = "tvdb_season", _("TheTVDB Season")
+    TVDB_Episode = "tvdb_episode", _("TheTVDB Episode")
+    TVDB_Movie = "tvdb_movie", _("TheTVDB Movie")
+    TVDB_Person = "tvdb_person", _("TheTVDB Person")
 
 
 IdealIdTypes = [

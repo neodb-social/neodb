@@ -405,6 +405,7 @@ class People(Item):
             IdType.WikiData,
             IdType.IMDB,
             IdType.TMDB_Person,
+            IdType.TVDB_Person,
             IdType.DoubanPersonage,
             IdType.Goodreads_Author,
             IdType.Spotify_Artist,

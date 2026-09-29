@@ -136,6 +136,8 @@ env = environ.FileAwareEnv(
     BGG_API_TOKEN=(str, ""),
     # MyAnimeList - client id of an app registered at https://myanimelist.net/apiconfig
     MAL_API_CLIENT_ID=(str, ""),
+    # TheTVDB - project API key from https://thetvdb.com/api-information
+    TVDB_API_KEY=(str, ""),
     # DeepL
     DEEPL_API_KEY=(str, ""),
     # LibreTranslate
@@ -310,6 +312,7 @@ IGDB_CLIENT_ID = env("IGDB_API_CLIENT_ID")
 IGDB_CLIENT_SECRET = env("IGDB_API_CLIENT_SECRET")
 BGG_API_TOKEN = env("BGG_API_TOKEN")
 MAL_API_CLIENT_ID = env("MAL_API_CLIENT_ID")
+TVDB_API_KEY = env("TVDB_API_KEY")
 DEEPL_API_KEY = env("DEEPL_API_KEY")
 LT_API_URL = env("LT_API_URL").rstrip("/")
 LT_API_KEY = env("LT_API_KEY")

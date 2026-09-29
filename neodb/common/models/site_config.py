@@ -143,6 +143,7 @@ class SiteConfig(models.Model):
         igdb_client_secret: str = ""
         bgg_api_token: str = ""
         mal_client_id: str = ""
+        tvdb_api_key: str = ""
 
         # API Keys - Services
         steam_api_key: str = ""
@@ -353,6 +354,7 @@ class SiteConfig(models.Model):
             "igdb_client_secret": getattr(settings, "IGDB_CLIENT_SECRET", ""),
             "bgg_api_token": getattr(settings, "BGG_API_TOKEN", ""),
             "mal_client_id": getattr(settings, "MAL_API_CLIENT_ID", ""),
+            "tvdb_api_key": getattr(settings, "TVDB_API_KEY", ""),
             # API Keys - Services
             "steam_api_key": getattr(settings, "STEAM_API_KEY", ""),
             "deepl_api_key": getattr(settings, "DEEPL_API_KEY", ""),

@@ -65,6 +65,42 @@ def query_tmdb_tv_episode(tv, season, episode):
     return res_data
 
 
+def _add_tvdb_id(
+    pd: ResourceContent, external_ids: dict | None, id_type: IdType
+) -> None:
+    tvdb_id = (external_ids or {}).get("tvdb_id")
+    if tvdb_id:
+        pd.lookup_ids[id_type] = str(tvdb_id)
+
+
+TMDB_TO_TVDB_ID_TYPES = {
+    IdType.TMDB_TV: IdType.TVDB_Series,
+    IdType.TMDB_TVSeason: IdType.TVDB_Season,
+    IdType.TMDB_TVEpisode: IdType.TVDB_Episode,
+}
+
+
+def query_tmdb_tvdb_id(id_type: str, id_value: str) -> str | None:
+    """TheTVDB id of a TMDB show, season or episode, from its external_ids.
+
+    For backfilling resources scraped before the TMDB sites stored it; far
+    cheaper than a full rescrape, which fetches every preferred language.
+    """
+    parts = id_value.split("-")
+    match id_type, len(parts):
+        case IdType.TMDB_TV, 1:
+            path = f"tv/{parts[0]}"
+        case IdType.TMDB_TVSeason, 2:
+            path = f"tv/{parts[0]}/season/{parts[1]}"
+        case IdType.TMDB_TVEpisode, 3:
+            path = f"tv/{parts[0]}/season/{parts[1]}/episode/{parts[2]}"
+        case _:
+            return None
+    api_url = f"https://api.themoviedb.org/3/{path}/external_ids?api_key={SiteConfig.system.tmdb_api_key}"
+    tvdb_id = BasicDownloader(api_url).download().json().get("tvdb_id")
+    return str(tvdb_id) if tvdb_id else None
+
+
 def _copy_dict(s, key_map):
     d = {}
     for src, dst in key_map.items():
@@ -405,6 +441,7 @@ class TMDB_TV(AbstractSite):
         # Extract Wikidata ID if available in external_ids
         if "external_ids" in res_data and res_data["external_ids"].get("wikidata_id"):
             pd.lookup_ids[IdType.WikiData] = res_data["external_ids"]["wikidata_id"]
+        _add_tvdb_id(pd, res_data.get("external_ids"), IdType.TVDB_Series)
 
         return pd
 
@@ -496,6 +533,7 @@ class TMDB_TVSeason(AbstractSite):
         # Extract Wikidata ID if available
         if d["external_ids"].get("wikidata_id"):
             pd.lookup_ids[IdType.WikiData] = d["external_ids"].get("wikidata_id")
+        _add_tvdb_id(pd, d.get("external_ids"), IdType.TVDB_Season)
         pd.metadata["cover_image_url"] = (
             ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
             if d.get("poster_path")
@@ -609,6 +647,7 @@ class TMDB_TVEpisode(AbstractSite):
         # Extract Wikidata ID if available
         if d["external_ids"].get("wikidata_id"):
             pd.lookup_ids[IdType.WikiData] = d["external_ids"].get("wikidata_id")
+        _add_tvdb_id(pd, d.get("external_ids"), IdType.TVDB_Episode)
         pd.metadata["cover_image_url"] = (
             ("https://image.tmdb.org/t/p/original/" + d["poster_path"])
             if d.get("poster_path")

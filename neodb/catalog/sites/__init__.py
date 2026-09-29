@@ -35,6 +35,7 @@ from .spotify import Spotify
 from .steam import Steam
 from .storygraph import StoryGraph
 from .tmdb import TMDB_Movie
+from .tvdb import TVDB_Movie, TVDB_Series
 from .wikidata import WikiData
 from .worldcat import WorldCat
 from .youtube_music import YouTubeMusic
@@ -81,6 +82,8 @@ __all__ = [
     "Steam",
     "StoryGraph",
     "TMDB_Movie",
+    "TVDB_Movie",
+    "TVDB_Series",
     "WikiData",
     "WorldCat",
     "Ypshuo",

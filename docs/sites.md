@@ -35,6 +35,7 @@ The following external sites are supported for importing catalog items.
 | Steam | Game | |
 | StoryGraph | Book (Edition) | Yes — upload exported archive |
 | The Movie Database | Movie · TV (Show, Season, Episode) | |
+| TheTVDB | Movie · TV (Show, Season, Episode) | |
 | Wikidata | Book · Music · Movie · TV · Game · Performance | |
 | WorldCat | Book (Edition) | |
 | YouTube Music | Music (Album) | |

@@ -154,8 +154,13 @@ class WikidataProperties:
         "P4086": IdType.MAL_Anime,
         "P4087": IdType.MAL_Manga,
         "P11149": IdType.MangaUpdates,
+        "P4835": IdType.TVDB_Series,
+        "P12397": IdType.TVDB_Season,
+        "P7043": IdType.TVDB_Episode,
+        "P12196": IdType.TVDB_Movie,
         # Person-specific
         "P4985": IdType.TMDB_Person,
+        "P7920": IdType.TVDB_Person,
         "P2963": IdType.Goodreads_Author,
         "P1902": IdType.Spotify_Artist,
         "P9650": IdType.IGDB_Company,

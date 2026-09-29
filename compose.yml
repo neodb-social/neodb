@@ -95,6 +95,7 @@ x-shared:
       IGDB_API_CLIENT_ID:
       IGDB_API_CLIENT_SECRET:
       MAL_API_CLIENT_ID:
+      TVDB_API_KEY:
       DEEPL_API_KEY:
       LT_API_URL:
       LT_API_KEY:

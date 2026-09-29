@@ -244,6 +244,7 @@ The following settings can still be set in `.env` for bootstrap or backward-comp
  - `IGDB_API_CLIENT_ID`, `IGDB_API_CLIENT_SECRET`
  - `BGG_API_TOKEN`
  - `MAL_API_CLIENT_ID` - client id of an app registered at https://myanimelist.net/apiconfig, required for MyAnimeList
+ - `TVDB_API_KEY` - project API key from https://thetvdb.com/api-information, required for TheTVDB
  - `STEAM_API_KEY`
 
 ### Scraping providers

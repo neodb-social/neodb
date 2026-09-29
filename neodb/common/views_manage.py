@@ -89,6 +89,7 @@ ENV_VARS_WITH_SITE_SETTING: dict[str, str] = {
     "IGDB_API_CLIENT_SECRET": "igdb_client_secret",
     "BGG_API_TOKEN": "bgg_api_token",
     "MAL_API_CLIENT_ID": "mal_client_id",
+    "TVDB_API_KEY": "tvdb_api_key",
     "STEAM_API_KEY": "steam_api_key",
     "DEEPL_API_KEY": "deepl_api_key",
     "LT_API_URL": "lt_api_url",
@@ -840,6 +841,13 @@ class APIKeysSettings(SiteConfigSettingsPage):
                 "MyAnimeList is disabled when empty."
             ),
         },
+        "tvdb_api_key": {
+            "title": _("TheTVDB API key"),
+            "help_text": _(
+                "Project API key from https://thetvdb.com/api-information. "
+                "TheTVDB is disabled when empty."
+            ),
+        },
         "steam_api_key": {
             "title": _("Steam API key"),
             "help_text": _(
@@ -893,6 +901,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
             "igdb_client_secret",
             "bgg_api_token",
             "mal_client_id",
+            "tvdb_api_key",
             "steam_api_key",
         ],
         _("Translation"): [

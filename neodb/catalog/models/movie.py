@@ -189,6 +189,7 @@ class Movie(Item):
         id_types = [
             IdType.IMDB,
             IdType.TMDB_Movie,
+            IdType.TVDB_Movie,
             IdType.DoubanMovie,
             IdType.Bangumi,
         ]

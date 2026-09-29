@@ -14,6 +14,7 @@ from django.db.models import Count, F, Q
 from django.utils import timezone
 from tqdm import tqdm
 
+from catalog.common.downloaders import DownloadError
 from catalog.common.sites import SiteManager
 from catalog.models import (
     Edition,
@@ -30,8 +31,9 @@ from catalog.models import (
 from catalog.search import CatalogIndex, CatalogQueryParser, PeopleIndex
 from catalog.search.external import ExternalSources
 from catalog.sites.fedi import FediverseInstance
+from catalog.sites.tmdb import TMDB_TO_TVDB_ID_TYPES, query_tmdb_tvdb_id
 from common.management.base import SiteCommand
-from common.models import detect_language, uniq
+from common.models import SiteConfig, detect_language, uniq
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,9 @@ search:           search docs in index
 extsearch:        search external sites
 storage-test:     test write/read/delete on default storage backend
 wikidata-tmdb:    link TMDB resources to WikiData resources (using TMDB API)
+tvdb-tmdb:        store TheTVDB ids on TMDB show/season/episode resources that
+                  lack them (using TMDB API), then fetch the TheTVDB resources
+                  if a TheTVDB key is set (use --limit, --start, --dry-run)
 wikidata-link:    link external resources to WikiData (use --query for IdType)
 wikidata-find:    lookup Wikidata QID from URL and scrape (use --query for URL)
 backfill-people:  materialize People from existing Items' resources (use --source for IdType)
@@ -77,6 +82,7 @@ class Command(SiteCommand):
                 "search",
                 "extsearch",
                 "wikidata-tmdb",
+                "tvdb-tmdb",
                 "wikidata-link",
                 "wikidata-find",
                 "backfill-people",
@@ -292,6 +298,79 @@ class Command(SiteCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"Process completed in {time.time() - start_time:.2f} seconds."
+            )
+        )
+
+    def link_tvdb(
+        self, limit: int | None, start: int | None, dry_run: bool = False
+    ) -> None:
+        """Backfill TheTVDB ids from TMDB external_ids and link the resources.
+
+        Only the id is stored on the TMDB resource; fetching the TheTVDB
+        resource afterwards lets its own matching land it on the same item.
+        """
+        has_tvdb_id = Q()
+        for tvdb_type in TMDB_TO_TVDB_ID_TYPES.values():
+            has_tvdb_id |= Q(other_lookup_ids__has_key=tvdb_type)
+        qs = (
+            ExternalResource.objects.filter(id_type__in=TMDB_TO_TVDB_ID_TYPES.keys())
+            .exclude(has_tvdb_id)
+            .order_by("pk")
+        )
+        if start:
+            qs = qs.filter(pk__gte=start)
+        if limit:
+            qs = qs[:limit]
+        fetch_tvdb = bool(SiteConfig.system.tvdb_api_key) and not dry_run
+        if not fetch_tvdb and not dry_run:
+            self.stdout.write(
+                self.style.WARNING(
+                    "TheTVDB API key is not set: storing ids without fetching TheTVDB."
+                )
+            )
+        found = missing = linked = errors = 0
+        with tqdm(total=qs.count()) as pbar:
+            for res in qs.iterator():
+                pbar.update(1)
+                pbar.set_postfix(pk=res.pk)
+                try:
+                    tvdb_id = query_tmdb_tvdb_id(res.id_type, res.id_value)
+                except DownloadError as e:
+                    logger.warning(f"TMDB external_ids failed for {res}: {e}")
+                    errors += 1
+                    continue
+                if not tvdb_id:
+                    missing += 1
+                    continue
+                found += 1
+                tvdb_type = TMDB_TO_TVDB_ID_TYPES[res.id_type]
+                if dry_run:
+                    if self.verbose:
+                        self.stdout.write(f"{res.url} -> {tvdb_type}:{tvdb_id}")
+                    continue
+                ExternalResource.objects.filter(pk=res.pk).update(
+                    other_lookup_ids={
+                        **(res.other_lookup_ids or {}),
+                        tvdb_type: tvdb_id,
+                    }
+                )
+                if not fetch_tvdb:
+                    continue
+                site = SiteManager.get_site_by_id(tvdb_type, tvdb_id)
+                try:
+                    if site and site.get_resource_ready(auto_link=False):
+                        linked += 1
+                except Exception as e:
+                    logger.warning(
+                        f"TheTVDB fetch failed for {tvdb_type}:{tvdb_id}: {e}"
+                    )
+                    errors += 1
+                time.sleep(0.2)
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"TheTVDB ids found: {found}, without id: {missing}, "
+                f"TheTVDB resources linked: {linked}, errors: {errors}"
+                + (" (dry run)" if dry_run else "")
             )
         )
 
@@ -981,6 +1060,9 @@ class Command(SiteCommand):
 
             case "wikidata-tmdb":
                 self.link_wikidata()
+
+            case "tvdb-tmdb":
+                self.link_tvdb(limit, start, options.get("dry_run", False))
 
             case "wikidata-link":
                 self.wikidata_link(query, limit, start)
