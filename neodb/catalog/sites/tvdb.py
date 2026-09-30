@@ -17,6 +17,7 @@ the slug pages, are the canonical urls.
 import asyncio
 import logging
 import re
+from collections.abc import Callable
 from hashlib import md5
 from typing import Any
 
@@ -52,21 +53,22 @@ _TOKEN_TTL = 3600 * 24 * 25
 _SLUG_TTL = 3600 * 24 * 30
 _CAST_LIMIT = 10
 
-# remoteIds[].type, from GET /sources/types
-_SOURCE_IMDB = 2
+# remoteIds[].type, from GET /sources/types: 2 IMDB title, 4 official site,
+# 10/12/15 TMDB movie/tv/person, 16 IMDB person, 18 Wikidata
 _SOURCE_OFFICIAL_SITE = 4
-_SOURCE_TMDB_MOVIE = 10
-_SOURCE_TMDB_TV = 12
-_SOURCE_TMDB_PERSON = 15
-_SOURCE_IMDB_PERSON = 16
-_SOURCE_WIKIDATA = 18
+_SHOW_IDS = {2: IdType.IMDB, 12: IdType.TMDB_TV, 18: IdType.WikiData}
+_MOVIE_IDS = {2: IdType.IMDB, 10: IdType.TMDB_Movie, 18: IdType.WikiData}
+_EPISODE_IDS = {2: IdType.IMDB}
+_PERSON_IDS = {16: IdType.IMDB, 15: IdType.TMDB_Person, 18: IdType.WikiData}
 
-# characters[].peopleType, from GET /people/types
-_DIRECTOR_TYPES = {"Director"}
-_WRITER_TYPES = {"Writer"}
-_PRODUCER_TYPES = {"Producer", "Executive Producer"}
-_CREATOR_TYPES = {"Creator"}
-_ACTOR_TYPES = {"Actor"}
+# metadata field -> characters[].peopleType (GET /people/types), in link order
+_ROLES = {
+    "director": {"Director"},
+    "creator": {"Creator"},
+    "playwright": {"Writer"},
+    "producer": {"Producer", "Executive Producer"},
+    "actor": {"Actor"},
+}
 
 # TheTVDB language codes are ISO 639-2/T plus a few of its own
 _LANGUAGE_OVERRIDES = {
@@ -81,10 +83,6 @@ def _api_key() -> str:
     return SiteConfig.system.tvdb_api_key
 
 
-def _token_cache_key() -> str:
-    return "tvdb_token_" + md5(_api_key().encode()).hexdigest()
-
-
 def _headers(token: str | None = None) -> dict[str, str]:
     h = {"User-Agent": settings.NEODB_USER_AGENT, "Accept": "application/json"}
     if token:
@@ -92,25 +90,25 @@ def _headers(token: str | None = None) -> dict[str, str]:
     return h
 
 
-def _not_configured(url: str) -> DownloadError:
+def _download_error(url: str, msg: str) -> DownloadError:
     # A DownloadError, not a ParseError: TMDB and Wikidata imports schedule a
     # TheTVDB fetch through fetch_linked_resources on every instance, and only
     # DownloadError is treated there as an expected failure.
     downloader = BasicDownloader(url)
     downloader.response_type = RESPONSE_INVALID_CONTENT
-    return DownloadError(downloader, "TheTVDB API key is not configured")
+    return DownloadError(downloader, msg)
 
 
-def tvdb_token(renew: bool = False) -> str:
+def tvdb_token() -> str:
+    """Bearer token, cached per key so a rotated key logs in again."""
     if get_mock_mode():
         return "mock"
     key = _api_key()
     login_url = f"{_API_URL}/login"
     if not key:
-        raise _not_configured(login_url)
-    cache_key = _token_cache_key()
-    token = None if renew else cache.get(cache_key)
-    if token:
+        raise _download_error(login_url, "TheTVDB API key is not configured")
+    cache_key = "tvdb_token_" + md5(key.encode()).hexdigest()
+    if token := cache.get(cache_key):
         return token
     try:
         r = httpx.post(
@@ -122,38 +120,18 @@ def tvdb_token(renew: bool = False) -> str:
         r.raise_for_status()
         token = r.json()["data"]["token"]
     except (httpx.HTTPError, ValueError, KeyError, TypeError) as e:
-        downloader = BasicDownloader(login_url)
-        downloader.response_type = RESPONSE_INVALID_CONTENT
-        raise DownloadError(downloader, f"TheTVDB login failed: {e}") from e
+        raise _download_error(login_url, f"TheTVDB login failed: {e}") from e
     cache.set(cache_key, token, _TOKEN_TTL)
     return token
 
 
-class _TVDBDownloader(BasicDownloader):
-    status_code: int | None = None
-
-    def validate_response(self, response) -> int:
-        self.status_code = response.status_code if response is not None else None
-        return super().validate_response(response)
-
-
 def tvdb_get(path: str) -> dict[str, Any]:
-    """GET an API path and return its `data`; renews the token once on 401."""
-    url = _API_URL + path
-    if not _api_key() and not get_mock_mode():
-        raise _not_configured(url)
-    for renew in (False, True):
-        downloader = _TVDBDownloader(url, headers=_headers(tvdb_token(renew)))
-        try:
-            data = downloader.download().json()
-        except DownloadError:
-            if downloader.status_code == 401 and not renew:
-                continue
-            raise
-        if not isinstance(data, dict) or not isinstance(data.get("data"), dict):
-            raise DownloadError(downloader, "unexpected TheTVDB response")
-        return data["data"]
-    raise AssertionError("unreachable")
+    """GET an API path and return its `data`."""
+    downloader = BasicDownloader(_API_URL + path, headers=_headers(tvdb_token()))
+    data = downloader.download().json()
+    if not isinstance(data, dict) or not isinstance(data.get("data"), dict):
+        raise DownloadError(downloader, "unexpected TheTVDB response")
+    return data["data"]
 
 
 def _language(code: str | None, text: str = "") -> str | None:
@@ -258,10 +236,6 @@ def _official_site(record: dict) -> str | None:
     return None
 
 
-def _genres(record: dict) -> list[str]:
-    return [g["name"] for g in record.get("genres") or [] if g.get("name")]
-
-
 def _release_date(value: str | None) -> str | None:
     return value if value and re.match(r"^\d{4}-\d{2}-\d{2}$", value) else None
 
@@ -278,72 +252,85 @@ def _credits(characters: list[dict] | None) -> dict[str, Any]:
     on, while an id goes straight to the site class.
     """
     chars = sorted(characters or [], key=lambda c: c.get("sort") or 0)
-
-    def names(types: set[str]) -> list[dict]:
-        seen: set = set()
-        out: list[dict] = []
+    credits: dict[str, Any] = {}
+    related: dict[str, dict] = {}
+    for role, types in _ROLES.items():
+        people: dict[Any, dict] = {}
         for c in chars:
-            if c.get("peopleType") not in types or not c.get("personName"):
-                continue
-            key = c.get("peopleId") or c["personName"]
-            if key not in seen:
-                seen.add(key)
-                out.append(c)
-        return out
-
-    directors = names(_DIRECTOR_TYPES)
-    writers = names(_WRITER_TYPES)
-    producers = names(_PRODUCER_TYPES)
-    creators = names(_CREATOR_TYPES)
-    actors = names(_ACTOR_TYPES)
-    related: list[dict] = []
-    seen_ids: set = set()
-    for c in directors + creators + writers + producers + actors[:_CAST_LIMIT]:
-        pid = c.get("peopleId")
-        if pid and pid not in seen_ids:
-            seen_ids.add(pid)
-            related.append(
-                {
+            if c.get("peopleType") in types and c.get("personName"):
+                people.setdefault(c.get("peopleId") or c["personName"], c)
+        found = list(people.values())
+        credits[role] = [c["personName"] for c in found]
+        for c in found[:_CAST_LIMIT] if role == "actor" else found:
+            if (pid := str(c.get("peopleId") or "")) and pid not in related:
+                related[pid] = {
                     "model": "People",
                     "id_type": IdType.TVDB_Person,
-                    "id_value": str(pid),
+                    "id_value": pid,
                     "title": c["personName"],
                 }
-            )
-    return {
-        "director": [c["personName"] for c in directors],
-        "creator": [c["personName"] for c in creators],
-        "playwright": [c["personName"] for c in writers],
-        "producer": [c["personName"] for c in producers],
-        "actor": [c["personName"] for c in actors],
-        "related_people": related,
+    credits["related_people"] = list(related.values())
+    return credits
+
+
+def _base_metadata(
+    d: dict, id_map: dict[int, IdType], creators_direct: bool = False
+) -> tuple[dict[str, Any], dict[IdType, str], str | None]:
+    """Metadata shared by series and movies, their lookup ids and the
+    original language."""
+    orig_lang = _language(d.get("originalLanguage"))
+    titles, descs = _translations(d, orig_lang)
+    credits = _credits(d.get("characters"))
+    country = normalize_country(d.get("originalCountry") or "")
+    lookup_ids = _remote_ids(d, id_map)
+    metadata = {
+        "localized_title": titles,
+        "localized_description": descs,
+        "title": d["name"],
+        "orig_title": _orig_title(d),
+        "imdb_code": lookup_ids.get(IdType.IMDB),
+        # like TMDB, creators stand in when no series director is listed
+        "director": credits["director"]
+        or (credits["creator"] if creators_direct else []),
+        "playwright": credits["playwright"],
+        "actor": credits["actor"],
+        "producer": credits["producer"],
+        "genre": [g["name"] for g in d.get("genres") or [] if g.get("name")],
+        "site": _official_site(d),
+        "origin_country": [country] if country else [],
+        "brief": _brief(descs, orig_lang),
+        "cover_image_url": d.get("image") or None,
+        "related_resources": credits["related_people"],
     }
+    return metadata, lookup_ids, orig_lang
 
 
-def _slug_cache_key(kind: str, slug: str) -> str:
-    return f"tvdb_slug_{kind}_" + md5(slug.encode()).hexdigest()
+def _slug_cache_key(key: str) -> str:
+    return "tvdb_slug_" + md5(key.encode()).hexdigest()
 
 
-def _url_cache_key(url: str) -> str:
-    return "tvdb_url_" + md5(url.encode()).hexdigest()
+def _cached_id(key: str, resolve: Callable[[], str | None] | None = None) -> str | None:
+    """The numeric id cached for a slug key, resolved and cached if absent."""
+    cache_key = _slug_cache_key(key)
+    tvdb_id = cache.get(cache_key)
+    if not tvdb_id and resolve and (tvdb_id := resolve()):
+        cache.set(cache_key, tvdb_id, _SLUG_TTL)
+    return tvdb_id or None
 
 
-def _resolve_slug(kind: str, slug: str) -> str | None:
-    """Numeric id for a /series/ or /movies/ slug, cached; None if unknown."""
-    key = _slug_cache_key(kind, slug)
-    cached = cache.get(key)
-    if cached is not None:
-        return cached or None
+def _slug_lookup(kind: str, slug: str) -> str | None:
+    """Numeric id of a /series/ or /movies/ slug from the API."""
     if not _api_key() and not get_mock_mode():
         return None
     try:
-        data = tvdb_get(f"/{kind}/slug/{slug}")
+        return str(tvdb_get(f"/{kind}/slug/{slug}").get("id") or "") or None
     except DownloadError as e:
         _logger.warning(f"TheTVDB slug lookup failed for {kind}/{slug}: {e}")
         return None
-    tvdb_id = str(data.get("id") or "")
-    cache.set(key, tvdb_id, _SLUG_TTL)
-    return tvdb_id or None
+
+
+def _series_id(slug: str) -> str | None:
+    return _cached_id(f"series:{slug}", lambda: _slug_lookup("series", slug))
 
 
 class TVDB(AbstractSite):
@@ -352,40 +339,33 @@ class TVDB(AbstractSite):
     URL_PATTERNS: list[str] = []
     SLUG_PATTERNS: list[str] = []
     DEREFERRER = ""
+    # the API's /<kind>/slug/<slug> lookup for the one-group slug patterns
+    SLUG_KIND = ""
 
     @classmethod
     def id_to_url(cls, id_value):
         return f"{_WEB_URL}/dereferrer/{cls.DEREFERRER}/{id_value}"
 
     @classmethod
-    def _match_slug(cls, url: str) -> re.Match | None:
-        return next(
-            (m for m in (re.match(p, url) for p in cls.SLUG_PATTERNS) if m), None
-        )
+    def _slug_key(cls, url: str) -> str | None:
+        m = next((m for m in (re.match(p, url) for p in cls.SLUG_PATTERNS) if m), None)
+        return f"{cls.DEREFERRER}:" + "/".join(m.groups()) if m else None
 
     @classmethod
-    def _resolve_slug_url(cls, m: re.Match) -> str | None:
-        return None
+    def _resolve_slug(cls, key: str) -> str | None:
+        return _slug_lookup(cls.SLUG_KIND, key.split(":", 1)[1])
 
     @classmethod
     def url_to_id(cls, url: str):
-        tvdb_id = super().url_to_id(url)
-        if tvdb_id:
+        if tvdb_id := super().url_to_id(url):
             return tvdb_id
-        m = cls._match_slug(url)
-        if not m:
-            return None
-        return cache.get(_url_cache_key(m.group(0))) or None
+        key = cls._slug_key(url)
+        return _cached_id(key) if key else None
 
     @classmethod
     def validate_url_fallback(cls, url: str) -> bool:
-        m = cls._match_slug(url)
-        if not m:
-            return False
-        tvdb_id = cls._resolve_slug_url(m)
-        if tvdb_id:
-            cache.set(_url_cache_key(m.group(0)), tvdb_id, _SLUG_TTL)
-        return bool(tvdb_id)
+        key = cls._slug_key(url)
+        return bool(key and _cached_id(key, lambda: cls._resolve_slug(key)))
 
     @classmethod
     def _search_result(
@@ -437,10 +417,7 @@ class TVDB_Series(TVDB):
     WIKI_PROPERTY_ID = "P4835"
     DEFAULT_MODEL = TVShow
     DEREFERRER = "series"
-
-    @classmethod
-    def _resolve_slug_url(cls, m: re.Match) -> str | None:
-        return _resolve_slug("series", m.group(1))
+    SLUG_KIND = "series"
 
     @classmethod
     def extended(cls, series_id: str) -> dict[str, Any]:
@@ -452,9 +429,9 @@ class TVDB_Series(TVDB):
         d = self.extended(self.id_value)
         if not d.get("id") or not d.get("name"):
             raise ParseError(self, "name")
-        orig_lang = _language(d.get("originalLanguage"))
-        localized_title, localized_desc = _translations(d, orig_lang)
-        credits = _credits(d.get("characters"))
+        metadata, lookup_ids, orig_lang = _base_metadata(
+            d, _SHOW_IDS, creators_direct=True
+        )
         default_type = d.get("defaultSeasonType") or 1
         seasons = sorted(
             (
@@ -475,41 +452,14 @@ class TVDB_Series(TVDB):
             if s.get("id")
         ]
         runtime = d.get("averageRuntime")
-        country = normalize_country(d.get("originalCountry") or "")
-        lookup_ids = _remote_ids(
-            d,
-            {
-                _SOURCE_IMDB: IdType.IMDB,
-                _SOURCE_TMDB_TV: IdType.TMDB_TV,
-                _SOURCE_WIKIDATA: IdType.WikiData,
-            },
-        )
-        pd = ResourceContent(
-            metadata={
-                "localized_title": localized_title,
-                "localized_description": localized_desc,
-                "title": d["name"],
-                "orig_title": _orig_title(d),
-                "imdb_code": lookup_ids.get(IdType.IMDB),
-                # like TMDB, creators stand in when no series director is listed
-                "director": credits["director"] or credits["creator"],
-                "playwright": credits["playwright"],
-                "actor": credits["actor"],
-                "producer": credits["producer"],
-                "genre": _genres(d),
-                "release_date": _release_date(d.get("firstAired")),
-                "site": _official_site(d),
-                "origin_country": [country] if country else [],
-                "language": [orig_lang] if orig_lang else [],
-                "season_count": len([s for s in seasons if s.get("number")]),
-                "single_episode_length": runtime * 60 if runtime else None,
-                "brief": _brief(localized_desc, orig_lang),
-                "cover_image_url": d.get("image") or None,
-                "related_resources": season_links + credits["related_people"],
-            },
-            lookup_ids=lookup_ids,
-        )
-        return pd
+        metadata |= {
+            "release_date": _release_date(d.get("firstAired")),
+            "language": [orig_lang] if orig_lang else [],
+            "season_count": len([s for s in seasons if s.get("number")]),
+            "single_episode_length": runtime * 60 if runtime else None,
+            "related_resources": season_links + metadata["related_resources"],
+        }
+        return ResourceContent(metadata=metadata, lookup_ids=lookup_ids)
 
     @classmethod
     async def search_task(
@@ -574,22 +524,25 @@ class TVDB_Season(TVDB):
     DEREFERRER = "season"
 
     @classmethod
-    def _resolve_slug_url(cls, m: re.Match) -> str | None:
-        series_id = _resolve_slug("series", m.group(1))
+    def _resolve_slug(cls, key: str) -> str | None:
+        slug, season_type, number = key.split(":", 1)[1].split("/")
+        series_id = _series_id(slug)
         if not series_id:
             return None
-        season_type, number = m.group(2), int(m.group(3))
         try:
             d = TVDB_Series.extended(series_id)
         except DownloadError as e:
-            _logger.warning(f"TheTVDB season lookup failed for {m.group(0)}: {e}")
+            _logger.warning(f"TheTVDB season lookup failed for {key}: {e}")
             return None
-        for s in d.get("seasons") or []:
-            if (s.get("type") or {}).get("type") == season_type and s.get(
-                "number"
-            ) == number:
-                return str(s["id"])
-        return None
+        return next(
+            (
+                str(s["id"])
+                for s in d.get("seasons") or []
+                if (s.get("type") or {}).get("type") == season_type
+                and s.get("number") == int(number)
+            ),
+            None,
+        )
 
     def scrape(self):
         if not self.id_value:
@@ -643,7 +596,7 @@ class TVDB_Season(TVDB):
             except DownloadError as e:
                 _logger.warning(f"TheTVDB episode lookup failed for {self}: {e}")
             else:
-                imdb = _remote_ids(ep, {_SOURCE_IMDB: IdType.IMDB}).get(IdType.IMDB)
+                imdb = _remote_ids(ep, _EPISODE_IDS).get(IdType.IMDB)
                 if imdb:
                     pd.lookup_ids[IdType.IMDB] = imdb
         tmdb_season = self._tmdb_season(
@@ -709,7 +662,7 @@ class TVDB_Episode(TVDB):
                 "episode_number": episode_number,
                 "cover_image_url": d.get("image") or None,
             },
-            lookup_ids=_remote_ids(d, {_SOURCE_IMDB: IdType.IMDB}),
+            lookup_ids=_remote_ids(d, _EPISODE_IDS),
         )
         if season and season.get("id"):
             pd.metadata["required_resources"] = [
@@ -731,10 +684,7 @@ class TVDB_Movie(TVDB):
     WIKI_PROPERTY_ID = "P12196"
     DEFAULT_MODEL = Movie
     DEREFERRER = "movie"
-
-    @classmethod
-    def _resolve_slug_url(cls, m: re.Match) -> str | None:
-        return _resolve_slug("movies", m.group(1))
+    SLUG_KIND = "movies"
 
     def scrape(self):
         if not self.id_value:
@@ -742,49 +692,19 @@ class TVDB_Movie(TVDB):
         d = tvdb_get(f"/movies/{self.id_value}/extended?meta=translations")
         if not d.get("id") or not d.get("name"):
             raise ParseError(self, "name")
-        orig_lang = _language(d.get("originalLanguage"))
-        localized_title, localized_desc = _translations(d, orig_lang)
-        credits = _credits(d.get("characters"))
-        runtime = d.get("runtime")
-        country = normalize_country(d.get("originalCountry") or "")
+        metadata, lookup_ids, orig_lang = _base_metadata(d, _MOVIE_IDS)
         languages = [
             lang
             for lang in (_language(c) for c in d.get("spoken_languages") or [])
             if lang
         ] or ([orig_lang] if orig_lang else [])
-        lookup_ids = _remote_ids(
-            d,
-            {
-                _SOURCE_IMDB: IdType.IMDB,
-                _SOURCE_TMDB_MOVIE: IdType.TMDB_Movie,
-                _SOURCE_WIKIDATA: IdType.WikiData,
-            },
-        )
-        release = d.get("first_release") or {}
-        pd = ResourceContent(
-            metadata={
-                "localized_title": localized_title,
-                "localized_description": localized_desc,
-                "title": d["name"],
-                "orig_title": _orig_title(d),
-                "imdb_code": lookup_ids.get(IdType.IMDB),
-                "director": credits["director"],
-                "playwright": credits["playwright"],
-                "actor": credits["actor"],
-                "producer": credits["producer"],
-                "genre": _genres(d),
-                "release_date": _release_date(release.get("date")),
-                "site": _official_site(d),
-                "origin_country": [country] if country else [],
-                "language": list(dict.fromkeys(languages)),
-                "length": runtime * 60 if runtime else None,
-                "brief": _brief(localized_desc, orig_lang),
-                "cover_image_url": d.get("image") or None,
-                "related_resources": credits["related_people"],
-            },
-            lookup_ids=lookup_ids,
-        )
-        return pd
+        runtime = d.get("runtime")
+        metadata |= {
+            "release_date": _release_date((d.get("first_release") or {}).get("date")),
+            "language": list(dict.fromkeys(languages)),
+            "length": runtime * 60 if runtime else None,
+        }
+        return ResourceContent(metadata=metadata, lookup_ids=lookup_ids)
 
 
 @SiteManager.register
@@ -831,14 +751,7 @@ class TVDB_Person(TVDB):
                 "death_date": _release_date(d.get("death")),
                 "cover_image_url": d.get("image") or None,
             },
-            lookup_ids=_remote_ids(
-                d,
-                {
-                    _SOURCE_IMDB_PERSON: IdType.IMDB,
-                    _SOURCE_TMDB_PERSON: IdType.TMDB_Person,
-                    _SOURCE_WIKIDATA: IdType.WikiData,
-                },
-            ),
+            lookup_ids=_remote_ids(d, _PERSON_IDS),
         )
 
     def fetch_people_work_urls(self) -> list[str]:
@@ -855,8 +768,6 @@ class TVDB_Person(TVDB):
             return []
         urls: set[str] = set()
         for c in d.get("characters") or []:
-            if not isinstance(c, dict):
-                continue
             if c.get("seriesId"):
                 urls.add(TVDB_Series.id_to_url(c["seriesId"]))
             elif c.get("movieId"):

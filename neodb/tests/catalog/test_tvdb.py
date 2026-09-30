@@ -37,9 +37,8 @@ from catalog.sites.tvdb import (
     _credits,
     _language,
     _translations,
-    _wanted,
     _slug_cache_key,
-    _url_cache_key,
+    _wanted,
 )
 from common.models import SiteConfig
 
@@ -50,12 +49,36 @@ def _fixture(url: str) -> dict:
     return json.loads((_TEST_DATA / get_mock_file(url)).read_text())
 
 
-_SLUG_URLS = (
-    "https://thetvdb.com/series/friends",
-    "https://thetvdb.com/movies/the-matrix",
-    "https://thetvdb.com/series/friends/seasons/official/2",
-    "https://thetvdb.com/series/some-uncached-slug",
-)
+def _tmdb_show(lookup_ids: dict | None = None, tmdb_id: str = "1668"):
+    return ExternalResource.objects.create(
+        id_type=IdType.TMDB_TV,
+        id_value=tmdb_id,
+        url=f"https://www.themoviedb.org/tv/{tmdb_id}",
+        other_lookup_ids=lookup_ids or {},
+    )
+
+
+def _patch_tmdb_query(monkeypatch, query=None) -> None:
+    """Stand in for the backfill's TMDB call; by default it must not run."""
+
+    def no_tmdb(*args):
+        raise AssertionError("TMDB must not be queried for a stored id")
+
+    monkeypatch.setattr(
+        "catalog.management.commands.catalog.query_tmdb_tvdb_id", query or no_tmdb
+    )
+
+
+def _backfill() -> str:
+    out = StringIO()
+    call_command("catalog", "tvdb-tmdb", stdout=out)
+    return out.getvalue()
+
+
+def _wrap_tvdb_get(monkeypatch, wrap) -> None:
+    """Route tvdb_get through wrap(path, fetch)."""
+    fetch = tvdb.tvdb_get
+    monkeypatch.setattr(tvdb, "tvdb_get", lambda path: wrap(path, fetch))
 
 
 @pytest.fixture(autouse=True)
@@ -63,14 +86,13 @@ def _isolated():
     # use_local_response does not reset mock mode when a test raises, and the
     # test cache is the dev cluster's redis, which live fetches also fill
     set_mock_mode(False)
-    for url in _SLUG_URLS:
-        cache.delete(_url_cache_key(url))
-    for kind, slug in (
-        ("series", "friends"),
-        ("movies", "the-matrix"),
-        ("series", "some-uncached-slug"),
+    for key in (
+        "series:friends",
+        "movie:the-matrix",
+        "season:friends/official/2",
+        "series:some-uncached-slug",
     ):
-        cache.delete(_slug_cache_key(kind, slug))
+        cache.delete(_slug_cache_key(key))
     yield
     set_mock_mode(False)
 
@@ -346,36 +368,28 @@ class TestScrape:
         assert (content.lookup_ids.get(IdType.TMDB_TVSeason) == "1668-2") is matched
 
     def test_season_survives_a_failed_imdb_lookup(self, mock_mode, monkeypatch):
-        fetch = tvdb.tvdb_get
-
-        def tvdb_get(path):
+        def wrap(path, fetch):
             if path.startswith("/episodes/"):
                 raise DownloadError(BasicDownloader(path), "timeout")
             return fetch(path)
 
-        monkeypatch.setattr(tvdb, "tvdb_get", tvdb_get)
+        _wrap_tvdb_get(monkeypatch, wrap)
         content = TVDB_Season(id_value="16104").scrape()
         assert content.metadata["season_number"] == 2
         assert IdType.IMDB not in content.lookup_ids
         assert content.lookup_ids[IdType.TMDB_TVSeason] == "1668-2"
 
     def test_season_with_episodes_lacking_ids(self, mock_mode, monkeypatch):
-        fetch = tvdb.tvdb_get
-
-        def tvdb_get(path):
+        def wrap(path, fetch):
+            assert not path.startswith("/episodes/"), "no episode id to look up"
             d = fetch(path)
             if path.startswith("/seasons/"):
-                d = {
-                    **d,
-                    "episodes": [
-                        {k: v for k, v in e.items() if k != "id"} for e in d["episodes"]
-                    ],
-                }
-            elif path.startswith("/episodes/"):
-                raise AssertionError("no episode id to look up")
+                d["episodes"] = [
+                    {k: v for k, v in e.items() if k != "id"} for e in d["episodes"]
+                ]
             return d
 
-        monkeypatch.setattr(tvdb, "tvdb_get", tvdb_get)
+        _wrap_tvdb_get(monkeypatch, wrap)
         content = TVDB_Season(id_value="16104").scrape()
         assert content.metadata["episode_count"] == 24
         assert IdType.IMDB not in content.lookup_ids
@@ -462,12 +476,7 @@ class TestTMDBLink:
         assert query_tmdb_tvdb_id(IdType.TMDB_TVSeason, "1668") is None
 
     def test_backfill_command(self, mock_mode, tvdb_key):
-        show = ExternalResource.objects.create(
-            id_type=IdType.TMDB_TV,
-            id_value="1668",
-            url="https://www.themoviedb.org/tv/1668",
-            other_lookup_ids={IdType.IMDB: "tt0108778"},
-        )
+        show = _tmdb_show({IdType.IMDB: "tt0108778"})
         season = ExternalResource.objects.create(
             id_type=IdType.TMDB_TVSeason,
             id_value="1668-2",
@@ -497,46 +506,21 @@ class TestTMDBLink:
     ):
         """An id stored by an earlier run (failed fetch, or no key yet) is
         fetched again, straight from the stored id."""
-
-        def no_tmdb(*args):
-            raise AssertionError("TMDB must not be queried for a stored id")
-
-        monkeypatch.setattr(
-            "catalog.management.commands.catalog.query_tmdb_tvdb_id", no_tmdb
-        )
-        ExternalResource.objects.create(
-            id_type=IdType.TMDB_TV,
-            id_value="1668",
-            url="https://www.themoviedb.org/tv/1668",
-            other_lookup_ids={IdType.TVDB_Series: "79168"},
-        )
-        out = StringIO()
-        call_command("catalog", "tvdb-tmdb", stdout=out)
-        assert "TheTVDB resources linked: 1" in out.getvalue()
+        _patch_tmdb_query(monkeypatch)
+        _tmdb_show({IdType.TVDB_Series: "79168"})
+        assert "TheTVDB resources linked: 1" in _backfill()
         assert ExternalResource.objects.filter(
             id_type=IdType.TVDB_Series, id_value="79168"
         ).exists()
         # linked now, so a rerun selects nothing
-        out = StringIO()
-        call_command("catalog", "tvdb-tmdb", stdout=out)
-        assert "TheTVDB resources linked: 0" in out.getvalue()
+        assert "TheTVDB resources linked: 0" in _backfill()
 
     def test_backfill_without_key_skips_stored_ids(
         self, mock_mode, no_tvdb_key, monkeypatch
     ):
-        def no_tmdb(*args):
-            raise AssertionError("TMDB must not be queried for a stored id")
-
-        monkeypatch.setattr(
-            "catalog.management.commands.catalog.query_tmdb_tvdb_id", no_tmdb
-        )
-        ExternalResource.objects.create(
-            id_type=IdType.TMDB_TV,
-            id_value="1668",
-            url="https://www.themoviedb.org/tv/1668",
-            other_lookup_ids={IdType.TVDB_Series: "79168"},
-        )
-        call_command("catalog", "tvdb-tmdb")
+        _patch_tmdb_query(monkeypatch)
+        _tmdb_show({IdType.TVDB_Series: "79168"})
+        _backfill()
         assert not ExternalResource.objects.filter(id_type=IdType.TVDB_Series).exists()
 
     def test_backfill_survives_a_bad_tmdb_response(
@@ -550,20 +534,13 @@ class TestTMDBLink:
                 raise ValueError("Expecting value: line 1 column 1 (char 0)")
             return "79168"
 
-        monkeypatch.setattr(
-            "catalog.management.commands.catalog.query_tmdb_tvdb_id", query
-        )
+        _patch_tmdb_query(monkeypatch, query)
         for tmdb_id in ("1", "1668"):
-            ExternalResource.objects.create(
-                id_type=IdType.TMDB_TV,
-                id_value=tmdb_id,
-                url=f"https://www.themoviedb.org/tv/{tmdb_id}",
-            )
-        out = StringIO()
-        call_command("catalog", "tvdb-tmdb", stdout=out)
+            _tmdb_show(tmdb_id=tmdb_id)
+        out = _backfill()
         assert calls == ["1", "1668"]
-        assert "TheTVDB ids found: 1" in out.getvalue()
-        assert "errors: 1" in out.getvalue()
+        assert "TheTVDB ids found: 1" in out
+        assert "errors: 1" in out
         assert ExternalResource.objects.get(id_value="1668").other_lookup_ids == {
             IdType.TVDB_Series: "79168"
         }
@@ -573,12 +550,7 @@ class TestTMDBLink:
     ):
         """The id is merged in the database, so a rescrape that lands between
         the batch read and the write keeps its own ids."""
-        res = ExternalResource.objects.create(
-            id_type=IdType.TMDB_TV,
-            id_value="1668",
-            url="https://www.themoviedb.org/tv/1668",
-            other_lookup_ids={IdType.IMDB: "tt0108778"},
-        )
+        res = _tmdb_show({IdType.IMDB: "tt0108778"})
 
         def query(id_type, id_value):
             ExternalResource.objects.filter(pk=res.pk).update(
@@ -589,10 +561,8 @@ class TestTMDBLink:
             )
             return "79168"
 
-        monkeypatch.setattr(
-            "catalog.management.commands.catalog.query_tmdb_tvdb_id", query
-        )
-        call_command("catalog", "tvdb-tmdb")
+        _patch_tmdb_query(monkeypatch, query)
+        _backfill()
         res.refresh_from_db()
         assert res.other_lookup_ids == {
             IdType.IMDB: "tt0108778",
