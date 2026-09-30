@@ -1,8 +1,12 @@
+import json
+from types import SimpleNamespace
+
 import pytest
 
-from catalog.common import SiteManager, use_local_response
+from catalog.common import ParseError, SiteManager, use_local_response
 from catalog.models import Edition, ExternalResource, IdType, SiteName, Work
 from catalog.models.utils import detect_isbn_asin
+from catalog.sites.goodreads import Goodreads
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -276,6 +280,112 @@ class TestGoodreads:
         assert isinstance(p2.item, Edition)
         w2 = p2.item.get_work()
         assert w1 == w2
+
+    @staticmethod
+    def _next_page(apollo_state: dict) -> SimpleNamespace:
+        # a page that passes GoodreadsDownloader.validate_response
+        src = json.dumps({"props": {"pageProps": {"apolloState": apollo_state}}})
+        html = f'<html><body><script id="__NEXT_DATA__">{src}</script></body></html>'
+        return SimpleNamespace(text=html, status_code=200)
+
+    @staticmethod
+    def _apollo_state(**overrides) -> dict:
+        book = {
+            "__typename": "Book",
+            "legacyId": 406218,
+            "title": "Getting Started in Consulting",
+            "description": "A guidebook for novice consultants",
+            "imageUrl": "https://images.gr-assets.com/books/406218.jpg",
+            "details": {
+                "__typename": "BookDetails",
+                "asin": "0471479691",
+                "format": "Paperback",
+                "numPages": 304,
+                "publicationTime": 1071820800000,
+                "publisher": "Wiley",
+                "isbn": "0471479691",
+                "isbn13": "9780471479697",
+                "language": {"__typename": "Language", "name": "English"},
+            },
+        }
+        work = {
+            "__typename": "Work",
+            "legacyId": 395558,
+            "details": {
+                "__typename": "WorkDetails",
+                "originalTitle": "Getting Started in Consulting, Second Edition",
+            },
+            "editions": {
+                "__typename": "BooksConnection",
+                "webUrl": "https://www.goodreads.com/work/editions/395558",
+            },
+        }
+        contributor = {
+            "__typename": "Contributor",
+            "legacyId": 16734,
+            "name": "Alan Weiss",
+            "webUrl": "https://www.goodreads.com/author/show/16734.Alan_Weiss",
+        }
+        for target in (book, work, contributor):
+            for k, v in overrides.items():
+                if k in target:
+                    target[k] = v
+        return {"Book:1": book, "Work:1": work, "Contributor:1": contributor}
+
+    def _scrape(self, apollo_state: dict):
+        site = Goodreads(id_value="406218")
+        return site.scrape(response=self._next_page(apollo_state))
+
+    def test_scrape_full_json(self):
+        pd = self._scrape(self._apollo_state())
+        assert pd.metadata["title"] == "Getting Started in Consulting"
+        assert pd.metadata["brief"] == "A guidebook for novice consultants"
+        assert pd.metadata["author"] == ["Alan Weiss"]
+        assert pd.metadata["language"] == ["English"]
+        assert pd.metadata["pub_year"] == 2003
+        assert pd.lookup_ids[IdType.ISBN] == "9780471479697"
+        assert pd.metadata["required_resources"] == [
+            {
+                "model": "Work",
+                "id_type": IdType.Goodreads_Work,
+                "id_value": "395558",
+                "title": "Getting Started in Consulting, Second Edition",
+                "url": "https://www.goodreads.com/work/editions/395558",
+            }
+        ]
+
+    def test_scrape_partial_json_null_details(self):
+        # Goodreads returns null for a sub-object whose GraphQL resolver failed
+        with pytest.raises(ParseError):
+            self._scrape(self._apollo_state(details=None))
+
+    def test_scrape_partial_json_null_editions(self):
+        state = self._apollo_state(editions=None)
+        state["Work:1"]["details"] = {"__typename": "WorkDetails"}
+        state["Book:1"]["details"]["language"] = None
+        state["Book:1"]["description"] = None
+        state["Book:1"]["imageUrl"] = None
+        pd = self._scrape(state)
+        assert pd.metadata["brief"] == ""
+        assert "language" not in pd.metadata
+        assert pd.metadata["cover_image_url"] is None
+        assert pd.lookup_ids[IdType.ISBN] == "9780471479697"
+        assert pd.metadata["required_resources"] == [
+            {
+                "model": "Work",
+                "id_type": IdType.Goodreads_Work,
+                "id_value": "395558",
+                "title": "Getting Started in Consulting",
+                "url": "https://www.goodreads.com/work/editions/395558",
+            }
+        ]
+
+    def test_scrape_partial_json_null_page_props(self):
+        site = Goodreads(id_value="406218")
+        src = json.dumps({"props": {"pageProps": None}, "title": "x"})
+        page = f'<script id="__NEXT_DATA__">{src}</script>'
+        with pytest.raises(ParseError):
+            site.scrape(response=SimpleNamespace(text=page, status_code=200))
 
 
 @pytest.mark.django_db(databases="__all__")
