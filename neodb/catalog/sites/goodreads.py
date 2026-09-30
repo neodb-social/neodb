@@ -72,18 +72,29 @@ class Goodreads(AbstractSite):
         src = self.query_str(h, '//script[@id="__NEXT_DATA__"]/text()')
         if not src:
             raise ParseError(self, "__NEXT_DATA__ element")
-        d = json.loads(src)["props"]["pageProps"]["apolloState"]
+        # Goodreads renders this page from GraphQL, and a failed resolver
+        # leaves a null where a sub-object should be, so no nested key is safe.
+        d = ((json.loads(src).get("props") or {}).get("pageProps") or {}).get(
+            "apolloState"
+        )
+        if not isinstance(d, dict):
+            raise ParseError(self, "apolloState in __NEXT_DATA__ json")
         o = {"Book": [], "Work": [], "Series": [], "Contributor": []}
         for v in d.values():
-            t = v.get("__typename")
+            t = v.get("__typename") if isinstance(v, dict) else None
             if t and t in o:
                 o[t].append(v)
         b = next(filter(lambda x: x.get("title"), o["Book"]), None)
         if not b:
             # Goodreads may return empty page template when internal service timeouts
             raise ParseError(self, "Book in __NEXT_DATA__ json")
+        details = b.get("details")
+        if not isinstance(details, dict):
+            # without details there is no ISBN, and an edition saved without one
+            # can never be matched again, so refuse the partial page
+            raise ParseError(self, "Book details in __NEXT_DATA__ json")
         data["title"] = b["title"]
-        data["brief"] = html_to_text(b["description"] or "").strip()
+        data["brief"] = html_to_text(b.get("description") or "").strip()
         lang = detect_language(b["title"] + " " + data["brief"])
         data["localized_title"] = [{"lang": lang, "text": b["title"]}]
         data["localized_subtitle"] = []  # Goodreads does not support subtitle
@@ -105,41 +116,43 @@ class Goodreads(AbstractSite):
             if c.get("legacyId") and c.get("webUrl")
         ]
         ids = {}
-        t, n = detect_isbn_asin(b["details"].get("asin"))
+        t, n = detect_isbn_asin(details.get("asin"))
         if t:
             ids[t] = n
         # amazon has a known problem to use another book's isbn as asin
         # so we alway overwrite asin-converted isbn with real isbn
-        t, n = detect_isbn_asin(b["details"].get("isbn13"))
+        t, n = detect_isbn_asin(details.get("isbn13"))
         if t:
             ids[t] = n
         else:
-            t, n = detect_isbn_asin(b["details"].get("isbn"))
+            t, n = detect_isbn_asin(details.get("isbn"))
             if t:
                 ids[t] = n
-        data["pages"] = b["details"].get("numPages")
-        data["binding"] = b["details"].get("format")
-        data["format"] = binding_to_format(b["details"].get("format"))
-        pub_house = b["details"].get("publisher")
+        data["pages"] = details.get("numPages")
+        data["binding"] = details.get("format")
+        data["format"] = binding_to_format(details.get("format"))
+        pub_house = details.get("publisher")
         data["publisher"] = [pub_house] if pub_house else []
-        if b["details"].get("publicationTime"):
-            dt = make_aware(
-                datetime.fromtimestamp(b["details"].get("publicationTime") / 1000)
-            )
+        if details.get("publicationTime"):
+            dt = make_aware(datetime.fromtimestamp(details["publicationTime"] / 1000))
             data["pub_year"] = dt.year
             data["pub_month"] = dt.month
-        if b["details"].get("language", {}).get("name"):
-            data["language"] = [b["details"].get("language").get("name")]
-        data["cover_image_url"] = b["imageUrl"]
-        w = next(filter(lambda x: x.get("details"), o["Work"]), None)
+        lang_name = (details.get("language") or {}).get("name")
+        if lang_name:
+            data["language"] = [lang_name]
+        data["cover_image_url"] = b.get("imageUrl")
+        w = next(
+            filter(lambda x: x.get("details") and x.get("legacyId"), o["Work"]), None
+        )
         if w:
+            work_id = str(w["legacyId"])
             data["required_resources"] = [
                 {
                     "model": "Work",
                     "id_type": IdType.Goodreads_Work,
-                    "id_value": str(w["legacyId"]),
-                    "title": w["details"]["originalTitle"],
-                    "url": w["editions"]["webUrl"],
+                    "id_value": work_id,
+                    "title": w["details"].get("originalTitle") or b["title"],
+                    "url": Goodreads_Work.id_to_url(work_id),
                 }
             ]
         pd = ResourceContent(metadata=data)

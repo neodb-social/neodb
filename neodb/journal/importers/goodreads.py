@@ -97,8 +97,10 @@ class GoodreadsImporter(Task):
                     item = scrape_site.get_item()
                     if item:
                         return item
-        except Exception as e:
-            logger.error(f"Error scraping Goodreads book {book_id}: {e}")
+        except DownloadError as e:
+            logger.warning(f"Error scraping Goodreads book {book_id}: {e}")
+        except Exception:
+            logger.exception(f"Error scraping Goodreads book {book_id}")
 
         return None
 
