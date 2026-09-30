@@ -19,6 +19,7 @@ from catalog.models import (
     ExternalResource,
     IdType,
     ItemCategory,
+    SiteName,
     Movie,
     People,
     TVEpisode,
@@ -220,6 +221,22 @@ class TestUnconfigured:
 
 
 class TestSearch:
+    @pytest.mark.parametrize(
+        "search_sites,included",
+        [([], True), (["*"], True), (["tmdb"], False), (["tmdb", "tvdb"], True)],
+    )
+    def test_searched_by_default(self, monkeypatch, search_sites, included):
+        """On by default like every searchable site (search_task stays silent
+        without a key); an explicit site list must name it."""
+        monkeypatch.setattr(SiteConfig.system, "search_sites", search_sites)
+        tvdb_sites = [
+            s
+            for s in SiteManager.get_sites_for_search()
+            if s.SITE_NAME == SiteName.TVDB
+        ]
+        # one searcher: series and movies come back from the same query
+        assert tvdb_sites == ([TVDB_Series] if included else [])
+
     def test_search(self, tvdb_key, monkeypatch):
         data = _fixture("https://api4.thetvdb.com/v4/search?query=friends&limit=5")
         requests: list[tuple[str, dict]] = []
