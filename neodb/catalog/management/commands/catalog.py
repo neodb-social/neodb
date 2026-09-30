@@ -15,7 +15,6 @@ from django.db.models.fields.json import KeyTextTransform
 from django.utils import timezone
 from tqdm import tqdm
 
-from catalog.common.downloaders import DownloadError
 from catalog.common.sites import SiteManager
 from catalog.models import (
     Edition,
@@ -349,7 +348,9 @@ class Command(SiteCommand):
                 if not tvdb_id:
                     try:
                         tvdb_id = query_tmdb_tvdb_id(res.id_type, res.id_value)
-                    except DownloadError as e:
+                    except Exception as e:
+                        # one bad response (a download error, or a 200 that is
+                        # not JSON) must not end a backfill over every row
                         logger.warning(f"TMDB external_ids failed for {res}: {e}")
                         errors += 1
                         continue

@@ -38,6 +38,7 @@ from catalog.models import (
     TVShow,
 )
 from catalog.search import ExternalSearchResultItem, record_search_failure
+from catalog.sites.tmdb import query_tmdb_tvdb_id
 from common.models import SiteConfig, normalize_country
 from common.models.lang import SITE_PREFERRED_LANGUAGES, detect_language
 
@@ -630,17 +631,42 @@ class TVDB_Season(TVDB):
             }
         )
         # Douban files a season under the show's IMDB id for season 1 and the
-        # first episode's otherwise; match that, as TMDB_TVSeason does.
+        # first episode's otherwise; match that, as TMDB_TVSeason does. The
+        # id only helps matching, so a failed lookup leaves the season without.
         if number == 1:
             imdb = show.other_lookup_ids.get(IdType.IMDB)
             if imdb:
                 pd.lookup_ids[IdType.IMDB] = imdb
         elif episodes:
-            ep = tvdb_get(f"/episodes/{episodes[0]['id']}/extended")
-            imdb = _remote_ids(ep, {_SOURCE_IMDB: IdType.IMDB}).get(IdType.IMDB)
-            if imdb:
-                pd.lookup_ids[IdType.IMDB] = imdb
+            try:
+                ep = tvdb_get(f"/episodes/{episodes[0]['id']}/extended")
+            except DownloadError as e:
+                _logger.warning(f"TheTVDB episode lookup failed for {self}: {e}")
+            else:
+                imdb = _remote_ids(ep, {_SOURCE_IMDB: IdType.IMDB}).get(IdType.IMDB)
+                if imdb:
+                    pd.lookup_ids[IdType.IMDB] = imdb
+        tmdb_season = self._tmdb_season(
+            show.other_lookup_ids.get(IdType.TMDB_TV), number
+        )
+        if tmdb_season:
+            pd.lookup_ids[IdType.TMDB_TVSeason] = tmdb_season
         return pd
+
+    def _tmdb_season(self, tmdb_tv: str | None, number: int | None) -> str | None:
+        """The TMDB season with this number, unless TMDB files it under
+        another TheTVDB season: the two sites can number seasons apart, and a
+        wrong match would merge two seasons into one item."""
+        if not tmdb_tv or number is None:
+            return None
+        candidate = f"{tmdb_tv}-{number}"
+        try:
+            tvdb_id = query_tmdb_tvdb_id(IdType.TMDB_TVSeason, candidate)
+        except Exception as e:
+            # includes a 404: TMDB has no season with this number
+            _logger.warning(f"TMDB season check failed for {candidate}: {e}")
+            return None
+        return candidate if tvdb_id in (None, self.id_value) else None
 
 
 @SiteManager.register

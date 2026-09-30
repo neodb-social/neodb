@@ -8,7 +8,12 @@ import pytest
 from django.core.cache import cache
 from django.core.management import call_command
 
-from catalog.common import DownloadError, SiteManager, use_local_response
+from catalog.common import (
+    BasicDownloader,
+    DownloadError,
+    SiteManager,
+    use_local_response,
+)
 from catalog.common.downloaders import get_mock_file, set_mock_mode
 from catalog.models import (
     ExternalResource,
@@ -293,8 +298,12 @@ class TestScrape:
         assert m["episode_number_list"][:3] == [1, 2, 3]
         assert m["release_date"] == "1995-09-21"
         assert m["origin_country"] == ["US"]
-        # the first episode's IMDB id, as Douban and TMDB_TVSeason file it
-        assert site.resource.other_lookup_ids == {IdType.IMDB: "tt0583562"}
+        # the first episode's IMDB id, as Douban and TMDB_TVSeason file it,
+        # and the TMDB season that TMDB files under this TheTVDB season
+        assert site.resource.other_lookup_ids == {
+            IdType.IMDB: "tt0583562",
+            IdType.TMDB_TVSeason: "1668-2",
+        }
         # display_title is cached from before the show was linked
         item = TVSeason.objects.get(pk=site.resource.item.pk)
         assert item.show is not None
@@ -305,7 +314,33 @@ class TestScrape:
     def test_season_one_uses_show_imdb(self):
         site = TVDB_Season(id_value="16102")
         content = site.scrape()
+        # no TMDB season 1 fixture: an unanswered check is no match
         assert content.lookup_ids == {IdType.IMDB: "tt0108778"}
+
+    @pytest.mark.parametrize(
+        "tmdb_tvdb_id,matched",
+        [("16104", True), (None, True), ("999", False)],
+    )
+    def test_tmdb_season_match(self, mock_mode, monkeypatch, tmdb_tvdb_id, matched):
+        """TMDB can number seasons apart from TheTVDB: match the same-numbered
+        TMDB season unless TMDB files it under another TheTVDB season."""
+        monkeypatch.setattr(tvdb, "query_tmdb_tvdb_id", lambda t, v: tmdb_tvdb_id)
+        content = TVDB_Season(id_value="16104").scrape()
+        assert (content.lookup_ids.get(IdType.TMDB_TVSeason) == "1668-2") is matched
+
+    def test_season_survives_a_failed_imdb_lookup(self, mock_mode, monkeypatch):
+        fetch = tvdb.tvdb_get
+
+        def tvdb_get(path):
+            if path.startswith("/episodes/"):
+                raise DownloadError(BasicDownloader(path), "timeout")
+            return fetch(path)
+
+        monkeypatch.setattr(tvdb, "tvdb_get", tvdb_get)
+        content = TVDB_Season(id_value="16104").scrape()
+        assert content.metadata["season_number"] == 2
+        assert IdType.IMDB not in content.lookup_ids
+        assert content.lookup_ids[IdType.TMDB_TVSeason] == "1668-2"
 
     @use_local_response
     def test_episode(self):
@@ -465,3 +500,32 @@ class TestTMDBLink:
         )
         call_command("catalog", "tvdb-tmdb")
         assert not ExternalResource.objects.filter(id_type=IdType.TVDB_Series).exists()
+
+    def test_backfill_survives_a_bad_tmdb_response(
+        self, mock_mode, no_tvdb_key, monkeypatch
+    ):
+        calls: list[str] = []
+
+        def query(id_type, id_value):
+            calls.append(id_value)
+            if id_value == "1":
+                raise ValueError("Expecting value: line 1 column 1 (char 0)")
+            return "79168"
+
+        monkeypatch.setattr(
+            "catalog.management.commands.catalog.query_tmdb_tvdb_id", query
+        )
+        for tmdb_id in ("1", "1668"):
+            ExternalResource.objects.create(
+                id_type=IdType.TMDB_TV,
+                id_value=tmdb_id,
+                url=f"https://www.themoviedb.org/tv/{tmdb_id}",
+            )
+        out = StringIO()
+        call_command("catalog", "tvdb-tmdb", stdout=out)
+        assert calls == ["1", "1668"]
+        assert "TheTVDB ids found: 1" in out.getvalue()
+        assert "errors: 1" in out.getvalue()
+        assert ExternalResource.objects.get(id_value="1668").other_lookup_ids == {
+            IdType.TVDB_Series: "79168"
+        }
