@@ -359,6 +359,27 @@ class TestScrape:
         assert IdType.IMDB not in content.lookup_ids
         assert content.lookup_ids[IdType.TMDB_TVSeason] == "1668-2"
 
+    def test_season_with_episodes_lacking_ids(self, mock_mode, monkeypatch):
+        fetch = tvdb.tvdb_get
+
+        def tvdb_get(path):
+            d = fetch(path)
+            if path.startswith("/seasons/"):
+                d = {
+                    **d,
+                    "episodes": [
+                        {k: v for k, v in e.items() if k != "id"} for e in d["episodes"]
+                    ],
+                }
+            elif path.startswith("/episodes/"):
+                raise AssertionError("no episode id to look up")
+            return d
+
+        monkeypatch.setattr(tvdb, "tvdb_get", tvdb_get)
+        content = TVDB_Season(id_value="16104").scrape()
+        assert content.metadata["episode_count"] == 24
+        assert IdType.IMDB not in content.lookup_ids
+
     @use_local_response
     def test_episode(self):
         site = TVDB_Episode(id_value="303821")
@@ -545,4 +566,36 @@ class TestTMDBLink:
         assert "errors: 1" in out.getvalue()
         assert ExternalResource.objects.get(id_value="1668").other_lookup_ids == {
             IdType.TVDB_Series: "79168"
+        }
+
+    def test_backfill_keeps_a_concurrent_change(
+        self, mock_mode, no_tvdb_key, monkeypatch
+    ):
+        """The id is merged in the database, so a rescrape that lands between
+        the batch read and the write keeps its own ids."""
+        res = ExternalResource.objects.create(
+            id_type=IdType.TMDB_TV,
+            id_value="1668",
+            url="https://www.themoviedb.org/tv/1668",
+            other_lookup_ids={IdType.IMDB: "tt0108778"},
+        )
+
+        def query(id_type, id_value):
+            ExternalResource.objects.filter(pk=res.pk).update(
+                other_lookup_ids={
+                    IdType.IMDB: "tt0108778",
+                    IdType.WikiData: "Q79784",
+                }
+            )
+            return "79168"
+
+        monkeypatch.setattr(
+            "catalog.management.commands.catalog.query_tmdb_tvdb_id", query
+        )
+        call_command("catalog", "tvdb-tmdb")
+        res.refresh_from_db()
+        assert res.other_lookup_ids == {
+            IdType.IMDB: "tt0108778",
+            IdType.WikiData: "Q79784",
+            IdType.TVDB_Series: "79168",
         }

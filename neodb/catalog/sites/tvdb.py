@@ -637,9 +637,9 @@ class TVDB_Season(TVDB):
             imdb = show.other_lookup_ids.get(IdType.IMDB)
             if imdb:
                 pd.lookup_ids[IdType.IMDB] = imdb
-        elif episodes:
+        elif first_id := next((e["id"] for e in episodes if e.get("id")), None):
             try:
-                ep = tvdb_get(f"/episodes/{episodes[0]['id']}/extended")
+                ep = tvdb_get(f"/episodes/{first_id}/extended")
             except DownloadError as e:
                 _logger.warning(f"TheTVDB episode lookup failed for {self}: {e}")
             else:

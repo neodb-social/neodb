@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Count, Exists, F, OuterRef, Q
+from django.db.models.expressions import RawSQL
 from django.db.models.fields.json import KeyTextTransform
 from django.utils import timezone
 from tqdm import tqdm
@@ -360,11 +361,13 @@ class Command(SiteCommand):
                         continue
                     found += 1
                     if not dry_run:
+                        # merged in the database: the row was read when the
+                        # batch started, and a rescrape since may have changed it
                         ExternalResource.objects.filter(pk=res.pk).update(
-                            other_lookup_ids={
-                                **(res.other_lookup_ids or {}),
-                                tvdb_type: tvdb_id,
-                            }
+                            other_lookup_ids=RawSQL(
+                                "COALESCE(other_lookup_ids, '{}'::jsonb) || %s::jsonb",
+                                (json.dumps({str(tvdb_type): tvdb_id}),),
+                            )
                         )
                 if dry_run:
                     if self.verbose:
