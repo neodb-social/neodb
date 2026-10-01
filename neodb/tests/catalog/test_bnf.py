@@ -15,8 +15,9 @@ _TEST_DATA = Path(__file__).parent.parent.parent / "test_data"
 
 
 def _record(*fields: tuple[str, list[tuple[str, str]]]) -> UnimarcRecord:
+    """Fields as ("tag", subfields), or ("tag#ind2", subfields)."""
     xml = "".join(
-        f'<datafield tag="{tag}">'
+        f'<datafield tag="{tag.partition("#")[0]}" ind2="{tag.partition("#")[2]}">'
         + "".join(f'<subfield code="{c}">{v}</subfield>' for c, v in subs)
         + "</datafield>"
         for tag, subs in fields
@@ -70,6 +71,17 @@ class TestUnimarcRecord:
         film_url = _sru_url('bib.persistentid all "ark:/12148/cb42284376s"')
         film = (_TEST_DATA / get_mock_file(film_url)).read_bytes()
         assert _records(etree.fromstring(film))[0].isbn is None
+
+    def test_publisher_is_the_publication_statement(self):
+        record = _record(
+            ("214#1", [("c", "Studio de production"), ("d", "2010")]),
+            ("214#0", [("a", "Paris"), ("c", "Gallimard")]),
+            ("214#3", [("c", "Impr. CPI")]),
+            ("214#4", [("d", "C 2012")]),
+        )
+        assert record.publisher == "Gallimard"
+        # the copyright date, not the production date
+        assert record.pub_year == 2012
 
     def test_languages(self):
         codes = ["fre", "lat", "heb", "dan", "fin", "mul"]

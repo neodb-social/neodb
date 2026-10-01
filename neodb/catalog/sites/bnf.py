@@ -265,19 +265,17 @@ class UnimarcRecord:
                 authors.append(name)
         return list(dict.fromkeys(authors)), list(dict.fromkeys(translators))
 
-    @property
-    def publication_fields(self) -> list:
-        # 214 second indicator 3 is the printer, 2 the distributor
+    def publication_fields(self, *roles: str) -> list:
+        """210, then 214 by role (second indicator): 0 publication,
+        1 production, 2 distribution, 3 manufacture, 4 copyright date."""
         return self.fields("210") + [
-            f for f in self.fields("214") if f.get("ind2") not in ("2", "3")
+            f for f in self.fields("214") if f.get("ind2") in roles
         ]
 
     @property
     def publisher(self) -> str:
-        for f in self.publication_fields:
-            # 214 is repeated per role, 210 carries the printer in $g instead
-            if f.get("tag") == "214" and f.get("ind2") == "4":
-                continue
+        # 210 carries the printer in $g, not $c
+        for f in self.publication_fields("0"):
             p = self.subfield(f, "c")
             if p:
                 return _strip_isbd(p)
@@ -288,7 +286,7 @@ class UnimarcRecord:
         coded = self.first("100", "a")
         if len(coded) >= 13 and coded[9:13].isdigit():
             return int(coded[9:13])
-        for f in self.publication_fields:
+        for f in self.publication_fields("0") + self.publication_fields("4"):
             for d in self.subfields(f, "d"):
                 m = re.search(r"\b(1[5-9]\d\d|20\d\d)\b", d)
                 if m:
