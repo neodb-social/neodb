@@ -712,6 +712,26 @@ def _build_language_aliases() -> dict[str, str]:
         "vie": "vi",
         "tha": "th",
         "chi": "zh",
+        # ISO 639-2/B forms, which MARC library records use
+        "alb": "sq",
+        "arm": "hy",
+        "baq": "eu",
+        "bur": "my",
+        "cze": "cs",
+        "dut": "nl",
+        "fre": "fr",
+        "geo": "ka",
+        "ger": "de",
+        "gre": "el",
+        "ice": "is",
+        "mac": "mk",
+        "mao": "mi",
+        "may": "ms",
+        "per": "fa",
+        "rum": "ro",
+        "slo": "sk",
+        "tib": "bo",
+        "wel": "cy",
     }
     aliases.update(iso_639_2_codes)
 

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:ixm="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:mn="http://catalogue.bnf.fr/namespaces/motsnotices" xmlns:sd="http://www.loc.gov/zing/srw/diagnostic/">
+<srw:version>1.2</srw:version>
+<srw:echoedSearchRetrieveRequest>
+<srw:version>1.2</srw:version>
+<srw:query>bib.persistentid all "ark:/12148/cb45755542x"</srw:query>
+</srw:echoedSearchRetrieveRequest>
+<srw:numberOfRecords>1</srw:numberOfRecords>
+<srw:records>
+<srw:record>
+<srw:recordSchema>marcxchange</srw:recordSchema>
+<srw:recordPacking>xml</srw:recordPacking>
+<srw:recordData>
+<mxc:record xmlns:mxc="info:lc/xmlns/marcxchange-v2" format="UNIMARC" id="ark:/12148/cb45755542x" type="Bibliographic">
+<mxc:leader>     cim  22     3  450 </mxc:leader>
+<mxc:controlfield tag="001">FRBNF457555420000000</mxc:controlfield>
+<mxc:controlfield tag="003">http://catalogue.bnf.fr/ark:/12148/cb45755542x</mxc:controlfield>
+<mxc:datafield tag="020" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">72009192</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="071" ind1="0" ind2="1">
+<mxc:subfield code="b">Audiolib</mxc:subfield>
+<mxc:subfield code="a">5591900</mxc:subfield>
+<mxc:subfield code="c">album</mxc:subfield>
+<mxc:subfield code="d">23,90 EUR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="073" ind1=" " ind2="0">
+<mxc:subfield code="a">9782367629438</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="100" ind1=" " ind2=" ">
+<mxc:subfield code="a">20190625d2019    u  y0frey50      ba</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="101" ind1="0" ind2=" ">
+<mxc:subfield code="a">fre</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="102" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="126" ind1=" " ind2=" ">
+<mxc:subfield code="a">aguxhxx||||||cd</mxc:subfield>
+<mxc:subfield code="b">bex</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">h </mxc:subfield>
+<mxc:subfield code="b">xxxa  </mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">spw</mxc:subfield>
+<mxc:subfield code="2">rdacontent</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">a</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">s</mxc:subfield>
+<mxc:subfield code="2">rdamedia</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="200" ind1="1" ind2=" ">
+<mxc:subfield code="a">Le problème à trois corps</mxc:subfield>
+<mxc:subfield code="b">Enregistrement sonore</mxc:subfield>
+<mxc:subfield code="f">Liu Cixin, aut.</mxc:subfield>
+<mxc:subfield code="g">Gwennaël Gaffric, trad.</mxc:subfield>
+<mxc:subfield code="g">lu par Vincent Schmitt</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="0">
+<mxc:subfield code="a">[Paris]</mxc:subfield>
+<mxc:subfield code="c">Audiolib</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="4">
+<mxc:subfield code="d">P 2019</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="2">
+<mxc:subfield code="a">[Paris]</mxc:subfield>
+<mxc:subfield code="c">[Audiolib]</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="215" ind1=" " ind2=" ">
+<mxc:subfield code="a">2 CD MP3 (15h)</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="330" ind1=" " ind2=" ">
+<mxc:subfield code="a">En pleine Révolution Culturelle, le pouvoir chinois construit une base militaire secrète destinée à abriter un programme de recherche de potentielles civilisations extraterrestres. Ye Wenjie, une jeune astrophysicienne en cours de « rééducation » parvient à envoyer dans l'espace lointain un message contenant des informations sur la civilisation humaine. Premier volume d'une trilogie déjà culte, récompensé par le Prix Hugo du meilleur roman en 2015, Le Problème à trois corps marque l'arrivée d'un auteur majeur sur la scène de la science-fiction.</mxc:subfield>
+<mxc:subfield code="2">éditeur</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="608" ind1=" " ind2=" ">
+<mxc:subfield code="a">enregistrement parlé</mxc:subfield>
+<mxc:subfield code="2">frTAV</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="608" ind1=" " ind2=" ">
+<mxc:subfield code="a">édition phonographique</mxc:subfield>
+<mxc:subfield code="2">frTAV</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="608" ind1=" " ind2=" ">
+<mxc:subfield code="a">lecture</mxc:subfield>
+<mxc:subfield code="2">frTAV</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="608" ind1=" " ind2=" ">
+<mxc:subfield code="a">Oeuvre d'origine : roman</mxc:subfield>
+<mxc:subfield code="2">frTAV</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="686" ind1=" " ind2=" ">
+<mxc:subfield code="a">190</mxc:subfield>
+<mxc:subfield code="2">Cadre de classement de la Bibliographie nationale française</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="700" ind1=" " ind2="|">
+<mxc:subfield code="3">17093304</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000037048121</mxc:subfield>
+<mxc:subfield code="a">Liu</mxc:subfield>
+<mxc:subfield code="b">Ci xin</mxc:subfield>
+<mxc:subfield code="f">1963-....</mxc:subfield>
+<mxc:subfield code="4">070</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="702" ind1=" " ind2="|">
+<mxc:subfield code="3">16754523</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000439808007</mxc:subfield>
+<mxc:subfield code="a">Gaffric</mxc:subfield>
+<mxc:subfield code="b">Gwennaël</mxc:subfield>
+<mxc:subfield code="4">730</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="702" ind1=" " ind2="|">
+<mxc:subfield code="3">14699443</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000003106901</mxc:subfield>
+<mxc:subfield code="a">Schmitt</mxc:subfield>
+<mxc:subfield code="b">Vincent</mxc:subfield>
+<mxc:subfield code="f">1961-....</mxc:subfield>
+<mxc:subfield code="4">550</mxc:subfield>
+<mxc:subfield code="4">vre</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="716" ind1=" " ind2=" ">
+<mxc:subfield code="3">15605785</mxc:subfield>
+<mxc:subfield code="a">Audiolib</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="801" ind1=" " ind2="0">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">FR-751131015</mxc:subfield>
+<mxc:subfield code="c">20190625</mxc:subfield>
+<mxc:subfield code="g">AFNOR</mxc:subfield>
+<mxc:subfield code="h">FRBNF457555420000000</mxc:subfield>
+<mxc:subfield code="2">intermrc</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="856" ind1=" " ind2="2">
+<mxc:subfield code="u">383996</mxc:subfield>
+<mxc:subfield code="b">Première de couverture</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-759999999:45755542001001</mxc:subfield>
+<mxc:subfield code="a">SDC 12-339851</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Rez de Jardin - Audiovisuel - Magasin</mxc:subfield>
+<mxc:subfield code="d">O</mxc:subfield>
+</mxc:datafield>
+</mxc:record>      </srw:recordData>
+<srw:recordIdentifier>ark:/12148/cb45755542x</srw:recordIdentifier>
+<srw:recordPosition>1</srw:recordPosition>
+<srw:extraRecordData>
+<ixm:attr name="CreationDate">20190625</ixm:attr>
+<ixm:attr name="LastModificationDate">20210126</ixm:attr>
+<mn:score>7.542918</mn:score>
+</srw:extraRecordData>
+</srw:record>
+</srw:records>
+</srw:searchRetrieveResponse>

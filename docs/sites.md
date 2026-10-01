@@ -11,6 +11,7 @@ The following external sites are supported for importing catalog items.
 | Bandcamp | Music (Album) | |
 | Bangumi | Book (Edition) · Music (Album) · Movie · TV (Season) · Game · Performance | |
 | Bibliotek.dk | Book (Edition, Work) | |
+| BnF catalogue général | Book (Edition) | |
 | Board Game Geek | Game | |
 | BooksTW 博客來 | Book (Edition) | |
 | Discogs | Music (Album) | |
