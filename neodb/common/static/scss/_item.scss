@@ -74,6 +74,14 @@
     margin-bottom: 2.5rem;
   }
 
+  // The side columns are floats in the same formatting context, and a float
+  // cannot sit above an earlier one, so without this a comment's floated
+  // .action is held down to the top of #item-metadata. Only the entry
+  // sections get it: on the outer sections it stops the h5 margin collapse.
+  #item-detail section section {
+    display: flow-root;
+  }
+
   #item-title {
     margin-bottom: 0;
   }
