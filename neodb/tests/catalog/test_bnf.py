@@ -7,9 +7,21 @@ import pytest
 from catalog.common import SiteManager, use_local_response
 from catalog.common.downloaders import DownloadError, get_mock_file
 from catalog.models import Edition, IdType, ItemCategory, SiteName
-from catalog.sites.bnf import BnF, _sru_url
+from lxml import etree
+
+from catalog.sites.bnf import BnF, UnimarcRecord, _records, _sru_url
 
 _TEST_DATA = Path(__file__).parent.parent.parent / "test_data"
+
+
+def _record(*fields: tuple[str, list[tuple[str, str]]]) -> UnimarcRecord:
+    xml = "".join(
+        f'<datafield tag="{tag}">'
+        + "".join(f'<subfield code="{c}">{v}</subfield>' for c, v in subs)
+        + "</datafield>"
+        for tag, subs in fields
+    )
+    return UnimarcRecord(etree.fromstring(f"<record>{xml}</record>"))
 
 
 def _metadata(ark: str) -> dict:
@@ -41,6 +53,29 @@ class TestBnFParse:
         # pre-ISBN records are identified by the ark alone, so the edit form
         # must offer it or it silently rewrites the primary lookup id
         assert IdType.BnF.value in dict(Edition.lookup_id_type_choices())
+
+
+class TestUnimarcRecord:
+    def test_ean_that_is_not_an_isbn(self):
+        # a checksum-valid EAN outside 978/979 is no ISBN
+        assert _record(("073", [("a", "0123456789012")])).isbn is None
+        assert (
+            _record(
+                ("073", [("a", "0123456789012")]),
+                ("010", [("a", "978-2-02-090219-9")]),
+            ).isbn
+            == "9782020902199"
+        )
+        assert _record(("010", [("a", "2-07-036002-4")])).isbn == "9782070360024"
+        film_url = _sru_url('bib.persistentid all "ark:/12148/cb42284376s"')
+        film = (_TEST_DATA / get_mock_file(film_url)).read_bytes()
+        assert _records(etree.fromstring(film))[0].isbn is None
+
+    def test_languages(self):
+        codes = ["fre", "lat", "heb", "dan", "fin", "mul"]
+        record = _record(("101", [("a", c) for c in codes]))
+        assert record.languages == ["fr", "la", "he", "da", "fi"]
+        assert _record(("101", [("a", "ger"), ("a", "deu")])).languages == ["de"]
 
 
 @pytest.mark.django_db(databases="__all__")

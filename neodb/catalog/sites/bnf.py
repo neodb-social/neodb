@@ -24,6 +24,7 @@ import re
 from urllib.parse import urlencode
 
 import httpx
+import pycountry
 from lxml import etree
 
 from catalog.common import *
@@ -301,9 +302,10 @@ class UnimarcRecord:
 
     @property
     def isbn(self) -> str | None:
-        for v in self.all("073", "a") + self.all("010", "a"):
+        # 073 is an EAN, which is an ISBN only under the Bookland prefixes
+        for v in self.all("010", "a") + self.all("073", "a"):
             t, n = detect_isbn_asin(v)
-            if t == IdType.ISBN:
+            if t == IdType.ISBN and n and n[:3] in ("978", "979"):
                 return n
         return None
 
@@ -319,7 +321,7 @@ class UnimarcRecord:
     def languages(self) -> list[str]:
         return list(
             dict.fromkeys(
-                lang for v in self.all("101", "a") if (lang := normalize_language(v))
+                lang for v in self.all("101", "a") if (lang := _marc_language(v))
             )
         )
 
@@ -348,6 +350,18 @@ class UnimarcRecord:
             if image_id.isdigit() and label.startswith("première de couverture"):
                 return _COVER_URL.format(image_id)
         return None
+
+
+def _marc_language(code: str) -> str | None:
+    """ISO 639-2 code, bibliographic or terminology form, as NeoDB stores it."""
+    code = code.strip().lower()
+    # multiple, undetermined, no linguistic content
+    if code in ("mul", "und", "zxx"):
+        return None
+    lang = pycountry.languages.get(alpha_3=code) or pycountry.languages.get(
+        bibliographic=code
+    )
+    return normalize_language(getattr(lang, "alpha_2", None) or code)
 
 
 def _display_name(surname: str, forename: str, statement: str) -> str:
