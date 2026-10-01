@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:ixm="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:mn="http://catalogue.bnf.fr/namespaces/motsnotices" xmlns:sd="http://www.loc.gov/zing/srw/diagnostic/">
+<srw:version>1.2</srw:version>
+<srw:echoedSearchRetrieveRequest>
+<srw:version>1.2</srw:version>
+<srw:query>bib.persistentid all "ark:/12148/cb45379797f"</srw:query>
+</srw:echoedSearchRetrieveRequest>
+<srw:numberOfRecords>1</srw:numberOfRecords>
+<srw:records>
+<srw:record>
+<srw:recordSchema>marcxchange</srw:recordSchema>
+<srw:recordPacking>xml</srw:recordPacking>
+<srw:recordData>
+<mxc:record xmlns:mxc="info:lc/xmlns/marcxchange-v2" format="UNIMARC" id="ark:/12148/cb45379797f" type="Bibliographic">
+<mxc:leader>     cam  22        450 </mxc:leader>
+<mxc:controlfield tag="001">FRBNF453797970000004</mxc:controlfield>
+<mxc:controlfield tag="003">http://catalogue.bnf.fr/ark:/12148/cb45379797f</mxc:controlfield>
+<mxc:datafield tag="010" ind1=" " ind2=" ">
+<mxc:subfield code="a">978-2-330-08231-4</mxc:subfield>
+<mxc:subfield code="b">br.</mxc:subfield>
+<mxc:subfield code="d">23,80 EUR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="020" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">01807988</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="073" ind1=" " ind2="0">
+<mxc:subfield code="a">9782330082314</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="100" ind1=" " ind2=" ">
+<mxc:subfield code="a">20171027d2017    m  y0frey50      ba</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="101" ind1="1" ind2=" ">
+<mxc:subfield code="a">fre</mxc:subfield>
+<mxc:subfield code="c">chi</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="102" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="105" ind1=" " ind2=" ">
+<mxc:subfield code="a">||||z   00|a|</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="106" ind1=" " ind2=" ">
+<mxc:subfield code="a">r</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">i </mxc:subfield>
+<mxc:subfield code="b">xxxe  </mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">txt</mxc:subfield>
+<mxc:subfield code="2">rdacontent</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">n</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">n</mxc:subfield>
+<mxc:subfield code="2">rdamedia</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="200" ind1="1" ind2=" ">
+<mxc:subfield code="a">La forêt sombre</mxc:subfield>
+<mxc:subfield code="b">Texte imprimé</mxc:subfield>
+<mxc:subfield code="e">roman</mxc:subfield>
+<mxc:subfield code="f">Liu Cixin</mxc:subfield>
+<mxc:subfield code="g">traduit du chinois par Gwennaël Gaffric</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="0">
+<mxc:subfield code="a">Arles</mxc:subfield>
+<mxc:subfield code="c">Actes Sud</mxc:subfield>
+<mxc:subfield code="d">DL 2017</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="3">
+<mxc:subfield code="a">61-Lonrai</mxc:subfield>
+<mxc:subfield code="c">Normandie roto impr.</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="215" ind1=" " ind2=" ">
+<mxc:subfield code="a">1 vol. (648 p.)</mxc:subfield>
+<mxc:subfield code="d">24 cm</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="225" ind1="1" ind2="9">
+<mxc:subfield code="a">Le problème à trois corps</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="225" ind1="|" ind2=" ">
+<mxc:subfield code="a">Exofictions</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="410" ind1=" " ind2="0">
+<mxc:subfield code="0">43706588</mxc:subfield>
+<mxc:subfield code="t">Exofictions</mxc:subfield>
+<mxc:subfield code="x">2270-194X</mxc:subfield>
+<mxc:subfield code="d">2017</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="454" ind1=" " ind2="1">
+<mxc:subfield code="t">Hei'an senlin</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="454" ind1=" " ind2="1">
+<mxc:subfield code="t">黑暗森林</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="461" ind1=" " ind2="0">
+<mxc:subfield code="0">45176101</mxc:subfield>
+<mxc:subfield code="t">Le problème à trois corps</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="686" ind1=" " ind2=" ">
+<mxc:subfield code="a">803</mxc:subfield>
+<mxc:subfield code="2">Cadre de classement de la Bibliographie nationale française</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="700" ind1=" " ind2="|">
+<mxc:subfield code="3">17093304</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000037048121</mxc:subfield>
+<mxc:subfield code="a">Liu</mxc:subfield>
+<mxc:subfield code="b">Ci xin</mxc:subfield>
+<mxc:subfield code="f">1963-....</mxc:subfield>
+<mxc:subfield code="4">070</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="702" ind1=" " ind2="|">
+<mxc:subfield code="3">16754523</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000439808007</mxc:subfield>
+<mxc:subfield code="a">Gaffric</mxc:subfield>
+<mxc:subfield code="b">Gwennaël</mxc:subfield>
+<mxc:subfield code="4">730</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="801" ind1=" " ind2="0">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">FR-751131015</mxc:subfield>
+<mxc:subfield code="c">20171027</mxc:subfield>
+<mxc:subfield code="g">AFNOR</mxc:subfield>
+<mxc:subfield code="h">FRBNF453797970000004</mxc:subfield>
+<mxc:subfield code="2">intermrc</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-751131010:45379797001001</mxc:subfield>
+<mxc:subfield code="a">2017-258885</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Rez de Jardin - Littérature et art - Magasin</mxc:subfield>
+<mxc:subfield code="d">O</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-751131010:45379797002001</mxc:subfield>
+<mxc:subfield code="a">895.1 LIUc 4 heia</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Haut de Jardin - Littérature et art - Salle G - Libre accès</mxc:subfield>
+<mxc:subfield code="d">N</mxc:subfield>
+</mxc:datafield>
+</mxc:record>      </srw:recordData>
+<srw:recordIdentifier>ark:/12148/cb45379797f</srw:recordIdentifier>
+<srw:recordPosition>1</srw:recordPosition>
+<srw:extraRecordData>
+<ixm:attr name="CreationDate">20171027</ixm:attr>
+<ixm:attr name="LastModificationDate">20190123</ixm:attr>
+<mn:score>7.54413</mn:score>
+</srw:extraRecordData>
+</srw:record>
+</srw:records>
+</srw:searchRetrieveResponse>

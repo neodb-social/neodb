@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:ixm="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:mn="http://catalogue.bnf.fr/namespaces/motsnotices" xmlns:sd="http://www.loc.gov/zing/srw/diagnostic/">
+<srw:version>1.2</srw:version>
+<srw:echoedSearchRetrieveRequest>
+<srw:version>1.2</srw:version>
+<srw:query>bib.isbn all "9782072999994" or bib.isbn all "2072999995"</srw:query>
+</srw:echoedSearchRetrieveRequest>
+<srw:numberOfRecords>1</srw:numberOfRecords>
+<srw:records>
+<srw:record>
+<srw:recordSchema>marcxchange</srw:recordSchema>
+<srw:recordPacking>xml</srw:recordPacking>
+<srw:recordData>
+<mxc:record xmlns:mxc="info:lc/xmlns/marcxchange-v2" format="UNIMARC" id="ark:/12148/cb475392715" type="Bibliographic">
+<mxc:leader>     cam  22        450 </mxc:leader>
+<mxc:controlfield tag="001">FRBNF475392710000005</mxc:controlfield>
+<mxc:controlfield tag="003">http://catalogue.bnf.fr/ark:/12148/cb475392715</mxc:controlfield>
+<mxc:datafield tag="010" ind1=" " ind2=" ">
+<mxc:subfield code="a">978-2-07-299999-4</mxc:subfield>
+<mxc:subfield code="b">br.</mxc:subfield>
+<mxc:subfield code="d">23 EUR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="020" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">02450318</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="073" ind1=" " ind2="0">
+<mxc:subfield code="a">9782072999994</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="100" ind1=" " ind2=" ">
+<mxc:subfield code="a">20240822d2024    m  y0frey50      ba</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="101" ind1="0" ind2=" ">
+<mxc:subfield code="a">fre</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="102" ind1=" " ind2=" ">
+<mxc:subfield code="a">FR</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="105" ind1=" " ind2=" ">
+<mxc:subfield code="a">||||z   00|a|</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="106" ind1=" " ind2=" ">
+<mxc:subfield code="a">r</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">i </mxc:subfield>
+<mxc:subfield code="b">xxxe  </mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">txt</mxc:subfield>
+<mxc:subfield code="2">rdacontent</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">n</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">n</mxc:subfield>
+<mxc:subfield code="2">rdamedia</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="200" ind1="1" ind2=" ">
+<mxc:subfield code="a">Houris</mxc:subfield>
+<mxc:subfield code="b">Texte imprimé</mxc:subfield>
+<mxc:subfield code="e">roman</mxc:subfield>
+<mxc:subfield code="f">Kamel Daoud</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="0">
+<mxc:subfield code="a">[Paris]</mxc:subfield>
+<mxc:subfield code="c">Gallimard</mxc:subfield>
+<mxc:subfield code="d">DL 2024</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="214" ind1=" " ind2="3">
+<mxc:subfield code="a">27-Mesnil-sur-l'Estrée</mxc:subfield>
+<mxc:subfield code="c">Impr. CPI Firmin-Didot</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="215" ind1=" " ind2=" ">
+<mxc:subfield code="a">1 vol. (411 p.)</mxc:subfield>
+<mxc:subfield code="d">22 cm</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="330" ind1=" " ind2=" ">
+<mxc:subfield code="a">« Je suis la véritable trace, le plus solide des indices attestant de tout ce que nous avons vécu en dix ans en Algérie. Je cache l'histoire d'une guerre entière, inscrite sur ma peau depuis que je suis enfant. » Aube est une jeune Algérienne qui doit se souvenir de la guerre d'indépendance, qu'elle n'a pas vécue, et oublier la guerre civile des années 1990, qu'elle a elle-même traversée. Sa tragédie est marquée sur son corps : une cicatrice au cou et des cordes vocales détruites. Muette, elle rêve de retrouver sa voix. Son histoire, elle ne peut la raconter qu'à la fille qu'elle porte dans son ventre. Mais a-t-elle le droit de garder cette enfant ? Peut-on donner la vie quand on vous l'a presque arrachée ? Dans un pays qui a voté des lois pour punir quiconque évoque la guerre civile, Aube décide de se rendre dans son village natal, où tout a débuté, et où les morts lui répondront peut-être.</mxc:subfield>
+<mxc:subfield code="2">éditeur</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="686" ind1=" " ind2=" ">
+<mxc:subfield code="a">803</mxc:subfield>
+<mxc:subfield code="2">Cadre de classement de la Bibliographie nationale française</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="700" ind1=" " ind2="|">
+<mxc:subfield code="3">16504932</mxc:subfield>
+<mxc:subfield code="o">ISNI0000000123031879</mxc:subfield>
+<mxc:subfield code="a">Daoud</mxc:subfield>
+<mxc:subfield code="b">Kamel</mxc:subfield>
+<mxc:subfield code="f">1970-....</mxc:subfield>
+<mxc:subfield code="4">070</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="801" ind1=" " ind2="0">
+<mxc:subfield code="a">FR</mxc:subfield>
+<mxc:subfield code="b">FR-751131015</mxc:subfield>
+<mxc:subfield code="c">20240822</mxc:subfield>
+<mxc:subfield code="g">AFNOR</mxc:subfield>
+<mxc:subfield code="h">FRBNF475392710000005</mxc:subfield>
+<mxc:subfield code="2">intermrc</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="856" ind1=" " ind2="2">
+<mxc:subfield code="u">922062</mxc:subfield>
+<mxc:subfield code="b">Première de couverture</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-751131010:47539271001001</mxc:subfield>
+<mxc:subfield code="a">MAG84 DAOU 4 hour</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Haut de Jardin - Littérature et art - Salle H - Libre accès</mxc:subfield>
+<mxc:subfield code="d">N</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-751131010:47539271001002</mxc:subfield>
+<mxc:subfield code="a">MAG84 DAOU 4 hour</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Rez de Jardin - Littérature et art - Salle V - Libre accès</mxc:subfield>
+<mxc:subfield code="d">N</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-751131010:47539271001003</mxc:subfield>
+<mxc:subfield code="a">2024-176013</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Tolbiac - Rez de Jardin - Littérature et art - Magasin</mxc:subfield>
+<mxc:subfield code="d">O</mxc:subfield>
+</mxc:datafield>
+</mxc:record>      </srw:recordData>
+<srw:recordIdentifier>ark:/12148/cb475392715</srw:recordIdentifier>
+<srw:recordPosition>1</srw:recordPosition>
+<srw:extraRecordData>
+<ixm:attr name="CreationDate">20240822</ixm:attr>
+<ixm:attr name="LastModificationDate">20251118</ixm:attr>
+<mn:score>6.4428573</mn:score>
+</srw:extraRecordData>
+</srw:record>
+</srw:records>
+</srw:searchRetrieveResponse>

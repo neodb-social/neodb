@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 09:36-0400\n"
+"POT-Creation-Date: 2026-10-01 15:39-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -71,12 +71,12 @@ msgid "Invalid date, expecting YYYY, YYYY-MM or YYYY-MM-DD."
 msgstr "日期无效，应为 YYYY、YYYY-MM 或 YYYY-MM-DD。"
 
 #: catalog/models/book.py:141 catalog/models/book.py:160
-#: catalog/models/common.py:288 catalog/models/common.py:306
+#: catalog/models/common.py:290 catalog/models/common.py:308
 msgid "locale"
 msgstr "区域语言"
 
 #: catalog/models/book.py:144 catalog/models/book.py:163
-#: catalog/models/common.py:291 catalog/models/common.py:311
+#: catalog/models/common.py:293 catalog/models/common.py:313
 msgid "text content"
 msgstr "文本内容"
 
@@ -118,7 +118,7 @@ msgstr "原名"
 msgid "other title"
 msgstr "其他标题"
 
-#: catalog/models/book.py:282 catalog/models/book.py:566
+#: catalog/models/book.py:282 catalog/models/book.py:567
 #: catalog/models/item.py:229
 msgid "author"
 msgstr "作者"
@@ -177,11 +177,11 @@ msgstr "未知"
 msgid "Douban"
 msgstr "豆瓣"
 
-#: catalog/models/common.py:28 catalog/models/common.py:82
+#: catalog/models/common.py:28 catalog/models/common.py:83
 msgid "Goodreads"
 msgstr "Goodreads"
 
-#: catalog/models/common.py:29 catalog/models/common.py:84
+#: catalog/models/common.py:29 catalog/models/common.py:85
 msgid "Google Books"
 msgstr "谷歌图书"
 
@@ -189,16 +189,16 @@ msgstr "谷歌图书"
 msgid "BooksTW"
 msgstr "博客來"
 
-#: catalog/models/common.py:31 catalog/models/common.py:94
-#: catalog/models/common.py:96
+#: catalog/models/common.py:31 catalog/models/common.py:95
+#: catalog/models/common.py:97
 msgid "Bibliotek.dk"
 msgstr "Bibliotek"
 
-#: catalog/models/common.py:32 catalog/models/common.py:95
+#: catalog/models/common.py:32 catalog/models/common.py:96
 msgid "eReolen.dk"
 msgstr "eReolen"
 
-#: catalog/models/common.py:33 catalog/models/common.py:77
+#: catalog/models/common.py:33 catalog/models/common.py:78
 #: catalog/templates/movie.html:41 catalog/templates/people.html:39
 #: catalog/templates/tvseason.html:58 catalog/templates/tvshow.html:53
 msgid "IMDb"
@@ -208,7 +208,7 @@ msgstr "IMDb"
 msgid "TMDB"
 msgstr "TMDB"
 
-#: catalog/models/common.py:35 catalog/models/common.py:97
+#: catalog/models/common.py:35 catalog/models/common.py:99
 msgid "Bandcamp"
 msgstr "Bandcamp"
 
@@ -224,11 +224,11 @@ msgstr "IGDB"
 msgid "Steam"
 msgstr "Steam"
 
-#: catalog/models/common.py:39 catalog/models/common.py:117
+#: catalog/models/common.py:39 catalog/models/common.py:119
 msgid "itch.io"
 msgstr "itch.io"
 
-#: catalog/models/common.py:40 catalog/models/common.py:118
+#: catalog/models/common.py:40 catalog/models/common.py:120
 msgid "Bangumi"
 msgstr "Bangumi"
 
@@ -236,7 +236,7 @@ msgstr "Bangumi"
 msgid "BGG"
 msgstr "BGG"
 
-#: catalog/models/common.py:42 catalog/models/common.py:119
+#: catalog/models/common.py:42 catalog/models/common.py:121
 msgid "Apple Podcast"
 msgstr "苹果播客"
 
@@ -248,35 +248,35 @@ msgstr "RSS"
 msgid "Discogs"
 msgstr "Discogs"
 
-#: catalog/models/common.py:45 catalog/models/common.py:120
+#: catalog/models/common.py:45 catalog/models/common.py:122
 msgid "Apple Music"
 msgstr "苹果音乐"
 
-#: catalog/models/common.py:46 catalog/models/common.py:122
+#: catalog/models/common.py:46 catalog/models/common.py:124
 msgid "Fediverse"
 msgstr "联邦宇宙"
 
-#: catalog/models/common.py:47 catalog/models/common.py:123
+#: catalog/models/common.py:47 catalog/models/common.py:125
 msgid "Qidian"
 msgstr "起点"
 
-#: catalog/models/common.py:48 catalog/models/common.py:124
+#: catalog/models/common.py:48 catalog/models/common.py:126
 msgid "Ypshuo"
 msgstr "阅评说"
 
-#: catalog/models/common.py:49 catalog/models/common.py:125
+#: catalog/models/common.py:49 catalog/models/common.py:127
 msgid "Archive of Our Own"
 msgstr "AO3"
 
-#: catalog/models/common.py:50 catalog/models/common.py:126
+#: catalog/models/common.py:50 catalog/models/common.py:128
 msgid "JinJiang"
 msgstr "晋江文学"
 
-#: catalog/models/common.py:51 catalog/models/common.py:67
+#: catalog/models/common.py:51 catalog/models/common.py:68
 msgid "WikiData"
 msgstr "维基数据"
 
-#: catalog/models/common.py:52 catalog/models/common.py:127
+#: catalog/models/common.py:52 catalog/models/common.py:129
 msgid "Open Library"
 msgstr "开放图书馆"
 
@@ -288,15 +288,15 @@ msgstr "MusicBrainz"
 msgid "WorldCat"
 msgstr "WorldCat"
 
-#: catalog/models/common.py:55 catalog/models/common.py:129
+#: catalog/models/common.py:55 catalog/models/common.py:131
 msgid "MobyGames"
 msgstr "MobyGames"
 
-#: catalog/models/common.py:56 catalog/models/common.py:130
+#: catalog/models/common.py:56 catalog/models/common.py:132
 msgid "StoryGraph"
 msgstr "StoryGraph"
 
-#: catalog/models/common.py:57 catalog/models/common.py:121
+#: catalog/models/common.py:57 catalog/models/common.py:123
 msgid "YouTube Music"
 msgstr "YouTube Music"
 
@@ -316,7 +316,7 @@ msgstr "讀墨"
 msgid "MyAnimeList"
 msgstr "MyAnimeList"
 
-#: catalog/models/common.py:62 catalog/models/common.py:141
+#: catalog/models/common.py:62 catalog/models/common.py:143
 msgid "MangaUpdates"
 msgstr "MangaUpdates"
 
@@ -324,269 +324,277 @@ msgstr "MangaUpdates"
 msgid "TheTVDB"
 msgstr "TheTVDB"
 
-#: catalog/models/common.py:68
+#: catalog/models/common.py:64
+msgid "BnF"
+msgstr "法国国家图书馆"
+
+#: catalog/models/common.py:69
 msgid "ISBN10"
 msgstr "ISBN10"
 
-#: catalog/models/common.py:69 catalog/templates/edition.html:19
+#: catalog/models/common.py:70 catalog/templates/edition.html:19
 msgid "ISBN"
 msgstr "ISBN"
 
-#: catalog/models/common.py:70
+#: catalog/models/common.py:71
 msgid "ASIN"
 msgstr "ASIN"
 
-#: catalog/models/common.py:71
+#: catalog/models/common.py:72
 msgid "ISSN"
 msgstr "ISSN"
 
-#: catalog/models/common.py:72
+#: catalog/models/common.py:73
 msgid "CUBN"
 msgstr "统一书号"
 
-#: catalog/models/common.py:73
+#: catalog/models/common.py:74
 msgid "ISRC"
 msgstr "ISRC"
 
-#: catalog/models/common.py:74
+#: catalog/models/common.py:75
 msgid "GTIN UPC EAN"
 msgstr "条形码"
 
-#: catalog/models/common.py:75
+#: catalog/models/common.py:76
 msgid "OCLC Number"
 msgstr "OCLC控制号"
 
-#: catalog/models/common.py:76
+#: catalog/models/common.py:77
 msgid "RSS Feed URL"
 msgstr "RSS网址"
 
-#: catalog/models/common.py:78
+#: catalog/models/common.py:79
 msgid "TMDB TV Series"
 msgstr "TMDB电视剧集"
 
-#: catalog/models/common.py:79
+#: catalog/models/common.py:80
 msgid "TMDB TV Season"
 msgstr "TMDB电视分季"
 
-#: catalog/models/common.py:80
+#: catalog/models/common.py:81
 msgid "TMDB TV Episode"
 msgstr "TMDB电视单集"
 
-#: catalog/models/common.py:81
+#: catalog/models/common.py:82
 msgid "TMDB Movie"
 msgstr "TMDB电影"
 
-#: catalog/models/common.py:83
+#: catalog/models/common.py:84
 msgid "Goodreads Work"
 msgstr "Goodreads著作"
 
-#: catalog/models/common.py:85
+#: catalog/models/common.py:86
 msgid "Douban Book"
 msgstr "豆瓣图书"
 
-#: catalog/models/common.py:86
+#: catalog/models/common.py:87
 msgid "Douban Book Work"
 msgstr "豆瓣图书著作"
 
-#: catalog/models/common.py:87
+#: catalog/models/common.py:88
 msgid "Douban Movie"
 msgstr "豆瓣电影"
 
-#: catalog/models/common.py:88
+#: catalog/models/common.py:89
 msgid "Douban Music"
 msgstr "豆瓣音乐"
 
-#: catalog/models/common.py:89
+#: catalog/models/common.py:90
 msgid "Douban Game"
 msgstr "豆瓣游戏"
 
-#: catalog/models/common.py:90
+#: catalog/models/common.py:91
 msgid "Douban Drama"
 msgstr "豆瓣舞台剧"
 
-#: catalog/models/common.py:91
+#: catalog/models/common.py:92
 msgid "Douban Drama Version"
 msgstr "豆瓣舞台剧版本"
 
-#: catalog/models/common.py:92
+#: catalog/models/common.py:93
 msgid "BooksTW Book"
 msgstr "博客来图书"
 
-#: catalog/models/common.py:93
+#: catalog/models/common.py:94
 msgid "Readmoo Book"
 msgstr "读墨图书"
 
 #: catalog/models/common.py:98
+msgid "BnF Catalogue"
+msgstr "法国国家图书馆目录"
+
+#: catalog/models/common.py:100
 msgid "Spotify Album"
 msgstr "Spotify专辑"
 
-#: catalog/models/common.py:99
+#: catalog/models/common.py:101
 msgid "Spotify Podcast"
 msgstr "Spotify播客"
 
-#: catalog/models/common.py:100
+#: catalog/models/common.py:102
 msgid "Discogs Release"
 msgstr "Discogs发行"
 
-#: catalog/models/common.py:101
+#: catalog/models/common.py:103
 msgid "Discogs Master"
 msgstr "Discogs作品"
 
-#: catalog/models/common.py:104
+#: catalog/models/common.py:106
 msgid "MusicBrainz Release Group"
 msgstr "MusicBrainz发行列表"
 
-#: catalog/models/common.py:106
+#: catalog/models/common.py:108
 msgid "MusicBrainz Release"
 msgstr "MusicBrainz发行"
 
-#: catalog/models/common.py:107
+#: catalog/models/common.py:109
 msgid "MusicBrainz Artist"
 msgstr "MusicBrainz艺术家"
 
-#: catalog/models/common.py:108
+#: catalog/models/common.py:110
 msgid "Douban Personage"
 msgstr "豆瓣人物"
 
-#: catalog/models/common.py:109
+#: catalog/models/common.py:111
 msgid "Goodreads Author"
 msgstr "Goodreads作者"
 
-#: catalog/models/common.py:110
+#: catalog/models/common.py:112
 msgid "Spotify Artist"
 msgstr "Spotify艺术家"
 
-#: catalog/models/common.py:111
+#: catalog/models/common.py:113
 msgid "TMDB Person"
 msgstr "TMDB人物"
 
-#: catalog/models/common.py:112
+#: catalog/models/common.py:114
 msgid "Open Library Author"
 msgstr "开放图书馆作者"
 
-#: catalog/models/common.py:113
+#: catalog/models/common.py:115
 msgid "IGDB Company"
 msgstr "IGDB公司"
 
-#: catalog/models/common.py:114
+#: catalog/models/common.py:116
 msgid "IGDB Game"
 msgstr "IGDB游戏"
 
-#: catalog/models/common.py:115
+#: catalog/models/common.py:117
 msgid "BGG Boardgame"
 msgstr "BGG桌游"
 
-#: catalog/models/common.py:116
+#: catalog/models/common.py:118
 msgid "Steam Game"
 msgstr "Steam游戏"
 
-#: catalog/models/common.py:128
+#: catalog/models/common.py:130
 msgid "Open Library Work"
 msgstr "开放图书馆著作"
 
-#: catalog/models/common.py:131
+#: catalog/models/common.py:133
 msgid "RateYourMusic Release"
 msgstr "RateYourMusic发行"
 
-#: catalog/models/common.py:135
+#: catalog/models/common.py:137
 msgid "AniList Anime"
 msgstr "AniList动画"
 
-#: catalog/models/common.py:136
+#: catalog/models/common.py:138
 msgid "AniList Manga"
 msgstr "AniList漫画"
 
-#: catalog/models/common.py:137
+#: catalog/models/common.py:139
 msgid "MyAnimeList Anime"
 msgstr "MyAnimeList动画"
 
-#: catalog/models/common.py:138
+#: catalog/models/common.py:140
 msgid "MyAnimeList Manga"
 msgstr "MyAnimeList漫画"
 
-#: catalog/models/common.py:144
+#: catalog/models/common.py:146
 msgid "TheTVDB Series"
 msgstr "TheTVDB电视剧集"
 
-#: catalog/models/common.py:145
+#: catalog/models/common.py:147
 msgid "TheTVDB Season"
 msgstr "TheTVDB电视分季"
 
-#: catalog/models/common.py:146
+#: catalog/models/common.py:148
 msgid "TheTVDB Episode"
 msgstr "TheTVDB电视单集"
 
-#: catalog/models/common.py:147
+#: catalog/models/common.py:149
 msgid "TheTVDB Movie"
 msgstr "TheTVDB电影"
 
-#: catalog/models/common.py:148
+#: catalog/models/common.py:150
 msgid "TheTVDB Person"
 msgstr "TheTVDB人物"
 
-#: catalog/models/common.py:170
+#: catalog/models/common.py:172
 msgid "Edition"
 msgstr "版本"
 
-#: catalog/models/common.py:171 catalog/templates/_sidebar_edit.html:289
+#: catalog/models/common.py:173 catalog/templates/_sidebar_edit.html:289
 msgid "Work"
 msgstr "作品"
 
-#: catalog/models/common.py:172
+#: catalog/models/common.py:174
 msgid "TV Series"
 msgstr "电视剧集"
 
-#: catalog/models/common.py:173 catalog/templates/_sidebar_edit.html:202
+#: catalog/models/common.py:175 catalog/templates/_sidebar_edit.html:202
 #: catalog/views/edit.py:381
 msgid "TV Season"
 msgstr "电视分季"
 
-#: catalog/models/common.py:174
+#: catalog/models/common.py:176
 msgid "TV Episode"
 msgstr "电视单集"
 
-#: catalog/models/common.py:175 catalog/models/common.py:191
-#: catalog/models/common.py:205 catalog/templates/_sidebar_edit.html:196
+#: catalog/models/common.py:177 catalog/models/common.py:193
+#: catalog/models/common.py:207 catalog/templates/_sidebar_edit.html:196
 #: catalog/views/edit.py:380 journal/templates/_sidebar_user_mark_list.html:35
 #: journal/templates/_sidebar_user_tag_filter.html:27
 msgid "Movie"
 msgstr "电影"
 
-#: catalog/models/common.py:176
+#: catalog/models/common.py:178
 msgid "Album"
 msgstr "专辑"
 
-#: catalog/models/common.py:177 catalog/models/common.py:194
-#: catalog/models/common.py:208 common/templates/_header.html:53
+#: catalog/models/common.py:179 catalog/models/common.py:196
+#: catalog/models/common.py:210 common/templates/_header.html:53
 #: journal/templates/_sidebar_user_mark_list.html:48
 #: journal/templates/_sidebar_user_tag_filter.html:39
 msgid "Game"
 msgstr "游戏"
 
-#: catalog/models/common.py:178
+#: catalog/models/common.py:180
 msgid "Podcast Program"
 msgstr "播客节目"
 
-#: catalog/models/common.py:179
+#: catalog/models/common.py:181
 msgid "Podcast Episode"
 msgstr "播客单集"
 
-#: catalog/models/common.py:180 catalog/models/common.py:196
-#: catalog/models/common.py:210 common/templates/_header.html:57
+#: catalog/models/common.py:182 catalog/models/common.py:198
+#: catalog/models/common.py:212 common/templates/_header.html:57
 #: journal/templates/_sidebar_user_mark_list.html:52
 #: journal/templates/_sidebar_user_tag_filter.html:43
 msgid "Performance"
 msgstr "演出"
 
-#: catalog/models/common.py:181 catalog/templates/performance.html:42
+#: catalog/models/common.py:183 catalog/templates/performance.html:42
 msgid "Production"
 msgstr "上演"
 
-#: catalog/models/common.py:182
+#: catalog/models/common.py:184
 msgid "Exhibition"
 msgstr "展览"
 
-#: catalog/models/common.py:183 catalog/models/common.py:200
+#: catalog/models/common.py:185 catalog/models/common.py:202
 #: journal/templates/collection.html:30 journal/templates/collection.html:41
 #: journal/templates/collection_edit.html:10
 #: journal/templates/collection_share.html:12
@@ -595,24 +603,24 @@ msgstr "展览"
 msgid "Collection"
 msgstr "收藏单"
 
-#: catalog/models/common.py:186 catalog/models/common.py:199
+#: catalog/models/common.py:188 catalog/models/common.py:201
 msgid "Person / Organization"
 msgstr "人物 / 团体"
 
-#: catalog/models/common.py:190 catalog/models/common.py:204
+#: catalog/models/common.py:192 catalog/models/common.py:206
 #: common/templates/_header.html:37
 #: journal/templates/_sidebar_user_mark_list.html:32
 #: journal/templates/_sidebar_user_tag_filter.html:24
 msgid "Book"
 msgstr "图书"
 
-#: catalog/models/common.py:192 catalog/models/common.py:206
+#: catalog/models/common.py:194 catalog/models/common.py:208
 #: journal/templates/_sidebar_user_mark_list.html:38
 #: journal/templates/_sidebar_user_tag_filter.html:30
 msgid "TV"
 msgstr "剧集"
 
-#: catalog/models/common.py:193 catalog/models/common.py:207
+#: catalog/models/common.py:195 catalog/models/common.py:209
 #: catalog/templates/search_header.html:49
 #: catalog/templates/search_header.html:51 common/templates/_header.html:49
 #: journal/templates/_sidebar_user_mark_list.html:45
@@ -620,34 +628,34 @@ msgstr "剧集"
 msgid "Music"
 msgstr "音乐"
 
-#: catalog/models/common.py:195 catalog/models/common.py:209
+#: catalog/models/common.py:197 catalog/models/common.py:211
 #: catalog/templates/_sidebar_edit.html:213 common/templates/_header.html:45
 #: journal/templates/_sidebar_user_mark_list.html:42
 #: journal/templates/_sidebar_user_tag_filter.html:33
 msgid "Podcast"
 msgstr "播客"
 
-#: catalog/models/common.py:354 catalog/templates/_genre_list.html:5
+#: catalog/models/common.py:356 catalog/templates/_genre_list.html:5
 msgid "genre"
 msgstr "类型"
 
-#: catalog/models/common.py:392
+#: catalog/models/common.py:394
 msgid "origin country"
 msgstr "制片国家/地区"
 
-#: catalog/models/common.py:421 catalog/templates/album.html:33
+#: catalog/models/common.py:423 catalog/templates/album.html:33
 msgid "album type"
 msgstr "专辑类型"
 
-#: catalog/models/common.py:425 catalog/templates/_platform_list.html:5
+#: catalog/models/common.py:427 catalog/templates/_platform_list.html:5
 msgid "platform"
 msgstr "平台"
 
-#: catalog/models/common.py:429
+#: catalog/models/common.py:431
 msgid "media format"
 msgstr "介质"
 
-#: catalog/models/common.py:434 catalog/templates/_language_list.html:5
+#: catalog/models/common.py:436 catalog/templates/_language_list.html:5
 #: users/models/user.py:144
 msgid "language"
 msgstr "语言"
@@ -1929,7 +1937,7 @@ msgstr "全部标为已读"
 
 #: catalog/templates/discover.html:58
 #: common/templates/_sidebar_anonymous.html:42
-#: common/templates/common/about.html:202
+#: common/templates/common/about.html:205
 #: users/templates/users/announcements.html:12
 #: users/templates/users/announcements.html:18
 msgid "Announcements"
@@ -4319,6 +4327,10 @@ msgid "Metadata provided by <a href=\"https://thetvdb.com\" target=\"_blank\">Th
 msgstr "元数据由 <a href=\"https://thetvdb.com\" target=\"_blank\">TheTVDB</a> 提供。欢迎为其补充缺失的信息或订阅。"
 
 #: common/templates/common/about.html:193
+msgid "Bibliographic data from the <a href=\"https://catalogue.bnf.fr\" target=\"_blank\">BnF catalogue général</a>, under the Licence Ouverte (Etalab)."
+msgstr "书目数据来自<a href=\"https://catalogue.bnf.fr\" target=\"_blank\">法国国家图书馆总目录</a>，依开放许可协议（Licence Ouverte，Etalab）使用。"
+
+#: common/templates/common/about.html:196
 msgid "This website may get catalog data from the sources below. These sources are not affiliated with this website."
 msgstr "本网站的条目数据可能来自以下来源，这些来源与本网站并无从属关系。"
 
@@ -5369,7 +5381,7 @@ msgstr "短评"
 msgid "Rating"
 msgstr "评分"
 
-#: journal/importers/goodreads.py:198 journal/importers/letterboxd.py:147
+#: journal/importers/goodreads.py:200 journal/importers/letterboxd.py:147
 #: journal/importers/rym.py:455 journal/importers/storygraph.py:508
 #, python-brace-format
 msgid "a review of {item_title}"

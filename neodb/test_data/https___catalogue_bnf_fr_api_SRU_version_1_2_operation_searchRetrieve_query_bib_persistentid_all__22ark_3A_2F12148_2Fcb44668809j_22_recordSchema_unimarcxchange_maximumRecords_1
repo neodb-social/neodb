@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:ixm="http://catalogue.bnf.fr/namespaces/InterXMarc" xmlns:mn="http://catalogue.bnf.fr/namespaces/motsnotices" xmlns:sd="http://www.loc.gov/zing/srw/diagnostic/">
+<srw:version>1.2</srw:version>
+<srw:echoedSearchRetrieveRequest>
+<srw:version>1.2</srw:version>
+<srw:query>bib.persistentid all "ark:/12148/cb44668809j"</srw:query>
+</srw:echoedSearchRetrieveRequest>
+<srw:numberOfRecords>1</srw:numberOfRecords>
+<srw:records>
+<srw:record>
+<srw:recordSchema>marcxchange</srw:recordSchema>
+<srw:recordPacking>xml</srw:recordPacking>
+<srw:recordData>
+<mxc:record xmlns:mxc="info:lc/xmlns/marcxchange-v2" format="UNIMARC" id="ark:/12148/cb44668809j" type="Bibliographic">
+<mxc:leader>     nam  22     3  450 </mxc:leader>
+<mxc:controlfield tag="001">FRBNF446688090000005</mxc:controlfield>
+<mxc:controlfield tag="003">http://catalogue.bnf.fr/ark:/12148/cb44668809j</mxc:controlfield>
+<mxc:datafield tag="010" ind1=" " ind2=" ">
+<mxc:subfield code="a">9781597451697</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="035" ind1=" " ind2=" ">
+<mxc:subfield code="a">OCoLC166627310</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="100" ind1=" " ind2=" ">
+<mxc:subfield code="a">20170801d2008    m  y0engy50      ba</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="101" ind1="0" ind2=" ">
+<mxc:subfield code="a">eng</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="102" ind1=" " ind2=" ">
+<mxc:subfield code="a">US</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="105" ind1=" " ind2=" ">
+<mxc:subfield code="a">a   z   00|y|</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="106" ind1=" " ind2=" ">
+<mxc:subfield code="a">s</mxc:subfield>
+<mxc:subfield code="a">z</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="135" ind1=" " ind2=" ">
+<mxc:subfield code="a">dru||||||||||</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">i </mxc:subfield>
+<mxc:subfield code="b">xxxe  </mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="181" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">txt</mxc:subfield>
+<mxc:subfield code="2">rdacontent</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2="0">
+<mxc:subfield code="6">01</mxc:subfield>
+<mxc:subfield code="a">b</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="182" ind1=" " ind2=" ">
+<mxc:subfield code="6">02</mxc:subfield>
+<mxc:subfield code="c">c</mxc:subfield>
+<mxc:subfield code="2">rdamedia</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="200" ind1="1" ind2=" ">
+<mxc:subfield code="a">Cancer proteomics</mxc:subfield>
+<mxc:subfield code="b">Texte électronique</mxc:subfield>
+<mxc:subfield code="e">from bench to bedside</mxc:subfield>
+<mxc:subfield code="f">edited by Sayed S. Daoud</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="210" ind1=" " ind2=" ">
+<mxc:subfield code="a">Totowa, N.J.</mxc:subfield>
+<mxc:subfield code="c">Humana Press</mxc:subfield>
+<mxc:subfield code="d">cop. 2008</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="215" ind1=" " ind2=" ">
+<mxc:subfield code="a">1 ressource dématérialisée</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="225" ind1="1" ind2=" ">
+<mxc:subfield code="a">Cancer drug discovery and development</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="300" ind1=" " ind2=" ">
+<mxc:subfield code="a">Includes bibliographical references and index</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="606" ind1=" " ind2=" ">
+<mxc:subfield code="3">11931105</mxc:subfield>
+<mxc:subfield code="a">Cancer</mxc:subfield>
+<mxc:subfield code="3">12231420</mxc:subfield>
+<mxc:subfield code="x">Aspect moléculaire</mxc:subfield>
+<mxc:subfield code="2">rameau</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="606" ind1=" " ind2=" ">
+<mxc:subfield code="3">11946859</mxc:subfield>
+<mxc:subfield code="a">Anticancéreux</mxc:subfield>
+<mxc:subfield code="2">rameau</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="702" ind1=" " ind2="|">
+<mxc:subfield code="3">17207386</mxc:subfield>
+<mxc:subfield code="a">Daoud</mxc:subfield>
+<mxc:subfield code="b">Sayed S.</mxc:subfield>
+<mxc:subfield code="4">340</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="801" ind1=" " ind2="3">
+<mxc:subfield code="a">US</mxc:subfield>
+<mxc:subfield code="b">OCoLC</mxc:subfield>
+<mxc:subfield code="c">20170801</mxc:subfield>
+<mxc:subfield code="h">166627310</mxc:subfield>
+<mxc:subfield code="2">marc21</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="801" ind1=" " ind2="0">
+<mxc:subfield code="b">NLM</mxc:subfield>
+</mxc:datafield>
+<mxc:datafield tag="930" ind1=" " ind2=" ">
+<mxc:subfield code="5">FR-759999999:44668809001001</mxc:subfield>
+<mxc:subfield code="a">ACQNUM-50575</mxc:subfield>
+<mxc:subfield code="b">759999999</mxc:subfield>
+<mxc:subfield code="c">Document numérisé</mxc:subfield>
+<mxc:subfield code="d">N</mxc:subfield>
+</mxc:datafield>
+</mxc:record>      </srw:recordData>
+<srw:recordIdentifier>ark:/12148/cb44668809j</srw:recordIdentifier>
+<srw:recordPosition>1</srw:recordPosition>
+<srw:extraRecordData>
+<ixm:attr name="CreationDate">20180207</ixm:attr>
+<ixm:attr name="LastModificationDate">20260325</ixm:attr>
+<mn:score>7.544409</mn:score>
+</srw:extraRecordData>
+</srw:record>
+</srw:records>
+</srw:searchRetrieveResponse>

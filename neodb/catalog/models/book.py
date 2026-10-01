@@ -375,6 +375,7 @@ class Edition(Item):
             IdType.Goodreads,
             IdType.GoogleBooks,
             IdType.OpenLibrary,
+            IdType.BnF,
             IdType.Qidian,
             IdType.JJWXC,
         ]

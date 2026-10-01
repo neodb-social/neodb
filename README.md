@@ -23,25 +23,13 @@ Follow us on [Fediverse](https://mastodon.online/@neodb), [Atmosphere](https://b
 - manage a shared catalog of books/movies/TV shows/music albums/games/podcasts/performances
   + search or create catalog items in each category
   + create an item in one click, with links to [many 3rd-party sites](docs/sites.md):
-    * Goodreads
-    * IMDB
-    * The Movie Database
-    * Douban
-    * Google Books
-    * Discogs
-    * Spotify
-    * Apple Music
-    * Bandcamp
-    * Steam
-    * IGDB
-    * Bangumi
-    * Board Game Geek
-    * Archive of Our Own
-    * WikiData
-    * Open Library
-    * WorldCat
-    * Musicbrainz
-    * any RSS link to a podcast
+    * books: Goodreads, Google Books, Open Library, WorldCat, BnF, StoryGraph, Bibliotek.dk, BooksTW, Readmoo, Qidian, JinJiang, Ypshuo, Archive of Our Own
+    * movies and TV: IMDB, The Movie Database, TheTVDB
+    * anime and manga: AniList, MyAnimeList, MangaUpdates
+    * music: Discogs, Spotify, Apple Music, Bandcamp, MusicBrainz, RateYourMusic, YouTube Music
+    * games: Steam, IGDB, itch.io, MobyGames, Board Game Geek
+    * podcasts: Apple Podcasts, any RSS link
+    * multiple categories: Douban, Bangumi, WikiData
   + Search from some of the sites above
 - logged in users can manage their collections:
   + mark an item as wishlist/in progress/complete/dropped

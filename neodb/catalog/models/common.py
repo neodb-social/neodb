@@ -61,6 +61,7 @@ class SiteName(models.TextChoices):
     MyAnimeList = "myanimelist", _("MyAnimeList")
     MangaUpdates = "mangaupdates", _("MangaUpdates")
     TVDB = "tvdb", _("TheTVDB")
+    BnF = "bnf", _("BnF")
 
 
 class IdType(models.TextChoices):  # values must be in lowercase
@@ -94,6 +95,7 @@ class IdType(models.TextChoices):  # values must be in lowercase
     BibliotekDK_Edition = "bibliotekdk_edition", _("Bibliotek.dk")
     BibliotekDK_eReolen = "bibliotekdk_ereolen", _("eReolen.dk")
     BibliotekDK_Work = "bibliotekdk_work", _("Bibliotek.dk")
+    BnF = "bnf", _("BnF Catalogue")
     Bandcamp = "bandcamp", _("Bandcamp")
     Spotify_Album = "spotify_album", _("Spotify Album")
     Spotify_Show = "spotify_show", _("Spotify Podcast")
