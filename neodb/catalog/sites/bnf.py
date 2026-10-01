@@ -131,8 +131,12 @@ class BnFDownloader(BasicDownloader):
 
 
 def _strip_isbd(s: str) -> str:
-    """Drop the ISBD punctuation that ends a subfield."""
-    return s.strip().rstrip(" /:;,=").strip()
+    """Drop the ISBD punctuation that ends a subfield.
+
+    A full stop counts only when spaced off ("perdu ."), so that an
+    ellipsis or an abbreviation at the end survives.
+    """
+    return re.sub(r"(\s+\.)+$", "", s.strip().rstrip(" /:;,=")).strip()
 
 
 class UnimarcRecord:

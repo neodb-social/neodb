@@ -83,6 +83,12 @@ class TestUnimarcRecord:
         # the copyright date, not the production date
         assert record.pub_year == 2012
 
+    def test_trailing_isbd_full_stop(self):
+        assert _record(("225", [("a", "À la recherche du temps perdu .")])).series == (
+            "À la recherche du temps perdu"
+        )
+        assert _record(("200", [("a", "Et après...")])).title == "Et après..."
+
     def test_languages(self):
         codes = ["fre", "lat", "heb", "dan", "fin", "mul"]
         record = _record(("101", [("a", c) for c in codes]))
