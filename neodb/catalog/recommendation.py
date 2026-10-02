@@ -404,18 +404,26 @@ def dismiss_item(user: User, item: Item) -> None:
 
 
 def restore_item(user: User, item: Item) -> None:
-    """Undo ``dismiss_item``, including dismissals of items merged into it."""
+    """Undo ``dismiss_item`` for every dismissal that resolves to the same item."""
+    target = item.final_item.pk
+    dismissed = _user_dismissed_members(user.pk)
+    rows = list(dismissed.values_list("pk", "item_id"))
+    rewrite = _scoped_rewrite_map(dismissed.values("item_id"))
     RecommendationDismissal.objects.filter(
-        Q(item=item) | Q(item__merged_to_item=item), user=user
+        pk__in=[
+            pk
+            for pk, item_id in rows
+            if item_id == item.pk or rewrite.get(item_id, item_id) == target
+        ]
     ).delete()
 
 
 def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     """Return up to ``limit`` items similar to ``item``.
 
-    Excludes items the viewer has already shelved (any state). Drops deleted
-    and merged items. No author/owner visibility filter needed: ItemSimilarity
-    is built from public marks only.
+    Excludes items the viewer has already shelved (any state) or dismissed.
+    Drops deleted and merged items. No author/owner visibility filter needed:
+    ItemSimilarity is built from public marks only.
     """
     rows = list(
         ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
@@ -426,7 +434,9 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
         return []
     exclude: set[int] = set()
     if viewer and viewer.is_authenticated and getattr(viewer, "identity", None):
-        exclude = _user_excluded_item_ids(viewer.identity.pk)
+        exclude = _user_excluded_item_ids(
+            viewer.identity.pk
+        ) | _user_dismissed_item_ids(viewer.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []
