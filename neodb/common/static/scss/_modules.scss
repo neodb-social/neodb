@@ -512,12 +512,11 @@ a.dc-progress-badge {
   }
 }
 
-.dc-card-dismissed {
-  .dc-cover {
-    box-shadow: none;
-    border: 1px dashed var(--dc-border);
-    background: transparent;
-  }
+// a dismissed card keeps its <li>, so a snapped shelf row does not jump
+.dc-cover.dismissed {
+  box-shadow: none;
+  border: 1px dashed var(--dc-border);
+  background: transparent;
 
   .dc-dismissed-note {
     position: absolute;
@@ -532,10 +531,12 @@ a.dc-progress-badge {
     font-size: var(--dc-fs-sm);
     text-align: center;
   }
+}
 
-  .dc-title {
-    color: var(--dc-muted);
-  }
+.dc-title.dismissed {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--dc-muted);
 }
 
 .dc-title {

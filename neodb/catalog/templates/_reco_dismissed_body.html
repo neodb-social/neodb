@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load discover %}
+<span class="dc-cover dismissed {{ item|cover_shape }}">
+  <span class="dc-dismissed-note">
+    {% trans "Hidden from recommendations." %}
+    <button type="button"
+            class="dc-btn outline secondary"
+            hx-post="{% url 'catalog:restore_recommendation' item.uuid %}"
+            hx-target="closest li"
+            hx-swap="innerHTML">{% trans "Undo" %}</button>
+  </span>
+</span>
+<span class="dc-title dismissed">{{ item.display_title }}</span>

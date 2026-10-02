@@ -22,7 +22,7 @@ def _prepare_cards(items: list[Item]) -> None:
 def dismiss_recommendation(request, item_uuid: str):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     dismiss_item(request.user, item)
-    return render(request, "_reco_dismissed_card.html", {"item": item})
+    return render(request, "_reco_dismissed_body.html", {"item": item})
 
 
 @login_required
@@ -34,7 +34,7 @@ def restore_recommendation(request, item_uuid: str):
         return HttpResponse()
     _prepare_cards([item])
     return render(
-        request, "_item_cover_card.html", {"item": item, "reco_dismiss": True}
+        request, "_item_cover_card_body.html", {"item": item, "reco_dismiss": True}
     )
 
 
