@@ -3,7 +3,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from catalog.models import Edition
+from catalog.models import Edition, RecommendationDismissal
 from journal.exporters import NdjsonExporter
 from journal.models import CrosspostRetry, Mark, ShelfMember, ShelfType
 from mastodon.models import EmailAccount
@@ -35,6 +35,7 @@ class TestUserClear:
         piece = ShelfMember.objects.filter(owner=self.identity).first()
         assert piece
         CrosspostRetry.objects.create(user=self.user, piece=piece, platform="mastodon")
+        RecommendationDismissal.objects.create(user=self.user, item=self.book)
 
     def test_clear_removes_user_owned_records_and_files(self):
         assert Preference.objects.filter(user=self.user).exists()
@@ -44,6 +45,7 @@ class TestUserClear:
         assert not Task.objects.filter(user=self.user).exists()
         assert not Webhook.objects.filter(user=self.user).exists()
         assert not CrosspostRetry.objects.filter(user=self.user).exists()
+        assert not RecommendationDismissal.objects.filter(user=self.user).exists()
         assert not Preference.objects.filter(user=self.user).exists()
         assert not self.export.exists()
 
