@@ -6,6 +6,7 @@ from django.utils import translation
 from common.models import (
     SITE_PREFERRED_LANGUAGES,
     SITE_PREFERRED_LOCALES,
+    SiteConfig,
     detect_language,
 )
 from common.models.lang import _build_language_aliases, normalize_languages
@@ -308,3 +309,16 @@ class TestNodeInfo:
         assert response.status_code == 200
         data = response.json()
         assert "federation" not in data["metadata"]
+
+    def test_nodeinfo_hidden_on_alternative_domain(self, monkeypatch):
+        system = SiteConfig.system.model_copy(
+            update={"alternative_domains": ["alias.example.org"]}
+        )
+        monkeypatch.setattr(SiteConfig, "system", system)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        monkeypatch.setattr(settings, "ALLOWED_HOSTS", ["*"])
+        client = Client()
+        for host in ["alias.example.org", "Alias.Example.org:443"]:
+            response = client.get("/nodeinfo/2.0/", HTTP_HOST=host)
+            assert response.status_code == 404
+        assert client.get("/nodeinfo/2.0/").status_code == 200

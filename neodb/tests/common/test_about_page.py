@@ -4,6 +4,7 @@ from django.test import Client
 from django.urls import reverse
 
 from takahe.models import Domain
+from takahe.utils import Takahe
 from users.models import User
 
 pytestmark = pytest.mark.django_db(databases="__all__")
@@ -56,3 +57,15 @@ def test_about_page_for_member_skips_sign_in():
     assert 'id="about"' in content
     assert reverse("users:login") not in content
     assert reverse("catalog:discover") in content
+
+
+def test_neodb_peers_skip_alternative_domains(settings):
+    settings.SITE_DOMAINS = [settings.SITE_DOMAIN, "alias.example.org"]
+    _add_neodb_peer("peer1.example.com", "Peer One")
+    # a web-only alias of this site, stored with our own nodeinfo
+    _add_neodb_peer("alias.example.org", "NeoDB")
+    cache.delete_many(["neodb_peers", "neodb_peers_active"])
+
+    assert Takahe.get_neodb_peers() == ["peer1.example.com"]
+    assert Takahe.get_neodb_peers(active_only=False) == ["peer1.example.com"]
+    cache.delete_many(["neodb_peers", "neodb_peers_active"])
