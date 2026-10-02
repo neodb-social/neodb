@@ -10,6 +10,7 @@ from catalog.recommendation import (
     for_you,
     from_your_circles,
     restore_item,
+    similar_items,
 )
 from common.models import SiteConfig
 from journal.models import Mark, ShelfType
@@ -144,11 +145,51 @@ class TestForYou:
         assert not RecommendationDismissal.objects.filter(user=self.user).exists()
         assert self.books[0].pk in self._ids()
 
+    def test_restore_through_the_merged_item_clears_the_dismissal(self):
+        old = Edition.objects.create(title="Old")
+        old.merge_to(self.books[0])
+        dismiss_item(self.user, old)
+        restore_item(self.user, old)
+        assert not RecommendationDismissal.objects.filter(user=self.user).exists()
+
+    def test_dismissal_follows_a_merge_chain(self):
+        a = Edition.objects.create(title="A")
+        b = Edition.objects.create(title="B")
+        dismiss_item(self.user, a)
+        a.merge_to(b)
+        b.merge_to(self.books[0])
+        assert self.books[0].pk not in self._ids()
+        restore_item(self.user, self.books[0])
+        assert not RecommendationDismissal.objects.filter(user=self.user).exists()
+
     def test_dismissal_is_per_user(self):
         other = User.register(email="fy2@t.com", username="fy2")
         _cached_rows(other, self.books)
         dismiss_item(other, self.books[0])
         assert self.books[0].pk in self._ids()
+
+
+class TestSimilarItems:
+    @pytest.fixture(autouse=True)
+    def setup(self, site_config):
+        strangers = [
+            User.register(email=f"si{i}@t.com", username=f"si{i}").identity
+            for i in range(2)
+        ]
+        self.src = Edition.objects.create(title="Src")
+        self.t1 = Edition.objects.create(title="T1")
+        self.t2 = Edition.objects.create(title="T2")
+        for ident in strangers:
+            for item in (self.src, self.t1, self.t2):
+                _public_mark(ident, item)
+        BuildItemSimilarity().run()
+        self.user = User.register(email="sit@t.com", username="sit")
+
+    def test_dismissed_item_is_not_similar(self):
+        dismiss_item(self.user, self.t1)
+        ids = {i.pk for i in similar_items(self.src, viewer=self.user)}
+        assert self.t1.pk not in ids
+        assert self.t2.pk in ids
 
 
 class TestFromYourCircles:
