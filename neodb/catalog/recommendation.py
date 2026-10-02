@@ -34,6 +34,7 @@ from .models import (
     ItemSimilarity,
     PerformanceProduction,
     PodcastEpisode,
+    RecommendationDismissal,
     TVEpisode,
     TVShow,
     UserRecommendation,
@@ -367,6 +368,19 @@ def _user_excluded_item_ids(identity_pk: int) -> set[int]:
     )
 
 
+def _user_dismissed_members(user_pk: int) -> QuerySet[RecommendationDismissal]:
+    return RecommendationDismissal.objects.filter(user_id=user_pk).order_by()
+
+
+def _user_dismissed_item_ids(user_pk: int) -> set[int]:
+    """Dismissed items plus where their merges have led since."""
+    dismissed = _user_dismissed_members(user_pk)
+    ids = set(dismissed.values_list("item_id", flat=True))
+    if not ids:
+        return ids
+    return _with_rewrites(ids, _scoped_rewrite_map(dismissed.values("item_id")))
+
+
 def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
     """Edition ids sharing a Work with any Edition in ``item_ids``.
 
@@ -382,6 +396,18 @@ def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
             "edition_id", flat=True
         )
     )
+
+
+def dismiss_item(user: User, item: Item) -> None:
+    """Stop recommending ``item`` to ``user`` on every surface."""
+    RecommendationDismissal.objects.get_or_create(user=user, item=item.final_item)
+
+
+def restore_item(user: User, item: Item) -> None:
+    """Undo ``dismiss_item``, including dismissals of items merged into it."""
+    RecommendationDismissal.objects.filter(
+        Q(item=item) | Q(item__merged_to_item=item), user=user
+    ).delete()
 
 
 def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
@@ -465,10 +491,13 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         )
         for sid, (grade, has_comment, has_review, has_note) in zip(seeds, seed_signals)
     }
-    # Exclude shelved items plus their sibling editions (same Work). Precompute
-    # only; a sibling marked later may dupe until the next refresh.
-    shelved = _with_rewrites(_user_shelved_item_ids(identity_pk), rewrite)
-    excluded = shelved | _sibling_edition_ids(shelved)
+    # Exclude shelved and dismissed items plus their sibling editions (same
+    # Work). Precompute only; a sibling marked later may dupe until the next
+    # refresh.
+    hidden = _with_rewrites(
+        _user_shelved_item_ids(identity_pk), rewrite
+    ) | _user_dismissed_item_ids(user_pk)
+    excluded = hidden | _sibling_edition_ids(hidden)
 
     # min-heap of the strongest (contribution, seed) pairs per target
     contribs: dict[int, list[tuple[float, int]]] = {}
@@ -566,20 +595,22 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
         rows = _cached_user_rows(viewer.pk, sys.reco_lazy_ttl_days)
     if category:
         rows = [r for r in rows if r.category == category]
-    target_ids = [r.item_id for r in rows[:limit]]
-    if not target_ids:
+    if not rows:
         return []
-    shelved = _user_excluded_item_ids(identity.pk)
-    qs = _live_items(Item.objects.filter(pk__in=target_ids))
-    by_id = {i.pk: i for i in qs}
-    out: list[Item] = []
-    for tid in target_ids:
-        if tid in shelved:
-            continue
-        i = by_id.get(tid)
-        if i:
-            out.append(i)
-    return out
+    # filter before cutting to ``limit``, so the rows stored beyond it
+    # (reco_user_top_n) fill the places of shelved, dismissed or dead items
+    skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
+    candidates = [r.item_id for r in rows if r.item_id not in skip]
+    if not candidates:
+        return []
+    live = set(
+        _live_items(Item.objects.filter(pk__in=candidates))
+        .order_by()
+        .values_list("pk", flat=True)
+    )
+    target_ids = [tid for tid in candidates if tid in live][:limit]
+    by_id = {i.pk: i for i in Item.objects.filter(pk__in=target_ids)}
+    return [by_id[tid] for tid in target_ids if tid in by_id]
 
 
 _CIRCLES_TTL = 3600
@@ -610,6 +641,7 @@ def _circles_ranked_ids(
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
         )
         .exclude(item_id__in=shelved)
+        .exclude(item_id__in=_user_dismissed_members(viewer.pk).values("item_id"))
     )
     if excluded_ctypes:
         qs = qs.exclude(item__polymorphic_ctype_id__in=excluded_ctypes)
@@ -628,7 +660,7 @@ def from_your_circles(
 
     The ranked ids are cached per viewer for ``_CIRCLES_TTL``, so follow
     changes and new marks by followees show up late; items the viewer shelved
-    since then are dropped on every read. Respects visibility via
+    or dismissed since then are dropped on every read. Respects visibility via
     ``q_piece_visible_to_user``.
     """
     if not viewer or not viewer.is_authenticated:
@@ -647,13 +679,13 @@ def from_your_circles(
         cache.set(key, target_ids, timeout=_CIRCLES_TTL)
     if not target_ids:
         return []
-    shelved = set(
+    skip = set(
         _user_shelved_members(identity.pk)
         .filter(item_id__in=target_ids)
         .values_list("item_id", flat=True)
-    )
+    ) | _user_dismissed_item_ids(viewer.pk)
     items_qs = _live_items(
-        Item.objects.filter(pk__in=[i for i in target_ids if i not in shelved])
+        Item.objects.filter(pk__in=[i for i in target_ids if i not in skip])
     )
     by_id = {i.pk: i for i in items_qs}
     if category:

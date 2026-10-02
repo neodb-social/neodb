@@ -51,4 +51,26 @@
       </span>
     {% endif %}
   {% endif %}
+  {% if reco_dismiss %}
+    <button type="button"
+            class="dc-card-dismiss"
+            title="{% trans 'Not interested' %}"
+            aria-label="{% trans 'Not interested' %}"
+            hx-post="{% url 'catalog:dismiss_recommendation' item.uuid %}"
+            hx-target="closest li"
+            hx-swap="outerHTML">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  {% elif reco_restore %}
+    <button type="button"
+            class="dc-card-dismiss"
+            title="{% trans 'Show in recommendations again' %}"
+            aria-label="{% trans 'Show in recommendations again' %}"
+            hx-post="{% url 'catalog:restore_recommendation' item.uuid %}"
+            hx-vals='{"remove": "1"}'
+            hx-target="closest li"
+            hx-swap="outerHTML">
+      <i class="fa-solid fa-rotate-left"></i>
+    </button>
+  {% endif %}
 </li>

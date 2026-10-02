@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 21:25-0400\n"
+"POT-Creation-Date: 2026-10-03 00:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1306,9 +1306,19 @@ msgstr ""
 msgid "Comment this episode"
 msgstr ""
 
-#: catalog/templates/_item_cover_card.html:36
+#: catalog/templates/_item_cover_card_body.html:35
 #: catalog/templates/_item_user_pieces.html:77
 msgid "Set progress"
+msgstr ""
+
+#: catalog/templates/_item_cover_card_body.html:56
+#: catalog/templates/_item_cover_card_body.html:57
+msgid "Not interested"
+msgstr ""
+
+#: catalog/templates/_item_cover_card_body.html:66
+#: catalog/templates/_item_cover_card_body.html:67
+msgid "Show in recommendations again"
 msgstr ""
 
 #: catalog/templates/_item_credits_list.html:9
@@ -1409,6 +1419,14 @@ msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:196
 msgid "Mark history"
+msgstr ""
+
+#: catalog/templates/_reco_dismissed_body.html:5
+msgid "Hidden from recommendations."
+msgstr ""
+
+#: catalog/templates/_reco_dismissed_body.html:10
+msgid "Undo"
 msgstr ""
 
 #: catalog/templates/_search_suggest.html:2
@@ -1524,7 +1542,7 @@ msgstr ""
 #: journal/templates/review_edit.html:38 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:241
+#: users/templates/users/preferences.html:242
 msgid "Save"
 msgstr ""
 
@@ -2172,6 +2190,24 @@ msgstr ""
 #: catalog/templates/fetch_pending.html:29
 #: users/templates/users/fetch_identity_pending.html:29
 msgid "System busy, please try again in a minute."
+msgstr ""
+
+#: catalog/templates/hidden_recommendations.html:9
+#: catalog/templates/hidden_recommendations.html:16
+#: users/templates/users/preferences.html:239
+msgid "Hidden recommendations"
+msgstr ""
+
+#: catalog/templates/hidden_recommendations.html:17
+msgid "These items are not recommended to you. Restore one to let it come back."
+msgstr ""
+
+#: catalog/templates/hidden_recommendations.html:18
+msgid "Back to preferences"
+msgstr ""
+
+#: catalog/templates/hidden_recommendations.html:24
+msgid "Nothing hidden."
 msgstr ""
 
 #: catalog/templates/item_base.html:81
@@ -7546,7 +7582,7 @@ msgstr ""
 msgid "A user with that username already exists."
 msgstr ""
 
-#: users/models/user.py:412
+#: users/models/user.py:414
 msgid "This username is already taken."
 msgstr ""
 

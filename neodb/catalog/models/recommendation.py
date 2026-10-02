@@ -90,3 +90,31 @@ class UserRecommendation(models.Model):
                 name="catalog_user_reco_lookup",
             ),
         ]
+
+
+class RecommendationDismissal(models.Model):
+    """An item the user asked not to be recommended again.
+
+    Kept apart from UserRecommendation, whose rows are rebuilt on every refresh.
+    """
+
+    if TYPE_CHECKING:
+        user_id: int
+        item_id: int
+
+    user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="recommendation_dismissals",
+    )
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="+")
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "catalog_recommendation_dismissal"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "item"],
+                name="catalog_reco_dismissal_uniq",
+            ),
+        ]

@@ -1,0 +1,31 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="discover-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Hidden recommendations" %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="dc-main">
+      <header class="dc-mh dc-page-head">
+        <h1>{% trans "Hidden recommendations" %}</h1>
+        <span class="dc-sub">{% trans "These items are not recommended to you. Restore one to let it come back." %}</span>
+        <a class="dc-more" href="{% url 'users:preferences' %}">{% trans "Back to preferences" %} <i class="fa-solid fa-arrow-right"></i></a>
+      </header>
+      <ul class="dc-grid">
+        {% for item in items %}
+          {% include "_item_cover_card.html" with reco_restore=1 %}
+        {% empty %}
+          <li class="empty">{% trans "Nothing hidden." %}</li>
+        {% endfor %}
+      </ul>
+      {% include "_pagination.html" %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

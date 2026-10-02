@@ -11,6 +11,7 @@ from ninja.pagination import paginate
 
 from common.api import (
     NO_DATA,
+    OK,
     OptionalOAuthAccessTokenAuth,
     PageNumberPagination,
     RedirectedResult,
@@ -52,7 +53,13 @@ from .models import (
     TVShowSchema,
     Work,
 )
-from .recommendation import blended_for_discover, can_show_reco, similar_items
+from .recommendation import (
+    blended_for_discover,
+    can_show_reco,
+    dismiss_item,
+    restore_item,
+    similar_items,
+)
 from .search.utils import enqueue_fetch, get_fetch_lock, query_index
 from .sites.fedi import FediverseInstance
 
@@ -859,3 +866,40 @@ def me_recommendations(request, limit: int = 30):
     items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
     _prepare_reco_items(request, items)
     return Status(200, {"data": items, "pages": 1 if items else 0, "count": len(items)})
+
+
+@api.post(
+    "/me/recommendations/{item_uuid}/dismiss",
+    response={200: Result, 401: Result, 404: Result},
+    summary="Stop recommending an item to the current user",
+    tags=["recommendation"],
+)
+def dismiss_recommendation_api(request, item_uuid: str):
+    """Hide an item from all of the current user's recommendations.
+
+    Repeating the call is harmless. A merged item is stored as the item it
+    was merged into.
+    """
+    if not request.user.is_authenticated:
+        return Status(401, {"message": "Login required"})
+    item = Item.get_by_url(item_uuid)
+    if not item or item.is_deleted:
+        return Status(404, {"message": "Item not found"})
+    dismiss_item(request.user, item)
+    return OK
+
+
+@api.delete(
+    "/me/recommendations/{item_uuid}/dismiss",
+    response={200: Result, 401: Result, 404: Result},
+    summary="Allow a dismissed item to be recommended again",
+    tags=["recommendation"],
+)
+def restore_recommendation_api(request, item_uuid: str):
+    if not request.user.is_authenticated:
+        return Status(401, {"message": "Login required"})
+    item = Item.get_by_url(item_uuid)
+    if not item:
+        return Status(404, {"message": "Item not found"})
+    restore_item(request.user, item)
+    return OK
