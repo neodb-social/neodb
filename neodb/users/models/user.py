@@ -230,6 +230,7 @@ class User(AbstractUser):
         return p.edited_time if p else None
 
     def clear(self):
+        from catalog.models import RecommendationDismissal
         from journal.models import CrosspostRetry
 
         from .preference import Preference
@@ -255,6 +256,7 @@ class User(AbstractUser):
             # A webhook row carries the user's delivery endpoint.
             Webhook.objects.filter(user=self).delete()
             CrosspostRetry.objects.filter(user=self).delete()
+            RecommendationDismissal.objects.filter(user=self).delete()
             Preference.objects.filter(user=self).delete()
             logger.warning(f"User {self} cleared.")
         clear_webhook_cache(self.pk)
