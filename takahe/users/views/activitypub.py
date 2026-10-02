@@ -122,9 +122,6 @@ class NodeInfo(View):
     """
 
     def get(self, request):
-        # A host that is no local domain is a web-only alias or a proxy of this
-        # site. Answering there, even with a pointer to the main domain, lets
-        # peers record the alias as one more server with our nodeinfo.
         if not request.domain or not request.domain.local:
             raise Http404("Not a local domain")
         host = request.get_host()
