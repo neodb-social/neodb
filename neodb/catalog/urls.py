@@ -310,6 +310,21 @@ urlpatterns = [
         name="discover_category",
     ),
     path("discover/", discover, name="discover"),
+    path(
+        "recommendations/hidden",
+        hidden_recommendations,
+        name="hidden_recommendations",
+    ),
+    path(
+        "recommendations/<str:item_uuid>/dismiss",
+        dismiss_recommendation,
+        name="dismiss_recommendation",
+    ),
+    path(
+        "recommendations/<str:item_uuid>/restore",
+        restore_recommendation,
+        name="restore_recommendation",
+    ),
     # Debug views: DEBUG=True allows anyone, otherwise requires superuser
     path("debug/scraper/", scraper_debug_page, name="debug_scraper"),
     path("debug/scraper/api/", scraper_debug_api, name="debug_scrape_api"),

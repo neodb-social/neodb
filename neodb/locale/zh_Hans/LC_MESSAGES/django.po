@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 21:25-0400\n"
+"POT-Creation-Date: 2026-10-03 00:47-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1303,10 +1303,20 @@ msgstr "添加短评"
 msgid "Comment this episode"
 msgstr "写该集短评"
 
-#: catalog/templates/_item_cover_card.html:36
+#: catalog/templates/_item_cover_card_body.html:35
 #: catalog/templates/_item_user_pieces.html:77
 msgid "Set progress"
 msgstr "设置进度"
+
+#: catalog/templates/_item_cover_card_body.html:56
+#: catalog/templates/_item_cover_card_body.html:57
+msgid "Not interested"
+msgstr "不感兴趣"
+
+#: catalog/templates/_item_cover_card_body.html:66
+#: catalog/templates/_item_cover_card_body.html:67
+msgid "Show in recommendations again"
+msgstr "重新显示在推荐中"
 
 #: catalog/templates/_item_credits_list.html:9
 msgid "Linked to a person page"
@@ -1407,6 +1417,14 @@ msgstr "我的收藏单"
 #: catalog/templates/_item_user_pieces.html:196
 msgid "Mark history"
 msgstr "标记历史"
+
+#: catalog/templates/_reco_dismissed_body.html:5
+msgid "Hidden from recommendations."
+msgstr "已从推荐中隐藏。"
+
+#: catalog/templates/_reco_dismissed_body.html:10
+msgid "Undo"
+msgstr "撤销"
 
 #: catalog/templates/_search_suggest.html:2
 msgid "Suggestions"
@@ -1521,7 +1539,7 @@ msgstr "选择一张图片用作此条目的封面。"
 #: journal/templates/review_edit.html:38 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:241
+#: users/templates/users/preferences.html:242
 msgid "Save"
 msgstr "保存"
 
@@ -2170,6 +2188,24 @@ msgstr "正在从%(site_label)s获取"
 #: users/templates/users/fetch_identity_pending.html:29
 msgid "System busy, please try again in a minute."
 msgstr "系统繁忙，请稍等几秒钟再搜索。"
+
+#: catalog/templates/hidden_recommendations.html:9
+#: catalog/templates/hidden_recommendations.html:16
+#: users/templates/users/preferences.html:239
+msgid "Hidden recommendations"
+msgstr "已隐藏的推荐"
+
+#: catalog/templates/hidden_recommendations.html:17
+msgid "These items are not recommended to you. Restore one to let it come back."
+msgstr "这些条目不会再推荐给你。恢复后它们会重新出现在推荐中。"
+
+#: catalog/templates/hidden_recommendations.html:18
+msgid "Back to preferences"
+msgstr "返回设置"
+
+#: catalog/templates/hidden_recommendations.html:24
+msgid "Nothing hidden."
+msgstr "没有隐藏的条目。"
 
 #: catalog/templates/item_base.html:81
 msgid "Select one of the seasons to comment"
@@ -7655,7 +7691,7 @@ msgstr "必填，限英文字母数字下划线，最多30个字符。"
 msgid "A user with that username already exists."
 msgstr "使用该用户名的用户已存在。"
 
-#: users/models/user.py:412
+#: users/models/user.py:414
 msgid "This username is already taken."
 msgstr "用户名已被使用。"
 

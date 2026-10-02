@@ -205,7 +205,7 @@
           </header>
           <ul class="dc-cards">
             {% for item in for_you_items %}
-              {% include "_item_cover_card.html" %}
+              {% include "_item_cover_card.html" with reco_dismiss=1 %}
             {% endfor %}
           </ul>
         </div>
@@ -232,7 +232,7 @@
       </header>
       <ul class="dc-cards">
         {% for item in circles_items %}
-          {% include "_item_cover_card.html" %}
+          {% include "_item_cover_card.html" with reco_dismiss=1 %}
         {% endfor %}
       </ul>
     </div>
