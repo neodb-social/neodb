@@ -21,6 +21,7 @@ from catalog.recommendation import (
     compute_for_user,
     excluded_target_ctype_ids,
     production_to_performance_map,
+    training_rewrite_map,
 )
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import ShelfMember
@@ -63,6 +64,31 @@ class BuildItemSimilarity(BaseJob):
             return timedelta(0)
         return timedelta(days=7)
 
+    def _rewrite_for_marked_items(self, rewrite: dict[int, int]) -> dict[int, int]:
+        """Keep Productions and the merged items that still carry public marks.
+
+        Merging moves marks to the surviving item, so few merged items keep
+        any; trimming them keeps the ``IN`` lists below short.
+        """
+        if not rewrite:
+            return rewrite
+        marked_merged = set(
+            ShelfMember._base_manager.filter(
+                visibility=0,
+                parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+                item__merged_to_item_id__isnull=False,
+            )
+            .order_by()
+            .values_list("item_id", flat=True)
+            .distinct()
+        )
+        productions = production_to_performance_map()
+        return {
+            src: tgt
+            for src, tgt in rewrite.items()
+            if src in marked_merged or src in productions
+        }
+
     def _active_item_ids(
         self,
         min_marks: int,
@@ -71,10 +97,10 @@ class BuildItemSimilarity(BaseJob):
     ) -> set[int]:
         """Items with at least ``min_marks`` distinct owners after rewrite.
 
-        Marks on Productions count toward their parent Performance. Without
-        rewrite this is a one-shot SQL aggregation; with rewrite we keep the
-        fast SQL path for non-Production items and stream the Production
-        subset (typically small) to dedup owners against the parent.
+        Marks on a rewrite source count toward its target. Without rewrite
+        this is a one-shot SQL aggregation; with rewrite we keep the fast SQL
+        path for other items and stream the rewrite subset (typically small)
+        to dedup owners against the target.
         """
         qs = ShelfMember.objects.filter(
             visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
@@ -99,26 +125,23 @@ class BuildItemSimilarity(BaseJob):
             .values_list("item_id", "n")
         )
 
-        # Build per-Performance owner sets, seeded by direct Performance marks.
-        perf_owners: dict[int, set[int]] = {}
+        # Per-target owner sets, seeded by direct marks on the target.
+        target_owners: dict[int, set[int]] = {}
         for owner_id, item_id in (
             qs.filter(item_id__in=rewrite_targets)
             .values_list("owner_id", "item_id")
             .iterator(chunk_size=20_000)
         ):
-            perf_owners.setdefault(item_id, set()).add(owner_id)
-        # Add Production marks rewritten to their Performance.
+            target_owners.setdefault(item_id, set()).add(owner_id)
         for owner_id, item_id in (
             qs.filter(item_id__in=rewrite_keys)
             .values_list("owner_id", "item_id")
             .iterator(chunk_size=20_000)
         ):
-            mapped = rewrite[item_id]
-            perf_owners.setdefault(mapped, set()).add(owner_id)
-        # Replace direct counts with the deduped Performance total.
-        for perf_id, owners in perf_owners.items():
-            counts[perf_id] = len(owners)
-        # Productions are intentionally absent from `counts` (excluded above).
+            target_owners.setdefault(rewrite[item_id], set()).add(owner_id)
+        for target_id, owners in target_owners.items():
+            counts[target_id] = len(owners)
+        # rewrite sources are intentionally absent from `counts` (excluded above)
         return {iid for iid, c in counts.items() if c >= min_marks}
 
     def _user_item_pairs(
@@ -133,17 +156,16 @@ class BuildItemSimilarity(BaseJob):
         Streams ordered by (owner_id, -edited_time) so we can drop overflow per
         owner in-line without accumulating every mark in memory first. Critical
         at scale: a mega-shelver with 22k marks would otherwise allocate before
-        being truncated. Production marks are rewritten to Performance ids and
-        deduplicated per owner.
+        being truncated. Rewrite sources are mapped to their targets and
+        deduplicated per owner, keeping the most recent mark.
         """
-        # Production ids whose Performance is in active_items also need to be
-        # streamed (so they can rewrite into the active set).
-        prod_ids_to_include = (
-            {pid for pid, perf in rewrite.items() if perf in active_items}
+        # rewrite sources whose target is active must be streamed too
+        sources_to_include = (
+            {src for src, tgt in rewrite.items() if tgt in active_items}
             if rewrite
             else set()
         )
-        item_filter = active_items | prod_ids_to_include
+        item_filter = active_items | sources_to_include
 
         qs = ShelfMember.objects.filter(
             visibility=0,
@@ -184,12 +206,12 @@ class BuildItemSimilarity(BaseJob):
         top_k = sys.reco_similarity_top_k
         dampen = sys.reco_user_idf_dampen
         excluded = _non_discoverable_identity_ids()
-        rewrite = production_to_performance_map()
+        rewrite = self._rewrite_for_marked_items(training_rewrite_map())
         excluded_target_ctypes = excluded_target_ctype_ids()
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
             f"cap={cap} top_k={top_k} dampen={dampen} excluded_owners={len(excluded)} "
-            f"production_rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
+            f"rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
         )
 
         active = self._active_item_ids(min_source, excluded, rewrite)
@@ -209,6 +231,33 @@ class BuildItemSimilarity(BaseJob):
                 ).values_list("pk", flat=True)
             )
             target_set = target_set - excluded_target_ids
+
+        # Resolve item -> category once, dropping deleted items and merged
+        # items left out of the rewrite (their chain ends on a deleted item).
+        # Several content types share the same category string (TVShow /
+        # TVSeason / TVEpisode -> "tv"), so we use the category label rather
+        # than polymorphic_ctype_id to avoid blocking cross-type pairs within
+        # a category.
+        ctype_to_cat: dict[int, str] = {}
+        cts = item_content_types()
+        for cat_enum, classes in item_categories().items():
+            for cls in classes:
+                ct_id = cts.get(cls)
+                if ct_id is not None:
+                    ctype_to_cat[ct_id] = str(cat_enum)
+        live: set[int] = set()
+        category_by_id: dict[int, str] = {}
+        for pk, ct_id in Item.objects.filter(
+            pk__in=active | target_set,
+            is_deleted=False,
+            merged_to_item_id__isnull=True,
+        ).values_list("pk", "polymorphic_ctype_id"):
+            live.add(pk)
+            cat = ctype_to_cat.get(ct_id)
+            if cat:
+                category_by_id[pk] = cat
+        active &= live
+        target_set &= live
         logger.info(f"Active items: {len(active)} target candidates: {len(target_set)}")
 
         item_categories_map: dict[int, list[tuple[int, float]]] = {}
@@ -217,25 +266,6 @@ class BuildItemSimilarity(BaseJob):
                 active | target_set, cap, excluded, rewrite
             )
             logger.info(f"Users contributing: {len(user_items)}")
-
-            # Resolve item -> category once. Several content types share the
-            # same category string (TVShow / TVSeason / TVEpisode -> "tv"), so
-            # we use the category label rather than polymorphic_ctype_id to
-            # avoid blocking cross-type pairs within a category.
-            ctype_to_cat: dict[int, str] = {}
-            cts = item_content_types()
-            for cat_enum, classes in item_categories().items():
-                for cls in classes:
-                    ct_id = cts.get(cls)
-                    if ct_id is not None:
-                        ctype_to_cat[ct_id] = str(cat_enum)
-            category_by_id: dict[int, str] = {}
-            for pk, ct_id in Item.objects.filter(
-                pk__in=active | target_set
-            ).values_list("pk", "polymorphic_ctype_id"):
-                cat = ctype_to_cat.get(ct_id)
-                if cat:
-                    category_by_id[pk] = cat
 
             item_categories_map = self._topk_per_category(
                 user_items=user_items,

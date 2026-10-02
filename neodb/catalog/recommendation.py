@@ -68,17 +68,95 @@ def production_to_performance_map() -> dict[int, int]:
     )
 
 
-_PROD_TO_PERF_CACHE_KEY = "reco:prod_to_perf"
-_PROD_TO_PERF_TTL = 3600
+# same bound as Item.final_item
+_MERGE_CHAIN_MAX_HOPS = 20
 
 
-def production_to_performance_cached() -> dict[int, int]:
-    cached = cache.get(_PROD_TO_PERF_CACHE_KEY)
-    if cached is not None:
-        return cached
-    m = production_to_performance_map()
-    cache.set(_PROD_TO_PERF_CACHE_KEY, m, timeout=_PROD_TO_PERF_TTL)
-    return m
+def _compose_rewrites(
+    merged: dict[int, int], productions: dict[int, int], deleted: set[int]
+) -> dict[int, int]:
+    """Combine merge edges and Production -> Performance edges into one map.
+
+    A key follows its merge chain, then its Production's Performance, then
+    that Performance's merge chain. Chains that loop, exceed the hop bound
+    or end on a deleted item are left out. No value is also a key.
+    """
+
+    def final(i: int) -> int | None:
+        hops = 0
+        while i in merged:
+            if hops >= _MERGE_CHAIN_MAX_HOPS:
+                return None
+            i = merged[i]
+            hops += 1
+        return None if hops and i in deleted else i
+
+    out: dict[int, int] = {}
+    for key in merged.keys() | productions.keys():
+        resolved = final(key)
+        if resolved is not None and resolved in productions:
+            resolved = final(productions[resolved])
+        if resolved is not None and resolved != key:
+            out[key] = resolved
+    return out
+
+
+def training_rewrite_map() -> dict[int, int]:
+    """item_id -> item_id whose marks it should count toward.
+
+    Covers merged items (to their live final item) and Productions (to their
+    Performance, itself resolved through merges).
+    """
+    merged_qs = Item.objects.filter(merged_to_item_id__isnull=False)
+    merged = dict(merged_qs.values_list("pk", "merged_to_item_id"))
+    # every chain end after at least one hop is some item's merge target
+    deleted = set(
+        Item.objects.filter(
+            is_deleted=True, pk__in=merged_qs.values("merged_to_item_id")
+        ).values_list("pk", flat=True)
+    )
+    return _compose_rewrites(merged, production_to_performance_map(), deleted)
+
+
+def _scoped_rewrite_map(start: QuerySet) -> dict[int, int]:
+    """``training_rewrite_map`` restricted to chains reachable from ``start``.
+
+    ``start`` is a ``values("item_id")``-style subquery, so a heavy user's ids
+    are never inlined. Costs two small queries per hop, usually two hops.
+    """
+    merged: dict[int, int] = {}
+    productions: dict[int, int] = {}
+    seen: set[int] = set()
+    frontier: QuerySet | set[int] = start
+    # merge chain, Production hop, then the Performance's merge chain
+    for _ in range(2 * _MERGE_CHAIN_MAX_HOPS + 2):
+        m = dict(
+            Item.objects.filter(
+                pk__in=frontier, merged_to_item_id__isnull=False
+            ).values_list("pk", "merged_to_item_id")
+        )
+        p = dict(
+            PerformanceProduction.objects.filter(
+                pk__in=frontier, show_id__isnull=False
+            ).values_list("pk", "show_id")
+        )
+        merged.update(m)
+        productions.update(p)
+        nxt = (set(m.values()) | set(p.values())) - seen
+        if not nxt:
+            break
+        seen |= nxt
+        frontier = nxt
+    if not merged and not productions:
+        return {}
+    deleted = set(
+        Item.objects.filter(pk__in=seen, is_deleted=True).values_list("pk", flat=True)
+    )
+    return _compose_rewrites(merged, productions, deleted)
+
+
+def _with_rewrites(item_ids: set[int], rewrite: dict[int, int]) -> set[int]:
+    return item_ids | {rewrite[i] for i in item_ids if i in rewrite}
 
 
 _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
@@ -141,6 +219,21 @@ def _user_shelved_item_ids(identity_pk: int) -> set[int]:
     return set(_user_shelved_members(identity_pk).values_list("item_id", flat=True))
 
 
+def _user_rewrite_map(identity_pk: int) -> dict[int, int]:
+    return _scoped_rewrite_map(_user_shelved_members(identity_pk).values("item_id"))
+
+
+def _user_excluded_item_ids(identity_pk: int) -> set[int]:
+    """Shelved items plus what they count toward in training.
+
+    A user who shelved a merged edition or a Production should not be offered
+    the surviving edition or the Performance.
+    """
+    return _with_rewrites(
+        _user_shelved_item_ids(identity_pk), _user_rewrite_map(identity_pk)
+    )
+
+
 def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
     """Edition ids sharing a Work with any Edition in ``item_ids``.
 
@@ -174,7 +267,7 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
         return []
     exclude: set[int] = set()
     if viewer and viewer.is_authenticated and getattr(viewer, "identity", None):
-        exclude = _user_shelved_item_ids(viewer.identity.pk)
+        exclude = _user_excluded_item_ids(viewer.identity.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []
@@ -207,9 +300,9 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     )
     if not raw_seeds:
         return []
-    # Rewrite Production marks to their parent Performance so the user's
-    # signal aggregates the same way it does in the similarity matrix.
-    rewrite = production_to_performance_cached()
+    # Rewrite seeds the same way the similarity matrix aggregates marks.
+    # Seeds are a subset of the shelved items the scoped map starts from.
+    rewrite = _user_rewrite_map(identity_pk)
     seen: set[int] = set()
     seeds: list[int] = []
     for sid in raw_seeds:
@@ -222,7 +315,7 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
             break
     # Exclude shelved items plus their sibling editions (same Work). Precompute
     # only; a sibling marked later may dupe until the next refresh.
-    shelved = _user_shelved_item_ids(identity_pk)
+    shelved = _with_rewrites(_user_shelved_item_ids(identity_pk), rewrite)
     excluded = shelved | _sibling_edition_ids(shelved)
     seed_set = set(seeds)
 
@@ -318,7 +411,7 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     target_ids = [r.item_id for r in rows[:limit]]
     if not target_ids:
         return []
-    shelved = _user_shelved_item_ids(identity.pk)
+    shelved = _user_excluded_item_ids(identity.pk)
     qs = _live_items(Item.objects.filter(pk__in=target_ids))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []

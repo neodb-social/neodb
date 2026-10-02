@@ -24,6 +24,7 @@ from catalog.recommendation import (
     compute_for_user,
     from_your_circles,
     similar_items,
+    training_rewrite_map,
 )
 from common.models import SiteConfig
 from journal.models import Mark, ShelfType
@@ -384,6 +385,96 @@ class TestProductionRewritesToPerformance:
         )
         assert self.prod_a.pk not in target_ids
         assert self.prod_b.pk not in target_ids
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMergedItemsInTraining:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_user_mark_cap=100,
+            reco_user_idf_dampen=False,
+        )
+        self.identities = [
+            User.register(email=f"mg{i}@t.com", username=f"mg_user{i}").identity
+            for i in range(2)
+        ]
+        self.old = Edition.objects.create(title="Old edition")
+        self.survivor = Edition.objects.create(title="Survivor")
+        self.peer = Edition.objects.create(title="Peer")
+        _public_mark(self.identities[0], self.old)
+        _public_mark(self.identities[0], self.peer)
+        _public_mark(self.identities[1], self.survivor)
+        _public_mark(self.identities[1], self.peer)
+        # marks stay on the merged item, as when the journal move was skipped
+        self.old.merge_to(self.survivor)
+
+    def test_merged_marks_count_toward_survivor(self):
+        BuildItemSimilarity().run()
+        # survivor reaches the threshold of 2 only through the merged mark
+        assert ItemSimilarity.objects.filter(
+            source=self.survivor, target=self.peer
+        ).exists()
+        assert ItemSimilarity.objects.filter(
+            source=self.peer, target=self.survivor
+        ).exists()
+        assert not ItemSimilarity.objects.filter(source=self.old).exists()
+        assert not ItemSimilarity.objects.filter(target=self.old).exists()
+
+    def test_chain_resolves_to_final(self):
+        final = Edition.objects.create(title="Final")
+        self.survivor.merge_to(final)
+        m = training_rewrite_map()
+        assert m[self.old.pk] == final.pk
+        assert m[self.survivor.pk] == final.pk
+        assert not set(m) & set(m.values())
+
+    def test_merge_into_deleted_item_is_dropped(self):
+        Item.objects.filter(pk=self.survivor.pk).update(is_deleted=True)
+        assert self.old.pk not in training_rewrite_map()
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.filter(source=self.old).exists()
+        assert not ItemSimilarity.objects.filter(target=self.old).exists()
+
+    def test_production_of_merged_performance(self):
+        show_old = Performance.objects.create(title="Show old")
+        show_new = Performance.objects.create(title="Show new")
+        prod = PerformanceProduction.objects.create(title="Staging")
+        prod.show = show_old
+        prod.save()
+        prod_old = PerformanceProduction.objects.create(title="Staging dup")
+        prod_old.show = show_new
+        prod_old.save()
+        show_old.merge_to(show_new)
+        prod_old.merge_to(prod)
+        m = training_rewrite_map()
+        assert m[prod.pk] == show_new.pk
+        assert m[prod_old.pk] == show_new.pk
+        assert m[show_old.pk] == show_new.pk
+        assert not set(m) & set(m.values())
+
+    def test_shelved_merged_edition_excludes_survivor(self):
+        BuildItemSimilarity().run()
+        viewer = User.register(email="mgv@t.com", username="mg_viewer")
+        _public_mark(viewer.identity, self.peer)
+        _public_mark(viewer.identity, self.old)
+        ids = {r.item_id for r in compute_for_user(viewer.pk, viewer.identity.pk)}
+        assert self.survivor.pk not in ids
+        similar = {i.pk for i in similar_items(self.peer, viewer=viewer, limit=10)}
+        assert self.survivor.pk not in similar
+
+    def test_unrelated_viewer_still_gets_survivor(self):
+        BuildItemSimilarity().run()
+        viewer = User.register(email="mgu@t.com", username="mg_other")
+        _public_mark(viewer.identity, self.peer)
+        ids = {r.item_id for r in compute_for_user(viewer.pk, viewer.identity.pk)}
+        assert self.survivor.pk in ids
 
 
 @pytest.mark.django_db(databases="__all__")
