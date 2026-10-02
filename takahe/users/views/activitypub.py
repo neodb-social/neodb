@@ -122,7 +122,9 @@ class NodeInfo(View):
     """
 
     def get(self, request):
-        host = request.META.get("HOST", settings.MAIN_DOMAIN)
+        if not request.domain or not request.domain.local:
+            raise Http404("Not a local domain")
+        host = request.get_host()
         return JsonResponse(
             {
                 "links": [

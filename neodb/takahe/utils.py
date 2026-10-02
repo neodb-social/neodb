@@ -1076,7 +1076,7 @@ class Takahe:
                 nodeinfo__metadata__nodeEnvironment="production",
                 local=False,
                 blocked=False,
-            )
+            ).exclude(domain__in=[d.lower() for d in settings.SITE_DOMAINS])
             if active_only:
                 peers = peers.exclude(state="connection_issue")
             r = list(peers.values_list("pk", flat=True))

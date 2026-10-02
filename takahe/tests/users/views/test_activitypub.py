@@ -6,7 +6,7 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
-from users.models import InboxMessage
+from users.models import Domain, InboxMessage
 
 
 @pytest.mark.django_db
@@ -232,3 +232,17 @@ def test_webfinger_gone_for_deleted_identity(client, identity, monkeypatch):
 
     response = client.get("/.well-known/webfinger?resource=acct:test@example.com")
     assert response.status_code == 410
+
+
+@pytest.mark.django_db
+def test_nodeinfo_only_on_local_domains(client, domain):
+    response = client.get("/.well-known/nodeinfo", HTTP_HOST="example.com")
+    assert response.status_code == 200
+    assert response.json()["links"][0]["href"] == ("https://example.com/nodeinfo/2.0/")
+
+    # a web-only alias, before and after a stray fetch stored it as remote
+    response = client.get("/.well-known/nodeinfo", HTTP_HOST="alias.example.org")
+    assert response.status_code == 404
+    Domain.get_remote_domain("alias.example.org")
+    response = client.get("/.well-known/nodeinfo", HTTP_HOST="alias.example.org")
+    assert response.status_code == 404

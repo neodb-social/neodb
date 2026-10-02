@@ -104,6 +104,11 @@ def nodeinfo2(request, version: str):
         return _error_response(
             request, 400, default_message="NodeInfo version not supported"
         )
+    # Alternative domains are for web users only; a peer that reads our
+    # nodeinfo on one records it as another NeoDB server.
+    host = request.get_host().rsplit(":", 1)[0].lower()
+    if host in {d.lower() for d in SiteConfig.system.alternative_domains}:
+        return _error_response(request, 404, default_message="Not found")
     usage = cache.get("nodeinfo_usage", default={})
     return JsonResponse(
         {
