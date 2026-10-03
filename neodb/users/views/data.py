@@ -44,6 +44,7 @@ from journal.importers import (
     CsvImporter,
     DoubanImporter,
     GoodreadsImporter,
+    HardcoverImporter,
     LetterboxdImporter,
     MastodonImporter,
     NdjsonImporter,
@@ -55,6 +56,7 @@ from journal.importers import (
     TwitterImporter,
     WordpressImporter,
 )
+from journal.importers.hardcover import privacy_to_visibility
 from journal.importers.rym import update_row_in_matched_file
 from journal.models import CrosspostRetry, Piece, ShelfType
 from journal.models.common import VisibilityType
@@ -186,6 +188,7 @@ def data(request):
             "goodreads_task": GoodreadsImporter.latest_task(request.user),
             "rym_task": RymImporter.latest_task(request.user),
             "storygraph_task": StoryGraphImporter.latest_task(request.user),
+            "hardcover_task": HardcoverImporter.latest_task(request.user),
             "steam_task": SteamImporter.latest_task(request.user),
             "trakt_task": TraktImporter.latest_task(request.user),
             "wordpress_import_task": WordpressImporter.latest_task(request.user),
@@ -217,6 +220,8 @@ def user_task_status(request, task_type: str):
             task_cls = GoodreadsImporter
         case "journal.storygraphimporter":
             task_cls = StoryGraphImporter
+        case "journal.hardcoverimporter":
+            task_cls = HardcoverImporter
         case "journal.opmlimporter":
             task_cls = OPMLImporter
         case "journal.doubanimporter":
@@ -259,6 +264,15 @@ def user_task_status(request, task_type: str):
                 {"storygraph_task": task},
             )
             response["HX-Retarget"] = "#storygraph"
+            response["HX-Reswap"] = "innerHTML"
+            return response
+        if task_cls is HardcoverImporter:
+            response = render(
+                request,
+                "users/_hardcover_section.html",
+                {"hardcover_task": task},
+            )
+            response["HX-Retarget"] = "#hardcover"
             response["HX-Reswap"] = "innerHTML"
             return response
     return render(request, "users/user_task_status.html", {"task": task})
@@ -1004,6 +1018,202 @@ def storygraph_download(request):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
         return redirect(reverse("users:data"))
     hint = task.metadata.get("filename_hint") or "storygraph_export.csv"
+    stem, _ext = os.path.splitext(hint)
+    return _download_response(path, "text/csv", f"{stem}-matched.csv")
+
+
+def _hardcover_active_task(user):
+    task = HardcoverImporter.latest_task(user)
+    if not task:
+        return None
+    if task.metadata.get("phase") not in ("matching", "preview", "importing", "done"):
+        return None
+    return task
+
+
+@login_required
+def import_hardcover(request):
+    if request.method != "POST":
+        return redirect(reverse("users:data"))
+    if not HardcoverImporter.validate_file(request.FILES.get("file")):
+        raise BadRequest(_("Invalid file."))
+    # record once at import start; the confirm step re-enqueues the same task.
+    record_activity("import", "web")
+    f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.csv")
+    uploaded_name = getattr(request.FILES["file"], "name", "hardcover_export.csv")
+    matched = _matched_file_from_upload(f)
+    if matched:
+        # already matched; skip phase 1
+        task = HardcoverImporter.create(
+            request.user,
+            phase="preview",
+            file=f,
+            matched_file=matched,
+            filename_hint=uploaded_name,
+            had_link_column=True,
+        )
+        task.state = Task.States.complete
+        task.message = _("Loaded from uploaded matched file.")
+        task.save(update_fields=["state", "message"])
+        if request.headers.get("HX-Request"):
+            return render(
+                request, "users/_hardcover_section.html", {"hardcover_task": task}
+            )
+        return redirect(reverse("users:data") + "#hardcover")
+    task = HardcoverImporter.create(
+        request.user,
+        phase="matching",
+        file=f,
+        filename_hint=uploaded_name,
+    )
+    task.enqueue()
+    if request.headers.get("HX-Request"):
+        return render(
+            request, "users/_hardcover_section.html", {"hardcover_task": task}
+        )
+    return redirect(reverse("users:data") + "#hardcover")
+
+
+@login_required
+@require_http_methods(["POST"])
+def hardcover_cancel(request):
+    task = HardcoverImporter.latest_task(request.user)
+    if task and task.metadata.get("phase") in ("matching", "preview", "importing"):
+        task.metadata["phase"] = "cancelled"
+        task.state = Task.States.failed
+        task.message = _("Cancelled.")
+        task.save(update_fields=["metadata", "state", "message"])
+        if task.pk:
+            try:
+                django_rq.get_queue(task.TaskQueue).remove(task.job_id)
+            except Exception as e:
+                logger.warning(f"Hardcover cancel: failed to remove job: {e}")
+    if request.headers.get("HX-Request"):
+        return render(
+            request, "users/_hardcover_section.html", {"hardcover_task": None}
+        )
+    return redirect(reverse("users:data") + "#hardcover")
+
+
+@login_required
+def hardcover_preview(request):
+    task = _hardcover_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(
+            request, messages.ERROR, _("No Hardcover import to preview.")
+        )
+        return redirect(reverse("users:data"))
+    if task.metadata.get("phase") == "done":
+        return redirect(reverse("users:data") + "#hardcover")
+    path = task.metadata["matched_file"]
+    if not media_exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except TypeError, ValueError:
+        page = 1
+    page_size = 100
+    with local_media_file(path) as local_path:
+        with open(local_path, encoding="utf-8-sig", newline="") as fp:
+            reader = csv.DictReader(fp)
+            all_rows = list(reader)
+    total = len(all_rows)
+    num_pages = max(1, -(-total // page_size))
+    page = min(page, num_pages)
+    start = (page - 1) * page_size
+    end = start + page_size
+    rows = [
+        _hardcover_row_for_template(start + i, raw)
+        for i, raw in enumerate(all_rows[start:end])
+    ]
+    return render(
+        request,
+        "users/hardcover_import.html",
+        {
+            "task": task,
+            "rows": rows,
+            "total": total,
+            "pagination": PageLinksGenerator(page, num_pages, request.GET),
+            "shelf_choices": ShelfType.choices,
+        },
+    )
+
+
+def _hardcover_row_for_template(index: int, raw: dict) -> dict:
+    # DictReader fills the missing cells of a short row with None
+    cell = {k: (v or "").strip() for k, v in raw.items() if k}
+    ids = [cell.get(c, "") for c in ("ISBN 13", "ISBN 10", "ASIN")]
+    return {
+        "index": index,
+        "title": cell.get("Title", ""),
+        "authors": cell.get("Author", ""),
+        "ids": " / ".join(dict.fromkeys(i for i in ids if i)),
+        "link": cell.get("link", ""),
+        "match_source": cell.get("match_source", ""),
+        "shelf": cell.get("shelf", ""),
+        "collect_date": cell.get("collect_date", ""),
+        "visibility": VisibilityType(privacy_to_visibility(raw.get("Privacy"))).label,
+    }
+
+
+@login_required
+@require_http_methods(["POST"])
+def hardcover_save_row(request, i: int):
+    task = _hardcover_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        raise BadRequest("no matched file")
+    if task.metadata.get("phase") not in ("preview",):
+        raise BadRequest("cannot edit in current phase")
+    updates = {
+        "link": (request.POST.get("link") or "").strip(),
+        "shelf": (request.POST.get("shelf") or "").strip(),
+        "collect_date": (request.POST.get("collect_date") or "").strip(),
+    }
+    row = update_row_in_matched_file(task.metadata["matched_file"], i, updates)
+    if row is None:
+        raise BadRequest("row index out of range")
+    return render(
+        request,
+        "users/_hardcover_row.html",
+        {
+            "row": _hardcover_row_for_template(i, row),
+            "shelf_choices": ShelfType.choices,
+            "task": task,
+        },
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def hardcover_confirm(request):
+    task = _hardcover_active_task(request.user)
+    if not task or task.metadata.get("phase") != "preview":
+        return redirect(reverse("users:data"))
+    task.metadata["phase"] = "importing"
+    task.metadata["processed"] = 0
+    task.metadata["imported"] = 0
+    task.metadata["skipped"] = 0
+    task.metadata["failed"] = 0
+    task.metadata["failed_items"] = []
+    task.state = Task.States.pending
+    task.message = _("Starting import...")
+    task.save(update_fields=["metadata", "state", "message"])
+    task.enqueue()
+    return redirect(reverse("users:data") + "#hardcover")
+
+
+@login_required
+def hardcover_download(request):
+    task = _hardcover_active_task(request.user)
+    if not task or not task.metadata.get("matched_file"):
+        messages.add_message(request, messages.ERROR, _("No matched file available."))
+        return redirect(reverse("users:data"))
+    path = task.metadata["matched_file"]
+    if not media_exists(path):
+        messages.add_message(request, messages.ERROR, _("Matched file missing."))
+        return redirect(reverse("users:data"))
+    hint = task.metadata.get("filename_hint") or "hardcover_export.csv"
     stem, _ext = os.path.splitext(hint)
     return _download_response(path, "text/csv", f"{stem}-matched.csv")
 

@@ -1,0 +1,67 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Review Hardcover matches" %}</title>
+    {% include "common_libs.html" %}
+    <script>
+    document.addEventListener('htmx:responseError', (event) => {
+      let response = event.detail.xhr.response;
+      let body = response ? response : `Request error: ${event.detail.xhr.statusText}`;
+      alert(body);
+    });
+    document.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+    </script>
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main class="import-preview">
+      <article>
+        <h3>{% trans "Review Hardcover matches" %}</h3>
+        <p>
+          {% blocktrans with total=total local=task.metadata.matched_local external=task.metadata.matched_external unmatched=task.metadata.unmatched %}
+              Matched {{ local }} locally, {{ external }} externally, {{ unmatched }} unmatched out of {{ total }} rows.
+            {% endblocktrans %}
+        </p>
+        <p>
+          <a href="{% url 'users:hardcover_download' %}">
+            <i class="fa fa-download"></i> {% trans "Download matched CSV" %}
+          </a>
+        </p>
+        <table>
+          <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th>{% trans "Title / author" %}</th>
+              <th>{% trans "Matched link" %}</th>
+              <th>{% trans "Shelf" %}</th>
+              <th>{% trans "Date" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              {% include "users/_hardcover_row.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+        {% include "_pagination.html" %}
+        <form method="post" action="{% url 'users:hardcover_confirm' %}">
+          {% csrf_token %}
+          <button type="submit">{% trans "Confirm import" %}</button>
+          <a href="{% url 'users:data' %}">{% trans "Back" %}</a>
+        </form>
+      </article>
+    </main>
+  </body>
+</html>
