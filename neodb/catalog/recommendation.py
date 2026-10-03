@@ -13,7 +13,7 @@ from heapq import heappush, heapreplace, nlargest
 
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.utils import timezone
 
 from common.models import SiteConfig
@@ -97,7 +97,7 @@ def _compose_rewrites(
                 return None
             i = merged[i]
             hops += 1
-        return None if hops and i in deleted else i
+        return None if i in deleted else i
 
     out: dict[int, int] = {}
     for key in merged.keys() | productions.keys():
@@ -117,13 +117,18 @@ def training_rewrite_map() -> dict[int, int]:
     """
     merged_qs = Item.objects.filter(merged_to_item_id__isnull=False)
     merged = dict(merged_qs.values_list("pk", "merged_to_item_id"))
-    # every chain end after at least one hop is some item's merge target
+    productions_qs = PerformanceProduction.objects.filter(show_id__isnull=False)
+    # a chain can only end on a merge target or a Production's Performance
     deleted = set(
-        Item.objects.filter(
-            is_deleted=True, pk__in=merged_qs.values("merged_to_item_id")
-        ).values_list("pk", flat=True)
+        Item.objects.filter(is_deleted=True)
+        .filter(
+            Q(pk__in=merged_qs.values("merged_to_item_id"))
+            | Q(pk__in=productions_qs.values("show_id"))
+        )
+        .values_list("pk", flat=True)
     )
-    return _compose_rewrites(merged, production_to_performance_map(), deleted)
+    productions = dict(productions_qs.values_list("pk", "show_id"))
+    return _compose_rewrites(merged, productions, deleted)
 
 
 def _scoped_rewrite_map(start: QuerySet) -> dict[int, int]:

@@ -479,6 +479,16 @@ class TestMergedItemsInTraining:
         assert m[show_old.pk] == show_new.pk
         assert not set(m) & set(m.values())
 
+    def test_production_of_deleted_performance_is_dropped(self):
+        show = Performance.objects.create(title="Gone show")
+        prod = PerformanceProduction.objects.create(title="Gone staging")
+        prod.show = show
+        prod.save()
+        Item.objects.filter(pk=show.pk).update(is_deleted=True)
+        m = training_rewrite_map()
+        assert prod.pk not in m
+        assert show.pk not in m.values()
+
     def test_shelved_merged_edition_excludes_survivor(self):
         BuildItemSimilarity().run()
         viewer = User.register(email="mgv@t.com", username="mg_viewer")
