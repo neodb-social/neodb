@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Register' %}</title>
+    <title>{{ site_name }} - {% trans "Register" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -26,84 +26,83 @@
                        value="{{ form.username.value|default:request.user.username|default:'' }}"
                        required
                        _="on input remove [@aria-invalid] end"
-                       {% if request.user.username and not form.username.errors %}aria-invalid="false" readonly{% endif %}
-                       {% if form.username.errors %}aria-invalid="true"{% endif %}
+                       {% if form.username.errors %}aria-invalid="true"{% elif request.user.username %}aria-invalid="false" readonly{% endif %}
                        pattern="^[a-zA-Z0-9_]{2,30}$" />
-                {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% trans "Email address" %}
-                <input type="email"
-                       name="email"
-                       {% if email_readonly %}readonly aria-invalid="false"{% endif %}
-                       value="{{ form.email.value|default:'' }}"
-                       placeholder="email"
-                       autocomplete="email" />
-                <small>
-                  {% if request.session.pending_email %}
-                    {% blocktrans with pending_email=request.session.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %}
-                    <br>
-                  {% elif not form.email.value %}
-                    {% trans "Email is recommended as a backup login method, if you log in via a Fediverse instance" %}
-                    <br>
-                  {% endif %}
-                  {% for error in form.email.errors %}
-                    {{ error }}
-                    <br>
-                  {% endfor %}
-                </small>
-              </label>
-              {% if not request.user.is_authenticated %}
-                <hr>
-                <p>The following settings may also be changed later in preferences.</p>
-                <label>
-                  <input name="pref_default_crosspost"
-                         type="checkbox"
-                         role="switch"
-                         value="1"
-                         checked />
-                  {% trans "Turn on crosspost to other social networks by default" %}
+                  {% for error in form.username.errors %}<small>{{ error }}</small>{% endfor %}
                 </label>
                 <label>
-                  <input name="pref_sync_info" type="checkbox" role="switch" value="1" checked />
-                  {% trans "Use display name, bio and avatar from the social network you authenticated with" %}
+                  {% trans "Email address" %}
+                  <input type="email"
+                         name="email"
+                         {% if email_readonly %}readonly aria-invalid="false"{% endif %}
+                         value="{{ form.email.value|default:'' }}"
+                         placeholder="email"
+                         autocomplete="email" />
+                  <small>
+                    {% if request.session.pending_email %}
+                      {% blocktrans with pending_email=request.session.pending_email %}Please click the confirmation link in the email sent to {{ pending_email }}; if you haven't received it for more than a few minutes, please input and save again.{% endblocktrans %}
+                      <br>
+                    {% elif not form.email.value %}
+                      {% trans "Email is recommended as a backup login method, if you log in via a Fediverse instance" %}
+                      <br>
+                    {% endif %}
+                    {% for error in form.email.errors %}
+                      {{ error }}
+                      <br>
+                    {% endfor %}
+                  </small>
                 </label>
-                <label>
-                  <input name="pref_sync_graph"
-                         type="checkbox"
-                         role="switch"
-                         value="1"
-                         checked />
-                  {% trans "Add follow, mute and block list from the social network you authenticated with" %}
-                </label>
-                <label>
-                  <input name="pref_mastodon_boost_enabled"
-                         type="checkbox"
-                         role="switch"
-                         value="1"
-                         checked />
-                  {% trans "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account." %}
-                </label>
-                {% if bluesky_register %}
+                {% if not request.user.is_authenticated %}
+                  <hr>
+                  <p>The following settings may also be changed later in preferences.</p>
                   <label>
-                    <input name="pref_bluesky_publish_records"
+                    <input name="pref_default_crosspost"
                            type="checkbox"
                            role="switch"
                            value="1"
                            checked />
-                    {% trans "Always publish my public marks, reviews and articles as data records to my PDS." %}
+                    {% trans "Turn on crosspost to other social networks by default" %}
                   </label>
+                  <label>
+                    <input name="pref_sync_info" type="checkbox" role="switch" value="1" checked />
+                    {% trans "Use display name, bio and avatar from the social network you authenticated with" %}
+                  </label>
+                  <label>
+                    <input name="pref_sync_graph"
+                           type="checkbox"
+                           role="switch"
+                           value="1"
+                           checked />
+                    {% trans "Add follow, mute and block list from the social network you authenticated with" %}
+                  </label>
+                  <label>
+                    <input name="pref_mastodon_boost_enabled"
+                           type="checkbox"
+                           role="switch"
+                           value="1"
+                           checked />
+                    {% trans "If a Mastodon account is linked with this identity, boosting a post will also make the same post boosted with that Mastodon account." %}
+                  </label>
+                  {% if bluesky_register %}
+                    <label>
+                      <input name="pref_bluesky_publish_records"
+                             type="checkbox"
+                             role="switch"
+                             value="1"
+                             checked />
+                      {% trans "Always publish my public marks, reviews and articles as data records to my PDS." %}
+                    </label>
+                  {% endif %}
                 {% endif %}
-              {% endif %}
-            </fieldset>
-            {% csrf_token %}
-            <div role="group">
-              <input type="submit" value="{% trans 'Confirm and save' %}">
-              {% if request.user.is_authenticated %}
-                <a href="{% url 'users:info' %}" role="button" class="secondary">{% trans "Close" %}</a>
-              {% endif %}
-            </div>
-          </form>
+              </fieldset>
+              {% csrf_token %}
+              <div role="group">
+                <input type="submit" value="{% trans 'Confirm and save' %}">
+                {% if request.user.is_authenticated %}
+                  <a href="{% url 'users:info' %}" role="button" class="secondary">{% trans "Close" %}</a>
+                {% endif %}
+              </div>
+            </form>
         {% else %}
           <form action="{% url 'common:home' %}" method="get">
             <input type="submit" value="{% trans 'Cut the sh*t and get me in!' %}">

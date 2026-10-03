@@ -10,7 +10,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% if me %}
-      <title>{{ site_name }} - {% trans 'Home' %}</title>
+      <title>{{ site_name }} - {% trans "Home" %}</title>
     {% else %}
       <title>{{ site_name }} - {{ identity.display_name }}</title>
     {% endif %}
@@ -67,63 +67,102 @@
                   <h2>{% trans "Calendar" %}</h2>
                   <span class="action">
                     {% if year %}
-                      <a class="dc-more" href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %} <i class="fa-solid fa-arrow-right"></i></a>
+                      <a class="dc-more"
+                         href="{% url 'journal:wrapped' year %}">{{ year }} {% trans "annual summary" %} <i class="fa-solid fa-arrow-right"></i></a>
                     {% endif %}
                     <button class="dc-nav dc-scroll"
                             type="button"
                             aria-label="{% trans 'Scroll left' %}"
                             _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-                    <i class="fa-solid fa-chevron-left"></i>
-                  </button>
-                  <button class="dc-nav dc-scroll"
-                          type="button"
-                          aria-label="{% trans 'Scroll right' %}"
-                          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-                  <i class="fa-solid fa-chevron-right"></i>
-                </button>
-              </span>
-            </header>
-            <ul class="calendar_view">
-              <p class="text-center">
-                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-              </p>
-            </ul>
-            <span class="calendar_data"
-                  hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
-                  hx-trigger="intersect once queue:last"
-                  hx-swap="innerHTML"></span>
-          </section>
-        {% endif %}
-        {% for collection in pinned_collections %}
-          <section class="entity-sort dc-mod"
-                   id="collection_{{ collection.uuid }}"
-                   data-title="{{ collection.title }}">
-            <div hx-swap="outerHTML"
-                 hx-get="{% url 'journal:profile_collection_items' collection.uuid %}?owner={{ identity.handle|urlencode }}"
-                 hx-trigger="intersect once queue:last">
-              <header class="dc-mh">
-                <h2>{{ collection.title }}</h2>
-              </header>
-              <ul class="dc-cards">
-                <li class="dc-card">
-                  <a>
-                    <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </section>
-        {% endfor %}
-        {% for category, category_shelves in shelf_list.items %}
-          {% for shelf_type, shelf in category_shelves.items %}
+                      <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="dc-nav dc-scroll"
+                            type="button"
+                            aria-label="{% trans 'Scroll right' %}"
+                            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                  </span>
+                </header>
+                <ul class="calendar_view">
+                  <p class="text-center">
+                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                  </p>
+                </ul>
+                <span class="calendar_data"
+                      hx-get="{% url 'journal:user_calendar_data' identity.handle %}"
+                      hx-trigger="intersect once queue:last"
+                      hx-swap="innerHTML"></span>
+              </section>
+            {% endif %}
+            {% for collection in pinned_collections %}
+              <section class="entity-sort dc-mod"
+                       id="collection_{{ collection.uuid }}"
+                       data-title="{{ collection.title }}">
+                <div hx-swap="outerHTML"
+                     hx-get="{% url 'journal:profile_collection_items' collection.uuid %}?owner={{ identity.handle|urlencode }}"
+                     hx-trigger="intersect once queue:last">
+                  <header class="dc-mh">
+                    <h2>{{ collection.title }}</h2>
+                  </header>
+                  <ul class="dc-cards">
+                    <li class="dc-card">
+                      <a>
+                        <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            {% endfor %}
+            {% for category, category_shelves in shelf_list.items %}
+              {% for shelf_type, shelf in category_shelves.items %}
+                <section class="entity-sort dc-mod"
+                         id="{{ category }}_{{ shelf_type }}"
+                         data-title="{{ shelf.title }}">
+                  <div hx-swap="outerHTML"
+                       hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
+                       hx-trigger="intersect once queue:last">
+                    <header class="dc-mh">
+                      <h2>{{ shelf.title }}</h2>
+                    </header>
+                    <ul class="dc-cards">
+                      <li class="dc-card">
+                        <a>
+                          <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+              {% endfor %}
+            {% endfor %}
             <section class="entity-sort dc-mod"
-                     id="{{ category }}_{{ shelf_type }}"
-                     data-title="{{ shelf.title }}">
+                     id="article_created"
+                     data-title="{% trans 'Articles' %}">
               <div hx-swap="outerHTML"
-                   hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
+                   hx-get="{% url 'journal:profile_articles' identity.handle %}"
                    hx-trigger="intersect once queue:last">
                 <header class="dc-mh">
-                  <h2>{{ shelf.title }}</h2>
+                  <h2>
+                    <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans "Articles" %}</a>
+                  </h2>
+                </header>
+                <ul class="article-preview">
+                  <li>
+                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section class="entity-sort dc-mod"
+                     id="collection_created"
+                     data-title="{% trans 'Collection' %}">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <header class="dc-mh">
+                  <h2>{% trans "Collection" %}</h2>
                 </header>
                 <ul class="dc-cards">
                   <li class="dc-card">
@@ -134,101 +173,63 @@
                 </ul>
               </div>
             </section>
-          {% endfor %}
-        {% endfor %}
-        <section class="entity-sort dc-mod"
-                 id="article_created"
-                 data-title="{% trans 'Articles' %}">
-          <div hx-swap="outerHTML"
-               hx-get="{% url 'journal:profile_articles' identity.handle %}"
-               hx-trigger="intersect once queue:last">
-            <header class="dc-mh">
-              <h2>
-                <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans 'Articles' %}</a>
-              </h2>
-            </header>
-            <ul class="article-preview">
-              <li>
-                <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-              </li>
-            </ul>
+            <section class="entity-sort dc-mod"
+                     id="collection_marked"
+                     data-title="{% trans 'Liked collection' %}">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
+                   hx-trigger="intersect once queue:last">
+                <header class="dc-mh">
+                  <h2>{% trans "Liked collection" %}</h2>
+                </header>
+                <ul class="dc-cards">
+                  <li class="dc-card">
+                    <a>
+                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section class="entity-sort dc-mod"
+                     id="people_person_following"
+                     data-title="{% trans 'People' %}">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=person"
+                   hx-trigger="intersect once queue:last">
+                <header class="dc-mh">
+                  <h2>{% trans "People" %}</h2>
+                </header>
+                <ul class="dc-cards">
+                  <li class="dc-card">
+                    <a>
+                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section class="entity-sort dc-mod"
+                     id="people_organization_following"
+                     data-title="{% trans 'Organizations' %}">
+              <div hx-swap="outerHTML"
+                   hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=organization"
+                   hx-trigger="intersect once queue:last">
+                <header class="dc-mh">
+                  <h2>{% trans "Organizations" %}</h2>
+                </header>
+                <ul class="dc-cards">
+                  <li class="dc-card">
+                    <a>
+                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </section>
           </div>
-        </section>
-        <section class="entity-sort dc-mod"
-                 id="collection_created"
-                 data-title="{% trans 'Collection' %}">
-          <div hx-swap="outerHTML"
-               hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
-               hx-trigger="intersect once queue:last">
-            <header class="dc-mh">
-              <h2>{% trans 'Collection' %}</h2>
-            </header>
-            <ul class="dc-cards">
-              <li class="dc-card">
-                <a>
-                  <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </section>
-        <section class="entity-sort dc-mod"
-                 id="collection_marked"
-                 data-title="{% trans 'Liked collection' %}">
-          <div hx-swap="outerHTML"
-               hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
-               hx-trigger="intersect once queue:last">
-            <header class="dc-mh">
-              <h2>{% trans 'Liked collection' %}</h2>
-            </header>
-            <ul class="dc-cards">
-              <li class="dc-card">
-                <a>
-                  <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </section>
-        <section class="entity-sort dc-mod"
-                 id="people_person_following"
-                 data-title="{% trans 'People' %}">
-          <div hx-swap="outerHTML"
-               hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=person"
-               hx-trigger="intersect once queue:last">
-            <header class="dc-mh">
-              <h2>{% trans 'People' %}</h2>
-            </header>
-            <ul class="dc-cards">
-              <li class="dc-card">
-                <a>
-                  <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </section>
-        <section class="entity-sort dc-mod"
-                 id="people_organization_following"
-                 data-title="{% trans 'Organizations' %}">
-          <div hx-swap="outerHTML"
-               hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=organization"
-               hx-trigger="intersect once queue:last">
-            <header class="dc-mh">
-              <h2>{% trans 'Organizations' %}</h2>
-            </header>
-            <ul class="dc-cards">
-              <li class="dc-card">
-                <a>
-                  <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </section>
-      </div>
-      {{ layout|json_script:"layout-data" }}
-      <script>
+          {{ layout|json_script:"layout-data" }}
+          <script>
           const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
           initialLayoutData.forEach(elem => {
             const el = document.getElementById(elem.id);
@@ -270,21 +271,21 @@
               document.body.addEventListener('htmx:afterSettle', onLoaded);
               document.body.addEventListener('htmx:afterRequest', onLoaded);
           })();
-      </script>
-      {% if identity.user == request.user %}
-        {% include "_layout_editor.html" with name="profile" %}
+          </script>
+          {% if identity.user == request.user %}
+            {% include "_layout_editor.html" with name="profile" %}
+          {% endif %}
+        {% endif %}
+      </div>
+      {% if feed_view %}
+        {% include "_sidebar.html" with show_profile=1 collapse_profile=me %}
+      {% else %}
+        {% include "_sidebar.html" with show_progress=1 show_profile=1 collapse_profile=me %}
       {% endif %}
+    </main>
+    {% include "_footer.html" %}
+    {% if identity.local and identity.user.mastodon %}
+      <a href="{{ identity.user.mastodon.url }}" rel="me" style="display:none">Mastodon verification</a>
     {% endif %}
-  </div>
-  {% if feed_view %}
-    {% include "_sidebar.html" with show_profile=1 collapse_profile=me %}
-  {% else %}
-    {% include "_sidebar.html" with show_progress=1 show_profile=1 collapse_profile=me %}
-  {% endif %}
-</main>
-{% include "_footer.html" %}
-{% if identity.local and identity.user.mastodon %}
-  <a href="{{ identity.user.mastodon.url }}" rel="me" style="display:none">Mastodon verification</a>
-{% endif %}
-</body>
+  </body>
 </html>

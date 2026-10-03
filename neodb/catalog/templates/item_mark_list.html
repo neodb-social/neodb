@@ -10,22 +10,22 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ item.display_title }} - {% trans 'Marks' %}</title>
+    <title>{{ site_name }} - {{ item.display_title }} - {% trans "Marks" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
-    {% include '_header.html' %}
+    {% include "_header.html" %}
     <main>
       <div class="grid__main">
         <h5>
           {% if followeing_only %}
-            <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans 'Marks' %}</a>
-            | {% trans 'Marks from who you follow' %}
+            <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans "Marks" %}</a>
+            | {% trans "Marks from who you follow" %}
           {% else %}
-            {% trans 'Marks' %}
-            | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans 'Marks from who you follow' %}</a>
+            {% trans "Marks" %}
+            | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from who you follow" %}</a>
           {% endif %}
-          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans 'Reviews' %}</a>
+          | <a href="{% url 'catalog:review_list' item.url_path item.uuid %}">{% trans "Reviews" %}</a>
         </h5>
         {% for member in marks %}
           {% with member.mark as mark %}
@@ -68,7 +68,7 @@
             </section>
           {% endwith %}
         {% empty %}
-          <div>{% trans 'Nothing so far.' %}</div>
+          <div>{% trans "Nothing so far." %}</div>
         {% endfor %}
         {% include "_pagination.html" %}
       </div>

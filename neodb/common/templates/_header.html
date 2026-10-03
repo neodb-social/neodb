@@ -31,39 +31,39 @@
           <select name="c"
                   _="on change set #q's @data-dismissed to 'true' then send htmx:abort to #q then set #search-suggest's innerHTML to ''">
             {% visible_categories as cats %}
-            <option value="all">{% trans 'All items' %}</option>
-            {% if 'book' in cats %}
+            <option value="all">{% trans "All items" %}</option>
+            {% if "book" in cats %}
               <option {% if request.GET.c == 'book' or '/book/' in request.path %}selected{% endif %}
-                      value="book">{% trans 'Book' %}</option>
+                      value="book">{% trans "Book" %}</option>
             {% endif %}
-            {% if 'movie' in cats or 'tv' in cats %}
+            {% if "movie" in cats or "tv" in cats %}
               <option {% if request.GET.c and request.GET.c == 'movietv' or '/movie/' in request.path or '/tv/' in request.path %}selected{% endif %}
-                      value="movietv">{% trans 'Movie & TV' %}</option>
+                      value="movietv">{% trans "Movie & TV" %}</option>
             {% endif %}
-            {% if 'podcast' in cats %}
+            {% if "podcast" in cats %}
               <option {% if request.GET.c and request.GET.c == 'podcast' or '/podcast/' in request.path %}selected{% endif %}
-                      value="podcast">{% trans 'Podcast' %}</option>
+                      value="podcast">{% trans "Podcast" %}</option>
             {% endif %}
-            {% if 'music' in cats %}
+            {% if "music" in cats %}
               <option {% if request.GET.c and request.GET.c == 'music' or '/album/' in request.path %}selected{% endif %}
-                      value="music">{% trans 'Music' %}</option>
+                      value="music">{% trans "Music" %}</option>
             {% endif %}
-            {% if 'game' in cats %}
+            {% if "game" in cats %}
               <option {% if request.GET.c and request.GET.c == 'game' or '/game/' in request.path %}selected{% endif %}
-                      value="game">{% trans 'Game' %}</option>
+                      value="game">{% trans "Game" %}</option>
             {% endif %}
-            {% if 'performance' in cats %}
+            {% if "performance" in cats %}
               <option {% if request.GET.c == 'performance' or '/performance/' in request.path %}selected{% endif %}
-                      value="performance">{% trans 'Performance' %}</option>
+                      value="performance">{% trans "Performance" %}</option>
             {% endif %}
             <option {% if request.GET.c == 'people' or '/person/' in request.path or '/organization/' in request.path %}selected{% endif %}
-                    value="people">{% trans 'People & organizations' %}</option>
+                    value="people">{% trans "People & organizations" %}</option>
             <option {% if request.GET.c == 'journal' %}selected{% endif %}
-                    value="journal">{% trans 'Journal' %}</option>
+                    value="journal">{% trans "Journal" %}</option>
             <option {% if request.GET.c == 'timeline' %}selected{% endif %}
-                    value="timeline">{% trans 'Posts' %}</option>
+                    value="timeline">{% trans "Posts" %}</option>
           </select>
-          <input type="submit" value="&#xf002;" class="fa-solid" />
+          <input type="submit" value="" class="fa-solid" />
         </form>
         <div id="search-suggest"
              _="on mousedown halt the event's default end on keydown[key is 'Escape'] set #q's @data-dismissed to 'true' then call #q.focus() then send htmx:abort to #q then set my innerHTML to '' end on keydown[key is 'ArrowDown'] halt the event's default then set row to target.parentElement.nextElementSibling then if row then call row.querySelector('a').focus() end end on keydown[key is 'ArrowUp'] halt the event's default then set row to target.parentElement.previousElementSibling then if row then call row.querySelector('a').focus() else call #q.focus() end end">
@@ -99,16 +99,16 @@
         </a>
       </li>
       <li class="large-only">
-        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans 'Explore' %}</a>
+        <a class="nav-link-discover" href="{% url 'catalog:discover' %}">{% trans "Explore" %}</a>
       </li>
       <li class="large-only">
         <a class="nav-link-feed" href="{% url 'social:feed' %}">
-          {% trans 'Feed' %}
+          {% trans "Feed" %}
           <span class="notification-dot"></span>
         </a>
       </li>
       <li class="large-only">
-        <a class="nav-link-home" href="{% url 'common:me' %}">{% trans 'Home' %}</a>
+        <a class="nav-link-home" href="{% url 'common:me' %}">{% trans "Home" %}</a>
       </li>
     </ul>
     <ul class="nav-dropdown">
@@ -124,39 +124,39 @@
           </summary>
           <ul role="listbox" class="nav-menu-list" dir="rtl">
             <li>
-              <a href="{% url 'common:scan' %}">{% trans 'Scan barcode' %}</a>
+              <a href="{% url 'common:scan' %}">{% trans "Scan barcode" %}</a>
             </li>
             {% if request.user.is_authenticated %}
               <li>
-                <a href="{% url 'social:notification' %}">{% trans 'Notification' %}</a>
+                <a href="{% url 'social:notification' %}">{% trans "Notification" %}</a>
                 <span class="notification-dot"></span>
               </li>
               <li id="pending-menu" style="display:none">
-                <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans 'Pending' %}</a>
+                <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans "Pending" %}</a>
               </li>
               <li>
-                <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
+                <a href="{% url 'users:data' %}">{% trans "Data" %}</a>
               </li>
               <li>
-                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+                <a href="{% url 'users:preferences' %}">{% trans "Preferences" %}</a>
               </li>
               <li>
-                <a href="{% url 'users:info' %}">{% trans 'Account' %}</a>
+                <a href="{% url 'users:info' %}">{% trans "Account" %}</a>
               </li>
               {% if request.user.is_superuser %}
                 <li>
-                  <a href="{% url 'common:manage' %}">{% trans 'Manage' %}</a>
+                  <a href="{% url 'common:manage' %}">{% trans "Manage" %}</a>
                 </li>
               {% endif %}
               <li>
-                <a href="#" onclick="$('#logout').submit()">{% trans 'Logout' %}</a>
+                <a href="#" onclick="$('#logout').submit()">{% trans "Logout" %}</a>
               </li>
             {% else %}
               <li>
-                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans 'Sign up or login' %}</a>
+                <a href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans "Sign up or login" %}</a>
               </li>
               <li>
-                <a href="{% url 'users:preferences' %}">{% trans 'Preferences' %}</a>
+                <a href="{% url 'users:preferences' %}">{% trans "Preferences" %}</a>
               </li>
             {% endif %}
           </ul>

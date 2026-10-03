@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load l10n %}
 {% for member in members %}
-  {% include '_list_item.html' with item=member.item mark=item.mark collection_member=member %}
+  {% include "_list_item.html" with item=member.item mark=item.mark collection_member=member %}
   {% if forloop.last and not pagination %}
     <div hx-get="{% url 'journal:collection_edit_items' collection.uuid %}?last_pos={{ member.position }}&amp;last_member={{ member.id }}"
          hx-trigger="load delay:0.1s"

@@ -63,7 +63,7 @@
               {% endif %}
               {% include "users/_profile_social_icons.html" %}
             {% elif request.user.is_authenticated %}
-              {% include 'users/profile_actions.html' %}
+              {% include "users/profile_actions.html" %}
             {% endif %}
           </span>
           {% current_user_relationship identity as sidebar_relationship %}
@@ -106,7 +106,7 @@
     <section>
       <article>
         <details {% if identity.featured_collections.all %}open{% endif %}>
-          <summary>{% trans 'Current targets' %}</summary>
+          <summary>{% trans "Current targets" %}</summary>
           {% for featured_collection in identity.featured_collections.all %}
             {% user_visibility_of featured_collection as visible %}
             {% if visible %}
@@ -132,7 +132,7 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans 'Recent podcast episodes' %}</summary>
+          <summary>{% trans "Recent podcast episodes" %}</summary>
           <ul class="dc-cards dc-sidebar-cards">
             {% for item in recent_podcast_episodes %}
               {% include "_episode_card.html" %}
@@ -146,7 +146,7 @@
     <section>
       <article>
         <details class="auto-collapse" open>
-          <summary>{% trans 'Currently reading' %}</summary>
+          <summary>{% trans "Currently reading" %}</summary>
           <ul class="dc-cards dc-sidebar-cards">
             {% for item in books_in_progress %}
               {% include "_item_cover_card.html" with owner_rating=1 show_progress_badges=1 can_update_progress=1 compact=1 %}
@@ -160,7 +160,7 @@
     <section>
       <article>
         <details {% if top_tags %}class="auto-collapse" open{% endif %}>
-          <summary>{% trans 'Tags' %}</summary>
+          <summary>{% trans "Tags" %}</summary>
           <div class="tag-list">
             {% for t in top_tags %}
               <span>
@@ -180,7 +180,7 @@
             {% endfor %}
           </div>
           <small>
-            <a href="{% url 'journal:user_tag_list' identity.handle %}">({% trans 'Show all' %})</a>
+            <a href="{% url 'journal:user_tag_list' identity.handle %}">({% trans "Show all" %})</a>
           </small>
         </details>
       </article>
@@ -191,7 +191,7 @@
       <article>
         <details class="auto-collapse" open>
           <summary>
-            {% trans 'Recent Posts' %}
+            {% trans "Recent Posts" %}
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
    title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
@@ -209,7 +209,7 @@
         {% csrf_token %}
         <input type="hidden" name="user_pk" value="{{ identity.user.pk }}">
         <button type="submit">Debug as them</button>
-        <button _="on click hide .hijacker then halt default">Hide</button>
+        <button type="button" _="on click hide .hijacker then halt default">Hide</button>
         <input type="hidden" name="next" value="{{ request.path }}">
       </form>
     </section>

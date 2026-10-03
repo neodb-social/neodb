@@ -77,10 +77,10 @@
       <a hx-get="{% url "catalog:comments_by_episode" item.url_path item.uuid %}?episode_uuid={{ episode_uuid }}&last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
          hx-trigger="click"
          hx-swap="outerHTML">
-        <button class="outline">{% trans "Show more" %}</button>
+        <button type="button" class="outline">{% trans "Show more" %}</button>
       </a>
     {% endif %}
   {% empty %}
-    <div class="empty">{% trans 'Nothing more.' %}</div>
+    <div class="empty">{% trans "Nothing more." %}</div>
   {% endfor %}
 </div>

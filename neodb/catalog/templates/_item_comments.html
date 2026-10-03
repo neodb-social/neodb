@@ -78,9 +78,7 @@
         <a href="{{ comment.item_url }}">{{ comment.item.display_title }}</a><small class="title_deco">{{ comment.item.title_deco }}</small>
       {% endif %}
       <div class="tldr" _="on click toggle .tldr on me">
-        <span>
-          {% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}
-        </span>
+        <span>{% if comment.rating_grade %}{{ comment.rating_grade|rating_star }}{% endif %}</span>
         <span id="comment_{{ comment.uuid }}_content">{{ comment.html|safe }}</span>
       </div>
       {% if comment.latest_post %}<div id="replies_{{ comment.latest_post.pk }}"></div>{% endif %}
@@ -89,18 +87,18 @@
     <a hx-get="{% url 'catalog:comments' comment.item.url_path comment.item.uuid %}?last={{ comment.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
        hx-trigger="click"
        hx-swap="outerHTML">
-      <button class="outline">{% trans "Show more" %}</button>
+      <button type="button" class="outline">{% trans "Show more" %}</button>
     </a>
   {% endif %}
 {% empty %}
   <div class="empty">
     {% if not request.user.is_authenticated %}
-      {% trans 'Nothing more.' %}
+      {% trans "Nothing more." %}
     {% else %}
       <a href="#"
          hx-get="{% url 'journal:mark' item.uuid %}"
          hx-target="body"
-         hx-swap="beforeend">{% trans 'Add a comment' %}</a>
+         hx-swap="beforeend">{% trans "Add a comment" %}</a>
     {% endif %}
   </div>
 {% endfor %}

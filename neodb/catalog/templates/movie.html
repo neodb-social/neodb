@@ -9,43 +9,43 @@
 {% load duration %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.director role_label='director' max=5 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.playwright role_label='playwright' max=5 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.actor role_label='actor' max=5 %}</div>
-  <div>{% include '_genre_list.html' with list=item.genre max=10 %}</div>
-  <div>{% include '_country_list.html' with list=item.origin_country max=10 %}</div>
-  <div>{% include '_language_list.html' with list=item.language max=5 %}</div>
+  <div>{% include "_people.html" with people=item.additional_title role="" max=99 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.director role_label="director" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.playwright role_label="playwright" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.actor role_label="actor" max=5 %}</div>
+  <div>{% include "_genre_list.html" with list=item.genre max=10 %}</div>
+  <div>{% include "_country_list.html" with list=item.origin_country max=10 %}</div>
+  <div>{% include "_language_list.html" with list=item.language max=5 %}</div>
   <div>
     {% if item.length %}
-      {% trans 'length' %}: {{ item.length|duration_display }}
+      {% trans "length" %}: {{ item.length|duration_display }}
     {% endif %}
   </div>
   <div>
     {% if item.season_count %}
-      {% trans 'Number of seasons' %}: {{ item.season_count }}
+      {% trans "Number of seasons" %}: {{ item.season_count }}
     {% endif %}
   </div>
   <div>
     {% if item.episode_count %}
-      {% trans 'Number of episodes' %}: {{ item.episode_count }}
+      {% trans "Number of episodes" %}: {{ item.episode_count }}
     {% endif %}
   </div>
   <div>
     {% if item.release_date %}
-      {% trans 'release date' %}: <span>{{ item.release_date }}</span>
+      {% trans "release date" %}: <span>{{ item.release_date }}</span>
     {% endif %}
   </div>
   <div>
     {% if item.imdb %}
-      {% trans 'IMDb' %}: <a href="https://www.imdb.com/title/{{ item.imdb }}/"
+      {% trans "IMDb" %}: <a href="https://www.imdb.com/title/{{ item.imdb }}/"
     target="_blank"
     rel="noopener">{{ item.imdb }}</a>
     {% endif %}
   </div>
   <div>
     {% if item.official_site %}
-      {% trans 'website' %}:
+      {% trans "website" %}:
       <a href="{{ item.official_site }}" target="_blank" rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}
   </div>

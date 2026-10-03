@@ -4,9 +4,7 @@
 replied to your rating on <a href="{{ item_url }}">{{ item_title }}</a>
 {% endblocktrans %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
-  <span>
-    {% if event.piece.grade %}{{ event.piece.grade|rating_star }}{% endif %}
-  </span>
+  <span>{% if event.piece.grade %}{{ event.piece.grade|rating_star }}{% endif %}</span>
   {{ event.piece.html|safe }}
 </blockquote>
 {% include "_event_post.html" with post=event.reply %}

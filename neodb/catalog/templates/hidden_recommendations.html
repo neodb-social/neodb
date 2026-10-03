@@ -15,7 +15,8 @@
       <header class="dc-mh dc-page-head">
         <h1>{% trans "Hidden recommendations" %}</h1>
         <span class="dc-sub">{% trans "These items are not recommended to you. Restore one to let it come back." %}</span>
-        <a class="dc-more" href="{% url 'users:preferences' %}">{% trans "Back to preferences" %} <i class="fa-solid fa-arrow-right"></i></a>
+        <a class="dc-more"
+           href="{% url 'users:preferences' %}">{% trans "Back to preferences" %} <i class="fa-solid fa-arrow-right"></i></a>
       </header>
       <ul class="dc-grid">
         {% for item in items %}

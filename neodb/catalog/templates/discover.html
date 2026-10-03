@@ -26,7 +26,7 @@
             href="{{ site_url }}/discover/?lang={{ lang.0 }}" />
     {% endfor %}
     <meta name="lastmodified" content="{{ updated | date:'r' }}" />
-    <title>{{ site_name }} - {% trans 'Discover' %}</title>
+    <title>{{ site_name }} - {% trans "Discover" %}</title>
     {% include "common_libs.html" %}
     {% if hidden_categories %}
       <style>{% for c in hidden_categories %}.dc-main [data-category="{{ c }}"]{% if not forloop.last %}, {% endif %}{% endfor %} {display: none;}</style>
@@ -193,88 +193,89 @@
                           type="button"
                           aria-label="{% trans 'Scroll left' %}"
                           _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <button class="dc-nav dc-scroll"
-                        type="button"
-                        aria-label="{% trans 'Scroll right' %}"
-                        _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-                <i class="fa-solid fa-chevron-right"></i>
-              </button>
-            </span>
-          </header>
-          <ul class="dc-cards">
-            {% for item in for_you_items %}
-              {% include "_item_cover_card.html" with reco_dismiss=1 %}
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-      {% if circles_items %}
-        <div class="dc-mod" id="from_circles">
-          <header class="dc-mh">
-            <h2>{% trans "From people you follow" %}</h2>
-            <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
-            <span class="action">
-              <button class="dc-nav dc-scroll"
-                      type="button"
-                      aria-label="{% trans 'Scroll left' %}"
-                      _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-              <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <button class="dc-nav dc-scroll"
-                    type="button"
-                    aria-label="{% trans 'Scroll right' %}"
-                    _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </span>
-      </header>
-      <ul class="dc-cards">
-        {% for item in circles_items %}
-          {% include "_item_cover_card.html" with reco_dismiss=1 %}
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
-  {% if not for_you_items and not circles_items %}
-    <header class="dc-mh">
-      <h2>{% trans "For you" %}</h2>
-      <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
-    </header>
-  {% endif %}
-</section>
-{% for shelf in shelves %}{{ shelf.html }}{% endfor %}
-{% if frag.originals %}{{ frag.originals.html }}{% endif %}
-{% if show_posts %}
-  <section class="entity-sort dc-mod solo-hidden"
-           id="discover_posts"
-           data-title="{% trans 'What people are saying' %}"
-           data-nosnippet>
-    <header class="dc-mh">
-      <h2>{% trans "What people are saying" %}</h2>
-      <span class="dc-sub">{% trans "Public marks, comments and reviews from around the Fediverse." %}</span>
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button class="dc-nav dc-scroll"
+                          type="button"
+                          aria-label="{% trans 'Scroll right' %}"
+                          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </span>
+              </header>
+              <ul class="dc-cards">
+                {% for item in for_you_items %}
+                  {% include "_item_cover_card.html" with reco_dismiss=1 %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if circles_items %}
+            <div class="dc-mod" id="from_circles">
+              <header class="dc-mh">
+                <h2>{% trans "From people you follow" %}</h2>
+                <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
+                <span class="action">
+                  <button class="dc-nav dc-scroll"
+                          type="button"
+                          aria-label="{% trans 'Scroll left' %}"
+                          _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button class="dc-nav dc-scroll"
+                          type="button"
+                          aria-label="{% trans 'Scroll right' %}"
+                          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </span>
+              </header>
+              <ul class="dc-cards">
+                {% for item in circles_items %}
+                  {% include "_item_cover_card.html" with reco_dismiss=1 %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if not for_you_items and not circles_items %}
+            <header class="dc-mh">
+              <h2>{% trans "For you" %}</h2>
+              <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
+            </header>
+          {% endif %}
+        </section>
+        {% for shelf in shelves %}{{ shelf.html }}{% endfor %}
+        {% if frag.originals %}{{ frag.originals.html }}{% endif %}
+        {% if show_posts %}
+          <section class="entity-sort dc-mod solo-hidden"
+                   id="discover_posts"
+                   data-title="{% trans 'What people are saying' %}"
+                   data-nosnippet>
+            <header class="dc-mh">
+              <h2>{% trans "What people are saying" %}</h2>
+              <span class="dc-sub">{% trans "Public marks, comments and reviews from around the Fediverse." %}</span>
+              {% if request.user.is_authenticated %}
+                <span class="action">
+                  <a class="dc-more"
+                     href="{% url 'social:feed' %}">{% trans "Open the feed" %} <i class="fa-solid fa-arrow-right"></i></a>
+                </span>
+              {% endif %}
+            </header>
+            <div class="dc-posts"
+                 hx-get="{% url 'catalog:discover_popular_posts' %}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+              <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+            </div>
+          </section>
+        {% endif %}
+        {{ frag.collections.html }}
+        {% if frag.tags.n %}{{ frag.tags.html }}{% endif %}
+      </div>
       {% if request.user.is_authenticated %}
-        <span class="action">
-          <a class="dc-more" href="{% url 'social:feed' %}">{% trans "Open the feed" %} <i class="fa-solid fa-arrow-right"></i></a>
-        </span>
-      {% endif %}
-    </header>
-    <div class="dc-posts"
-         hx-get="{% url 'catalog:discover_popular_posts' %}"
-         hx-trigger="load"
-         hx-swap="innerHTML">
-      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-    </div>
-  </section>
-{% endif %}
-{{ frag.collections.html }}
-{% if frag.tags.n %}{{ frag.tags.html }}{% endif %}
-</div>
-{% if request.user.is_authenticated %}
-  {{ layout|json_script:"layout-data" }}
-  {{ hidden_categories|json_script:"hidden-categories" }}
-  <script>
+        {{ layout|json_script:"layout-data" }}
+        {{ hidden_categories|json_script:"hidden-categories" }}
+        <script>
         // the shared sections carry every category the site shows; drop the
         // ones this member hid, so the chips and the layout editor skip them
         const hiddenCategories = JSON.parse(document.getElementById('hidden-categories').textContent);
@@ -312,10 +313,10 @@
             a.parentElement.style.display = 'none';
           }
         });
-  </script>
-  {% include "_layout_editor.html" with name="discover" %}
-{% endif %}
-</main>
-{% include "_footer.html" %}
-</body>
+        </script>
+        {% include "_layout_editor.html" with name="discover" %}
+      {% endif %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
 </html>

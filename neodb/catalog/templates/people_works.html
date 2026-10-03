@@ -17,7 +17,7 @@
       <div class="grid__main">
         <h5>
           <a href="{{ item.url }}">{{ item.display_title }}</a>
-          &mdash;
+          —
           {{ role_label }}
           <small>({{ total }})</small>
         </h5>
@@ -25,7 +25,7 @@
           {% for work in works %}
             {% include "_list_item.html" with item=work %}
           {% empty %}
-            <div>{% trans 'Nothing so far.' %}</div>
+            <div>{% trans "Nothing so far." %}</div>
           {% endfor %}
         </div>
         {% include "_pagination.html" %}
@@ -53,13 +53,13 @@
                 {% endfor %}
               </select>
               {% if request.user.is_authenticated %}
-                {% translate 'complete' as st_complete %}
+                {% translate "complete" as st_complete %}
                 <select id="status_filter" onchange="applyFilter()">
-                  <option value="" {% if not current_status %}selected{% endif %}>{% trans 'All' %}</option>
+                  <option value="" {% if not current_status %}selected{% endif %}>{% trans "All" %}</option>
                   <option value="wishlist"
-                          {% if current_status == 'wishlist' %}selected{% endif %}>{% trans 'Wishlist' %}</option>
+                          {% if current_status == 'wishlist' %}selected{% endif %}>{% trans "Wishlist" %}</option>
                   <option value="progress"
-                          {% if current_status == 'progress' %}selected{% endif %}>{% trans 'In progress' %}</option>
+                          {% if current_status == 'progress' %}selected{% endif %}>{% trans "In progress" %}</option>
                   <option value="complete"
                           {% if current_status == 'complete' %}selected{% endif %}>{{ st_complete|capfirst }}</option>
                 </select>

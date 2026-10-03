@@ -2,7 +2,7 @@
 {% if done %}
   <li class="dc-surface dc-crosspost done">
     <span class="dc-crosspost-icon"><i class="fa-solid fa-check"></i></span>
-    <span class="dc-crosspost-body">{% trans 'Crossposted successfully.' %}</span>
+    <span class="dc-crosspost-body">{% trans "Crossposted successfully." %}</span>
   </li>
 {% else %}
   <li class="dc-surface dc-crosspost"
@@ -11,11 +11,11 @@
       hx-swap="outerHTML"
       {% if retry.state == 1 %} hx-get="{% url 'users:crosspost_status' retry.pk %}" hx-trigger="every 5s" {% endif %}>
     <span class="dc-crosspost-icon" title="{{ retry.platform|title }}">
-      {% if retry.platform == 'mastodon' %}
+      {% if retry.platform == "mastodon" %}
         <i class="fa-brands fa-mastodon"></i>
-      {% elif retry.platform == 'threads' %}
+      {% elif retry.platform == "threads" %}
         <i class="fa-brands fa-threads"></i>
-      {% elif retry.platform == 'bluesky' %}
+      {% elif retry.platform == "bluesky" %}
         <i class="fa-brands fa-bluesky"></i>
       {% else %}
         <i class="fa-solid fa-share-nodes"></i>
@@ -32,27 +32,29 @@
       <span class="dc-meta">{{ retry.created_time|date }} · {{ retry.platform|title }}</span>
       <span class="dc-crosspost-status">
         {% if retry.state == 1 %}
-          <i class="fa-solid fa-spinner fa-spin"></i> {% trans 'Retrying' %}
+          <i class="fa-solid fa-spinner fa-spin"></i> {% trans "Retrying" %}
         {% else %}
           <i class="fa-solid fa-triangle-exclamation"></i>
           {{ retry.get_error_type_display }}
           {% if retry.message %}<small>{{ retry.message }}</small>{% endif %}
           {% if retry.error_type == 1 and retry.reauth_url %}
-            <a href="{{ retry.reauth_url }}">{% trans 'Re-authorize' %}</a>
+            <a href="{{ retry.reauth_url }}">{% trans "Re-authorize" %}</a>
           {% endif %}
         {% endif %}
       </span>
     </span>
     {% if retry.state != 1 %}
       <span class="dc-crosspost-actions">
-        <button class="dc-btn"
+        <button type="button"
+                class="dc-btn"
                 hx-post="{% url 'users:crosspost_retry' retry.pk %}"
                 hx-target="#crosspost-row-{{ retry.pk }}"
-                hx-swap="outerHTML">{% trans 'Retry' %}</button>
-        <button class="dc-btn outline secondary"
+                hx-swap="outerHTML">{% trans "Retry" %}</button>
+        <button type="button"
+                class="dc-btn outline secondary"
                 hx-post="{% url 'users:crosspost_dismiss' retry.pk %}"
                 hx-target="#crosspost-row-{{ retry.pk }}"
-                hx-swap="outerHTML">{% trans 'Dismiss' %}</button>
+                hx-swap="outerHTML">{% trans "Dismiss" %}</button>
       </span>
     {% endif %}
   </li>

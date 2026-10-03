@@ -20,7 +20,5 @@
   {% endwith %}
 {% endblock brief %}
 {% block full %}
-  <div>
-    {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
-  </div>
+  <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
 {% endblock full %}

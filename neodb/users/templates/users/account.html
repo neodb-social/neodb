@@ -42,7 +42,7 @@
         {% if allow_any_site %}
           <article>
             <details>
-              <summary>{% trans 'Email' %}</summary>
+              <summary>{% trans "Email" %}</summary>
               <form action="{% url 'users:register' %}" method="post">
                 <input value="{{ request.user.username }}" type="hidden" name="username" />
                 <fieldset>
@@ -216,7 +216,7 @@
         {% endif %}
         {% if request.user.social_accounts.all %}
           <article>
-            <a href="{% url 'users:crossposts' %}">{% trans 'Pending' %}</a>
+            <a href="{% url 'users:crossposts' %}">{% trans "Pending" %}</a>
           </article>
         {% endif %}
         <article>
@@ -248,7 +248,9 @@
                       <td>{{ pk.created|date:"Y-m-d" }}</td>
                       <td>{{ pk.last_used|date:"Y-m-d"|default:"-" }}</td>
                       <td>
-                        <button class="secondary passkey-delete-btn" data-pk="{{ pk.id }}">{% trans "Delete" %}</button>
+                        <button type="button"
+                                class="secondary passkey-delete-btn"
+                                data-pk="{{ pk.id }}">{% trans "Delete" %}</button>
                       </td>
                     </tr>
                   {% endfor %}
@@ -268,7 +270,7 @@
         {% if request.user.social_accounts.all %}
           <article>
             <details>
-              <summary>{% trans 'Sync and import social account' %}</summary>
+              <summary>{% trans "Sync and import social account" %}</summary>
               <form action="{% url 'users:sync_mastodon_preference' %}"
                     method="post"
                     enctype="multipart/form-data">
@@ -278,7 +280,7 @@
                     <input type="checkbox"
                            name="mastodon_sync_userinfo"
                            {% if not request.user.preference.mastodon_skip_userinfo %}checked{% endif %}>
-                    {% trans 'Sync display name, bio and avatar' %}
+                    {% trans "Sync display name, bio and avatar" %}
                   </label>
                 </fieldset>
                 <fieldset>
@@ -286,7 +288,7 @@
                     <input type="checkbox"
                            name="mastodon_sync_relationship"
                            {% if not request.user.preference.mastodon_skip_relationship %}checked{% endif %}>
-                    {% trans 'Sync follow, mute and block' %}
+                    {% trans "Sync follow, mute and block" %}
                   </label>
                 </fieldset>
                 <input type="submit" value="{% trans 'Save sync settings' %}" />
@@ -311,7 +313,7 @@
         {% endif %}
         <article>
           <details>
-            <summary>{% trans 'Users you are following' %}</summary>
+            <summary>{% trans "Users you are following" %}</summary>
             <div hx-post="{% url 'users:relations' 'follow' %}"
                  hx-trigger="intersect once">
               <i class="fa-solid fa-gear fa-spin"></i>
@@ -320,7 +322,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Users who follow you' %}</summary>
+            <summary>{% trans "Users who follow you" %}</summary>
             <div hx-post="{% url 'users:relations' 'follower' %}"
                  hx-trigger="intersect once">
               <i class="fa-solid fa-gear fa-spin"></i>
@@ -329,7 +331,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Users who request to follow you' %}</summary>
+            <summary>{% trans "Users who request to follow you" %}</summary>
             <div hx-post="{% url 'users:relations' 'follow_request' %}"
                  hx-trigger="intersect once">
               <i class="fa-solid fa-gear fa-spin"></i>
@@ -338,7 +340,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Users you are muting' %}</summary>
+            <summary>{% trans "Users you are muting" %}</summary>
             <div hx-post="{% url 'users:relations' 'mute' %}"
                  hx-trigger="intersect once">
               <i class="fa-solid fa-gear fa-spin"></i>
@@ -347,7 +349,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Users you are blocking' %}</summary>
+            <summary>{% trans "Users you are blocking" %}</summary>
             <div hx-post="{% url 'users:relations' 'block' %}"
                  hx-trigger="intersect once">
               <i class="fa-solid fa-gear fa-spin"></i>
@@ -356,7 +358,7 @@
         </article>
         <article>
           <details>
-            <summary>{% trans 'Log out everywhere' %}</summary>
+            <summary>{% trans "Log out everywhere" %}</summary>
             <form action="{% url 'users:logout_everywhere' %}"
                   method="post"
                   onsubmit="return confirm('{% trans "This will log you out of all browsers and devices (including the current one), and revoke all API tokens. Continue?" %}');">
@@ -490,7 +492,7 @@
         {% if allow_any_site %}
           <article>
             <details>
-              <summary>{% trans 'Migrate Account' %}</summary>
+              <summary>{% trans "Migrate Account" %}</summary>
               <p>
                 {% if not user.email_account %}
                   <i class="fa-solid fa-triangle-exclamation"></i>
@@ -507,7 +509,7 @@
           </article>
           <article>
             <details>
-              <summary>{% trans 'Delete Account' %}</summary>
+              <summary>{% trans "Delete Account" %}</summary>
               <form action="{% url 'users:clear_data' %}"
                     method="post"
                     onsubmit="return confirm('{% trans "Once deleted, account data cannot be recovered. Sure to proceed?" %}');">

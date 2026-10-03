@@ -8,13 +8,13 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Creator verification' %}</title>
+    <title>{{ site_name }} - {% trans "Creator verification" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <h2>{% trans 'Creator verification' %}</h2>
+      <h2>{% trans "Creator verification" %}</h2>
       <article class="item-card">{% include "_item_card.html" with item=item %}</article>
       <section>
         <p>
@@ -69,7 +69,7 @@
       {% include "_verify_status.html" %}
       {% if verified_creators %}
         <section>
-          <h4>{% trans 'Verified creators' %}</h4>
+          <h4>{% trans "Verified creators" %}</h4>
           <ul>
             {% for claim in verified_creators %}
               <li>
@@ -92,7 +92,7 @@
       {% endif %}
       {% if can_moderate %}
         <details>
-          <summary>{% trans 'Manually verify a creator' %}</summary>
+          <summary>{% trans "Manually verify a creator" %}</summary>
           <form method="post"
                 action="{% url 'catalog:verify_creator_manual' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -105,7 +105,7 @@
         </details>
       {% endif %}
       <details>
-        <summary>{% trans 'Send feedback' %}</summary>
+        <summary>{% trans "Send feedback" %}</summary>
         <form method="post"
               action="{% url 'catalog:suggest' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -117,7 +117,7 @@
         </form>
       </details>
       <p>
-        <a href="{{ item.url }}">{% trans 'Back to item' %}</a>
+        <a href="{{ item.url }}">{% trans "Back to item" %}</a>
       </p>
     </main>
     {% include "_footer.html" %}

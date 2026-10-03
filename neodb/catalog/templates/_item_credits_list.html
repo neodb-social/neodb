@@ -41,7 +41,7 @@
       </span>
     </div>
   {% empty %}
-    <p class="credit-empty">{% trans 'No credits yet.' %}</p>
+    <p class="credit-empty">{% trans "No credits yet." %}</p>
   {% endfor %}
   <form class="credit-add-form"
         hx-post="{% url 'catalog:add_credit' item.url_path item.uuid %}"
@@ -57,7 +57,7 @@
            required>
     <button type="submit" class="outline">
       <i class="fa-solid fa-plus"></i>
-      {% trans 'Add' %}
+      {% trans "Add" %}
     </button>
   </form>
 </div>

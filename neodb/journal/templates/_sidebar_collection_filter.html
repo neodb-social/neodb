@@ -18,7 +18,8 @@
             <option value="progress" {% if status == 'progress' %}selected{% endif %}>{% trans "In progress" %}</option>
             <option value="complete" {% if status == 'complete' %}selected{% endif %}>{% trans "Complete" %}</option>
             <option value="dropped" {% if status == 'dropped' %}selected{% endif %}>{% trans "Dropped" %}</option>
-            <option value="unmarked" {% if status == 'unmarked' %}selected{% endif %}>{% trans "Not marked yet" %}</option>
+            <option value="unmarked"
+                    {% if status == 'unmarked' %}selected{% endif %}>{% trans "Not marked yet" %}</option>
           </select>
         {% endif %}
       </fieldset>

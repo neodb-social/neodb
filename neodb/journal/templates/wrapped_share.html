@@ -24,7 +24,9 @@
             <img id="preview" alt="preview" />
           </div>
           <div class="wrapped-share-note">
-            <textarea type="text" name="comment" placeholder="{% trans "note" %}"> {% blocktrans %}#{{year}}_report{% endblocktrans %}</textarea>
+            <textarea type="text"
+                      name="comment"
+                      placeholder="{% trans "note" %}"> {% blocktrans %}#{{year}}_report{% endblocktrans %}</textarea>
           </div>
         </div>
         <div class="wrapped-share-options">
@@ -57,7 +59,7 @@
       </form>
     </div>
   </article>
-  <script type="text/javascript">
+  <script>
     function share(uri){
       const pfx = 'data:image/png;base64,';
       $('#preview').attr('src', uri);

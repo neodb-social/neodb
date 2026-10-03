@@ -11,11 +11,11 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ request.GET.q }} - {% trans 'Search results' %}</title>
+    <title>{{ site_name }} - {{ request.GET.q }} - {% trans "Search results" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
-    {% include '_header.html' %}
+    {% include "_header.html" %}
     <main>
       <div class="grid__main">
         <div>
@@ -23,11 +23,11 @@
             {% include "search_header.html" %}
           {% endif %}
           {% if request.GET.tag %}
-            <h5>{% trans 'Tag' %}: “{{ request.GET.tag }}”</h5>
+            <h5>{% trans "Tag" %}: “{{ request.GET.tag }}”</h5>
           {% endif %}
           <div class="item-card-list">
             {% for item in items %}
-              {% include '_list_item.html' %}
+              {% include "_list_item.html" %}
             {% empty %}
               <p class="caveat">
                 {% trans "No items matching your search query." %}
@@ -45,7 +45,7 @@
                hx-trigger="revealed"
                hx-swap="outerHTML">
               <span><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-              {% trans 'Searching from other sites' %}
+              {% trans "Searching from other sites" %}
             </p>
           {% else %}
             {% trans "Logged in user may see search results from other sites." %}
@@ -57,6 +57,6 @@
         {% include "_sidebar_search.html" %}
       </aside>
     </main>
-    {% include '_footer.html' %}
+    {% include "_footer.html" %}
   </body>
 </html>

@@ -18,7 +18,8 @@
       <header class="dc-mh dc-page-head">
         <h1>{% blocktrans with category=category.label %}Trending in {{ category }}{% endblocktrans %}</h1>
         <span class="dc-sub">{% trans "Most marked across the Fediverse recently. Refreshed every hour." %}</span>
-        <a class="dc-more" href="{% url 'catalog:discover' %}">{% trans "Back to Explore" %} <i class="fa-solid fa-arrow-right"></i></a>
+        <a class="dc-more"
+           href="{% url 'catalog:discover' %}">{% trans "Back to Explore" %} <i class="fa-solid fa-arrow-right"></i></a>
       </header>
       <ul class="dc-grid">
         {% for item in items %}

@@ -2,7 +2,7 @@
 {% load duration %}
 {% if list %}
   <span>
-    {% trans 'language' %}:
+    {% trans "language" %}:
     {% for p in list %}
       {% if forloop.counter <= max %}
         {% if not forloop.first %}/{% endif %}

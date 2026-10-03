@@ -38,7 +38,7 @@
             href="{{ collection.latest_post.object_uri }}">
     {% endif %}
     {% if not collection.owner.anonymous_viewable %}<meta name="robots" content="noindex">{% endif %}
-    <title>{{ site_name }} {% trans 'Collection' %} | {{ collection.title }}</title>
+    <title>{{ site_name }} {% trans "Collection" %} | {{ collection.title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -59,7 +59,7 @@
               <span class="action">
                 {% include "action_post_timestamp.html" with post=collection.latest_post %}
                 {% if request.user.is_authenticated and collection.latest_post.author_id == request.user.identity.pk %}
-                  <span>{% include '_feature_stats.html' with featured=featured_since %}</span>
+                  <span>{% include "_feature_stats.html" with featured=featured_since %}</span>
                 {% endif %}
                 {% include "action_like_post.html" with post=collection.latest_post %}
                 {% include "action_boost_post.html" with post=collection.latest_post %}
@@ -155,15 +155,15 @@
                 </span>
               {% endif %}
               <span>
-                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans 'Edit' %}</a>
+                <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans "Edit" %}</a>
               </span>
               <span>
-                <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans 'Delete' %}</a>
+                <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans "Delete" %}</a>
               </span>
             {% elif editable %}
               <span>
                 <a href="{% url 'journal:collection_edit' collection.uuid %}"
-                   title="{% trans 'Collaborative editing' %}">{% trans 'Edit' %}</a>
+                   title="{% trans 'Collaborative editing' %}">{% trans "Edit" %}</a>
               </span>
             {% endif %}
           </span>

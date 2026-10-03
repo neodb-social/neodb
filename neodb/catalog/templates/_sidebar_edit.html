@@ -57,17 +57,17 @@
     {% if forloop.first %}
       <i class="fa-solid fa-circle-info"></i> {% trans "The following items are merged into this item" %}
       <ul>
-      {% endif %}
-      <li>
-        <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
-      </li>
-      {% if forloop.last %}</ul>{% endif %}
+    {% endif %}
+    <li>
+      <a href="{{ i.url }}?skipcheck=1">{{ i.display_title }}</a>
+    </li>
+    {% if forloop.last %}</ul>{% endif %}
   {% endfor %}
   {% if item.is_editable or request.user.is_staff %}
     {% for res in item.external_resources.all %}
       <details>
         <summary>
-          {% trans 'External website' %}: <a href="{{ res.url }}" rel="noopener noreferrer">{{ res.site_label }}</a>
+          {% trans "External website" %}: <a href="{{ res.url }}" rel="noopener noreferrer">{{ res.site_label }}</a>
         </summary>
         <div class="grid">
           {% if item.class_name == "people" %}
@@ -105,7 +105,7 @@
     {% endfor %}
     {% if resource_covers %}
       <details>
-        <summary>{% trans 'Choose cover' %}</summary>
+        <summary>{% trans "Choose cover" %}</summary>
         <form method="post"
               action="{% url 'catalog:pick_cover' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -117,7 +117,7 @@
                      alt="{% trans 'Current cover' %}"
                      title="{% trans 'Current cover' %}"
                      loading="lazy">
-                <small>{% trans 'Current cover' %}</small>
+                <small>{% trans "Current cover" %}</small>
               </label>
             {% endif %}
             {% for res in resource_covers %}
@@ -142,7 +142,7 @@
     {% if item.child_class %}
       <details>
         <summary>
-          {% trans 'Edit sub-items' %} <small>({{ item.child_items.count }})</small>
+          {% trans "Edit sub-items" %} <small>({{ item.child_items.count }})</small>
         </summary>
         <p class="tag-list scroll-box">
           {% for ep in item.child_items %}
@@ -161,7 +161,7 @@
     {% endif %}
     {% if item.class_name == "tvseason" %}
       <details>
-        <summary>{% trans 'Fetch all episodes' %}</summary>
+        <summary>{% trans "Fetch all episodes" %}</summary>
         {% if item.imdb and item.season_number is not None %}
           <form method="post"
                 action="{% url 'catalog:fetch_tvepisodes' item.url_path item.uuid %}">
@@ -177,7 +177,7 @@
     {% endif %}
     {% if item.class_name == "movie" %}
       <details>
-        <summary>{% trans 'Switch category' %}</summary>
+        <summary>{% trans "Switch category" %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -188,7 +188,7 @@
     {% elif item.class_name == "tvshow" %}
       {% if not item.all_seasons or request.user.is_staff %}
         <details>
-          <summary>{% trans 'Switch category' %}</summary>
+          <summary>{% trans "Switch category" %}</summary>
           <form method="post"
                 action="{% url 'catalog:recast' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -205,7 +205,7 @@
       {% endif %}
     {% elif item.class_name == "album" %}
       <details>
-        <summary>{% trans 'Switch category' %}</summary>
+        <summary>{% trans "Switch category" %}</summary>
         <form method="post"
               action="{% url 'catalog:recast' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -245,7 +245,7 @@
     {% endif %}
     {% if not item.journal_exists or request.user.is_staff %}
       <details>
-        <summary>{% trans 'Merge' %}</summary>
+        <summary>{% trans "Merge" %}</summary>
         <form method="post"
               action="{% url 'catalog:merge' item.url_path item.uuid %}">
           {% csrf_token %}
@@ -262,7 +262,7 @@
       </details>
       {% if item.is_deletable and not item.journal_exists %}
         <details>
-          <summary>{% trans 'Delete' %}</summary>
+          <summary>{% trans "Delete" %}</summary>
           <form method="post"
                 action="{% url 'catalog:delete' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -272,7 +272,7 @@
       {% endif %}
       {% if item.is_deleted and request.user.is_staff %}
         <details>
-          <summary>{% trans 'Undo delete' %}</summary>
+          <summary>{% trans "Undo delete" %}</summary>
           <form method="post"
                 action="{% url 'catalog:undelete' item.url_path item.uuid %}">
             {% csrf_token %}
@@ -282,11 +282,11 @@
         </details>
       {% endif %}
     {% endif %}
-    {% if item.class_name == 'edition' %}
+    {% if item.class_name == "edition" %}
       {% with item.get_work as work %}
         {% if work %}
           <details>
-            <summary>{% trans 'Work' %}</summary>
+            <summary>{% trans "Work" %}</summary>
             {% trans "This edition belongs to the following work" %}
             <li>
               <a href="{{ work.url }}">{{ work.display_title }}</a>
@@ -303,7 +303,7 @@
         {% endif %}
         {% if not work or request.user.is_staff %}
           <details>
-            <summary>{% trans 'Link' %}</summary>
+            <summary>{% trans "Link" %}</summary>
             <form method="post"
                   action="{% url 'catalog:link_edition' item.url_path item.uuid %}">
               {% csrf_token %}
@@ -341,7 +341,7 @@
     </details>
   {% endif %}
   <details>
-    <summary>{% trans 'Suggest edits' %}</summary>
+    <summary>{% trans "Suggest edits" %}</summary>
     <form method="post"
           action="{% url 'catalog:suggest' item.url_path item.uuid %}">
       {% csrf_token %}
