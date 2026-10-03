@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 13:19-0400\n"
+"POT-Creation-Date: 2026-10-03 10:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4140,17 +4140,13 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: common/templates/_pagination.html:34
+#: common/templates/_pagination.html:32
 #, python-format
 msgid "%(current)s of %(total)s"
 msgstr ""
 
-#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
+#: common/templates/_pagination.html:38 common/templates/_pagination.html:42
 msgid "Next page"
-msgstr ""
-
-#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
-msgid "Next"
 msgstr ""
 
 #: common/templates/_sidebar.html:59
@@ -5422,9 +5418,9 @@ msgstr ""
 #: users/templates/users/data.html:170 users/templates/users/data.html:221
 #: users/templates/users/data.html:284 users/templates/users/data.html:346
 #: users/templates/users/data.html:525 users/templates/users/data.html:578
-#: users/templates/users/rym_import.html:62
+#: users/templates/users/rym_import.html:70
 #: users/templates/users/steam_import.html:125
-#: users/templates/users/storygraph_import.html:62
+#: users/templates/users/storygraph_import.html:70
 msgid "Visibility"
 msgstr ""
 
@@ -5585,9 +5581,9 @@ msgstr[1] ""
 #: users/templates/users/data.html:355 users/templates/users/data.html:534
 #: users/templates/users/data.html:587
 #: users/templates/users/preferences.html:56
-#: users/templates/users/rym_import.html:65
+#: users/templates/users/rym_import.html:73
 #: users/templates/users/steam_import.html:128
-#: users/templates/users/storygraph_import.html:65
+#: users/templates/users/storygraph_import.html:73
 msgid "Public"
 msgstr ""
 
@@ -5600,9 +5596,9 @@ msgstr ""
 #: users/templates/users/data.html:363 users/templates/users/data.html:542
 #: users/templates/users/data.html:595
 #: users/templates/users/preferences.html:63
-#: users/templates/users/rym_import.html:69
+#: users/templates/users/rym_import.html:77
 #: users/templates/users/steam_import.html:132
-#: users/templates/users/storygraph_import.html:69
+#: users/templates/users/storygraph_import.html:77
 msgid "Followers Only"
 msgstr ""
 
@@ -5614,9 +5610,9 @@ msgstr ""
 #: users/templates/users/data.html:371 users/templates/users/data.html:550
 #: users/templates/users/data.html:603
 #: users/templates/users/preferences.html:70
-#: users/templates/users/rym_import.html:73
+#: users/templates/users/rym_import.html:81
 #: users/templates/users/steam_import.html:136
-#: users/templates/users/storygraph_import.html:73
+#: users/templates/users/storygraph_import.html:81
 msgid "Mentioned Only"
 msgstr ""
 
@@ -5672,7 +5668,8 @@ msgstr ""
 msgid "Invalid progress type for this item."
 msgstr ""
 
-#: journal/models/note.py:48
+#: journal/models/note.py:48 users/templates/users/rym_import.html:62
+#: users/templates/users/storygraph_import.html:62
 msgid "Page"
 msgstr ""
 
@@ -8258,7 +8255,7 @@ msgstr ""
 msgid "Another import is in progress, starting a new import may cause issues, sure to import?"
 msgstr ""
 
-#: users/templates/users/data.html:89 users/views/data.py:1123
+#: users/templates/users/data.html:89 users/views/data.py:1124
 msgid "Import in progress, please wait"
 msgstr ""
 
@@ -8878,13 +8875,18 @@ msgstr ""
 msgid "Shelf"
 msgstr ""
 
-#: users/templates/users/rym_import.html:76
-#: users/templates/users/storygraph_import.html:76
+#: users/templates/users/rym_import.html:64
+#: users/templates/users/storygraph_import.html:64
+msgid "Next"
+msgstr ""
+
+#: users/templates/users/rym_import.html:84
+#: users/templates/users/storygraph_import.html:84
 msgid "Confirm import"
 msgstr ""
 
-#: users/templates/users/rym_import.html:77
-#: users/templates/users/storygraph_import.html:77
+#: users/templates/users/rym_import.html:85
+#: users/templates/users/storygraph_import.html:85
 msgid "Back"
 msgstr ""
 
@@ -9123,71 +9125,71 @@ msgstr ""
 msgid "Account mismatch."
 msgstr ""
 
-#: users/views/data.py:301 users/views/data.py:327
+#: users/views/data.py:300 users/views/data.py:326
 msgid "Export file not available."
 msgstr ""
 
-#: users/views/data.py:321
+#: users/views/data.py:320
 msgid "Generating exports."
 msgstr ""
 
-#: users/views/data.py:339
+#: users/views/data.py:338
 msgid "Export file expired. Please export again."
 msgstr ""
 
-#: users/views/data.py:354 users/views/data.py:375 users/views/data.py:396
+#: users/views/data.py:353 users/views/data.py:374 users/views/data.py:395
 msgid "Recent export still in progress."
 msgstr ""
 
-#: users/views/data.py:412 users/views/data.py:430 users/views/data.py:450
-#: users/views/data.py:574 users/views/data.py:620 users/views/data.py:822
-#: users/views/data.py:1016 users/views/data.py:1034 users/views/data.py:1051
-#: users/views/data.py:1068 users/views/data.py:1130
+#: users/views/data.py:411 users/views/data.py:429 users/views/data.py:449
+#: users/views/data.py:573 users/views/data.py:619 users/views/data.py:822
+#: users/views/data.py:1017 users/views/data.py:1035 users/views/data.py:1052
+#: users/views/data.py:1069 users/views/data.py:1131
 msgid "Invalid file."
 msgstr ""
 
-#: users/views/data.py:464
+#: users/views/data.py:463
 msgid "Sync in progress."
 msgstr ""
 
-#: users/views/data.py:478
+#: users/views/data.py:477
 msgid "Settings saved."
 msgstr ""
 
-#: users/views/data.py:533
+#: users/views/data.py:532
 msgid "Account no longer linked."
 msgstr ""
 
-#: users/views/data.py:536
+#: users/views/data.py:535
 msgid "Content is no longer public."
 msgstr ""
 
-#: users/views/data.py:564
+#: users/views/data.py:563
 msgid "Retry did not complete, please try again."
 msgstr ""
 
-#: users/views/data.py:638 users/views/data.py:840
+#: users/views/data.py:637 users/views/data.py:840
 msgid "Loaded from uploaded matched file."
 msgstr ""
 
-#: users/views/data.py:663 users/views/data.py:869
+#: users/views/data.py:662 users/views/data.py:869
 msgid "Cancelled."
 msgstr ""
 
-#: users/views/data.py:683
+#: users/views/data.py:682
 msgid "No RateYourMusic import to preview."
 msgstr ""
 
-#: users/views/data.py:691 users/views/data.py:801 users/views/data.py:899
-#: users/views/data.py:1004
+#: users/views/data.py:690 users/views/data.py:801 users/views/data.py:899
+#: users/views/data.py:1005
 msgid "Matched file missing."
 msgstr ""
 
-#: users/views/data.py:787 users/views/data.py:990
+#: users/views/data.py:787 users/views/data.py:991
 msgid "Starting import..."
 msgstr ""
 
-#: users/views/data.py:797 users/views/data.py:1000
+#: users/views/data.py:797 users/views/data.py:1001
 msgid "No matched file available."
 msgstr ""
 
@@ -9195,70 +9197,70 @@ msgstr ""
 msgid "No StoryGraph import to preview."
 msgstr ""
 
-#: users/views/data.py:1212
+#: users/views/data.py:1213
 msgid "Name is required."
 msgstr ""
 
-#: users/views/data.py:1236
+#: users/views/data.py:1237
 msgid "Application access has been revoked."
 msgstr ""
 
-#: users/views/data.py:1252
+#: users/views/data.py:1253
 msgid "Alias update not allowed for a moved account."
 msgstr ""
 
-#: users/views/data.py:1257
+#: users/views/data.py:1258
 msgid "No alias specified."
 msgstr ""
 
-#: users/views/data.py:1267 users/views/data.py:1318
+#: users/views/data.py:1268 users/views/data.py:1319
 msgid "Looking up the account. Please try again in a few seconds."
 msgstr ""
 
-#: users/views/data.py:1274
+#: users/views/data.py:1275
 #, python-brace-format
 msgid "Alias to {handle} removed."
 msgstr ""
 
-#: users/views/data.py:1279
+#: users/views/data.py:1280
 #, python-brace-format
 msgid "Alias to {handle} added."
 msgstr ""
 
-#: users/views/data.py:1305
+#: users/views/data.py:1306
 msgid "Migration cancelled."
 msgstr ""
 
-#: users/views/data.py:1310
+#: users/views/data.py:1311
 msgid "No target account specified."
 msgstr ""
 
-#: users/views/data.py:1323
+#: users/views/data.py:1324
 msgid "Cannot migrate to a local account."
 msgstr ""
 
-#: users/views/data.py:1334
+#: users/views/data.py:1335
 msgid "You must set up an alias in the target account first."
 msgstr ""
 
-#: users/views/data.py:1340
+#: users/views/data.py:1341
 #, python-brace-format
 msgid "Start moving to {handle}."
 msgstr ""
 
-#: users/views/data.py:1398
+#: users/views/data.py:1399
 msgid "No file uploaded."
 msgstr ""
 
-#: users/views/data.py:1414
+#: users/views/data.py:1415
 msgid "The uploaded file is not a valid CSV."
 msgstr ""
 
-#: users/views/data.py:1418
+#: users/views/data.py:1419
 msgid "No valid entries found in the CSV file."
 msgstr ""
 
-#: users/views/data.py:1428
+#: users/views/data.py:1429
 #, python-brace-format
 msgid "Import of {count} entries received. They will be processed in the background."
 msgstr ""

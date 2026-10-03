@@ -6,15 +6,15 @@
         <a href="?{{ pagination.query_string }}page={{ pagination.previous_page }}"
            class="step"
            rel="prev"
-           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate 'Previous' %}</span></a>
+           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate "Previous" %}</span></a>
       {% else %}
         <a class="step"
            aria-disabled="true"
-           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate 'Previous' %}</span></a>
+           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate "Previous" %}</span></a>
       {% endif %}
       {% if pagination.start_page > 1 %}
         <a href="?{{ pagination.query_string }}page=1" class="num">1</a>
-        {% if pagination.start_page > 2 %}<span class="gap" aria-hidden="true">…</span>{% endif %}
+        {% if pagination.gap_before %}<span class="gap" aria-hidden="true">…</span>{% endif %}
       {% endif %}
       {% for page in pagination.page_range %}
         {% if page == pagination.current_page %}
@@ -24,9 +24,7 @@
         {% endif %}
       {% endfor %}
       {% if pagination.end_page < pagination.last_page %}
-        {% if pagination.end_page < pagination.last_page|add:"-1" %}
-          <span class="gap" aria-hidden="true">…</span>
-        {% endif %}
+        {% if pagination.gap_after %}<span class="gap" aria-hidden="true">…</span>{% endif %}
         <a href="?{{ pagination.query_string }}page={{ pagination.last_page }}"
            class="num">{{ pagination.last_page }}</a>
       {% endif %}
@@ -37,11 +35,11 @@
         <a href="?{{ pagination.query_string }}page={{ pagination.next_page }}"
            class="step"
            rel="next"
-           aria-label="{% translate 'Next page' %}"><span>{% translate 'Next' %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+           aria-label="{% translate 'Next page' %}"><span>{% translate "Next" %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
       {% else %}
         <a class="step"
            aria-disabled="true"
-           aria-label="{% translate 'Next page' %}"><span>{% translate 'Next' %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+           aria-label="{% translate 'Next page' %}"><span>{% translate "Next" %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
       {% endif %}
     </div>
   </nav>

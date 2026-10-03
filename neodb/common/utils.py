@@ -368,6 +368,9 @@ class PageLinksGenerator:
         self.first_page = 1
         self.last_page = total_pages
         self.page_range = range(self.start_page, self.end_page + 1)
+        # pages hidden between the window and the first or last page link
+        self.gap_before = self.start_page > 2
+        self.gap_after = self.end_page < total_pages - 1
         # assert self.has_prev is not None and self.has_next is not None
 
 

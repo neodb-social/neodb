@@ -76,6 +76,14 @@ class TestPageLinksGenerator:
         assert "q=search" in pg.query_string
         assert "page" not in pg.query_string
 
+    def test_gaps_next_to_first_and_last_page(self):
+        assert PageLinksGenerator(10, 20).gap_before is True
+        assert PageLinksGenerator(10, 20).gap_after is True
+        assert PageLinksGenerator(4, 20).gap_before is False
+        assert PageLinksGenerator(17, 20).gap_after is False
+        assert PageLinksGenerator(2, 3).gap_before is False
+        assert PageLinksGenerator(2, 3).gap_after is False
+
     def test_query_string_empty(self):
         pg = PageLinksGenerator(1, 5)
         assert pg.query_string == ""
