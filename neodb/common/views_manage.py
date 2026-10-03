@@ -593,8 +593,8 @@ class RecommendationSettings(SiteConfigSettingsPage):
         "reco_similarity_shrinkage": {
             "title": _("Similarity shrinkage"),
             "help_text": _(
-                "Added to the cosine denominator so item pairs shared by few "
-                "users score lower. 0 turns it off."
+                "Item pairs shared by fewer users than this score lower. "
+                "0 turns it off."
             ),
             "min_value": 0,
         },

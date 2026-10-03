@@ -1,13 +1,19 @@
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from scipy.sparse import csc_matrix
 
 from catalog.apis import _prepare_reco_items
 from catalog.jobs import recommendation as recommendation_job
-from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
+from catalog.jobs.recommendation import (
+    BuildItemSimilarity,
+    BuildUserRecommendations,
+    _cosine_topk,
+)
 from catalog.models import (
     Edition,
     ExternalResource,
@@ -712,6 +718,37 @@ class TestFromYourCircles:
         assert {i.pk for i in items} == {self.book_a.pk, self.book_b.pk}
 
 
+class TestCosineTopk:
+    def _run(self, shrinkage: float) -> dict[int, list[tuple[int, float]]]:
+        # users x items; item 0 shares 2 users with item 1, 1 user with item 2
+        m = csc_matrix(np.array([[1, 1, 0], [2, 2, 1], [0, 0, 3]], dtype=np.float32))
+        mask = np.array([True, True, True])
+        return {
+            src: list(zip(cols.tolist(), vals.tolist()))
+            for src, cols, vals in _cosine_topk(
+                m, np.array([0, 1, 2]), mask, 5, shrinkage
+            )
+        }
+
+    def test_scores_and_blocks(self, monkeypatch):
+        n0 = (1 + 4) ** 0.5
+        n2 = (1 + 9) ** 0.5
+        expected = {
+            0: [(1, 1.0 * 2 / 7), (2, 2 / (n0 * n2) * 1 / 6)],
+            1: [(0, 1.0 * 2 / 7), (2, 2 / (n0 * n2) * 1 / 6)],
+            2: [(0, 2 / (n0 * n2) * 1 / 6), (1, 2 / (n0 * n2) * 1 / 6)],
+        }
+        for block in (256, 1):
+            monkeypatch.setattr(recommendation_job, "_SOURCE_BLOCK", block)
+            got = self._run(5.0)
+            assert got.keys() == expected.keys()
+            for src, rows in expected.items():
+                assert dict(got[src]) == pytest.approx(dict(rows), rel=1e-5)
+                scores = [v for _, v in got[src]]
+                assert scores == sorted(scores, reverse=True)
+        assert self._run(0.0)[0][0] == (1, pytest.approx(1.0, rel=1e-5))
+
+
 class TestMarkWeight:
     BOOSTS = {"rating_weight": 0.5, "review_boost": 0.5, "comment_note_boost": 0.25}
 
@@ -807,8 +844,7 @@ class TestSimilarityCosine:
     def _score(self, src, tgt) -> float:
         return ItemSimilarity.objects.get(source=src, target=tgt).score
 
-    def test_shrinkage_favours_well_supported_pairs(self):
-        _set(reco_similarity_shrinkage=5.0)
+    def _pairs(self) -> tuple:
         p, q, x, y = (Edition.objects.create(title=t) for t in "PQXY")
         for ident in self._users("cs", 2):
             _public_mark(ident, p, rating=0)
@@ -816,12 +852,25 @@ class TestSimilarityCosine:
         for ident in self._users("cl", 10):
             _public_mark(ident, x, rating=0)
             _public_mark(ident, y, rating=0)
+        return p, q, x, y
+
+    def test_shrinkage_favours_well_supported_pairs(self):
+        # damping must not change the scale shrinkage works in
+        _set(reco_similarity_shrinkage=5.0, reco_user_idf_dampen=True)
+        p, q, x, y = self._pairs()
         BuildItemSimilarity().run()
         # both pairs have cosine 1; shrinkage keeps the 2-user pair lower
         assert self._score(p, q) == pytest.approx(2 / 7, rel=1e-5)
         assert self._score(x, y) == pytest.approx(10 / 15, rel=1e-5)
         scores = list(ItemSimilarity.objects.values_list("score", flat=True))
         assert scores and all(0 <= s < 1 for s in scores)
+
+    def test_zero_shrinkage_keeps_cosine(self):
+        _set(reco_similarity_shrinkage=0.0, reco_user_idf_dampen=True)
+        p, q, x, y = self._pairs()
+        BuildItemSimilarity().run()
+        assert self._score(p, q) == pytest.approx(1.0, rel=1e-5)
+        assert self._score(x, y) == pytest.approx(1.0, rel=1e-5)
 
     def test_batched_weighing_mid_stream(self, monkeypatch):
         monkeypatch.setattr(recommendation_job, "_WEIGH_OWNER_BATCH", 1)

@@ -2,6 +2,7 @@ import logging
 import math
 from array import array
 from collections import defaultdict
+from collections.abc import Iterator
 from datetime import timedelta
 from typing import NamedTuple
 
@@ -9,7 +10,7 @@ import numpy as np
 from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
-from scipy.sparse import csr_matrix
+from scipy.sparse import csc_matrix, csr_matrix
 
 from catalog.models import (
     Item,
@@ -38,8 +39,8 @@ logger = logging.getLogger(__name__)
 
 # owners whose kept marks are weighed together; bounds the signal lookup
 _WEIGH_OWNER_BATCH = 200
-# nonzeros of the item-item matrix rescaled per step, bounds temporaries
-_COSINE_CHUNK = 1_000_000
+# source columns per item-item product block, bounds peak memory
+_SOURCE_BLOCK = 256
 
 
 class UserMarks(NamedTuple):
@@ -62,19 +63,75 @@ def _non_discoverable_identity_ids() -> set[int]:
     )
 
 
-def _shrunk_cosine_inplace(sim: csr_matrix, shrinkage: float) -> None:
-    """Rescale ``sim = M.T @ M`` to ``sim[a, b] / (sqrt(d_a * d_b) + shrinkage)``.
+def _coo_to_csc(
+    rows: "array[int]", cols: "array[int]", data: "array[float]", shape: tuple
+) -> csc_matrix:
+    return csc_matrix(
+        (
+            np.frombuffer(data, dtype=np.float32),
+            (np.frombuffer(rows, dtype=np.int32), np.frombuffer(cols, dtype=np.int32)),
+        ),
+        shape=shape,
+    )
 
-    ``d`` is the diagonal. Works on ``sim.data`` in chunks so the temporary
-    arrays stay small next to the matrix itself.
+
+def _cosine_topk(
+    mc: csc_matrix,
+    sources: np.ndarray,
+    target_mask: np.ndarray,
+    top_k: int,
+    shrinkage: float,
+) -> Iterator[tuple[int, np.ndarray, np.ndarray]]:
+    """Top-K cosine neighbours of each source column of ``mc`` (rows x items).
+
+    Yields ``(source_col, target_cols, scores)`` with scores descending. With
+    ``shrinkage`` > 0 a score is multiplied by ``n / (n + shrinkage)``, where
+    ``n`` counts the rows (users) holding both items. The item-item product
+    is computed for ``_SOURCE_BLOCK`` source columns at a time, so peak
+    memory is one block, not the whole item-item matrix.
     """
-    norms = np.sqrt(sim.diagonal()).astype(np.float32)
-    for start in range(0, sim.nnz, _COSINE_CHUNK):
-        stop = min(start + _COSINE_CHUNK, sim.nnz)
-        row = np.searchsorted(sim.indptr, np.arange(start, stop), side="right") - 1
-        denom = norms[row] * norms[sim.indices[start:stop]]
-        denom += np.float32(shrinkage)
-        sim.data[start:stop] /= denom
+    norms = np.sqrt(np.asarray(mc.power(2).sum(axis=0)).ravel()).astype(np.float32)
+    # transposes of CSC matrices are CSR views, no copy
+    mt = mc.T
+    bc: csc_matrix | None = None
+    bt: csr_matrix | None = None
+    if shrinkage > 0:
+        bc = csc_matrix((np.ones_like(mc.data), mc.indices, mc.indptr), shape=mc.shape)
+        bt = bc.T
+    for start in range(0, len(sources), _SOURCE_BLOCK):
+        block = sources[start : start + _SOURCE_BLOCK]
+        r = csc_matrix(mt @ mc[:, block])
+        r.sort_indices()
+        block_col = np.repeat(np.arange(len(block)), np.diff(r.indptr))
+        r.data /= norms[r.indices] * norms[block][block_col]
+        if bt is not None and bc is not None:
+            n = csc_matrix(bt @ bc[:, block])
+            n.sort_indices()
+            factor = n.data / (n.data + np.float32(shrinkage))
+            # nonzero weights give B the same sparsity pattern as M
+            if np.array_equal(n.indptr, r.indptr) and np.array_equal(
+                n.indices, r.indices
+            ):
+                r.data *= factor
+            else:
+                n.data = factor
+                r = csc_matrix(r.multiply(n))
+                r.sort_indices()
+        for j, src in enumerate(block):
+            lo, hi = r.indptr[j], r.indptr[j + 1]
+            idx = r.indices[lo:hi]
+            val = r.data[lo:hi]
+            keep = target_mask[idx] & (idx != src)
+            if not keep.any():
+                continue
+            idx = idx[keep]
+            val = val[keep]
+            if val.size > top_k:
+                cut = np.argpartition(-val, top_k)[:top_k]
+                idx = idx[cut]
+                val = val[cut]
+            order = np.argsort(-val)
+            yield int(src), idx[order], val[order]
 
 
 def _enabled() -> bool:
@@ -371,18 +428,12 @@ class BuildItemSimilarity(BaseJob):
     ) -> dict[int, list[tuple[int, float]]]:
         """Per-category sparse cosine similarity: top-K targets per active source.
 
-        Builds one ``scipy.sparse`` user-item matrix per category and computes
-        ``M.T @ M``. Each entry is ``w_u * mark_weight``, where
-        ``w_u = 1/sqrt(n_user_total)`` (or 1 when damping is off). The product
-        is rescaled to ``sim[a, b] / (sqrt(d_a * d_b) + shrinkage)`` with ``d``
-        its diagonal, so scores fall in [0, 1) and pairs backed by little
-        weight score lower. Users with a single mark in the category add no
-        pair but still count toward ``d``, as cosine requires. Working per
-        category keeps peak memory bounded by the densest single category
-        instead of the whole catalog and lets ``M.T M`` use C-level math
-        instead of Python dict-of-dict. The win is category-distribution-
-        dependent: if one category dominates the mark volume, the densest
-        matrix can still approach the prior peak.
+        Builds one ``scipy.sparse`` user-item matrix per category. Each entry
+        is ``w_u * mark_weight``, where ``w_u = 1/sqrt(n_user_total)`` (or 1
+        when damping is off). Scores are cosine times ``n / (n + shrinkage)``
+        with ``n`` the users who marked both items, see ``_cosine_topk``.
+        Users with a single mark in the category add no pair but still count
+        toward the item norms, as cosine requires.
         """
         if top_k <= 0:
             return {}
@@ -435,49 +486,18 @@ class BuildItemSimilarity(BaseJob):
             if user_idx == 0:
                 continue
 
-            m = csr_matrix(
-                (
-                    np.frombuffer(data, dtype=np.float32),
-                    (
-                        np.frombuffer(rows, dtype=np.int32),
-                        np.frombuffer(cols, dtype=np.int32),
-                    ),
-                ),
-                shape=(user_idx, n_items),
-            )
+            m = _coo_to_csc(rows, cols, data, (user_idx, n_items))
             del rows, cols, data
-            sim = (m.T @ m).tocsr()
-            del m
-            _shrunk_cosine_inplace(sim, shrinkage)
-            sim.setdiag(0)
-            sim.eliminate_zeros()
 
             target_mask = np.zeros(n_items, dtype=bool)
             for iid in target_in_cat:
                 target_mask[col_of[iid]] = True
-            item_arr = np.asarray(item_list, dtype=np.int64)
-
-            for src_id in active_in_cat:
-                src_col = col_of[src_id]
-                row = sim.getrow(src_col)
-                if row.nnz == 0:
-                    continue
-                indices = row.indices
-                values = row.data
-                keep = target_mask[indices]
-                if not keep.any():
-                    continue
-                sel_idx = indices[keep]
-                sel_val = values[keep]
-                if sel_val.size > top_k:
-                    cut = np.argpartition(-sel_val, top_k)[:top_k]
-                    sel_idx = sel_idx[cut]
-                    sel_val = sel_val[cut]
-                order = np.argsort(-sel_val)
-                sel_idx = sel_idx[order]
-                sel_val = sel_val[order]
-                out[src_id] = [
-                    (int(item_arr[i]), float(s)) for i, s in zip(sel_idx, sel_val)
+            sources = np.array(sorted(col_of[i] for i in active_in_cat))
+            for src_col, tgt_cols, scores in _cosine_topk(
+                m, sources, target_mask, top_k, shrinkage
+            ):
+                out[item_list[src_col]] = [
+                    (item_list[c], float(v)) for c, v in zip(tgt_cols, scores)
                 ]
         return out
 
