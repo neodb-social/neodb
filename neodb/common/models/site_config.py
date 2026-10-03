@@ -56,6 +56,8 @@ class SiteConfig(models.Model):
         email_domain_blocklist: list[str] = []
         # Number of covers shown in the registration captcha; 0 disables it.
         registration_captcha_items: int = 0
+        # Show the captcha only to sign-ups that verified an email address.
+        registration_captcha_email_only: bool = False
         # Marks an item needs before the captcha considers it recognizable.
         min_marks_for_captcha: int = 10
 

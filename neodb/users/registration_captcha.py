@@ -49,6 +49,7 @@ from catalog.models import (
 )
 from common.models import SiteConfig
 from journal.models import ShelfMember, q_item_in_category
+from mastodon.models import Platform, SocialAccount
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,15 @@ class Challenge(TypedDict):
 
 def is_enabled() -> bool:
     return SiteConfig.system.registration_captcha_items > 0
+
+
+def is_required(account: SocialAccount) -> bool:
+    """Whether registering with this verified identity must pass the captcha."""
+    if not is_enabled():
+        return False
+    if SiteConfig.system.registration_captcha_email_only:
+        return account.platform == Platform.EMAIL
+    return True
 
 
 def _now() -> int:

@@ -14,7 +14,7 @@ from catalog.models import Album, Game, ItemCategory, Movie, Podcast, PodcastEpi
 from common.models import SiteConfig
 from common.models.misc import MISSING_COVER
 from journal.models import Mark, ShelfType
-from mastodon.models import Email
+from mastodon.models import BlueskyAccount, Email
 from users import registration_captcha as captcha
 from users.jobs.captcha_pool import RegistrationCaptchaPool
 from users.models import User
@@ -90,6 +90,13 @@ def _human_trace(tokens) -> dict:
 def _verify_email(client: Client, email: str = "captcha@example.org") -> None:
     account = Email.new_account(email)
     assert account is not None
+    session = client.session
+    session["verified_account"] = account.to_dict()
+    session.save()
+
+
+def _verify_bluesky(client: Client) -> None:
+    account = BlueskyAccount(domain="-", uid="did:plc:captcha", handle="c.example")
     session = client.session
     session["verified_account"] = account.to_dict()
     session.save()
@@ -199,6 +206,7 @@ def enabled(monkeypatch: pytest.MonkeyPatch, media_root):
 class TestDisabled:
     def test_default_is_off(self, client):
         assert SiteConfig.SystemOptions().registration_captcha_items == 0
+        assert not SiteConfig.SystemOptions().registration_captcha_email_only
         assert not captcha.is_enabled()
 
     def test_registration_untouched_when_disabled(self, client, monkeypatch):
@@ -241,6 +249,55 @@ class TestGate:
         client.force_login(user, backend="mastodon.auth.OAuth2Backend")
         response = client.get(REGISTER_URL)
         assert response.status_code == 200
+
+    def test_bluesky_sign_up_is_gated_by_default(self, client, enabled):
+        _verify_bluesky(client)
+        response = client.get(REGISTER_URL)
+        assert response.status_code == 302
+        assert response.url == CAPTCHA_URL
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEmailOnly:
+    @pytest.fixture(autouse=True)
+    def email_only(self, enabled, monkeypatch):
+        _configure(monkeypatch, registration_captcha_email_only=True)
+        monkeypatch.setattr(User, "sync_accounts_later", lambda self: None)
+
+    def test_email_sign_up_is_still_gated(self, client):
+        _verify_email(client)
+        response = client.get(REGISTER_URL)
+        assert response.status_code == 302
+        assert response.url == CAPTCHA_URL
+        response = client.post(REGISTER_URL, {"username": "sneaky", "email": ""})
+        assert response.status_code == 302
+        assert response.url == CAPTCHA_URL
+        assert not User.objects.filter(username="sneaky").exists()
+
+    def test_bluesky_sign_up_skips_the_captcha(self, client):
+        _verify_bluesky(client)
+        assert client.get(REGISTER_URL).status_code == 200
+        response = client.post(REGISTER_URL, {"username": "skyuser", "email": ""})
+        assert response.status_code == 200
+        assert User.objects.filter(username="skyuser").exists()
+
+    def test_captcha_page_sends_bluesky_to_register(self, client):
+        _verify_bluesky(client)
+        response = client.get(CAPTCHA_URL)
+        assert response.status_code == 302
+        assert response.url == REGISTER_URL
+        assert captcha.SESSION_KEY not in client.session
+
+    def test_verification_routes_by_platform(self, client):
+        from mastodon.views.common import register_new_user
+
+        request = client.request().wsgi_request
+        request.session = client.session
+        email = Email.new_account("route@example.org")
+        assert email is not None
+        assert register_new_user(request, email).url == CAPTCHA_URL
+        bluesky = BlueskyAccount(domain="-", uid="did:plc:route", handle="r.example")
+        assert register_new_user(request, bluesky).url == REGISTER_URL
 
 
 @pytest.mark.django_db(databases="__all__")
