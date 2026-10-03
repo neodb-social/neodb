@@ -1,59 +1,39 @@
 {% load i18n %}
 {% with phase=hardcover_task.metadata.phase %}
   {% if hardcover_task and phase and phase != "done" and phase != "cancelled" %}
-    <details open>
-      <summary>{% trans "Import from Hardcover" %}</summary>
-      {% include "users/user_task_status.html" with task=hardcover_task %}
-      <div role="group">
-        {% if phase == "preview" %}
-          <a href="{% url 'users:hardcover_preview' %}"
-             role="button"
-             class="secondary">{% trans "Review pending matches" %}</a>
-        {% endif %}
-        <button type="button"
-                hx-post="{% url 'users:hardcover_cancel' %}"
-                hx-target="#hardcover"
-                hx-swap="innerHTML"
-                hx-confirm="{% trans 'Cancel the Hardcover import? Progress will be discarded.' %}"
-                class="secondary outline">{% trans "Cancel import" %}</button>
-      </div>
-    </details>
+    {% include "users/user_task_status.html" with task=hardcover_task %}
+    <div role="group">
+      {% if phase == "preview" %}
+        <a href="{% url 'users:hardcover_preview' %}"
+           role="button"
+           class="secondary">{% trans "Review pending matches" %}</a>
+      {% endif %}
+      <button type="button"
+              hx-post="{% url 'users:hardcover_cancel' %}"
+              hx-target="#hardcover"
+              hx-swap="innerHTML"
+              hx-confirm="{% trans 'Cancel the Hardcover import? Progress will be discarded.' %}"
+              class="secondary outline">{% trans "Cancel import" %}</button>
+    </div>
   {% else %}
-    <details {% if hardcover_task and phase == 'done' %}open{% endif %}>
-      <summary>{% trans "Import from Hardcover" %}</summary>
-      <form hx-post="{% url 'users:import_hardcover' %}"
-            hx-target="#hardcover"
-            hx-swap="innerHTML"
-            enctype="multipart/form-data">
-        {% csrf_token %}
-        <ul>
-          <li>
-            {% blocktrans %}On Hardcover, open <a href="https://hardcover.app/account/exports" target="_blank" rel="noopener"><b>Export your data</b></a> in your account settings, then generate and download a CSV export.{% endblocktrans %}
-          </li>
-          <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
-          <li>
-            {% blocktrans %}Books are matched by ISBN or ASIN against the local catalog, then by ISBN on Google Books and OpenLibrary, with a title and author search as fallback. After auto-matching, you can preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
-          </li>
-          <li>
-            {% blocktrans %}Each book keeps its privacy setting from Hardcover: public books are imported as public, followers-only books as followers only, and private books as mentioned only.{% endblocktrans %}
-          </li>
-          <li>
-            {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
-          </li>
-        </ul>
-        <input type="file" name="file" required accept=".csv">
-        <input type="submit" value="{% trans 'Upload and match' %}" />
-      </form>
-      {% if hardcover_task and phase == "done" and hardcover_task.metadata.matched_file %}
-        <p>
-          <a href="{% url 'users:hardcover_download' %}"
-             role="button"
-             class="secondary outline">{% trans "Download previous matches" %}</a>
-        </p>
-      {% endif %}
-      {% if hardcover_task and phase == "done" %}
-        {% include "users/user_task_status.html" with task=hardcover_task %}
-      {% endif %}
-    </details>
+    <form hx-post="{% url 'users:import_hardcover' %}"
+          hx-target="#hardcover"
+          hx-swap="innerHTML"
+          enctype="multipart/form-data"
+          {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+      {% csrf_token %}
+      <input type="file" name="file" required accept=".csv">
+      <input type="submit" value="{% trans 'Upload and match' %}" />
+    </form>
+    {% if hardcover_task and phase == "done" and hardcover_task.metadata.matched_file %}
+      <p>
+        <a href="{% url 'users:hardcover_download' %}"
+           role="button"
+           class="secondary outline">{% trans "Download previous matches" %}</a>
+      </p>
+    {% endif %}
+    {% if hardcover_task and phase == "done" %}
+      {% include "users/user_task_status.html" with task=hardcover_task %}
+    {% endif %}
   {% endif %}
 {% endwith %}

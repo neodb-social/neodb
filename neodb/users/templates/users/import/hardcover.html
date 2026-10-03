@@ -1,0 +1,29 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On Hardcover, open <a href="https://hardcover.app/account/exports" target="_blank" rel="noopener"><b>Export your data</b></a> in your account settings, then generate and download a CSV export.{% endblocktrans %}
+    </li>
+    <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+    <li>
+      {% blocktrans %}Books are matched by ISBN or ASIN against the local catalog, then by ISBN on Google Books and OpenLibrary, with a title and author search as fallback. After auto-matching, you can preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
+    </li>
+  </ol>
+  <p>
+    {% blocktrans %}Each book keeps its privacy setting from Hardcover: public books are imported as public, followers-only books as followers only, and private books as mentioned only.{% endblocktrans %}
+  </p>
+  <p>
+    {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
+  </p>
+{% endblock %}
+{% block rules %}
+  {% trans "Reading status, star rating and review of each book." as imported %}
+  {% trans "Rows that you set to skip in the preview." as skipped %}
+  {% trans "A status never moves back, for example from complete to wishlist. Changed comments and reviews are updated." as existing %}
+  {% trans "Safe. Nothing is imported twice." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <div id="hardcover">{% include "users/_hardcover_section.html" with hardcover_task=task %}</div>
+{% endblock %}

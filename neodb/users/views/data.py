@@ -209,6 +209,14 @@ IMPORT_SOURCES = (
         (StoryGraphImporter,),
     ),
     ImportSource(
+        "hardcover",
+        "Hardcover",
+        gettext_lazy("Import from Hardcover"),
+        _BOOKS,
+        "users:import_hardcover",
+        (HardcoverImporter,),
+    ),
+    ImportSource(
         "letterboxd",
         "Letterboxd",
         gettext_lazy("Import from Letterboxd"),
@@ -1215,7 +1223,7 @@ def _hardcover_active_task(user):
 @login_required
 def import_hardcover(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "hardcover")
     if not HardcoverImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
@@ -1240,7 +1248,7 @@ def import_hardcover(request):
             return render(
                 request, "users/_hardcover_section.html", {"hardcover_task": task}
             )
-        return redirect(reverse("users:data") + "#hardcover")
+        return redirect(reverse("users:import_hardcover"))
     task = HardcoverImporter.create(
         request.user,
         phase="matching",
@@ -1252,7 +1260,7 @@ def import_hardcover(request):
         return render(
             request, "users/_hardcover_section.html", {"hardcover_task": task}
         )
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
@@ -1273,7 +1281,7 @@ def hardcover_cancel(request):
         return render(
             request, "users/_hardcover_section.html", {"hardcover_task": None}
         )
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
@@ -1285,7 +1293,7 @@ def hardcover_preview(request):
         )
         return redirect(reverse("users:data"))
     if task.metadata.get("phase") == "done":
-        return redirect(reverse("users:data") + "#hardcover")
+        return redirect(reverse("users:import_hardcover"))
     path = task.metadata["matched_file"]
     if not media_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
@@ -1381,7 +1389,7 @@ def hardcover_confirm(request):
     task.message = _("Starting import...")
     task.save(update_fields=["metadata", "state", "message"])
     task.enqueue()
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
