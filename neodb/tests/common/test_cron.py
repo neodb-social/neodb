@@ -50,7 +50,14 @@ def _scheduled_at(q: Queue):
 
 
 def _schedule_in(q: Queue, delay: timedelta) -> None:
-    q.enqueue_in(delay, CronTestJob._run, job_id="CronTestJob")
+    q.enqueue_in(delay, CronTestJob._run, job_id="CronTestJob", job_timeout=60)
+
+
+def _timeout(q: Queue) -> float | None:
+    return Job.fetch("CronTestJob", connection=q.connection).timeout
+
+
+DAY_TIMEOUT = int(timedelta(days=1).total_seconds()) - 5
 
 
 def test_first_run_delay():
@@ -84,11 +91,12 @@ def test_ensure_short_interval_waits_one_interval(queue, monkeypatch):
     assert at <= timezone.now() + timedelta(hours=2) + timedelta(seconds=1)
 
 
-def test_ensure_keeps_pending_run(queue):
+def test_ensure_keeps_pending_run_and_refreshes_timeout(queue):
     _schedule_in(queue, timedelta(hours=1))
     at = _scheduled_at(queue)
     CronTestJob.ensure_scheduled()
     assert _scheduled_at(queue) == at
+    assert _timeout(queue) == DAY_TIMEOUT
 
 
 def test_ensure_keeps_overdue_run(queue):
@@ -101,11 +109,22 @@ def test_ensure_keeps_overdue_run(queue):
     assert at is not None and at < timezone.now()
 
 
-def test_ensure_keeps_queued_job(queue):
-    queue.enqueue(CronTestJob._run, job_id="CronTestJob")
+def test_ensure_keeps_queued_job_and_refreshes_timeout(queue):
+    queue.enqueue(CronTestJob._run, job_id="CronTestJob", job_timeout=60)
     CronTestJob.ensure_scheduled()
     assert queue.get_job_ids() == ["CronTestJob"]
     assert _scheduled_at(queue) is None
+    assert _timeout(queue) == DAY_TIMEOUT
+
+
+def test_ensure_replaces_orphan_queued_id(queue):
+    queue.connection.rpush(queue.key, "CronTestJob")
+    CronTestJob.ensure_scheduled()
+    assert "CronTestJob" not in queue.get_job_ids()
+    at = _scheduled_at(queue)
+    assert at is not None
+    assert at >= timezone.now() + timedelta(hours=6) - timedelta(seconds=1)
+    assert _timeout(queue) == DAY_TIMEOUT
 
 
 def test_ensure_replaces_run_beyond_interval(queue):

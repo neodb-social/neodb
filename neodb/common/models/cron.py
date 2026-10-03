@@ -50,6 +50,10 @@ class BaseJob:
         return interval
 
     @classmethod
+    def _get_timeout(cls, interval: timedelta) -> int:
+        return int(interval.total_seconds()) - 5
+
+    @classmethod
     def _enqueue(cls, interval: timedelta, delay: timedelta) -> None:
         job_id = cls.__name__
         logger.info(f"Scheduling job {job_id} in {delay}")
@@ -58,7 +62,7 @@ class BaseJob:
             "job_id": job_id,
             "result_ttl": -1,
             "failure_ttl": -1,
-            "job_timeout": int(interval.total_seconds()) - 5,
+            "job_timeout": cls._get_timeout(interval),
         }
         if delay <= timedelta(0):
             queue.enqueue(cls._run, **options)
@@ -94,6 +98,10 @@ class BaseJob:
         interval got shorter). Keep an overdue one too: the rq scheduler
         enqueues it as soon as a worker starts. Without a usable entry,
         schedule the first run with get_first_run_delay().
+
+        A kept job gets the timeout of the current interval. rq writes the
+        running job back over the same id when it finishes, so the stored
+        timeout never follows an interval change on its own.
         """
         job_id = cls.__name__
         interval = cls.get_enabled_interval()
@@ -107,15 +115,20 @@ class BaseJob:
             scheduled_at = registry.get_scheduled_time(job_id)
         except NoSuchJobError:
             scheduled_at = None
-        if scheduled_at is not None and Job.exists(job_id, queue.connection):
-            if scheduled_at <= timezone.now() + interval:
-                logger.info(f"Keep job {job_id} scheduled at {scheduled_at}")
-                return
-        elif scheduled_at is None and job_id in queue.get_job_ids():
-            logger.info(f"Keep job {job_id} queued")
+        if not Job.exists(job_id, queue.connection):
+            keep = False
+        elif scheduled_at is not None:
+            keep = scheduled_at <= timezone.now() + interval
+        else:
+            keep = job_id in queue.get_job_ids()
+        if keep:
+            timeout = str(cls._get_timeout(interval))
+            queue.connection.hset(Job.key_for(job_id), "timeout", timeout)
+            logger.info(f"Keep job {job_id} scheduled at {scheduled_at or 'now'}")
             return
         cls.cancel()
         registry.remove(job_id)
+        queue.remove(job_id)
         cls._enqueue(interval, cls.get_first_run_delay(interval))
 
     @classmethod
