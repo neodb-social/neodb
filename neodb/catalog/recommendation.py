@@ -581,16 +581,22 @@ def _refill(user_pk: int, identity_pk: int) -> bool:
     """Recompute for a member who shelved or dismissed most of the stored rows.
 
     At most once a day per member. When nothing new turns up the old rows are
-    kept, so an exhausted member does not recompute on every request.
+    kept, so an exhausted member does not recompute on every request. A failed
+    attempt is retried after ``_LAZY_LOCK_TTL`` rather than a day later.
     """
-    if not cache.add(f"reco:refill:{user_pk}", "1", timeout=_REFILL_INTERVAL):
+    key = f"reco:refill:{user_pk}"
+    if not cache.add(key, "1", timeout=_REFILL_INTERVAL):
         return False
-    rows = compute_for_user(user_pk, identity_pk)
-    if not rows:
-        return False
-    with transaction.atomic():
-        UserRecommendation.objects.filter(user_id=user_pk).delete()
-        UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+    try:
+        rows = compute_for_user(user_pk, identity_pk)
+        if not rows:
+            return False
+        with transaction.atomic():
+            UserRecommendation.objects.filter(user_id=user_pk).delete()
+            UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+    except Exception:
+        cache.set(key, "1", timeout=_LAZY_LOCK_TTL)
+        raise
     return True
 
 

@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from django.test import Client
 from django.urls import reverse
@@ -142,6 +144,18 @@ class TestRefill:
         monkeypatch.setattr("catalog.recommendation.compute_for_user", lambda u, i: [])
         assert self._ids() == set()
         assert UserRecommendation.objects.filter(user=self.user).count() == 1
+
+    def test_failed_refill_is_retried_soon(self, monkeypatch):
+        def broken(user_pk: int, identity_pk: int):
+            raise RuntimeError("database went away")
+
+        monkeypatch.setattr("catalog.recommendation._LAZY_LOCK_TTL", 1)
+        monkeypatch.setattr("catalog.recommendation.compute_for_user", broken)
+        assert self._ids() == set()
+        assert UserRecommendation.objects.filter(user=self.user).count() == 1
+        monkeypatch.setattr("catalog.recommendation.compute_for_user", compute_for_user)
+        time.sleep(1.2)
+        assert self._ids() == {t.pk for t in self.targets[1:]}
 
     def test_short_list_without_skips_is_left_alone(self, monkeypatch):
         restore_item(self.user, self.targets[0])
@@ -398,6 +412,18 @@ class TestApi:
 
     def test_unknown_item_is_404(self):
         response = Client().post(
+            f"/api/me/recommendations/{'0' * 22}/dismiss", headers=self.auth
+        )
+        assert response.status_code == 404
+
+    def test_deleted_item_cannot_be_dismissed(self):
+        self.book.is_deleted = True
+        self.book.save()
+        assert Client().post(self.url, headers=self.auth).status_code == 404
+        assert not RecommendationDismissal.objects.exists()
+
+    def test_restore_unknown_item_is_404(self):
+        response = Client().delete(
             f"/api/me/recommendations/{'0' * 22}/dismiss", headers=self.auth
         )
         assert response.status_code == 404
