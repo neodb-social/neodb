@@ -71,13 +71,13 @@
              id="history-actions"
              style="display:none;
                     margin-bottom: 14px">
-          <button class="preset-btn" onclick="clearHistory()">Clear History</button>
+          <button type="button" class="preset-btn" onclick="clearHistory()">Clear History</button>
         </div>
         <h2>Test Mode</h2>
         <div class="mode-tabs">
-          <button class="mode-tab active" onclick="setMode('site')">Site</button>
-          <button class="mode-tab" onclick="setMode('downloader')">Downloader</button>
-          <button class="mode-tab" onclick="setMode('provider')">Provider</button>
+          <button type="button" class="mode-tab active" onclick="setMode('site')">Site</button>
+          <button type="button" class="mode-tab" onclick="setMode('downloader')">Downloader</button>
+          <button type="button" class="mode-tab" onclick="setMode('provider')">Provider</button>
         </div>
         <!-- Mode 1: Site Logic -->
         <div class="mode-options active" id="mode-site">
@@ -132,8 +132,8 @@
           <input type="number" id="timeout" value="90">
         </div>
         <div class="btn-row">
-          <button onclick="runTest()" id="run-btn">Run Test</button>
-          <button class="secondary" onclick="clearResults()">Clear</button>
+          <button type="button" onclick="runTest()" id="run-btn">Run Test</button>
+          <button type="button" class="secondary" onclick="clearResults()">Clear</button>
         </div>
       </div>
       <div class="panel">
@@ -143,9 +143,9 @@
           <span id="timing"></span>
         </div>
         <div class="tabs">
-          <button class="tab" onclick="switchTab('parsed')">Parsed</button>
-          <button class="tab active" onclick="switchTab('logs')">Logs</button>
-          <button class="tab" onclick="switchTab('raw')">Raw HTML</button>
+          <button type="button" class="tab" onclick="switchTab('parsed')">Parsed</button>
+          <button type="button" class="tab active" onclick="switchTab('logs')">Logs</button>
+          <button type="button" class="tab" onclick="switchTab('raw')">Raw HTML</button>
         </div>
         <div class="tab-content" id="tab-parsed">
           <div class="meta-grid" id="meta-grid"></div>

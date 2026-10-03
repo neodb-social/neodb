@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Review' %} - {{ item.display_title }}</title>
+    <title>{{ site_name }} - {% trans "Review" %} - {{ item.display_title }}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -49,7 +49,7 @@
                        style="display: none">
               </label>
             </div>
-            <script type="text/javascript">
+            <script>
                   $("#mark_anotherday").on("click", () => {
                     if ($("#mark_anotherday:checked").val() == "1") {
                       $("#mark_date").show();

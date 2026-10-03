@@ -3,19 +3,17 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% include '_item_card_rating.html' %}
-    {% include '_people.html' with people=item.additional_title role='other title' max=2 %}
+    {% include "_item_card_rating.html" %}
+    {% include "_people.html" with people=item.additional_title role="other title" max=2 %}
     {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
   </div>
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">
-    {% include '_genre_list.html' with list=item.genre max=2 %}
-    {% include '_platform_list.html' with list=item.platform max=5 %}
-    {% include '_credits.html' with credits=item.role_credits.developer role_label='developer' max=2 %}
-    {% include '_credits.html' with credits=item.role_credits.publisher role_label='publisher' max=2 %}
+    {% include "_genre_list.html" with list=item.genre max=2 %}
+    {% include "_platform_list.html" with list=item.platform max=5 %}
+    {% include "_credits.html" with credits=item.role_credits.developer role_label="developer" max=2 %}
+    {% include "_credits.html" with credits=item.role_credits.publisher role_label="publisher" max=2 %}
   </div>
-  <div>
-    {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
-  </div>
+  <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
 {% endblock full %}

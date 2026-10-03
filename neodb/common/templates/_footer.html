@@ -3,11 +3,9 @@
   <hr>
   <div class="grid">
     {% for link in site_links %}<a target="_blank" rel="noopener" href="{{ link.url }}">{{ link.title }}</a>{% endfor %}
-    <!-- <a href="/pages/rules/">{% trans 'Rules' %}</a> -->
-    <!-- <a href="/pages/terms/">{% trans 'Terms' %}</a> -->
-    <a href="{% url 'common:about' %}">{% trans 'About' %}</a>
-    <a href="{% url 'common:developer' %}">{% trans 'API' %}</a>
-    <a target="_blank" href="https://neodb.net/apps/">{% trans 'Apps' %}</a>
+    <a href="{% url 'common:about' %}">{% trans "About" %}</a>
+    <a href="{% url 'common:developer' %}">{% trans "API" %}</a>
+    <a target="_blank" href="https://neodb.net/apps/">{% trans "Apps" %}</a>
   </div>
   <div class="hide_unless_alter_domain footer-note">
     {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}

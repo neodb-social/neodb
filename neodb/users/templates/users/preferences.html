@@ -25,7 +25,7 @@
             <form action="{% url 'users:preferences' %}" method="post">
               {% csrf_token %}
               <fieldset>
-                {% trans 'Default view once logged in' %}
+                {% trans "Default view once logged in" %}
                 <input type="radio"
                        name="classic_homepage"
                        value="0"
@@ -46,7 +46,7 @@
                 <label for="classic_homepage1">{% trans "Home" %}</label>
               </fieldset>
               <fieldset>
-                {% trans 'Default visibility' %}
+                {% trans "Default visibility" %}
                 <input type="radio"
                        name="default_visibility"
                        value="0"
@@ -142,7 +142,7 @@
                 </fieldset>
               {% endif %}
               <fieldset>
-                <label for="mastodon_append_tag">{% trans 'Append tags when posting to timeline' %}</label>
+                <label for="mastodon_append_tag">{% trans "Append tags when posting to timeline" %}</label>
                 <input name="mastodon_append_tag"
                        id="mastodon_append_tag"
                        placeholder="{% trans "e.g. #bookstodon" %}"
@@ -150,7 +150,7 @@
               </fieldset>
               <fieldset>
                 {% all_languages as languages %}
-                <label>{% trans 'Language' %}</label>
+                <label>{% trans "Language" %}</label>
                 <select name="language">
                   {% for lang in languages %}
                     <option value="{{ lang.0 }}"
@@ -159,11 +159,11 @@
                 </select>
               </fieldset>
               <fieldset>
-                <label>{% trans 'Automatic bookmark for these categories' %}</label>
+                <label>{% trans "Automatic bookmark for these categories" %}</label>
                 <select name="auto_bookmark_cats" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
-                    {% if c.value != 'collection' %}
+                    {% if c.value != "collection" %}
                       <option value="{{ c.value }}"
                               {% if c in request.user.preference.auto_bookmark_cats %}selected{% endif %}>
                         {{ c.label }}
@@ -180,15 +180,15 @@
                   <input type="checkbox"
                          name="auto_note_on_reply"
                          {% if request.user.preference.auto_note_on_reply %}checked{% endif %}>
-                  {% trans 'Turn replies to my own catalog item posts into notes for the item' %}
+                  {% trans "Turn replies to my own catalog item posts into notes for the item" %}
                 </label>
               </fieldset>
               <fieldset>
-                <label>{% trans 'Hide these categories in discovery and search results' %}</label>
+                <label>{% trans "Hide these categories in discovery and search results" %}</label>
                 <select name="hidden_categories" size="3" multiple>
                   {% all_categories as categories %}
                   {% for c in categories %}
-                    {% if c.value != 'collection' %}
+                    {% if c.value != "collection" %}
                       <option value="{{ c.value }}"
                               {% if c in request.user.preference.hidden_categories %}selected{% endif %}>
                         {{ c.label }}
@@ -198,7 +198,7 @@
                 </select>
               </fieldset>
               <fieldset>
-                <label>{% trans 'Disable these sources in external search' %}</label>
+                <label>{% trans "Disable these sources in external search" %}</label>
                 <select name="disabled_search_sources" size="5" multiple>
                   {% for site in search_sources %}
                     <option value="{{ site.value }}"
@@ -213,7 +213,7 @@
                   <input type="checkbox"
                          name="anonymous_viewable"
                          {% if request.user.identity.anonymous_viewable %}checked{% endif %}>
-                  {% trans 'Profile visible to anonymous web visitors and search engines' %}
+                  {% trans "Profile visible to anonymous web visitors and search engines" %}
                   <em data-tooltip="{% trans "This option limits web visits only; to limit fediverse visibility, choose followers only or mentioned only when posting" %}"><i class="fa fa-question-circle"></i></em>
                 </label>
               </fieldset>
@@ -222,7 +222,7 @@
                   <input type="checkbox"
                          name="show_last_edit"
                          {% if request.user.preference.show_last_edit %}checked{% endif %}>
-                  {% trans 'Show your name on item page if you recently edited it' %}
+                  {% trans "Show your name on item page if you recently edited it" %}
                 </label>
               </fieldset>
               {% if enable_recommendations %}
@@ -231,7 +231,7 @@
                     <input type="checkbox"
                            name="disable_recommendations"
                            {% if request.user.preference.disable_recommendations %}checked{% endif %}>
-                    {% trans 'Do not show me item recommendations' %}
+                    {% trans "Do not show me item recommendations" %}
                   </label>
                   <small>
                     {% blocktrans %}Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck "Include profile, marks and posts in discovery" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features.{% endblocktrans %}

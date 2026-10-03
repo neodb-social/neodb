@@ -113,7 +113,7 @@
               {% if article.classname == "article" %}
                 {{ article.display_summary|default:'' }}
               {% else %}
-                <a href="{{ article.item.url }}">{{ article.item.display_title }}</a> - {% trans 'Review' %}
+                <a href="{{ article.item.url }}">{{ article.item.display_title }}</a> - {% trans "Review" %}
                 {% if article.rating_grade %}{{ article.rating_grade | rating_star }}{% endif %}
               {% endif %}
             </div>
@@ -184,10 +184,10 @@
               {% endif %}
               {% if request.user.is_authenticated and request.user.identity == article.owner %}
                 <span>
-                  <a href="{{ article.edit_url }}">{% trans 'Edit' %}</a>
+                  <a href="{{ article.edit_url }}">{% trans "Edit" %}</a>
                 </span>
                 <span>
-                  <a href="{{ article.delete_url }}">{% trans 'Delete' %}</a>
+                  <a href="{{ article.delete_url }}">{% trans "Delete" %}</a>
                 </span>
               {% endif %}
             </span>

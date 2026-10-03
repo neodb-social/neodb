@@ -10,7 +10,7 @@
         <i class="fa-solid fa-gear fa-spin"></i>
       {% elif task.state == 3 %}
         <i class="fa-solid fa-triangle-exclamation"></i>
-      {% elif 'exporter' in task.type %}
+      {% elif "exporter" in task.type %}
         <a href="{% url 'users:user_task_download' task.type %}" download><i class="fa fa-download"></i></a>
       {% else %}
         <i class="fa-solid fa-check"></i>
@@ -26,11 +26,11 @@
       {% endif %}
     {% endif %}
     {% if task.metadata.failed_items %}
-      {% trans 'Failed items' %}:
+      {% trans "Failed items" %}:
       <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
     {% endif %}
     {% if task.metadata.failed_urls %}
-      {% trans 'Failed links, you may have to mark them manually' %}:
+      {% trans "Failed links, you may have to mark them manually" %}:
       <textarea readonly>{% for url in task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
     {% endif %}
   </div>

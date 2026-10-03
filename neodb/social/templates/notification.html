@@ -8,7 +8,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Notifications' %}</title>
+    <title>{{ site_name }} - {% trans "Notifications" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,7 +16,7 @@
     <main>
       <div class="grid__main">
         <header class="dc-mh">
-          <h1>{% trans 'Notifications' %}</h1>
+          <h1>{% trans "Notifications" %}</h1>
           {% if unread %}
             <span class="dc-sub">
               {% blocktrans with count=unread trimmed %}
@@ -28,7 +28,7 @@
             {% if unread %}
               <form method="post" action="{% url 'social:dismiss_notification' %}">
                 {% csrf_token %}
-                <button class="dc-btn outline secondary">{% trans 'Mark all as read' %}</button>
+                <button type="submit" class="dc-btn outline secondary">{% trans "Mark all as read" %}</button>
               </form>
             {% endif %}
             <a class="dc-nav"
@@ -48,14 +48,14 @@
               {% endif %}
             </li>
             <li>
-              {% if request.GET.type == 'mention' %}
+              {% if request.GET.type == "mention" %}
                 <a class="on" aria-current="page">{% trans "Mentions" %}</a>
               {% else %}
                 <a href="{% url 'social:notification' %}?type=mention">{% trans "Mentions" %}</a>
               {% endif %}
             </li>
             <li>
-              {% if request.GET.type == 'follow' %}
+              {% if request.GET.type == "follow" %}
                 <a class="on" aria-current="page">{% trans "Follows" %}</a>
               {% else %}
                 <a href="{% url 'social:notification' %}?type=follow">{% trans "Follows" %}</a>

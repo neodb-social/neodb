@@ -8,52 +8,51 @@
 {% load thumb %}
 {% block head %}
   {% if item.role_credits.author %}
-    <meta property="og:book:author"
-          content="{% for credit in item.role_credits.author %}{{ credit.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
+    <meta property="og:book:author" content="{% for credit in item.role_credits.author %}{{ credit.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
   {% endif %}
   {% if item.isbn %}<meta property="og:book:isbn" content="{{ item.isbn }}">{% endif %}
 {% endblock %}
 {% block details %}
   <div>
     {% if item.isbn %}
-      {% trans 'ISBN' %}: {{ item.isbn }}
+      {% trans "ISBN" %}: {{ item.isbn }}
     {% endif %}
   </div>
-  <div>{% include '_credits.html' with credits=item.role_credits.author role_label='author' max=5 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.translator role_label='translator' max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.author role_label="author" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.translator role_label="translator" max=5 %}</div>
   <div>
     {% if item.format %}
-      {% trans 'book format' %}: {{ item.get_format_display }}
+      {% trans "book format" %}: {{ item.get_format_display }}
     {% endif %}
   </div>
-  <div>{% include '_people.html' with people=item.additional_title role='other title' max=99 %}</div>
-  {% trans 'publishing house' as publisher_label %}
-  <div>{% include '_credits.html' with credits=item.role_credits.publisher role_label=publisher_label max=5 %}</div>
+  <div>{% include "_people.html" with people=item.additional_title role="other title" max=99 %}</div>
+  {% trans "publishing house" as publisher_label %}
+  <div>{% include "_credits.html" with credits=item.role_credits.publisher role_label=publisher_label max=5 %}</div>
   <div>
     {% if item.imprint %}
-      {% trans 'imprint' %}: {{ item.imprint }}
+      {% trans "imprint" %}: {{ item.imprint }}
     {% endif %}
   </div>
   <div>
     {% if item.pub_year %}
-      {% trans 'publication date' %}: {{ item.pub_year }}
+      {% trans "publication date" %}: {{ item.pub_year }}
       {% if item.pub_month %}-{{ item.pub_month }}{% endif %}
     {% endif %}
   </div>
   <div>
     {% if item.series %}
-      {% trans 'series' %}: {{ item.series }}
+      {% trans "series" %}: {{ item.series }}
     {% endif %}
   </div>
-  <div>{% include '_language_list.html' with list=item.language max=10 %}</div>
+  <div>{% include "_language_list.html" with list=item.language max=10 %}</div>
   <div>
     {% if item.price %}
-      {% trans 'price' %}: {{ item.price }}
+      {% trans "price" %}: {{ item.price }}
     {% endif %}
   </div>
   <div>
     {% if item.pages %}
-      {% trans 'number of pages' %}: {{ item.pages }}
+      {% trans "number of pages" %}: {{ item.pages }}
     {% endif %}
   </div>
   {% if item.other_info %}
@@ -62,7 +61,7 @@
 {% endblock %}
 {% block content %}
   {% if item.contents %}
-    <h5>{% trans 'contents' %}</h5>
+    <h5>{% trans "contents" %}</h5>
     <p class="tldr" _="on click toggle .tldr on me">{{ item.contents | linebreaksbr }}</p>
   {% endif %}
   {% with related_books=item.sibling_items %}
@@ -77,7 +76,7 @@
           </span>
         </span>
         <h5>
-          {% trans 'Other editions' %} <small>({{ related_books.count }})</small>
+          {% trans "Other editions" %} <small>({{ related_books.count }})</small>
         </h5>
         <ul class="cards">
           {% for b in related_books %}
@@ -117,7 +116,7 @@
   {% if item.isbn %}
     <section>
       <details class="auto-collapse" open>
-        <summary>{% trans 'Borrow or buy' %}</summary>
+        <summary>{% trans "Borrow or buy" %}</summary>
         <div>
           <div>
             <a target="_blank"

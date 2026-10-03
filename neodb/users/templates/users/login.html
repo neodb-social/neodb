@@ -17,7 +17,7 @@
     <meta property="og:url" content="{{ site_url }}">
     <meta property="og:image" content="{{ site_logo }}">
     <meta property="og:site_name" content="{{ site_name }}">
-    <title>{{ site_name }} - {% trans 'Register' %} / {% trans "Login" %}</title>
+    <title>{{ site_name }} - {% trans "Register" %} / {% trans "Login" %}</title>
     {% include "common_libs.html" %}
     <meta name="robots" content="noindex">
     <script src="{{ cdn_url }}/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
@@ -44,209 +44,217 @@
       <div>
         {% if request.user.is_authenticated %}
           <a href="{{ request.session.next_url|safe_next_url:'/' }}"
-             class="button">{% trans 'Continue' %}</a>
+             class="button">{% trans "Continue" %}</a>
         {% elif allow_any_site %}
           <div role="group">
-            <button class="platform outline"
+            <button type="button"
+                    class="platform outline"
                     _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-passkey"
                     id="platform-passkey"
                     title="{% trans 'Passkey' %}">
-            <i class="fa-solid fa-key"></i>
-          </button>
-          {% if enable_email %}
-            <button class="platform outline"
-                    _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-email"
-                    id="platform-email"
-                    title="{% trans 'Email' %}">
-            <i class="fa-solid fa-envelope"></i>
-          </button>
+              <i class="fa-solid fa-key"></i>
+            </button>
+            {% if enable_email %}
+              <button type="button"
+                      class="platform outline"
+                      _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-email"
+                      id="platform-email"
+                      title="{% trans 'Email' %}">
+                <i class="fa-solid fa-envelope"></i>
+              </button>
+            {% endif %}
+            {% if enable_mastodon %}
+              <button type="button"
+                      class="platform outline"
+                      _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-mastodon"
+                      id="platform-mastodon"
+                      title="{% trans "Fediverse (Mastodon)" %}">
+                <svg viewBox="0 0 25.400003 25.39999"
+                     version="1.1"
+                     xml:space="preserve"
+                     xmlns="http://www.w3.org/2000/svg"
+                     xmlns:svg="http://www.w3.org/2000/svg"
+                     class="platform-logo">
+                  <defs />
+                  <g transform="translate(-184.60577,-131.23333)">
+                  <g transform="matrix(0.61537888,0,0,0.61537888,490.03082,20.980246)">
+                  <path d="m -476.94308,181.83669 v 1.05893 l 0.43499,6.90526 -5.7632,-3.82926 -0.91617,-0.52904 -1.26046,2.18251 0.91616,0.52904 6.1982,3.07601 -6.1982,3.07684 -0.91616,0.52904 1.26046,2.18251 0.91617,-0.52904 5.7632,-3.82926 -0.43499,6.9061 v 1.05809 h 2.52093 v -1.05809 l -0.43499,-6.9061 5.7632,3.82926 0.91617,0.52904 1.26046,-2.18251 -0.917,-0.52904 -6.1982,-3.07684 6.1982,-3.07601 0.917,-0.52904 -1.26046,-2.18251 -0.91617,0.52904 -5.7632,3.82926 0.43499,-6.90526 v -1.05893 z m -9.10625,15.77387 v 1.05808 l 0.43499,6.9061 -5.76404,-3.82926 -0.91617,-0.52988 -1.26046,2.18335 0.91701,0.52904 6.19819,3.07601 -6.19819,3.07684 -0.91701,0.52904 1.26046,2.18251 0.91617,-0.52904 5.76404,-3.82926 -0.43499,6.90526 v 1.05893 h 2.52009 v -1.05893 l -0.43499,-6.9061 5.76321,3.8301 0.917,0.52904 1.25963,-2.18251 -0.91617,-0.52904 -6.19819,-3.076 6.19819,-3.07685 0.91617,-0.52904 -1.25963,-2.18335 -0.917,0.52988 -5.76321,3.82926 0.43499,-6.9061 v -1.05808 z m 18.21334,0 v 1.05808 l 0.43499,6.9061 -5.7632,-3.82926 -0.91701,-0.52988 -1.25963,2.18335 0.91617,0.52904 6.19819,3.07601 -6.19819,3.07684 -0.91617,0.52904 1.25963,2.18251 0.91701,-0.52904 5.7632,-3.82926 -0.43499,6.90526 v 1.05893 h 2.52009 v -1.05893 l -0.43499,-6.9061 5.7632,3.8301 0.91701,0.52904 1.26046,-2.18251 -0.91701,-0.52904 -6.19819,-3.076 6.19819,-3.07685 0.91701,-0.52904 -1.26046,-2.18335 -0.91701,0.52988 -5.7632,3.82926 0.43499,-6.9061 v -1.05808 z" />
+                  </g>
+                  </g>
+                </svg>
+              </button>
+            {% endif %}
+            {% if enable_bluesky %}
+              <button type="button"
+                      class="platform outline"
+                      _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
+                      id="platform-bluesky"
+                      title="{% trans 'Bluesky (ATProto)' %}">
+                <i class="fa-brands fa-bluesky platform-icon-sm"></i>
+              </button>
+            {% endif %}
+            {% if enable_threads %}
+              <button type="button"
+                      class="platform outline"
+                      _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
+                      id="platform-threads"
+                      title="{% trans 'Threads' %}">
+                <i class="fa-brands fa-threads"></i>
+              </button>
+            {% endif %}
+          </div>
+          <form id="login-passkey" style="display:none">
+            {% csrf_token %}
+            <p>{% trans "Sign in with a passkey saved on this device or in your password manager." %}</p>
+            <button type="button"
+                    class="login-submit"
+                    id="passkey-login-btn"
+                    disabled>{% trans "Sign in with passkey" %}</button>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <small class="login-proof-status" role="status" aria-live="polite"></small>
+            <small id="passkey-error" class="login-error" style="display:none"></small>
+          </form>
+          <form id="login-email"
+                style="display:none"
+                action="{% url 'mastodon:email_login' %}"
+                method="post"
+                onsubmit="return login(this);">
+            {% csrf_token %}
+            <input name="method" value="email" type="hidden" />
+            <input required
+                   name="email"
+                   id="email"
+                   type="email"
+                   placeholder="{% trans 'Enter your email address' %}"
+                   autocomplete="email" />
+            <input type="submit"
+                   class="login-submit"
+                   value="{% trans 'Send verification code' %}"
+                   disabled />
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <small class="login-proof-status" role="status" aria-live="polite"></small>
+          </form>
+          {% if enable_mastodon %}
+            <form id="login-mastodon"
+                  style="display:none"
+                  action="{% url 'mastodon:login' %}"
+                  method="post"
+                  onsubmit="return login(this);">
+              {% csrf_token %}
+              <input name="method" value="mastodon" type="hidden" />
+              <input required
+                     type="text"
+                     name="domain"
+                     id="domain"
+                     autofocus
+                     pattern="(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,})"
+                     placeholder="{% trans 'Domain of your instance, e.g. mastodon.social' %}"
+                     autocorrect="off"
+                     autocapitalize="off"
+                     autocomplete="off"
+                     spellcheck="false" />
+              <small id="mastodon">
+                {% blocktrans %}Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>.{% endblocktrans %}
+              </small>
+              <br>
+              <input type="submit"
+                     class="login-submit"
+                     value="{% trans 'Authorize via Fediverse instance' %}"
+                     disabled />
+              <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+              <small class="login-proof-status" role="status" aria-live="polite"></small>
+              <small>
+                {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
+              </small>
+            </form>
+          {% endif %}
+          <form id="login-threads"
+                style="display:none"
+                action="{% url 'mastodon:threads_login' %}"
+                method="post"
+                onsubmit="return login(this);">
+            {% csrf_token %}
+            <input name="method" value="threads" type="hidden" />
+            <input type="submit"
+                   class="login-submit"
+                   value="{% trans 'Authorize via Threads' %}"
+                   disabled />
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=threads" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <small class="login-proof-status" role="status" aria-live="polite"></small>
+          </form>
+          <form id="login-bluesky"
+                style="display:none"
+                action="{% url 'mastodon:bluesky_login' %}"
+                method="post"
+                onsubmit="return login(this);">
+            {% csrf_token %}
+            <input name="method" value="bluesky" type="hidden" />
+            <input required
+                   name="username"
+                   autofocus
+                   pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+                   placeholder="{% trans 'ATProto handle' %}"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   autocomplete="off"
+                   spellcheck="false" />
+            <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
+            <input type="submit"
+                   class="login-submit"
+                   value="{% trans 'Authorize via ATProto server' %}"
+                   disabled />
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <small class="login-proof-status" role="status" aria-live="polite"></small>
+          </form>
+          <form>
+            <div class="login-intro">
+              {% blocktrans %}Please choose one to register or login {{site_name}}. Have more than one of these identities? Don't worry, you may link them in account settings once logged in.{% endblocktrans %}
+            </div>
+          </form>
+        {% else %}
+          <form id="login-mastodon-whitelist"
+                action="{% url 'mastodon:login' %}"
+                method="post"
+                onsubmit="return login(this);">
+            {% csrf_token %}
+            <input name="method" value="mastodon" type="hidden" />
+            <select name="domain">
+              {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
+            </select>
+            <input type="submit"
+                   class="login-submit"
+                   value="{% trans 'Authorize via Fediverse instance' %}"
+                   disabled />
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <small class="login-proof-status" role="status" aria-live="polite"></small>
+          </form>
         {% endif %}
-        {% if enable_mastodon %}
-          <button class="platform outline"
-                  _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-mastodon"
-                  id="platform-mastodon"
-                  title="{% trans "Fediverse (Mastodon)" %}">
-          <svg viewBox="0 0 25.400003 25.39999"
-               version="1.1"
-               xml:space="preserve"
-               xmlns="http://www.w3.org/2000/svg"
-               xmlns:svg="http://www.w3.org/2000/svg"
-               class="platform-logo">
-            <defs />
-            <g transform="translate(-184.60577,-131.23333)">
-            <g transform="matrix(0.61537888,0,0,0.61537888,490.03082,20.980246)">
-            <path d="m -476.94308,181.83669 v 1.05893 l 0.43499,6.90526 -5.7632,-3.82926 -0.91617,-0.52904 -1.26046,2.18251 0.91616,0.52904 6.1982,3.07601 -6.1982,3.07684 -0.91616,0.52904 1.26046,2.18251 0.91617,-0.52904 5.7632,-3.82926 -0.43499,6.9061 v 1.05809 h 2.52093 v -1.05809 l -0.43499,-6.9061 5.7632,3.82926 0.91617,0.52904 1.26046,-2.18251 -0.917,-0.52904 -6.1982,-3.07684 6.1982,-3.07601 0.917,-0.52904 -1.26046,-2.18251 -0.91617,0.52904 -5.7632,3.82926 0.43499,-6.90526 v -1.05893 z m -9.10625,15.77387 v 1.05808 l 0.43499,6.9061 -5.76404,-3.82926 -0.91617,-0.52988 -1.26046,2.18335 0.91701,0.52904 6.19819,3.07601 -6.19819,3.07684 -0.91701,0.52904 1.26046,2.18251 0.91617,-0.52904 5.76404,-3.82926 -0.43499,6.90526 v 1.05893 h 2.52009 v -1.05893 l -0.43499,-6.9061 5.76321,3.8301 0.917,0.52904 1.25963,-2.18251 -0.91617,-0.52904 -6.19819,-3.076 6.19819,-3.07685 0.91617,-0.52904 -1.25963,-2.18335 -0.917,0.52988 -5.76321,3.82926 0.43499,-6.9061 v -1.05808 z m 18.21334,0 v 1.05808 l 0.43499,6.9061 -5.7632,-3.82926 -0.91701,-0.52988 -1.25963,2.18335 0.91617,0.52904 6.19819,3.07601 -6.19819,3.07684 -0.91617,0.52904 1.25963,2.18251 0.91701,-0.52904 5.7632,-3.82926 -0.43499,6.90526 v 1.05893 h 2.52009 v -1.05893 l -0.43499,-6.9061 5.7632,3.8301 0.91701,0.52904 1.26046,-2.18251 -0.91701,-0.52904 -6.19819,-3.076 6.19819,-3.07685 0.91701,-0.52904 -1.26046,-2.18335 -0.91701,0.52988 -5.7632,3.82926 0.43499,-6.9061 v -1.05808 z" />
-            </g>
-            </g>
-          </svg>
-        </button>
-      {% endif %}
-      {% if enable_bluesky %}
-        <button class="platform outline"
-                _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-bluesky"
-                id="platform-bluesky"
-                title="{% trans 'Bluesky (ATProto)' %}">
-        <i class="fa-brands fa-bluesky platform-icon-sm"></i>
-      </button>
-    {% endif %}
-    {% if enable_threads %}
-      <button class="platform outline"
-              _="on click add .outline to .platform then remove .outline from me then hide <form/> then show #login-threads"
-              id="platform-threads"
-              title="{% trans 'Threads' %}">
-      <i class="fa-brands fa-threads"></i>
-    </button>
-  {% endif %}
-</div>
-<form id="login-passkey" style="display:none">
-  {% csrf_token %}
-  <p>{% trans "Sign in with a passkey saved on this device or in your password manager." %}</p>
-  <button type="button" class="login-submit" id="passkey-login-btn" disabled>{% trans "Sign in with passkey" %}</button>
-  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey" display="invisible" name="altcha" workers="2"></altcha-widget>
-  <small class="login-proof-status" role="status" aria-live="polite"></small>
-  <small id="passkey-error" class="login-error" style="display:none"></small>
-</form>
-<form id="login-email"
-      style="display:none"
-      action="{% url 'mastodon:email_login' %}"
-      method="post"
-      onsubmit="return login(this);">
-  {% csrf_token %}
-  <input name="method" value="email" type="hidden" />
-  <input required
-         name="email"
-         id="email"
-         type="email"
-         placeholder="{% trans 'Enter your email address' %}"
-         autocomplete="email" />
-  <input type="submit"
-         class="login-submit"
-         value="{% trans 'Send verification code' %}"
-         disabled />
-  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
-  <small class="login-proof-status" role="status" aria-live="polite"></small>
-</form>
-{% if enable_mastodon %}
-  <form id="login-mastodon"
-        style="display:none"
-        action="{% url 'mastodon:login' %}"
-        method="post"
-        onsubmit="return login(this);">
-    {% csrf_token %}
-    <input name="method" value="mastodon" type="hidden" />
-    <input required
-           type="text"
-           name="domain"
-           id="domain"
-           autofocus
-           pattern="(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,})"
-           placeholder="{% trans 'Domain of your instance, e.g. mastodon.social' %}"
-           autocorrect="off"
-           autocapitalize="off"
-           autocomplete="off"
-           spellcheck="false" />
-    <small id="mastodon">
-      {% blocktrans %}Please enter domain of your instance; e.g. if your id is <i>@neodb@mastodon.social</i>, only enter <i>mastodon.social</i>.{% endblocktrans %}
-    </small>
-    <br>
-    <input type="submit"
-           class="login-submit"
-           value="{% trans 'Authorize via Fediverse instance' %}"
-           disabled />
-    <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
-    <small class="login-proof-status" role="status" aria-live="polite"></small>
-    <small>
-      {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
-    </small>
-  </form>
-{% endif %}
-<form id="login-threads"
-      style="display:none"
-      action="{% url 'mastodon:threads_login' %}"
-      method="post"
-      onsubmit="return login(this);">
-  {% csrf_token %}
-  <input name="method" value="threads" type="hidden" />
-  <input type="submit"
-         class="login-submit"
-         value="{% trans 'Authorize via Threads' %}"
-         disabled />
-  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=threads" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
-  <small class="login-proof-status" role="status" aria-live="polite"></small>
-</form>
-<form id="login-bluesky"
-      style="display:none"
-      action="{% url 'mastodon:bluesky_login' %}"
-      method="post"
-      onsubmit="return login(this);">
-  {% csrf_token %}
-  <input name="method" value="bluesky" type="hidden" />
-  <input required
-         name="username"
-         autofocus
-         pattern="([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
-         placeholder="{% trans 'ATProto handle' %}"
-         autocorrect="off"
-         autocapitalize="off"
-         autocomplete="off"
-         spellcheck="false" />
-  <small>{% trans "Please input your ATProto handle (e.g. neodb.bsky.social, without the leading @), do not use email. If you changed handle recently, just use the latest one." %}</small>
-  <input type="submit"
-         class="login-submit"
-         value="{% trans 'Authorize via ATProto server' %}"
-         disabled />
-  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
-  <small class="login-proof-status" role="status" aria-live="polite"></small>
-</form>
-<form>
-  <div class="login-intro">
-    {% blocktrans %}Please choose one to register or login {{site_name}}. Have more than one of these identities? Don't worry, you may link them in account settings once logged in.{% endblocktrans %}
-  </div>
-</form>
-{% else %}
-<form id="login-mastodon-whitelist"
-      action="{% url 'mastodon:login' %}"
-      method="post"
-      onsubmit="return login(this);">
-  {% csrf_token %}
-  <input name="method" value="mastodon" type="hidden" />
-  <select name="domain">
-    {% for site in sites %}<option value="{{ site }}">@{{ site }}</option>{% endfor %}
-  </select>
-  <input type="submit"
-         class="login-submit"
-         value="{% trans 'Authorize via Fediverse instance' %}"
-         disabled />
-  <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
-  <small class="login-proof-status" role="status" aria-live="polite"></small>
-</form>
-{% endif %}
-{% if invite_status %}
-  <small>
-    {% if invite_status == 1 %}
-      <i class="fa-solid fa-circle-check"></i> {% trans "Valid invitation code, please login or register." %}
-    {% elif invite_status == -1 %}
-      <i class="fa-solid fa-person-circle-question"></i> {% trans "Please use invitation link to register a new account; existing user may login." %}
-    {% elif invite_status == -2 %}
-      <i class="fa-solid fa-circle-xmark"></i> {% trans "Invitation code invalid or expired." %}
-    {% endif %}
-  </small>
-{% endif %}
-<small class="hide_unless_alter_domain">
-  <br>
-  {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}
-</small>
-<div class="delayed">{% trans "Loading timed out, please check your network (VPN) settings." %}</div>
-</div>
-</article>
-<footer>
-  <br>
-  <small>
-    {% blocktrans %}Continue using this site implies consent to our <a href="/pages/rules/">rules</a> and <a href="/pages/terms/">terms</a>, including using cookies to provide necessary functionality.{% endblocktrans %}
-  </small>
-</footer>
-{{ sites|json_script:"sites-data" }}
-<script>
+        {% if invite_status %}
+          <small>
+            {% if invite_status == 1 %}
+              <i class="fa-solid fa-circle-check"></i> {% trans "Valid invitation code, please login or register." %}
+            {% elif invite_status == -1 %}
+              <i class="fa-solid fa-person-circle-question"></i> {% trans "Please use invitation link to register a new account; existing user may login." %}
+            {% elif invite_status == -2 %}
+              <i class="fa-solid fa-circle-xmark"></i> {% trans "Invitation code invalid or expired." %}
+            {% endif %}
+          </small>
+        {% endif %}
+        <small class="hide_unless_alter_domain">
+          <br>
+          {% blocktrans %}You are visiting an alternative domain for {{ site_name }}, please always use <a href="{{ site_url }}{{ request.get_full_path }}">original version</a> if possible.{% endblocktrans %}
+        </small>
+        <div class="delayed">{% trans "Loading timed out, please check your network (VPN) settings." %}</div>
+      </div>
+    </article>
+    <footer>
+      <br>
+      <small>
+        {% blocktrans %}Continue using this site implies consent to our <a href="/pages/rules/">rules</a> and <a href="/pages/terms/">terms</a>, including using cookies to provide necessary functionality.{% endblocktrans %}
+      </small>
+    </footer>
+    {{ sites|json_script:"sites-data" }}
+    <script>
     // Passkey support: hide button if unsupported
     if (!window.PublicKeyCredential) {
       var pk = document.getElementById('platform-passkey');
@@ -370,9 +378,9 @@
         $('#login-' + method).show();
       }
     })
-</script>
-<script src="{% static 'js/passkey.js' %}"></script>
-<script>
+    </script>
+    <script src="{% static 'js/passkey.js' %}"></script>
+    <script>
   (function() {
     if (!window.Passkey || !Passkey.isSupported()) return;
     var btn = document.getElementById('passkey-login-btn');
@@ -421,6 +429,6 @@
       );
     });
   })();
-</script>
-</body>
+    </script>
+  </body>
 </html>

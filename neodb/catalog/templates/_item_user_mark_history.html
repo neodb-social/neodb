@@ -27,7 +27,8 @@
 </ul>
 <div class="action inline">
   <ul>
-    <button class="secondary outline"
+    <button type="button"
+            class="secondary outline"
             hx-post="{% url 'journal:mark_log' mark.item.uuid 0 %}?delete=1"
             hx-target="#log-list"
             hx-confirm="{% trans "Sure to clear mark history?" %}">{% trans "Clear mark history" %}</button>

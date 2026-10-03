@@ -111,7 +111,7 @@
         {{ note.content|linebreaksbr }}
         <div class="attachments">
           {% for attachment in note.attachment_list %}
-            {% if attachment.type == 'image' %}
+            {% if attachment.type == "image" %}
               <a href="#img_{{ note.uuid }}_{{ forloop.counter }}"
                  _="on click halt the event then add .open to the next .lightbox">
                 <img src="{{ attachment.preview_url }}"
@@ -200,6 +200,6 @@
         </span>
       </small>
     </h5>
-    <div id="log-list" class="hide-action">{% include '_item_user_mark_history.html' %}</div>
+    <div id="log-list" class="hide-action">{% include "_item_user_mark_history.html" %}</div>
   </section>
 {% endif %}

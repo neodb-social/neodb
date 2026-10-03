@@ -85,7 +85,7 @@ dependencies = [
 dev = [
     "pre-commit>=4.0.1",
     "django-stubs>=5.1.2",
-    "djlint>=1.36.4",
+    "djlint>=1.46.4",
     "lxml-stubs>=0.5.1",
     "ty>=0.0.1a1",
     "ruff>=0.9.1",
@@ -115,7 +115,7 @@ root = ["./neodb"]
 exclude = ["takahe"]
 
 [tool.djlint]
-ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,D018"
+ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,H036,H050,H052,D018"
 indent = 2
 
 [tool.isort]

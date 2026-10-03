@@ -27,8 +27,8 @@
       <div>
         <a href="/catalog/create/Edition?title={{ row.title|urlencode }}"
            target="_blank"
-           rel="noopener">{% trans 'Create new book' %}</a>
-        <small>{% trans 'Then paste the link above; leave blank to skip this row.' %}</small>
+           rel="noopener">{% trans "Create new book" %}</a>
+        <small>{% trans "Then paste the link above; leave blank to skip this row." %}</small>
       </div>
     {% endif %}
   </td>
@@ -39,7 +39,7 @@
             hx-include="closest tr"
             hx-target="closest tr"
             hx-swap="outerHTML">
-      <option value="" {% if not row.shelf %}selected{% endif %}>{% trans '(skip)' %}</option>
+      <option value="" {% if not row.shelf %}selected{% endif %}>{% trans "(skip)" %}</option>
       {% for value, label in shelf_choices %}
         <option value="{{ value }}" {% if row.shelf == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}

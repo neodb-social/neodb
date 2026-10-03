@@ -18,7 +18,7 @@
         <h5>{{ identity.display_name }} - {% trans "Verified works" %}</h5>
         <div class="item-card-list">
           {% for item in items %}
-            {% include '_list_item.html' %}
+            {% include "_list_item.html" %}
           {% empty %}
             <div class="empty">{% trans "Nothing so far." %}</div>
           {% endfor %}

@@ -24,7 +24,7 @@
         {% if item.season_number %}Season {{ item.season_number }}{% endif %}
       </span>
     {% endif %}
-    {% if item.type.value != 'edition' and item.parent_item %}
+    {% if item.type.value != "edition" and item.parent_item %}
       <span>{% trans "part of" %} {{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.display_title }}</a></span>
     {% endif %}
   </small>
@@ -36,9 +36,7 @@
   </div>
   <div class="full">
     {% block full %}
-      <div>
-        {% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}
-      </div>
+      <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
     {% endblock full %}
   </div>
   {% if item.tags and not mark %}

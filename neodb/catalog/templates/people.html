@@ -10,11 +10,11 @@
         <form method="post" action="{% url 'journal:follow' item.uuid %}">
           {% csrf_token %}
           {% if mark.shelf_type %}
-            {% translate 'following' as follow_label %}
-            <button class="outline">{{ follow_label|capfirst }}</button>
+            {% translate "following" as follow_label %}
+            <button type="submit" class="outline">{{ follow_label|capfirst }}</button>
           {% else %}
-            {% translate 'follow' as follow_label %}
-            <button class="primary">{{ follow_label|capfirst }}</button>
+            {% translate "follow" as follow_label %}
+            <button type="submit" class="primary">{{ follow_label|capfirst }}</button>
           {% endif %}
         </form>
       </div>
@@ -25,25 +25,27 @@
 {% block item_sidebar_pieces %}{% endblock %}
 {% block comments_reviews_notes %}{% endblock %}
 {% block details %}
-  <div>{% include '_people.html' with people=item.additional_names role='' max=99 %}</div>
+  <div>{% include "_people.html" with people=item.additional_names role="" max=99 %}</div>
   <div>
     {% if item.birth_date %}
-      {% trans 'born' %}: {{ item.birth_date }}
+      {% trans "born" %}: {{ item.birth_date }}
       {% if item.death_date %}
-        &mdash; {% trans 'died' %}: {{ item.death_date }}
+        — {% trans "died" %}: {{ item.death_date }}
       {% endif %}
     {% endif %}
   </div>
   <div>
     {% if item.imdb %}
-      {% trans 'IMDb' %}: <a href="https://www.imdb.com/name/{{ item.imdb }}/"
+      {% trans "IMDb" %}: <a href="https://www.imdb.com/name/{{ item.imdb }}/"
     target="_blank"
     rel="noopener">{{ item.imdb }}</a>
     {% endif %}
   </div>
   <div>
     {% if item.official_site %}
-      {% trans 'website' %}: <a href="{{ item.official_site }}" target="_blank" rel="noopener">{{ item.official_site|strip_scheme }}</a>
+      {% trans "website" %}: <a href="{{ item.official_site }}"
+    target="_blank"
+    rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}
   </div>
 {% endblock %}
@@ -53,36 +55,36 @@
       <span class="action">
         <span>
           <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-          <i class="fa-solid fa-circle-left"></i>
-        </a>
+            <i class="fa-solid fa-circle-left"></i>
+          </a>
+        </span>
+        <span>
+          <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+            <i class="fa-solid fa-circle-right"></i>
+          </a>
+        </span>
       </span>
-      <span>
-        <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-        <i class="fa-solid fa-circle-right"></i>
-      </a>
-    </span>
-  </span>
-  <h5>
-    {{ role_label }}
-    <small>
-      (<a href="{% url 'catalog:people_works' item.url_path item.uuid role_value %}">{{ total_count }}</a>)
-    </small>
-  </h5>
-  <ul class="cards">
-    {% for work in items %}
-      <li class="card">
-        <a href="{{ work.url }}" title="{{ work.display_title }}">
-          <img src="{{ work.cover|thumb:'normal' }}"
-               alt="{{ work.display_title }}"
-               loading="lazy">
-          <div>
-            <span>{{ work.display_title }}</span>
-            {% if work.year %}<small>{{ work.year }}</small>{% endif %}
-          </div>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endfor %}
+      <h5>
+        {{ role_label }}
+        <small>
+          (<a href="{% url 'catalog:people_works' item.url_path item.uuid role_value %}">{{ total_count }}</a>)
+        </small>
+      </h5>
+      <ul class="cards">
+        {% for work in items %}
+          <li class="card">
+            <a href="{{ work.url }}" title="{{ work.display_title }}">
+              <img src="{{ work.cover|thumb:'normal' }}"
+                   alt="{{ work.display_title }}"
+                   loading="lazy">
+              <div>
+                <span>{{ work.display_title }}</span>
+                {% if work.year %}<small>{{ work.year }}</small>{% endif %}
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
 {% endblock %}

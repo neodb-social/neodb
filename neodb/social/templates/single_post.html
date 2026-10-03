@@ -20,10 +20,10 @@
       {% if card %}
         <meta property="og:title"
               content="{{ card.title|default:post.type|striptags }}">
-      {% elif post.type == 'Article' %}
+      {% elif post.type == "Article" %}
         <meta property="og:title"
               content="{{ post.type_data.object.name|default:post.summary|default:''|striptags|default:_("Article") }}">
-      {% elif post.type == 'Question' %}
+      {% elif post.type == "Question" %}
         <meta property="og:title"
               content="{{ post.content_plain_text|truncatechars:100|default:_("Poll") }}">
       {% else %}

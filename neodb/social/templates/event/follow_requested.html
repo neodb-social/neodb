@@ -1,8 +1,8 @@
 {% load i18n %}
 {% load sanitize %}
-{% trans 'requested to follow you' %}
+{% trans "requested to follow you" %}
 <div>
-  <span class="action">{% include 'users/profile_actions.html' with show_home=1 identity=event.identity %}</span>
+  <span class="action">{% include "users/profile_actions.html" with show_home=1 identity=event.identity %}</span>
   <code class="{{ event.identity.id }}_handler copyable"
         onmouseleave="$(this).removeAttr('data-tooltip')"
         onclick="navigator.clipboard.writeText(this.innerText);$(this).data('tooltip','copied');">@{{ event.identity.full_handle }}</code>

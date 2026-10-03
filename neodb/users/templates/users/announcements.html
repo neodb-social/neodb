@@ -9,13 +9,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% include "common_libs.html" %}
-    <title>{{ site_name }} - {% trans 'Announcements' %}</title>
+    <title>{{ site_name }} - {% trans "Announcements" %}</title>
   </head>
   <body>
     {% include "_header.html" %}
     <main class="container">
       <h1 class="header">
-        {% trans 'Announcements' %}
+        {% trans "Announcements" %}
         {% if request.user.is_superuser %}🦹🏻{% endif %}
         {% if request.user.is_staff %}🧙🏻{% endif %}
       </h1>
@@ -23,14 +23,15 @@
         <article>
           {{ announcement.html | safe }}
           <footer>
-            <span class="action inline"><span><a>{{ announcement.created|default:announcement.created|date }}</a></span>
-          </span>
-        </footer>
-      </article>
-    {% empty %}
-      <p>{% trans 'Nothing so far.' %}</p>
-    {% endfor %}
-  </main>
-  {% include "_footer.html" %}
-</body>
+            <span class="action inline">
+              <span><a>{{ announcement.created|default:announcement.created|date }}</a></span>
+            </span>
+          </footer>
+        </article>
+      {% empty %}
+        <p>{% trans "Nothing so far." %}</p>
+      {% endfor %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
 </html>

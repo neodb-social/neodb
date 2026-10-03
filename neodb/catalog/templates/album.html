@@ -9,28 +9,28 @@
 {% load duration %}
 <!-- class specific details -->
 {% block details %}
-  <div>{% include '_people.html' with people=item.additional_title role='' max=99 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.artist role_label='artist' max=5 %}</div>
-  <div>{% include '_credits.html' with credits=item.role_credits.record_label role_label='publisher' max=5 %}</div>
+  <div>{% include "_people.html" with people=item.additional_title role="" max=99 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.artist role_label="artist" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.record_label role_label="publisher" max=5 %}</div>
   <div>
     {% if item.release_date %}
-      {% trans 'release date' %}: {{ item.release_date }}
+      {% trans "release date" %}: {{ item.release_date }}
     {% endif %}
   </div>
   <div>
     {% if item.length %}
-      {% trans 'duration' %}: {{ item.length|duration_display }}
+      {% trans "duration" %}: {{ item.length|duration_display }}
     {% endif %}
   </div>
-  <div>{% include '_genre_list.html' with list=item.genre max=5 %}</div>
+  <div>{% include "_genre_list.html" with list=item.genre max=5 %}</div>
   <div>
     {% if item.barcode %}
-      {% trans 'barcode' %}: {{ item.barcode }}
+      {% trans "barcode" %}: {{ item.barcode }}
     {% endif %}
   </div>
   <div>
     {% if item.display_album_types %}
-      {% trans 'album type' %}:
+      {% trans "album type" %}:
       {% for t in item.display_album_types %}
         {% if not forloop.first %}/{% endif %}
         <span>{{ t|code_to_album_type }}</span>
@@ -39,7 +39,7 @@
   </div>
   <div>
     {% if item.display_media_formats %}
-      {% trans 'album media' %}:
+      {% trans "album media" %}:
       {% for m in item.display_media_formats %}
         {% if not forloop.first %}/{% endif %}
         <span>{{ m|code_to_media_format }}</span>
@@ -48,7 +48,7 @@
   </div>
   <div>
     {% if item.disc_count %}
-      {% trans 'number of discs' %}: {{ item.disc_count }}
+      {% trans "number of discs" %}: {{ item.disc_count }}
     {% endif %}
   </div>
 {% endblock %}
@@ -61,6 +61,7 @@
   {% if item.get_embed_link %}
     <h5>{% trans "Play this album" %}</h5>
     <iframe src="{{ item.get_embed_link }}"
+            title="{{ item.display_title }}"
             frameborder="0"
             allowtransparency="true"
             allow="encrypted-media"

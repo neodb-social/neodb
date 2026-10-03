@@ -17,7 +17,7 @@
         <a href="{{ event.subject_identity.url }}"
            class="nickname"
            title="@{{ event.subject_identity.handle }}">{{ event.subject_identity.name }}</a>
-        {% trans 'boosted' %}
+        {% trans "boosted" %}
       </div>
     {% endif %}
     <div class="byline-row">
@@ -32,9 +32,9 @@
         <span class="action">
           {% include "action_post_timestamp.html" %}
           {% if not hide_actions %}
-            {% if item and item.class_name != 'tvepisode' %}
+            {% if item and item.class_name != "tvepisode" %}
               <span>
-                {% if item.class_name == 'podcastepisode' %}
+                {% if item.class_name == "podcastepisode" %}
                   <a title="{% trans "Play" %}"
                      class="episode"
                      data-uuid="{{ item.uuid }}"
@@ -73,17 +73,17 @@
           <a href="{{ post.author.url }}"
              class="nickname"
              title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
-          {% if piece and piece.classname == 'note' %}
+          {% if piece and piece.classname == "note" %}
             {% trans "wrote a note" %}
-          {% elif piece and piece.classname == 'review' %}
+          {% elif piece and piece.classname == "review" %}
             {% trans "wrote a review" %}
-          {% elif post.type == 'Article' %}
+          {% elif post.type == "Article" %}
             {% trans "wrote an article" %}
           {% endif %}
         </span>
         {% if post.in_reply_to_post_ %}
           <span class="replied">
-            {% trans 'replying to' %}
+            {% trans "replying to" %}
             <a class="nickname"
                title="@{{ post.in_reply_to_post_.author.handle }}"
                href="{% url 'journal:post_view' post.in_reply_to_post_.author.handle post.in_reply_to_post_.pk %}">
@@ -100,24 +100,20 @@
             <div class="post_handle">@{{ post.author.handle }}</div>
           {% endif %}
         {% endif %}
-        {% if item and piece.classname != 'note' and piece.classname != 'article' %}
+        {% if item and piece.classname != "note" and piece.classname != "article" %}
           <article class="item-embed">{% include "_item_card.html" with item=item allow_embed=1 %}</article>
         {% endif %}
-        {% if piece.classname == 'note' %}
+        {% if piece.classname == "note" %}
           {% if piece.title %}
             <div>
               <strong>{{ piece.title }}</strong>
             </div>
           {% endif %}
-        {% elif post.type != 'Article' %}
+        {% elif post.type != "Article" %}
           <div>{{ post.summary|default:'' }}</div>
         {% endif %}
         <div class="post-content-row">
-          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if piece.classname == 'note' %}{% if post.sensitive %} spoiler{% endif %}{% elif post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}"
-               {% if piece.classname == 'note' %}{% if post.sensitive %}_="on click toggle .revealed on me"{% endif %}
-               {% elif post.type != 'Article' %}
-               {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}
-               {% endif %}>
+          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if piece.classname == 'note' %}{% if post.sensitive %} spoiler{% endif %}{% elif post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}" {% if piece.classname == 'note' %}{% if post.sensitive %}_="on click toggle .revealed on me"{% endif %} {% elif post.type != 'Article' %} {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %} {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}
                 {% if attachment.is_image %}
@@ -148,20 +144,20 @@
             <div id="content_{{ post.pk }}"
                  class="content{% if collapse_content %} tldr{% endif %}"
                  {% if collapse_content %}_="on click if not target.closest('a') toggle .tldr on me"{% endif %}>
-              {% if piece and piece.classname == 'note' %}
+              {% if piece and piece.classname == "note" %}
                 <blockquote class="note-quote">
                   {{ post.safe_content_local|default:"" }}
                 </blockquote>
-              {% elif piece.classname == 'article' or piece.classname == 'review' %}
+              {% elif piece.classname == "article" or piece.classname == "review" %}
                 {% include "_article_teaser.html" with article=piece %}
-              {% elif post.type == 'Article' %}
+              {% elif post.type == "Article" %}
                 {% include "_remote_article_teaser.html" with post=post show_full=show_full %}
               {% else %}
                 {{ post.safe_content_local|default:"" }}
               {% endif %}
             </div>
             {% include "_converted_object_card.html" %}
-            {% if post.type == 'Question' %}
+            {% if post.type == "Question" %}
               {% include "post_question.html" %}
             {% endif %}
             {% if post.quoted_post_ or post.quote_url %}
@@ -178,7 +174,7 @@
             {% endif %}
           </div>
           <div class="embed-cover">
-            {% if piece and piece.classname == 'note' %}
+            {% if piece and piece.classname == "note" %}
               {% if item %}
                 <a href="{{ item.url }}" title="{{ item.display_title }}">
                   <img src="{{ item.display_cover_image_url }}"
@@ -192,11 +188,7 @@
       </div>
     </div>
     <div id="quote_{{ post.pk }}"></div>
-    <div id="replies_{{ post.pk }}"
-         {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %}
-         "
-         hx-swap="outerHTML"
-         hx-trigger="revealed"
-         {% endif %}></div>
+    <div id="replies_{{ post.pk }}" {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %} " hx-swap="outerHTML" hx-trigger="revealed" {% endif %}>
+    </div>
   </section>
 {% endif %}

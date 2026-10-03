@@ -15,19 +15,19 @@
             type="button"
             aria-label="{% trans 'Scroll left' %}"
             _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-    <i class="fa-solid fa-chevron-left"></i>
-  </button>
-  <button class="dc-nav dc-scroll"
-          type="button"
-          aria-label="{% trans 'Scroll right' %}"
-          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-  <i class="fa-solid fa-chevron-right"></i>
-</button>
-</span>
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="dc-nav dc-scroll"
+            type="button"
+            aria-label="{% trans 'Scroll right' %}"
+            _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </span>
 </header>
 <ul class="dc-cards{% if kind == 'collection' %} dc-cols{% endif %}">
   {% for item in items %}
-    {% if kind == 'collection' %}
+    {% if kind == "collection" %}
       {% include "_collection_card.html" with collection=item %}
     {% elif item.latest_episode %}
       {% include "_episode_card.html" with item=item.latest_episode %}

@@ -87,7 +87,9 @@
           <dt>{% translate "Software version" %}</dt>
           <dd>
             <a href="https://neodb.net" target="_blank" rel="noopener">NeoDB {{ neodb_version }}</a>
-            <small><a target="_blank" rel="noopener" href="https://github.com/neodb-social">{% trans 'Source code' %}</a></small>
+            <small><a target="_blank"
+   rel="noopener"
+   href="https://github.com/neodb-social">{% trans "Source code" %}</a></small>
           </dd>
           <dt>{% translate "Registration" %}</dt>
           <dd>
@@ -166,7 +168,9 @@
           <ul class="dc-tags dc-peers">
             {% for peer in neodb_peers %}
               <li>
-                <a href="https://{{ peer.domain }}" target="_blank" rel="noopener">{{ peer.name }} <small>{{ peer.domain }}</small></a>
+                <a href="https://{{ peer.domain }}"
+                   target="_blank"
+                   rel="noopener">{{ peer.name }} <small>{{ peer.domain }}</small></a>
               </li>
             {% endfor %}
           </ul>

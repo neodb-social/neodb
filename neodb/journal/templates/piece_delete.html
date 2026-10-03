@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Delete' %}</title>
+    <title>{% trans "Delete" %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
@@ -16,11 +16,8 @@
       <article>
         <header>
           <b>{{ piece.title }}</b>
-          <!-- span class="action">{% if piece.visibility > 0 %}<i class="fa-solid fa-lock"></i>{% endif %}
-          - <a href="{{ piece.owner.url }}">{{ piece.owner.display_name }}</a>
-          {{ piece.created_time|date }}</span -->
         </header>
-        <p>‼️ {% trans 'Are you sure to delete this entire content?' %}</p>
+        <p>‼️ {% trans "Are you sure to delete this entire content?" %}</p>
         <p>‼️ {% trans "By deleting it, you will also lose track of others' comments and feedbacks to your content." %}</p>
         <p>‼️ {% trans "Deletion cannot be undone, are you sure to continue?" %}</p>
         <p>

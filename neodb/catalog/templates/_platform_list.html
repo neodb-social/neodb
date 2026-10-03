@@ -2,7 +2,7 @@
 {% load duration %}
 {% if list %}
   <span>
-    {% trans 'platform' %}:
+    {% trans "platform" %}:
     {% for p in list %}
       {% if forloop.counter <= max %}
         {% if not forloop.first %}/{% endif %}

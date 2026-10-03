@@ -4,8 +4,6 @@
 boosted your mark on <a href="{{ item_url }}">{{ item_title }}</a>
 {% endblocktrans %}
 <blockquote class="tldr" _="on click toggle .tldr on me">
-  <span>
-    {% if event.piece.mark.rating_grade %}{{ event.piece.mark.rating_grade|rating_star }}{% endif %}
-  </span>
+  <span>{% if event.piece.mark.rating_grade %}{{ event.piece.mark.rating_grade|rating_star }}{% endif %}</span>
   {{ event.piece.mark.comment.html|safe }}
 </blockquote>

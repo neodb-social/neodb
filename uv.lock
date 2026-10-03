@@ -1877,7 +1877,7 @@ requires-dist = [
 dev = [
     { name = "coverage", specifier = ">=7.13.5" },
     { name = "django-stubs", specifier = ">=5.1.2" },
-    { name = "djlint", specifier = ">=1.36.4" },
+    { name = "djlint", specifier = ">=1.46.4" },
     { name = "lxml-stubs", specifier = ">=0.5.1" },
     { name = "mkdocs-material", specifier = ">=9.5.42,<10" },
     { name = "mock", specifier = ">=5.1.0" },
