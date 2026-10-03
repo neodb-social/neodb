@@ -4,6 +4,8 @@ import shutil
 from unittest.mock import patch
 
 import pytest
+from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.common.downloaders import set_mock_mode, use_local_response
@@ -249,3 +251,29 @@ def test_author_with_quotes_survives_query_parsing():
     parser = CatalogQueryParser(q, page=1, page_size=5)
 
     assert parser.filter_by["people"] == ["ellen  nellie  bly"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_preview_pages_through_matched_rows(tmp_path):
+    user = User.register(email="sgpage@example.com", username="sgpageuser")
+    path = tmp_path / "matched.csv"
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Title"])
+        w.writerows([[f"Book {i}"] for i in range(150)])
+    StoryGraphImporter.create(
+        user, phase="preview", file="dummy", matched_file=str(path)
+    )
+    client = Client()
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("users:storygraph_preview")
+
+    html = client.get(url, {"page": 2}).content.decode()
+    assert 'aria-current="page">2</span>' in html
+    assert 'href="?page=1"' in html
+    assert 'rel="next"' not in html
+
+    # a page past the end shows the last page rather than an empty table
+    clamped = client.get(url, {"page": 9}).content.decode()
+    assert 'aria-current="page">2</span>' in clamped
+    assert "Book 149" in clamped

@@ -33,6 +33,7 @@ from common.storage import (
     save_media_file,
     save_upload,
 )
+from common.utils import PageLinksGenerator
 from journal.exporters import (
     CsvExporter,
     DoufenExporter,
@@ -699,6 +700,8 @@ def rym_preview(request):
             reader = csv.DictReader(fp)
             all_rows = list(reader)
     total = len(all_rows)
+    num_pages = max(1, -(-total // page_size))
+    page = min(page, num_pages)
     start = (page - 1) * page_size
     end = start + page_size
     rows = [
@@ -711,11 +714,8 @@ def rym_preview(request):
         {
             "task": task,
             "rows": rows,
-            "page": page,
-            "page_size": page_size,
             "total": total,
-            "has_prev": page > 1,
-            "has_next": end < total,
+            "pagination": PageLinksGenerator(page, num_pages, request.GET),
             "shelf_choices": ShelfType.choices,
         },
     )
@@ -908,6 +908,8 @@ def storygraph_preview(request):
             reader = csv.DictReader(fp)
             all_rows = list(reader)
     total = len(all_rows)
+    num_pages = max(1, -(-total // page_size))
+    page = min(page, num_pages)
     start = (page - 1) * page_size
     end = start + page_size
     rows = [
@@ -920,11 +922,8 @@ def storygraph_preview(request):
         {
             "task": task,
             "rows": rows,
-            "page": page,
-            "page_size": page_size,
             "total": total,
-            "has_prev": page > 1,
-            "has_next": end < total,
+            "pagination": PageLinksGenerator(page, num_pages, request.GET),
             "shelf_choices": ShelfType.choices,
         },
     )

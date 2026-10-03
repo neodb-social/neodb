@@ -55,15 +55,7 @@
             {% endfor %}
           </tbody>
         </table>
-        <p>
-          {% if has_prev %}
-            <a href="?page={{ page|add:'-1' }}">« {% trans "Prev" %}</a>
-          {% endif %}
-          {% trans "Page" %} {{ page }}
-          {% if has_next %}
-            <a href="?page={{ page|add:'1' }}">{% trans "Next" %} »</a>
-          {% endif %}
-        </p>
+        {% include "_pagination.html" %}
         <form method="post" action="{% url 'users:storygraph_confirm' %}">
           {% csrf_token %}
           <fieldset>

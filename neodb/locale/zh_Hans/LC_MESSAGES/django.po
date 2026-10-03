@@ -4125,6 +4125,27 @@ msgstr "上移"
 msgid "Move down"
 msgstr "下移"
 
+#: common/templates/_pagination.html:3
+msgid "Pagination"
+msgstr "分页"
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous page"
+msgstr "上一页"
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous"
+msgstr "上一页"
+
+#: common/templates/_pagination.html:32
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr "%(current)s / %(total)s"
+
+#: common/templates/_pagination.html:38 common/templates/_pagination.html:42
+msgid "Next page"
+msgstr "下一页"
+
 #: common/templates/_sidebar.html:59
 #: users/templates/users/profile_actions.html:36
 msgid "Approving followers manually"
@@ -8964,11 +8985,6 @@ msgstr "匹配链接"
 #: users/templates/users/storygraph_import.html:48
 msgid "Shelf"
 msgstr "标记"
-
-#: users/templates/users/rym_import.html:60
-#: users/templates/users/storygraph_import.html:60
-msgid "Prev"
-msgstr "上一页"
 
 #: users/templates/users/rym_import.html:64
 #: users/templates/users/storygraph_import.html:64

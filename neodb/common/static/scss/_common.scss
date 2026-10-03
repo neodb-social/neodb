@@ -482,33 +482,103 @@ form img {
   }
 }
 
+// Pico lays out every nav as a flex row; the links sit in an inner div so the
+// nav can be the query container for the narrow layouts below.
 .pagination {
-  text-align: center;
-  width: 100%;
-  margin-top: 1em;
+  display: block;
+  container-type: inline-size;
+  margin-top: 1.5rem;
 
-  a {
-    margin: 0 0.3em;
+  >div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
   }
 
-  .s,
-  .prev,
-  .next {
-    font-size: 1.4em;
+  >div>* {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.5rem;
+    border-radius: var(--pico-border-radius);
+    text-decoration: none;
+    line-height: 1;
   }
 
-  .prev {
-    margin-right: 0.5em;
+  >div>a {
+    color: var(--pico-color);
+
+    &:hover {
+      background: var(--pico-secondary-background);
+      color: var(--pico-secondary-inverse);
+    }
   }
 
-  .next {
-    margin-left: 0.5em;
+  [aria-current="page"] {
+    background: var(--pico-primary-background);
+    color: var(--pico-primary-inverse);
+    font-weight: 600;
   }
 
-  .current {
-    font-weight: bold;
-    font-size: 1.1em;
-    color: var(--pico-secondary);
+  .gap {
+    min-width: 1.5rem;
+    padding: 0;
+    color: var(--pico-muted-color);
+  }
+
+  .step {
+    gap: 0.4rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--pico-muted-border-color);
+
+    &:first-child {
+      margin-right: auto;
+    }
+
+    &:last-child {
+      margin-left: auto;
+    }
+
+    &[aria-disabled="true"] {
+      opacity: 0.5;
+      pointer-events: none;
+      color: var(--pico-muted-color);
+    }
+  }
+
+  .count {
+    display: none;
+    color: var(--pico-muted-color);
+  }
+
+  @container (max-width: 620px) {
+    .step {
+      padding: 0 0.6rem;
+
+      span {
+        display: none;
+      }
+    }
+  }
+
+  @container (max-width: 520px) {
+
+    .num,
+    .gap {
+      display: none;
+    }
+
+    .count {
+      display: inline-flex;
+    }
+
+    .step {
+      min-width: 2.75rem;
+      height: 2.75rem;
+    }
   }
 }
 

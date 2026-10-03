@@ -4128,6 +4128,27 @@ msgstr ""
 msgid "Move down"
 msgstr ""
 
+#: common/templates/_pagination.html:3
+msgid "Pagination"
+msgstr ""
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous page"
+msgstr ""
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous"
+msgstr ""
+
+#: common/templates/_pagination.html:32
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr ""
+
+#: common/templates/_pagination.html:38 common/templates/_pagination.html:42
+msgid "Next page"
+msgstr ""
+
 #: common/templates/_sidebar.html:59
 #: users/templates/users/profile_actions.html:36
 msgid "Approving followers manually"
@@ -8852,11 +8873,6 @@ msgstr ""
 #: users/templates/users/rym_import.html:48
 #: users/templates/users/storygraph_import.html:48
 msgid "Shelf"
-msgstr ""
-
-#: users/templates/users/rym_import.html:60
-#: users/templates/users/storygraph_import.html:60
-msgid "Prev"
 msgstr ""
 
 #: users/templates/users/rym_import.html:64

@@ -115,8 +115,8 @@ def test_list_page_paginates(monkeypatch):
     # rather than the one that was asked for
     clamped = client.get(_url(user), {"page": 0}).content.decode()
     assert clamped.count('class="article-entry"') == 1
-    assert 'class="current">2</a>' in clamped
-    assert 'class="current">1</a>' not in clamped
+    assert 'aria-current="page">2</span>' in clamped
+    assert 'aria-current="page">1</span>' not in clamped
 
 
 def test_tag_links_are_url_encoded():
