@@ -7370,7 +7370,7 @@ msgstr ""
 
 #: social/templates/feed.html:50 social/templates/feed.html:52
 #, fuzzy
-#| msgid "Import marks and reviews from Douban"
+#| msgid "Import marks and reviews from Doufen / NiceDB"
 msgid "Marks and reviews"
 msgstr "豆瓣からマークとレビューをインポート"
 
@@ -8201,7 +8201,7 @@ msgid "Data management"
 msgstr "データ管理"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "豆瓣からマークとレビューをインポート"
 
 #: users/templates/users/data.html:43

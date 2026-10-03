@@ -8158,7 +8158,7 @@ msgid "Data management"
 msgstr "Gerenciamento de Dados"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "Importar Marcações e Análises do Douban"
 
 #: users/templates/users/data.html:43

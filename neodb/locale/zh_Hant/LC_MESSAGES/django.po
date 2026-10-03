@@ -8566,7 +8566,7 @@ msgid "Data management"
 msgstr "資料管理"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "匯入豆瓣標記和評論"
 
 #: users/templates/users/data.html:43

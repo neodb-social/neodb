@@ -8436,8 +8436,8 @@ msgid "Recent activity"
 msgstr "最近活动"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
-msgstr "导入豆瓣标记和评论"
+msgid "Import marks and reviews from Doufen / NiceDB"
+msgstr "导入豆伴或NiceDB的标记和评论"
 
 #: users/views/data.py:278
 msgid "Import articles from WordPress"

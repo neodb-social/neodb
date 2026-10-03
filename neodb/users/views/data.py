@@ -285,7 +285,7 @@ IMPORT_SOURCES = (
     ImportSource(
         "douban",
         "Douban",
-        gettext_lazy("Import marks and reviews from Douban"),
+        gettext_lazy("Import marks and reviews from Doufen / NiceDB"),
         _ALL,
         "users:import_douban",
         (DoubanImporter,),

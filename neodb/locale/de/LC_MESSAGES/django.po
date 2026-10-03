@@ -8919,7 +8919,7 @@ msgid "Data management"
 msgstr "Daten Verwaltung"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "Importiere Markierungen und Rezensionen von Douban"
 
 #: users/templates/users/data.html:43
