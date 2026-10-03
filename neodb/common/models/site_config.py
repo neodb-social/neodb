@@ -80,9 +80,9 @@ class SiteConfig(models.Model):
         discover_spotlight_days: int = 14
         discover_update_interval: int = 60
         discover_filter_language: bool = False
-        # members' catalog_languages filter trending, spotlight and
-        # recommendations; items from people they follow, and items without a
-        # known language, are not filtered
+        # members' catalog_languages filter trending, spotlight and For you;
+        # More like this, items from people they follow, and items without a
+        # known language are not filtered
         discover_user_languages: bool = False
         discover_show_local_only: bool = False
         discover_show_popular_posts: bool = False

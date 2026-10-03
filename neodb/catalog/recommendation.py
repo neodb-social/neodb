@@ -329,7 +329,7 @@ def can_show_reco(user, kind: str) -> bool:
 
 
 def viewer_language_codes(viewer) -> list[str]:
-    """Language codes the viewer keeps discover and recommendations to.
+    """Language codes the viewer keeps trending items and For you to.
 
     Empty for no filter: anonymous viewers, members without catalog
     languages, or the site option off.
@@ -455,19 +455,16 @@ def restore_item(user: User, item: Item) -> None:
 def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     """Return up to ``limit`` items similar to ``item``.
 
-    Excludes items the viewer has already shelved (any state) or dismissed,
-    and items outside the viewer's catalog languages. Drops deleted and merged
-    items. No author/owner visibility filter needed: ItemSimilarity is built
-    from public marks only.
+    Excludes items the viewer has already shelved (any state) or dismissed.
+    Drops deleted and merged items. No author/owner visibility filter needed:
+    ItemSimilarity is built from public marks only. The viewer's catalog
+    languages do not apply: a similar item is wanted in any language.
     """
-    codes = viewer_language_codes(viewer)
-    ranked = (
+    rows = list(
         ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
         .order_by("-score")
-        .values_list("target_id", flat=True)
+        .values_list("target_id", flat=True)[: limit * 2]
     )
-    # the language filter may drop most rows, so read all of them (top-K)
-    rows = list(ranked if codes else ranked[: limit * 2])
     if not rows:
         return []
     exclude: set[int] = set()
@@ -476,8 +473,7 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
             viewer.identity.pk
         ) | _user_dismissed_item_ids(viewer.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
-    wanted = set(codes)
-    by_id = {i.pk: i for i in qs if not codes or i.in_languages(wanted)}
+    by_id = {i.pk: i for i in qs}
     out: list[Item] = []
     for iid in rows:
         if iid in exclude:

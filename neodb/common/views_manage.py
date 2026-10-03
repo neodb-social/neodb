@@ -418,10 +418,11 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "title": _("Filter by member languages"),
             "help_text": _(
                 "Let members pick catalog languages in their preferences. "
-                "Trending, spotlight and recommendations then show them only "
+                "Trending, spotlight and For you then show them only "
                 "items with a title or an original language in those languages. "
-                "Items without a known language, and items from people they "
-                "follow, are not filtered. With the option above also on, "
+                "More like this, items from people they follow, and items "
+                "without a known language are not filtered. With the option "
+                "above also on, "
                 "trending and spotlight hold only the preferred languages to "
                 "begin with."
             ),

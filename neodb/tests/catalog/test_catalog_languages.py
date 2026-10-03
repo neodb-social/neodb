@@ -227,11 +227,8 @@ class TestComputeAndSimilar:
         self.zh = [_book(f"相似 {i}", "zh-cn") for i in range(3)]
         self.en = _book("Similar", "en")
         for ident in strangers:
-            for item in (self.src, *self.zh):
+            for item in (self.src, *self.zh, self.en):
                 _public_mark(ident, item)
-        # fewer marks, so it ranks below every Chinese title
-        for ident in strangers[:2]:
-            _public_mark(ident, self.en)
         BuildItemSimilarity().run()
         self.user = _member("cs_user", ["en"])
         _public_mark(self.user.identity, self.src)
@@ -246,14 +243,11 @@ class TestComputeAndSimilar:
         site_config.discover_user_languages = False
         assert self._computed() == {self.en.pk, *(b.pk for b in self.zh)}
 
-    def test_similar_reads_past_the_out_of_language_rows(self):
-        assert [i.pk for i in similar_items(self.src, self.user, limit=1)] == [
-            self.en.pk
-        ]
-
-    def test_similar_for_anonymous_is_not_filtered(self):
-        out = {i.pk for i in similar_items(self.src, None, limit=10)}
-        assert out == {self.en.pk, *(b.pk for b in self.zh)}
+    def test_similar_items_are_not_filtered(self):
+        everything = {self.en.pk, *(b.pk for b in self.zh)}
+        for viewer in (self.user, None):
+            out = {i.pk for i in similar_items(self.src, viewer, limit=10)}
+            assert out == everything
 
 
 class TestCirclesAreNotFiltered:
