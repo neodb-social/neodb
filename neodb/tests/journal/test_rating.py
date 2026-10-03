@@ -218,22 +218,37 @@ class TestRating:
         # The average should consider all ratings (6 + 5*10 = 56, divided by 6 = 9.3)
         assert tvshow_info["average"] == 9.3
 
-    def test_attach_to_items_sets_rating_info(self):
+    def test_attach_to_items_sets_rating_info(self) -> None:
         ratings = [6, 7, 8, 9, 10]
         for i, user in enumerate(self.users[:5]):
             Rating.update_item_rating(
                 self.book, user.identity, ratings[i], visibility=1
             )
 
-        items = [self.book, self.game]
-        Rating.attach_to_items(items)
+        for i, user in enumerate(self.users[:5]):
+            Rating.update_item_rating(self.movie, user.identity, i + 1, visibility=1)
 
-        assert self.book.rating_info["count"] == 5
+        items = [self.book, self.movie, self.game]
+        assert Rating.attach_to_items(items) is items
+
+        assert self.book.rating_info == {
+            "count": 5,
+            "average": 8.0,
+            "distribution": [0, 0, 20, 40, 40],
+        }
+        assert self.movie.rating_info == {
+            "count": 5,
+            "average": 3.0,
+            "distribution": [40, 40, 20, 0, 0],
+        }
         assert self.book.rating == 8.0
         assert self.book.rating_distribution == [0, 0, 20, 40, 40]
         assert self.game.rating_info["count"] == 0
         assert self.game.rating is None
         assert self.game.rating_count == 0
+        assert self.game.rating_distribution == [0, 0, 0, 0, 0]
+        empty_items: list[Item] = []
+        assert Rating.attach_to_items(empty_items) is empty_items
 
     def test_get_info_for_items(self):
         """Test getting rating info for multiple items at once."""
@@ -313,39 +328,6 @@ class TestRating:
 
         # Test with empty list
         assert Rating.get_info_for_items([]) == {}
-
-    def test_attach_to_items(self):
-        """Test attaching rating_info to a list of items."""
-        # Prepare ratings for book and movie
-        book_ratings = [5, 6, 7, 8, 9]
-        movie_ratings = [1, 2, 3, 4, 5]
-        for i, user in enumerate(self.users[:5]):
-            Rating.update_item_rating(
-                self.book, user.identity, book_ratings[i], visibility=1
-            )
-            Rating.update_item_rating(
-                self.movie, user.identity, movie_ratings[i], visibility=1
-            )
-
-        # Prepare items list including one with no ratings
-        items = [self.book, self.movie, self.game]
-        # Attach ratings to items
-        result = Rating.attach_to_items(items)
-        # Should return the same list object
-        assert result is items
-
-        # Get expected info mapping
-        expected_infos = Rating.get_info_for_items(items)
-        for item in items:
-            # Each item should have a rating_info attribute
-            assert hasattr(item, "rating_info")
-            # rating_info should match expected info
-            assert item.rating_info == expected_infos.get(item.pk, {})
-
-        # Test with empty list
-        empty_items = []
-        result_empty = Rating.attach_to_items(empty_items)
-        assert result_empty is empty_items
 
     def test_rating_distribution_sums_to_100(self):
         """Test that rating distribution always sums to 100% using Largest Remainder Method."""

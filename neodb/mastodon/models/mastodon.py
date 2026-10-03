@@ -709,10 +709,13 @@ class Mastodon:
                     )
                     existing_account.uid = mastodon_account.uid
             if existing_account:
+                existing_account.handle = mastodon_account.handle
                 existing_account.access_token = mastodon_account.access_token
                 existing_account.refresh_token = mastodon_account.refresh_token
                 existing_account.account_data = mastodon_account.account_data
-                existing_account.save(update_fields=["access_data", "account_data"])
+                existing_account.save(
+                    update_fields=["uid", "handle", "access_data", "account_data"]
+                )
                 return existing_account
             # for fresh account, ping them for convenience
             Takahe.fetch_remote_identity(mastodon_account.handle)

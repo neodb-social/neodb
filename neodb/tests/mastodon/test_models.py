@@ -1,15 +1,19 @@
+import json
+from urllib.parse import parse_qs, urlsplit
 from unittest.mock import Mock, patch
 
 import pytest
 import requests
 from django.conf import settings
+from django.contrib.sessions.backends.db import SessionStore
 from django.core.exceptions import RequestAborted
 from django.db import IntegrityError
 from django.utils import timezone
+from django.test import RequestFactory
 
 from common.models import SiteConfig
 from journal.models.common import VisibilityType
-from mastodon.models import MastodonAccount, MastodonApplication, Platform
+from mastodon.models import Mastodon, MastodonAccount, MastodonApplication, Platform
 from mastodon.models.mastodon import (
     TootVisibilityEnum,
     _force_recreate_app,
@@ -17,6 +21,8 @@ from mastodon.models.mastodon import (
     _get_scopes,
     _response_error,
     get_toot_visibility,
+    get_or_create_fediverse_application,
+    detect_server_info,
 )
 from users.models import User
 
@@ -418,3 +424,171 @@ class TestMastodonAccountPost:
         r = _http_response(200, b'{"error": "unexpected"}')
         with pytest.raises(RequestAborted):
             self._post(r)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMastodonApplicationRegistration:
+    def test_existing_api_domain_is_reused_with_whitelist(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        app = MastodonApplication.objects.create(
+            domain_name="mastodon.online",
+            api_domain="api.mastodon.online",
+            server_version="4.5.0",
+            client_id="existing",
+            client_secret="secret",
+        )
+        monkeypatch.setattr(
+            SiteConfig.system, "mastodon_login_whitelist", ["allowed.example"]
+        )
+        with (
+            patch("mastodon.models.mastodon.get") as get,
+            patch("mastodon.models.mastodon.post") as post,
+        ):
+            result = get_or_create_fediverse_application("API.MASTODON.ONLINE")
+        assert result.pk == app.pk
+        get.assert_not_called()
+        post.assert_not_called()
+
+    def test_new_application_is_registered_and_verified(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(SiteConfig.system, "mastodon_login_whitelist", [])
+        metadata = {"uri": "mastodon.online", "version": "4.5.0"}
+        credentials = {"id": "4", "client_id": "created", "client_secret": "secret"}
+        with (
+            patch("mastodon.models.mastodon.is_valid_url", return_value=True),
+            patch(
+                "mastodon.models.mastodon.get",
+                return_value=_http_response(200, json.dumps(metadata).encode()),
+            ),
+            patch(
+                "mastodon.models.mastodon.post",
+                side_effect=[
+                    _http_response(200, json.dumps(credentials).encode()),
+                    _http_response(200, b'{"access_token": "client-token"}'),
+                ],
+            ) as post,
+        ):
+            app = get_or_create_fediverse_application("mastodon.online")
+        app.refresh_from_db()
+        assert app.domain_name == "mastodon.online"
+        assert app.api_domain == "mastodon.online"
+        assert app.client_id == "created"
+        assert app.client_secret == "secret"
+        assert app.server_version == "4.5.0"
+        assert post.call_args_list[0].args == ("https://mastodon.online/api/v1/apps",)
+        token_call = post.call_args_list[1]
+        assert token_call.args == ("https://mastodon.online/oauth/token",)
+        assert token_call.kwargs["data"]["grant_type"] == "client_credentials"
+
+    @pytest.mark.parametrize("reason", ["whitelist", "local"])
+    def test_disallowed_instance_is_rejected_before_network(
+        self, monkeypatch: pytest.MonkeyPatch, reason: str
+    ) -> None:
+        domain = "mastodon.online" if reason == "whitelist" else settings.SITE_DOMAIN
+        whitelist = ["allowed.example"] if reason == "whitelist" else []
+        monkeypatch.setattr(SiteConfig.system, "mastodon_login_whitelist", whitelist)
+        with (
+            patch("mastodon.models.mastodon.get") as get,
+            patch("mastodon.models.mastodon.post") as post,
+        ):
+            with pytest.raises(ValueError, match="Unsupported instance"):
+                get_or_create_fediverse_application(domain)
+        get.assert_not_called()
+        post.assert_not_called()
+
+    @pytest.mark.parametrize("failure", ["http", "json"])
+    def test_failed_registration_does_not_persist_application(
+        self, monkeypatch: pytest.MonkeyPatch, failure: str
+    ) -> None:
+        monkeypatch.setattr(SiteConfig.system, "mastodon_login_whitelist", [])
+        response = (
+            _http_response(400, b'{"error_description": "invalid redirect"}')
+            if failure == "http"
+            else _http_response(200, b"not JSON")
+        )
+        with (
+            patch("mastodon.models.mastodon.is_valid_url", return_value=True),
+            patch(
+                "mastodon.models.mastodon.get",
+                return_value=_http_response(
+                    200, b'{"uri":"mastodon.online","version":"4.5.0"}'
+                ),
+            ),
+            patch("mastodon.models.mastodon.post", return_value=response),
+        ):
+            with pytest.raises(Exception, match="Error creating app"):
+                get_or_create_fediverse_application("mastodon.online")
+        assert not MastodonApplication.objects.filter(
+            domain_name="mastodon.online"
+        ).exists()
+
+    def test_auth_url_uses_api_domain_and_saves_callback_state(self) -> None:
+        app = MastodonApplication.objects.create(
+            domain_name="mastodon.online",
+            api_domain="api.mastodon.online",
+            server_version="4.5.0",
+            client_id="login-client",
+            client_secret="secret",
+        )
+        request = RequestFactory().get("/", secure=True, HTTP_HOST=settings.SITE_DOMAIN)
+        request.session = SessionStore()
+        with patch("mastodon.models.mastodon.get") as get:
+            url = Mastodon.generate_auth_url(" https://MASTODON.ONLINE/@user ", request)
+        parsed = urlsplit(url)
+        query = parse_qs(parsed.query)
+        assert parsed.netloc == app.api_domain
+        assert parsed.path == "/oauth/authorize"
+        assert query["client_id"] == [app.client_id]
+        assert query["response_type"] == ["code"]
+        assert query["redirect_uri"] == [
+            settings.SITE_INFO["site_url"] + "/account/login/oauth"
+        ]
+        assert query["state"] == [request.session["mastodon_oauth_state"]]
+        assert request.session["mastodon_oauth_state"]
+        assert request.session["mastodon_domain"] == app.domain_name
+        get.assert_not_called()
+
+
+class TestMastodonInstanceProbe:
+    def test_private_domain_never_probes(self) -> None:
+        with (
+            patch("mastodon.models.mastodon.is_valid_url", return_value=False),
+            patch("mastodon.models.mastodon.get") as get,
+        ):
+            with pytest.raises(Exception, match="Invalid instance domain"):
+                detect_server_info("127.0.0.1")
+        get.assert_not_called()
+
+    @pytest.mark.parametrize("failure", ["network", "http", "json"])
+    def test_unusable_metadata_is_rejected(self, failure: str) -> None:
+        with (
+            patch("mastodon.models.mastodon.is_valid_url", return_value=True),
+            patch("mastodon.models.mastodon.get") as get,
+        ):
+            if failure == "network":
+                get.side_effect = requests.Timeout("probe timeout")
+            elif failure == "http":
+                get.return_value = _http_response(503, b"unavailable")
+            else:
+                get.return_value = _http_response(200, b"not JSON")
+            with pytest.raises(Exception, match="instance|Instance"):
+                detect_server_info("mastodon.online")
+
+    def test_separate_account_domain_keeps_working_api_domain(self) -> None:
+        with (
+            patch("mastodon.models.mastodon.is_valid_url", return_value=True),
+            patch(
+                "mastodon.models.mastodon.get",
+                side_effect=[
+                    _http_response(200, b'{"uri":"mastodon.online","version":"4.5.0"}'),
+                    requests.Timeout("account domain has no API"),
+                ],
+            ),
+        ):
+            assert detect_server_info("api.mastodon.online") == (
+                "mastodon.online",
+                "api.mastodon.online",
+                "4.5.0",
+            )

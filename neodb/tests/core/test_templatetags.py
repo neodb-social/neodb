@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.utils import translation
 from django.utils.safestring import SafeString
 
 from common.templatetags.duration import (
@@ -58,9 +59,10 @@ class TestNaturaldelta:
     def test_none(self):
         assert naturaldelta(None) == ""
 
-    def test_just_now(self):
+    def test_just_now(self) -> None:
         v = datetime.now() - timedelta(seconds=30)
-        assert naturaldelta(v) != ""  # returns translated "just now"
+        with translation.override("en"):
+            assert naturaldelta(v) == "just now"
 
     def test_minutes(self):
         v = datetime.now() - timedelta(minutes=5)
@@ -150,10 +152,9 @@ class TestMakeRange:
 
 
 class TestCodeToLang:
-    def test_known_language_code(self):
-        # "en" should be in LANGUAGE_CODES
-        result = code_to_lang("en")
-        assert result  # should return a non-empty string
+    def test_known_language_code(self) -> None:
+        with translation.override("en"):
+            assert code_to_lang("en") == "English"
 
     def test_unknown_code_returns_itself(self):
         assert code_to_lang("zzz_unknown") == "zzz_unknown"

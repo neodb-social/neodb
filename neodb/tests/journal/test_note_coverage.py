@@ -6,6 +6,7 @@ from catalog.models import (
     Album,
     Edition,
     Game,
+    Item,
     Movie,
     Podcast,
     TVEpisode,
@@ -158,50 +159,55 @@ class TestNoteExtractProgress:
         assert val is None
 
 
-@pytest.mark.django_db(databases="__all__")
-class TestNoteGetProgressTypesByItem:
-    def test_edition_progress_types(self):
-        book = Edition.objects.create(title="Test Book")
-        types = Note.get_progress_types_by_item(book)
-        assert Note.ProgressType.PAGE in types
-        assert Note.ProgressType.CHAPTER in types
-        assert Note.ProgressType.PERCENTAGE in types
-
-    def test_movie_progress_types(self):
-        movie = Movie.objects.create(title="Test Movie")
-        types = Note.get_progress_types_by_item(movie)
-        assert Note.ProgressType.PART in types
-        assert Note.ProgressType.TIMESTAMP in types
-        assert Note.ProgressType.PERCENTAGE in types
-
-    def test_tvshow_progress_types(self):
-        show = TVShow.objects.create(title="Test Show")
-        types = Note.get_progress_types_by_item(show)
-        assert Note.ProgressType.EPISODE in types
-        assert Note.ProgressType.PART in types
-
-    def test_tvseason_progress_types(self):
-        season = TVSeason.objects.create(title="Test Season")
-        types = Note.get_progress_types_by_item(season)
-        assert Note.ProgressType.EPISODE in types
-
-    def test_album_progress_types(self):
-        album = Album.objects.create(title="Test Album")
-        types = Note.get_progress_types_by_item(album)
-        assert Note.ProgressType.TRACK in types
-        assert Note.ProgressType.TIMESTAMP in types
-
-    def test_game_progress_types(self):
-        game = Game.objects.create(title="Test Game")
-        types = Note.get_progress_types_by_item(game)
-        assert Note.ProgressType.CYCLE in types
-
-    def test_podcast_progress_types(self):
-        podcast = Podcast.objects.create(title="Test Podcast")
-        types = Note.get_progress_types_by_item(podcast)
-        assert Note.ProgressType.EPISODE in types
-
-    def test_tvepisode_returns_empty(self):
-        ep = TVEpisode.objects.create(title="Test Episode")
-        types = Note.get_progress_types_by_item(ep)
-        assert types == []
+@pytest.mark.parametrize(
+    ("model", "expected"),
+    [
+        (
+            Edition,
+            [
+                Note.ProgressType.PAGE,
+                Note.ProgressType.CHAPTER,
+                Note.ProgressType.PERCENTAGE,
+            ],
+        ),
+        (
+            Movie,
+            [
+                Note.ProgressType.PART,
+                Note.ProgressType.TIMESTAMP,
+                Note.ProgressType.PERCENTAGE,
+            ],
+        ),
+        (
+            TVShow,
+            [
+                Note.ProgressType.PART,
+                Note.ProgressType.EPISODE,
+                Note.ProgressType.PERCENTAGE,
+            ],
+        ),
+        (
+            TVSeason,
+            [
+                Note.ProgressType.PART,
+                Note.ProgressType.EPISODE,
+                Note.ProgressType.PERCENTAGE,
+            ],
+        ),
+        (
+            Album,
+            [
+                Note.ProgressType.TRACK,
+                Note.ProgressType.TIMESTAMP,
+                Note.ProgressType.PERCENTAGE,
+            ],
+        ),
+        (Game, [Note.ProgressType.CYCLE]),
+        (Podcast, [Note.ProgressType.EPISODE]),
+        (TVEpisode, []),
+    ],
+)
+def test_progress_types_by_item(
+    model: type[Item], expected: list[Note.ProgressType]
+) -> None:
+    assert Note.get_progress_types_by_item(model()) == expected

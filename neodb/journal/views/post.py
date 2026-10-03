@@ -311,7 +311,7 @@ def post_compose(request: AuthedHttpRequest):
             reply_to = ""
     visibility = int_(request.GET.get("visibility", request.POST.get("visibility")), -1)
     if visibility not in [0, 1, 2]:
-        visibility = request.user.preference.post_public_mode
+        visibility = 0
     if request.method == "GET":
         return render(
             request,

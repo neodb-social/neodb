@@ -1328,12 +1328,7 @@ class TestReviewsPrefetch:
                 body=f"Body {i}",
             )
 
-    def test_reviews_page_renders(self):
-        client = Client()
-        response = client.get(f"/book/{self.book.uuid}/reviews")
-        assert response.status_code == 200
-
-    def test_reviews_no_per_review_rating_queries(self):
+    def test_reviews_render_without_per_review_queries(self) -> None:
         client = Client()
         with CaptureQueriesContext(connection) as ctx:
             response = client.get(f"/book/{self.book.uuid}/reviews")
@@ -1348,12 +1343,6 @@ class TestReviewsPrefetch:
             and "IN" not in q["sql"].upper()
         ]
         assert rating_queries == []
-
-    def test_reviews_no_per_review_identity_queries(self):
-        client = Client()
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(f"/book/{self.book.uuid}/reviews")
-        assert response.status_code == 200
         identity_queries = [
             q
             for q in ctx.captured_queries
@@ -1361,6 +1350,11 @@ class TestReviewsPrefetch:
             and 'WHERE "users_identity"."id" =' in q["sql"]
         ]
         assert identity_queries == []
+        content = response.content.decode()
+        for i, reviewer in enumerate(self.reviewers):
+            assert f"Title {i}" in content
+            assert f'data-rating="{i + 5}.0"' in content
+            assert reviewer.identity.url in content
 
 
 @pytest.mark.django_db(databases="__all__")

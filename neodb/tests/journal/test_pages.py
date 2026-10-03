@@ -1,5 +1,4 @@
 import pytest
-import requests
 from django.test import Client
 from django.urls import reverse
 
@@ -9,19 +8,16 @@ from takahe.utils import Takahe
 from users.models import User
 
 
-@pytest.mark.django_db(databases="__all__", transaction=True)
-def test_post_review_collection_and_profile_pages(live_server):
+@pytest.mark.django_db(databases="__all__")
+def test_post_review_collection_and_profile_pages(client: Client) -> None:
     book = Edition.objects.create(title="Web Page Book")
     user = User.register(email="web@example.com", username="webuser")
-    response = requests.get(f"{live_server.url}{user.identity.url}", timeout=5)
+    response = client.get(user.identity.url, follow=True)
     assert response.status_code == 200
 
     authed_client = Client()
     authed_client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    auth_cookies = {key: morsel.value for key, morsel in authed_client.cookies.items()}
-    response = requests.get(
-        f"{live_server.url}{user.identity.url}", cookies=auth_cookies, timeout=5
-    )
+    response = authed_client.get(user.identity.url, follow=True)
     assert response.status_code == 200
 
     Mark(user.identity, book).update(ShelfType.WISHLIST, "note", None, [], 0)
@@ -29,9 +25,7 @@ def test_post_review_collection_and_profile_pages(live_server):
     assert m is not None
     post = m.latest_post
     assert post is not None
-    response = requests.get(
-        f"{live_server.url}/@{user.identity.handle}/posts/{post.pk}/", timeout=5
-    )
+    response = client.get(f"/@{user.identity.handle}/posts/{post.pk}/", follow=True)
     assert response.status_code == 200
 
     review = Review.update_item_review(
@@ -42,7 +36,7 @@ def test_post_review_collection_and_profile_pages(live_server):
         visibility=0,
     )
     assert review is not None
-    response = requests.get(f"{live_server.url}{review.url}", timeout=5)
+    response = client.get(review.url, follow=True)
     assert response.status_code == 200
 
     collection = Collection.objects.create(
@@ -52,7 +46,7 @@ def test_post_review_collection_and_profile_pages(live_server):
         visibility=0,
     )
     collection.append_item(book)
-    response = requests.get(f"{live_server.url}{collection.url}", timeout=5)
+    response = client.get(collection.url, follow=True)
     assert response.status_code == 200
 
     collection2 = Collection.objects.create(
@@ -62,7 +56,7 @@ def test_post_review_collection_and_profile_pages(live_server):
         visibility=0,
         query="status:wishlist",
     )
-    response = requests.get(f"{live_server.url}{collection2.url}", timeout=5)
+    response = client.get(collection2.url, follow=True)
     assert response.status_code == 200
 
 
