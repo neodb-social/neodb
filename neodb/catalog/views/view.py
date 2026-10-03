@@ -64,6 +64,7 @@ NUM_COMMENTS_ON_ITEM_PAGE = 10
 # worth showing as a row at all
 RECO_ROW_SIZE = 24
 MIN_RECO_ROW = 3
+CIRCLES_PAGE_SIZE = 60
 POSTS_ON_DISCOVER = 20
 POSTS_PER_AUTHOR_ON_DISCOVER = 2
 # the discover page rotates its shelves once per slot
@@ -683,6 +684,63 @@ def _in_visible_categories(items: list[Item], visible: set[str]) -> list[Item]:
     return [i for i in items if i.category.value in visible]
 
 
+def prepare_list_items(request, items: list[Item]) -> None:
+    """Batch what _list_item.html reads, as search results do."""
+    if not items:
+        return
+    Item.prefetch_parent_items(items)
+    prefetch_related_objects(
+        items,
+        Item.external_resources_prefetch(),
+        Item.credits_prefetch(),
+    )
+    Item.prefetch_latest_episodes(items)
+    Rating.attach_to_items(items)
+    if request.user.is_authenticated:
+        Mark.attach_to_items(request.user.identity, items, request.user)
+
+
+def _discover_list_page(
+    request, items: list[Item], title: str, subtitle: str = "", **extra
+):
+    """One page of ``items`` as search-style rows, for the see-all links."""
+    paginator = CustomPaginator(items, request)
+    page_number = request.GET.get("page", default=1)
+    page = paginator.get_page(page_number)
+    page_items = list(page.object_list)
+    prepare_list_items(request, page_items)
+    return render(
+        request,
+        "discover_list.html",
+        {
+            "items": page_items,
+            "pagination": PageLinksGenerator(
+                page_number, paginator.num_pages, request.GET
+            ),
+            "total": paginator.count,
+            "title": title,
+            "subtitle": subtitle,
+            **extra,
+        },
+    )
+
+
+def _prepare_reco_cards(items: list[Item]) -> None:
+    if not items:
+        return
+    Item.prefetch_parent_items(items)
+    Item.prefetch_edition_works(items)
+    # Discover cards skip the metadata JSON; ratings
+    # and credits are batched so these cards match the cached shelves.
+    prefetch_related_objects(
+        items,
+        Item.external_resources_prefetch(),
+        Item.credits_prefetch(),
+    )
+    Rating.attach_to_items(items)
+    Item.attach_localized_credit_names(items)
+
+
 #: template, its context, the items whose credit names it shows, and how
 #: many entries it lists
 DiscoverSection = tuple[str, dict, list[Item], int]
@@ -847,19 +905,7 @@ def discover(request):
             )
             if len(circles_items) < MIN_RECO_ROW:
                 circles_items = []
-        reco_items = for_you_items + circles_items
-        if reco_items:
-            Item.prefetch_parent_items(reco_items)
-            Item.prefetch_edition_works(reco_items)
-            # Discover cards skip the metadata JSON; ratings
-            # and credits are batched so these cards match the cached shelves.
-            prefetch_related_objects(
-                reco_items,
-                Item.external_resources_prefetch(),
-                Item.credits_prefetch(),
-            )
-            Rating.attach_to_items(reco_items)
-            Item.attach_localized_credit_names(reco_items)
+        _prepare_reco_cards(for_you_items + circles_items)
         # a member with nothing on any shelf and nobody followed gets the
         # onboarding module in place of empty personal rows
         is_new_member = (
@@ -920,17 +966,46 @@ def discover(request):
 
 
 def discover_category(request, category: str):
-    """Every item on one trending shelf, in the job's order, as a grid."""
+    """Every item on one trending shelf, in the job's order."""
     try:
         cat = ItemCategory(category)
     except ValueError:
         raise Http404(_("Category not found")) from None
-    items = cache.get("trending_" + cat.value, [])
-    Item.attach_localized_credit_names(items)
-    return render(
+    return _discover_list_page(
         request,
-        "discover_category.html",
-        {"category": cat, "items": items},
+        cache.get("trending_" + cat.value, []),
+        _("Trending in %(category)s") % {"category": cat.label},
+        _("Most marked across the Fediverse recently. Refreshed every hour."),
+    )
+
+
+def _reco_list_page(request, items: list[Item], title: str, subtitle: str):
+    items = _in_visible_categories(items, _visible_category_values(request))
+    return _discover_list_page(request, items, title, subtitle, reco_dismiss=True)
+
+
+@login_required
+def discover_for_you(request):
+    """Every personal recommendation the discover row draws from."""
+    items = []
+    if request.user.preference.show_recommendations("for_you"):
+        items = for_you(request.user, limit=SiteConfig.system.reco_user_top_n)
+    return _reco_list_page(
+        request, items, _("For you"), _("Because of what is on your shelf.")
+    )
+
+
+@login_required
+def discover_from_circles(request):
+    """The discover row of items marked by people the viewer follows."""
+    items = []
+    if request.user.preference.show_recommendations("from_circles"):
+        items = from_your_circles(request.user, limit=CIRCLES_PAGE_SIZE)
+    return _reco_list_page(
+        request,
+        items,
+        _("From people you follow"),
+        _("Marked recently by people you follow."),
     )
 
 

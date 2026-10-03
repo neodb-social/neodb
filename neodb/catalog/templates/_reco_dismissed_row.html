@@ -1,0 +1,15 @@
+{% load i18n %}
+<article class="item-card">
+  <span class="action">
+    <span>
+      <a hx-post="{% url 'catalog:restore_recommendation' item.uuid %}"
+         hx-vals='{"layout": "list"}'
+         hx-target="closest article"
+         hx-swap="outerHTML">{% trans "Undo" %}</a>
+    </span>
+  </span>
+  <p>
+    {% trans "Hidden from recommendations." %}
+    <a href="{{ item.url }}">{{ item.display_title }}</a>
+  </p>
+</article>
