@@ -136,7 +136,7 @@ class Setup:
             logger.info("Cron jobs are disabled.")
             JobManager.cancel_all()
         else:
-            JobManager.reschedule_all()
+            JobManager.ensure_all()
 
         # Subscribe to default relay if enabled
         self.sync_relay()
