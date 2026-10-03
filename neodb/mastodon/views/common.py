@@ -56,7 +56,7 @@ def register_new_user(request: HttpRequest, account: SocialAccount):
     # stale start time would expire this visitor the moment they arrive. It also
     # means a pass cannot be carried from one verified identity to another.
     captcha.clear(request)
-    if captcha.is_enabled():
+    if captcha.is_required(account):
         return redirect(reverse("users:captcha"))
     return redirect(reverse("users:register"))
 

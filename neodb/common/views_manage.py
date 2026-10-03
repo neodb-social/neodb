@@ -742,6 +742,15 @@ class AccessSettings(SiteConfigSettingsPage):
                 "fall back to any item."
             ),
         },
+        "registration_captcha_email_only": {
+            "title": _("Registration captcha for email only"),
+            "help_text": _(
+                "Show the captcha only to people who register with an email "
+                "address. Mastodon, Bluesky and Threads sign-ups already passed "
+                "an external login and skip it. Has no effect while captcha "
+                "items is 0."
+            ),
+        },
         "enable_login_mastodon": {
             "title": _("Enable Mastodon login"),
         },
@@ -799,6 +808,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "email_domain_blocklist",
             "registration_captcha_items",
             "min_marks_for_captcha",
+            "registration_captcha_email_only",
         ],
         _("Login methods"): [
             "enable_login_mastodon",

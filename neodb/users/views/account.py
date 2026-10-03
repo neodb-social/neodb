@@ -257,9 +257,10 @@ def registration_captcha(request: HttpRequest):
     """Sort item covers into two category rows before choosing a username."""
     if request.user.is_authenticated:
         return redirect(reverse("users:info"))
-    if not SocialAccount.from_dict(request.session.get("verified_account")):
+    verified_account = SocialAccount.from_dict(request.session.get("verified_account"))
+    if not verified_account:
         return redirect(reverse("users:login"))
-    if not captcha.is_enabled():
+    if not captcha.is_required(verified_account):
         return redirect(reverse("users:register"))
     if captcha.has_passed(request):
         # the moment the answer is accepted, shown once on the page they were
@@ -410,7 +411,7 @@ def register(request: HttpRequest):
         if not verified_account:
             # kick back to login if no identity verified
             return redirect(reverse("users:login"))
-        if captcha.is_enabled() and not captcha.has_passed(request):
+        if captcha.is_required(verified_account) and not captcha.has_passed(request):
             # the enforcement point, not the redirect in register_new_user: this
             # catches a POST straight to /account/register, and sits above the
             # closed-community branch below, which creates an account outright
