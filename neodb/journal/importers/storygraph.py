@@ -18,7 +18,7 @@ from catalog.search.index import CatalogIndex, CatalogQueryParser
 from common.models import SiteConfig
 from common.storage import media_exists, media_file_writer
 from journal.models import *
-from users.models import Task
+from users.models import Task, TaskCancelled
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ _RE_STORYGRAPH_UUID = re.compile(
 )
 
 
-class StoryGraphCancelled(Exception):
+class StoryGraphCancelled(TaskCancelled):
     """Raised by the worker when the view has flipped phase to 'cancelled'.
 
     Same mechanism as RymCancelled: the cancel view writes ``phase=cancelled``

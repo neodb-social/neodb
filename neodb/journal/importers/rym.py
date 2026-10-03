@@ -27,7 +27,7 @@ from common.storage import (
     media_key,
 )
 from journal.models import Mark, Review, ShelfType
-from users.models import Task
+from users.models import Task, TaskCancelled
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ OWNERSHIP_TO_SHELF = {
 MATCHED_EXTRA_COLUMNS = ["link", "match_source", "shelf", "collect_date", "notes"]
 
 
-class RymCancelled(Exception):
+class RymCancelled(TaskCancelled):
     """Raised by the worker when the view has flipped phase to 'cancelled'.
 
     Why: ``rym_cancel`` writes ``phase=cancelled`` directly to the DB. Without

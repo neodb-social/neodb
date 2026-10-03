@@ -18,6 +18,14 @@ from .user import User
 logger = logging.getLogger(__name__)
 
 
+class TaskCancelled(Exception):
+    """Raised from run() when the user cancelled the task while it ran.
+
+    The cancel view has already marked the task failed, so this ends the run
+    without being reported as an error.
+    """
+
+
 class Task(TypedModel):
     TaskQueue = "default"
     DefaultMetadata = {}
@@ -75,6 +83,9 @@ class Task(TypedModel):
             try:
                 self.run()
                 return True
+            except TaskCancelled:
+                logger.info(f"{self} cancelled", extra={"task": self.pk})
+                return False
             except Exception as e:
                 logger.exception(
                     f"error running {self.__class__}",

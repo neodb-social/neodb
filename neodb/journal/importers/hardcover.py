@@ -13,7 +13,7 @@ from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
 from common.storage import media_exists, media_file_writer
 from journal.models import *
-from users.models import Task
+from users.models import Task, TaskCancelled
 
 from .storygraph import StoryGraphImporter, _parse_collect_date
 
@@ -34,7 +34,7 @@ MATCHED_EXTRA_COLUMNS = ["link", "match_source", "shelf", "collect_date"]
 REQUIRED_COLUMNS = {"Title", "Author", "Status", "Hardcover Book ID"}
 
 
-class HardcoverCancelled(Exception):
+class HardcoverCancelled(TaskCancelled):
     """Raised by the worker when the view has flipped phase to 'cancelled'.
 
     Same mechanism as StoryGraphCancelled.

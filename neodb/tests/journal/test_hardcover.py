@@ -12,14 +12,16 @@ from catalog.common.downloaders import set_mock_mode
 from catalog.models import Edition, ExternalResource, IdType
 from journal.importers import HardcoverImporter, StoryGraphImporter
 from journal.importers.hardcover import (
+    HardcoverCancelled,
     _credits,
     _rating_grade,
     _search_author,
     privacy_to_visibility,
 )
-from journal.importers.rym import update_row_in_matched_file
+from journal.importers.rym import RymCancelled, update_row_in_matched_file
+from journal.importers.storygraph import StoryGraphCancelled
 from journal.models import Mark, ShelfType, VisibilityType
-from users.models import Task, User
+from users.models import Task, TaskCancelled, User
 
 CSV_PATH = "test_data/hardcover_library_export.csv"
 
@@ -259,6 +261,27 @@ class TestHardcoverImporter:
         assert mark.comment is not None
         assert mark.comment.visibility == VisibilityType.Follower_Only
 
+    def test_cancel_while_running_is_not_an_error(self, tmp_path):
+        task = self._create_matching_task(tmp_path)
+
+        def cancel_from_view(row: dict) -> None:
+            # what hardcover_cancel writes while the worker is busy
+            HardcoverImporter.objects.filter(pk=task.pk).update(
+                state=Task.States.failed,
+                metadata={**task.metadata, "phase": "cancelled"},
+            )
+
+        with (
+            patch.object(HardcoverImporter, "_match", side_effect=cancel_from_view),
+            patch("users.models.task.logger") as task_logger,
+        ):
+            HardcoverImporter._execute(task.pk)
+
+        task_logger.exception.assert_not_called()
+        task.refresh_from_db()
+        assert task.state == Task.States.failed
+        assert task.metadata["phase"] == "cancelled"
+
     def test_match_prefers_any_local_identifier(self):
         # the ISBN is unknown locally, but the ASIN is not
         audiobook = Edition.objects.create(title="Sample Audiobook")
@@ -320,6 +343,14 @@ def test_search_author(credits, expected):
 )
 def test_rating_grade(raw, expected):
     assert _rating_grade(raw) == expected
+
+
+@pytest.mark.parametrize(
+    "cancelled", [HardcoverCancelled, StoryGraphCancelled, RymCancelled]
+)
+def test_cancel_exceptions_are_task_cancelled(cancelled):
+    # Task._run ends these quietly instead of logging an error
+    assert issubclass(cancelled, TaskCancelled)
 
 
 @pytest.mark.parametrize(
