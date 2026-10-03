@@ -36,6 +36,7 @@ NeoDB has various features, and you may imagine it as a mix of Mastodon, Goodrea
   - import list or archives from some 3rd party sites (see [supported sites](sites.md) for details):
     - Goodreads reading list (CSV export)
     - StoryGraph reading list (CSV export)
+    - Hardcover reading list (CSV export)
     - Letterboxd watch list (ZIP export)
     - RateYourMusic album collection (CSV export)
     - Podcast subscriptions (OPML)

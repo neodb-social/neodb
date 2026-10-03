@@ -1,90 +1,101 @@
 import csv
-import datetime
+import io
 import logging
 import os
-import re
-from urllib.parse import quote_plus
 
 from django.conf import settings
 from django.utils import timezone
-from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
 from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
-from catalog.search.index import CatalogIndex, CatalogQueryParser
-from common.models import SiteConfig
 from common.storage import media_exists, media_file_writer
 from journal.models import *
 from users.models import Task, TaskCancelled
 
+from .storygraph import StoryGraphImporter, _parse_collect_date
+
 logger = logging.getLogger(__name__)
 
 SHELF_MAP = {
+    "want to read": ShelfType.WISHLIST,
+    "currently reading": ShelfType.PROGRESS,
+    "paused": ShelfType.PROGRESS,
     "read": ShelfType.COMPLETE,
-    "to-read": ShelfType.WISHLIST,
-    "currently-reading": ShelfType.PROGRESS,
-    "did-not-finish": ShelfType.DROPPED,
+    # did-not-finish, which appears under either name
+    "did not finish": ShelfType.DROPPED,
+    "stopped": ShelfType.DROPPED,
 }
 
 MATCHED_EXTRA_COLUMNS = ["link", "match_source", "shelf", "collect_date"]
 
-# StoryGraph puts its own book UUID in the ISBN/UID column when the edition has no ISBN
-_RE_STORYGRAPH_UUID = re.compile(
-    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-)
+REQUIRED_COLUMNS = {"Title", "Author", "Status", "Hardcover Book ID"}
 
 
-class StoryGraphCancelled(TaskCancelled):
+class HardcoverCancelled(TaskCancelled):
     """Raised by the worker when the view has flipped phase to 'cancelled'.
 
-    Same mechanism as RymCancelled: the cancel view writes ``phase=cancelled``
-    directly to the DB, so the worker re-reads it before every save and bails.
+    Same mechanism as StoryGraphCancelled.
     """
 
 
-def _first_author(authors: str) -> str:
-    return authors.split(",")[0].strip() if authors else ""
+def _credits(text: str) -> list[tuple[str, str]]:
+    """Split the Author column into (name, role) pairs.
+
+    A contributor other than an author has the role in parentheses after the
+    name, e.g. "Lee Artist (Illustrator)"; the role is "" for a plain name.
+    """
+    result = []
+    for part in text.split(","):
+        name, role = part.strip(), ""
+        if name.endswith(")") and "(" in name:
+            name, _sep, role = name[:-1].rpartition("(")
+            name, role = name.strip(), role.strip()
+        if name:
+            result.append((name, role))
+    return result
 
 
-def _titles_match(a: str, b: str) -> bool:
-    """Accept if either title contains the other (case-insensitive)."""
-    a = (a or "").strip().lower()
-    b = (b or "").strip().lower()
-    return bool(a) and bool(b) and (a in b or b in a)
+def _search_author(text: str) -> str:
+    """The name to search the catalogs with: the first credited author."""
+    credits = _credits(text)
+    for name, role in credits:
+        if role.lower() in ("", "author"):
+            return name
+    return credits[0][0] if credits else ""
 
 
-def _strip_quotes(s: str) -> str:
-    # QueryParser has no escape syntax, so a quote would truncate the value
-    return s.replace('"', " ")
-
-
-def _parse_collect_date(raw: str | None) -> datetime.datetime | None:
-    if not raw:
+def _rating_grade(raw: str | None) -> int | None:
+    """Hardcover stars run from 0.5 to 5 in halves, a NeoDB grade from 1 to 10."""
+    try:
+        return round(float((raw or "").strip()) * 2) or None
+    except ValueError, OverflowError:
         return None
-    raw = raw.strip()
-    for fmt in ("%Y-%m-%d", "%Y/%m/%d"):
-        try:
-            return make_aware(datetime.datetime.strptime(raw, fmt).replace(hour=22))
-        except ValueError:
-            continue
-    return None
+
+
+def privacy_to_visibility(privacy: str | None) -> int:
+    """A book is never shown to more people than it was on Hardcover."""
+    p = (privacy or "").strip().lower()
+    if p == "public":
+        return VisibilityType.Public
+    if p.startswith("follower"):
+        return VisibilityType.Follower_Only
+    return VisibilityType.Private
 
 
 def _site_url_prefix() -> str:
     return settings.SITE_INFO["site_url"].rstrip("/")
 
 
-class StoryGraphImporter(Task):
+class HardcoverImporter(Task):
     class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"
     DefaultMetadata = {
         "phase": "matching",
-        "visibility": 0,
         "file": None,
         "matched_file": None,
         "filename_hint": None,
@@ -103,9 +114,10 @@ class StoryGraphImporter(Task):
     @classmethod
     def validate_file(cls, uploaded_file) -> bool:
         try:
-            first_line = uploaded_file.read(200).decode("utf-8", errors="ignore")
+            head = uploaded_file.read(4096).decode("utf-8-sig", errors="ignore")
             uploaded_file.seek(0)
-            return first_line.startswith("Title,Authors,Contributors,ISBN/UID,")
+            header = next(csv.reader(io.StringIO(head.splitlines()[0])))
+            return REQUIRED_COLUMNS.issubset(h.strip() for h in header)
         except Exception:
             return False
 
@@ -120,7 +132,7 @@ class StoryGraphImporter(Task):
             .first()
         )
         if fresh and fresh.get("phase") == "cancelled":
-            raise StoryGraphCancelled()
+            raise HardcoverCancelled()
 
     def progress(self, *, force: bool = False, **delta) -> None:
         for k, v in delta.items():
@@ -158,7 +170,7 @@ class StoryGraphImporter(Task):
             self._run_import()
         else:
             logger.warning(
-                f"StoryGraphImporter run() called in unexpected phase: {phase}"
+                f"HardcoverImporter run() called in unexpected phase: {phase}"
             )
 
     # ---- Phase 1: matching ----
@@ -197,21 +209,19 @@ class StoryGraphImporter(Task):
         self.save(update_fields=["metadata", "message"])
 
     def _match_row(self, row: dict) -> None:
-        title = (row.get("Title") or "").strip()
-        authors = (row.get("Authors") or "").strip()
-        isbn_uid = (row.get("ISBN/UID") or "").strip()
-
-        # default shelf from Read Status; unmapped statuses default to skip
-        shelf = SHELF_MAP.get((row.get("Read Status") or "").strip())
+        # unmapped statuses default to skip
+        shelf = SHELF_MAP.get((row.get("Status") or "").strip().lower())
         row.setdefault("shelf", shelf.value if shelf else "")
 
-        # default collect date: last read date for completed books, else date added
         if not (row.get("collect_date") or "").strip():
-            if shelf == ShelfType.COMPLETE and row.get("Last Date Read"):
-                raw_date = row["Last Date Read"]
-            else:
-                raw_date = row.get("Date Added", "")
-            dt = _parse_collect_date(raw_date)
+            match shelf:
+                case ShelfType.COMPLETE:
+                    dt = _parse_collect_date(row.get("Date Finished"))
+                case ShelfType.PROGRESS | ShelfType.DROPPED:
+                    dt = _parse_collect_date(row.get("Date Started"))
+                case _:
+                    dt = None
+            dt = dt or _parse_collect_date(row.get("Date Added"))
             row["collect_date"] = dt.strftime("%Y-%m-%d") if dt else ""
 
         # already populated link (round-trip)
@@ -220,7 +230,7 @@ class StoryGraphImporter(Task):
             self.progress(processed=1)
             return
 
-        match = self._match(isbn_uid, title, authors)
+        match = self._match(row)
         if match:
             row["link"], row["match_source"] = match
             if row["match_source"] == "local":
@@ -234,157 +244,50 @@ class StoryGraphImporter(Task):
         self.progress(processed=1, unmatched=1)
 
     @classmethod
-    def _match(cls, isbn_uid: str, title: str, authors: str) -> tuple[str, str] | None:
-        """Return (link, match_source) for a row, or None if nothing matched."""
-        id_type, id_value = detect_isbn_asin(isbn_uid)
-        sg_uid = isbn_uid.lower() if _RE_STORYGRAPH_UUID.match(isbn_uid.lower()) else ""
+    def _match(cls, row: dict) -> tuple[str, str] | None:
+        """Return (link, match_source) for a row, or None if nothing matched.
 
-        # ISBN/ASIN or StoryGraph UUID lookup in local DB (no network)
-        if id_type and id_value:
+        Hardcover IDs are of no use without a Hardcover catalog site, so like
+        StoryGraph a row is matched by ISBN/ASIN, then by title and author,
+        with StoryGraph's lookups.
+        """
+        ids: list[tuple[IdType, str]] = []
+        for column in ("ISBN 13", "ISBN 10", "ASIN"):
+            id_type, id_value = detect_isbn_asin((row.get(column) or "").strip())
+            if id_type and id_value and (id_type, id_value) not in ids:
+                ids.append((id_type, id_value))
+
+        # every identifier in the local DB first (no network)
+        for id_type, id_value in ids:
             er = ExternalResource.objects.filter(
                 id_type=id_type, id_value=id_value
             ).first()
             if er and er.item:
                 return er.item.url, "local"
-        elif sg_uid:
-            er = ExternalResource.objects.filter(
-                id_type=IdType.StoryGraph, id_value=sg_uid
-            ).first()
-            if er and er.item:
-                return er.item.url, "local"
 
-        # exact edition by ISBN from Google Books, then OpenLibrary
-        if id_type == IdType.ISBN and id_value:
-            url = cls._match_by_isbn_google_books(id_value)
+        for id_type, id_value in ids:
+            if id_type != IdType.ISBN:
+                continue
+            url = StoryGraphImporter._match_by_isbn_google_books(id_value)
             if url:
                 return url, "googlebooks"
-            url = cls._match_by_isbn_openlibrary(id_value)
+            url = StoryGraphImporter._match_by_isbn_openlibrary(id_value)
             if url:
                 return url, "openlibrary"
 
-        # StoryGraph book page; importing it needs a JS-rendering scrape provider
-        if sg_uid and SiteConfig.system.downloader_providers:
-            return f"https://app.thestorygraph.com/books/{sg_uid}", "storygraph"
-
-        # title + author matching, local catalog index first then external
+        title = (row.get("Title") or "").strip()
         if title:
-            item = cls._match_via_local_index(title, authors)
+            author = _search_author(row.get("Author") or "")
+            item = StoryGraphImporter._match_via_local_index(title, author)
             if item:
                 return item.url, "local"
-            url = cls._match_via_google_books(title, authors)
+            url = StoryGraphImporter._match_via_google_books(title, author)
             if url:
                 return url, "googlebooks"
-            url = cls._match_via_openlibrary_search(title, authors)
+            url = StoryGraphImporter._match_via_openlibrary_search(title, author)
             if url:
                 return url, "openlibrary"
 
-        return None
-
-    @classmethod
-    def _match_by_isbn_google_books(cls, isbn: str) -> str | None:
-        api_url = f"https://www.googleapis.com/books/v1/volumes?country=us&q=isbn:{isbn}&maxResults=3"
-        try:
-            j = BasicDownloader(api_url).download().json()
-            for book in j.get("items", []):
-                identifiers = [
-                    i.get("identifier")
-                    for i in book.get("volumeInfo", {}).get("industryIdentifiers", [])
-                ]
-                if isbn not in identifiers or "id" not in book:
-                    continue
-                return "https://books.google.com/books?id=" + book["id"]
-        except Exception as e:
-            logger.warning(f"Google Books ISBN lookup failed for {isbn}: {e}")
-        return None
-
-    @classmethod
-    def _match_by_isbn_openlibrary(cls, isbn: str) -> str | None:
-        api_url = f"https://openlibrary.org/isbn/{isbn}.json"
-        try:
-            j = BasicDownloader(api_url).download().json()
-            key = j.get("key", "")  # "/books/OL...M"
-            if key.startswith("/books/"):
-                return "https://openlibrary.org" + key
-        except Exception as e:
-            logger.warning(f"OpenLibrary ISBN lookup failed for {isbn}: {e}")
-        return None
-
-    @classmethod
-    def _match_via_local_index(cls, title: str, authors: str) -> Item | None:
-        first_author = _first_author(authors)
-        q = f'"{_strip_quotes(title)}"'
-        if first_author:
-            q += f' people:"{_strip_quotes(first_author)}"'
-        q += " category:book"
-        try:
-            parser = CatalogQueryParser(q, page=1, page_size=5)
-            hits = list(CatalogIndex.instance().search(parser).items)
-        except Exception as e:
-            logger.warning(f"StoryGraph local index search failed: {e}")
-            return None
-        author_lc = first_author.lower()
-        for it in hits:
-            if not isinstance(it, Edition):
-                continue
-            titles = [(t.get("text") or "") for t in it.localized_title or []]
-            titles.append(it.title or "")
-            title_ok = any(_titles_match(title, t) for t in titles)
-            author_names = it.credit_names_by_role("author") + (it.author or [])
-            author_ok = (not author_lc) or any(
-                author_lc in (a or "").lower() or (a or "").lower() in author_lc
-                for a in author_names
-            )
-            if title_ok and author_ok:
-                return it
-        return None
-
-    @classmethod
-    def _match_via_google_books(cls, title: str, authors: str) -> str | None:
-        # Build query: intitle + inauthor (first author only for precision)
-        q = f"intitle:{quote_plus(title)}"
-        first_author = _first_author(authors)
-        if first_author:
-            q += f"+inauthor:{quote_plus(first_author)}"
-        api_url = (
-            f"https://www.googleapis.com/books/v1/volumes?country=us&q={q}&maxResults=3"
-        )
-        try:
-            j = BasicDownloader(api_url).download().json()
-            for book in j.get("items", []):
-                result_title = book.get("volumeInfo", {}).get("title", "")
-                if not _titles_match(title, result_title) or "id" not in book:
-                    continue
-                return "https://books.google.com/books?id=" + book["id"]
-        except Exception as e:
-            logger.warning(f"Google Books search failed for '{title}': {e}")
-        return None
-
-    @classmethod
-    def _match_via_openlibrary_search(cls, title: str, authors: str) -> str | None:
-        first_author = _first_author(authors)
-        api_url = (
-            f"https://openlibrary.org/search.json?title={quote_plus(title)}"
-            + (f"&author={quote_plus(first_author)}" if first_author else "")
-            + "&limit=3&fields=key,title,editions,editions.key,editions.title"
-        )
-        try:
-            j = BasicDownloader(api_url).download().json()
-            for work in j.get("docs", []):
-                editions = work.get("editions", {}).get("docs", [])
-                if not editions:
-                    continue
-                edition = editions[0]
-                # edition title is closer to what the user shelved than work title
-                if not _titles_match(
-                    title, edition.get("title", "")
-                ) and not _titles_match(title, work.get("title", "")):
-                    continue
-                key = edition.get("key", "")  # "/books/OL...M"
-                if not key.startswith("/books/"):
-                    continue
-                return "https://openlibrary.org" + key
-        except Exception as e:
-            logger.warning(f"OpenLibrary search failed for '{title}': {e}")
         return None
 
     # ---- Phase 2: import ----
@@ -404,15 +307,14 @@ class StoryGraphImporter(Task):
         self.metadata["processed"] = 0
         self._raise_if_cancelled()
         self.save(update_fields=["metadata"])
-        visibility = int(self.metadata.get("visibility", 0))
         owner = self.user.identity
         for row in rows:
             try:
-                self._import_row(row, owner, visibility)
-            except StoryGraphCancelled:
+                self._import_row(row, owner)
+            except HardcoverCancelled:
                 raise
             except Exception as e:
-                logger.exception(f"StoryGraph row import failed: {e}")
+                logger.exception(f"Hardcover row import failed: {e}")
                 self._fail_row(row)
 
         self.metadata["phase"] = "done"
@@ -434,7 +336,7 @@ class StoryGraphImporter(Task):
             self._raise_if_cancelled()
             self.save(update_fields=["metadata"])
 
-    def _import_row(self, row: dict, owner, visibility: int) -> None:
+    def _import_row(self, row: dict, owner) -> None:
         link = (row.get("link") or "").strip()
         shelf_raw = (row.get("shelf") or "").strip()
 
@@ -453,14 +355,9 @@ class StoryGraphImporter(Task):
             self._fail_row(row)
             return
 
-        # Rating: StoryGraph uses 0.5–5.0 half-stars; NeoDB uses 1–10 integers
-        rating_raw = (row.get("Star Rating") or "").strip()
-        rating: int | None = None
-        if rating_raw:
-            try:
-                rating = round(float(rating_raw) * 2) or None
-            except ValueError:
-                pass
+        visibility = privacy_to_visibility(row.get("Privacy"))
+
+        rating = _rating_grade(row.get("Rating"))
 
         # Review text (may contain HTML)
         review_html = (row.get("Review") or "").strip()
@@ -486,10 +383,17 @@ class StoryGraphImporter(Task):
         if is_downgrade:
             self.progress(processed=1, skipped=1)
             return
-        if mark.shelf_type == shelf_type:
+        # a fresh export may only change privacy or rating, and a book made
+        # private on Hardcover must not stay public here
+        if mark.shelf_type == shelf_type and mark.visibility == visibility:
             existing_review = Review.objects.filter(owner=owner, item=item).first()
             review_body = existing_review.body if existing_review else None
-            if comment == mark.comment_text and long_review == review_body:
+            if (
+                comment == mark.comment_text
+                and long_review == review_body
+                and rating in (None, mark.rating_grade)
+                and (not existing_review or existing_review.visibility == visibility)
+            ):
                 self.progress(processed=1, skipped=1)
                 return
 
@@ -528,7 +432,7 @@ class StoryGraphImporter(Task):
         try:
             site.get_resource_ready()
         except Exception as e:
-            logger.warning(f"StoryGraph remote fetch failed for {url}: {e}")
+            logger.warning(f"Hardcover remote fetch failed for {url}: {e}")
             return None
         return site.get_item()
 

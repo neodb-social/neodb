@@ -1,6 +1,7 @@
 from .csv import CsvImporter
 from .douban import DoubanImporter
 from .goodreads import GoodreadsImporter
+from .hardcover import HardcoverImporter
 from .letterboxd import LetterboxdImporter
 from .mastodon import MastodonImporter
 from .ndjson import NdjsonImporter
@@ -20,6 +21,7 @@ __all__ = [
     "OPMLImporter",
     "DoubanImporter",
     "GoodreadsImporter",
+    "HardcoverImporter",
     "RymImporter",
     "SteamImporter",
     "StoryGraphImporter",
