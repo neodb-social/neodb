@@ -469,6 +469,16 @@ section.activity.post>section.replies {
   }
 }
 
+// The selects and the submit button split the row in half; on a phone each
+// takes a full line.
+.post-options--halves {
+  > [role="group"],
+  > [type="submit"] {
+    flex: 1 1 14em;
+    margin-left: 0;
+  }
+}
+
 #image-attachments .image-attachment {
   margin-bottom: 0.5em;
 }

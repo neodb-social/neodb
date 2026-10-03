@@ -47,7 +47,8 @@
             <div>
               <span class="rating-editor {% if shelf_type == 'wishlist' %}hidden{% endif %}"
                     _="on mousemove(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "Not rated" %}' add .yellow to star_div end on click(currentTarget, offsetX) set current_value to Math.round((10 * offsetX) / currentTarget.offsetWidth) if current_value <=10 then set star_div to the <div/> in me set star_input to the <input/> in me set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "Not rated" %}' set star_input.value to current_value end on mouseleave(currentTarget) set star_div to the <div/> in me set star_input to the <input/> in me set current_value to star_input.value set star_div.style.width to (current_value * 10) + '%' set @data-tooltip to current_value or '{% trans "Not rated" %}' end"
-                    id="rating_editor">
+                    id="rating_editor"
+                    data-placement="bottom">
                 {{ mark.rating_grade|rating_star }}
                 <input type="hidden"
                        name="rating_grade"
@@ -71,11 +72,14 @@
                    autocomplete="off">
           </div>
         </div>
-        <div class="post-options">
+        <div class="post-options post-options--halves">
           <div role="group">
             {{ form.visibility }}
             {{ form.language }}
           </div>
+          <input type="submit" value="{% trans "Save" %}">
+        </div>
+        <div class="post-options">
           {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
             <label for="{{ form.share_to_mastodon.id_for_label }}"
                    title="{{ form.share_to_mastodon.help_text }}">
@@ -83,8 +87,6 @@
               {{ form.share_to_mastodon.label }}
             </label>
           {% endif %}
-        </div>
-        <div class="post-options">
           <label for="mark_anotherday">
             <input role="switch"
                    _="on click toggle @hidden on #mark_date"
@@ -102,7 +104,14 @@
                  min="1900-01-01"
                  max="{{ date_today }}"
                  value="{{ date_today }}">
-          <input type="submit" value="{% trans "Save" %}">
+          {% if mark.id %}
+            <button type="submit"
+                    form="mark_delete"
+                    class="secondary outline"
+                    onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">
+              {% trans "Delete" %}
+            </button>
+          {% endif %}
         </div>
         <div id="mark-form-error"></div>
       </form>
@@ -116,13 +125,6 @@
             {% csrf_token %}
             <input type="hidden" name="delete" value="1">
             {% if inline %}<input type="hidden" name="inline" value="1">{% endif %}
-            <a>
-              <button type="submit"
-                      class="secondary"
-                      onclick="return confirm('{% trans "Sure to delete mark, comment and tags for this item?" %}')">
-                {% trans "Delete" %}
-              </button>
-            </a>
           </form>
         {% endif %}
       </div>

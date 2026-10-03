@@ -70,7 +70,22 @@
   }
 
   .rating-editor {
+    position: relative;
+    // the FontAwesome star sits high in its em box
+    top: 0.06em;
     padding-bottom: 0;
+    line-height: 1;
+  }
+
+  .rating-editor:not(.hidden) {
+    display: inline-flex;
+  }
+
+  .rating-star,
+  .rating-star:before,
+  .rating-star>div:before {
+    line-height: 1;
+    vertical-align: top;
   }
 }
 
