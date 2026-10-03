@@ -1,19 +1,19 @@
 {% load i18n %}
 {% with phase=storygraph_task.metadata.phase %}
-  {% if storygraph_task and phase and phase != 'done' and phase != 'cancelled' %}
+  {% if storygraph_task and phase and phase != "done" and phase != "cancelled" %}
     {% include "users/user_task_status.html" with task=storygraph_task %}
     <div role="group">
-      {% if phase == 'preview' %}
+      {% if phase == "preview" %}
         <a href="{% url 'users:storygraph_preview' %}"
            role="button"
-           class="secondary">{% trans 'Review pending matches' %}</a>
+           class="secondary">{% trans "Review pending matches" %}</a>
       {% endif %}
       <button type="button"
               hx-post="{% url 'users:storygraph_cancel' %}"
               hx-target="#storygraph"
               hx-swap="innerHTML"
               hx-confirm="{% trans 'Cancel the StoryGraph import? Progress will be discarded.' %}"
-              class="secondary outline">{% trans 'Cancel import' %}</button>
+              class="secondary outline">{% trans "Cancel import" %}</button>
     </div>
   {% else %}
     <form hx-post="{% url 'users:import_storygraph' %}"
@@ -25,14 +25,14 @@
       <input type="file" name="file" required accept=".csv">
       <input type="submit" value="{% trans 'Upload and match' %}" />
     </form>
-    {% if storygraph_task and phase == 'done' and storygraph_task.metadata.matched_file %}
+    {% if storygraph_task and phase == "done" and storygraph_task.metadata.matched_file %}
       <p>
         <a href="{% url 'users:storygraph_download' %}"
            role="button"
-           class="secondary outline">{% trans 'Download previous matches' %}</a>
+           class="secondary outline">{% trans "Download previous matches" %}</a>
       </p>
     {% endif %}
-    {% if storygraph_task and phase == 'done' %}
+    {% if storygraph_task and phase == "done" %}
       {% include "users/user_task_status.html" with task=storygraph_task %}
     {% endif %}
   {% endif %}

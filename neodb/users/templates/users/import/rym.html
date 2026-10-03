@@ -15,10 +15,10 @@
   </p>
 {% endblock %}
 {% block rules %}
-  {% trans 'Status, rating and review of each album.' as imported %}
-  {% trans 'Rows that you set to skip in the preview.' as skipped %}
-  {% trans 'Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back.' as existing %}
-  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% trans "Status, rating and review of each album." as imported %}
+  {% trans "Rows that you set to skip in the preview." as skipped %}
+  {% trans "Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back." as existing %}
+  {% trans "Safe. Nothing is imported twice." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}

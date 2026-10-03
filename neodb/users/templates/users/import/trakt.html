@@ -11,9 +11,9 @@
   </ol>
 {% endblock %}
 {% block rules %}
-  {% trans 'Ratings, watched movies/shows and watchlist will be imported.' as imported %}
-  {% trans 'Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed.' as existing %}
-  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% trans "Ratings, watched movies/shows and watchlist will be imported." as imported %}
+  {% trans "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed." as existing %}
+  {% trans "Safe. Nothing is imported twice." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}

@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {% trans 'Data management' %}</title>
+    <title>{{ site_name }} - {% trans "Data management" %}</title>
     {% include "common_libs.html" %}
     {% include "users/_form_error_script.html" %}
   </head>
@@ -16,7 +16,7 @@
       <div class="grid__main data-page">
         {% if activity %}
           <article id="activity">
-            <h5>{% trans 'Recent activity' %}</h5>
+            <h5>{% trans "Recent activity" %}</h5>
             <ul class="task-list">
               {% for name, url, is_import, task in activity %}
                 <li>
@@ -35,14 +35,14 @@
           </article>
         {% endif %}
         <article id="export">
-          <h5>{% trans 'Export your data' %}</h5>
+          <h5>{% trans "Export your data" %}</h5>
           <section>
-            <h6>{% trans 'NeoDB archive' %}</h6>
+            <h6>{% trans "NeoDB archive" %}</h6>
             <form hx-post="{% url 'users:export_ndjson' %}"
                   enctype="multipart/form-data">
               {% csrf_token %}
               <input type="submit" value="{% trans 'Export everything in NDJSON' %}" />
-              <small>{% trans 'Use this to move to another NeoDB server, or to keep a full backup.' %}</small>
+              <small>{% trans "Use this to move to another NeoDB server, or to keep a full backup." %}</small>
               {% include "users/user_task_status.html" with task=ndjson_export_task %}
             </form>
             <form hx-post="{% url 'users:export_csv' %}" enctype="multipart/form-data">
@@ -50,14 +50,14 @@
               <input type="submit"
                      class="secondary outline"
                      value="{% trans 'Export marks, reviews and notes in CSV' %}" />
-              <small>{% trans 'Use this to open your data in a spreadsheet.' %}</small>
+              <small>{% trans "Use this to open your data in a spreadsheet." %}</small>
               {% include "users/user_task_status.html" with task=csv_export_task %}
             </form>
           </section>
           <section>
-            <h6>{% trans 'Articles' %}</h6>
+            <h6>{% trans "Articles" %}</h6>
             <p>
-              <small>{% trans 'Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those.' %}</small>
+              <small>{% trans "Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those." %}</small>
             </p>
             <form hx-post="{% url 'users:export_wordpress' %}"
                   enctype="multipart/form-data">
@@ -69,17 +69,17 @@
             </form>
           </section>
           <section>
-            <h6>{% trans 'Social graph' %}</h6>
+            <h6>{% trans "Social graph" %}</h6>
             <p>
-              <small>{% trans 'Following, followers, mutes and blocks are exported as CSV files on the account page, where you can also move your account.' %}</small>
+              <small>{% trans "Following, followers, mutes and blocks are exported as CSV files on the account page, where you can also move your account." %}</small>
             </p>
             <a href="{% url 'users:info' %}#social-graph"
                role="button"
-               class="secondary outline">{% trans 'Import/export social graph' %}</a>
+               class="secondary outline">{% trans "Import/export social graph" %}</a>
           </section>
         </article>
         <article id="import">
-          <h5>{% trans 'Import marks and reviews' %}</h5>
+          <h5>{% trans "Import marks and reviews" %}</h5>
           <div class="import-groups">
             {% for group, items in import_groups %}
               {% include "users/_import_tiles.html" %}
@@ -88,7 +88,7 @@
         </article>
         {% if post_sources %}
           <article id="import-posts">
-            <h5>{% trans 'Import posts and articles' %}</h5>
+            <h5>{% trans "Import posts and articles" %}</h5>
             {% include "users/_import_tiles.html" with group=None items=post_sources %}
           </article>
         {% endif %}

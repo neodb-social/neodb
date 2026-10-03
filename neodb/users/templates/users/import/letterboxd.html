@@ -12,8 +12,8 @@
 {% endblock %}
 {% block rules %}
   {% blocktrans asvar imported %}The following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
-  {% trans 'Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed.' as existing %}
-  {% trans 'Marks are safe, but the lists are created again as new collections.' as again %}
+  {% trans "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed." as existing %}
+  {% trans "Marks are safe, but the lists are created again as new collections." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}

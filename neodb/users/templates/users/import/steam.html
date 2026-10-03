@@ -2,25 +2,25 @@
 {% load i18n %}
 {% block steps %}
   <ol>
-    <li>{% trans 'Log in with Steam to confirm your Steam ID.' %}</li>
-    <li>{% trans 'Choose what to import on the next page, then start the import.' %}</li>
+    <li>{% trans "Log in with Steam to confirm your Steam ID." %}</li>
+    <li>{% trans "Choose what to import on the next page, then start the import." %}</li>
   </ol>
   <p>
-    <small>{% trans 'To import from Steam, your game details must be visible to public in Steam privacy settings.' %}</small>
+    <small>{% trans "To import from Steam, your game details must be visible to public in Steam privacy settings." %}</small>
   </p>
 {% endblock %}
 {% block rules %}
-  {% trans 'Games in your wishlist and library. The status of a library game is estimated from its play time.' as imported %}
-  {% trans 'Games with a status that you do not select, and games on your ignore list.' as skipped %}
-  {% trans 'A mark that is already complete, or a move back to wishlist, is skipped, unless you allow reverse status changes in the settings.' as existing %}
-  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% trans "Games in your wishlist and library. The status of a library game is estimated from its play time." as imported %}
+  {% trans "Games with a status that you do not select, and games on your ignore list." as skipped %}
+  {% trans "A mark that is already complete, or a move back to wishlist, is skipped, unless you allow reverse status changes in the settings." as existing %}
+  {% trans "Safe. Nothing is imported twice." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}
   <p>
     <a href="{% url 'users:steam_openid_start' %}"
        role="button"
-       class="secondary outline">{% trans 'Login with Steam' %}</a>
+       class="secondary outline">{% trans "Login with Steam" %}</a>
   </p>
   {% include "users/user_task_status.html" %}
 {% endblock %}

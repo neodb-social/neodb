@@ -18,7 +18,7 @@
           <nav aria-label="breadcrumb">
             <ul>
               <li>
-                <a href="{% url 'users:data' %}">{% trans 'Data' %}</a>
+                <a href="{% url 'users:data' %}">{% trans "Data" %}</a>
               </li>
               <li>{{ source.name }}</li>
             </ul>
@@ -27,7 +27,7 @@
           {% if running_import %}
             <p class="import-running" role="status">
               <i class="fa-solid fa-gear fa-spin"></i>
-              {% trans 'An import is still running. Wait for it to finish before you start a new one.' %}
+              {% trans "An import is still running. Wait for it to finish before you start a new one." %}
             </p>
           {% endif %}
           {% block steps %}{% endblock %}

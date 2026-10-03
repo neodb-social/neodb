@@ -1,17 +1,17 @@
 {% load i18n %}
 {% with phase=rym_task.metadata.phase %}
-  {% if rym_task and phase and phase != 'done' and phase != 'cancelled' %}
+  {% if rym_task and phase and phase != "done" and phase != "cancelled" %}
     {% include "users/user_task_status.html" with task=rym_task %}
     <div role="group">
-      {% if phase == 'preview' %}
-        <a href="{% url 'users:rym_preview' %}" role="button" class="secondary">{% trans 'Review pending matches' %}</a>
+      {% if phase == "preview" %}
+        <a href="{% url 'users:rym_preview' %}" role="button" class="secondary">{% trans "Review pending matches" %}</a>
       {% endif %}
       <button type="button"
               hx-post="{% url 'users:rym_cancel' %}"
               hx-target="#rym"
               hx-swap="innerHTML"
               hx-confirm="{% trans 'Cancel the RateYourMusic import? Progress will be discarded.' %}"
-              class="secondary outline">{% trans 'Cancel import' %}</button>
+              class="secondary outline">{% trans "Cancel import" %}</button>
     </div>
   {% else %}
     <form hx-post="{% url 'users:import_rym_upload' %}"
@@ -23,14 +23,14 @@
       <input type="file" name="file" required accept=".csv">
       <input type="submit" value="{% trans 'Upload and match' %}" />
     </form>
-    {% if rym_task and phase == 'done' and rym_task.metadata.matched_file %}
+    {% if rym_task and phase == "done" and rym_task.metadata.matched_file %}
       <p>
         <a href="{% url 'users:rym_download' %}"
            role="button"
-           class="secondary outline">{% trans 'Download previous matches' %}</a>
+           class="secondary outline">{% trans "Download previous matches" %}</a>
       </p>
     {% endif %}
-    {% if rym_task and phase == 'done' %}
+    {% if rym_task and phase == "done" %}
       {% include "users/user_task_status.html" with task=rym_task %}
     {% endif %}
   {% endif %}

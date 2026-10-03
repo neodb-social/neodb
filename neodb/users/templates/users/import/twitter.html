@@ -8,8 +8,8 @@
   </ol>
 {% endblock %}
 {% block rules %}
-  {% trans 'Each tweet becomes a post with its original date, text, links and photos. Replies to your own tweets are kept as a thread. A retweet becomes a short post that links to the original tweet. Videos are skipped.' as imported %}
-  {% trans 'Imported posts are only visible on this site and are never sent to other servers or to followers. Tweets that were imported before are skipped, so the same archive can be uploaded again.' as again %}
+  {% trans "Each tweet becomes a post with its original date, text, links and photos. Replies to your own tweets are kept as a thread. A retweet becomes a short post that links to the original tweet. Videos are skipped." as imported %}
+  {% trans "Imported posts are only visible on this site and are never sent to other servers or to followers. Tweets that were imported before are skipped, so the same archive can be uploaded again." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}

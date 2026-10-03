@@ -8,8 +8,8 @@
   </ol>
 {% endblock %}
 {% block rules %}
-  {% trans 'Each post is imported with its original date, text, links, photos, content warning and visibility, so a followers-only post or a direct message stays that way. Replies to your own posts are kept as a thread. A boost becomes a short post that links to the original post. Videos, favourites and bookmarks are skipped.' as imported %}
-  {% trans 'Imported posts are only visible on this site and are never sent to other servers or to followers. Posts that were imported before are skipped, so the same archive can be uploaded again.' as again %}
+  {% trans "Each post is imported with its original date, text, links, photos, content warning and visibility, so a followers-only post or a direct message stays that way. Replies to your own posts are kept as a thread. A boost becomes a short post that links to the original post. Videos, favourites and bookmarks are skipped." as imported %}
+  {% trans "Imported posts are only visible on this site and are never sent to other servers or to followers. Posts that were imported before are skipped, so the same archive can be uploaded again." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}

@@ -3,7 +3,7 @@
 {% block steps %}
   <ol>
     <li>
-      {% trans 'Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB.' %}
+      {% trans "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB." %}
     </li>
   </ol>
   <p>
@@ -11,10 +11,10 @@
   </p>
 {% endblock %}
 {% block rules %}
-  {% trans 'Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio.' as imported %}
-  {% trans 'Posts.' as skipped %}
-  {% trans 'A record is updated only when the copy in the archive is newer than yours.' as existing %}
-  {% trans 'Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry.' as again %}
+  {% trans "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio." as imported %}
+  {% trans "Posts." as skipped %}
+  {% trans "A record is updated only when the copy in the archive is newer than yours." as existing %}
+  {% trans "Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry." as again %}
   {% include "users/_import_rules.html" %}
 {% endblock %}
 {% block form %}
@@ -24,7 +24,7 @@
     {% csrf_token %}
     <input type="file" name="file" id="neodb_import_file" required accept=".zip">
     <p id="detected_format_info" hidden>
-      <i class="fa fa-info-circle"></i> {% trans 'Detected format' %}: <strong id="detected_format">-</strong>
+      <i class="fa fa-info-circle"></i> {% trans "Detected format" %}: <strong id="detected_format">-</strong>
     </p>
     <div id="visibility_settings" hidden>{% include "users/_visibility_field.html" %}</div>
     <input type="hidden" name="format_type" id="format_type" value="" required>
