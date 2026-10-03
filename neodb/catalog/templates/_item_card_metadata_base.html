@@ -11,10 +11,7 @@
         {{ item.display_title }}
       {% endif %}
     </a>
-    <small>
-      {% if item.year %}({{ item.year }}){% endif %}
-      {% include "_site_labels.html" with resources=item.external_resources.all %}
-    </small>
+    {% if item.year %}<small>({{ item.year }})</small>{% endif %}
   </h5>
   <small>
     {% if item.subtitle %}<span>{{ item.subtitle }}</span>{% endif %}
@@ -27,16 +24,20 @@
     {% if item.type.value != "edition" and item.parent_item %}
       <span>{% trans "part of" %} {{ item.parent_item.type.label }}: <a href="{{ item.parent_item.url }}">{{ item.parent_item.display_title }}</a></span>
     {% endif %}
+    {% include "_site_labels.html" with resources=item.external_resources.all %}
   </small>
 </hgroup>
 <div>
+  {% block rating %}
+    {% include "_item_card_rating.html" %}
+  {% endblock rating %}
   <div class="brief">
     {% block brief %}
     {% endblock brief %}
   </div>
   <div class="full">
     {% block full %}
-      <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
+      <div>{% if not hide_brief %}{{ item.display_description }}{% endif %}</div>
     {% endblock full %}
   </div>
   {% if item.tags and not mark %}
