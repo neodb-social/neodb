@@ -7,17 +7,25 @@ Three surfaces, all visibility- and pref-gated by Preference.show_recommendation
 """
 
 import logging
-from collections import defaultdict
+from collections.abc import Collection, Iterable, Iterator
 from datetime import timedelta
-from heapq import nlargest
+from heapq import heappush, heapreplace, nlargest
 
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.utils import timezone
 
 from common.models import SiteConfig
-from journal.models import ShelfMember, q_piece_visible_to_user
+from journal.models import (
+    Comment,
+    Content,
+    Note,
+    Rating,
+    Review,
+    ShelfMember,
+    q_piece_visible_to_user,
+)
 from takahe.models import Identity as TakaheIdentity
 from users.models import APIdentity, User
 
@@ -68,17 +76,220 @@ def production_to_performance_map() -> dict[int, int]:
     )
 
 
-_PROD_TO_PERF_CACHE_KEY = "reco:prod_to_perf"
-_PROD_TO_PERF_TTL = 3600
+# same bound as Item.final_item
+_MERGE_CHAIN_MAX_HOPS = 20
 
 
-def production_to_performance_cached() -> dict[int, int]:
-    cached = cache.get(_PROD_TO_PERF_CACHE_KEY)
-    if cached is not None:
-        return cached
-    m = production_to_performance_map()
-    cache.set(_PROD_TO_PERF_CACHE_KEY, m, timeout=_PROD_TO_PERF_TTL)
-    return m
+def _compose_rewrites(
+    merged: dict[int, int], productions: dict[int, int], deleted: set[int]
+) -> dict[int, int]:
+    """Combine merge edges and Production -> Performance edges into one map.
+
+    A key follows its merge chain, then its Production's Performance, then
+    that Performance's merge chain. Chains that loop, exceed the hop bound
+    or end on a deleted item are left out. No value is also a key.
+    """
+
+    def final(i: int) -> int | None:
+        hops = 0
+        while i in merged:
+            if hops >= _MERGE_CHAIN_MAX_HOPS:
+                return None
+            i = merged[i]
+            hops += 1
+        return None if i in deleted else i
+
+    out: dict[int, int] = {}
+    for key in merged.keys() | productions.keys():
+        resolved = final(key)
+        if resolved is not None and resolved in productions:
+            resolved = final(productions[resolved])
+        if resolved is not None and resolved != key:
+            out[key] = resolved
+    return out
+
+
+def training_rewrite_map() -> dict[int, int]:
+    """item_id -> item_id whose marks it should count toward.
+
+    Covers merged items (to their live final item) and Productions (to their
+    Performance, itself resolved through merges).
+    """
+    merged_qs = Item.objects.filter(merged_to_item_id__isnull=False)
+    merged = dict(merged_qs.values_list("pk", "merged_to_item_id"))
+    productions_qs = PerformanceProduction.objects.filter(show_id__isnull=False)
+    # a chain can only end on a merge target or a Production's Performance
+    deleted = set(
+        Item.objects.filter(is_deleted=True)
+        .filter(
+            Q(pk__in=merged_qs.values("merged_to_item_id"))
+            | Q(pk__in=productions_qs.values("show_id"))
+        )
+        .values_list("pk", flat=True)
+    )
+    productions = dict(productions_qs.values_list("pk", "show_id"))
+    return _compose_rewrites(merged, productions, deleted)
+
+
+def _scoped_rewrite_map(start: QuerySet) -> dict[int, int]:
+    """``training_rewrite_map`` restricted to chains reachable from ``start``.
+
+    ``start`` is a ``values("item_id")``-style subquery, so a heavy user's ids
+    are never inlined. Costs two small queries per hop, usually two hops.
+    """
+    merged: dict[int, int] = {}
+    productions: dict[int, int] = {}
+    seen: set[int] = set()
+    frontier: QuerySet | set[int] = start
+    # merge chain, Production hop, then the Performance's merge chain
+    for _ in range(2 * _MERGE_CHAIN_MAX_HOPS + 2):
+        m = dict(
+            Item.objects.filter(
+                pk__in=frontier, merged_to_item_id__isnull=False
+            ).values_list("pk", "merged_to_item_id")
+        )
+        p = dict(
+            PerformanceProduction.objects.filter(
+                pk__in=frontier, show_id__isnull=False
+            ).values_list("pk", "show_id")
+        )
+        merged.update(m)
+        productions.update(p)
+        nxt = (set(m.values()) | set(p.values())) - seen
+        if not nxt:
+            break
+        seen |= nxt
+        frontier = nxt
+    if not merged and not productions:
+        return {}
+    deleted = set(
+        Item.objects.filter(pk__in=seen, is_deleted=True).values_list("pk", flat=True)
+    )
+    return _compose_rewrites(merged, productions, deleted)
+
+
+def _with_rewrites(item_ids: set[int], rewrite: dict[int, int]) -> set[int]:
+    return item_ids | {rewrite[i] for i in item_ids if i in rewrite}
+
+
+MIN_GRADES_FOR_MEAN = 3
+MIN_RATING_FACTOR = 0.2
+MAX_MARK_WEIGHT = 2.0
+# a target's score sums only its strongest seed contributions, so many weak
+# links cannot outrank a few strong ones
+SEED_CONTRIB_CAP = 5
+
+
+def mark_weight(
+    grade: int | None,
+    user_mean: float | None,
+    has_review: bool,
+    has_comment: bool,
+    has_note: bool,
+    rating_weight: float,
+    review_boost: float,
+    comment_note_boost: float,
+) -> float:
+    """How strongly one mark signals interest, in [0.2, 2.0], neutral 1.0.
+
+    The rating is centered on the owner's own mean, so a harsh rater's 7 and
+    a generous rater's 9 can mean the same; 4.5 is half the 1..10 range.
+    """
+    rating_factor = 1.0
+    if grade and user_mean is not None:
+        rating_factor = max(
+            MIN_RATING_FACTOR, 1.0 + rating_weight * (grade - user_mean) / 4.5
+        )
+    presence = (
+        1.0
+        + review_boost * has_review
+        + comment_note_boost * (int(has_comment) + int(has_note))
+    )
+    return min(MAX_MARK_WEIGHT, rating_factor * presence)
+
+
+def user_mean_grade(grades: Iterable[int | None]) -> float | None:
+    """Mean of the given grades, or None with too few to trust."""
+    graded = [g for g in grades if g]
+    if len(graded) < MIN_GRADES_FOR_MEAN:
+        return None
+    return sum(graded) / len(graded)
+
+
+# (grade, has_comment, has_review, has_note) for one owner and item
+MarkSignals = tuple[int | None, bool, bool, bool]
+NO_MARK_SIGNALS: MarkSignals = (None, False, False, False)
+
+
+def load_mark_signals(
+    wanted: dict[int, set[int]],
+    rewrite: dict[int, int],
+    item_ids: Collection[int] | None = None,
+) -> dict[tuple[int, int], MarkSignals]:
+    """Public rating, comment, review and note for each wanted (owner, item).
+
+    ``wanted`` maps owner id to item ids after rewrite; content on a rewrite
+    source counts for its target. Loaded per owner instead of per mark,
+    because Comment and Review have no (owner, item) index. ``item_ids``
+    optionally narrows the scan to these raw item ids. Pairs without any
+    signal are absent; use ``NO_MARK_SIGNALS``.
+    """
+    owners = list(wanted)
+
+    def public_rows(model: type[Content], *fields: str) -> Iterator[tuple]:
+        qs = model.objects.filter(owner_id__in=owners, visibility=0)
+        if item_ids is not None:
+            qs = qs.filter(item_id__in=item_ids)
+        return (
+            qs.order_by()
+            .values_list("owner_id", "item_id", *fields)
+            .iterator(chunk_size=20_000)
+        )
+
+    grades: dict[tuple[int, int], int] = {}
+    for owner_id, item_id, grade in public_rows(Rating, "grade"):
+        target = rewrite.get(item_id, item_id)
+        if not grade or target not in wanted[owner_id]:
+            continue
+        key = (owner_id, target)
+        # a rating on the item itself wins over one on a merged duplicate
+        if key not in grades or target == item_id:
+            grades[key] = grade
+    present: list[set[tuple[int, int]]] = []
+    for model in (Comment, Review, Note):
+        found: set[tuple[int, int]] = set()
+        for owner_id, item_id in public_rows(model):
+            target = rewrite.get(item_id, item_id)
+            if target in wanted[owner_id]:
+                found.add((owner_id, target))
+        present.append(found)
+    comments, reviews, notes = present
+    return {
+        key: (grades.get(key), key in comments, key in reviews, key in notes)
+        for key in grades.keys() | comments | reviews | notes
+    }
+
+
+def reco_mark_weight(
+    sys: SiteConfig.SystemOptions,
+    grade: int | None,
+    user_mean: float | None,
+    *,
+    has_comment: bool,
+    has_review: bool,
+    has_note: bool,
+) -> float:
+    """``mark_weight`` with the site's settings."""
+    return mark_weight(
+        grade,
+        user_mean,
+        has_review=has_review,
+        has_comment=has_comment,
+        has_note=has_note,
+        rating_weight=sys.reco_rating_weight,
+        review_boost=sys.reco_review_boost,
+        comment_note_boost=sys.reco_comment_note_boost,
+    )
 
 
 _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
@@ -141,6 +352,21 @@ def _user_shelved_item_ids(identity_pk: int) -> set[int]:
     return set(_user_shelved_members(identity_pk).values_list("item_id", flat=True))
 
 
+def _user_rewrite_map(identity_pk: int) -> dict[int, int]:
+    return _scoped_rewrite_map(_user_shelved_members(identity_pk).values("item_id"))
+
+
+def _user_excluded_item_ids(identity_pk: int) -> set[int]:
+    """Shelved items plus what they count toward in training.
+
+    A user who shelved a merged edition or a Production should not be offered
+    the surviving edition or the Performance.
+    """
+    return _with_rewrites(
+        _user_shelved_item_ids(identity_pk), _user_rewrite_map(identity_pk)
+    )
+
+
 def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
     """Edition ids sharing a Work with any Edition in ``item_ids``.
 
@@ -166,7 +392,7 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     is built from public marks only.
     """
     rows = list(
-        ItemSimilarity.objects.filter(source=item)
+        ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
         .order_by("-score")
         .values_list("target_id", flat=True)[: limit * 2]
     )
@@ -174,7 +400,7 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
         return []
     exclude: set[int] = set()
     if viewer and viewer.is_authenticated and getattr(viewer, "identity", None):
-        exclude = _user_shelved_item_ids(viewer.identity.pk)
+        exclude = _user_excluded_item_ids(viewer.identity.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []
@@ -197,7 +423,7 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     top_n = sys.reco_user_top_n
 
     raw_seeds = list(
-        ShelfMember.objects.filter(
+        ShelfMember._base_manager.filter(
             owner_id=identity_pk,
             visibility=0,
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
@@ -207,39 +433,64 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     )
     if not raw_seeds:
         return []
-    # Rewrite Production marks to their parent Performance so the user's
-    # signal aggregates the same way it does in the similarity matrix.
-    rewrite = production_to_performance_cached()
-    seen: set[int] = set()
+    # Rewrite seeds the same way the similarity matrix aggregates marks.
+    # Seeds are a subset of the shelved items the scoped map starts from.
+    rewrite = _user_rewrite_map(identity_pk)
     seeds: list[int] = []
+    seed_set: set[int] = set()
     for sid in raw_seeds:
         mapped = rewrite.get(sid, sid)
-        if mapped in seen:
+        if mapped in seed_set:
             continue
-        seen.add(mapped)
+        seed_set.add(mapped)
         seeds.append(mapped)
         if len(seeds) >= seed_cap:
             break
+    # content written on a rewrite target counts too, as it does in training
+    signals = load_mark_signals(
+        {identity_pk: seed_set},
+        rewrite,
+        item_ids=set(raw_seeds) | {rewrite[s] for s in raw_seeds if s in rewrite},
+    )
+    seed_signals = [signals.get((identity_pk, s), NO_MARK_SIGNALS) for s in seeds]
+    user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals)
+    seed_weight = {
+        sid: reco_mark_weight(
+            sys,
+            grade,
+            user_mean,
+            has_comment=has_comment,
+            has_review=has_review,
+            has_note=has_note,
+        )
+        for sid, (grade, has_comment, has_review, has_note) in zip(seeds, seed_signals)
+    }
     # Exclude shelved items plus their sibling editions (same Work). Precompute
     # only; a sibling marked later may dupe until the next refresh.
-    shelved = _user_shelved_item_ids(identity_pk)
+    shelved = _with_rewrites(_user_shelved_item_ids(identity_pk), rewrite)
     excluded = shelved | _sibling_edition_ids(shelved)
-    seed_set = set(seeds)
 
-    scores: dict[int, float] = defaultdict(float)
-    seeds_by_target: dict[int, list[int]] = defaultdict(list)
-    sim_rows = ItemSimilarity.objects.filter(source_id__in=seeds).values_list(
-        "source_id", "target_id", "score"
-    )
+    # min-heap of the strongest (contribution, seed) pairs per target
+    contribs: dict[int, list[tuple[float, int]]] = {}
+    sim_rows = ItemSimilarity.objects.filter(
+        source_id__in=seeds, method=ItemSimilarity.METHOD_BLENDED
+    ).values_list("source_id", "target_id", "score")
     for src, tgt, score in sim_rows:
         if tgt in excluded or tgt in seed_set:
             continue
-        scores[tgt] += score
-        if len(seeds_by_target[tgt]) < 3:
-            seeds_by_target[tgt].append(src)
+        entry = (seed_weight[src] * score, src)
+        heap = contribs.setdefault(tgt, [])
+        if len(heap) < SEED_CONTRIB_CAP:
+            heappush(heap, entry)
+        elif entry > heap[0]:
+            heapreplace(heap, entry)
 
-    if not scores:
+    if not contribs:
         return []
+    scores = {tgt: sum(c for c, _ in heap) for tgt, heap in contribs.items()}
+    seeds_by_target = {
+        tgt: [src for _, src in nlargest(3, heap)] for tgt, heap in contribs.items()
+    }
 
     top = nlargest(top_n, scores.items(), key=lambda t: t[1])
     if not top:
@@ -318,7 +569,7 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     target_ids = [r.item_id for r in rows[:limit]]
     if not target_ids:
         return []
-    shelved = _user_shelved_item_ids(identity.pk)
+    shelved = _user_excluded_item_ids(identity.pk)
     qs = _live_items(Item.objects.filter(pk__in=target_ids))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []

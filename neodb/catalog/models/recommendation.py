@@ -12,9 +12,12 @@ class ItemSimilarity(models.Model):
     full per source on each run, so cascading deletes are intentional.
     """
 
+    # inputs of the blend; only METHOD_BLENDED rows are stored
     METHOD_SHELF_COOC = 0
     METHOD_TAG_COOC = 1
     METHOD_BLENDED = 2
+    METHOD_COLLECTION_COOC = 3
+    METHOD_CONTENT = 4
 
     if TYPE_CHECKING:
         source_id: int

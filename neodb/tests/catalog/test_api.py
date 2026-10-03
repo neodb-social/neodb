@@ -674,7 +674,12 @@ def test_similar_items_endpoint_honours_the_viewers_opt_out(live_server):
     with patch("catalog.models.item.Item.update_index"):
         movie = Movie.objects.create(title="Opt Out Seed")
         other = Movie.objects.create(title="Opt Out Similar")
-    ItemSimilarity.objects.create(source=movie, target=other, score=1.0)
+    ItemSimilarity.objects.create(
+        source=movie,
+        target=other,
+        score=1.0,
+        method=ItemSimilarity.METHOD_BLENDED,
+    )
     SiteConfig.set_system(enable_recommendations=True)
     SiteConfig.reload()
 
