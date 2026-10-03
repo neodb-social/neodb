@@ -47,6 +47,7 @@ from journal.models import (
     q_piece_visible_to_user,
 )
 from journal.models.common import prefetch_pieces_for_posts
+from social.views import in_progress_context
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -720,6 +721,13 @@ def prepare_list_items(request, items: list[Item]) -> None:
         Mark.attach_to_items(request.user.identity, items, request.user)
 
 
+def _discover_sidebar_context(request) -> dict:
+    """Members get the feed sidebar, guests the site intro and announcements."""
+    if request.user.is_authenticated:
+        return in_progress_context(request.user.identity)
+    return {"all_announcements": Takahe.get_announcements()}
+
+
 def _discover_list_page(
     request,
     items: Sequence | QuerySet,
@@ -749,6 +757,7 @@ def _discover_list_page(
             "total": paginator.count,
             "title": title,
             "subtitle": subtitle,
+            **_discover_sidebar_context(request),
             **extra,
         },
     )
@@ -1061,6 +1070,7 @@ def discover_original_podcasts(request):
             "podcasts": podcasts,
             "pagination": pagination,
             "total": paginator.count,
+            **_discover_sidebar_context(request),
         },
     )
 

@@ -124,7 +124,7 @@ def _add_interaction_to_events(events, identity_id):
             ) in interactions
 
 
-def _in_progress_context(identity: APIdentity) -> dict:
+def in_progress_context(identity: APIdentity) -> dict:
     """What the viewer is in the middle of. Pages showing it load the player."""
     podcast_ids = [
         member.item_id
@@ -164,7 +164,7 @@ def feed(request, typ=FeedType.following):
     data["feed_title"] = _FEED_TITLES.get(typ, _FEED_TITLES[FeedType.following])
     data["show_local_feed"] = SiteConfig.system.feed_show_local
     data["show_world_feed"] = SiteConfig.system.feed_show_world
-    data.update(_in_progress_context(user.identity))
+    data.update(in_progress_context(user.identity))
     return render(request, "feed.html", data)
 
 
@@ -344,7 +344,7 @@ def data(request):
 @login_required
 def notification(request):
     data = {"unread": _unread_count(request.user)}
-    data.update(_in_progress_context(request.user.identity))
+    data.update(in_progress_context(request.user.identity))
     return render(request, "notification.html", data)
 
 

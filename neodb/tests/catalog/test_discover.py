@@ -22,7 +22,7 @@ from catalog.models import (
 )
 from common.models import SiteConfig
 from journal.models import Collection, Mark, ShelfMember, ShelfType
-from takahe.models import Domain, Post, PostInteraction
+from takahe.models import Announcement, Domain, Post, PostInteraction
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 from users.models import User
@@ -205,6 +205,30 @@ class TestDiscoverPage:
         assert response.status_code == 200
         assert "Grid Book" in response.content.decode()
         assert Client().get("/discover/nonsense/").status_code == 404
+
+    @pytest.mark.parametrize(
+        "path", ["/discover/book/", "/discover/original-podcasts/"]
+    )
+    def test_list_pages_show_intro_and_announcements_to_guests(self, site_config, path):
+        Announcement.objects.create(text="Maintenance tonight", published=True)
+        content = Client().get(path).content.decode()
+        assert 'class="grid__aside sidebar bottom"' in content
+        assert "to register or log in" in content
+        assert "Maintenance tonight" in content
+        assert "Current targets" not in content
+
+    @pytest.mark.parametrize(
+        "path", ["/discover/book/", "/discover/original-podcasts/"]
+    )
+    def test_list_pages_show_feed_sidebar_to_members(self, site_config, path):
+        member = User.register(email="sider@example.com", username="sider")
+        book = Edition.objects.create(title="Half Read")
+        Mark(member.identity, book).update(ShelfType.PROGRESS)
+        content = _member_client(member).get(path).content.decode()
+        assert 'class="grid__aside sidebar bottom"' in content
+        assert "Current targets" in content
+        assert "Half Read" in content
+        assert "@sider@" in content
 
 
 class TestDiscoverPosts:

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page nav-page-discover">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,11 @@
         </div>
         {% include "_pagination.html" %}
       </div>
+      {% if request.user.is_authenticated %}
+        {% include "_sidebar.html" with show_profile=1 show_progress=1 bottom=1 collapse_profile=1 identity=request.user.identity %}
+      {% else %}
+        {% include "_sidebar_anonymous.html" with bottom=1 %}
+      {% endif %}
     </main>
     {% include "_footer.html" %}
   </body>
