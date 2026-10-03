@@ -1,0 +1,30 @@
+{% load i18n %}
+<fieldset>
+  <legend>{% trans "Visibility" %}</legend>
+  {% if note %}<small>{{ note }}</small>{% endif %}
+  <label for="{{ prefix|default:'v' }}_visibility_0">
+    <input type="radio"
+           name="visibility"
+           value="0"
+           required
+           id="{{ prefix|default:'v' }}_visibility_0"
+           checked>
+    {% trans "Public" %}
+  </label>
+  <label for="{{ prefix|default:'v' }}_visibility_1">
+    <input type="radio"
+           name="visibility"
+           value="1"
+           required
+           id="{{ prefix|default:'v' }}_visibility_1">
+    {% trans "Followers Only" %}
+  </label>
+  <label for="{{ prefix|default:'v' }}_visibility_2">
+    <input type="radio"
+           name="visibility"
+           value="2"
+           required
+           id="{{ prefix|default:'v' }}_visibility_2">
+    {% trans "Mentioned Only" %}
+  </label>
+</fieldset>

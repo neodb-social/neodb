@@ -1,0 +1,28 @@
+<script>
+  document.addEventListener('htmx:beforeRequest', (event) => {
+    const form = event.detail.elt.closest('form');
+    const box = form && form.querySelector(':scope > .form-error');
+    if (box) box.hidden = true;
+  });
+  document.addEventListener('htmx:responseError', (event) => {
+    const xhr = event.detail.xhr;
+    const body = xhr.response || '';
+    const page = new DOMParser().parseFromString(body, 'text/html');
+    const heading = page.querySelector('article.error h3, .exception_value');
+    const message = heading ? heading.textContent.replace(/^\P{L}+/u, '').trim() : (body && !body.includes('<') ? body : `${xhr.status} ${xhr.statusText}`);
+    const form = event.detail.elt.closest('form');
+    if (!form) {
+      alert(message);
+      return;
+    }
+    let box = form.querySelector(':scope > .form-error');
+    if (!box) {
+      box = document.createElement('p');
+      box.className = 'form-error';
+      box.setAttribute('role', 'alert');
+      form.prepend(box);
+    }
+    box.textContent = message;
+    box.hidden = false;
+  });
+</script>

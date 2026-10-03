@@ -13,13 +13,22 @@
   <body>
     {% include "_header.html" %}
     <main>
-      <div class="grid__main">
+      <div class="grid__main data-page">
         <article>
           <h3>{% trans "Import from Steam wishlist / library" %}</h3>
+          {% if running_import %}
+            <p class="import-running" role="status">
+              <i class="fa-solid fa-gear fa-spin"></i>
+              {% trans "An import is still running. Wait for it to finish before you start a new one." %}
+            </p>
+          {% endif %}
           <p>
             {% trans "Steam ID" %}: <strong>{{ steam_id }}</strong>
           </p>
-          <form method="post" action="{% url 'users:import_steam' %}">
+          {% trans "Another import is in progress, starting a new import may cause issues, sure to import?" as confirm_text %}
+          <form method="post"
+                action="{% url 'users:import_steam' %}"
+                {% if running_import %}onsubmit="return confirm('{{ confirm_text|escapejs }}')"{% endif %}>
             {% csrf_token %}
             <input type="hidden" name="steam_id" value="{{ steam_id }}">
             <fieldset>
@@ -121,21 +130,7 @@
                 {% trans "Allow reverse override of status (e.g. playing -> want to, or played -> playing)" %}
               </label>
             </fieldset>
-            <fieldset>
-              <legend>{% trans "Visibility" %}</legend>
-              <label>
-                <input type="radio" name="visibility" value="0" checked>
-                {% trans "Public" %}
-              </label>
-              <label>
-                <input type="radio" name="visibility" value="1">
-                {% trans "Followers Only" %}
-              </label>
-              <label>
-                <input type="radio" name="visibility" value="2">
-                {% trans "Mentioned Only" %}
-              </label>
-            </fieldset>
+            {% include "users/_visibility_field.html" %}
             <small>{% trans "To import from Steam, your game details must be visible to public in Steam privacy settings." %}</small>
             <input type="submit" value="{% trans 'Import' %}">
           </form>

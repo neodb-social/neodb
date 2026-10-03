@@ -1,0 +1,26 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On StoryGraph, click <a href="https://app.thestorygraph.com/user-export" target="_blank" rel="noopener"><b>Export your library</b></a> to download your library as a CSV file.{% endblocktrans %}
+    </li>
+    <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+    <li>
+      {% blocktrans %}Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
+    </li>
+  </ol>
+  <p>
+    {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
+  </p>
+{% endblock %}
+{% block rules %}
+  {% trans "Reading status, star rating and review of each book." as imported %}
+  {% trans "Rows that you set to skip in the preview." as skipped %}
+  {% trans "A status never moves back, for example from complete to wishlist. Changed comments and reviews are updated." as existing %}
+  {% trans "Safe. Nothing is imported twice." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <div id="storygraph">{% include "users/_storygraph_section.html" with storygraph_task=task %}</div>
+{% endblock %}

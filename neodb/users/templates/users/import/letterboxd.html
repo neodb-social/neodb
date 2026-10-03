@@ -1,0 +1,30 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On letterboxd.com, click <a href="https://letterboxd.com/settings/data/" target="_blank" rel="noopener">DATA in Settings</a>; or in its app, tap Advanced Settings in Settings, tap EXPORT YOUR DATA{% endblocktrans %}
+    </li>
+    <li>
+      {% blocktrans %}Download file with name like <code>letterboxd-username-2018-03-11-07-52-utc.zip</code>, do not unzip{% endblocktrans %}
+    </li>
+  </ol>
+{% endblock %}
+{% block rules %}
+  {% blocktrans asvar imported %}The following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>{% endblocktrans %}
+  {% trans "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed." as existing %}
+  {% trans "Marks are safe, but the lists are created again as new collections." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_letterboxd' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" required accept=".zip">
+    {% blocktrans asvar note %}Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below{% endblocktrans %}
+    {% include "users/_visibility_field.html" %}
+    <input type="submit" value="{% trans 'Import' %}" />
+    {% include "users/user_task_status.html" %}
+  </form>
+{% endblock %}

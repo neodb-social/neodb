@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from .data import _running_import
+
 logger = logging.getLogger(__name__)
 
 STEAM_OPENID_URL = "https://steamcommunity.com/openid/login"
@@ -39,7 +41,7 @@ def steam_openid_callback(request):
 
     if params.get("openid.mode") != "id_res":
         logger.warning(f"Steam OpenID: unexpected mode {params.get('openid.mode')}")
-        return redirect(reverse("users:data"))
+        return redirect(reverse("users:import_steam"))
 
     # Verify the response with Steam
     verify_params = dict(params)
@@ -48,17 +50,17 @@ def steam_openid_callback(request):
         resp = requests.post(STEAM_OPENID_URL, data=verify_params, timeout=10)
         if "is_valid:true" not in resp.text:
             logger.warning("Steam OpenID verification failed")
-            return redirect(reverse("users:data"))
+            return redirect(reverse("users:import_steam"))
     except requests.RequestException:
         logger.exception("Steam OpenID verification request failed")
-        return redirect(reverse("users:data"))
+        return redirect(reverse("users:import_steam"))
 
     # Extract Steam ID from claimed_id
     claimed_id = params.get("openid.claimed_id", "")
     match = STEAM_ID_RE.match(claimed_id)
     if not match:
         logger.warning(f"Steam OpenID: invalid claimed_id {claimed_id}")
-        return redirect(reverse("users:data"))
+        return redirect(reverse("users:import_steam"))
 
     steam_id = match.group(1)
     request.session["steam_id"] = steam_id
@@ -72,10 +74,10 @@ def steam_import_page(request):
     """Show the Steam import settings page after successful OpenID login."""
     steam_id = request.session.get("steam_id", "")
     if not steam_id:
-        return redirect(reverse("users:data"))
+        return redirect(reverse("users:import_steam"))
 
     return render(
         request,
         "users/steam_import.html",
-        {"steam_id": steam_id},
+        {"steam_id": steam_id, "running_import": _running_import(request.user)},
     )

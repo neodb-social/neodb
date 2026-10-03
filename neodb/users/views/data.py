@@ -4,6 +4,8 @@ import datetime
 import logging
 import os
 import zipfile
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import django_rq
 from django.conf import settings
@@ -16,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_http_methods
 
 from catalog.common import SiteManager
@@ -65,7 +68,12 @@ from takahe.utils import Takahe
 from users.models import Task, User
 from users.models.webhook import has_live_token, remove_webhook
 
+from common.utils import AuthedHttpRequest
+
 from .account import clear_preference_cache
+
+if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +160,190 @@ def preferences(request):
     )
 
 
+@dataclass(frozen=True)
+class ImportSource:
+    key: str
+    name: str
+    heading: "StrOrPromise"
+    group: "StrOrPromise"
+    url_name: str
+    importers: tuple[type[Task], ...]
+    # name of a SiteConfig.system switch that must be on for the source to show
+    flag: str = ""
+
+    def enabled(self) -> bool:
+        return not self.flag or bool(getattr(SiteConfig.system, self.flag))
+
+    def latest_task(self, user: User) -> Task | None:
+        latest = None
+        for cls in self.importers:
+            task = cls.latest_task(user)
+            if task and (latest is None or task.created_time > latest.created_time):
+                latest = task
+        return latest
+
+
+_BOOKS = gettext_lazy("Books")
+_SCREEN = gettext_lazy("Movie & TV")
+_MUSIC = gettext_lazy("Music")
+_GAMES = gettext_lazy("Games")
+_PODCASTS = gettext_lazy("Podcasts")
+_ALL = gettext_lazy("All categories")
+_POSTS = gettext_lazy("Import posts and articles")
+
+IMPORT_SOURCES = (
+    ImportSource(
+        "goodreads",
+        "Goodreads",
+        gettext_lazy("Import from Goodreads"),
+        _BOOKS,
+        "users:import_goodreads",
+        (GoodreadsImporter,),
+    ),
+    ImportSource(
+        "storygraph",
+        "StoryGraph",
+        gettext_lazy("Import from StoryGraph"),
+        _BOOKS,
+        "users:import_storygraph",
+        (StoryGraphImporter,),
+    ),
+    ImportSource(
+        "hardcover",
+        "Hardcover",
+        gettext_lazy("Import from Hardcover"),
+        _BOOKS,
+        "users:import_hardcover",
+        (HardcoverImporter,),
+    ),
+    ImportSource(
+        "letterboxd",
+        "Letterboxd",
+        gettext_lazy("Import from Letterboxd"),
+        _SCREEN,
+        "users:import_letterboxd",
+        (LetterboxdImporter,),
+    ),
+    ImportSource(
+        "trakt",
+        "Trakt",
+        gettext_lazy("Import from Trakt"),
+        _SCREEN,
+        "users:import_trakt",
+        (TraktImporter,),
+    ),
+    ImportSource(
+        "rym",
+        "RateYourMusic",
+        gettext_lazy("Import from RateYourMusic"),
+        _MUSIC,
+        "users:import_rym_upload",
+        (RymImporter,),
+    ),
+    ImportSource(
+        "steam",
+        "Steam",
+        gettext_lazy("Import from Steam wishlist / library"),
+        _GAMES,
+        "users:import_steam",
+        (SteamImporter,),
+    ),
+    ImportSource(
+        "opml",
+        "OPML",
+        gettext_lazy("Import podcast subscriptions"),
+        _PODCASTS,
+        "users:import_opml",
+        (OPMLImporter,),
+    ),
+    ImportSource(
+        "neodb",
+        "NeoDB",
+        gettext_lazy("Import NeoDB archive"),
+        _ALL,
+        "users:import_neodb",
+        (NdjsonImporter, CsvImporter),
+    ),
+    ImportSource(
+        "douban",
+        "Douban",
+        gettext_lazy("Import marks and reviews from Douban"),
+        _ALL,
+        "users:import_douban",
+        (DoubanImporter,),
+    ),
+    ImportSource(
+        "wordpress",
+        "WordPress",
+        gettext_lazy("Import articles from WordPress"),
+        _POSTS,
+        "users:import_wordpress",
+        (WordpressImporter,),
+    ),
+    ImportSource(
+        "mastodon",
+        "Mastodon",
+        gettext_lazy("Import Mastodon archive"),
+        _POSTS,
+        "users:import_mastodon",
+        (MastodonImporter,),
+        "enable_import_mastodon",
+    ),
+    ImportSource(
+        "twitter",
+        "X / Twitter",
+        gettext_lazy("Import Twitter / X archive"),
+        _POSTS,
+        "users:import_twitter",
+        (TwitterImporter,),
+        "enable_import_twitter",
+    ),
+)
+IMPORT_SOURCE_MAP = {s.key: s for s in IMPORT_SOURCES}
+
+EXPORTS = (
+    (NdjsonExporter, "NDJSON"),
+    (CsvExporter, "CSV"),
+    (WordpressExporter, "WordPress"),
+)
+RECENT_ACTIVITY_LIMIT = 5
+# matches _neodb_import_in_progress: a task untouched for this long is
+# taken as one whose worker died
+IMPORT_STALE_AFTER = datetime.timedelta(hours=1)
+
+
+def _running_import(user: User) -> Task | None:
+    # every active task counts, not just the latest of each type: an older
+    # import can still be running behind a newer one that already finished
+    return (
+        Task.objects.filter(
+            user=user,
+            type__in=[
+                cls._meta.label_lower for s in IMPORT_SOURCES for cls in s.importers
+            ],
+            state__in=[Task.States.pending, Task.States.started],
+            edited_time__gt=timezone.now() - IMPORT_STALE_AFTER,
+        )
+        .order_by("-created_time")
+        .first()
+    )
+
+
+def _import_page(request: AuthedHttpRequest, key: str) -> HttpResponse:
+    source = IMPORT_SOURCE_MAP[key]
+    if not source.enabled():
+        return redirect(reverse("users:data"))
+    return render(
+        request,
+        f"users/import/{key}.html",
+        {
+            "source": source,
+            "task": source.latest_task(request.user),
+            "running_import": _running_import(request.user),
+        },
+    )
+
+
 @login_required
 def data(request):
     current_year = datetime.date.today().year
@@ -160,44 +352,37 @@ def data(request):
     ).members.all()
     start_date = queryset.aggregate(Min("created_time"))["created_time__min"]
     start_year = start_date.year if start_date else current_year
-    years = reversed(range(start_year, current_year + 1))
+    years = list(range(current_year, start_year - 1, -1))
 
-    # Import tasks - check for both CSV and NDJSON importers
-    csv_import_task = CsvImporter.latest_task(request.user)
-    ndjson_import_task = NdjsonImporter.latest_task(request.user)
-    # Use the most recent import task for display
-    if ndjson_import_task and (
-        not csv_import_task
-        or ndjson_import_task.created_time > csv_import_task.created_time
-    ):
-        neodb_import_task = ndjson_import_task
-    else:
-        neodb_import_task = csv_import_task
+    sources = [s for s in IMPORT_SOURCES if s.enabled()]
+    source_tasks = {s.key: s.latest_task(request.user) for s in sources}
+    import_groups: "dict[StrOrPromise, list[tuple[ImportSource, Task | None]]]" = {}
+    for s in sources:
+        import_groups.setdefault(s.group, []).append((s, source_tasks[s.key]))
+    post_sources = import_groups.pop(_POSTS, [])
+
+    export_tasks = {cls: cls.latest_task(request.user) for cls, _name in EXPORTS}
+    activity = [
+        (s.name, reverse(s.url_name), True, task)
+        for s in sources
+        if (task := source_tasks[s.key])
+    ] + [
+        (name, reverse("users:data") + "#export", False, task)
+        for cls, name in EXPORTS
+        if (task := export_tasks[cls])
+    ]
+    activity.sort(key=lambda row: row[3].created_time, reverse=True)
 
     return render(
         request,
         "users/data.html",
         {
-            "allow_any_site": len(SiteConfig.system.mastodon_login_whitelist) == 0,
-            "import_task": DoubanImporter.latest_task(request.user),
-            "export_task": DoufenExporter.latest_task(request.user),
-            "csv_export_task": CsvExporter.latest_task(request.user),
-            "neodb_import_task": neodb_import_task,  # Use the most recent import task
-            "ndjson_export_task": NdjsonExporter.latest_task(request.user),
-            "letterboxd_task": LetterboxdImporter.latest_task(request.user),
-            "goodreads_task": GoodreadsImporter.latest_task(request.user),
-            "rym_task": RymImporter.latest_task(request.user),
-            "storygraph_task": StoryGraphImporter.latest_task(request.user),
-            "hardcover_task": HardcoverImporter.latest_task(request.user),
-            "steam_task": SteamImporter.latest_task(request.user),
-            "trakt_task": TraktImporter.latest_task(request.user),
-            "wordpress_import_task": WordpressImporter.latest_task(request.user),
-            "twitter_task": TwitterImporter.latest_task(request.user),
-            "enable_import_twitter": SiteConfig.system.enable_import_twitter,
-            "mastodon_import_task": MastodonImporter.latest_task(request.user),
-            "enable_import_mastodon": SiteConfig.system.enable_import_mastodon,
-            "wordpress_export_task": WordpressExporter.latest_task(request.user),
-            # "opml_task": OPMLImporter.latest_task(request.user),
+            "activity": activity[:RECENT_ACTIVITY_LIMIT],
+            "import_groups": import_groups.items(),
+            "post_sources": post_sources,
+            "csv_export_task": export_tasks[CsvExporter],
+            "ndjson_export_task": export_tasks[NdjsonExporter],
+            "wordpress_export_task": export_tasks[WordpressExporter],
             "years": years,
         },
     )
@@ -243,6 +428,10 @@ def user_task_status(request, task_type: str):
         case _:
             return redirect(reverse("users:data"))
     task = task_cls.latest_task(request.user)
+    if request.GET.get("compact"):
+        return render(
+            request, "users/user_task_status.html", {"task": task, "compact": True}
+        )
     if (
         task
         and task.state == Task.States.complete
@@ -421,7 +610,7 @@ def export_wordpress(request):
 @login_required
 def import_wordpress(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "wordpress")
     if not WordpressImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.xml")
@@ -438,7 +627,7 @@ def import_wordpress(request):
 @login_required
 def import_twitter(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "twitter")
     upload = request.FILES.get("file")
     if not TwitterImporter.validate_file(upload):
         raise BadRequest(_("Invalid file."))
@@ -458,7 +647,7 @@ def import_twitter(request):
 @login_required
 def import_mastodon(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "mastodon")
     upload = request.FILES.get("file")
     if not MastodonImporter.validate_file(upload):
         raise BadRequest(_("Invalid file."))
@@ -583,7 +772,7 @@ def crosspost_status(request, retry_id: int):
 @login_required
 def import_goodreads(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "goodreads")
     if not GoodreadsImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.csv")
@@ -629,7 +818,7 @@ def _rym_active_task(user):
 @login_required
 def import_rym_upload(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "rym")
     if not RymImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
@@ -653,7 +842,7 @@ def import_rym_upload(request):
         task.save(update_fields=["state", "message"])
         if request.headers.get("HX-Request"):
             return render(request, "users/_rym_section.html", {"rym_task": task})
-        return redirect(reverse("users:data") + "#rym")
+        return redirect(reverse("users:import_rym_upload"))
     task = RymImporter.create(
         request.user,
         phase="matching",
@@ -664,7 +853,7 @@ def import_rym_upload(request):
     if request.headers.get("HX-Request"):
         # Replace the section in place so the page doesn't reload during upload.
         return render(request, "users/_rym_section.html", {"rym_task": task})
-    return redirect(reverse("users:data") + "#rym")
+    return redirect(reverse("users:import_rym_upload"))
 
 
 @login_required
@@ -686,7 +875,7 @@ def rym_cancel(request):
                 logger.warning(f"RYM cancel: failed to remove job: {e}")
     if request.headers.get("HX-Request"):
         return render(request, "users/_rym_section.html", {"rym_task": None})
-    return redirect(reverse("users:data") + "#rym")
+    return redirect(reverse("users:import_rym_upload"))
 
 
 @login_required
@@ -699,7 +888,7 @@ def rym_preview(request):
         return redirect(reverse("users:data"))
     if task.metadata.get("phase") == "done":
         # import already applied; preview/matched-CSV are no longer relevant
-        return redirect(reverse("users:data") + "#rym")
+        return redirect(reverse("users:import_rym_upload"))
     path = task.metadata["matched_file"]
     if not media_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
@@ -801,7 +990,7 @@ def rym_confirm(request):
     task.message = _("Starting import...")
     task.save(update_fields=["metadata", "state", "message"])
     task.enqueue()
-    return redirect(reverse("users:data") + "#rym")
+    return redirect(reverse("users:import_rym_upload"))
 
 
 @login_required
@@ -831,7 +1020,7 @@ def _storygraph_active_task(user):
 @login_required
 def import_storygraph(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "storygraph")
     if not StoryGraphImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
@@ -857,7 +1046,7 @@ def import_storygraph(request):
             return render(
                 request, "users/_storygraph_section.html", {"storygraph_task": task}
             )
-        return redirect(reverse("users:data") + "#storygraph")
+        return redirect(reverse("users:import_storygraph"))
     task = StoryGraphImporter.create(
         request.user,
         phase="matching",
@@ -870,7 +1059,7 @@ def import_storygraph(request):
         return render(
             request, "users/_storygraph_section.html", {"storygraph_task": task}
         )
-    return redirect(reverse("users:data") + "#storygraph")
+    return redirect(reverse("users:import_storygraph"))
 
 
 @login_required
@@ -894,7 +1083,7 @@ def storygraph_cancel(request):
         return render(
             request, "users/_storygraph_section.html", {"storygraph_task": None}
         )
-    return redirect(reverse("users:data") + "#storygraph")
+    return redirect(reverse("users:import_storygraph"))
 
 
 @login_required
@@ -907,7 +1096,7 @@ def storygraph_preview(request):
         return redirect(reverse("users:data"))
     if task.metadata.get("phase") == "done":
         # import already applied; preview/matched-CSV are no longer relevant
-        return redirect(reverse("users:data") + "#storygraph")
+        return redirect(reverse("users:import_storygraph"))
     path = task.metadata["matched_file"]
     if not media_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
@@ -1004,7 +1193,7 @@ def storygraph_confirm(request):
     task.message = _("Starting import...")
     task.save(update_fields=["metadata", "state", "message"])
     task.enqueue()
-    return redirect(reverse("users:data") + "#storygraph")
+    return redirect(reverse("users:import_storygraph"))
 
 
 @login_required
@@ -1034,7 +1223,7 @@ def _hardcover_active_task(user):
 @login_required
 def import_hardcover(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "hardcover")
     if not HardcoverImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     # record once at import start; the confirm step re-enqueues the same task.
@@ -1059,7 +1248,7 @@ def import_hardcover(request):
             return render(
                 request, "users/_hardcover_section.html", {"hardcover_task": task}
             )
-        return redirect(reverse("users:data") + "#hardcover")
+        return redirect(reverse("users:import_hardcover"))
     task = HardcoverImporter.create(
         request.user,
         phase="matching",
@@ -1071,7 +1260,7 @@ def import_hardcover(request):
         return render(
             request, "users/_hardcover_section.html", {"hardcover_task": task}
         )
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
@@ -1092,7 +1281,7 @@ def hardcover_cancel(request):
         return render(
             request, "users/_hardcover_section.html", {"hardcover_task": None}
         )
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
@@ -1104,7 +1293,7 @@ def hardcover_preview(request):
         )
         return redirect(reverse("users:data"))
     if task.metadata.get("phase") == "done":
-        return redirect(reverse("users:data") + "#hardcover")
+        return redirect(reverse("users:import_hardcover"))
     path = task.metadata["matched_file"]
     if not media_exists(path):
         messages.add_message(request, messages.ERROR, _("Matched file missing."))
@@ -1200,7 +1389,7 @@ def hardcover_confirm(request):
     task.message = _("Starting import...")
     task.save(update_fields=["metadata", "state", "message"])
     task.enqueue()
-    return redirect(reverse("users:data") + "#hardcover")
+    return redirect(reverse("users:import_hardcover"))
 
 
 @login_required
@@ -1221,7 +1410,7 @@ def hardcover_download(request):
 @login_required
 def import_douban(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "douban")
     if not DoubanImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
@@ -1239,7 +1428,7 @@ def import_douban(request):
 @login_required
 def import_letterboxd(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "letterboxd")
     if not LetterboxdImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
@@ -1256,7 +1445,7 @@ def import_letterboxd(request):
 @login_required
 def import_trakt(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "trakt")
     if not TraktImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
@@ -1273,7 +1462,7 @@ def import_trakt(request):
 @login_required
 def import_opml(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "opml")
     if not OPMLImporter.validate_file(request.FILES.get("file")):
         raise BadRequest(_("Invalid file."))
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
@@ -1347,13 +1536,13 @@ def import_neodb(request):
         task.enqueue()
         record_activity("import", "web")
         return redirect(reverse("users:user_task_status", args=(task.type,)))
-    return redirect(reverse("users:data"))
+    return _import_page(request, "neodb")
 
 
 @login_required
 def import_steam(request):
     if request.method != "POST":
-        return redirect(reverse("users:data"))
+        return _import_page(request, "steam")
 
     # core metadatas
     metadata = copy.deepcopy(SteamImporter.DefaultMetadata)
@@ -1405,7 +1594,9 @@ def import_steam(request):
     task = SteamImporter.create(user=request.user, **metadata)
     task.enqueue()
     record_activity("import", "web")
-    return redirect(reverse("users:user_task_status", args=(task.type,)))
+    # the settings page posts a plain form, so the status fragment would load
+    # as a bare page
+    return redirect(reverse("users:import_steam"))
 
 
 # --- Authorized Apps ---

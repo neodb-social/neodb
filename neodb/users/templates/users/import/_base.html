@@ -1,0 +1,42 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ source.heading }}</title>
+    {% include "common_libs.html" %}
+    {% include "users/_form_error_script.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main data-page">
+        <article class="import-source" id="import-{{ source.key }}">
+          <nav aria-label="breadcrumb">
+            <ul>
+              <li>
+                <a href="{% url 'users:data' %}">{% trans "Data" %}</a>
+              </li>
+              <li>{{ source.name }}</li>
+            </ul>
+          </nav>
+          <h3>{{ source.heading }}</h3>
+          {% if running_import %}
+            <p class="import-running" role="status">
+              <i class="fa-solid fa-gear fa-spin"></i>
+              {% trans "An import is still running. Wait for it to finish before you start a new one." %}
+            </p>
+          {% endif %}
+          {% block steps %}{% endblock %}
+          {% block rules %}{% endblock %}
+          {% block form %}{% endblock %}
+        </article>
+      </div>
+      {% include "_sidebar.html" with show_profile=1 identity=request.user.identity %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

@@ -1,0 +1,81 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% trans "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.ndjson</code> files exported from NeoDB." %}
+    </li>
+  </ol>
+  <p>
+    {% blocktrans %}A Douban archive exported by <a href="https://doubak.com" target="_blank" rel="noopener">Doubak</a> is in the same format and is imported here.{% endblocktrans %}
+  </p>
+{% endblock %}
+{% block rules %}
+  {% trans "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio." as imported %}
+  {% trans "Posts." as skipped %}
+  {% trans "A record is updated only when the copy in the archive is newer than yours." as existing %}
+  {% trans "Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_neodb' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" id="neodb_import_file" required accept=".zip">
+    <p id="detected_format_info" hidden>
+      <i class="fa fa-info-circle"></i> {% trans "Detected format" %}: <strong id="detected_format">-</strong>
+    </p>
+    <div id="visibility_settings" hidden>{% include "users/_visibility_field.html" %}</div>
+    <input type="hidden" name="format_type" id="format_type" value="" required>
+    <input type="submit" value="{% trans 'Import' %}" id="import_submit" />
+    {% include "users/user_task_status.html" %}
+  </form>
+  <script src="{{ cdn_url }}/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+    (() => {
+      const fileInput = document.getElementById('neodb_import_file');
+      const info = document.getElementById('detected_format_info');
+      const label = document.getElementById('detected_format');
+      const visibility = document.getElementById('visibility_settings');
+      const formatType = document.getElementById('format_type');
+      const submit = document.getElementById('import_submit');
+      fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        info.classList.remove('form-error');
+        visibility.hidden = true;
+        formatType.value = '';
+        if (!file || !(file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || file.name.toLowerCase().endsWith('.zip'))) {
+          info.hidden = true;
+          submit.setAttribute('disabled', '');
+          return;
+        }
+        label.innerHTML = '{% trans "Detecting format..." %} <i class="fa fa-spinner fa-spin"></i>';
+        info.hidden = false;
+        try {
+          const zip = await new JSZip().loadAsync(file);
+          const names = Object.keys(zip.files);
+          if (names.some(n => n === 'journal.ndjson' || n === 'catalog.ndjson')) {
+            formatType.value = 'ndjson';
+            label.innerHTML = '<i class="fa fa-file-code"></i> NDJSON';
+          } else if (names.some(n => n.endsWith('_mark.csv') || n.endsWith('_review.csv') || n.endsWith('_note.csv'))) {
+            formatType.value = 'csv';
+            label.innerHTML = '<i class="fa fa-file-csv"></i> CSV';
+            visibility.hidden = false;
+          } else {
+            label.innerHTML = '<i class="fa fa-question-circle"></i> {% trans "Unknown format" %}';
+          }
+        } catch (error) {
+          console.error('Error examining ZIP file:', error);
+          label.innerHTML = '<i class="fa fa-exclamation-triangle"></i> {% trans "Error detecting format" %}';
+          info.classList.add('form-error');
+        }
+        if (formatType.value) {
+          submit.removeAttribute('disabled');
+        } else {
+          submit.setAttribute('disabled', '');
+        }
+      });
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>{% trans "Export your subscriptions from your podcast app as an OPML file." %}</li>
+    <li>
+      {% blocktrans %}Upload the <code>.opml</code> or <code>.xml</code> file below.{% endblocktrans %}
+    </li>
+  </ol>
+{% endblock %}
+{% block rules %}
+  {% trans "Each podcast in the file, marked as listening or added to a new collection." as imported %}
+  {% trans "Podcasts that you already marked are not changed." as existing %}
+  {% trans "Safe when you mark as listening. Each import as a new collection creates another collection." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_opml' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" required accept=".opml,.xml">
+    <fieldset>
+      <legend>{% trans "Import method" %}</legend>
+      <label for="opml_import_mode_0">
+        <input id="opml_import_mode_0"
+               type="radio"
+               name="import_mode"
+               value="0"
+               checked>
+        {% trans "Mark as listening" %}
+      </label>
+      <label for="opml_import_mode_1">
+        <input id="opml_import_mode_1" type="radio" name="import_mode" value="1">
+        {% trans "Import as a new collection" %}
+      </label>
+    </fieldset>
+    {% include "users/_visibility_field.html" %}
+    <input type="submit" value="{% trans 'Import' %}" />
+    {% include "users/user_task_status.html" %}
+  </form>
+{% endblock %}

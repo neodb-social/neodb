@@ -58,23 +58,9 @@
         {% include "_pagination.html" %}
         <form method="post" action="{% url 'users:rym_confirm' %}">
           {% csrf_token %}
-          <fieldset>
-            <legend>{% trans "Visibility" %}</legend>
-            <label>
-              <input type="radio" name="visibility" value="0" checked>
-              {% trans "Public" %}
-            </label>
-            <label>
-              <input type="radio" name="visibility" value="1">
-              {% trans "Followers Only" %}
-            </label>
-            <label>
-              <input type="radio" name="visibility" value="2">
-              {% trans "Mentioned Only" %}
-            </label>
-          </fieldset>
+          {% include "users/_visibility_field.html" %}
           <button type="submit">{% trans "Confirm import" %}</button>
-          <a href="{% url 'users:data' %}">{% trans "Back" %}</a>
+          <a href="{% url 'users:import_rym_upload' %}">{% trans "Back" %}</a>
         </form>
       </article>
     </main>

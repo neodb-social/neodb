@@ -59,7 +59,7 @@
         <form method="post" action="{% url 'users:hardcover_confirm' %}">
           {% csrf_token %}
           <button type="submit">{% trans "Confirm import" %}</button>
-          <a href="{% url 'users:data' %}">{% trans "Back" %}</a>
+          <a href="{% url 'users:import_hardcover' %}">{% trans "Back" %}</a>
         </form>
       </article>
     </main>

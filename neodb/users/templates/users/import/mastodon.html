@@ -1,0 +1,24 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On your Mastodon server, go to <b>Preferences</b> - <b>Import and export</b> - <b>Request your archive</b>. Upload the <code>.zip</code> you receive, or only the <code>outbox.json</code> file inside it if the archive is larger than 100 MB (photos are then not imported).{% endblocktrans %}
+    </li>
+  </ol>
+{% endblock %}
+{% block rules %}
+  {% trans "Each post is imported with its original date, text, links, photos, content warning and visibility, so a followers-only post or a direct message stays that way. Replies to your own posts are kept as a thread. A boost becomes a short post that links to the original post. Videos, favourites and bookmarks are skipped." as imported %}
+  {% trans "Imported posts are only visible on this site and are never sent to other servers or to followers. Posts that were imported before are skipped, so the same archive can be uploaded again." as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_mastodon' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" required accept=".zip,.json">
+    <input type="submit" value="{% trans 'Import' %}" />
+    {% include "users/user_task_status.html" %}
+  </form>
+{% endblock %}

@@ -7807,6 +7807,17 @@ msgstr "每本书保留其在 Hardcover 的隐私设置：公开的图书导入�
 msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
 msgstr "你也可以重新上传之前下载的匹配 CSV——已有的 <code>link</code> 列将作为默认匹配项。"
 
+#: users/templates/users/import/hardcover.html:21
+#: users/templates/users/import/storygraph.html:18
+msgid "Reading status, star rating and review of each book."
+msgstr "每本书的阅读状态、星级评分和评论。"
+
+#: users/templates/users/import/hardcover.html:22
+#: users/templates/users/import/rym.html:19
+#: users/templates/users/import/storygraph.html:19
+msgid "Rows that you set to skip in the preview."
+msgstr "在预览中设为跳过的行。"
+
 #: users/templates/users/_hardcover_section.html:45
 #: users/templates/users/_rym_section.html:42
 #: users/templates/users/_storygraph_section.html:42
@@ -7818,6 +7829,22 @@ msgstr "上传并匹配"
 #: users/templates/users/_storygraph_section.html:48
 msgid "Download previous matches"
 msgstr "下载先前的匹配"
+
+#: users/templates/users/_import_rules.html:3
+msgid "What is imported"
+msgstr "导入内容"
+
+#: users/templates/users/_import_rules.html:8
+msgid "What is skipped"
+msgstr "跳过内容"
+
+#: users/templates/users/_import_rules.html:14
+msgid "Data you already have"
+msgstr "已有数据"
+
+#: users/templates/users/_import_rules.html:20
+msgid "Importing again"
+msgstr "重复导入"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -7887,6 +7914,22 @@ msgstr "在 RateYourMusic 个人资料页面，使用 <b>Export your music catal
 #: users/templates/users/_rym_section.html:35
 msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
 msgstr "专辑将按照标题加艺术家（若有年份则一并使用）进行匹配——优先查询本地条目库，然后是 MusicBrainz，最后是 Spotify。自动匹配完成后，可以在表格中预览匹配结果，编辑链接或标记状态，再确认导入。"
+
+#: users/templates/users/import/rym.html:18
+msgid "Status, rating and review of each album."
+msgstr "每张专辑的状态、评分和评论。"
+
+#: users/templates/users/import/rym.html:20
+msgid "Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back."
+msgstr "已有的标记、评分和评论会被预览中的内容替换，状态倒退时也是如此。"
+
+#: users/templates/users/import/steam.html:5
+msgid "Log in with Steam to confirm your Steam ID."
+msgstr "通过 Steam 登录以确认你的 Steam ID。"
+
+#: users/templates/users/import/steam.html:6
+msgid "Choose what to import on the next page, then start the import."
+msgstr "在下一页选择要导入的内容，然后开始导入。"
 
 #: users/templates/users/_storygraph_section.html:5
 #: users/templates/users/_storygraph_section.html:23
@@ -8376,17 +8419,45 @@ msgstr "没有失败的转发。"
 msgid "Data management"
 msgstr "数据管理"
 
+#: users/templates/users/data.html:19
+msgid "Recent activity"
+msgstr "最近活动"
+
 #: users/templates/users/data.html:39
 msgid "Import marks and reviews from Douban"
 msgstr "导入豆瓣标记和评论"
+
+#: users/views/data.py:278
+msgid "Import articles from WordPress"
+msgstr "从 WordPress 导入文章"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "选择导出自 <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆坟</a> 的 <code>.xlsx</code> 文件"
 
-#: users/templates/users/data.html:45
-msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
-msgstr "由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆备 Doubak</a> 导出的豆瓣档案是 NeoDB 自己的 NDJSON 格式，请用下方的<a href=\"#import-neodb-archive\">导入NeoDB备份</a>上传。"
+#: users/templates/users/import/douban.html:11
+#, python-format
+msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"%(neodb_url)s\">Import NeoDB archive</a>."
+msgstr "由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆备 Doubak</a> 导出的豆瓣档案是 NeoDB 自己的 NDJSON 格式，请在<a href=\"%(neodb_url)s\">导入NeoDB备份</a>中上传。"
+
+#: users/templates/users/import/douban.html:15
+msgid "Marks, ratings, tags, comments and reviews."
+msgstr "标记、评分、标签、短评和评论。"
+
+#: users/templates/users/import/douban.html:16
+msgid "Depends on the import method below."
+msgstr "取决于下方选择的导入方式。"
+
+#: users/templates/users/import/douban.html:17
+#: users/templates/users/import/goodreads.html:17
+#: users/templates/users/import/hardcover.html:24
+#: users/templates/users/import/rym.html:21
+#: users/templates/users/import/steam.html:16
+#: users/templates/users/import/storygraph.html:21
+#: users/templates/users/import/trakt.html:16
+#: users/templates/users/import/wordpress.html:16
+msgid "Safe. Nothing is imported twice."
+msgstr "可以放心重复导入，不会产生重复数据。"
 
 #: users/templates/users/data.html:49 users/templates/users/data.html:272
 msgid "Import method"
@@ -8424,6 +8495,16 @@ msgstr "在下方上传下载的 <code>goodreads_library_export.csv</code> 文�
 msgid "Want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr "将导入想读、在读、已读和放弃的书籍及其评论。"
 
+#: users/templates/users/import/goodreads.html:15
+msgid "Books on your own custom shelves."
+msgstr "自定义书架上的书。"
+
+#: users/templates/users/import/goodreads.html:16
+#: users/templates/users/import/hardcover.html:23
+#: users/templates/users/import/storygraph.html:20
+msgid "A status never moves back, for example from complete to wishlist. Changed comments and reviews are updated."
+msgstr "标记状态不会倒退，例如从读过变回想读。有变化的短评和评论会被更新。"
+
 #: users/templates/users/data.html:150
 msgid "Import from Letterboxd"
 msgstr "导入Letterboxd标记"
@@ -8440,13 +8521,18 @@ msgstr "下载名称类似 <code>letterboxd-username-2018-03-11-07-52-utc.zip</c
 msgid "The following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr "zip 文件中以下文件将被处理：<code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 
+#: users/templates/users/import/letterboxd.html:15
+#: users/templates/users/import/trakt.html:15
+msgid "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed."
+msgstr "仅导入正向的状态变化，例如从想看到看过。已标记为看过的条目不会被改动。"
+
+#: users/templates/users/import/letterboxd.html:16
+msgid "Marks are safe, but the lists are created again as new collections."
+msgstr "标记不会重复，但列表每次都会被导入为新的收藏单。"
+
 #: users/templates/users/data.html:165
 msgid "Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
 msgstr "导出文件不含片单的公开、不公开或私密状态，因此所有导入的标记、评论和收藏单都将以下方选择的可见性创建"
-
-#: users/templates/users/data.html:200 users/templates/users/data.html:251
-msgid "Only forward changes(none->to-watch->watched) will be imported."
-msgstr "导入时仅更新正向变化(未标->想看->已看)标记；不足360字符的评论会作为短评添加。"
 
 #: users/templates/users/data.html:207
 msgid "Import from Trakt"
@@ -8485,10 +8571,6 @@ msgstr "标记为在听"
 msgid "Import as a new collection"
 msgstr "导入为新收藏单"
 
-#: users/templates/users/data.html:312
-msgid "Select OPML file"
-msgstr "选择OPML文件"
-
 #: users/templates/users/data.html:322
 msgid "Import NeoDB archive"
 msgstr "导入NeoDB备份"
@@ -8501,9 +8583,21 @@ msgstr "上传从NeoDB导出的内含<code>.csv</code>或<code>.ndjson</code>文
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in the same format and is imported here."
 msgstr "由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆备 Doubak</a> 导出的豆瓣档案是同一种格式，也在这里导入。"
 
-#: users/templates/users/data.html:333
-msgid "Existing data may be overwritten."
-msgstr "现有数据可能会被覆盖。"
+#: users/templates/users/import/neodb.html:14
+msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio."
+msgstr "标记、评分、短评、标签、评论和笔记。NDJSON 备份还包括收藏单、文章，以及你的昵称和简介。"
+
+#: users/templates/users/import/neodb.html:15
+msgid "Posts."
+msgstr "帖文。"
+
+#: users/templates/users/import/neodb.html:16
+msgid "A record is updated only when the copy in the archive is newer than yours."
+msgstr "仅当备份中的记录比现有记录更新时才会更新。"
+
+#: users/templates/users/import/neodb.html:17
+msgid "Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry."
+msgstr "未改动的记录不会重复。导出后改过标题的收藏单、文章或评论会作为新条目再次导入。"
 
 #: users/templates/users/data.html:343
 msgid "Detected format"
@@ -8521,21 +8615,41 @@ msgstr "未知格式"
 msgid "Error detecting format"
 msgstr "检测格式出错"
 
-#: users/templates/users/data.html:479
-msgid "Export NeoDB archive"
-msgstr "导出 NeoDB 备份"
+#: users/templates/users/import/opml.html:5
+msgid "Export your subscriptions from your podcast app as an OPML file."
+msgstr "在播客应用中将订阅导出为 OPML 文件。"
+
+#: users/templates/users/import/opml.html:7
+msgid "Upload the <code>.opml</code> or <code>.xml</code> file below."
+msgstr "在下方上传 <code>.opml</code> 或 <code>.xml</code> 文件。"
+
+#: users/templates/users/import/opml.html:12
+msgid "Each podcast in the file, marked as listening or added to a new collection."
+msgstr "文件中的每个播客，会被标记为在听，或加入一个新的收藏单。"
+
+#: users/templates/users/import/opml.html:13
+msgid "Podcasts that you already marked are not changed."
+msgstr "已标记的播客不会被改动。"
+
+#: users/templates/users/import/opml.html:14
+msgid "Safe when you mark as listening. Each import as a new collection creates another collection."
+msgstr "标记为在听时可以放心重复导入；每次导入为新收藏单都会再创建一个收藏单。"
 
 #: users/templates/users/data.html:483
 msgid "Export marks, reviews and notes in CSV"
 msgstr "导出标记、短评和评论 （CSV格式）"
 
+#: users/templates/users/data.html:53
+msgid "Use this to open your data in a spreadsheet."
+msgstr "用于在电子表格中查看数据。"
+
 #: users/templates/users/data.html:490
 msgid "Export everything in NDJSON"
 msgstr "导出标记、短评和评论 （NDJSON格式）"
 
-#: users/templates/users/data.html:497
-msgid "Import and export articles (WordPress)"
-msgstr "导入和导出文章（WordPress）"
+#: users/templates/users/data.html:45
+msgid "Use this to move to another NeoDB server, or to keep a full backup."
+msgstr "用于迁移到其它 NeoDB 服务器，或保存完整备份。"
 
 #: users/templates/users/data.html:500
 msgid "Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those."
@@ -8545,6 +8659,10 @@ msgstr "文章以 WXR 格式的 WordPress 文章交换，WordPress 和大多数�
 msgid "Article title, body, excerpt, tags, dates and featured image are exchanged. Comments and custom fields are ignored."
 msgstr "交换文章的标题、正文、摘要、标签、日期和特色图片。评论和自定义字段会被忽略。"
 
+#: users/templates/users/import/wordpress.html:15
+msgid "An article with the same title and date is skipped."
+msgstr "标题和日期相同的文章会被跳过。"
+
 #: users/templates/users/data.html:506
 msgid "The body is converted between Markdown and HTML, so formatting is kept but the text is not character-for-character identical."
 msgstr "正文在 Markdown 和 HTML 之间转换，格式会保留，但文本不是逐字符相同的。"
@@ -8552,6 +8670,22 @@ msgstr "正文在 Markdown 和 HTML 之间转换，格式会保留，但文本�
 #: users/templates/users/data.html:513
 msgid "Export articles in WordPress format"
 msgstr "以 WordPress 格式导出文章"
+
+#: users/templates/users/data.html:72
+msgid "Social graph"
+msgstr "社交关系"
+
+#: users/templates/users/data.html:74
+msgid "Following, followers, mutes and blocks are exported as CSV files on the account page, where you can also move your account."
+msgstr "关注、关注者、隐藏和屏蔽的用户可以在账号页面导出为 CSV 文件，也可以在该页面迁移账号。"
+
+#: users/templates/users/data.html:82
+msgid "Import marks and reviews"
+msgstr "导入标记和评论"
+
+#: users/templates/users/data.html:91 users/views/data.py:192
+msgid "Import posts and articles"
+msgstr "导入帖文和文章"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8658,6 +8792,11 @@ msgstr "确认导入"
 #: users/templates/users/storygraph_import.html:77
 msgid "Back"
 msgstr "返回"
+
+#: users/templates/users/import/_base.html:30
+#: users/templates/users/steam_import.html:22
+msgid "An import is still running. Wait for it to finish before you start a new one."
+msgstr "有导入仍在进行中，请等它完成后再开始新的导入。"
 
 #: users/templates/users/login.html:5
 msgid "Checking your browser..."
@@ -9040,6 +9179,14 @@ msgstr "完全了解并同意站规和协议，现在开始使用。"
 msgid "Export"
 msgstr "导出"
 
+#: users/templates/users/data.html:38
+msgid "Export your data"
+msgstr "导出数据"
+
+#: users/templates/users/data.html:40
+msgid "NeoDB archive"
+msgstr "NeoDB 备份"
+
 #: users/templates/users/relationship_list.html:20
 msgid "You may download the list here."
 msgstr "此处可导出你在本站的关系列表。"
@@ -9168,6 +9315,18 @@ msgstr "选中则允许反向覆盖标记状态（如在玩->想玩，或玩过-
 #: users/templates/users/steam_import.html:139
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
 msgstr "Steam 资料必须公开可见才能导入。"
+
+#: users/templates/users/import/steam.html:13
+msgid "Games in your wishlist and library. The status of a library game is estimated from its play time."
+msgstr "愿望单和游戏库中的游戏。游戏库中游戏的状态根据游戏时长估算。"
+
+#: users/templates/users/import/steam.html:14
+msgid "Games with a status that you do not select, and games on your ignore list."
+msgstr "状态未被选中的游戏，以及忽略列表中的游戏。"
+
+#: users/templates/users/import/steam.html:15
+msgid "A mark that is already complete, or a move back to wishlist, is skipped, unless you allow reverse status changes in the settings."
+msgstr "已标记为玩过的游戏，或退回想玩的状态变化，会被跳过，除非在设置中允许反向覆盖标记状态。"
 
 #: users/templates/users/storygraph_import.html:9
 #: users/templates/users/storygraph_import.html:26
